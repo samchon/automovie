@@ -1,64 +1,42 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One bounded deterministic environmental-effect emitter recipe.
+ * Seeded environmental billboard emitter with explicit transport and live-instance budgets. Fog, smoke and dust share the same bounded stream representation.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieEffectRecipe` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieEffectRecipe` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Seeded emission, lifetime/size ranges, transport velocities and an integer live-particle cap define the intended stream domain. sampleCompiledEffect derives state from cue time floored to the absolute step with a 1e-9 quotient allowance; the documented numeric ranges and positive step remain caller premises after whole-world gate retirement.
+ * @evidence contracts/common.md#clear-and-simple-design Emission, appearance, motion and runtime budget form separate groups, with one closed effect-family discriminator and one supported alpha blend law.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Effect names select no hidden subject preset. With an admitted integer cap, sampling stops after maxParticles live outputs and far-distance thinning retains indices divisible by four; candidate arrays can exceed that cap, and the sampler does not validate malformed direct recipes.
+ * @evidence contracts/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and metre size ranges, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
+ * @author Samchon
  */
 export interface IAutoMovieEffectRecipe {
-  /**
-   * Stable recipe id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Stable recipe id. */
   id: string;
 
-  /**
-   * Supported primitive effect family.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `kind` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `kind` for the narrative intent story design ownership system contract.
-   */
+  /** Supported primitive effect family. */
   kind: "fog" | "smoke" | "dust";
 
-  /**
-   * Explicit deterministic recipe seed.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `seed` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `seed` for the narrative intent story design ownership system contract.
-   */
+  /** Explicit nonnegative safe-integer deterministic seed. */
   seed: number;
 
-  /**
-   * Bounded deterministic emission.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `emission` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `emission` for the narrative intent story design ownership system contract.
-   */
+  /** Bounded deterministic emission. */
   emission: {
-    /** Particles emitted per second. */
+    /** Finite particles per second, within `[0, 1024]`. */
     rate: number;
 
-    /** Particles emitted at cue start. */
+    /** Integer particles emitted at cue start, within `[0, 4096]`. */
     burst: number;
 
-    /** Maximum emitting duration in seconds. */
+    /** Finite emitting duration in seconds, within `[1 / 240, 60]`. */
     duration: number;
   };
 
-  /**
-   * Bounded billboard appearance.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `particle` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `particle` for the narrative intent story design ownership system contract.
-   */
+  /** Bounded billboard appearance. */
   particle: {
-    /** Inclusive lifetime range in seconds. */
+    /** Ordered inclusive lifetime endpoints in seconds, within `[1 / 240, 30]`. */
     lifetime: { min: number; max: number };
 
-    /** Inclusive world-size range in meters. */
+    /** Ordered inclusive world-size endpoints in metres, within `[0.01, 20]`. */
     size: { min: number; max: number };
 
     /** Exact opaque hexadecimal RGB color. */
@@ -68,42 +46,27 @@ export interface IAutoMovieEffectRecipe {
     opacity: { min: number; max: number };
   };
 
-  /**
-   * Bounded deterministic transport.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `motion` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `motion` for the narrative intent story design ownership system contract.
-   */
+  /** Bounded deterministic transport. */
   motion: {
-    /** World-space meters per second. */
+    /** Finite world velocity components in metres per second, each within `[-50, 50]`. */
     wind: IAutoMovieVector3;
 
-    /** Additional upward meters per second. */
+    /** Finite additional upward metres per second, within `[-50, 50]`. */
     rise: number;
 
-    /** Maximum seeded lateral velocity deviation. */
+    /** Finite maximum lateral velocity deviation in metres per second, within `[0, 50]`. */
     turbulence: number;
   };
 
-  /**
-   * Hard runtime and LOD budgets.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `budget` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `budget` for the narrative intent story design ownership system contract.
-   */
+  /** Hard runtime and LOD budgets. */
   budget: {
-    /** Maximum live billboard instances. */
+    /** Integer maximum live billboard instances, within `[1, 4096]`. */
     maxParticles: number;
 
-    /** Distance beyond which deterministic thinning applies. */
+    /** Finite thinning distance in metres, within `[0.1, 2000]`. */
     lodDistance: number;
   };
 
-  /**
-   * Only supported transparency law.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `blend` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `blend` for the narrative intent story design ownership system contract.
-   */
+  /** Only supported transparency law. */
   blend: "alpha";
 }

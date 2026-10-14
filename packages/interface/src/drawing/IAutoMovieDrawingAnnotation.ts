@@ -4,47 +4,33 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 /**
  * One note as the drawing resolved it.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingAnnotation` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingAnnotation` for the interior space drawing schedule quantity system contract.
+ * Its target is re-resolved against the design on every derivation: a resolved
+ * note sits at the projected point of its target feature, and a stale one keeps
+ * its id and text with no position. A drawing with any resolved note also
+ * declares the `note-text-extent` gap, because the glyphs are never measured.
+ *
+ * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawing` resolves the spec's target with `resolveAutoMovieDrawingFeature`, projects a resolved world point onto the frame and rounds it to six decimals, and copies a stale resolution's reason verbatim.
+ * @evidence contracts/common.md#clear-and-simple-design The resolved note mirrors its spec's id and text and adds only the outcome, so a reader reconciles sheet and view by id without consulting the view.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale note keeps its text but loses its position instead of staying at the last known point, and the text extent is declared as a gap rather than estimated.
+ * @evidence contracts/common.md#meaningful-documentation States when each member is null, the page units of the anchor, that the text extent is not measured, and where the reason comes from.
+ * @author Samchon
  */
 export interface IAutoMovieDrawingAnnotation {
-  /**
-   * Annotation identity, as authored.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `id` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `id` for the interior space drawing schedule quantity system contract.
-   */
+  /** Annotation id, copied from the view. */
   id: string;
 
-  /**
-   * Note text, as authored.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `text` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `text` for the interior space drawing schedule quantity system contract.
-   */
+  /** Note text, copied from the view. */
   text: string;
 
-  /**
-   * Whether the target resolved.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `status` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `status` for the interior space drawing schedule quantity system contract.
-   */
+  /** Whether the target resolved. */
   status: AutoMovieDrawingTargetStatus;
 
   /**
-   * Page position of the target, or `null` when stale.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `at` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `at` for the interior space drawing schedule quantity system contract.
+   * Page position of the target feature in metres, or `null` when stale. It is
+   * the anchor the text is set from; the text's own extent is not measured.
    */
   at: IAutoMovieDrawingPoint | null;
 
-  /**
-   * Exactly why the target no longer resolves, or `null` when resolved.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `reason` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `reason` for the interior space drawing schedule quantity system contract.
-   */
+  /** Exactly why the target no longer resolves, or `null` when resolved. */
   reason: string | null;
 }

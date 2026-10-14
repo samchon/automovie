@@ -6,12 +6,24 @@ import type { IAutoMovieHumanConstructionCrossingWitness } from "./IAutoMovieHum
  * these readings, including relations that passed, so a refusal names a
  * quantity and a consumer can see every neighbour of the one that failed.
  *
- * Signed distances are metres on the Float32 coordinates the model emits.
+ * Signed distances are model-frame metres reconstructed from local Float32
+ * mesh publication through the part's ordinary TRS, without a second rounding.
  * Negative values lie inside a closed exterior, or behind an oriented open
  * sheet; positive values lie outside. The reading states the instrument's
  * result and no anatomical judgment: `judged` says whether an existing
  * admission condition reads this relation, and only a judged relation can be
  * `refused`.
+ *
+ * @evidence contracts/common.md#principled-implementation Counts and signed-distance extrema describe the same queried Float32-published local mesh reconstructed through ordinary part TRS into model metres.
+ * @evidence contracts/common.md#clear-and-simple-design Owner, geometry state and subject/reference identities accompany judgement, reach exclusions, distributions and optional crossing witnesses.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown open rims and unavailable measurements remain explicit; an unjudged relation cannot become refused or claim anatomical validity.
+ * @evidence contracts/common.md#meaningful-documentation Field prose distinguishes known-side extrema, unreached vertices, nearest-rank distributions and optional witness populations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Measured clearance result schema is erased by TypeScript; its runtime consumer owns the actual geometry or measurement traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measured clearance result schema specifies caller data and performs no runtime recomputation or cache lookup.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Measured clearance result schema acquires no runtime handle or retained cache; concrete array and map ownership belongs to its producing and consuming functions.
+ *
+ *
+ * @author Samchon
  */
 export interface IAutoMovieHumanConstructionClearanceReading {
   /** Admission owner that measured the relation. */
@@ -74,7 +86,7 @@ export interface IAutoMovieHumanConstructionClearanceReading {
   /** 95th percentile of the signed distance (nearest-rank) over vertices with a known side; omitted with the median. */
   percentile95SignedMetres?: number | null;
 
-  /** Non-coplanar triangle crossings with the reference, or null when the relation reads vertices only. */
+  /** Retained transverse crossing witnesses, at most one per subject triangle with the default instrument; null when the relation reads vertices only. */
   crossings: number | null;
 
   /** First non-coplanar crossing the instrument found, or null when there is none; omitted when the owner does not locate crossings. */

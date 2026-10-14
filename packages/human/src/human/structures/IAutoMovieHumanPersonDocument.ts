@@ -3,30 +3,19 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAu
 import type { IAutoMovieHumanPersonHeadShape } from "./IAutoMovieHumanPersonHeadShape";
 
 /**
- * One person: a face document and a body document, each against its own
- * immutable basis, evaluated together and joined at the neck.
+ * Saved person request pairing face/body document vocabularies and their actual basis identities. Person identity/name remain distinct from inner document identities. The record embeds no photograph, mesh or image. Actual source context must remain unchanged during compiled evaluation; the interface neither deep-freezes it nor certifies clinical anatomy/current appearance.
  *
- * The two documents keep their own vocabularies and their own basis
- * revisions, so a person document is not a third coordinate system; it is the
- * pairing, plus the relations that make the pair one person:
+ * Body cheek albedo derives from the face's existing linear skin material/override before pigmentation-field lifting; explicitly authored body skinColour refuses duplicate authority. Site fields retain their own optical conventions. Legacy pairs use captured source neck correspondence; registered generations share source skin and body rig carry. Person headShape fields are registered source-neutral mm/degree differences routed through one actual body channel, even at zero, with no independent inner reconstruction.
  *
- * - The skin colour is one value. The body colours its skin by anatomical
- *   site from the cheek albedo the face wears, so the person's cheek is the
- *   face's resolved skin base colour and the body document must not state its
- *   own (`skinColour` is derived, and a body document that carries it is
- *   refused, because two values for one person's colour would disagree).
- * - Age and sex can be stated once (`population`), which makes the head the age
- *   and sex of the body.
- * - A legacy pair meets at its source-defined neck seam. A registered source
- *   generation owns one shared skin across that partition, including head and
- *   cervical traits. The body's pose carries the face on its `head` joint.
- * - `headShape` belongs to the person: source-unit exterior differences may
- *   affect both partitions. Its registered body channel supplies the one
- *   endpoint owner; neither inner document independently reconstructs it.
+ * Omitted population leaves legacy face/body age/sex axes independent. Linked legacy derivation projects body macros through its source-node mapping and refuses duplicate face axes. Registered nonempty aliases/drivers instead follow their own gain branch and do not also execute linked derivation. Source coefficients and linked intent establish neither measured chronological age/sex nor clinical proportional consistency.
  *
- * Identities are the person's own; the inner documents keep theirs. The
- * document holds no photograph, mesh or image. Anatomy-specific values remain
- * in the inner documents; shared source-head differences stay in headShape.
+ * @evidence contracts/common.md#principled-implementation Separate actual anatomy requests share explicit colour, source-head and registered coefficient authorities while retaining their original source vocabularies/identities.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical face/body/headShape records and one optional population mode compose person intent without another coordinate or raw asset representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate colour/registered axes refuse, head traits require actual source authority, and linked/driver coefficients do not fabricate measured demographics or unexecuted branch behavior.
+ * @evidence contracts/common.md#meaningful-documentation Prose states input-only identity, pre-pigmentation linear colour, mm/degree trait ownership and distinct legacy/registered population semantics.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This saved request schema executes no admission, coefficient projection or person geometry evaluation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Document equivalence and compiled-source reuse are runtime/builder behavior rather than caching implemented by this record.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no photograph, asset stream or task; callers own ordinary nested request records and actual loaded source contexts separately.
  *
  * @author Samchon
  */
@@ -44,22 +33,12 @@ export interface IAutoMovieHumanPersonDocument {
   body: IAutoMovieHumanBodyBasisDocument;
 
   /**
-   * Source-neutral anatomical exterior differences in registered mm/degrees.
-   * Each present field, including zero, needs the shared source's one actual
-   * body-channel registration. This saved request supplies no personal mesh
-   * and remains separate from clinical observations and raw shape weights.
+   * Source-neutral exterior differences in registered mm/degrees. Every present field, including zero, needs the shared source's actual body-channel registration; it supplies no personal mesh or clinical observation.
    */
   headShape?: IAutoMovieHumanPersonHeadShape;
 
   /**
-   * How the person's age and sex are stated. Omission keeps the two documents
-   * independent: the face takes whatever `globalAgeStructure` and
-   * `globalSexualDimorphism` it states and the body whatever `macroAge` and
-   * `macroGender` it states, which can make a child's body carry an adult's
-   * head. `"linked"` states them once, in the body (its macros are the
-   * person's), and derives the face's two axes from them by the shared macro
-   * scale (`deriveHumanPersonFace`), so a face document that states either is
-   * refused rather than overridden.
+   * Linked legacy population derives face globalAgeStructure/globalSexualDimorphism from body macroAge/macroGender and refuses explicitly authored face axes. Omission keeps independent legacy axes. Nonempty registered aliases/drivers use their separate actual gain branch; this flag does not force legacy conversion there.
    */
   population?: "linked";
 }

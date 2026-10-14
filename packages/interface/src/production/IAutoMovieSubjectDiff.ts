@@ -2,81 +2,39 @@ import { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
 import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
- * Structural comparison of two compiled subject inventories.
+ * Stable-identity structural comparison of two compiled subject inventories without rendering.
  *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Exposes render-free added, removed, moved, reshaped, and unchanged results.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Defines the portable categorized diff contract.
+ * @evidence contracts/common.md#principled-implementation diffAutoMovieSubjects matches namespaced ids and independently compares placement and reusable structure projections with one inclusive numeric tolerance and quaternion sign equivalence; additions and removals are exclusive while common subjects can both move and reshape.
+ * @evidence contracts/common.md#clear-and-simple-design Four complete change lists and one bounded unchanged summary expose structural consequences without mixing image-digest changes or visual review verdicts into the result.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown identities cannot be merged by delimiter collisions, and tolerance is currently shared across all numeric fields including counts and seeds rather than claiming unit-specific physical error thresholds.
+ * @evidence contracts/common.md#meaningful-documentation Defines revisions, inclusive common tolerance, placement versus shape categories, possible moved/reshaped overlap and bounded unchanged members.
+ * @author Samchon
  */
 export interface IAutoMovieSubjectDiff {
-  /**
-   * Structural-diff schema version.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Makes the portable diff version explicit.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the first diff schema.
-   */
+  /** Structural-diff schema version. */
   version: 1;
 
-  /**
-   * Revision of the earlier compiled artifact.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Identifies the baseline used by the comparison.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the prior artifact revision.
-   */
+  /** Revision of the earlier compiled artifact. */
   fromRevision: string;
 
-  /**
-   * Revision of the later compiled artifact.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Identifies the candidate used by the comparison.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the next artifact revision.
-   */
+  /** Revision of the later compiled artifact. */
   toRevision: string;
 
-  /**
-   * Inclusive absolute numeric tolerance used by this comparison.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Makes numeric comparison policy visible to the reviewer.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the finite non-negative comparison threshold.
-   */
+  /** Inclusive absolute tolerance shared by all numbers; rotation compares one minus the absolute quaternion half-angle cosine. */
   tolerance: number;
 
-  /**
-   * Subjects present only in the later revision.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Reports compiled additions as a distinct category.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types exclusive added records.
-   */
+  /** Subjects present only in the later revision. */
   added: IAutoMovieSubjectChange[];
 
-  /**
-   * Subjects present only in the earlier revision.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Reports compiled removals as a distinct category.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types exclusive removed records.
-   */
+  /** Subjects present only in the earlier revision. */
   removed: IAutoMovieSubjectChange[];
 
-  /**
-   * Common subjects whose placement state changed.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Reports transform, owner, space, or prototype placement changes.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the non-exclusive moved category.
-   */
+  /** Common subjects whose placement state changed. */
   moved: IAutoMovieSubjectChange[];
 
-  /**
-   * Common subjects whose reusable structure or population law changed.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Reports geometry and compact-population changes.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the non-exclusive reshaped category.
-   */
+  /** Common subjects whose reusable structure or population law changed. */
   reshaped: IAutoMovieSubjectChange[];
 
-  /**
-   * Bounded summary of common subjects in neither changed category.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Makes a no-change result explicit and reviewable.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries deterministic bounded unchanged identity.
-   */
+  /** Bounded summary of common subjects in neither changed category. */
   unchanged: IAutoMovieSubjectMemberSummary;
 }

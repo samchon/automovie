@@ -1,37 +1,22 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-
 /**
- * Final encoded audio identity retained by sound evidence.
+ * Final encoded audio identity retained by the sibling sound evidence record.
  *
- * @evidence requirements/sound/validation-and-delivery.md#sound-final-media-probe Binds the sound evidence to the exact final audio path, type, size, and bytes inspected for delivery.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Carries the final encoded audio inventory beside its plan and measurements.
+ * @evidence contracts/common.md#principled-implementation A render-relative path, byte length and digest describe the encoded audio sibling; callers must compare these claims with resident bytes before treating the identity as verified.
+ * @evidence contracts/common.md#clear-and-simple-design A small byte-identity record joins sound evidence to encoded output without embedding the audio payload or repeating its parsed codec facts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The closed audio/mp4 media type does not itself prove valid audio, and this pure type does not enforce nonzero size, digest syntax, container validity or a codec profile.
+ * @evidence contracts/common.md#meaningful-documentation Defines render-root-relative sibling path, closed media type and exact encoded byte size and digest.
+ * @author Samchon
  */
 export interface IAutoMovieProductionSoundEvidenceAudio {
-  /**
-   * Render-root-relative sibling audio path.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-final-media-probe Binds evidence to the exact final audio member.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final audio inventory path.
-   */
+  /** Render-root-relative sibling audio path. */
   path: string;
 
-  /**
-   * Closed final audio media type.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-final-media-probe Binds evidence to the encoded audio class.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final audio inventory type.
-   */
+  /** Closed final audio media type. */
   mediaType: "audio/mp4";
 
-  /**
-   * Exact sibling audio byte length.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-final-media-probe Binds evidence to the complete encoded byte population.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final audio size.
-   */
+  /** Exact sibling audio byte length. */
   bytes: number;
 
-  /**
-   * Digest of the exact sibling audio bytes.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-final-media-probe Binds evidence to one encoded payload identity.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final audio digest.
-   */
-  digest: AutoMovieContentDigest;
+  /** Digest of the exact sibling audio bytes. */
+  digest: string;
 }

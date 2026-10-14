@@ -1,25 +1,32 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
+import { segmentsTouch } from "./segmentsTouch";
 
 /**
- * Whether a closed polygon never crosses or touches itself away from a shared
- * corner.
+ * Whether no two non-adjacent edges of a closed ring touch.
  *
- * A self-crossing outline has no interior, so every later question about what
- * is inside it would answer arbitrarily. Adjacent edges are skipped because
- * they legitimately meet at the corner they share.
+ * Building outlines require a simple boundary, rather than selecting a fill rule for self-crossings. Adjacent edges are skipped because their shared corner is expected; consequently this function does not detect adjacent backtracking or overlapping adjacent segments.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `polygonIsSimple` produces whether a closed polygon never crosses or touches itself away from a shared corner. This ensures degenerate or self-intersecting planar geometry is rejected before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `polygonIsSimple` performs is simple polygon calculation when the engine checks finite planar topology before consuming geometry.
+ * Contact uses {@link segmentsTouch}'s scale-relative `PLANAR_EPSILON`; a vertex on a non-adjacent edge counts as touching. Point count, adjacent degeneracy and area are separate caller checks: even a two- or three-point ring returns true here if no non-adjacent pair exists.
+ *
+ * @param polygon Closed ring of corners, the last joined back to the first.
+ * @returns True when no two non-adjacent edges share a point.
+ *
+ * @evidence contracts/common.md#principled-implementation Tests every non-adjacent pair with the shared tolerance-based closed-segment predicate, including closing-edge adjacency. This is the non-adjacent-contact portion of simplicity validation; adjacent overlap, non-degenerate edges and sufficient point count require separate checks.
+ * @evidence contracts/common.md#clear-and-simple-design Delegates contact to the shared `segmentsTouch`, so building validation and support-surface validation refuse self-contact under the same tolerance as the containment and overlap predicates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No figure or caller is special-cased; the only skipped pairs are the adjacent ones whose shared corner is not a defect, and degenerate point counts are left to the callers that own them, as documented.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why simplicity matters, which pairs are skipped, the tolerance and its consequence for a vertex on an edge, and that point count is not judged.
+ * @evidence contracts/performance.md#efficient-algorithms O(n²) time and O(1) space with an early return on contact. For n at least three there are n(n-3)/2 non-adjacent pairs; no input-size cap or measured advantage over a sweep algorithm is assumed.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure simplicity test of one outline; building and support validation each ask once per outline and share nothing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the two edge indices of the pair scan and allocates nothing, so no state survives the scan.
  */
-export const polygonIsSimple = (
+export const polygonIsSimple: (
   polygon: readonly IAutoMoviePlanarPoint[],
-): boolean => {
-  const count = polygon.length;
-  for (let left = 0; left < count; ++left)
-    for (let right = left + 1; right < count; ++right) {
-      const adjacent =
+) => boolean = (polygon: readonly IAutoMoviePlanarPoint[]): boolean => {
+  const count: number = polygon.length;
+  for (let left: number = 0; left < count; ++left)
+    for (let right: number = left + 1; right < count; ++right) {
+      const adjacent: boolean =
         right === left + 1 || (left === 0 && right === count - 1);
       if (adjacent) continue;
       if (
@@ -34,66 +41,3 @@ export const polygonIsSimple = (
     }
   return true;
 };
-
-/** Whether two segments meet at a point interior to both. */
-const segmentsCross = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean => {
-  const first = side(c, d, a);
-  const second = side(c, d, b);
-  const third = side(a, b, c);
-  const fourth = side(a, b, d);
-  return (
-    first !== 0 &&
-    second !== 0 &&
-    third !== 0 &&
-    fourth !== 0 &&
-    first !== second &&
-    third !== fourth
-  );
-};
-
-/** Whether two segments share any point, endpoints and overlap included. */
-const segmentsTouch = (
-  a: IAutoMoviePlanarPoint,
-  b: IAutoMoviePlanarPoint,
-  c: IAutoMoviePlanarPoint,
-  d: IAutoMoviePlanarPoint,
-): boolean =>
-  segmentsCross(a, b, c, d) ||
-  pointOnSegment(a, c, d) ||
-  pointOnSegment(b, c, d) ||
-  pointOnSegment(c, a, b) ||
-  pointOnSegment(d, a, b);
-
-/** Which side of the directed line `from -> to` a point falls on. */
-const side = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  point: IAutoMoviePlanarPoint,
-): number => {
-  const cross =
-    (to.x - from.x) * (point.y - from.y) - (to.y - from.y) * (point.x - from.x);
-  const scale = Math.max(
-    1,
-    Math.abs(to.x - from.x) + Math.abs(to.y - from.y),
-    Math.abs(point.x - from.x) + Math.abs(point.y - from.y),
-  );
-  if (Math.abs(cross) <= PLANAR_EPSILON * scale) return 0;
-  return cross > 0 ? 1 : -1;
-};
-
-/** Whether a point lies on a segment, its endpoints included. */
-const pointOnSegment = (
-  point: IAutoMoviePlanarPoint,
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-): boolean =>
-  side(from, to, point) === 0 &&
-  point.x >= Math.min(from.x, to.x) - PLANAR_EPSILON &&
-  point.x <= Math.max(from.x, to.x) + PLANAR_EPSILON &&
-  point.y >= Math.min(from.y, to.y) - PLANAR_EPSILON &&
-  point.y <= Math.max(from.y, to.y) + PLANAR_EPSILON;

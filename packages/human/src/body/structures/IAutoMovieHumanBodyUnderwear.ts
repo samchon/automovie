@@ -1,9 +1,4 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import type { IAutoMovieHumanBodyLinearRgb } from "./IAutoMovieHumanBodyLinearRgb";
-import type { IAutoMovieHumanBodyUnderwearBra } from "./IAutoMovieHumanBodyUnderwearBra";
-import type { IAutoMovieHumanBodyUnderwearBriefs } from "./IAutoMovieHumanBodyUnderwearBriefs";
-import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBodyUnderwearLandmarks";
 
 /**
  * The plain default underwear a body document may wear.
@@ -15,6 +10,14 @@ import type { IAutoMovieHumanBodyUnderwearLandmarks } from "./IAutoMovieHumanBod
  * Actual source topology, normals and final mesh admission remain applicable. The garment's
  * regions are rules on the body's joint landmarks and named skin points,
  * never vertex lists for one person or one basis (`HUMAN_BODY_UNDERWEAR`).
+ *
+ * @evidence contracts/common.md#principled-implementation A closed style choice and optional linear fabric colour select landmark-based coverage on the shaped rest body.
+ * @evidence contracts/common.md#clear-and-simple-design The document chooses costume appearance while the separate table owns coverage rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No per-person garment vertices or raw clothing mesh are carried by this authoring record.
+ * @evidence contracts/common.md#meaningful-documentation The prose states intact source-skin ownership, final normal lift and the absence of cloth dynamics.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The underwear authoring choice is a schema and selects no executable traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The underwear authoring choice defines no cache or request-level reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The underwear authoring choice declares no runtime resource owner.
  *
  * @author Samchon
  */
@@ -28,45 +31,4 @@ export interface IAutoMovieHumanBodyUnderwear {
 
   /** Optional linear RGB, each channel in [0,1]; omission is the table's colour. */
   color?: IAutoMovieHumanBodyLinearRgb;
-}
-export namespace IAutoMovieHumanBodyUnderwear {
-  /**
-   * The rules the underwear's regions are cut by, in the basis frame (metres,
-   * +Y up, +Z front, +X the body's left). Every height and width is a
-   * fraction along a segment between two shaped landmarks, so a region
-   * scales and moves with the body it is read on.
-   *
-   * @author Samchon
-   */
-  export interface ITable {
-    /** Material id of the garment part; it must not be a basis material. */
-    material: string;
-
-    /** Default linear RGB of the fabric. */
-    color: IAutoMovieHumanBodyLinearRgb;
-
-    /** Fabric roughness in [0,1]. */
-    roughness: number;
-
-    /** Signed normal lift from the final posed skin, metres. */
-    offsetMetres: number;
-
-    /**
-     * Bones whose skin is never covered, with every bone below them: a
-     * vertex is outside once half its skin weight is theirs.
-     */
-    uncovered: AutoMovieHumanoidBone[];
-
-    /** Landmark ids the rules are measured on. */
-    landmarks: IAutoMovieHumanBodyUnderwearLandmarks;
-
-    /** The briefs of each style. */
-    briefs: Record<
-      IAutoMovieHumanBodyUnderwear["style"],
-      IAutoMovieHumanBodyUnderwearBriefs
-    >;
-
-    /** The sports bra of `bra-and-briefs`. */
-    bra: IAutoMovieHumanBodyUnderwearBra;
-  }
 }

@@ -4,18 +4,21 @@ import {
   IAutoMovieDrivenDriver,
   IAutoMovieDriver,
   IAutoMovieNode,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelKey } from "./channelKey";
 import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
+import { orderValueDrivers } from "./orderValueDrivers";
 
 /** The two channel-space drivers this pass resolves (no world transform needed). */
 type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
 
-const VALUE_DRIVER_TYPES = new Set<unknown>(["copy", "driven"]);
-const DEFERRED_DRIVER_TYPES = new Set<unknown>([
+const VALUE_DRIVER_TYPES: Set<unknown> = new Set<unknown>(["copy", "driven"]);
+const DEFERRED_DRIVER_TYPES: Set<unknown> = new Set<unknown>([
   "aim",
   "ik",
   "parent",
@@ -23,30 +26,21 @@ const DEFERRED_DRIVER_TYPES = new Set<unknown>([
 ]);
 
 /**
- * The DRIVE pass for **channel-space** drivers: relationships that compute one
- * channel purely from other channels, with no world-transform dependency:
- * `copy` (mirror/follow a node's local TRS) and `driven` (range-remap one
- * channel onto another). They are resolved in dependency order over a
- * topological DAG (so a copy-of-a-copy or a chained driven key settles in one
- * pass), mutating the sampled channel map in place between SAMPLE and
- * CONSTRAIN.
+ * Evaluate copy and driven channels in stable dependency order, mutating samples before constraints. Return world/stateful descriptors in original order. Unknown kinds and reciprocal dependencies throw; a null/absent curve selects linear range mapping.
  *
- * The world-space / stateful drivers (`parent`, `aim`, `ik`, `spring`) need the
- * composed hierarchy or cross-frame state, so they are **not** resolved here.
- * They are returned as `deferred` (never silently dropped) for the world-space
- * driver pass that runs after an initial compose.
- *
- * A dependency cycle among the value drivers (A copies from B while B copies
- * from A) throws rather than looping; the rig is ill-formed.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Evaluates channel-space drivers in declared dependency order.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Implements deterministic topological evaluation for the value-driver subgraph.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Orders each value driver after the driver that produces its input channel.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-driver-refusal Rejects a dependency cycle instead of selecting an arbitrary evaluation order.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Defines cycle-safe topological evaluation for the channel-driver graph.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Partition supported value/world drivers, dependency-order copy/driven operations through orderValueDrivers, update sampled channels and return world/stateful descriptors in original order.
+ * @evidence contracts/common.md#clear-and-simple-design Indexed ordering is separate from copy/remap/curve arithmetic and subsequent constraint/world phases.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown kinds/cycles throw and self-input retains one-step policy; nullable curves select linear mode, while extreme remap overflow remains unproven.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify sampled-map mutation, rest fallback, loud refusal and explicit world-driver deferral.
+ * @evidence contracts/performance.md#efficient-algorithms D drivers and E dependencies determine graph work, with per-curve O(P) validation/interpolation and output-vector storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One producer index/DFS shares dependency completion and later consumers read completed producer samples, without persistent mutable-graph caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns changed samples/deferred references; graph arrays release with the call and no handle or task survives.
  */
-export const resolveDrivers = (
+export const resolveDrivers: (
+  drivers: IAutoMovieDriver[],
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  nodesById: Map<string, IAutoMovieNode>,
+) => IAutoMovieDriver[] = (
   drivers: IAutoMovieDriver[],
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
@@ -54,69 +48,26 @@ export const resolveDrivers = (
   const value: ValueDriver[] = [];
   const deferred: IAutoMovieDriver[] = [];
   for (const d of drivers) {
-    const type = (d as { type?: unknown }).type;
+    const type: unknown = (d as { type?: unknown }).type;
     if (VALUE_DRIVER_TYPES.has(type)) value.push(d as ValueDriver);
     else if (DEFERRED_DRIVER_TYPES.has(type)) deferred.push(d);
     else throw new Error(`unknown driver type "${String(type)}"`);
   }
 
-  for (const d of topoSort(value))
+  for (const d of orderValueDrivers(value))
     if (d.type === "copy") applyCopy(d, sampled, nodesById);
     else applyDriven(d, sampled);
 
   return deferred;
 };
 
-// dependency ordering
-
-const trsKeys = (
-  node: string,
-  flags: { translation: boolean; rotation: boolean; scale: boolean },
-): string[] => {
-  const keys: string[] = [];
-  if (flags.translation) keys.push(`node:${node}:translation`);
-  if (flags.rotation) keys.push(`node:${node}:rotation`);
-  if (flags.scale) keys.push(`node:${node}:scale`);
-  return keys;
-};
-
-const outputsOf = (d: ValueDriver): string[] =>
-  d.type === "copy" ? trsKeys(d.owner, d) : [channelKey(d.output)];
-
-const inputsOf = (d: ValueDriver): string[] =>
-  d.type === "copy" ? trsKeys(d.source, d) : [channelKey(d.source)];
-
-/**
- * Order value drivers so every driver runs after the drivers that produce its
- * inputs (DFS topological sort). A back edge onto a driver still being visited
- * is a dependency cycle and throws.
- */
-const topoSort = (drivers: ValueDriver[]): ValueDriver[] => {
-  const outs = drivers.map(outputsOf);
-  const ins = drivers.map(inputsOf);
-  const deps = drivers.map((_, j) =>
-    drivers
-      .map((__, i) => i)
-      .filter((i) => i !== j && outs[i]!.some((k) => ins[j]!.includes(k))),
-  );
-
-  const color = new Array<number>(drivers.length).fill(0); // 0 white, 1 gray, 2 black
-  const order: ValueDriver[] = [];
-  const visit = (j: number): void => {
-    if (color[j] === 2) return;
-    if (color[j] === 1) throw new Error("driver dependency cycle");
-    color[j] = 1;
-    for (const i of deps[j]!) visit(i);
-    color[j] = 2;
-    order.push(drivers[j]!);
-  };
-  for (let j = 0; j < drivers.length; ++j) visit(j);
-  return order;
-};
-
 // copy
 
-const applyCopy = (
+const applyCopy: (
+  d: IAutoMovieCopyDriver,
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  nodesById: Map<string, IAutoMovieNode>,
+) => void = (
   d: IAutoMovieCopyDriver,
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
@@ -130,7 +81,10 @@ const applyCopy = (
   if (d.scale) writeBlend(d, "scale", false, sampled, nodesById);
 };
 
-const validateCopyFlag = (
+const validateCopyFlag: (
+  value: boolean,
+  label: "translation" | "rotation" | "scale",
+) => void = (
   value: boolean,
   label: "translation" | "rotation" | "scale",
 ): void => {
@@ -140,7 +94,9 @@ const validateCopyFlag = (
     );
 };
 
-const validateCopyInfluence = (influence: number): void => {
+const validateCopyInfluence: (influence: number) => void = (
+  influence: number,
+): void => {
   if (!Number.isFinite(influence))
     throw new Error(
       `copy driver influence must be finite, but was ${influence}`,
@@ -155,16 +111,28 @@ const validateCopyInfluence = (influence: number): void => {
     );
 };
 
-const writeBlend = (
+const writeBlend: (
+  d: IAutoMovieCopyDriver,
+  path: "translation" | "rotation" | "scale",
+  isRotation: boolean,
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  nodesById: Map<string, IAutoMovieNode>,
+) => void = (
   d: IAutoMovieCopyDriver,
   path: "translation" | "rotation" | "scale",
   isRotation: boolean,
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): void => {
-  const owner = readTRS(d.owner, "owner", path, sampled, nodesById);
-  const source = readTRS(d.source, "source", path, sampled, nodesById);
-  const result = isRotation
+  const owner: number[] = readTRS(d.owner, "owner", path, sampled, nodesById);
+  const source: number[] = readTRS(
+    d.source,
+    "source",
+    path,
+    sampled,
+    nodesById,
+  );
+  const result: number[] = isRotation
     ? slerpArray(owner, source, d.influence)
     : lerpArray(owner, source, d.influence);
   setChannel(
@@ -176,22 +144,30 @@ const writeBlend = (
 };
 
 /** Current value of a node TRS channel: the sampled override, else rest pose. */
-const readTRS = (
+const readTRS: (
+  node: string,
+  role: "owner" | "source",
+  path: "translation" | "rotation" | "scale",
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  nodesById: Map<string, IAutoMovieNode>,
+) => number[] = (
   node: string,
   role: "owner" | "source",
   path: "translation" | "rotation" | "scale",
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): number[] => {
-  const nodeDef = nodesById.get(node);
+  const nodeDef: IAutoMovieNode | undefined = nodesById.get(node);
   if (nodeDef === undefined)
     throw new Error(`copy driver ${role} node "${node}" was not provided`);
-  const hit = sampled.get(`node:${node}:${path}`);
+  const hit: IAutoMovieSampledChannel | undefined = sampled.get(
+    `node:${node}:${path}`,
+  );
   if (hit !== undefined) {
     validateCopySampledValue(role, path, hit.value);
     return hit.value;
   }
-  const t = nodeDef.transform;
+  const t: IAutoMovieTransform = nodeDef.transform;
   if (path === "translation")
     return [t.translation.x, t.translation.y, t.translation.z];
   if (path === "rotation")
@@ -199,12 +175,16 @@ const readTRS = (
   return [t.scale.x, t.scale.y, t.scale.z];
 };
 
-const validateCopySampledValue = (
+const validateCopySampledValue: (
+  role: "owner" | "source",
+  path: "translation" | "rotation" | "scale",
+  value: number[],
+) => void = (
   role: "owner" | "source",
   path: "translation" | "rotation" | "scale",
   value: number[],
 ): void => {
-  const expected = COPY_SAMPLE_WIDTHS[path];
+  const expected: 3 | 4 = COPY_SAMPLE_WIDTHS[path];
   if (!Array.isArray(value))
     throw new Error(`copy driver ${role} ${path} value must be an array`);
   if (value.length !== expected)
@@ -213,7 +193,11 @@ const validateCopySampledValue = (
     );
 };
 
-const COPY_SAMPLE_WIDTHS = {
+const COPY_SAMPLE_WIDTHS: {
+  readonly translation: 3;
+  readonly rotation: 4;
+  readonly scale: 3;
+} = {
   translation: 3,
   rotation: 4,
   scale: 3,
@@ -221,16 +205,21 @@ const COPY_SAMPLE_WIDTHS = {
 
 // driven
 
-const applyDriven = (
+const applyDriven: (
+  d: IAutoMovieDrivenDriver,
+  sampled: Map<string, IAutoMovieSampledChannel>,
+) => void = (
   d: IAutoMovieDrivenDriver,
   sampled: Map<string, IAutoMovieSampledChannel>,
 ): void => {
   validateDrivenOutputChannel(d.output, sampled);
-  const src = sampled.get(channelKey(d.source));
-  const source =
+  const src: IAutoMovieSampledChannel | undefined = sampled.get(
+    channelKey(d.source),
+  );
+  const source: number | undefined =
     src !== undefined ? readDrivenSourceValue(src.value) : undefined;
   if (source !== undefined) validateDrivenFinite("source value", source);
-  const y =
+  const y: number =
     d.curve !== null && d.curve !== undefined
       ? evaluateDrivenCurve(source, d.curve)
       : remapDriven(d, source);
@@ -251,7 +240,10 @@ const applyDriven = (
  * never fold into node outputs.) Mirrors the width gate `readDrivenSourceValue`
  * applies to the source.
  */
-const validateDrivenOutputChannel = (
+const validateDrivenOutputChannel: (
+  output: IAutoMovieChannel,
+  sampled: Map<string, IAutoMovieSampledChannel>,
+) => void = (
   output: IAutoMovieChannel,
   sampled: Map<string, IAutoMovieSampledChannel>,
 ): void => {
@@ -260,7 +252,9 @@ const validateDrivenOutputChannel = (
       throw new Error(
         `driven driver output must be a scalar channel, but addressed node "${output.node}" ${output.path}; a width-1 write into a TRS channel would NaN-poison the composed world matrices`,
       );
-    const existing = sampled.get(channelKey(output));
+    const existing: IAutoMovieSampledChannel | undefined = sampled.get(
+      channelKey(output),
+    );
     if (existing !== undefined && existing.value.length !== 1)
       throw new Error(
         `driven driver output "node:${output.node}:weights" must stay scalar-width, but the sampled weights carry ${existing.value.length} morph targets: a scalar write would silently narrow them`,
@@ -273,12 +267,16 @@ const validateDrivenOutputChannel = (
     );
 };
 
-const readDrivenSourceValue = (value: number[]): number => {
+const readDrivenSourceValue: (value: number[]) => number = (
+  value: number[],
+): number => {
   validateDrivenSourceValue(value);
   return value[0]!;
 };
 
-const validateDrivenSourceValue = (value: number[]): void => {
+const validateDrivenSourceValue: (value: number[]) => void = (
+  value: number[],
+): void => {
   if (!Array.isArray(value))
     throw new Error("driven driver source value must be an array");
   if (value.length !== 1)
@@ -287,15 +285,17 @@ const validateDrivenSourceValue = (value: number[]): void => {
     );
 };
 
-const validateDrivenClamp = (clamp: boolean): void => {
+const validateDrivenClamp: (clamp: boolean) => void = (
+  clamp: boolean,
+): void => {
   if (typeof clamp !== "boolean")
     throw new Error(`driven driver clamp must be boolean, but was ${clamp}`);
 };
 
-const validateDrivenRange = (
+const validateDrivenRange: (
   inRange: [number, number],
   outRange: [number, number],
-): void => {
+) => void = (inRange: [number, number], outRange: [number, number]): void => {
   validateDrivenRangeTuple("inRange", inRange);
   validateDrivenRangeTuple("outRange", outRange);
   validateDrivenFinite("inRange[0]", inRange[0]);
@@ -304,10 +304,10 @@ const validateDrivenRange = (
   validateDrivenFinite("outRange[1]", outRange[1]);
 };
 
-const validateDrivenRangeTuple = (
+const validateDrivenRangeTuple: (
   label: "inRange" | "outRange",
   range: [number, number],
-): void => {
+) => void = (label: "inRange" | "outRange", range: [number, number]): void => {
   if (!Array.isArray(range))
     throw new Error(`driven driver ${label} must be an array`);
   if (range.length !== 2)
@@ -316,16 +316,22 @@ const validateDrivenRangeTuple = (
     );
 };
 
-const validateDrivenFinite = (label: string, value: number): void => {
+const validateDrivenFinite: (label: string, value: number) => void = (
+  label: string,
+  value: number,
+): void => {
   if (!Number.isFinite(value))
     throw new Error(`driven driver ${label} must be finite, but was ${value}`);
 };
 
-const remapDriven = (
+const remapDriven: (
+  d: IAutoMovieDrivenDriver,
+  source: number | undefined,
+) => number = (
   d: IAutoMovieDrivenDriver,
   source: number | undefined,
 ): number => {
-  const { inRange, outRange } = d;
+  const { inRange, outRange }: IAutoMovieDrivenDriver = d;
   if (inRange === undefined || outRange === undefined)
     throw new Error(
       "driven driver without a curve requires inRange and outRange",
@@ -335,35 +341,52 @@ const remapDriven = (
   return remap(source ?? inRange[0], inRange, outRange, d.clamp ?? false);
 };
 
-const remap = (
+const remap: (
+  x: number,
+  [i0, i1]: [number, number],
+  [o0, o1]: [number, number],
+  clamp: boolean,
+) => number = (
   x: number,
   [i0, i1]: [number, number],
   [o0, o1]: [number, number],
   clamp: boolean,
 ): number => {
-  const t = i1 === i0 ? 0 : (x - i0) / (i1 - i0);
-  const tc = clamp ? Math.min(1, Math.max(0, t)) : t;
+  const t: number = i1 === i0 ? 0 : (x - i0) / (i1 - i0);
+  const tc: number = clamp ? Math.min(1, Math.max(0, t)) : t;
   return o0 + (o1 - o0) * tc;
 };
 
 // shared
 
-const setChannel = (
+const setChannel: (
+  sampled: Map<string, IAutoMovieSampledChannel>,
+  key: string,
+  channel: IAutoMovieSampledChannel["channel"],
+  value: number[],
+) => void = (
   sampled: Map<string, IAutoMovieSampledChannel>,
   key: string,
   channel: IAutoMovieSampledChannel["channel"],
   value: number[],
 ): void => {
-  const existing = sampled.get(key);
+  const existing: IAutoMovieSampledChannel | undefined = sampled.get(key);
   if (existing !== undefined) existing.value = value;
   else sampled.set(key, { channel, value });
 };
 
-const lerpArray = (a: number[], b: number[], t: number): number[] =>
-  a.map((v, i) => v + (b[i]! - v) * t);
+const lerpArray: (a: number[], b: number[], t: number) => number[] = (
+  a: number[],
+  b: number[],
+  t: number,
+): number[] => a.map((v: number, i: number): number => v + (b[i]! - v) * t);
 
-const slerpArray = (a: number[], b: number[], t: number): number[] => {
-  const q = Quaternion.slerp(
+const slerpArray: (a: number[], b: number[], t: number) => number[] = (
+  a: number[],
+  b: number[],
+  t: number,
+): number[] => {
+  const q: IAutoMovieQuaternion = Quaternion.slerp(
     { x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! },
     { x: b[0]!, y: b[1]!, z: b[2]!, w: b[3]! },
     t,

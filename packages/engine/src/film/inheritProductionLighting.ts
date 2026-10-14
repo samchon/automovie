@@ -8,49 +8,26 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
 
 /**
- * One shot's lights at one shot-local instant, with the production's sources
- * inherited at the story moment the shot's pin places that instant at.
+ * One shot's lights at one shot-local instant, with the production's sources inherited at the story moment the shot's pin places that instant at.
  *
- * The staged lights come back UNCHANGED, element by element, whenever there is
- * nothing to inherit: no production lighting, or a shot carrying no story pin.
- * That is the additivity promise made whole — a film that says nothing about
- * production light renders precisely the frames it rendered before this pass
- * existed, and an unpinned shot is not quietly assigned a story moment it never
- * claimed.
+ * With no production lighting, or for a shot carrying no story pin, the staged lights come back unchanged in a new array, element by element. A film that says nothing about production light therefore renders the frames it always did, and an unpinned shot is never assigned a story moment it did not claim.
  *
- * The merge is by ID and its order is fixed:
+ * Otherwise the production is resolved at `autoMovieStoryTime(pin, seconds)` and merged by light id:
  *
- * - A staged light whose id a production source shares is REPLACED, in place. The
- *   production owns that source; the scene declaring it says which of the
- *   production's lights this scene stands under, and the values it declares are
- *   the ones the production overrides. That is precisely "inherit rather than
- *   restage".
- * - A production source no staged light names is APPENDED, in declaration order,
- *   so a film states its source once instead of every scene re-declaring it.
+ * - A staged light whose id a production source shares is replaced in place by that source, so the scene says which of the production's lights it stands under and the production owns the values.
+ * - A production source no staged light names is appended after the staged lights, in declaration order, so a film states its source once instead of every scene re-declaring it.
  *
- * Appending moves one downstream index and it is worth naming: the viewer adds
- * lights as top-level scene children between the nodes and the space group, and
- * the segmentation mask palette is keyed by top-level child index. Node colours
- * are unaffected (they precede every light), while the space group's colour
- * shifts by the number of appended sources. It remains a pure function of the
- * artifacts, which is the property the palette actually needs; a mask consumer
- * comparing two productions was never comparing colours across scenes anyway.
+ * The current production assembly caller evaluates this helper once at shot time zero. The result is an opening snapshot, not a continuously resampled production-light track; the shot's own lightMotions subsequently animate that snapshot. Returned light objects are staged or resolved objects themselves, not copies.
  *
- * This composes with, rather than replaces, a shot's own `lightMotions`: hand
- * the result to the applier that plays those clips and the shot's local
- * statement (a lamp switched on inside this beat) lands on top of the inherited
- * state (the light the production is under at this moment). Both are the same
- * pointer grammar over the same table, so the composition needs no rules of its
- * own.
- *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-branch-identity inheritProductionLighting overlays shot-local sources on story-time production sources while preserving each light's branch identity.
- * @evidence requirements/lighting/temporal-state-and-continuity.md#lighting-state-time-sampling inheritProductionLighting maps the requested shot-local second through the authored story pin before resolving inherited lights.
- * @evidence requirements/lighting/temporal-state-and-continuity.md#lighting-story-continuity inheritProductionLighting replaces matching staged lights by stable id and appends unmatched production sources in declaration order.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches inheritProductionLighting carries only explicitly inheritable production-lighting state into a child branch while preserving branch identity.
- * @evidence specifications/camera-light-and-visibility/temporal-state-and-continuity.md#clv-light-cue-observation inheritProductionLighting derives the production sample from the shot's explicit story-clock mapping.
- * @evidence specifications/camera-light-and-visibility/temporal-state-and-continuity.md#clv-edit-presentation-light-boundary inheritProductionLighting preserves stable source identity across a shot boundary by replacing the staged placeholder that carries the same id.
+ * @evidence contracts/common.md#principled-implementation An id-keyed left merge: a map from production id to resolved light replaces staged entries in place and a set of staged ids selects the sources to append, so staged order is preserved and the result is a pure function of lighting, lights, pin and time; it relies on ids being unique within each list, which scene and production validation enforce.
+ * @evidence contracts/common.md#clear-and-simple-design Story-clock mapping is `autoMovieStoryTime` and sampling is `resolveProductionLighting`, both shared; this function owns only the merge rule, which is the one decision production shot assembly needs from the engine.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every light is merged by the same id rule regardless of type or source; the unchanged pass-through for a missing lighting or pin is the stated additivity contract, not a special case for a fixture.
+ * @evidence contracts/common.md#meaningful-documentation States both pass-through conditions, the story instant evaluated, the replace and append rules with their order, how it composes with `lightMotions`, the units of `seconds` and that light objects are shared rather than copied.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in staged lights plus production sources: one map and one set built once, then one lookup per staged light and one membership test per source, after the resolver's own pass over the production clips.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call resolves one instant of one production for one shot and coordinates no work across calls; the caller evaluates it once per shot.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The map and set are dropped on return; the caller owns the returned array, bounded by staged lights plus production sources.
  */
-export const inheritProductionLighting = (props: {
+export function inheritProductionLighting(props: {
   /** The production's declared sources, or `null` when it declares none. */
   lighting: IAutoMovieProductionLighting | null;
 
@@ -62,18 +39,30 @@ export const inheritProductionLighting = (props: {
 
   /** The instant to evaluate, in shot-local seconds. */
   seconds: number;
-}): IAutoMovieLight[] => {
-  const { lighting, pin } = props;
+}): IAutoMovieLight[] {
+  const { lighting, pin }: typeof props = props;
   if (lighting === null || pin === null) return [...props.lights];
 
-  const resolved = resolveProductionLighting({
+  const resolved: IAutoMovieLight[] = resolveProductionLighting({
     lighting,
     storySeconds: autoMovieStoryTime(pin, props.seconds),
   });
-  const inherited = new Map(resolved.map((light) => [light.id, light]));
-  const staged = new Set(props.lights.map((light) => light.id));
+  const inherited: Map<string, IAutoMovieLight> = new Map(
+    resolved.map((light: IAutoMovieLight): [string, IAutoMovieLight] => [
+      light.id,
+      light,
+    ]),
+  );
+  const staged: Set<string> = new Set(
+    props.lights.map((light: IAutoMovieLight): string => light.id),
+  );
   return [
-    ...props.lights.map((light) => inherited.get(light.id) ?? light),
-    ...resolved.filter((light) => !staged.has(light.id)),
+    ...props.lights.map(
+      (light: IAutoMovieLight): IAutoMovieLight =>
+        inherited.get(light.id) ?? light,
+    ),
+    ...resolved.filter(
+      (light: IAutoMovieLight): boolean => !staged.has(light.id),
+    ),
   ];
-};
+}

@@ -14,7 +14,7 @@ export async function buildViewerBrowser(root: string): Promise<Map<string, stri
   const result = await build({
     configFile: false,
     root,
-    resolve: { extensions: [".mts", ".ts", ".tsx", ".mjs", ".js", ".jsx", ".json"] },
+    resolve: { extensions: [".ts", ".tsx", ".mjs", ".js", ".jsx", ".json"] },
     logLevel: "error",
     build: {
       write: false,

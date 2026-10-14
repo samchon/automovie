@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
 import { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";
 import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
@@ -7,107 +6,54 @@ import { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent
 import { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
 
 /**
- * Complete deterministic sound input derived from one compiled film edit.
+ * Deterministic semantic sound input derived from one current compiled film edit.
  *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `IAutoMovieProductionSoundPlan` as the portable data boundary for the sound derived source closure requirement.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `IAutoMovieProductionSoundPlan` for the sound decode and derived source closure system contract.
+ * @evidence contracts/common.md#principled-implementation deriveProductionSoundPlan maps trimmed shot events, authored audio cues and caption dialogue onto the same rational film frame clock, retaining compile identity and explicit production acoustic profiles for a fixed 48 kHz stereo mix.
+ * @evidence contracts/common.md#clear-and-simple-design Ordered events, cues and dialogue separate semantic occurrence synthesis, adopted source playback and generated speech; the plan contains references and normalized timing while callers own decoded buffers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing shot contracts, compiled source or camera refuse during planning; omitted propagation and acoustic profiles deliberately preserve the legacy dry path and supply no guessed room or physical policy.
+ * @evidence contracts/common.md#meaningful-documentation Defines compile binding, exact frame-rate compatibility, total frame extent, fixed PCM format, optional profile absence and ordered sound populations.
+ * @author Samchon
  */
 export interface IAutoMovieProductionSoundPlan {
-  /**
-   * Sound-plan schema.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `version` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `version` for the sound decode and derived source closure system contract.
-   */
+  /** Sound-plan schema. */
   version: 1;
 
-  /**
-   * Exact builder input shared with the film timeline.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `inputFingerprint` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `inputFingerprint` for the sound decode and derived source closure system contract.
-   */
-  inputFingerprint: AutoMovieContentDigest;
+  /** Exact builder input shared with the film timeline. */
+  inputFingerprint: string;
 
-  /**
-   * Production frame rate.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `fps` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `fps` for the sound decode and derived source closure system contract.
-   */
+  /** Production frame rate. */
   fps: number;
 
   /**
-   * Exact frame rate when `fps` is fractional. Integer legacy rates use an
-   * equivalent denominator of one when this field is omitted.
-   *
-   * @evidence requirements/delivery-and-accessibility/frame-rate-timebase-and-timecode.md#delivery-rational-frame-rate Binds the sound plan to the exact production frame clock.
-   * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Supplies the rational source clock for sample-boundary conversion.
+   * Exact frame rate when `fps` is fractional. Integer legacy rates use an equivalent denominator of one when this field is omitted.
    */
   frameRate?: IAutoMovieProductionFrameRate;
 
-  /**
-   * Exact finished-film frame count.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `totalFrames` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `totalFrames` for the sound decode and derived source closure system contract.
-   */
+  /** Exact finished-film frame count. */
   totalFrames: number;
 
-  /**
-   * Fixed output PCM sample rate.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `sampleRate` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `sampleRate` for the sound decode and derived source closure system contract.
-   */
+  /** Fixed output PCM sample rate. */
   sampleRate: 48_000;
 
-  /**
-   * Fixed interleaved stereo channel count.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `channels` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `channels` for the sound decode and derived source closure system contract.
-   */
+  /** Fixed interleaved stereo channel count. */
   channels: 2;
 
   /**
-   * Selected direct-path propagation profile, or null for the byte-compatible
-   * legacy dry path.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Makes propagation an explicit production choice.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Binds every propagated event to one declared model.
+   * Selected direct-path propagation profile; omission preserves the byte-compatible legacy dry path.
    */
   propagationProfile?: IAutoMovieSoundPropagationProfile;
 
   /**
    * Selected room-response source, or absent for the byte-compatible dry path.
-   *
-   * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-provider-neutrality Preserves the user's derived-versus-adopted response choice.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#bounded-acoustic-response-and-provider-adoption Carries provider-neutral response provenance into the mix plan.
    */
   acousticProfile?: IAutoMovieAcousticResponseProfile;
 
-  /**
-   * Ordered semantic sound occurrences.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `events` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `events` for the sound decode and derived source closure system contract.
-   */
+  /** Ordered semantic sound occurrences. */
   events: IAutoMovieProductionSoundEvent[];
 
-  /**
-   * Ordered authored procedural score cues.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `cues` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `cues` for the sound decode and derived source closure system contract.
-   */
+  /** Ordered authored procedural score cues. */
   cues: IAutoMovieProductionSoundCue[];
 
-  /**
-   * Ordered dialogue/caption placements.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `dialogue` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `dialogue` for the sound decode and derived source closure system contract.
-   */
+  /** Ordered dialogue/caption placements. */
   dialogue: IAutoMovieProductionDialogueLine[];
 }

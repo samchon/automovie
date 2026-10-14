@@ -7,67 +7,41 @@ import { IAutoMovieHumanoidRigCharacterization } from "./IAutoMovieHumanoidRigCh
 
 /**
  * The source-target decision record for a retargeted humanoid clip.
+ * Heights and rootScale describe the same model-unit ratio used for root
+ * translation and mapped contacts. Tables contain only slots present on each
+ * rig; callers keep them paired with the returned motion during playback.
  *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-source-provenance Records the resolved basis of one completed retarget.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Makes the effective retarget policy reproducible at playback.
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-motion-retargeting Records the source and target characterizations, root scale, facing, ROM, contact policy, and required mappings used by the conversion.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-external-adoption-retarget-characterization Preserves the exact source-to-target characterization beside the retargeted result.
+ * @evidence contracts/common.md#principled-implementation Records both characterized rigs, the positive root multiplier and the actual facing, ROM and contact decisions taken by retargetHumanoidMotion; requiredBones is the union of hips, articulated slots and explicitly required slots.
+ * @evidence contracts/common.md#clear-and-simple-design A decision record accompanies the clip instead of hiding clinical axis and rest-frame mappings in a renderer-specific adapter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source and target identities remain explicit and contact correction is recorded separately from unchanged facing, so a successful clip does not imply an unperformed conversion.
+ * @evidence contracts/common.md#meaningful-documentation States shared scale semantics, per-rig slot filtering, playback table pairing and the meaning of each decision field.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This retarget receipt executes no rig characterization or contact solve itself.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source and target tables are reused within one retarget operation; this result defines no mutable-rig cache across operations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns two rig descriptions and a required-slot array bounded by the humanoid slot domain, with no solver handles retained.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanoidRetargetCharacterization {
-  /**
-   * Source rig the clip was authored against.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-source-provenance Preserves the rig basis in which the authored clip has meaning.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Defines the rig-space in which source motion is measured.
-   */
+  /** Source rig the clip was authored against. */
   source: IAutoMovieHumanoidRigCharacterization;
 
-  /**
-   * Target rig the clip now plays on.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-mapping-selection Identifies the selected destination and its semantic mapping.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Defines the rig-space in which the converted motion must play.
-   */
+  /** Target rig the clip now plays on. */
   target: IAutoMovieHumanoidRigCharacterization;
 
   /**
    * Root translation multiplier (`target.height / source.height` by default).
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-proportion Records the concrete root-motion correction for the rigs' size difference.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Applies the same scale to root travel and mapped contact positions.
    */
   rootScale: number;
 
-  /**
-   * Root facing convention: v1 preserves authored root rotations.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-mapping-selection Records the selected rule for interpreting source root orientation.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Confirms that target conversion preserves the authored facing.
-   */
+  /** Root facing convention: authored root rotations remain unchanged. */
   facing: AutoMovieRetargetFacing;
 
-  /**
-   * Effective ROM priority for the target validation pass.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-refusal Records which range authority determines whether target playback is legal.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Exposes the ROM policy enforced after contact correction.
-   */
+  /** Effective ROM priority for the target validation pass. */
   romPolicy: AutoMovieRetargetRomPolicy;
 
-  /**
-   * Whether source contacts were re-pinned on the target rig.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Records whether target contact was solved or source angles were carried unchanged.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Identifies the contact treatment that produced the returned clip.
-   */
+  /** Whether source contacts were re-pinned on the target rig. */
   contactPolicy: AutoMovieRetargetContactPolicy;
 
-  /**
-   * Bones that had to exist in both rigs for this retarget operation.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-mapping-selection Lists the semantic correspondences required by this specific conversion.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Makes an incomplete semantic correspondence diagnosable before conversion.
-   */
+  /** Bones that had to exist in both rigs for this retarget operation. */
   requiredBones: AutoMovieHumanoidBone[];
 }

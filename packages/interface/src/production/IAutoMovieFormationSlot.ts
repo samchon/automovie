@@ -3,63 +3,31 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One deterministic formation member materialized from compact design.
  *
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `IAutoMovieFormationSlot` as the portable data boundary for the formation slot identity requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `IAutoMovieFormationSlot` for the performance formation layout slot assignment system contract.
+ * @evidence contracts/common.md#principled-implementation Regeneration derives stable slot identity, placement and normalized motion phase from the admitted compact formation and seed; hero identity is the explicit override for that same slot.
+ * @evidence contracts/common.md#clear-and-simple-design This materialized member projection contains the fields consumers need without embedding the whole formation or duplicating its placement algorithm.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null actor means anonymous, not a fabricated actor id; named heroes retain the formation's declared model recipe and deterministic slot placement.
+ * @evidence contracts/common.md#meaningful-documentation Defines zero-based slot, compiler node identity, nullable hero, world-meter position, degree heading and normalized phase.
+ * @author Samchon
  */
 export interface IAutoMovieFormationSlot {
-  /**
-   * Zero-based deterministic slot index.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `slot` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slot` for the performance formation layout slot assignment system contract.
-   */
+  /** Zero-based deterministic slot index. */
   slot: number;
 
-  /**
-   * Compiler-owned scene-node id.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `node` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `node` for the performance formation layout slot assignment system contract.
-   */
+  /** Compiler-owned scene-node id. */
   node: string;
 
-  /**
-   * Named hero actor at this slot, or null.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `actor` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `actor` for the performance formation layout slot assignment system contract.
-   */
+  /** Named hero actor at this slot, or null. */
   actor: string | null;
 
-  /**
-   * Runtime model recipe id.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `modelRecipe` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `modelRecipe` for the performance formation layout slot assignment system contract.
-   */
+  /** Runtime model recipe id. */
   modelRecipe: string;
 
-  /**
-   * Compiler-derived world position in meters.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `position` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `position` for the performance formation layout slot assignment system contract.
-   */
+  /** Compiler-derived world position in meters. */
   position: IAutoMovieVector3;
 
-  /**
-   * Compiler-derived world-space heading in degrees.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `facingDeg` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `facingDeg` for the performance formation layout slot assignment system contract.
-   */
+  /** Compiler-derived world-space heading in degrees. */
   facingDeg: number;
 
-  /**
-   * Stable normalized phase used by bounded instance motion.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `motionPhase` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `motionPhase` for the performance formation layout slot assignment system contract.
-   */
+  /** Stable normalized phase used by bounded instance motion. */
   motionPhase: number;
 }

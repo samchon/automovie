@@ -1,21 +1,23 @@
 import { validateFaceResult } from "@automovie/engine";
+import { IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeFace } from "../internal/fixtures";
 
 /**
- * Face trait weights are signed morph weights documented to [-2, 2]; a document
- * whose effective per-side weights all sit inside (including exactly on) that
- * bound validates: the "valid face passes" baseline, pinning both limits so the
- * boundary itself is legal.
+ * Admit populated signed face traits at the inclusive limits and valid per-side compositions; this establishes numerical admission rather than visual anatomy.
  *
- * Scenario: every singular leaf present, and the paired features exercising the
- * SIDE RULE's compositions: a lone left (mirrors to both eyes), two defined
- * sides (each its own brow), pair-level spacing plus a one-side offset, and a
- * lone right cheek; all in range, no violations.
+ * Scenarios:
+ * 1. Populated singular leaves, lone left eye, two separate brows, shared eye spacing plus one-side offset and lone right cheek all stay admitted, including -2 jaw width and +2 eye size.
+ * 2. Pair spacing without either eye object remains admitted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual face validation for populated and spacing-only documents and requires success, catching mistaken exclusive limits or a paired-trait traversal that rejects valid omission/composition.
+ * @evidence contracts/testing.md#independent-expectations Authored values and the documented inclusive [-2,2] effective-weight contract determine admission; 0.2 shared spacing plus -0.2 offset is zero. Aggregate success does not independently prove each target was emitted or that a face looks valid.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts both signed endpoints, lone-left/lone-right/two-side inputs, combined spacing and spacing alone; flattening output and out-of-range refusals have separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named portable entry owns both local documents through the existing identity fixture and invokes no Human geometry, browser, process or native build.
  */
-export const test_validation_face_valid = (): void => {
-  const result = validateFaceResult(
+export function test_validation_face_valid(): void {
+  const result: IAutoMovieValidation = validateFaceResult(
     makeFace({
       width: 0.3,
       length: -0.2,
@@ -33,6 +35,8 @@ export const test_validation_face_valid = (): void => {
   TestValidator.equals("valid face succeeds", result.success, true);
 
   // spacing alone (no per-eye objects at all) must also flatten and pass
-  const spacingOnly = validateFaceResult(makeFace({ eyes: { spacing: 0.4 } }));
+  const spacingOnly: IAutoMovieValidation = validateFaceResult(
+    makeFace({ eyes: { spacing: 0.4 } }),
+  );
   TestValidator.equals("pair spacing alone valid", spacingOnly.success, true);
-};
+}

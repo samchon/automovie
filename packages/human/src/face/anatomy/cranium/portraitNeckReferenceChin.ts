@@ -4,4 +4,4 @@
  * difference between the actual host chin and this source reference height.
  * This is a legacy authored support datum, not an individual measurement.
  */
-export const portraitNeckReferenceChin = -83.5;
+export const portraitNeckReferenceChin: -83.5 = -83.5;

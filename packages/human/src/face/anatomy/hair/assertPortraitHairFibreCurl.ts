@@ -1,9 +1,15 @@
 import type { IPortraitHairShape } from "./IPortraitHairShape";
 
 /**
- * Admit a complete normalized curl pattern independently of groom population.
- * Geometry and texture construction call the same admission, so an empty groom
- * cannot conceal an invalid optional profile until strands are added later.
+ * Admit a complete normalized curl pattern independently of groom population. Geometry and texture construction call the same admission, so an empty groom cannot conceal an invalid optional profile until strands are added later.
+ *
+ * @evidence contracts/common.md#principled-implementation Complete curl profiles are checked for finite amplitude, frequency and aspect ratio independently of population count.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry and texture callers share this same normalized-pattern admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The numeric limits constrain legacy procedural appearance and carry no biological curvature claim.
+ * @evidence contracts/common.md#meaningful-documentation Invalid empty-groom curl profiles still throw; this function neither generates nor modifies fibres.
+ * @evidence contracts/performance.md#efficient-algorithms Three scalar range checks take constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both card and raster construction reuse this admission instead of distinct curl policies.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed curl record is unchanged and no texture or geometry allocation survives admission.
  */
 export function assertPortraitHairFibreCurl(
   curl: NonNullable<IPortraitHairShape["fibreCurl"]>,

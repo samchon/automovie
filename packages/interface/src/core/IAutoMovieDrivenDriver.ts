@@ -2,81 +2,45 @@ import { IAutoMovieChannel } from "./IAutoMovieChannel";
 import { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
 
 /**
- * A driven relationship: one scalar channel computed from another (the
- * driven-key / range-map / mimic-joint archetype). A finger-curl slider driving
- * three phalanx joints is three drivers reading the same source.
+ * One scalar channel computed from another. Several drivers can share one source to drive separate scalar outputs.
  *
- * The default mapping is a linear range remap (`inRange` to `outRange`). Real
- * rigs, though, often need a nonlinear coupling: a finger that curls slowly
- * then snaps, or a corrective shape that only kicks in past a threshold. Supply
- * `curve` for that: named source/output control points, piecewise-linear
- * between them, the ends held. When present it supersedes
- * `inRange`/`outRange`/`clamp`.
+ * A non-null curve selects piecewise-linear interpolation with held ends, superseding inRange, outRange and clamp. Otherwise both finite two-element ranges are required; clamp defaults to false, and equal input endpoints select the first output endpoint.
  *
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `IAutoMovieDrivenDriver` as the portable data boundary for the motion channel dependencies requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieDrivenDriver` for the performance motion clip keytime interpolation system contract.
+ * Channel-space execution precedes limits and follows copy/driven dependency order. Output is a scalar pointer or node weights carrying one value; TRS and existing multi-value weights refuse. A sampled source must contain exactly one finite scalar; an unsampled source uses the first input endpoint or first curve point. Pointer output stays inside the sampled map and can affect later drivers or limit findings rather than appearing in resolveFrame's return value.
+ *
+ * @evidence contracts/common.md#principled-implementation `applyDriven` checks the output is scalar-width, reads the source as exactly one finite value, then evaluates the curve or the affine remap `o0 + (o1 - o0) * t` with `t = (x - i0) / (i1 - i0)` (zero when the ends are equal), clamping `t` to `[0, 1]` only when `clamp` is true.
+ * @evidence contracts/common.md#clear-and-simple-design One driver type covers both mappings, with the curve as an optional field that replaces the range triple, so a nonlinear driver need not invent a dead range.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Node TRS and existing multi-morph outputs refuse rather than being narrowed, and absent linear ranges throw. Finite source/range/control values do not certify every remap or interpolation intermediate: the scalar output has no separate finite-result gate before publication to the sampled map.
+ * @evidence contracts/common.md#meaningful-documentation States both mappings and when each applies, the pass and ordering, the exact output and source width rules, the answer for an unsampled source and for equal range ends, the clamp default, and where a pointer output becomes visible.
+ * @author Samchon
  */
 export interface IAutoMovieDrivenDriver {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `type` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `type` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Discriminator. */
   type: "driven";
 
-  /**
-   * Channel that receives the computed value.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `output` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `output` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Scalar-width channel that receives the computed value. */
   output: IAutoMovieChannel;
 
-  /**
-   * Channel read as the driver value.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `source` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `source` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Channel read as the driver value; it must hold exactly one value. */
   source: IAutoMovieChannel;
 
   /**
-   * Source value range `[in0, in1]` mapped onto `outRange` (linear default).
-   * Required for the linear remap; **omit when `curve` is set**: the curve
-   * supersedes it, so a nonlinear driver need not invent a dead range.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `inRange` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `inRange` for the performance motion clip keytime interpolation system contract.
+   * Finite source range [in0, in1], required for linear remapping and ignored with a non-null curve.
    */
   inRange?: [number, number];
 
   /**
-   * Output value range `[out0, out1]`. Linear remap only; omit with `curve`.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `outRange` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `outRange` for the performance motion clip keytime interpolation system contract.
+   * Finite output range [out0, out1], required for linear remapping and ignored with a non-null curve.
    */
   outRange?: [number, number];
 
   /**
-   * Clamp the linear output to `outRange` outside `inRange`. Linear only; omit
-   * with `curve` (and, when omitted on a linear driver, defaults to no clamp).
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `clamp` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `clamp` for the performance motion clip keytime interpolation system contract.
+   * Whether linear remapping clamps its normalized input parameter to [0, 1]; defaults to false and is ignored with a non-null curve.
    */
   clamp?: boolean;
 
   /**
-   * Optional nonlinear map: source/output control points sorted by source
-   * value, with output interpolated piecewise-linearly between them and held
-   * flat beyond the first/last point. When set it replaces the linear
-   * `inRange`/`outRange` remap. `null` / omitted keeps the straight-line
-   * default.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `curve` as the portable data boundary for the motion channel dependencies requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `curve` for the performance motion clip keytime interpolation system contract.
+   * Nonlinear map with strictly increasing finite source points and held endpoint outputs. A non-null curve replaces all linear-range settings; null or omission selects linear remapping.
    */
   curve?: IAutoMovieDrivenCurve | null;
 }

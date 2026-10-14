@@ -2,6 +2,7 @@ import { validateBalanceSupport } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieSkeleton,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,11 +11,11 @@ import { hasViolation, violationCount } from "./predicates";
 /** Existing balance annotation refusal cases, preserving their original input and assertion order.
  * The calling scenario supplies its unchanged neutral rig and motion constructor.
  */
-export const assertBalanceSupportInputRefusals = (
+export function assertBalanceSupportInputRefusals(
   defaultCenter: IAutoMovieSkeleton,
   motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion,
-): void => {
-  const invalid = validateBalanceSupport({
+): void {
+  const invalid: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -81,7 +82,7 @@ export const assertBalanceSupportInputRefusals = (
   );
   TestValidator.equals("invalid balance count", violationCount(invalid), 9);
 
-  const invalidCenterOnly = validateBalanceSupport({
+  const invalidCenterOnly: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -110,7 +111,7 @@ export const assertBalanceSupportInputRefusals = (
     1,
   );
 
-  const invalidEmptySupportOnly = validateBalanceSupport({
+  const invalidEmptySupportOnly: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -139,7 +140,7 @@ export const assertBalanceSupportInputRefusals = (
     1,
   );
 
-  const invalidSupportOnly = validateBalanceSupport({
+  const invalidSupportOnly: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -168,7 +169,7 @@ export const assertBalanceSupportInputRefusals = (
     1,
   );
 
-  const invalidMarginOnly = validateBalanceSupport({
+  const invalidMarginOnly: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -193,21 +194,22 @@ export const assertBalanceSupportInputRefusals = (
     1,
   );
 
-  const invalidNonFiniteMarginOnly = validateBalanceSupport({
-    motion: motion(defaultCenter),
-    skeleton: defaultCenter,
-    supports: [
-      {
-        centerBone: "spine",
-        supportBones: ["leftFoot"],
-        start: 0,
-        end: 1,
-        margin: Number.POSITIVE_INFINITY,
-      },
-    ],
-    sampleRate: 1,
-    path: "$nonFiniteMarginOnly",
-  });
+  const invalidNonFiniteMarginOnly: IAutoMovieValidation =
+    validateBalanceSupport({
+      motion: motion(defaultCenter),
+      skeleton: defaultCenter,
+      supports: [
+        {
+          centerBone: "spine",
+          supportBones: ["leftFoot"],
+          start: 0,
+          end: 1,
+          margin: Number.POSITIVE_INFINITY,
+        },
+      ],
+      sampleRate: 1,
+      path: "$nonFiniteMarginOnly",
+    });
   TestValidator.predicate(
     "invalid non-finite margin-only support",
     hasViolation(
@@ -222,7 +224,7 @@ export const assertBalanceSupportInputRefusals = (
     1,
   );
 
-  const zeroRate = validateBalanceSupport({
+  const zeroRate: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [{ supportBones: ["leftFoot"], start: 0, end: 1 }],
@@ -234,4 +236,4 @@ export const assertBalanceSupportInputRefusals = (
     hasViolation(zeroRate, "range", "$zeroBalance.sampleRate"),
   );
   TestValidator.equals("zero rate count", violationCount(zeroRate), 1);
-};
+}

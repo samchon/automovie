@@ -1,64 +1,33 @@
 import { IAutoMovieTrack } from "./IAutoMovieTrack";
 
 /**
- * A clip: a named bundle of flat-accessor tracks sharing one local-seconds
- * timeline. The general track form: its tracks may drive a character's bones, a
- * camera's transform and FOV, a prop's hinge, and a face's morph weights all at
- * once.
+ * A named bundle of flat-accessor tracks sharing one local-seconds timeline. Tracks may address node transforms, morph weights or pointer properties; stock shot-field gates restrict cameraMotion and objectMotions to node channels and lightMotions to supported light pointers.
  *
- * Clip **coexists with** {@link IAutoMovieMotion}, it does not replace it: they
- * are two live forms for two jobs. Motion is the semantic keyframe-pose vehicle
- * an actor performs (`perform` produces it, `validateMotion` checks it, and
- * `IAutoMovieShot.performances` reference it by id); Clip is the general
- * flat-array track form the same shot carries for its `cameraMotion` and
- * `objectMotions` (a projectile or a prop has no skeleton, so it moves by
- * transform tracks, not a pose motion). A humanoid Motion lowers onto a Clip
- * through `motionToClip`: a clip whose tracks target bone-rotation channels
- * under the humanoid profile's retarget discipline (rotation-only except the
- * root), so one shot legitimately holds both representations at once.
+ * IAutoMovieMotion stores semantic pose keyframes referenced by shot performances; Clip stores the flat tracks carried by camera, object and light motion fields. motionToClip lowers clinical articulation into bone-rotation tracks and authored root TRS tracks, so the two representations can coexist in one shot.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `IAutoMovieClip` as the portable data boundary for the motion clip refusal requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieClip` for the performance motion clip keytime interpolation system contract.
+ * sampleClip reads tracks at one finite query time, clamping to [0, duration] or wrapping a positive duration when loop is set. Duration zero samples at time zero. Duplicate canonical channel keys throw even when their record spellings differ.
+ *
+ * @evidence contracts/common.md#principled-implementation Mirrors a glTF animation as parallel accessor tracks on one clock; `sampleClip` validates the duration and `loop` through the shared `clipDurationFault` and `clipLoopFault`, normalizes the query time by clamp or positive modulo, and samples each track through `clipTrackShapeFaults` and its interpolation mode.
+ * @evidence contracts/common.md#clear-and-simple-design A clip is only an id, a name, a clock and a track list; what a track may address is decided by the shot field that carries it, not by a clip subtype per use.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The sampler refuses duplicate canonical channelKey addresses. Artifact admission additionally requires positive duration, but its JSON-serialized channel duplicate key can miss equivalent addresses with different property ordering or pointer value-type declarations; artifact success alone therefore does not certify sampler acceptance.
+ * @evidence contracts/common.md#meaningful-documentation States what a clip may drive and which shot fields restrict it, how it relates to Motion and `motionToClip`, the sampling clock and loop rule, the duplicate-channel throw, and the two duration rules.
  * @author Samchon
  */
 export interface IAutoMovieClip {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `id` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `id` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Stable id. */
   id: string;
 
-  /**
-   * Human / LLM readable name. Null if unnamed.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `name` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `name` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Human or LLM readable name, or `null` when unnamed. */
   name: string | null;
 
   /**
-   * Total length in seconds. Every track time should be `<= duration`.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `duration` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `duration` for the performance motion clip keytime interpolation system contract.
+   * Total seconds: finite and nonnegative for sampleClip, strictly positive for committed artifacts. Positive duration bounds key times; the low-level zero-duration case skips their upper bound and samples at time zero.
    */
   duration: number;
 
-  /**
-   * Whether the clip loops seamlessly.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `loop` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `loop` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Whether a query time wraps modulo `duration` instead of clamping to it. */
   loop: boolean;
 
-  /**
-   * The tracks; each targets one channel.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `tracks` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `tracks` for the performance motion clip keytime interpolation system contract.
-   */
+  /** The tracks; each targets one channel, and no two share a channel. */
   tracks: IAutoMovieTrack[];
 }

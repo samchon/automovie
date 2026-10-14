@@ -1,4 +1,4 @@
-import { IAutoMovieAffordance } from "@automovie/interface";
+import { IAutoMovieAffordance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
 import { ViolationCollector } from "./ViolationCollector";
@@ -6,15 +6,21 @@ import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
- * Validate one {@link IAutoMovieAffordance}: a non-empty id, finite frame
- * scalars, and extent semantics by kind: a `stack-top` needs a well-formed
- * supporting face (>= 3 finite, non-collinear plan points), while point-like
- * kinds (`handle` / `socket` / `hook`) must leave `extent` null. The closed
- * kind union makes an unknown kind structurally impossible.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Admits the finite interaction frame before checking point-like or planar support extent semantics.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Admits the finite interaction frame before checking point-like or planar support extent semantics.
+ * Admit nonempty id and finite frame, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+ *
+ * @evidence contracts/common.md#principled-implementation Admit nonempty id and finite frame, then require stack-top extent plan points to span area or point-like kinds to have null extent.
+ * @evidence contracts/common.md#clear-and-simple-design Transform scalar admission and convexHull2D own frame/collinearity rules; affordance kind owns extent meaning.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only XZ finiteness is checked for the extent, and its convex hull is not a simple authored-polygon certificate.
+ * @evidence contracts/common.md#meaningful-documentation Null extent semantics and exact caller-relative frame/point fault paths are stated.
+ * @evidence contracts/performance.md#efficient-algorithms P extent points require linear finite checks and O(P log P) hull construction when admitted.
+ * @evidence contracts/performance.md#reuse-equivalent-work Canonical transform and hull owners are shared; changed affordance data is checked anew.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostic rows, while temporary hull storage releases and no seat/contact solve is created.
  */
-export const validateAffordance = (
+export const validateAffordance: (
+  affordance: IAutoMovieAffordance,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   affordance: IAutoMovieAffordance,
   path: string,
   collector: ViolationCollector,
@@ -38,7 +44,7 @@ export const validateAffordance = (
     return;
   }
 
-  const extent = affordance.extent;
+  const extent: IAutoMovieVector3[] | null = affordance.extent;
   if (extent === null) {
     collector.push(
       "type",
@@ -55,8 +61,8 @@ export const validateAffordance = (
       `a stack-top extent needs at least 3 points, but had ${extent.length}`,
       extent.length,
     );
-  let planFinite = true;
-  extent.forEach((point, i) => {
+  let planFinite: boolean = true;
+  extent.forEach((point: IAutoMovieVector3, i: number): void => {
     for (const axis of ["x", "z"] as const)
       if (!Number.isFinite(point[axis])) {
         planFinite = false;

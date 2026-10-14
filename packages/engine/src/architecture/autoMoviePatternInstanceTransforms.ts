@@ -3,17 +3,19 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Matrix4 } from "../math/Matrix4";
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
 import { IAutoMoviePatternFaceFrame } from "./IAutoMoviePatternFaceFrame";
 import { IAutoMoviePatternFacet } from "./IAutoMoviePatternFacet";
 import { IAutoMoviePatternInstancing } from "./IAutoMoviePatternInstancing";
 import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
+import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantities";
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /**
- * Turn whole occurrences into exact instance slots and name the ones that
+ * Turn whole occurrences into computed instance slots and name the ones that
  * cannot be.
  *
  * A repeated module is a GPU instance, never duplicated vertex data, so the
@@ -36,14 +38,26 @@ import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult
  * several flat panels, so a zone may name its own {@link IAutoMoviePatternFacet}
  * and every zone that does not stays on {@link frame}.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `autoMoviePatternInstanceTransforms` turns whole occurrences into exact instance slots and names the ones that cannot be. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `autoMoviePatternInstanceTransforms` performs pattern instance transforms derivation when the engine resolves the declared physical-module pattern deterministically.
- * @evidence requirements/interior/grain-seams-and-continuity.md#interior-grain-corner-continuity `autoMoviePatternInstanceTransforms` maps developed face coordinates back through each folded or curved facet frame so grain-bearing pieces retain their corner relation on the host.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-joint-edge-grain-continuity The instance transforms preserve the declared developed-to-host relation that carries grain and seam continuity across facets.
- * @evidence requirements/building-exterior/patterns-and-instances.md#building-exterior-instance-exceptions `autoMoviePatternInstanceTransforms` keeps cut occurrences as separately identified exceptions while preserving exact prototype transforms for whole repeated pieces.
- * @evidence specifications/building-envelope/external-assets-patterns-and-instances.md#building-envelope-instance-local-stability-invariant The lowering preserves stable occurrence identity and local transforms while refusing to disguise cut exceptions as ordinary instances.
+ * Throws when the thickness is not a finite positive number, a frame or facet
+ * value is not finite, an axis is not unit length or the two axes are not
+ * perpendicular within `1e-6`, a facet names a zone the run did not lay or
+ * repeats one, or an occurrence's variant has no entry in `prototypes`.
+ *
+ * @evidence contracts/common.md#principled-implementation Computes basis `(U cos θ + V sin θ, N × that, N)` and converts it through `quaternionFromAutoMovieBasis`; translation uses the developed panel offset. Frame checks admit approximate orthogonality within `1e-6`, so the quaternion is a numerical TRS representation rather than an exact affine factorization. Placement fields and finite intermediate results are caller premises, not independently revalidated here.
+ * @evidence contracts/common.md#clear-and-simple-design Validates and resolves every panel once, then maps each whole placement to one slot; the slot shape is the interface's explicit instance transform, so no second instancing record is introduced.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or production; a cut piece is reported for geometry instead of being approximated by a scaled whole module, and a missing prototype throws instead of falling back to the set default.
+ * @evidence contracts/common.md#meaningful-documentation States why whole modules become slots and cut ones do not, how id, rotation, scale and prototype are derived, the local axis mapping, the facet rule, the metre unit of thickness, and every throw.
+ * @evidence contracts/performance.md#efficient-algorithms O(Z + F + N) for quantity-zone records, facets and placements: builds the known-zone set and facet map once, then performs constant basis/slot work per whole placement.
+ * @evidence contracts/performance.md#reuse-equivalent-work Every placement of a zone reuses that zone's resolved panel basis instead of re-validating its frame; nothing is reused across calls, since the result and frames are inputs.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The panel map is dropped on return; the caller owns the slots and cut ids, together bounded by the placement count.
  */
-export const autoMoviePatternInstanceTransforms = (props: {
+export const autoMoviePatternInstanceTransforms: (props: {
+  result: IAutoMovieSurfacePatternResult;
+  frame: IAutoMoviePatternFaceFrame;
+  facets?: readonly IAutoMoviePatternFacet[];
+  thickness: number;
+  prototypes?: readonly string[];
+}) => IAutoMoviePatternInstancing = (props: {
   result: IAutoMovieSurfacePatternResult;
   frame: IAutoMoviePatternFaceFrame;
   /** Panels the folded or curved zones return onto; the rest use `frame`. */
@@ -54,8 +68,15 @@ export const autoMoviePatternInstanceTransforms = (props: {
   prototypes?: readonly string[];
 }): IAutoMoviePatternInstancing => {
   positive(props.thickness, "pattern module thickness");
-  const flat = resolveFacet({ u: 0, v: 0 }, props.frame, "pattern face frame");
-  const panels = resolveFacets(props.result, props.facets ?? []);
+  const flat: IResolvedPanel = resolvePanel(
+    { u: 0, v: 0 },
+    props.frame,
+    "pattern face frame",
+  );
+  const panels: Map<string, IResolvedPanel> = resolveFacets(
+    props.result,
+    props.facets ?? [],
+  );
   const transforms: IAutoMovieExplicitInstanceTransform[] = [];
   const cut: string[] = [];
   for (const placement of props.result.placements) {
@@ -63,44 +84,26 @@ export const autoMoviePatternInstanceTransforms = (props: {
       cut.push(placement.id);
       continue;
     }
-    const panel = panels.get(placement.zone) ?? flat;
-    const { u, v, normal } = panel;
-    const angle = placement.rotationDeg * Quaternion.DEG2RAD;
-    const cosine = Math.cos(angle);
-    const sine = Math.sin(angle);
-    const axisU = Vector3.add(Vector3.scale(u, cosine), Vector3.scale(v, sine));
-    const axisV = Vector3.cross(normal, axisU);
-    const translation = Vector3.add(
-      panel.origin,
-      Vector3.add(
-        Vector3.scale(u, placement.center.u - panel.anchor.u),
-        Vector3.scale(v, placement.center.v - panel.anchor.v),
-      ),
-    );
-    const rotation = Quaternion.normalize(
-      Matrix4.decompose([
-        axisU.x,
-        axisU.y,
-        axisU.z,
-        0,
-        axisV.x,
-        axisV.y,
-        axisV.z,
-        0,
-        normal.x,
-        normal.y,
-        normal.z,
-        0,
-        translation.x,
-        translation.y,
-        translation.z,
-        1,
-      ]).rotation,
+    const panel: IResolvedPanel = panels.get(placement.zone) ?? flat;
+    const angle: number = placement.rotationDeg * Quaternion.DEG2RAD;
+    const axisU: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(panel.u, Math.cos(angle)),
+      Vector3.scale(panel.v, Math.sin(angle)),
     );
     const slot: IAutoMovieExplicitInstanceTransform = {
       id: placement.id,
-      translation,
-      rotation,
+      translation: Vector3.add(
+        panel.origin,
+        Vector3.add(
+          Vector3.scale(panel.u, placement.center.u - panel.anchor.u),
+          Vector3.scale(panel.v, placement.center.v - panel.anchor.v),
+        ),
+      ),
+      rotation: quaternionFromAutoMovieBasis(
+        axisU,
+        Vector3.cross(panel.normal, axisU),
+        panel.normal,
+      ),
       scale: {
         x: placement.size.u,
         y: placement.size.v,
@@ -108,7 +111,7 @@ export const autoMoviePatternInstanceTransforms = (props: {
       },
     };
     if (props.prototypes !== undefined) {
-      const prototype = props.prototypes[placement.variant];
+      const prototype: string | undefined = props.prototypes[placement.variant];
       if (prototype === undefined)
         throw new Error(
           `pattern occurrence "${placement.id}" draws variant ${placement.variant}, which the ${props.prototypes.length} declared prototypes do not cover`,
@@ -120,13 +123,42 @@ export const autoMoviePatternInstanceTransforms = (props: {
   return { transforms, cut };
 };
 
-/** The panel each zone returns onto, refusing a facet nothing was laid in. */
-const resolveFacets = (
+/**
+ * One panel's approximate orthonormal world basis and developed anchor.
+ *
+ * @author Samchon
+ */
+interface IResolvedPanel {
+  /** Face-local metre point {@link origin} sits at. */
+  anchor: IAutoMoviePatternPoint;
+
+  /** World point the panel is measured from. */
+  origin: IAutoMovieVector3;
+
+  /** Unit world direction of the panel's U axis. */
+  u: IAutoMovieVector3;
+
+  /** Unit world direction of the panel's V axis. */
+  v: IAutoMovieVector3;
+
+  /** Computed world face normal, `u × v`, under the approximate frame checks. */
+  normal: IAutoMovieVector3;
+}
+
+/** Index each declared quantity zone's facet, including zones with no survivors. */
+const resolveFacets: (
   result: IAutoMovieSurfacePatternResult,
   facets: readonly IAutoMoviePatternFacet[],
-): Map<string, IAutoMovieResolvedFacet> => {
-  const zones = new Set(result.quantities.zones.map((one) => one.zone));
-  const panels = new Map<string, IAutoMovieResolvedFacet>();
+) => Map<string, IResolvedPanel> = (
+  result: IAutoMovieSurfacePatternResult,
+  facets: readonly IAutoMoviePatternFacet[],
+): Map<string, IResolvedPanel> => {
+  const zones: Set<string> = new Set(
+    result.quantities.zones.map(
+      (one: IAutoMoviePatternZoneQuantities): string => one.zone,
+    ),
+  );
+  const panels: Map<string, IResolvedPanel> = new Map();
   for (const facet of facets) {
     if (!zones.has(facet.zone))
       throw new Error(
@@ -136,7 +168,7 @@ const resolveFacets = (
       throw new Error(`pattern facet zone "${facet.zone}" must be unique`);
     panels.set(
       facet.zone,
-      resolveFacet(
+      resolvePanel(
         facet.anchor,
         facet.frame,
         `pattern facet "${facet.zone}" frame`,
@@ -146,35 +178,31 @@ const resolveFacets = (
   return panels;
 };
 
-/** One panel's orthonormal world basis and the developed point it stands at. */
-interface IAutoMovieResolvedFacet {
-  /** Face-local metre point {@link origin} sits at. */
-  anchor: IAutoMoviePatternPoint;
-  /** World point the panel is measured from. */
-  origin: IAutoMovieVector3;
-  /** Unit world direction of the panel's U axis. */
-  u: IAutoMovieVector3;
-  /** Unit world direction of the panel's V axis. */
-  v: IAutoMovieVector3;
-  /** Unit world face normal, `u × v`. */
-  normal: IAutoMovieVector3;
-}
-
-const resolveFacet = (
+/** Validate one frame and anchor against the approximate orthonormality tolerance. */
+const resolvePanel: (
   anchor: IAutoMoviePatternPoint,
   frame: IAutoMoviePatternFaceFrame,
   label: string,
-): IAutoMovieResolvedFacet => {
-  const u = unitAxis(frame.u, `${label} u`);
-  const v = unitAxis(frame.v, `${label} v`);
+) => IResolvedPanel = (
+  anchor: IAutoMoviePatternPoint,
+  frame: IAutoMoviePatternFaceFrame,
+  label: string,
+): IResolvedPanel => {
+  const u: IAutoMovieVector3 = unitAxis(frame.u, `${label} u`);
+  const v: IAutoMovieVector3 = unitAxis(frame.v, `${label} v`);
   finiteVector(frame.origin, `${label} origin`);
-  finitePoint(anchor, `${label} anchor`);
+  if (!Number.isFinite(anchor.u) || !Number.isFinite(anchor.v))
+    throw new Error(`${label} anchor must be finite`);
   if (Math.abs(Vector3.dot(u, v)) > 1e-6)
     throw new Error(`${label} axes must be perpendicular`);
   return { anchor, origin: frame.origin, u, v, normal: Vector3.cross(u, v) };
 };
 
-const unitAxis = (
+/** Refuse an axis that is not finite or not unit length within `1e-6`. */
+const unitAxis: (
+  axis: IAutoMovieVector3,
+  label: string,
+) => IAutoMovieVector3 = (
   axis: IAutoMovieVector3,
   label: string,
 ): IAutoMovieVector3 => {
@@ -184,17 +212,11 @@ const unitAxis = (
   return axis;
 };
 
-const finiteVector = (value: IAutoMovieVector3, label: string): void => {
+/** Refuse a vector with a non-finite component. */
+const finiteVector: (value: IAutoMovieVector3, label: string) => void = (
+  value: IAutoMovieVector3,
+  label: string,
+): void => {
   if (![value.x, value.y, value.z].every(Number.isFinite))
     throw new Error(`${label} must be finite`);
-};
-
-const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
-  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-    throw new Error(`${label} must be finite`);
-};
-
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };

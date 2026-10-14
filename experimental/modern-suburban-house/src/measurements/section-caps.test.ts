@@ -7,7 +7,7 @@ import {
   FittingParts,
   type FittingPoint,
 } from "../models/furnishings/geometry";
-import { lowerViewerModels } from "../viewer/modelScene.cjs";
+import { lowerViewerModels } from "../viewer/modelScene.js";
 import type { IViewerSceneItem } from "../viewer/scenePayload";
 import { sectionCap, sectionCaps } from "../viewer/sectionCaps";
 

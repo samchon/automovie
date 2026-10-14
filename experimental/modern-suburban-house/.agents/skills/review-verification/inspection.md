@@ -4,8 +4,6 @@ Use subject inspection after compilation to ask what one authored thing is and w
 
 Run inspection queries on the artifact or source result that you want to examine. Import them directly from `@automovie/engine`. Source functions and command modules inspect their explicit input and output values. Section planes are viewer inspection controls.
 
-This ground is divided, and no document on it substitutes for another. This one answers what a compiled subject is, how two compiled artifacts differ, and what one subject looks like from an eye the inspection chose. The visual change report answers which already-rendered views moved between two revisions, as digests. A verdict is produced in the evidence citation on the source that claims the unit is realized, and no question answered here produces one.
-
 ## Choose the artifact and revision
 
 Pass the exact typed source result and its revision to `describeAutoMovieSubjects` or `describeAutoMovieSubject` from `@automovie/engine`. Use the same producer as the viewer and delivery consumer. Record the input revision and invocation basis; a timestamp or a successful page load is not source identity.
@@ -47,8 +45,6 @@ The walk needs no key you invented, and it starts wherever the index already nam
 
 A compact instance set's content box measures compiled slot origins, not the geometry standing on them, so a dense set of tall objects still reports a flat box. Address one instance when its prototype extent is the question.
 
-The description does not guess provenance. Join its revision and stable subject id to the separately compiled lineage or evidence ledger when the question asks where a fact came from.
-
 ## Compare revisions
 
 `diffAutoMovieSubjects`, called with a before artifact, an after artifact, and an optional tolerance, returns `added`, `removed`, `moved`, `reshaped`, and a bounded `unchanged` summary. Both sides are full `{ revision, compiled }` pairs, so comparing two compiles means holding both sets of bytes; the function reads no history of its own. The default absolute tolerance is `1e-6`, a difference exactly at the tolerance is unchanged, a negative or non-finite tolerance is refused, and equivalent quaternion signs compare as the same rotation.
@@ -80,5 +76,3 @@ A viewpoint identity belongs to its complete camera and framing rule, not to the
 Derive the plane from geometry you already measured rather than from a guessed offset: a floor level plus `{ x: 0, y: 1, z: 0 }` reads that storey as a plan, and a wall face plus its outward normal opens the elevation behind it. Several planes intersect, so each one added removes more.
 
 These rules are fixed. Geometry lying exactly on the plane is KEPT, so a section taken at a floor's own level still shows that floor. Nothing fills the exposed cut, so walls read as open shells, which is the normal result of a section and not a modelling defect to report. And `crossed` states only that no single plane removed the whole body, which is not a promise that any of it survived, because two planes can between them remove what neither removes alone; writing `crossed` up as "partly visible" is the error the name is chosen to prevent.
-
-A section is an inspection viewpoint and never a delivery camera. `IAutoMovieCamera` carries no clipping plane, a cut frame is not evidence about the image a shot delivers, and shot acceptance is unchanged by any section you take.

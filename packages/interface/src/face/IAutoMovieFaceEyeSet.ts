@@ -1,45 +1,29 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
 import { IAutoMovieFaceEye } from "./IAutoMovieFaceEye";
 
 /**
- * The eye PAIR of an {@link IAutoMovieFace}.
+ * The eye pair of an {@link IAutoMovieFace}.
  *
- * **Side rule (read this first):** when only ONE of `left`/`right` is defined,
- * it applies to BOTH eyes (the symmetric shorthand: most faces need nothing
- * more). When BOTH are defined, each side stands alone and applies only to its
- * own eye (uneven eyes). There is no separate "both" field.
+ * When only one of `left` and `right` is stated, it applies to both eyes as the symmetric shorthand. When both are stated, each applies only to its own eye. Sides are the subject's own.
  *
- * Pair-level traits (the relation between the two eyes) live here; traits of an
- * eye itself live in {@link IAutoMovieFaceEye}. Sides are the SUBJECT's
- * left/right. The Set/single naming split is deliberate: "EyeSet" vs "Eye"
- * cannot be confused by a tool-calling model the way "Eyes" vs "Eye" can.
+ * Pair-level `spacing` adds to each resolved side's `offset`; per-eye traits live in {@link IAutoMovieFaceEye}. Equal spacing sums can be authored through different combinations of these two fields, and validation checks each sum rather than its addends independently.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieFaceEyeSet` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieFaceEyeSet` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * @evidence contracts/common.md#principled-implementation `flattenFace` resolves the five eye targets per side from the stated side or, when one is absent, the other, and for `eyeSpacingR` and `eyeSpacingL` adds `spacing` to that side's `offset`, reporting the sum at the side's `offset` path or at `eyes.spacing` when no side states an offset.
+ * @evidence contracts/common.md#clear-and-simple-design The set holds shared `spacing` beside two optional per-eye records; one stated side mirrors, two stated sides remain independent, and spacing composes additively with their offsets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The lone-side mirroring is the documented shorthand shared with brows and cheeks, never applied over a stated side, and `validateFace` range-checks the per-side spacing sum instead of each addend so a sum outside `[-2, 2]` cannot pass unreported.
+ * @evidence contracts/common.md#meaningful-documentation States lone-side mirroring, independent stated sides, subject-relative naming, additive spacing and offsets, and validation of each resulting weight rather than the individual addends.
  * @author Samchon
  */
 export interface IAutoMovieFaceEyeSet {
   /**
    * Distance between the eyes: `+` wide-set, `-` close-set.
    *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `spacing` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `spacing` as a coarse proxy parameter under the representation-fidelity ceiling.
+   * Adds to each side's {@link IAutoMovieFaceEye.offset}, and the finite `[-2, 2]` range applies to that sum per side. Stated alone, it drives both spacing targets.
    */
-  spacing?: AutoMovieFaceWeight;
+  spacing?: number;
 
-  /**
-   * The subject's LEFT eye; applies to BOTH eyes when `right` is omitted.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `left` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `left` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
+  /** The subject's left eye; applies to both eyes when `right` is omitted. */
   left?: IAutoMovieFaceEye;
 
-  /**
-   * The subject's RIGHT eye; applies to BOTH eyes when `left` is omitted.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `right` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `right` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
+  /** The subject's right eye; applies to both eyes when `left` is omitted. */
   right?: IAutoMovieFaceEye;
 }

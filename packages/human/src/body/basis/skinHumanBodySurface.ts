@@ -8,79 +8,28 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyToeSplit } from "../structures/surface/IAutoMovieHumanBodyToeSplit";
 import type { IHumanBodyDualQuaternion } from "./IHumanBodyDualQuaternion";
+import type { IHumanBodyTwistSpread } from "./IHumanBodyTwistSpread";
 
 /**
- * Dual quaternion skinning of one shaped surface from rest to posed bone
- * frames (Kavan, Collins, Zara and O'Sullivan, "Skinning with dual
- * quaternions", 2007), the pose step of `createHumanBodyBasisBuilder`.
+ * Skin one shaped surface through its admitted rest-to-posed bone frames.
  *
- * Each bone's change of frame `posed ∘ rest⁻¹` is one rigid transform, and a
- * rigid transform is one unit dual quaternion `q̂ = q + ε d`: the real part
- * `q = posed.rotation ⊗ rest.rotation⁻¹` is the rotation and the dual part
- * `d = ½ (t ⊗ q)` carries the translation `t = posed.position − q(rest.position)`
- * as a pure quaternion. q̂ and −q̂ name the same transform, and which of the
- * two a bone contributes decides which way round the blend travels, so the
- * sign is chosen once per bone for the whole skin: walking the skeleton
- * parent before child, each bone's q̂ is flipped into its parent's
- * hemisphere. A vertex p with influences (bone_i, w_i) then blends
- * `Σ w_i q̂_i` with those signs, divides both parts by the real part's norm,
- * and applies the result as a rigid transform: `p' = q(p) + 2 (d ⊗ q*)`, the
- * product read as a vector. Positions are metres in the basis frame and
- * rotations are world frames from the pose resolver.
+ * Dual-quaternion blending follows [Kavan et al., 2007](https://users.cs.utah.edu/~ladislav/kavan07skinning/kavan07skinning.pdf). A bone's real quaternion is `posed.rotation * inverse(rest.rotation)`, with translation `posed.position - rotation(rest.position)` and dual part half the pure-translation quaternion times that real part. Parent-first joint order chooses a sign against the parent's real quaternion once per bone. The four weighted influence slots accumulate both parts; division by the real norm precedes rotation and twice the dual-times-inverse-real translation. Input and output positions are in the same body metre frame and caller arrays remain unchanged.
  *
- * Choosing the sign per vertex against its first influence, as an earlier
- * revision did, is order-dependent and tears the skin when a bone turns near
- * a half turn from its rest: the arm raised forward overhead is 180 degrees
- * from the A-pose, nearly orthogonal in quaternion space to the girdle and
- * the upper chest it blends with, so a vertex whose first influence was the
- * arm could flip the girdle and the chest to opposite signs, and two almost
- * equal rotations cancelled, while its neighbour with the chest first did
- * not. Parent-aligned signs remove that influence-order dependence. Pairwise
- * alignment of parent and child does not prove that every set of four bones
- * influencing one vertex shares a hemisphere, or that their weighted real
- * parts can never cancel across a longer joint chain.
+ * Parent-aligned signs avoid choosing a different hemisphere from each vertex's first influence, which can disagree near a half turn. They do not guarantee that a vertex's whole influence set shares a hemisphere across a longer joint chain. A zero/nonfinite real norm or unrepresentable reciprocal refuses before normalization rather than returning a partial output. Admitted finite, aligned four-slot skin arrays, nonnegative normalized weights, unit bone rotations and valid distributed-twist axes remain caller premises; this routine is not the complete basis validator.
  *
- * The linear blend this replaces averaged the influences' rigid images, which
- * is a mean of rotation matrices: as two influences approach 180 degrees
- * apart the mean loses rank and the skin between them flattens onto the pivot
- * (the shipped basis's upper arm at flexion 180 collapsed to a thin plate),
- * and under a twist the mean's radius shrinks by the cosine of half the
- * angle, the candy-wrapper pinch. The dual quaternion blend is itself a rigid
- * transform, a screw motion between the influences. When two influences
- * rotate about the same fixed pivot, their 50/50 vertex rotates by θ/2 and
- * keeps its radius about that pivot. That special case does not establish a
- * fixed anatomical joint centre, pairwise distance or local volume across
- * differently weighted vertices. A vertex bound to one bone with weight one
- * is exactly rigid, the property the rigid-segment check measures. The known
- * limit is the bulge Kavan reports at a fold: the arc a
- * blended vertex walks lies outside the linear chord, so the inside of a
- * deep bend gains a little volume, which a pose corrective may take back.
- * Normals are not transported here: the builder recomputes them on the posed
- * surface so a seam between differently weighted vertices cannot show a
- * lighting discontinuity the geometry does not have.
+ * A normalized blend applies one rigid transform at each vertex rather than averaging rigidly transformed positions. For two equal-weight rotations about the same pivot it follows the half-angle arc and retains that vertex's radius; this does not establish pairwise distance or local volume between differently weighted vertices. Fold bulging remains a geometric limitation, and corrective rows derived from the former linear blend are stale. Normals are recomputed by the surface owner after posing rather than transported here.
  *
- * A joint that spreads its twist (`distributeTwist`) is a rig's twist joint
- * made continuous: its rotation relative to its parent is split into a swing
- * and a twist about its rest axis, from its head to its one child's head,
- * and each vertex it moves takes the swing whole and the twist in proportion
- * to where it lies along that axis (none at the head, all of it at the
- * child's head, held at the ends), on the twist's shortest arc. An upper arm
- * turned about its own axis then shears its skin from the shoulder to the
- * elbow instead of wrenching the armpit round at the joint. A unit-weight
- * vertex of such a bone is rigid in the swing only.
+ * `distributeTwist` separates the parent-relative swing and twist about the rest head-to-child axis. Each vertex receives the complete swing and its clamped axial fraction of the shortest-arc twist: zero at the head and one at the child's head. The 1e-12 quaternion-component/sine policies resolve numerical degeneracy, not clinical capacity. Such a bone is position-dependent even for unit weight, so whole-segment rigidity does not follow.
  *
- * A surface's toe split (`IAutoMovieHumanBodyToeSplit`) divides a listed
- * vertex's whole toes weight (both sides' toes slots together) among the toe
- * ray phalanges by its shares when the
- * rays carry transforms (`resolveHumanBodyToeRays`); otherwise the toes bone
- * skins the toes as before, to the bit.
+ * A declared toe split redistributes all of a listed vertex's toes-slot weight once among its phalanx shares when every ray transform exists. Each ray aligns with its side's toes bone. Missing ray transforms retain ordinary toes-bone skinning; required joint transforms still refuse when absent. This geometric operation establishes neither biological skin fit nor contact, volume, clinical or visual acceptance.
  *
- * Every bone the skin names must have a rest and a posed transform; the basis
- * admission guarantees the skin only names declared joints and the pose
- * resolver visits every declared joint, so a missing entry here is a
- * programming error rather than a data error, and it throws. Any corrective
- * row solved as `rigid − linear` on the former blend is a derivative of this
- * formula and is stale under it.
+ * @evidence contracts/common.md#principled-implementation Parent-first signs align admitted rest-to-posed dual quaternions before four-slot blending; distributed twist uses a clamped axial fraction and available toe rays redistribute the complete toes weight once.
+ * @evidence contracts/common.md#clear-and-simple-design Bone alignment and twist decompositions precede one vertex walk; raw quaternion arithmetic stays local while rigid-frame operations use the shared engine owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing joints and nonrepresentable real normalization refuse instead of emitting NaNs; finite admitted skin/axis premises remain explicit and per-vertex rigid transforms do not certify tissue volume or clinical motion.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives body metre frames, blend formula, parent-sign limitation, numerical twist policies, toe fallback and stale linear-corrective consequences.
+ * @evidence contracts/performance.md#efficient-algorithms Alignment is linear in J joints, skin-joint searches for twist setup cost O(SJ), and V vertices use four slots plus their declared toe-share counts; no collision solve is hidden in skinning.
+ * @evidence contracts/performance.md#reuse-equivalent-work Aligned transforms, per-bone twist decompositions and vertex-to-toe-row indexing are prepared once for this call rather than reconstructed for each influence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Alignment, decomposition and toe maps are invocation-local; only the owned V-sized output positions escape, without persistent caches, external handles or tasks.
  */
 export function skinHumanBodySurface(
   positions: number[],
@@ -94,159 +43,182 @@ export function skinHumanBodySurface(
   /** The surface's toe ray split; used only when the rays carry transforms. */
   toeSplit?: IAutoMovieHumanBodyToeSplit,
 ): number[] {
-  const aligned = new Map<string, IHumanBodyDualQuaternion>();
+  const aligned: Map<string, IHumanBodyDualQuaternion> = new Map<
+    string,
+    IHumanBodyDualQuaternion
+  >();
   for (const joint of joints) {
-    const transform = transforms.get(joint.bone);
+    const transform: IAutoMovieHumanBodyBoneTransform | undefined =
+      transforms.get(joint.bone);
     if (transform === undefined)
       throw new Error(
         "Body skin names a joint without transforms: " + joint.bone,
       );
-    const real = Quaternion.multiply(
+    const real: IAutoMovieQuaternion = Quaternion.multiply(
       transform.posed.rotation,
       Quaternion.inverse(transform.rest.rotation),
     );
-    const translation = Vector3.subtract(
+    const translation: IAutoMovieVector3 = Vector3.subtract(
       transform.posed.position,
       Quaternion.rotateVector(real, transform.rest.position),
     );
-    const dual = scale(
+    const dual: IAutoMovieQuaternion = scale(
       Quaternion.multiply({ ...translation, w: 0 }, real),
       0.5,
     );
-    const parent =
+    const parent: IHumanBodyDualQuaternion | undefined =
       joint.parent === null ? undefined : aligned.get(joint.parent);
-    const sign = parent !== undefined && dot(parent.real, real) < 0 ? -1 : 1;
+    const sign: number =
+      parent !== undefined && dot(parent.real, real) < 0 ? -1 : 1;
     aligned.set(joint.bone, {
       real: scale(real, sign),
       dual: scale(dual, sign),
     });
   }
-  const bones = skin.joints.map((bone) => {
-    const found = aligned.get(bone);
-    if (found === undefined)
-      throw new Error("Body skin names a joint without transforms: " + bone);
-    return found;
-  });
+  const bones: IHumanBodyDualQuaternion[] = skin.joints.map(
+    (bone: string): IHumanBodyDualQuaternion => {
+      const found: IHumanBodyDualQuaternion | undefined = aligned.get(bone);
+      if (found === undefined)
+        throw new Error("Body skin names a joint without transforms: " + bone);
+      return found;
+    },
+  );
   // A bone that spreads its twist: its rotation relative to its parent,
   // split into a swing and a twist about its rest axis (head to its one
   // child's head), each vertex taking the twist in proportion to where it
   // lies along that axis.
-  const spread = skin.joints.map((bone) => {
-    const joint = joints.find((one) => one.bone === bone);
-    if (joint?.distributeTwist !== true) return null;
-    const child = joints.find((one) => one.parent === bone)!;
-    const own = transforms.get(bone)!;
-    const head = own.rest.position;
-    const along = Vector3.subtract(
-      transforms.get(child.bone)!.rest.position,
-      head,
-    );
-    const length = Vector3.length(along);
-    const axis = Vector3.scale(along, 1 / length);
-    const delta = (b: string): IAutoMovieQuaternion => {
-      const t = transforms.get(b)!;
-      return Quaternion.multiply(
-        t.posed.rotation,
-        Quaternion.inverse(t.rest.rotation),
+  const spread: (IHumanBodyTwistSpread | null)[] = skin.joints.map(
+    (bone: string): IHumanBodyTwistSpread | null => {
+      const joint: (typeof joints)[number] | undefined = joints.find(
+        (one: (typeof joints)[number]): boolean => one.bone === bone,
       );
-    };
-    const parentDelta =
-      joint.parent === null ? Quaternion.identity() : delta(joint.parent);
-    const local = Quaternion.multiply(
-      Quaternion.inverse(parentDelta),
-      delta(bone),
-    );
-    const projected = local.x * axis.x + local.y * axis.y + local.z * axis.z;
-    const twistSize = Math.hypot(local.w, projected);
-    const twist =
-      twistSize < 1e-12
-        ? Quaternion.identity()
-        : {
-            x: (projected * axis.x) / twistSize,
-            y: (projected * axis.y) / twistSize,
-            z: (projected * axis.z) / twistSize,
-            w: local.w / twistSize,
-          };
-    return {
-      head,
-      posedHead: own.posed.position,
-      axis,
-      length,
-      base: Quaternion.multiply(
-        parentDelta,
-        Quaternion.multiply(local, Quaternion.inverse(twist)),
-      ),
-      twist,
-      reference: aligned.get(bone)!.real,
-    };
-  });
+      if (joint?.distributeTwist !== true) return null;
+      const child: (typeof joints)[number] = joints.find(
+        (one: (typeof joints)[number]): boolean => one.parent === bone,
+      )!;
+      const own: IAutoMovieHumanBodyBoneTransform = transforms.get(bone)!;
+      const head: IAutoMovieVector3 = own.rest.position;
+      const along: IAutoMovieVector3 = Vector3.subtract(
+        transforms.get(child.bone)!.rest.position,
+        head,
+      );
+      const length: number = Vector3.length(along);
+      const axis: IAutoMovieVector3 = Vector3.scale(along, 1 / length);
+      const delta: (b: string) => IAutoMovieQuaternion = (
+        b: string,
+      ): IAutoMovieQuaternion => {
+        const t: IAutoMovieHumanBodyBoneTransform = transforms.get(b)!;
+        return Quaternion.multiply(
+          t.posed.rotation,
+          Quaternion.inverse(t.rest.rotation),
+        );
+      };
+      const parentDelta: IAutoMovieQuaternion =
+        joint.parent === null ? Quaternion.identity() : delta(joint.parent);
+      const local: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.inverse(parentDelta),
+        delta(bone),
+      );
+      const projected: number =
+        local.x * axis.x + local.y * axis.y + local.z * axis.z;
+      const twistSize: number = Math.hypot(local.w, projected);
+      const twist: IAutoMovieQuaternion =
+        twistSize < 1e-12
+          ? Quaternion.identity()
+          : {
+              x: (projected * axis.x) / twistSize,
+              y: (projected * axis.y) / twistSize,
+              z: (projected * axis.z) / twistSize,
+              w: local.w / twistSize,
+            };
+      return {
+        head,
+        posedHead: own.posed.position,
+        axis,
+        length,
+        base: Quaternion.multiply(
+          parentDelta,
+          Quaternion.multiply(local, Quaternion.inverse(twist)),
+        ),
+        twist,
+        reference: aligned.get(bone)!.real,
+      };
+    },
+  );
   /** The dual quaternion a spread bone gives the vertex at `p`. */
-  const spreadAt = (
-    one: NonNullable<(typeof spread)[number]>,
+  const spreadAt: (
+    one: IHumanBodyTwistSpread,
+    p: IAutoMovieVector3,
+  ) => IHumanBodyDualQuaternion = (
+    one: IHumanBodyTwistSpread,
     p: IAutoMovieVector3,
   ): IHumanBodyDualQuaternion => {
-    const fraction = Math.min(
+    const fraction: number = Math.min(
       1,
       Math.max(
         0,
         Vector3.dot(Vector3.subtract(p, one.head), one.axis) / one.length,
       ),
     );
-    const real = Quaternion.multiply(one.base, power(one.twist, fraction));
-    const translation = Vector3.subtract(
+    const real: IAutoMovieQuaternion = Quaternion.multiply(
+      one.base,
+      power(one.twist, fraction),
+    );
+    const translation: IAutoMovieVector3 = Vector3.subtract(
       one.posedHead,
       Quaternion.rotateVector(real, one.head),
     );
-    const dual = scale(
+    const dual: IAutoMovieQuaternion = scale(
       Quaternion.multiply({ ...translation, w: 0 }, real),
       0.5,
     );
     // the same hemisphere as the bone's own, which its parent chose
-    const sign = dot(one.reference, real) < 0 ? -1 : 1;
+    const sign: number = dot(one.reference, real) < 0 ? -1 : 1;
     return { real: scale(real, sign), dual: scale(dual, sign) };
   };
   // Toe rays split a vertex's toes weight among phalanges by their shares;
   // each phalanx joins the hemisphere of its side's toes bone. Rays without
   // transforms (no posed phalanx) leave the toes bone to skin alone.
-  const rays =
+  const rays: IHumanBodyDualQuaternion[] | null =
     toeSplit === undefined ||
-    !toeSplit.bones.every((bone) => transforms.has(bone))
+    !toeSplit.bones.every((bone: string): boolean => transforms.has(bone))
       ? null
-      : toeSplit.bones.map((bone) => {
-          const transform = transforms.get(bone)!;
-          const real = Quaternion.multiply(
+      : toeSplit.bones.map((bone: string): IHumanBodyDualQuaternion => {
+          const transform: IAutoMovieHumanBodyBoneTransform =
+            transforms.get(bone)!;
+          const real: IAutoMovieQuaternion = Quaternion.multiply(
             transform.posed.rotation,
             Quaternion.inverse(transform.rest.rotation),
           );
-          const translation = Vector3.subtract(
+          const translation: IAutoMovieVector3 = Vector3.subtract(
             transform.posed.position,
             Quaternion.rotateVector(real, transform.rest.position),
           );
-          const dual = scale(
+          const dual: IAutoMovieQuaternion = scale(
             Quaternion.multiply({ ...translation, w: 0 }, real),
             0.5,
           );
-          const toes = aligned.get(
+          const toes: IHumanBodyDualQuaternion | undefined = aligned.get(
             bone.startsWith("left") ? "leftToes" : "rightToes",
           );
-          const sign = toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
+          const sign: number =
+            toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
           return { real: scale(real, sign), dual: scale(dual, sign) };
         });
-  const rowOf = new Map<number, number>(
-    (rays === null ? [] : toeSplit!.vertices).map((vertex, row) => [
-      vertex,
-      row,
-    ]),
+  const rowOf: Map<number, number> = new Map<number, number>(
+    (rays === null ? [] : toeSplit!.vertices).map(
+      (vertex: number, row: number): [number, number] => [vertex, row],
+    ),
   );
-  const output = new Array<number>(positions.length);
-  for (let v = 0; v < positions.length / 3; v++) {
-    const real = { x: 0, y: 0, z: 0, w: 0 };
-    const dual = { x: 0, y: 0, z: 0, w: 0 };
-    for (let k = 0; k < 4; k++) {
-      const weight = skin.weights[v * 4 + k];
+  const output: number[] = new Array<number>(positions.length);
+  for (let v: number = 0; v < positions.length / 3; v++) {
+    const real: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 0 };
+    const dual: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 0 };
+    for (let k: number = 0; k < 4; k++) {
+      const weight: number = skin.weights[v * 4 + k];
       if (weight === 0) continue;
-      const index = skin.boneIndices[v * 4 + k];
-      const row = rays === null ? undefined : rowOf.get(v);
+      const index: number = skin.boneIndices[v * 4 + k];
+      const row: number | undefined = rays === null ? undefined : rowOf.get(v);
       if (
         row !== undefined &&
         (skin.joints[index] === "leftToes" ||
@@ -255,10 +227,11 @@ export function skinHumanBodySurface(
         // shares divide the vertex's whole toes weight (both sides' toes slots
         // together, as at the midline of a few source vertices), so the rows
         // are applied once, at the first toes slot, and later toes slots skip
-        let first = true;
-        let total = 0;
-        for (let j = 0; j < 4; j++) {
-          const toes = skin.joints[skin.boneIndices[v * 4 + j]];
+        let first: boolean = true;
+        let total: number = 0;
+        for (let j: number = 0; j < 4; j++) {
+          const toes: (typeof skin.joints)[number] =
+            skin.joints[skin.boneIndices[v * 4 + j]];
           if (
             skin.weights[v * 4 + j] === 0 ||
             (toes !== "leftToes" && toes !== "rightToes")
@@ -269,18 +242,19 @@ export function skinHumanBodySurface(
         }
         if (first)
           for (
-            let r = toeSplit!.offsets[row];
+            let r: number = toeSplit!.offsets[row];
             r < toeSplit!.offsets[row + 1];
             r++
           ) {
-            const ray = rays![toeSplit!.bonesIndex[r]];
+            const ray: IHumanBodyDualQuaternion =
+              rays![toeSplit!.bonesIndex[r]];
             accumulate(real, ray.real, total * toeSplit!.shares[r]);
             accumulate(dual, ray.dual, total * toeSplit!.shares[r]);
           }
         continue;
       }
-      const spreading = spread[index];
-      const bone =
+      const spreading: IHumanBodyTwistSpread | null = spread[index];
+      const bone: IHumanBodyDualQuaternion =
         spreading === null
           ? bones[index]
           : spreadAt(
@@ -294,13 +268,29 @@ export function skinHumanBodySurface(
       accumulate(real, bone.real, weight);
       accumulate(dual, bone.dual, weight);
     }
-    const size = Math.hypot(real.x, real.y, real.z, real.w);
-    const rotation = scale(real, 1 / size);
-    const translation = scale(
-      Quaternion.multiply(scale(dual, 1 / size), Quaternion.inverse(rotation)),
+    const size: number = Math.hypot(real.x, real.y, real.z, real.w);
+    if (!(size > 0) || !Number.isFinite(size))
+      throw new Error(
+        "Body dual-quaternion skin blend needs a finite nonzero real part at vertex " +
+          v +
+          ".",
+      );
+    const normalizationScale: number = 1 / size;
+    if (!Number.isFinite(normalizationScale))
+      throw new Error(
+        "Body dual-quaternion skin blend normalization is not representable at vertex " +
+          v +
+          ".",
+      );
+    const rotation: IAutoMovieQuaternion = scale(real, normalizationScale);
+    const translation: IAutoMovieQuaternion = scale(
+      Quaternion.multiply(
+        scale(dual, normalizationScale),
+        Quaternion.inverse(rotation),
+      ),
       2,
     );
-    const moved = Vector3.add(
+    const moved: IAutoMovieVector3 = Vector3.add(
       Quaternion.rotateVector(
         rotation,
         Vector3.create(
@@ -319,26 +309,38 @@ export function skinHumanBodySurface(
 }
 
 /** A unit quaternion raised to `t` along its shortest arc. */
-const power = (q: IAutoMovieQuaternion, t: number): IAutoMovieQuaternion => {
-  const sign = q.w < 0 ? -1 : 1;
-  const angle = Math.acos(Math.min(1, sign * q.w));
-  const sine = Math.sin(angle);
+const power: (q: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (
+  q: IAutoMovieQuaternion,
+  t: number,
+): IAutoMovieQuaternion => {
+  const sign: number = q.w < 0 ? -1 : 1;
+  const angle: number = Math.acos(Math.min(1, sign * q.w));
+  const sine: number = Math.sin(angle);
   if (sine < 1e-12) return { x: 0, y: 0, z: 0, w: 1 };
-  const k = (sign * Math.sin(t * angle)) / sine;
+  const k: number = (sign * Math.sin(t * angle)) / sine;
   return { x: q.x * k, y: q.y * k, z: q.z * k, w: Math.cos(t * angle) };
 };
 
-const dot = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
-  a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+const dot: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion) => number = (
+  a: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
+): number => a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
-const scale = (q: IAutoMovieQuaternion, s: number): IAutoMovieQuaternion => ({
+const scale: (q: IAutoMovieQuaternion, s: number) => IAutoMovieQuaternion = (
+  q: IAutoMovieQuaternion,
+  s: number,
+): IAutoMovieQuaternion => ({
   x: q.x * s,
   y: q.y * s,
   z: q.z * s,
   w: q.w * s,
 });
 
-const accumulate = (
+const accumulate: (
+  sum: IAutoMovieQuaternion,
+  q: IAutoMovieQuaternion,
+  s: number,
+) => void = (
   sum: IAutoMovieQuaternion,
   q: IAutoMovieQuaternion,
   s: number,

@@ -2,96 +2,50 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMoviePlantingChild } from "./IAutoMoviePlantingChild";
 
 /**
- * The recursive branching law, free of any species classification.
+ * Recursive branching parameters in the recipe frame.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IAutoMoviePlantingStructure` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingStructure` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation growPlanting applies the child list recursively, rescales lengths and radii, builds a perpendicular parent frame and normalizes seeded directional perturbations; growth and pruning control which segments survive.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry parameters express the branching law directly; species labels do not select a hidden template.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation requires nonzero axes and bounded ratios/jitter. The derivation's zero-direction fallback retains the parent axis instead of introducing a species exception.
+ * @evidence contracts/common.md#meaningful-documentation Members state depth indexing, metre lengths, dimensionless ratios and recipe-frame vertical bias before placement transforms.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingStructure {
-  /**
-   * Recursion depth; an integer of at least 1. Level `0` is the trunk.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `levels` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `levels` for the interior space soft furnishing planting system contract.
-   */
+  /** Recursion depth; an integer of at least 1. Level `0` is the trunk. */
   levels: number;
 
   /**
-   * Growth direction of the trunk in world space; non-zero, need not be unit.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `axis` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `axis` for the interior space soft furnishing planting system contract.
+   * Trunk direction in the recipe frame; non-zero and need not be unit.
    */
   axis: IAutoMovieVector3;
 
-  /**
-   * Trunk length in metres at full growth; strictly positive.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `length` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `length` for the interior space soft furnishing planting system contract.
-   */
+  /** Baseline full-growth trunk length in metres before seeded length jitter; strictly positive. */
   length: number;
 
-  /**
-   * Trunk radius in metres at its base; strictly positive.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `radius` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `radius` for the interior space soft furnishing planting system contract.
-   */
+  /** Trunk radius in metres at its base; strictly positive. */
   radius: number;
 
-  /**
-   * Child length divided by parent length; in `(0, 1]`.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `lengthRatio` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `lengthRatio` for the interior space soft furnishing planting system contract.
-   */
+  /** Baseline child full-growth length factor applied to the parent's full length before the child's own jitter; in `(0, 1]`. */
   lengthRatio: number;
 
-  /**
-   * Child radius divided by parent radius; in `(0, 1]`.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `radiusRatio` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `radiusRatio` for the interior space soft furnishing planting system contract.
-   */
+  /** Child radius divided by parent radius; in `(0, 1]`. */
   radiusRatio: number;
 
   /**
-   * The children every branch bears, in authored order. At least one, so the
-   * recursion has something to do; the branching pattern of a whole plant is
-   * this short list applied at every level.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `children` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `children` for the interior space soft furnishing planting system contract.
+   * The children every branch bears, in authored order. At least one, so the recursion has something to do; the branching pattern of a whole plant is this short list applied at every level.
    */
   children: IAutoMoviePlantingChild[];
 
   /**
-   * Seeded perturbation of each child's direction, in `[0, 1]`. `0` grows a
-   * perfectly regular lattice of a plant; `1` fully randomizes the offset
-   * before the direction is renormalized.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `directionJitter` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `directionJitter` for the interior space soft furnishing planting system contract.
+   * Seeded additive perturbation of each child direction component, in `[0, 1]`. Each component receives this amount times a sample in `[-1, 1)` before renormalization; it is not a uniform angular distribution. `0` adds no directional jitter.
    */
   directionJitter: number;
 
-  /**
-   * Seeded relative perturbation of each child's length, in `[0, 1)`.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `lengthJitter` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `lengthJitter` for the interior space soft furnishing planting system contract.
-   */
+  /** Seeded relative length perturbation of the trunk and each child, in `[0, 1)`. */
   lengthJitter: number;
 
   /**
-   * Bias of every child direction toward world vertical, in `[-1, 1]`. Positive
-   * droops toward `-y` (a weeping habit, a hanging basket); negative lifts
-   * toward `+y` (a columnar habit); `0` follows the authored direction
-   * exactly.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `gravitropism` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `gravitropism` for the interior space soft furnishing planting system contract.
+   * Bias of every child direction toward recipe-frame vertical, in `[-1, 1]`. Positive pulls toward `-y`; negative pulls toward `+y`. `0` leaves the transformed authored direction unchanged before directional jitter. This does not bias the trunk axis.
    */
   gravitropism: number;
 }

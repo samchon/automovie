@@ -11,7 +11,13 @@ const BODY: IAutoMovieBody = {
   restitution: 0.5,
 };
 
-const fall = (over: { margin?: number; fallDuration?: number }) =>
+const fall: (over: {
+  margin?: number;
+  fallDuration?: number;
+}) => ReturnType<typeof detectFreeFall> = (over: {
+  margin?: number;
+  fallDuration?: number;
+}): ReturnType<typeof detectFreeFall> =>
   detectFreeFall({
     body: BODY,
     centerOfMass: { x: 0, y: 5, z: 0 },
@@ -22,10 +28,7 @@ const fall = (over: { margin?: number; fallDuration?: number }) =>
   });
 
 /**
- * The free-fall check's rough config scalars are engine runtime checks. A
- * non-finite or negative margin, and a non-finite or non-positive fall duration
- * (the arc must span real time), are `error`-severity range violations that
- * abort the check.
+ * Refuse invalid support-margin and proposal-duration settings through the detector's range-error result.
  *
  * Scenarios:
  *
@@ -33,9 +36,14 @@ const fall = (over: { margin?: number; fallDuration?: number }) =>
  * 2. A non-finite margin is a range violation on `margin`.
  * 3. A zero fall duration is a range violation on `fallDuration`.
  * 4. A non-finite fall duration is a range violation on `fallDuration`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual free-fall detection with each invalid setting and requires its located range finding, with explicit failure assertions for negative margin and zero duration.
+ * @evidence contracts/testing.md#independent-expectations A distance margin must be finite and nonnegative; trajectory duration must be finite and positive. Literal setting paths distinguish admission failure from an unrelated body or support verdict.
+ * @evidence contracts/testing.md#distinguishing-cases Covers negative/NaN margin and zero/infinite duration; valid proposal/support and suppression cases live in the other free-fall entries. This entry does not assert returned event or trajectory populations.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns four detector calls through a private local helper using existing numerical records, without a native artifact, process or physics host.
  */
-export const test_validation_free_fall_config = (): void => {
-  const negMargin = fall({ margin: -1 });
+export function test_validation_free_fall_config(): void {
+  const negMargin: ReturnType<typeof detectFreeFall> = fall({ margin: -1 });
   TestValidator.equals(
     "negative margin fails",
     negMargin.validation.success,
@@ -50,7 +58,9 @@ export const test_validation_free_fall_config = (): void => {
     hasViolation(fall({ margin: Number.NaN }).validation, "range", ".margin"),
   );
 
-  const zeroDuration = fall({ fallDuration: 0 });
+  const zeroDuration: ReturnType<typeof detectFreeFall> = fall({
+    fallDuration: 0,
+  });
   TestValidator.equals(
     "zero fallDuration fails",
     zeroDuration.validation.success,
@@ -68,4 +78,4 @@ export const test_validation_free_fall_config = (): void => {
       ".fallDuration",
     ),
   );
-};
+}

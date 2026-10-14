@@ -1,6 +1,10 @@
 import type { FilmPropPlacementMutation } from "./FilmPropPlacementMutation";
 
-/** Original registry slot identities and addressed refusal reader. */
+/**
+ * Original registry slot identities and addressed refusal reader shared by the existing identity and geometry case groups.
+ *
+ * @author Samchon
+ */
 export interface IFilmPropPlacementCaseInputs {
   /** Apply the existing fresh registry mutation and read its original refusal. */
   violated(

@@ -1,67 +1,37 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
- * Eyes: symmetric shared controls (asymmetry is a future global axis). The
- * `epicanthus`/`fold` cues are the East-Asian-defining controls.
+ * Eye traits of an {@link IAutoMovieHead}: signed weights in `[-2, 2]`, with
+ * omission leaving the template unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieHeadEyes` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieHeadEyes` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * Every control is symmetric, so one value moves both eyes. `flattenHead`
+ * renames `openness` to `eyeHeight` and `tilt` to `eyeAngle`, and the other
+ * fields to same-stem names (`eyeSize`, `eyeSpacing`, `eyeDepth`,
+ * `epicanthus`, `eyeFold`).
+ *
+ * @evidence contracts/common.md#principled-implementation `HEAD_PARAMETERS.eyes` in `flattenHead` renames all seven leaves one-to-one, two of them to names that differ from the field, which the documentation lists so a template author can name targets correctly.
+ * @evidence contracts/common.md#clear-and-simple-design Seven unsided leaves cover size, aperture, placement, depth and both lid folds in one record; sided eye traits belong to `IAutoMovieFaceEyeSet` instead.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The fold controls are ordinary leaves with no population-specific default or preset; every leaf is copied unchanged for the template to interpret.
+ * @evidence contracts/common.md#meaningful-documentation States the range and neutral meaning, that the controls are symmetric, and every morph name including the two renamed ones; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieHeadEyes {
-  /**
-   * Overall eye size relative to the face: `+` larger (feminine/young).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `size` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `size` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  size?: AutoMovieFaceWeight;
+  /** Overall eye size relative to the face: `+` larger, `-` smaller. */
+  size?: number;
 
-  /**
-   * Lid aperture openness: `+` more open, `-` narrower.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `openness` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `openness` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  openness?: AutoMovieFaceWeight;
+  /** Lid aperture: `+` more open, `-` narrower. */
+  openness?: number;
 
-  /**
-   * Inter-eye spacing: `+` wider-set (cute/neoteny), `-` closer.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `spacing` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `spacing` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  spacing?: AutoMovieFaceWeight;
+  /** Distance between the eyes: `+` wider-set, `-` closer. */
+  spacing?: number;
 
-  /**
-   * Outer-canthus tilt: `+` up (youthful), `-` down.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `tilt` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `tilt` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  tilt?: AutoMovieFaceWeight;
+  /** Outer-corner tilt: `+` up, `-` down. */
+  tilt?: number;
 
-  /**
-   * Eyeball protrusion in the socket: `+` more prominent, `-` deeper-set.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `depth` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `depth` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  depth?: AutoMovieFaceWeight;
+  /** Eyeball protrusion in the socket: `+` more prominent, `-` deeper-set. */
+  depth?: number;
 
-  /**
-   * Epicanthic fold at the inner corner: `+` more (East-Asian), `-` open.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `epicanthus` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `epicanthus` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  epicanthus?: AutoMovieFaceWeight;
+  /** Epicanthic fold over the inner corner: `+` more covered, `-` open. */
+  epicanthus?: number;
 
-  /**
-   * Upper-lid fold: `+` hooded/mono-lid, `-` deeper double-lid crease.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `fold` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `fold` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  fold?: AutoMovieFaceWeight;
+  /** Upper-lid fold: `+` hooded toward a single lid, `-` a deeper crease. */
+  fold?: number;
 }

@@ -2,7 +2,6 @@
   "extends": "../config/tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "rootDir": ".",
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
     "resolveJsonModule": true,

@@ -1,28 +1,20 @@
 /**
  * A session the browser session detached from, as `Target.detachedFromTarget` reports it.
  *
- * @evidence contracts/common.md#principled-implementation A detached CDP session is identified by its session ID with an optional target ID when the event supplies one.
- * @evidence contracts/common.md#clear-and-simple-design The event projection carries only fields needed to remove a known target session.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An omitted target ID stays absent and is not guessed from an unrelated page or worker.
- * @evidence contracts/common.md#meaningful-documentation Names the detached session and optional associated target carried by the protocol event.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle A detached CDP session is identified by its session ID with an optional target ID when the event supplies one.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation The event projection carries only fields needed to remove a known target session.
+ * @evidence contracts/common.md#principled-implementation The CDP detach event is represented by required session identity and optional target identity, matching which correlation fields may be supplied.
+ * @evidence contracts/common.md#clear-and-simple-design Only the detached session and target are exposed; renderer-stop interpretation remains with the lifecycle observer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This payload does not reinterpret all session detachments as renderer death or manufacture a missing target id.
+ * @evidence contracts/common.md#meaningful-documentation The prose names Target.detachedFromTarget and distinguishes required session from optional target.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The detach payload type implements no target matching or protocol parsing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A detach event is a lifecycle fact with no deduplicated result cache in this declaration.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Session ids are descriptive strings rather than owned CDP sessions; observers retain and dispose actual session handles.
+ *
  * @author Samchon
  */
 export interface IHumanViewerTargetDetached {
-  /**
-   * The detached session.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle The detached session. A detached CDP session is identified by its session ID with an optional target ID when the event supplies one.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation The detached session. The event projection carries only fields needed to remove a known target session.
-   */
+  /** The detached session. */
   sessionId: string;
 
-  /**
-   * The target it was attached to.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle The target it was attached to. A detached CDP session is identified by its session ID with an optional target ID when the event supplies one.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation The target it was attached to. The event projection carries only fields needed to remove a known target session.
-   */
+  /** The target it was attached to. */
   targetId?: string;
 }

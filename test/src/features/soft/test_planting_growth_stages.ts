@@ -1,15 +1,24 @@
 import { growPlanting } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { plantingRecipe } from "../internal/softFixtures";
 
 /** The same recipe at one stage of growth. */
-const at = (stage: number) =>
+const at: (stage: number) => IAutoMoviePlantingState = (
+  stage: number,
+): IAutoMoviePlantingState =>
   growPlanting(plantingRecipe({ growth: { stage, onset: 0.25 } }));
 
 /** Length of one derived branch. */
-const span = (start: { x: number; y: number; z: number }, end: typeof start) =>
+const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
+  start: IAutoMovieVector3,
+  end: IAutoMovieVector3,
+): number =>
   Math.sqrt(
     (end.x - start.x) ** 2 + (end.y - start.y) ** 2 + (end.z - start.z) ** 2,
   );
@@ -36,6 +45,11 @@ const span = (start: { x: number; y: number; z: number }, end: typeof start) =>
  * the declared ratio, and a child's base radius is exactly its parent's tip
  * radius, so the structure is continuous rather than stepped.
  *
+ * @evidence contracts/testing.md#behavioral-verification Derives the recipe at dormant, quarter, half, full and eleven sampled stages plus a single-level boundary; counts, endpoints, radii and ancestry expose incorrect extension or branching.
+ * @evidence contracts/testing.md#independent-expectations The documented clamped extension law and authored ratios yield expected coordinates independently; vclose/nclose compare geometric values, while Object.is retains exact dyadic radii and their continuity witness.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty bounds, level-emergence boundaries, full depth, sampled monotonicity and zero-onset single-level growth; monotonicity is checked only at eleven samples, and foliage/pruning/seed behavior belongs to separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable export directly exercises portable growPlanting semantics and owns all six scenarios without a native consumer, browser, GPU or dynamic registration.
+ *
  * Scenarios:
  *
  * 1. At `stage = 0` nothing has emerged: no branch, no leaf, and `null` bounds
@@ -52,21 +66,21 @@ const span = (start: { x: number; y: number; z: number }, end: typeof start) =>
  * 6. A recipe with a single level and no onset delay is the boundary case where
  *    the span is exactly one, so extension equals the stage itself.
  */
-export const test_planting_growth_stages = (): void => {
-  const dormant = at(0);
+export function test_planting_growth_stages(): void {
+  const dormant: IAutoMoviePlantingState = at(0);
   TestValidator.equals(
     "nothing has emerged at growth state zero",
     namedFacts([
       ["branches", () => dormant.branches.length === 0],
       ["leaves", () => dormant.leaves.length === 0],
       ["bounds", () => dormant.bounds === null],
-      ["stage", () => dormant.stage === 0],
+      ["stage", () => nclose(dormant.stage, 0, 0)],
       ["domain", () => dormant.domain === "fern"],
     ]),
     { branches: true, leaves: true, bounds: true, stage: true, domain: true },
   );
 
-  const young = at(0.25);
+  const young: IAutoMoviePlantingState = at(0.25);
   TestValidator.equals(
     "a quarter grown is a half-length trunk and nothing else",
     namedFacts([
@@ -89,8 +103,8 @@ export const test_planting_growth_stages = (): void => {
     },
   );
 
-  const half = at(0.5);
-  const root = 0.5 / Math.SQRT2;
+  const half: IAutoMoviePlantingState = at(0.5);
+  const root: number = 0.5 / Math.SQRT2;
   TestValidator.equals(
     "half grown completes the trunk and half-extends the first order",
     namedFacts([
@@ -111,7 +125,11 @@ export const test_planting_growth_stages = (): void => {
       ],
       [
         "noSecondOrder",
-        () => half.branches.every((branch) => branch.level < 2),
+        () =>
+          half.branches.every(
+            (branch: IAutoMoviePlantingState["branches"][number]): boolean =>
+              branch.level < 2,
+          ),
       ],
     ]),
     {
@@ -123,7 +141,7 @@ export const test_planting_growth_stages = (): void => {
     },
   );
 
-  const grown = at(1);
+  const grown: IAutoMoviePlantingState = at(1);
   TestValidator.equals(
     "full growth is the complete seven-segment structure",
     namedFacts([
@@ -144,7 +162,10 @@ export const test_planting_growth_stages = (): void => {
       [
         "depth",
         () =>
-          grown.branches.filter((branch) => branch.level === 2).length === 4,
+          grown.branches.filter(
+            (branch: IAutoMoviePlantingState["branches"][number]): boolean =>
+              branch.level === 2,
+          ).length === 4,
       ],
     ]),
     {
@@ -159,7 +180,10 @@ export const test_planting_growth_stages = (): void => {
     },
   );
 
-  const stages = Array.from({ length: 11 }, (_, index) => at(index / 10));
+  const stages: IAutoMoviePlantingState[] = Array.from(
+    { length: 11 },
+    (_: unknown, index: number): IAutoMoviePlantingState => at(index / 10),
+  );
   TestValidator.equals(
     "growth never runs backwards",
     namedFacts([
@@ -167,7 +191,7 @@ export const test_planting_growth_stages = (): void => {
         "count",
         () =>
           stages.every(
-            (state, index) =>
+            (state: IAutoMoviePlantingState, index: number): boolean =>
               index === 0 ||
               state.branches.length >= stages[index - 1].branches.length,
           ),
@@ -175,22 +199,29 @@ export const test_planting_growth_stages = (): void => {
       [
         "trunkLength",
         () =>
-          stages.every((state, index) => {
-            if (index === 0 || state.branches.length === 0) return true;
-            const previous = stages[index - 1].branches[0];
-            const length = span(state.branches[0].start, state.branches[0].end);
-            return (
-              previous === undefined ||
-              length >= span(previous.start, previous.end)
-            );
-          }),
+          stages.every(
+            (state: IAutoMoviePlantingState, index: number): boolean => {
+              if (index === 0 || state.branches.length === 0) return true;
+              const previous:
+                | IAutoMoviePlantingState["branches"][number]
+                | undefined = stages[index - 1].branches[0];
+              const length: number = span(
+                state.branches[0].start,
+                state.branches[0].end,
+              );
+              return (
+                previous === undefined ||
+                length >= span(previous.start, previous.end)
+              );
+            },
+          ),
       ],
       ["reachesSeven", () => stages[10].branches.length === 7],
     ]),
     { count: true, trunkLength: true, reachesSeven: true },
   );
 
-  const single = growPlanting(
+  const single: IAutoMoviePlantingState = growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, levels: 1 },
       growth: { stage: 0.375, onset: 0 },
@@ -209,4 +240,4 @@ export const test_planting_growth_stages = (): void => {
     ]),
     { count: true, length: true },
   );
-};
+}

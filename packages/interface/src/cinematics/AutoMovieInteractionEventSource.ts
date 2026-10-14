@@ -1,10 +1,20 @@
 /**
- * Where an interaction event came from. The value is intentionally about the
- * producer, not the visual result, so clients can decide how much trust or
- * extra solving they need downstream.
+ * Where an interaction event came from.
  *
- * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `AutoMovieInteractionEventSource` as the portable data boundary for the staging event observation requirement.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `AutoMovieInteractionEventSource` for the performance staging event boundary sampling output system contract.
+ * The value names the producer, not the visual result, so a client can decide
+ * how much trust or extra solving it needs downstream:
+ *
+ * - `collisionSolver`: a projectile contact solved by `compileLaunch`.
+ * - `impactOutput`: a hit or knock-down fall derived from that solved contact.
+ * - `scriptedCue`: an `attachTo` handoff placed at the authored action times.
+ * - `sampledProximity`: a contact or fall found by sampling body geometry in
+ *   the collision, free-fall and toppling detectors.
+ *
+ * @evidence contracts/common.md#principled-implementation Models provenance as a closed string union whose four members are exactly the values `compileLaunch`, `handoffEvents` and the three sampling detectors write, and the shot artifact validator checks a stored source against the same four values.
+ * @evidence contracts/common.md#clear-and-simple-design Provenance is kept separate from `AutoMovieInteractionEventKind`, so one kind can come from several producers and a consumer filters on either axis without parsing ids.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each producer writes its own fixed source, so a sampled contact is never labelled as solved, and the union carries no catch-all value.
+ * @evidence contracts/common.md#meaningful-documentation States that the value names the producer and why, and for every member which producer writes it and what event it describes.
+ * @author Samchon
  */
 export type AutoMovieInteractionEventSource =
   | "collisionSolver"

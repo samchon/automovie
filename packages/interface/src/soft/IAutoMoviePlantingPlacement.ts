@@ -2,49 +2,27 @@ import { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One accepted cluster member, as a lossless full-TRS instance.
+ * One accepted cluster member as a full-TRS instance.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `IAutoMoviePlantingPlacement` as the portable data boundary for the interior plant placement state requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingPlacement` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation arrangePlantingCluster preserves the accepted slot index and derives translation, normalized yaw quaternion and independently sampled positive axis scales; the viewer composes this transform with recipe-frame plant geometry.
+ * @evidence contracts/common.md#clear-and-simple-design The placement stores only an instance transform and identity, allowing one grown structure to serve every accepted member.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected slots are absent rather than represented by invented placements; scale axes are retained rather than reduced to a scalar.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish stable identity from authored slot and identify world translation, glTF quaternion order and positive scales.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingPlacement {
-  /**
-   * Stable placement identity within the cluster.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `id` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-   */
+  /** Stable placement identity within the cluster. */
   id: string;
 
-  /**
-   * Authored slot index this placement satisfied.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `slot` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `slot` for the interior space soft furnishing planting system contract.
-   */
+  /** Authored slot index this placement satisfied. */
   slot: number;
 
-  /**
-   * World position of the member's base.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `translation` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `translation` for the interior space soft furnishing planting system contract.
-   */
+  /** World position of the member's base. */
   translation: IAutoMovieVector3;
 
-  /**
-   * Unit quaternion in glTF `(x, y, z, w)` order.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `rotation` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `rotation` for the interior space soft furnishing planting system contract.
-   */
+  /** Unit quaternion in glTF `(x, y, z, w)` order. */
   rotation: IAutoMovieQuaternion;
 
-  /**
-   * Per-axis scale; each strictly positive.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `scale` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `scale` for the interior space soft furnishing planting system contract.
-   */
+  /** Per-axis scale; each strictly positive. */
   scale: IAutoMovieVector3;
 }

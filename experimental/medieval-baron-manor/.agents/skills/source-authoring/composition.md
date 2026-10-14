@@ -22,11 +22,6 @@ A figure, an animal, a tree, a wall, a hill, a river, a field, the map: each is 
 
 A class owns four things, and the reason it is a class rather than a factory returning a record is that these four belong together:
 
-- **Constraints** are fields, validated where the subject is built. A measured fact (a reference height, a rated capacity, an interval that must not close) is a field so that another subject can be checked against it and so that the field itself can cite the document that measured it. A number restated in two places is two numbers.
-- **Motions** are methods. A `capabilities: ["advance"]` array names an action without owning it; a method is the action. If a caller cannot invoke it, the source never did the work the array claims.
-- **Utilities** are methods that answer questions about the subject: its extent, its footprint, whether a point is inside it, the ground height at a place, where member _n_ stands. Delegate to the engine function that already computes the answer. Recomputing it in the class produces a second answer that can disagree with the first, and disagreement is worse than either answer alone.
-- **`render(context)`** returns what this subject puts into a shot: its actors, its clips, its cues, its world geometry. Never a whole shot program: a shot is assembled from many subjects, and each one returns only the part it owns.
-
 ```ts
 import {
   AutoMovieSubject,
@@ -139,8 +134,6 @@ A factory takes the parameters that actually differ and returns the shot definit
 
 Name factories for what the shot _is_, not for what it looks like: a factory named for an action reads at the call site, and one named for a camera move hides the beat behind the lens. Keep them honest about what they cannot know. A factory that supplies a default predicate, a default event time, or a default acceptance criterion produces shots that satisfy their contract and prove nothing, which is worse than a shot that fails to compile.
 
-Keep the module readable while you are at it. A citation names a symbol, and a reviewer has to hold that symbol's whole scope in mind to say anything true about it; a factory module that grows past what one reading can carry has a tail nobody reviews honestly. Split it along its own seams before that happens.
-
 ## Derive the design value from the same table
 
 `IAutoMovieDefinedShotContract` is the shot contract minus `id` and `source`. When a consumer needs the complete `IAutoMovieShotContract`, derive that typed value from the same planning input instead of transcribing its fields into a second authority.
@@ -182,5 +175,3 @@ Placement timing, transitions, and edge states still belong to the edit's own ru
 ## Reuse techniques, not content
 
 Read the public package APIs and the design branch that owns the current problem. Derive repetition, surface allocation, quantities, placement, and phase changes from the production's reviewed inputs. A shared concern has one source owner; a complete visual surface is not split merely to distribute files.
-
-Create production modules only when their active branch needs real implementation. A familiar example may suggest a technique, but its dimensions, layout, assets, identities, and content are not production authority.

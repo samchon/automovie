@@ -3,247 +3,113 @@ import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 
 /**
- * A physically-based (PBR) surface material: the "what it's made of and how it
- * catches light" of a character or object surface.
+ * A physically-based (PBR) surface material: the "what it's made of and how it catches light" of a character or object surface.
  *
- * Fields mirror the glTF 2.0 metallic-roughness model so a generated material
- * maps 1:1 onto `three.js` `MeshStandardMaterial`, VRM/MToon inputs, and glTF
- * export. Every coefficient is a scalar documented to `[0, 1]` or an
- * {@link IAutoMovieColor}; the whole material is a small numeric record, which
- * is exactly why an LLM can author or tweak it ("make it more metallic",
- * "rougher", "warmer base color") through structured output; the engine
- * range-checks the coefficients.
+ * The base fields follow glTF's metallic-roughness model; the viewer builds a `MeshPhysicalMaterial` with optional subsurface, detail-normal and overlay shader approximations. The static Human exporter omits those three effects and refuses metallic-roughness and emissive image slots; it is not a general material/scene exporter. Engine model admission owns coefficient domains, while direct viewer callers must supply admitted values.
  *
- * Texture _maps_ (image-based base color / normal / roughness) are referenced
- * by id rather than embedded: the pixel payload is an asset the engine
- * resolves, not something the LLM emits.
+ * Texture images are referenced assets. Their payload and GPU lifetime belong to the renderer's texture resolver, rather than this authoring record.
  *
- * Reference: glTF 2.0 `pbrMetallicRoughness`
- * (https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
+ * Reference: glTF 2.0 `pbrMetallicRoughness` (https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials).
  *
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `IAutoMovieMaterial` as the portable data boundary for the asset material composition requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `IAutoMovieMaterial` for the asset spec material texture relations system contract.
+ * @evidence contracts/common.md#principled-implementation Metallic, roughness and linear colour describe the base reflectance model; `validateModel` admits their domains, and `buildMaterial` maps the admitted fields to physical material parameters and separately composes the optional shader effects.
+ * @evidence contracts/common.md#clear-and-simple-design One optical record owns reflectance, alpha and texture slots; physical density and construction layers use separate substance and assembly types, and image bytes stay behind asset references.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No finish name selects a numerical preset; explicit alpha mode overrides opacity-derived defaults. Shader approximations make no measured tissue-response claim, and static export's omitted effects and refused texture slots remain explicit.
+ * @evidence contracts/common.md#meaningful-documentation States coefficient bounds, linear colour, texture slot colour roles, alpha defaults, normal-map composition and metre-valued transmission and subsurface properties, including export omissions and resolver ownership.
  * @author Samchon
  */
 export interface IAutoMovieMaterial {
-  /**
-   * Stable id so meshes / scene nodes can cite this material.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `id` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `id` for the asset spec material texture relations system contract.
-   */
+  /** Stable id so meshes / scene nodes can cite this material. */
   id: string;
 
   /**
    * Human / LLM readable label (e.g. `"glossy red plastic"`). Null if unnamed.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `name` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `name` for the asset spec material texture relations system contract.
    */
   name: string | null;
 
-  /**
-   * Diffuse / albedo base color (linear).
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `baseColor` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `baseColor` for the asset spec material texture relations system contract.
-   */
+  /** Diffuse / albedo base color (linear). */
   baseColor: IAutoMovieColor;
 
-  /**
-   * Metalness, `[0, 1]`. `0` = dielectric, `1` = metal.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `metallic` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `metallic` for the asset spec material texture relations system contract.
-   */
+  /** Metalness, `[0, 1]`. `0` = dielectric, `1` = metal. */
   metallic: number;
 
-  /**
-   * Surface roughness, `[0, 1]`. `0` = mirror-smooth, `1` = fully diffuse.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `roughness` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `roughness` for the asset spec material texture relations system contract.
-   */
+  /** PBR microfacet roughness in `[0, 1]`, from smooth to maximally rough; one does not remove the specular lobe. */
   roughness: number;
 
   /**
-   * Emissive (self-illumination) color, or `null` for a non-emitting surface.
-   * Distinct from a black base color: this surface _adds_ light.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `emissive` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `emissive` for the asset spec material texture relations system contract.
+   * Emissive RGB multiplier, or `null`. The viewer uses white when null and an emissive image resolves, otherwise its non-emitting default; this adds surface radiance without creating a scene light.
    */
   emissive: IAutoMovieColor | null;
 
   /**
-   * Opacity, `[0, 1]`. `1` = opaque. Below `1` the engine enables alpha
-   * blending. (Mirrors `baseColor.a`; kept explicit for the common author
-   * gesture "make it 50% transparent".)
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `opacity` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `opacity` for the asset spec material texture relations system contract.
+   * Surface alpha in `[0, 1]`, independent of `baseColor.a` in the viewer. Without `alphaMode`, values below one select alpha blending.
    */
   opacity: number;
 
   /**
-   * Id of an optional base-color texture map. `null` = flat `baseColor` only.
-   * The image is an engine-resolved asset, never LLM-emitted pixels.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `baseColorTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `baseColorTexture` for the asset spec material texture relations system contract.
+   * Id of an optional base-color texture map. `null` = flat `baseColor` only. The image is an engine-resolved asset, never LLM-emitted pixels.
    */
   baseColorTexture: AutoMovieTextureBinding | null;
 
-  /**
-   * GlTF-style combined metallic (B) and roughness (G) texture id.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `metallicRoughnessTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `metallicRoughnessTexture` for the asset spec material texture relations system contract.
-   */
+  /** GlTF-style combined metallic (B) and roughness (G) texture id. */
   metallicRoughnessTexture?: AutoMovieTextureBinding | null;
 
-  /**
-   * Tangent-space normal-map texture id.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `normalTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `normalTexture` for the asset spec material texture relations system contract.
-   */
+  /** Tangent-space normal-map texture id. */
   normalTexture?: AutoMovieTextureBinding | null;
 
   /**
-   * Finite multiplier applied to the normal map's XY channels; negative flips
-   * them.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `normalScale` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `normalScale` for the asset spec material texture relations system contract.
+   * Finite multiplier applied to the normal map's XY channels; negative flips them.
    */
   normalScale?: number;
 
-  /**
-   * Ambient-occlusion texture id.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `occlusionTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `occlusionTexture` for the asset spec material texture relations system contract.
-   */
+  /** Ambient-occlusion texture id. */
   occlusionTexture?: AutoMovieTextureBinding | null;
 
-  /**
-   * Occlusion strength in `[0, 1]`.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `occlusionStrength` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `occlusionStrength` for the asset spec material texture relations system contract.
-   */
+  /** Occlusion strength in `[0, 1]`. */
   occlusionStrength?: number;
 
-  /**
-   * Emissive texture id multiplied by {@link emissive}.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `emissiveTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `emissiveTexture` for the asset spec material texture relations system contract.
-   */
+  /** Emissive texture multiplied by authored emissive RGB, or white when that field is null. */
   emissiveTexture?: AutoMovieTextureBinding | null;
 
-  /**
-   * Whether both sides of the surface are visible.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `doubleSided` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `doubleSided` for the asset spec material texture relations system contract.
-   */
+  /** Whether both sides of the surface are visible. */
   doubleSided?: boolean;
 
   /**
-   * Explicit alpha handling. Omitted derives legacy blend behavior from
-   * opacity.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `alphaMode` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `alphaMode` for the asset spec material texture relations system contract.
+   * Explicit alpha handling. Omitted derives legacy blend behavior from opacity.
    */
   alphaMode?: "opaque" | "mask" | "blend";
 
-  /**
-   * Alpha threshold used only by `mask`; defaults to 0.5.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `alphaCutoff` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `alphaCutoff` for the asset spec material texture relations system contract.
-   */
+  /** Alpha threshold used only by `mask`; defaults to 0.5. */
   alphaCutoff?: number;
 
-  /**
-   * Fraction of light transmitted through a physical dielectric, `[0, 1]`.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `transmission` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `transmission` for the asset spec material texture relations system contract.
-   */
+  /** Fraction of light transmitted through a physical dielectric, `[0, 1]`. */
   transmission?: number;
 
-  /**
-   * Index of refraction, finite and `>= 1`.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `ior` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `ior` for the asset spec material texture relations system contract.
-   */
+  /** Index of refraction, finite and `>= 1`. */
   ior?: number;
 
-  /**
-   * Non-negative transmission volume thickness in metres.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `thickness` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `thickness` for the asset spec material texture relations system contract.
-   */
+  /** Non-negative transmission volume thickness in metres. */
   thickness?: number;
 
-  /**
-   * Fractional clear-coat lobe strength, `[0, 1]`.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `clearcoat` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `clearcoat` for the asset spec material texture relations system contract.
-   */
+  /** Fractional clear-coat lobe strength, `[0, 1]`. */
   clearcoat?: number;
 
   /**
-   * Distance light travels under the surface before it leaves again, per
-   * primary, in metres: the diffuse mean free path of a translucent tissue
-   * such as skin (red farthest). A renderer blurs the diffuse response over
-   * the surface by it, so a lit side bleeds soft and red into the shadowed
-   * one where the surface curves within that distance and a flat surface
-   * stays Lambertian. glTF has no ratified extension for it, so an exported
-   * asset omits it. Omitted, the diffuse response is Lambertian.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `subsurfaceRadius` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `subsurfaceRadius` for the asset spec material texture relations system contract.
+   * Nonnegative finite RGB radius parameters in metres for the viewer's direct-diffuse subsurface approximation. Screen-space normal curvature and a shared Gaussian-response lookup modify diffuse lighting; this does not transport light through measured tissue or establish an observed appearance. Omission keeps the ordinary physical material response, and static Human glTF export omits this effect.
    */
   subsurfaceRadius?: { r: number; g: number; b: number };
 
   /**
-   * Optional second tangent-space normal map, blended over `normalTexture`
-   * (whiteout: the two maps' slopes add), usually a fine relief tiled with its
-   * own transform over a coarser map bound once across the surface. glTF has
-   * one normal slot, so an exported asset keeps `normalTexture` and omits this
-   * one. Without a `normalTexture` it stands in as the normal map.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalTexture` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalTexture` for the asset spec material texture relations system contract.
+   * Optional second tangent-space normal map, blended over `normalTexture` (whiteout: the two maps' slopes add), usually a fine relief tiled with its own transform over a coarser map bound once across the surface. glTF has one normal slot, so an exported asset keeps `normalTexture` and omits this one. Without a `normalTexture` it stands in as the normal map.
    */
   detailNormalTexture?: AutoMovieTextureBinding | null;
 
   /**
-   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor;
-   * omitted, one.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalScale` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalScale` for the asset spec material texture relations system contract.
+   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor; omitted, one.
    */
   detailNormalScale?: number;
 
   /**
-   * Surface layers composited over this material in order, each where its
-   * own image covers (veins under a skin, the nail plates at its
-   * fingertips), at most four: a renderer samples up to two images for each
-   * on top of the material's own. glTF has no ratified extension for them, so
-   * an exported asset omits them. Omitted or empty, the material shows alone.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `overlays` as the portable data boundary for the asset material composition requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `overlays` for the asset spec material texture relations system contract.
+   * At most four ordered surface layers, each sampling a colour image and optionally a normal image. Colour/roughness and replacement normals use image coverage; multiply normals follow the separate formula on `IAutoMovieMaterialOverlay`. Static Human glTF export omits them. Omitted or empty, no overlay shader is installed.
    */
   overlays?: IAutoMovieMaterialOverlay[];
 }

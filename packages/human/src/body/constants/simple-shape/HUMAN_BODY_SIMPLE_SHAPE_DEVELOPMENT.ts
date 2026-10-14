@@ -5,7 +5,7 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 /**
  * Macro sex, age and training development, followed by regional muscle response. Volpi et al. (doi:10.1097/01.mco.0000134362.76653.b2) discuss population muscle loss, Janssen et al. (doi:10.1152/jappl.2000.89.1.81) regional muscle distribution, and Roberts et al. 2020 (PMID:32218059) similar training hypertrophy by sex.
  *
- * The rows are authored derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
+ * The rows are authored skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
  */
 export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
   [
@@ -23,8 +23,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShape
       ],
     },
     {
-      // source tool's age nodes (apps/human.py, setAgeYears and the A8 node
-      // table): the child node, macro 0.1875, is 10 years, the macro being
+      // The basis's age nodes: the child node, macro 0.1875, is 10 years, the macro being
       // (years - 1) / 48 below 25 and linear in years between nodes
       channel: "macroAge",
       gain: 1,
@@ -88,7 +87,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShape
       // matched programmes), and a woman carries 40 percent less muscle than
       // a man in the upper body (arms and trunk) and 33 percent less in the
       // lower (Janssen et al. 2000, whole-body MRI of 468 adults)
-      ([channel, woman]): Term => ({
+      ([channel, woman]: readonly [string, number]): Term => ({
         channel,
         gain: 0.7,
         curves: [

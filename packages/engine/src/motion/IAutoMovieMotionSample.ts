@@ -2,24 +2,24 @@ import { IAutoMovieExpression, IAutoMoviePose } from "@automovie/interface";
 
 /**
  * A pose plus optional expression sampled at one instant of a clip.
+ * sampleMotion retargets pose.skeleton to the motion id, interpolates clinical
+ * joint degrees and root TRS, and uses null when neither endpoint expresses.
+ * Endpoint expressions and nested endpoint pose data may alias the clip.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Returns the body and expression state produced by the clip's declared segment law.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Couples every sampled channel at the same resolved clip time.
+ * @evidence contracts/common.md#principled-implementation Keeps articulated body and facial expression together at one motion time, with null expression representing two unauthored endpoints rather than a fabricated facial preset.
+ * @evidence contracts/common.md#clear-and-simple-design Two sampled values are consumed by planting and playback without carrying redundant keyframe times or interpolation metadata.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The sample shape encodes no actor-specific defaults; sampleMotion alone owns endpoint and preset-transition semantics.
+ * @evidence contracts/common.md#meaningful-documentation States the sampler, clinical and root domains, expression absence and endpoint aliasing that consumers must preserve.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The sampled record runs no interpolation; joint maps and segment search are chosen by sampleMotion.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A sample carries one time's body and face but defines no cross-time sampling cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the sample wrapper and any newly interpolated values; borrowed endpoint data remains owned by the source clip.
+ *
  * @author Samchon
  */
 export interface IAutoMovieMotionSample {
-  /**
-   * Interpolated body pose at the sampled instant.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-interpolation Interpolates root transforms and clinical joint axes with their typed laws.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Exposes the articulated state resolved between the surrounding keys.
-   */
+  /** Interpolated body pose at the sampled instant. */
   pose: IAutoMoviePose;
-  /**
-   * Interpolated expression, or `null` when the motion has none.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-sparse-channel-default Blends an authored expression against explicit neutral while preserving an entirely absent channel as null.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Resolves expression retention and interpolation on the same segment progress as the pose.
-   */
+
+  /** Interpolated expression, or `null` when the motion has none. */
   expression: IAutoMovieExpression | null;
 }

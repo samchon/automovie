@@ -1,7 +1,2 @@
-/**
- * Absolute steps one seek may integrate.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds seek reconstruction before unbounded integration begins.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Defines the compatible maximum seek workload.
- */
-export const FLUID_MAX_STEPS = 100_000;
+/** validateFluidDomain's maximum admitted solver.maxSteps. simulateFluidDomain checks against the domain's own budget and replays from zero each call, so this ceiling requires prior admission and does not bound repeated seeks' total work. */
+export const FLUID_MAX_STEPS: 100_000 = 100_000 as const;

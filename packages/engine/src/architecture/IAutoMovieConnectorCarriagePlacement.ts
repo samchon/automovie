@@ -3,57 +3,47 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 /**
  * Where one carriage of a run stands, in world space, at one state.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `IAutoMovieConnectorCarriagePlacement` defines where one carriage of a run stands, in world space, at one state. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `IAutoMovieConnectorCarriagePlacement` structures where one carriage of a run stands, in world space, at one state for the system that resolves ownership, topology, and geometry inside one building-interior boundary.
+ * Produced by `builtConnectorCarriagePlacements`, one per carriage in authored
+ * order. Without a named state the record's own current state is used. The
+ * pose is the carriage element's world matrix with every moving member's
+ * displacement for that state applied down the hierarchy; a member whose
+ * operation lacks the named state contributes none and stands at its rest
+ * transform.
+ *
+ * @evidence contracts/common.md#principled-implementation Composes the carriage element's world affine matrix with state displacements, then decomposes translation, normalized rotation and scale. Finite representable world TRS is the premise, checked numerically by staged validation; this shape cannot preserve arbitrary affine shear.
+ * @evidence contracts/common.md#clear-and-simple-design Pairs the pose with the carriage id, element, staged node id and served space, so a shot places the car and names its floor from one record; it parallels the opening panel placement and adds only `serves`, which a panel has no counterpart for.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A member without the named state, or without an entry in it, stands at rest rather than being interpolated or guessed, and `serves` is null for a counterweight or a missing entry rather than a defaulted space.
+ * @evidence contracts/common.md#meaningful-documentation States the producer and order, the default state, how the pose composes displacements down the hierarchy, the rest fallback, the node id format, the world units of the pose, and both meanings of a null `serves`.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; composing every element's world matrix once per call and decomposing one per carriage is answered on `builtConnectorCarriagePlacements`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer builds one matrix table per call and shares it across that run's carriages; no placement is cached between states or calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh vectors and strings only, owned by the caller's placement list; the producer's matrix table is dropped when it returns.
+ * @author Samchon
  */
 export interface IAutoMovieConnectorCarriagePlacement {
-  /**
-   * Carriage id inside its connector.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `carriage` records `IAutoMovieConnectorCarriagePlacement`'s carriage id inside its connector. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `carriage` supplies `IAutoMovieConnectorCarriagePlacement`'s carriage id inside its connector when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+  /** Carriage id inside its connector. */
   carriage: string;
-  /**
-   * The visible element the carriage drives.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `element` records `IAutoMovieConnectorCarriagePlacement`'s visible element the carriage drives. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `element` supplies `IAutoMovieConnectorCarriagePlacement`'s visible element the carriage drives when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** The visible element the carriage drives. */
   element: string;
+
   /**
-   * The staged node id {@link lowerBuiltEnvironment} emits for that element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `node` records `IAutoMovieConnectorCarriagePlacement`'s staged node id `lowerBuiltEnvironment` emits for that element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `node` supplies `IAutoMovieConnectorCarriagePlacement`'s staged node id `lowerBuiltEnvironment` emits for that element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
+   * The staged node id {@link lowerBuiltEnvironment} emits for that element,
+   * `"<environment id>/<element id>"`.
    */
   node: string;
-  /**
-   * World translation of the carriage's element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `position` records `IAutoMovieConnectorCarriagePlacement`'s world translation of the carriage's element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `position` supplies `IAutoMovieConnectorCarriagePlacement`'s world translation of the carriage's element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World translation of the carriage's element. */
   position: IAutoMovieVector3;
-  /**
-   * World rotation of the carriage's element, as a unit quaternion.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `rotation` records `IAutoMovieConnectorCarriagePlacement`'s world rotation of the carriage's element, as a unit quaternion. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `rotation` supplies `IAutoMovieConnectorCarriagePlacement`'s world rotation of the carriage's element, as a unit quaternion when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World rotation of the carriage's element, as a unit quaternion. */
   rotation: IAutoMovieQuaternion;
-  /**
-   * World per-axis scale of the carriage's element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `scale` records `IAutoMovieConnectorCarriagePlacement`'s world per-axis scale of the carriage's element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `scale` supplies `IAutoMovieConnectorCarriagePlacement`'s world per-axis scale of the carriage's element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World per-axis scale of the carriage's element. */
   scale: IAutoMovieVector3;
+
   /**
-   * Logical space this carriage stands at in that state, or null.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `serves` records `IAutoMovieConnectorCarriagePlacement`'s logical space this carriage stands at in that state, or null. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `serves` supplies `IAutoMovieConnectorCarriagePlacement`'s logical space this carriage stands at in that state, or null when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
+   * Logical space the state says this carriage serves, or null when it serves
+   * none (a counterweight) or the state gives the carriage no entry.
    */
   serves: string | null;
 }

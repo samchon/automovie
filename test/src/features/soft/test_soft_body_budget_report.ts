@@ -5,13 +5,18 @@ import {
   softBodyTravelNumber,
   validateSoftBodyDomain,
 } from "@automovie/engine";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
 
 /**
- * The cost of a panel and its stability condition are derived from the record
+ * The declared cost of a panel and its travel heuristic are derived from the record
  * alone, before a single step is integrated.
  *
  * A production must be refusable for an unaffordable curtain without solving
@@ -30,6 +35,11 @@ import { softPanel } from "../internal/softFixtures";
  * `3·4 + 5·2 = 22` bend, `2·4·3 = 24` triangles, and `travel = (1/64)·4/0.25 =
  * 0.25`.
  *
+ * @evidence contracts/testing.md#behavioral-verification Measures budgets/travel, derives a time-zero surface and validates ordinary, over-travel, empty-edge and huge mismatched lattices; topology totals, triangle output and named refusals expose incorrect declared cost or admission.
+ * @evidence contracts/testing.md#independent-expectations Authored lattice formulas yield 20 particles, 31/24/22 constraints, 24 triangles, 960 final-state bytes and travel .25; Object.is retains exact dyadic travel witnesses and nclose checks travel four/overshoot three. stateBytes is not all solver memory, and timing/allocation counts are not measured.
+ * @evidence contracts/testing.md#distinguishing-cases Covers a 5-by-4 panel, one-column cord, thin strip, over-travel solver, mismatched billion-by-billion declaration and lone particle; the travel ratio is an authored heuristic rather than a stability or tunnelling proof, and integration dynamics belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns all six scenarios, calls CPU semantics directly and requires no renderer, native artifact or real host.
+ *
  * Scenarios:
  *
  * 1. Every count, the state size and the worst-case gather total match the hand
@@ -40,21 +50,23 @@ import { softPanel } from "../internal/softFixtures";
  *    that honours it.
  * 3. A lattice thinner than the second-neighbour reach carries no bend constraint
  *    and no shear constraint at all, rather than a negative count.
- * 4. Quadrupling the step past the shortest constraint pushes the travel number
+ * 4. Setting the step to a quarter second pushes the travel number
  *    above one, and the validator refuses it by name with the overshoot
  *    measured rather than merely reported as "unstable".
  * 5. A single-particle lattice has no constraint to cross, so its travel number is
  *    exactly `0`; the same lattice is refused for holding no constraint at all,
  *    which is why that number is a boundary and not a licence.
- * 6. A lattice declaring a billion columns is measured and refused without ever
- *    being walked. The shortest rest edge is read over the declared lattice, so
- *    a record the validator exists to refuse could otherwise cost a billion
- *    iterations inside the validator itself — and inside every budget report
- *    anybody asked for on the way there.
+ * 6. A billion-by-billion declaration with only four rest particles returns the
+ *    no-edge travel sentinel and reports both lattice budget and rest-length
+ *    defects. This case observes results, not an iteration count.
  */
-export const test_soft_body_budget_report = (): void => {
-  const domain = softPanel({ columns: 5, rows: 4, overrides: { id: "drape" } });
-  const budget = softBodyBudget(domain);
+export function test_soft_body_budget_report(): void {
+  const domain: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 5,
+    rows: 4,
+    overrides: { id: "drape" },
+  });
+  const budget: ReturnType<typeof softBodyBudget> = softBodyBudget(domain);
   TestValidator.equals(
     "every cost is the hand computation over the lattice",
     {
@@ -83,10 +95,11 @@ export const test_soft_body_budget_report = (): void => {
     },
   );
 
-  const drawn = softBodySurfaceGeometry({
-    domain,
-    state: simulateSoftBody(domain, 0),
-  });
+  const drawn: ReturnType<typeof softBodySurfaceGeometry> =
+    softBodySurfaceGeometry({
+      domain,
+      state: simulateSoftBody(domain, 0),
+    });
   TestValidator.equals(
     "the declared triangle count is what the surface actually draws",
     namedFacts([
@@ -98,7 +111,7 @@ export const test_soft_body_budget_report = (): void => {
       [
         "cordDrawsNothing",
         () => {
-          const cord = softPanel({
+          const cord: IAutoMovieSoftBodyDomain = softPanel({
             columns: 1,
             rows: 4,
             overrides: { id: "cord" },
@@ -128,7 +141,7 @@ export const test_soft_body_budget_report = (): void => {
     { travel: true, function: true, accepted: true },
   );
 
-  const strip = softBodyBudget(
+  const strip: ReturnType<typeof softBodyBudget> = softBodyBudget(
     softPanel({ columns: 2, rows: 1, overrides: { id: "strip" } }),
   );
   TestValidator.equals(
@@ -142,7 +155,7 @@ export const test_soft_body_budget_report = (): void => {
     { particles: 2, structural: 1, shear: 0, bend: 0 },
   );
 
-  const hasty = softPanel({
+  const hasty: IAutoMovieSoftBodyDomain = softPanel({
     columns: 5,
     rows: 4,
     overrides: {
@@ -174,10 +187,15 @@ export const test_soft_body_budget_report = (): void => {
       [
         "overshoot",
         () => {
-          const validation = validateSoftBodyDomain({ domain: hasty });
+          const validation: IAutoMovieValidation = validateSoftBodyDomain({
+            domain: hasty,
+          });
           return (
             validation.success === false &&
-            validation.violations.some((item) => nclose(item.overshoot ?? 0, 3))
+            validation.violations.some(
+              (item: IAutoMovieConstraintViolation): boolean =>
+                nclose(item.overshoot ?? 0, 3),
+            )
           );
         },
       ],
@@ -185,7 +203,7 @@ export const test_soft_body_budget_report = (): void => {
     { travel: true, refused: true, overshoot: true },
   );
 
-  const absurd = softPanel({
+  const absurd: IAutoMovieSoftBodyDomain = softPanel({
     columns: 2,
     rows: 2,
     overrides: { id: "absurd", lattice: { columns: 1e9, rows: 1e9 } },
@@ -217,7 +235,11 @@ export const test_soft_body_budget_report = (): void => {
     { travel: true, budget: true, refused: true, lengthNamed: true },
   );
 
-  const lone = softPanel({ columns: 1, rows: 1, overrides: { id: "lone" } });
+  const lone: IAutoMovieSoftBodyDomain = softPanel({
+    columns: 1,
+    rows: 1,
+    overrides: { id: "lone" },
+  });
   TestValidator.equals(
     "a single particle has no constraint to cross, and is refused for it",
     namedFacts([
@@ -235,4 +257,4 @@ export const test_soft_body_budget_report = (): void => {
     ]),
     { travel: true, structural: true, refused: true },
   );
-};
+}

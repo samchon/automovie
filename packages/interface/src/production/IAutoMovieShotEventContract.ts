@@ -1,55 +1,33 @@
 import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
- * A time-bounded event the shot source must implement.
+ * A semantic event the shot source must realize once inside an inclusive shot-local window.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieShotEventContract` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieShotEventContract` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Realization requires an exact finite event sample inside its admitted time window, every declared subject to resolve and every typed predicate to pass against compiled output at that sample.
+ * @evidence contracts/common.md#clear-and-simple-design A closed event family and explicit subjects describe semantic ownership, while predicates supply independent measurable facts instead of encoding motion in the contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Repeating the event id or prose is insufficient; missing, duplicate or out-of-window samples and unresolvable subjects fail rather than being silently dropped.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable event identity, family, inclusive second window, unique subjects and nonempty machine-checkable obligations.
+ * @author Samchon
  */
 export interface IAutoMovieShotEventContract {
-  /**
-   * Stable event id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Stable event id. */
   id: string;
 
-  /**
-   * Event family.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `kind` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `kind` for the narrative intent story design ownership system contract.
-   */
+  /** Event family. */
   kind: "contact" | "arrival" | "break" | "reveal" | "transition";
 
-  /**
-   * Inclusive finite event window inside the owning shot's duration.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `window` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `window` for the narrative intent story design ownership system contract.
-   */
+  /** Inclusive finite event window inside the owning shot's duration. */
   window: {
-    /** Earliest valid time. */
+    /** Earliest valid shot-local time in seconds, inclusive. */
     from: number;
 
-    /** Latest valid time. */
+    /** Latest valid shot-local time in seconds, inclusive. */
     to: number;
   };
 
-  /**
-   * Non-empty unique actor, formation or object ids involved.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `subjects` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `subjects` for the narrative intent story design ownership system contract.
-   */
+  /** Non-empty unique actor, formation or object ids involved. */
   subjects: string[];
 
-  /**
-   * Non-empty machine-checkable facts required at the realized event time.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `predicates` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `predicates` for the narrative intent story design ownership system contract.
-   */
+  /** Non-empty machine-checkable facts required at the realized event time. */
   predicates: IAutoMovieShotPredicate[];
 }

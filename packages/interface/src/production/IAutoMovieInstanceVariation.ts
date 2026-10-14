@@ -3,74 +3,70 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * Seed-derived per-instance visual and semantic variation.
  *
- * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `IAutoMovieInstanceVariation` as the portable data boundary for the production design consistency variation requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `IAutoMovieInstanceVariation` for the narrative intent visual language variation system contract.
+ * @evidence contracts/common.md#principled-implementation Independent seed-and-slot salts sample scale, rotation, palette, visibility and named numeric ranges; ordered finite ranges and representable quaternion arithmetic are caller premises. Equal endpoints remain constant and explicit slot values override their stated channels; the regenerator checks sampled scalar scale, position and procedural traits but not every enhanced or explicit override.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps shared variation laws on the compact set while regenerated slots carry their resolved values; optional axis scale, Euler offsets and visibility extend the basic scale, palette and traits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Palette entries are actual sRGB swatches decoded before linear shading, not labels or linear triples; omission of enhanced channels preserves the legacy slot shape rather than injecting extra fields.
+ * @evidence contracts/common.md#meaningful-documentation Defines positive scale ranges, degree Euler order, visibility probability, exact color encoding and named trait bounds with explicit override behavior.
+ * @author Samchon
  */
 export interface IAutoMovieInstanceVariation {
-  /**
-   * Inclusive uniform scale range, both strictly above zero.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `scale` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `scale` for the narrative intent visual language variation system contract.
-   */
-  scale: { min: number; max: number };
+  /** Inclusive uniform scale range, both strictly above zero. */
+  scale: {
+    /** Positive lower endpoint. */
+    min: number;
 
-  /**
-   * Optional independent scale ranges per local axis.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `scale3` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `scale3` for the narrative intent visual language variation system contract.
-   */
-  scale3?: { min: IAutoMovieVector3; max: IAutoMovieVector3 };
-
-  /**
-   * Optional seeded XYZ Euler offsets in degrees, applied after facing.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `rotationDeg` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `rotationDeg` for the narrative intent visual language variation system contract.
-   */
-  rotationDeg?: {
-    x: { min: number; max: number };
-    y: { min: number; max: number };
-    z: { min: number; max: number };
+    /** Positive upper endpoint, at least min. */
+    max: number;
   };
 
-  /**
-   * Seeded probability that a procedural slot is visible.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `visibleProbability` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `visibleProbability` for the narrative intent visual language variation system contract.
-   */
+  /** Optional independent scale ranges per local axis. */
+  scale3?: {
+    /** Positive lower endpoint on each local axis. */
+    min: IAutoMovieVector3;
+
+    /** Upper endpoint on each local axis, at least its corresponding minimum. */
+    max: IAutoMovieVector3;
+  };
+
+  /** Optional seeded XYZ Euler offsets in degrees, applied after facing. */
+  rotationDeg?: {
+    /** Inclusive finite X-axis rotation range in degrees. */
+    x: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
+
+    /** Inclusive finite Y-axis rotation range in degrees. */
+    y: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
+
+    /** Inclusive finite Z-axis rotation range in degrees. */
+    z: {
+      /** Lower endpoint. */
+      min: number;
+
+      /** Upper endpoint, at least min. */
+      max: number;
+    };
+  };
+
+  /** Seeded visibility probability in [0, 1]; omission keeps every procedural slot visible. */
   visibleProbability?: number;
 
   /**
-   * Non-empty exact `#RRGGBB` palette choices applied per instance.
-   *
-   * An entry is the color itself rather than a label for one, so the viewer
-   * decodes it from sRGB to linear with `srgbHexToLinearColor` before it
-   * reaches the instance. A model recipe palette is decoded by that same
-   * function on its way into `baseColor`, so the identical swatch authored
-   * either way now renders the identical color.
-   *
-   * `IAutoMovieColor` holds the opposite convention: its components are
-   * authored linear and its `hex` is a derived label the renderer never
-   * decodes. Reach for `srgbHexToLinearColor` when carrying a swatch across
-   * that boundary. Pasting the digits straight into a triple renders about
-   * 2.3x too bright at midtones, and instanced slots covering the same surface
-   * as such a material is how one production ended up drawing one roof in two
-   * colors.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `palette` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `palette` for the narrative intent visual language variation system contract.
+   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer decodes them with `srgbHexToLinearColor`, as it does model recipe palettes. `IAutoMovieColor` instead stores linear components and a derived hex label, so use the same conversion when moving a swatch into that contract.
    */
   palette: string[];
 
-  /**
-   * Named bounded numeric traits regenerated from seed and slot.
-   *
-   * @evidence requirements/production-design/art-direction-and-visual-language.md#production-design-consistency-variation Exposes `traits` as the portable data boundary for the production design consistency variation requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-visual-language-variation Types `traits` for the narrative intent visual language variation system contract.
-   */
+  /** Named bounded numeric traits regenerated from seed and slot. */
   traits: Array<{
     /** Stable trait name unique in this set. */
     name: string;

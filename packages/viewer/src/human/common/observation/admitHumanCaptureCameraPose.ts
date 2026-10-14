@@ -7,14 +7,19 @@ import type { IHumanCaptureCameraPose } from "./IHumanCaptureCameraPose.js";
  * and vertical field of view is strictly between zero and 180 degrees.
  * The returned target is copied so framing cannot mutate the source record.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Refuses missing or invalid recorded cameras rather than displaying an invented matched view.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Preserves admitted angles and perspective framing for the displayed asset.
+ * @evidence contracts/common.md#principled-implementation Selects the recorded id and admits finite yaw within [-180,180], pitch within (-90,90), optional positive finite distance, three finite target coordinates and fov within (0,180). It copies supported fields rather than deriving a direction from the photograph; dictionary lookup can read inherited ids because own-property admission is not performed.
+ * @evidence contracts/common.md#clear-and-simple-design One boundary admits recorded camera data before placement, leaving defaults for omitted framing with the actual capture consumer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid or missing poses refuse rather than using a convenient named view. Numeric admission does not prove that the record was measured under matching image/model provenance.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives angle boundaries, metre target/distance, optional lens constraints and copied-target ownership; it states no inferred likeness or photographic calibration.
+ * @evidence contracts/performance.md#efficient-algorithms Checks a fixed set of scalar fields and three optional target entries, constant work/storage for the supported record.
+ * @evidence contracts/performance.md#reuse-equivalent-work A fresh admitted copy reflects each actual record. Matching id alone is not cached equivalence when the stored camera or capture provenance changes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied scalar fields and target tuple without retaining the pose dictionary or native camera; caller owns the admitted data lifetime.
  */
 export function admitHumanCaptureCameraPose(
   poses: Record<string, IHumanCaptureCameraPose | null> | null,
   id: string,
 ): IHumanCaptureCameraPose {
-  const pose = poses?.[id];
+  const pose: IHumanCaptureCameraPose | null | undefined = poses?.[id];
   if (
     pose === undefined ||
     pose === null ||
@@ -26,7 +31,9 @@ export function admitHumanCaptureCameraPose(
       (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
     (pose.target !== undefined &&
       (pose.target.length !== 3 ||
-        pose.target.some((value) => !Number.isFinite(value)))) ||
+        pose.target.some(
+          (value: number): boolean => !Number.isFinite(value),
+        ))) ||
     (pose.fov !== undefined &&
       (!Number.isFinite(pose.fov) || pose.fov <= 0 || pose.fov >= 180))
   )

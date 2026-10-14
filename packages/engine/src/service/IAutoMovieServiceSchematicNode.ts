@@ -1,38 +1,24 @@
 import { AutoMovieServiceNodeKind } from "@automovie/interface";
 
 /**
- * One node in a plan schematic, projected onto the horizontal plane.
+ * One serviceNetworkSchematic node projected into horizontal metre coordinates.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `IAutoMovieServiceSchematicNode` exposes one routed fitting or terminal at a stable plan position for inspection of the service layout.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `IAutoMovieServiceSchematicNode` projects a typed network node from world space onto the schematic's horizontal plane.
+ * @evidence contracts/common.md#principled-implementation World X and Z become schematic x and y while identity and computational kind preserve source-node meaning.
+ * @evidence contracts/common.md#clear-and-simple-design Four primitive fields carry the drawable node without duplicating ports, maintenance bounds or service state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Projection drops height only for the stated plan view, without replacing the original three-dimensional node in validation.
+ * @evidence contracts/common.md#meaningful-documentation Names the schematic producer and defines each planar axis in metres alongside source identity and kind.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Node records have no runtime algorithm; enumeration is costed on serviceNetworkSchematic.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This projected row owns no cross-network lookup, request coordination or cached source conversion.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Primitive identity, kind and coordinates retain no source node, array or external resource after projection.
+ * @author Samchon
  */
 export interface IAutoMovieServiceSchematicNode {
-  /**
-   * Stable node identity.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `id` keeps a schematic node traceable to the authored fitting, terminal, or junction it depicts.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `id` retains the source service-node identifier through plan projection.
-   */
+  /** Stable node identity. */
   id: string;
-  /**
-   * Computational family the node was declared with.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `kind` tells the schematic reader whether the routed node is equipment, a terminal, a fitting, or another declared computational family.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `kind` preserves the closed service-node discriminator used by network checks.
-   */
+  /** Computational family the node was declared with. */
   kind: AutoMovieServiceNodeKind;
-  /**
-   * World `x` in metres.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `x` places the service node at its metre-valued east-west world coordinate on the plan.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `x` copies the network node's world `x` without geometric reinterpretation.
-   */
+  /** World `x` in metres. */
   x: number;
-  /**
-   * World `z` in metres, the schematic's vertical axis.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `y` places the service node at its metre-valued north-south world coordinate on the plan.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `y` maps the network node's world `z` onto the schematic vertical axis.
-   */
+  /** World `z` in metres, the schematic's vertical axis. */
   y: number;
 }

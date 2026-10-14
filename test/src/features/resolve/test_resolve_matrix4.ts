@@ -1,14 +1,18 @@
-import { Matrix4 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { nclose } from "../internal/nclose";
 
-const close = (a: number[], b: number[], eps = 1e-6): boolean =>
-  a.length === b.length && a.every((v, i) => nclose(v, b[i]!, eps));
+const close: (a: number[], b: number[], eps?: number) => boolean = (
+  a: number[],
+  b: number[],
+  eps: number = 1e-6,
+): boolean =>
+  a.length === b.length &&
+  a.every((v: number, i: number): boolean => nclose(v, b[i]!, eps));
 
 /**
- * The column-major 4×4 matrix algebra the compose pass rests on: identity, TRS
- * composition (matching `three.js` `Matrix4.compose`), and the matrix product.
+ * Column-major matrix algebra supplies identity, TRS composition and ordered matrix multiplication.
  *
  * Scenarios:
  *
@@ -22,8 +26,13 @@ const close = (a: number[], b: number[], eps = 1e-6): boolean =>
  * 4. `multiply(identity, M) === M`: identity is the product's unit.
  * 5. A non-trivial product `T · S` (translate ∘ scale) scales the basis and keeps
  *    the translation, confirming row/column indexing is consistent.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls Matrix4.identity/compose/multiply and observes every coefficient for identity, translation/scale, quarter-turn Y rotation and ordered translation-times-scale products.
+ * @evidence contracts/testing.md#independent-expectations Column-major affine algebra gives diagonal scales, a final translation column and positive-X mapping to negative-Z under a right-handed quarter-turn; the product expectation is literal arithmetic, not three.js output.
+ * @evidence contracts/testing.md#distinguishing-cases Identity and nontrivial translation/scale/rotation distinguish operand order and row/column mistakes; decomposition, collapse, shear and arbitrary nonfinite input are outside these finite examples.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_matrix4 entry executes the real portable synchronous arithmetic directly and compares numbers with predicates, without creating a renderer matrix or native host.
  */
-export const test_resolve_matrix4 = (): void => {
+export function test_resolve_matrix4(): void {
   // 1. identity
   TestValidator.predicate(
     "identity matrix",
@@ -31,7 +40,7 @@ export const test_resolve_matrix4 = (): void => {
   );
 
   // 2. compose translation + scale, identity rotation
-  const ts = Matrix4.compose(
+  const ts: number[] = Matrix4.compose(
     { x: 1, y: 2, z: 3 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 2, y: 2, z: 2 },
@@ -42,8 +51,8 @@ export const test_resolve_matrix4 = (): void => {
   );
 
   // 3. compose a 90° rotation about +Y
-  const s = Math.SQRT1_2;
-  const rotY = Matrix4.compose(
+  const s: number = Math.SQRT1_2;
+  const rotY: number[] = Matrix4.compose(
     { x: 0, y: 0, z: 0 },
     { x: 0, y: s, z: 0, w: s },
     { x: 1, y: 1, z: 1 },
@@ -60,12 +69,12 @@ export const test_resolve_matrix4 = (): void => {
   );
 
   // 5. T · S product: translate after scale
-  const t = Matrix4.compose(
+  const t: number[] = Matrix4.compose(
     { x: 5, y: 0, z: 0 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 1, y: 1, z: 1 },
   );
-  const scale = Matrix4.compose(
+  const scale: number[] = Matrix4.compose(
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 0, z: 0, w: 1 },
     { x: 3, y: 3, z: 3 },
@@ -77,4 +86,4 @@ export const test_resolve_matrix4 = (): void => {
       [3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 5, 0, 0, 1],
     ),
   );
-};
+}

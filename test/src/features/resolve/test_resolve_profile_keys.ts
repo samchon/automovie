@@ -1,25 +1,24 @@
-import { profileSemanticKeys } from "@automovie/engine";
 import { IAutoMovieDriver, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { profileSemanticKeys } from "../../../../packages/engine/src/resolve/profileSemanticKeys";
+import { throwsError } from "../internal/throwsError";
 
-const profileWith = (
+const profileWith: (
+  drivers: IAutoMovieDriver[],
+  limits?: IAutoMovieProfile["limits"],
+) => IAutoMovieProfile = (
   drivers: IAutoMovieDriver[],
   limits: IAutoMovieProfile["limits"] = [],
 ): IAutoMovieProfile => ({
   id: "p",
   name: "p",
-  controls: [],
   drivers,
   limits,
 });
 
 /**
- * ProfileSemanticKeys walks exactly the references bindProfile remaps (limit
- * node channels and every driver's node fields), deduplicated in
- * first-reference order, so forgeProp can demand every boneMap entry in one
- * correction round.
+ * Profile semantic keys enumerate node references from limits and drivers in first-reference order, removing duplicates for binding admission.
  *
  * Scenarios:
  *
@@ -32,9 +31,14 @@ const profileWith = (
  * 5. Spring contributes chain + a non-null center; a null center adds nothing.
  * 6. Duplicates across limits and drivers fold to first-reference order.
  * 7. An unknown driver type throws (the walker refuses to guess a shape).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls profileSemanticKeys on authored limit/driver records and checks exact first-reference key order, duplicate removal, null-reference omission and unknown-driver refusal.
+ * @evidence contracts/testing.md#independent-expectations The literal node references in limit and each supported driver determine the ordered a-through-m list; pointers have global addresses and contribute no boneMap key, independently of walker output.
+ * @evidence contracts/testing.md#distinguishing-cases All current driver field families, repeated keys, null pole/center and a forged driver kind distinguish complete enumeration from an indiscriminate field scan; concrete remapping belongs to bind-profile cases.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_profile_keys entry directly executes portable synchronous reference enumeration and refusal, without a scene registry, process or GPU.
  */
-export const test_resolve_profile_keys = (): void => {
-  const keys = profileSemanticKeys(
+export function test_resolve_profile_keys(): void {
+  const keys: string[] = profileSemanticKeys(
     profileWith(
       [
         {
@@ -121,7 +125,7 @@ export const test_resolve_profile_keys = (): void => {
     "m",
   ]);
 
-  const nulls = profileSemanticKeys(
+  const nulls: string[] = profileSemanticKeys(
     profileWith([
       {
         type: "ik",
@@ -158,11 +162,11 @@ export const test_resolve_profile_keys = (): void => {
   TestValidator.predicate(
     "unknown driver type throws",
     throwsError(
-      () =>
+      (): string[] =>
         profileSemanticKeys(
           profileWith([{ type: "warp" } as unknown as IAutoMovieDriver]),
         ),
       "unknown driver type",
     ),
   );
-};
+}

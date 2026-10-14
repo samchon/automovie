@@ -18,76 +18,45 @@ import { readHumanViewerPersonBases } from "./readHumanViewerPersonBases.js";
 import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration.js";
 
 /**
- * The hand-written documents and candidate bases dropped into the viewer's
- * inputs directory, as catalogue entries.
+ * Offer hand-written input documents and their optional candidate basis files as catalogue entries. One document uses file:name; array members use file:name/id. Domain owners admit these offers through the page, and missing verdicts remain pending rather than accepted.
  *
- * `<name>.json` holds one document or an array of them, and an optional
- * `<name>.basis.json.gz` beside it is the candidate basis those documents are
- * built against in place of the published one. A single document is offered
- * as `file:<name>` and an array member as `file:<name>/<document id>`. A
- * document must name the basis it is built on: the candidate's identity when
- * a sidecar exists, else its domain's published basis; anything else is
- * rejected with the reason and the rest still load, because one wrong file
- * must not hide the others. The key hashes the document, the basis digest it
- * is built against and the digest of the source its domain's build reads, so editing a file or the builder
- * gives a new resident and never a stale frame. Photographs are never read.
- * A Person uses both published basis identities and digests, both anatomy
- * sources and the actual composer's numerical source. Only its id and its two
- * declared basis names are read here. Every input document, face, body or
- * person, is admitted by its owner in the viewer page (`props.admission`);
- * until that verdict exists it is listed as pending, and an owner refusal is
- * listed with its reason, so schema errors show at `/rescan` and `/docs`. A `<name>.basis.json.gz` sidecar refuses for
- * a Person: one basis file does not specify the two independent basis
- * authorities. A Person built on candidates instead takes
- * `<name>.person.json.gz`, one person generation packet that opens with its
- * `id` and carries whole `face` and `body` bases; the document's face basis must be the
- * packet's face `id` and its body basis the packet's body `id`, the entry's
- * `basis` is `<name>@<digest12>` like a face or body candidate, and the key
- * hashes the packet's digest in place of both published bases. A Person
- * may instead provide `<name>.head.json.gz` and `<name>.body.json.gz`, the
- * existing typed partition views of one generation. Their generation ids
- * must agree and their basis ids must match the document. Both byte digests
- * enter the key and `candidate-generation:<name>@<head12>.<body12>` token;
- * the numerical worker
- * joins the exact views through the Person owner's normal consumer. A single
- * packet and split views cannot author the same input together. This split
- * avoids constructing one JSON string for the whole generation without
- * changing personal document admission or reducing the source geometry.
- * A Person
- * that names the published one-skin generation's view bases (both of them)
- * is drawn on that generation, with the standard people's token and key.
- * A Body can also select the same split views: its numerical document names
- * only the body basis, while the constructor consumes the exact companion
- * head endpoint source. Both digests and source owners enter its token/key.
- * A Body without a candidate sidecar that names that generation's body view
- * uses the same paired token and key inputs as a standard body state; legacy
- * body documents still name and consume their separate published basis.
- * With `props.memo` and a stamping `io`, a file's entries are reused while
- * its bytes, its sidecars, the bases, the generation and the source digests
- * are unchanged, so republishing the catalogue for an admission verdict does
- * not re-read and re-hash every input; only admission is applied again.
+ * Face/body documents must name their candidate sidecar identity or selected published basis. Person requires both basis identities and uses a whole .person.json.gz packet or paired .head.json.gz/.body.json.gz views with matching generation ids; packet and split forms cannot coexist. A lone .basis.json.gz cannot provide Person's two authorities. Split construction remains with the numerical Person owner.
  *
- * @evidence contracts/common.md#principled-implementation Actual document, sidecar, basis and numerical-source identities determine keys; pending sidecar reads and owner admission remain distinct from rejected inputs.
- * @evidence contracts/common.md#clear-and-simple-design A per-file memo owns parsed candidates while injected I/O, sidecar facts and admission retain their independent authorities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Original documents and exact paired or packet bases enter normal admission, with no fabricated missing companion, subject-specific exemption or downgraded constructor.
- * @evidence contracts/common.md#meaningful-documentation Defines supported packet arrangements, incompatible combinations, key dependencies and the difference between pending facts and refused documents.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Actual document, sidecar, basis and numerical-source identities determine keys; pending sidecar reads and owner admission remain distinct from rejected inputs.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document A per-file memo owns parsed candidates while injected I/O, sidecar facts and admission retain their independent authorities.
+ * Body can use split generation views with the companion head endpoint, or its separate legacy basis. Document keys include the selected source and basis digests; transport tokens use digest prefixes and do not exclude prefix collisions. This catalogue does not independently prove fresh pixels or full numerical validity.
+ *
+ * A file refusal does not hide other files. For an invalid array member, earlier offered members can remain while later members in that same array are not processed. Photographs are not read.
+ *
+ * Memoized entries reuse admitted IO stamp facts, selected sidecars, basis/generation and source authority; admission is projected again. An mtime/size provider can miss an in-place rewrite preserving both values. Current directory membership prunes removed file names even during selected-document reads.
+ *
+ * @evidence contracts/common.md#principled-implementation File documents and optional candidate packet/split views must name exact basis identities before numerical keys and tokens are offered to the existing domain admission owner.
+ * @evidence contracts/common.md#clear-and-simple-design Per-file parsing/memoization separates raw offers from current admitted/pending/refused catalogue projection, preserving other files when one input refuses.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Person candidates cannot collapse two basis authorities into one sidecar, split/packet overlap refuses and photographs never enter numerical inputs; full schema admission remains with each domain.
+ * @evidence contracts/common.md#meaningful-documentation Documentation defines file ids, candidate variants, immutable basis/source key inputs and page-owned pending/refusal visibility.
+ * @evidence contracts/performance.md#efficient-algorithms Each selected file parses/hashes documents when its signature changes; sorting file names costs O(n log n), and sidecar facts are consulted rather than inflated on the catalogue path.
+ * @evidence contracts/performance.md#reuse-equivalent-work Memo signatures include provider stamp, sidecar facts and shared bases/generation/sources; mtime/size stamps can collide and do not independently prove unchanged bytes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Memo records for names removed from the complete directory inventory are pruned; live input names have no independent cap, result arrays retain current documents/refusals and worker/GPU ownership remains separate.
  */
 export function readHumanViewerInputs(
   props: IReadHumanViewerInputsProps,
 ): IHumanViewerInputs {
-  const hash = (bytes: string | Uint8Array): string =>
-    createHash("sha256").update(bytes).digest("hex");
-  const available = new Set(props.io.names());
+  const hash: (bytes: string | Uint8Array) => string = (
+    bytes: string | Uint8Array,
+  ): string => createHash("sha256").update(bytes).digest("hex");
+  const available: Set<string> = new Set(props.io.names());
+  for (const retained of props.memo?.keys() ?? [])
+    if (!available.has(retained)) props.memo?.delete(retained);
   const documents: IHumanViewerCatalogue["documents"] = [];
   const rejected: IHumanViewerRejectedInput[] = [];
   // A document is drawable only after its owner admitted it in the page; a
   // pending or refused one is listed with the file and its reason instead.
-  let file = "";
-  const accept = (entry: IHumanViewerCatalogueEntry): void => {
-    if (props.selectedDoc !== undefined && entry.id !== props.selectedDoc) return;
-    const admission = props.admission(entry);
+  let file: string = "";
+  const accept: (entry: IHumanViewerCatalogueEntry) => void = (
+    entry: IHumanViewerCatalogueEntry,
+  ): void => {
+    if (props.selectedDoc !== undefined && entry.id !== props.selectedDoc)
+      return;
+    const admission: ReturnType<IReadHumanViewerInputsProps["admission"]> =
+      props.admission(entry);
     if (admission.state === "admitted") documents.push(entry);
     else
       rejected.push({
@@ -99,15 +68,21 @@ export function readHumanViewerInputs(
       });
   };
   /** What every file's result depends on besides its own bytes and sidecars. */
-  const shared = JSON.stringify([props.bases, props.generation, props.sources]);
+  const shared: string = JSON.stringify([
+    props.bases,
+    props.generation,
+    props.sources,
+  ]);
   /** One file's entries and refusal, reused while nothing it depends on changed. */
-  const readFile = (input: string): IHumanViewerInputFileRead => {
-    const name = input.slice(0, -".json".length);
-    const facts = (sidecar: string): string =>
+  const readFile: (input: string) => IHumanViewerInputFileRead = (
+    input: string,
+  ): IHumanViewerInputFileRead => {
+    const name: string = input.slice(0, -".json".length);
+    const facts: (sidecar: string) => string = (sidecar: string): string =>
       available.has(sidecar)
         ? JSON.stringify(props.sidecar(sidecar))
         : "absent";
-    const signature = [
+    const signature: string = [
       props.io.stamp?.(input) ?? "",
       facts(`${name}.basis.json.gz`),
       facts(`${name}.person.json.gz`),
@@ -115,7 +90,7 @@ export function readHumanViewerInputs(
       facts(`${name}.body.json.gz`),
       shared,
     ].join("|");
-    const kept = props.memo?.get(input);
+    const kept: IHumanViewerInputFileRead | undefined = props.memo?.get(input);
     if (
       kept !== undefined &&
       kept.signature === signature &&
@@ -124,36 +99,43 @@ export function readHumanViewerInputs(
       return kept;
     const entries: IHumanViewerCatalogueEntry[] = [];
     let refusal: string | null = null;
-    const offer = (entry: IHumanViewerCatalogueEntry): void => {
+    const offer: (entry: IHumanViewerCatalogueEntry) => void = (
+      entry: IHumanViewerCatalogueEntry,
+    ): void => {
       entries.push(entry);
     };
     try {
       if (!/^[A-Za-z0-9._-]+$/.test(name))
         throw new Error("Unsupported file name");
-      const parsed = JSON.parse(
+      const parsed: unknown = JSON.parse(
         props.io.read(input).toString("utf8"),
       ) as unknown;
-      const candidateFile = `${name}.basis.json.gz`;
-      const packetFile = `${name}.person.json.gz`;
-      const headFile = `${name}.head.json.gz`;
-      const bodyFile = `${name}.body.json.gz`;
+      const candidateFile: string = `${name}.basis.json.gz`;
+      const packetFile: string = `${name}.person.json.gz`;
+      const headFile: string = `${name}.head.json.gz`;
+      const bodyFile: string = `${name}.body.json.gz`;
       // A sidecar still being read off the request path holds its documents
       // back; the catalogue is published again when its facts are known.
-      const sidecarOf = (sidecar: string): IHumanViewerSidecarFacts | null => {
+      const sidecarOf: (sidecar: string) => IHumanViewerSidecarFacts | null = (
+        sidecar: string,
+      ): IHumanViewerSidecarFacts | null => {
         if (!available.has(sidecar)) return null;
-        const facts = props.sidecar(sidecar);
+        const facts: IHumanViewerSidecarFacts | null = props.sidecar(sidecar);
         if (facts === null)
           throw new HumanViewerPendingInputError(
             `${sidecar} is still being read; its documents appear when it is`,
           );
         return facts;
       };
-      const candidate = sidecarOf(candidateFile);
-      const packetFacts = sidecarOf(packetFile);
-      const split = available.has(headFile) || available.has(bodyFile);
-      const many = Array.isArray(parsed);
+      const candidate: IHumanViewerSidecarFacts | null =
+        sidecarOf(candidateFile);
+      const packetFacts: IHumanViewerSidecarFacts | null =
+        sidecarOf(packetFile);
+      const split: boolean = available.has(headFile) || available.has(bodyFile);
+      const many: boolean = Array.isArray(parsed);
       for (const document of many ? (parsed as unknown[]) : [parsed]) {
-        const domain = classifyHumanViewerInput(document);
+        const domain: ReturnType<typeof classifyHumanViewerInput> =
+          classifyHumanViewerInput(document);
         if (domain !== "person" && packetFacts !== null)
           throw new Error(
             `${packetFile} is a person packet; a ${domain} document takes ${candidateFile}`,
@@ -164,7 +146,8 @@ export function readHumanViewerInputs(
               domain +
               " document.",
           );
-        const named = document as IHumanViewerInputDocument;
+        const named: IHumanViewerInputDocument =
+          document as IHumanViewerInputDocument;
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
         if (domain === "body" && split) {
@@ -180,13 +163,18 @@ export function readHumanViewerInputs(
                 bodyFile +
                 ".",
             );
-          const headFacts = sidecarOf(headFile);
-          const bodyFacts = sidecarOf(bodyFile);
-          const generation = readHumanViewerPublishedGeneration({
+          const headFacts: IHumanViewerSidecarFacts | null =
+            sidecarOf(headFile);
+          const bodyFacts: IHumanViewerSidecarFacts | null =
+            sidecarOf(bodyFile);
+          const generation: ReturnType<
+            typeof readHumanViewerPublishedGeneration
+          > = readHumanViewerPublishedGeneration({
             files: { head: headFile, body: bodyFile },
-            exists: (view) =>
+            exists: (view: "head" | "body"): boolean =>
               available.has(view === "head" ? headFile : bodyFile),
-            facts: (view) => (view === "head" ? headFacts : bodyFacts),
+            facts: (view: "head" | "body"): IHumanViewerSidecarFacts | null =>
+              view === "head" ? headFacts : bodyFacts,
           });
           if ("reason" in generation)
             throw new Error("Paired body candidate: " + generation.reason);
@@ -214,7 +202,8 @@ export function readHumanViewerInputs(
             throw new Error(
               "Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.",
             );
-          const person = readHumanViewerPersonBases(document as object);
+          const person: ReturnType<typeof readHumanViewerPersonBases> =
+            readHumanViewerPersonBases(document as object);
           if (split) {
             if (packetFacts !== null)
               throw new Error(
@@ -228,13 +217,20 @@ export function readHumanViewerInputs(
                   bodyFile +
                   ".",
               );
-            const headFacts = sidecarOf(headFile);
-            const bodyFacts = sidecarOf(bodyFile);
-            const generation = readHumanViewerPublishedGeneration({
+            const headFacts: IHumanViewerSidecarFacts | null =
+              sidecarOf(headFile);
+            const bodyFacts: IHumanViewerSidecarFacts | null =
+              sidecarOf(bodyFile);
+            const generation: ReturnType<
+              typeof readHumanViewerPublishedGeneration
+            > = readHumanViewerPublishedGeneration({
               files: { head: headFile, body: bodyFile },
-              exists: (view) =>
+              exists: (view: "head" | "body"): boolean =>
                 available.has(view === "head" ? headFile : bodyFile),
-              facts: (view) => (view === "head" ? headFacts : bodyFacts),
+              facts: (
+                view: "head" | "body",
+              ): IHumanViewerSidecarFacts | null =>
+                view === "head" ? headFacts : bodyFacts,
             });
             if ("reason" in generation)
               throw new Error("Split person candidate: " + generation.reason);
@@ -266,8 +262,9 @@ export function readHumanViewerInputs(
               throw new Error(
                 `${packetFile}: ${packetFacts.failure ?? "not a person packet"}`,
               );
-            const digest = packetFacts.digest;
-            const packet = packetFacts.packet;
+            const digest: string = packetFacts.digest;
+            const packet: NonNullable<IHumanViewerSidecarFacts["packet"]> =
+              packetFacts.packet;
             if (person.face !== packet.face)
               throw new Error(
                 `The person names face basis ${person.face} but its packet ${packetFile} carries face basis ${packet.face}`,
@@ -289,7 +286,8 @@ export function readHumanViewerInputs(
             });
             continue;
           }
-          const generation = props.generation;
+          const generation: IReadHumanViewerInputsProps["generation"] =
+            props.generation;
           if (
             generation !== null &&
             person.face === generation.face &&
@@ -342,7 +340,8 @@ export function readHumanViewerInputs(
           throw new Error(
             `${candidateFile}: ${candidate.failure ?? "not a basis"}`,
           );
-        const generation = props.generation;
+        const generation: IReadHumanViewerInputsProps["generation"] =
+          props.generation;
         if (
           domain === "body" &&
           candidate === null &&
@@ -364,15 +363,15 @@ export function readHumanViewerInputs(
           });
           continue;
         }
-        const identity =
+        const identity: string =
           candidate === null ? props.bases[domain].id : candidate.basis!;
         if (named.basis !== identity)
           throw new Error(
             `The document names basis ${String(named.basis)} but is built on ${identity}`,
           );
-        const digest =
+        const digest: string =
           candidate === null ? props.bases[domain].digest : candidate.digest;
-        const id = many ? `file:${name}/${named.id}` : `file:${name}`;
+        const id: string = many ? `file:${name}/${named.id}` : `file:${name}`;
         offer({
           id,
           domain,
@@ -392,13 +391,18 @@ export function readHumanViewerInputs(
     props.memo?.set(input, result);
     return result;
   };
-  for (file of [...available].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) {
+  for (file of [...available].sort((a: string, b: string): number =>
+    a < b ? -1 : a > b ? 1 : 0,
+  )) {
     if (!file.endsWith(".json") || file.endsWith(".basis.json")) continue;
-    if (props.selectedDoc !== undefined &&
-        (!props.selectedDoc.startsWith("file:") ||
-         file !== props.selectedDoc.slice(5).split("/")[0] + ".json")) continue;
+    if (
+      props.selectedDoc !== undefined &&
+      (!props.selectedDoc.startsWith("file:") ||
+        file !== props.selectedDoc.slice(5).split("/")[0] + ".json")
+    )
+      continue;
     try {
-      const read = readFile(file);
+      const read: IHumanViewerInputFileRead = readFile(file);
       for (const entry of read.entries) accept(entry);
       if (read.refusal !== null)
         rejected.push({ file, reason: read.refusal, pending: false });

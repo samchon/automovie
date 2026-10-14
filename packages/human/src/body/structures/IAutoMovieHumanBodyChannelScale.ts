@@ -14,6 +14,14 @@ import type { IAutoMovieHumanBodyChannelMeasurement } from "./IAutoMovieHumanBod
  * and a rule that cannot be evaluated on this basis (the neck lies above the
  * clip) reports null values inside a present record.
  *
+ * @evidence contracts/common.md#principled-implementation Endpoint displacement summaries and nullable rule readings distinguish geometric change from a named measurement; missing rules remain absent.
+ * @evidence contracts/common.md#clear-and-simple-design One channel report bundles identity, grouping, both endpoint scales and the optional instrument.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Positive and negative source endpoints remain distinct; no synthetic measurement fills an unavailable rule.
+ * @evidence contracts/common.md#meaningful-documentation The comment states metres, dimensionless weights and the difference between a missing rule and an unanswered rule.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The endpoint displacement reports declaration is erased by TypeScript and chooses no runtime algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The endpoint displacement reports schema coordinates no requests or cached computations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The endpoint displacement reports type acquires no handles, tasks or retained storage.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyChannelScale {

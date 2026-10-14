@@ -1,31 +1,19 @@
 /**
- * How hard each constraint family pulls, each in `[0, 1]`.
+ * Dimensionless relaxation weight of each lattice constraint family.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IAutoMovieSoftStiffness` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMovieSoftStiffness` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation The Jacobi solver multiplies each distance correction by its family weight and divides the gathered result by particle valence; validateSoftBodyDomain requires finite weights in [0, 1].
+ * @evidence contracts/common.md#clear-and-simple-design Three scalar weights correspond directly to the supported neighbour families without a material-law abstraction the current solver does not evaluate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts These values are relaxation weights rather than physical elastic moduli; increasing them does not certify inextensibility at a finite sweep count.
+ * @evidence contracts/common.md#meaningful-documentation Member comments identify structural, diagonal and second-neighbour responsibilities and their dimensionless range.
+ * @author Samchon
  */
 export interface IAutoMovieSoftStiffness {
-  /**
-   * Row and column neighbours: resists stretching.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `structural` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `structural` for the interior space soft furnishing planting system contract.
-   */
+  /** Row and column neighbours: resists stretching. */
   structural: number;
 
-  /**
-   * Diagonal neighbours: resists shearing, which is what makes cloth drape.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `shear` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `shear` for the interior space soft furnishing planting system contract.
-   */
+  /** Diagonal neighbours: resists shearing, which is what makes cloth drape. */
   shear: number;
 
-  /**
-   * Second neighbours along a row or column: resists folding too sharply.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `bend` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `bend` for the interior space soft furnishing planting system contract.
-   */
+  /** Second neighbours along a row or column: resists folding too sharply. */
   bend: number;
 }

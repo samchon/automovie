@@ -1,8 +1,11 @@
 /**
- * src/geometry/spatial-cells.ts: 논리 공간 cell(반공간 교집합)과 문턱 통과 영역.
- * fixture: 볼록 사각 cell과 경사 천장, 삼각 cell, 두 지붕 조각으로 덮인 방(분할), 덮임 부족(거부),
- * 문턱 cell의 방 필터와 틀 포함/제외 폭, 얇은 문턱(0.01m 벽), 경계 위 점(닫힌 반공간), 결정성.
- * cell은 렌더 geometry가 아니므로 topology가 아니라 포함 관계로 잰다.
+ * src/geometry/spatial-cells.ts: logical space cells (half-plane intersections)
+ * and threshold passage regions. Fixtures: convex quadrilateral cells with
+ * sloped ceilings, triangular cells, rooms covered by two roof patches
+ * (partitioned), insufficient coverage (refused), threshold room filtering and
+ * widths including or excluding frames, thin thresholds (0.01m walls), points
+ * on boundaries (closed half-planes), and determinism. Cells are measured by
+ * containment rather than topology because they are not rendered geometry.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -40,7 +43,7 @@ void test("roofed cells split by two patches; incomplete cover refused", () => {
   assert.equal(cells.length, 2);
   assert.equal(inside(cells[0]!, { x: 1, y: 3.15, z: 1 }), true);
   assert.equal(inside(cells[0]!, { x: 1, y: 3.25, z: 1 }), false, "ceiling is the roof underside (top − thickness)");
-  assert.throws(() => roofedCells("room", { west: 0, east: 4, north: 0, south: 2 }, 0, [patch(-1, 2, 3.4)]), /덮임/);
+  assert.throws(() => roofedCells("room", { west: 0, east: 4, north: 0, south: 2 }, 0, [patch(-1, 2, 3.4)]), /coverage/);
 });
 
 void test("threshold cells: only the door's room; clear width without the frame; thin wall depth", () => {

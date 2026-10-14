@@ -3,15 +3,19 @@ import {
   IAutoMovieSequence,
   IAutoMovieShot,
 } from "@automovie/interface";
-import {
-  IAutoMovieSequenceRenderAdapters,
-  renderSequenceAndSee,
-} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieSequenceRenderAdapters } from "../../../../packages/render/src/IAutoMovieSequenceRenderAdapters";
+import { IAutoMovieSequenceRenderAndSeeResult } from "../../../../packages/render/src/IAutoMovieSequenceRenderAndSeeResult";
+import { IAutoMovieSequenceRenderFrame } from "../../../../packages/render/src/IAutoMovieSequenceRenderFrame";
+import { renderSequenceAndSee } from "../../../../packages/render/src/renderSequenceAndSee";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -22,7 +26,7 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
   duration,
 });
 
-const SHOTS = [shot("shot:a", 2), shot("shot:b", 3)];
+const SHOTS: IAutoMovieShot[] = [shot("shot:a", 2), shot("shot:b", 3)];
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq-duel",
@@ -48,20 +52,20 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * `renderSequenceAndSee` turns a sequence manifest into host I/O calls: every
- * frame capture receives the live shot local time and blend tail, then encode
- * receives the manifest's ffmpeg args.
+ * `renderSequenceAndSee` turns a sequence manifest into host I/O calls: every frame capture receives the live shot local time and blend tail, then encode receives the manifest's ffmpeg args.
  *
  * Scenarios:
  *
- * 1. A two-shot sequence yields capture calls in frame order and returns the
- *    adapter-written frame paths.
- * 2. Frames inside the incoming transition expose the outgoing shot tail and
- *    incoming alpha to the host adapter.
- * 3. The encode adapter receives exactly the manifest args/output path, and the
- *    returned artifact preserves the spec and sequence identity.
+ * 1. A two-shot sequence yields capture calls in frame order and returns the adapter-written frame paths.
+ * 2. Frames inside the incoming transition expose the outgoing shot tail and incoming alpha to the host adapter.
+ * 3. The encode adapter receives exactly the manifest args/output path, and the returned artifact preserves the spec and sequence identity.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs real sequence orchestration through existing supplied capture/encode callbacks, checking sample order, returned paths, transition-local time and artifact metadata.
+ * @evidence contracts/testing.md#independent-expectations Two plus two seconds minus a half-second fade gives fourteen frames at four fps; incoming frames six/seven carry times one/1.25 and alpha zero/0.5 by hand. Encoder-argument forwarding is consistency with the returned plan, whose literal option semantics are tested separately.
+ * @evidence contracts/testing.md#distinguishing-cases First/last captures, transition entry/mid/past points, callback-returned paths, shallow spec data and encode forwarding retain the original successful orchestration cases; adapter refusal is not exercised here.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_sequence_video owns its cases. Portable async orchestration over existing callback seams; they record values and return authored strings rather than capturing images, writing files or starting an encoder.
  */
-export const test_render_sequence_video = async (): Promise<void> => {
+export async function test_render_sequence_video(): Promise<void> {
   const captured: Array<{
     index: number;
     shot: string;
@@ -71,7 +75,9 @@ export const test_render_sequence_video = async (): Promise<void> => {
   }> = [];
   const encoded: Array<{ args: string[]; outputPath: string }> = [];
   const adapters: IAutoMovieSequenceRenderAdapters = {
-    captureFrame: async (frame) => {
+    captureFrame: async (
+      frame: IAutoMovieSequenceRenderFrame,
+    ): Promise<string> => {
       captured.push({
         index: frame.index,
         shot: frame.shot,
@@ -81,27 +87,36 @@ export const test_render_sequence_video = async (): Promise<void> => {
       });
       return `written/frame_${frame.index}.png`;
     },
-    encode: async (args, outputPath) => {
+    encode: async (args: string[], outputPath: string): Promise<string> => {
       encoded.push({ args, outputPath });
       return `encoded:${outputPath}`;
     },
   };
 
-  const result = await renderSequenceAndSee({
-    sequence: SEQUENCE,
-    shots: SHOTS,
-    spec: SPEC,
-    frameDir: "frames/seq",
-    outputPath: "out/seq.mp4",
-    adapters,
-  });
+  const result: IAutoMovieSequenceRenderAndSeeResult =
+    await renderSequenceAndSee({
+      sequence: SEQUENCE,
+      shots: SHOTS,
+      spec: SPEC,
+      frameDir: "frames/seq",
+      outputPath: "out/seq.mp4",
+      adapters,
+    });
 
   // 1. capture order and returned frame paths
   TestValidator.equals("frame count", result.frameCount, 14);
   TestValidator.equals(
     "capture order",
-    captured.map((frame) => frame.index),
-    Array.from({ length: 14 }, (_, i) => i),
+    captured.map(
+      (frame: {
+        index: number;
+        shot: string;
+        time: number;
+        blend: string | null;
+        alpha: number | null;
+      }): number => frame.index,
+    ),
+    Array.from({ length: 14 }, (_: unknown, i: number): number => i),
   );
   TestValidator.equals(
     "first captured path",
@@ -118,10 +133,13 @@ export const test_render_sequence_video = async (): Promise<void> => {
   TestValidator.equals(
     "entry transition begins at frame 6",
     namedFacts([
-      ["capturedShotShot", () => captured[6]!.shot === "shot:b"],
-      ["ncloseCapturedTime", () => nclose(captured[6]!.time, 1)],
-      ["capturedBlendShot", () => captured[6]!.blend === "shot:a"],
-      ["ncloseCapturedAlpha", () => nclose(captured[6]!.alpha ?? -1, 0)],
+      ["capturedShotShot", (): boolean => captured[6]!.shot === "shot:b"],
+      ["ncloseCapturedTime", (): boolean => nclose(captured[6]!.time, 1)],
+      ["capturedBlendShot", (): boolean => captured[6]!.blend === "shot:a"],
+      [
+        "ncloseCapturedAlpha",
+        (): boolean => nclose(captured[6]!.alpha ?? -1, 0),
+      ],
     ]),
     {
       capturedShotShot: true,
@@ -133,10 +151,13 @@ export const test_render_sequence_video = async (): Promise<void> => {
   TestValidator.equals(
     "mid transition alpha",
     namedFacts([
-      ["capturedShotShot", () => captured[7]!.shot === "shot:b"],
-      ["ncloseCapturedTime", () => nclose(captured[7]!.time, 1.25)],
-      ["capturedBlendShot", () => captured[7]!.blend === "shot:a"],
-      ["ncloseCapturedAlpha", () => nclose(captured[7]!.alpha ?? -1, 0.5)],
+      ["capturedShotShot", (): boolean => captured[7]!.shot === "shot:b"],
+      ["ncloseCapturedTime", (): boolean => nclose(captured[7]!.time, 1.25)],
+      ["capturedBlendShot", (): boolean => captured[7]!.blend === "shot:a"],
+      [
+        "ncloseCapturedAlpha",
+        (): boolean => nclose(captured[7]!.alpha ?? -1, 0.5),
+      ],
     ]),
     {
       capturedShotShot: true,
@@ -149,11 +170,17 @@ export const test_render_sequence_video = async (): Promise<void> => {
 
   // 3. encode and artifact metadata
   TestValidator.equals("encoded output", result.output, "encoded:out/seq.mp4");
-  TestValidator.equals("sequence identity", result.sequence, {
-    id: SEQUENCE.id,
-    fps: 24,
-  });
-  TestValidator.equals("spec snapshot", result.spec, SPEC);
+  TestValidator.predicate(
+    "sequence identity",
+    filmEffectValuesClose(result.sequence, {
+      id: SEQUENCE.id,
+      fps: 24,
+    }),
+  );
+  TestValidator.predicate(
+    "spec snapshot",
+    filmEffectValuesClose(result.spec, SPEC),
+  );
   TestValidator.equals(
     "encode output path",
     encoded[0]?.outputPath,
@@ -165,4 +192,4 @@ export const test_render_sequence_video = async (): Promise<void> => {
     result.inputPattern,
     "frames/seq/frame_%05d.png",
   );
-};
+}

@@ -1,223 +1,63 @@
-import {
-  compileDefinedShot,
-  defineShot,
-  placementChildNode,
-  sceneToNodes,
-} from "@automovie/engine";
-import {
-  IAutoMovieClip,
-  IAutoMovieDefinedShotContract,
-  IAutoMoviePropSpec,
-  IAutoMovieShotProgram,
-  IAutoMovieStage,
-} from "@automovie/interface";
+import type { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  makeBlockingWrite,
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
-import { createSkeleton } from "../internal/fixtures";
+import type { IAutoMovieAuthoringDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieAuthoringDiagnostic";
+import type { IAutoMovieCompiledDefinedShot } from "../../../../packages/engine/src/film/IAutoMovieCompiledDefinedShot";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { HINGE } from "../internal/HINGE";
+import { compileDoorShot } from "../internal/compileDoorShot";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { namedFacts } from "../internal/predicates";
-import { createDoorPropSpec } from "./test_film_forge_prop";
-
-/** A rotation of `deg` about +Y, as the value a rotation track carries. */
-export const yQuat = (deg: number): number[] => {
-  const half = (deg * Math.PI) / 360;
-  return [0, Math.sin(half), 0, Math.cos(half)];
-};
-
-/** The staged node id of the door prop's hinge. */
-export const HINGE = placementChildNode("frontDoor", "hinge");
-
-/** A one-key clip turning `node` by `deg` about +Y. */
-export const swingClip = (
-  id: string,
-  node: string,
-  deg: number,
-  overrides: Partial<IAutoMovieClip["tracks"][number]> = {},
-): IAutoMovieClip => ({
-  id,
-  name: null,
-  duration: 2,
-  loop: false,
-  tracks: [
-    {
-      channel: { kind: "node", node, path: "rotation" },
-      times: [0],
-      values: yQuat(deg),
-      interpolation: "linear",
-      ...overrides,
-    },
-  ],
-});
+import { swingClip } from "../internal/swingClip";
 
 /**
- * The duel fixture, plus everything an authored object clip is measured
- * against: a door prop whose hinge is lowered, a wall panel standing on its own
- * as a building element would, and a torch the engine bakes a follow clip for.
- *
- * `extraSet` adds one more staged piece, so a scenario can put a scene node
- * exactly where a prop joint lowers and watch the collision be named.
- */
-export const doorProgram = (
-  extraSet: IAutoMovieStage["set"] = [],
-): IAutoMovieShotProgram => {
-  const blocking = makeBlockingWrite();
-  const performance = makePerformanceWrite();
-  blocking.camera.framing = "full";
-  blocking.rationale =
-    "full static keeps both required actor roots readable throughout the duel.";
-  for (const action of performance.draft)
-    if (action.verb === "frame") action.framing = "full";
-  performance.draft.push({
-    verb: "attachTo",
-    actor: "torch",
-    parent: "knightA",
-    bone: "leftHand",
-    start: 0,
-    duration: "auto",
-  });
-  return {
-    actors: [
-      { node: "knightA", model: "knightA", speed: 1, eyeHeight: 1.6 },
-      { node: "knightB", model: "knightB", speed: 1, eyeHeight: 1.6 },
-    ],
-    script: makeScriptWrite({
-      cast: [
-        { node: "knightA", character: "the challenger", modelRef: "stickman" },
-        { node: "knightB", character: "the champion", modelRef: null },
-        { node: "torch", character: "the torch", modelRef: null },
-      ],
-    }),
-    stage: makeStagingWrite({
-      actors: [
-        { node: "knightA", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },
-        { node: "knightB", position: { x: 0, y: 0, z: 0.7 }, facingDeg: 180 },
-        { node: "torch", position: { x: 0.3, y: 1.2, z: 0 }, facingDeg: 0 },
-      ],
-      set: [
-        { node: "frontDoor", model: "door", position: { x: 2, y: 0, z: 0 } },
-        { node: "hall/panel", model: "slab", position: { x: 3, y: 0, z: 0 } },
-        ...(extraSet ?? []),
-      ],
-    }),
-    blocking,
-    performance,
-    eventSamples: [],
-  };
-};
-
-/** The duel contract the door fixture compiles under. */
-export const DOOR_CONTRACT: IAutoMovieDefinedShotContract = {
-  beat: "beat-1",
-  durationSeconds: 2,
-  participants: [
-    { kind: "actor", id: "knightA" },
-    { kind: "actor", id: "knightB" },
-  ],
-  opening: [],
-  closing: [],
-  camera: {
-    intent: "Keep the duel readable.",
-    requiredSubjects: ["knightA", "knightB"],
-    maxOcclusionRatio: 0.2,
-  },
-  events: [],
-  reviewFrames: [{ id: "impact", time: 1, passes: ["beauty"] }],
-};
-
-/** What one door-fixture compile varies. */
-export interface IDoorShotProps {
-  /** The clips the source authors, or omitted for a shot that authors none. */
-  objectMotions?: readonly IAutoMovieClip[];
-  /** One more staged piece, for a scenario about scene-node identity. */
-  extraSet?: IAutoMovieStage["set"];
-  /** The prop registry, defaulting to the one articulated door. */
-  props?: readonly IAutoMoviePropSpec[];
-}
-
-/** Compile the door fixture under one variation. */
-export const compileDoorShot = (
-  props: IDoorShotProps = {},
-): ReturnType<typeof compileDefinedShot> =>
-  compileDefinedShot({
-    shot: defineShot("SB-door", {
-      scene: "scene-duel",
-      contract: DOOR_CONTRACT,
-      build: () => doorProgram(props.extraSet ?? []),
-    }),
-    context: undefined,
-    runtime: {
-      // A coupling animates an object, never a rig, so it synthesizes nothing:
-      // the torch has to stay off `performances` for the baked follow to be the
-      // only authority over it.
-      synthesize: (action, actor, previous) =>
-        action.verb === "attachTo"
-          ? null
-          : validSynthesizer(action, actor, previous),
-      skeleton: () => createSkeleton(),
-      frameFormat: { width: 1920, height: 1080 },
-      props: "props" in props ? props.props : [createDoorPropSpec()],
-      objectMotions: props.objectMotions,
-    },
-  });
-
-/**
- * A source can turn a door, and the compiled shot carries the turn.
- *
- * Every entry on a compiled shot's `objectMotions` used to be baked by the
- * engine from a `launch` or an `attachTo`, so the two contracts that promise a
- * door swings on screen — a building opening's panel placements, a prop's
- * declared articulation — were both true of the record and unreachable from a
- * shot. This case is the reachability: the authored clip survives compilation,
- * addresses the joint the scene actually lowers, and the joint id is derivable
- * from the artifact rather than guessed.
+ * Compiles the same staged duel with no authored motion, a prop-hinge rotation and a set-panel rotation; returned clip identities, channel addresses and sceneToNodes membership prove accepted authored motion survives beside the baked torch follow.
  *
  * Scenarios:
+ * 1. Keep only the baked torch follow when no object clip is authored.
+ * 2. Preserve the authored hinge rotation beside that follow and observe its lowered scene address.
+ * 3. Preserve the authored set-panel rotation beside the same follow.
  *
- * 1. A shot that authors nothing compiles with exactly the clips the engine baked
- *    for it, here the torch's follow: the field costs a shot that says nothing
- *    about its objects exactly what it cost before.
- * 2. A 90° swing over the prop's lowered hinge compiles, and the compiled shot
- *    carries that clip on `objectMotions` BESIDE the baked follow rather than
- *    instead of it, addressing the same node id `sceneToNodes` lowers the
- *    prop's hinge under.
- * 3. A staged set piece no prop registry mentions is drivable too: this is the
- *    building panel's own path (`<environment>/<element>`), so a swinging leaf
- *    and a swinging panel need one mechanism rather than two.
+ * @evidence contracts/testing.md#behavioral-verification Compiles the same staged duel with no authored motion, a prop-hinge rotation and a set-panel rotation; returned clip identities, channel addresses and sceneToNodes membership prove accepted authored motion survives beside the baked torch follow.
+ * @evidence contracts/testing.md#independent-expectations Expected clip lists come from the authored registrations and the attachTo action's documented baked identity. Hinge identity follows placementChildNode's placement/joint contract; sceneToNodes is an integration observation of lowering rather than an independent geometry oracle, and this case proves no rendered appearance.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty authored clips, one articulated joint and a set piece whose model is absent from the prop registry, while the door remains registered. The paired object_motion_gates test owns invalid addresses, authority conflicts, travel violations and interpolated quaternion limits; no rejection assertions are removed here.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_perform_shot_object_motions; its helper compiles portable in-memory TypeScript data through defineShot and compileDefinedShot, and this function owns three cases without a browser, native renderer or external consumer.
  */
-export const test_film_perform_shot_object_motions = (): void => {
-  const silent = compileDoorShot();
+export function test_film_perform_shot_object_motions(): void {
+  const silent: IAutoMovieCompiledDefinedShot = compileDoorShot();
   TestValidator.equals(
     "a shot that authors no object motion carries only what the engine baked",
     silent.success === true
-      ? silent.source.shot.objectMotions.map((clip) => clip.id)
+      ? silent.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): string => clip.id,
+        )
       : silent.diagnostics.map(
-          (diagnostic) => `${diagnostic.path} ${diagnostic.fact}`,
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string =>
+            `${diagnostic.path} ${diagnostic.fact}`,
         ),
     ["attach:torch"],
   );
 
-  const swung = compileDoorShot({
+  const swung: IAutoMovieCompiledDefinedShot = compileDoorShot({
     objectMotions: [swingClip("door-swing", HINGE, 90)],
   });
   TestValidator.equals(
     "the authored swing reaches the compiled shot, beside the baked follow",
     swung.success === true
-      ? swung.source.shot.objectMotions.map((clip) => [
-          clip.id,
-          clip.tracks[0]!.channel.kind === "node"
-            ? clip.tracks[0]!.channel.node
-            : null,
-        ])
-      : swung.diagnostics.map((diagnostic) => [
-          diagnostic.path,
-          diagnostic.fact,
-        ]),
+      ? swung.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): (string | null)[] => [
+            clip.id,
+            clip.tracks[0]!.channel.kind === "node"
+              ? clip.tracks[0]!.channel.node
+              : null,
+          ],
+        )
+      : swung.diagnostics.map(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string[] => [
+            diagnostic.path,
+            diagnostic.fact,
+          ],
+        ),
     [
       ["attach:torch", "torch"],
       ["door-swing", HINGE],
@@ -226,31 +66,36 @@ export const test_film_perform_shot_object_motions = (): void => {
   TestValidator.equals(
     "the driven node is the one the compiled artifact lowers the hinge under",
     namedFacts([
-      ["compiled", () => swung.success === true],
+      ["compiled", (): boolean => swung.success === true],
       [
         "lowersTheDrivenNode",
-        () =>
+        (): boolean =>
           swung.success === true &&
           sceneToNodes({
             scene: swung.source.scene,
             props: { door: createDoorPropSpec() },
             allowPartialModels: true,
           })
-            .map((node) => node.id)
+            .map((node: IAutoMovieNode): string => node.id)
             .includes(HINGE),
       ],
     ]),
     { compiled: true, lowersTheDrivenNode: true },
   );
 
-  const panel = compileDoorShot({
+  const panel: IAutoMovieCompiledDefinedShot = compileDoorShot({
     objectMotions: [swingClip("panel-swing", "hall/panel", 30)],
   });
   TestValidator.equals(
     "a staged set piece is drivable on the same channel",
     panel.success === true
-      ? panel.source.shot.objectMotions.map((clip) => clip.id)
-      : panel.diagnostics.map((diagnostic) => diagnostic.fact),
+      ? panel.source.shot.objectMotions.map(
+          (clip: IAutoMovieClip): string => clip.id,
+        )
+      : panel.diagnostics.map(
+          (diagnostic: IAutoMovieAuthoringDiagnostic): string =>
+            diagnostic.fact,
+        ),
     ["attach:torch", "panel-swing"],
   );
-};
+}

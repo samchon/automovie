@@ -1,87 +1,37 @@
 /**
- * A linear-RGB color with optional alpha, the canonical color value for
- * materials, lights, and decorative tints.
+ * A linear-RGB color with optional alpha, the canonical color value for materials, lights, fog, backgrounds and decorative tints.
  *
- * Components are linear (not sRGB-gamma-encoded) numbers in `[0, 1]`, matching
- * how PBR shaders and glTF `baseColorFactor` consume color. `hex` is an
- * optional sRGB convenience anchor for human/LLM readability and viewer
- * display; when both are present the engine treats the linear triple as
- * authoritative and `hex` as a derived label.
+ * Components are linear (not sRGB-gamma-encoded) numbers in `[0, 1]`, matching how PBR shaders and glTF `baseColorFactor` consume color. `hex` is an optional sRGB label for human and LLM readability and viewer swatches; the engine renders the linear triple and never decodes `hex`.
  *
- * Derive the label, do not type it. `linearColorToSrgbHex` writes `hex` from
- * the triple, `srgbHexToLinearColor` writes the triple from a swatch, and the
- * two round-trip exactly for every eight-bit channel value. Bare `#RRGGBB`
- * fields carry the color rather than label one, so they are sRGB inputs: the
- * builder and instance viewer share `srgbHexToLinearColor` for recipe and
- * instance palettes, while the effect viewer applies three.js's equivalent
- * decode to particle colors.
+ * Derive the label, do not type it. `linearColorToSrgbHex` writes `hex` from the triple, `srgbHexToLinearColor` writes the triple from a swatch, and the two round-trip exactly for every eight-bit channel value. Bare `#RRGGBB` fields elsewhere carry the color rather than label one, so they are sRGB inputs: the builder and instance viewer share `srgbHexToLinearColor` for recipe and instance palettes, while the effect viewer applies three.js's equivalent decode to particle colors. A swatch pasted into `r`, `g`, `b` unconverted lands about 2.3 times too bright at midtones: `#808080` becomes linear `0.502` where the swatch means `0.216`.
  *
- * A swatch pasted into `r`, `g`, `b` unconverted lands about 2.3x too bright at
- * midtones: `#808080` becomes linear `0.502` where the swatch means `0.216`.
- * The builder used to make exactly that substitution when it turned a model
- * recipe palette into `baseColor`, which is how one production covered a single
- * roof in two colors, its instanced slates decoding their palette correctly
- * while the cut slates beside them carried a material that had not been
- * decoded at all.
+ * The shared validateColor gate requires a present hex label to match the eight-bit sRGB encoding of the linear RGB triple, ignoring letter case. Alpha does not enter that swatch. A malformed or contradictory label is refused; validation never changes the authoritative numeric channels.
  *
- * Nothing compares `hex` against `r`, `g`, `b`. A label typed by hand can still
- * contradict the numbers it sits beside, and the engine will render the numbers
- * without saying so. That refusal is deferred rather than declined: it belongs
- * with the model validators, and the conversion it needs now exists.
+ * Reference: glTF 2.0 `pbrMetallicRoughness.baseColorFactor` (linear), CSS Color Module Level 4.
  *
- * Keeping color as a numeric triple (rather than a free string) lets an
- * authoring agent adjust it numerically and lets the engine range-check it.
- *
- * Reference: glTF 2.0 `pbrMetallicRoughness.baseColorFactor` (linear), CSS
- * Color Module Level 4.
- *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Defines the portable linear scene-color boundary used by material and light contracts.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types the linear material-color state required by the rendering contract.
+ * @evidence contracts/common.md#principled-implementation Uses the glTF linear color convention; `linearColorToSrgbHex` and `srgbHexToLinearColor` apply the exact sRGB transfer function (the `0.0031308` and `0.04045` breakpoints, exponent `2.4`), and the material, light, fog and background validators range-check each linear component to `[0, 1]`.
+ * @evidence contracts/common.md#clear-and-simple-design A numeric triple plus nullable alpha and label, so an authoring agent adjusts color numerically and the engine range-checks it, while the label stays an optional derived view rather than a second source of truth.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The triple is never re-derived from hex behind the author's back; shared validation refuses labels that differ from the quantized sRGB encoding instead of allowing material, light, fog and background slots to disagree about the same colour representation.
+ * @evidence contracts/common.md#meaningful-documentation States linear channel authority and range, conversion helpers and eight-bit round trip, the unconverted-swatch error, nullable alpha, and case-insensitive agreement of an optional label with the quantized RGB swatch.
  * @author Samchon
  */
 export interface IAutoMovieColor {
-  /**
-   * Linear red, `[0, 1]`.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Exposes `r` as the portable data boundary for the rendering scene display color requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types `r` for the spec render material color system contract.
-   */
+  /** Linear red, `[0, 1]`. */
   r: number;
 
-  /**
-   * Linear green, `[0, 1]`.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Exposes `g` as the portable data boundary for the rendering scene display color requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types `g` for the spec render material color system contract.
-   */
+  /** Linear green, `[0, 1]`. */
   g: number;
 
-  /**
-   * Linear blue, `[0, 1]`.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Exposes `b` as the portable data boundary for the rendering scene display color requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types `b` for the spec render material color system contract.
-   */
+  /** Linear blue, `[0, 1]`. */
   b: number;
 
   /**
-   * Linear alpha, `[0, 1]`. `1` = fully opaque. Null when the color is used in
-   * an opacity-irrelevant slot (e.g. light color, emissive), distinct from `0`
-   * (fully transparent).
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Exposes `a` as the portable data boundary for the rendering scene display color requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types `a` for the spec render material color system contract.
+   * Linear alpha, `[0, 1]`, where `1` is fully opaque. Null when the color is used in an opacity-irrelevant slot such as a light or emissive color, distinct from `0` (fully transparent).
    */
   a: number | null;
 
   /**
-   * Optional sRGB `#RRGGBB` convenience form for human / LLM readability and
-   * viewer swatches. Write it with `linearColorToSrgbHex` rather than by hand;
-   * the linear components are authoritative when both are present, and nothing
-   * refuses a label that disagrees with them.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-scene-display-color Exposes `hex` as the portable data boundary for the rendering scene display color requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Types `hex` for the spec render material color system contract.
+   * Optional sRGB `#RRGGBB` label for human and LLM readability and viewer swatches, or `null`. Write it with `linearColorToSrgbHex` rather than by hand; validation refuses a label that disagrees with the quantized sRGB encoding of the linear components, ignoring letter case.
    */
   hex: string | null;
 }

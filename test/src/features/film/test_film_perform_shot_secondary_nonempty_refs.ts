@@ -1,10 +1,17 @@
 import {
-  IAutoMovieActionSynthesizer,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
+  IAutoMovieActionCall,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -14,25 +21,34 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const synth: IAutoMovieActionSynthesizer = (action, actor) =>
+const synth: IAutoMovieActionSynthesizer = (
+  action: IAutoMovieActionCall,
+  actor: string,
+): IAutoMovieMotion | null =>
   action.verb === "launch" || action.verb === "attachTo"
     ? null
     : validSynthesizer(action, actor);
 
 /**
- * Secondary action references are consumed directly by launch, target
- * resolution, and attach compilation. Matching blank staged ids must not pass
- * just because they are present in the staged scene map.
+ * Performs launch, lookAt, reach, point gesture and attach drafts with matching blank staged references and checks each original located type violation.
  *
- * Scenario: blank projectile, node target, group member, gesture target, and
- * attach parent references fail at their own fields.
+ * Scenarios:
+ * 1. Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank admission is covered by the respective launch/positional/mount entries.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Performs launch, lookAt, reach, point gesture and attach drafts with matching blank staged references and checks each original located type violation.
+ * @evidence contracts/testing.md#independent-expectations Whitespace-only projectile, node target, group member and parent references are invalid even if the staged lookup contains them; the authored per-action field paths are independent expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank admission is covered by the respective launch/positional/mount entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_secondary_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
-  const script = makeScriptWrite();
-  const baseStaged = stageScene(script, makeStagingWrite());
+export function test_film_perform_shot_secondary_nonempty_refs(): void {
+  const script: IAutoMovieScript = makeScriptWrite();
+  const baseStaged: IAutoMovieStagedSet = stageScene(
+    script,
+    makeStagingWrite(),
+  );
   if (baseStaged.success !== true) throw new Error("staging must succeed");
 
-  const blankTarget = {
+  const blankTarget: IAutoMovieSceneNode = {
     ...baseStaged.scene.nodes[0]!,
     id: " ",
     transform: {
@@ -40,7 +56,7 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
       translation: { x: 1.5, y: 0, z: 0 },
     },
   };
-  const blankProjectile = {
+  const blankProjectile: IAutoMovieSceneNode = {
     ...baseStaged.scene.nodes[0]!,
     id: "\t",
     transform: {
@@ -48,7 +64,7 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
       translation: { x: 0.2, y: 1, z: 0 },
     },
   };
-  const arrow = {
+  const arrow: IAutoMovieSceneNode = {
     ...baseStaged.scene.nodes[0]!,
     id: "arrow",
     transform: {
@@ -56,7 +72,7 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
       translation: { x: 0, y: 1, z: 0 },
     },
   };
-  const staged = {
+  const staged: IAutoMovieStagedSet.ISuccess = {
     ...baseStaged,
     scene: {
       ...baseStaged.scene,
@@ -64,7 +80,7 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
     },
   };
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite({
@@ -123,7 +139,7 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: synth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
 
   TestValidator.equals(
@@ -134,10 +150,10 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank projectile violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[0].projectile"),
       ],
@@ -147,10 +163,10 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank launch node target violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[1].at.node"),
       ],
@@ -160,10 +176,10 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank lookAt node target violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[2].to.node"),
       ],
@@ -173,10 +189,10 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank reach group target violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[3].to.nodes[0]"),
       ],
@@ -186,10 +202,10 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank gesture node target violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[4].at.node"),
       ],
@@ -199,14 +215,14 @@ export const test_film_perform_shot_secondary_nonempty_refs = (): void => {
   TestValidator.equals(
     "blank attach parent violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[5].parent"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

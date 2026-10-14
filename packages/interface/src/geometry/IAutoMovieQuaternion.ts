@@ -1,51 +1,26 @@
 /**
  * A unit quaternion `(x, y, z, w)` describing a 3D rotation.
  *
- * This is **engine / interchange representation, not LLM-facing**. automovie
- * exposes joint rotation to the model as semantic degrees precisely because
- * quaternions are opaque to language models and easy to emit wrong (the
- * unit-norm constraint is not something a model tracks). The engine produces
- * quaternions when converting a validated {@link IAutoMovieJointPose} into
- * bone-local rotations for `three.js` / glTF / VRMA export, and consumes them
- * when ingesting an imported rig back into semantic angles.
+ * Joint articulation is authored as semantic degrees through {@link IAutoMovieJointPose}; jointToQuaternion converts those angles to bone-local rotations, motionToClip emits general node tracks, and decomposeJointRotation reads rotations back into semantic angles during imported-motion conversion. Placement records, including {@link IAutoMovieExplicitInstanceTransform}, may carry a quaternion directly.
  *
- * Order is glTF's `(x, y, z, w)`. The vector is expected to be unit-norm; the
- * engine normalizes defensively rather than rejecting near-unit input.
+ * Component order is glTF's `(x, y, z, w)`, and Quaternion.multiply(a, b) applies b first without normalization. validateTransformScalars refuses nonfinite components and a norm more than 1e-6 from one, retaining admitted components unchanged. Direct rotateVector and matrix composition likewise do not normalize; callers needing a unit copy use Quaternion.normalize, whose zero-input convention returns identity. q and -q represent the same rotation, and no record requires either sign.
  *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `IAutoMovieQuaternion` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `IAutoMovieQuaternion` within the declared spatial transform chain.
+ * @evidence contracts/common.md#principled-implementation A unit quaternion represents rotation and composes by the Hamilton product in glTF component order. validateTransformScalars checks finite components and norm within 1e-6 for consumers that apply that gate; direct numerical helper calls still carry their own admitted-input premises.
+ * @evidence contracts/common.md#clear-and-simple-design Four plain numbers in the order glTF and `three.js` store, so the engine, viewer and imported clips exchange rotations without reordering or a wrapper class.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Transform validation refuses out-of-domain rotations without repairing them and does not promise automatic normalization for admitted values. Quaternion.normalize's zero-input identity is its explicit degeneracy convention, while direct multiplication, vector rotation and matrix composition retain their stated unit-input premises.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes semantic joint authoring from direct quaternion placement, identifies conversion readers, gives component and multiplication order, validation tolerance, explicit normalization behavior and sign ambiguity; members identify each component.
  * @author Samchon
  */
 export interface IAutoMovieQuaternion {
-  /**
-   * Imaginary i component.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `x` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `x` within the declared spatial transform chain.
-   */
+  /** Imaginary i component. */
   x: number;
 
-  /**
-   * Imaginary j component.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `y` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `y` within the declared spatial transform chain.
-   */
+  /** Imaginary j component. */
   y: number;
 
-  /**
-   * Imaginary k component.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `z` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `z` within the declared spatial transform chain.
-   */
+  /** Imaginary k component. */
   z: number;
 
-  /**
-   * Real (scalar) component.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `w` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `w` within the declared spatial transform chain.
-   */
+  /** Real (scalar) component. */
   w: number;
 }

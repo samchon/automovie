@@ -1,14 +1,17 @@
-import { performShot, stageScene } from "@automovie/engine";
+import {
+  canonicalizeAutoMovieJson,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
 import {
   IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieCameraClearanceReport,
   IAutoMovieShot,
+  IAutoMovieSkeleton,
   IAutoMovieStage,
 } from "@automovie/interface";
-import {
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-} from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
 
 import {
   makePerformanceWrite,
@@ -19,8 +22,8 @@ import {
 import { createModel, createSkeleton } from "../internal/fixtures";
 
 /** One camera whose declared body envelope stays clear of every obstacle. */
-const stageWithClearance = (): IAutoMovieStage => {
-  const base = makeStagingWrite();
+const stageWithClearance: () => IAutoMovieStage = (): IAutoMovieStage => {
+  const base: ReturnType<typeof makeStagingWrite> = makeStagingWrite();
   const clearance: IAutoMovieCameraClearanceEnvelope = {
     body: { center: { x: 0, y: 0, z: 0 }, radius: 0.01 },
     parentRig: null,
@@ -40,16 +43,25 @@ const stageWithClearance = (): IAutoMovieStage => {
 };
 
 /** Perform the same authored take under one clearance runtime. */
-const compileTake = (revision: string, sampleRate: number) => {
-  const staged = stageScene(makeScriptWrite(), stageWithClearance());
+const compileTake: (
+  revision: string,
+  sampleRate: number,
+) => Extract<ReturnType<typeof performShot>, { success: true }> = (
+  revision: string,
+  sampleRate: number,
+): Extract<ReturnType<typeof performShot>, { success: true }> => {
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    stageWithClearance(),
+  );
   if (staged.success !== true)
     throw new Error("the clearance fixture must stage");
-  const performed = performShot({
+  const performed: ReturnType<typeof performShot> = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     models: [
       { ...createModel(), id: "stickman" },
       { ...createModel(), id: "knightB" },
@@ -62,8 +74,10 @@ const compileTake = (revision: string, sampleRate: number) => {
 };
 
 /** Digest of the exact canonical bytes this shot would be materialized as. */
-const artifactDigest = (shot: IAutoMovieShot): string =>
-  digestAutoMovieBytes(canonicalAutoMovieJsonBytes(shot));
+const artifactDigest: (shot: IAutoMovieShot) => string = (
+  shot: IAutoMovieShot,
+): string =>
+  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(shot), "utf8").digest("hex")}`;
 
 /**
  * A compiled take's bytes follow its inputs, never the project revision.
@@ -91,20 +105,34 @@ const artifactDigest = (shot: IAutoMovieShot): string =>
  * 3. A take differing only in its inspection clock materializes to different
  *    bytes, proving the equality above is not indifference to the runtime.
  * 4. No published report carries a `revision` or `currentRevision` member.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Stages and performs three identical authored takes with current runtime revisions 41/42 or sample rates 24/48, checking clear nonempty sample plans, canonical shot bytes/digests, and absence of runtime revision members on reports.
+ * @evidence contracts/testing.md#independent-expectations Revision-only variants must retain identical authored output by the publication identity contract, while the authored inspection-rate variant must alter the carried sample plan and its digest. Explicit clear status, report count, and interval-to-sample length checks prevent absent reports from satisfying equality.
+ * @evidence contracts/testing.md#distinguishing-cases The revision-only pair is paired with a sample-rate-only negative twin on the same runtime object, distinguishing selective revision independence from dropping all runtime influence; both forbidden revision keys are checked across every returned report.
+ * @evidence contracts/testing.md#execution-ownership Uses real synchronous staging/performance assembly, existing skeleton/synthesizer callbacks through product seams, and in-memory canonical JSON plus Node SHA-256. No file publication, renderer, external resources, clock, or dependency replacement occurs; byte-array equality separately anchors the revision pair beyond equal hashes.
  */
-export const test_film_camera_clearance_revision_independence = (): void => {
-  const first = compileTake("41", 24);
-  const second = compileTake("42", 24);
-  const finer = compileTake("41", 48);
+export function test_film_camera_clearance_revision_independence(): void {
+  const first: ReturnType<typeof compileTake> = compileTake("41", 24);
+  const second: ReturnType<typeof compileTake> = compileTake("42", 24);
+  const finer: ReturnType<typeof compileTake> = compileTake("41", 48);
 
   TestValidator.equals(
     "every arranged take publishes one clear report over a real sample plan",
-    [first, second, finer].map((performed) => [
-      performed.shot.cameraClearance?.length,
-      performed.shot.cameraClearance?.[0]?.status,
-      performed.shot.cameraClearance?.[0]?.sampleTimes.length ===
-        (performed.shot.cameraClearance?.[0]?.intervals ?? -1) + 1,
-    ]),
+    [first, second, finer].map(
+      (
+        performed: ReturnType<typeof compileTake>,
+      ): [
+        number | undefined,
+        IAutoMovieCameraClearanceReport["status"] | undefined,
+        boolean,
+      ] => [
+        performed.shot.cameraClearance?.length,
+        performed.shot.cameraClearance?.[0]?.status,
+        performed.shot.cameraClearance?.[0]?.sampleTimes.length ===
+          (performed.shot.cameraClearance?.[0]?.intervals ?? -1) + 1 &&
+          (performed.shot.cameraClearance?.[0]?.sampleTimes.length ?? 0) > 0,
+      ],
+    ),
     [
       [1, "clear", true],
       [1, "clear", true],
@@ -113,11 +141,21 @@ export const test_film_camera_clearance_revision_independence = (): void => {
   );
 
   TestValidator.equals(
+    "a moved project revision alone preserves the complete canonical byte sequence",
+    Array.from(Buffer.from(canonicalizeAutoMovieJson(first.shot), "utf8")),
+    Array.from(Buffer.from(canonicalizeAutoMovieJson(second.shot), "utf8")),
+  );
+  TestValidator.equals(
     "a moved project revision alone leaves the generated bytes identical",
     artifactDigest(first.shot),
     artifactDigest(second.shot),
   );
 
+  TestValidator.predicate(
+    "the finer inspection clock carries more sample instants",
+    finer.shot.cameraClearance![0]!.sampleTimes.length >
+      first.shot.cameraClearance![0]!.sampleTimes.length,
+  );
   TestValidator.predicate(
     "those same bytes still follow the inspection clock the runtime carries",
     artifactDigest(first.shot) !== artifactDigest(finer.shot),
@@ -125,13 +163,15 @@ export const test_film_camera_clearance_revision_independence = (): void => {
 
   TestValidator.equals(
     "no published report carries a revision of its own",
-    [first, second, finer].flatMap((performed) =>
-      (performed.shot.cameraClearance ?? []).flatMap((report) =>
-        ["revision", "currentRevision"].filter((key) =>
-          Object.keys(report).includes(key),
+    [first, second, finer].flatMap(
+      (performed: ReturnType<typeof compileTake>): string[] =>
+        (performed.shot.cameraClearance ?? []).flatMap(
+          (report: IAutoMovieCameraClearanceReport): string[] =>
+            ["revision", "currentRevision"].filter((key: string): boolean =>
+              Object.keys(report).includes(key),
+            ),
         ),
-      ),
     ),
     [],
   );
-};
+}

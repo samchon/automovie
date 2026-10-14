@@ -16,12 +16,20 @@ import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwea
  * Compact edits against a separately supplied immutable body basis.
  *
  * Zero is the source neutral; omitted channels are zero, omitted non-humeral
- * joints are at rest and omitted shoulders hold their measured A-pose goal.
+ * joints are at rest and omitted shoulders hold the shaped body's own rest goal.
  * Negative controls use their authored negative endpoint, never an
  * extrapolated positive one. The document contains no photo, mesh cache,
  * renderer or Blender dependency, and no schema version: the basis revision it
  * names decides what every field means, and a basis mismatch is refused rather
  * than migrated.
+ *
+ * @evidence contracts/common.md#principled-implementation An exact basis revision gives sparse canonical shape and articulation entries deterministic replay meaning; named measurements are resolved by their owners.
+ * @evidence contracts/common.md#clear-and-simple-design The document separates authoring identity, named anatomical targets, pose, appearance and costume choices.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy replay weights are not public sculpt controls; basis mismatches and conflicting measurement authority are refused.
+ * @evidence contracts/common.md#meaningful-documentation The comment documents zero and omission, units, source-qualified inputs and optional-state behavior.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The body authoring document is a type declaration without executable processing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The body authoring document coordinates no cross-call computation or caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The body authoring document type itself acquires no retained runtime resources.
  *
  * @author Samchon
  */
@@ -94,7 +102,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
 
   /**
    * Optional humerothoracic goals in tilt-and-torsion coordinates. An omitted
-   * arm keeps the basis's measured A-pose total direction even when its
+   * arm keeps the shaped body's own rest total direction even when its
    * shoulder girdle is posed; the girdle still transports its joint centre.
    */
   shoulders?: IAutoMovieHumanBodyShoulderPose[];
@@ -147,8 +155,8 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * base-colour map of its two chromophores, melanin and haemoglobin,
    * varying about the site colour (`HUMAN_BODY_SKIN_TONE`) at `strength` in
    * [0,1], less even with the document's age; the base colour is compensated
-   * so the skin's mean colour stays the site albedo. Omission keeps the tone
-   * even.
+   * against the map's pre-encoding mean. Texture quantization and material
+   * clipping prevent exact final mean preservation. Omission keeps the tone even.
    */
   skinTone?: IAutoMovieHumanBodySkinLayerStrength;
 

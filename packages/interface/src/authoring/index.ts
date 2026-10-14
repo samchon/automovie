@@ -12,7 +12,6 @@ export * from "./IAutoMoviePerformance";
 export * from "./IAutoMovieShotActorProgram";
 export * from "./IAutoMovieShotDefinition";
 export * from "./IAutoMovieShotProgram";
-export * from "./IAutoMovieShotReviewWrite";
 export * from "./IAutoMovieStage";
 export * from "./IAutoMovieStageActor";
 export * from "./IAutoMovieStageCamera";

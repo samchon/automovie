@@ -3,51 +3,37 @@ import { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
 /**
  * One numeric target the production declares for one metric.
  *
- * The unit is declared beside the value on purpose. A target of `300` against a
- * metric measured in lux and a target of `300` against a metric measured in
- * candela are different requirements, and a contract that carried only the
- * number would let one silently clear the other.
+ * The unit is declared beside the value because a target of `300` against a
+ * metric in lux and a target of `300` against a metric in candela are different
+ * requirements, and a number alone would let one clear the other.
  *
- * A target only ever narrows a verdict; it never widens one. One that cannot be
- * applied, because its unit disagrees with the metric or its key names nothing
- * the study reports, is dropped and said out loud as a run warning rather than
- * quietly satisfied. That is the difference between a rule that was checked and
- * a rule nobody could check, and only the first of them may leave a report
- * reading `meets`.
+ * A target only narrows a verdict. One that cannot be applied, because its unit
+ * disagrees with the metric (`target-unit-mismatch`) or its key names no metric
+ * the study reports (`target-key-unknown`), is dropped and reported as a run
+ * warning rather than treated as satisfied. A target whose metric produced no
+ * value reaches the report as that metric's gap instead.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisTarget` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisTarget` for the validation failed not run states system contract.
+ * Keys and units are compared as exact strings with no conversion or alias, so
+ * a target in `lux` does not apply to a metric in `lx`. A target list is
+ * refused before any solver reads it when a key or unit is blank, a value is
+ * not finite, a comparison is unknown, or a key repeats.
+ *
+ * @evidence contracts/common.md#principled-implementation `assertAutoMovieAnalysisTargets` runs inside every solver's request check before computation, and `autoMovieAnalysisMetric` applies the first target with the metric's key only when its unit string equals the metric's unit.
+ * @evidence contracts/common.md#clear-and-simple-design Key, unit, value and direction are the whole requirement; no unit table or conversion layer exists, since exact string matching is the stated contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An inapplicable target is never silently passed: a unit mismatch and an unknown key each emit a named warning, and a metric judged against a mismatched target reads `untargeted` rather than `meets`.
+ * @evidence contracts/common.md#meaningful-documentation States why the unit is declared, the two warning codes for inapplicable targets, the exact-string matching rule, and every condition that refuses a target list.
+ * @author Samchon
  */
 export interface IAutoMovieAnalysisTarget {
-  /**
-   * Metric key this target applies to.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `key` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `key` for the validation failed not run states system contract.
-   */
+  /** Metric key this target applies to; unique within the target list. */
   key: string;
 
-  /**
-   * Unit symbol the target is stated in, such as `lx`, `s`, `dB`.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `unit` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `unit` for the validation failed not run states system contract.
-   */
+  /** Unit symbol the target is stated in, such as `lx`, `s`, `dB`. */
   unit: string;
 
-  /**
-   * Finite target value in {@link unit}.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `value` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `value` for the validation failed not run states system contract.
-   */
+  /** Finite target value in {@link unit}. */
   value: number;
 
-  /**
-   * Whether the metric must reach the value or stay under it.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `comparison` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `comparison` for the validation failed not run states system contract.
-   */
+  /** Whether the metric must reach the value or stay under it. */
   comparison: AutoMovieAnalysisComparison;
 }

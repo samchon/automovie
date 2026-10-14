@@ -5,41 +5,29 @@ import {
 } from "@automovie/interface";
 
 /**
- * One frame of a bound furnishing: what was computed, and what was claimed.
+ * One lowerSoftFurnishing result with its computation status and derived surface.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Carries the bounded soft result together with its honest computation status.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Exposes one renderer-ready furnishing frame without hiding unsupported outcomes.
+ * @evidence contracts/common.md#principled-implementation Particle state and its surface accompany an explicit analysis status, so not-run nulls differ from rest geometry returned for a declared unsupported solve.
+ * @evidence contracts/common.md#clear-and-simple-design Furnishing identity joins simulation and display derivatives in one result while domain configuration remains authored elsewhere.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null state/surface expose an unperformed derivation, and unsupported/rest statuses do not claim a moving cloth simulation succeeded.
+ * @evidence contracts/common.md#meaningful-documentation Names the lowering producer and distinguishes no computation from a drawable but explicitly unsolved rest state.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This result row performs neither integration nor surface construction; those algorithms are answered by its producers.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work State and surface belong to one sampled furnishing result and this record coordinates no prior-frame reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned particle and mesh populations dominate retention; the wrapper holds no runtime host or external simulation task.
+ * @author Samchon
  */
 export interface IAutoMovieSoftFurnishingFrame {
-  /**
-   * Identity of the furnishing the frame belongs to.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Preserves which authored furnishing owns the lowered panel.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Keeps the soft result addressable at its interior installation boundary.
-   */
+  /** Identity of the furnishing the frame belongs to. */
   furnishing: string;
 
   /**
    * What the analysis actually did, including anything it declined to claim.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Reports solved, rest, unsupported, and not-run outcomes explicitly.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Carries the bounded computation status beside the furnishing result.
    */
   analysis: IAutoMovieSoftAnalysis;
 
-  /**
-   * The particle state, or `null` when nothing was computed at all.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Carries state only when the selected bounded tier produced one.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Distinguishes a computed furnishing state from a refused derivation.
-   */
+  /** The particle state, or `null` when nothing was computed at all. */
   state: IAutoMovieSoftBodyState | null;
 
-  /**
-   * Drawable geometry derived from that state, or `null` beside it.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Exposes geometry only for an available rest or solved state.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Keeps the surface outcome consistent with the reported computation status.
-   */
+  /** Drawable geometry derived from that state, or `null` beside it. */
   surface: IAutoMovieSoftBodySurface | null;
 }

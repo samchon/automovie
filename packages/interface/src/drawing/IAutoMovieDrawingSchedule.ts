@@ -1,91 +1,50 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
+import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
 import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
 import { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
 
 /**
- * A schedule: the same design counted instead of drawn.
+ * A schedule: one design's spaces, openings or connectors counted instead of drawn.
  *
- * A door schedule and a floor plan disagree the moment either is maintained by
- * hand, so this is derived from exactly the graph the plan is derived from. The
- * consequence the acceptance cares about is arithmetic rather than aesthetic:
- * {@link total} is the number of scheduled occurrences in the design, and the
- * row counts sum to it, so a schedule cannot quietly lose or invent a door.
+ * It is derived from the same validated graph as a drawing, but counts the complete selected subject population while a drawing applies its view's space and element-kind filters. {@link total} is the number of subject records in the design, and the row counts sum to it; this identity does not equate a filtered sheet's visible population with the whole-design schedule.
  *
- * Rows are grouped by type, which is what a schedule is for — nobody wants
- * three hundred identical rows — and each row names a bounded sample of its
- * members with the remainder counted. That bound is what keeps a schedule over
- * a tower the same size as a schedule over a room.
+ * Openings and connectors are grouped into type rows, and each row names a bounded sample of its members with the remainder counted, so a schedule over a tower is the size of its type list. A `space` schedule lists every space as its own row, because two rooms of one kind and size are still two places to visit.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingSchedule` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingSchedule` for the interior space drawing schedule quantity system contract.
+ * @evidence contracts/common.md#principled-implementation The derivation validates the environment, maps each selected-family record once and groups by JSON(kind,model,rounded width,height,basis), or space id. Counts reconcile with the full occurrence list; grouping does not prove geometric interchangeability, rated performance or identical operating states. The digest identifies the canonical output payload without authenticating source bytes or execution provenance.
+ * @evidence contracts/common.md#clear-and-simple-design The record holds only the subject, its rows, the total, its gaps and identity fields; sizing, location and the member bound live on the row and place records that own them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `total` is the length of the design's own record array rather than a sum of rows, so the reconciliation is a property of the derivation, and what a subject cannot state is filed as a gap instead of being left out.
+ * @evidence contracts/common.md#meaningful-documentation States the shared source with drawings, the meaning of `total` and the row-count identity, the grouping and member bound, and the ungrouped space rule; members give row and gap order, the subject's closed set, and the digest's coverage.
  * @author Samchon
  */
 export interface IAutoMovieDrawingSchedule {
-  /**
-   * Schedule format.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `version` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `version` for the interior space drawing schedule quantity system contract.
-   */
+  /** Schedule format. */
   version: 1;
 
-  /**
-   * Versioned schedule protocol.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `protocol` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `protocol` for the interior space drawing schedule quantity system contract.
-   */
+  /** Versioned schedule protocol. */
   protocol: "automovie.drawing-schedule.v1";
 
-  /**
-   * Built environment this schedule was derived from.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `environment` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `environment` for the interior space drawing schedule quantity system contract.
-   */
+  /** Built environment this schedule was derived from. */
   environment: string;
 
-  /**
-   * What is being scheduled, such as `opening`, `space` or `connector`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `subject` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `subject` for the interior space drawing schedule quantity system contract.
-   */
-  subject: string;
+  /** Which family of design records is scheduled. */
+  subject: AutoMovieDrawingScheduleSubject;
 
   /**
-   * Type rows, in canonical order.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `rows` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `rows` for the interior space drawing schedule quantity system contract.
+   * Rows ordered by kind, model, width, height (unmeasured first) and basis, with each kind's rows marked `<kind>-01`, `<kind>-02` and so on in that order.
    */
   rows: IAutoMovieDrawingScheduleRow[];
 
   /**
-   * Occurrences the design declares for this subject.
-   *
-   * The row counts sum to exactly this. A discrepancy is not possible by
-   * construction, which is the point: the number the schedule prints and the
-   * number of things in the model are one number.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `total` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `total` for the interior space drawing schedule quantity system contract.
+   * Number of records of {@link subject} the design declares; the row counts sum to exactly this.
    */
   total: number;
 
   /**
-   * Derivations this schedule could not perform, in canonical order.
+   * What this schedule does not state, sorted by gap subject.
    *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `gaps` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `gaps` for the interior space drawing schedule quantity system contract.
+   * Every schedule carries the subject's fixed scope gap, such as `opening-performance`, and adds a `<subject>-geometry` gap when some rows are `unmeasured`.
    */
   gaps: IAutoMovieDrawingGap[];
 
-  /**
-   * Digest over the whole record.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `digest` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `digest` for the interior space drawing schedule quantity system contract.
-   */
-  digest: AutoMovieContentDigest;
+  /** SHA-256 digest over the canonical JSON of every other field. */
+  digest: string;
 }

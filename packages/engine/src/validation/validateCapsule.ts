@@ -5,32 +5,36 @@ import type {
 
 import { ViolationCollector } from "./ViolationCollector";
 
-/** Shared actor-local capsule used by body validation and soft contact. */
-export type { IAutoMovieCapsuleProxy } from "@automovie/interface";
-
 /**
- * Validate the shared capsule proxy against the skeleton it addresses: both
- * endpoints must be bones of the rig, FK-reachable from a root, the two
- * endpoints must be distinct, and the radius must be finite and positive.
- * Returns whether the capsule is usable; every failure is pushed as an
- * **error** (structural precondition, not a physics warning: you cannot advise
- * on geometry that will not resolve).
+ * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Refuses malformed shared body collision geometry.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Validates the bounded segment before collision projection.
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-fidelity-boundary Limits collision geometry to an explicit bounded proxy.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-failure-and-fidelity-boundary Refuses malformed bounded collision proxies before simulation.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
+ * @evidence contracts/common.md#clear-and-simple-design One canonical interface capsule serves collision, self-intersection and ground-contact gates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure appends errors and returns false, so an unusable endpoint is not replaced by a guessed pose.
+ * @evidence contracts/common.md#meaningful-documentation Radius uses model units, endpoint membership/reachability and boolean usability are stated.
+ * @evidence contracts/performance.md#efficient-algorithms Two set lookups and fixed scalar comparisons cost expected constant work plus text.
+ * @evidence contracts/performance.md#reuse-equivalent-work Sampling validators reuse precomputed skeleton/reachable sets across their capsules.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs and sets are borrowed; the caller owns diagnostics and the helper retains no resolved body or handle.
  */
-export const validateCapsule = (
+export const validateCapsule: (
+  capsule: IAutoMovieCapsuleProxy,
+  path: string,
+  skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
+  reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
+  collector: ViolationCollector,
+) => boolean = (
   capsule: IAutoMovieCapsuleProxy,
   path: string,
   skeletonBones: ReadonlySet<AutoMovieHumanoidBone>,
   reachableBones: ReadonlySet<AutoMovieHumanoidBone>,
   collector: ViolationCollector,
 ): boolean => {
-  let valid = true;
-  const endpoint = (bone: AutoMovieHumanoidBone, at: string): void => {
+  let valid: boolean = true;
+  const endpoint: (bone: AutoMovieHumanoidBone, at: string) => void = (
+    bone: AutoMovieHumanoidBone,
+    at: string,
+  ): void => {
     if (!skeletonBones.has(bone)) {
       valid = false;
       collector.push(

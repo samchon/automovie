@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieDrawingProjection } from "./AutoMovieDrawingProjection";
 import { IAutoMovieDrawingAnnotation } from "./IAutoMovieDrawingAnnotation";
 import { IAutoMovieDrawingDimension } from "./IAutoMovieDrawingDimension";
@@ -10,168 +9,80 @@ import { IAutoMovieDrawingOpeningMark } from "./IAutoMovieDrawingOpeningMark";
 import { IAutoMovieDrawingRegion } from "./IAutoMovieDrawingRegion";
 
 /**
- * One drawing, derived from one design at one revision.
+ * One drawing record derived from a built-environment snapshot and a view.
  *
- * Every line, region, opening mark, dimension and note below was computed from
- * the built environment the view was applied to. Nothing was drafted, and
- * nothing may be edited back into the design: the arrow points one way, from
- * design to drawing, so a sheet cannot become a second source of truth for the
- * building it depicts.
+ * `deriveAutoMovieDrawing` validates the built environment, derives static CPU geometry and feature positions, and copies authored view identity and note text. It does not pin a revision digest, authenticate a rendered frame or apply edits back to building source. Current operating states affect element geometry, while declared gaps record omitted capabilities.
  *
- * The record is deterministic by construction. Page coordinates are rounded to
- * a fixed grid, every array is in a canonical order that does not depend on the
- * order the design happened to declare things in, and the digest covers the
- * whole of it — so the same design and the same view produce byte-identical
- * output on every machine and every run, which is what makes a drawing usable
- * as evidence at all.
+ * Page coordinates are world metres along the frame's axes, rounded to six decimals; `scale` is applied only when `autoMovieDrawingToSvg` prints the sheet. Lines, regions, openings and gaps are sorted into a canonical order independent of the order the design declares things in, and dimensions and notes keep the view's authored order, so the same design and view produce the same record on every run.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawing` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawing` for the interior space drawing schedule quantity system contract.
+ * The digest is SHA-256 over the canonical JSON of every other field, including authored text. Equal canonical records yield equal digests; covering every field does not prove mathematical collision freedom for distinct records.
+ *
+ * @evidence contracts/common.md#principled-implementation The synchronous derivation shares a current-state design index, projects static CPU part/face triangles, clips cell sections, resolves opening/feature metadata and rounds stored coordinates to six decimals. Stroke keys and prescribed array sorts canonicalize output; the payload digest covers produced JSON metadata rather than proving rendered geometry, source-byte identity or complete design coverage. Projection, clipping and round(value*1e6)/1e6 have finite/conditioning limits.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record per sheet with each kind of content in its own typed array, and the view's identity fields copied in, so the serializer and any checker read the drawing without the view except for its pen.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Known unsupported/missing derivations become gaps, including hidden-line removal and opening subtraction. This is not a universal detector of every numerical or modelling defect; filtering can intentionally omit content and world-to-page projection loses depth. Digest equality is deterministic serialization identity without a collision-free or execution-provenance guarantee.
+ * @evidence contracts/common.md#meaningful-documentation States the provenance and one-way direction, the page units and rounding, where scale is applied, the ordering of every array, what the extent contains, why openings ignore the kind filter, and exactly what the digest covers.
  * @author Samchon
  */
 export interface IAutoMovieDrawing {
-  /**
-   * Drawing format.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `version` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `version` for the interior space drawing schedule quantity system contract.
-   */
+  /** Record format version. */
   version: 1;
 
-  /**
-   * Versioned drawing protocol.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `protocol` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `protocol` for the interior space drawing schedule quantity system contract.
-   */
+  /** Versioned drawing protocol. */
   protocol: "automovie.drawing.v1";
 
-  /**
-   * View this drawing answers for.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `view` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `view` for the interior space drawing schedule quantity system contract.
-   */
+  /** Id of the view this drawing answers for. */
   view: string;
 
-  /**
-   * Cut and projection convention the view declared.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `projection` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `projection` for the interior space drawing schedule quantity system contract.
-   */
+  /** Cut and projection convention the view declared. */
   projection: AutoMovieDrawingProjection;
 
-  /**
-   * Discipline the view declared.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `discipline` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `discipline` for the interior space drawing schedule quantity system contract.
-   */
+  /** Open discipline label the view declared. */
   discipline: string;
 
   /**
-   * Scale denominator the view declared.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `scale` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `scale` for the interior space drawing schedule quantity system contract.
+   * Scale denominator the view declared (`50` means 1:50); page coordinates do not include it.
    */
   scale: number;
 
-  /**
-   * Built environment this drawing was derived from.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `environment` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `environment` for the interior space drawing schedule quantity system contract.
-   */
+  /** Id of the built environment this drawing was derived from. */
   environment: string;
 
-  /**
-   * Page basis the view resolved to.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `frame` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `frame` for the interior space drawing schedule quantity system contract.
-   */
+  /** Page basis the view resolved to, rounded to six decimals. */
   frame: IAutoMovieDrawingFrame;
 
   /**
-   * Page bounding box of everything the sheet draws, or `null` when it draws
-   * nothing.
+   * Page bounding box of everything the sheet draws, or `null` when it draws nothing.
    *
-   * Linework, region outlines, opening voids and every dimension and note that
-   * resolved. The annotation is inside the box on purpose: a dimension string
-   * sits beside the plan rather than across it, and a page sized from the
-   * geometry alone would put the sheet's own annotation off the paper.
-   *
-   * A note contributes the point its text is set from rather than the glyphs it
-   * sets, which the derivation cannot measure without font metrics and declares
-   * as a gap instead of pretending to.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `extent` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `extent` for the interior space drawing schedule quantity system contract.
+   * It holds linework, region outlines, opening voids and every dimension and note that resolved, because a dimension string sits beside the plan rather than across it and a box sized from the geometry alone would put the sheet's own annotation off the paper. A note contributes the point its text is set from rather than the glyphs it sets, which the derivation cannot measure without font metrics and declares as the `note-text-extent` gap.
    */
   extent: IAutoMovieDrawingExtent | null;
 
   /**
-   * Drafted segments, in canonical order.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `lines` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `lines` for the interior space drawing schedule quantity system contract.
+   * Drafted segments, sorted by role, layer, owner and then endpoints, with identical strokes kept once.
    */
   lines: IAutoMovieDrawingLine[];
 
   /**
-   * Logical volume cross-sections, in canonical order; empty for an elevation.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `regions` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `regions` for the interior space drawing schedule quantity system contract.
+   * Cross-sections of cell-stated logical spaces, sorted by space and cell; empty for an elevation, and a shell-stated space contributes none.
    */
   regions: IAutoMovieDrawingRegion[];
 
   /**
-   * Every opening whose host boundary reaches a space this view covers, in
-   * canonical order.
+   * Every opening whose host boundary reaches a space this view covers, sorted by opening id.
    *
-   * The view's element-kind filter deliberately does not reach these. A mark is
-   * how a sheet and the design are reconciled by id, so a lighting plan of a
-   * room still answers for the room's doors rather than reporting a room with
-   * none; what the kind filter decides is which linework is drafted, not which
-   * openings exist.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `openings` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `openings` for the interior space drawing schedule quantity system contract.
+   * The view's element-kind filter does not reach these. A mark is how a sheet and the design are reconciled by id, so a lighting plan of a room still answers for the room's doors; the kind filter decides which linework is drafted, not which openings exist.
    */
   openings: IAutoMovieDrawingOpeningMark[];
 
-  /**
-   * Resolved dimensions, in the order the view authored them.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `dimensions` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `dimensions` for the interior space drawing schedule quantity system contract.
-   */
+  /** Resolved dimensions, in the order the view authored them. */
   dimensions: IAutoMovieDrawingDimension[];
 
-  /**
-   * Resolved notes, in the order the view authored them.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `annotations` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `annotations` for the interior space drawing schedule quantity system contract.
-   */
+  /** Resolved notes, in the order the view authored them. */
   annotations: IAutoMovieDrawingAnnotation[];
 
-  /**
-   * Derivations this drawing could not perform, in canonical order.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `gaps` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `gaps` for the interior space drawing schedule quantity system contract.
-   */
+  /** Derivations this drawing could not perform, sorted by subject. */
   gaps: IAutoMovieDrawingGap[];
 
-  /**
-   * Digest over the whole record.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `digest` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `digest` for the interior space drawing schedule quantity system contract.
-   */
-  digest: AutoMovieContentDigest;
+  /** SHA-256 digest over the canonical JSON of every other field. */
+  digest: string;
 }

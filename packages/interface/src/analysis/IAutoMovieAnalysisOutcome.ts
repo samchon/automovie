@@ -5,29 +5,38 @@ import { IAutoMovieAnalysisWarning } from "./IAutoMovieAnalysisWarning";
 /**
  * What one analysis run actually produced.
  *
- * Three arms, and only the first one may carry results. `unsupported` means the
- * host has no adapter for what was asked; `not-run` means an adapter exists but
- * its input was not supplied. Both carry a reason and a remedy and structurally
- * have nowhere to put a metric, a sample or a warning, so an absent analysis
- * cannot be dressed as a clean one by any amount of field-filling.
+ * Only the `solved` arm may carry results. `unsupported` means the host has no
+ * adapter for what was asked; `not-run` means an adapter exists but its input
+ * was not supplied. Both carry a reason and a remedy and have no field for a
+ * metric, a sample or a warning, so an absent analysis cannot be dressed as a
+ * clean one.
  *
- * This is the same three-arm shape the design-observation contract uses, with
- * `observed` renamed to `solved`: a thermal solver computes, it does not
- * observe, and the two negative arms deliberately keep their exact spelling so
- * one project has one vocabulary for "we did not look".
+ * The shape matches `IAutoMovieDesignAnalysisOutcome` with `observed` renamed
+ * to `solved`, because a solver computes rather than observes; the two
+ * negative arms keep the same spelling in both contracts.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisOutcome` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisOutcome` for the validation failed not run states system contract.
+ * @evidence contracts/common.md#principled-implementation A discriminated union on status exposes results only on the solved arm; run validation requires at least one metric with unique keys, at most AUTOMOVIE_ANALYSIS_MAX_SAMPLES samples keyed to present-valued metrics, and nonblank reason/remedy on negative arms. Solved may contain only gapped metrics and therefore need not represent a successful numerical measurement.
+ * @evidence contracts/common.md#clear-and-simple-design Three inline arms with no shared base type, since the negative arms share only two strings and the run digest serializes them as one reason-remedy pair.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An empty solved result and unknown status are refused; missing resident result slots are visited explicitly. The validator assumes declared nested containers and does not reject extra properties, so negative-arm result exclusion is a type contract rather than exact-key runtime admission.
+ * @evidence contracts/common.md#meaningful-documentation Gives what each arm means, which arm may hold results, the metric, sample and warning bounds of a solved run, and the relation to the design-observation outcome.
+ * @author Samchon
  */
 export type IAutoMovieAnalysisOutcome =
   | {
       /** The solver ran and produced results. */
       status: "solved";
 
-      /** At least one metric; each one measured or explicitly gapped. */
+      /**
+       * At least one metric, keys unique; each one measured or explicitly
+       * gapped.
+       */
       metrics: IAutoMovieAnalysisMetric[];
 
-      /** Spatial field, possibly empty; every key must name a measured metric. */
+      /**
+       * Spatial field, possibly empty and at most the engine's
+       * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096); every key must name a
+       * measured metric.
+       */
       samples: IAutoMovieAnalysisSample[];
 
       /** Non-fatal observations about the inputs. */

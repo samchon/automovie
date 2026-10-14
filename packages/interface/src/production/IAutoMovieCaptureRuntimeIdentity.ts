@@ -1,26 +1,17 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-
 /**
- * Versioned, comparable identity of the host capture runtime.
+ * Versioned identity of the installed capture runtime and observed graphics path. System browser channels remain explicitly unsealed; package or configured executables carry content identity.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieCaptureRuntimeIdentity` as the portable data boundary for the rendering identity mask channels requirement.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieCaptureRuntimeIdentity` for the spec render pass products system contract.
+ * @evidence contracts/common.md#principled-implementation Capture identity declares package/support content, executable provenance, platform, raster scale and observed graphics facts. Render job identities include this record in chunk hashing, but the production collector/validator is retired; truthful current observations and complete content closure remain host premises rather than properties proven by a digest of this record.
+ * @evidence contracts/common.md#clear-and-simple-design Package closure, browser selection, platform, launch mode and graphics are separate record groups, exposing which observation supplies each part of capture reproducibility.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Version strings alone do not prove byte identity, and system channels explicitly declare an unsealed boundary. Render planning validates its outer source/dialogue digests but does not independently inspect every capture package, browser executable or graphics observation in this metadata.
+ * @evidence contracts/common.md#meaningful-documentation Describes package and browser-support digests with file and byte counts, executable selection and unavailability, host architecture, device scale, requested backend and actual graphics identity.
+ * @author Samchon
  */
 export interface IAutoMovieCaptureRuntimeIdentity {
-  /**
-   * Capture identity schema and semantics.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `protocolVersion` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `protocolVersion` for the spec render pass products system contract.
-   */
+  /** Capture identity schema and semantics. */
   protocolVersion: "automovie.capture-runtime.v2";
 
-  /**
-   * Exact Playwright package that selected and launched the browser.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `playwright` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `playwright` for the spec render pass products system contract.
-   */
+  /** Exact Playwright package that selected and launched the browser. */
   playwright: {
     /** Package name. */
     package: "playwright";
@@ -30,18 +21,14 @@ export interface IAutoMovieCaptureRuntimeIdentity {
   };
 
   /**
-   * Content identity of every installed package and browser support byte that
-   * can participate in the captured frame.
-   *
-   * @evidence requirements/acceptance/evidence-and-freshness.md#acceptance-current-historical-evidence Makes an installed renderer change a new evidence generation rather than letting historical pixels remain current.
-   * @evidence specifications/review-and-acceptance/evidence-freshness-and-completeness.md#acceptance-system-current-historical-evidence Types the installed runtime closure consumed by capture freshness comparisons.
+   * Content identity of every installed package and browser support byte that can participate in the captured frame.
    */
   runtimeClosure: {
     /** Capture-closure schema and semantics. */
     protocolVersion: "automovie.capture-runtime-closure.v1";
 
     /** Canonical digest of the complete package and browser-support identity. */
-    contentDigest: AutoMovieContentDigest;
+    contentDigest: string;
 
     /** Complete dependency-closed installed package generations. */
     packages: Array<{
@@ -52,7 +39,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
       version: string;
 
       /** Digest of every captured package file path and byte digest. */
-      contentDigest: AutoMovieContentDigest;
+      contentDigest: string;
 
       /** Number of captured package files. */
       files: number;
@@ -71,7 +58,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
           source: "package-owned" | "configured-executable";
 
           /** Digest of every support-file path and byte digest. */
-          contentDigest: AutoMovieContentDigest;
+          contentDigest: string;
 
           /** Number of captured support files. */
           files: number;
@@ -88,12 +75,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
         };
   };
 
-  /**
-   * Exact browser executable provenance.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `browser` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `browser` for the spec render pass products system contract.
-   */
+  /** Exact browser executable provenance. */
   browser: {
     /** Browser product family. */
     product: "chromium" | "chrome" | "msedge";
@@ -108,15 +90,10 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     source: "package-owned" | "system-channel" | "configured-executable";
 
     /** SHA-256 of the executable, unavailable only for a system channel. */
-    executableDigest: AutoMovieContentDigest | null;
+    executableDigest: string | null;
   };
 
-  /**
-   * Host operating-system boundary.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `platform` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `platform` for the spec render pass products system contract.
-   */
+  /** Host operating-system boundary. */
   platform: {
     /** Node platform name. */
     os: string;
@@ -125,12 +102,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     arch: string;
   };
 
-  /**
-   * Browser launch and raster mode.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `mode` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `mode` for the spec render pass products system contract.
-   */
+  /** Browser launch and raster mode. */
   mode: {
     /** Explicit headless implementation. */
     headless: "chromium";
@@ -139,12 +111,7 @@ export interface IAutoMovieCaptureRuntimeIdentity {
     deviceScaleFactor: number;
   };
 
-  /**
-   * Requested and actual WebGL identity.
-   *
-   * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `graphics` as the portable data boundary for the rendering identity mask channels requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `graphics` for the spec render pass products system contract.
-   */
+  /** Requested and actual WebGL identity. */
   graphics: {
     /** Requested ANGLE/backend selection. */
     requestedBackend: string;

@@ -1,5 +1,8 @@
 import { ViolationCollector, validateJointRom } from "@automovie/engine";
-import { IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/fixtures";
@@ -13,8 +16,12 @@ const CONE: IAutoMovieJointConstraint = {
   swingDeg: 100,
 };
 
-const coneItems = (axes: Parameters<typeof joint>[1]) => {
-  const collector = new ViolationCollector();
+const coneItems: (
+  axes: Parameters<typeof joint>[1],
+) => IAutoMovieConstraintViolation[] = (
+  axes: Parameters<typeof joint>[1],
+): IAutoMovieConstraintViolation[] => {
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftUpperArm", axes),
     constraint: CONE,
@@ -25,26 +32,25 @@ const coneItems = (axes: Parameters<typeof joint>[1]) => {
 };
 
 /**
- * The **swing cone** catches the corner a per-axis `[min,max]` box
- * over-permits: a ball joint may flex 90° _or_ abduct 90°, but not both at
- * once. With the per-axis ranges wide open, only the combined swing is judged.
+ * A declared swing cap excludes a coupled corner that both axis intervals admit; rest contributes zero to the coupled metric.
  *
  * Scenarios:
  *
- * 1. 90° flexion + 90° abduction → 120° of combined swing, past the 100° cone: one
- *    violation on the `.swing` path, overshoot 20°.
- * 2. 30° + 30° → ~42° swing, well inside the cone: no violation.
- * 3. A resting (`null`) axis does NOT exempt the cone (#1245): the cone is a
- *    COUPLING between the two axes, so a resting axis contributes its actual
- *    rotation, 0 (exactly as `jointToQuaternion` reads it). A single-axis pose
- *    inside the cone passes, and one past the cone is flagged identically to
- *    its `0` twin, which renders the same quaternion. The old skip let
- *    `{flexion:150, abduction:null}` through while `{flexion:150, abduction:0}`
- *    was flagged.
+ * 1. A 90/90-degree corner has 120-degree swing and one swing fault, 20 degrees beyond the cap.
+ * 2. A 30/30-degree corner stays inside the cone and produces no fault.
+ * 3. Each single 50-degree axis passes with its partner at rest; 150-degree flexion fails identically with null and zero abduction.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Validates combined and single-axis swing under a declared 100-degree cap, requiring the corner's one located fault and preserving accepted modest poses and null/zero parity.
+ * @evidence contracts/testing.md#independent-expectations Two orthogonal 90-degree rotations give 120-degree swing from their half-angle cosine product, so overshoot is 20; a single 150-degree axis exceeds the cap and rest contributes zero. Comparing null and explicit-zero reports is a consistency check, supplemented by the independently required one-fault verdict.
+ * @evidence contracts/testing.md#distinguishing-cases Covers coupled corner refusal, modest coupled acceptance, each accepted single axis and an over-limit single axis with both omitted and explicit-zero partner; interval and immobile-axis faults are separate entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns each local collector and uses the existing joint fixture; no process, native artifact, viewer or dynamic registration participates.
  */
-export const test_rom_validate_swing_cone = (): void => {
+export function test_rom_validate_swing_cone(): void {
   // 1. past the cone
-  const over = coneItems({ flexion: 90, abduction: 90 });
+  const over: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 90,
+    abduction: 90,
+  });
   TestValidator.equals("corner pose flagged once", over.length, 1);
   TestValidator.predicate(
     "flagged on the swing path",
@@ -76,16 +82,25 @@ export const test_rom_validate_swing_cone = (): void => {
   );
   // Past the cone: swingConeAngle(150, 0) = 150 > 100 → flagged, and a resting
   // axis must read identically to an explicit 0 (the same rendered rotation).
-  const restingPastCone = coneItems({ flexion: 150 });
-  const zeroPastCone = coneItems({ flexion: 150, abduction: 0 });
+  const restingPastCone: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 150,
+  });
+  const zeroPastCone: IAutoMovieConstraintViolation[] = coneItems({
+    flexion: 150,
+    abduction: 0,
+  });
   TestValidator.equals(
     "a resting axis does not exempt a pose past the cone",
     restingPastCone.length,
     1,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a resting axis and an explicit 0 give the identical cone verdict",
-    restingPastCone.map((v) => [v.path, v.overshoot]),
-    zeroPastCone.map((v) => [v.path, v.overshoot]),
+    restingPastCone.length === zeroPastCone.length &&
+      restingPastCone.every(
+        (item: IAutoMovieConstraintViolation, index: number): boolean =>
+          item.path === zeroPastCone[index]!.path &&
+          nclose(item.overshoot!, zeroPastCone[index]!.overshoot!, 0),
+      ),
   );
-};
+}

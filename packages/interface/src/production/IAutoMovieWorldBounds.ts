@@ -1,25 +1,18 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * An axis-aligned world-space effect volume.
+ * Axis-aligned world-meter volume bounding an environmental effect zone.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieWorldBounds` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieWorldBounds` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Finite corners in [-1e9,1e9] with min strictly below max are the intended authored domain; the retired world gate no longer enforces it. Effect materialization copies this spawn box, while sampling adds wind/rise/turbulence drift afterward; the box does not enclose every particle throughout its lifetime.
+ * @evidence contracts/common.md#clear-and-simple-design Two vectors specify a zone independently from its recipe, seed and activation timing, which stay on their respective records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The volume is explicitly authored rather than inferred from a landmark or visible mesh. Materialization copies extents without repairing or completely admitting them, so callers must establish ordered representable bounds.
+ * @evidence contracts/common.md#meaningful-documentation Defines world-meter corner coordinates and effect-volume ownership.
+ * @author Samchon
  */
 export interface IAutoMovieWorldBounds {
-  /**
-   * Minimum corner.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `min` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `min` for the narrative intent story design ownership system contract.
-   */
+  /** Component-wise minimum world corner in meters. */
   min: IAutoMovieVector3;
 
-  /**
-   * Maximum corner.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `max` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `max` for the narrative intent story design ownership system contract.
-   */
+  /** Component-wise maximum world corner in meters. */
   max: IAutoMovieVector3;
 }

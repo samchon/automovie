@@ -1,9 +1,52 @@
-import { measureAutoMovieModelCrossings } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import {
+  type IAutoMovieModel,
+  type IAutoMovieModelPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieModelCrossing } from "../../../../packages/engine/src/geometry/IAutoMovieModelCrossing";
+import { measureAutoMovieModelCrossings } from "../../../../packages/engine/src/geometry/measureAutoMovieModelCrossings";
+
 /** A model part holding one triangle from three hand-typed corners. */
-const part = (id: string, corners: number[][]) => ({
+const part: (
+  id: string,
+  corners: number[][],
+) => {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} = (
+  id: string,
+  corners: number[][],
+): {
+  id: string;
+  name: string;
+  material: string;
+  geometry: {
+    type: "mesh";
+    mesh: {
+      positions: number[];
+      indices: number[];
+      normals: null;
+      uvs: null;
+      skin: null;
+    };
+  };
+  attachedBone: null;
+  transform: null;
+} => ({
   id,
   name: id,
   material: "skin",
@@ -21,7 +64,9 @@ const part = (id: string, corners: number[][]) => ({
   transform: null,
 });
 
-const model = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
+const model: (parts: IAutoMovieModelPart[]) => IAutoMovieModel = (
+  parts: IAutoMovieModelPart[],
+): IAutoMovieModel => ({
   id: "crossing",
   name: "crossing",
   origin: "imported",
@@ -33,19 +78,19 @@ const model = (parts: ReturnType<typeof part>[]): IAutoMovieModel => ({
 });
 
 /** Lies flat on z=0; every case is read against it. */
-const floor = [
+const floor: number[][] = [
   [0, 0, 0],
   [1, 0, 0],
   [0, 1, 0],
 ];
 /** Stands upright through the floor's interior. */
-const blade = [
+const blade: number[][] = [
   [0.25, 0.25, -1],
   [0.25, 0.25, 1],
   [0.75, 0.25, 1],
 ];
 /** Sits above the floor, sharing no space with it. */
-const above = [
+const above: number[][] = [
   [0.25, 0.25, 1],
   [0.25, 0.25, 2],
   [0.75, 0.25, 2],
@@ -61,10 +106,9 @@ const above = [
  * lifted clear shares no space with anything and a third part disjoint from
  * both must not appear at all.
  *
- * These parts are deliberately separate shells, so an empty report is the right
- * answer here. That is a property of this fixture and not of models generally:
- * a layered character rests with its shells inside each other, and the reading
- * that carries information there is the change from its own rest pose.
+ * The deliberately clear neighbours must have empty reports, whereas the
+ * piercing pair must be reported. Neither result certifies a model's closed
+ * volume, layered anatomy or visual acceptability.
  *
  * Scenarios:
  * 1. Two crossing parts are reported once, in model order, with both directions counted.
@@ -72,8 +116,16 @@ const above = [
  * 3. Only the crossing pair appears when a model holds three parts, two of which are clear.
  * 4. Parts whose geometry is not a mesh are skipped rather than refused.
  * 5. A model of one part, or of none, reports nothing.
+ * 6. Parts are measured where their transforms place them: a part authored
+ *    clear but moved through the floor crosses it, and a part authored
+ *    through the floor but moved away does not.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures actual model-part crossings and checks directional witness counts, model-order pair identities, triangle-level misses despite overlapping bounds, skipped nonmesh records, empty/singleton input and transformed placement. It catches local-coordinate or bounding-box-only classification.
+ * @evidence contracts/testing.md#independent-expectations The authored blade pierces the unit floor once in each direction; the lifted and lateral neighbours do not. The two explicit Z translations move the existing blade across or away from the floor with identity rotation/unit scale. Expected counts are subject-triangle witnesses, not all intersecting face pairs or solid-volume overlap; the forged nonmesh tag only exercises the observer's skip boundary, not a valid primitive admission.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps crossing/clear/disjoint and bounds-overlap neighbours, three-part order, forged nonmesh record, empty/singleton model and each retained transform. Within-part self examination and complete mesh-pair enumeration belong to separate entries; no anatomical or pixel validity is inferred.
+ * @evidence contracts/testing.md#execution-ownership The named geometry entry directly calls portable model-crossing source, which transforms actual mesh records and invokes numerical crossing observation. It starts no process, browser, GPU or native build, installs no consumer and registers no new Human fixtures or dynamic cases.
  */
-export const test_geometry_model_crossings = (): void => {
+export function test_geometry_model_crossings(): void {
   TestValidator.equals(
     "a crossing pair is reported once with both directions",
     measureAutoMovieModelCrossings(
@@ -100,7 +152,10 @@ export const test_geometry_model_crossings = (): void => {
     "only the crossing pair of three parts appears",
     measureAutoMovieModelCrossings(
       model([part("floor", floor), part("above", above), part("blade", blade)]),
-    ).map((entry) => [entry.part, entry.other]),
+    ).map((entry: IAutoMovieModelCrossing): string[] => [
+      entry.part,
+      entry.other,
+    ]),
     [["floor", "blade"]],
   );
   // The bounds of these two overlap in the far corner, so the cheap rejection
@@ -119,7 +174,14 @@ export const test_geometry_model_crossings = (): void => {
     ),
     [],
   );
-  const sphere = {
+  const sphere: {
+    geometry: { type: "sphere"; radius: number };
+    id: string;
+    name: string;
+    material: string;
+    attachedBone: null;
+    transform: null;
+  } = {
     ...part("sphere", floor),
     geometry: { type: "sphere" as const, radius: 1 },
   };
@@ -127,7 +189,10 @@ export const test_geometry_model_crossings = (): void => {
     "a part that is not a mesh is skipped, not refused",
     measureAutoMovieModelCrossings(
       model([part("floor", floor), sphere as never, part("blade", blade)]),
-    ).map((entry) => [entry.part, entry.other]),
+    ).map((entry: IAutoMovieModelCrossing): string[] => [
+      entry.part,
+      entry.other,
+    ]),
     [["floor", "blade"]],
   );
   TestValidator.equals(
@@ -140,7 +205,7 @@ export const test_geometry_model_crossings = (): void => {
     measureAutoMovieModelCrossings(model([])),
     [],
   );
-  const flat = [
+  const flat: number[][] = [
     [0.5, -0.5, 0],
     [0.5, 0.5, 0],
     [1.5, 0.5, 0],
@@ -160,4 +225,44 @@ export const test_geometry_model_crossings = (): void => {
       },
     ],
   );
-};
+  // `above` spans z 1..2; lowered by 1.5 it spans -0.5..0.5 and its edges
+  // pierce the floor at (0.25, 0.25) and (0.5, 0.25), both inside it.
+  const moved: (
+    id: string,
+    corners: number[][],
+    z: number,
+  ) => IAutoMovieModelPart = (
+    id: string,
+    corners: number[][],
+    z: number,
+  ): IAutoMovieModelPart => ({
+    ...part(id, corners),
+    transform: {
+      translation: { x: 0, y: 0, z },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+  });
+  TestValidator.equals(
+    "a part moved through the floor crosses it",
+    measureAutoMovieModelCrossings(
+      model([part("floor", floor), moved("lowered", above, -1.5)]),
+    ),
+    [
+      {
+        part: "floor",
+        other: "lowered",
+        triangles: 1,
+        otherTriangles: 1,
+        coplanar: 0,
+      },
+    ],
+  );
+  TestValidator.equals(
+    "a part moved off the floor no longer crosses it",
+    measureAutoMovieModelCrossings(
+      model([part("floor", floor), moved("raised", blade, 5)]),
+    ),
+    [],
+  );
+}

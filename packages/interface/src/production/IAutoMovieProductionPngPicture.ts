@@ -1,74 +1,56 @@
 import { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
 
 /**
- * Complete parser-observed PNG picture facts.
+ * Parser-observed PNG picture facts after datastream framing and image decode.
  *
- * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-dimensions-window Preserves the decoded raster, precision, channel, color, aspect, and orientation facts final picture verification compares against the planned window.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed picture product compared fieldwise with the selected delivery profile.
+ * @evidence contracts/common.md#principled-implementation probeProductionPngPicture walks complete PNG chunks and decodes image data, then reports IHDR, color declaration, physical pixel aspect and EXIF-presence facts; cICP and mDCV color chunks are currently unread.
+ * @evidence contracts/common.md#clear-and-simple-design The record describes observed picture identity while delivery acceptance belongs to assertProductionPngPicture, preserving the distinction between a valid PNG and the supported delivery profile.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory or repeated color declarations refuse; EXIF presence does not claim decoded orientation, and unidentified color remains explicit instead of being assumed sRGB.
+ * @evidence contracts/common.md#meaningful-documentation Defines raster precision, channel and alpha form, scan mode, color identity, pixel-aspect metadata and the limited orientation observation.
+ * @author Samchon
  */
 export interface IAutoMovieProductionPngPicture {
-  /**
-   * Decoded pixel width.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-dimensions-window Preserves the decoded horizontal stored dimension.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed width for profile comparison.
-   */
+  /** Decoded pixel width. */
   width: number;
 
-  /**
-   * Decoded pixel height.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-dimensions-window Preserves the decoded vertical stored dimension.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed height for profile comparison.
-   */
+  /** Decoded pixel height. */
   height: number;
 
-  /**
-   * Decoded sample precision.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-alpha-channels Preserves the encoded per-channel precision that fixes each channel's valid range.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed bit depth for profile comparison.
-   */
+  /** Decoded sample precision. */
   bitDepth: number;
 
-  /**
-   * Decoded channel population.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-alpha-channels Distinguishes grayscale, palette, RGB, and alpha-bearing channel populations.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed color model for profile comparison.
-   */
+  /** Decoded channel population. */
   color: AutoMovieProductionPngColor;
 
-  /**
-   * Decoded alpha relation.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-alpha-channels Keeps opacity distinct from straight alpha.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed alpha fact for profile comparison.
-   */
+  /** Decoded alpha relation. */
   alpha: "none" | "straight";
 
-  /**
-   * Decoded scan organization.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-image-sequences Preserves whether the picture is interlaced.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed interlace fact for profile comparison.
-   */
+  /** Decoded scan organization. */
   interlace: "none" | "adam7";
 
-  /**
-   * Color meaning explicitly carried by the datastream.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-scene-display-picture Preserves the display-referred color identity the datastream declares instead of inferring one.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed color-space fact for profile comparison.
-   */
+  /** Color meaning explicitly carried by the datastream. */
   colorSpace: "srgb" | "icc" | "gamma" | "unidentified";
 
-  /**
-   * Implicit or explicit pixel aspect carried by the datastream.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-refusal Makes stretch-producing density metadata observable.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed aspect fact for profile comparison.
-   */
+  /** Implicit or explicit pixel aspect carried by the datastream. */
   pixelAspect:
-    | { kind: "square" }
-    | { kind: "explicit"; x: number; y: number; unit: 0 | 1 };
+    | {
+        /** No non-square physical aspect declaration. */
+        kind: "square";
+      }
+    | {
+        /** Parsed pHYs physical aspect declaration. */
+        kind: "explicit";
 
-  /**
-   * Presence of orientation metadata that could transform presentation.
-   * @evidence requirements/delivery-and-accessibility/picture-color-and-image-sequences.md#delivery-picture-refusal Keeps encoded orientation from being silently applied.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-picture-products Supplies the observed orientation fact for profile comparison.
-   */
+        /** Horizontal pixels per declared unit. */
+        x: number;
+
+        /** Vertical pixels per declared unit. */
+        y: number;
+
+        /** Zero means unspecified unit, one means meters. */
+        unit: 0 | 1;
+      };
+
+  /** Presence of orientation metadata that could transform presentation. */
   orientation: "upright" | "metadata-present";
 }

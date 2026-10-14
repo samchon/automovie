@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieMesh,
   IAutoMovieMeshPhysicalSource,
   IAutoMovieModel,
   IAutoMovieVector3,
@@ -8,27 +9,35 @@ import { meshOfHumanPart } from "../build/meshOfHumanPart";
 import type { IAutoMovieHumanPersonJoinedSkin } from "../structures/IAutoMovieHumanPersonJoinedSkin";
 
 /**
- * Join a person model's skin halves into one Float32 buffer around one source
- * sample, or null when no part holds that sample.
+ * Concatenate actual meshes carrying the first source-table domain that names the requested sample. Physical source references keep domain/ID correspondence with adjusted table offsets; render vertices are not welded. The contour consumer can resolve seam aliases through those identities under the already-admitted model contract. Return null if no actual referenced vertex supplies the anchor. Every part must be a supported static mesh and its source metadata must remain resident/consistent.
  *
- * The person model carries its head and body skin halves as separate parts
- * whose vertices name their samples of the one source tree
- * (`physicalVertices`). The part that holds the sample fixes the source
- * domain, and every part of that domain is joined with its correspondence
- * kept. The shared boundary samples are therefore one physical vertex of the
- * result, and a contour that crosses the head/body cut closes. Positions are
- * quantized to Float32, the precision the model is exported and drawn at.
+ * Positions are rounded to Float32. This reader does not revalidate alias agreement, source-table uniqueness, manifoldness or clinical girth qualification, and choosing a domain from a table row alone does not prove that row is drawn.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual source domain/ID records select the geometry and anchor, and index/source offsets preserve correspondence across separate head/body parts.
+ * @evidence contracts/common.md#clear-and-simple-design Concatenation keeps render topology separate from physical alias resolution by the contour consumer, with null for an unavailable anchor.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates or material names do not invent source identity, and no geometric weld, closed-contour guarantee or clinical measurement is claimed here.
+ * @evidence contracts/common.md#meaningful-documentation Prose states first-domain selection, actual anchor presence, static mesh/source premises and Float32 precision.
+ * @evidence contracts/performance.md#efficient-algorithms Mesh/source scans select a domain, then admitted matching parts append positions, triangle order and references linearly in their actual populations.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads its supplied performed model and creates fresh joined buffers; no cached geometry or source-domain result is owned here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Output buffers scale with included meshes and replace no global state; intermediate arrays are call-local and no asset reader or render resource is acquired.
  */
 export function joinHumanPersonSkin(
   model: IAutoMovieModel,
   sample: number,
 ): IAutoMovieHumanPersonJoinedSkin | null {
-  const meshes = model.parts
+  const meshes: IAutoMovieMesh[] = model.parts
     .map(meshOfHumanPart)
-    .filter((mesh) => mesh.physicalVertices !== undefined);
-  const domain = meshes
-    .flatMap((mesh) => mesh.physicalVertices!.sources)
-    .find((source) => source.id === sample)?.domain;
+    .filter(
+      (mesh: IAutoMovieMesh): boolean => mesh.physicalVertices !== undefined,
+    );
+  const domain: string | undefined = meshes
+    .flatMap(
+      (mesh: IAutoMovieMesh): IAutoMovieMeshPhysicalSource[] =>
+        mesh.physicalVertices!.sources,
+    )
+    .find(
+      (source: IAutoMovieMeshPhysicalSource): boolean => source.id === sample,
+    )?.domain;
   if (domain === undefined) return null;
   const positions: number[] = [];
   const indices: number[] = [];
@@ -36,32 +45,44 @@ export function joinHumanPersonSkin(
   const vertices: (number | null)[] = [];
   let anchor: IAutoMovieVector3 | undefined;
   for (const mesh of meshes) {
-    const physical = mesh.physicalVertices!;
-    if (!physical.sources.some((source) => source.domain === domain)) continue;
-    const vertexOffset = positions.length / 3;
-    const sourceOffset = sources.length;
+    const physical: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+      mesh.physicalVertices!;
+    if (
+      !physical.sources.some(
+        (source: IAutoMovieMeshPhysicalSource): boolean =>
+          source.domain === domain,
+      )
+    )
+      continue;
+    const vertexOffset: number = positions.length / 3;
+    const sourceOffset: number = sources.length;
     for (const value of mesh.positions) positions.push(Math.fround(value));
     // an unindexed mesh lists its triangles' vertices in order
-    const order =
+    const order: number[] =
       mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_, vertex) => vertex);
+      Array.from(
+        { length: mesh.positions.length / 3 },
+        (_: unknown, vertex: number): number => vertex,
+      );
     for (const index of order) indices.push(index + vertexOffset);
     sources.push(...physical.sources);
-    physical.vertices.forEach((reference, vertex) => {
-      vertices.push(reference === null ? null : reference + sourceOffset);
-      const source =
-        reference === null ? undefined : physical.sources[reference];
-      if (
-        anchor === undefined &&
-        source?.domain === domain &&
-        source.id === sample
-      )
-        anchor = {
-          x: positions[(vertexOffset + vertex) * 3],
-          y: positions[(vertexOffset + vertex) * 3 + 1],
-          z: positions[(vertexOffset + vertex) * 3 + 2],
-        };
-    });
+    physical.vertices.forEach(
+      (reference: number | null, vertex: number): void => {
+        vertices.push(reference === null ? null : reference + sourceOffset);
+        const source: IAutoMovieMeshPhysicalSource | undefined =
+          reference === null ? undefined : physical.sources[reference];
+        if (
+          anchor === undefined &&
+          source?.domain === domain &&
+          source.id === sample
+        )
+          anchor = {
+            x: positions[(vertexOffset + vertex) * 3],
+            y: positions[(vertexOffset + vertex) * 3 + 1],
+            z: positions[(vertexOffset + vertex) * 3 + 2],
+          };
+      },
+    );
   }
   return anchor === undefined
     ? null

@@ -1,22 +1,18 @@
 /**
- * One clashing pair of runs, in the order the network declares them.
+ * One serviceSegmentClashes pair in network declaration order.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `IAutoMovieServiceClash` identifies the two routed runs that occupy the same physical volume and therefore cannot coexist as authored.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `IAutoMovieServiceClash` carries one deterministically ordered segment pair emitted by service-network interference analysis.
+ * @evidence contracts/common.md#principled-implementation Earlier and later run ids identify one unordered pair once, matching the producer's triangular pair scan.
+ * @evidence contracts/common.md#clear-and-simple-design Two ids supply validator diagnostics without retaining run geometry or duplicating network records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The pair reports conservative swept-box overlap, without implying exact circular-pipe contact or a discipline-specific exemption.
+ * @evidence contracts/common.md#meaningful-documentation Names the producer, declaration ordering and approximation so consumers can interpret the two ids.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No pair comparison runs in this interface; span scans belong to serviceSegmentClashes.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A clash row carries one computed pair and owns no cache shared with later network versions.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only two primitive run ids are retained in the caller-owned result, without source node or span references.
+ * @author Samchon
  */
 export interface IAutoMovieServiceClash {
-  /**
-   * Id of the earlier-declared segment.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `left` names the earlier-declared run in an obstructing service pair so the author can locate the first route to move.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `left` preserves the lower declaration index of the two overlapping segment volumes.
-   */
+  /** Id of the earlier-declared segment. */
   left: string;
-  /**
-   * Id of the later-declared segment.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `right` names the later-declared run in an obstructing service pair so the conflicting route is unambiguous.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `right` preserves the higher declaration index of the two overlapping segment volumes.
-   */
+  /** Id of the later-declared segment. */
   right: string;
 }

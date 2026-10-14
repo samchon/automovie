@@ -1,5 +1,6 @@
-import { AutoMovieGuidePass } from "@automovie/interface";
+import type { AutoMovieGuidePass } from "@automovie/interface";
 import {
+  type IAutoMovieModelObject,
   POSE_OVERLAY_NAME,
   applyRenderMode,
   buildModel,
@@ -11,12 +12,15 @@ import * as THREE from "three";
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
-/** A scene with one mesh node plus every non-mesh renderable class. */
-const sceneWithHelpers = () => {
-  const objects = new Map([
+/** Construct one model placement with grid, line, point and sprite helpers. */
+const sceneWithHelpers: () => {
+  scene: THREE.Scene;
+  nonMesh: THREE.Object3D[];
+} = (): { scene: THREE.Scene; nonMesh: THREE.Object3D[] } => {
+  const objects: Map<string, IAutoMovieModelObject> = new Map([
     ["model-a", buildModel({ ...createModel(), id: "model-a" })],
   ]);
-  const { scene } = buildScene(
+  const { scene }: ReturnType<typeof buildScene> = buildScene(
     {
       id: "scene-1",
       name: null,
@@ -32,22 +36,38 @@ const sceneWithHelpers = () => {
       cameras: [],
       lights: [],
     },
-    (id) => objects.get(id),
+    (id: string): IAutoMovieModelObject | undefined => objects.get(id),
   );
 
-  const grid = new THREE.GridHelper(10, 10); // LineSegments (isMesh falsy)
-  const line = new THREE.Line(
+  const grid: THREE.GridHelper = new THREE.GridHelper(10, 10); // LineSegments (isMesh falsy)
+  const line: THREE.Line<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.LineBasicMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
       new THREE.Vector3(1, 0, 0),
     ]),
     new THREE.LineBasicMaterial(),
   );
-  const points = new THREE.Points(
+  const points: THREE.Points<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.PointsMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Points(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 1, 0)]),
     new THREE.PointsMaterial(),
   );
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial());
+  const sprite: THREE.Sprite<THREE.Object3DEventMap> = new THREE.Sprite(
+    new THREE.SpriteMaterial(),
+  );
   scene.add(grid, line, points, sprite);
   return { scene, nonMesh: [grid, line, points, sprite] };
 };
@@ -61,69 +81,89 @@ const STRUCTURAL: AutoMovieGuidePass[] = [
 ];
 
 /**
- * A structural guide pass segments only the subject MESH geometry (#1226).
- * Every non-mesh renderable (a grid or other `LineSegments`/`Line` helper,
- * `Points`, a `Sprite`) must be hidden while the pass renders, or it would draw
- * its live beauty material over the pass's black background (a grid reading as
- * "very close" in depth, a non-palette color in mask, a stray line beside the
- * skeleton in pose). Restore makes them visible again; `beauty` never hides
- * them; and the pose pass's own skeleton overlay (itself `LineSegments`, added
- * after the hide) stays visible.
+ * Structural guide passes hide existing non-mesh renderables before drawing and restore their visibility afterward. This unit reads real Three scene flags and the newly created pose overlay, without measuring rendered guide pixels.
  *
  * Scenarios:
  *
- * 1. Each structural pass hides every non-mesh renderable while it is applied, and
- *    restore returns them all to visible.
+ * 1. Each structural pass hides the existing non-mesh renderables and restore makes them visible again.
  * 2. `beauty` leaves every non-mesh renderable visible (no override at all).
- * 3. The pose pass hides the pre-existing non-mesh renderables yet keeps its own
- *    skeleton overlay visible: the fix hides what was there, not what the pass
- *    draws.
+ * 3. Pose hides existing helpers while keeping its own subsequently added skeleton overlay visible.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies each structural mode to a built scene carrying actual grid/line/point/sprite objects and restores it, then checks a newly created pose overlay separately; catches helper visibility bleeding into guides or suspension hiding the pass's own overlay.
+ * @evidence contracts/testing.md#independent-expectations Original visibility flags and the fixed pre-existing helper population define expected hide/restore behavior; beauty preserves those flags and pose creates its own overlay after suspension. These object-state checks do not observe pixels or submitted draws.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts every structural mode with beauty and pre-existing visible helpers with the pose-owned overlay; initially hidden helper restoration, shader/material behavior and disposal have separate coverage obligations.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous entry uses existing generic model fixtures, maintained Viewer source and CPU-side native Three objects; it restores every pass and launches no renderer, browser, process or dynamic test registration.
  */
-export const test_viewer_guide_pass_non_mesh = (): void => {
+export function test_viewer_guide_pass_non_mesh(): void {
   // 1. every structural pass hides non-mesh renderables, restore returns them.
   for (const mode of STRUCTURAL) {
-    const { scene, nonMesh } = sceneWithHelpers();
-    const handle = applyRenderMode(scene, mode);
+    const { scene, nonMesh }: ReturnType<typeof sceneWithHelpers> =
+      sceneWithHelpers();
+    const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+      scene,
+      mode,
+    );
     TestValidator.predicate(
       `${mode} hides every non-mesh renderable while applied`,
-      nonMesh.every((object) => object.visible === false),
+      nonMesh.every(
+        (object: THREE.Object3D): boolean => object.visible === false,
+      ),
     );
     handle.restore();
     TestValidator.predicate(
       `${mode} restore returns every non-mesh renderable to visible`,
-      nonMesh.every((object) => object.visible === true),
+      nonMesh.every(
+        (object: THREE.Object3D): boolean => object.visible === true,
+      ),
     );
   }
 
   // 2. beauty leaves non-mesh renderables visible.
   {
-    const { scene, nonMesh } = sceneWithHelpers();
-    const handle = applyRenderMode(scene, "beauty");
+    const { scene, nonMesh }: ReturnType<typeof sceneWithHelpers> =
+      sceneWithHelpers();
+    const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+      scene,
+      "beauty",
+    );
     TestValidator.predicate(
       "beauty leaves every non-mesh renderable visible",
-      nonMesh.every((object) => object.visible === true),
+      nonMesh.every(
+        (object: THREE.Object3D): boolean => object.visible === true,
+      ),
     );
     handle.restore();
   }
 
   // 3. pose hides the scene's non-mesh renderables but keeps its own overlay.
   {
-    const { scene, nonMesh } = sceneWithHelpers();
-    const handle = applyRenderMode(scene, "pose");
-    const overlay = scene.getObjectByName(POSE_OVERLAY_NAME);
+    const { scene, nonMesh }: ReturnType<typeof sceneWithHelpers> =
+      sceneWithHelpers();
+    const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+      scene,
+      "pose",
+    );
+    const overlay: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+      scene.getObjectByName(POSE_OVERLAY_NAME);
     if (overlay === undefined) throw new Error("pose overlay must exist");
     TestValidator.predicate(
       "the pre-existing non-mesh renderables are hidden under pose",
-      nonMesh.every((object) => object.visible === false),
+      nonMesh.every(
+        (object: THREE.Object3D): boolean => object.visible === false,
+      ),
     );
     TestValidator.equals(
       "the pose skeleton overlay stays visible with its lines",
       namedFacts([
-        ["overlayVisible", () => overlay.visible === true],
-        ["overlayChildren", () => overlay.children.length > 0],
+        ["overlayVisible", (): boolean => overlay.visible === true],
+        ["overlayChildren", (): boolean => overlay.children.length > 0],
         [
           "overlayChildrenChild",
-          () => overlay.children.every((child) => child.visible === true),
+          (): boolean =>
+            overlay.children.every(
+              (child: THREE.Object3D<THREE.Object3DEventMap>): boolean =>
+                child.visible === true,
+            ),
         ],
       ]),
       {
@@ -138,14 +178,17 @@ export const test_viewer_guide_pass_non_mesh = (): void => {
       namedFacts([
         [
           "sceneGetObjectByNamePOSE_OVERLAY_NAME",
-          () => scene.getObjectByName(POSE_OVERLAY_NAME) === undefined,
+          (): boolean => scene.getObjectByName(POSE_OVERLAY_NAME) === undefined,
         ],
         [
           "nonMeshEveryObject",
-          () => nonMesh.every((object) => object.visible === true),
+          (): boolean =>
+            nonMesh.every(
+              (object: THREE.Object3D): boolean => object.visible === true,
+            ),
         ],
       ]),
       { sceneGetObjectByNamePOSE_OVERLAY_NAME: true, nonMeshEveryObject: true },
     );
   }
-};
+}

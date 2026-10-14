@@ -2,29 +2,25 @@ import { AutoMovieCanonicalJsonError } from "./AutoMovieCanonicalJsonError";
 import { compareCodeUnits } from "./compareCodeUnits";
 
 /**
- * Canonicalize a JSON-compatible value under `automovie.canonical-json.v2`.
+ * Encode a supplied value under automovie.canonical-json.v2 for shared identity consumers.
  *
- * Members are ordered by UTF-16 code unit, array holes and unsupported array
- * items become `null`, unsupported object members are omitted, and numbers,
- * strings and member names must be finite JSON scalars and exact Unicode scalar
- * sequences. Cycles, accessors and non-plain containers are refused.
- *
- * This is the one implementation of the protocol. It lives in the engine
- * because a browser viewer has to reproduce the same identity as the Node
- * builder without reaching a Node built-in. The returned text never contains a
- * lone surrogate, so its UTF-8 encoding is identical whether a runtime encodes
- * it with `Buffer`, `TextEncoder` or the engine's own encoder, and one SHA-256
- * over those bytes is one identity on every runtime.
- *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Fixes member order, finite scalars, strings and absent values so equal inputs yield one text on every runtime.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-digest-refusal Refuses non-finite numbers, bigint, invalid Unicode, cycles and accessors instead of emitting a partial identity.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-locale-time-determinism Serializes identities without locale, timezone or clock participation so the same input yields the same bytes on every host.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Implements the property ordering, finite scalar, string and absent value representation the canonical serialization fixes.
- * @evidence specifications/execution-and-recovery/portability-migration-and-compatibility.md#execution-cross-platform-portability Produces canonical record text with an explicit code-unit ordering rule and finite numeric representation that no host locale, clock or path participates in.
+ * @evidence contracts/common.md#principled-implementation Finite JSON numbers and Unicode scalar strings use JSON escaping, object keys sort by UTF-16 units, unsupported array slots become null and unsupported object values are omitted; an ancestry set rejects cycles while permitting repeated nonrecursive references.
+ * @evidence contracts/common.md#clear-and-simple-design One browser-compatible engine owner serves production and viewer identity, with closed domain refusals separated from hashing and byte encoding.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Own data descriptors avoid invoking ordinary getters, but Proxy reflection traps can execute. Arrays are admitted before prototype inspection, while non-array objects require this realm's Object.prototype or null; no depth or output-size budget is enforced.
+ * @evidence contracts/common.md#meaningful-documentation Documents holes, omitted members, finite/Unicode refusal, accepted container prototypes and typed domain failures; allocation, recursion and Proxy failures can remain ordinary host errors.
+ * @evidence contracts/performance.md#efficient-algorithms Traversal covers every encoded occurrence and string unit, plus sum(K log K) key sorting per object; repeated shared subtrees are re-encoded, intermediate text grows with output and recursion depth is unbounded.
+ * @evidence contracts/performance.md#reuse-equivalent-work The comparator and Unicode admission are shared within encoding; ancestry is path-local rather than a memoization cache, so cycles fail and repeated references retain ordinary JSON tree expansion.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned text; the call-local ancestry set removes entered containers in finally on success or failure, and no partial text or host handle is published.
+ * @author Samchon
  */
-export const canonicalizeAutoMovieJson = (value: unknown): string => {
-  const active = new Set<object>();
-  const encode = (current: unknown, arrayItem: boolean): string | undefined => {
+export const canonicalizeAutoMovieJson: (value: unknown) => string = (
+  value: unknown,
+): string => {
+  const active: Set<object> = new Set<object>();
+  const encode: (current: unknown, arrayItem: boolean) => string | undefined = (
+    current: unknown,
+    arrayItem: boolean,
+  ): string | undefined => {
     if (
       current === undefined ||
       typeof current === "function" ||
@@ -54,12 +50,13 @@ export const canonicalizeAutoMovieJson = (value: unknown): string => {
       enterCanonicalContainer(active, current);
       try {
         const items: string[] = [];
-        for (let index = 0; index < current.length; ++index) {
+        for (let index: number = 0; index < current.length; ++index) {
           if (!Object.prototype.hasOwnProperty.call(current, index)) {
             items.push("null");
             continue;
           }
-          const descriptor = Object.getOwnPropertyDescriptor(current, index)!;
+          const descriptor: PropertyDescriptor =
+            Object.getOwnPropertyDescriptor(current, index)!;
           if ("value" in descriptor === false)
             throw new AutoMovieCanonicalJsonError(
               "accessor-property",
@@ -74,27 +71,31 @@ export const canonicalizeAutoMovieJson = (value: unknown): string => {
     }
     // Every JavaScript value the branches above did not return for is an
     // object, so no further type test can fail here.
-    const container = current as object;
-    const prototype = Object.getPrototypeOf(container);
+    const container: object = current as object;
+    const prototype: unknown = Object.getPrototypeOf(container);
     if (prototype !== Object.prototype && prototype !== null)
       throw new AutoMovieCanonicalJsonError(
         "non-plain-container",
         "only plain objects and arrays are admitted",
       );
     enterCanonicalContainer(active, container);
-    const record = container as Record<string, unknown>;
+    const record: Record<string, unknown> = container as Record<
+      string,
+      unknown
+    >;
     try {
-      const entries = Object.keys(record)
+      const entries: string[] = Object.keys(record)
         .sort(compareCodeUnits)
-        .flatMap((key): string[] => {
+        .flatMap((key: string): string[] => {
           assertScalarString(key, "member name");
-          const descriptor = Object.getOwnPropertyDescriptor(record, key)!;
+          const descriptor: PropertyDescriptor =
+            Object.getOwnPropertyDescriptor(record, key)!;
           if ("value" in descriptor === false)
             throw new AutoMovieCanonicalJsonError(
               "accessor-property",
               "object members must be data properties",
             );
-          const encoded = encode(descriptor.value, false);
+          const encoded: string | undefined = encode(descriptor.value, false);
           return encoded === undefined
             ? []
             : [`${JSON.stringify(key)}:${encoded}`];
@@ -104,7 +105,7 @@ export const canonicalizeAutoMovieJson = (value: unknown): string => {
       active.delete(container);
     }
   };
-  const encoded = encode(value, false);
+  const encoded: string | undefined = encode(value, false);
   if (encoded === undefined)
     throw new AutoMovieCanonicalJsonError(
       "unsupported-value",
@@ -114,7 +115,10 @@ export const canonicalizeAutoMovieJson = (value: unknown): string => {
 };
 
 /** Refuse cycles while permitting repeated, non-recursive references. */
-const enterCanonicalContainer = (active: Set<object>, value: object): void => {
+const enterCanonicalContainer: (active: Set<object>, value: object) => void = (
+  active: Set<object>,
+  value: object,
+): void => {
   if (active.has(value))
     throw new AutoMovieCanonicalJsonError(
       "cyclic-value",
@@ -124,16 +128,19 @@ const enterCanonicalContainer = (active: Set<object>, value: object): void => {
 };
 
 /** JSON escape syntax can encode lone surrogates, but this protocol cannot. */
-const assertScalarString = (value: string, role: string): void => {
-  for (let index = 0; index < value.length; ++index) {
-    const unit = value.charCodeAt(index);
+const assertScalarString: (value: string, role: string) => void = (
+  value: string,
+  role: string,
+): void => {
+  for (let index: number = 0; index < value.length; ++index) {
+    const unit: number = value.charCodeAt(index);
     if (unit >= 0xd800 && unit <= 0xdbff) {
       if (index + 1 >= value.length)
         throw new AutoMovieCanonicalJsonError(
           "invalid-unicode",
           `${role} ends with a lone high surrogate`,
         );
-      const trail = value.charCodeAt(index + 1);
+      const trail: number = value.charCodeAt(index + 1);
       if (trail < 0xdc00 || trail > 0xdfff)
         throw new AutoMovieCanonicalJsonError(
           "invalid-unicode",

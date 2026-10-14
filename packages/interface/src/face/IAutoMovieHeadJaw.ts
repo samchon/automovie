@@ -1,50 +1,30 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
- * Jaw and chin.
+ * Jaw and chin traits of an {@link IAutoMovieHead}: signed weights in
+ * `[-2, 2]`, with omission leaving the template unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieHeadJaw` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieHeadJaw` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * The chin is flattened into this group rather than nested. `flattenHead`
+ * renames the fields to `jawWidth`, `jawDrop`, `chinLength`, `chinWidth` and
+ * `chinProject`.
+ *
+ * @evidence contracts/common.md#principled-implementation `HEAD_PARAMETERS.jaw` in `flattenHead` renames the two jaw leaves and three chin leaves one-to-one, `chinProjection` being the one whose name shortens to `chinProject`.
+ * @evidence contracts/common.md#clear-and-simple-design Prefixing the chin leaves with `chin` keeps the lower face in one flat group, consistent with every other head group having no nesting, while the face vocabulary keeps its nested chin.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No chin trait is inferred from jaw width or drop; each of the five leaves is copied as written.
+ * @evidence contracts/common.md#meaningful-documentation States the range and neutral meaning, that the chin is flattened here, and all five morph names; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieHeadJaw {
-  /**
-   * Gonial/jaw width: `+` wider/squarer, `-` softer/tapered (feminine).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `width` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  width?: AutoMovieFaceWeight;
+  /** Width at the jaw angle: `+` wider and squarer, `-` softer and tapered. */
+  width?: number;
 
-  /**
-   * Jaw drop / lower-face length at the angle.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `drop` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `drop` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  drop?: AutoMovieFaceWeight;
+  /** Lower-face length at the jaw angle: `+` longer, `-` shorter. */
+  drop?: number;
 
-  /**
-   * Chin vertical length: `+` longer, `-` shorter (feminine/childlike).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `chinLength` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `chinLength` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  chinLength?: AutoMovieFaceWeight;
+  /** Vertical chin length: `+` longer, `-` shorter. */
+  chinLength?: number;
 
-  /**
-   * Chin width: `+` broader, `-` narrower/pointed.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `chinWidth` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `chinWidth` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  chinWidth?: AutoMovieFaceWeight;
+  /** Chin width: `+` broader, `-` narrower and pointed. */
+  chinWidth?: number;
 
-  /**
-   * Chin forward projection: `+` prominent, `-` recessive (East-Asian).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `chinProjection` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `chinProjection` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  chinProjection?: AutoMovieFaceWeight;
+  /** Forward chin projection: `+` prominent, `-` recessive. */
+  chinProjection?: number;
 }

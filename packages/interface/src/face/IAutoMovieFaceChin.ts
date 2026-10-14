@@ -1,27 +1,20 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
- * Chin traits of an {@link IAutoMovieFace}'s jaw: signed morph weights in `[-2,
- * 2]`, `0`/omitted meaning the template's chin unchanged.
+ * Chin traits of an {@link IAutoMovieFace}'s jaw: signed morph weights in
+ * `[-2, 2]`, with `0` or omission leaving the template's chin unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieFaceChin` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieFaceChin` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * The chin is unsided, and its leaves project onto the `chinLength` and
+ * `chinProtrusion` morph targets.
+ *
+ * @evidence contracts/common.md#principled-implementation `flattenFace` reads `jaw.chin.length` and `jaw.chin.protrusion` through its single-target table, so each leaf drives exactly one morph target and is range-checked at that document path.
+ * @evidence contracts/common.md#clear-and-simple-design Nesting the chin under the jaw follows the anatomy a reader expects while each leaf still maps to one flat target name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A midline feature has no side rule to apply, and the leaves get no treatment beyond the shared range check and linear morph.
+ * @evidence contracts/common.md#meaningful-documentation States the weight range and neutral meaning, where the chin sits in the document, that it is unsided, and the two morph targets; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieFaceChin {
-  /**
-   * Vertical reach of the chin tip: `+` a longer chin, `-` a short one.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `length` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `length` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  length?: AutoMovieFaceWeight;
+  /** Vertical reach of the chin tip: `+` a longer chin, `-` a shorter one. */
+  length?: number;
 
-  /**
-   * Forward projection of the chin: `+` protrudes, `-` recedes.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `protrusion` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `protrusion` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  protrusion?: AutoMovieFaceWeight;
+  /** Forward projection of the chin: `+` protrudes, `-` recedes. */
+  protrusion?: number;
 }

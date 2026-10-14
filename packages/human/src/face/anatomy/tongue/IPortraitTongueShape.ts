@@ -4,6 +4,14 @@
  * the two closed endpoints do not model the tongue's actual muscular roots.
  * A named resident material supplies its finish without changing other tissues.
  *
+ * @evidence contracts/common.md#principled-implementation Independent millimetre body semiaxes, rise, groove and oral-anchor placement describe the authored closed tongue produced by buildPortraitTongue; assertPortraitTongueShape admits the eight catalogue ranges and groove/body inequality.
+ * @evidence contracts/common.md#clear-and-simple-design Shape and material identity remain one component input while the builder owns its surface and the assembly component owns oral placement and containment admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The closed endpoints and numerical ranges are authored geometry conventions rather than reconstructed muscular roots or clinical bounds; nonblank material admission alone does not establish catalogue residency.
+ * @evidence contracts/common.md#meaningful-documentation Every geometric member states its millimetre range and body or anchor meaning; prose distinguishes authored geometry and independent finish from anatomical reconstruction.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface implements no surface allocation or fit test; tongue producers and assembly admission own those costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no computation; component construction owns the shape's derived geometry and host bindings.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface acquires no handle or cache; its caller and component own the input and allocated surface.
+ *
  * @author Samchon
  */
 export interface IPortraitTongueShape {
@@ -31,6 +39,6 @@ export interface IPortraitTongueShape {
   /** Posterior tip placement from the observed lower oral anchor in [0,30] mm. */
   recess: number;
 
-  /** Nonempty existing material identity, independent of enamel and vermilion. */
+  /** Nonblank material identity; residency is checked by later model admission. */
   material: string;
 }

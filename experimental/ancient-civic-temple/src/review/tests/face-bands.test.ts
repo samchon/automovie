@@ -1,9 +1,11 @@
 /**
- * src/geometry/face-bands.ts: 수직 면의 지붕 선 띠 분할과 수평면 분할.
- * fixture: 수평 지붕선이 면을 가로지르는 경우(볼록 세 띠), 경사 지붕선이 면 윗변과 교차하는 경우
- * (추가 절단점), 빈 소유 띠 생략, 네 꼭짓점이 아닌 면(통과), 수평면이 위·아래·경계 1e-6 m 안에
- * 있는 경우, 얇은 띠(1mm 두께), 결정성. 면적 합과 법선 방향이 보존되어야 한다.
- * 오목·구멍·열린 경계는 정의역 밖이다(볼록 사다리꼴 면만 받는다).
+ * src/geometry/face-bands.ts: roof-line bands on vertical faces and horizontal-face splitting.
+ * Fixtures: a horizontal roof line crossing a face (three convex bands), a
+ * sloping roof line crossing the upper edge (extra cut point), omitted empty
+ * ownership bands, non-quadrilateral faces (passed through), horizontal faces
+ * above, below or within 1e-6 m of a boundary, thin bands (1mm), and determinism.
+ * Total area and normal direction must survive. Concavity, holes and open
+ * boundaries are outside the domain, which accepts only convex trapezoidal faces.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -12,7 +14,7 @@ import { splitAtLevel, splitVerticalFace } from "../../geometry/face-bands";
 import { faceArea, near, v } from "./fixtures";
 
 const owners = { below: "below", within: "within", above: "above" };
-/** prism 옆면 순서 [a아래, a위, b위, b아래]. x 0..4, y 0..5, z=0 평면. */
+/** Prism side-face order [a-bottom, a-top, b-top, b-bottom]; x 0..4, y 0..5, z=0 plane. */
 const face = [v(0, 0, 0), v(0, 5, 0), v(4, 5, 0), v(4, 0, 0)];
 const normal = (c: readonly IAutoMovieVector3[]) => {
   const u = [c[1]!.x - c[0]!.x, c[1]!.y - c[0]!.y, c[1]!.z - c[0]!.z];

@@ -10,9 +10,13 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -23,7 +27,7 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
   duration,
 });
 
-const SHOTS = [shot("shot:a", 2), shot("shot:b", 3)];
+const SHOTS: IAutoMovieShot[] = [shot("shot:a", 2), shot("shot:b", 3)];
 
 const SEQUENCE: IAutoMovieSequence = {
   id: "seq:duel",
@@ -49,7 +53,17 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /** The whole plan is 10 frames (2.5 s @ fps 4), with a dissolve on frames 2-3. */
-const sample = (frame: IAutoMovieSequenceRenderFrame) => ({
+const sample: (
+  frame: IAutoMovieSequenceRenderFrame,
+) => Pick<
+  IAutoMovieSequenceRenderFrame,
+  "timeSeconds" | "shot" | "shotTimeSeconds" | "blend"
+> = (
+  frame: IAutoMovieSequenceRenderFrame,
+): Pick<
+  IAutoMovieSequenceRenderFrame,
+  "timeSeconds" | "shot" | "shotTimeSeconds" | "blend"
+> => ({
   timeSeconds: frame.timeSeconds,
   shot: frame.shot,
   shotTimeSeconds: frame.shotTimeSeconds,
@@ -58,7 +72,8 @@ const sample = (frame: IAutoMovieSequenceRenderFrame) => ({
 
 /**
  * A long sequence render is split into `chunkFrames`-sized, independently
- * renderable chunks so an arbitrarily long timeline renders in bounded windows.
+ * renderable chunks so a host can capture each window separately. The planner
+ * itself still retains every frame of the whole timeline.
  * The boundary is frame-atomic: each frame belongs to exactly one chunk, and
  * concatenating the chunks reproduces the whole render frame-for-frame.
  *
@@ -83,27 +98,39 @@ const sample = (frame: IAutoMovieSequenceRenderFrame) => ({
  *    its lines as basenames (ffmpeg resolves list entries against the list
  *    file's directory), and a dotted directory never captures the chunk tag.
  * 7. A non-positive or non-integer chunkFrames rejects.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans whole and chunked sequence schedules, asserting exact 3/3/3/1 partition/contiguity/counts, preserved time/shot/blend samples, local indices/paths, span times, ordered concat manifest and malformed chunk-size refusals. It observes capture/encoder instructions, not actual media reassembly or bounded host memory.
+ * @evidence contracts/testing.md#independent-expectations Two trimmed seconds plus one second minus a half-second dissolve give 2.5 seconds at four fps, hence ten frames and literal index ranges. Path/concat/argument expectations are hand-authored; whole-versus-chunk sample/blend comparisons are preservation oracles whose independent timing arithmetic belongs to sequence planner tests.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all seven groups, including a dissolve crossing the chunk boundary, a single large chunk, one-frame tail, extensionless/nested/dotted-directory outputs and zero/fractional sizes. Guide-pass requests and concat escaping edge cases have separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_chunk_sequence owns all portable synchronous planning cases. Shared typed sample projection registers no hidden tests, writes no output files and starts no capture browser, native encoder or consumer.
  */
-export const test_render_chunk_sequence = (): void => {
-  const whole = planSequenceRender({
+export function test_render_chunk_sequence(): void {
+  const whole: ReturnType<typeof planSequenceRender> = planSequenceRender({
     sequence: SEQUENCE,
     shots: SHOTS,
     spec: SPEC,
   });
   TestValidator.equals("whole frame count", whole.frameCount, 10);
 
-  const chunked = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 3,
-  });
+  const chunked: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 3,
+    });
 
   // 1. contiguity
   TestValidator.equals("chunk count", chunked.chunkCount, 4);
   TestValidator.equals("frame count preserved", chunked.frameCount, 10);
   TestValidator.equals(
     "chunk frame ranges",
-    chunked.chunks.map((c) => [c.frameStart, c.frameEnd, c.frameCount]),
+    chunked.chunks.map(
+      (c: (typeof chunked.chunks)[number]): [number, number, number] => [
+        c.frameStart,
+        c.frameEnd,
+        c.frameCount,
+      ],
+    ),
     [
       [0, 3, 3],
       [3, 6, 3],
@@ -111,40 +138,47 @@ export const test_render_chunk_sequence = (): void => {
       [9, 10, 1],
     ],
   );
-  chunked.chunks.forEach((chunk, i) => {
-    if (i > 0)
-      TestValidator.equals(
-        `chunk ${i} is contiguous`,
-        chunk.frameStart,
-        chunked.chunks[i - 1]!.frameEnd,
-      );
-  });
+  chunked.chunks.forEach(
+    (chunk: (typeof chunked.chunks)[number], i: number): void => {
+      if (i > 0)
+        TestValidator.equals(
+          `chunk ${i} is contiguous`,
+          chunk.frameStart,
+          chunked.chunks[i - 1]!.frameEnd,
+        );
+    },
+  );
 
   // 2. union == whole (sample identity)
-  const union = chunked.chunks.flatMap((c) => c.frames);
+  const union: IAutoMovieSequenceRenderFrame[] = chunked.chunks.flatMap(
+    (c: (typeof chunked.chunks)[number]): IAutoMovieSequenceRenderFrame[] =>
+      c.frames,
+  );
   TestValidator.equals("union frame count == whole", union.length, 10);
-  TestValidator.equals(
-    "union samples == whole samples",
-    union.map(sample),
-    whole.frames.map(sample),
+  TestValidator.predicate("union samples == whole samples", (): boolean =>
+    filmEffectValuesClose(union.map(sample), whole.frames.map(sample)),
   );
 
   // 3. straddling dissolve keeps blends, no dup/drop
-  TestValidator.equals(
-    "dissolve start (frame 2) in chunk 0",
-    chunked.chunks[0]!.frames[2]!.blend,
-    whole.frames[2]!.blend,
+  TestValidator.predicate("dissolve start (frame 2) in chunk 0", (): boolean =>
+    filmEffectValuesClose(
+      chunked.chunks[0]!.frames[2]!.blend,
+      whole.frames[2]!.blend,
+    ),
   );
-  TestValidator.equals(
-    "mid dissolve (frame 3) in chunk 1",
-    chunked.chunks[1]!.frames[0]!.blend,
-    whole.frames[3]!.blend,
+  TestValidator.predicate("mid dissolve (frame 3) in chunk 1", (): boolean =>
+    filmEffectValuesClose(
+      chunked.chunks[1]!.frames[0]!.blend,
+      whole.frames[3]!.blend,
+    ),
   );
 
   // 4. re-index + chunk-scoped paths + span times
   TestValidator.equals(
     "chunk 1 local indices",
-    chunked.chunks[1]!.frames.map((f) => f.index),
+    chunked.chunks[1]!.frames.map(
+      (f: IAutoMovieSequenceRenderFrame): number => f.index,
+    ),
     [0, 1, 2],
   );
   TestValidator.equals(
@@ -157,40 +191,54 @@ export const test_render_chunk_sequence = (): void => {
     chunked.chunks[1]!.outputPath,
     "seq_duel.chunk_1.mp4",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "chunk 1 span",
-    [chunked.chunks[1]!.startSeconds, chunked.chunks[1]!.endSeconds],
-    [whole.frames[3]!.timeSeconds, whole.frames[5]!.timeSeconds],
+    (): boolean =>
+      nclose(
+        chunked.chunks[1]!.startSeconds,
+        whole.frames[3]!.timeSeconds,
+        1e-12,
+      ) &&
+      nclose(
+        chunked.chunks[1]!.endSeconds,
+        whole.frames[5]!.timeSeconds,
+        1e-12,
+      ),
   );
   TestValidator.equals(
     "chunk ffmpeg args reference chunk paths",
     namedFacts([
       [
         "chunkedChunks1",
-        () =>
+        (): boolean =>
           chunked.chunks[1]!.ffmpegArgs.includes(
             "frames/seq_duel/chunk_1/frame_%05d.png",
           ),
       ],
       [
         "chunkedChunks12",
-        () => chunked.chunks[1]!.ffmpegArgs.includes("seq_duel.chunk_1.mp4"),
+        (): boolean =>
+          chunked.chunks[1]!.ffmpegArgs.includes("seq_duel.chunk_1.mp4"),
       ],
     ]),
     { chunkedChunks1: true, chunkedChunks12: true },
   );
 
   // 5. single chunk == whole samples
-  const single = planChunkedSequenceRender({
-    plan: whole,
-    spec: SPEC,
-    chunkFrames: 100,
-  });
+  const single: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: whole,
+      spec: SPEC,
+      chunkFrames: 100,
+    });
   TestValidator.equals("single chunk count", single.chunkCount, 1);
-  TestValidator.equals(
+  TestValidator.predicate(
     "single chunk reproduces whole samples",
-    single.chunks[0]!.frames.map(sample),
-    whole.frames.map(sample),
+    (): boolean =>
+      filmEffectValuesClose(
+        single.chunks[0]!.frames.map(sample),
+        whole.frames.map(sample),
+      ),
   );
 
   // 6. reassembly order + extensionless output
@@ -219,15 +267,15 @@ export const test_render_chunk_sequence = (): void => {
     namedFacts([
       [
         "chunkedReassemblyFfmpegArgs",
-        () => chunked.reassembly.ffmpegArgs.includes("concat"),
+        (): boolean => chunked.reassembly.ffmpegArgs.includes("concat"),
       ],
       [
         "chunkedReassemblyFfmpegArgs2",
-        () => chunked.reassembly.ffmpegArgs.includes("copy"),
+        (): boolean => chunked.reassembly.ffmpegArgs.includes("copy"),
       ],
       [
         "chunkedReassemblyFfmpegArgs3",
-        () => chunked.reassembly.ffmpegArgs.includes("seq_duel.mp4"),
+        (): boolean => chunked.reassembly.ffmpegArgs.includes("seq_duel.mp4"),
       ],
     ]),
     {
@@ -237,16 +285,17 @@ export const test_render_chunk_sequence = (): void => {
     },
   );
 
-  const noExt = planChunkedSequenceRender({
-    plan: planSequenceRender({
-      sequence: SEQUENCE,
-      shots: SHOTS,
+  const noExt: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: planSequenceRender({
+        sequence: SEQUENCE,
+        shots: SHOTS,
+        spec: SPEC,
+        outputPath: "out/render",
+      }),
       spec: SPEC,
-      outputPath: "out/render",
-    }),
-    spec: SPEC,
-    chunkFrames: 6,
-  });
+      chunkFrames: 6,
+    });
   TestValidator.equals(
     "extensionless chunk output",
     noExt.chunks[0]!.outputPath,
@@ -257,16 +306,17 @@ export const test_render_chunk_sequence = (): void => {
   // beside the list file and the concat lines relative to it: ffmpeg resolves
   // list entries against the list file's directory, so a path-qualified line
   // ("renders/seq.chunk_0.mp4") would double the directory.
-  const nested = planChunkedSequenceRender({
-    plan: planSequenceRender({
-      sequence: SEQUENCE,
-      shots: SHOTS,
+  const nested: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: planSequenceRender({
+        sequence: SEQUENCE,
+        shots: SHOTS,
+        spec: SPEC,
+        outputPath: "renders/seq_duel.mp4",
+      }),
       spec: SPEC,
-      outputPath: "renders/seq_duel.mp4",
-    }),
-    spec: SPEC,
-    chunkFrames: 6,
-  });
+      chunkFrames: 6,
+    });
   TestValidator.equals(
     "nested chunk outputs keep the directory",
     nested.reassembly.chunkOutputs,
@@ -284,16 +334,17 @@ export const test_render_chunk_sequence = (): void => {
   );
 
   // 6c. a dotted directory never captures the chunk tag
-  const dottedDir = planChunkedSequenceRender({
-    plan: planSequenceRender({
-      sequence: SEQUENCE,
-      shots: SHOTS,
+  const dottedDir: ReturnType<typeof planChunkedSequenceRender> =
+    planChunkedSequenceRender({
+      plan: planSequenceRender({
+        sequence: SEQUENCE,
+        shots: SHOTS,
+        spec: SPEC,
+        outputPath: "out.v2/render",
+      }),
       spec: SPEC,
-      outputPath: "out.v2/render",
-    }),
-    spec: SPEC,
-    chunkFrames: 6,
-  });
+      chunkFrames: 6,
+    });
   TestValidator.equals(
     "dotted directory keeps the tag on the file",
     dottedDir.chunks[0]!.outputPath,
@@ -304,7 +355,7 @@ export const test_render_chunk_sequence = (): void => {
   TestValidator.predicate(
     "zero chunkFrames rejects",
     throwsError(
-      () =>
+      (): ReturnType<typeof planChunkedSequenceRender> =>
         planChunkedSequenceRender({ plan: whole, spec: SPEC, chunkFrames: 0 }),
       ["chunkFrames", "positive integer"],
     ),
@@ -312,7 +363,7 @@ export const test_render_chunk_sequence = (): void => {
   TestValidator.predicate(
     "fractional chunkFrames rejects",
     throwsError(
-      () =>
+      (): ReturnType<typeof planChunkedSequenceRender> =>
         planChunkedSequenceRender({
           plan: whole,
           spec: SPEC,
@@ -321,4 +372,4 @@ export const test_render_chunk_sequence = (): void => {
       ["chunkFrames", "positive integer"],
     ),
   );
-};
+}

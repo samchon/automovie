@@ -19,6 +19,14 @@ import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
  * Raise offsets the centreline by sin(pi*v)^2; advance moves the anterior body
  * by one minus smoothstep(v), leaving the posterior endpoint fixed. A backwards
  * advance that would reverse the longitudinal parameterization is refused.
+ *
+ * @evidence contracts/common.md#principled-implementation Angle-spaced stations sample elliptical plan width, sinusoidal thickness and upper-only Gaussian groove; smoothstep-faded advance fixes the posterior pole, and its 1.5 derivative maximum supplies the backward-ordering bound.
+ * @evidence contracts/common.md#clear-and-simple-design One local body owns closed pole/ring incidence and normals; its component separately owns oral attachment and jaw motion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dimensions, tessellation and plus/minus16 millimetre performance are authored conventions, not clinical limits or muscular roots; invalid inputs and reversed longitudinal ordering refuse without clipping.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives millimetres, tip/root layout, independent profiles, performance fade and posterior fixation; those equations certify no anatomical collision or motion capacity.
+ * @evidence contracts/performance.md#efficient-algorithms R rows and C columns produce O(RC) vertices/triangles followed by linear area-normal accumulation; fixed counts define representation resolution.
+ * @evidence contracts/performance.md#reuse-equivalent-work Station and width/front profiles share their owners with arch and jaw readers; changed shape/performance needs new geometry and normals.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources New mesh buffers belong to the caller; shape/performance stay unchanged and no global geometry, task or handle is retained.
  */
 export function buildPortraitTongue(
   shape: IPortraitTongueShape,
@@ -27,7 +35,7 @@ export function buildPortraitTongue(
   assertPortraitTongueShape(shape);
   if (
     ![performance.raise, performance.advance].every(
-      (v) => Number.isFinite(v) && Math.abs(v) <= 16,
+      (v: number): boolean => Number.isFinite(v) && Math.abs(v) <= 16,
     )
   )
     throw new Error(
@@ -39,13 +47,13 @@ export function buildPortraitTongue(
     );
   const positions: number[] = [0, 0, performance.advance],
     indices: number[] = [];
-  for (let row = 1; row < portraitTongueRows; row++) {
-    const v = portraitTongueRingStation(row),
-      r = Math.sin(Math.PI * v),
-      w = portraitTongueWidthEnvelope(v);
-    for (let col = 0; col < portraitTongueColumns; col++) {
-      const a = (2 * Math.PI * col) / portraitTongueColumns,
-        x = shape.halfWidth * w * Math.cos(a);
+  for (let row: number = 1; row < portraitTongueRows; row++) {
+    const v: number = portraitTongueRingStation(row),
+      r: number = Math.sin(Math.PI * v),
+      w: number = portraitTongueWidthEnvelope(v);
+    for (let col: number = 0; col < portraitTongueColumns; col++) {
+      const a: number = (2 * Math.PI * col) / portraitTongueColumns,
+        x: number = shape.halfWidth * w * Math.cos(a);
       positions.push(
         x,
         shape.halfThickness * r * Math.sin(a) +
@@ -58,16 +66,16 @@ export function buildPortraitTongue(
       );
     }
   }
-  const back = positions.length / 3;
+  const back: number = positions.length / 3;
   positions.push(0, 0, -shape.length);
-  for (let col = 0; col < portraitTongueColumns; col++) {
-    const next = (col + 1) % portraitTongueColumns;
+  for (let col: number = 0; col < portraitTongueColumns; col++) {
+    const next: number = (col + 1) % portraitTongueColumns;
     indices.push(0, 1 + col, 1 + next);
-    for (let row = 0; row < portraitTongueRows - 2; row++) {
-      const a = 1 + row * portraitTongueColumns + col,
-        b = a + portraitTongueColumns,
-        c = 1 + row * portraitTongueColumns + next,
-        d = c + portraitTongueColumns;
+    for (let row: number = 0; row < portraitTongueRows - 2; row++) {
+      const a: number = 1 + row * portraitTongueColumns + col,
+        b: number = a + portraitTongueColumns,
+        c: number = 1 + row * portraitTongueColumns + next,
+        d: number = c + portraitTongueColumns;
       indices.push(a, b, c, c, b, d);
     }
     indices.push(

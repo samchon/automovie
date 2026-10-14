@@ -2,6 +2,14 @@
  * A girth or breadth read over stations along a landmark segment: planes at
  * evenly spaced fractions, the largest, smallest or rearmost reading kept.
  *
+ * @evidence contracts/common.md#principled-implementation Evenly spaced inclusive stations sample section loops; max, min or least-Z selection chooses the reported girth or breadth.
+ * @evidence contracts/common.md#clear-and-simple-design Plane placement and reduction choice live in the same instrument rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Station sampling is an explicit approximation and does not claim a continuous extremum between planes.
+ * @evidence contracts/common.md#meaningful-documentation Members state fractions, sample count, body-facing direction and horizontal orientation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The sampled section station rules definition supplies no executable processing strategy.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sampled section station rules type neither schedules requests nor caches results.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The sampled section station rules declaration does not acquire or retain runtime resources.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyStationSection {

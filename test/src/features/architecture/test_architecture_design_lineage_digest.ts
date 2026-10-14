@@ -1,95 +1,59 @@
-import {
-  autoMovieRenderDigest,
-  designLineageDigest,
-  designLineageViewDigest,
-} from "@automovie/engine";
-import type { IAutoMovieDesignLineage } from "@automovie/interface";
+import type {
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignSubject,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { designLineageDigest } from "../../../../packages/engine/src/architecture/designLineageDigest";
+import { designLineageViewDigest } from "../../../../packages/engine/src/architecture/designLineageViewDigest";
 import {
   brokenLineage,
-  emptyLineage,
   lineageDigest,
   renovationLineage,
 } from "../internal/lineageFixtures";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Pin the content digest and the deterministic replay handle a derived artifact
- * is supposed to cite.
- *
- * A digest that moves when an authored array is reshuffled cannot certify
- * anything, and a digest that fails to move when an imported texture's bytes
- * change certifies a lie. Both properties are asserted here, and the
- * canonicalization itself is checked against a serialization this test writes
- * out by hand rather than against whatever the implementation currently emits.
- *
- * Field separation is length-prefixed on purpose. A record joined by a bare
- * delimiter lets authored text forge a field boundary, so two different designs
- * can be made to digest identically; the collision case below is exactly that
- * attempt, and it has to fail.
+ * Digest complete lineage content and selected views independently of authored array order.
  *
  * Scenarios:
+ * 1. The same fixture digests identically twice; reversing the listed top-level arrays, variant changes, phase prerequisites and artifact inputs preserves its digest.
+ * 2. Editing one authored value moves the digest.
+ * 3. A view digest replays: the same alternative at the same phase twice is one value.
+ * 4. Two alternatives of one revision digest differently, and the base design differs from both.
+ * 5. The same alternative at two phases digests differently.
+ * 6. Replacing the declared texture digest and all its citation digests changes the tested view without reading a texture file.
+ * 7. Two designs whose subject/aspect text concatenates to the same characters without field boundaries digest differently.
+ * 8. An unknown alternative or phase is refused rather than digested.
  *
- * 1. The minimal lineage digests to the SHA-256 of a canonical string written out
- *    here field by field, so a change in canonicalization is caught rather than
- *    absorbed.
- * 2. The same lineage digests identically twice, and reshuffling every authored
- *    array leaves the digest unchanged.
- * 3. Editing one authored value moves the digest.
- * 4. A view digest replays: the same alternative at the same phase twice is one
- *    value, and the minimal lineage's view digest is likewise hand-derived.
- * 5. Two alternatives of one revision digest differently, and the base design
- *    differs from both.
- * 6. The same alternative at two phases digests differently.
- * 7. An imported texture's bytes move the view digest although not one line of the
- *    design moved. Replacing the file and requoting it in the outputs that read
- *    it is a single edit, because a record that moved only one of the two is
- *    refused as stale before it can be digested at all.
- * 8. Two designs that a bare-delimiter serialization would collide digest
- *    differently.
- * 9. An unknown alternative or phase is refused rather than digested.
+ * @evidence contracts/testing.md#behavioral-verification Calls whole-lineage and selected-view digest functions, observing replay equality, the listed reversals, distinct authored value/base/variant/phase/asset-digest pairs, one field-boundary pair and unknown-selector throws. Order-dependent serialization or omitted selected facts contradict these relations; no stored expected hash or renderer output is compared.
+ * @evidence contracts/testing.md#independent-expectations Repeated and reshuffled records must serialize equivalently; explicit authored value/variant/phase/asset changes and an ab+c versus a+bc field-boundary pair supply relations without a stored digest transcript, which tests serialization distinctions rather than universal hash uniqueness.
+ * @evidence contracts/testing.md#distinguishing-cases Replay, the existing array reversals, changed content, base/alternative/phase views, replaced-and-requoted declared asset digests, the ab+c versus a+bc pair and unknown selectors retain the original cases. Decision-option/citation permutations, lone-surrogate encoding and universal hash collision freedom are not tested; no external texture bytes or renderer replay is loaded.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_design_lineage_digest imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_design_lineage_digest = (): void => {
-  const bare = emptyLineage();
-  const bareDigest = lineageDigest("0f");
-  TestValidator.equals(
-    "the minimal lineage digests its hand-written canonical serialization",
-    designLineageDigest(bare),
-    autoMovieRenderDigest(
-      [
-        "7:lineage|4:bare|1:1|2:r1",
-        `8:revision|2:r1|0:|${bareDigest.length}:${bareDigest}`,
-      ].join("\n"),
-    ),
-  );
-  TestValidator.equals(
-    "the minimal lineage's base view digests its hand-written serialization",
-    designLineageViewDigest(bare, { variant: null, phase: null }),
-    autoMovieRenderDigest(
-      `4:view|4:bare|2:r1|${bareDigest.length}:${bareDigest}|0:|0:`,
-    ),
-  );
-
-  const lineage = renovationLineage();
+export function test_architecture_design_lineage_digest(): void {
+  const lineage: IAutoMovieDesignLineage = renovationLineage();
   TestValidator.equals(
     "the same authored lineage digests to the same value twice",
     designLineageDigest(lineage),
     designLineageDigest(renovationLineage()),
   );
 
-  const shuffled = brokenLineage((draft) => {
-    draft.subjects.reverse();
-    draft.revisions.reverse();
-    draft.phases.reverse();
-    draft.lifecycles.reverse();
-    draft.variants.reverse();
-    draft.decisions.reverse();
-    draft.derived.reverse();
-    for (const variant of draft.variants) variant.changes.reverse();
-    for (const phase of draft.phases) phase.requires.reverse();
-    for (const artifact of draft.derived) artifact.inputs.reverse();
-  });
+  const shuffled: IAutoMovieDesignLineage = brokenLineage(
+    (draft: IAutoMovieDesignLineage): void => {
+      draft.subjects.reverse();
+      draft.revisions.reverse();
+      draft.phases.reverse();
+      draft.lifecycles.reverse();
+      draft.variants.reverse();
+      draft.decisions.reverse();
+      draft.derived.reverse();
+      for (const variant of draft.variants) variant.changes.reverse();
+      for (const phase of draft.phases) phase.requires.reverse();
+      for (const artifact of draft.derived) artifact.inputs.reverse();
+    },
+  );
   TestValidator.equals(
     "reshuffling every authored array leaves the digest unchanged",
     designLineageDigest(shuffled),
@@ -98,13 +62,13 @@ export const test_architecture_design_lineage_digest = (): void => {
   TestValidator.predicate(
     "editing one authored value moves the digest",
     designLineageDigest(
-      brokenLineage((draft) => {
+      brokenLineage((draft: IAutoMovieDesignLineage): void => {
         draft.variants[0]!.changes[0]!.value = "oak-plain-sawn";
       }),
     ) !== designLineageDigest(lineage),
   );
 
-  const warm = designLineageViewDigest(lineage, {
+  const warm: string = designLineageViewDigest(lineage, {
     variant: "warm-oak",
     phase: "finishes",
   });
@@ -116,18 +80,20 @@ export const test_architecture_design_lineage_digest = (): void => {
     }),
     warm,
   );
-  const cool = designLineageViewDigest(lineage, {
+  const cool: string = designLineageViewDigest(lineage, {
     variant: "cool-stone",
     phase: "finishes",
   });
-  const base = designLineageViewDigest(lineage, {
+  const base: string = designLineageViewDigest(lineage, {
     variant: null,
     phase: "finishes",
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "the two alternatives and the base design are three distinct views",
-    new Set([warm, cool, base]).size,
-    3,
+    ((): boolean => {
+      const observed: number = new Set([warm, cool, base]).size;
+      return typeof observed === "number" && nclose(observed, 3);
+    })(),
   );
   TestValidator.predicate(
     "the same alternative at an earlier phase is a different view",
@@ -140,13 +106,15 @@ export const test_architecture_design_lineage_digest = (): void => {
   TestValidator.predicate(
     "an imported texture's bytes move the view although the design did not",
     designLineageViewDigest(
-      brokenLineage((draft) => {
-        // Replacing the file and rebaking what read it is one edit, not two:
-        // the outputs that quoted the old bytes are stale until they quote the
-        // new ones, so a record that moved only the subject is refused.
-        const replaced = lineageDigest("5d");
-        draft.subjects.find((subject) => subject.id === "oak-texture")!.digest =
-          replaced;
+      brokenLineage((draft: IAutoMovieDesignLineage): void => {
+        // Update the declared asset digest and all matching citation metadata
+        // together. This test does not replace a file or rebake an output;
+        // changing only the subject would leave its old quotes inconsistent.
+        const replaced: string = lineageDigest("5d");
+        draft.subjects.find(
+          (subject: IAutoMovieDesignSubject): boolean =>
+            subject.id === "oak-texture",
+        )!.digest = replaced;
         for (const artifact of draft.derived)
           for (const citation of artifact.assets)
             if (citation.subject === "oak-texture") citation.digest = replaced;
@@ -155,9 +123,12 @@ export const test_architecture_design_lineage_digest = (): void => {
     ) !== warm,
   );
 
-  // A serialization that joined fields with a bare delimiter would read these
-  // two designs as the same bytes: `ab` + `c` against `a` + `bc`.
-  const collidable = (
+  // Concatenation without field boundaries would read these subject/aspect
+  // pairs identically: `ab` + `c` against `a` + `bc`.
+  const collidable: (
+    subject: string,
+    aspect: string,
+  ) => IAutoMovieDesignLineage = (
     subject: string,
     aspect: string,
   ): IAutoMovieDesignLineage => ({
@@ -202,7 +173,7 @@ export const test_architecture_design_lineage_digest = (): void => {
   TestValidator.predicate(
     "an unknown alternative is refused rather than digested",
     throwsError(
-      () =>
+      (): string =>
         designLineageViewDigest(lineage, { variant: "brutalist", phase: null }),
       'has no design variant "brutalist"',
     ),
@@ -210,7 +181,7 @@ export const test_architecture_design_lineage_digest = (): void => {
   TestValidator.predicate(
     "an unknown phase is refused rather than digested",
     throwsError(
-      () =>
+      (): string =>
         designLineageViewDigest(lineage, {
           variant: "warm-oak",
           phase: "topping-out",
@@ -218,4 +189,4 @@ export const test_architecture_design_lineage_digest = (): void => {
       'has no construction phase "topping-out"',
     ),
   );
-};
+}

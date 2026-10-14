@@ -7,15 +7,23 @@
  * which is what `TextEncoder` does, so an id carrying broken UTF-16 still
  * digests identically on both sides.
  *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-canonical-fingerprint Canonicalizes JavaScript strings to the exact UTF-8 bytes consumed by render fingerprints.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Keeps the digest input encoding identical in browser and capture runtimes.
+ * @evidence contracts/common.md#principled-implementation Decode valid UTF-16 surrogate pairs into code points, replace lone surrogates with U+FFFD and emit canonical 1/2/3/4-byte UTF-8 sequences, matching Node Buffer/TextEncoder semantics for render hashes.
+ * @evidence contracts/common.md#clear-and-simple-design One pure byte encoder supports synchronous SHA and FNV callers without depending on an embedder's TextEncoder availability or polyfill.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Replacement is the declared Unicode encoding rule, not a fixture fallback; no locale, id or host-specific path alters bytes.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify UTF-8, astral pairing and lone-surrogate replacement; the returned number array belongs to the caller.
+ * @evidence contracts/performance.md#efficient-algorithms U UTF-16 units require O(U) traversal and O(B) output bytes with B at most three times U; no intermediate code-point array is retained.
+ * @evidence contracts/performance.md#reuse-equivalent-work SHA and FNV share this encoding law, while each arbitrary string call creates fresh bytes rather than retaining a content cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned byte array escapes; no encoder instance, native buffer handle or asynchronous task is acquired.
  */
-export const utf8Bytes = (text: string): number[] => {
+export const utf8Bytes: (text: string) => number[] = (
+  text: string,
+): number[] => {
   const bytes: number[] = [];
-  for (let index = 0; index < text.length; ++index) {
-    let point = text.charCodeAt(index);
+  for (let index: number = 0; index < text.length; ++index) {
+    let point: number = text.charCodeAt(index);
     if (point >= 0xd800 && point <= 0xdbff) {
-      const low = index + 1 < text.length ? text.charCodeAt(index + 1) : 0;
+      const low: number =
+        index + 1 < text.length ? text.charCodeAt(index + 1) : 0;
       if (low >= 0xdc00 && low <= 0xdfff) {
         point = 0x10000 + ((point - 0xd800) << 10) + (low - 0xdc00);
         ++index;

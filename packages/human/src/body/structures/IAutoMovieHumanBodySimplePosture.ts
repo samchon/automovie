@@ -1,7 +1,16 @@
 /**
  * The table a body's standing posture follows with age: how much the
  * thoracic kyphosis grows past the source body's own, which spine joints
- * carry it, and which joint turns the head back so the gaze stays level.
+ * carry it, and which joint compensates within its extension limit. A clamped
+ * compensation can leave a change in head orientation.
+ *
+ * @evidence contracts/common.md#principled-implementation Age and sex curves specify an authored kyphosis increment distributed over named spine joints with a separate gaze compensation joint.
+ * @evidence contracts/common.md#clear-and-simple-design The posture table groups its baseline, age response and joint shares.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The table represents an authored standing-posture response, without proving an individual's clinical capacity.
+ * @evidence contracts/common.md#meaningful-documentation Members state Cobb degrees, interpolation, unit-sum shares and compensation limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The simple posture table declaration is erased by TypeScript and chooses no runtime algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The simple posture table schema coordinates no requests or cached computations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The simple posture table type acquires no handles, tasks or retained storage.
  *
  * @author Samchon
  */
@@ -24,6 +33,6 @@ export interface IAutoMovieHumanBodySimplePosture {
   /** The spine joints that carry the added kyphosis as flexion, `[bone, share]`, the shares summing to one. */
   thoracic: [string, number][];
 
-  /** The joint that extends by the added kyphosis, as far as its range allows, so the head keeps its orientation. */
+  /** The joint that subtracts the added kyphosis from its rest flexion, clamped at its minimum; incomplete compensation can leave a head-orientation change. */
   compensation: string;
 }

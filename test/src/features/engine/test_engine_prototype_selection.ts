@@ -1,9 +1,9 @@
 import { selectInstancePrototype } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const SLOTS = 2_000;
+const SLOTS: number = 2_000;
 
 interface IChoice {
   id: string;
@@ -11,14 +11,34 @@ interface IChoice {
   weight: number;
 }
 
-const choice = (id: string, weight: number): IChoice => ({
+/** Preserve the authored prototype identity, recipe spelling and scalar weight. */
+const choice: (id: string, weight: number) => IChoice = (
+  id: string,
+  weight: number,
+): IChoice => ({
   id,
   modelRecipe: `${id}-recipe`,
   weight,
 });
 
 /** A grove drawing from `prototypes`, or from its base recipe without them. */
-const grove = (prototypes?: IChoice[], seed = 31) => ({
+const grove: (
+  prototypes?: IChoice[],
+  seed?: number,
+) => {
+  id: string;
+  seed: number;
+  modelRecipe: string;
+  prototypes: IChoice[] | undefined;
+} = (
+  prototypes?: IChoice[],
+  seed: number = 31,
+): {
+  id: string;
+  seed: number;
+  modelRecipe: string;
+  prototypes: IChoice[] | undefined;
+} => ({
   id: "grove",
   seed,
   modelRecipe: "oak",
@@ -26,13 +46,23 @@ const grove = (prototypes?: IChoice[], seed = 31) => ({
 });
 
 /** The choice each of the first `count` slots draws by weight. */
-const draws = (source: ReturnType<typeof grove>, count = SLOTS): IChoice[] =>
-  Array.from({ length: count }, (_, slot) =>
-    selectInstancePrototype(source, slot, undefined),
+const draws: (source: ReturnType<typeof grove>, count?: number) => IChoice[] = (
+  source: ReturnType<typeof grove>,
+  count: number = SLOTS,
+): IChoice[] =>
+  Array.from(
+    { length: count },
+    (_: unknown, slot: number): IChoice =>
+      selectInstancePrototype(source, slot, undefined),
   );
 
-const share = (drawn: readonly IChoice[], id: string): number =>
-  drawn.filter((value) => value.id === id).length / drawn.length;
+/** Observe one prototype's frequency without predicting any individual draw. */
+const share: (drawn: readonly IChoice[], id: string) => number = (
+  drawn: readonly IChoice[],
+  id: string,
+): number =>
+  drawn.filter((value: IChoice): boolean => value.id === id).length /
+  drawn.length;
 
 /**
  * One instance slot draws its prototype by the weights its table declares, or
@@ -59,59 +89,99 @@ const share = (drawn: readonly IChoice[], id: string): number =>
  * 4. An explicit member takes the entry it names, even one of weight zero, and a
  *    set without a table answers `default`. A name the table lacks refuses that
  *    slot by name, while the twin naming a present entry is answered.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real weighted prototype selector over the original 2000 slots and explicit-name paths, observing base/lone identity, fixed-seed shares, skipped zero weights, all-zero final-choice policy, power-of-two scale invariance, repeatability/reseeding and named refusal.
+ * @evidence contracts/testing.md#independent-expectations Literal weights 1:2:1 and equal-weight twins imply .25/.5/.25 and one-third target shares without replaying the selector. Distribution predicates retain their strict .04 boundary alongside nclose; original exact zero/one shares use zero tolerance. This finite fixed-seed witness is not a proof of arbitrary-seed statistical independence.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves omitted/single/weighted tables, middle/leading/all zero weights, quadrupled weights, seeds31/32 and explicit zero-weight/missing/present names, including returned table-object identity. Malformed weight admission and empty-table policy are not exercised here.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns literal tables and draw arrays and borrows selected entry identities; no compiled scene, file, native host, renderer, browser or GPU is used and no foreign method is replaced.
  */
-export const test_engine_prototype_selection = (): void => {
-  const lone = choice("lone", 3);
-  const base = draws(grove());
+export function test_engine_prototype_selection(): void {
+  const lone: IChoice = choice("lone", 3);
+  const base: IChoice[] = draws(grove());
   TestValidator.equals(
     "a set with one choice draws it on every slot",
     namedFacts([
       [
         "baseRecipe",
-        () =>
+        (): boolean =>
           base.every(
-            (value) =>
+            (value: IChoice): boolean =>
               value.id === "default" &&
               value.modelRecipe === "oak" &&
-              value.weight === 1,
+              nclose(value.weight, 1, 0),
           ),
       ],
       [
         "loneEntry",
-        () => draws(grove([lone])).every((value) => value === lone),
+        (): boolean =>
+          draws(grove([lone])).every(
+            (value: IChoice): boolean => value === lone,
+          ),
       ],
     ]),
     { baseRecipe: true, loneEntry: true },
   );
 
-  const weighted = draws(
+  const weighted: IChoice[] = draws(
     grove([choice("a", 1), choice("b", 2), choice("c", 1)]),
   );
-  const skipped = draws(
+  const skipped: IChoice[] = draws(
     grove([choice("a", 1), choice("z", 0), choice("c", 1)]),
   );
-  const twin = draws(grove([choice("a", 1), choice("z", 1), choice("c", 1)]));
-  const leadingZero = draws(grove([choice("z", 0), choice("b", 1)]));
-  const allZero = draws(
+  const twin: IChoice[] = draws(
+    grove([choice("a", 1), choice("z", 1), choice("c", 1)]),
+  );
+  const leadingZero: IChoice[] = draws(grove([choice("z", 0), choice("b", 1)]));
+  const allZero: IChoice[] = draws(
     grove([choice("x", 0), choice("y", 0), choice("z", 0)]),
   );
-  const quadrupled = draws(
+  const quadrupled: IChoice[] = draws(
     grove([choice("a", 4), choice("b", 8), choice("c", 4)]),
   );
   TestValidator.equals(
     "a slot draws by the declared weights and never by a zero weight",
     namedFacts([
-      ["shareA", () => Math.abs(share(weighted, "a") - 0.25) < 0.04],
-      ["shareB", () => Math.abs(share(weighted, "b") - 0.5) < 0.04],
-      ["shareC", () => Math.abs(share(weighted, "c") - 0.25) < 0.04],
-      ["zeroNeverDrawn", () => share(skipped, "z") === 0],
-      ["zeroTwinDrawn", () => Math.abs(share(twin, "z") - 1 / 3) < 0.04],
-      ["leadingZeroNeverDrawn", () => share(leadingZero, "z") === 0],
-      ["allZeroTakesLast", () => share(allZero, "z") === 1],
+      [
+        "shareA",
+        (): boolean => {
+          const value: number = share(weighted, "a");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
+      [
+        "shareB",
+        (): boolean => {
+          const value: number = share(weighted, "b");
+          return nclose(value, 0.5, 0.04) && Math.abs(value - 0.5) < 0.04;
+        },
+      ],
+      [
+        "shareC",
+        (): boolean => {
+          const value: number = share(weighted, "c");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
+      ["zeroNeverDrawn", (): boolean => nclose(share(skipped, "z"), 0, 0)],
+      [
+        "zeroTwinDrawn",
+        (): boolean => {
+          const value: number = share(twin, "z");
+          return nclose(value, 1 / 3, 0.04) && Math.abs(value - 1 / 3) < 0.04;
+        },
+      ],
+      [
+        "leadingZeroNeverDrawn",
+        (): boolean => nclose(share(leadingZero, "z"), 0, 0),
+      ],
+      ["allZeroTakesLast", (): boolean => nclose(share(allZero, "z"), 1, 0)],
       [
         "scaleInvariant",
-        () =>
-          quadrupled.every((value, slot) => value.id === weighted[slot]!.id),
+        (): boolean =>
+          quadrupled.every(
+            (value: IChoice, slot: number): boolean =>
+              value.id === weighted[slot]!.id,
+          ),
       ],
     ]),
     {
@@ -126,51 +196,58 @@ export const test_engine_prototype_selection = (): void => {
     },
   );
 
-  const table = [choice("a", 1), choice("b", 2), choice("c", 1)];
-  const again = draws(grove(table));
-  const reseeded = draws(grove(table, 32));
+  const table: IChoice[] = [choice("a", 1), choice("b", 2), choice("c", 1)];
+  const again: IChoice[] = draws(grove(table));
+  const reseeded: IChoice[] = draws(grove(table, 32));
   TestValidator.equals(
     "a slot's draw is its seed's",
     namedFacts([
       [
         "repeatable",
-        () => again.every((value, slot) => value.id === weighted[slot]!.id),
+        (): boolean =>
+          again.every(
+            (value: IChoice, slot: number): boolean =>
+              value.id === weighted[slot]!.id,
+          ),
       ],
       [
         "seedMatters",
-        () =>
-          reseeded.filter((value, slot) => value.id !== again[slot]!.id)
-            .length >
+        (): boolean =>
+          reseeded.filter(
+            (value: IChoice, slot: number): boolean =>
+              value.id !== again[slot]!.id,
+          ).length >
           SLOTS / 2,
       ],
     ]),
     { repeatable: true, seedMatters: true },
   );
 
-  const sleeper = choice("sleeper", 0);
-  const named = grove([choice("a", 1), sleeper]);
+  const sleeper: IChoice = choice("sleeper", 0);
+  const named: ReturnType<typeof grove> = grove([choice("a", 1), sleeper]);
   TestValidator.equals(
     "an explicit member takes the entry it names or refuses a missing one",
     namedFacts([
       [
         "namedZeroWeight",
-        () => selectInstancePrototype(named, 3, "sleeper") === sleeper,
+        (): boolean => selectInstancePrototype(named, 3, "sleeper") === sleeper,
       ],
       [
         "namedDefault",
-        () => selectInstancePrototype(grove(), 3, "default").id === "default",
+        (): boolean =>
+          selectInstancePrototype(grove(), 3, "default").id === "default",
       ],
       [
         "missingRefuses",
-        () =>
+        (): boolean =>
           throwsError(
-            () => selectInstancePrototype(named, 3, "ghost"),
+            (): IChoice => selectInstancePrototype(named, 3, "ghost"),
             'Instance set "grove" slot 3 references missing prototype "ghost".',
           ),
       ],
       [
         "presentTwinAnswered",
-        () => selectInstancePrototype(named, 3, "a").id === "a",
+        (): boolean => selectInstancePrototype(named, 3, "a").id === "a",
       ],
     ]),
     {
@@ -180,4 +257,4 @@ export const test_engine_prototype_selection = (): void => {
       presentTwinAnswered: true,
     },
   );
-};
+}

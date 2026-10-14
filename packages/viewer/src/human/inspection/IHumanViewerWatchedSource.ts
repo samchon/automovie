@@ -5,100 +5,64 @@ import type { IHumanViewerSourceRevisions } from "./IHumanViewerSourceRevisions.
 /**
  * The source owner as watching uses it: what to watch and how an edit maps to a revision.
  *
- * @evidence contracts/common.md#principled-implementation Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
- * @evidence contracts/common.md#clear-and-simple-design The source owner supplies paths and revision operations while the subscription owns event batching.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source reachability and published-file identities decide affected revisions rather than document-specific exceptions.
- * @evidence contracts/common.md#meaningful-documentation Names input/example files, watched paths, normalization, basis refresh and the shared revision owner.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The source owner supplies paths and revision operations while the subscription owns event batching.
+ * @evidence contracts/common.md#principled-implementation Watched source authority separates handwritten inputs, source dependencies, basis files, generation views and application examples because each edit has different invalidation effects.
+ * @evidence contracts/common.md#clear-and-simple-design Paths and revision operations share one source owner; the watcher orchestrates notifications without owning numerical source hashing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Application examples remain external inputs, while real source and checked-loader edits refresh dependency authority rather than bypassing admission.
+ * @evidence contracts/common.md#meaningful-documentation Members explain each watched input, optional subject-people source, path normalization, basis refresh and revision ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The watched-source shape selects no event coalescing or filesystem subscription algorithm.
+ * @evidence contracts/performance.md#reuse-equivalent-work The revision owner decides graph-equivalent work; published basis refresh and input rescans remain distinct effects of watched changes.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Paths and borrowed callbacks own no watcher handle; subscribeHumanViewerSources and its caller manage subscriptions and pending batches.
+ *
  * @author Samchon
  */
 export interface IHumanViewerWatchedSource {
-  /**
-   * Directory of hand-written inputs; an edit there rereads the catalogue.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Directory of hand-written inputs; an edit there rereads the catalogue. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Directory of hand-written inputs; an edit there rereads the catalogue. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Directory of hand-written inputs; an edit there rereads the catalogue. */
   inputsDirectory: string;
 
-  /**
-   * Source directories whose reached files move revisions.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Source directories whose reached files move revisions. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Source directories whose reached files move revisions. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Source directories whose reached files move revisions. */
   watched: readonly string[];
 
-  /**
-   * Published bases; an edit refreshes their digests.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Published bases; an edit refreshes their digests. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Published bases; an edit refreshes their digests. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Published bases; an edit refreshes their digests. */
   basisFiles: IHumanViewerBasisFiles;
 
-  /**
-   * Published person generation views; an edit rereads the catalogue.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Published person generation views; an edit rereads the catalogue. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Published person generation views; an edit rereads the catalogue. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Published person generation views; an edit rereads the catalogue. */
   generationFiles: IHumanViewerGenerationFiles;
 
-  /**
-   * Published face subjects.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Published face subjects. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Published face subjects. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Published face subjects. */
   documentsFile: string;
 
-  /**
-   * The generation's subject people; an edit rereads the catalogue.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document The generation's subject people; an edit rereads the catalogue. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The generation's subject people; an edit rereads the catalogue. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
-  subjectPeopleFile: string;
+  /** The generation's subject people, if any; edits reread the catalogue and also invalidate revision authority when reached by checked inputs. */
+  subjectPeopleFile?: string;
 
-  /**
-   * Playground body examples; an edit rereads the catalogue.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Playground body examples; an edit rereads the catalogue. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Playground body examples; an edit rereads the catalogue. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** Playground body examples; edits reread the catalogue and also invalidate revision authority when reached by checked inputs. */
   bodyExamplesFile: string;
 
   /**
-   * Normalizes a path to forward slashes.
+   * Normalize a path to forward slashes for revision identity and reach checks.
    *
-   * @evidence contracts/common.md#principled-implementation Path normalization provides forward-slash spelling used by the source revision graph.
-   * @evidence contracts/common.md#clear-and-simple-design The source owner supplies one normalization operation to watcher consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Normalization does not rewrite file bytes or infer source authority from a subject name.
-   * @evidence contracts/common.md#meaningful-documentation Defines the normalized path spelling returned for an input file.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Path normalization provides forward-slash spelling used by the source revision graph.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The source owner supplies one normalization operation to watcher consumers.
+   * @evidence contracts/common.md#principled-implementation Path normalization gives revision identity and reach comparisons the same slash representation on Windows and POSIX.
+   * @evidence contracts/common.md#clear-and-simple-design The watcher borrows the source owner's normalization rather than maintaining a second path convention.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Normalization changes separators only and does not rewrite selected source paths to manufactured identities.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies forward slashes as the comparison representation used for revision identity and reach.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This conversion signature does not choose a string-replacement implementation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stateless path conversion introduces no retained memo or invalidation policy.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Normalized strings acquire no watcher subscription or filesystem handle.
    */
   slash: (file: string) => string;
 
   /**
-   * Recomputes the published basis digests.
+   * Ask the source owner's basis memo for identities and digests before computing changed source authority. Current mtime/size stamp equality can reuse old facts after a byte rewrite preserving both values.
    *
-   * @evidence contracts/common.md#principled-implementation Basis refresh recomputes the published digest authority before the edit batch is hashed.
-   * @evidence contracts/common.md#clear-and-simple-design The published source owner retains basis reading and digest storage.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refreshing a digest does not manufacture a valid unpublished or unreadable basis.
-   * @evidence contracts/common.md#meaningful-documentation Names the publication digest refresh operation.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Basis refresh recomputes the published digest authority before the edit batch is hashed.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The published source owner retains basis reading and digest storage.
+   * @evidence contracts/common.md#principled-implementation Basis metadata is requested before revision computation; the actual memo refreshes on a changed provider stamp, whose mtime/size equality does not independently prove unchanged bytes.
+   * @evidence contracts/common.md#clear-and-simple-design Basis-file reading stays with the source owner while watching triggers its refresh.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refresh follows the actual basis memo authority rather than fabricating a new digest; same-size same-mtime rewrites can remain indistinguishable and are not claimed freshly hashed.
+   * @evidence contracts/common.md#meaningful-documentation The member documents identity/digest refresh and its order before changed-source publication.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The refresh capability declares no basis-byte reading or SHA-256 implementation strategy.
+   * @evidence contracts/performance.md#reuse-equivalent-work The basis memo replaces facts when its provider stamp changes and shares equal-stamp facts with catalogue reads; current mtime/size stamps can collide after a byte rewrite.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The watcher borrows refresh authority; basis buffer and memo lifetimes remain with the source owner.
    */
   refreshBases: () => void;
 
-  /**
-   * The revision owner.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The revision owner. Watched inputs, published basis views and import-graph revisions identify the source boundaries an edit can invalidate.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The revision owner. The source owner supplies paths and revision operations while the subscription owns event batching.
-   */
+  /** The revision owner. */
   revisions: IHumanViewerSourceRevisions;
 }

@@ -1,83 +1,54 @@
 /**
  * Exact supported WAVE declaration before processing.
  *
- * These are the file's own facts, read from its format envelope and never
- * inferred from its channel count: an extensible header names its speakers
- * through `dwChannelMask` and its encoding through the full SubFormat GUID,
- * while a legacy header carries the default mono front-center or stereo
- * front-left/front-right semantics and says so in `layout.source`.
+ * These are the file's own facts, read from its format envelope and never inferred from its channel count: an extensible header names its speakers through `dwChannelMask` and its encoding through the full SubFormat GUID, while a legacy header carries the default mono front-center or stereo front-left/front-right semantics and says so in `layout.source`. The literal unions are the decoder's whole supported subset, so a value outside them was refused rather than recorded.
  *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Records the container, encoding, channel, rate, and bit-depth facts the decode contract requires to be explicit rather than assumed from the extension.
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Keeps ordered speaker labels and the declaration they came from, so two-channel sources with different semantics are not treated as compatible by count alone.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Separates the encoded representation, source rate, and channel layout observed in the bytes from any processing result.
+ * @evidence contracts/common.md#principled-implementation Each field mirrors a WAVEFORMATEX or WAVEFORMATEXTENSIBLE field the decoder reads, with the layout source and mask recording whether the speakers came from `dwChannelMask` or from the legacy default.
+ * @evidence contracts/common.md#clear-and-simple-design One record keeps the envelope facts apart from the processing lineage, which lets the render plan validate a source identity separately from the conversion applied to it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Closed unions constrain each vocabulary independently, while numeric ranges and encoding/precision/channel/layout/GUID relations remain producer invariants checked by the decoder and render wave-identity validator, not guarantees of this erased type.
+ * @evidence contracts/common.md#meaningful-documentation The comments state where each fact comes from, which header spelling sets the mask and GUID, and that the literal unions are the supported subset.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; parsing happens in `decodeProductionAudioAsset`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Parsed envelope facts are copied from one decode into one plan identity, so no work exists here to share.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds a fixed handful of scalars and one GUID string and owns no handle or task.
+ * @author Samchon
  */
 export interface IAutoMovieProductionWaveSourceFormat {
-  /**
-   * Media-family discriminant.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Names the one container family the supported subset admits.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Dispatches the audio fact envelope by family.
-   */
+  /** Media-family discriminant; WAVE is the only decoded family. */
   kind: "wave";
-  /**
-   * Legacy or extensible format-envelope spelling.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Distinguishes the two header spellings whose fields the decoder reads differently.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Records which envelope the channel layout and encoding facts were read from.
-   */
+
+  /** Format-envelope spelling: `wave-format-ex` for a legacy tag, or `wave-format-extensible` for tag `0xFFFE` with a cbSize of at least 22. */
   header: "wave-format-ex" | "wave-format-extensible";
-  /**
-   * Exact supported expanded-sample encoding.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract States the sample encoding the codec facts resolved to.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Reports the encoded sample representation as a source fact.
-   */
+
+  /** Sample encoding: little-endian signed 16-bit PCM or 32-bit IEEE float. */
   encoding: "pcm-s16le" | "float-f32le";
-  /**
-   * Bits allocated to each encoded channel sample.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Carries the declared bit depth of the container sample.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Distinguishes the container size from the precision the sample carries.
-   */
+
+  /** Bits each encoded channel sample occupies (`wBitsPerSample`). */
   containerBits: 16 | 32;
-  /**
-   * Meaningful bits declared inside the container sample.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Carries the extensible `wValidBitsPerSample` precision that the supported subset requires to fill its container.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Records the declared precision beside the container size instead of collapsing them.
-   */
+
+  /** Meaningful bits inside the container; `wValidBitsPerSample` for an extensible header, otherwise the container size. Always equal to `containerBits`, since partial precision is refused. */
   validBits: 16 | 32;
-  /**
-   * Source sample clock before resampling.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Carries the declared source rate the decode contract requires to be explicit.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Reports the source sample rate as a fact separate from the resampled output clock.
-   */
+
+  /** Source rate in samples per second, before any resampling. */
   sampleRate: number;
-  /**
-   * Source channel count before downmix.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Carries the declared channel count of the supported mono or stereo subset.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Reports the source channel count as a fact separate from the mono downmix.
-   */
+
+  /** Source channel count, before the mono downmix. */
   channels: 1 | 2;
-  /**
-   * Ordered speaker semantics and their declaration source.
-   *
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Names the ordered speaker positions and whether a mask or the legacy default declared them.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Reports the channel layout as an observed source fact rather than an assumed stereo pair.
-   */
+
+  /** Ordered speaker semantics and where they were declared. */
   layout: {
+    /** Mono or stereo, matching `channels`. */
     kind: "mono" | "stereo";
+
+    /** Speakers in channel order. */
     speakers: ["front-center"] | ["front-left", "front-right"];
+
+    /** `channel-mask` when an extensible header declared the speakers, `legacy-default` when a legacy header implied them. */
     source: "legacy-default" | "channel-mask";
+
+    /** The declared `dwChannelMask` (`0x4` mono, `0x3` stereo), or `null` for a legacy header, which has none. */
     mask: number | null;
   };
-  /**
-   * Canonical extensible SubFormat GUID, absent for legacy headers.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Preserves the full sub-format identity that resolved the encoding rather than only its leading tag.
-   * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-audio-inspection Records the codec identity observed in the extensible envelope.
-   */
+
+  /** Lowercase canonical SubFormat GUID text of an extensible header, or `null` for a legacy header, which has none. */
   subFormatGuid: string | null;
 }

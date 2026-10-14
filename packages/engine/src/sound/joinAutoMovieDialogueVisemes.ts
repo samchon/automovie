@@ -1,4 +1,4 @@
-import type {
+import {
   IAutoMovieProductionDialogueLine,
   IAutoMovieProductionViseme,
 } from "@automovie/interface";
@@ -7,30 +7,33 @@ import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 import { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 import { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
 
-const DIALOGUE_VISEMES = new Set<IAutoMovieProductionViseme["viseme"]>([
-  "aa",
-  "ih",
-  "ou",
-  "ee",
-  "oh",
-  "rest",
-]);
+const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
+  new Set<IAutoMovieProductionViseme["viseme"]>([
+    "aa",
+    "ih",
+    "ou",
+    "ee",
+    "oh",
+    "rest",
+  ]);
 
 /**
- * Join final-byte visemes to an explicitly bound actor on emission time.
+ * Join supplied receipt visemes to one explicit actor binding on emission time.
  *
- * Missing or ambiguous speaker bindings return the shared `not-run` outcome;
- * the engine does not select an actor, synthesize phonemes for external audio,
- * or move mouth motion to the later audible-arrival frame. Valid receipt gaps
- * become explicit `rest` ranges, so silence has a deterministic closed mouth.
- *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-final-bytes-authority Uses only the receipt timeline derived from final audio bytes.
- * @evidence requirements/actors/voice-and-utterance-identity.md#actor-utterance-performance Joins final-byte film ranges to the explicitly resolved speaking actor and exposes that actor's mouth timeline.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Consumes the ordered phoneme state derived from those bytes.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Builds the builder-visible emission-clock join.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-voice-utterance-expression Carries actor identity, utterance interval, and proxy viseme ranges into a mouth-only performance channel.
+ * @evidence contracts/common.md#principled-implementation Exactly one speaker match, a nonblank actor and ordered positive safe-integer half-open ranges are required; the linear cursor inserts explicit rest gaps and produces complete line coverage without sorting.
+ * @evidence contracts/common.md#clear-and-simple-design Binding admission and timeline construction stay together, while sampling is a separate cursor-free query; closed not-run reasons expose missing or ambiguous speaker resolution.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor is guessed and no external phonemes or acoustic-arrival offset is synthesized. Final-byte provenance and actual compiled actor existence are caller prerequisites, not verified by this join's test-only repository reach.
+ * @evidence contracts/common.md#meaningful-documentation Documents emission clock, gap-rest policy, ordering and throws for corrupt timing/targets; successful availability certifies this timing join rather than actor application.
+ * @evidence contracts/performance.md#efficient-algorithms B bindings and V visemes require O(B+V) time; the matching subset is temporary and successful output has at most 2V+1 ranges.
+ * @evidence contracts/performance.md#reuse-equivalent-work The completed fresh timeline can be sampled repeatedly under arbitrary seeks; changed receipt, line timing or binding requires joining again, without a mutable playback or actor registry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the outcome and fresh ranges; input receipts and binding records are read but not retained, and no audio, scene node or host task is acquired.
+ * @author Samchon
  */
-export const joinAutoMovieDialogueVisemes = (props: {
+export const joinAutoMovieDialogueVisemes: (props: {
+  line: IAutoMovieProductionDialogueLine;
+  bindings: readonly IAutoMovieDialogueSpeakerBinding[];
+  visemes: readonly IAutoMovieProductionViseme[];
+}) => IAutoMovieDialogueVisemeCompilation = (props: {
   /** Dialogue line whose film range is authoritative. */
   line: IAutoMovieProductionDialogueLine;
   /** Explicit speaker-to-actor bindings in authored order. */
@@ -43,8 +46,9 @@ export const joinAutoMovieDialogueVisemes = (props: {
       join: { status: "not-run", reason: "speaker-not-declared" },
       timeline: null,
     };
-  const bindings = props.bindings.filter(
-    (binding) => binding.speaker === props.line.speaker,
+  const bindings: IAutoMovieDialogueSpeakerBinding[] = props.bindings.filter(
+    (binding: IAutoMovieDialogueSpeakerBinding): boolean =>
+      binding.speaker === props.line.speaker,
   );
   if (bindings.length === 0)
     return {
@@ -56,7 +60,7 @@ export const joinAutoMovieDialogueVisemes = (props: {
       join: { status: "not-run", reason: "speaker-actor-ambiguous" },
       timeline: null,
     };
-  const binding = bindings[0]!;
+  const binding: IAutoMovieDialogueSpeakerBinding = bindings[0]!;
   if (binding.actor.trim().length === 0)
     throw new Error("dialogue actor binding must not be blank");
   if (props.visemes.length === 0)
@@ -72,7 +76,7 @@ export const joinAutoMovieDialogueVisemes = (props: {
     throw new Error(`dialogue line "${props.line.id}" has an invalid range`);
 
   const ranges: IAutoMovieDialogueMouthRange[] = [];
-  let cursor = props.line.startFrame;
+  let cursor: number = props.line.startFrame;
   for (const [index, viseme] of props.visemes.entries()) {
     if (!DIALOGUE_VISEMES.has(viseme.viseme))
       throw new Error(

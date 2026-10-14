@@ -1,32 +1,9 @@
-/**
- * `front-entry`: the ground-storey L-shaped distribution space and its coat closet.
- *
- * Design owner: `docs/spaces/rooms/entry.md` (`entry-plan`,
- * `entry-coat-storage`). Finished inner outline (X, Z): (-1.80, -0.25),
- * (2.02, -0.25), (2.02, -3.41), (-0.65, -3.41), (-0.65, -1.45), (-1.80, -1.45);
- * it includes the stair's lower waiting area X = [-1.80, -0.65],
- * Z = [-1.45, -0.25]. The front door void belongs to the front wall and is cut
- * by `envelope/front.ts`; no partition is assigned to this owner by 07.
- *
- * The coat closet body X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15]
- * stays hollow under the upper flight, whose underside above it and whose
- * X = [1.87, 2.02] closure geometry belongs to `stair.ts`; this room exports
- * the closet body, top, and opening span that the closure consumes. This
- * owner emits the closet's own walls inside the stair plan: the back end
- * X = [1.03, 1.10] closing it against the solid under-stair at the upper
- * flight's seventh tread, and the side Z = [-3.51, -3.41] at the flight's front
- * line, both up to the closet top. X = [1.75, 2.02] stays an open reveal. The
- * rod, shelves and sliding leaves are later models.
- *
- * Output: the room record, its wood floor and ceiling through the open strip
- * beside the lower flight, the separate closet floor and room-side opening
- * strip, and the closet walls. The floor zones have disjoint plan interiors.
- */
+
 import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
 import { MAIN } from "../building";
 import { block } from "../solids";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { floorOf, GROUND_LAYERS, STOREYS } from "../storeys";
 import { STAIR_OPENING, STAIR_STEPS } from "../stair";
 import {
@@ -40,13 +17,6 @@ import {
 
 const FLOOR = floorOf("ground-storey");
 /** The entry plan owns the front threshold span consumed by wall, base and porch. */
-/**
- * @evidence spaces/rooms/entry.md The front entrance has one room-owned rough door span.
- * @evidence spaces/rooms/entry.md#entry-plan The exported jamb span feeds the front wall cut, ground base and porch step axis; its floor-derived bottom extends the wall cut through the support depth.
- * @evidence principles/core/source-units.md#source-scope-preservation This value declares no second doorway or door leaf.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers use one export for rough opening and threshold alignment.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-plan fixes the front doorway X span and Y = [0, 2.20] opening; 10-ground-floor.md#main-ground-floor-base fixes the 0.025 m finish and 0.15 m support depths, and ground-threshold-junctions carries that base under the crossing.
- */
 export const FRONT_DOOR = {
   id: "front-door",
   from: 0.4,
@@ -79,13 +49,6 @@ const entrySpace = (): IRoomSpace => ({
     // X = [2.10, 2.70] lie outside this outline (the body is `storages`).
   ],
 });
-
-/**
- * @evidence spaces/rooms/entry.md The entry owns the coat body and opening consumed by the upper flight.
- * @evidence principles/core/source-units.md#source-scope-preservation Entry fixes the closet top and opening but derives its body X from the stair's seventh upper tread station.
- * @evidence principles/core/source-units.md#source-substantive-completion The storage, closet walls, stair underside, and cut opening read one top; the closure reads this export's opening Z span.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work COAT_STORAGE exposed reversed derivation of closet X and upper treads: a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights so the seventh tread sets X and treads 7-9 consume the closet top Y=2.15.
- */
 export const COAT_STORAGE = {
   x: [STAIR_STEPS.upperClosetStartX + 0.07, STAIR_STEPS.upperClosetStartX + 0.72] as const,
   frontZ: -3.51,
@@ -96,15 +59,6 @@ export const COAT_STORAGE = {
 const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 
 /** Emit the entry floor and ceiling finishes, its share under entry-living-door and the coat closet walls. */
-/**
- * @evidence spaces/rooms/entry.md This builder owns the L-shaped front-entry floor, its interrupted ceiling, and the under-stair coat closet.
- * @evidence spaces/rooms/entry.md#entry-plan ENTRY retains the six-corner outline and the stair waiting strip without creating a front-wall door body.
- * @evidence spaces/rooms/entry.md#entry-use-routes The entry mat, lower stair waiting, and floor under entry-living-door remain in the entry's own use area.
- * @evidence spaces/rooms/entry.md#entry-coat-storage A hollow storage record and two closet walls end under the upper flight at COAT_STORAGE.top.
- * @evidence principles/core/source-units.md#source-scope-preservation The stair builder retains its flight and closet closure; this room emits its allocated room and storage floors, opening half, ceiling, and two closet walls.
- * @evidence principles/core/source-units.md#source-substantive-completion The return includes a logical room, storage volume, and real finish/partition parts with stable identities.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the coat-storage floor exposed an uncovered interior beyond the entry circulation outline; rooms/entry.md#entry-coat-storage, rooms/service.md#service-access-plan and 03-surface-owners.md#interior-surface-handoff were revised to allocate that finish. Emitting the stair-side ceiling exposed another uncovered strip and then a shared edge-finish volume; rooms/entry.md#entry-plan, 02-stair.md#stair-floor-opening, 03-surface-owners.md#interior-surface-handoff and 08-floor-assembly.md#interstorey-edge-junctions were revised to separate the room datum finish from the stair-owned vertical finish.
- */
 export const buildEntry = (): IRoomBuild => {
   const ENTRY = entrySpace();
   const coatStorage = {

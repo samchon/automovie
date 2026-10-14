@@ -31,7 +31,7 @@ import { HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_RIGHT } from "./simple-shape/HUMA
  * the piecewise-linear curves over the simple parameters (and two derived
  * ones) whose product the gain scales. A curve is `[x, y]` points in
  * ascending `x`, held flat outside its ends. The rows encode, with their
- * sources described beside their owning rows, source tool's age nodes (child
+ * sources described beside their owning rows, the basis's age nodes (child
  * 11 years, young 25, old 90), and an authored 30% muscle loss from age 30
  * to 80 (six percentage points per decade, within the broad 3–8% per decade
  * range discussed by Volpi et al., doi:10.1097/01.mco.0000134362.76653.b2).

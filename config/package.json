@@ -3,6 +3,7 @@
   "name": "@automovie/config",
   "version": "0.1.0",
   "devDependencies": {
+    "@ttsc/evidence": "catalog:samchon",
     "ttsc": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "typescript": "catalog:typescript",

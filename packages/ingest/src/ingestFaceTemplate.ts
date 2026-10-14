@@ -1,88 +1,91 @@
 import { IAutoMovieFaceTemplate } from "@automovie/interface";
-import type { Document, Primitive } from "@gltf-transform/core";
+import type {
+  Accessor,
+  Document,
+  Mesh,
+  Primitive,
+  PrimitiveTarget,
+} from "@gltf-transform/core";
+
+import { accessorValues } from "./internal/accessorValues";
 
 /**
- * Extract an {@link IAutoMovieFaceTemplate} from a parsed glTF/GLB
- * {@link Document}: the import side of the face editor.
+ * Extract an {@link IAutoMovieFaceTemplate} from a parsed glTF/GLB {@link Document} for a caller supplying fixed morph-target data.
  *
- * A face asset carries its editable shape as glTF morph targets on one
- * primitive: `POSITION` is the resting face and each target holds per-vertex
- * deltas under a parameter name (an `identity` likeness plus the semantic
- * sliders). This mapper finds the first morphed primitive and rewrites it into
- * the flat-array template the engine's `morphFace` consumes, resolving target
- * names from the targets themselves with the `mesh.extras.targetNames`
- * convention (what three.js and most exporters write) as the fallback.
+ * This exported mapper currently has test callers in this repository; the face editor does not call it through a runtime import flow. It describes a portable conversion seam, not a completed editor asset-ingress feature.
  *
- * Structural defects make the asset unusable for deterministic morphing, so
- * they throw rather than degrade: a document with no morphed primitive, a
- * morphed primitive without `POSITION`, a target that cannot be named, a target
- * without `POSITION` deltas, or a delta array whose length disagrees with the
- * resting face.
+ * A face asset carries its editable shape as glTF morph targets on one primitive: `POSITION` is the resting face and each target holds per-vertex deltas under a parameter name, such as an `identity` likeness or a semantic slider. The first primitive with targets, in mesh then primitive order, is rewritten into the flat arrays the engine's `morphFace` consumes; later morphed primitives are ignored. A target is named by its own name, else by the same index in `mesh.extras.targetNames`, the convention three.js and most exporters write. Normalized integer accessors, as `KHR_mesh_quantization` allows, are decoded to the values they mean, and every target becomes an own key of `targets`, including one named `__proto__`.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-deformable-surface Preserves the resting POSITION basis and each named morph delta channel.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-derived-deformation-basis A parsed Document carries no source revision or derivation-lineage receipt.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-skin-morph-facts Emits stable morph names, neutral positions, and topology-matched deltas.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Rejects missing, duplicate, unnamed, or topology-mismatched morph channels.
+ * Structural defects make the asset unusable for deterministic morphing, so they throw rather than degrade: no morphed primitive, a morphed primitive without `POSITION` data, a target that cannot be named, two targets with one name, a target without `POSITION` delta data, or a delta array whose length differs from the resting face.
+ *
+ * @param doc Parsed document with finite VEC3 POSITION and delta accessors; this mapper reads it without validating component finiteness or accessor layout.
+ * @returns A new template whose arrays the caller owns.
+ *
+ * @evidence contracts/common.md#principled-implementation The first morphed primitive's POSITION and each target's POSITION deltas become flat arrays through `accessorValues`, which decodes normalized quantized accessors, and names come from the target or the `extras.targetNames` convention exporters write; `Object.fromEntries` makes every name an own key.
+ * @evidence contracts/common.md#clear-and-simple-design The exported function only finds the first morphed primitive and `templateOf` turns it into the template; accessor decoding is the shared internal helper also used by node import.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing storage, missing or duplicate names and unequal delta lengths throw; finite components and VEC3 accessor layout are caller premises, while `__proto__` remains an own data key.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states the primitive selection order, that later morphed primitives are ignored, the naming fallback, quantized decoding, own-key storage, every refusal, and caller ownership of the arrays.
+ * @evidence contracts/performance.md#efficient-algorithms Work follows materialized mesh and visited primitive/target lists, resting components, all copied delta components and target-name text; selection stops at the first morphed primitive, and malformed delta data is copied before its length is refused.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Calls have no shared execution or retained cache over mutable Document data, and each returned template requires independently owned arrays.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh, primitive and target list copies, the name map and entry list are temporary; new position/delta arrays transfer to the caller, with malformed arrays collectable on refusal and no retained Document reference.
  * @author Samchon
  */
-export const ingestFaceTemplate = (doc: Document): IAutoMovieFaceTemplate => {
+export const ingestFaceTemplate: (doc: Document) => IAutoMovieFaceTemplate = (
+  doc: Document,
+): IAutoMovieFaceTemplate => {
   for (const mesh of doc.getRoot().listMeshes())
-    for (const prim of mesh.listPrimitives()) {
-      const targetList = prim.listTargets();
-      if (targetList.length === 0) continue;
-      return templateOf(
-        prim,
-        (mesh.getExtras() as { targetNames?: unknown }).targetNames,
-      );
-    }
+    for (const prim of mesh.listPrimitives())
+      if (prim.listTargets().length !== 0) return templateOf(mesh, prim);
   throw new Error("document has no primitive with morph targets");
 };
 
-const templateOf = (
+const templateOf: (mesh: Mesh, prim: Primitive) => IAutoMovieFaceTemplate = (
+  mesh: Mesh,
   prim: Primitive,
-  extraNames: unknown,
 ): IAutoMovieFaceTemplate => {
-  const posAccessor = prim.getAttribute("POSITION");
+  const posAccessor: Accessor | null = prim.getAttribute("POSITION");
   if (posAccessor === null)
     throw new Error("morphed primitive has no POSITION attribute");
-  const positionArray = posAccessor.getArray();
-  if (positionArray === null)
+  const positions: number[] | null = accessorValues(posAccessor);
+  if (positions === null)
     throw new Error("morphed primitive POSITION accessor has no array data");
-  const positions = Array.from(positionArray, Number);
 
-  const fallback: unknown[] = Array.isArray(extraNames) ? extraNames : [];
-  const targets: Record<string, number[]> = {};
-  const indexByName = new Map<string, number>();
-  prim.listTargets().forEach((target, i) => {
-    const name =
-      target.getName() || (typeof fallback[i] === "string" ? fallback[i] : "");
+  const extraNames: unknown = (mesh.getExtras() as { targetNames?: unknown })
+    .targetNames;
+  const fallback: readonly unknown[] = Array.isArray(extraNames)
+    ? extraNames
+    : [];
+  const entries: [string, number[]][] = [];
+  const indexByName: Map<string, number> = new Map<string, number>();
+  const targets: PrimitiveTarget[] = prim.listTargets();
+  for (let i: number = 0; i < targets.length; ++i) {
+    const target: PrimitiveTarget = targets[i]!;
+    const candidate: unknown = fallback[i];
+    const name: string =
+      target.getName() || (typeof candidate === "string" ? candidate : "");
     if (name === "")
       throw new Error(
         `morph target #${i} has no name (neither a target name nor mesh.extras.targetNames)`,
       );
-    // Two targets resolving to one name would silently overwrite: the last
-    // sculpt wins and the earlier one vanishes from the template, exactly the
-    // degradation the throw-on-structural-defect contract forbids (#1105).
-    const first = indexByName.get(name);
+    const first: number | undefined = indexByName.get(name);
     if (first !== undefined)
       throw new Error(
         `morph target #${i} duplicates name "${name}" (first at #${first})`,
       );
     indexByName.set(name, i);
-    const deltaAccessor = target.getAttribute("POSITION");
+    const deltaAccessor: Accessor | null = target.getAttribute("POSITION");
     if (deltaAccessor === null)
       throw new Error(`morph target "${name}" has no POSITION deltas`);
-    const deltaArray = deltaAccessor.getArray();
-    if (deltaArray === null)
+    const delta: number[] | null = accessorValues(deltaAccessor);
+    if (delta === null)
       throw new Error(
         `morph target "${name}" POSITION accessor has no array data`,
       );
-    const delta = Array.from(deltaArray, Number);
     if (delta.length !== positions.length)
       throw new Error(
         `morph target "${name}" has ${delta.length} components, expected ${positions.length}`,
       );
-    targets[name as string] = delta;
-  });
-  return { positions, targets };
+    entries.push([name, delta]);
+  }
+  return { positions, targets: Object.fromEntries(entries) };
 };

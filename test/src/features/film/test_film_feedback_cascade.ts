@@ -1,49 +1,41 @@
 import {
-  detectSupportToppling,
-  locateOnBeat,
-  scriptAncestors,
-} from "@automovie/engine";
+  IAutoMovieConstraintViolation,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { locateOnBeat } from "../../../../packages/engine/src/film/locateOnBeat";
+import { scriptAncestors } from "../../../../packages/engine/src/film/scriptAncestors";
+import { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
+import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
+import { createScriptTree } from "../internal/createScriptTree";
 import { validationHasWarningCount } from "../internal/predicates";
-import {
-  createScriptTree,
-  treeBeats,
-} from "../validation/test_validation_script_tree";
 
 /**
- * THE CASCADE PROOF (D013, #620): physics feedback reaches the screenplay. A
- * real physics producer raises a warning while a beat is being worked; located
- * on that beat's graph node, the warning climbs the refinement chain (beat →
- * group → scene → act → intent), so the correction can target any level of the
- * screenplay, not just the offending motion. The screenplay is upstream truth,
- * and the engine's feedback now reaches it.
+ * A support warning can be addressed through the authored screenplay ancestry.
  *
  * Scenarios:
+ * 1. A center outside a square support produces one physics warning.
+ * 2. Locating it on beat-1 stamps b1, whose nearest-first ancestors are grp, scene1, act1 and root.
+ * 3. The same warning remains unstamped when the tree is absent.
  *
- * 1. A crate overhanging its support during `beat-1`'s work raises a REAL
- *    `warning` from detectSupportToppling (not a synthetic violation).
- * 2. LocateOnBeat stamps it with the claiming beat node `b1`.
- * 3. ScriptAncestors walks the stamped node up the refinement chain: exactly
- *    `["grp", "scene1", "act1", "root"]`: the scene, the act, and the intent
- *    all become addressable correction targets.
- * 4. The treeless twin: the same warning without a screenplay tree stays unlocated
- *    (no node), and there is no chain to walk: feedback remains motion-local,
- *    exactly the pre-#620 world.
+ * @evidence contracts/testing.md#behavioral-verification Runs detectSupportToppling, locateOnBeat and scriptAncestors in sequence and checks warning count/severity, beat identity and exact ancestry order, catching a lost or wrongly addressed physics warning.
+ * @evidence contracts/testing.md#independent-expectations The center x=.5 lies beyond the support's x=.1 edge and .02 default allowance, independently requiring a warning; the authored tree's parent links determine the four ancestor ids. No agent correction or dynamic toppling is executed.
+ * @evidence contracts/testing.md#distinguishing-cases Pairs located and treeless results for the same warning and pins its complete four-level chain. Support stability/margin boundaries and malformed screenplay graphs belong to their focused tests.
+ * @evidence contracts/testing.md#execution-ownership This discoverable portable unit owns the three-function composition over in-memory support and the existing tree fixture; it launches no screenplay agent, physics host, browser or GPU.
  */
-export const test_film_feedback_cascade = (): void => {
-  const tree = createScriptTree();
-  TestValidator.equals("the fixture beats exist", treeBeats().length, 2);
+export function test_film_feedback_cascade(): void {
+  const tree: IAutoMovieScriptNode[] = createScriptTree();
 
   // A crate whose center of mass overhangs its small support square: a real
   // physics warning produced "while working beat-1".
-  const support = [
+  const support: { x: number; y: number; z: number }[] = [
     { x: -0.1, y: 0, z: -0.1 },
     { x: 0.1, y: 0, z: -0.1 },
     { x: 0.1, y: 0, z: 0.1 },
     { x: -0.1, y: 0, z: 0.1 },
   ];
-  const result = detectSupportToppling({
+  const result: IAutoMovieSupportResult = detectSupportToppling({
     node: "crate",
     centerOfMass: { x: 0.5, y: 0.4, z: 0 },
     support,
@@ -52,7 +44,7 @@ export const test_film_feedback_cascade = (): void => {
     "a real physics warning was raised",
     validationHasWarningCount("feedback cascade", result.validation, 1),
   );
-  const warnings =
+  const warnings: IAutoMovieConstraintViolation[] =
     result.validation.success === true
       ? (result.validation.warnings ?? [])
       : [];
@@ -62,14 +54,18 @@ export const test_film_feedback_cascade = (): void => {
     "warning",
   );
 
-  const located = locateOnBeat(warnings, tree, "beat-1");
+  const located: IAutoMovieConstraintViolation[] = locateOnBeat(
+    warnings,
+    tree,
+    "beat-1",
+  );
   TestValidator.equals(
     "the warning locates on the beat node",
     located[0]!.node,
     "b1",
   );
 
-  const chain = scriptAncestors(tree, located[0]!.node!);
+  const chain: string[] = scriptAncestors(tree, located[0]!.node!);
   TestValidator.equals("the warning cascades up the screenplay", chain, [
     "grp",
     "scene1",
@@ -77,10 +73,14 @@ export const test_film_feedback_cascade = (): void => {
     "root",
   ]);
 
-  const unlocated = locateOnBeat(warnings, null, "beat-1");
+  const unlocated: IAutoMovieConstraintViolation[] = locateOnBeat(
+    warnings,
+    null,
+    "beat-1",
+  );
   TestValidator.equals(
     "without a tree the feedback stays motion-local",
     unlocated[0]!.node,
     undefined,
   );
-};
+}

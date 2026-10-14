@@ -1,5 +1,9 @@
 import { cutSequence } from "@automovie/engine";
-import { IAutoMovieEditEntry, IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieEditEntry,
+  type IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../internal/predicates";
@@ -15,7 +19,13 @@ const SHOT: IAutoMovieShot = {
   duration: 3,
 };
 
-const run = (props: { fps?: number; entries?: IAutoMovieEditEntry[] }) =>
+const run: (props: {
+  fps?: number;
+  entries?: IAutoMovieEditEntry[];
+}) => ReturnType<typeof cutSequence> = (props: {
+  fps?: number;
+  entries?: IAutoMovieEditEntry[];
+}): ReturnType<typeof cutSequence> =>
   cutSequence(
     {
       sequence: { id: "seq-finite", name: "finite timing" },
@@ -29,14 +39,14 @@ const run = (props: { fps?: number; entries?: IAutoMovieEditEntry[] }) =>
     [SHOT],
   );
 
-const hasFiniteViolation = (
+const hasFiniteViolation: (
   cut: ReturnType<typeof run>,
   path: string,
-): boolean =>
+) => boolean = (cut: ReturnType<typeof run>, path: string): boolean =>
   cut.success === false &&
   hasViolation(cut, "range", path) &&
   cut.violations.some(
-    (v) =>
+    (v: IAutoMovieConstraintViolation): boolean =>
       v.kind === "range" &&
       v.path.includes(path) &&
       v.expected.includes("finite"),
@@ -52,16 +62,23 @@ const hasFiniteViolation = (
  * 2. `trim.start: NaN` yields `range` on `.trim.start`.
  * 3. `trim.duration: Infinity` yields `range` on `.trim.duration`.
  * 4. `transition.duration: Infinity` yields `range` on `.transition.duration`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls cutSequence separately with four nonfinite timing fields and requires failure plus a range finding naming finite admission at that field, detecting comparisons that accidentally admit NaN or positive Infinity.
+ * @evidence contracts/testing.md#independent-expectations Editorial frame rate and time operands must be finite; the literal Infinity and NaN cases violate that premise without needing a derived runtime. Expected paths follow authored field positions and the finite message fragment distinguishes the intended gate from another range refusal.
+ * @evidence contracts/testing.md#distinguishing-cases Isolates infinite fps, NaN trim start, infinite trim duration and infinite transition duration; the transition has a preceding entry so first-entry refusal cannot explain the finding. Finite out-of-bounds and nonpositive cases belong to the other cutSequence tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_non_finite_timing entry owns four direct in-process assembly cases through its private run helper, creating no native artifact, installed consumer or real host.
  */
-export const test_film_cut_sequence_non_finite_timing = (): void => {
-  const infiniteFps = run({ fps: Number.POSITIVE_INFINITY });
+export function test_film_cut_sequence_non_finite_timing(): void {
+  const infiniteFps: ReturnType<typeof run> = run({
+    fps: Number.POSITIVE_INFINITY,
+  });
   TestValidator.equals("infinite fps fails", infiniteFps.success, false);
   TestValidator.predicate(
     "infinite fps rejected",
     hasFiniteViolation(infiniteFps, "$input.fps"),
   );
 
-  const nanTrimStart = run({
+  const nanTrimStart: ReturnType<typeof run> = run({
     entries: [
       {
         shot: "shot:beat-1",
@@ -80,7 +97,7 @@ export const test_film_cut_sequence_non_finite_timing = (): void => {
     hasFiniteViolation(nanTrimStart, "$input.entries[0].trim.start"),
   );
 
-  const infiniteTrimDuration = run({
+  const infiniteTrimDuration: ReturnType<typeof run> = run({
     entries: [
       {
         shot: "shot:beat-1",
@@ -99,7 +116,7 @@ export const test_film_cut_sequence_non_finite_timing = (): void => {
     hasFiniteViolation(infiniteTrimDuration, "$input.entries[0].trim.duration"),
   );
 
-  const infiniteTransitionDuration = run({
+  const infiniteTransitionDuration: ReturnType<typeof run> = run({
     entries: [
       { shot: "shot:beat-1", trim: null, transition: null },
       {
@@ -124,4 +141,4 @@ export const test_film_cut_sequence_non_finite_timing = (): void => {
       "$input.entries[1].transition.duration",
     ),
   );
-};
+}

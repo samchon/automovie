@@ -12,16 +12,19 @@ import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
  * author a door, and the swept envelope is measured from exactly that
  * rectangle.
  *
- * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `IAutoMovieMovablePanel` as the portable data boundary for the building envelope continuity requirement.
- * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `IAutoMovieMovablePanel` for the building envelope envelope continuity invariant system contract.
+ * When the opening states a profile on a host face, that rectangle at rest,
+ * projected into the face's own plane, must lie inside the straight hull of the
+ * opening's void. One element carries one displacement, so no other panel or
+ * carriage in the work may drive it.
+ *
+ * @evidence contracts/common.md#principled-implementation Admission resolves the driven element under the fill, enforces work-wide unique displacement ownership with carriages, positive finite extents and valid travel. When a usable profile/host face exists, the rest rectangle is transformed, projected to face XY and checked by the shared approximate polygon predicate against the straight arc-envelope hull. This measures the authored rectangle, not all visible mesh vertices or every operating-state collision.
+ * @evidence contracts/common.md#clear-and-simple-design The panel names an element, a leaf size, and one motion; the element hierarchy supplies placement and chaining, so a folding leaf is another panel parented under the first rather than a new record kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A second element driver and an observed rest-rectangle fit failure are refused instead of overwritten or clipped. Fit discards depth and is skipped without a usable profile/face; an arc-envelope hull may contain space outside the authored arc. Sweeping varies only this panel's travel with ancestors at their current state, not every configuration of a folding chain.
+ * @evidence contracts/common.md#meaningful-documentation States the local frame of axis, pivot, and leaf rectangle, the natural door authoring, the rest-pose fit rule against the void hull, the one-driver rule, where the element must sit, and the units of the extents.
+ * @author Samchon
  */
 export interface IAutoMovieMovablePanel {
-  /**
-   * Stable panel identity within the opening.
-   *
-   * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `id` as the portable data boundary for the building envelope continuity requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `id` for the building envelope envelope continuity invariant system contract.
-   */
+  /** Stable, non-blank panel identity, unique within the opening. */
   id: string;
 
   /**
@@ -29,33 +32,15 @@ export interface IAutoMovieMovablePanel {
    *
    * It is the opening's own {@link IAutoMovieBuiltOpening.fill} or an element
    * below it, so a panel can only move part of the thing that fills the hole.
-   *
-   * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `element` as the portable data boundary for the building envelope continuity requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `element` for the building envelope envelope continuity invariant system contract.
    */
   element: string;
 
-  /**
-   * Positive leaf extent along the element's local X, in metres.
-   *
-   * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `width` as the portable data boundary for the building envelope continuity requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `width` for the building envelope envelope continuity invariant system contract.
-   */
+  /** Finite positive leaf extent along the element's local X, in metres. */
   width: number;
 
-  /**
-   * Positive leaf extent along the element's local Y, in metres.
-   *
-   * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `height` as the portable data boundary for the building envelope continuity requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `height` for the building envelope envelope continuity invariant system contract.
-   */
+  /** Finite positive leaf extent along the element's local Y, in metres. */
   height: number;
 
-  /**
-   * The one degree of freedom this panel travels on.
-   *
-   * @evidence requirements/building-exterior/structure-and-envelope.md#building-envelope-continuity Exposes `motion` as the portable data boundary for the building envelope continuity requirement.
-   * @evidence specifications/building-envelope/structure-envelope-and-materials.md#building-envelope-envelope-continuity-invariant Types `motion` for the building envelope envelope continuity invariant system contract.
-   */
+  /** The one degree of freedom this panel travels on. */
   motion: IAutoMovieTravelMotion;
 }

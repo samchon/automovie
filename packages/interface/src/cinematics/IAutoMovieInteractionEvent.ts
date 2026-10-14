@@ -6,93 +6,58 @@ import { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSour
  * One engine-visible interaction on a shot-local clock.
  *
  * `actor` is the initiator or affected performer when one is known, `target` is
- * the receiver/parent when one is known, and `object` is the prop/projectile
- * involved when the event is object-mediated. `reaction` names the actor whose
- * downstream motion was scheduled from this event, or `null` when the event is
- * only observational.
+ * the receiver or parent when one is known, and `object` is the prop or
+ * projectile involved when the event is object-mediated. `reaction` names the
+ * actor whose downstream motion was scheduled from this event, or `null` when
+ * the event is only observational.
  *
- * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `IAutoMovieInteractionEvent` as the portable data boundary for the staging event observation requirement.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `IAutoMovieInteractionEvent` for the performance staging event boundary sampling output system contract.
+ * `compileLaunch`, the `attachTo` handoff, and the collision, free-fall and
+ * toppling detectors produce events; `sequenceEventTimeline` places them on the
+ * output clock and `reviewVisualRead` measures `point` against the `target`
+ * body to flag a contact that reads as a miss.
+ *
+ * @evidence contracts/common.md#principled-implementation Each producer writes the time it actually computed or scheduled (a solved landing, the authored handoff instants, a sampled detection), and `appendShotMetadataArtifact` checks a stored event against the closed kind and source unions, a finite time inside `[0, duration + 1e-9]` matching `performShot`'s own landing slack, non-blank participant ids, a finite point, and an integer action index.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record with four nullable participant roles serves every producer, so a consumer reads contacts, handoffs and falls through the same fields instead of one type per kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown participants stay null; structural admission checks nonblank participant strings, not their existence or causal truth. It refuses times outside the clock plus its 1e-9 end allowance without clamping. Event-id uniqueness is unchecked, and formatted times or delimiter-containing participant ids can collide.
+ * @evidence contracts/common.md#meaningful-documentation States the role of each participant field and what `null` means for it, who produces and who consumes the record, the clock and range of `time`, the frame of `point`, and that id uniqueness is not gated.
  * @author Samchon
  */
 export interface IAutoMovieInteractionEvent {
   /**
-   * Stable id within the shot.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `id` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `id` for the performance staging event boundary sampling output system contract.
+   * Intended event identity within the shot. Producers embed kind, participants and formatted time, which can collide; the artifact gate checks nonblank spelling without uniqueness.
    */
   id: string;
 
-  /**
-   * Semantic event category.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `kind` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `kind` for the performance staging event boundary sampling output system contract.
-   */
+  /** Semantic event category. */
   kind: AutoMovieInteractionEventKind;
 
-  /**
-   * Producer that created the event.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `source` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `source` for the performance staging event boundary sampling output system contract.
-   */
+  /** Producer that created the event. */
   source: AutoMovieInteractionEventSource;
 
-  /**
-   * Shot-local seconds.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `time` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `time` for the performance staging event boundary sampling output system contract.
-   */
+  /** Finite shot-local seconds; artifact admission accepts `[0, duration + 1e-9]`. */
   time: number;
 
-  /**
-   * Initiating or affected actor, when a single node is known.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `actor` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `actor` for the performance staging event boundary sampling output system contract.
-   */
+  /** Initiating or affected node id, or `null` when no single node is known. */
   actor: string | null;
 
-  /**
-   * Receiving actor/parent, when a single node is known.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `target` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `target` for the performance staging event boundary sampling output system contract.
-   */
+  /** Receiving node or parent id, or `null` when no single node is known. */
   target: string | null;
 
-  /**
-   * Projectile or carried object involved in the interaction.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `object` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `object` for the performance staging event boundary sampling output system contract.
-   */
+  /** Projectile or carried object node id, or `null` when none is involved. */
   object: string | null;
 
   /**
-   * World point of contact, when the engine computed one.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `point` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `point` for the performance staging event boundary sampling output system contract.
+   * World point of contact in metres, or `null` when the engine computed none;
+   * review skips a contact whose point or target is missing.
    */
   point: IAutoMovieVector3 | null;
 
   /**
-   * Source action index in the performance action list, when available.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `actionIndex` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `actionIndex` for the performance staging event boundary sampling output system contract.
+   * Integer index of the source action in the performance action list, or
+   * `null` when the event has no single source action.
    */
   actionIndex: number | null;
 
-  /**
-   * Actor whose reaction was scheduled from this event, when any.
-   *
-   * @evidence requirements/staging/events-and-timing.md#staging-event-observation Exposes `reaction` as the portable data boundary for the staging event observation requirement.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Types `reaction` for the performance staging event boundary sampling output system contract.
-   */
+  /** Node id whose reaction was scheduled from this event, or `null`. */
   reaction: string | null;
 }

@@ -1,25 +1,20 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * The world-space box a drawn fluid surface occupies.
+ * The world-space axis-aligned box a drawn fluid surface occupies, in metres.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `IAutoMovieFluidSurfaceBounds` as the portable data boundary for the effects fluid surface flow tier requirement.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `IAutoMovieFluidSurfaceBounds` for the fluid surface and flow tier system contract.
+ * Only numerical vertices referenced by emitted triangles contribute. The viewer derives a sphere from this box without scanning dry buffer vertices; the sphere can still enclose space outside the wet geometry, and its bounds are not a separately measured Float32/GPU hull.
+ *
+ * @evidence contracts/common.md#principled-implementation fluidSurfaceGeometry takes per-axis minima/maxima over triangle-referenced numerical positions. For finite positions this is their exact axis-aligned hull; the producer has no separate finite-result check for extreme derived positions.
+ * @evidence contracts/common.md#clear-and-simple-design Two corners are the whole box; it exists only inside the nullable `IAutoMovieFluidSurface.bounds`, so an empty surface has no box instead of an infinite or inverted one.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreferenced dry cells do not enlarge this box. A sphere derived from the box may include drained or otherwise empty surrounding space; neither this record nor that sphere proves wet coverage or pixel equality.
+ * @evidence contracts/common.md#meaningful-documentation States world metre units, indexed numerical membership, finite-position premise and the difference between this hull, a derived enclosing sphere and GPU projection; members identify each corner.
+ * @author Samchon
  */
 export interface IAutoMovieFluidSurfaceBounds {
-  /**
-   * Minimum corner.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `min` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `min` for the fluid surface and flow tier system contract.
-   */
+  /** Minimum corner, in world metres. */
   min: IAutoMovieVector3;
 
-  /**
-   * Maximum corner.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `max` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `max` for the fluid surface and flow tier system contract.
-   */
+  /** Maximum corner, in world metres. */
   max: IAutoMovieVector3;
 }

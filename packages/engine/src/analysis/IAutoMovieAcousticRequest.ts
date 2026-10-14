@@ -8,71 +8,55 @@ import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
 /**
  * Everything one room-acoustic study is configured with.
  *
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `IAutoMovieAcousticRequest` closes one authored room scenario over geometry-independent surfaces, partitions, emitters, listeners, and targets.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The request binds every operand and revision needed to reproduce the supported scalar acoustic outputs.
+ * `analyzeAutoMovieAcoustics` throws on a blank id, subject or revision, a
+ * non-positive volume, an empty surface list, any malformed or repeated member,
+ * more receivers than `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, or a malformed target.
+ * Every field except `id`, `subject` and `inputRevision` enters the settings
+ * digest; those three go into the run header.
+ *
+ * @evidence contracts/common.md#principled-implementation A Sabine diffuse-field study: absorption area, reverberation time `0.161 V / A`, room constant and receiver levels follow from the volume and the declared members, and the settings are digested so an identical request seals an identical run.
+ * @evidence contracts/common.md#clear-and-simple-design Run header fields plus one list per physical role, surfaces, partitions, sources and receivers, and the targets, so validation and the settings digest each read one field per concern.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed members throw rather than becoming gaps or unsupported runs, empty optional lists turn their metrics into stated gaps, and no study id or subject is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States every throw condition of the analyzer, which fields enter the settings digest and which go into the run header, the units, the at-least-one surface rule, and what each empty list makes a gap.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the study is linear in the members plus receivers times sources, answered on `analyzeAutoMovieAcoustics`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The request is the identity of a run through its settings digest, but the analyzer recomputes on every call and no run cache is keyed by it.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller for one analysis call; the receivers list is bounded by `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` while the other lists have no bound beyond the caller's.
+ * @author Samchon
  */
 export interface IAutoMovieAcousticRequest {
-  /**
-   * Stable run identity.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary The request `id` gives this acoustic study a stable run identity distinct from its room subject.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The study key anchors deterministic acoustic run identifiers and diagnostics.
-   */
+  /** Stable run identity; non-blank. */
   id: string;
-  /**
-   * Logical space being listened to.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `subject` names the logical room whose acoustic performance the run reports.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The subject label is carried into the sealed run so results remain attributable to the studied space.
-   */
+
+  /** Logical space being listened to; non-blank. */
   subject: string;
-  /**
-   * Design revision being read.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `inputRevision` records which authored design state the acoustic evidence measured.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The revision enters the sealed run and later distinguishes current results from stale acoustic evidence.
-   */
+
+  /** Design revision being read; non-blank. */
   inputRevision: string;
-  /**
-   * Room volume in m^3; strictly positive.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary Room `volume` supplies the spatial magnitude needed for the bounded reverberation-time estimate.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The cubic-metre value is the numerator of the scenario's Sabine decay calculation.
-   */
+
+  /** Room volume in m^3; finite and strictly positive. */
   volume: number;
-  /**
-   * Absorbing surfaces; at least one.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `surfaces` enumerates every declared absorbing area used to characterize this room's diffuse field.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The collection is reduced into total area, equivalent absorption, and mean absorption for supported scalar outputs.
-   */
+
+  /** Absorbing surfaces; at least one, ids unique. */
   surfaces: readonly IAutoMovieAcousticSurface[];
+
   /**
-   * Partitions whose composite transmission loss is asked for.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `partitions` declares the room-boundary elements whose combined broadband isolation is requested.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The list feeds area-weighted transmission composition, including the empty-boundary gap case.
+   * Partitions whose composite transmission loss is asked for; empty makes that
+   * metric a gap.
    */
   partitions: readonly IAutoMovieAcousticPartition[];
-  /**
-   * Steady sources inside the room.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `sources` bounds the steady emitters included in the room-noise result rather than inferring an unlisted sound scene.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The declared emitters are summed in linear power at each requested receiver.
-   */
+
+  /** Steady sources inside the room; empty makes every level metric a gap. */
   sources: readonly IAutoMovieAcousticSource[];
+
   /**
-   * Listening positions the field is reported at.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `receivers` declares exactly where the supported sound-pressure field is sampled.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario Each listed listener produces one keyed level metric and one spatial sample when the diffuse field is defined.
+   * Listening positions the field is reported at; at most
+   * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, and empty makes the level metrics a gap.
    */
   receivers: readonly IAutoMovieAcousticReceiver[];
+
   /**
-   * Targets the production declares for this study.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary Acoustic `targets` state the author-selected thresholds against which supported metrics receive verdicts.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The target list is validated and resolved by metric key and unit when the scenario run is sealed.
+   * Targets the production declares for this study; a key naming no reported
+   * metric becomes a `target-key-unknown` warning.
    */
   targets: readonly IAutoMovieAnalysisTarget[];
 }

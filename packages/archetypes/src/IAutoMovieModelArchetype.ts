@@ -1,339 +1,99 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+import { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/**
- * One archetype parameter's accepted value kind and inclusive bounds.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Defines the typed, bounded dimensions a recipe may author.
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Publishes the value-kind and range constraints the design gate uses before geometry construction.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Carries the geometry-input schema before a builder consumes it.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Supplies the expected kind and range for each numeric structure finding.
- * @author Samchon
- */
-export interface IAutoMovieArchetypeParameter {
-  /**
-   * Exact accepted value kind.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Keeps each authored dimension in its declared numeric or discriminating domain.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Tells the design gate how to interpret one geometry input.
-   */
-  kind: "number" | "string" | "boolean";
-  /**
-   * Inclusive minimum, for a numeric parameter that declares one.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Bounds a real-dimension input before it can become geometry.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Supplies the lower endpoint of the accepted geometry-input range.
-   */
-  minimum?: number;
-  /**
-   * Inclusive maximum, for a numeric parameter that declares one.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Bounds a real-dimension input before it can become geometry.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Supplies the upper endpoint of the accepted geometry-input range.
-   */
-  maximum?: number;
-}
-
-/**
- * One archetype-owned refusal raised while planning a parameter map.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Requires invalid or unsupported geometry inputs to fail explicitly.
- * @evidence requirements/asset-authoring/validation.md#asset-validation-gap Preserves an unsupported parameter decision as a refusal instead of successful output.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Carries a stable refusal before invalid parameters reach geometry output.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-status-failures Carries a machine-readable failure and operator-facing reason for the unsupported input.
- * @author Samchon
- */
-export interface IAutoMovieArchetypeRefusal {
-  /**
-   * Diagnostic code the design gate reports verbatim.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Identifies which invalid-geometry rule rejected the parameter map.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Gives a model-output refusal a stable machine-readable identity.
-   */
-  code: string;
-  /**
-   * Complete operator-facing sentence, including the correction.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Explains how the author can replace the invalid geometry input.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Preserves the actionable reason instead of emitting a placeholder model.
-   */
-  message: string;
-}
-
-/**
- * The exact keys one parameter map must carry and may carry.
- *
- * A plan is computed from the parameters themselves because an archetype may
- * take a discriminating parameter whose value decides which other keys are
- * meaningful. The design gate owns the diagnostics; the archetype owns only the
- * facts they are derived from.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Declares exactly which dimensions one selected recipe must and may provide.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Resolves discriminated geometry inputs before materialization.
- * @author Samchon
- */
-export interface IAutoMovieArchetypeParameterPlan {
-  /**
-   * Keys that must be present.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Prevents a builder from receiving an incomplete dimension set.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs States the required portion of the selected input contract.
-   */
-  required: readonly string[];
-  /**
-   * Keys accepted at all, or null when every declared schema key is.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Keeps unused dimensions from becoming stored claims the geometry ignores.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Narrows a discriminated parameter map to inputs the chosen shape consumes.
-   */
-  accepted: readonly string[] | null;
-  /**
-   * Archetype-owned refusals, such as an unsupported discriminating value.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses unsupported shape input instead of materializing an arbitrary fallback.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Returns the exact failed input contract before output construction.
-   */
-  refusals: readonly IAutoMovieArchetypeRefusal[];
-}
-
-/**
- * Everything a geometry builder needs beyond the recipe's own parameters.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Supplies a registered builder with the context needed to materialize either primitive or mesh parts.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Carries accepted source facts into the selected geometry builder.
- * @author Samchon
- */
-export interface IAutoMovieArchetypeBuildInput {
-  /**
-   * Recipe id the builder is materializing.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Keeps the shared archetype definition separate from the recipe occurrence being built.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Carries the recipe-side occurrence without turning it into the registered prototype.
-   */
-  recipe: string;
-  /**
-   * Exact recipe parameter map, already accepted by the design gate.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Carries the accepted real dimensions into deterministic construction.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Makes the builder consume the same geometry inputs the design gate accepted.
-   */
-  parameters: Readonly<Record<string, number | string | boolean>>;
-  /**
-   * Compiler-owned material id every generated part references.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Carries the recipe occurrence's selected material independently of the shared archetype definition.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Keeps the occurrence material input separate from the registered prototype.
-   */
-  material: string;
-  /**
-   * Compiler-owned skeleton id an articulated archetype must use.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Gives an articulated builder the exact builder-owned rig identity it must materialize.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Carries the named skeleton basis into construction without inventing another rig id.
-   */
-  skeleton: string;
-}
-
-/**
- * Deterministic geometry one archetype builds for one recipe.
- *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Returns primitive or mesh parts behind one reusable builder result.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Publishes the deterministic geometry facts built from accepted inputs.
- * @author Samchon
- */
-export interface IAutoMovieArchetypeGeometry {
-  /**
-   * Compiler-owned skeleton, or null for a runtime without one.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Distinguishes an explicit articulated basis from a rigid result with no skeleton.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Publishes the named hierarchy and rest basis materialized by the builder.
-   */
-  skeleton: IAutoMovieModel["skeleton"];
-  /**
-   * Visible primitive parts in deterministic order.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Represents a model as authored geometry parts with real dimensions.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Preserves deterministic part order and the shapes built from accepted inputs.
-   */
-  parts: IAutoMovieModelPart[];
-}
+import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
+import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
+import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
+import { IAutoMovieArchetypeParameter } from "./IAutoMovieArchetypeParameter";
+import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
 
 /**
  * One registered model archetype: its parameter contract and its builder.
  *
- * The production core keeps the shape of a model recipe and never the
- * catalogue. It resolves `archetype` through a registry of these definitions,
- * so which figures, props, or shells a production can build is a decision that
- * belongs to the catalogue it registers, not to the builder.
+ * A host selects figures, props, or shells through a registry of these definitions, then builds geometry through the selected definition.
  *
- * Every member is data or a pure function of that data: the same parameters
- * must always plan the same keys, measure the same radius, and build the same
- * geometry, on every host and in every process.
+ * Keep the definition and its schema unchanged while a registry uses it. The registry borrows these mutable objects without freezing or cloning them. Every function must be pure: the same parameters and compiler-owned ids must always plan the same keys, measure the same radius, and build the same geometry, on every host and in every process.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Lets a host register builders that return either primitive or mesh representation parts.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Implements the geometry-input boundary as a deterministic parameter contract and builder.
- * @evidenceExclude requirements/asset-authoring/README.md#자산-저작-요구사항 Generic archetype contracts cover model inputs, bounds, rigs, and refusals but not the entire material, pattern, external, generated, style, and validation topic.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-as-input Archetype parameters do not interpret a production's era, place, design language, or style references.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-reference-role Archetype parameters do not interpret a production's era, place, design language, or style references.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-mixing Archetype parameters do not interpret a production's era, place, design language, or style references.
- * @evidenceExclude requirements/asset-authoring/era-and-style.md#asset-style-catalogue-refusal Archetype parameters do not interpret a production's era, place, design language, or style references.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-gltf-scene Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-adoption-mode Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-scene-graph-preservation Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-group-composition Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-conversion-receipt Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-provenance-digest Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-bounded-decoder Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-resource-closure Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-semantic-enrichment Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-replacement Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/external-assets.md#asset-external-secret-boundary Native deterministic builders receive no external bytes, format choice, provenance, conversion, or adoption receipt.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-attempt-lineage Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-reproducibility-boundary Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-input-rights Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-fixed-output Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-procedural-generation-distinction Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generated-adoption-modes Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/generated-assets.md#asset-generation-refusal Archetypes neither call generation providers nor select, adopt, retry, or record generated candidates.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-image-independence A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-composition A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-user-authored-texture A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-material-state A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/materials-and-textures.md#asset-texture-provenance A builder consumes one resolved material id and owns no material channels, textures, UVs, sampling, or surface-state authoring.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-physical-module One recipe builds one model; seeded arrays, scatters, repeated-instance identity, and composition bounds belong outside the archetype contract.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-procedural-rule One recipe builds one model; seeded arrays, scatters, repeated-instance identity, and composition bounds belong outside the archetype contract.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-deterministic-variation One recipe builds one model; seeded arrays, scatters, repeated-instance identity, and composition bounds belong outside the archetype contract.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-boundary-exception One recipe builds one model; seeded arrays, scatters, repeated-instance identity, and composition bounds belong outside the archetype contract.
- * @evidenceExclude requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability One recipe builds one model; seeded arrays, scatters, repeated-instance identity, and composition bounds belong outside the archetype contract.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-composable-geometry-operations An archetype invokes one builder; reusable modeling-operation composition belongs to the geometry engine.
- * @evidenceExclude requirements/asset-authoring/geometry.md#asset-geometry-topology The generic result names model parts but does not author face, edge, loop, opening, or named-region topology.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-bounds-state-motion The contract reports one pre-build radius and does not evaluate pose, state, or motion envelopes.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-proxy-lineage Archetypes return one native model and do not generate proxy or LOD lineage.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-selection The registry selects an archetype by exact recipe id, not a representation by shot purpose or budget.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-semantic-preservation No representation replacement occurs inside an archetype build.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-lod-transition-stability Archetype construction is timeless and owns no runtime LOD transition.
- * @evidenceExclude requirements/asset-authoring/representations-bounds-and-lod.md#asset-representation-stale-refusal Archetype definitions do not cache derived bounds, proxies, or LOD revisions.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-general-joint-relations This boundary names humanoid bones but does not author arbitrary hinge, slider, path, or driver graphs.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-motion-retargeting Motion-to-rig mapping and compatibility are performed after model construction.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-state-motion-distinction Archetypes build neutral model facts and do not own named state transitions.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-deformable-surface The archetype result carries primitive or mesh parts but no skin, morph, lattice, or soft-body binding.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-derived-deformation-basis The package creates no skin binding, morph delta, or deformation cache to track.
- * @evidenceExclude requirements/asset-authoring/rig-and-state.md#asset-invalid-rig-refusal Rig graph validation belongs to the model validation stage, not this parameter-plan boundary.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-rig-validation The archetype contract declares bones and build output but does not execute pose-range or deformation validation.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-surface-validation Material and texture validation belongs to their owning asset pipeline; archetypes receive only a material id.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-representation-bounds-validation One conservative radius is not a cross-representation bounds or LOD validation result.
- * @evidenceExclude requirements/asset-authoring/validation.md#asset-external-generated-validation Archetype construction consumes accepted native facts and does not adopt external or generated bytes.
- * @evidenceExclude specifications/asset-and-representation/README.md#자산과-표현-시스템-사양 This interface implements one model-archetype slice rather than the complete asset and representation specification family.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-credential-boundary The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-attempt-identity The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-reproducibility The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-failures The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-eligibility-source-lock The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-manual-routing Exact recipe-id lookup selects a native builder, not a repaint delivery lane or provider adapter.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-execution-eligibility Archetype inputs carry no source review, provider, frame-control alignment, or reference digest from which repaint execution could be authorized.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-structure-continuity The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-output-provenance The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-derivation-validation Archetype output is native model geometry, not a rendition identity, derivation receipt, or adoption refusal.
- * @evidenceExclude specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication The archetype boundary has no provider request, generated-candidate adoption, repaint attempt, continuity comparison, or rendition provenance.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-inputs A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-model-resource-separation A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-source-revision-content A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-lifecycle-states A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-identity-failure-compatibility A catalogue key selects a builder but does not identify source resources, revisions, lifecycle states, adoption receipts, or consumer links.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-era-style-inputs Archetypes accept structural parameters and do not interpret era, style references, or style mixing.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology A builder result contains geometry but no reusable operation or topology lineage.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Builders receive a resolved material id and do not author texture channels or sampling relations.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention A builder result carries whatever coordinates the geometry kernel emitted; the archetype parameter surface neither lays a coordinate frame nor names the coordinate source a binding declares.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-states-substitution Archetypes construct one model state and own no material-state substitution.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-procedural-pattern-inputs The parameter builder does not define seeded arrays, scatters, or surface pattern rules.
- * @evidenceExclude specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-resource-closure Archetype inputs contain identifiers and scalar parameters, not external resource bytes or provenance.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-dynamic-bounds-invariants A projection radius is a neutral pre-build bound and does not claim a dynamic envelope.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-proxy-purpose-lineage The package does not generate purpose-specific proxies.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-selection-policy Exact archetype lookup does not evaluate an LOD graph or selection threshold.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-transition-invariants Model construction has no camera-time representation transition.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-lod-output-costs Archetypes report no representation cost or worst-case budget.
- * @evidenceExclude specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-lod-failures No derived proxy or LOD state exists here to invalidate or mark stale.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-joint-control-invariants The interface carries a bone list but does not validate dependency order, cycles, or control targets.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-skin-morph-facts Archetype geometry contains no skin weights, bind relation, or morph delta.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-state-motion-separation The builder emits neutral facts and no named state or motion function.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-retarget-compatibility Retarget mapping and contact impact are owned by the motion pipeline.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-derived-deformation-staleness No derived deformation basis is created or cached by this package.
- * @evidenceExclude specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-output-failures The contract does not run hierarchy, skin, morph, pose, or contact validation.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual This package has no frame, angle, texture, silhouette, or visual-review input.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-motion-transitions Archetype planning is static and does not validate motion or representation transitions.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-current-evidence No validation receipt, frame reference, or prior approved result is stored here.
- * @evidenceExclude specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-compatibility-ceiling Capability declarations are inputs to compatibility review, not the review output or approval.
+ * @evidence contracts/common.md#principled-implementation A strategy object joins schema data with planning, measurement and building functions, so the gate and materializer need no catalogue-id branches. Stable definitions and pure functions are host obligations; this interface does not enforce them at runtime.
+ * @evidence contracts/common.md#clear-and-simple-design `capabilities`, `bones`, `parameters` and `plan` serve the design gate, `bones` also serves the asset inventory, `projectionRadius` serves the radius table, and `build` serves the materializer; catalogue behavior stays behind those seams.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The interface names no catalogue member, and an empty `bones` list is the documented contract for a skeletonless builder rather than a check against a particular id.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives registry borrowing, stable-definition and determinism obligations; members give exact ids, skeletonless behavior and each function's caller, input trust and failure behavior.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The interface declares no runtime code; the algorithmic cost of its function members is answered on `plan`, `projectionRadius` and `build`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A definition is shared by reference through a registry and coordinates no work itself; whether a consumer reuses a member's result is that consumer's decision.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Shipped definitions are module constants and a host's registry holds them by reference; the interface acquires no state, handle or task of its own.
  * @author Samchon
  */
 export interface IAutoMovieModelArchetype {
-  /**
-   * Non-blank identifier a model recipe names.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Gives every shared definition the id that recipe occurrences reference.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Separates the registered prototype id from every recipe occurrence built from it.
-   */
+  /** Non-blank, exact, case-sensitive identifier a model recipe names. */
   id: string;
-  /**
-   * Semantic capabilities a recipe of this archetype may declare.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-purpose-validation Exposes which purposes the generated representation can actually serve.
-   * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-purpose-inputs Makes capability an explicit validation input instead of inferring it from appearance.
-   */
+
+  /** Semantic capabilities a recipe may declare; the gate refuses any other. */
   capabilities: readonly string[];
+
   /**
    * Humanoid bones the builder's skeleton materializes.
    *
    * An empty list means the builder owns no skeleton at all, which is what
-   * refuses a bone attachment and what binds a static external appearance.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Declares the exact named bone basis an articulated builder materializes.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Distinguishes a rigid archetype from one with an explicit skeleton input contract.
+   * refuses a bone attachment and what binds a static external appearance. A
+   * non-empty list is the set an attachment's bone must belong to.
    */
   bones: readonly AutoMovieHumanoidBone[];
+
   /**
-   * Accepted value kind and bounds of every parameter, keyed by name.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Declares the dimensions and discriminators an author may control.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Defines the input schema independently of any one recipe instance.
+   * Accepted value kind and bounds of every parameter, keyed by name; a key
+   * absent here is unsupported.
    */
   parameters: Readonly<Record<string, IAutoMovieArchetypeParameter>>;
+
   /**
    * Plan which keys one parameter map must carry, may carry, and cannot.
    *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-dimensions Prevents inactive dimensions from becoming false authored state.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Resolves value-dependent geometry input obligations before building.
+   * The design gate calls this before it checks kinds and bounds, so the map
+   * may lack keys or hold wrongly typed values; a plan reads them defensively
+   * and reports a problem as a refusal rather than a throw.
+   *
+   * @evidence contracts/common.md#principled-implementation A plan is a pure function of the raw map that tolerates missing or mistyped values because the gate calls it before any kind check; primitive-prop reads `shape` through a `typeof` guard for that reason.
+   * @evidence contracts/common.md#clear-and-simple-design The function returns facts and leaves the wording of missing and unsupported keys to the gate, so an archetype implements only the discrimination it alone knows.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusing through the returned list instead of throwing keeps one malformed recipe from hiding the gate's other diagnostics, and the contract special-cases no recipe or archetype id.
+   * @evidence contracts/common.md#meaningful-documentation The comment says when the gate calls the plan, what state the map may be in, and that a problem becomes a refusal rather than a throw.
+   * @evidence contracts/performance.md#efficient-algorithms The gate calls plan once per recipe per validation. Primitive-prop guards and looks up shape, then copies at most three dimension keys; stickman returns its fixed three required keys without reading parameters. Both shipped plans have constant bounded time and result size; a custom plan owns its additional workload.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each validation reads the current parameter map and registered strategy; shipped plans coordinate no cross-request work or retained result cache, so mutable recipes cannot reuse an earlier acceptance answer here.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A plan returns fresh short lists the gate discards after one recipe, and the shipped plans hold no state between calls.
    */
   plan: (
-    parameters: Readonly<Record<string, number | string | boolean>>,
+    parameters: AutoMovieArchetypeParameters,
   ) => IAutoMovieArchetypeParameterPlan;
+
   /**
-   * Conservative projection radius in meters for one accepted parameter map.
+   * Conservative model-root projection radius in metres for accepted parameters.
    *
-   * Selection and culling read this before any geometry exists, so it answers
-   * for a malformed map with a finite number rather than a throw.
+   * The production builder tabulates it per recipe, after the design gate accepted the graph, for population members whose framing boxes and render bounds use a radius instead of inspecting materialized geometry. The production package also exports that table to scripts that may run without the gate, so the shipped readers substitute zero for missing or nonfinite dimensions. A malformed map's result is a placeholder, not a bound, and large finite out-of-range dimensions can overflow arithmetic. Generated geometry must stay within this model-root sphere under its supported bone rotations.
    *
-   * @evidence requirements/asset-authoring/representations-bounds-and-lod.md#asset-declared-measured-bounds Provides an author-declared conservative bound before measured geometry exists.
-   * @evidence specifications/asset-and-representation/bounds-proxies-and-lod.md#asset-spec-bounds-inputs Carries a finite metric bound with the archetype's parameter basis.
+   * Shipped formulas enclose the supported shapes in exact arithmetic; binary64 evaluation is not rounded outward and does not certify an exact geometric inequality at the last bit.
+   *
+   * @evidence contracts/common.md#principled-implementation Primitive-prop uses enclosing-radius formulas; stickman sums ancestral rest lengths, part offsets and primitive radii to enclose any unit bone rotations in exact arithmetic. Binary64 rounding is not directed outward, and ungated finite extremes can overflow later arithmetic.
+   * @evidence contracts/common.md#clear-and-simple-design Measurement lives on the archetype that knows its own proportions, so the radius table and the engine population kernels never restate a catalogue member's shape math.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Ungated zero substitution remains a placeholder and never admits a recipe; accepted geometry uses the actual build owner's primitive dimensions instead of a height-only radius that ignores independent head and limb parameters.
+   * @evidence contracts/common.md#meaningful-documentation States metre units, model-root centre, supported bone-rotation enclosure, population consumers, binary64 rounding limits and ungated placeholder arithmetic.
+   * @evidence contracts/performance.md#efficient-algorithms Primitive-prop evaluates fixed arithmetic over at most three dimensions; stickman builds thirteen bones and parts, then scans each list once. The population table invokes this only for registered recipes without an adopted external measurement; custom archetypes own their measurement cost.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The production radius table shares one computed number per selected generated recipe within a build attempt. Shipped measurement functions retain no cross-attempt cache over mutable parameter maps.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a number and keeps no reference to the parameter map, so it owns no retained state.
    */
-  projectionRadius: (
-    parameters: Readonly<Record<string, number | string | boolean>>,
-  ) => number;
+  projectionRadius: (parameters: AutoMovieArchetypeParameters) => number;
+
   /**
    * Build deterministic geometry from one accepted parameter map.
    *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Lets a registered capability turn accepted facts into primitive or mesh model parts.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Materializes deterministic geometry facts without making the builder own the catalogue.
+   * The materializer calls this once per generated recipe after the design gate
+   * accepted the map. Shipped builders read values through unchecked casts, so a
+   * map that skipped the gate yields unchecked geometry rather than an error.
+   *
+   * @evidence contracts/common.md#principled-implementation Building is a pure function from the accepted map and compiler-owned ids to fresh skeleton and part objects, so the same recipe compiles to identical geometry on every host.
+   * @evidence contracts/common.md#clear-and-simple-design The builder takes one input record and returns only geometry; validation stays in the gate and model assembly in the materializer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The unchecked casts rest on the builder materializing only after every design diagnostic clears, and the comment states that a map which skipped the gate yields unchecked geometry instead of claiming a guarantee.
+   * @evidence contracts/common.md#meaningful-documentation The comment states the caller, the precondition that the gate accepted the map, and the consequence of breaking that precondition.
+   * @evidence contracts/performance.md#efficient-algorithms Shipped construction allocates one primitive part for primitive-prop or thirteen parts and thirteen bones for stickman, including nested shapes and transforms. The materializer builds each recipe once per attempt; stickman radius measurement also builds temporary geometry, and custom builders own their output-dependent costs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The materializer must give each compiled model its own unshared geometry, so the result of one build cannot be reused for another recipe even when the parameters match.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned skeleton and parts transfer to the compiled model at return, the builder retains nothing, and the population grows by one geometry per generated recipe in the build.
    */
   build: (input: IAutoMovieArchetypeBuildInput) => IAutoMovieArchetypeGeometry;
 }

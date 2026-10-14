@@ -43,9 +43,8 @@ export const productionSampleMp4 = (props: {
     // ISO AVCDecoderConfigurationRecord: version 1, Baseline profile, Level 1,
     // four-byte NAL lengths and empty parameter-set inventories. This is a
     // parser configuration input, not a decoder-valid picture claim.
-    avcDecoderConfigRecord: Uint8Array.from([
-      1, 66, 0, 10, 0xff, 0xe0, 0,
-    ]).buffer,
+    avcDecoderConfigRecord: Uint8Array.from([1, 66, 0, 10, 0xff, 0xe0, 0])
+      .buffer,
   });
   for (let index = 0; index < props.frameCount; ++index)
     file.addSample(track, Uint8Array.from([0, 0, 0, 2, 0x65, index]), {

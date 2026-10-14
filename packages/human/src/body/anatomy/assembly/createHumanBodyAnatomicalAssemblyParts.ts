@@ -1,33 +1,43 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieColor, IAutoMovieMesh } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import { isHumanBodyAtlasSourceRecorded } from "../atlas/isHumanBodyAtlasSourceRecorded";
 import { createHumanBodyExteriorFollower } from "../binding/createHumanBodyExteriorFollower";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./IAutoMovieHumanBodyAnatomicalAssembly";
+import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
+import type { IAutoMovieHumanBodySourcePartAttachment } from "./IAutoMovieHumanBodySourcePartAttachment";
+import type { IAutoMovieHumanBodySourceVertexBinding } from "./IAutoMovieHumanBodySourceVertexBinding";
 import type { IHumanBodyAnatomicalAssemblyParts } from "./IHumanBodyAnatomicalAssemblyParts";
 import type { IHumanBodyAnatomicalAssemblyPartsInput } from "./IHumanBodyAnatomicalAssemblyPartsInput";
+import type { IHumanBodySourceShapeResult } from "./IHumanBodySourceShapeResult";
 import { carryHumanBodyNeutralSourceRig } from "./carryHumanBodyNeutralSourceRig";
 import { carryHumanBodySourceFields } from "./carryHumanBodySourceFields";
-import { createHumanBodySourceResidentMesh } from "./createHumanBodySourceResidentMesh";
 import { dataSourceShapes } from "./dataSourceShapes";
 import { finalizeHumanBodySourceQuantities } from "./finalizeHumanBodySourceQuantities";
+import { poseHumanBodySourceResidentMesh } from "./poseHumanBodySourceResidentMesh";
 
 /** Each assembly and consumer-owned neutral exterior has one compiled follower. */
-const FOLLOWERS = new WeakMap<
+const FOLLOWERS: WeakMap<
   IAutoMovieHumanBodyAnatomicalAssembly,
   WeakMap<readonly number[], ReturnType<typeof createHumanBodyExteriorFollower>>
->();
+> = new WeakMap();
 
 function followerOf(
   assembly: IAutoMovieHumanBodyAnatomicalAssembly,
   neutral: readonly number[],
 ): ReturnType<typeof createHumanBodyExteriorFollower> {
-  let exteriors = FOLLOWERS.get(assembly);
+  let exteriors:
+    | WeakMap<
+        readonly number[],
+        ReturnType<typeof createHumanBodyExteriorFollower>
+      >
+    | undefined = FOLLOWERS.get(assembly);
   if (exteriors === undefined) {
     exteriors = new WeakMap();
     FOLLOWERS.set(assembly, exteriors);
   }
-  let follower = exteriors.get(neutral);
+  let follower: ReturnType<typeof createHumanBodyExteriorFollower> | undefined =
+    exteriors.get(neutral);
   if (follower === undefined) {
     follower = createHumanBodyExteriorFollower(
       neutral,
@@ -41,21 +51,15 @@ function followerOf(
 /**
  * Pose every registered coarse tissue boundary through one anatomical graph.
  *
- * Offline four-slot anatomical weights preserve independent bone identities;
- * origin/insertion/support references must resolve in the same graph. Exact
- * source shape and basis registration are replay conditions. Actual surface
- * subdivisions retain separate source IDs, triangles and material ownership.
- * Linear blending is an authored coarse performer, not a clinical muscle
- * model, sliding-contact solver or tetrahedral solid certificate. The source
- * shape owner solves numerical targets on the evaluated rest fields before
- * this stage poses them.
- * An assembly that declares an exterior binding is no longer confined to its
- * registered shape: its stored rest positions first follow the rest skin's
- * displacement from the neutral skin, by that binding's rule, and are then
- * posed. An assembly without one still refuses any other shape.
- * A neutral whole-person consumer can supply its joined exterior reference;
- * all internal parts, held rest origins and shared attachment sites then
- * follow that one head/body displacement field.
+ * Offline four-slot anatomical weights preserve independent bone identities; origin/insertion/support references must resolve in the same graph. Exact source shape and basis registration are replay conditions. Actual surface subdivisions retain separate source IDs, triangles and material ownership. Linear blending is an authored coarse performer, not a clinical muscle model, sliding-contact solver or tetrahedral solid certificate. The source shape owner solves numerical targets on the evaluated rest fields before this stage poses them. An assembly that declares an exterior binding is no longer confined to its registered shape: its stored rest positions first follow the rest skin's displacement from the neutral skin, by that binding's rule, and are then posed. An assembly without one still refuses any other shape. A neutral whole-person consumer can supply its joined exterior reference; all internal parts, held rest origins and shared attachment sites then follow that one head/body displacement field.
+ *
+ * @evidence contracts/common.md#principled-implementation Registered basis/shape and shared graph frames admit boundaries; actual source targets solve before resident posing and emitted Float32 quantity reads.
+ * @evidence contracts/common.md#clear-and-simple-design The coordinator owns registration/provenance/materials/quantities, delegating source solving and per-boundary posing to their named owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Diagnostic tissue colors imply no biological reflectance, coarse boundaries certify no clinical solid, and absent exterior registration preserves exact-shape refusal.
+ * @evidence contracts/common.md#meaningful-documentation The comment specifies shared frames, exact-shape/exterior-follow rules, coarse blending limits and joined whole-person exterior ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Boundary populations drive scans, plus owned field solving, neighbour compilation, resident posing and final readings; every member needs independent admission/output identity.
+ * @evidence contracts/performance.md#reuse-equivalent-work Weak assembly/exterior identities share a compiled follower only while the admitted immutable registration, neutral samples and binding rule remain equivalent.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Weak owners release followers; live consumers can retain unbounded source-sized populations. Partial output dies on refusal while observer effects remain caller-owned.
  */
 export function createHumanBodyAnatomicalAssemblyParts(
   input: IHumanBodyAnatomicalAssemblyPartsInput,
@@ -66,7 +70,8 @@ export function createHumanBodyAnatomicalAssemblyParts(
     materials: [],
     quantities: [],
   };
-  const assembly = input.basis.anatomicalAssembly;
+  const assembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined =
+    input.basis.anatomicalAssembly;
   if (assembly === undefined) return output;
   if (
     assembly.basis !== input.basis.id ||
@@ -83,9 +88,10 @@ export function createHumanBodyAnatomicalAssemblyParts(
   // while a standalone body uses its own skin. An assembly registered to a
   // shape other than the basis's neutral has no neutral skin to compare with
   // and keeps the exact channel rule.
-  const neutral =
+  const neutral: readonly number[] =
     input.exteriorRestReference?.neutral ?? input.basis.surfaces[0].positions;
-  const restSkin = input.exteriorRestReference?.evaluated ?? input.restSkin;
+  const restSkin: readonly number[] =
+    input.exteriorRestReference?.evaluated ?? input.restSkin;
   if (
     input.exteriorRestReference !== undefined &&
     assembly.mode !== "neutral-only"
@@ -93,18 +99,22 @@ export function createHumanBodyAnatomicalAssemblyParts(
     throw new Error(
       "A joined exterior reference requires a held-neutral anatomical assembly.",
     );
-  const registeredToNeutral = Object.values(assembly.shape).every(
-    (weight) => weight === 0,
+  const registeredToNeutral: boolean = Object.values(assembly.shape).every(
+    (weight: number): boolean => weight === 0,
   );
-  if (Object.values(assembly.shape).some((weight) => !Number.isFinite(weight)))
+  if (
+    Object.values(assembly.shape).some(
+      (weight: number): boolean => !Number.isFinite(weight),
+    )
+  )
     throw new Error("Anatomical source assembly shape is not registered.");
-  let shaped = false;
+  let shaped: boolean = false;
   if (registeredToNeutral) {
     if (restSkin.length !== neutral.length)
       throw new Error(
         "Anatomical source assembly is not registered to this basis's skin.",
       );
-    for (let at = 0; at < neutral.length && !shaped; at++)
+    for (let at: number = 0; at < neutral.length && !shaped; at++)
       shaped = restSkin[at] !== neutral[at];
   } else {
     for (const key of new Set([
@@ -125,31 +135,35 @@ export function createHumanBodyAnatomicalAssemblyParts(
   // neutral skin they were registered to; on the registered skin nothing moves.
   let follow: ((points: readonly number[]) => number[]) | undefined;
   if (shaped) {
-    const displacement = restSkin.map((value, at) => value - neutral[at]);
-    const follower = followerOf(assembly, neutral);
-    follow = (points) => follower(points, displacement);
+    const displacement: number[] = restSkin.map(
+      (value: number, at: number): number => value - neutral[at],
+    );
+    const follower: ReturnType<typeof createHumanBodyExteriorFollower> =
+      followerOf(assembly, neutral);
+    follow = (points: readonly number[]): number[] =>
+      follower(points, displacement);
   }
   // An absolute source target is solved after its baseline and linear field
   // enter the evaluated exterior. Warping a solved mesh afterwards would
   // change the quantity the caller requested.
-  const sourceParts =
+  const sourceParts: readonly IAutoMovieHumanBodySourcePart[] =
     follow === undefined
       ? assembly.parts
       : carryHumanBodySourceFields(assembly.parts, follow);
-  const rig =
+  const rig: IAutoMovieHumanBodySourceRigResult =
     follow !== undefined && assembly.mode === "neutral-only"
       ? carryHumanBodyNeutralSourceRig(input.rig, follow)
       : input.rig;
   output.rig = rig;
-  const sourceShapes = dataSourceShapes(
+  const sourceShapes: IHumanBodySourceShapeResult = dataSourceShapes(
     { parts: sourceParts },
     input.document.anatomy,
     input.observeQuantityComplete,
   );
   output.quantities = sourceShapes.readings;
-  const seen = new Set<string>();
+  const seen: Set<string> = new Set<string>();
   for (const part of sourceParts) {
-    const refuse = (reason: string): never => {
+    const refuse: (reason: string) => never = (reason: string): never => {
       throw new Error("Anatomical source part " + part.id + ": " + reason);
     };
     if (seen.has(part.id)) refuse("duplicate-anatomical-owner");
@@ -158,8 +172,14 @@ export function createHumanBodyAnatomicalAssemblyParts(
       refuse("source-qualification-or-geometry-unavailable");
     if (
       part.tissue === "skeletal-muscle" &&
-      (!part.attachments.some((attachment) => attachment.role === "origin") ||
-        !part.attachments.some((attachment) => attachment.role === "insertion"))
+      (!part.attachments.some(
+        (attachment: IAutoMovieHumanBodySourcePartAttachment): boolean =>
+          attachment.role === "origin",
+      ) ||
+        !part.attachments.some(
+          (attachment: IAutoMovieHumanBodySourcePartAttachment): boolean =>
+            attachment.role === "insertion",
+        ))
     )
       refuse("muscle-origin-or-insertion-unregistered");
     if (part.tissue !== "bone" && part.attachments.length === 0)
@@ -175,8 +195,8 @@ export function createHumanBodyAnatomicalAssemblyParts(
             "/" +
             attachment.site,
         );
-    const memberIds = new Set<string>();
-    const material = "anatomical-source:" + part.id;
+    const memberIds: Set<string> = new Set<string>();
+    const material: string = "anatomical-source:" + part.id;
     for (const surface of part.surfaces) {
       if (surface.id.trim() === "" || memberIds.has(surface.id))
         refuse("source-member-identity-ambiguous");
@@ -186,10 +206,9 @@ export function createHumanBodyAnatomicalAssemblyParts(
         !/^[a-fA-F0-9]{64}$/.test(surface.compiledMeshSha256)
       )
         refuse("source-provenance-or-rights-unrecorded:" + surface.id);
-      const stored =
+      const mesh: IAutoMovieMesh =
         sourceShapes.meshes.get(part.id)?.get(surface.id) ?? surface.mesh;
-      const mesh = stored;
-      const binding = surface.binding;
+      const binding: IAutoMovieHumanBodySourceVertexBinding = surface.binding;
       if (
         surface.mesh.normals === null ||
         surface.mesh.normals.length !== surface.mesh.positions.length
@@ -213,143 +232,28 @@ export function createHumanBodyAnatomicalAssemblyParts(
         binding.weights.length !== binding.boneIndices.length
       )
         refuse("invalid-source-surface-binding:" + surface.id);
-      const transforms = binding.bones.map((bone) => {
-        const transform = rig.bones.get(bone);
-        if (transform === undefined) refuse("source-bone-unavailable:" + bone);
-        return {
-          ...transform!,
-          rotation: Quaternion.multiply(
-            transform!.posed.rotation,
-            Quaternion.inverse(transform!.rest.rotation),
-          ),
-        };
-      });
-      // Original binding rows remain source data, including bookkeeping
-      // ordinals that no triangle references. Admit every row before selecting
-      // resident geometry so malformed unused bindings cannot disappear.
-      for (let vertex = 0; vertex < mesh.positions.length / 3; vertex++) {
-        let sum = 0;
-        for (let slot = 0; slot < 4; slot++) {
-          const at = vertex * 4 + slot;
-          const bone = binding.boneIndices[at],
-            weight = binding.weights[at];
-          if (
-            !Number.isSafeInteger(bone) ||
-            bone < 0 ||
-            bone >= transforms.length ||
-            !Number.isFinite(weight) ||
-            weight < 0
-          )
-            refuse("invalid-source-weight:" + surface.id + "/" + vertex);
-          sum += weight;
-        }
-        if (Math.abs(sum - 1) > 1e-8)
-          refuse(
-            "source-weights-do-not-sum-to-one:" + surface.id + "/" + vertex,
-          );
-        const sourceNormal = surface.mesh.normals!.slice(
-          vertex * 3,
-          vertex * 3 + 3,
-        );
-        if (
-          !sourceNormal.every(Number.isFinite) ||
-          !(Math.hypot(...sourceNormal) > 0)
-        )
-          refuse("source-direction-unavailable:" + surface.id + "/" + vertex);
-      }
-      const resident = createHumanBodySourceResidentMesh(
+      const posed: IAutoMovieMesh = poseHumanBodySourceResidentMesh(
         mesh,
-        sourceParts !== assembly.parts || stored !== surface.mesh,
+        surface.mesh.normals!,
+        binding,
+        rig,
+        sourceParts !== assembly.parts || mesh !== surface.mesh,
+        surface.id,
+        refuse,
       );
-      const positions: number[] = [];
-      const normals: number[] = [];
-      for (let vertex = 0; vertex < resident.sourceVertices.length; vertex++) {
-        const originalVertex = resident.sourceVertices[vertex];
-        const offset = vertex * 3;
-        const source: IAutoMovieVector3 = {
-          x: resident.mesh.positions[offset],
-          y: resident.mesh.positions[offset + 1],
-          z: resident.mesh.positions[offset + 2],
-        };
-        const normal: IAutoMovieVector3 = {
-          x: resident.mesh.normals![offset],
-          y: resident.mesh.normals![offset + 1],
-          z: resident.mesh.normals![offset + 2],
-        };
-        let point: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        let direction: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-        let sum = 0;
-        for (let slot = 0; slot < 4; slot++) {
-          const at = originalVertex * 4 + slot;
-          const bone = binding.boneIndices[at];
-          const weight = binding.weights[at];
-          if (
-            !Number.isSafeInteger(bone) ||
-            bone < 0 ||
-            bone >= transforms.length ||
-            !Number.isFinite(weight) ||
-            weight < 0
-          )
-            refuse(
-              "invalid-source-weight:" + surface.id + "/" + originalVertex,
-            );
-          const transform = transforms[bone];
-          const placed = Vector3.add(
-            Quaternion.rotateVector(
-              transform.rotation,
-              Vector3.subtract(source, transform.rest.position),
-            ),
-            transform.posed.position,
-          );
-          point = Vector3.add(point, Vector3.scale(placed, weight));
-          direction = Vector3.add(
-            direction,
-            Vector3.scale(
-              Quaternion.rotateVector(transform.rotation, normal),
-              weight,
-            ),
-          );
-          sum += weight;
-        }
-        if (Math.abs(sum - 1) > 1e-8)
-          refuse(
-            "source-weights-do-not-sum-to-one:" +
-              surface.id +
-              "/" +
-              originalVertex,
-          );
-        const length = Math.hypot(direction.x, direction.y, direction.z);
-        if (
-          !(length > 0) ||
-          !Number.isFinite(length) ||
-          !Object.values(point).every(Number.isFinite)
-        )
-          refuse(
-            "source-deformation-nonfinite-or-cancelled:" +
-              surface.id +
-              "/" +
-              originalVertex,
-          );
-        positions.push(point.x, point.y, point.z);
-        normals.push(
-          direction.x / length,
-          direction.y / length,
-          direction.z / length,
-        );
-      }
       output.parts.push({
         id: material + "/" + surface.id,
         name: part.id + " " + surface.id + " coarse " + part.tissue,
         geometry: {
           type: "mesh",
-          mesh: { ...resident.mesh, positions, normals },
+          mesh: posed,
         },
         material,
         attachedBone: null,
         transform: null,
       });
     }
-    const color =
+    const color: IAutoMovieColor =
       part.tissue === "bone"
         ? { r: 0.75, g: 0.7, b: 0.55, a: 1, hex: null }
         : part.tissue === "skeletal-muscle"

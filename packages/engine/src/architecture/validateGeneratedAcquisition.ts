@@ -4,60 +4,46 @@ import {
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-
-/** A plain SHA-256 content digest as this project writes it. */
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
- * Validate the generation identity recorded for bytes nothing served.
+ * Validate authored generation metadata beside a supplied output-digest identity.
  *
- * The rules that matter are all about honesty rather than shape. A record that
- * claims to be reproducible must carry the seed that reproduces it, or the
- * claim is unbacked; a record that admits it is not reproducible but still
- * carries a seed is warned about, because a seed that does not replay the bytes
- * is decoration a later reader will mistake for a replay handle.
+ * A record claiming reproducibility must carry a seed, while a seed beside a false reproducibility claim produces a consistency warning. Presence is evidence that the field was recorded; this gate invokes no provider and proves neither replay nor whether the output was externally served.
  *
- * A recorded seed must also be a number a provider could have handed back. A
- * fractional, infinite, `NaN`, or beyond-2^53 value is not null and so passes
- * both rules above while naming no draw at all, which is the invented replay
- * handle they exist to prevent. It is therefore refused before either speaks.
+ * A seed must be a safe integer within ±(2^53-1), so adjacent integer identities survive JSON-number transport; fractional, nonfinite and larger-magnitude values are refused before the presence/warning rules. The actual provider's seed domain remains outside this metadata gate.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-review `validateGeneratedAcquisition` validates the generation identity recorded for bytes nothing served. This ensures reviewers can trace each adopted design reading back to its source and uncertainty.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-manifest-review `validateGeneratedAcquisition` performs generated acquisition validation when the engine closes a reviewed reference from source identity through downstream consumers.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-generated-output-record `validateGeneratedAcquisition` checks provider, model, request, prompt digest, input identities, seed semantics, reproducibility claim, and adopted output digest for one generated asset.
- * @evidence specifications/evidence-and-provenance/generation-transformation-and-derivation.md#evp-generated-output-receipt The generated-acquisition record implements the Engine's adopted-output receipt subset while leaving terms and discarded-candidate retention to upstream provenance.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-nondeterministic-generation `validateGeneratedAcquisition` requires a seed for a reproducible claim and warns that a seed attached to an irreproducible generation is not a replay handle.
- * @evidence specifications/evidence-and-provenance/generation-transformation-and-derivation.md#evp-nondeterministic-attempt-model The validator preserves the stated reproducibility boundary of one adopted attempt without claiming retry or discarded-variant history.
- * @evidence requirements/evidence-and-provenance/third-party-sources-rights-and-attribution.md#third-party-generated-source `validateGeneratedAcquisition` requires the external generator provider and model identity alongside the request and content digests for adopted bytes.
- * @evidence specifications/evidence-and-provenance/third-party-sources-rights-and-attribution.md#evp-generated-provider-provenance The Engine validates provider and model provenance for generated output but does not claim rights, terms, or attribution clearance.
- * @evidence requirements/evidence-and-provenance/chain-of-custody-and-tamper-detection.md#custody-boundary-integrity-check `validateGeneratedAcquisition` compares the recorded generated-output digest with the bytes digest supplied at the current acquisition boundary.
- * @evidence specifications/evidence-and-provenance/chain-of-custody-and-tamper-detection.md#evp-custody-boundary-receipt The direct digest comparison implements one Engine boundary integrity check without claiming a signed or multi-hop custody ledger.
- * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-reproduction-boundary `validateGeneratedAcquisition` distinguishes a seeded reproducibility claim from an explicitly irreproducible generation and retains the exact adopted output digest.
- * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-reproduction-verification-boundary The acquisition validator checks the recorded replay prerequisites and current byte identity; it does not claim that a provider rerun was performed.
- * @evidence requirements/external-inputs/conversion-receipts-and-determinism.md#external-generation-reproducibility-boundary `validateGeneratedAcquisition` treats the returned output digest as the durable replay boundary and refuses a reproducible claim that lacks its declared seed.
- * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-nondeterministic-generation-boundary The validator distinguishes recorded output identity from request replay and does not imply that provider execution is bit-deterministic.
- * @evidence requirements/external-inputs/credentials-rights-and-provenance.md#external-provenance-acquisition-activity `validateGeneratedAcquisition` checks the provider, model, request, prompt digest, input paths, seed boundary, and output digest captured for one acquisition.
- * @evidence specifications/interchange-and-adoption/provenance-rights-and-secrets.md#interchange-generated-acquisition-snapshot The Engine validates the generated-acquisition snapshot fields it consumes while leaving credentials, rights, and network execution outside this boundary.
- * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-reproducibility-boundary `validateGeneratedAcquisition` distinguishes a recorded reproducibility claim and seed from the fixed digest of the adopted bytes without claiming provider reruns are deterministic.
- * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-fixed-output `validateGeneratedAcquisition` binds the adopted generation record to its output digest and rejects a different current byte digest.
- * @evidence requirements/external-inputs/refresh-version-pinning-and-offline.md#external-provider-tool-version-pinning `validateGeneratedAcquisition` requires the generator provider and model identities that this Engine record can pin, without inventing unavailable dataset or tool versions.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-reproducibility The validator enforces the seed-and-claim subset while keeping request replay distinct from fixed output identity.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-adoption-output The current-byte digest comparison implements the fixed adopted-output subset without claiming selection or publication authority.
- * @evidence specifications/interchange-and-adoption/revision-refresh-and-offline-cache.md#interchange-external-version-snapshot The generated acquisition retains its explicit provider and model snapshot and leaves version dimensions absent from the record unclaimed.
+ * Provider and model must be non-blank, present request ids and prompts non-blank, and both digests lowercase `sha256:` hex. A supplied digest must equal outputDigest. Findings use `$input` paths; an irreproducible seed is a non-blocking warning. Input slots, including holes, are visited by index and checked for nonblank strings without resolving paths. Non-throwing collection assumes the declared acquisition/container and string shapes; malformed runtime containers can throw before findings are returned.
+ *
+ * @param props.acquisition Generation identity recorded for one set of bytes.
+ * @param props.digest Digest the bytes must still have, or null when replaced.
+ * @returns Success, possibly with the seed warning, or every violation found.
+ *
+ * @evidence contracts/common.md#principled-implementation Number.isSafeInteger admits the integer range whose adjacent seed identities survive JSON-number transport. Digest spelling is lowercase SHA-256, and seed-presence rules run after seed-domain admission; this metadata gate does not execute the provider or certify replay of its bytes.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the acquisition record's honesty rules, using the collector's blank-string rule and the shared digest pattern instead of private copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No provider or model is special-cased; an irreproducible seed is a warning by contract because it is not a defect in the bytes, and nothing is normalized to pass.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why each rule exists, the seed domain and its precedence, every field rule, the null-digest meaning, the path root, which finding is a warning, and that inputs are not resolved.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the input path count plus lengths of strings trimmed or tested; numeric and Boolean fields add constant work. Findings retain rejected values instead of copying asset bytes.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One supplied generation record is checked per call; this gate retains no shared result and makes no equivalence assumption about mutable records.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds only the returned validation from a local collector, a bounded number of findings per field and one per input path; nothing else outlives the call.
  */
-export const validateGeneratedAcquisition = (props: {
+export const validateGeneratedAcquisition: (props: {
+  /** Generation identity recorded for one set of returned bytes. */ acquisition: IAutoMovieGeneratedAcquisition;
+  /** Digest the returned bytes must still have, or null when a recorded local transformation has since replaced them. */ digest:
+    | string
+    | null;
+}) => IAutoMovieValidation = (props: {
+  /** Generation identity recorded for one set of returned bytes. */
   acquisition: IAutoMovieGeneratedAcquisition;
-  /**
-   * Digest the returned bytes must still have, or null when a recorded local
-   * transformation has since replaced them.
-   */
+
+  /** Digest the returned bytes must still have, or null after a recorded local transformation. */
   digest: string | null;
 }): IAutoMovieValidation => {
-  const { acquisition } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
-  nonEmpty(acquisition.provider, `${root}.provider`, "generator provider", out);
-  nonEmpty(acquisition.model, `${root}.model`, "generator model", out);
+  const acquisition: IAutoMovieGeneratedAcquisition = props.acquisition;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
+  out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");
+  out.nonEmpty(`${root}.model`, acquisition.model, "generator model");
   if (acquisition.request !== null && acquisition.request.trim() === "")
     out.push(
       "type",
@@ -73,21 +59,30 @@ export const validateGeneratedAcquisition = (props: {
       acquisition.prompt,
     );
   for (const key of ["promptDigest", "outputDigest"] as const)
-    if (!DIGEST_PATTERN.test(acquisition[key]))
+    if (!SHA256_DIGEST_PATTERN.test(acquisition[key]))
       out.push(
         "type",
         `${root}.${key}`,
         `${key} must be a lowercase "sha256:" hex digest, but was ${String(acquisition[key])}`,
         acquisition[key],
       );
-  acquisition.inputs.forEach((input, index) =>
-    nonEmpty(
-      input,
+  for (let index: number = 0; index < acquisition.inputs.length; ++index) {
+    const input: string | undefined = acquisition.inputs[index];
+    if (input === undefined) {
+      out.push(
+        "type",
+        `${root}.inputs[${index}]`,
+        "a resident generator input slot must contain its declared path",
+        input,
+      );
+      continue;
+    }
+    out.nonEmpty(
       `${root}.inputs[${index}]`,
+      input,
       "generator input asset path",
-      out,
-    ),
-  );
+    );
+  }
   if (props.digest !== null && acquisition.outputDigest !== props.digest)
     out.push(
       "type",
@@ -117,14 +112,4 @@ export const validateGeneratedAcquisition = (props: {
       acquisition.seed,
     );
   return out.toValidation();
-};
-
-const nonEmpty = (
-  value: string,
-  path: string,
-  label: string,
-  out: ViolationCollector,
-): void => {
-  if (value.trim().length === 0)
-    out.push("type", path, `${label} must be non-empty`, value);
 };

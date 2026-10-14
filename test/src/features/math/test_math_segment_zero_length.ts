@@ -1,9 +1,8 @@
-import {
-  pointSegmentDistance,
-  segmentSegmentDistance,
-} from "@automovie/engine";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { pointSegmentDistance } from "../../../../packages/engine/src/math/pointSegmentDistance";
+import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -20,9 +19,14 @@ import { nclose } from "../internal/predicates";
  *    the case a capsule whose centerline collapses
  *    to a point must still flag when another capsule passes through it.
  * 3. A zero-length segment clear of a real segment: a finite, exact gap.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs point and segment distance queries at exact collapsed spans, catching NaN separation that could silently evade collision admission.
+ * @evidence contracts/testing.md#independent-expectations The 3-4-5 triangle gives point distance five, while a point on a segment has zero gap and a point two metres above it has distance two.
+ * @evidence contracts/testing.md#distinguishing-cases Covers point-to-point, overlapping point-to-segment and separated point-to-segment cases; small-scale and conditioning tests own nonzero tiny spans and extreme arithmetic.
+ * @evidence contracts/testing.md#execution-ownership The exported math entry calls portable distance source and scalar assertions directly, without host startup or native compilation.
  */
-export const test_math_segment_zero_length = (): void => {
-  const origin = { x: 0, y: 0, z: 0 };
+export function test_math_segment_zero_length(): void {
+  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   TestValidator.predicate(
     "point to collapsed segment is the point-to-point distance",
@@ -58,4 +62,4 @@ export const test_math_segment_zero_length = (): void => {
       2,
     ),
   );
-};
+}

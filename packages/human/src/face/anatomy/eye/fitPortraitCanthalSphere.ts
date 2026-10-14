@@ -31,13 +31,21 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * Curves shorter than three samples, a non-positive radius, a non-finite
  * value, a zero direction, endpoints that are not shared or not distinct, no
  * lid ray inside the disk, and a depth that would hide a canthus all throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Inside-disk spherical ray residuals determine least-squares axial depth constrained by visible canthal half-lines while keeping declared radius.
+ * @evidence contracts/common.md#clear-and-simple-design The canthal midpoint owns transverse identity and the optical body depth stays separate from later source skin/corneal contact.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exterior anchors do not inflate the optical radius; the 1e-9 depth comparison is a stated construction arithmetic tolerance, not anatomical clearance.
+ * @evidence contracts/common.md#meaningful-documentation The prose states millimetres, forward ray, residual law, endpoint identity and unsupported-disk refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Upper/lower curve scans and fixed-size vector residuals require linear time and proportional residual storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work A normalized ray and shared midpoint serve every residual; each anchor's depth bound is computed once.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only an owned sphere escapes; curve/residual arrays expire with no retained input or external resource.
  */
 export function fitPortraitCanthalSphere(
   upper: readonly Point[],
   lower: readonly Point[],
   direction: Point,
   radius: number,
-  lift = 0,
+  lift: number = 0,
 ): IPortraitEyeSphere {
   if (
     upper.length < 3 ||
@@ -46,14 +54,14 @@ export function fitPortraitCanthalSphere(
     radius <= 0 ||
     !Number.isFinite(lift) ||
     [...upper, ...lower, direction].some(
-      (p) => ![p.x, p.y, p.z].every(Number.isFinite),
+      (p: Point): boolean => ![p.x, p.y, p.z].every(Number.isFinite),
     ) ||
     Vector3.length(direction) === 0
   )
     throw new Error(
       "Canthal fitting needs finite curves, direction and optical dimensions.",
     );
-  const anchors = [upper[0], upper[upper.length - 1]];
+  const anchors: Point[] = [upper[0], upper[upper.length - 1]];
   if (
     Vector3.length(Vector3.subtract(anchors[0], lower[0])) !== 0 ||
     Vector3.length(Vector3.subtract(anchors[1], lower[lower.length - 1])) !==
@@ -61,27 +69,36 @@ export function fitPortraitCanthalSphere(
     Vector3.length(Vector3.subtract(...(anchors as [Point, Point]))) === 0
   )
     throw new Error("Canthal curves must share two distinct fixed endpoints.");
-  const midpoint = Vector3.scale(Vector3.add(anchors[0], anchors[1]), 0.5);
-  const ray = Vector3.normalize(direction);
-  const residual = (point: Point): number[] => {
-    const delta = Vector3.subtract(point, midpoint);
-    const depth = Vector3.dot(delta, ray);
-    const squared = radius * radius - Vector3.dot(delta, delta) + depth * depth;
+  const midpoint: Point = Vector3.scale(
+    Vector3.add(anchors[0], anchors[1]),
+    0.5,
+  );
+  const ray: Point = Vector3.normalize(direction);
+  const residual: (point: Point) => number[] = (point: Point): number[] => {
+    const delta: Point = Vector3.subtract(point, midpoint);
+    const depth: number = Vector3.dot(delta, ray);
+    const squared: number =
+      radius * radius - Vector3.dot(delta, delta) + depth * depth;
     return squared < 0 ? [] : [depth - Math.sqrt(squared)];
   };
-  const offsets = [...lower, ...upper.slice(1, -1)].flatMap(residual);
+  const offsets: number[] = [...lower, ...upper.slice(1, -1)].flatMap(residual);
   if (offsets.length === 0)
     throw new Error(
       "The optical disk must support at least one observed lid ray.",
     );
-  const bounds = anchors.flatMap(residual);
-  const mean = offsets.reduce((sum, value) => sum + value, 0) / offsets.length;
-  const depth = Math.min(mean, ...bounds) + lift;
-  if (!Number.isFinite(depth) || bounds.some((bound) => depth > bound + 1e-9))
+  const bounds: number[] = anchors.flatMap(residual);
+  const mean: number =
+    offsets.reduce((sum: number, value: number): number => sum + value, 0) /
+    offsets.length;
+  const depth: number = Math.min(mean, ...bounds) + lift;
+  if (
+    !Number.isFinite(depth) ||
+    bounds.some((bound: number): boolean => depth > bound + 1e-9)
+  )
     throw new Error(
       "Optical depth must preserve visible canthi in its finite domain.",
     );
-  const center = Vector3.add(midpoint, Vector3.scale(ray, depth));
+  const center: Point = Vector3.add(midpoint, Vector3.scale(ray, depth));
   if (![center.x, center.y, center.z].every(Number.isFinite))
     throw new Error("Canthal fitting exceeds finite construction coordinates.");
   return { center, radius };

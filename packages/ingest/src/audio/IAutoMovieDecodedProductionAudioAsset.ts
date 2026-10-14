@@ -2,59 +2,38 @@ import type { IAutoMovieProductionAudioProcessing } from "./IAutoMovieProduction
 import type { IAutoMovieProductionWaveSourceFormat } from "./IAutoMovieProductionWaveSourceFormat";
 
 /**
- * One WAVE source's declared facts and the exact processing applied to it.
+ * One decoded WAVE source: its declared facts, the processing applied, and mono samples available to a caller's mixer.
  *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Returns the declared source facts beside the decoded samples so a plan records the file's identity rather than the mix's.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Keeps the observed source facts and the bounded decoded buffer as separate outputs of one decode.
+ * The `source*` facts and `durationSeconds` describe the file before downmix and resampling, because a render plan records them as the asset's identity; only `samples` and `processing` describe the output. Reporting the output as the source would let a resampled asset claim the plan's rate and hide a duration disagreement.
+ *
+ * @evidence contracts/common.md#principled-implementation Source envelope facts, processing lineage and sample storage remain separate so consumers can compare declared source/output relationships. The Float32Array carries no rate metadata and this record cannot independently prove that its samples were generated at the declared rate.
+ * @evidence contracts/common.md#clear-and-simple-design Source facts, processing and samples are three named parts of one decoder result instead of separate return paths, and the render package reuses the two nested types as its wave identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The decoder fills repeated source fields and `sourceFormat` from the same parsed values; this structural type neither correlates independently supplied records nor authenticates mutable sample bytes.
+ * @evidence contracts/common.md#meaningful-documentation The comments state which fields describe the file and which the output, the units of rate and duration, and that samples are finite mono values at the requested rate.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; decoding cost belongs to `decodeProductionAudioAsset`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The decoded-asset record is produced fresh by each decode call and carries no shared computation; caching decoded assets would be the caller's choice.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; the sample buffer it names is created by the decoder and owned by the caller that holds the record.
+ * @author Samchon
  */
 export interface IAutoMovieDecodedProductionAudioAsset {
-  /**
-   * Source sample clock before resampling.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Reports the rate the file declares, not the plan's.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Carries the source clock apart from the decoded buffer's clock.
-   */
+  /** Source rate in samples per second, before resampling. */
   sourceSampleRate: number;
-  /**
-   * Source channel count before downmix.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Reports the channel count the file declares.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Carries the source layout count apart from the mono output.
-   */
+
+  /** Source channel count, 1 or 2, before the mono downmix. */
   sourceChannels: number;
-  /**
-   * Complete source sample-frame count.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Reports the exact duration fact the plan verifies a cue's declared source duration against.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Carries the whole-asset frame count as an observed source fact.
-   */
+
+  /** Number of complete sample frames in the source `data` chunk. */
   sourceFrames: number;
-  /**
-   * Exact source runtime derived from frames and sample rate.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Derives the runtime from the two declared facts rather than from a metadata field.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Reports the exact duration of the source bytes.
-   */
+
+  /** Source runtime in seconds, `sourceFrames / sourceSampleRate`. */
   durationSeconds: number;
-  /**
-   * Parsed immutable source-format facts.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-decode-contract Carries the complete format declaration the decode admitted.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Keeps the observed source facts as one typed value.
-   */
+
+  /** The file's own format declaration as parsed. */
   sourceFormat: IAutoMovieProductionWaveSourceFormat;
-  /**
-   * Deterministic processing lineage applied to the source.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Records the recipe that turned the source into the mixer buffer.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Carries the derived source's exact transform beside its parent facts.
-   */
+
+  /** The downmix and resampling applied to produce `samples`. */
   processing: IAutoMovieProductionAudioProcessing;
-  /**
-   * Finite mono samples at the requested output clock.
-   *
-   * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Holds only samples whose finiteness was checked before any conversion.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decoder-input-contract Carries the bounded decoded buffer separately from the source facts.
-   */
+
+  /** Finite mono samples in [-1, 1] for PCM sources at `processing.outputSampleRate`; a new buffer the caller owns. */
   samples: Float32Array;
 }

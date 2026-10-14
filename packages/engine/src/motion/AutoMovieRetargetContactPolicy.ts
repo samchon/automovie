@@ -1,13 +1,15 @@
 /**
  * How a retarget treats the contacts the source clip made.
  *
- * `"pin-source-contacts"` re-solves each contacting limb so the effector holds
- * the source contact mapped through `rootScale`; `"carry-joint-angles"` is v1's
- * verbatim angle copy, which foot-slides whenever the rigs differ in
- * proportion.
+ * "pin-source-contacts" fits limbs to source contacts mapped through rootScale, subject to target reach and ROM; "carry-joint-angles" copies angles and can slide contacts when rig proportions differ.
  *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Makes contact re-solving an explicit retarget policy rather than an implicit angle-copy side effect.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Selects whether the target rig re-establishes source contacts.
+ * @evidence contracts/common.md#principled-implementation Records whether retargetHumanoidMotion ran contact correction or retained root-scaled clinical angles, operations that differ when rig proportions change.
+ * @evidence contracts/common.md#clear-and-simple-design Two outcome labels sit in characterization while the contacts input controls whether correction runs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contact mode follows authored enabled policy for every rig, without source asset identity changing the recorded result.
+ * @evidence contracts/common.md#meaningful-documentation Explains source-contact scaling and the sliding limitation of unchanged angles under proportion changes.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms These result labels perform no forward or inverse kinematics; the selected pass owns that computation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recording contact policy shares no corrected keyframes between retarget requests.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing characterization owns a literal value, with no source-frame collection or solver resource attached.
  */
 export type AutoMovieRetargetContactPolicy =
   | "pin-source-contacts"

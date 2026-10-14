@@ -13,15 +13,26 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Missing owners, wrong node kinds, blank or absent values, duplicate keys,
  *    invalid syntax, and unresolved or forward aliases are refused with the
  *    requested catalog and dependency in the diagnostic.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveAutoMovieCatalogVersion with YAML strings and compares returned dependency specifiers and caught diagnostic context, detecting textual line matching, inherited-key lookup, misplaced ownership, or acceptance of invalid manifest structure while allowing valid scalar aliases and quoting.
+ * @evidence contracts/testing.md#independent-expectations Expected specifiers are literals authored in each YAML document, including a distinct top-level, sibling and nested decoy; refused inputs follow the direct-mapping, nonblank-string and strict-YAML contract. Diagnostics pin catalog and dependency context rather than complete parser wording.
+ * @evidence contracts/testing.md#distinguishing-cases Positive documents distinguish quotes, comments, CRLF, scalar anchors and prototype-looking keys; decoy mappings distinguish ownership. Negative documents cover missing and wrong-shaped owners, blank and non-string leaves, duplicate keys, malformed syntax, unresolved tags and missing or forward aliases. Whole version-table composition belongs to test_template_dependency_versions.
+ * @evidence contracts/testing.md#execution-ownership The exported test_template_catalog_resolution entry runs the package's synchronous YAML lookup in-process with literal inputs; its local recording helper owns all refusals and starts no filesystem publication, installed consumer or native host.
  */
-export const test_template_catalog_resolution = (): void => {
-  const resolve = (
+export function test_template_catalog_resolution(): void {
+  const resolve: (
+    workspace: string,
+    catalog?: string,
+    dependency?: string,
+  ) => string = (
     workspace: string,
     catalog: string = "media",
     dependency: string = "lib",
   ): string =>
     resolveAutoMovieCatalogVersion({ catalog, dependency, workspace });
-  const refusal = (workspace: string): string => {
+  const refusal: (workspace: string) => string = (
+    workspace: string,
+  ): string => {
     try {
       resolve(workspace);
       return "accepted";
@@ -81,7 +92,7 @@ export const test_template_catalog_resolution = (): void => {
     ["^1.2.3", "^1.2.3"],
   );
 
-  const invalid = [
+  const invalid: string[] = [
     "[]",
     "other: value",
     "catalogs: []",
@@ -104,13 +115,13 @@ export const test_template_catalog_resolution = (): void => {
     "catalogs:\n  media:\n    lib: *missing",
     "catalogs:\n  media:\n    lib: *later\n    value: &later ^1.2.3",
   ];
-  const diagnostics = invalid.map(refusal);
+  const diagnostics: string[] = invalid.map(refusal);
   TestValidator.predicate(
     "every invalid document is refused in the requested lookup context",
     diagnostics.every(
-      (message) =>
+      (message: string): boolean =>
         message !== "accepted" &&
         message.includes('catalog "media" dependency "lib"'),
     ),
   );
-};
+}

@@ -1,5 +1,4 @@
 import {
-  growPlanting,
   validatePlantingCluster,
   validatePlantingDomain,
 } from "@automovie/engine";
@@ -10,11 +9,12 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts, throwsError } from "../internal/predicates";
+import { assertPlantingValidationLimits } from "../internal/assertPlantingValidationLimits";
+import { hasViolation, namedFacts } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
-/** True when one property away from sound produces exactly the named refusal. */
-const refuses = (
+/** Whether the changed recipe reports the requested kind/path; other findings may coexist. */
+const refuses: Parameters<typeof assertPlantingValidationLimits>[0] = (
   overrides: Partial<IAutoMoviePlantingDomain>,
   kind: AutoMovieViolationKind,
   path: string,
@@ -26,7 +26,7 @@ const refuses = (
   );
 
 /** One property away from a sound cluster. */
-const refusesCluster = (
+const refusesCluster: Parameters<typeof assertPlantingValidationLimits>[1] = (
   overrides: Partial<IAutoMoviePlantingCluster>,
   kind: AutoMovieViolationKind,
   path: string,
@@ -38,23 +38,30 @@ const refusesCluster = (
   );
 
 /** A structure patch that keeps the rest of the branching law intact. */
-const structure = (
+const structure: (
+  patch: Partial<IAutoMoviePlantingDomain["structure"]>,
+) => Partial<IAutoMoviePlantingDomain> = (
   patch: Partial<IAutoMoviePlantingDomain["structure"]>,
 ): Partial<IAutoMoviePlantingDomain> => ({
   structure: { ...plantingRecipe().structure, ...patch },
 });
 
 /**
- * Every planting authoring mistake is refused with the path of the offending
- * field, and every neighbouring correct authoring is accepted.
+ * The selected planting authoring mistakes report the kind and path of the
+ * offending field, beside admitted complete recipes and clusters.
  *
  * A validator that only ever fires is as useless as one that never does, so the
- * complete recipe and the complete cluster are asserted clean first and each
- * refusal below is exactly one property away. The pass is what lets the
- * derivation grow without second-guessing its input: a ratio that does not
- * contract, a growth span that leaves the deepest level unreachable, a zero
+ * complete recipe and the complete cluster are asserted successful first and
+ * selected refusal inputs change authored fields. The pass is what lets the
+ * derivation grow without second-guessing its input: a ratio above one, a
+ * growth span that leaves the deepest level unreachable, a zero
  * direction vector, or a branching law larger than the cap the recipe set for
  * itself are all refused rather than quietly clamped.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs recipe/cluster admission on selected header, structure, growth, envelope, foliage and budget defects plus a real over-cap grow call; requested kind/path and cap-error assertions expose ignored authoring constraints.
+ * @evidence contracts/testing.md#independent-expectations Authored ranges, reference paths and the complete binary tree/density counts provide expectations independently of validator output; hasViolation checks presence rather than exactly one finding, and success does not assert absence of warnings.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all seven groups, including zero/nonfinite vectors, duplicate children, unreachable versus .49 reachable onset, exact eight-leaf budget, enormous depth, fractional cap without secondary range findings, and cluster attempt/count/scale boundaries; the suite does not enumerate every possible invalid record or measure iteration counts.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit runs early cases directly and delegates the original later groups to assertPlantingValidationLimits with its same refusal callbacks, without dynamic registration, native artifacts or a browser/GPU.
  *
  * Scenarios:
  *
@@ -83,9 +90,9 @@ const structure = (
  * 7. The cluster: a blank id, an uncited recipe, a member count outside its range,
  *    a non-finite anchor, a negative extent, a fractional seed, a negative
  *    spacing, an attempt count outside its range, a non-positive minimum scale,
- *    a maximum below its minimum, and a yaw jitter outside `[0, 1]`.
+ *    and a maximum below its minimum. Yaw-jitter admission is not asserted here.
  */
-export const test_planting_validation = (): void => {
+export function test_planting_validation(): void {
   TestValidator.equals(
     "the complete recipe and cluster validate clean",
     namedFacts([
@@ -218,11 +225,17 @@ export const test_planting_validation = (): void => {
         () =>
           refuses(
             structure({
-              children: Array.from({ length: 17 }, (_, index) => ({
-                id: `c${index}`,
-                direction: { x: 1, y: 1, z: 0 },
-                offset: 0.5,
-              })),
+              children: Array.from(
+                { length: 17 },
+                (
+                  _: unknown,
+                  index: number,
+                ): IAutoMoviePlantingDomain["structure"]["children"][number] => ({
+                  id: `c${index}`,
+                  direction: { x: 1, y: 1, z: 0 },
+                  offset: 0.5,
+                }),
+              ),
             }),
             "range",
             "structure.children",
@@ -344,374 +357,5 @@ export const test_planting_validation = (): void => {
     { stage: true, onset: true, unreachable: true, reachable: true },
   );
 
-  TestValidator.equals(
-    "the pruning envelope and the foliage rule are named",
-    namedFacts([
-      [
-        "box",
-        () =>
-          refuses(
-            {
-              pruning: {
-                kind: "box",
-                min: { x: 0, y: 0, z: 0 },
-                max: { x: 0, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "pruning.max.x",
-          ),
-      ],
-      [
-        "boxValue",
-        () =>
-          refuses(
-            {
-              pruning: {
-                kind: "box",
-                min: { x: Number.NaN, y: 0, z: 0 },
-                max: { x: 1, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "pruning.min.x",
-          ),
-      ],
-      [
-        "sphere",
-        () =>
-          refuses(
-            {
-              pruning: {
-                kind: "sphere",
-                center: { x: 0, y: 0, z: 0 },
-                radius: 0,
-              },
-            },
-            "range",
-            "pruning.radius",
-          ),
-      ],
-      [
-        "density",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 0,
-                minLevel: 0,
-                size: { x: 1, y: 1, z: 1 },
-                scaleJitter: 0,
-                rollJitter: 0,
-              },
-            },
-            "range",
-            "foliage.density",
-          ),
-      ],
-      [
-        "minLevel",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 1,
-                minLevel: -1,
-                size: { x: 1, y: 1, z: 1 },
-                scaleJitter: 0,
-                rollJitter: 0,
-              },
-            },
-            "type",
-            "foliage.minLevel",
-          ),
-      ],
-      [
-        "size",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 1,
-                minLevel: 0,
-                size: { x: 1, y: 0, z: 1 },
-                scaleJitter: 0,
-                rollJitter: 0,
-              },
-            },
-            "range",
-            "foliage.size.y",
-          ),
-      ],
-      [
-        "scaleJitter",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 1,
-                minLevel: 0,
-                size: { x: 1, y: 1, z: 1 },
-                scaleJitter: 2,
-                rollJitter: 0,
-              },
-            },
-            "range",
-            "foliage.scaleJitter",
-          ),
-      ],
-      [
-        "rollJitter",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 1,
-                minLevel: 0,
-                size: { x: 1, y: 1, z: 1 },
-                scaleJitter: 0,
-                rollJitter: -1,
-              },
-            },
-            "range",
-            "foliage.rollJitter",
-          ),
-      ],
-    ]),
-    {
-      box: true,
-      boxValue: true,
-      sphere: true,
-      density: true,
-      minLevel: true,
-      size: true,
-      scaleJitter: true,
-      rollJitter: true,
-    },
-  );
-
-  TestValidator.equals(
-    "the declared budget is named",
-    namedFacts([
-      [
-        "branchCap",
-        () =>
-          refuses(
-            { budget: { maxBranches: 0, maxLeaves: 8 } },
-            "type",
-            "budget.maxBranches",
-          ),
-      ],
-      [
-        "leafCap",
-        () =>
-          refuses(
-            { budget: { maxBranches: 8, maxLeaves: -1 } },
-            "type",
-            "budget.maxLeaves",
-          ),
-      ],
-      [
-        "outgrown",
-        () =>
-          refuses(
-            { budget: { maxBranches: 3, maxLeaves: 8 } },
-            "range",
-            "budget.maxBranches",
-          ),
-      ],
-      [
-        "outleafed",
-        () =>
-          refuses(
-            {
-              foliage: {
-                density: 4,
-                minLevel: 1,
-                size: { x: 0.05, y: 0.1, z: 0.05 },
-                scaleJitter: 0,
-                rollJitter: 0,
-              },
-              budget: { maxBranches: 64, maxLeaves: 2 },
-            },
-            "range",
-            "budget.maxLeaves",
-          ),
-      ],
-      [
-        "outleafedIsWhatTheDerivationWouldThrow",
-        () =>
-          throwsError(
-            () =>
-              growPlanting(
-                plantingRecipe({
-                  foliage: {
-                    density: 4,
-                    minLevel: 1,
-                    size: { x: 0.05, y: 0.1, z: 0.05 },
-                    scaleJitter: 0,
-                    rollJitter: 0,
-                  },
-                  budget: { maxBranches: 64, maxLeaves: 2 },
-                }),
-              ),
-            "exceeded its declared cap of 2 leaves",
-          ),
-      ],
-      [
-        "leafedInsideItsCapIsAccepted",
-        () =>
-          validatePlantingDomain({
-            domain: plantingRecipe({
-              foliage: {
-                density: 4,
-                minLevel: 1,
-                size: { x: 0.05, y: 0.1, z: 0.05 },
-                scaleJitter: 0,
-                rollJitter: 0,
-              },
-              budget: { maxBranches: 64, maxLeaves: 8 },
-            }),
-          }).success === true,
-      ],
-      [
-        "notWalkedWhenDepthIsAbsurd",
-        () =>
-          validatePlantingDomain({
-            domain: plantingRecipe({
-              structure: {
-                ...plantingRecipe().structure,
-                levels: Number.MAX_SAFE_INTEGER,
-              },
-              budget: { maxBranches: 1, maxLeaves: 0 },
-            }),
-          }).success === false,
-      ],
-      [
-        "fractionalBranchCapIsNotAlsoOutgrown",
-        () => {
-          const validation = validatePlantingDomain({
-            domain: plantingRecipe({
-              budget: { maxBranches: 3.5, maxLeaves: 8 },
-            }),
-          });
-          return (
-            validation.success === false &&
-            validation.violations.every((item) => item.kind !== "range")
-          );
-        },
-      ],
-    ]),
-    {
-      branchCap: true,
-      leafCap: true,
-      outgrown: true,
-      outleafed: true,
-      outleafedIsWhatTheDerivationWouldThrow: true,
-      leafedInsideItsCapIsAccepted: true,
-      notWalkedWhenDepthIsAbsurd: true,
-      fractionalBranchCapIsNotAlsoOutgrown: true,
-    },
-  );
-
-  TestValidator.equals(
-    "the cluster is named",
-    namedFacts([
-      ["blankId", () => refusesCluster({ id: " " }, "type", "$input.id")],
-      ["domain", () => refusesCluster({ domain: "" }, "type", "$input.domain")],
-      ["count", () => refusesCluster({ count: 0 }, "type", "$input.count")],
-      [
-        "tooMany",
-        () => refusesCluster({ count: 10_001 }, "type", "$input.count"),
-      ],
-      [
-        "anchor",
-        () =>
-          refusesCluster(
-            { anchor: { x: Number.NaN, y: 0, z: 0 } },
-            "range",
-            "$input.anchor.x",
-          ),
-      ],
-      [
-        "extent",
-        () =>
-          refusesCluster(
-            { extent: { x: -1, z: 2 } },
-            "range",
-            "$input.extent.x",
-          ),
-      ],
-      [
-        "extentZ",
-        () =>
-          refusesCluster(
-            { extent: { x: 1, z: -2 } },
-            "range",
-            "$input.extent.z",
-          ),
-      ],
-      ["seed", () => refusesCluster({ seed: 0.5 }, "type", "$input.seed")],
-      [
-        "spacing",
-        () => refusesCluster({ minSpacing: -1 }, "range", "$input.minSpacing"),
-      ],
-      [
-        "attempts",
-        () => refusesCluster({ attempts: 0 }, "type", "$input.attempts"),
-      ],
-      [
-        "attemptBudget",
-        () => refusesCluster({ attempts: 65 }, "type", "$input.attempts"),
-      ],
-      [
-        "minScale",
-        () =>
-          refusesCluster(
-            {
-              scale: {
-                min: { x: 0, y: 1, z: 1 },
-                max: { x: 1, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "$input.scale.min.x",
-          ),
-      ],
-      [
-        "maxScale",
-        () =>
-          refusesCluster(
-            {
-              scale: {
-                min: { x: 1, y: 1, z: 1 },
-                max: { x: 0.5, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "$input.scale.max.x",
-          ),
-      ],
-      [
-        "yawJitter",
-        () => refusesCluster({ yawJitter: 2 }, "range", "$input.yawJitter"),
-      ],
-    ]),
-    {
-      blankId: true,
-      domain: true,
-      count: true,
-      tooMany: true,
-      anchor: true,
-      extent: true,
-      extentZ: true,
-      seed: true,
-      spacing: true,
-      attempts: true,
-      attemptBudget: true,
-      minScale: true,
-      maxScale: true,
-      yawJitter: true,
-    },
-  );
-};
+  assertPlantingValidationLimits(refuses, refusesCluster);
+}

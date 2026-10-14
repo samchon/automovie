@@ -9,4 +9,4 @@
  *
  * @author Samchon
  */
-export const HUMAN_FACE_IRIS_EDGE = (0.3 * Math.PI) / 180;
+export const HUMAN_FACE_IRIS_EDGE: number = (0.3 * Math.PI) / 180;

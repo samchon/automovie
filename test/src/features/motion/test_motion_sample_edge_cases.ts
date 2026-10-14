@@ -1,5 +1,12 @@
 import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieMotion } from "@automovie/interface";
+import {
+  AutoMovieArkitChannel,
+  AutoMovieHumanoidBone,
+  IAutoMovieBlendshapeChannel,
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,19 +18,25 @@ import {
 } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 
-const flex = (
+const flex: (
   m: IAutoMovieMotion,
   t: number,
-  bone = "leftLowerArm",
+  bone?: AutoMovieHumanoidBone,
+) => number = (
+  m: IAutoMovieMotion,
+  t: number,
+  bone: AutoMovieHumanoidBone = "leftLowerArm",
 ): number => {
-  const j = sampleMotion(m, t).pose.joints.find((x) => x.bone === bone);
+  const j: IAutoMovieJointPose | undefined = sampleMotion(
+    m,
+    t,
+  ).pose.joints.find((x: IAutoMovieJointPose): boolean => x.bone === bone);
   if (j === undefined) throw new Error(`${bone} missing from sampled pose`);
   return j.flexion ?? 0;
 };
 
 /**
- * The degenerate and asymmetric sampling inputs a tidy clip never produces,
- * each routing through a branch the standard sampling tests miss.
+ * Observe sparse and degenerate direct sampler inputs alongside ordinary Bézier, loop and channel paths. The zero-duration fixture deliberately bypasses validateMotion admission to describe the sampler's existing normalization behavior.
  *
  * Scenarios:
  *
@@ -41,10 +54,17 @@ const flex = (
  * 5. Same-preset expressions where only one side carries blendshapes: the present
  *    channel scales by the eased factor (jawOpen 1.0 with the other side absent
  *    → 0.5 at t=0.5), proving the absent side contributes nothing.
+ *
+ * The existing empty-keyframe refusal additionally pins the sampler's own diagnostic; it is not a whole clip-validation test.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples the authored Bézier midpoint, zero-duration first pose, negative looping time, opposite sparse-bone directions and one-sided channel weights, then requires the exact empty-key diagnostic fragment.
+ * @evidence contracts/testing.md#independent-expectations The diagonal Bézier has x(s)=y(s), linear 0-to-100 gives 50, negative -0.25 wraps to 0.75 for value 90, and neutral-to-40 or one-sided weight 1 gives midpoint 20/0.5. All expected values are authored independently of the sampler, and the original Bézier tolerance 0.5 is preserved rather than overstated as exact inversion.
+ * @evidence contracts/testing.md#distinguishing-cases Retains Bézier versus named-linear paths, duration zero versus positive loop, negative clock, absent-start/absent-end bone and channel cases, and empty keys. Admission of malformed clips and complete expression laws belong to their separate units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns direct sample calls over existing fixture constructors; private flexion and channel readers register no cases and start no viewer, process or native artifact.
  */
-export const test_motion_sample_edge_cases = (): void => {
+export function test_motion_sample_edge_cases(): void {
   // 1. cubicBezier easing keyframe
-  const bezierClip = makeMotion(
+  const bezierClip: IAutoMovieMotion = makeMotion(
     [
       {
         time: 0,
@@ -63,7 +83,7 @@ export const test_motion_sample_edge_cases = (): void => {
   );
 
   // 2. zero-duration clip
-  const zero = makeMotion(
+  const zero: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 30 })])),
       keyframe(0.5, makePose([joint("leftLowerArm", { flexion: 60 })])),
@@ -76,7 +96,7 @@ export const test_motion_sample_edge_cases = (): void => {
   );
 
   // 3. negative time on a loop
-  const loop = makeMotion(
+  const loop: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
       keyframe(1, makePose([joint("leftLowerArm", { flexion: 120 })])),
@@ -90,7 +110,7 @@ export const test_motion_sample_edge_cases = (): void => {
   );
 
   // 4. bone present in only one keyframe (both directions)
-  const endOnly = makeMotion(
+  const endOnly: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
       keyframe(
@@ -107,7 +127,7 @@ export const test_motion_sample_edge_cases = (): void => {
     "end-only shoulder → 20 at midpoint",
     nclose(flex(endOnly, 0.5, "leftUpperArm"), 20),
   );
-  const startOnly = makeMotion(
+  const startOnly: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -126,8 +146,10 @@ export const test_motion_sample_edge_cases = (): void => {
   );
 
   // 5. same-preset expression, blendshapes on only one side (both directions)
-  const rest = makePose([joint("leftLowerArm", { flexion: 0 })]);
-  const endBlend = makeMotion(
+  const rest: IAutoMoviePose = makePose([
+    joint("leftLowerArm", { flexion: 0 }),
+  ]);
+  const endBlend: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, rest, "linear", makeExpression("happy", 1)),
       keyframe(
@@ -139,18 +161,20 @@ export const test_motion_sample_edge_cases = (): void => {
     ],
     1,
   );
-  const endChannels = new Map(
-    (sampleMotion(endBlend, 0.5).expression?.blendshapes ?? []).map((c) => [
-      c.channel,
-      c.weight,
-    ]),
+  const endChannels: Map<AutoMovieArkitChannel, number> = new Map(
+    (sampleMotion(endBlend, 0.5).expression?.blendshapes ?? []).map(
+      (c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
+        c.channel,
+        c.weight,
+      ],
+    ),
   );
   TestValidator.predicate(
     "blendshapes only at end → jawOpen 0.5",
     nclose(endChannels.get("jawOpen") ?? -1, 0.5),
   );
 
-  const startBlend = makeMotion(
+  const startBlend: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -162,11 +186,13 @@ export const test_motion_sample_edge_cases = (): void => {
     ],
     1,
   );
-  const startChannels = new Map(
-    (sampleMotion(startBlend, 0.5).expression?.blendshapes ?? []).map((c) => [
-      c.channel,
-      c.weight,
-    ]),
+  const startChannels: Map<AutoMovieArkitChannel, number> = new Map(
+    (sampleMotion(startBlend, 0.5).expression?.blendshapes ?? []).map(
+      (c: IAutoMovieBlendshapeChannel): [AutoMovieArkitChannel, number] => [
+        c.channel,
+        c.weight,
+      ],
+    ),
   );
   TestValidator.predicate(
     "blendshapes only at start → jawOpen 0.5",
@@ -176,8 +202,8 @@ export const test_motion_sample_edge_cases = (): void => {
   TestValidator.predicate(
     "empty motion keyframes reject sampling",
     throwsError(
-      () => sampleMotion(makeMotion([], 1), 0),
+      (): ReturnType<typeof sampleMotion> => sampleMotion(makeMotion([], 1), 0),
       'motion "motion-1" must have keyframes to sample',
     ),
   );
-};
+}

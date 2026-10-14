@@ -4,54 +4,36 @@ import { IAutoMovieProductionSoundPlan } from "./IAutoMovieProductionSoundPlan";
 import { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
 
 /**
- * Complete deterministic sound evidence bound to current plans and bytes.
+ * Deterministic sound evidence tying the current semantic plan and pre-encode PCM measurements to final encoded audio bytes.
  *
- * @evidence requirements/sound/validation-and-delivery.md#sound-evidence-identity-freshness Requires final sound evidence to identify its current plan, analysis, synthesis receipts, encoded bytes, and measurement basis.
- * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Carries the complete measured evidence used by delivery validation rather than lossy aggregate counts.
+ * @evidence contracts/common.md#principled-implementation The record pairs the semantic sound plan, PCM analysis and supplied synthesis receipts with sibling audio byte identity; its type does not compare identities or reopen resident delivery bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Separates semantic intent, measured PCM, dialogue provenance and encoded audio while fixing the measurement source and algorithm in a small explicit record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Pre-encode measurements do not claim decoded-final-audio loudness, and event-window analysis cannot isolate event energy; callers must establish that the claimed sibling identity matches final bytes because this DTO performs no admission.
+ * @evidence contracts/common.md#meaningful-documentation Defines evidence epoch, current plan, pre-encode analysis source, synthesis receipt population, sibling audio identity and closed measurement algorithm.
+ * @author Samchon
  */
 export interface IAutoMovieProductionSoundEvidence {
-  /**
-   * Complete evidence schema epoch.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-evidence-identity-freshness Refuses aggregate-only legacy evidence.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Identifies the complete evidence schema.
-   */
+  /** Complete evidence schema epoch. */
   version: 2;
 
-  /**
-   * Exact current semantic sound plan.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-evidence-identity-freshness Preserves every planned event, cue, and dialogue identity.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Supplies the measured plan owner.
-   */
+  /** Exact current semantic sound plan. */
   plan: IAutoMovieProductionSoundPlan;
 
-  /**
-   * Measurements of the exact pre-encode PCM.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-numeric-verification Preserves the complete current analysis.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Supplies the numeric evidence result.
-   */
+  /** Measurements of the exact pre-encode PCM. */
   analysis: IAutoMovieProductionSoundAnalysis;
 
-  /**
-   * Exact current dialogue synthesis receipts.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-evidence-identity-freshness Preserves each current dialogue byte and viseme identity.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Supplies the dialogue evidence population.
-   */
+  /** Exact current dialogue synthesis receipts. */
   tts: IAutoMovieProductionTtsReceipt[];
 
-  /**
-   * Exact sibling final-audio identity.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-picture-delivery-join Joins the evidence to the encoded mix used by delivery.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the encoded audio inventory record.
-   */
+  /** Exact sibling final-audio identity. */
   audio: IAutoMovieProductionSoundEvidenceAudio;
 
-  /**
-   * Closed measurement source and algorithm identity.
-   * @evidence requirements/sound/validation-and-delivery.md#sound-evidence-identity-freshness Prevents encoded-byte or unknown-method measurements from masquerading as current PCM analysis.
-   * @evidence specifications/simulation-effects-and-sound/validation-evidence-and-compatibility.md#sound-budget-and-audible-review Supplies the measurement provenance.
-   */
+  /** Closed measurement source and algorithm identity. */
   measurement: {
+    /** Measurements precede compression and concern the final limited PCM. */
     source: "pre-encode-pcm";
+
+    /** Deterministic analysis implementation epoch. */
     algorithm: "automovie-production-sound-analysis-v1";
   };
 }

@@ -1,12 +1,19 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieBone,
+  IAutoMovieModel,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const modelWithBoneRest = (rest: IAutoMovieTransform) => {
-  const base = createModel();
+const modelWithBoneRest: (rest: IAutoMovieTransform) => IAutoMovieModel = (
+  rest: IAutoMovieTransform,
+): IAutoMovieModel => {
+  const base: IAutoMovieModel = createModel();
   return {
     ...base,
     skeleton:
@@ -14,17 +21,16 @@ const modelWithBoneRest = (rest: IAutoMovieTransform) => {
         ? null
         : {
             ...base.skeleton,
-            bones: base.skeleton.bones.map((bone, i) =>
-              i === 0 ? { ...bone, rest } : bone,
+            bones: base.skeleton.bones.map(
+              (bone: IAutoMovieBone, i: number): IAutoMovieBone =>
+                i === 0 ? { ...bone, rest } : bone,
             ),
           },
   };
 };
 
 /**
- * Skeleton bone rest transforms seed viewer/export/film FK paths. Their TRS
- * components must be finite, rotation must stay unit-length, and scale must
- * remain positive.
+ * Model admission checks a bone's rest transform before FK consumers receive it: finite components, unit rotation and positive scale.
  *
  * Scenarios:
  *
@@ -33,15 +39,20 @@ const modelWithBoneRest = (rest: IAutoMovieTransform) => {
  * 3. Non-finite rest rotation is a range violation.
  * 4. Finite but non-unit rest rotation is a range violation.
  * 5. Non-positive rest scale is a range violation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls model validation with a valid rest transform and four malformed variants, requiring failure and exact component or norm addresses so bad rest metadata cannot silently seed FK.
+ * @evidence contracts/testing.md#independent-expectations Identity TRS is valid, NaN/infinity are not finite, quaternion [0,0,0,2] has norm two and zero scale is not positive. Literal paths distinguish scalar faults from the quaternion's joint norm rule.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts accepted identity, nonfinite translation/rotation, finite nonunit rotation and collapsed scale; graph reachability and part/root transforms have separate entries. No rendered rig or all-axis exhaustive claim follows from these samples.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns record copies of the existing model/rig fixture and invokes portable admission without a Human asset, FK host, renderer or native artifact.
  */
-export const test_validation_model_bone_rest_transform = (): void => {
+export function test_validation_model_bone_rest_transform(): void {
   TestValidator.equals(
     "valid bone rest transform succeeds",
     validateModel({ model: modelWithBoneRest(IDENTITY_TRANSFORM) }).success,
     true,
   );
 
-  const badTranslation = validateModel({
+  const badTranslation: IAutoMovieValidation = validateModel({
     model: modelWithBoneRest({
       ...IDENTITY_TRANSFORM,
       translation: { ...IDENTITY_TRANSFORM.translation, x: Number.NaN },
@@ -61,7 +72,7 @@ export const test_validation_model_bone_rest_transform = (): void => {
     ),
   );
 
-  const badRotation = validateModel({
+  const badRotation: IAutoMovieValidation = validateModel({
     model: modelWithBoneRest({
       ...IDENTITY_TRANSFORM,
       rotation: { ...IDENTITY_TRANSFORM.rotation, w: Number.POSITIVE_INFINITY },
@@ -81,7 +92,7 @@ export const test_validation_model_bone_rest_transform = (): void => {
     ),
   );
 
-  const nonUnitRotation = validateModel({
+  const nonUnitRotation: IAutoMovieValidation = validateModel({
     model: modelWithBoneRest({
       ...IDENTITY_TRANSFORM,
       rotation: { ...IDENTITY_TRANSFORM.rotation, w: 2 },
@@ -101,7 +112,7 @@ export const test_validation_model_bone_rest_transform = (): void => {
     ),
   );
 
-  const badScale = validateModel({
+  const badScale: IAutoMovieValidation = validateModel({
     model: modelWithBoneRest({
       ...IDENTITY_TRANSFORM,
       scale: { ...IDENTITY_TRANSFORM.scale, y: 0 },
@@ -116,4 +127,4 @@ export const test_validation_model_bone_rest_transform = (): void => {
     "range violation on rest scale",
     hasViolation(badScale, "range", "$input.skeleton.bones[0].rest.scale.y"),
   );
-};
+}

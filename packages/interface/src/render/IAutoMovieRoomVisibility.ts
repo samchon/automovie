@@ -1,79 +1,46 @@
 /**
- * A conservative cell-and-portal culling hint over a building's logical space
- * graph.
+ * A conservative cell-and-portal culling hint over a building's logical space graph.
  *
- * The rule this obeys, in one sentence: a space is hidden only when it is
- * PROVED unreachable from the camera through every opening, connector and
- * exterior route the design declares. Everything else stays drawn. Aggressive
- * culling trades a wrong frame for a faster one, and a wrong frame is not a
- * cheaper frame, it is a different film; so an exterior camera hides nothing,
- * an ambiguous camera position hides nothing, and a space whose extent the
- * design never stated hides nothing.
+ * A space is hidden only when it is proved unreachable from the camera through every opening, connector and exterior route the design declares. Everything else stays drawn. An exterior or ambiguous camera position and an unstated space extent therefore hide nothing.
  *
- * The exterior is a node of the portal graph, not the absence of one. A room
- * with a window is reachable from outside, so from a sealed interior room the
- * other windowed rooms are still hidden, while from a windowed room they are
- * kept: light and geometry can travel out one opening and in another, and the
- * graph says so instead of the culler guessing.
+ * The exterior is a node of the portal graph, not the absence of one. A room with a window is reachable from outside, so from a sealed interior room the other windowed rooms are still hidden, while from a windowed room they are kept: light and geometry can travel out one opening and in another, and the graph says so instead of the culler guessing.
  *
- * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `IAutoMovieRoomVisibility` as the portable data boundary for the rendering room region culling requirement.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `IAutoMovieRoomVisibility` for the spec render visibility culling system contract.
+ * @evidence contracts/common.md#principled-implementation Cell-and-portal reachability starts from one containing leaf space and includes declared openings, every connector stop and exterior routes; reachable spaces and their ancestors remain drawn. Valid ids, references and an acyclic parent graph are caller premises, and numerical containment inherits the shared cell/shell predicate's tolerances and finite-intermediate limitations.
+ * @evidence contracts/common.md#clear-and-simple-design Camera classification, visible/hidden partition and explicit inconclusive reason separate geometric placement from proof of exclusion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exterior, ambiguous or unknown leaf extents hide nothing, and an opening remains a possible portal even with a movable door leaf; no unproved closed-door state drives aggressive culling.
+ * @evidence contracts/common.md#meaningful-documentation Defines leaf-camera ownership, placement classification, sorted complementary populations and incomplete-proof reason.
  * @author Samchon
  */
 export interface IAutoMovieRoomVisibility {
-  /**
-   * Hint format.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `version` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `version` for the spec render visibility culling system contract.
-   */
+  /** Hint format. */
   version: 1;
 
   /**
-   * Logical space containing the camera, or `null` when it is outside every
-   * declared space or inside more than one.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `camera` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `camera` for the spec render visibility culling system contract.
+   * Unique containing leaf-space id, or null when no known leaf contains the camera or several do; parent containers do not create ambiguity.
    */
   camera: string | null;
 
   /**
-   * Why the camera resolved that way: `interior` when exactly one space
-   * contains it, `exterior` when none does, `ambiguous` when several do.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `cameraPlacement` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `cameraPlacement` for the spec render visibility culling system contract.
+   * Interior means exactly one known leaf contains the camera; exterior means none does and every leaf states a volume. Ambiguous means overlapping containing leaves or no containing leaf with an unknown leaf extent elsewhere.
    */
   cameraPlacement: "interior" | "exterior" | "ambiguous";
 
   /**
    * Space ids proved unreachable from the camera, ascending.
    *
-   * Empty whenever the proof is incomplete, which is every case except an
-   * unambiguous interior camera in a design whose spaces all declare cells.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `hidden` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `hidden` for the spec render visibility culling system contract.
+   * Empty whenever the proof is incomplete: the camera must resolve to one leaf and every leaf must state cells or a shell. This checks presence of a volume spelling, not its closure or positive volume.
    */
   hidden: string[];
 
   /**
    * Space ids that must be drawn, ascending. Always the complement of `hidden`.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `visible` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `visible` for the spec render visibility culling system contract.
    */
   visible: string[];
 
   /**
    * Why nothing could be hidden, or `null` when the proof was complete.
    *
-   * A hint that hides nothing and says nothing is indistinguishable from a hint
-   * that proved everything visible, and those are different facts.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-room-region-culling Exposes `inconclusive` as the portable data boundary for the rendering room region culling requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Types `inconclusive` for the spec render visibility culling system contract.
+   * A hint that hides nothing and says nothing is indistinguishable from a hint that proved everything visible, and those are different facts.
    */
   inconclusive: string | null;
 }

@@ -4,97 +4,66 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
 /**
  * One opening as the drawing can see it.
  *
- * The mark exists so a plan's openings and the 3D design's openings can be
- * compared by id rather than by eye: every opening the view covers appears
- * here, whether or not the design gave it a shape.
+ * Every opening whose host boundary touches a space the view includes gets a
+ * mark, whether or not the design gave it a shape and whatever the view's
+ * element-kind filter says, so a sheet's openings can be compared with the
+ * design's by id. Marks are sorted by opening id.
  *
- * {@link basis} says where the shape came from, and the three answers are not
+ * {@link basis} says where the geometry came from, and the answers are not
  * interchangeable. `profile` is the opening's own void placed on its host
- * boundary's face — the design answering the question directly. `fill` is the
- * filling element's extent standing in for a void nobody authored, which is a
- * door's size and not the hole's. `none` is the design declining to answer, and
- * the mark then carries no geometry at all rather than a zero-sized one.
+ * boundary's face. `fill` is the filling element's extent standing in for a
+ * void nobody authored, which is the leaf's size and not the hole's. `none`
+ * means the design sizes the opening by neither, and the mark then carries no
+ * outline and `null` sizes.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingOpeningMark` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingOpeningMark` for the interior space drawing schedule quantity system contract.
+ * @evidence contracts/common.md#principled-implementation Marks prefer the profile's conservative hull extent in face axes, otherwise using the fill's static CPU triangle extents with world Y height and max(X,Z) width; an absent held model or empty triangles yields none. Profile points are projected and rounded without cut/depth clipping or a postprojection polygon-validity check, so an edge-on outline can collapse while retaining profile basis and face-space dimensions.
+ * @evidence contracts/common.md#clear-and-simple-design Identity fields mirror the design's opening record, and one `basis` field decides how `polygon`, `width` and `height` are read, so a consumer branches once instead of inferring provenance from which fields are empty.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A fill-sized opening gets no outline instead of the leaf's box drawn as a void, and an unsized opening gets `null` sizes instead of zero; the drawing also files `opening-profile` and `opening-geometry` gaps that count those marks.
+ * @evidence contracts/common.md#meaningful-documentation States which openings receive a mark, their order, and what each basis means; members give the metre unit, the face axes or world axes behind each size, the chord drafting of arcs, and when the outline is empty.
  * @author Samchon
  */
 export interface IAutoMovieDrawingOpeningMark {
-  /**
-   * Opening identity, matching the design's own opening id.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `opening` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `opening` for the interior space drawing schedule quantity system contract.
-   */
+  /** Opening id, matching the design's own opening record. */
   opening: string;
 
-  /**
-   * Boundary the opening is cut through.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `boundary` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `boundary` for the interior space drawing schedule quantity system contract.
-   */
+  /** Boundary the opening is cut through. */
   boundary: string;
 
-  /**
-   * Opening kind, such as `door`, `window`, `arch` or `passage`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `kind` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Opening kind, such as `door`, `window`, `arch` or `passage`. */
   kind: string;
 
-  /**
-   * Filling element id, or `null` for an open cut.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `fill` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `fill` for the interior space drawing schedule quantity system contract.
-   */
+  /** Filling element id, or `null` for an open cut. */
   fill: string | null;
 
-  /**
-   * Where the geometry below came from.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `basis` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `basis` for the interior space drawing schedule quantity system contract.
-   */
+  /** What {@link polygon}, {@link width} and {@link height} were taken from. */
   basis: AutoMovieDrawingOpeningBasis;
 
   /**
-   * The void's own outline projected onto the page, and empty for every other
-   * basis.
+   * The void's own outline on the page for a `profile` mark, and empty for
+   * every other basis.
    *
-   * A `fill` mark carries a size and no outline on purpose: it measures the
-   * leaf standing in the hole, and drafting that leaf's extent as the void's
-   * shape would put a rectangle on the sheet the building has no hole for.
-   *
-   * Arc edges are drafted as chords at a fixed density, which is what vector
-   * linework is; the dimensions below are computed from the arcs themselves and
-   * never from these chords.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `polygon` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `polygon` for the interior space drawing schedule quantity system contract.
+   * A `fill` mark has no outline because the leaf's extent drawn as the void's
+   * shape would put a rectangle on the sheet where the building has no hole.
+   * Arc edges are drafted as chords at a fixed angular step; {@link width} and
+   * {@link height} are not computed from these chords.
    */
   polygon: IAutoMovieDrawingPoint[];
 
   /**
-   * Width in metres of whatever {@link basis} says was measured, or `null` when
-   * it says `none`.
+   * Width in metres of whatever {@link basis} says was measured, rounded to six
+   * decimals, or `null` when it says `none`.
    *
-   * A `profile` mark measures the void; a `fill` mark measures the leaf that
-   * stands in one. Reading either as the other is the mistake {@link basis}
-   * exists to prevent, so neither is called the void's size here.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `width` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `width` for the interior space drawing schedule quantity system contract.
+   * A `profile` mark measures the void's bounding hull along the host face's
+   * local X axis, which is tight for an arc whose chord is parallel to a face
+   * axis and larger than the arc for a tilted chord. A `fill` mark measures the
+   * wider of the leaf's world X and Z extents.
    */
   width: number | null;
 
   /**
-   * Height in metres of the same thing, or `null` when `basis` is `none`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `height` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `height` for the interior space drawing schedule quantity system contract.
+   * Height in metres of the same thing, rounded to six decimals, or `null` when
+   * `basis` is `none`: along the host face's local Y axis for `profile`, and
+   * the world Y extent for `fill`.
    */
   height: number | null;
 }

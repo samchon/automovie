@@ -1,17 +1,13 @@
 /**
- * A driver-only channel of the head partition view that applies a body
- * endpoint's rows on the head with the body's own gain.
+ * Source registration linking a face driver-only channel's positive endpoint to an actual body endpoint gain. Head vertices, carried parts and landmarks keep source-owned rows relative to the face anchor; body state supplies the dimensionless endpoint side/corrective gain before face expression/articulation. Explicit face driver-channel authorship refuses, including zero. Missing gain reads zero in derivation, while source registration/endpoint support admission belongs to compiler/body owners; the schema alone validates no clinical mechanics.
  *
- * A source generation that defines a quantity once over the one skin stores
- * that body endpoint's rows on head vertices, carried parts and face
- * landmarks in the face view, keyed by the body endpoint name and relative to
- * the face frame's anchor. The face view declares a channel `channel` whose
- * positive endpoint is `endpoint`; the evaluator sets that channel's weight to
- * the gain the body document gives `endpoint` (a channel side's weight or a
- * corrective's activation, from the body's own endpoint state), so the face
- * producer applies those rows before its expression and articulation exactly
- * as the body applies its own. A person document's face subtree may not state
- * a driver channel.
+ * @evidence contracts/common.md#principled-implementation Actual face channel and body endpoint identities route the same source gain across head/body partition ownership.
+ * @evidence contracts/common.md#clear-and-simple-design This channel/endpoint pair stays separate from alias ownership, body endpoint activation and numerical face row evaluation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Face authorship cannot silently override a driver, and identifier metadata does not invent missing head rows or authentic clinical support.
+ * @evidence contracts/common.md#meaningful-documentation Prose states positive-endpoint relation, dimensionless gain, evaluation order, zero omission and source-admission boundary.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This registration record runs no gain calculation, row scan or face evaluation; its compiler/derivation owners perform those operations.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared endpoint authority is source correspondence, not evaluated-state memoization implemented here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two identifiers acquire no source task or geometry; the containing generation owns actual driver records and row context.
  *
  * @author Samchon
  */

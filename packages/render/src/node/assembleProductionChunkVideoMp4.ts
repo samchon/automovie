@@ -2,115 +2,132 @@ import {
   equalProductionFrameRates,
   resolveProductionFrameRate,
 } from "@automovie/engine";
-import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
+import type {
+  IAutoMovieProductionFrameRate,
+  IAutoMovieProductionVideoProbe,
+} from "@automovie/interface";
 import type { createFile } from "mp4box";
 
+import type { IAutoMovieProductionVideoProfile } from "../delivery/IAutoMovieProductionVideoProfile";
 import { assertProductionVideoProfile } from "../delivery/assertProductionVideoProfile";
 import { resolveProductionVideoProfile } from "../delivery/resolveProductionVideoProfile";
 import type { IProductionRenditionClip } from "./IProductionRenditionClip";
 import { appendLosslessVideoClip } from "./appendLosslessVideoClip";
+import { openLosslessVideoTrack } from "./openLosslessVideoTrack";
 import { parseProductionRenditionClip } from "./parseProductionRenditionClip";
 import { probeProductionVideoMp4 } from "./probeProductionVideoMp4";
-import { residentMp4Box } from "./residentMp4Box";
 import { sameSampleDescription } from "./sameSampleDescription";
 import { sampleDescription } from "./sampleDescription";
 
 /**
- * Assemble one whole-film video from the per-chunk H.264 encodes a chunked
- * render already committed, without decoding or re-encoding a single frame.
+ * Assemble one whole-film video from the per-chunk H.264 encodes of a chunked render without decoding or re-encoding any frame.
  *
- * A render job splits the film into independently rendered, independently
- * resumable frame ranges and encodes each range's frames into its own
- * receipt-verified MP4. Re-encoding those frames a second time to obtain the
- * whole film costs one decode plus one encode per frame and holds the entire
- * output inside one encoder, which is what bounds a long production. This
- * copies each chunk's already-encoded samples into one track instead, so the
- * cost is proportional to the bytes moved and the elementary stream is
- * preserved sample for sample: the assembled film decodes to exactly the frames
- * the chunks decode to.
+ * Every chunk must parse as a complete splice clip (`parseProductionRenditionClip`), match `frameFormat`'s raster and rational clock, share the first chunk's media timescale, sample duration and decoder configuration, and pass the delivery video profile. The samples are copied in play order onto one track under the independent-decoding premise described below. A single chunk is returned as the same array, unchanged, when it covers `totalFrames`; a multi-chunk result is re-probed and must cover `totalFrames` at the declared raster and clock.
  *
- * The chunks arrive as an `Iterable` and are read once, in play order, so a
- * caller may load each chunk's bytes only when this asks for them; at most two
- * chunks are held at a time.
+ * Throws `Render chunk <i> ...` naming the first chunk that breaks the shared presentation, an `unsupported-video-profile.<field>` error from the profile check, a refusal for an empty chunk list or a frame total the chunks do not cover, and `Assembled chunk video duration exceeds the exact MP4 clock range.` when the total-frame duration fails the output opener's safe-integer check. An exception thrown by the `chunks` iterator propagates unchanged.
  *
- * The boundary rule is the chunked render's own: a frame belongs to exactly one
- * chunk, every chunk starts at an independently decodable sync sample, and
- * every chunk shares one raster, one rational frame clock, and one decoder
- * configuration. A chunk that breaks any of those is refused rather than
- * silently re-encoded, because re-encoding would change reviewed pixels.
+ * No production module calls this function at present; only tests reach it since the production film assembly stopped using it.
  *
- * One chunk covering the whole film is returned verbatim: it already is the
- * film's video, so an assembly that spans a single chunk is byte-identical to
- * encoding that chunk.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-chunk-assembly Assembles the feature only from a contiguous, complete set of current chunks and refuses a partial set as encode input.
+ * @evidence contracts/common.md#principled-implementation Every chunk declares a sync sample at its start and shares one sample entry, verified byte for byte by `sameSampleDescription`; copied payloads preserve the elementary stream under the premise that those sync declarations actually permit independent decoding. Container admission does not decode H.264 pictures or prove that premise. Clock equality uses rational frame rates and integer ticks rather than float fps.
+ * @evidence contracts/common.md#clear-and-simple-design Parsing and per-clip validation are `parseProductionRenditionClip`, the container is `openLosslessVideoTrack`, and re-timing is `appendLosslessVideoClip`; this function owns only the chunk-sequence rules, the single-chunk shortcut and the final coverage proof. The gap is that no production consumer remains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A chunk that breaks the shared raster, clock or configuration is refused, never re-encoded or rescaled, and the single-chunk shortcut returns input that already passed every check the multi-chunk path applies to each chunk.
+ * @evidence contracts/common.md#meaningful-documentation The doc states what every chunk must share, how the samples are joined, the identity of the single-chunk result, the final verification, every refusal with its message prefix, and that the iterator's own exceptions propagate.
+ * @evidence contracts/performance.md#efficient-algorithms Each of C chunks is parsed once and shares that parse with its probe and sample table. For chunk sample count S_i and media-box count M_i, residency adds O(M_i + S_i log(M_i + 1)), with description comparisons and box inspection on top. Appending copies the total coded bytes and subsample entries once; a multi-chunk result is serialized and independently parsed/probed again, including its output residency cost. The full assembly is not strictly linear in encoded bytes, and the expected profile is resolved once outside the loop.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call reads its chunk iterator once and shares no result across calls; a caller that assembles the same chunks twice receives byte-identical output but must cache it itself.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The first clip remains referenced for comparison and singleton return, and each appended sample keeps an output payload copy plus a view of its source chunk. Parsed boxes and tables, serialized output and the output probe's copied bytes can coexist during verification. Bytes, samples, descriptions and boxes are uncapped here, and no exact peak ratio is established; invocation-local objects become collectable after completion or refusal, while the returned array belongs to the caller. No native handle or background task is opened.
  */
-export const assembleProductionChunkVideoMp4 = (props: {
-  /** Encoded chunk MP4s in play order, read once. */
+export const assembleProductionChunkVideoMp4: (props: {
   chunks: Iterable<Uint8Array>;
-
-  /** Exact raster and rational frame clock every chunk must already carry. */
   frameFormat: {
     fps: number;
     frameRate?: IAutoMovieProductionFrameRate;
     height: number;
     width: number;
   };
+  totalFrames: number;
+}) => Uint8Array = (props: {
+  /** Encoded chunk MP4s in play order, read once. */
+  chunks: Iterable<Uint8Array>;
+
+  /** Exact raster and rational frame clock every chunk must already carry. */
+  frameFormat: {
+    /** Frames per second, used when `frameRate` is absent and in messages. */
+    fps: number;
+
+    /** Exact rational frame rate; takes precedence over `fps`. */
+    frameRate?: IAutoMovieProductionFrameRate;
+
+    /** Raster height in pixels. */
+    height: number;
+
+    /** Raster width in pixels. */
+    width: number;
+  };
 
   /** Exact total output frames the assembled chunks must cover. */
   totalFrames: number;
 }): Uint8Array => {
-  let reference: IProductionChunkVideoReference | undefined;
-  let opening:
-    | { bytes: Uint8Array; clip: IProductionRenditionClip }
-    | undefined;
+  const frameRate: IAutoMovieProductionFrameRate = resolveProductionFrameRate(
+    props.frameFormat,
+  );
+  const profile: IAutoMovieProductionVideoProfile =
+    resolveProductionVideoProfile({
+      width: props.frameFormat.width,
+      height: props.frameFormat.height,
+      frameRate,
+    });
+  let reference: IProductionRenditionClip | undefined;
+  let referenceDescription: ReturnType<typeof sampleDescription> | undefined;
+  let opening: IProductionRenditionClip | undefined;
   let assembly:
     | { file: ReturnType<typeof createFile>; track: number }
     | undefined;
-  let frame = 0;
-  let index = 0;
-  const frameRate = resolveProductionFrameRate(props.frameFormat);
+  let frame: number = 0;
+  let index: number = 0;
   for (const bytes of props.chunks) {
-    const clip = parseProductionRenditionClip(bytes, `Render chunk ${index}`);
-    const description = sampleDescription(clip.samples[0]!);
-    reference ??= {
-      description,
-      height: clip.probe.height,
-      language: clip.track.language,
-      sampleDuration: clip.sampleDuration,
-      timescale: clip.track.timescale,
-      width: clip.probe.width,
-    };
+    const clip: IProductionRenditionClip = parseProductionRenditionClip(
+      bytes,
+      `Render chunk ${index}`,
+    );
+    const description: ReturnType<typeof sampleDescription> = sampleDescription(
+      clip.samples[0]!,
+    );
+    reference ??= clip;
+    referenceDescription ??= description;
     if (
       clip.probe.width !== props.frameFormat.width ||
       clip.probe.height !== props.frameFormat.height ||
       equalProductionFrameRates(clip.probe.frameRate, frameRate) === false ||
-      clip.track.timescale !== reference.timescale ||
+      clip.track.timescale !== reference.track.timescale ||
       clip.sampleDuration !== reference.sampleDuration ||
-      sameSampleDescription(reference.description, description) === false
+      sameSampleDescription(referenceDescription, description) === false
     )
       throw new Error(
         `Render chunk ${index} does not share the assembled raster, rational frame clock, and H.264 decoder configuration.`,
       );
     // The chunk is attributed by index above; only then does the generic
     // delivery profile judge its container facts.
-    assertProductionVideoProfile({
-      expected: resolveProductionVideoProfile({
-        width: props.frameFormat.width,
-        height: props.frameFormat.height,
-        frameRate,
-      }),
-      actual: clip.probe,
-    });
+    assertProductionVideoProfile({ expected: profile, actual: clip.probe });
     ++index;
     if (opening === undefined) {
-      opening = { bytes, clip };
+      opening = clip;
       continue;
     }
     if (assembly === undefined) {
-      assembly = openProductionChunkVideo(reference, props.totalFrames);
+      assembly = openLosslessVideoTrack({
+        label: "Assembled chunk video",
+        name: "AutoMovie chunk-assembled feature",
+        timescale: reference.track.timescale,
+        sampleDuration: reference.sampleDuration,
+        frames: props.totalFrames,
+        description: referenceDescription,
+        width: reference.probe.width,
+        height: reference.probe.height,
+        language: reference.track.language,
+      });
       frame = appendLosslessVideoClip({
         ...assembly,
-        clip: opening.clip,
+        clip: opening,
         frame,
         sampleDuration: reference.sampleDuration,
       });
@@ -127,14 +144,14 @@ export const assembleProductionChunkVideoMp4 = (props: {
       "Chunked video assembly requires at least one encoded render chunk.",
     );
   if (assembly === undefined) {
-    if (opening.clip.probe.frameCount !== props.totalFrames)
+    if (opening.probe.frameCount !== props.totalFrames)
       throw new Error(
-        `Chunked video assembly covers ${opening.clip.probe.frameCount} frames; expected ${props.totalFrames}.`,
+        `Chunked video assembly covers ${opening.probe.frameCount} frames; expected ${props.totalFrames}.`,
       );
     return opening.bytes;
   }
-  const bytes = new Uint8Array(assembly.file.getBuffer().buffer);
-  const probe = probeProductionVideoMp4(bytes);
+  const bytes: Uint8Array = new Uint8Array(assembly.file.getBuffer().buffer);
+  const probe: IAutoMovieProductionVideoProbe = probeProductionVideoMp4(bytes);
   if (
     probe.frameCount !== props.totalFrames ||
     probe.width !== props.frameFormat.width ||
@@ -145,47 +162,4 @@ export const assembleProductionChunkVideoMp4 = (props: {
       `Assembled chunk video parses as ${probe.frameCount} frames of ${probe.width}x${probe.height} at ${probe.fps} fps; expected ${props.totalFrames} frames of ${props.frameFormat.width}x${props.frameFormat.height} at ${props.frameFormat.fps} fps.`,
     );
   return bytes;
-};
-
-/** The one presentation every later clip of an assembly must already share. */
-interface IProductionChunkVideoReference {
-  description: ReturnType<typeof sampleDescription>;
-  height: number;
-  language: string;
-  sampleDuration: number;
-  timescale: number;
-  width: number;
-}
-
-/** Open the one output track every chunk's samples are copied into. */
-const openProductionChunkVideo = (
-  reference: IProductionChunkVideoReference,
-  totalFrames: number,
-): { file: ReturnType<typeof createFile>; track: number } => {
-  const mediaDuration = totalFrames * reference.sampleDuration;
-  if (Number.isSafeInteger(mediaDuration) === false)
-    throw new Error(
-      "Assembled chunk video duration exceeds the exact MP4 clock range.",
-    );
-  const file = residentMp4Box().createFile();
-  file.init({
-    brands: ["isom", "iso2", "mp41"],
-    timescale: reference.timescale,
-    duration: mediaDuration,
-  });
-  return {
-    file,
-    track: file.addTrack({
-      type: reference.description.type,
-      hdlr: "vide",
-      name: "AutoMovie chunk-assembled feature",
-      timescale: reference.timescale,
-      media_duration: mediaDuration,
-      duration: mediaDuration,
-      width: reference.width,
-      height: reference.height,
-      language: reference.language,
-      description_boxes: reference.description.boxes,
-    }),
-  };
 };

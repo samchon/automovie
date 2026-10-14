@@ -1,12 +1,6 @@
 /**
  * Distance, in metres, a containment probe steps off a boundary face.
  *
- * A face plane sits on the surface of the volume it bounds, so a point exactly
- * on it answers containment ambiguously. One millimetre is smaller than any
- * room and larger than the containment epsilon, so the probe lands strictly
- * inside on one side and strictly outside on the other.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Fixes how far a probe steps off a face before asking which side a space is on.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Bounds the containment probe used to orient an envelope face.
+ * The envelope heuristic probes one millimetre along authored +Z from the face centroid. This is a fixed observation policy, not a guarantee that the face lies on the volume boundary or that either side of a thin/off-volume/concave feature has the expected containment result.
  */
-export const AUTOMOVIE_OBSERVATION_PROBE = 1e-3;
+export const AUTOMOVIE_OBSERVATION_PROBE: number = 1e-3;

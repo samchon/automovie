@@ -1,43 +1,29 @@
 /**
- * Exact admission facts for one live deterministic wearable solve.
+ * Admission and moving-boundary population facts returned by the wearable resolver.
+ * These counts do not measure elapsed time, allocated bytes or solver iterations.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-adoption-choice Reports the explicitly selected expensive path.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Keeps solver adoption and cost inspectable.
+ * @evidence contracts/common.md#principled-implementation An admitted subject ordinal and production ceiling separate selection from per-step anchor/capsule counts; boundaryRecords counts the complete seek's resolved boundary rows.
+ * @evidence contracts/common.md#clear-and-simple-design One scalar report accompanies cloth state so callers can inspect the explicit live-selection slot and the boundary population consumed by the solve.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts describe declared/resolved populations rather than claiming a CPU-time, GPU-byte or integration-work measurement they do not perform.
+ * @evidence contracts/common.md#meaningful-documentation Defines each count and distinguishes admission/boundary facts from performance timing and particle-solver cost.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This report computes nothing itself; selection and boundary resolution own the checks that fill these fields.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Budget scalars describe one seek and hold no request scheduling or cross-subject cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Five primitive numbers retain no domain, frame array or simulation allocation after their producing call.
+ * @author Samchon
  */
 export interface IAutoMovieWearableSoftBudget {
-  /**
-   * Zero-based admitted subject slot.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-adoption-choice Does not enable a crowd implicitly.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Identifies the selected live solve.
-   */
+  /** Zero-based admitted subject slot. */
   subjectIndex: number;
-  /**
-   * Declared maximum simultaneous wearable subjects.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Bounds additional work.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition States the admission ceiling.
-   */
+
+  /** Declared maximum simultaneous wearable subjects. */
   maxSubjects: number;
-  /**
-   * Moving anchor count per step.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Reports attachment work.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Counts resolved anchor inputs.
-   */
+
+  /** Moving anchor count per step. */
   anchorsPerStep: number;
-  /**
-   * Moving body-capsule count per step.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Reports shared collision work.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Counts resolved capsule inputs.
-   */
+
+  /** Moving body-capsule count per step. */
   capsulesPerStep: number;
-  /**
-   * Total moving boundary records consumed for the seek.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Reports exact bounded work.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Accounts for each fixed-step input.
-   */
+
+  /** Total moving boundary records consumed for the seek. */
   boundaryRecords: number;
 }

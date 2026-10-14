@@ -3,13 +3,13 @@
  * house, the one handoff from spaces source to the renderer and to spatial
  * queries.
  *
- * Design owner: `docs/spaces/04-observations.md#engine-render-handoff`. Every
+ * Every
  * emitted part becomes one generated model and one building element under the
  * `house-root` element, so `lowerBuiltEnvironment` stages exactly the geometry
  * the owners emitted. Logical spaces form one tree: `house-site` contains the
  * `house` building, which contains `ground-storey` and `upper-storey`; each
  * room hangs under its storey, and `main-stair` stays under `ground-storey`
- * (`02-stair.md#stair-connector-handoff`). A room's volume is its finished
+ * . A room's volume is its finished
  * inner outline cut into axis-aligned convex cells between its finished floor
  * and ceiling, so an L-shaped room keeps its notch instead of its hull. Each
  * room's floor finish top is its standable surface.
@@ -54,7 +54,8 @@ import {
 } from "./stair";
 import { COAT_STORAGE } from "./rooms/entry";
 import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
-import type { IHousePart, IPlanPoint } from "./solid-records";
+import type { IHousePart } from "../types/IHousePart";
+import type { IPlanPoint } from "../types/IPlanPoint";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
 /** Axis-aligned box, world metres. */
@@ -224,13 +225,6 @@ const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
  * lies outside the landing space: the public validation checks landing ids and
  * ranges but not that the point stands on the landing (04 engine-render-handoff).
  */
-/**
- * @evidence spaces/05-route-network.md checkConnectors verifies built route endpoints and stair landing positions inside their named spaces.
- * @evidence principles/core/source-units.md#source-scope-preservation The verifier reads connector records and space cells; it does not move a failed route into a convenient room.
- * @evidence principles/core/source-units.md#source-substantive-completion It interpolates landing.at along the 3D route and throws connector-id and space-labelled failures for outside endpoints or landing.
- * @evidence obligations/design/space-sources.md#space-source-invalid-topology A connector with a route outside its declared endpoint or landing space is explicitly refused.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff names entry, landing, and upper-hall stops while room-route-network names exterior connector endpoints; checkConnectors tests those authored spaces without moving a route.
- */
 export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void => {
   const spaces = new Map(environment.spaces.map((s) => [s.id, s]));
   const inside = (id: string, p: IAutoMovieVector3): boolean => {
@@ -268,14 +262,6 @@ export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void =
 };
 
 /** Build the house's built-environment record; throws on invalid topology. */
-/**
- * @evidence spaces/04-observations.md buildHouseEnvironment translates authored solids and rooms into one engine-facing built-environment record.
- * @evidence spaces/04-observations.md#engine-render-handoff Every IHousePart becomes a generated single-part model and element under house-root, with stable logical space membership.
- * @evidence principles/core/source-units.md#source-scope-preservation It consumes imported house parts and zone/room records to assemble models, logical surfaces, and links, without creating an additional house part or changing their geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion It builds cells, surfaces, boundaries, openings, and connectors, then validates the record and route network before return.
- * @evidence obligations/design/space-sources.md#space-source-invalid-topology Unmapped part owners, invalid outlines, disconnected openings, or engine validation failures throw with concrete paths.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access-interface parent places exterior zones under ground-storey and the stair connector parent joins entry to upper hall; assembling those records exposed no missing space or passage.
- */
 export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment & {
   pendingMapGround: { parts: string[]; zones: string[] };
 } => {

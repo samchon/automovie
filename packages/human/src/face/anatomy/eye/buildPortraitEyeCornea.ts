@@ -1,4 +1,8 @@
-import { transformAutoMovieMesh } from "@automovie/engine";
+import {
+  type IAutoMovieMeshTransform,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { Point } from "../../mesh/structures/Point";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
@@ -24,6 +28,14 @@ import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * Performance then rotates the finished shell about the globe centre by the
  * gaze difference. Coordinates are head millimetres throughout, and the shell
  * stays in them until the metric part builder converts it.
+ *
+ * @evidence contracts/common.md#principled-implementation The canonical closed shell is built in head support or a qualified radial frame, then rigid gaze motion rotates the finished shell about the globe centre.
+ * @evidence contracts/common.md#clear-and-simple-design Frame creation, corneal sag and pose transforms stay with their canonical owners; full-limbus versus clipped extents is an explicit shape contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No aperture-dependent refit changes curvature or gaze centre; authored thickness and sampling remain caller-owned dimensions.
+ * @evidence contracts/common.md#meaningful-documentation The prose states head millimetres, radial +Z convention, extent branch and drawing/contact equivalence.
+ * @evidence contracts/performance.md#efficient-algorithms Shell construction and optional rigid transforms are O(CR) in the selected angular/radial lattice.
+ * @evidence contracts/performance.md#reuse-equivalent-work Drawing and contact invoke this same shell owner with matching dimensions; the radial frame/support are resolved once per call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned shell; extent arrays and transform temporaries expire without cross-request caches or handles.
  */
 export function buildPortraitEyeCornea(
   center: Point,
@@ -31,13 +43,15 @@ export function buildPortraitEyeCornea(
   shape: IPortraitEyeShape,
   extents: number[],
   performance?: IPortraitEyePerformance,
-) {
-  const radial =
+): IAutoMovieMesh {
+  const radial:
+    | { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform }
+    | undefined =
     shape.opticalFrame === "radial"
       ? createPortraitOpticalFrame(sphere, center)
       : undefined;
-  const support = radial?.sphere ?? sphere;
-  let mesh = buildPortraitCornea({
+  const support: IPortraitEyeSphere = radial?.sphere ?? sphere;
+  let mesh: IAutoMovieMesh = buildPortraitCornea({
     center: radial === undefined ? center : support.center,
     radius: shape.irisRadius,
     curvature: shape.cornealRadius,
@@ -49,7 +63,8 @@ export function buildPortraitEyeCornea(
         ? new Array(shape.sampling.irisColumns).fill(shape.irisRadius)
         : extents,
     radialSamples: shape.sampling.irisRows,
-    surface: (x, y) => portraitEyeSphereHeight(support, x, y),
+    surface: (x: number, y: number): number =>
+      portraitEyeSphereHeight(support, x, y),
   });
   if (radial !== undefined)
     mesh = transformAutoMovieMesh(mesh, radial.transform);

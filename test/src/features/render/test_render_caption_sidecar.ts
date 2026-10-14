@@ -1,40 +1,20 @@
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { planCaptionSidecar, renderCaptionSidecar } from "@automovie/render";
+import { IAutoMovieScript } from "@automovie/interface";
+import {
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { planCaptionSidecar } from "../../../../packages/render/src/planCaptionSidecar";
+import { renderCaptionSidecar } from "../../../../packages/render/src/renderCaptionSidecar";
+import { CAPTION_SEQUENCE } from "../internal/CAPTION_SEQUENCE";
+import { CAPTION_SHOTS } from "../internal/CAPTION_SHOTS";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
+import { createCaptionShot as shot } from "../internal/createCaptionShot";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
-import {
-  TREE_SCRIPT,
-  screenplayBeat,
-  screenplayNode,
-} from "./test_render_screenplay";
-
-const shot = (id: string, duration: number): IAutoMovieShot => ({
-  id,
-  name: null,
-  scene: "scene-duel",
-  camera: "cam-main",
-  cameraMotion: null,
-  performances: [],
-  objectMotions: [],
-  duration,
-});
-
-/** Shot:duel trimmed to 1s, then shot:aftermath over a 0.5s dissolve. */
-export const CAPTION_SHOTS = [shot("shot:duel", 2), shot("shot:aftermath", 3)];
-export const CAPTION_SEQUENCE: IAutoMovieSequence = {
-  id: "seq:duel",
-  name: "duel",
-  fps: 24,
-  shots: [
-    { shot: "shot:duel", trim: { start: 0.5, duration: 1 }, transition: null },
-    {
-      shot: "shot:aftermath",
-      trim: { start: 1, duration: 2 },
-      transition: { kind: "crossDissolve", duration: 0.5 },
-    },
-  ],
-};
+import { screenplayBeat } from "../internal/screenplayBeat";
+import { screenplayNode } from "../internal/screenplayNode";
 
 /**
  * The caption sidecar: the cut lands on the frame-atomic output clock, each
@@ -56,9 +36,15 @@ export const CAPTION_SEQUENCE: IAutoMovieSequence = {
  *    while its caption survives.
  * 6. `renderCaptionSidecar` is deterministic bytes and round-trips via JSON.parse.
  * 7. Non-finite / zero fps throw.
+ * 8. A 0.1-second trim at four fps rounds to zero frames and refuses instead of publishing an empty sidecar.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Plans the real caption track and serializes it, asserting complete span records, authored text/slug joins, null and absent-tree states, bare shot ids, scene-less beats, deterministic JSON and clock/zero-frame refusals.
+ * @evidence contracts/testing.md#independent-expectations The original trim lengths give 1+2-0.5=2.5 seconds and ten four-fps samples, with the incoming shot beginning at frame two. Authored fixture captions and scene payloads determine expected labels; explicit nulls and hand-derived half-open intervals are asserted without copying planner output.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves both captioned and caption-less spans, null/absent/empty trees, prefixed and bare ids, a beat without a scene, serialization and invalid/zero-output clocks. Slicing boundaries belong to caption_slice and actor motion/projection to pose-keypoint tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_sidecar owns these synchronous portable planning/serialization cases over the shared original fixtures; it writes no sidecar file and captures or encodes no frame.
  */
-export const test_render_caption_sidecar = (): void => {
-  const sidecar = planCaptionSidecar({
+export function test_render_caption_sidecar(): void {
+  const sidecar: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: TREE_SCRIPT,
     sequence: CAPTION_SEQUENCE,
     shots: CAPTION_SHOTS,
@@ -81,7 +67,7 @@ export const test_render_caption_sidecar = (): void => {
     slug: "EXT. CASTLE COURTYARD - DAWN",
   });
 
-  const treeless = planCaptionSidecar({
+  const treeless: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: { ...TREE_SCRIPT, tree: null },
     sequence: CAPTION_SEQUENCE,
     shots: CAPTION_SHOTS,
@@ -89,22 +75,28 @@ export const test_render_caption_sidecar = (): void => {
   });
   TestValidator.equals(
     "treeless spans null caption and slug",
-    treeless.entries.map((e) => [e.beat, e.caption, e.slug]),
+    treeless.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [
+        e.beat,
+        e.caption,
+        e.slug,
+      ],
+    ),
     [
       ["duel", null, null],
       ["aftermath", null, null],
     ],
   );
 
-  const { tree: _omitted, ...absentTree } = TREE_SCRIPT;
+  const { tree: _omitted, ...absentTree }: IAutoMovieScript = TREE_SCRIPT;
   void _omitted;
-  const absent = planCaptionSidecar({
+  const absent: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: absentTree,
     sequence: CAPTION_SEQUENCE,
     shots: CAPTION_SHOTS,
     fps: 4,
   });
-  const emptyTree = planCaptionSidecar({
+  const emptyTree: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: { ...TREE_SCRIPT, tree: [] },
     sequence: CAPTION_SEQUENCE,
     shots: CAPTION_SHOTS,
@@ -112,7 +104,9 @@ export const test_render_caption_sidecar = (): void => {
   });
   TestValidator.equals(
     "an empty tree (no root to walk) captions null",
-    emptyTree.entries.map((e) => [e.caption, e.slug]),
+    emptyTree.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug],
+    ),
     [
       [null, null],
       [null, null],
@@ -121,14 +115,16 @@ export const test_render_caption_sidecar = (): void => {
 
   TestValidator.equals(
     "absent tree (legacy shape) behaves as treeless",
-    absent.entries.map((e) => [e.caption, e.slug]),
+    absent.entries.map(
+      (e: IAutoMovieCaptionEntry): Array<string | null> => [e.caption, e.slug],
+    ),
     [
       [null, null],
       [null, null],
     ],
   );
 
-  const bare = planCaptionSidecar({
+  const bare: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: { ...TREE_SCRIPT, tree: null },
     sequence: {
       ...CAPTION_SEQUENCE,
@@ -143,7 +139,7 @@ export const test_render_caption_sidecar = (): void => {
     "raw-id",
   );
 
-  const orphan = planCaptionSidecar({
+  const orphan: IAutoMovieCaptionSidecar = planCaptionSidecar({
     script: {
       ...TREE_SCRIPT,
       beats: [screenplayBeat("duel", "The duel")],
@@ -182,18 +178,29 @@ export const test_render_caption_sidecar = (): void => {
     slug: null,
   });
 
-  const text = renderCaptionSidecar(sidecar);
+  const text: string = renderCaptionSidecar(sidecar);
   TestValidator.equals(
     "serialization deterministic",
     renderCaptionSidecar(sidecar),
     text,
   );
-  TestValidator.equals("serialization round-trips", JSON.parse(text), sidecar);
+  const decoded: IAutoMovieCaptionSidecar = JSON.parse(
+    text,
+  ) as IAutoMovieCaptionSidecar;
+  TestValidator.equals(
+    "serialization round-trips",
+    { ...decoded, fps: sidecar.fps },
+    sidecar,
+  );
+  TestValidator.predicate(
+    "serialized clock round-trips",
+    nclose(decoded.fps, sidecar.fps),
+  );
 
   TestValidator.predicate(
     "zero fps throws",
     throwsError(
-      () =>
+      (): IAutoMovieCaptionSidecar =>
         planCaptionSidecar({
           script: TREE_SCRIPT,
           sequence: CAPTION_SEQUENCE,
@@ -206,7 +213,7 @@ export const test_render_caption_sidecar = (): void => {
   TestValidator.predicate(
     "non-finite fps throws",
     throwsError(
-      () =>
+      (): IAutoMovieCaptionSidecar =>
         planCaptionSidecar({
           script: TREE_SCRIPT,
           sequence: CAPTION_SEQUENCE,
@@ -223,7 +230,7 @@ export const test_render_caption_sidecar = (): void => {
   TestValidator.predicate(
     "zero output frames throws (aligned with planSequenceRender)",
     throwsError(
-      () =>
+      (): IAutoMovieCaptionSidecar =>
         planCaptionSidecar({
           script: TREE_SCRIPT,
           sequence: {
@@ -242,4 +249,4 @@ export const test_render_caption_sidecar = (): void => {
       "at least one frame",
     ),
   );
-};
+}

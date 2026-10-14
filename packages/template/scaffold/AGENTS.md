@@ -1,20 +1,32 @@
-# AutoMovie production
+# AGENTS.md
 
-Read [README](README.md) for commands and ownership, [documents](docs/README.md) for production facts and `lint.config.ts` for the typed declaration.
+This is an AutoMovie production: its assets and their performance are authored in TypeScript under `src` and rendered by AutoMovie's deterministic engine. [README](README.md) lists the commands and file ownership.
 
 ## Attitude
 
-- Follow the user's literal request and language; direct instructions outrank skills.
-- Act within delegated scope, preserve existing work and report unverified results honestly.
-- Verify defects against current source/output and repair their affected consumers.
-- Complete the requested work before reporting success.
+- Do the literal request, widening it only when the user hands that over.
+- The user's instruction outranks any skill.
+- Answer a question from the user before continuing any work.
+- Write everything the user sees in the user's language.
+- Verify a defect against the current source and output before repairing it, and repair the consumers it reaches.
+- Report what you verified, not what you built.
+
+## Finishing Work
+
+A message without a tool call ends the turn. While work remains, do not end it with:
+
+- a summary that announces the next step;
+- an offer to continue;
+- a list of decisions that do not block the work;
+- a report because a stage finished;
+- a wait on background work.
+
+Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
 
 ## Skills
 
-[3D modeling](.agents/skills/3d-modeling/SKILL.md) owns modeling and visual debugging. Read it before changing visual output or claiming it works.
+Read the skill whose trigger applies. Installed package READMEs, public types, and JSDoc document the APIs.
 
-Use installed package README, public types, JSDoc and diagnostics for implementation and graph behavior. Selected contracts remain in `docs`.
-
-## Maintenance
-
-This is the shared Codex/Claude entry point; `CLAUDE.md` imports it. Installed files are project-owned under [Static-document updates](README.md#static-document-updates).
+- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
+- [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing source under `src`, for its `@evidence` checklist.
+- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.

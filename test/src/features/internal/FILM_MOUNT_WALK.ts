@@ -2,7 +2,9 @@ import type { IAutoMovieMotion } from "@automovie/interface";
 
 import { keyframe, makeMotion, makePose } from "./fixtures";
 
-/** Preserve the existing two-second horse root translation for the mounted scenario. */
+/**
+ * The mount unit's two-second zero-to-two-metre X root motion with identity orientation and scale, built from the existing canonical pose helpers. The owning entry observes rider movement, shared-FK handoff and beat-end velocity; this fixture supplies a deterministic input rather than an independent FK oracle and starts no host.
+ */
 export const FILM_MOUNT_WALK: IAutoMovieMotion = makeMotion(
   [
     keyframe(

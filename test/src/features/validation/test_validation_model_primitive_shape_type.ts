@@ -1,42 +1,50 @@
-import { validateModel } from "@automovie/engine";
-import { AutoMoviePrimitiveShape } from "@automovie/interface";
+import type {
+  AutoMoviePrimitiveShape,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import { createModel } from "../internal/createModel";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Primitive shape discriminants are runtime data once a model crosses a JSON
- * boundary, so model validation must reject unknown variants before checking
- * extents. A forged shape with cylinder-like dimensions is still a `type`
- * violation, not an accepted radius/height primitive.
+ * Exercise closed primitive-shape admission with a forged discriminant and otherwise positive dimensions.
  *
- * Scenario: a primitive part carries an unknown `torus` shape with positive
- * radius and height. Validation fails with a `type` violation on the shape
- * discriminant.
+ * Scenarios:
+ * 1. A primitive part carries an unknown torus shape with positive radius and height. Validation fails with a type violation on the shape discriminant.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateModel on a torus-labelled primitive and requires a type finding at geometry.shape.type, catching fallthrough to a supported radius/height branch.
+ * @evidence contracts/testing.md#independent-expectations The supported primitive union excludes torus; positive dimensions cannot admit an unknown variant, and the expected field is authored independently of a generated mesh.
+ * @evidence contracts/testing.md#distinguishing-cases Owns the unsupported shape with valid-looking dimensions; model_valid owns supported box admission and extent tests own invalid dimensions.
+ * @evidence contracts/testing.md#execution-ownership This named unit passes a deliberately forged record to the portable model validator; it builds no torus geometry or external asset.
  */
-export const test_validation_model_primitive_shape_type = (): void => {
-  const unknownShape = {
+export function test_validation_model_primitive_shape_type(): void {
+  const unknownShape: AutoMoviePrimitiveShape = {
     type: "torus",
     radius: 1,
     height: 1,
   } as unknown as AutoMoviePrimitiveShape;
-  const base = createModel();
-  const model = {
+  const base: IAutoMovieModel = createModel();
+  const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((part) => ({
-      ...part,
-      geometry: {
-        type: "primitive" as const,
-        shape: unknownShape,
-      },
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: {
+          type: "primitive" as const,
+          shape: unknownShape,
+        },
+      }),
+    ),
   };
 
-  const result = validateModel({ model });
+  const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("unknown primitive shape fails", result.success, false);
   TestValidator.predicate(
     "shape type violation",
     hasViolation(result, "type", ".geometry.shape.type"),
   );
-};
+}

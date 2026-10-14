@@ -3,13 +3,17 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The single degree of freedom one moving member travels on.
  *
- * A door leaf and a lift car are the same arithmetic under different names, so
- * they share one record rather than each growing a private one: the value a
- * named state gives is a displacement from the element's own rest pose, and the
- * engine composes it after that pose so it rides down the hierarchy.
+ * Door leaves and lift cars share this record because their arithmetic is the
+ * same: the value a named operating state gives is a displacement from the
+ * element's own rest pose, and the engine composes it after that pose so it
+ * rides down the element hierarchy. Rest is the value `0`, so every range
+ * contains it.
  *
- * @evidence requirements/building-exterior/openings-and-fenestration.md#building-opening-operable-state Exposes `IAutoMovieTravelMotion` as the portable data boundary for the building opening operable state requirement.
- * @evidence specifications/building-envelope/facade-roof-and-openings.md#building-envelope-opening-operable-sweep-invariant Types `IAutoMovieTravelMotion` for the building envelope opening operable sweep invariant system contract.
+ * @evidence contracts/common.md#principled-implementation A revolute value becomes a right-handed quaternion turn about the normalized local axis with translation `pivot - rotate(pivot)`; a prismatic value translates along that unit axis. Building admission requires finite components/computed axis length above 1e-12, finite pivot when present, finite ordered travel containing zero and revolute span at most 2*pi + 1e-6 radians. World staging composes rest times delta, then parent world; finite authored values alone do not ensure finite derived matrices, which named-state staging checks separately.
+ * @evidence contracts/common.md#clear-and-simple-design Panels and carriages both reference this one record, and each variant carries only the fields its joint needs, so a slide has no pivot and neither variant repeats the per-state values that `IAutoMovieCarriageValue` and the opening states own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No joint is special-cased by element kind; the axis length is ignored by normalization rather than reinterpreted as a gain, and a degenerate axis or empty range is refused by the validator instead of being clamped.
+ * @evidence contracts/common.md#meaningful-documentation States that values are displacements from the rest pose at `0`, the local frame of axis and pivot, radians for revolute and metres for prismatic travel, the sign bounds on `min` and `max`, and the full-turn limit.
+ * @author Samchon
  */
 export type IAutoMovieTravelMotion =
   | IAutoMovieTravelMotion.IRevolute
@@ -18,47 +22,33 @@ export namespace IAutoMovieTravelMotion {
   /**
    * A hinge: the member turns about an axis through a pivot.
    *
-   * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `IRevolute` as the portable data boundary for the building external circulation requirement.
-   * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `IRevolute` for the building envelope exterior circulation input output system contract.
+   * A positive value turns counter-clockwise when viewed from the tip of the
+   * axis looking back at the pivot, the right-hand rule.
+   *
+   * @evidence contracts/common.md#principled-implementation A value becomes the unit quaternion of that angle about the normalized axis, composed with the translation `pivot - rotate(pivot)` so the pivot stays fixed; the premise is a non-degenerate axis, which the validator enforces before any displacement is built.
+   * @evidence contracts/common.md#clear-and-simple-design Axis, pivot and the two range ends are the whole hinge; the angle for each named state lives on the state, so the joint stores only what every state shares.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The full-turn limit carries a `1e-6` radian slack that validation shares with the swept-envelope solver, whose critical-angle walk that cap bounds, so the two cannot disagree; no hinge orientation or member kind gets a different rule.
+   * @evidence contracts/common.md#meaningful-documentation States the rotation sense, the local frame of axis and pivot, radian units, that `min` is at most rest and `max` at least rest, and that the range spans at most one turn.
+   * @author Samchon
    */
   export interface IRevolute {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `kind` as the portable data boundary for the building external circulation requirement.
-     * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `kind` for the building envelope exterior circulation input output system contract.
-     */
+    /** Selects the hinge joint. */
     kind: "revolute";
 
     /**
-     * Non-zero turn axis in the moving element's own local frame.
-     *
-     * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `axis` as the portable data boundary for the building external circulation requirement.
-     * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `axis` for the building envelope exterior circulation input output system contract.
+     * Finite non-zero turn axis in the moving element's own local frame; only
+     * its direction matters, because the engine normalizes it.
      */
     axis: IAutoMovieVector3;
 
-    /**
-     * A point on that axis in the same local frame.
-     *
-     * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `pivot` as the portable data boundary for the building external circulation requirement.
-     * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `pivot` for the building envelope exterior circulation input output system contract.
-     */
+    /** Finite point on that axis, in the same local frame, that stays fixed. */
     pivot: IAutoMovieVector3;
 
-    /**
-     * Lowest travel in radians; at most `0`, because rest is `0`.
-     *
-     * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `min` as the portable data boundary for the building external circulation requirement.
-     * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `min` for the building envelope exterior circulation input output system contract.
-     */
+    /** Lowest travel in radians; finite and at most `0`, the rest value. */
     min: number;
 
     /**
-     * Highest travel in radians; at least `0`, and within a turn of `min`.
-     *
-     * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation Exposes `max` as the portable data boundary for the building external circulation requirement.
-     * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output Types `max` for the building envelope exterior circulation input output system contract.
+     * Highest travel in radians; finite, at least zero, greater than `min`, and at most `2 * Math.PI + 1e-6` above it under the shared full-turn admission slack.
      */
     max: number;
   }
@@ -66,39 +56,28 @@ export namespace IAutoMovieTravelMotion {
   /**
    * A slide: the member travels along an axis without turning.
    *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-without-exterior Exposes `IPrismatic` as the portable data boundary for the interior without exterior requirement.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `IPrismatic` for the interior space independent set state system contract.
+   * @evidence contracts/common.md#principled-implementation A value becomes a pure translation of that many metres along the normalized axis, with identity rotation and unit scale, so the member's orientation is unchanged at every state.
+   * @evidence contracts/common.md#clear-and-simple-design Axis and the two range ends are the whole slide; it has no pivot because a translation has no fixed point to name.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The slide has no turn limit and no special case for vertical travel, so a lift car and a sliding door take the same rule.
+   * @evidence contracts/common.md#meaningful-documentation States the local frame of the axis, that only its direction matters, metre units along the unit axis, and the sign bounds on `min` and `max`.
+   * @author Samchon
    */
   export interface IPrismatic {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/scope-and-host-boundary.md#interior-without-exterior Exposes `kind` as the portable data boundary for the interior without exterior requirement.
-     * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `kind` for the interior space independent set state system contract.
-     */
+    /** Selects the slide joint. */
     kind: "prismatic";
 
     /**
-     * Non-zero travel axis in the moving element's own local frame.
-     *
-     * @evidence requirements/interior/scope-and-host-boundary.md#interior-without-exterior Exposes `axis` as the portable data boundary for the interior without exterior requirement.
-     * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `axis` for the interior space independent set state system contract.
+     * Finite non-zero travel axis in the moving element's own local frame; only
+     * its direction matters, because the engine normalizes it.
      */
     axis: IAutoMovieVector3;
 
-    /**
-     * Lowest travel in metres along the unit axis; at most `0`.
-     *
-     * @evidence requirements/interior/scope-and-host-boundary.md#interior-without-exterior Exposes `min` as the portable data boundary for the interior without exterior requirement.
-     * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `min` for the interior space independent set state system contract.
-     */
+    /** Lowest travel in metres along the unit axis; finite and at most `0`. */
     min: number;
 
     /**
-     * Highest travel in metres along the unit axis; at least `0`.
-     *
-     * @evidence requirements/interior/scope-and-host-boundary.md#interior-without-exterior Exposes `max` as the portable data boundary for the interior without exterior requirement.
-     * @evidence specifications/interior-space/scope-and-host.md#interior-space-independent-set-state Types `max` for the interior space independent set state system contract.
+     * Highest travel in metres along the unit axis; finite, at least `0`, and
+     * strictly greater than `min`.
      */
     max: number;
   }

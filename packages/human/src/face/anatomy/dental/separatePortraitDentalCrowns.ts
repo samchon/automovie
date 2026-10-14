@@ -16,25 +16,36 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * which both dental owners place them, and each mesh owns its buffers.
  * The engine solves along one axis, so a row that bends back on itself in X
  * is outside its limit; an arch's posterior continuation is not sampled.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual crown surfaces supply ordered axial difference constraints; balanced rigid X translations preserve every crown's transverse coordinates, normals and shape.
+ * @evidence contracts/common.md#clear-and-simple-design The engine owns admission/projected-clearance/longest-path separation while this adapter owns millimetre conversion and applies only the returned common-frame X shift.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nominal widths or per-tooth IDs do not replace actual surface measures; ray-parallel and non-X-monotone arrangements remain outside the directional separation contract.
+ * @evidence contracts/common.md#meaningful-documentation The prose states millimetres, order, balanced placement, unchanged shape and the one-axis limitation.
+ * @evidence contracts/performance.md#efficient-algorithms For M crowns and V coordinates, conversions/copies are O(V); the engine considers O(M squared) pairs and invokes projected-triangle clearance only without an axial separation proof.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each earlier/later pair is measured once by the canonical sequence owner; the resulting shift is reused for all coordinates of that crown without repeating geometric fitting.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned crown meshes own their arrays; converted geometry and engine separation temporaries expire after return, retaining no input sequence or global resource.
  */
 export function separatePortraitDentalCrowns(
   crowns: readonly IAutoMovieMesh[],
   contactGap: number,
 ): IAutoMovieMesh[] {
   return separateAutoMovieMeshSequence(
-    crowns.map((mesh) => ({
-      ...mesh,
-      positions: mesh.positions.map((value) => value / 1000),
-    })),
+    crowns.map(
+      (mesh: IAutoMovieMesh): IAutoMovieMesh => ({
+        ...mesh,
+        positions: mesh.positions.map((value: number): number => value / 1000),
+      }),
+    ),
     "x",
     contactGap / 1000,
-  ).map((mesh, index) => {
-    const shift =
+  ).map((mesh: IAutoMovieMesh, index: number): IAutoMovieMesh => {
+    const shift: number =
       (mesh.positions[0] - crowns[index].positions[0] / 1000) * 1000;
     return {
       ...mesh,
-      positions: crowns[index].positions.map((value, axis) =>
-        axis % 3 === 0 ? value + shift : value,
+      positions: crowns[index].positions.map(
+        (value: number, axis: number): number =>
+          axis % 3 === 0 ? value + shift : value,
       ),
     };
   });

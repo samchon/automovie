@@ -1,15 +1,14 @@
 /**
- * Let a measurement reader run only while the displayed person is admitted.
+ * Invoke a measurement reader only while the panel classifies its displayed person as admitted. A labelled construction draft receives an immediate rejected promise, which rows display instead of a reading. The ordinary measurement owner still evaluates admitted input and can refuse it; this gate does not prove any clinical validity or freeze the panel's state during an asynchronous read.
  *
- * Measurements are read on an admitted person by the measurement worker's
- * ordinary evaluation. A draft is by definition a person that evaluation
- * refuses, so asking for its measurements would construct the whole person in
- * a second worker only to throw the first failure. The reader is therefore
- * answered at once with the reason, which the measurement rows display in
- * place of a value; the caller's document and the worker are left untouched.
+ * @evidence contracts/common.md#principled-implementation The panel's current draft classification prevents ordinary whole-person measurement work on an explicitly refused construction; otherwise the exact supplied reader and arguments run unchanged.
+ * @evidence contracts/common.md#clear-and-simple-design A single wrapper owns display-state gating and leaves measurement evaluation and later revision checks to their existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Draft readings are reported unavailable rather than fabricated, and an admitted display classification does not replace the worker's input admission.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies immediate draft refusal and the limits of a call-time classification check.
+ * @evidence contracts/performance.md#efficient-algorithms The gate performs constant state work plus forwarding its argument tuple; admitted calls retain the underlying evaluator's full cost while drafts start no numerical request.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The wrapper keeps no reading cache or in-flight merge; reader inputs and revision/admission identity remain the caller's and measurement owner's responsibility.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure borrows two callbacks until its section is discarded. It starts no draft task and imposes no admitted-task cap or cancellation; the measurement transport owns pending requests and shutdown.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor States that a draft has no measurement reading instead of showing a stale or failed value.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Keeps the measurement worker on admitted documents only.
  * @author Samchon
  */
 export function readConnectedPersonAdmitted<
@@ -19,7 +18,7 @@ export function readConnectedPersonAdmitted<
   isDraft: () => boolean,
   read: (...input: Arguments) => Promise<Reading>,
 ): (...input: Arguments) => Promise<Reading> {
-  return (...input) =>
+  return (...input: Arguments): Promise<Reading> =>
     isDraft()
       ? Promise.reject(
           new Error(

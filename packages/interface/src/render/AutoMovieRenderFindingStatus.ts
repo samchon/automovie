@@ -1,8 +1,11 @@
 /**
- * How one metric came out.
+ * Outcome of one render-cost metric against its explicitly declared budget, or its analysis gap.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `AutoMovieRenderFindingStatus` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `AutoMovieRenderFindingStatus` for the spec render artifact lifecycle system contract.
+ * @evidence contracts/common.md#principled-implementation Budget evaluation classifies measured totals at or below a declared limit as within, above as over, no declared limit as unbudgeted, and preserves unsupported or not-run inventory gaps.
+ * @evidence contracts/common.md#clear-and-simple-design A five-state vocabulary exposes measurement, budget ownership and capability completeness separately rather than reducing every result to pass/fail.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unbudgeted is no agreed threshold, not passing clearance; absent analysis remains a gap and cannot become a successful zero-cost finding.
+ * @evidence contracts/common.md#meaningful-documentation Defines inclusive budget outcomes, measured-without-limit and the two explicit analysis-gap states.
+ * @author Samchon
  */
 export type AutoMovieRenderFindingStatus =
   | "within"

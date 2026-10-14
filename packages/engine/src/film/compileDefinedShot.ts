@@ -1,50 +1,61 @@
 import {
+  IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   IAutoMovieConstraintViolation,
   IAutoMovieDefinedShot,
+  IAutoMovieDiagnostic,
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
   IAutoMovieShotProgram,
   IAutoMovieShotSourceOutput,
   IAutoMovieStage,
+  IAutoMovieStageActor,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
+import { IAutoMovieBlockedBeat } from "./IAutoMovieBlockedBeat";
 import { IAutoMovieCompiledDefinedShot } from "./IAutoMovieCompiledDefinedShot";
-import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
+import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 import { IAutoMovieShotRuntime } from "./IAutoMovieShotRuntime";
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+import { IResolveBeatProps } from "./IResolveBeatProps";
 import { blockBeat } from "./blockBeat";
 import { performShot } from "./performShot";
 import { realizeShotContract } from "./realizeShotContract";
 import { resolveBeatEnd } from "./resolveBeatEnd";
 import { resolveBeatOpening } from "./resolveBeatOpening";
 import { stageScene } from "./stageScene";
+import { validateShotPhysicsAdvice } from "./validateShotPhysicsAdvice";
+import { validateShotProgramContract } from "./validateShotProgramContract";
+
+/** Prior beat state per actor node, read once for every resume step. */
+type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 
 /**
- * Compile a registered shot directly.
+ * Compile one {@link defineShot} registration into shot source, continuity and a contract realization, or into the diagnostics of the first phase that failed.
  *
- * The builder supplies ordinary code; the engine owns stage referential
- * integrity, blocking coherence, verb composition, ROM validation, artifact
- * validation and continuity sampling. Author mistakes return diagnostics.
- * Unexpected builder exceptions are also translated at this public boundary,
- * keeping raw throws internal to programmer invariants.
+ * The phases run in order: registration ids, one synchronous `build` call with `context`, the program held to its registration, the runtime's physics advice, staging, blocking against `runtime.previous`, restaging at the resumed placements, performance, contract realization, and continuity sampling. The builder supplies ordinary code; the engine owns referential integrity, blocking coherence, verb composition, range-of-motion and artifact validation, and continuity. A throw from the builder becomes `builder-failed`, and a throw from any other phase becomes `pipeline-failed` named after the phase that was running, so this boundary never throws.
  *
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-delivery-acceptance compileDefinedShot realizes a registered source builder and returns its measured delivery status at the direct authoring boundary.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-temporal-validation Requires blocking and performance duration to match the registered range and each finite event sample to lie inside its declared window.
- * @evidence requirements/staging/events-and-timing.md#staging-event-refusal Returns structured build diagnostics for missing, duplicate, undeclared, non-finite, or out-of-window event samples.
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-shot-source-binding Checks the built scene, beat, and duration against the registered shot and records the same shot id as the realized source export.
- * @evidence requirements/staging/shot-contracts-and-deliveries.md#staging-shot-contract-refusal Stops at registration, build, stage, blocking, performance, or realization failure with addressed diagnostics and never publishes a partial shot source.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result Applies the registered duration and event windows before performance and reports the owning phase for any failed temporal gate.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Admits exactly one declared finite sample inside each event window and refuses missing, duplicate, undeclared, or out-of-window occurrences.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-contract-realization-acceptance-status Binds the built artifact to its registered scene, beat, duration, and source identity and returns structured contract failure instead of partial delivery.
+ * When `runtime.previous` is supplied, each actor it names opens at that beat's position, facing, mount and pose, and the opening snapshot keeps its gait phase, root velocity, foot plants and mount. The runtime's foot plants for a node the performance replanted are replaced by the new ones.
+ *
+ * @evidence contracts/common.md#principled-implementation A fixed phase sequence in which each phase consumes only artifacts the previous one accepted, returning the first failing phase's diagnostics; resuming restages the program with the prior actors' translation, `atan2(x, z)` facing in degrees (the `facingDeg` convention `stageScene` reads, 0 facing +Z) and mount, because blocking must judge the authored stage before the prior state can be applied.
+ * @evidence contracts/common.md#clear-and-simple-design Sequences phases and owns only the resume merges; program and advice rules live in `validateShotProgramContract` and `validateShotPhysicsAdvice`, and staging, blocking, performance, realization and continuity sampling stay with their own functions, so this file decides order and diagnostic translation alone.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot, scene or fixture; the contract handed to realization takes the registration's id and a synthetic `<defineShot:id>` source because a direct compilation has no module path, and a realization failure tells the author to fix output rather than echo it into the contract.
+ * @evidence contracts/common.md#meaningful-documentation States the phase order, the single builder call, which diagnostic each kind of throw becomes, and exactly which prior-beat facts open the stage, the scene and the opening snapshot, and how runtime plants merge.
+ * @evidence contracts/performance.md#efficient-algorithms Adds actor/node/plant merges and deep copies of event samples, poses and advice to the delegated build, staging, performance and realization costs. Copy work scales with the nested records and text copied. One prior-actor map and one replanted-node set serve the resume merges; the second stageScene call runs only with a previous beat. Author-supplied builders and runtime callbacks have their own cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within one call each phase's accepted artifact is handed forward rather than recomputed, the prior-actor map is built once for all three resume merges, and one continuity input feeds both the opening and the closing snapshot; across calls nothing is reused, because the builder is author code whose result the engine cannot prove equal for the same context.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds intermediate phase artifacts for the call; success returns scene, motions, shot, continuity and realization plus deep-cloned event samples and advice. Scene fields and accepted motion objects can retain caller-owned references; the result does not retain the runtime capability container.
  */
-export const compileDefinedShot = <Context>(props: {
-  /** Registered source export. */
+export function compileDefinedShot<Context>(props: {
+  /** Registered source export, as {@link defineShot} returned it. */
   shot: IAutoMovieDefinedShot<Context>;
-  /** Frozen or caller-owned data read by the source builder. */
+
+  /** Caller-owned data passed to the builder's single call. */
   context: Context;
-  /** Host motion and rig capabilities. */
+
+  /** Host motion, rig, scene and continuity capabilities the phases read. */
   runtime: IAutoMovieShotRuntime;
-}): IAutoMovieCompiledDefinedShot => {
+}): IAutoMovieCompiledDefinedShot {
   let registration: IAutoMovieAuthoringDiagnostic[];
   try {
     registration = validateRegistration(props.shot);
@@ -91,24 +102,32 @@ export const compileDefinedShot = <Context>(props: {
 
   let phase: IAutoMovieAuthoringDiagnostic["phase"] = "build";
   try {
-    const contract = validateProgramContract(props.shot, program);
+    const contract: IAutoMovieAuthoringDiagnostic[] =
+      validateShotProgramContract(props.shot, program);
     if (contract.length !== 0) return { success: false, diagnostics: contract };
 
     phase = "stage";
-    const advice = validateAdvice(props.runtime.advice ?? []);
+    const advice: IAutoMovieAuthoringDiagnostic[] = validateShotPhysicsAdvice(
+      props.runtime.advice ?? [],
+    );
     if (advice.length !== 0) return { success: false, diagnostics: advice };
 
-    const authoredStage = stageScene(program.script, program.stage);
+    const authoredStage: IAutoMovieStagedSet = stageScene(
+      program.script,
+      program.stage,
+    );
     if (authoredStage.success === false)
       return {
         success: false,
-        diagnostics: authoredStage.violations.map((violation) =>
-          fromViolation("stage", "stage-invalid", violation),
+        diagnostics: fromViolations(
+          "stage",
+          "stage-invalid",
+          authoredStage.violations,
         ),
       };
 
     phase = "blocking";
-    const blocked = blockBeat(
+    const blocked: IAutoMovieBlockedBeat = blockBeat(
       program.script,
       authoredStage,
       program.blocking,
@@ -117,30 +136,44 @@ export const compileDefinedShot = <Context>(props: {
     if (blocked.success === false)
       return {
         success: false,
-        diagnostics: blocked.violations.map((violation) =>
-          fromViolation("blocking", "blocking-invalid", violation),
+        diagnostics: fromViolations(
+          "blocking",
+          "blocking-invalid",
+          blocked.violations,
         ),
       };
 
     phase = "stage";
-    const resumedStage =
+    const prior: IPriorActors | null =
       blocked.previous === null
-        ? authoredStage
-        : stageScene(
-            program.script,
-            resumeStage(program.stage, blocked.previous),
+        ? null
+        : new Map(
+            blocked.previous.actors.map(
+              (
+                actor: IAutoMovieBeatEndActorState,
+              ): [string, IAutoMovieBeatEndActorState] => [actor.node, actor],
+            ),
           );
+    const resumedStage: IAutoMovieStagedSet =
+      prior === null
+        ? authoredStage
+        : stageScene(program.script, resumeStage(program.stage, prior));
     if (resumedStage.success === false)
       return {
         success: false,
-        diagnostics: resumedStage.violations.map((violation) =>
-          fromViolation("stage", "stage-invalid", violation),
+        diagnostics: fromViolations(
+          "stage",
+          "stage-invalid",
+          resumedStage.violations,
         ),
       };
-    const staged = resumePoses(resumedStage, blocked.previous);
+    const staged: IAutoMovieStagedSet.ISuccess = resumePoses(
+      resumedStage,
+      prior,
+    );
 
     phase = "performance";
-    const performed = performShot({
+    const performed: IAutoMoviePerformedShot = performShot({
       script: program.script,
       staged,
       performance: program.performance,
@@ -166,12 +199,14 @@ export const compileDefinedShot = <Context>(props: {
     if (performed.success === false)
       return {
         success: false,
-        diagnostics: performed.violations.map((violation) =>
-          fromViolation("performance", "performance-invalid", violation),
+        diagnostics: fromViolations(
+          "performance",
+          "performance-invalid",
+          performed.violations,
         ),
       };
 
-    const motions = Object.values(performed.motions);
+    const motions: IAutoMovieMotion[] = Object.values(performed.motions);
     const source: IAutoMovieShotSourceOutput = {
       eventSamples: structuredClone(program.eventSamples),
       scene: staged.scene,
@@ -179,48 +214,58 @@ export const compileDefinedShot = <Context>(props: {
       shot: performed.shot,
     };
     phase = "contract";
-    const measured = realizeShotContract({
-      contract: {
-        ...props.shot.contract,
-        id: props.shot.id,
-        source: {
-          module: `<defineShot:${props.shot.id}>`,
-          export: props.shot.id,
+    const measured: ReturnType<typeof realizeShotContract> =
+      realizeShotContract({
+        contract: {
+          ...props.shot.contract,
+          id: props.shot.id,
+          source: {
+            module: `<defineShot:${props.shot.id}>`,
+            export: props.shot.id,
+          },
         },
-      },
-      production: null,
-      frameFormat: props.runtime.frameFormat,
-      world: props.runtime.world ?? null,
-      formations: props.runtime.formationDesigns ?? new Map(),
-      compiled: {
-        ...source,
-        models: [...(props.runtime.models ?? [])],
-        formations: [...(props.runtime.formations ?? [])],
-        // The cues the camera solve read, so the readability grade measures the
-        // unit where the camera framed it rather than where it started.
-        formationMotions: [...(props.runtime.formationMotions ?? [])],
-      },
-      skeleton: props.runtime.skeleton,
-      collisions: props.runtime.collisions ?? [],
-    });
+        production: null,
+        frameFormat: props.runtime.frameFormat,
+        world: props.runtime.world ?? null,
+        formations: props.runtime.formationDesigns ?? new Map(),
+        compiled: {
+          ...source,
+          models: [...(props.runtime.models ?? [])],
+          formations: [...(props.runtime.formations ?? [])],
+          // The cues the camera solve read, so the readability grade measures
+          // the unit where the camera framed it rather than where it started.
+          formationMotions: [...(props.runtime.formationMotions ?? [])],
+        },
+        skeleton: props.runtime.skeleton,
+        collisions: props.runtime.collisions ?? [],
+      });
     if (measured.diagnostics.length !== 0)
       return {
         success: false,
-        diagnostics: measured.diagnostics.map((diagnostic) => ({
-          code: "contract-realization-failed",
-          phase: "contract",
-          path: diagnostic.path ?? "$shot.contract",
-          fact: diagnostic.message,
-          impact:
-            "Independent scene, motion, event, or camera evidence does not realize the registered shot contract.",
-          recovery:
-            "Correct the authored stage, performance, event sample, or camera named by the fact; do not change contract prose to echo the current output.",
-        })),
+        diagnostics: measured.diagnostics.map(
+          (
+            diagnostic: IAutoMovieDiagnostic,
+          ): IAutoMovieAuthoringDiagnostic => ({
+            code: "contract-realization-failed",
+            phase: "contract",
+            path: diagnostic.path ?? "$shot.contract",
+            fact: diagnostic.message,
+            impact:
+              "Independent scene, motion, event, or camera evidence does not realize the registered shot contract.",
+            recovery:
+              "Correct the authored stage, performance, event sample, or camera named by the fact; do not change contract prose to echo the current output.",
+          }),
+        ),
       };
 
     phase = "continuity";
-    const replantedNodes = new Set(performed.plants.map((entry) => entry.node));
-    const continuityProps = {
+    const replantedNodes: Set<string> = new Set(
+      performed.plants.map(
+        (entry: IAutoMoviePerformedShot.ISuccess["plants"][number]): string =>
+          entry.node,
+      ),
+    );
+    const continuityProps: IResolveBeatProps = {
       beat: props.shot.contract.beat,
       scene: staged.scene,
       shot: performed.shot,
@@ -228,7 +273,8 @@ export const compileDefinedShot = <Context>(props: {
       mounts: staged.mounts,
       plants: [
         ...(props.runtime.plants ?? []).filter(
-          (entry) => replantedNodes.has(entry.node) === false,
+          (entry: NonNullable<IResolveBeatProps["plants"]>[number]): boolean =>
+            replantedNodes.has(entry.node) === false,
         ),
         ...performed.plants,
       ],
@@ -239,7 +285,7 @@ export const compileDefinedShot = <Context>(props: {
       continuity: {
         opening: resumeOpeningSnapshot(
           resolveBeatOpening(continuityProps),
-          blocked.previous,
+          prior,
         ),
         closing: resolveBeatEnd(continuityProps),
       },
@@ -263,149 +309,90 @@ export const compileDefinedShot = <Context>(props: {
       ],
     };
   }
-};
+}
 
 /** Keep resumable simulation facts authoritative at the new opening instant. */
-const resumeOpeningSnapshot = (
+function resumeOpeningSnapshot(
   opening: IAutoMovieBeatEndState,
-  previous: IAutoMovieBeatEndState | null,
-): IAutoMovieBeatEndState => {
-  if (previous === null) return opening;
-  const states = new Map(previous.actors.map((actor) => [actor.node, actor]));
+  prior: IPriorActors | null,
+): IAutoMovieBeatEndState {
+  if (prior === null) return opening;
   return {
     ...opening,
-    actors: opening.actors.map((actor) => {
-      const prior = states.get(actor.node);
-      return prior === undefined
-        ? actor
-        : {
-            ...actor,
-            gaitPhase: prior.gaitPhase,
-            rootVelocity: structuredClone(prior.rootVelocity),
-            footPlants: structuredClone(prior.footPlants),
-            mount: structuredClone(prior.mount),
-          };
-    }),
+    actors: opening.actors.map(
+      (actor: IAutoMovieBeatEndActorState): IAutoMovieBeatEndActorState => {
+        const state: IAutoMovieBeatEndActorState | undefined = prior.get(
+          actor.node,
+        );
+        return state === undefined
+          ? actor
+          : {
+              ...actor,
+              gaitPhase: state.gaitPhase,
+              rootVelocity: structuredClone(state.rootVelocity),
+              footPlants: structuredClone(state.footPlants),
+              mount: structuredClone(state.mount),
+            };
+      },
+    ),
   };
-};
+}
 
 /** Resume root placement, facing, and persistent mounts before staging. */
-const resumeStage = (
+function resumeStage(
   stage: IAutoMovieStage,
-  previous: IAutoMovieBeatEndState,
-): IAutoMovieStage => {
-  const states = new Map(previous.actors.map((actor) => [actor.node, actor]));
+  prior: IPriorActors,
+): IAutoMovieStage {
   return {
     ...stage,
-    actors: stage.actors.map((actor) => {
-      const prior = states.get(actor.node);
-      return prior === undefined
-        ? actor
-        : {
-            ...actor,
-            position: structuredClone(prior.transform.translation),
-            facingDeg:
-              (Math.atan2(prior.facing.x, prior.facing.z) * 180) / Math.PI,
-            attach:
-              prior.mount === null ? undefined : structuredClone(prior.mount),
-          };
-    }),
+    actors: stage.actors.map(
+      (actor: IAutoMovieStageActor): IAutoMovieStageActor => {
+        const state: IAutoMovieBeatEndActorState | undefined = prior.get(
+          actor.node,
+        );
+        return state === undefined
+          ? actor
+          : {
+              ...actor,
+              position: structuredClone(state.transform.translation),
+              facingDeg:
+                (Math.atan2(state.facing.x, state.facing.z) * 180) / Math.PI,
+              attach:
+                state.mount === null ? undefined : structuredClone(state.mount),
+            };
+      },
+    ),
   };
-};
+}
 
 /** Carry prior articulation onto the resumed scene's opening frame. */
-const resumePoses = (
-  staged: Extract<ReturnType<typeof stageScene>, { success: true }>,
-  previous: IAutoMovieBeatEndState | null,
-): Extract<ReturnType<typeof stageScene>, { success: true }> => {
-  if (previous === null) return staged;
-  const states = new Map(previous.actors.map((actor) => [actor.node, actor]));
+function resumePoses(
+  staged: IAutoMovieStagedSet.ISuccess,
+  prior: IPriorActors | null,
+): IAutoMovieStagedSet.ISuccess {
+  if (prior === null) return staged;
   return {
     ...staged,
     scene: {
       ...staged.scene,
-      nodes: staged.scene.nodes.map((node) => {
-        const pose = states.get(node.id)?.pose;
-        return pose === undefined
-          ? node
-          : { ...node, pose: structuredClone(pose) };
-      }),
+      nodes: staged.scene.nodes.map(
+        (node: IAutoMovieSceneNode): IAutoMovieSceneNode => {
+          const state: IAutoMovieBeatEndActorState | undefined = prior.get(
+            node.id,
+          );
+          return state === undefined
+            ? node
+            : { ...node, pose: structuredClone(state.pose) };
+        },
+      ),
     },
   };
-};
+}
 
-const validateAdvice = (
-  advice: readonly IAutoMovieShotPhysicsAdvice[],
-): IAutoMovieAuthoringDiagnostic[] => {
-  const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
-  const ids = new Map<string, number>();
-  advice.forEach((item, index) => {
-    const path = `$runtime.advice[${index}]`;
-    const first = ids.get(item.id);
-    if (item.id.trim().length === 0 || first !== undefined)
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "performance",
-        path: `${path}.id`,
-        fact:
-          first === undefined
-            ? "The physics-advice id is blank."
-            : `Physics-advice id "${item.id}" duplicates ${`$runtime.advice[${first}].id`}.`,
-        impact:
-          "The selected D010 decision cannot be audited against one stable proposal.",
-        recovery:
-          "Give every advice item one non-blank id that is unique in this shot.",
-      });
-    else ids.set(item.id, index);
-
-    const rationaleValid =
-      typeof item.rationale === "string" && item.rationale.trim().length !== 0;
-    const proposalEqualsSelected =
-      item.selected !== null &&
-      JSON.stringify(canonicalAdviceValue(item.proposal)) ===
-        JSON.stringify(canonicalAdviceValue(item.selected));
-    const valid =
-      item.decision === null
-        ? item.selected === null && item.rationale === null
-        : item.decision === "accepted"
-          ? item.selected !== null && proposalEqualsSelected && rationaleValid
-          : item.decision === "modified"
-            ? item.selected !== null &&
-              proposalEqualsSelected === false &&
-              rationaleValid
-            : item.selected === null && rationaleValid;
-    if (valid === false)
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "performance",
-        path,
-        fact: `D010 advice "${item.id}" has decision ${JSON.stringify(item.decision)}, selected ${item.selected === null ? "null" : "response data"}, and rationale ${JSON.stringify(item.rationale)}.`,
-        impact:
-          "The artifact cannot distinguish an unchanged proposal, an authored replacement, and a rejected physical suggestion.",
-        recovery:
-          "Keep pending selected/rationale null; copy proposal into selected for accepted; provide a different selected response for modified; or keep selected null for rejected. Every decided item needs a non-blank rationale.",
-      });
-  });
-  return diagnostics;
-};
-
-/** Compare response data by value rather than source object key insertion order. */
-const canonicalAdviceValue = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(canonicalAdviceValue);
-  if (typeof value !== "object" || value === null) return value;
-  return Object.fromEntries(
-    Object.keys(value)
-      .sort(compareCodeUnits)
-      .map((key) => [
-        key,
-        canonicalAdviceValue((value as Record<string, unknown>)[key]),
-      ]),
-  );
-};
-
-const validateRegistration = <Context>(
+/** Report every blank registration id against its exact field. */
+function validateRegistration<Context>(
   shot: IAutoMovieDefinedShot<Context>,
-): IAutoMovieAuthoringDiagnostic[] => {
+): IAutoMovieAuthoringDiagnostic[] {
   const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
   for (const [path, value, label] of [
     ["$shot.id", shot.id, "shot id"],
@@ -423,159 +410,36 @@ const validateRegistration = <Context>(
         recovery: `Give ${path} one non-blank stable id and keep it identical across source and design references.`,
       });
   return diagnostics;
-};
+}
 
-const validateProgramContract = <Context>(
-  shot: IAutoMovieDefinedShot<Context>,
-  program: IAutoMovieShotProgram,
-): IAutoMovieAuthoringDiagnostic[] => {
-  const diagnostics: IAutoMovieAuthoringDiagnostic[] = [];
-  const mismatch = (
-    path: string,
-    actual: unknown,
-    expected: unknown,
-    correction: string,
-  ): void => {
-    if (actual === expected) return;
-    diagnostics.push({
-      code: "contract-mismatch",
-      phase: "build",
-      path,
-      fact: `${path} is ${JSON.stringify(actual)} but the registration requires ${JSON.stringify(expected)}.`,
-      impact:
-        "The source program would self-certify a different artifact than the registered contract.",
-      recovery: correction,
-    });
-  };
-  mismatch(
-    "$program.stage.scene.id",
-    program.stage.scene.id,
-    shot.scene,
-    "Make the staged scene id equal the scene declared by defineShot.",
-  );
-  mismatch(
-    "$program.blocking.beat",
-    program.blocking.beat,
-    shot.contract.beat,
-    "Make blocking.beat equal the registered contract beat.",
-  );
-  mismatch(
-    "$program.performance.beat",
-    program.performance.beat,
-    shot.contract.beat,
-    "Make performance.beat equal the registered contract beat.",
-  );
-  mismatch(
-    "$program.blocking.duration",
-    program.blocking.duration,
-    shot.contract.durationSeconds,
-    "Make blocking.duration equal the registered contract duration.",
-  );
-  mismatch(
-    "$program.performance.duration",
-    program.performance.duration,
-    shot.contract.durationSeconds,
-    "Make performance.duration equal the registered contract duration.",
-  );
-
-  const stagedActors = new Set(program.stage.actors.map((actor) => actor.node));
-  const actorFacts = new Map<string, number>();
-  program.actors.forEach((actor, index) => {
-    const path = `$program.actors[${index}]`;
-    const first = actorFacts.get(actor.node);
-    const invalid =
-      actor.node.trim().length === 0
-        ? "node is blank"
-        : first !== undefined
-          ? `node "${actor.node}" duplicates $program.actors[${first}].node`
-          : stagedActors.has(actor.node) === false
-            ? `node "${actor.node}" is absent from stage.actors`
-            : actor.model.trim().length === 0
-              ? "model is blank"
-              : Number.isFinite(actor.speed) === false || actor.speed <= 0
-                ? `speed is ${JSON.stringify(actor.speed)} instead of finite and above zero`
-                : Number.isFinite(actor.eyeHeight) === false ||
-                    actor.eyeHeight < 0
-                  ? `eyeHeight is ${JSON.stringify(actor.eyeHeight)} instead of finite and non-negative`
-                  : null;
-    if (invalid === null) actorFacts.set(actor.node, index);
-    else
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "build",
-        path,
-        fact: `${path} ${invalid}.`,
-        impact:
-          "The host cannot bind this thin actor program to one measured staged runtime.",
-        recovery:
-          "Use one staged actor node and one non-blank builder model id, then provide finite positive speed and finite non-negative eye height.",
-      });
-  });
-
-  const samples = new Map<string, number>();
-  program.eventSamples.forEach((sample, index) => {
-    if (samples.has(sample.id))
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "build",
-        path: `$program.eventSamples[${index}].id`,
-        fact: `Event sample "${sample.id}" is duplicated.`,
-        impact:
-          "A declared semantic event would have more than one claimed authority time.",
-        recovery:
-          "Return exactly one independently chosen sample for each registered event id.",
-      });
-    samples.set(sample.id, sample.time);
-  });
-  shot.contract.events.forEach((event) => {
-    const time = samples.get(event.id);
-    if (
-      time === undefined ||
-      Number.isFinite(time) === false ||
-      time < event.window.from ||
-      time > event.window.to
-    )
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "build",
-        path: "$program.eventSamples",
-        fact:
-          time === undefined
-            ? `Event "${event.id}" has no sample.`
-            : `Event "${event.id}" is sampled at ${time}s outside ${event.window.from}..${event.window.to}s.`,
-        impact:
-          "The engine cannot independently measure the event inside its authoritative window.",
-        recovery: `Return one finite "${event.id}" sample inside its registered event window.`,
-      });
-  });
-  for (const id of samples.keys())
-    if (shot.contract.events.some((event) => event.id === id) === false)
-      diagnostics.push({
-        code: "contract-mismatch",
-        phase: "build",
-        path: "$program.eventSamples",
-        fact: `Event sample "${id}" is not declared by the registered contract.`,
-        impact:
-          "Source output would invent an event instead of realizing an authoritative requirement.",
-        recovery:
-          "Remove the sample or add the intended measurable event to defineShot's contract.",
-      });
-  return diagnostics;
-};
-
-const fromViolation = (
+/** Translate one gate's constraint violations into authoring diagnostics. */
+function fromViolations(
   phase: "stage" | "blocking" | "performance",
   code: "stage-invalid" | "blocking-invalid" | "performance-invalid",
-  violation: IAutoMovieConstraintViolation,
-): IAutoMovieAuthoringDiagnostic => ({
-  code,
-  phase,
-  path: violation.path,
-  fact: `${violation.expected}; received ${JSON.stringify(violation.value)}.`,
-  impact: `The ${phase} gate cannot emit a trustworthy registered shot while this constraint is unsatisfied.`,
-  recovery: `Correct ${violation.path} according to the stated bound, then compile the same registered export again.`,
-  violation,
-});
+  violations: readonly IAutoMovieConstraintViolation[],
+): IAutoMovieAuthoringDiagnostic[] {
+  return violations.map(
+    (
+      violation: IAutoMovieConstraintViolation,
+    ): IAutoMovieAuthoringDiagnostic => ({
+      code,
+      phase,
+      path: violation.path,
+      fact: `${violation.expected}; received ${JSON.stringify(violation.value)}.`,
+      impact: `The ${phase} gate cannot emit a trustworthy registered shot while this constraint is unsatisfied.`,
+      recovery: `Correct ${violation.path} according to the stated bound, then compile the same registered export again.`,
+      violation,
+    }),
+  );
+}
 
-const errorText = (error: unknown): string =>
-  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+/** Render a thrown value, falling back when its inspection or coercion throws. */
+function errorText(error: unknown): string {
+  try {
+    return error instanceof Error
+      ? `${error.name}: ${error.message}`
+      : String(error);
+  } catch {
+    return "an uninspectable thrown value";
+  }
+}

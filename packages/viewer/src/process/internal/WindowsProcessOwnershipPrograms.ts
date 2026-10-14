@@ -7,11 +7,12 @@
  * these strings or testing their JSON decoder does not prove native lifecycle.
  * The fixed programs contain no interpolated variable shell source, executable
  * name selection, recursive taskkill expansion or age-based termination path.
- *
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Selects native process identities through creation-checked retained Windows handles.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Supplies the fixed native operations consumed by the Node process host.
  */
-export const WindowsProcessOwnershipPrograms = {
+export const WindowsProcessOwnershipPrograms: Readonly<{
+  identity: string;
+  snapshot: string;
+  stop: string;
+}> = {
   identity: `
 try { $owned = [System.Diagnostics.Process]::GetProcessById([int]$request.pid) }
 catch [System.ArgumentException] { 'null'; exit 0 }

@@ -1,8 +1,8 @@
 /**
- * 방 소유의 바닥 입력을 실체 구획과 보행 지지 영역으로 분리한다.
- * XZ·Y는 world m, 각 구획의 내부는 서로 겹치지 않아야 한다.
- * 문턱 실체는 틀 아래까지, support는 유효 폭까지만 연장한다.
- * 부재와 충돌하지 않는 통과 여유를 이 입력만으로 판정하지 않는다.
+ * Splits a room-owned floor input into solid compartments and walkable support regions.
+ * XZ and Y are world m, and the compartments' interiors must not overlap.
+ * A threshold solid extends under the frame, while support extends only to the clear width.
+ * This input alone does not judge passage clearance free of member collisions.
  */
 import type { PlanRectangle } from "./planar-domain";
 import { passageRectangle, type DoorPassage } from "./spatial-cells";
@@ -25,8 +25,8 @@ export interface FloorInput {
 }
 
 /**
- * 방 본체·문 profile·층 두께만 소비하며 새 바닥 치수는 정하지 않는다.
- * 반환 구획은 후속 면 생성과 벽의 문턱 예약 제거가 함께 사용한다.
+ * Consumes only the room body, door profile and storey thickness and sets no new floor dimension.
+ * The returned compartments are used both by later face generation and by removing the walls' threshold reservations.
  */
 export const roomFloorInput = (
   space: string,
@@ -36,7 +36,7 @@ export const roomFloorInput = (
   thresholdLevel: number,
 ): FloorInput => {
   if (!Number.isFinite(thickness) || thickness <= 0) {
-    throw new Error(`${space}/floor: 양의 유한한 구조체 두께가 필요합니다.`);
+    throw new Error(`${space}/floor: a positive finite structural thickness is required.`);
   }
   const thresholds = doors.filter((door) => door.room === space);
   return {

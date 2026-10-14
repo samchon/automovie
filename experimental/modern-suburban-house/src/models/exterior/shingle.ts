@@ -1,5 +1,5 @@
 /**
- * Roof-course and folded-edge prototypes from docs/models/15-outdoor.md.
+ * Roof-course and folded-edge prototypes
  * Roof planes, course order, trimming planes, and world placement are caller
  * inputs; this file emits only the local metre geometry and surface identity.
  */

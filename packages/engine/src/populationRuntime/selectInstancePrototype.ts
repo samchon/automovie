@@ -1,6 +1,7 @@
 import { IAutoMovieCompiledInstancePrototype } from "@automovie/interface";
 
 import { seededValue } from "../math/seededValue";
+import { instancePrototypeChoices } from "./instancePrototypeChoices";
 
 /**
  * The prototype one instance slot draws, or the explicit one it names.
@@ -19,12 +20,34 @@ import { seededValue } from "../math/seededValue";
  * regenerated member changes prototype. The choice returned is the table's own
  * entry, so a caller holding a compiled table reads that entry's tiers.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Chooses which shared prototype, the base recipe's default counted once, one slot occurrence refers to.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Resolves an occurrence against the prototype table by explicit name or by weight and returns the table's own entry.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability Draws the prototype from the set's own seed and slot key alone, so a change elsewhere in the scene cannot reshuffle it.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-deterministic-instance-generation Determines a rule-generated occurrence's prototype from its stable slot key, set seed, and explicit exception.
+ * @evidence contracts/common.md#principled-implementation Resolve an explicit prototype id or spend one independently salted seeded sample across positive weights in table order; the final choice receives floating residue. Complete default-first choices and finite representable total weight are upstream premises.
+ * @evidence contracts/common.md#clear-and-simple-design One weighted-choice owner serves instance regeneration and subject diff so both identify the same prototype for an addressed slot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The final-choice residue rule preserves the existing weighted policy, not a fixture fallback; missing explicit ids throw and no actor/model spelling changes probabilities.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify explicit-id refusal, seeded salt, default-first convention and borrowed selected table entry including its compiled tiers.
+ * @evidence contracts/performance.md#efficient-algorithms P choices require O(P) total/selection scans and constant additional selection state; explicit selection is an O(P) find without copying a choice prefix.
+ * @evidence contracts/performance.md#reuse-equivalent-work Regeneration and diff reuse this canonical selection law; the returned entry is borrowed, and changed weights/seed/slot require a new selection.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources No choice history or prefix copy is retained; the input table stays caller-owned and only the selected borrowed entry escapes.
  */
-export const selectInstancePrototype = <
+export const selectInstancePrototype: <
+  Choice extends Pick<
+    IAutoMovieCompiledInstancePrototype,
+    "id" | "modelRecipe" | "weight"
+  >,
+>(
+  instanceSet: {
+    id: string;
+    seed: number;
+    modelRecipe: string;
+    prototypes?: readonly Choice[];
+  },
+  slot: number,
+  explicit: string | undefined,
+) =>
+  | Choice
+  | Pick<
+      IAutoMovieCompiledInstancePrototype,
+      "id" | "modelRecipe" | "weight"
+    > = <
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
     "id" | "modelRecipe" | "weight"
@@ -47,20 +70,45 @@ export const selectInstancePrototype = <
   const choices: readonly (
     | Choice
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight">
-  )[] = instanceSet.prototypes ?? [
-    { id: "default", modelRecipe: instanceSet.modelRecipe, weight: 1 },
-  ];
+  )[] = instancePrototypeChoices(instanceSet);
   if (explicit !== undefined) {
-    const selected = choices.find((choice) => choice.id === explicit);
+    const selected:
+      | Pick<
+          IAutoMovieCompiledInstancePrototype,
+          "id" | "modelRecipe" | "weight"
+        >
+      | Choice
+      | undefined = choices.find(
+      (
+        choice:
+          | Pick<
+              IAutoMovieCompiledInstancePrototype,
+              "id" | "modelRecipe" | "weight"
+            >
+          | Choice,
+      ): boolean => choice.id === explicit,
+    );
     if (selected === undefined)
       throw new Error(
         `Instance set "${instanceSet.id}" slot ${slot} references missing prototype "${explicit}".`,
       );
     return selected;
   }
-  const total = choices.reduce((sum, choice) => sum + choice.weight, 0);
-  let sample = seededValue(instanceSet.seed, slot, 0x70726f74) * total;
-  for (const choice of choices.slice(0, -1)) {
+  const total: number = choices.reduce(
+    (
+      sum: number,
+      choice:
+        | Pick<
+            IAutoMovieCompiledInstancePrototype,
+            "id" | "modelRecipe" | "weight"
+          >
+        | Choice,
+    ): number => sum + choice.weight,
+    0,
+  );
+  let sample: number = seededValue(instanceSet.seed, slot, 0x70726f74) * total;
+  for (let index: number = 0; index < choices.length - 1; ++index) {
+    const choice: (typeof choices)[number] = choices[index]!;
     if (sample < choice.weight) return choice;
     sample -= choice.weight;
   }

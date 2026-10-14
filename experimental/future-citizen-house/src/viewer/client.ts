@@ -98,10 +98,10 @@ function report() {
 function selectSpace() {
   if (!payload || !running) return;
   observation = "free"; observationSpace = null;
-  status.textContent = "공간 선택됨 · 카메라 관찰은 아직 선택하지 않았습니다.";
-  stationSelect.replaceChildren(new Option("관찰 id 선택", ""));
+  status.textContent = "Space selected · no camera observation selected yet.";
+  stationSelect.replaceChildren(new Option("Select an observation id", ""));
   for (const station of payload.stations.filter((entry) => entry.space === spaceSelect.value)) {
-    const option = new Option(station.id + (station.pose ? "" : " · 위치 없음"), station.id);
+    const option = new Option(station.id + (station.pose ? "" : " · no position"), station.id);
     stationSelect.add(option);
   }
   report();
@@ -112,13 +112,13 @@ function selectStation() {
   if (!station) return;
   observation = station.space + "/" + station.id;
   observationSpace = station.pose ? station.cameraSpace ?? station.space : null;
-  if (!station.pose) { status.textContent = observation + ": 카메라 위치 unverified"; report(); return; }
+  if (!station.pose) { status.textContent = observation + ": camera position unverified"; report(); return; }
   setSection(station.section);
   camera.fov = station.fov; camera.updateProjectionMatrix();
   camera.position.copy(station.pose.position);
   controls.target.copy(station.pose.target);
   controls.update();
-  status.textContent = "엔진 진단 위치 — 저작된 관찰 조건과의 대조는 미완료";
+  status.textContent = "Engine diagnostic position — comparison with the authored observation conditions is incomplete";
   report();
 }
 /** @param {unknown} error */
@@ -147,18 +147,18 @@ async function load() {
   outline = new THREE.Box3Helper(new THREE.Box3().setFromObject(house), 0x26725a);
   outline.visible = false;
   scene.add(outline);
-  spaceSelect.replaceChildren(new Option("외부 전체", "exterior"), new Option("레퍼런스 추가 관찰", "references"));
+  spaceSelect.replaceChildren(new Option("Whole exterior", "exterior"), new Option("Additional reference observations", "references"));
   for (const space of payload.environment.spaces) spaceSelect.add(new Option(space.id + " · " + space.kind, space.id));
   selectSpace();
   reset();
   const blocked = payload.clearance.filter((c) => c.status === "blocked");
-  status.textContent = blocked.length ? "통행 충돌 " + blocked.length + "건 · 검사 정보에서 실제 장애물 id를 확인하세요" : "현재 source · 시각 판정 전 · 계단 원통 검사는 unverified";
+  status.textContent = blocked.length ? "Passage collisions: " + blocked.length + " · check the actual obstacle ids in the inspection details" : "Current source · before visual verdict · stair cylinder check unverified";
   async function checkBasis() {
     try {
       const latest = await fetch("/basis", { cache: "no-store" });
       if (!latest.ok) throw new Error(await latest.text());
       const value = await latest.json();
-      if (value.basis !== payload?.basis) throw new Error("Source 기준이 변경되었습니다. 조정자 재시작이 필요합니다.");
+      if (value.basis !== payload?.basis) throw new Error("The source basis has changed. The coordinator must restart the server.");
     } catch (error) { fail(error); }
   }
   window.clearInterval(poll);

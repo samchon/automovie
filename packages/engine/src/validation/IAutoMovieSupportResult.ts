@@ -6,34 +6,24 @@ import {
 import { IAutoMovieToppling } from "./IAutoMovieToppling";
 
 /**
- * The outcome of a support check: the `warning` envelope, the `fall`
- * interaction event(s), and a suggested topple (or `null` when stably
- * supported).
+ * Support advice, fall events and a nullable topple from detectSupportToppling.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieSupportResult` keeps the support diagnostic, fall event, and topple suggestion attached to one center-and-contact evaluation.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieSupportResult` separates validation outcome, downstream event scope, and optional physical advice for the subject.
+ * @evidence contracts/common.md#principled-implementation The detector separates invalid-input errors, unsupported-body warnings and an optional nearest-hull-edge suggestion; a supplied physicsIntent suppresses the warning and topple while retaining the fall event.
+ * @evidence contracts/common.md#clear-and-simple-design One geometric decision supplies both diagnostic and interaction consumers without requiring a second support computation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A suggested topple is advice rather than an applied motion, and point support-hull testing does not prove dynamic balance or continuous collision freedom.
+ * @evidence contracts/common.md#meaningful-documentation Names the detector and warning/error envelope, time-zero events and nullable toppling meaning, including physics-intent suppression.
+ * @evidence contracts/performance.md#efficient-algorithms This wrapper performs no hull construction or nearest-edge scan; the detector owns those population costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Its findings and suggestion come from one support evaluation rather than unrelated independently cached poses.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns outcome containers and fresh event points; suggested pivot endpoints borrow input support references, without an acquired physics host.
  * @author Samchon
  */
 export interface IAutoMovieSupportResult {
-  /**
-   * Warning-severity feedback (or an error for bad input).
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validation` locates invalid margin or support inputs and the overhang warning at the caller's support root.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validation` preserves severity, expected hull margin, observed distance, and excess for the support decision.
-   */
+  /** Warning-severity feedback (or an error for bad input). */
   validation: IAutoMovieValidation;
-  /**
-   * Fall events on the shot clock: "one calculation, two consumers".
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `events` names the unsupported node in the fall event produced by the same support calculation.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `events` retains subject scope even when physics intent suppresses warnings and topple advice.
-   */
+
+  /** Fall events on the shot clock: "one calculation, two consumers". */
   events: IAutoMovieInteractionEvent[];
-  /**
-   * Suggested topple, or `null` when supported.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `toppling` identifies the suggested pivot and direction only for an unsuppressed overhang.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `toppling` remains null for stable or intentionally unphysical support, limiting advice to the invalid relation.
-   */
+
+  /** Suggested topple, or `null` when supported. */
   toppling: IAutoMovieToppling | null;
 }

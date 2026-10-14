@@ -1,24 +1,16 @@
 /**
  * Explicit humanoid retargeting of external motion.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes retargeting and its scale an explicit production decision.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types the retarget mode retained by the external motion receipt.
+ * @evidence contracts/common.md#principled-implementation The discriminator and finite positive translationScale retain an explicit source-to-target intent without deriving an unstated size choice. The retired production reader no longer passes these fields to Engine automatically; hosts own scale admission and conversion invocation.
+ * @evidence contracts/common.md#clear-and-simple-design Mode and one scale are the retarget-only choices; source rig, node mapping and receiving actor remain on the enclosing adoption declaration.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine cannot silently convert incompatible native motion using a guessed ratio; the author selects retarget mode and supplies the scale that changes root travel.
+ * @evidence contracts/common.md#meaningful-documentation States explicit humanoid conversion and the positive finite translation multiplier, distinct from geometric model scaling or automatic source selection.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionHumanoidRetargetMode {
-  /**
-   * Humanoid-retarget adoption discriminator.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Prevents silent substitution of native use for retargeting.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Records humanoid retargeting as the selected mode.
-   */
+  /** Humanoid-retarget adoption discriminator. */
   kind: "humanoid-retarget";
 
-  /**
-   * Explicit finite positive root-translation scale.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-compatibility-override Makes automatic scale correction reviewable and overridable.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Retains the selected translation conversion in the receipt.
-   */
+  /** Explicit finite positive root-translation scale. */
   translationScale: number;
 }

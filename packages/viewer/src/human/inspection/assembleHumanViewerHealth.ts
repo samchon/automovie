@@ -1,24 +1,28 @@
+import type { IHumanViewerHealth } from "./IHumanViewerHealth.js";
 import type { IHumanViewerHealthSources } from "./IHumanViewerHealthSources.js";
 import { humanViewerProtocol } from "./humanViewerProtocol.js";
 
 /**
- * The `/health` answer. A ready server can draw; it may be drawing the last
- * good build while the newest source fails, which `serving` and
- * `sourceError` say.
+ * Assemble `/health` from owner reports. Ready means nonempty reported page authority and renderer text, not an independent draw or hardware observation. The retained authority can differ from a failed newest source, which serving and sourceError expose.
  *
- * @evidence contracts/common.md#principled-implementation Readiness, staleness and the source error are reported apart, so a stale but drawing server is not read as current.
- * @evidence contracts/common.md#clear-and-simple-design One function assembles the answer from the server's accessors.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publishes the owners' actual readiness, source, renderer and queue observations without certifying anatomy from HTTP success or replacing a stale source label.
- * @evidence contracts/common.md#meaningful-documentation States what ready and stale mean.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Readiness, staleness and the source error are reported apart, so a stale but drawing server is not read as current.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One function assembles the answer from the server's accessors.
+ * @evidence contracts/common.md#principled-implementation Answer-time accessors preserve desired/serving authority and owner status; ready requires nonempty reported authority and renderer text rather than independently proven drawing, hardware or newest-source success.
+ * @evidence contracts/common.md#clear-and-simple-design The assembler reads existing owners and adds only cross-owner health summaries, leaving queue, admission, capture and heap calculations with their producers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale last-good display is explicitly labeled, original compile/latest error causes are preserved and retained array bytes do not become GPU-memory evidence.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains last-good readiness during source failure; the named answer type documents owner identity, units and nullable observation states.
+ * @evidence contracts/performance.md#efficient-algorithms Assembly invokes each listed owner accessor once and does no document traversal; work and returned metadata size follow the status producers' current queue/error/admission populations.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Health is a current request-time snapshot across mutable owners, so a prior answer under the same source revision is not equivalent current state.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The answer borrows status data without acquiring runtime handles; HTTP serialization owns its transient result and each source owner keeps its own resource lifetime.
  */
-export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources) {
-  const inventory = sources.inventory();
-  const readyRevision = sources.readyRevision();
-  const renderer = sources.renderer();
-  const compilation = sources.sourceStatus();
-  const errors = sources.errors();
+export function assembleHumanViewerHealth(
+  sources: IHumanViewerHealthSources,
+): IHumanViewerHealth {
+  const inventory: ReturnType<IHumanViewerHealthSources["inventory"]> =
+    sources.inventory();
+  const readyRevision: string = sources.readyRevision();
+  const renderer: string = sources.renderer();
+  const compilation: ReturnType<IHumanViewerHealthSources["sourceStatus"]> =
+    sources.sourceStatus();
+  const errors: string[] = sources.errors();
   return {
     service: "automovie-human-viewer",
     protocol: humanViewerProtocol,

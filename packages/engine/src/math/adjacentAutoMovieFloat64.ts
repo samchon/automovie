@@ -1,31 +1,40 @@
-const bits = new DataView(new ArrayBuffer(8));
+/** Eight scratch bytes every call overwrites before it reads them back. */
+const bits: DataView = new DataView(new ArrayBuffer(8));
 
 /**
- * The finite neighbouring binary64 scalar in one ordered direction.
- * Arithmetic enclosures use this after a rounded operation; no spatial epsilon
- * or physical unit is introduced. Zero neighbours are the signed smallest
- * subnormals. Stepping beyond the largest finite magnitude refuses by name.
- * The shared buffer is private and every call completes synchronously.
- * IEEE binary64 magnitude encodings are ordered integers; negative encodings
- * reverse that order. Two unsigned words carry/borrow without BigInt allocation.
- * Geometry projection intervals and numerical attachment rays share this owner.
+ * The binary64 number adjacent to a finite value, one unit in the last place
+ * toward positive or negative infinity.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies representable outward neighbours for conservative geometry arithmetic instead of a fixed spatial tolerance.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Refuses nonfinite enclosing arithmetic and preserves the represented binary64 coordinate boundary used by geometry checks.
- * @author Samchon
+ * Callers widen a rounded result outward by one representable step so a
+ * computed bound encloses the exact one, as interval and enclosure code does
+ * after a rounded subtraction or division; no spatial tolerance or unit is
+ * involved. Zero of either sign steps to the signed smallest subnormal, and a
+ * smallest subnormal stepping toward zero returns a zero carrying its sign.
+ *
+ * @param value Finite value to step from; `NaN` and either infinity throw.
+ * @param upper True for the neighbour toward positive infinity, false for the
+ *   one toward negative infinity.
+ * @returns The adjacent finite value. Stepping beyond `Number.MAX_VALUE` in
+ *   either direction throws instead of returning an infinity.
+ *
+ * @evidence contracts/common.md#principled-implementation IEEE 754 binary64 orders positive values by their bit patterns read as unsigned integers and negative values in reverse, so the neighbour is the 64-bit pattern plus or minus one, toward larger magnitude when the sign agrees with the direction; the pattern is written big-endian through a `DataView`, so the high and low 32-bit words are the same on every platform, and the low word's wrap carries or borrows into the high word, which `setUint32` reduces modulo 2^32, without BigInt.
+ * @evidence contracts/common.md#clear-and-simple-design One direction flag instead of separate up and down functions, because the projection separation, triangle attachment contact and barycentric seating bounds, the quadratic polisher's dual rounding and the hair exterior interval each pick the direction from a sign at the call site.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero is the only special case, because a zero's neighbour toward the opposite sign lies across the sign bit, where decrementing the zero magnitude would wrap to a NaN pattern; an overflow refuses rather than returning the infinity the bit pattern reaches.
+ * @evidence contracts/common.md#meaningful-documentation States the one-ulp meaning and the direction flag, why callers use it, the signed-zero and subnormal results, and both refusals: a non-finite input and a step past the largest finite value.
+ * @evidence contracts/performance.md#efficient-algorithms Constant time with no allocation per call: one float write, two word reads, two word writes and one float read on a buffer allocated once at module load, instead of a `Float64Array` view pair that would depend on platform endianness.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar function that coordinates no work across calls; the scratch buffer is reused storage, not a reused result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The module retains one 8-byte buffer for its lifetime; every call writes it before reading and finishes synchronously, so no state survives a call and concurrent callers cannot interleave inside it.
  */
 export function adjacentAutoMovieFloat64(
   value: number,
   upper: boolean,
 ): number {
   if (!Number.isFinite(value))
-    throw new Error(
-      "Geometry intervals require representable finite arithmetic.",
-    );
+    throw new Error("Adjacent binary64 needs a representable finite value.");
   if (value === 0) return upper ? Number.MIN_VALUE : -Number.MIN_VALUE;
   bits.setFloat64(0, value);
-  const high = bits.getUint32(0),
-    low = bits.getUint32(4);
+  const high: number = bits.getUint32(0);
+  const low: number = bits.getUint32(4);
   if (value > 0 === upper) {
     bits.setUint32(0, high + (low === 0xffffffff ? 1 : 0));
     bits.setUint32(4, low + 1);
@@ -33,8 +42,10 @@ export function adjacentAutoMovieFloat64(
     bits.setUint32(0, high - (low === 0 ? 1 : 0));
     bits.setUint32(4, low - 1);
   }
-  const result = bits.getFloat64(0);
+  const result: number = bits.getFloat64(0);
   if (!Number.isFinite(result))
-    throw new Error("Geometry intervals cannot enclose an overflowing result.");
+    throw new Error(
+      "Adjacent binary64 beyond the largest finite magnitude is an overflowing infinity.",
+    );
   return result;
 }

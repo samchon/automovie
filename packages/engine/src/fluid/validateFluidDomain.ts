@@ -1,9 +1,14 @@
 import {
   IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  IAutoMovieFluidSpray,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { validateRange } from "../validation/validateRange";
 import { FLUID_MAX_CELLS } from "./constants/FLUID_MAX_CELLS";
 import { FLUID_MAX_FLOWS } from "./constants/FLUID_MAX_FLOWS";
 import { FLUID_MAX_SPRAYS } from "./constants/FLUID_MAX_SPRAYS";
@@ -11,41 +16,42 @@ import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES
 import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
-const BOUNDARY_KINDS = new Set(["wall", "open"]);
+/** Closed boundary vocabulary read by the four edge checks; module-owned constant-size lookup with no mutation after construction. */
+const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
 
-const EDGES = ["xMin", "xMax", "zMin", "zMax"] as const;
+/** Every solver edge, visited in diagnostic order without building per-domain key lists. */
+const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
+  "xMin",
+  "xMax",
+  "zMin",
+  "zMax",
+];
 
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
- * The point of the pass is that a domain which survives it can be integrated
- * without the solver second-guessing its own input: the arrays are the right
- * length, no depth is negative or deeper than the design depth the Courant
- * number was checked against, no source pours into solid matter, and the
- * explicit step is actually stable. A domain that fails is refused with the
- * path of every offending field, never quietly clamped — a clamped basin is a
- * basin whose author was told nothing and whose frames changed anyway.
+ * For a structurally typed domain, checks schema/id, safe positive grid counts, finite authored scalars, count budgets, per-cell array lengths/values, boundary vocabulary, nonsolid source/drain/spray sites, activity windows and sibling identities. Initial depths must lie in [0, referenceDepth], and solid cells must start dry. Violations retain field paths and authored values; inputs are not modified.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-refusal Refuses invalid lattice, stability, boundary, and flow declarations explicitly.
- * @evidence requirements/map/rivers-and-inland-water.md#map-water-refusal `validateFluidDomain` rejects malformed basin geometry, unstable solver parameters, impossible depths, and sources placed in solid cells before any map water solve runs.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#world-coupling-invalidation-and-refusal Produces addressed failures before a fluid domain joins the world solve.
- * @evidence specifications/world-and-site/hydrology-coast-and-groundwater.md#world-site-hydrology-refusal-limit The validator reports each unsupported or unstable bounded-domain input rather than clamping it into a misleading successful hydrology result.
- * @author Samchon
+ * The Courant comparison runs only when its five authored inputs are finite and positive. A computed value above one, including Infinity, is refused; derived NaN is missed by that comparison. Admission also does not bound finite area, damping, clock, flow accumulation or spray-index products, and later water depth may exceed referenceDepth. It does not certify every derived solver/surface/spray result or perform general unknown-object shape admission.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks authored scalar domains, indexed-array cardinality and population/site constraints before callers integrate. The design-depth Courant expression is rejected only when greater than one; representable intermediate arithmetic, future depth stability and valid object structure remain premises rather than guarantees of this pass.
+ * @evidence contracts/common.md#clear-and-simple-design One linear pass per field group with private helpers for integer, length, budget, identity, cell-site and activity-window rules; finite intervals use the shared `validateRange` and blank ids the collector's `nonEmpty`, so no range or blank rule is restated here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No authored value is clamped or defaulted; named budgets apply uniformly. A broken referenceDepth uses Infinity only as the depth-check ceiling to avoid repeated dependent findings. Finite cell products past the budget are refused even outside safe-integer precision, while the derived-NaN Courant bypass remains unresolved.
+ * @evidence contracts/common.md#meaningful-documentation Gives the field groups checked, path/value preservation, typed-object premise and the derived arithmetic/depth limits that admission leaves to consumers.
+ * @evidence contracts/performance.md#efficient-algorithms Time is linear in actual bed/depth/solid array lengths, source/drain/spray counts and id text, even when declared counts are invalid or over budget. Full array scans name bad entries after cardinality/budget findings; id sets avoid sibling rescans, and findings plus distinct ids determine temporary/result storage.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single validation pass per call; nothing is shared across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the collector and id sets die with the call, and the returned violations, at most a few per declared field, belong to the caller.
  */
-export const validateFluidDomain = (props: {
+export const validateFluidDomain: (props: {
+  domain: IAutoMovieFluidDomain;
+}) => IAutoMovieValidation = (props: {
   domain: IAutoMovieFluidDomain;
 }): IAutoMovieValidation => {
-  const { domain } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const domain: IAutoMovieFluidDomain = props.domain;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
-  if (domain.id.trim().length === 0)
-    out.push(
-      "type",
-      `${root}.id`,
-      "fluid domain id must be non-empty",
-      domain.id,
-    );
+  out.nonEmpty(`${root}.id`, domain.id, "fluid domain id");
   if (domain.version !== 1)
     out.push(
       "type",
@@ -61,39 +67,22 @@ export const validateFluidDomain = (props: {
       domain.units,
     );
 
-  const columns = domain.grid.columns;
-  const rows = domain.grid.rows;
+  const columns: number = domain.grid.columns;
+  const rows: number = domain.grid.rows;
   integer(out, `${root}.grid.columns`, "grid columns", columns, 1, Infinity);
   integer(out, `${root}.grid.rows`, "grid rows", rows, 1, Infinity);
-  numeric(
-    out,
-    `${root}.grid.cellX`,
-    "cell size x",
-    domain.grid.cellX,
-    0,
-    true,
-    Infinity,
-  );
-  numeric(
-    out,
-    `${root}.grid.cellZ`,
-    "cell size z",
-    domain.grid.cellZ,
-    0,
-    true,
-    Infinity,
-  );
+  positive(out, `${root}.grid.cellX`, "cell size x", domain.grid.cellX);
+  positive(out, `${root}.grid.cellZ`, "cell size z", domain.grid.cellZ);
   for (const axis of ["x", "y", "z"] as const)
-    numeric(
-      out,
-      `${root}.grid.origin.${axis}`,
-      `grid origin ${axis}`,
+    validateRange(
       domain.grid.origin[axis],
+      `${root}.grid.origin.${axis}`,
       -Infinity,
-      false,
       Infinity,
+      `grid origin ${axis}`,
+      out.items,
     );
-  const cells = columns * rows;
+  const cells: number = columns * rows;
   // Finite rather than safe-integer: a 2³⁰ × 2³⁰ lattice counts 2⁶⁰ cells,
   // which is past `Number.MAX_SAFE_INTEGER`, and a guard that skipped exactly
   // the grids too large to count would let the only ones nobody can afford
@@ -108,68 +97,64 @@ export const validateFluidDomain = (props: {
       cells - FLUID_MAX_CELLS,
     );
 
-  numeric(
+  const solver: IAutoMovieFluidDomain["solver"] = domain.solver;
+  positive(
     out,
     `${root}.solver.fixedStepSeconds`,
     "fixed step",
-    domain.solver.fixedStepSeconds,
-    0,
-    true,
-    Infinity,
+    solver.fixedStepSeconds,
   );
-  numeric(
-    out,
-    `${root}.solver.gravity`,
-    "gravity",
-    domain.solver.gravity,
-    0,
-    true,
-    Infinity,
-  );
-  numeric(
-    out,
+  positive(out, `${root}.solver.gravity`, "gravity", solver.gravity);
+  validateRange(
+    solver.drag,
     `${root}.solver.drag`,
+    0,
+    Infinity,
     "drag",
-    domain.solver.drag,
-    0,
-    false,
-    Infinity,
+    out.items,
   );
-  numeric(
-    out,
+  validateRange(
+    solver.dryDepth,
     `${root}.solver.dryDepth`,
-    "dry depth",
-    domain.solver.dryDepth,
     0,
-    false,
     Infinity,
+    "dry depth",
+    out.items,
   );
-  numeric(
+  positive(
     out,
     `${root}.solver.referenceDepth`,
     "reference depth",
-    domain.solver.referenceDepth,
-    0,
-    true,
-    Infinity,
+    solver.referenceDepth,
   );
   integer(
     out,
     `${root}.solver.maxSteps`,
     "max steps",
-    domain.solver.maxSteps,
+    solver.maxSteps,
     1,
     FLUID_MAX_STEPS,
   );
 
-  const courant = fluidCourantNumber(domain);
-  if (Number.isFinite(courant) && courant > 1)
+  // Bad authored operands are reported at their fields. Infinity exceeds this
+  // comparison, but NaN from extreme finite intermediates currently bypasses it.
+  const courant: number = fluidCourantNumber(domain);
+  if (
+    [
+      solver.fixedStepSeconds,
+      solver.gravity,
+      solver.referenceDepth,
+      domain.grid.cellX,
+      domain.grid.cellZ,
+    ].every((value: number): boolean => Number.isFinite(value) && value > 0) &&
+    courant > 1
+  )
     out.push(
       "range",
       `${root}.solver.fixedStepSeconds`,
       `the explicit shallow-water step is stable only while dt·sqrt(g·referenceDepth)·sqrt(1/dx² + 1/dz²) <= 1, but the Courant number is ${courant}`,
-      domain.solver.fixedStepSeconds,
-      courant - 1,
+      solver.fixedStepSeconds,
+      Number.isFinite(courant) ? courant - 1 : undefined,
     );
 
   for (const edge of EDGES)
@@ -184,26 +169,29 @@ export const validateFluidDomain = (props: {
   length(out, `${root}.bed`, "bed", domain.bed.length, cells);
   length(out, `${root}.depth`, "depth", domain.depth.length, cells);
   length(out, `${root}.solid`, "solid", domain.solid.length, cells);
-  domain.bed.forEach((value, index) =>
-    numeric(
-      out,
-      `${root}.bed[${index}]`,
-      "bed elevation",
+  domain.bed.forEach((value: number, index: number): void =>
+    validateRange(
       value,
+      `${root}.bed[${index}]`,
       -Infinity,
-      false,
       Infinity,
+      "bed elevation",
+      out.items,
     ),
   );
-  domain.depth.forEach((value, index) => {
-    numeric(
-      out,
-      `${root}.depth[${index}]`,
-      "water depth",
+  // A broken design depth is named at its own field, not again at every cell.
+  const deepest: number =
+    Number.isFinite(solver.referenceDepth) && solver.referenceDepth > 0
+      ? solver.referenceDepth
+      : Infinity;
+  domain.depth.forEach((value: number, index: number): void => {
+    validateRange(
       value,
+      `${root}.depth[${index}]`,
       0,
-      false,
-      domain.solver.referenceDepth,
+      deepest,
+      "water depth",
+      out.items,
     );
     if (domain.solid[index] === true && value !== 0)
       out.push(
@@ -219,7 +207,7 @@ export const validateFluidDomain = (props: {
   // neither answers no to both, so the water would flow through a pier the
   // renderer refuses to draw around. Refusing the flag here is what keeps the
   // solve and the surface one statement.
-  domain.solid.forEach((value, index) => {
+  domain.solid.forEach((value: boolean, index: number): void => {
     if (typeof value !== "boolean")
       out.push(
         "type",
@@ -228,6 +216,7 @@ export const validateFluidDomain = (props: {
         value,
       );
   });
+
   count(
     out,
     `${root}.sources`,
@@ -235,46 +224,45 @@ export const validateFluidDomain = (props: {
     domain.sources.length,
     FLUID_MAX_FLOWS,
   );
-  const sourceIds = new Set<string>();
-  domain.sources.forEach((source, index) => {
-    const path = `${root}.sources[${index}]`;
-    identity(out, path, "source", source.id, sourceIds);
-    site(out, path, domain, source.column, source.row);
-    numeric(
-      out,
-      `${path}.flowRate`,
-      "source flow rate",
-      source.flowRate,
-      0,
-      false,
-      Infinity,
-    );
-    window(out, path, source.start, source.end);
-  });
+  const sourceIds: Set<string> = new Set<string>();
+  domain.sources.forEach(
+    (source: IAutoMovieFluidSource, index: number): void => {
+      const path: string = `${root}.sources[${index}]`;
+      identity(out, path, "source", source.id, sourceIds);
+      site(out, path, domain, source.column, source.row);
+      validateRange(
+        source.flowRate,
+        `${path}.flowRate`,
+        0,
+        Infinity,
+        "source flow rate",
+        out.items,
+      );
+      window(out, path, source.start, source.end);
+    },
+  );
 
   count(out, `${root}.drains`, "drains", domain.drains.length, FLUID_MAX_FLOWS);
-  const drainIds = new Set<string>();
-  domain.drains.forEach((drain, index) => {
-    const path = `${root}.drains[${index}]`;
+  const drainIds: Set<string> = new Set<string>();
+  domain.drains.forEach((drain: IAutoMovieFluidDrain, index: number): void => {
+    const path: string = `${root}.drains[${index}]`;
     identity(out, path, "drain", drain.id, drainIds);
     site(out, path, domain, drain.column, drain.row);
-    numeric(
-      out,
-      `${path}.flowRate`,
-      "drain flow rate",
+    validateRange(
       drain.flowRate,
+      `${path}.flowRate`,
       0,
-      false,
       Infinity,
+      "drain flow rate",
+      out.items,
     );
-    numeric(
-      out,
-      `${path}.sillLevel`,
-      "drain sill level",
+    validateRange(
       drain.sillLevel,
+      `${path}.sillLevel`,
       -Infinity,
-      false,
       Infinity,
+      "drain sill level",
+      out.items,
     );
     window(out, path, drain.start, drain.end);
   });
@@ -286,48 +274,35 @@ export const validateFluidDomain = (props: {
     domain.sprays.length,
     FLUID_MAX_SPRAYS,
   );
-  const sprayIds = new Set<string>();
-  domain.sprays.forEach((spray, index) => {
-    const path = `${root}.sprays[${index}]`;
+  const sprayIds: Set<string> = new Set<string>();
+  domain.sprays.forEach((spray: IAutoMovieFluidSpray, index: number): void => {
+    const path: string = `${root}.sprays[${index}]`;
     identity(out, path, "spray emitter", spray.id, sprayIds);
     site(out, path, domain, spray.column, spray.row);
-    numeric(out, `${path}.rate`, "spray rate", spray.rate, 0, true, Infinity);
-    numeric(
-      out,
-      `${path}.lifetime`,
-      "spray lifetime",
-      spray.lifetime,
-      0,
-      true,
-      Infinity,
-    );
-    numeric(
-      out,
-      `${path}.speed`,
-      "spray speed",
+    positive(out, `${path}.rate`, "spray rate", spray.rate);
+    positive(out, `${path}.lifetime`, "spray lifetime", spray.lifetime);
+    validateRange(
       spray.speed,
+      `${path}.speed`,
       0,
-      false,
       Infinity,
+      "spray speed",
+      out.items,
     );
-    numeric(out, `${path}.spread`, "spray spread", spray.spread, 0, false, 1);
-    numeric(
-      out,
-      `${path}.size`,
-      "spray particle size",
-      spray.size,
+    validateRange(
+      spray.spread,
+      `${path}.spread`,
       0,
-      true,
-      Infinity,
+      1,
+      "spray spread",
+      out.items,
     );
-    numeric(
+    positive(out, `${path}.size`, "spray particle size", spray.size);
+    positive(
       out,
       `${path}.lodDistance`,
       "spray LOD distance",
       spray.lodDistance,
-      0,
-      true,
-      Infinity,
     );
     integer(
       out,
@@ -344,12 +319,14 @@ export const validateFluidDomain = (props: {
         "spray seed must be a safe integer",
         spray.seed,
       );
-    const axis = spray.direction;
+    // Match the sampler's norm helper, including its hypot fallback for failed
+    // squares. An unrepresentable norm can still be Infinity and pass this gate.
+    const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
     if (
       !Number.isFinite(axis.x) ||
       !Number.isFinite(axis.y) ||
       !Number.isFinite(axis.z) ||
-      axis.x * axis.x + axis.y * axis.y + axis.z * axis.z === 0
+      Vector3.length(axis) === 0
     )
       out.push(
         "type",
@@ -362,31 +339,28 @@ export const validateFluidDomain = (props: {
   return out.toValidation();
 };
 
-/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
-const numeric = (
+/** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
+const positive: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+) => void = (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  value: number,
+): void => validateRange(value, path, 0, Infinity, label, out.items, false);
+
+/** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
+const integer: (
   out: ViolationCollector,
   path: string,
   label: string,
   value: number,
   min: number,
-  exclusive: boolean,
   max: number,
-): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
-    out.push(
-      "range",
-      path,
-      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A safe integer inside `[min, max]`. */
-const integer = (
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -403,8 +377,14 @@ const integer = (
     );
 };
 
-/** A cell-indexed array whose length must equal the lattice's cell count. */
-const length = (
+/** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
+const length: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  cells: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -420,8 +400,14 @@ const length = (
     );
 };
 
-/** A declared collection that must stay inside its budget. */
-const count = (
+/** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
+const count: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  budget: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -438,23 +424,34 @@ const count = (
     );
 };
 
-/** A non-empty id that has not already been used by a sibling. */
-const identity = (
+/** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
+const identity: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  id: string,
+  seen: Set<string>,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
   id: string,
   seen: Set<string>,
 ): void => {
-  if (id.trim().length === 0)
-    out.push("type", `${path}.id`, `${label} id must be non-empty`, id);
-  else if (seen.has(id))
+  out.nonEmpty(`${path}.id`, id, `${label} id`);
+  if (seen.has(id) && id.trim().length !== 0)
     out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
   seen.add(id);
 };
 
-/** A cell index pair that lands inside the lattice and not on solid matter. */
-const site = (
+/** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
+const site: (
+  out: ViolationCollector,
+  path: string,
+  domain: IAutoMovieFluidDomain,
+  column: number,
+  row: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   domain: IAutoMovieFluidDomain,
@@ -483,20 +480,34 @@ const site = (
     );
 };
 
-/** Whether one lattice index is an in-range cell coordinate. */
-const inside = (value: number, limit: number): boolean =>
-  Number.isSafeInteger(value) && value >= 0 && value < limit;
+/** Constant-work safe-index predicate used before solidity lookup; the limit is the authored count and is admitted separately. No state is retained. */
+const inside: (value: number, limit: number) => boolean = (
+  value: number,
+  limit: number,
+): boolean => Number.isSafeInteger(value) && value >= 0 && value < limit;
 
-/** An activity window whose end, when given, is strictly after its start. */
-const window = (
+/** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
+const window: (
+  out: ViolationCollector,
+  path: string,
+  start: number,
+  end: number | null,
+) => void = (
   out: ViolationCollector,
   path: string,
   start: number,
   end: number | null,
 ): void => {
-  numeric(out, `${path}.start`, "activity start", start, 0, false, Infinity);
+  validateRange(
+    start,
+    `${path}.start`,
+    0,
+    Infinity,
+    "activity start",
+    out.items,
+  );
   if (end === null) return;
-  numeric(out, `${path}.end`, "activity end", end, 0, false, Infinity);
+  validateRange(end, `${path}.end`, 0, Infinity, "activity end", out.items);
   if (Number.isFinite(end) && Number.isFinite(start) && end <= start)
     out.push(
       "range",

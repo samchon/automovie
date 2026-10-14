@@ -4,45 +4,23 @@ import { IAutoMovieExternalMotionTake } from "./IAutoMovieExternalMotionTake";
 /**
  * Byte-grounded motion facts recorded for an external animation asset.
  *
- * This is an inventory, not a take or retarget decision. Those choices remain
- * in {@link IAutoMovieExternalMotionAdoption}.
+ * This is an inventory, not a take or retarget decision. Those choices remain in {@link IAutoMovieExternalMotionAdoption}.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes external motion bytes declarable and digest-bound.
- * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Records the deterministic ingest identity and inspected take set.
- *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-receipt Exposes `IAutoMovieExternalMotionProvenance` as the portable data boundary for the motion external adoption receipt requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `IAutoMovieExternalMotionProvenance` for the performance motion external adoption receipt system contract.
+ * @evidence contracts/common.md#principled-implementation The gltf-motion profile retains declared hierarchy/rest basis and source-order take observations on asset provenance. The production byte-comparison/adoption reader is retired; current inspection and ledger agreement require explicit host preparation and are not proven by this record.
+ * @evidence contracts/common.md#clear-and-simple-design Provenance keeps byte observations separate from actor, clip and retarget decisions, allowing one asset inventory to support multiple explicit adoptions without mutating source facts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Declaring inspected takes does not select the first animation or infer a target actor, and model-only normalization profiles cannot masquerade as motion provenance.
+ * @evidence contracts/common.md#meaningful-documentation Defines the motion-only ingest profile, resident-byte basis, stable take ordering and the explicit separation between inventory and user adoption.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionProvenance {
-  /**
-   * Versioned ingest normalization profile selected for these bytes.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Declares how the motion container was inspected.
-   * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Binds inspected facts to one deterministic conversion profile.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-receipt Exposes `ingestProfile` as the portable data boundary for the motion external adoption receipt requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `ingestProfile` for the performance motion external adoption receipt system contract.
-   */
+  /** Versioned ingest normalization profile selected for these bytes. */
   ingestProfile: "gltf-motion-v1";
 
   /**
-   * Canonical hierarchy and rest basis inspected from the resident source
-   * bytes.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Grounds channel interpretation in observed node hierarchy, units, axes, and rest transforms.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Retains the normalized byte basis beside source takes and digests.
+   * Canonical hierarchy and rest basis inspected from the resident source bytes.
    */
   basis: IAutoMovieExternalMotionBasis;
 
-  /**
-   * Inspected animation takes in source index order.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes all eligible source members visible before user selection.
-   * @evidence specifications/interchange-and-adoption/conversion-receipts-and-determinism.md#interchange-canonical-receipt-result Retains the canonical inspected result set.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-receipt Exposes `takes` as the portable data boundary for the motion external adoption receipt requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `takes` for the performance motion external adoption receipt system contract.
-   */
+  /** Inspected animation takes in source index order. */
   takes: IAutoMovieExternalMotionTake[];
 }

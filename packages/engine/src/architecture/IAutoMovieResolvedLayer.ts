@@ -1,78 +1,48 @@
 /**
  * One layer placed on the host's own measuring line.
  *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `IAutoMovieResolvedLayer` represents one layer placed on the host's own measuring line. This ensures each host region retains its ordered construction build-up and total thickness.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `IAutoMovieResolvedLayer` structures one layer placed on the host's own measuring line for the system that resolves ordered construction layers into their host face regions.
+ * Coordinates are signed metres along the assembly axis. `start` is reached first, beginning at its offset. Under negative sense, positive thickness ideally gives `start > end`; rounding can collapse the endpoints. A zero-thickness membrane has equal endpoints. Take minimum and maximum for an interval.
+ *
+ * @evidence contracts/common.md#principled-implementation Each layer starts at the previous computed end on the signed axis. Negative sense reverses positive-thickness endpoint order; zero-thickness membranes retain equal endpoints. Finite endpoints are enforced before resolution, while numerical rounding can collapse a sufficiently small positive thickness at a large offset.
+ * @evidence contracts/common.md#clear-and-simple-design Carries the authored layer facts beside its placed coordinates, so downstream queries do not join back to the authored record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates are not reordered to hide the sense; consumers take min and max as documented.
+ * @evidence contracts/common.md#meaningful-documentation States the signed coordinate convention, the reversal under a negative sense, how to take an interval, and the meaning and units of each field.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each layer is placed in constant time while the resolver accumulates the cursor along the axis.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved once per assembly resolution and shared by every query on that result.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Strings and numbers owned by the resolved assembly's layer array.
+ * @author Samchon
  */
 export interface IAutoMovieResolvedLayer {
-  /**
-   * The contributing {@link IAutoMovieMaterialLayer.id}.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `id` records `IAutoMovieResolvedLayer`'s contributing `IAutoMovieMaterialLayer.id`. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `id` supplies `IAutoMovieResolvedLayer`'s contributing `IAutoMovieMaterialLayer.id` when the engine resolves ordered construction layers into their host face regions.
-   */
+  /** The contributing {@link IAutoMovieMaterialLayer.id}. */
   id: string;
+
   /**
-   * The layer's construction role.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `role` records `IAutoMovieResolvedLayer`'s layer's construction role. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `role` supplies `IAutoMovieResolvedLayer`'s layer's construction role when the engine resolves ordered construction layers into their host face regions.
+   * The layer's construction role, as authored; the junction matcher compares
+   * it by exact string equality.
    */
   role: string;
-  /**
-   * What occupies the layer.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `substance` records what occupies the layer for `IAutoMovieResolvedLayer`. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `substance` tells the engine what occupies the layer for `IAutoMovieResolvedLayer` as it resolves ordered construction layers into their host face regions.
-   */
+
+  /** What occupies the layer. */
   substance: "solid" | "cavity" | "membrane";
-  /**
-   * Substance id, or `null` for a cavity.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `material` records `IAutoMovieResolvedLayer`'s substance id, or `null` for a cavity. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `material` supplies `IAutoMovieResolvedLayer`'s substance id, or `null` for a cavity when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Substance id, or `null` for a cavity. */
   material: string | null;
-  /**
-   * Authored layer thickness in metres.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `thickness` records `IAutoMovieResolvedLayer`'s authored layer thickness in metres. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `thickness` supplies `IAutoMovieResolvedLayer`'s authored layer thickness in metres when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Authored layer thickness in metres. */
   thickness: number;
-  /**
-   * Signed coordinate of the face nearer the reference plane.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `start` records `IAutoMovieResolvedLayer`'s signed coordinate of the face nearer the reference plane. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `start` supplies `IAutoMovieResolvedLayer`'s signed coordinate of the face nearer the reference plane when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Signed coordinate of the face the stacking reaches first. */
   start: number;
-  /**
-   * Signed coordinate of the face further from the reference plane.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `end` records `IAutoMovieResolvedLayer`'s signed coordinate of the face further from the reference plane. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `end` supplies `IAutoMovieResolvedLayer`'s signed coordinate of the face further from the reference plane when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Signed coordinate of the face the stacking reaches last. */
   end: number;
-  /**
-   * Signed coordinate of the layer's midplane.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `center` records `IAutoMovieResolvedLayer`'s signed coordinate of the layer's midplane. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `center` supplies `IAutoMovieResolvedLayer`'s signed coordinate of the layer's midplane when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Signed coordinate of the layer's midplane. */
   center: number;
-  /**
-   * Whether the layer is a visible finish.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `finish` records whether the layer is a visible finish for `IAutoMovieResolvedLayer`. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `finish` tells the engine whether the layer is a visible finish for `IAutoMovieResolvedLayer` as it resolves ordered construction layers into their host face regions.
-   */
+
+  /** Whether the layer is a visible finish. */
   finish: boolean;
-  /**
-   * Whether the layer continues around an opening's reveal.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `wrapsOpening` records whether the layer continues around an opening's reveal for `IAutoMovieResolvedLayer`. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `wrapsOpening` tells the engine whether the layer continues around an opening's reveal for `IAutoMovieResolvedLayer` as it resolves ordered construction layers into their host face regions.
-   */
+
+  /** Whether the layer continues around an opening's reveal. */
   wrapsOpening: boolean;
 }

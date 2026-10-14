@@ -10,8 +10,14 @@ type Controller = Pick<typeof ProcessOwnership, "read" | "stop"> & {
   own(child: ChildObservation): void;
   stopChild(child: ChildObservation): void;
 };
-type TransportResult = Pick<SpawnSyncReturns<string>, "error" | "status" | "stdout" | "stderr">;
-const directory = path.resolve(__dirname, "../../../../packages/viewer/src/process/internal");
+type TransportResult = Pick<
+  SpawnSyncReturns<string>,
+  "error" | "status" | "stdout" | "stderr"
+>;
+const directory: string = path.resolve(
+  __dirname,
+  "../../../../packages/viewer/src/process/internal",
+);
 
 /**
  * Typed access to the production facade's private process owners through the
@@ -20,22 +26,35 @@ const directory = path.resolve(__dirname, "../../../../packages/viewer/src/proce
  * package export, fake ChildProcess method or OS effect is installed.
  * The ordinary test project remains the execution owner of these scenarios.
  */
-export const ProcessOwnershipUnit = {
+export const ProcessOwnershipUnit: {
+  Controller: new (
+    host: ReturnType<typeof createProcessOwnershipHostFacts>["host"],
+  ) => Controller;
+  windowsResult: (result: TransportResult) => unknown;
+  posixIdentity: (result: TransportResult) => string | null;
+  linuxIdentity: (boot: string, stat: string) => string;
+  readFailure: (error: unknown) => null;
+} = {
   Controller: loadSourceModule<{
     ProcessOwnershipController: new (
       host: ReturnType<typeof createProcessOwnershipHostFacts>["host"],
     ) => Controller;
-  }>(path.join(directory, "ProcessOwnershipController.ts")).ProcessOwnershipController,
+  }>(path.join(directory, "ProcessOwnershipController.ts"))
+    .ProcessOwnershipController,
   windowsResult: loadSourceModule<{
     decodeWindowsProcessResult(result: TransportResult): unknown;
-  }>(path.join(directory, "decodeWindowsProcessResult.ts")).decodeWindowsProcessResult,
+  }>(path.join(directory, "decodeWindowsProcessResult.ts"))
+    .decodeWindowsProcessResult,
   posixIdentity: loadSourceModule<{
     decodePosixProcessIdentity(result: TransportResult): string | null;
-  }>(path.join(directory, "decodePosixProcessIdentity.ts")).decodePosixProcessIdentity,
+  }>(path.join(directory, "decodePosixProcessIdentity.ts"))
+    .decodePosixProcessIdentity,
   linuxIdentity: loadSourceModule<{
     decodeLinuxProcessIdentity(boot: string, stat: string): string;
-  }>(path.join(directory, "decodeLinuxProcessIdentity.ts")).decodeLinuxProcessIdentity,
+  }>(path.join(directory, "decodeLinuxProcessIdentity.ts"))
+    .decodeLinuxProcessIdentity,
   readFailure: loadSourceModule<{
     resolveProcessIdentityReadError(error: unknown): null;
-  }>(path.join(directory, "resolveProcessIdentityReadError.ts")).resolveProcessIdentityReadError,
+  }>(path.join(directory, "resolveProcessIdentityReadError.ts"))
+    .resolveProcessIdentityReadError,
 };

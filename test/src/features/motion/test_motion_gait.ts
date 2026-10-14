@@ -1,5 +1,14 @@
 import { gaitMotion, validateMotion } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieGait } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/fixtures";
@@ -19,12 +28,17 @@ const GAIT: IAutoMovieGait = {
   ],
 };
 
-const flexionSeq = (
+const flexionSeq: (
+  motion: IAutoMovieMotion,
+  bone: AutoMovieHumanoidBone,
+) => number[] = (
   motion: ReturnType<typeof gaitMotion>,
   bone: AutoMovieHumanoidBone,
 ): number[] =>
   motion.keyframes.map(
-    (k) => k.pose.joints.find((j) => j.bone === bone)!.flexion!,
+    (k: IAutoMovieKeyframe): number =>
+      k.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)!
+        .flexion!,
   );
 
 /**
@@ -53,9 +67,14 @@ const flexionSeq = (
  *    `root: null`.
  * 10. Duplicate same-bone/same-axis rows are rejected instead of silently
  *     overwriting earlier profile data.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Bakes actual gait clips and checks sample population, loop identity, phased clinical angles, neutral ROM behavior, axis aggregation, phase easing and root bob, then requires the duplicate-axis refusal. Lost phase, overwritten axes or ignoring authored controls fails these observations.
+ * @evidence contracts/testing.md#independent-expectations A period-one half-duty triangular wave with amplitude 30 gives [30,0,-30,0,30]; a half-cycle shift negates it and neutral 25 with amplitude 22 stays between three and 47. Quadratic easing and the authored CSS Bezier curves supply the retained phase samples, while sinusoidal root bob gives [1,1.08,1,.92,1]. ROM admission also uses the real validator and may share its defects; it does not establish physiological gait quality.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all ten numbered cases: loop closure, both limb phases, rejected/centered knee, abduction, multi-axis folding, named and Bezier phase controls, optional/null roots and duplicate-axis refusal. Sample-count, period, phase and malformed gait-scalar admission are owned by the companion sampler tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns each local bake and assertion and uses the existing portable skeleton fixture. It installs no consumer, compiles no native artifact, starts no process/browser/GPU and registers no extra Human cases.
  */
-export const test_motion_gait = (): void => {
-  const motion = gaitMotion("g", "sk", GAIT, 4);
+export function test_motion_gait(): void {
+  const motion: IAutoMovieMotion = gaitMotion("g", "sk", GAIT, 4);
 
   // 1. loop shape
   TestValidator.equals(
@@ -68,33 +87,39 @@ export const test_motion_gait = (): void => {
   TestValidator.equals("skeleton stamped", motion.skeleton, "sk");
   TestValidator.predicate(
     "plain gait keeps root unset",
-    motion.keyframes.every((k) => k.pose.root === null),
+    motion.keyframes.every(
+      (k: IAutoMovieKeyframe): boolean => k.pose.root === null,
+    ),
   );
 
   // 2. phase-0 limb: the stance→swing sawtooth, ends where it began
-  const left = flexionSeq(motion, "leftUpperLeg");
+  const left: number[] = flexionSeq(motion, "leftUpperLeg");
   TestValidator.predicate(
     "phase-0 sweeps +30 → 0 → −30 → 0 → +30",
-    [30, 0, -30, 0, 30].every((v, i) => nclose(left[i]!, v)),
+    [30, 0, -30, 0, 30].every((v: number, i: number): boolean =>
+      nclose(left[i]!, v),
+    ),
   );
 
   // 3. phase-0.5 limb is the half-cycle inverse at every frame
-  const right = flexionSeq(motion, "rightUpperLeg");
+  const right: number[] = flexionSeq(motion, "rightUpperLeg");
   TestValidator.predicate(
     "phase-0.5 limb is half a cycle out of step",
-    right.every((v, i) => nclose(v, -left[i]!)),
+    right.every((v: number, i: number): boolean => nclose(v, -left[i]!)),
   );
 
   // 4. neutral centers the swing: the knee's negative twin
-  const sk = createSkeleton();
-  const kneeGait = (neutral: number | undefined): IAutoMovieGait => ({
+  const sk: IAutoMovieSkeleton = createSkeleton();
+  const kneeGait: (neutral: number | undefined) => IAutoMovieGait = (
+    neutral: number | undefined,
+  ): IAutoMovieGait => ({
     name: "step",
     period: 1,
     limbs: [
       { bone: "leftLowerLeg", phase: 0, duty: 0.5, amplitude: 22, neutral },
     ],
   });
-  const hyperextended = validateMotion({
+  const hyperextended: IAutoMovieValidation = validateMotion({
     motion: gaitMotion("bare", sk.id, kneeGait(undefined), 4),
     skeleton: sk,
   });
@@ -103,7 +128,7 @@ export const test_motion_gait = (): void => {
     hasViolation(hyperextended, "rom", "leftLowerLeg") ||
       hasViolation(hyperextended, "rom", "flexion"),
   );
-  const centered = validateMotion({
+  const centered: IAutoMovieValidation = validateMotion({
     motion: gaitMotion("bent", sk.id, kneeGait(25), 4),
     skeleton: sk,
   });
@@ -112,21 +137,21 @@ export const test_motion_gait = (): void => {
     centered.success,
     true,
   );
-  const knee = flexionSeq(
+  const knee: number[] = flexionSeq(
     gaitMotion("bent", sk.id, kneeGait(25), 4),
     "leftLowerLeg",
   );
   TestValidator.equals(
     "the centered swing is 25 ± 22 (every sample positive)",
     namedFacts([
-      ["kneeEveryV", () => knee.every((v) => v >= 0)],
-      ["ncloseMaxKnee", () => nclose(Math.max(...knee), 47)],
+      ["kneeEveryV", (): boolean => knee.every((v: number): boolean => v >= 0)],
+      ["ncloseMaxKnee", (): boolean => nclose(Math.max(...knee), 47)],
     ]),
     { kneeEveryV: true, ncloseMaxKnee: true },
   );
 
   // 5. non-flexion axis target
-  const sideGait = gaitMotion(
+  const sideGait: IAutoMovieMotion = gaitMotion(
     "side",
     sk.id,
     {
@@ -144,15 +169,19 @@ export const test_motion_gait = (): void => {
     },
     4,
   );
-  const sideSeq = sideGait.keyframes.map((k) => k.pose.joints[0]!.abduction!);
+  const sideSeq: number[] = sideGait.keyframes.map(
+    (k: IAutoMovieKeyframe): number => k.pose.joints[0]!.abduction!,
+  );
   TestValidator.predicate(
     "abduction limb writes the sawtooth to abduction",
-    [12, 0, -12, 0, 12].every((v, i) => nclose(sideSeq[i]!, v)),
+    [12, 0, -12, 0, 12].every((v: number, i: number): boolean =>
+      nclose(sideSeq[i]!, v),
+    ),
   );
   TestValidator.predicate(
     "abduction limb leaves the other axes unset",
-    sideGait.keyframes.every((k) => {
-      const joint = k.pose.joints[0]!;
+    sideGait.keyframes.every((k: IAutoMovieKeyframe): boolean => {
+      const joint: IAutoMovieJointPose = k.pose.joints[0]!;
       return joint.flexion === null && joint.twist === null;
     }),
   );
@@ -163,7 +192,7 @@ export const test_motion_gait = (): void => {
   );
 
   // 6. same-bone limb rows fold into one multi-axis joint
-  const multiAxis = gaitMotion(
+  const multiAxis: IAutoMovieMotion = gaitMotion(
     "multi",
     sk.id,
     {
@@ -184,14 +213,16 @@ export const test_motion_gait = (): void => {
   );
   TestValidator.predicate(
     "same-bone gait rows emit one joint per keyframe",
-    multiAxis.keyframes.every((k) => k.pose.joints.length === 1),
+    multiAxis.keyframes.every(
+      (k: IAutoMovieKeyframe): boolean => k.pose.joints.length === 1,
+    ),
   );
   TestValidator.predicate(
     "multi-axis joint carries both flexion and abduction",
-    multiAxis.keyframes.every((k, i) => {
-      const joint = k.pose.joints[0]!;
-      const flexion = [10, 0, -10, 0, 10][i]!;
-      const abduction = [12, 0, -12, 0, 12][i]!;
+    multiAxis.keyframes.every((k: IAutoMovieKeyframe, i: number): boolean => {
+      const joint: IAutoMovieJointPose = k.pose.joints[0]!;
+      const flexion: number = [10, 0, -10, 0, 10][i]!;
+      const abduction: number = [12, 0, -12, 0, 12][i]!;
       return (
         nclose(joint.flexion!, flexion) && nclose(joint.abduction!, abduction)
       );
@@ -204,7 +235,7 @@ export const test_motion_gait = (): void => {
   );
 
   // 7. per-phase named easing curves
-  const eased = flexionSeq(
+  const eased: number[] = flexionSeq(
     gaitMotion(
       "eased",
       sk.id,
@@ -228,13 +259,13 @@ export const test_motion_gait = (): void => {
   );
   TestValidator.predicate(
     "easeIn stance and easeOut swing shape the sawtooth",
-    [30, 26.25, 15, -3.75, -30, -3.75, 15, 26.25, 30].every((v, i) =>
-      nclose(eased[i]!, v),
+    [30, 26.25, 15, -3.75, -30, -3.75, 15, 26.25, 30].every(
+      (v: number, i: number): boolean => nclose(eased[i]!, v),
     ),
   );
 
   // 8. cubic-bezier phase controls
-  const bezier = flexionSeq(
+  const bezier: number[] = flexionSeq(
     gaitMotion(
       "bezier",
       sk.id,
@@ -261,12 +292,12 @@ export const test_motion_gait = (): void => {
   TestValidator.predicate(
     "cubicBezier stance and swing use phase control points",
     [30, 24.392, 11.079, -7.312, -30, -7.312, 11.079, 24.392, 30].every(
-      (v, i) => nclose(bezier[i]!, v, 1e-3),
+      (v: number, i: number): boolean => nclose(bezier[i]!, v, 1e-3),
     ),
   );
 
   // 9. optional vertical root bob
-  const bobbing = gaitMotion(
+  const bobbing: IAutoMovieMotion = gaitMotion(
     "bob",
     sk.id,
     {
@@ -277,15 +308,19 @@ export const test_motion_gait = (): void => {
     },
     4,
   );
-  const rootY = bobbing.keyframes.map((k) => k.pose.root!.translation.y);
+  const rootY: number[] = bobbing.keyframes.map(
+    (k: IAutoMovieKeyframe): number => k.pose.root!.translation.y,
+  );
   TestValidator.predicate(
     "root bob follows the gait sine",
-    [1, 1.08, 1, 0.92, 1].every((v, i) => nclose(rootY[i]!, v)),
+    [1, 1.08, 1, 0.92, 1].every((v: number, i: number): boolean =>
+      nclose(rootY[i]!, v),
+    ),
   );
   TestValidator.predicate(
     "root bob is identity TRS except vertical translation",
-    bobbing.keyframes.every((k) => {
-      const root = k.pose.root!;
+    bobbing.keyframes.every((k: IAutoMovieKeyframe): boolean => {
+      const root: IAutoMovieTransform = k.pose.root!;
       return (
         nclose(root.translation.x, 0) &&
         nclose(root.translation.z, 0) &&
@@ -309,7 +344,7 @@ export const test_motion_gait = (): void => {
   TestValidator.predicate(
     "duplicate gait rows for one bone axis throw",
     throwsError(
-      () =>
+      (): IAutoMovieMotion =>
         gaitMotion(
           "duplicate",
           sk.id,
@@ -332,4 +367,4 @@ export const test_motion_gait = (): void => {
       "duplicate gait row for leftUpperArm.flexion",
     ),
   );
-};
+}

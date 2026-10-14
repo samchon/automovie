@@ -10,11 +10,20 @@ import { nclose, vclose } from "../internal/predicates";
  * 1. Forward travels 0.8 m per 100 ms normally and 0.2 m while Shift is held.
  * 2. Opposite and diagonal axes have independently calculated directions and normalized pace.
  * 3. Pitched forward follows the view; empty, negative and delayed time stay bounded.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls free-flight translation and observes camera/aim displacement, walking pace, normalized diagonal motion, pitched forward direction and refusal of empty or nonpositive-time movement; orbiting, diagonal speed gain or unbounded delayed-frame travel fails.
+ * @evidence contracts/testing.md#independent-expectations Public 8/2-meter-per-second speeds over 0.1 seconds yield 0.8/0.2 meters, a two-axis unit diagonal yields components divided by sqrt(2), and a 30-degree pitch gives the independently calculated sine/cosine displacement under the 100-millisecond cap.
+ * @evidence contracts/testing.md#distinguishing-cases Covers normal/walking speed, opposite cardinal axes, diagonal normalization, pitched delayed motion, empty input, zero time and backward time; look, lens and input-lifetime rules belong to other spectator units.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_website_spectator_translation entry owns direct camera arithmetic with resident Three objects, no renderer, event loop, browser or GPU, and observes numerical motion rather than visual output.
  */
-export const test_website_spectator_translation = (): void => {
-  const camera = new THREE.PerspectiveCamera(),
-    target = new THREE.Vector3(0, 0, -10);
-  const axes = { forward: 1, right: 0, up: 0 };
+export function test_website_spectator_translation(): void {
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(),
+    target: THREE.Vector3 = new THREE.Vector3(0, 0, -10);
+  const axes: Parameters<typeof moveSpectatorCamera>[2] = {
+    forward: 1,
+    right: 0,
+    up: 0,
+  };
   TestValidator.predicate(
     "fast movement",
     moveSpectatorCamera(camera, target, axes, 0.1, false),
@@ -97,4 +106,4 @@ export const test_website_spectator_translation = (): void => {
     "bounded movement",
     nclose(camera.position.length(), 0.8),
   );
-};
+}

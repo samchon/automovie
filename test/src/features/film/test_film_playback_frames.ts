@@ -1,10 +1,14 @@
-import { playbackFrameSamples } from "@automovie/engine";
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePlaybackSample } from "../../../../packages/engine/src/film/IAutoMoviePlaybackSample";
+import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
 import { nclose, throwsError } from "../internal/predicates";
 
-const shot = (id: string, duration: number): IAutoMovieShot => ({
+const shot: (id: string, duration: number) => IAutoMovieShot = (
+  id: string,
+  duration: number,
+): IAutoMovieShot => ({
   id,
   name: null,
   scene: "scene-duel",
@@ -16,18 +20,19 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
 });
 
 /**
- * Pins the frame-sampling seam a render host drives capture from: a 2-second
- * cut at 4 fps yields exactly 8 samples on the frame grid, every one resolved
- * (the last frame sits at 1.75 s, strictly inside the runtime, so the non-null
- * assertion in the sampler is safe by construction).
+ * Samples two one-second shots at four fps, checking eight frame identities, restarted quarter-second local clocks and invalid fps errors.
  *
  * Scenarios:
+ * 1. Resolve all eight hard-cut frames on the independent quarter-second grid.
+ * 2. Refuse zero fps with the stated field/range diagnosis.
+ * 3. Refuse NaN fps with a finiteness diagnosis.
  *
- * 1. Two 1-second shots, hard cut, 4 fps → 8 samples; frames 0–3 play shot A at
- *    0/0.25/0.5/0.75, frames 4–7 play shot B.
- * 2. The cut lands exactly on frame 4: local time restarts at 0.
+ * @evidence contracts/testing.md#behavioral-verification Samples two one-second shots at four fps, checking eight frame identities, restarted quarter-second local clocks and invalid fps errors.
+ * @evidence contracts/testing.md#independent-expectations The frame grid i/4 has eight instants strictly below two seconds; i modulo four supplies the independent local-clock expectation and the second shot owns frame four.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the hard-cut boundary, all eight frames, zero and NaN fps; dissolves and trim/event seams belong to resolver tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_playback_frames unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_playback_frames = (): void => {
+export function test_film_playback_frames(): void {
   const sequence: IAutoMovieSequence = {
     id: "seq",
     name: null,
@@ -37,30 +42,36 @@ export const test_film_playback_frames = (): void => {
       { shot: "b", trim: null, transition: null },
     ],
   };
-  const samples = playbackFrameSamples(sequence, [shot("a", 1), shot("b", 1)]);
+  const samples: IAutoMoviePlaybackSample[] = playbackFrameSamples(sequence, [
+    shot("a", 1),
+    shot("b", 1),
+  ]);
   TestValidator.equals("frame count", samples.length, 8);
   TestValidator.equals(
     "shot per frame",
-    samples.map((s) => s.shot),
+    samples.map((s: IAutoMoviePlaybackSample): string => s.shot),
     ["a", "a", "a", "a", "b", "b", "b", "b"],
   );
   TestValidator.predicate(
     "local times ride the frame grid",
-    samples.every((s, i) => nclose(s.time, (i % 4) / 4)),
+    samples.every((s: IAutoMoviePlaybackSample, i: number): boolean =>
+      nclose(s.time, (i % 4) / 4),
+    ),
   );
   TestValidator.predicate(
     "frame sampling rejects zero fps",
     throwsError(
-      () => playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
+      (): IAutoMoviePlaybackSample[] =>
+        playbackFrameSamples({ ...sequence, fps: 0 }, [shot("a", 1)]),
       ["sequence fps", "> 0", "0"],
     ),
   );
   TestValidator.predicate(
     "frame sampling rejects non-finite fps",
     throwsError(
-      () =>
+      (): IAutoMoviePlaybackSample[] =>
         playbackFrameSamples({ ...sequence, fps: Number.NaN }, [shot("a", 1)]),
       ["sequence fps", "finite", "NaN"],
     ),
   );
-};
+}

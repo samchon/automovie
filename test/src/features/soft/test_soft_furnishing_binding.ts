@@ -1,14 +1,14 @@
+import { validateSoftFurnishings } from "@automovie/engine";
 import {
-  lowerSoftFurnishing,
-  validateAutoMovieSoftFurnishingDomainOwnership,
-  validateSoftFurnishings,
-} from "@automovie/engine";
-import {
+  IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftFurnishing,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertSoftFurnishingOwnershipAndLowering } from "../internal/assertSoftFurnishingOwnershipAndLowering";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import {
   roomEnvironment,
@@ -17,7 +17,9 @@ import {
 } from "../internal/softFixtures";
 
 /** A curtain small enough to hang well inside the room's convex cell. */
-const panel = (
+const panel: (
+  overrides?: Partial<IAutoMovieSoftBodyDomain>,
+) => IAutoMovieSoftBodyDomain = (
   overrides: Partial<IAutoMovieSoftBodyDomain> = {},
 ): IAutoMovieSoftBodyDomain =>
   softPanel({
@@ -35,11 +37,15 @@ const panel = (
     },
   });
 
-const check = (props: {
+const check: (props: {
   furnishings?: IAutoMovieSoftFurnishing[];
   domains?: IAutoMovieSoftBodyDomain[];
   semantic?: boolean;
-}) =>
+}) => IAutoMovieValidation = (props: {
+  furnishings?: IAutoMovieSoftFurnishing[];
+  domains?: IAutoMovieSoftBodyDomain[];
+  semantic?: boolean;
+}): IAutoMovieValidation =>
   validateSoftFurnishings({
     environment: roomEnvironment({ semantic: props.semantic }),
     furnishings: props.furnishings ?? [softFurnishing()],
@@ -71,8 +77,7 @@ const check = (props: {
  *    with no convex cells is not geometrically checked at all — inventing a
  *    volume would be the design deciding a fact nobody stated. A panel whose
  *    rest array is the wrong length is refused for that and **not**
- *    additionally accused of hanging outside the room: an unmeasurable panel is
- *    reported once, at the field that made it unmeasurable.
+ *    additionally accused of hanging outside the room; the malformed rest field is reported.
  * 5. Containment reads the configuration the panel is actually **held** in, not
  *    the authored rest mesh: an anchor holding its ring beyond the wall is
  *    refused even though every rest particle is inside, the named state the
@@ -91,13 +96,16 @@ const check = (props: {
  *    `mode: "rest"` is reported as `rest`, only an ordinary `simulated`
  *    furnishing is reported as `solved`, and a mode this tier does not evaluate
  *    is `not-run` rather than falling through to a solve it never performed.
- * 8. The lowering never throws. A shot second that is not a real number, and one
+ * 8. The probed invalid times are reported without throwing. A non-finite second and one
  *    landing past the step budget the domain declared for itself, are each
- *    reported as `not-run` with no geometry — this is the call a builder makes
- *    once per furnishing per second, and a curtain whose budget stops inside
- *    the cut must not take the render down with it.
+ *    reported as `not-run` with no geometry rather than being sent to the solver.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises validateSoftFurnishings references, domain refusal paths and held-particle containment, then the shared ownership/lowering helper checks global deterministic ownership and explicit computation statuses, missing geometry and clock refusals. These are actual validator/lowering outputs rather than renderer appearances.
+ * @evidence contracts/testing.md#independent-expectations The room spans X/Z [-8,8] and Y [-4,4], so authored X=40 particles or held anchors lie outside while a semantic room supplies no geometric premise. Literal identity conflicts and lexicographic a-domain/z-domain plus alpha/beta ownership supply independent expectations. The 1/64 s clock maps 0.5 to step 32, 16 to 1024 beyond budget 1000, and 15.625 to its exact boundary. Containment assertions do not prove whole-face or future-trajectory containment.
+ * @evidence contracts/testing.md#distinguishing-cases Eight groups preserve complete/reference-invalid bindings, re-pathed domain errors, geometric versus semantic/unmeasurable panels, held/unheld/unknown states, local/global and reordered ownership, prevalidated ownership, rest/solved/unsupported/not-run lowering and time limits. Malformed container shapes, live moving boundaries and unexpected solver failures are outside these cases; the test does not establish that lowering can never throw.
+ * @evidence contracts/testing.md#execution-ownership The named test_soft_furnishing_binding entry invokes assertSoftFurnishingOwnershipAndLowering synchronously with the same panel function object and shared furnishing/room fixtures. All cases are portable CPU joins and lowering, with no production renderer, host or dynamically registered cases.
  */
-export const test_soft_furnishing_binding = (): void => {
+export function test_soft_furnishing_binding(): void {
   TestValidator.equals(
     "a complete binding validates clean",
     check({}).success,
@@ -109,7 +117,7 @@ export const test_soft_furnishing_binding = (): void => {
     namedFacts([
       [
         "environment",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ environment: "other" })] }),
             "type",
@@ -118,7 +126,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "space",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ space: "attic" })] }),
             "type",
@@ -127,7 +135,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "support",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ supports: ["rail"] })] }),
             "type",
@@ -136,7 +144,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "duplicateSupport",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               furnishings: [softFurnishing({ supports: ["track", "track"] })],
@@ -147,7 +155,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "domain",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ domain: "absent" })] }),
             "type",
@@ -156,7 +164,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "duplicateDomain",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ domains: [panel(), panel()] }),
             "type",
@@ -165,7 +173,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "duplicateFurnishing",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing(), softFurnishing()] }),
             "type",
@@ -174,7 +182,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "blankFurnishing",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ id: " " })] }),
             "type",
@@ -183,7 +191,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "kind",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               furnishings: [
@@ -198,7 +206,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "mode",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               furnishings: [
@@ -211,7 +219,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "state",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ furnishings: [softFurnishing({ state: "shut" })] }),
             "type",
@@ -220,7 +228,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "declaredState",
-        () =>
+        (): boolean =>
           check({ furnishings: [softFurnishing({ state: "open" })] })
             .success === true,
       ],
@@ -251,7 +259,7 @@ export const test_soft_furnishing_binding = (): void => {
     true,
   );
 
-  const outside = panel({
+  const outside: IAutoMovieSoftBodyDomain = panel({
     rest: softPanel({
       columns: 3,
       rows: 3,
@@ -263,7 +271,7 @@ export const test_soft_furnishing_binding = (): void => {
     namedFacts([
       [
         "refused",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ domains: [outside] }),
             "type",
@@ -272,11 +280,12 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "semantic",
-        () => check({ domains: [outside], semantic: true }).success === true,
+        (): boolean =>
+          check({ domains: [outside], semantic: true }).success === true,
       ],
       [
         "unmeasurable",
-        () =>
+        (): boolean =>
           hasViolation(
             check({ domains: [panel({ rest: [0, 0, 0] })] }),
             "type",
@@ -285,12 +294,15 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "notAlsoGuessed",
-        () => {
-          const validation = check({ domains: [panel({ rest: [0, 0, 0] })] });
+        (): boolean => {
+          const validation: IAutoMovieValidation = check({
+            domains: [panel({ rest: [0, 0, 0] })],
+          });
           return (
             validation.success === false &&
             validation.violations.every(
-              (item) => item.path.includes("furnishings[0].domain") === false,
+              (item: IAutoMovieConstraintViolation): boolean =>
+                item.path.includes("furnishings[0].domain") === false,
             )
           );
         },
@@ -299,8 +311,8 @@ export const test_soft_furnishing_binding = (): void => {
     { refused: true, semantic: true, unmeasurable: true, notAlsoGuessed: true },
   );
 
-  const beyond = { x: 40, y: 0, z: 0 };
-  const swung = panel({
+  const beyond: IAutoMovieVector3 = { x: 40, y: 0, z: 0 };
+  const swung: IAutoMovieSoftBodyDomain = panel({
     states: [{ id: "swung", anchors: [{ anchor: "hook", position: beyond }] }],
   });
   TestValidator.equals(
@@ -308,7 +320,7 @@ export const test_soft_furnishing_binding = (): void => {
     namedFacts([
       [
         "anchorBeyondTheWall",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               domains: [
@@ -324,7 +336,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "heldStateBeyondTheWall",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               furnishings: [softFurnishing({ state: "swung" })],
@@ -336,19 +348,20 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "unheldStateIsNotApplied",
-        () => check({ domains: [swung] }).success === true,
+        (): boolean => check({ domains: [swung] }).success === true,
       ],
       [
         "undeclaredStateIsNotApplied",
-        () => {
-          const validation = check({
+        (): boolean => {
+          const validation: IAutoMovieValidation = check({
             furnishings: [softFurnishing({ state: "shut" })],
             domains: [swung],
           });
           return (
             validation.success === false &&
             validation.violations.every(
-              (item) => item.path.includes("furnishings[0].domain") === false,
+              (item: IAutoMovieConstraintViolation): boolean =>
+                item.path.includes("furnishings[0].domain") === false,
             )
           );
         },
@@ -367,7 +380,7 @@ export const test_soft_furnishing_binding = (): void => {
     namedFacts([
       [
         "second",
-        () =>
+        (): boolean =>
           hasViolation(
             check({
               furnishings: [
@@ -381,7 +394,7 @@ export const test_soft_furnishing_binding = (): void => {
       ],
       [
         "distinctDomainsPass",
-        () =>
+        (): boolean =>
           check({
             furnishings: [
               softFurnishing(),
@@ -394,252 +407,5 @@ export const test_soft_furnishing_binding = (): void => {
     { second: true, distinctDomainsPass: true },
   );
 
-  const duplicateDomains = [
-    softFurnishing({
-      id: "zeta",
-      domain: "z-domain",
-    }),
-    softFurnishing({
-      id: "alpha",
-      environment: "other",
-      domain: "z-domain",
-    }),
-    softFurnishing({
-      id: "omega",
-      domain: "a-domain",
-    }),
-    softFurnishing({
-      id: "beta",
-      environment: "other",
-      domain: "a-domain",
-    }),
-  ];
-  const ownershipFacts = (furnishings: IAutoMovieSoftFurnishing[]) => {
-    const validation =
-      validateAutoMovieSoftFurnishingDomainOwnership(furnishings);
-    return validation.success === true
-      ? []
-      : validation.violations.map((violation) => [
-          violation.value,
-          violation.expected,
-        ]);
-  };
-  const expectedOwnershipFacts = [
-    [
-      "a-domain",
-      'soft body domain "a-domain" is already drawn by furnishing "beta"',
-    ],
-    [
-      "z-domain",
-      'soft body domain "z-domain" is already drawn by furnishing "alpha"',
-    ],
-  ];
-  TestValidator.equals(
-    "domain ownership is global and deterministic",
-    namedFacts([
-      [
-        "sameEnvironment",
-        () =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
-            softFurnishing(),
-            softFurnishing({ id: "second-curtain" }),
-          ]).success === false,
-      ],
-      [
-        "differentEnvironment",
-        () =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
-            softFurnishing(),
-            softFurnishing({ id: "second-curtain", environment: "other" }),
-          ]).success === false,
-      ],
-      [
-        "differentDomains",
-        () =>
-          validateAutoMovieSoftFurnishingDomainOwnership([
-            softFurnishing(),
-            softFurnishing({
-              id: "second-curtain",
-              environment: "other",
-              domain: "other-panel",
-            }),
-          ]).success === true,
-      ],
-      [
-        "stableOrder",
-        () =>
-          JSON.stringify(ownershipFacts(duplicateDomains)) ===
-            JSON.stringify(expectedOwnershipFacts) &&
-          JSON.stringify(ownershipFacts([...duplicateDomains].reverse())) ===
-            JSON.stringify(expectedOwnershipFacts),
-      ],
-      [
-        "prevalidated",
-        () =>
-          validateSoftFurnishings({
-            environment: roomEnvironment(),
-            furnishings: [
-              softFurnishing(),
-              softFurnishing({ id: "second-curtain" }),
-            ],
-            domains: [panel()],
-            domainOwnership: "prevalidated",
-          }).success === true,
-      ],
-    ]),
-    {
-      sameEnvironment: true,
-      differentEnvironment: true,
-      differentDomains: true,
-      stableOrder: true,
-      prevalidated: true,
-    },
-  );
-
-  const frame = (
-    furnishing: IAutoMovieSoftFurnishing,
-    domain: IAutoMovieSoftBodyDomain,
-  ) => lowerSoftFurnishing({ furnishing, domain, time: 0.5 });
-  const notRun = frame(softFurnishing(), panel({ mass: [1] }));
-  const unnamed = frame(softFurnishing({ state: "shut" }), panel());
-  const unsupported = frame(softFurnishing(), panel({ selfCollision: true }));
-  const resting = frame(softFurnishing({ mode: "rest" }), panel());
-  const solved = frame(softFurnishing({ state: "open" }), panel());
-  TestValidator.equals(
-    "the capability matrix reports what was computed and what was not",
-    namedFacts([
-      [
-        "notRun",
-        () =>
-          notRun.analysis.status === "not-run" &&
-          notRun.state === null &&
-          notRun.surface === null &&
-          notRun.analysis.reason !== null,
-      ],
-      [
-        "unnamedState",
-        () => unnamed.analysis.status === "not-run" && unnamed.state === null,
-      ],
-      [
-        "unsupported",
-        () =>
-          unsupported.analysis.status === "unsupported" &&
-          unsupported.analysis.unsupported.includes("self-collision") &&
-          unsupported.state?.step === 0 &&
-          unsupported.surface !== null,
-      ],
-      [
-        "rest",
-        () =>
-          resting.analysis.status === "rest" &&
-          resting.state?.step === 0 &&
-          resting.analysis.reason === null,
-      ],
-      [
-        "solved",
-        () =>
-          solved.analysis.status === "solved" &&
-          solved.state?.step === 32 &&
-          solved.state?.state === "open" &&
-          solved.analysis.unsupported.length === 0,
-      ],
-      [
-        "unknownMode",
-        () => {
-          const odd = frame(
-            softFurnishing({ mode: "baked" as unknown as "rest" }),
-            panel(),
-          );
-          return (
-            odd.analysis.status === "not-run" &&
-            odd.state === null &&
-            odd.surface === null
-          );
-        },
-      ],
-      [
-        "mismatchedDomain",
-        () => {
-          const odd = frame(softFurnishing({ domain: "other" }), panel());
-          return (
-            odd.analysis.status === "not-run" &&
-            odd.state === null &&
-            odd.surface === null &&
-            (odd.analysis.reason ?? "").includes('soft body "other"')
-          );
-        },
-      ],
-      ["kind", () => solved.analysis.kind === "soft-body"],
-      ["furnishing", () => solved.furnishing === "window-curtain"],
-      ["surfaceStep", () => solved.surface?.step === 32],
-    ]),
-    {
-      notRun: true,
-      unnamedState: true,
-      unsupported: true,
-      rest: true,
-      solved: true,
-      unknownMode: true,
-      mismatchedDomain: true,
-      kind: true,
-      furnishing: true,
-      surfaceStep: true,
-    },
-  );
-
-  // The default panel steps at 1/64 s and declares 1000 of them, so its clock
-  // reaches 15.625 s and no further.
-  const late = lowerSoftFurnishing({
-    furnishing: softFurnishing(),
-    domain: panel(),
-    time: 16,
-  });
-  TestValidator.equals(
-    "a second the declared budget cannot reach is reported, not thrown",
-    namedFacts([
-      [
-        "past",
-        () =>
-          late.analysis.status === "not-run" &&
-          late.state === null &&
-          late.surface === null &&
-          (late.analysis.reason ?? "").includes("step 1024"),
-      ],
-      [
-        "lastReachable",
-        () =>
-          lowerSoftFurnishing({
-            furnishing: softFurnishing(),
-            domain: panel(),
-            time: 15.625,
-          }).state?.step === 1_000,
-      ],
-      [
-        "notReal",
-        () => {
-          const odd = lowerSoftFurnishing({
-            furnishing: softFurnishing(),
-            domain: panel(),
-            time: Number.NaN,
-          });
-          return odd.analysis.status === "not-run" && odd.state === null;
-        },
-      ],
-      [
-        "beforeTheClock",
-        () =>
-          lowerSoftFurnishing({
-            furnishing: softFurnishing(),
-            domain: panel(),
-            time: -4,
-          }).state?.step === 0,
-      ],
-    ]),
-    {
-      past: true,
-      lastReachable: true,
-      notReal: true,
-      beforeTheClock: true,
-    },
-  );
-};
+  assertSoftFurnishingOwnershipAndLowering(panel);
+}

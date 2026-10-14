@@ -4,10 +4,15 @@
  * committed generation. Wall-clock milliseconds locate observations; they
  * are not subtracted from the worker's independent performance clock.
  *
- * @evidence contracts/common.md#principled-implementation Source and frame identity retain stage ownership while scalar counters expose resource and request state.
- * @evidence contracts/common.md#clear-and-simple-design One telemetry record carries only progress and resource counts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports actual request stages and renderer counters rather than document-specific estimates.
- * @evidence contracts/common.md#meaningful-documentation Defines identity, timing and the exclusion of model and photograph bytes.
+ *
+ * @evidence contracts/common.md#principled-implementation createHumanViewerWorkReporter pairs a current phase/snapshot with observed numerical completion readings; readHumanViewerWork admits finite nonnegative telemetry and discards unknown fields before host publication.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps frame/source/document identity, page wall-clock transition time, worker monotonic durations and resident/GPU resource readings in one progress record without geometry or photograph payloads.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Page at and worker elapsed/stage clocks have different origins and are never added as one duration; an idle phase follows actual reporting, not an elapsed-time guess or hardware-success certificate.
+ * @evidence contracts/common.md#meaningful-documentation Documents clock domains, optional observed completion, pending reply/resource quantities and iframe identity; these snapshots do not prove physical resource release or a completed capture on their own.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This record chooses no telemetry algorithm; reporting and validation scan a fixed field set, while renderer/resident owners produce resource readings.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every phase transition needs its own current snapshot; equal frame/source strings do not justify replaying an earlier resource count as a fresh observation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Records contain identifiers and numeric readings only; host/page own latest-status replacement and log retention, with no log-history cap or worker/context handle introduced by this type.
+ *
  * @author Samchon
  */
 export interface HumanViewerWork {
@@ -56,6 +61,6 @@ export interface HumanViewerWork {
   /** Documents the page keeps drawn-ready. */
   residents: number;
 
-  /** Bytes of arrays those residents keep alive, the quantity their cache is bounded by. */
+  /** Counted array weight used by residency policy; aliases can be counted repeatedly, so this is not a physical memory measurement. */
   residentBytes: number;
 }

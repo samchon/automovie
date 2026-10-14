@@ -7,36 +7,23 @@ import { IAutoMovieTreatmentSequence } from "./IAutoMovieTreatmentSequence";
 /**
  * Machine index beside production-owned treatment and screenplay prose.
  *
- * Markdown remains the human-authored source. This record owns only stable
- * identity, exact coverage, lock history, catalogs and traceability facts that
- * project lint can compare without judging dramatic quality.
+ * Markdown remains the authored narrative source. This index carries stable identity, coverage, lock history, catalogs and traceability rather than automatic judgments of dramatic quality.
+ * The production screenplay host is retired; this retained DTO does not load documents or validate the relationships below.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `IAutoMovieScreenplayIndex` as the portable data boundary for the story screenplay index prose requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMovieScreenplayIndex` for the narrative intent scene prose index system contract.
+ * @evidence contracts/common.md#principled-implementation A version-2 record groups authored treatment, scene, catalog and continuity ledgers; string joins describe their intended relationships without checking cross-record consistency or active-production membership.
+ * @evidence contracts/common.md#clear-and-simple-design Narrative documents retain prose ownership while this versioned companion provides machine-addressable relationships needed by source, review and edit coverage.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Stable ids and explicit disposition distinguish active coverage from omission; catalog citations and declared claims do not prove dramatic quality or successful compiled realization by themselves.
+ * @evidence contracts/common.md#meaningful-documentation Defines production and document addressing, treatment and scene populations, optional lock state, catalog categories and single-owner continuity claims.
+ * @author Samchon
  */
 export interface IAutoMovieScreenplayIndex {
-  /**
-   * Screenplay-index format.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `version` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `version` for the narrative intent scene prose index system contract.
-   */
+  /** Screenplay-index format. */
   version: 2;
 
-  /**
-   * Exact active production id.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `production` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `production` for the narrative intent scene prose index system contract.
-   */
+  /** Exact active production id. */
   production: string;
 
-  /**
-   * Project-relative Markdown treatment path.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `treatment` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `treatment` for the narrative intent scene prose index system contract.
-   */
+  /** Project-relative Markdown treatment path. */
   treatment: {
     /** Human-owned treatment document. */
     path: string;
@@ -45,12 +32,7 @@ export interface IAutoMovieScreenplayIndex {
     sequences: IAutoMovieTreatmentSequence[];
   };
 
-  /**
-   * Project-relative Markdown screenplay and its stable scene ledger.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `screenplay` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `screenplay` for the narrative intent scene prose index system contract.
-   */
+  /** Project-relative Markdown screenplay and its stable scene ledger. */
   screenplay: {
     /** Human-owned screenplay document. */
     path: string;
@@ -62,12 +44,7 @@ export interface IAutoMovieScreenplayIndex {
     scenes: IAutoMovieScreenplayScene[];
   };
 
-  /**
-   * Discovered story identities grounded in authored scene evidence.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `catalog` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `catalog` for the narrative intent scene prose index system contract.
-   */
+  /** Discovered story identities grounded in authored scene evidence. */
   catalog: {
     /** Characters, independent of model or rig convenience. */
     characters: IAutoMovieScreenplayCatalogEntry[];
@@ -79,11 +56,6 @@ export interface IAutoMovieScreenplayIndex {
     locations: IAutoMovieScreenplayCatalogEntry[];
   };
 
-  /**
-   * Canon facts with exactly one proof owner each.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `continuity` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `continuity` for the narrative intent scene prose index system contract.
-   */
+  /** Canon facts with exactly one proof owner each. */
   continuity: IAutoMovieContinuityClaim[];
 }

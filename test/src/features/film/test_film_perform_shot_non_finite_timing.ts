@@ -1,10 +1,14 @@
-import { performShot, stageScene } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   IAutoMoviePerformance,
+  IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -14,7 +18,9 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const gesture = (
+const gesture: (
+  partial?: Partial<IAutoMovieActionCall & { verb: "gesture" }>,
+) => IAutoMovieActionCall & { verb: "gesture" } = (
   partial: Partial<IAutoMovieActionCall & { verb: "gesture" }> = {},
 ): IAutoMovieActionCall & { verb: "gesture" } => ({
   verb: "gesture",
@@ -25,8 +31,15 @@ const gesture = (
   ...partial,
 });
 
-const run = (partial: Partial<IAutoMoviePerformance>) => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+const run: (
+  partial: Partial<IAutoMoviePerformance>,
+) => IAutoMoviePerformedShot = (
+  partial: Partial<IAutoMoviePerformance>,
+): IAutoMoviePerformedShot => {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
   return performShot({
     script: makeScriptWrite(),
@@ -37,21 +50,25 @@ const run = (partial: Partial<IAutoMoviePerformance>) => {
       ...partial,
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
 };
 
 /**
- * Pins non-finite PERFORMANCE timing values before they feed shot span math.
+ * Performs authored non-finite shot/action clocks and checks failure plus each owning range path before span arithmetic can use those values.
  *
  * Scenarios:
+ * 1. Refuse infinite shot duration at the shot field.
+ * 2. Refuse NaN action start at its authored field.
+ * 3. Refuse infinite action duration while the shot duration is also infinite.
  *
- * 1. `duration = Infinity` yields `range` on `$input.duration`.
- * 2. `draft[0].start = NaN` yields `range` on `$input.draft[0].start`.
- * 3. `draft[0].duration = Infinity` yields `range` on `$input.draft[0].duration`.
+ * @evidence contracts/testing.md#behavioral-verification Performs authored non-finite shot/action clocks and checks failure plus each owning range path before span arithmetic can use those values.
+ * @evidence contracts/testing.md#independent-expectations Finite positive shot duration and finite action clocks exclude Infinity and NaN by their input contract; the explicit expected input paths do not come from the gate's own list.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves infinite shot span, NaN action start and infinite action duration (with an infinite shot span as originally supplied); valid finite clocks are exercised by other perform entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_non_finite_timing unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_non_finite_timing = (): void => {
-  const infiniteShotDuration = run({
+export function test_film_perform_shot_non_finite_timing(): void {
+  const infiniteShotDuration: IAutoMoviePerformedShot = run({
     duration: Number.POSITIVE_INFINITY,
   });
   TestValidator.equals(
@@ -62,10 +79,10 @@ export const test_film_perform_shot_non_finite_timing = (): void => {
   TestValidator.equals(
     "infinite shot duration rejected",
     namedFacts([
-      ["refused", () => infiniteShotDuration.success === false],
+      ["refused", (): boolean => infiniteShotDuration.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           infiniteShotDuration.success === false &&
           hasViolation(infiniteShotDuration, "range", "$input.duration"),
       ],
@@ -73,17 +90,17 @@ export const test_film_perform_shot_non_finite_timing = (): void => {
     { refused: true, violated: true },
   );
 
-  const nanStart = run({
+  const nanStart: IAutoMoviePerformedShot = run({
     draft: [gesture({ start: Number.NaN })],
   });
   TestValidator.equals("nan start fails", nanStart.success, false);
   TestValidator.equals(
     "nan start rejected",
     namedFacts([
-      ["refused", () => nanStart.success === false],
+      ["refused", (): boolean => nanStart.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           nanStart.success === false &&
           hasViolation(nanStart, "range", "$input.draft[0].start"),
       ],
@@ -91,7 +108,7 @@ export const test_film_perform_shot_non_finite_timing = (): void => {
     { refused: true, violated: true },
   );
 
-  const infiniteActionDuration = run({
+  const infiniteActionDuration: IAutoMoviePerformedShot = run({
     duration: Number.POSITIVE_INFINITY,
     draft: [gesture({ duration: Number.POSITIVE_INFINITY })],
   });
@@ -103,10 +120,10 @@ export const test_film_perform_shot_non_finite_timing = (): void => {
   TestValidator.equals(
     "infinite action duration rejected",
     namedFacts([
-      ["refused", () => infiniteActionDuration.success === false],
+      ["refused", (): boolean => infiniteActionDuration.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           infiniteActionDuration.success === false &&
           hasViolation(
             infiniteActionDuration,
@@ -117,4 +134,4 @@ export const test_film_perform_shot_non_finite_timing = (): void => {
     ]),
     { refused: true, violated: true },
   );
-};
+}

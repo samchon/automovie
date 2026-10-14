@@ -1,45 +1,30 @@
 /**
  * Actual owned numerical process failure, distinct from a rejected document.
  *
- * @evidence contracts/common.md#principled-implementation Process failure is separate from document refusal and preserves the original execution cause.
- * @evidence contracts/common.md#clear-and-simple-design Error, optional stack and source-change witness form one terminal execution report.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only measured source-byte or membership changes set sourceChanged; elapsed time is not that evidence.
- * @evidence contracts/common.md#meaningful-documentation Missing stack means the execution owner supplied none, and sourceChanged is a host-measured authority failure.
+ * @evidence contracts/common.md#principled-implementation Carries a terminal owned-process/checked-loader failure and optional original stack/source-change classification.
+ * @evidence contracts/common.md#clear-and-simple-design Separates execution failure from a domain document refusal or correlated unsuccessful model reply.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts sourceChanged is a host-observed classification and can be absent; a generic error message cannot independently prove byte mismatch.
+ * @evidence contracts/common.md#meaningful-documentation Documents original cause/stack and measured source/config membership difference, with unchanged errors preserved through browser reconstruction.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The payload performs no classification; the service compares current revision/witnesses and encodes the failure envelope.
+ * @evidence contracts/performance.md#reuse-equivalent-work A terminal failure ends its endpoint and pending requests; failed work is not replayed from another source or cached merely by message equality.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Error strings/stacks live with the event/client until retirement, uncapped in size; the server still owns actual child close.
  *
- * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Process failure is separate from document refusal and preserves the original execution cause.
- * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Only measured source-byte or membership changes set sourceChanged; elapsed time is not that evidence.
  * @author Samchon
  */
 export interface IHumanViewerNumericalFailure {
   /**
    * Terminal execution-failure message discriminant, separate from document admission refusal.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Marks actual owned-process failure separately from domain document refusal.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Marks actual owned-process failure separately from domain document refusal.
    */
   type: "failure";
 
-  /**
-   * Original process or checked-loader error message.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Preserves the original process or checked-loader error instead of a manufactured model result.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Preserves the original process or checked-loader error instead of a manufactured model result.
-   */
+  /** Original process or checked-loader error message. */
   error: string;
 
-  /**
-   * Original stack when the execution owner supplies one.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Retains the execution owner's original stack when available and does not invent one when absent.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Retains the execution owner's original stack when available and does not invent one when absent.
-   */
+  /** Original stack when the execution owner supplies one. */
   stack?: string;
 
   /**
    * Host measured different startup source/configuration bytes or membership.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Identifies a measured startup source-byte or membership change rather than inferring source failure from elapsed time.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Identifies a measured startup source-byte or membership change rather than inferring source failure from elapsed time.
    */
   sourceChanged?: boolean;
 }

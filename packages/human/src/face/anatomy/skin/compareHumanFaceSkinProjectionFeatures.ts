@@ -31,6 +31,14 @@ import type { IHumanFaceSkinProjectionOwnership } from "./IHumanFaceSkinProjecti
  * boundaries without a representable midpoint. Represented boundaries are
  * still a curve representation; clinical/source accuracy is not certified.
  *
+ * @evidence contracts/common.md#principled-implementation Exact affine native projections yield a rational squared-distance difference; clearing denominators preserves its integer-quadratic signs, root enclosures and strict crossing count. Final parameter boundaries remain binary64 and unresolved crossing order refuses.
+ * @evidence contracts/common.md#clear-and-simple-design One pair closure shares coefficients/root proof between sign and overlap partition readers; the envelope separately owns selection and native-order ties.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact samples between root enclosures determine open-interval signs; tangency is not a crossing and interval-wide equality is not a finite root list. No rounded midpoint or tolerance selects a preferred sheet.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains represented-versus-exact precision, tangencies, whole-domain ties, validity clipping, crossing separation and the lack of anatomical certification.
+ * @evidence contracts/performance.md#efficient-algorithms Three axes and two features produce fixed-degree coefficients; shared root isolation dominates with rational coefficient bit size and isolation depth, while partitions process at most the quadratic crossing population without resampling geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work A pair result retains coefficients and full-guide roots for repeated validity-overlap fragments; createHumanFaceSkinProjectionEnvelope keys this result by the same two feature objects and fixed guide direction.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Pair closure storage is bounded in entry count by three coefficients and degree-two roots but bigint bytes depend on input precision; guide-local ownership drops it after envelope completion/refusal, with no global handle or task.
+ *
  * @author Samchon
  */
 export function compareHumanFaceSkinProjectionFeatures(
@@ -38,17 +46,21 @@ export function compareHumanFaceSkinProjectionFeatures(
   second: IHumanFaceSkinProjectionFeature,
   direction: readonly IHumanExactFraction[],
 ): IHumanFaceSkinProjectionComparison {
-  let qa = Fraction.create(0n),
-    qb = Fraction.create(0n),
-    qc = Fraction.create(0n);
-  for (let owner = 0; owner < 2; owner++) {
-    const feature = [first, second][owner];
-    const origin = feature.origin.map((value) => Fraction.negate(value)),
-      velocity = feature.velocity.map((value, axis) =>
-        Fraction.subtract(direction[axis], value),
+  let qa: IHumanExactFraction = Fraction.create(0n),
+    qb: IHumanExactFraction = Fraction.create(0n),
+    qc: IHumanExactFraction = Fraction.create(0n);
+  for (let owner: number = 0; owner < 2; owner++) {
+    const feature: IHumanFaceSkinProjectionFeature = [first, second][owner];
+    const origin: IHumanExactFraction[] = feature.origin.map(
+        (value: IHumanExactFraction): IHumanExactFraction =>
+          Fraction.negate(value),
       ),
-      sign = Fraction.create(owner === 0 ? 1n : -1n);
-    for (let axis = 0; axis < 3; axis++) {
+      velocity: IHumanExactFraction[] = feature.velocity.map(
+        (value: IHumanExactFraction, axis: number): IHumanExactFraction =>
+          Fraction.subtract(direction[axis], value),
+      ),
+      sign: IHumanExactFraction = Fraction.create(owner === 0 ? 1n : -1n);
+    for (let axis: number = 0; axis < 3; axis++) {
       qa = Fraction.add(
         qa,
         Fraction.multiply(
@@ -74,26 +86,31 @@ export function compareHumanFaceSkinProjectionFeatures(
   }
   // The least common denominator avoids multiplying redundant denominator
   // factors. Reduction changes neither the distance order nor its roots.
-  const denominator = [qa, qb, qc].reduce(
-    (multiple, value) =>
+  const denominator: bigint = [qa, qb, qc].reduce(
+    (multiple: bigint, value: IHumanExactFraction): bigint =>
       multiple * Fraction.create(multiple, value.denominator).denominator,
     1n,
   );
-  const a = qa.numerator * (denominator / qa.denominator),
-    b = qb.numerator * (denominator / qb.denominator),
-    c = qc.numerator * (denominator / qc.denominator);
-  const discriminant = b * b - 4n * a * c;
-  const valueAt = (parameter: IHumanExactFraction): number => {
-    const n = parameter.numerator,
-      d = parameter.denominator;
-    const value = a * n * n + b * n * d + c * d * d;
+  const a: bigint = qa.numerator * (denominator / qa.denominator),
+    b: bigint = qb.numerator * (denominator / qb.denominator),
+    c: bigint = qc.numerator * (denominator / qc.denominator);
+  const discriminant: bigint = b * b - 4n * a * c;
+  const valueAt: (parameter: IHumanExactFraction) => number = (
+    parameter: IHumanExactFraction,
+  ): number => {
+    const n: bigint = parameter.numerator,
+      d: bigint = parameter.denominator;
+    const value: bigint = a * n * n + b * n * d + c * d * d;
     return value < 0n ? -1 : value > 0n ? 1 : 0;
   };
-  const derivativeAt = (parameter: IHumanExactFraction): number => {
-    const value = 2n * a * parameter.numerator + b * parameter.denominator;
+  const derivativeAt: (parameter: IHumanExactFraction) => number = (
+    parameter: IHumanExactFraction,
+  ): number => {
+    const value: bigint =
+      2n * a * parameter.numerator + b * parameter.denominator;
     return value < 0n ? -1 : value > 0n ? 1 : 0;
   };
-  const sign = (parameter: number): number => {
+  const sign: (parameter: number) => number = (parameter: number): number => {
     if (!Number.isFinite(parameter) || parameter < 0 || parameter > 1)
       throw new Error("Skin projection parameter is outside its guide.");
     return valueAt(Fraction.from(parameter));
@@ -101,7 +118,7 @@ export function compareHumanFaceSkinProjectionFeatures(
   // A constant or strictly root-free quadratic has no finite root events.
   // The identically zero polynomial is an interval-wide tie, not a finite
   // root set for the shared isolation owner to enumerate.
-  const rootIntervals =
+  const rootIntervals: IHumanPolynomialRoot[] =
     (a === 0n && b === 0n) || (a !== 0n && discriminant < 0n)
       ? []
       : isolateHumanPolynomialRoots([
@@ -109,22 +126,25 @@ export function compareHumanFaceSkinProjectionFeatures(
           Fraction.create(b),
           Fraction.create(a),
         ]);
-  const countCrossings = (
+  const countCrossings: (
     lo: IHumanExactFraction,
     hi: IHumanExactFraction,
-  ): number => {
+  ) => number = (lo: IHumanExactFraction, hi: IHumanExactFraction): number => {
     if (Fraction.compare(lo, hi) >= 0 || (a === 0n && b === 0n)) return 0;
-    const left = valueAt(lo),
-      right = valueAt(hi);
+    const left: number = valueAt(lo),
+      right: number = valueAt(hi);
     if (a === 0n) return left * right < 0 ? 1 : 0;
     if (discriminant <= 0n) return 0;
-    const leading = a > 0n ? 1 : -1;
-    const dl = leading * derivativeAt(lo),
-      dr = leading * derivativeAt(hi);
+    const leading: 1 | -1 = a > 0n ? 1 : -1;
+    const dl: number = leading * derivativeAt(lo),
+      dr: number = leading * derivativeAt(hi);
     if (dl >= 0 || dr <= 0) return left * right < 0 ? 1 : 0;
     return Number(leading * left > 0) + Number(leading * right > 0);
   };
-  const partition = (
+  const partition: (
+    lower: number,
+    upper: number,
+  ) => readonly IHumanFaceSkinProjectionOwnership[] = (
     lower: number,
     upper: number,
   ): readonly IHumanFaceSkinProjectionOwnership[] => {
@@ -138,9 +158,12 @@ export function compareHumanFaceSkinProjectionFeatures(
         "Skin comparison needs its actual finite feature-domain overlap.",
       );
     if (lower === upper) return [];
-    const lo = Fraction.from(lower),
-      hi = Fraction.from(upper);
-    const refuse = (reason: string, root?: IHumanPolynomialRoot): never => {
+    const lo: IHumanExactFraction = Fraction.from(lower),
+      hi: IHumanExactFraction = Fraction.from(upper);
+    const refuse: (reason: string, root?: IHumanPolynomialRoot) => never = (
+      reason: string,
+      root?: IHumanPolynomialRoot,
+    ): never => {
       throw new Error(
         reason +
           " " +
@@ -174,8 +197,10 @@ export function compareHumanFaceSkinProjectionFeatures(
               Fraction.compare(root.lower, hi) < 0,
           );
         else {
-          const start = Fraction.compare(root.lower, lo) < 0 ? lo : root.lower;
-          const end = Fraction.compare(root.upper, hi) > 0 ? hi : root.upper;
+          const start: IHumanExactFraction =
+            Fraction.compare(root.lower, lo) < 0 ? lo : root.lower;
+          const end: IHumanExactFraction =
+            Fraction.compare(root.upper, hi) > 0 ? hi : root.upper;
           count = countCrossings(start, end);
         }
         if (count === 0) continue;
@@ -201,19 +226,20 @@ export function compareHumanFaceSkinProjectionFeatures(
         "Skin projection root intervals do not certify its complete crossing population.",
       );
     const result: IHumanFaceSkinProjectionOwnership[] = [];
-    for (let at = 0; at <= events.length; at++) {
-      const start = at === 0 ? lo : events[at - 1].upper;
-      const end = at === events.length ? hi : events[at].lower;
+    for (let at: number = 0; at <= events.length; at++) {
+      const start: IHumanExactFraction = at === 0 ? lo : events[at - 1].upper;
+      const end: IHumanExactFraction =
+        at === events.length ? hi : events[at].lower;
       if (Fraction.compare(start, end) > 0)
         refuse(
           "Skin projection root enclosures do not certify interval ordering.",
         );
-      const middle = Fraction.divide(
+      const middle: IHumanExactFraction = Fraction.divide(
         Fraction.add(start, end),
         Fraction.create(2n),
       );
       // A tangent's isolated point tie does not change either open interval.
-      const ownerSign =
+      const ownerSign: number =
         a !== 0n && discriminant === 0n ? (a > 0n ? 1 : -1) : valueAt(middle);
       if (ownerSign === 0 && (a !== 0n || b !== 0n || c !== 0n))
         refuse(

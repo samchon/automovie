@@ -1,44 +1,25 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieProductionPublicationIdentity } from "./IAutoMovieProductionPublicationIdentity";
 import { IAutoMovieProductionRenderedDeliverable } from "./IAutoMovieProductionRenderedDeliverable";
 
 /**
- * Aggregate final-delivery ledger bound to one exact render-plan runtime.
+ * Aggregate delivery ledger bound to one exact render-plan runtime and its materialized output claims.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Makes any plan or runtime-closure change invalidate the aggregate publication.
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Preserves the exact render-plan provenance beside delivered bytes.
- * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Carries a recomputable structured publication identity rather than trusting an opaque path.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the exact candidate generation checked at the terminal commit boundary.
+ * @evidence contracts/common.md#principled-implementation The aggregate manifest binds deliverable file identities to compile and recomputable publication identity; terminal publication probes supplied bytes and final validation compares the matching renderer receipt and current final plan.
+ * @evidence contracts/common.md#clear-and-simple-design One ledger groups required and optional deliverables under a shared publication identity rather than giving each output an unrelated render generation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Stored claims alone cannot pass final delivery: missing receipts, stale compile or plan generations, byte changes and parser fact mismatches refuse.
+ * @evidence contracts/common.md#meaningful-documentation Defines aggregate format, exact compile input, structured publication identity and the materialized deliverable population.
+ * @author Samchon
  */
 export interface IAutoMovieProductionRenderManifest {
-  /**
-   * Aggregate manifest format.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Versions the plan-bound manifest contract.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Selects the structured-provenance schema.
-   */
+  /** Aggregate manifest format. */
   version: 2;
 
-  /**
-   * Exact builder input that produced every listed output.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Invalidates the manifest after builder-input change.
-   * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-publication-preconditions Supplies the builder-input precondition.
-   */
-  compileFingerprint: AutoMovieContentDigest;
+  /** Exact builder input that produced every listed output. */
+  compileFingerprint: string;
 
-  /**
-   * Structured and self-verifying render-plan identity.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Carries the runtime closure.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Supports independent recomputation.
-   */
+  /** Structured and self-verifying render-plan identity. */
   publication: IAutoMovieProductionPublicationIdentity;
 
-  /**
-   * Materialized required and optional deliverables.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Enumerates every required delivered artifact.
-   * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-preserve-previous-complete Refuses partial replacement of the complete package.
-   */
+  /** Materialized required and optional deliverables. */
   deliverables: IAutoMovieProductionRenderedDeliverable[];
 }

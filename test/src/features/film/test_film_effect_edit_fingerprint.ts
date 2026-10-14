@@ -1,58 +1,50 @@
-import { productionFilmEffectEditFingerprint } from "@automovie/engine";
-import type { IAutoMovieFilmTimeline } from "@automovie/interface";
-import {
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-} from "@automovie/production";
+import { canonicalizeAutoMovieJson } from "@automovie/engine";
+import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
+import { productionFilmEffectEditFingerprint } from "../../../../packages/engine/src/effectRuntime/productionFilmEffectEditFingerprint";
 import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
 
 /**
- * The film edit fingerprint is one identity in the browser and in Node.
- *
- * The viewer compares this fingerprint against the one the builder persisted,
- * so a byte or hash difference between the engine's pure path and the Node
- * builder path would refuse every current film. Expectations come from the
- * edit protocol itself: its canonical text written by hand for a minimal edit,
- * `node:crypto` over those bytes, and the Node production digest over the
- * protocol's declared fields.
+ * The effect edit digest follows normalized edit fields and excludes builder provenance.
  *
  * Scenarios:
+ * 1. Compare a literal canonical edit record with the engine digest using Node SHA-256.
+ * 2. Changing builder provenance preserves the digest.
+ * 3. Changing edit length, segment source, effect intensity or rational rate changes it.
  *
- * 1. A minimal edit's fingerprint equals `node:crypto` over its hand-written
- *    canonical protocol text and the Node production digest of the protocol
- *    object.
- * 2. A full edit with a segment and two effect cues gets one fingerprint from
- *    the engine and from the Node production digest.
- * 3. The compile input, source digest and builder are outside the edit and
- *    leave the fingerprint unchanged, while total frames, a segment source
- *    frame, a cue intensity, or an explicit frame rate each change it.
+ * @evidence contracts/testing.md#behavioral-verification Calls productionFilmEffectEditFingerprint and compares protocol hashing plus equal/different digest outcomes, catching included provenance or omitted executable edit fields.
+ * @evidence contracts/testing.md#independent-expectations A hand-authored canonical JSON record and Node crypto determine the baseline hash; chosen edits change fields declared by the edit protocol. Observed different digests are witnesses, not a proof that SHA-256 is collision-free.
+ * @evidence contracts/testing.md#distinguishing-cases Pairs unchanged executable state with changed provenance and four executable edits; runtime population staleness and malformed effect admission are checked by the neighbouring effect tests.
+ * @evidence contracts/testing.md#execution-ownership This synchronous discoverable entry owns portable engine/Node digest parity in one process; it neither runs a browser nor proves a cross-host byte replay or rendered effect.
  */
-export const test_film_effect_edit_fingerprint = (): void => {
-  const nodeProtocolDigest = (
+export function test_film_effect_edit_fingerprint(): void {
+  const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (
     timeline: IAutoMovieFilmTimeline,
-  ): `sha256:${string}` =>
-    digestAutoMovieBytes(
-      canonicalAutoMovieJsonBytes({
-        protocol: "automovie.production-render-edit.v2",
-        id: timeline.id,
-        fps: timeline.fps,
-        frameRate: timeline.frameRate,
-        totalFrames: timeline.totalFrames,
-        segments: timeline.segments,
-        omissions: timeline.omissions,
-        tracks: timeline.tracks,
-      }),
-    );
+  ): string =>
+    `sha256:${createHash("sha256")
+      .update(
+        canonicalizeAutoMovieJson({
+          protocol: "automovie.production-render-edit.v2",
+          id: timeline.id,
+          fps: timeline.fps,
+          frameRate: timeline.frameRate,
+          totalFrames: timeline.totalFrames,
+          segments: timeline.segments,
+          omissions: timeline.omissions,
+          tracks: timeline.tracks,
+        }),
+        "utf8",
+      )
+      .digest("hex")}`;
   const minimal: IAutoMovieFilmTimeline = {
     ...filmEffectTimeline([]),
     id: "f",
     totalFrames: 1,
     segments: [],
   };
-  const text =
+  const text: string =
     '{"fps":24,"id":"f","omissions":[],"protocol":"automovie.production-render-edit.v2","segments":[],"totalFrames":1,"tracks":{"audio":[],"captions":[],"effects":[]}}';
   TestValidator.equals(
     "a minimal edit hashes its hand-written canonical protocol text",
@@ -63,8 +55,8 @@ export const test_film_effect_edit_fingerprint = (): void => {
     ],
   );
 
-  const base = filmEffectTimeline();
-  const fingerprint = productionFilmEffectEditFingerprint(base);
+  const base: IAutoMovieFilmTimeline = filmEffectTimeline();
+  const fingerprint: string = productionFilmEffectEditFingerprint(base);
   TestValidator.equals(
     "a full edit has one fingerprint through the engine and through Node",
     fingerprint,
@@ -121,4 +113,4 @@ export const test_film_effect_edit_fingerprint = (): void => {
       frameRate: false,
     },
   );
-};
+}

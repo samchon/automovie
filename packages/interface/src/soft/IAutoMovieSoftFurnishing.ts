@@ -2,104 +2,54 @@ import { AutoMovieSoftFurnishingKind } from "./AutoMovieSoftFurnishingKind";
 import { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
 
 /**
- * The binding that makes an independent soft-body domain a building's
- * furnishing.
+ * The binding that makes an independent soft-body domain a building's furnishing.
  *
- * This record, not the soft-body domain, is the building-owned half. The domain
- * stays a free-standing computational unit; the furnishing says _this building
- * unit's logical space is the room that panel hangs in, and these are the
- * elements it is fixed to_. A production world with no building at all places
- * the same domain by simply not writing one of these.
+ * This record, not the soft-body domain, is the building-owned half. The domain stays a free-standing computational unit; the furnishing says _this building unit's logical space is the room that panel hangs in, and these are the elements it is fixed to_. A production world with no building at all places the same domain by simply not writing one of these.
  *
- * Nothing here re-states geometry. The room's extent is the architecture's
- * logical space, the panel's extent is the domain's rest mesh, and the engine
- * checks that the binding actually resolves rather than trusting a name.
+ * Nothing here re-states geometry. The room's extent is the architecture's logical space, the panel's extent is the domain's rest mesh, and the engine checks that the binding actually resolves rather than trusting a name.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IAutoMovieSoftFurnishing` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMovieSoftFurnishing` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation validateSoftFurnishings resolves environment, logical space, independent domain and support elements and checks held rest particles against declared room volume; it does not certify whole triangles or future cloth containment. lowerSoftFurnishing validates the supplied pair and chooses rest or fixed-step evaluation.
+ * @evidence contracts/common.md#clear-and-simple-design The building-owned binding holds room and support references while the domain retains all cloth computation inputs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The semantic kind selects no solver template. Referencing supports records dependencies but does not itself animate anchors from those element transforms.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish mode, selected named state, dependency ids and nullable material; unsupported or unexecuted lowering is reported separately.
+ * @author Samchon
  */
 export interface IAutoMovieSoftFurnishing {
-  /**
-   * Stable furnishing identity within the production.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `id` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-   */
+  /** Stable furnishing identity within the production. */
   id: string;
 
-  /**
-   * Id of the `IAutoMovieBuiltEnvironment` that owns the furnishing.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `environment` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `environment` for the interior space soft furnishing planting system contract.
-   */
+  /** Id of the `IAutoMovieBuiltEnvironment` that owns the furnishing. */
   environment: string;
 
-  /**
-   * Id of the logical space inside that environment holding the panel.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `space` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `space` for the interior space soft furnishing planting system contract.
-   */
+  /** Id of the logical space inside that environment holding the panel. */
   space: string;
 
-  /**
-   * Id of the independent soft-body domain this furnishing draws.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `domain` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `domain` for the interior space soft furnishing planting system contract.
-   */
+  /** Id of the independent soft-body domain this furnishing draws. */
   domain: string;
 
-  /**
-   * Semantic label; it selects nothing in the solver.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-   */
+  /** Semantic label; it selects nothing in the solver. */
   kind: AutoMovieSoftFurnishingKind;
 
   /**
    * How the furnishing is evaluated over shot time.
    *
-   * - `rest`: always the authored rest configuration, reported as such. A rug
-   *   that must read identically in every frame of a cut.
+   * - `rest`: always the authored rest configuration, reported as such. A rug that must read identically in every frame of a cut.
    * - `simulated`: the fixed-step solve at that second.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `mode` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `mode` for the interior space soft furnishing planting system contract.
    */
   mode: AutoMovieSoftFurnishingMode;
 
   /**
-   * Id of the domain's named anchor state to hold, or `null` for the anchors'
-   * own declared positions. This is where `open` and `closed` are chosen: the
-   * furnishing selects a boundary condition, and the solver finds the folds.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `state` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `state` for the interior space soft furnishing planting system contract.
+   * Id of the domain's named anchor state to hold, or `null` for the anchors' own declared positions. This is where `open` and `closed` are chosen: the furnishing selects a boundary condition, and the solver finds the folds.
    */
   state: string | null;
 
   /**
-   * Ids of the environment's elements the panel is fixed to: a curtain track, a
-   * pelmet, a wall hook, the bed the linen lies on. May be empty for a panel
-   * held only by its own anchors.
+   * Ids of the environment's elements the panel is fixed to: a curtain track, a pelmet, a wall hook, the bed the linen lies on. May be empty for a panel held only by its own anchors.
    *
-   * The list is a stated dependency, not a source of geometry: moving a track
-   * invalidates the panel bound to it, which is exactly what a change-impact
-   * pass needs and what a silently duplicated coordinate could never give.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `supports` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `supports` for the interior space soft furnishing planting system contract.
+   * Validation checks that these dependencies resolve and are not duplicated. The current solver does not read their element transforms, and this list alone neither moves anchors nor installs automatic change-impact invalidation.
    */
   supports: string[];
 
-  /**
-   * Id of the material the panel is drawn with, or `null` for the default.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `material` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `material` for the interior space soft furnishing planting system contract.
-   */
+  /** Id of the material the panel is drawn with, or `null` for the default. */
   material: string | null;
 }

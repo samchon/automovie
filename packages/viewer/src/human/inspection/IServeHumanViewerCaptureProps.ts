@@ -10,172 +10,144 @@ import type { createHumanViewerThumbnailStore } from "./createHumanViewerThumbna
 /**
  * One request to a GPU route and the host state those routes use. State that changes while the server runs is passed as accessors and read when used.
  *
- * @evidence contracts/common.md#principled-implementation GPU routes read current catalogue, page and source authority through accessors at request time.
- * @evidence contracts/common.md#clear-and-simple-design The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Demand settlement can target one requested document without declaring unrelated inputs ready or relabelling stale captures.
- * @evidence contracts/common.md#meaningful-documentation Documents HTTP bindings, selected-document settlement, generation accessors and capture/thumbnail ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review GPU routes read current catalogue, page and source authority through accessors at request time.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
+ * @evidence contracts/common.md#principled-implementation GPU-route dependencies bind the real response and capture lifetime to accessors for current catalogue, ready source generation and resident page.
+ * @evidence contracts/common.md#clear-and-simple-design The route composes host-owned scheduling, capture, readiness and thumbnail services without retaining stale copies of mutable server state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit document admission stays separate from unrelated inputs; stale thumbnails are marked stale and generation-changed captures are refused.
+ * @evidence contracts/common.md#meaningful-documentation Comments describe accessor freshness, selected-document settlement, camera-example ownership and dispatch ownership during renderer failure.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The route-props shape chooses no GPU capture, PNG composition or thumbnail pruning algorithm.
+ * @evidence contracts/performance.md#reuse-equivalent-work Thumbnail services key reuse by revision and document authority while current-state accessors prevent sharing frames across a changed generation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The server owns page, queue and capture lifetime; the adapter borrows them and holds its client binding until guarded task settlement, whose host reports do not independently measure OS/GPU termination.
+ *
  * @author Samchon
  */
 export interface IServeHumanViewerCaptureProps {
-  /**
-   * Parsed request URL.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Parsed request URL. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Parsed request URL. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** Parsed request URL. */
   url: URL;
 
-  /**
-   * The request.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review The request. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The request. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** The request. */
   request: IncomingMessage;
 
-  /**
-   * Its response.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Its response. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Its response. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** Its response. */
   response: ServerResponse;
 
   /**
-   * Answers with a JSON value.
+   * Serialize and end this request's HTTP response with a JSON value.
    *
-   * @evidence contracts/common.md#principled-implementation Capture-route JSON output sends the route's own response value.
-   * @evidence contracts/common.md#clear-and-simple-design The HTTP host owns serialization through one borrowed response operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A metadata response does not establish a completed GPU frame.
-   * @evidence contracts/common.md#meaningful-documentation Defines the JSON response callback for this capture request.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Capture-route JSON output sends the route's own response value.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The HTTP host owns serialization through one borrowed response operation.
+   * @evidence contracts/common.md#principled-implementation JSON response writing publishes the route's actual metadata or refusal through the request's HTTP response.
+   * @evidence contracts/common.md#clear-and-simple-design The server supplies serialization so GPU routes compose values without owning another response-formatting layer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The supplied value comes from current route state rather than a fixture-specific response body.
+   * @evidence contracts/common.md#meaningful-documentation The member documents both JSON serialization and ending this response.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This response-writer signature chooses no JSON encoder or socket-buffering algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Writing one client's response is an individual effect that cannot be shared with another matching request.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The callback borrows the request's response; the HTTP server owns transport completion and cleanup.
    */
   json: (value: unknown) => void;
 
   /**
    * Application-owned camera-pose example directory; file stems are admitted by the pose query adapter.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Application-owned camera-pose example directory; file stems are admitted by the pose query adapter. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Application-owned camera-pose example directory; file stems are admitted by the pose query adapter. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
    */
   cameraPosesDirectory: string;
 
-  /**
-   * The GPU request queue.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The GPU request queue. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The GPU request queue. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** The GPU request queue. */
   queue: ReturnType<typeof createHumanViewerQueue>;
 
   /**
-   * Current catalogue.
+   * Return the latest published catalogue whenever the route checks source or document authority.
    *
-   * @evidence contracts/common.md#principled-implementation Catalogue access reads the host's current inventory when GPU handling needs it.
-   * @evidence contracts/common.md#clear-and-simple-design The route uses an accessor rather than retaining a snapshot across source changes.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An old catalogue is not silently substituted for current document authority.
-   * @evidence contracts/common.md#meaningful-documentation Names the current catalogue accessor.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Catalogue access reads the host's current inventory when GPU handling needs it.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The route uses an accessor rather than retaining a snapshot across source changes.
+   * @evidence contracts/common.md#principled-implementation Reading the latest catalogue detects inventory changes while queued or asynchronous capture work was running.
+   * @evidence contracts/common.md#clear-and-simple-design An accessor avoids retaining one stale inventory snapshot in long-lived route dependencies.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The route does not assume the request's initially observed revision remains current through final response writing.
+   * @evidence contracts/common.md#meaningful-documentation The comment specifies fresh published catalogue access at authority checks.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This accessor chooses no catalogue rebuilding or document lookup algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work The server shares its published catalogue until an input/source/admission update replaces it; callers re-read the accessor after awaited effects.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The catalogue remains server-owned; this read acquires no resident or worker handle.
    */
   inventory: () => IHumanViewerCatalogue;
 
   /**
    * Demand admission for an explicitly requested document without settling unrelated inputs.
    *
-   * @evidence contracts/common.md#principled-implementation Targeted settlement awaits the requested document's actual admission and returns its catalogue.
-   * @evidence contracts/common.md#clear-and-simple-design The host retains admission scheduling while the route specifies only one document.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The request does not wait for or certify unrelated input populations.
-   * @evidence contracts/common.md#meaningful-documentation Defines optional demand settlement for the explicit document address.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Targeted settlement awaits the requested document's actual admission and returns its catalogue.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host retains admission scheduling while the route specifies only one document.
+   * @evidence contracts/common.md#principled-implementation Selected-document settlement waits for that input's sidecars and owner verdict before GPU route admission.
+   * @evidence contracts/common.md#clear-and-simple-design Optional selection settlement keeps request-specific readiness with catalogue ownership instead of scanning every unrelated candidate.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The requested descriptor still requires its owner's verdict; unrelated failing inputs do not force guessed acceptance or global waiting.
+   * @evidence contracts/common.md#meaningful-documentation The comment defines explicit-document admission and exclusion of unrelated-input settlement.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This capability specifies no selected-file indexing or admission scheduling implementation.
+   * @evidence contracts/performance.md#reuse-equivalent-work The catalogue owner can reuse current stamped input facts and matching-key admission while the route awaits only its selected document.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Selected admission tasks remain with their background owners until settled; the route borrows the resulting catalogue.
    */
   settleDocument?: (doc: string) => Promise<IHumanViewerCatalogue>;
 
   /**
-   * Source generation the page has ready, empty while none is.
+   * Return the page's current ready-source authority, or an empty string while none can draw.
    *
-   * @evidence contracts/common.md#principled-implementation The generation accessor reports the revision the page can draw, or an empty value before readiness.
-   * @evidence contracts/common.md#clear-and-simple-design Readiness stays with the page owner and is queried at route use time.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A serving source digest is not substituted for the page's drawable revision.
-   * @evidence contracts/common.md#meaningful-documentation Documents the ready-generation value and pre-readiness empty state.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale The generation accessor reports the revision the page can draw, or an empty value before readiness.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Readiness stays with the page owner and is queried at route use time.
+   * @evidence contracts/common.md#principled-implementation Ready-source authority identifies the page generation that can draw, separately from the server's desired inventory revision.
+   * @evidence contracts/common.md#clear-and-simple-design A fresh readiness accessor lets routes compare generation identity before and after asynchronous capture phases.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty readiness is not replaced with a claim that the desired source generation has already displayed.
+   * @evidence contracts/common.md#meaningful-documentation The member documents page authority and the empty-string no-drawable-generation state.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This readiness read selects no generation-witness or renderer observation algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Capture output is accepted only under unchanged selected ready authority; inventory mismatch is labeled stale rather than current.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The authority string borrows residency state without taking ownership of the active browser page.
    */
   readyRevision: () => string;
 
   /**
-   * Renderer string of the page.
+   * Return the renderer identity reported by the resident page for capture metadata.
    *
-   * @evidence contracts/common.md#principled-implementation Renderer access forwards the actual renderer string recorded for the page.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns device observation while the route borrows its reading.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The accessor does not invent a hardware renderer from process or HTTP readiness.
-   * @evidence contracts/common.md#meaningful-documentation Defines the resident page's renderer description.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Renderer access forwards the actual renderer string recorded for the page.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-capture-runtime-identity The host owns device observation while the route borrows its reading.
+   * @evidence contracts/common.md#principled-implementation Renderer metadata comes from the resident page's actual context report rather than from configured launch flags.
+   * @evidence contracts/common.md#clear-and-simple-design The route borrows residency's reported renderer text; the capture owner and startup use judgeViewerRenderer for classification. Independent hardware and displayed-image observation remain separate obligations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested hardware backend is not substituted for the renderer actually observed by the page.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies observed renderer identity and its capture-metadata use.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The renderer-string accessor implements no GPU capability probe or rendering algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Renderer metadata does not establish equality of frame contents or source-generation authority.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reading an identity string owns no WebGL context and leaves renderer lifetime with the page.
    */
   renderer: () => string;
 
   /**
-   * The resident GPU page.
+   * Return the current resident GPU page, including a replacement after renderer failure.
    *
-   * @evidence contracts/common.md#principled-implementation Page access returns the currently owned resident GPU page.
-   * @evidence contracts/common.md#clear-and-simple-design The browser owner retains page lifetime while capture routes borrow its handle.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The route cannot select an unrelated session's page as its renderer.
-   * @evidence contracts/common.md#meaningful-documentation Names the current resident GPU page accessor.
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Page access returns the currently owned resident GPU page.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation The browser owner retains page lifetime while capture routes borrow its handle.
+   * @evidence contracts/common.md#principled-implementation Current-page access follows residency replacement so capture operations do not deliberately target a known failed page.
+   * @evidence contracts/common.md#clear-and-simple-design The route asks for the page when dispatching instead of retaining a browser object captured at server startup.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A physically dead renderer is not reused merely because an old page reference remains available.
+   * @evidence contracts/common.md#meaningful-documentation The comment specifies current resident access across renderer replacements.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This page accessor chooses no browser relaunch or CDP operation strategy.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sharing the resident page requires queue/lifetime ownership; retrieving the same page alone does not permit concurrent capture effects.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Residency owns browser/page closure; routes borrow the returned page only through guarded capture-lifetime operations.
    */
   page: () => Page;
 
-  /**
-   * Dispatch ownership against renderer failure.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Dispatch ownership against renderer failure. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Dispatch ownership against renderer failure. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** Dispatch ownership against renderer failure. */
   lifetime: ReturnType<typeof createHumanViewerCaptureLifetime>;
 
-  /**
-   * The capture owner.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review The capture owner. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The capture owner. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** The capture owner. */
   capture: ReturnType<typeof createHumanViewerCapture>;
 
   /**
-   * Waits until the page has a ready generation again.
+   * Wait until a source generation can draw again, or reject an unrecoverable readiness failure.
    *
-   * @evidence contracts/common.md#principled-implementation Settlement waits for the page owner's ready generation before capture continues.
-   * @evidence contracts/common.md#clear-and-simple-design The host retains generation lifecycle while the route awaits one readiness operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An elapsed wait does not authorize cancellation or replace actual page readiness.
-   * @evidence contracts/common.md#meaningful-documentation Defines the wait for a drawable page generation.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Settlement waits for the page owner's ready generation before capture continues.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host retains generation lifecycle while the route awaits one readiness operation.
+   * @evidence contracts/common.md#principled-implementation Generation settlement waits for actual page readiness after a source transition before another guarded GPU capture is attempted.
+   * @evidence contracts/common.md#clear-and-simple-design Readiness waiting stays with the host, while the GPU route accounts for time spent waiting and retry limits.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A wait does not fabricate a successful capture or suppress an unrecoverable source/readiness error.
+   * @evidence contracts/common.md#meaningful-documentation The member documents drawable-generation completion and rejection when readiness cannot recover.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This settlement capability specifies no browser polling frequency or source-generation scheduling algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A prior generation's settled state cannot satisfy a wait after that authority was replaced.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The route awaits readiness under its client/capture guards, leaving page generation tasks and cleanup with the host.
    */
   settle: () => Promise<void>;
 
-  /**
-   * Stored thumbnails, current and stale.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Stored thumbnails, current and stale. GPU routes read current catalogue, page and source authority through accessors at request time.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Stored thumbnails, current and stale. The host owns queue, renderer lifetime, capture and thumbnail storage; the route borrows those owners.
-   */
+  /** Stored thumbnails, current and stale. */
   thumbnails: ReturnType<typeof createHumanViewerThumbnailStore>;
 
   /**
-   * Thumbnail file of a bulk render query, or null when it has none.
+   * Resolve a supported bulk-render query to its current thumbnail path, or null when the query has no thumbnail key.
    *
-   * @evidence contracts/common.md#principled-implementation Thumbnail lookup derives a path from the requested bulk-render search or returns null.
-   * @evidence contracts/common.md#clear-and-simple-design The thumbnail owner retains key and persistence policy outside request handling.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unkeyed query stays null rather than using an unrelated cached picture.
-   * @evidence contracts/common.md#meaningful-documentation Defines render-query lookup and the no-thumbnail result.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-output-naming Thumbnail lookup derives a path from the requested bulk-render search or returns null.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The thumbnail owner retains key and persistence policy outside request handling.
+   * @evidence contracts/common.md#principled-implementation Thumbnail path resolution maps only supported render queries to revision/document-keyed storage, keeping uncachable queries explicit as null.
+   * @evidence contracts/common.md#clear-and-simple-design The host owns thumbnail key construction while routes choose current cache, stale fallback or live capture.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported capture queries are not assigned a convenient thumbnail belonging to another view or document.
+   * @evidence contracts/common.md#meaningful-documentation The member defines supported-query path resolution and the null no-thumbnail-key outcome.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This resolver signature chooses no query normalization or thumbnail digest algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Current thumbnails require matching query, source revision and document key; stale fallback is reported separately by the store.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Resolving a path retains no PNG bytes or file stream; serving and thumbnail writing own subsequent I/O.
    */
   thumbnailFile: (search: string) => string | null;
 }

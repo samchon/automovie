@@ -12,6 +12,17 @@
  *
  * Values are metres. Arrays follow `upperColumns` and `lowerColumns` of the
  * owning cage, medial to lateral, joins included; a join may carry zero.
+ * Registered material paths locate the posterior-origin ocular arc on the
+ * current exterior. The legacy branch without a material chart retains its
+ * spatial strip approximation and does not establish the same exact arc.
+ *
+ * @evidence contracts/common.md#principled-implementation Registered same-lid source meridian paths locate each supplied posterior-margin-origin arc against the current ocular exterior, independently of the anterior skin near edge.
+ * @evidence contracts/common.md#clear-and-simple-design Upper/lower aligned arc arrays and publisher qualification describe far support while the cage owns columns and material continuation paths.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Positive supported domains and actual source crossings are required by the band/locator; zero is not automatically an anterior-margin pole, and the legacy nearest-seated strip is an approximation rather than certified ocular-arc or anatomical measurement.
+ * @evidence contracts/common.md#meaningful-documentation Metre arcs, join-inclusive order, posterior origin and registered-versus-legacy meanings prevent treating skin crease rows as measured tarsal borders.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This support record performs no arc integration or source-path location.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared extents are source input; compiled bands are reused by the tissue consumer.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Publisher arrays create no exterior query or generated lamella.
  *
  * @author Samchon
  */

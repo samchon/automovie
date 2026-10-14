@@ -10,85 +10,70 @@ import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
 /**
  * Everything one daylight or artificial-light study is configured with.
  *
- * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `IAutoMovieDaylightRequest` binds one reproducible lighting study to its revision, environment, plane, blockers, sources, sky model, sampling density, and targets.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The request is the complete state boundary from which daylight and artificial-light metrics are calculated or explicitly refused.
+ * `analyzeAutoMovieDaylight` throws on a blank id, subject, revision or sky
+ * name, an invalid environment context, an instant the context does not
+ * declare, a malformed workplane, luminaire or shading solid, a sky sample count
+ * that is not a positive safe integer, or a malformed target. A null instant
+ * makes the run an `artificial-light` run, otherwise it is `daylight`. The
+ * settings digest covers the context's id, ground, north and occluders, the
+ * resolved instant record, and every other field except `id`, `subject` and
+ * `inputRevision`.
+ *
+ * @evidence contracts/common.md#principled-implementation A study is beam, isotropic sky and point-luminaire illuminance over one workplane at one declared instant, and every field that changes the answer is digested so identical requests seal identical runs.
+ * @evidence contracts/common.md#clear-and-simple-design The read-only context is referenced rather than copied into the request, and building-owned shades stay a separate list from context occluders, so ownership is kept by which field a solid arrives in.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unimplemented sky model yields an `unsupported` run and a study with no emitter yields `not-run`, rather than a substituted model or a zero illuminance claim.
+ * @evidence contracts/common.md#meaningful-documentation States every throw condition of the analyzer, how the instant decides the run domain, what the settings digest covers, that only `isotropic` is implemented, and that the sky sample count has no upper bound.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the study costs grid cells times sky samples times solids, answered on `analyzeAutoMovieDaylight`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The analyzer builds the sky directions once per study and shares them across cells; the request itself carries no cached result.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns it for one call; cells are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, but `diffuseSamples` has no upper bound, so the analyzer's direction array grows with it unchecked.
+ * @author Samchon
  */
 export interface IAutoMovieDaylightRequest {
-  /**
-   * Stable run identity.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary The request `id` gives the lighting study a stable run identity independent of its subject.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state This key anchors the sealed run and its deterministic sampling labels.
-   */
+  /** Stable run identity; non-blank. */
   id: string;
-  /**
-   * Logical space or surface being studied.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `subject` names the logical room or surface whose illuminance evidence is being produced.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The subject label persists in the result so sampled optical state stays attributable to the studied element.
-   */
+
+  /** Logical space or surface being studied; non-blank. */
   subject: string;
-  /**
-   * Design revision being read.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `inputRevision` records which design state the workplane and shading evidence represent.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The revision is sealed into the run so later summaries can classify obsolete lighting measurements as stale.
-   */
+
+  /** Design revision being read; non-blank. */
   inputRevision: string;
+
   /**
-   * Read-only external world.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `context` contributes the read-only sun, sky irradiance, and neighbouring blockers used by the lighting study.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The external state is validated, looked up by instant, and combined with building-owned shades without transferring ownership.
+   * Read-only external world, validated in full on every study; its occluders
+   * block rays alongside {@link shades}.
    */
   context: IAutoMovieEnvironmentContext;
+
   /**
-   * Instant id to study, or null for an artificial-light-only study.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `instant` selects the declared sun and sky state, while null deliberately requests artificial light alone.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The nullable key controls environment lookup and the explicit not-run outcome when neither natural nor artificial source exists.
+   * Instant id of {@link context} to study, or null for an
+   * artificial-light-only study.
    */
   instant: string | null;
-  /**
-   * Measurement grid.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `workplane` states the exact surface, face, dimensions, and resolution on which light is judged.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The oriented grid is expanded into ordered cell-centre positions and a shared measurement normal.
-   */
+
+  /** Measurement grid. */
   workplane: IAutoMovieAnalysisWorkplane;
+
   /**
-   * Building-owned convex shading solids such as a canopy or a fin.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `shades` declares the building-owned blockers that may remove sun, sky, or luminaire rays from a sample.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state These convex solids join context occluders in the same analytic ray test while retaining their authored ownership.
+   * Building-owned convex shading solids such as a canopy or a fin; ids unique
+   * within this list.
    */
   shades: readonly IAutoMovieAnalysisSolid[];
-  /**
-   * Artificial sources contributing to the same plane.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `luminaires` enumerates only the authored artificial sources included in the workplane result.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The validated point sources contribute deterministic inverse-square illuminance after visibility testing.
-   */
+
+  /** Artificial sources contributing to the same plane; ids unique. */
   luminaires: readonly IAutoMovieAnalysisLuminaire[];
+
   /**
-   * Sky luminance distribution requested.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `sky` declares the luminance distribution the author expects rather than letting the solver choose silently.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The model string is checked against the supported isotropic distribution and otherwise produces an explicit unsupported run.
+   * Sky luminance distribution requested; only `isotropic` is implemented, and
+   * any other non-blank name yields an `unsupported` run.
    */
   sky: string;
+
   /**
-   * Sky-vault sample count per measurement point; a positive whole number.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `diffuseSamples` fixes the authored resolution of each sky-visibility estimate.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The positive count selects a deterministic cosine-weighted hemisphere sequence and enters the settings digest.
+   * Sky-vault sample count per measurement point; a positive safe integer with
+   * no upper bound.
    */
   diffuseSamples: number;
-  /**
-   * Targets the production declares for this study.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary Lighting `targets` declare the thresholds used to judge supported illuminance and contrast metrics.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The validated list is matched by metric key and that metric's declared unit during deterministic result construction.
-   */
+
+  /** Targets the production declares for this study. */
   targets: readonly IAutoMovieAnalysisTarget[];
 }

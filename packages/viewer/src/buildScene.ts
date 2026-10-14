@@ -1,14 +1,19 @@
-import type { IAutoMovieCamera, IAutoMovieScene } from "@automovie/interface";
+import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import type {
+  IAutoMovieCamera,
+  IAutoMovieScene,
+  IAutoMovieSpace,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
+import { applySceneEnvironment } from "./applySceneEnvironment.js";
 import { applySceneFog } from "./applySceneFog.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
 import { buildSpaceObject } from "./buildSpace.js";
-import { applySceneEnvironment } from "./applySceneEnvironment.js";
 
 /**
  * Build a `three.js` scene from an {@link IAutoMovieScene}.
@@ -20,8 +25,7 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
  * transform, so node placement and a pose's own root transform compose
  * cleanly.
  *
- * Cameras and the three punctual light kinds map onto their `three.js`
- * equivalents.
+ * Cameras and the four light kinds (point, area, directional and spot) map onto their `three.js` equivalents.
  *
  * **The first `scene.nodes.length` top-level children ARE the designed nodes,
  * in design order.** Both mask passes read that: the legacy ramp colours the
@@ -42,29 +46,37 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
  *
  * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
  *
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Materializes this surface from the resolved scene state only.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Keeps semantic support out of beauty while retaining it for structural products.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Implements the boundary from resolved staging state to the viewer scene.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements the scene's support patch as structural-only render geometry.
- *
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-refusal Refuses unsupported shadow profiles and unresolved node models before returning the scene, preserving node/model identity instead of dropping or replacing that subject.
- *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
+ * @evidence contracts/common.md#clear-and-simple-design Owns the scene graph join and camera/light lookup result while model loading/building, articulation, temporal sampling and rendering remain external; leading node-child order exposes the existing positional semantic-mask dependency.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses unresolved models rather than dropping an authored child and shifting mask indices; no fixture nodes/lights are invented, but complete admission and partial-construction rollback are not supplied by this scene wrapper.
+ * @evidence contracts/common.md#meaningful-documentation States resolver uniqueness, authored node order, placement/root composition, semantic-ground beauty exclusion, static-pose caller duty and explicit refusal/admission ownership boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Builds N placement groups, L lights and C cameras with id maps plus support tessellation and shadow participation traversal; dominant memory follows actual model/support resources returned by producers, and no anonymous member runtime is created here.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses canonical transform/light/fog/environment/space adapters and maps lights by semantic id; model object reuse across placements is invalid because native parenting is exclusive, and scene-level effectful construction is not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers new scene/group/light/camera/support references and adopts resolver model objects into the result; environment texture handoff has its separate exclusive owner. No universal scene disposer or late-refusal rollback is returned, so callers must own both retirement and partially assembled graph recovery rather than assuming this wrapper frees them.
  */
-export const buildScene = (
+export const buildScene: (
+  scene: IAutoMovieScene,
+  getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
+  environmentTexture?: THREE.Texture,
+) => IAutoMovieSceneObject = (
   scene: IAutoMovieScene,
   getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
   environmentTexture?: THREE.Texture,
 ): IAutoMovieSceneObject => {
-  const shadowProfile = resolveAutoMovieShadowProfile({
-    lights: scene.lights, shadows: scene.environment?.shadows,
-  });
+  const shadowProfile: ReturnType<typeof resolveAutoMovieShadowProfile> =
+    resolveAutoMovieShadowProfile({
+      lights: scene.lights,
+      shadows: scene.environment?.shadows,
+    });
   if (!shadowProfile.success)
-    throw new Error("Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations));
-  const root = new THREE.Scene();
+    throw new Error(
+      "Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations),
+    );
+  const root: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 
   for (const node of scene.nodes) {
-    const built = getModelObject(node.model);
+    const built: IAutoMovieModelObject | undefined = getModelObject(node.model);
     // Caller data that cannot resolve is an error, not a skip (#1051): both
     // mask passes read a designed node off its top-level child INDEX, so a
     // silently dropped node would shift every later node one place over and a
@@ -73,7 +85,7 @@ export const buildScene = (
       throw new Error(
         `scene node "${node.id}" references model "${node.model}", which getModelObject could not resolve`,
       );
-    const nodeGroup = new THREE.Group();
+    const nodeGroup: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
     // Named, so a consumer can find a node's group by its scene id instead of
     // by position among `root.children`. The two agree today only because this
     // loop appends in design order, which a host that prepends anything of its
@@ -90,14 +102,14 @@ export const buildScene = (
   // the leading run of `root.children` that both mask passes read them off. The
   // id map is built alongside so a shot's `lightMotions` can find one without
   // depending on where it landed.
-  const lights = new Map<string, THREE.Light>();
+  const lights: Map<string, THREE.Light> = new Map<string, THREE.Light>();
   for (const light of scene.lights) {
-    const object = buildLight(light);
+    const object: THREE.Light = buildLight(light);
     root.add(object);
     lights.set(light.id, object);
   }
 
-  const space = scene.space ?? null;
+  const space: IAutoMovieSpace | null = scene.space ?? null;
   if (space !== null) root.add(buildSpaceObject(space));
 
   // The atmosphere is a scene property, not an object: it takes no top-level
@@ -107,13 +119,19 @@ export const buildScene = (
 
   applyAutoMovieShadowParticipation(root);
 
-  const cameras = scene.cameras.map(buildCamera);
+  const cameras: THREE.PerspectiveCamera[] = scene.cameras.map(buildCamera);
   return { scene: root, cameras, lights };
 };
 
-const buildCamera = (cam: IAutoMovieCamera): THREE.PerspectiveCamera => {
-  const camera = new THREE.PerspectiveCamera(cam.fovY, 1, cam.near, cam.far);
+const buildCamera: (cam: IAutoMovieCamera) => THREE.PerspectiveCamera = (
+  cam: IAutoMovieCamera,
+): THREE.PerspectiveCamera => {
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    cam.fovY,
+    1,
+    cam.near,
+    cam.far,
+  );
   applyTransform(camera, cam.transform);
   return camera;
 };
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";

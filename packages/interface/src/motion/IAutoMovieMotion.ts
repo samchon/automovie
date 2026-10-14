@@ -2,75 +2,44 @@ import { IAutoMovieGaitCycle } from "./IAutoMovieGaitCycle";
 import { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
 
 /**
- * A time-based animation clip: an ordered sequence of keyframes over a fixed
- * duration, targeting one skeleton.
+ * A time-based animation clip: an ordered sequence of keyframes over a fixed duration, targeting one skeleton.
  *
- * This is automovie's top-level _motion_ AST and the deterministic-export
- * anchor: the engine samples it (interpolating per `easing`) into dense frames
- * for the viewer, or compiles it to VRMA / VMD / glTF animation. Storing sparse
- * keyframes + easing (rather than baked frames) keeps the LLM's output small
- * and is what the temporal verifier checks for coherence: monotonic time,
- * bounded per-keyframe angular velocity, every keyframe pose within ROM.
+ * The engine samples sparse keyframes with their outgoing easing for playback and compilation. Motion validation checks ordered timing, per-keyframe angular changes and declared joint ranges. The repository currently implements no VRMA, VMD or glTF animation exporter; its model GLB exporter emits static rest geometry.
  *
- * The clip is frame-rate independent: `duration` and keyframe `time`s are in
- * seconds, sampled at whatever fps the consumer renders.
+ * The clip is frame-rate independent: `duration` and keyframe `time`s are in seconds, sampled at whatever fps the consumer renders.
  *
- * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `IAutoMovieMotion` as the portable data boundary for the motion clip refusal requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieMotion` for the performance motion clip keytime interpolation system contract.
+ * @evidence contracts/common.md#principled-implementation An ordered sparse timeline is sampled in seconds using each outgoing frame's easing, joint-angle interpolation and root quaternion slerp; validateMotion requires finite positive duration, increasing bounded times, target-rig poses and supported interpolation controls.
+ * @evidence contracts/common.md#clear-and-simple-design The clip owns identity, target skeleton, duration and loop semantics around reusable keyframes; optional gait-cycle provenance adds continuity without altering the general sampler representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Frame rate belongs to the consumer rather than the stored animation, and a missing cyclic provenance record is not inferred from a gait name; the author remains responsible for a looping clip's endpoint continuity.
+ * @evidence contracts/common.md#meaningful-documentation States second-based timing, at least two ordered keyframes, one target rig, loop wrapping and author-owned seam continuity, and gait-cycle absence and beat-handoff behavior.
  * @author Samchon
  */
 export interface IAutoMovieMotion {
-  /**
-   * Stable id so scenes and exports can cite this clip.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `id` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `id` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Stable id so scenes and exports can cite this clip. */
   id: string;
 
   /**
    * Which skeleton this clip animates. Every keyframe pose targets this rig.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `skeleton` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `skeleton` for the performance motion clip keytime interpolation system contract.
    */
   skeleton: string;
 
   /**
    * Total clip length, seconds. Every keyframe `time` must be `<= duration`.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `duration` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `duration` for the performance motion clip keytime interpolation system contract.
    */
   duration: number;
 
   /**
-   * Whether the clip loops seamlessly. When `true`, the engine expects the last
-   * keyframe to be continuous with the first.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `loop` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `loop` for the performance motion clip keytime interpolation system contract.
+   * Whether sampling wraps time modulo duration. The author must make the last pose continuous with the first; motion validation does not prove the seam.
    */
   loop: boolean;
 
   /**
-   * Keyframes in strictly increasing `time` order. At least two are required: a
-   * clip needs a start and an end to interpolate between.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `keyframes` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `keyframes` for the performance motion clip keytime interpolation system contract.
+   * Keyframes in strictly increasing `time` order. At least two are required: a clip needs a start and an end to interpolate between.
    */
   keyframes: IAutoMovieKeyframe[];
 
   /**
-   * The gait cycle this motion carries ({@link IAutoMovieGaitCycle}), when it
-   * was baked from or composed around a cyclic locomotion, lets the beat-end
-   * handoff read a stride phase off a non-looping composite. Absent/`null` = no
-   * cycle to resume. Evolving-schema optional (the `tree?`/`space?` precedent):
-   * pre-cycle motions stay valid unchanged.
-   *
-   * @evidence requirements/motion/clips-keyframes-and-interpolation.md#motion-clip-refusal Exposes `gaitCycle` as the portable data boundary for the motion clip refusal requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `gaitCycle` for the performance motion clip keytime interpolation system contract.
+   * The gait cycle this motion carries ({@link IAutoMovieGaitCycle}), when it was baked from or composed around a cyclic locomotion, lets the beat-end handoff read a stride phase off a non-looping composite. Absent/`null` = no carried cycle; a looping clip can still resume its duration-based phase.
    */
   gaitCycle?: IAutoMovieGaitCycle | null;
 }

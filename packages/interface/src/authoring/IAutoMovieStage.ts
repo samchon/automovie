@@ -8,87 +8,55 @@ import { IAutoMovieStageLight } from "./IAutoMovieStageLight";
 import { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";
 
 /**
- * Models the coding-agent-owned set before a shot is performed.
+ * The coding-agent-owned set before a shot is performed.
  *
- * This is an engine input, not an LLM application payload. Positions and
- * couplings are kept declarative so {@code stageScene} can validate every
- * identity and lower the set into deterministic scene data.
+ * This is an engine input. Positions and couplings stay declarative so `stageScene` can validate identities and lower the set into deterministic scene data. Node ids must be non-blank and unique across actors, set pieces, cameras and lights.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `IAutoMovieStage` as the portable data boundary for the agent ordinary code authoring requirement.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `IAutoMovieStage` for the spec authoring source input system contract.
+ * @evidence contracts/common.md#principled-implementation `stageScene` checks referential integrity and finite ranges, not craft: every cast member placed exactly once and every placement a cast member, unique non-blank ids across the four node lists, camera and mount targets that resolve, and the space, fog and environment through their own validators; it then lowers actors and set pieces to scene nodes, cameras to resolved scene cameras and lights to scene lights.
+ * @evidence contracts/common.md#clear-and-simple-design The set is one record of typed lists, one per kind of placement, plus optional world members lowered verbatim; each list's rules live on its element type, and the cross-list id uniqueness is stated once here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An omitted `space` lowers to an explicit `space: null` while an omitted `fog` or `environment` is left absent, so a scene states whether it has a ground and an unstaged atmosphere does not change the bytes of scenes that never declared one; no node id or set shape is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States who owns the record and who consumes it, the id uniqueness rule, what each optional member lowers to when omitted, which validator checks it, that `plan` is never read, and that a shot needs at least one camera.
+ * @author Samchon
  */
 export interface IAutoMovieStage {
   /**
-   * Stable scene identity cited by every registered shot that uses this set.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `scene` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `scene` for the spec authoring source input system contract.
+   * Stable scene identity, with a non-blank id, cited by every registered shot that uses this set.
    */
   scene: IAutoMovieNamedId;
 
   /**
-   * Human-readable geometric rationale retained beside the authored values.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `plan` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `plan` for the spec authoring source input system contract.
+   * Human-readable geometric rationale retained beside the authored values; `stageScene` does not read it.
    */
   plan: string;
 
   /**
-   * One placement for every scripted cast node that appears on the set.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `actors` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `actors` for the spec authoring source input system contract.
+   * Exactly one placement for every script cast member and none for any other node.
    */
   actors: IAutoMovieStageActor[];
 
-  /**
-   * Optional static set geometry; these nodes never perform an action.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `set` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `set` for the spec authoring source input system contract.
-   */
+  /** Optional unrigged set geometry, lowered to motionless scene nodes. */
   set?: IAutoMovieStageSetPiece[];
 
   /**
-   * Walkable surfaces whose geometry drives grounding and locomotion checks.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `space` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `space` for the spec authoring source input system contract.
+   * Walkable surfaces whose geometry drives grounding and locomotion checks, checked by `validateSpace` and lowered verbatim. Omitted lowers to `space: null`, the scalar ground plane.
    */
   space?: IAutoMovieSpace;
 
   /**
-   * The set's atmosphere, lowered verbatim onto the composed scene's `fog`.
-   * Omitted stages a scene with no atmosphere, which renders exactly as every
-   * staged scene did before the field existed.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `fog` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `fog` for the spec authoring source input system contract.
+   * The set's atmosphere, range-checked and lowered verbatim onto the composed scene's `fog`. Omitted composes a scene with no `fog` member, which renders without atmosphere.
    */
   fog?: IAutoMovieFog;
 
   /**
-   * Optional image-lighting, exposure, tone mapping, and shadow policy.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `environment` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `environment` for the spec authoring source input system contract.
+   * Image lighting, exposure, tone mapping and shadow policy, checked against these lights by `validateSceneEnvironment` and lowered verbatim. Omitted leaves those decisions to the host renderer.
    */
   environment?: IAutoMovieSceneEnvironment;
 
   /**
-   * Cameras available to the shot and its alternate coverage takes.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `cameras` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `cameras` for the spec authoring source input system contract.
+   * Cameras available to the shot and its coverage takes. Staging accepts an empty list, but `performShot` refuses a shot whose staged scene has no camera to frame it.
    */
   cameras: IAutoMovieStageCamera[];
 
-  /**
-   * Physical light declarations lowered into the deterministic scene.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Exposes `lights` as the portable data boundary for the agent ordinary code authoring requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Types `lights` for the spec authoring source input system contract.
-   */
+  /** Physical light declarations lowered into the deterministic scene. */
   lights: IAutoMovieStageLight[];
 }

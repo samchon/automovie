@@ -1,45 +1,27 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
 
 /**
- * A declared planted-foot window for foot-skate validation.
+ * Declare a foot that should remain planted over a sampled motion interval.
  *
- * The window is explicit because stance phase is action semantics, not a fact
- * the generic motion validator can safely infer from geometry alone.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieFootContactWindow` binds one foot identity, film interval, and slip tolerance to the contact declaration that can fail.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieFootContactWindow` defines the member path and temporal scope from which planted-foot samples are addressed.
+ * @evidence contracts/common.md#principled-implementation The validator resolves the declared bone at inclusive sample times and compares successive horizontal displacement divided by elapsed seconds with the allowed speed, default 0.02 metres per second.
+ * @evidence contracts/common.md#clear-and-simple-design Planted phase is an authored action fact, while the validator owns topology admission and sampled speed measurement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This is discrete skate inspection rather than continuous contact or ground-support proof; any physicsIntent suppresses warnings, and malformed intervals/bones remain errors.
+ * @evidence contracts/common.md#meaningful-documentation Documents seconds, ordered positive-duration windows, reachable bone and optional horizontal speed units/default.
+ * @evidence contracts/performance.md#efficient-algorithms The data record is constant size; its consumer pays sampled pose resolution and adjacent-pair speed work over the window.
+ * @evidence contracts/performance.md#reuse-equivalent-work The declared window is reused for its sampled points, with no inferred gait state or retained foot-motion cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the window, and validation retains sampled positions only for the call without host resources or running tasks.
  * @author Samchon
  */
 export interface IAutoMovieFootContactWindow {
-  /**
-   * Foot bone that should stay planted through the window.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `bone` identifies the declared foot landmark whose world-space drift produced the skate warning.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `bone` preserves the stable rig identity used to resolve every sample in this contact window.
-   */
+  /** Foot bone that should stay planted through the window. */
   bone: AutoMovieHumanoidBone;
 
-  /**
-   * Inclusive start time in seconds.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `start` marks the inclusive film-clock instant at which the named foot becomes planted.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `start` supplies the lower temporal boundary checked before adjacent foot samples are compared.
-   */
+  /** Inclusive finite start in seconds; negative starts are not refused. */
   start: number;
 
-  /**
-   * Inclusive end time in seconds.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `end` marks the inclusive film-clock instant at which the named foot may release its plant.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `end` supplies the upper temporal boundary clamped to the motion's declared duration.
-   */
+  /** Inclusive finite end in seconds, strictly greater than start. */
   end: number;
 
-  /**
-   * Allowed horizontal speed in meters/second for this contact window.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `maxHorizontalSpeed` records the meter-per-second slip threshold used to judge this planted foot.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `maxHorizontalSpeed` keeps the expected contact tolerance separate from the observed adjacent-sample speed.
-   */
+  /** Finite nonnegative horizontal speed in metres/second; omitted means 0.02. */
   maxHorizontalSpeed?: number;
 }

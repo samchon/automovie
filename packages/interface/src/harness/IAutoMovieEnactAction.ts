@@ -1,42 +1,29 @@
 import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 
 /**
- * Play a clip the caller **authored itself**: the escape for the expressive
- * motion no thin verb covers (a sword kata, a stumble-and-recover, a
- * character-specific idiom). Where every other verb is fattened by a
- * synthesizer, `enact` inverts the direction: the caller **computes** the dense
- * {@link IAutoMovieMotion} (motion authoring is, at the limit, a coding
- * activity: parametric curves, phase composition, sampled solvers) and hands it
- * in by `clip` id; the host's synthesizer resolves the id against the clips it
- * was given.
+ * Play a clip the caller authored itself: the escape for expressive motion no
+ * thin verb covers (a sword kata, a stumble-and-recover, a character-specific
+ * idiom). Where every other verb is expanded by a synthesizer, `enact` inverts
+ * the direction: the caller computes the dense {@link IAutoMovieMotion} with
+ * parametric curves, phase composition, or sampled solvers, and hands it in by
+ * `clip` id for the host's synthesizer to resolve.
  *
- * Enforcement is NOT bypassed: the engine masks the clip to its region (default
- * `fullBody`; narrow via `region`), layers it with disjoint-region actions,
- * sequences same-region overlaps, and ROM-gates the compiled composite exactly
- * like synthesized content: "engine enforces, model creates", with the model
- * creating at code bandwidth. Prefer a thin verb whenever one fits; reach for
- * `enact` when you can compute the keyframes.
+ * The engine masks the clip to its region, fullBody by default, arranges nonoverlapping placements into lanes and layers concurrent lanes. performShot checks actual masked-content overlaps and gates the compiled composite's range of motion like synthesized content; direct compilePerformance alone does not perform those shot gates. Prefer a thin verb whenever one fits.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `IAutoMovieEnactAction` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `IAutoMovieEnactAction` for the performance interaction attachment object handoff system contract.
+ * `performShot` refuses a blank `clip`. The production builder resolves the id
+ * from the shot program's `clips` and refuses one that is absent, while the
+ * engine's reference synthesizer answers `enact` with no motion.
+ *
+ * @evidence contracts/common.md#principled-implementation The clip is resolved by exact id from a table the host supplies, then flows through `compilePerformance`'s region masking and lane arrangement and `performShot`'s range-of-motion gate like any synthesized clip.
+ * @evidence contracts/common.md#clear-and-simple-design One id field references motion that lives in the shot program's clip table, so the action list stays thin and a clip used by several actions is stored once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An authored clip gets no exemption from masking or the motion gate, and an unknown id is refused by the production builder rather than skipped as silence.
+ * @evidence contracts/common.md#meaningful-documentation States when to use it, who computes the motion and who resolves the id, every enforcement step it still passes, the default region, the blank and absent-clip refusals, and the reference synthesizer's empty answer.
+ * @author Samchon
  */
 export interface IAutoMovieEnactAction extends IAutoMovieActionBase {
-  /**
-   * Selects caller-authored motion playback as the action family.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring This action member carries the cited authoring intent in the typed action contract.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-agent-input-output This action member carries the cited authoring intent in the typed action contract.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `verb` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `verb` for the performance interaction attachment object handoff system contract.
-   */
+  /** Selects caller-authored motion playback as the action family. */
   verb: "enact";
 
-  /**
-   * Id of the caller-authored clip, resolved by the host's synthesizer.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `clip` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `clip` for the performance interaction attachment object handoff system contract.
-   */
+  /** Id of the caller-authored clip, resolved by the host's synthesizer. */
   clip: string;
 }

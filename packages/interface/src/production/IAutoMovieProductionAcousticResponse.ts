@@ -1,10 +1,11 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-
 /**
  * Bounded room-path result consumed by the production mix.
  *
- * @evidence requirements/sound/interior-acoustics.md#sound-acoustic-mix-consumption Separates outdoor propagation, same-room response, and cross-room transmission.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#acoustic-mix-consumption-and-claim-boundary Preserves unavailable analysis as unsupported or not-run rather than an invented effect.
+ * @evidence contracts/common.md#principled-implementation The engine classifies outdoor, same-room and cross-room paths from explicit bindings, then uses the selected Sabine-derived response and exact input revision to produce room energy metrics or transmission amplitude gain.
+ * @evidence contracts/common.md#clear-and-simple-design Available results retain profile and input identity with path-specific nullable metrics; unsupported and not-run results carry the classification and actionable reason without pretending to contain a response.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Incomplete indoor/outdoor binding is unsupported, missing analysis input is not-run, and adopted responses remain not-run until bytes are decoded and mapped; no guessed room response replaces those gaps.
+ * @evidence contracts/common.md#meaningful-documentation Defines path classes, revision binding, seconds and energy versus amplitude metrics, path-dependent nulls and unavailable-response reasons.
+ * @author Samchon
  */
 export type IAutoMovieProductionAcousticResponse =
   | {
@@ -18,7 +19,7 @@ export type IAutoMovieProductionAcousticResponse =
       profile: string;
 
       /** Digest of geometry, materials, openings, emitter, and listener input. */
-      inputRevision: AutoMovieContentDigest;
+      inputRevision: string;
 
       /** Same-room reverberation time in seconds, otherwise null. */
       reverberationTimeSeconds: number | null;

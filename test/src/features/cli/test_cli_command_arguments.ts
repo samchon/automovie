@@ -1,131 +1,76 @@
 import { TestValidator } from "@nestia/e2e";
 import {
-  dispatchAutoMovieCommandArguments,
+  type AutoMovieCommand,
   readAutoMovieCommandArguments,
 } from "automovie";
 
 import { throwsError } from "../internal/predicates";
 
 /**
- * CLI admission consumes a whole request before a dispatcher can act.
+ * CLI admission resolves a whole request before anything is written.
  *
  * Scenarios:
  *
- * 1. Supported source commands preserve their explicitly supplied inputs.
- * 2. Missing, repeated, extra, unsupported and retired inputs refuse dispatch.
- * 3. Valid input invokes its dispatcher exactly once and returns its result.
+ * 1. No arguments or a lone help flag means help; a lone version flag means
+ *    version.
+ * 2. `start` keeps its one directory and an optional single `--force` in any
+ *    order.
+ * 3. Unknown commands, removed commands and options, missing, extra or blank
+ *    directories, a repeated `--force`, and a standalone flag beside other
+ *    tokens all refuse with a message naming the correction.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the exported `readAutoMovieCommandArguments` and asserts the returned request or the thrown message, catching a lost directory or `--force`, a standalone flag admitted beside other tokens, a removed command accepted, and a refusal that does not say how to correct it.
+ * @evidence contracts/testing.md#independent-expectations Expected requests and correction fragments come from the CLI grammar in the README and usage text (one `start` command, one `--force`, standalone `-h`/`--help` and `-v`/`--version`, `./-name` for a dash-leading directory), not from the parser's output; fragment matching cannot judge the rest of each message's wording.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty input, each standalone spelling alone and beside an extra token, `--force` before and after the directory, zero, blank and two directories, an unknown option and a dash-leading directory, a repeated `--force`, and the removed `toc`, `routes` and `inspect-external` commands; execution of an admitted request belongs to `run` and the project name to `test_cli_project_name`.
+ * @evidence contracts/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls the pure parser in-process with literal argument arrays, starting no process and registering no dynamic cases.
  */
-export const test_cli_command_arguments = (): void => {
-  const read = (...args: string[]) => readAutoMovieCommandArguments(args);
-  for (const args of [[], ["-h"], ["--help"]])
+export function test_cli_command_arguments(): void {
+  const read = (...args: string[]): AutoMovieCommand =>
+    readAutoMovieCommandArguments(args);
+  for (const args of [[], ["-h"], ["--help"]] as const)
     TestValidator.equals("standalone help", read(...args), { command: "help" });
-  for (const flag of ["-v", "--version"])
+  for (const flag of ["-v", "--version"] as const)
     TestValidator.equals("standalone version", read(flag), {
       command: "version",
     });
-  for (const language of ["chinese", "english", "japanese", "korean"] as const)
-    TestValidator.equals(
-      "explicit project language",
-      read("start", "project", "--language", language),
-      {
-        command: "start",
-        directory: "project",
-        language,
-        force: false,
-      },
-    );
+  TestValidator.equals("start without force", read("start", "project"), {
+    command: "start",
+    directory: "project",
+    force: false,
+  });
   TestValidator.equals(
-    "explicit replacement authority",
-    read("start", "--force", "project", "--language", "english"),
-    {
-      command: "start",
-      directory: "project",
-      language: "english",
-      force: true,
-    },
+    "force before the directory",
+    read("start", "--force", "project"),
+    { command: "start", directory: "project", force: true },
   );
-  TestValidator.equals("index publication", read("toc"), {
-    command: "toc",
-    check: false,
-  });
-  TestValidator.equals("index observation", read("toc", "--check"), {
-    command: "toc",
-    check: true,
-  });
-  for (const kind of ["film", "brief", "library"] as const)
-    TestValidator.equals("source capability routes", read("routes", kind), {
-      command: "routes",
-      kind,
-    });
-  for (const profile of [
-    "gltf-static-v1",
-    "gltf-humanoid-v1",
-    "gltf-motion-v1",
-    "vrm-humanoid-v1",
-  ] as const)
-    TestValidator.equals(
-      "explicit external profile",
-      read("inspect-external", "model.glb", "--profile", profile),
-      {
-        command: "inspect-external",
-        path: "model.glb",
-        profile,
-      },
-    );
-
-  const invalid = [
-    ["--help", "extra"],
-    ["--version", "extra"],
-    ["unknown"],
-    ["migrate"],
-    ["contracts", "migrate"],
-    ["verify"],
-    ["render", "all"],
-    ["start"],
-    ["start", "project"],
-    ["start", "project", "--language"],
-    ["start", "project", "--language", "--force"],
-    ["start", "project", "--language", "unsupported"],
-    ["start", "project", "--language", "english", "--language", "korean"],
-    ["start", "project", "--language", "english", "--force", "--force"],
-    ["start", "project", "--language", "english", "--unknown"],
-    ["start", "one", "two", "--language", "english"],
-    ["start", " ", "--language", "english"],
-    ["sync"],
-    ["sync", "extra"],
-    ["toc", "--check", "--check"],
-    ["toc", "--unknown"],
-    ["routes"],
-    ["routes", "unknown"],
-    ["routes", "film", "extra"],
-    ["inspect-external"],
-    ["inspect-external", "one", "two"],
-    ["inspect-external", "model.glb", "--profile"],
-    ["inspect-external", "model.glb", "--profile", "--unknown"],
-    ["inspect-external", "model.glb", "--profile", "unknown"],
-    ["inspect-external", "model.glb", "--unknown"],
+  TestValidator.equals(
+    "force after the directory",
+    read("start", "project", "--force"),
+    { command: "start", directory: "project", force: true },
+  );
+  // Each refusal names its correction: the one command, the one option, the
+  // directory count, a non-blank directory, or a standalone flag.
+  const invalid: readonly (readonly [readonly string[], string])[] = [
+    [["unknown"], "the only command is start"],
+    [["toc"], "the only command is start"],
+    [["routes", "film"], "the only command is start"],
     [
-      "inspect-external",
-      "model.glb",
-      "--profile",
-      "gltf-static-v1",
-      "--profile",
-      "gltf-static-v1",
+      ["inspect-external", "model.glb", "--profile", "gltf-static-v1"],
+      "the only command is start",
     ],
+    [["start"], "exactly one target directory; received 0"],
+    [["start", " "], "non-blank target directory"],
+    [["start", "one", "two"], "exactly one target directory; received 2"],
+    [["start", "project", "--language", "english"], "accepts only --force"],
+    [["start", "-project"], "./-project"],
+    [["start", "project", "--force", "--force"], "only once"],
+    [["--help", "extra"], "--help must be the only argument"],
+    [["--version", "extra"], "--version must be the only argument"],
+    [["-v", "extra"], "-v must be the only argument"],
   ];
-  let calls = 0;
-  for (const args of invalid)
+  for (const [args, correction] of invalid)
     TestValidator.predicate(
-      "invalid request refuses before dispatch",
-      throwsError(() => dispatchAutoMovieCommandArguments(args, () => ++calls)),
+      `refuses ${JSON.stringify(args)}`,
+      throwsError((): AutoMovieCommand => read(...args), correction),
     );
-  TestValidator.equals("no invalid input reaches effects", calls, 0);
-  const result = dispatchAutoMovieCommandArguments(["--help"], (command) => {
-    ++calls;
-    return command;
-  });
-  TestValidator.equals("valid dispatch returns its selected command", result, {
-    command: "help",
-  });
-  TestValidator.equals("valid dispatch runs once", calls, 1);
-};
+}

@@ -4,3 +4,4 @@ export * from "./CHANNEL_VALUE_TYPES";
 export * from "./FACE_PARAMETER_LIMIT";
 export * from "./NODE_CHANNEL_PATHS";
 export * from "./TRACK_INTERPOLATIONS";
+export * from "./SHA256_DIGEST_PATTERN";

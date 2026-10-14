@@ -1,48 +1,26 @@
 /**
- * One source-authored shot-local effect activation.
+ * One source-authored bounded activation of an existing world effect zone on the shot-local clock.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `IAutoMovieShotEffectCue` as the portable data boundary for the agent source result link requirement.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `IAutoMovieShotEffectCue` for the spec authoring source derivation state system contract.
+ * @evidence contracts/common.md#principled-implementation Explicit validateAutoMovieEffects checks unique ids, matching compiled stream id/zone, half-open shot intervals, bounded intensity and same-zone chronology. Optional events must appear in the contract/sample tables and satisfy range comparisons, but that validator does not separately reject a NaN sample or prove its predicates; realizeShotContract owns finite sample and predicate realization.
+ * @evidence contracts/common.md#clear-and-simple-design The cue owns activation and envelope while the world zone owns spatial bounds, recipe, seed and budget, keeping authored timing separate from deterministic effect materialization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing compiled counterparts and absent or numerically out-of-cue event samples produce diagnostics when validation is explicitly called. The bare materializer drops unresolved world references; this type installs no automatic validator or complete event-realization gate.
+ * @evidence contracts/common.md#meaningful-documentation Defines unique cue and zone identity, inclusive/exclusive seconds, intensity endpoints and optional authoritative event binding.
+ * @author Samchon
  */
 export interface IAutoMovieShotEffectCue {
-  /**
-   * Stable cue id, unique inside one shot.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `id` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `id` for the spec authoring source derivation state system contract.
-   */
+  /** Stable cue id, unique inside one shot. */
   id: string;
 
-  /**
-   * Existing world effect-zone id.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `zone` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `zone` for the spec authoring source derivation state system contract.
-   */
+  /** Existing world effect-zone id. */
   zone: string;
 
-  /**
-   * Inclusive shot-local start in seconds.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `start` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `start` for the spec authoring source derivation state system contract.
-   */
+  /** Inclusive shot-local start in seconds. */
   start: number;
 
-  /**
-   * Exclusive shot-local end in seconds.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `end` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `end` for the spec authoring source derivation state system contract.
-   */
+  /** Exclusive shot-local end in seconds. */
   end: number;
 
-  /**
-   * Bounded intensity envelope.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `intensity` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `intensity` for the spec authoring source derivation state system contract.
-   */
+  /** Bounded intensity envelope. */
   intensity: {
     /** Intensity at cue start. */
     from: number;
@@ -51,11 +29,6 @@ export interface IAutoMovieShotEffectCue {
     to: number;
   };
 
-  /**
-   * Optional authoritative shot event that must realize inside this cue.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `event` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `event` for the spec authoring source derivation state system contract.
-   */
+  /** Optional authoritative shot event that must realize inside this cue. */
   event?: string;
 }

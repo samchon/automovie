@@ -1,25 +1,18 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * A world-space axis-aligned box.
+ * Axis-aligned box in the coordinate frame of its owning result.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `IAutoMovieSoftBounds` as the portable data boundary for the effects soft solver state requirement.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `IAutoMovieSoftBounds` for the soft collider and solver transition system contract.
+ * @evidence contracts/common.md#principled-implementation Soft surfaces bound indexed world vertices, growPlanting bounds recipe-frame stem radial support and transformed leaf-card corners, and cluster arrangement bounds world placement origins; each producer owns the included geometry and frame. These scalar envelopes do not certify GPU appearance or arbitrary room-union containment.
+ * @evidence contracts/common.md#clear-and-simple-design A paired minimum and maximum expresses one box; empty producers return a nullable box rather than independently missing corners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This record does not claim all producers measure the same geometry or inflate a box into a collision certificate.
+ * @evidence contracts/common.md#meaningful-documentation The owning result determines the frame and measured extent; corner coordinates share that frame and metre units.
+ * @author Samchon
  */
 export interface IAutoMovieSoftBounds {
-  /**
-   * Minimum corner.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `min` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `min` for the soft collider and solver transition system contract.
-   */
+  /** Minimum corner. */
   min: IAutoMovieVector3;
 
-  /**
-   * Maximum corner.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Exposes `max` as the portable data boundary for the effects soft solver state requirement.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `max` for the soft collider and solver transition system contract.
-   */
+  /** Maximum corner. */
   max: IAutoMovieVector3;
 }

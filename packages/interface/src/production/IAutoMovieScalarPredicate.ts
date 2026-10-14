@@ -1,31 +1,19 @@
 /**
- * A scalar comparison evaluated by the deterministic builder.
+ * A finite scalar comparison applied to a measured shot-contract fact.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieScalarPredicate` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieScalarPredicate` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation evaluateShotPredicate applies binary64 absolute tolerance symmetrically for equality and widens each inequality: actual at most value plus tolerance or at least value minus tolerance. Expected value, nonnegative tolerance and representable boundary arithmetic are caller premises; finite endpoints alone do not prevent overflow in those sums or differences.
+ * @evidence contracts/common.md#clear-and-simple-design Shared operator, expected scalar and tolerance compose with joint-angle, position and distance measurement arms so comparison semantics have one owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolvable or nonfinite measurements fail with null actual. The evaluator does not independently admit expected values, tolerance or operator strings at runtime, and the retired production contract gate no longer supplies that admission to arbitrary direct callers.
+ * @evidence contracts/common.md#meaningful-documentation Defines the three operators, selected-measurement units, finite expected value and non-negative absolute tolerance.
+ * @author Samchon
  */
 export interface IAutoMovieScalarPredicate {
-  /**
-   * Numeric comparison.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `operator` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `operator` for the narrative intent story design ownership system contract.
-   */
+  /** Numeric comparison. */
   operator: "<=" | ">=" | "==";
 
-  /**
-   * Finite expected value in the unit implied by the selected predicate.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `value` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `value` for the narrative intent story design ownership system contract.
-   */
+  /** Finite expected value in the unit implied by the selected predicate. */
   value: number;
 
-  /**
-   * Finite non-negative absolute comparison tolerance.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `tolerance` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `tolerance` for the narrative intent story design ownership system contract.
-   */
+  /** Finite non-negative absolute comparison tolerance. */
   tolerance: number;
 }

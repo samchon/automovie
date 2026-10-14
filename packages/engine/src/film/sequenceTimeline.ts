@@ -1,76 +1,28 @@
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 
-import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
-
-const indexShots = (
-  shots: readonly IAutoMovieShot[],
-): Map<string, { shot: IAutoMovieShot; index: number }> => {
-  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
-  shots.forEach((shot, index) => {
-    const existing = byId.get(shot.id);
-    if (existing !== undefined)
-      throw new Error(
-        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
-      );
-    byId.set(shot.id, { shot, index });
-  });
-  return byId;
-};
+import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /**
- * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s
- * runtime arithmetic: each entry plays its trimmed span, and a transition pulls
- * its entry forward to overlap the previous tail by the transition's duration.
- * Precondition: the sequence already passed `cutSequence` (every entry
- * references a shot, every trim fits), so this resolver is total.
+ * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s runtime arithmetic: each entry plays its trimmed span, or the whole shot without a trim, and a transition pulls its entry forward to overlap the previous entry's tail by the transition's duration.
  *
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Places every trimmed sequence entry on the output clock and subtracts declared transition overlaps from the accumulated runtime.
- * @evidence requirements/editorial/clips-source-ranges-and-handles.md#editorial-source-film-range Retains each selected source offset and played duration separately from the entry's derived output start.
- * @evidence requirements/editorial/clips-source-ranges-and-handles.md#editorial-clip-boundary-result Exposes the resolved source offset, played span, output start, and transition overlap for every picture entry.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-authored-cut Preserves the declared sequence order, trim choice, and incoming transition on each picture entry without reordering or pacing optimization.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-duration-closure Computes picture-only closure by summing each played trim or full-shot duration and subtracting declared picture-transition overlap.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-missing-refusal Refuses an empty sequence or an entry whose referenced shot is absent from the supplied source set.
- * @evidence requirements/editorial/tracks-stacks-and-composition.md#editorial-composition-refusal Refuses only the sequential picture defects it can prove: an empty sequence, duplicate supplied shot ids, a missing shot reference, or an incoming transition with no predecessor.
- * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-refusal Rejects a transition on the first picture entry because no outgoing source exists for that overlap.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Resolves declared trims and transition offsets into ordered output-clock picture placements.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-clip-boundaries Materializes the supported picture-lane source and film boundaries as explicit playback entry fields.
- * @evidence specifications/editorial-render-and-delivery/editorial-version-conform-and-validation.md#spec-editorial-film-identity Resolves the authored picture order and transition graph into a finite picture runtime while refusing absent required picture sources.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-track-composition Validates the small sequential-picture subset at this boundary before emitting ordered playback entries.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Requires an outgoing picture before positioning an incoming overlap on the output clock.
+ * Precondition: the sequence passed `cutSequence`, so every trim fits its shot and every transition fits inside the previous entry's played span. The structural faults this layout cannot proceed past still throw, naming the offending position: an empty sequence, a transition on the first entry, a sequence entry whose shot is not supplied, and two supplied shots sharing an id.
+ *
+ * @param sequence The cut, already accepted by `cutSequence`.
+ * @param shots Every shot the cut references; extra shots are allowed.
+ * @returns One placement per sequence entry and the total runtime in seconds.
+ *
+ * @evidence contracts/common.md#principled-implementation A running cursor accumulates each entry's played span and subtracts its incoming transition, the OpenTimelineIO model of transitions as overlaps, so `runtime` equals the played spans summed minus every transition duration, the value `cutSequence` reports.
+ * @evidence contracts/common.md#clear-and-simple-design Exposes the timeline prepared by preparePlaybackTimeline; frame consumers receive only entries and runtime while the event consumer also uses that preparation's shot index, so overlap arithmetic and duplicate admission have one owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot or entry is special-cased; a first-entry transition and a duplicate shot id throw instead of being dropped or resolved by position.
+ * @evidence contracts/common.md#meaningful-documentation States the layout rule, the precondition and what it guarantees, every throw, that extra shots are allowed, and the unit of the runtime.
+ * @evidence contracts/performance.md#efficient-algorithms One pass to index the S supplied shots and one pass over the E sequence entries, O(S + E) time and O(S + E) space; the index is required to resolve each entry's shot in constant time and to refuse duplicate ids.
+ * @evidence contracts/performance.md#reuse-equivalent-work Delegates the index and layout to preparePlaybackTimeline, also consumed by sequenceEventTimeline without rebuilding the shot index; frame callers reuse the returned timeline across queries, with no cross-call cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The shot index is released on return; the result owns one entry record per sequence entry, which lives as long as the caller keeps the timeline.
  */
-export const sequenceTimeline = (
+export function sequenceTimeline(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
-): IAutoMoviePlaybackTimeline => {
-  if (sequence.shots.length === 0)
-    throw new Error(`sequence "${sequence.id}" must contain at least one shot`);
-
-  const byId = indexShots(shots);
-  const entries: IAutoMoviePlaybackEntry[] = [];
-  let cursor = 0;
-  sequence.shots.forEach((entry, i) => {
-    if (i === 0 && entry.transition !== null)
-      throw new Error(
-        "sequence.shots[0].transition has nothing to transition from",
-      );
-
-    const found = byId.get(entry.shot);
-    if (found === undefined)
-      throw new Error(
-        `sequence shot "${entry.shot}" at sequence.shots[${i}].shot was not provided`,
-      );
-    const shot = found.shot;
-    const played = entry.trim?.duration ?? shot.duration;
-    const start = cursor - (entry.transition?.duration ?? 0);
-    entries.push({
-      entry: i,
-      shot: entry.shot,
-      start,
-      played,
-      offset: entry.trim?.start ?? 0,
-    });
-    cursor = start + played;
-  });
-  return { entries, runtime: cursor };
-};
+): IAutoMoviePlaybackTimeline {
+  return preparePlaybackTimeline(sequence, shots).timeline;
+}

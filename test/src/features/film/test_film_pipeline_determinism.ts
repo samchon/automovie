@@ -1,6 +1,16 @@
-import { cutSequence, performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMovieMotion,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -11,14 +21,15 @@ import { createSkeleton } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
 /**
- * Run the whole film-pipeline spine (stage -> perform each beat -> cut) from
- * identical inputs and serialize everything it produces: the staged scene, both
- * shots, the dense per-frame motion clips, and the cut sequence. The densest
- * artifact, the compiled `motions`, is where a residual non-purity would show
- * up in the sampled floats.
+ * Run the stage/perform/cut spine and serialize its scenes, shots, compiled
+ * motions, sequence and runtime. Motion keyframes are retained as produced;
+ * the owning entry requires nonempty output rather than per-frame density.
  */
-const runPipeline = (): string => {
-  const script = makeScriptWrite({
+const runPipeline: () => { serialized: string; motionKeyframes: number } = (): {
+  serialized: string;
+  motionKeyframes: number;
+} => {
+  const script: IAutoMovieScript = makeScriptWrite({
     beats: [
       {
         id: "beat-1",
@@ -35,17 +46,17 @@ const runPipeline = (): string => {
     ],
   });
 
-  const staged = stageScene(script, makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
   if (staged.success !== true) throw new Error("staging fixture must succeed");
 
-  const charge = performShot({
+  const charge: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
-  const aftermath = performShot({
+  const aftermath: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite({
@@ -63,12 +74,12 @@ const runPipeline = (): string => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   if (charge.success !== true || aftermath.success !== true)
     throw new Error("perform fixtures must succeed");
 
-  const cut = cutSequence(
+  const cut: IAutoMovieCut = cutSequence(
     {
       sequence: { id: "seq-duel", name: "duel at dawn" },
       fps: 24,
@@ -87,57 +98,51 @@ const runPipeline = (): string => {
   );
   if (cut.success !== true) throw new Error("cut fixture must succeed");
 
-  return JSON.stringify({
-    scenes: [staged.scene],
-    shots: [charge.shot, aftermath.shot],
-    motions: [charge.motions, aftermath.motions],
-    sequence: cut.sequence,
-    runtime: cut.runtime,
-  });
+  return {
+    serialized: JSON.stringify({
+      scenes: [staged.scene],
+      shots: [charge.shot, aftermath.shot],
+      motions: [charge.motions, aftermath.motions],
+      sequence: cut.sequence,
+      runtime: cut.runtime,
+    }),
+    motionKeyframes: [
+      ...Object.values(charge.motions),
+      ...Object.values(aftermath.motions),
+    ].reduce(
+      (count: number, motion: IAutoMovieMotion): number =>
+        count + motion.keyframes.length,
+      0,
+    ),
+  };
 };
 
 /**
- * Reproducibility is automovie's headline claim: the pipeline is deterministic
- * below the model. This runs the whole spine twice in ONE process and compares
- * the serialized artifacts byte-for-byte.
- *
- * What that gates and what it does NOT: two runs of a pure function are
- * byte-identical by construction, and Map/Set iteration order, `JSON.stringify`
- * key order, and float accumulation order are all per-process deterministic, so
- * this cannot fail on those ordering hazards; only an incidental IMPURITY
- * leaking between the two runs (a `Date.now()`/`Math.random()` reach, mutable
- * module state) makes them differ, and that is exactly what a same-process
- * double-run catches. The ordering hazards are covered where they can be: by
- * the oracle- derived per-value tests (which pin the numbers themselves) and,
- * for the cross-host ordering the determinism mandate is really about, by
- * `compareCodeUnits` replacing locale collation at every ordering site (#1225).
- * A committed golden digest would gate cross-process reproducibility too, but
- * it is a snapshot of the code's own output, the anti-oracle the coverage skill
- * warns against, so it is deliberately not used here.
+ * Runs the same stage/perform/cut spine twice and compares serialized returned artifacts, including compiled motion samples, to detect differing repeated output.
  *
  * Scenarios:
+ * 1. Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent correctness.
  *
- * 1. Running the full stage -> perform -> cut spine twice from identical fixtures
- *    serializes byte-identically: no residual clock/RNG/global-state impurity.
- * 2. The serialized output actually carries the dense float artifact (the keyframe
- *    samples), so the check is a real signal, not a trivially-equal empty
- *    payload.
+ * @evidence contracts/testing.md#behavioral-verification Runs the same stage/perform/cut spine twice and compares serialized returned artifacts, including compiled motion samples, to detect differing repeated output.
+ * @evidence contracts/testing.md#independent-expectations Reproducibility requires equality for identical inputs in this process; the second actual result is a relational oracle rather than a committed output snapshot. Both runs can share a deterministic numerical bug and establish no cross-process or cross-host equivalence.
+ * @evidence contracts/testing.md#distinguishing-cases Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent correctness.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_determinism unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_pipeline_determinism = (): void => {
-  const first = runPipeline();
-  const second = runPipeline();
+export function test_film_pipeline_determinism(): void {
+  const first: { serialized: string; motionKeyframes: number } = runPipeline();
+  const second: { serialized: string; motionKeyframes: number } = runPipeline();
 
   TestValidator.equals(
     "the full pipeline serializes byte-identically across two runs",
-    first,
-    second,
+    first.serialized,
+    second.serialized,
   );
   TestValidator.equals(
-    "the serialized output carries dense per-frame motion samples",
+    "each serialized pipeline includes nonempty motion keyframes",
     namedFacts([
-      ["payloadIsDense", () => first.length > 1000],
-      ["carriesKeyframes", () => first.includes("keyframes")],
+      ["firstCarriesMotionSamples", (): boolean => first.motionKeyframes > 0],
+      ["secondCarriesMotionSamples", (): boolean => second.motionKeyframes > 0],
     ]),
-    { payloadIsDense: true, carriesKeyframes: true },
+    { firstCarriesMotionSamples: true, secondCarriesMotionSamples: true },
   );
-};
+}

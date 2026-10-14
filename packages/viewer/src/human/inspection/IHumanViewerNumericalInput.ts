@@ -1,41 +1,25 @@
 /**
- * The product runtime input the resident page forwards to the numerical
- * worker: the original document text, explicit construction or static encoding operation and
- * whether the face bakes ambient occlusion.
+ * The product runtime input the resident page forwards to the numerical worker: the original document text, explicit construction or static encoding operation and whether the face bakes ambient occlusion.
  *
- * @evidence contracts/common.md#principled-implementation Carries the product request operation without changing document admission or source input.
- * @evidence contracts/common.md#meaningful-documentation States each request field.
- *
- * @evidence contracts/common.md#clear-and-simple-design One serialized document and its explicit operation carry the existing runtime request without display metadata.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preview, construct, exportConstruction and admit are supported product operations; absence preserves preview semantics.
- *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Carries the product request operation without changing document admission or source input.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Preview, construct, exportConstruction and admit are supported product operations; absence preserves preview semantics.
+ * @evidence contracts/common.md#principled-implementation Carries original document text and the existing preview/construct/exportConstruction/admit operation plus optional face AO to the unchanged domain runtime.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps product numerical input independent of session startup witness and optional preview persistence authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Person alone supports construction export; construct/export bypass preview codec and unsupported operations refuse at ingress rather than silently switching.
+ * @evidence contracts/common.md#meaningful-documentation Documents absent operation as preview, serialized schema admission and AO purpose without specifying hidden vertices or photograph-derived anatomy.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The input performs no parsing; domain admission/build/encoding costs follow document, basis and produced geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work Preview reuse additionally requires actual selected document JSON, basis/source key and AO mode; construct/export are effectful owner paths outside preview cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The request owner retains text until reply/cancellation, with no independent size cap here and no renderer/model handle embedded.
  *
  * @author Samchon
  */
 export interface IHumanViewerNumericalInput {
-  /**
-   * The document as serialized text, admitted by the runtime.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Sends the original serialized document to its actual domain parser rather than accepting a viewer projection as schema-valid.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Sends the original serialized document to its actual domain parser rather than accepting a viewer projection as schema-valid.
-   */
+  /** The document as serialized text, admitted by the runtime. */
   document: string;
 
   /**
    * Explicit product operation; construction encoding is supported only for Person. Absent means admitted preview.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Keeps supported preview, construction, static encoding and document admission distinct, with omitted operation retaining preview.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Keeps supported preview, construction, static encoding and document admission distinct, with omitted operation retaining preview.
    */
   operation?: "preview" | "construct" | "exportConstruction" | "admit";
 
-  /**
-   * Whether the face producer bakes ambient occlusion.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Carries the explicit Face ambient-occlusion choice without modifying numerical shape inputs.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Carries the explicit Face ambient-occlusion choice without modifying numerical shape inputs.
-   */
+  /** Whether the face producer bakes ambient occlusion. */
   occlusion?: boolean;
 }

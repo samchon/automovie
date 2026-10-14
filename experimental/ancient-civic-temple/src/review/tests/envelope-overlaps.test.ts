@@ -1,6 +1,7 @@
 /**
- * src/review/envelope-overlaps.ts 측정 경로를 아는 경우에 대조한다: 알려진 깊이로 겹친 두 실체,
- * 면만 맞닿은 두 실체, 같은 묶음 안의 겹침(세지 않음), 경사 상단 아래의 겹침, 실체 안 점 판정.
+ * Checks src/review/envelope-overlaps.ts against known measurement cases: two
+ * solids overlapping by a known depth, face-only contact, same-group overlap
+ * (excluded), overlap below a sloped top, and point containment in solids.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

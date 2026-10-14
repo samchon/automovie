@@ -1,14 +1,23 @@
+import type {
+  IAutoMovieActionTarget,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { FilmLaunchPerformer } from "./FilmLaunchPerformer";
 import { namedFacts } from "./predicates";
 
-/** Run the existing volley identity and live bone target handoff assertions. */
+/**
+ * Run the launch entry's existing volley identities and live-bone handoff cases through its performer. Authored projectile order determines unique clip names and callback data distinguishes available, later-unavailable and unstaged bones; these checks establish admission and resulting clip population without independently solving an intercept. The owning unit discovers and executes these existing cases with no process or renderer.
+ */
 export function assertFilmLaunchTargetHandoffs(
   perform: FilmLaunchPerformer,
 ): void {
   // 10. a volley: two launches of one projectile bake unique flight ids
-  const volley = perform([
+  const volley: IAutoMoviePerformedShot = perform([
     {
       verb: "launch",
       actor: "archer",
@@ -33,12 +42,12 @@ export function assertFilmLaunchTargetHandoffs(
     TestValidator.equals(
       "volley flights carry unique draft-ordered ids",
       volley.shot.objectMotions
-        .map((c) => c.id)
-        .sort((a, b) => a.localeCompare(b)),
+        .map((c: IAutoMovieClip): string => c.id)
+        .sort((a: string, b: string): number => a.localeCompare(b)),
       ["trajectory:arrow", "trajectory:arrow:2"],
     );
 
-  const liveBone = perform(
+  const liveBone: IAutoMoviePerformedShot = perform(
     [
       {
         verb: "launch",
@@ -51,22 +60,26 @@ export function assertFilmLaunchTargetHandoffs(
         onHit: { force: 0.6 },
       },
     ],
-    (_target, seconds) => ({ x: 6 - seconds, y: 1.2, z: 0 }),
+    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => ({
+      x: 6 - seconds,
+      y: 1.2,
+      z: 0,
+    }),
   );
   TestValidator.equals(
     "a launch samples its live bone target while solving the intercept",
     namedFacts([
-      ["refused", () => liveBone.success === true],
+      ["refused", (): boolean => liveBone.success === true],
       [
         "violated",
-        () =>
+        (): boolean =>
           liveBone.success === true && liveBone.shot.objectMotions.length === 1,
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const unavailableBone = perform(
+  const unavailableBone: IAutoMoviePerformedShot = perform(
     [
       {
         verb: "launch",
@@ -79,15 +92,19 @@ export function assertFilmLaunchTargetHandoffs(
         onHit: { force: 0.6 },
       },
     ],
-    (_target, seconds) => (seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null),
+    (
+      _target: IAutoMovieActionTarget,
+      seconds: number,
+    ): IAutoMovieVector3 | null =>
+      seconds === 0 ? { x: 6, y: 1.2, z: 0 } : null,
   );
   TestValidator.equals(
     "a missing live bone sample falls back to the validated target",
     namedFacts([
-      ["refused", () => unavailableBone.success === true],
+      ["refused", (): boolean => unavailableBone.success === true],
       [
         "violated",
-        () =>
+        (): boolean =>
           unavailableBone.success === true &&
           unavailableBone.shot.objectMotions.length === 1,
       ],
@@ -95,7 +112,7 @@ export function assertFilmLaunchTargetHandoffs(
     { refused: true, violated: true },
   );
 
-  const unstagedBone = perform(
+  const unstagedBone: IAutoMoviePerformedShot = perform(
     [
       {
         verb: "launch",
@@ -107,18 +124,18 @@ export function assertFilmLaunchTargetHandoffs(
         speed: 22,
       },
     ],
-    () => ({ x: 6, y: 1.2, z: 0 }),
+    (): IAutoMovieVector3 => ({ x: 6, y: 1.2, z: 0 }),
   );
   TestValidator.equals(
     "launch refuses a bone target outside the staged scene",
     namedFacts([
-      ["refused", () => unstagedBone.success === false],
+      ["refused", (): boolean => unstagedBone.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           unstagedBone.success === false &&
           unstagedBone.violations.some(
-            (violation) =>
+            (violation: IAutoMovieConstraintViolation): boolean =>
               violation.path.endsWith(".at.node") &&
               violation.expected.includes("staged scene node"),
           ),

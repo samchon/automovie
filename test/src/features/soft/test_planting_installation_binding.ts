@@ -1,7 +1,4 @@
-import {
-  lowerPlantingInstallation,
-  validatePlantingInstallations,
-} from "@automovie/engine";
+import { validatePlantingInstallations } from "@automovie/engine";
 import {
   IAutoMovieFluidDomain,
   IAutoMoviePlantingCluster,
@@ -10,6 +7,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertPlantingInstallationGeometry } from "../internal/assertPlantingInstallationGeometry";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import {
   plantingCluster,
@@ -18,8 +16,10 @@ import {
   roomEnvironment,
 } from "../internal/softFixtures";
 
-/** A pond the aquatic cases stand in: one metre of water over a flat bed. */
-const pond = (
+/** A pond with 1.5 metres of depth above a flat bed at world Y=-1. */
+const pond: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
   overrides: Partial<IAutoMovieFluidDomain> = {},
 ): IAutoMovieFluidDomain => ({
   version: 1,
@@ -50,14 +50,16 @@ const pond = (
   ...overrides,
 });
 
-const check = (props: {
+const check: Parameters<
+  typeof assertPlantingInstallationGeometry
+>[0] = (props: {
   installations?: IAutoMoviePlantingInstallation[];
   clusters?: IAutoMoviePlantingCluster[];
   domains?: IAutoMoviePlantingDomain[];
   fluidDomains?: IAutoMovieFluidDomain[];
   semantic?: boolean;
   ceiling?: number;
-}) =>
+}): ReturnType<typeof validatePlantingInstallations> =>
   validatePlantingInstallations({
     environment: roomEnvironment({
       semantic: props.semantic,
@@ -74,16 +76,21 @@ const check = (props: {
  * rules hold, and what could not be derived is reported rather than drawn.
  *
  * This is the seam where three independent records meet — the building graph,
- * the branching recipe and the arrangement — so it is the only place their
- * agreement can be checked. The rules it enforces are the ones no single record
+ * the branching recipe and the arrangement — and checks their agreement at
+ * this join. The rules it enforces are the ones no single record
  * can: that a green wall is trained against something upright rather than
  * resting on a floor patch, that aquatic planting really stands in water and
  * that dry planting does not claim to, and that the members the arrangement
  * generated actually land inside the room they were bound to.
  *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual installation validation and lowering for valid, missing-reference, malformed-rule, aquatic, canopy and mismatched-pairing records; named diagnostics and derived/not-run geometry expose incorrect joins or unsafe nested derivation.
+ * @evidence contracts/testing.md#independent-expectations Authored ids and type/range paths define reference/rule expectations, the pond surface is -1+1.5=.5, and an upright plant is tested against one/four-metre ceilings. Success assertions permit warnings; aquatic overshoot and exact canopy height are not numerically asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all seven scenario groups including optional irrigation, each support kind, duplicate/blank ids, water-grid edges/missing depth, semantic rooms, dormant canopy, leaf-cap refusal and pair mismatches; corner-based containment does not prove every point in a nonconvex room union.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertPlantingInstallationGeometry for the original later cases in order; the helper registers no extra test, and no browser, GPU, fluid integration or physical load-bearing check runs.
+ *
  * Scenarios:
  *
- * 1. A complete installation validates clean, and so does one with no irrigation
+ * 1. A complete installation validates successfully, and so does one with no irrigation
  *    at all: a dry binding is a legitimate authoring state a services pass
  *    needs to see, not a silent failure.
  * 2. Every reference is checked: a wrong environment, an unknown space, an unknown
@@ -95,7 +102,7 @@ const check = (props: {
  *    domain, dry planting citing one, and a cited fluid domain nobody
  *    supplied.
  * 4. Aquatic geometry: a member rooted below the authored free surface is
- *    accepted, one rooted above it is refused with the overshoot measured, and
+ *    accepted, one rooted above it is refused at the range path, and
  *    one standing outside the lattice — past its last column, and separately
  *    past its last row — is named as such rather than read off the edge of an
  *    array. A pond whose depth array does not reach the cell is refused for the
@@ -110,18 +117,18 @@ const check = (props: {
  * 6. A recipe's or a cluster's own refusal is re-pathed onto the binding —
  *    including a foliage rule that outgrows its own leaf cap, which the binding
  *    used to discover by growing the canopy and throwing out of a validator —
- *    and the lowering reports `not-run` with no geometry for either, for a
+ *    and lowering reports `not-run` with a null plant for either, with null
+ *    arrangement and a reason also checked for the invalid recipe, for a
  *    cluster paired with a recipe it does not cite, and for an installation
  *    paired with a cluster it does not place, since the three records arrive
  *    separately and deriving one by another's identity would answer for nothing
  *    anybody authored. `derived` is reported otherwise: one structure grown and
  *    every member instancing it.
- * 7. Two installations cannot place one cluster. A cluster is a world-space
- *    arrangement, so a second binding does not put a second bed anywhere; it
- *    draws the same members at the same coordinates and charges a render budget
- *    for both.
+ * 7. Two installations citing one cluster report a type defect at the second
+ *    binding; distinct cluster ids validate successfully. No duplicate draw or
+ *    render-budget measurement is asserted here.
  */
-export const test_planting_installation_binding = (): void => {
+export function test_planting_installation_binding(): void {
   TestValidator.equals(
     "a complete installation validates clean, with or without a supply",
     namedFacts([
@@ -450,329 +457,5 @@ export const test_planting_installation_binding = (): void => {
     },
   );
 
-  const aquatic = (anchor: { x: number; y: number; z: number }) => ({
-    installations: [
-      plantingInstallation({
-        kind: "aquatic" as const,
-        irrigation: {
-          port: "stand-pipe",
-          demandLitresPerDay: 4,
-          medium: "pond" as const,
-          fluidDomain: "atrium-pond",
-        },
-      }),
-    ],
-    clusters: [
-      plantingCluster({ count: 3, anchor, extent: { x: 0.5, z: 0.5 } }),
-    ],
-    fluidDomains: [pond()],
-  });
-  TestValidator.equals(
-    "aquatic planting is checked against the water it stands in",
-    namedFacts([
-      [
-        "submerged",
-        () => check(aquatic({ x: 0, y: 0, z: 0 })).success === true,
-      ],
-      [
-        "aboveSurface",
-        () =>
-          hasViolation(
-            check(aquatic({ x: 0, y: 1, z: 0 })),
-            "range",
-            "installations[0].irrigation.fluidDomain",
-          ),
-      ],
-      [
-        "outsideColumn",
-        () =>
-          hasViolation(
-            check(aquatic({ x: 5, y: 0, z: 0 })),
-            "type",
-            "installations[0].irrigation.fluidDomain",
-          ),
-      ],
-      [
-        "outsideRow",
-        () =>
-          hasViolation(
-            check(aquatic({ x: 0, y: 0, z: 5 })),
-            "type",
-            "installations[0].irrigation.fluidDomain",
-          ),
-      ],
-      [
-        "unstatedSurface",
-        () =>
-          hasViolation(
-            check({
-              ...aquatic({ x: 0, y: 0, z: 0 }),
-              fluidDomains: [pond({ depth: [] })],
-            }),
-            "type",
-            "installations[0].irrigation.fluidDomain",
-          ),
-      ],
-    ]),
-    {
-      submerged: true,
-      aboveSurface: true,
-      outsideColumn: true,
-      outsideRow: true,
-      unstatedSurface: true,
-    },
-  );
-
-  // One member, no jitter and unit scale, so the canopy in the room is exactly
-  // the recipe's own derived bounds: `y` reaches 1.3902 metres.
-  const upright = {
-    clusters: [
-      plantingCluster({
-        count: 1,
-        extent: { x: 0, z: 0 },
-        yawJitter: 0,
-        scale: { min: { x: 1, y: 1, z: 1 }, max: { x: 1, y: 1, z: 1 } },
-      }),
-    ],
-  };
-  TestValidator.equals(
-    "the canopy is checked, not only the point the plant is rooted at",
-    namedFacts([
-      ["rooted", () => check({ ...upright, ceiling: 4 }).success === true],
-      [
-        "crownThroughCeiling",
-        () =>
-          hasViolation(
-            check({ ...upright, ceiling: 1 }),
-            "type",
-            "installations[0].cluster",
-          ),
-      ],
-      [
-        "dormantHasNoCanopy",
-        () =>
-          check({
-            ...upright,
-            ceiling: 1,
-            domains: [plantingRecipe({ growth: { stage: 0, onset: 0.25 } })],
-          }).success === true,
-      ],
-    ]),
-    {
-      rooted: true,
-      crownThroughCeiling: true,
-      dormantHasNoCanopy: true,
-    },
-  );
-
-  TestValidator.equals(
-    "containment is checked only where the space has a volume",
-    namedFacts([
-      [
-        "outside",
-        () =>
-          hasViolation(
-            check({
-              clusters: [
-                plantingCluster({ anchor: { x: 40, y: 0, z: 0 }, count: 2 }),
-              ],
-            }),
-            "type",
-            "installations[0].cluster",
-          ),
-      ],
-      [
-        "semantic",
-        () =>
-          check({
-            clusters: [
-              plantingCluster({ anchor: { x: 40, y: 0, z: 0 }, count: 2 }),
-            ],
-            semantic: true,
-          }).success === true,
-      ],
-    ]),
-    { outside: true, semantic: true },
-  );
-
-  const brokenRecipe = plantingRecipe({
-    structure: { ...plantingRecipe().structure, length: 0 },
-  });
-  // A recipe whose density bears more blades than its own cap allows is the one
-  // shape that used to reach `growPlanting` from inside this pass and throw:
-  // the binding derives the canopy of every recipe that validated, so a cap the
-  // recipe validator did not check was a crash waiting on an authored number.
-  const overleafed = plantingRecipe({
-    foliage: {
-      density: 4,
-      minLevel: 1,
-      size: { x: 0.05, y: 0.1, z: 0.05 },
-      scaleJitter: 0,
-      rollJitter: 0,
-    },
-    budget: { maxBranches: 64, maxLeaves: 2 },
-  });
-  const brokenCluster = plantingCluster({ count: 0 });
-  const derived = lowerPlantingInstallation({
-    installation: plantingInstallation(),
-    cluster: plantingCluster(),
-    domain: plantingRecipe(),
-  });
-  TestValidator.equals(
-    "a nested refusal is re-pathed, and the lowering reports what it derived",
-    namedFacts([
-      [
-        "recipeRepathed",
-        () =>
-          hasViolation(
-            check({ domains: [brokenRecipe] }),
-            "range",
-            "domains[0].structure.length",
-          ),
-      ],
-      [
-        "clusterRepathed",
-        () =>
-          hasViolation(
-            check({ clusters: [brokenCluster] }),
-            "type",
-            "clusters[0].count",
-          ),
-      ],
-      [
-        "overleafedIsReportedNotThrown",
-        () =>
-          hasViolation(
-            check({ domains: [overleafed] }),
-            "range",
-            "domains[0].budget.maxLeaves",
-          ),
-      ],
-      [
-        "overleafedLowersToNotRun",
-        () =>
-          lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: plantingCluster(),
-            domain: overleafed,
-          }).analysis.status === "not-run",
-      ],
-      [
-        "notRunRecipe",
-        () => {
-          const frame = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: plantingCluster(),
-            domain: brokenRecipe,
-          });
-          return (
-            frame.analysis.status === "not-run" &&
-            frame.plant === null &&
-            frame.arrangement === null &&
-            frame.analysis.reason !== null
-          );
-        },
-      ],
-      [
-        "notRunCluster",
-        () => {
-          const frame = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: brokenCluster,
-            domain: plantingRecipe(),
-          });
-          return frame.analysis.status === "not-run" && frame.plant === null;
-        },
-      ],
-      [
-        "notRunMismatch",
-        () => {
-          const frame = lowerPlantingInstallation({
-            installation: plantingInstallation(),
-            cluster: plantingCluster({ domain: "ivy" }),
-            domain: plantingRecipe(),
-          });
-          return (
-            frame.analysis.status === "not-run" &&
-            frame.plant === null &&
-            frame.arrangement === null &&
-            (frame.analysis.reason ?? "").includes('grows recipe "ivy"')
-          );
-        },
-      ],
-      [
-        "notRunUnplaced",
-        () => {
-          const frame = lowerPlantingInstallation({
-            installation: plantingInstallation({ cluster: "roof-bed" }),
-            cluster: plantingCluster(),
-            domain: plantingRecipe(),
-          });
-          return (
-            frame.analysis.status === "not-run" &&
-            frame.plant === null &&
-            frame.arrangement === null &&
-            (frame.analysis.reason ?? "").includes('places cluster "roof-bed"')
-          );
-        },
-      ],
-      [
-        "derived",
-        () =>
-          derived.analysis.status === "derived" &&
-          derived.analysis.kind === "planting" &&
-          derived.analysis.reason === null &&
-          derived.plant?.branches.length === 7 &&
-          derived.arrangement?.placements.length === 6,
-      ],
-      ["installation", () => derived.installation === "lobby-planting"],
-    ]),
-    {
-      recipeRepathed: true,
-      clusterRepathed: true,
-      overleafedIsReportedNotThrown: true,
-      overleafedLowersToNotRun: true,
-      notRunRecipe: true,
-      notRunCluster: true,
-      notRunMismatch: true,
-      notRunUnplaced: true,
-      derived: true,
-      installation: true,
-    },
-  );
-
-  TestValidator.equals(
-    "one cluster is placed by one installation",
-    namedFacts([
-      [
-        "second",
-        () =>
-          hasViolation(
-            check({
-              installations: [
-                plantingInstallation(),
-                plantingInstallation({ id: "roof-planting" }),
-              ],
-            }),
-            "type",
-            "installations[1].cluster",
-          ),
-      ],
-      [
-        "distinctClustersPass",
-        () =>
-          check({
-            installations: [
-              plantingInstallation(),
-              plantingInstallation({
-                id: "roof-planting",
-                cluster: "roof-bed",
-              }),
-            ],
-            clusters: [plantingCluster(), plantingCluster({ id: "roof-bed" })],
-          }).success === true,
-      ],
-    ]),
-    { second: true, distinctClustersPass: true },
-  );
-};
+  assertPlantingInstallationGeometry(check, pond);
+}

@@ -36,11 +36,6 @@ const unitQuaternionFault = (value: readonly unknown[]): string | null => {
  * Total over {@link AutoMovieLightProperty}: adding a member to that union
  * without giving it a `carries`/`write` pair does not compile, which is how a
  * widened contract cannot outrun its applier.
- *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Registers each animatable light property in the exhaustive channel table.
- * @evidence requirements/lighting/color-exposure-and-display-boundary.md#lighting-color-refusal Declares finite scene-linear color channel components valid only inside the inclusive unit interval consumed by the artifact gate.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Makes property support exhaustive across the declared light branches.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-color-comparison-refusal Supplies the explicit scene-linear color domain that rejects non-finite and out-of-range animated source values before application.
  */
 export const LIGHT_CHANNEL_PROPERTIES: Readonly<
   Record<AutoMovieLightProperty, IAutoMovieLightChannelProperty>

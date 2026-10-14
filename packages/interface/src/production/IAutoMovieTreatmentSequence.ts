@@ -1,48 +1,28 @@
 import { IAutoMovieTreatmentBeat } from "./IAutoMovieTreatmentBeat";
 
 /**
- * One ordered treatment sequence and its causal beat promises.
+ * One ordered treatment sequence and the stable narrative promises its screenplay coverage addresses.
  *
- * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `IAutoMovieTreatmentSequence` as the portable data boundary for the story treatment coverage requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `IAutoMovieTreatmentSequence` for the narrative intent sequence refinement system contract.
+ * @evidence contracts/common.md#principled-implementation A sequence id and beat array carry authored narrative order, with an optional document path for split prose; strings do not establish identity uniqueness or document existence.
+ * @evidence contracts/common.md#clear-and-simple-design The index carries semantic ids and promises while full sequence prose stays in its authoritative Markdown document; optional per-unit addressing avoids treating a directory as one document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The documented absent-path convention names the index's single treatment document; this record contains no file lookup, guessed-path fallback or inferred shot-duration behavior.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable sequence identity, title, optional split-document addressing and ordered beat coverage obligations.
+ * @author Samchon
  */
 export interface IAutoMovieTreatmentSequence {
-  /**
-   * Stable sequence id.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `id` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `id` for the narrative intent sequence refinement system contract.
-   */
+  /** Stable sequence id. */
   id: string;
 
-  /**
-   * Human-readable sequence title.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `title` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `title` for the narrative intent sequence refinement system contract.
-   */
+  /** Human-readable sequence title. */
   title: string;
 
   /**
-   * Project-relative document holding this sequence's prose, when the treatment
-   * is split one file per sequence.
+   * Project-relative document holding this sequence's prose, when the treatment is split one file per sequence.
    *
-   * Omit it while the treatment is a single document; the index's
-   * `treatment.path` is then the address, exactly as before. A split layout
-   * needs a per-unit address because a folder is only a population of units if
-   * each unit is its own file, and the beats of a later sequence are not in the
-   * first sequence's file.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `path` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `path` for the narrative intent sequence refinement system contract.
+   * Omit it while the treatment is a single document and use the index's `treatment.path`. In a split layout, provide the document containing this sequence's beats; the type does not resolve the path.
    */
   path?: string;
 
-  /**
-   * Ordered beats the screenplay must cover.
-   *
-   * @evidence requirements/story/treatment-and-sequences.md#story-treatment-coverage Exposes `beats` as the portable data boundary for the story treatment coverage requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-sequence-refinement Types `beats` for the narrative intent sequence refinement system contract.
-   */
+  /** Ordered beats the screenplay must cover. */
   beats: IAutoMovieTreatmentBeat[];
 }

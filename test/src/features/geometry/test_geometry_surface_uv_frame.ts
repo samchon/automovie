@@ -1,17 +1,18 @@
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** The uv pair the vertex at `at` carries. */
-const uvAt = (
+const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number } = (
   uvs: readonly number[],
   at: number,
 ): { u: number; v: number } => ({ u: uvs[at * 2]!, v: uvs[at * 2 + 1]! });
 
 /** One upright face on the plane `z = 0`, seen from +Z. */
-const uprightFace = [
+const uprightFace: IAutoMovieVector3[] = [
   { x: 0, y: 0, z: 0 },
   { x: 4, y: 0, z: 0 },
   { x: 4, y: 3, z: 0 },
@@ -19,7 +20,7 @@ const uprightFace = [
 ];
 
 /** One level face on the plane `y = 0`, seen from +Y. */
-const levelFace = [
+const levelFace: IAutoMovieVector3[] = [
   { x: 0, y: 0, z: 0 },
   { x: 0, y: 0, z: 2 },
   { x: 5, y: 0, z: 2 },
@@ -36,23 +37,27 @@ const levelFace = [
  * independent one: a second copy of the frame rule would agree with a wrong
  * rule as readily as with a right one.
  */
-const isometric = (mesh: IAutoMovieMesh): boolean => {
-  const uvs = mesh.uvs!;
-  const corner = (at: number): readonly [number, number, number] => [
+const isometric: (mesh: IAutoMovieMesh) => boolean = (
+  mesh: IAutoMovieMesh,
+): boolean => {
+  const uvs: number[] = mesh.uvs!;
+  const corner: (at: number) => readonly [number, number, number] = (
+    at: number,
+  ): readonly [number, number, number] => [
     mesh.positions[at * 3]!,
     mesh.positions[at * 3 + 1]!,
     mesh.positions[at * 3 + 2]!,
   ];
-  const origin = uvAt(uvs, 0);
-  const first = uvAt(uvs, 1);
-  const last = uvAt(uvs, 3);
-  const firstU = first.u - origin.u;
-  const firstV = first.v - origin.v;
-  const lastU = last.u - origin.u;
-  const lastV = last.v - origin.v;
-  const span = (at: number): number => {
-    const [ax, ay, az] = corner(0);
-    const [bx, by, bz] = corner(at);
+  const origin: { u: number; v: number } = uvAt(uvs, 0);
+  const first: { u: number; v: number } = uvAt(uvs, 1);
+  const last: { u: number; v: number } = uvAt(uvs, 3);
+  const firstU: number = first.u - origin.u;
+  const firstV: number = first.v - origin.v;
+  const lastU: number = last.u - origin.u;
+  const lastV: number = last.v - origin.v;
+  const span: (at: number) => number = (at: number): number => {
+    const [ax, ay, az]: readonly [number, number, number] = corner(0);
+    const [bx, by, bz]: readonly [number, number, number] = corner(at);
     return Math.hypot(bx - ax, by - ay, bz - az);
   };
   return (
@@ -92,31 +97,39 @@ const isometric = (mesh: IAutoMovieMesh): boolean => {
  *    stays isometric on the face instead of being foreshortened.
  * 6. Every branch of the frame carries a metre to a unit and keeps perpendicular
  *    edges perpendicular.
- * 7. The level-frame threshold has adjacent boundary twins: a face tilted
+ * 7. The level-frame threshold has twins on opposite sides: a face tilted
  *    0.029 degrees uses the level branch, one tilted 0.115 degrees uses the
  *    upright branch, and both remain finite and isometric across the declared
  *    orientation seam.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds the existing upright/translated/sideward/floor/ceiling/ramp faces, asserting analytic UV values and independently preserved edge lengths/orthogonality. The two original near-level slopes must remain finite and metric while taking opposite declared frame branches.
+ * @evidence contracts/testing.md#independent-expectations Upright +Z/+X frames give (X,Y)/(-Z,Y); level normals give (X,-Z) or (X,+Z), and a unit rise/run ramp has sqrt(2) surface travel. The edge-length and dot-product observer tests isometry without copying the frame construction. Numeric values retain exact finite structure or existing nclose slack; these emitted-corner checks do not observe GPU appearance or every orientation near the threshold.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves seven numbered scenarios, mesh-origin translation, both upright directions, reversed level winding, 45-degree slope, all five metric frames and the 0.0005/0.002 slope twins. Shared-edge phase continuity and malformed polygon admission have separate owners; these twins bracket the seam rather than adjacent floating-point values.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly calls portable polyhedron frame source and existing numerical observers on its original faces. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all cases remain locally owned without dynamic registration.
  */
-export const test_geometry_surface_uv_frame = (): void => {
-  const upright = buildAutoMoviePolyhedron([uprightFace]);
-  TestValidator.equals(
+export function test_geometry_surface_uv_frame(): void {
+  const upright: IAutoMovieMesh = buildAutoMoviePolyhedron([uprightFace]);
+  TestValidator.predicate(
     "an upright face takes world up as V and the mesh origin as its origin",
-    upright.uvs,
-    [0, 0, 4, 0, 4, 3, 0, 3],
+    equalGeometryTestValues(upright.uvs, [0, 0, 4, 0, 4, 3, 0, 3]),
   );
 
-  const moved = buildAutoMoviePolyhedron([
-    uprightFace.map((corner) => ({ ...corner, x: corner.x + 10 })),
+  const moved: IAutoMovieMesh = buildAutoMoviePolyhedron([
+    uprightFace.map(
+      (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
+        ...corner,
+        x: corner.x + 10,
+      }),
+    ),
   ]);
-  TestValidator.equals(
+  TestValidator.predicate(
     "the frame is anchored on the mesh, so moving the face moves its coordinates",
-    moved.uvs,
-    [10, 0, 14, 0, 14, 3, 10, 3],
+    equalGeometryTestValues(moved.uvs, [10, 0, 14, 0, 14, 3, 10, 3]),
   );
 
   // Wound counter-clockwise seen from +X, so the outward normal is +X: V stays
   // world up and U is `cross(up, +X) = -Z`.
-  const sideward = buildAutoMoviePolyhedron([
+  const sideward: IAutoMovieMesh = buildAutoMoviePolyhedron([
     [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: -4 },
@@ -124,24 +137,27 @@ export const test_geometry_surface_uv_frame = (): void => {
       { x: 0, y: 3, z: 0 },
     ],
   ]);
-  TestValidator.equals(
+  TestValidator.predicate(
     "an upright face facing +X keeps V on height and puts U on -Z",
-    sideward.uvs,
-    [0, 0, 4, 0, 4, 3, 0, 3],
+    equalGeometryTestValues(sideward.uvs, [0, 0, 4, 0, 4, 3, 0, 3]),
   );
 
-  const floor = buildAutoMoviePolyhedron([levelFace]);
-  const ceiling = buildAutoMoviePolyhedron([[...levelFace].reverse()]);
-  TestValidator.equals(
+  const floor: IAutoMovieMesh = buildAutoMoviePolyhedron([levelFace]);
+  const ceiling: IAutoMovieMesh = buildAutoMoviePolyhedron([
+    [...levelFace].reverse(),
+  ]);
+  TestValidator.predicate(
     "a level face falls back to world +X as U, and its mirror flips V",
-    { floor: floor.uvs, ceiling: ceiling.uvs },
-    { floor: [0, 0, 0, -2, 5, -2, 5, 0], ceiling: [5, 0, 5, 2, 0, 2, 0, 0] },
+    equalGeometryTestValues(
+      { floor: floor.uvs, ceiling: ceiling.uvs },
+      { floor: [0, 0, 0, -2, 5, -2, 5, 0], ceiling: [5, 0, 5, 2, 0, 2, 0, 0] },
+    ),
   );
 
   // A ramp rising 1 m over 1 m along -Z, wound so its outward normal leans +Y
   // and +Z: V is world up projected onto the slope, which advances by the slope
   // distance sqrt(2) over that rise rather than by the 1 m of plan.
-  const ramp = buildAutoMoviePolyhedron([
+  const ramp: IAutoMovieMesh = buildAutoMoviePolyhedron([
     [
       { x: 0, y: 0, z: 0 },
       { x: 2, y: 0, z: 0 },
@@ -152,11 +168,11 @@ export const test_geometry_surface_uv_frame = (): void => {
   TestValidator.equals(
     "a 45 degree face measures its slope in metres of slope, not of plan",
     namedFacts([
-      ["footU", () => nclose(uvAt(ramp.uvs!, 0).u, 0)],
-      ["footV", () => nclose(uvAt(ramp.uvs!, 0).v, 0)],
-      ["crestU", () => nclose(uvAt(ramp.uvs!, 2).u, 2)],
-      ["crestV", () => nclose(uvAt(ramp.uvs!, 2).v, Math.SQRT2)],
-      ["risePerPlan", () => nclose(uvAt(ramp.uvs!, 3).v, Math.SQRT2)],
+      ["footU", (): boolean => nclose(uvAt(ramp.uvs!, 0).u, 0)],
+      ["footV", (): boolean => nclose(uvAt(ramp.uvs!, 0).v, 0)],
+      ["crestU", (): boolean => nclose(uvAt(ramp.uvs!, 2).u, 2)],
+      ["crestV", (): boolean => nclose(uvAt(ramp.uvs!, 2).v, Math.SQRT2)],
+      ["risePerPlan", (): boolean => nclose(uvAt(ramp.uvs!, 3).v, Math.SQRT2)],
     ]),
     {
       footU: true,
@@ -170,11 +186,11 @@ export const test_geometry_surface_uv_frame = (): void => {
   TestValidator.equals(
     "every branch of the frame carries a metre on the face to one unit",
     namedFacts([
-      ["upright", () => isometric(upright)],
-      ["sideward", () => isometric(sideward)],
-      ["floor", () => isometric(floor)],
-      ["ceiling", () => isometric(ceiling)],
-      ["ramp", () => isometric(ramp)],
+      ["upright", (): boolean => isometric(upright)],
+      ["sideward", (): boolean => isometric(sideward)],
+      ["floor", (): boolean => isometric(floor)],
+      ["ceiling", (): boolean => isometric(ceiling)],
+      ["ramp", (): boolean => isometric(ramp)],
     ]),
     {
       upright: true,
@@ -185,7 +201,9 @@ export const test_geometry_surface_uv_frame = (): void => {
     },
   );
 
-  const nearlyLevel = (slope: number): IAutoMovieMesh =>
+  const nearlyLevel: (slope: number) => IAutoMovieMesh = (
+    slope: number,
+  ): IAutoMovieMesh =>
     buildAutoMoviePolyhedron([
       [
         { x: 0, y: 0, z: 0 },
@@ -194,18 +212,18 @@ export const test_geometry_surface_uv_frame = (): void => {
         { x: 0, y: 0, z: 1 },
       ],
     ]);
-  const levelSide = nearlyLevel(0.0005);
-  const uprightSide = nearlyLevel(0.002);
+  const levelSide: IAutoMovieMesh = nearlyLevel(0.0005);
+  const uprightSide: IAutoMovieMesh = nearlyLevel(0.002);
   TestValidator.equals(
     "the near-level orientation seam keeps both boundary twins finite and metric",
     namedFacts([
-      ["levelFinite", () => levelSide.uvs!.every(Number.isFinite)],
-      ["uprightFinite", () => uprightSide.uvs!.every(Number.isFinite)],
-      ["levelMetric", () => isometric(levelSide)],
-      ["uprightMetric", () => isometric(uprightSide)],
+      ["levelFinite", (): boolean => levelSide.uvs!.every(Number.isFinite)],
+      ["uprightFinite", (): boolean => uprightSide.uvs!.every(Number.isFinite)],
+      ["levelMetric", (): boolean => isometric(levelSide)],
+      ["uprightMetric", (): boolean => isometric(uprightSide)],
       [
         "oppositeFrames",
-        () =>
+        (): boolean =>
           nclose(uvAt(levelSide.uvs!, 1).u, Math.hypot(1, 0.0005)) &&
           nclose(uvAt(uprightSide.uvs!, 1).u, 0) &&
           nclose(uvAt(uprightSide.uvs!, 1).v, Math.hypot(1, 0.002)),
@@ -219,4 +237,4 @@ export const test_geometry_surface_uv_frame = (): void => {
       oppositeFrames: true,
     },
   );
-};
+}

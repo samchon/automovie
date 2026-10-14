@@ -7,34 +7,31 @@ import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer.js";
  * Inspection clipping applied to existing material state without deleting or
  * rebuilding source geometry. One converted plane set is shared by the subtree.
  *
- * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Supplies an inspection-owned cut rather than an authored delivery-camera field.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Keeps renderer enable, selected subtree and declared half-spaces explicit at the conversion boundary.
+ * @evidence contracts/common.md#principled-implementation Separates the borrowed renderer switch, existing scene subtree and engine world-space remove-side half-spaces so applyAutoMovieSectionPlanes converts clipping convention without altering authored geometry.
+ * @evidence contracts/common.md#clear-and-simple-design One props record keeps clipping application inputs together; the narrow renderer interface exposes only the mutable switch this operation needs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty planes mean release for every subtree; no geometry deletion or special scene identity is encoded in the input.
+ * @evidence contracts/common.md#meaningful-documentation Members state renderer mutation, caller ownership of root/geometry, world-space convention and empty-list release behavior.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This props interface performs no plane conversion or scene traversal; its consumer owns those costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no execution; its consumer shares one converted plane set across materials.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Props borrow existing objects and readonly plane records without acquiring GPU resources or defining a new lifetime.
+ *
  * @author Samchon
  */
 export interface IApplyAutoMovieSectionPlanesProps {
   /**
    * Renderer switch mutated to reflect whether the supplied plane list is empty.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Preserves the runtime enable needed for an inspection cut.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies the clipping enable alongside the same selected plane set.
    */
   renderer: IAutoMovieSectionRenderer;
 
   /**
    * Caller-owned subtree whose materials receive the plane set; geometry and
    * hierarchy remain owned by their builders.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Selects the existing production inspected without removing meshes.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Keeps clipping separate from source scene or camera mutation.
    */
   root: THREE.Object3D;
 
   /**
    * World-space engine half-spaces; an empty list releases clipping. The runtime
    * converts their remove-side normal once without changing these records.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Retains the authored inspection half-spaces and empty release condition.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Supplies the intersection of kept half-spaces realized on the material boundary.
    */
   planes: readonly IAutoMovieSectionPlane[];
 }

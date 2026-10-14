@@ -1,11 +1,13 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
+  IAutoMovieBone,
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
   IAutoMovieInteractionEvent,
   IAutoMovieMotion,
   IAutoMovieScene,
+  IAutoMovieSceneNode,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
 } from "@automovie/interface";
@@ -16,113 +18,138 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAttachJob } from "./IAttachJob";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { bakedTransformAt } from "./bakedTransformAt";
+import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
-import { followClipOf } from "./followClipOf";
 import { handoffEvents } from "./handoffEvents";
 
-/** The per-node lookups a follow bake needs from the compiled shot. */
-interface ICoupleContext {
-  scene: IAutoMovieScene;
-  motions: Record<string, IAutoMovieMotion>;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-  duration: number;
-}
-
-const childrenOf = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string" ? [action.actor] : action.actor;
+/** A coupled parent's world frame over shot time, null where none moves it. */
+type ParentPath = (t: number) => IAutoMovieTransform | null;
 
 /**
- * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
- * and the persistent staged `mounts` (#674), into follow clips once the
- * parents' poses have compiled. Lives in its own module because it is the hot
- * region {@link performShot} kept growing.
+ * The per-node lookups and sinks a follow bake shares within one call.
  *
- * `attachTo` (already validated in the action scan) rides the child on the
- * parent's bone in scene space and emits the grab/attach/detach/release
- * {@link handoffEvents}. Each staged `mount` descends through the SAME baker,
- * spanning the whole shot, so a rider rides every beat without re-issuing
- * `attachTo`; an explicit `attachTo` for the same child this beat overrides its
- * mount, and a mount emits no handoff events (standing scene state, not a
- * per-shot pickup). A mount's parent rig and bone are validated here (staging
- * placed the parent but had no skeletons) and returned as violations.
- *
- * Couplings CHAIN (#1140): a parent that is itself a coupled child this shot (a
- * rider mounted on an animal, carrying a pole) is baked FIRST, and its riders
- * compose onto its baked follow frame per sample instead of its staged
- * placement, through any depth. The latest parent coupling is selected by its
- * first track time rather than by an id suffix. A coupling CYCLE has no world
- * composition (nobody stands on the ground), so it violates instead of baking
- * frozen couplings silently.
- *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-coupled-objects coupleObjects resolves both beat-local handoffs and persistent mounts against compiled parent poses before baking their child follow clips.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff coupleObjects realizes declared attachment and object handoff: Bake the object couplings a shot carries, the per-beat `attachTo` handoffs and the persistent staged `mounts` (#674), into follow clips once the parents' poses have compiled. Lives in its own module because it is the hot region {@link performShot} kept growing. `attachTo` (already validated in the action scan) rides the child on the parent's bone in scene space and emits the grab/attach/detach/release {@link handoffEvents}. Each staged `mount` descends through the SAME baker, spanning the whole shot, so a rider rides every beat without re-issuing `attachTo`; an explicit `attachTo` for the same child this beat overrides its mount, and a mount emits no handoff events (standing scene state, not a per-shot pickup). A mount's parent rig and bone are validated here (staging placed the parent but had no skeletons) and returned as violations. Couplings CHAIN (#1140): a parent that is itself a coupled child this shot (a rider mounted on an animal, carrying a pole) is baked FIRST, and its riders compose onto its baked follow frame per sample instead of its staged placement, through any depth. The latest parent coupling is selected by its first track time rather than by an id suffix. A coupling CYCLE has no world composition (nobody stands on the ground), so it violates instead of baking frozen couplings silently.
+ * @author Samchon
  */
-export const coupleObjects = (props: {
-  attachments: readonly IAttachJob[];
-  mounts: readonly IAutoMovieStagedSet.IMount[];
-  scene: IAutoMovieScene;
+interface ICoupleContext {
+  /** Scene nodes by id; every coupling parent is one. */
+  nodes: ReadonlyMap<string, IAutoMovieSceneNode>;
+
+  /** Compiled pose motions by node id; a missing entry holds the rest pose. */
   motions: Record<string, IAutoMovieMotion>;
+
+  /** A node's rig, or null when it has none. */
   skeleton: (node: string) => IAutoMovieSkeleton | null;
+
+  /** A node's clinical-axis remap; absent, the humanoid table applies. */
   jointAxes?: (
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
+
+  /** A node's clinical rest-frame remap; absent, the rig's own frames apply. */
   restFrames?: (
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
+
+  /** The shot's length in seconds. */
+  duration: number;
+
+  /** The baked world path of a parent that is itself coupled, else undefined. */
+  parentPathOf: (parent: string) => ParentPath | undefined;
+
+  /** Records one baked clip as driving `child`. */
+  keep: (child: string, clip: IAutoMovieClip) => void;
+}
+
+function childrenOf(action: IAutoMovieActionCall): string[] {
+  return typeof action.actor === "string" ? [action.actor] : action.actor;
+}
+
+/**
+ * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs and the persistent staged `mounts` (#674), into follow clips once the parents' poses have compiled.
+ *
+ * `attachTo`, already validated by `performShot`'s action scan, rides the child on the parent's bone in scene space and emits the grab, attach, detach and release {@link handoffEvents}. Each staged mount descends through the same baker, {@link compileAttach}, spanning the whole shot, so a rider rides every beat without re-issuing `attachTo`; an explicit `attachTo` for the same child this shot replaces its mount, and a mount emits no handoff events because it is standing scene state. A mount's parent rig and bone are validated here, since staging placed the parent without skeletons, and returned as violations.
+ *
+ * Couplings chain (#1140): a parent that is itself a coupled child this shot, such as a rider mounted on an animal and carrying a pole, is baked first, and its riders compose onto its baked frame per sample through any depth. That frame is read from all of the parent's baked clips through {@link bakedTransformFromClipsAt}, the channel authority playback uses, so before the parent's first coupling starts its riders follow its staged placement and across a handoff they follow whichever coupling is in effect. A coupling cycle has no world composition, so its members are reported in one violation and never baked.
+ *
+ * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
+ *
+ * @evidence contracts/common.md#principled-implementation Builds the child-to-parent coupling graph, orders it by a depth-first post-order so every parent bakes before its riders, and reports a back edge as a cycle; a chained parent's frame is sampled by the same per-channel latest-start authority as playback, which keeps a rider attached to the parent the viewer draws, including before a late coupling and across a handoff.
+ * @evidence contracts/common.md#clear-and-simple-design Owns the shot's coupling order, cycle refusal, mount validation and id uniqueness, and delegates each bake to `compileAttach` and each event set to `handoffEvents`; it lives apart from `performShot` because this is the region that function kept growing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No node, bone or clip id is special-cased; chain selection reads what a clip carries and when it starts rather than its id suffix, and a cycle or rig-less mount is refused instead of baked frozen.
+ * @evidence contracts/common.md#meaningful-documentation States both coupling sources and their precedence, which source emits events, where mounts are validated, how a chained parent's frame is read including before and between its couplings, the cycle rule, and the order and ids of what it returns.
+ * @evidence contracts/performance.md#efficient-algorithms Graph build, topological ordering and grouping visit coupling edges and scene nodes linearly, plus emitted cycle descriptions; each child's J attachment jobs are then sorted by start, adding the sum of O(J log J) costs. One mutable active path and an index map avoid copying ancestor chains. Each bake costs O(S · B) over S samples and B rig bones, plus chained-parent clip sampling per rider sample; recursion needs one call frame per coupling depth.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each parent's baked clips are stored once and every rider of that parent reads the same clips, so a chain is baked link by link instead of recomposing the whole ancestry per rider; nothing is shared across calls, because each call bakes one shot's couplings.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
+ */
+export function coupleObjects(props: {
+  /** Validated `attachTo` jobs of this shot. */
+  attachments: readonly IAttachJob[];
+
+  /** Staged persistent mounts; an `attachTo` for the same child replaces one. */
+  mounts: readonly IAutoMovieStagedSet.IMount[];
+
+  /** The staged scene, whose nodes hold every parent's placement. */
+  scene: IAutoMovieScene;
+
+  /** Compiled pose motions by node id. */
+  motions: Record<string, IAutoMovieMotion>;
+
+  /** A node's rig, or null when it has none. */
+  skeleton: (node: string) => IAutoMovieSkeleton | null;
+
+  /** A node's clinical-axis remap; absent, `HUMANOID_JOINT_AXES` applies. */
+  jointAxes?: (
+    node: string,
+  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
+
+  /** A node's clinical rest-frame remap, as the renderer poses it. */
+  restFrames?: (
+    node: string,
+  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
+
+  /** The shot's length in seconds. */
   duration: number;
 }): {
   clips: IAutoMovieClip[];
   events: IAutoMovieInteractionEvent[];
   violations: IAutoMovieConstraintViolation[];
-} => {
-  const context: ICoupleContext = {
-    scene: props.scene,
-    motions: props.motions,
-    skeleton: props.skeleton,
-    jointAxes: props.jointAxes,
-    restFrames: props.restFrames,
-    duration: props.duration,
-  };
-  const out = new ViolationCollector();
-  const claimed = new Set(
-    props.attachments.flatMap((job) => childrenOf(job.action)),
+} {
+  const out: ViolationCollector = new ViolationCollector();
+  const claimed: Set<string> = new Set(
+    props.attachments.flatMap((job: IAttachJob): string[] =>
+      childrenOf(job.action),
+    ),
   );
-  const mounts = props.mounts.filter((mount) => !claimed.has(mount.node));
+  const mounts: IAutoMovieStagedSet.IMount[] = props.mounts.filter(
+    (mount: IAutoMovieStagedSet.IMount): boolean => !claimed.has(mount.node),
+  );
 
-  // The shot's coupling graph: coupled child → the parent(s) it rides. An
-  // explicit attachTo overrides the child's mount (filtered above), so a
-  // claimed child's mount edge is not in the graph.
-  const parentsOf = new Map<string, Set<string>>();
-  const addEdge = (child: string, parent: string): void => {
-    const set = parentsOf.get(child) ?? new Set<string>();
+  // The shot's coupling graph: coupled child -> the parents it rides. A
+  // claimed child's mount was filtered above, so its edge is absent.
+  const parentsOf: Map<string, Set<string>> = new Map();
+  function addEdge(child: string, parent: string): void {
+    const set: Set<string> = parentsOf.get(child) ?? new Set<string>();
     set.add(parent);
     parentsOf.set(child, set);
-  };
+  }
   for (const job of props.attachments)
     for (const child of childrenOf(job.action))
       addEdge(child, job.action.parent);
   for (const mount of mounts) addEdge(mount.node, mount.binding.parent);
 
-  // Cycle gate + bake order (#1140): walk each child up its parent edges. A
-  // cycle is reported whole (the all-at-once style forgeProp's articulation
-  // gate uses) and its members are never baked; the post-order visits every
-  // coupled parent before its riders, exactly the order that lets a child
-  // sample its parent's already-baked follow clip.
+  // Cycle gate and bake order (#1140): walk each child up its parent edges. A
+  // cycle is reported whole and its members are never baked; the post-order
+  // visits every coupled parent before its riders.
   const order: string[] = [];
-  const visited = new Set<string>();
-  const cyclic = new Set<string>();
-  const visit = (node: string, stack: readonly string[]): void => {
+  const visited: Set<string> = new Set();
+  const cyclic: Set<string> = new Set();
+  const stack: string[] = [];
+  const active: Map<string, number> = new Map();
+  function visit(node: string): void {
     if (visited.has(node)) return;
-    const at = stack.indexOf(node);
-    if (at >= 0) {
-      const cycle = stack.slice(at);
+    const at: number | undefined = active.get(node);
+    if (at !== undefined) {
+      const cycle: string[] = stack.slice(at);
       for (const member of cycle) cyclic.add(member);
       out.push(
         "type",
@@ -134,178 +161,167 @@ export const coupleObjects = (props: {
     }
     // `node` is always a graph key: the top-level loop iterates the keys and
     // the recursion is gated on `parentsOf.has(parent)`. A cycle return leaves
-    // the frame's node unmarked, so the post-order add is unconditional.
+    // that frame's node unmarked, so the post-order add is unconditional.
+    active.set(node, stack.length);
+    stack.push(node);
     for (const parent of parentsOf.get(node)!)
-      if (parentsOf.has(parent)) visit(parent, [...stack, node]);
+      if (parentsOf.has(parent)) visit(parent);
+    stack.pop();
+    active.delete(node);
     visited.add(node);
     order.push(node);
-  };
-  for (const child of parentsOf.keys()) visit(child, []);
+  }
+  for (const child of parentsOf.keys()) visit(child);
 
-  // Bake parents-first. A parent with no baked follow of its own stands on
-  // its staged placement (parentPathOf yields undefined: the static path).
-  const bakedByNode = new Map<string, IAutoMovieClip[]>();
-  const parentPathOf = (
-    parent: string,
-  ): ((t: number) => IAutoMovieTransform) | undefined => {
-    const clip = followClipOf(bakedByNode.get(parent) ?? [], parent);
-    return clip === null
-      ? undefined
-      : (t: number): IAutoMovieTransform => bakedTransformAt(clip, parent, t);
+  const nodes: Map<string, IAutoMovieSceneNode> = new Map(
+    props.scene.nodes.map(
+      (node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
+        node.id,
+        node,
+      ],
+    ),
+  );
+  const bakedByNode: Map<string, IAutoMovieClip[]> = new Map();
+  const clips: IAutoMovieClip[] = [];
+  const context: ICoupleContext = {
+    nodes,
+    motions: props.motions,
+    skeleton: props.skeleton,
+    jointAxes: props.jointAxes,
+    restFrames: props.restFrames,
+    duration: props.duration,
+    // A parent with no baked follow of its own stands on its staged placement
+    // all shot, the static path; one with baked follows reads them the way
+    // playback does and stands staged wherever none is in effect yet.
+    parentPathOf: (parent: string): ParentPath | undefined => {
+      const baked: IAutoMovieClip[] | undefined = bakedByNode.get(parent);
+      return baked === undefined
+        ? undefined
+        : (t: number): IAutoMovieTransform | null =>
+            bakedTransformFromClipsAt(baked, parent, t);
+    },
+    keep: (child: string, clip: IAutoMovieClip): void => {
+      const list: IAutoMovieClip[] = bakedByNode.get(child) ?? [];
+      list.push(clip);
+      bakedByNode.set(child, list);
+      clips.push(clip);
+    },
   };
-  const jobsByChild = new Map<string, IAttachJob[]>();
+  const jobsByChild: Map<string, IAttachJob[]> = new Map();
   for (const job of props.attachments)
     for (const child of childrenOf(job.action)) {
-      const list = jobsByChild.get(child) ?? [];
+      const list: IAttachJob[] = jobsByChild.get(child) ?? [];
       list.push(job);
       jobsByChild.set(child, list);
     }
-  const mountByChild = new Map(mounts.map((mount) => [mount.node, mount]));
+  const mountByChild: Map<string, IAutoMovieStagedSet.IMount> = new Map(
+    mounts.map(
+      (
+        mount: IAutoMovieStagedSet.IMount,
+      ): [string, IAutoMovieStagedSet.IMount] => [mount.node, mount],
+    ),
+  );
 
-  const clips: IAutoMovieClip[] = [];
   const events: IAutoMovieInteractionEvent[] = [];
-  const keep = (child: string, clip: IAutoMovieClip): void => {
-    const list = bakedByNode.get(child) ?? [];
-    list.push(clip);
-    bakedByNode.set(child, list);
-    clips.push(clip);
-  };
   for (const child of order) {
-    if (cyclic.has(child)) continue; // unresolvable, the violation stands
-    const jobs = jobsByChild.get(child);
-    if (jobs !== undefined)
-      bakeAttachFollows(child, jobs, context, parentPathOf, keep, events);
-    else
-      bakeMountFollow(
-        mountByChild.get(child)!,
-        context,
-        parentPathOf,
-        keep,
-        out,
-      );
+    if (cyclic.has(child)) continue; // unresolvable; the violation stands
+    const jobs: IAttachJob[] | undefined = jobsByChild.get(child);
+    if (jobs !== undefined) bakeAttachFollows(child, jobs, context, events);
+    else bakeMountFollow(mountByChild.get(child)!, context, out);
   }
   return { clips, events, violations: out.items };
-};
+}
 
 /**
- * Bake one child's per-beat `attachTo` follows and their handoff events. A
- * handoff (the same child attached to two parents over disjoint spans) would
- * bake two clips with one `attach:<child>` id: an uncommittable shot and an
- * duplicate artifact id (#989). Process the child's attachments in START order
- * and suffix repeats (`attach:<child>:2`, ...), so the FIRST occurrence keeps
- * the stable id. Runtime authority follows track start and producer order, not
- * the spelling of this uniqueness suffix.
+ * Bake one child's per-beat `attachTo` follows and their handoff events. A handoff, the same child attached to two parents over disjoint spans, would otherwise bake two clips with one `attach:<child>` id, an uncommittable duplicate (#989). The child's attachments are processed in start order and repeats suffixed (`attach:<child>:2`, ...), so the first keeps the stable id; runtime authority follows track start and producer order, not the suffix.
  */
-const bakeAttachFollows = (
+function bakeAttachFollows(
   child: string,
   jobs: readonly IAttachJob[],
   context: ICoupleContext,
-  parentPathOf: (
-    parent: string,
-  ) => ((t: number) => IAutoMovieTransform) | undefined,
-  keep: (child: string, clip: IAutoMovieClip) => void,
   events: IAutoMovieInteractionEvent[],
-): void => {
-  const ordered = [...jobs].sort((a, b) => a.action.start - b.action.start);
-  ordered.forEach((job, occurrence) => {
-    const parentNode = context.scene.nodes.find(
-      (n) => n.id === job.action.parent,
-    )!;
-    const parentRig = context.skeleton(job.action.parent)!;
-    const end =
+): void {
+  const ordered: IAttachJob[] = [...jobs].sort(
+    (a: IAttachJob, b: IAttachJob): number => a.action.start - b.action.start,
+  );
+  ordered.forEach((job: IAttachJob, occurrence: number): void => {
+    const parent: string = job.action.parent;
+    const end: number =
       job.action.duration === "auto"
         ? context.duration
         : Math.min(job.action.start + job.action.duration, context.duration);
     events.push(
-      ...handoffEvents(
-        child,
-        job.action.parent,
-        job.action.start,
-        end,
-        job.index,
-      ),
+      ...handoffEvents(child, parent, job.action.start, end, job.index),
     );
-    const baked = compileAttach({
+    // The action scan admitted only a staged, rigged parent.
+    const baked: IAutoMovieClip = compileAttach({
       child,
       bone: job.action.bone,
-      parentTransform: parentNode.transform,
-      parentTransformAt: parentPathOf(job.action.parent),
-      parentSkeleton: parentRig,
-      parentMotion: context.motions[job.action.parent],
+      parentTransform: context.nodes.get(parent)!.transform,
+      parentTransformAt: context.parentPathOf(parent),
+      parentSkeleton: context.skeleton(parent)!,
+      parentMotion: context.motions[parent],
       start: job.action.start,
       duration: end - job.action.start,
       shotDuration: context.duration,
-      jointAxes: context.jointAxes?.(job.action.parent) ?? HUMANOID_JOINT_AXES,
-      restFrames: context.restFrames?.(job.action.parent),
+      jointAxes: context.jointAxes?.(parent) ?? HUMANOID_JOINT_AXES,
+      restFrames: context.restFrames?.(parent),
     });
-    keep(
+    context.keep(
       child,
       occurrence === 0
         ? baked
         : { ...baked, id: `${baked.id}:${occurrence + 1}` },
     );
   });
-};
+}
 
 /**
- * Bake one persistent staged mount (#674): the rider descends through
- * {@link compileAttach}, spanning the whole shot. The parent rig and saddle bone
- * are validated here.
+ * Bake one persistent staged mount (#674): the rider descends through {@link compileAttach} over the whole shot. Staging validated that the parent is a placed actor; the parent's rig and the saddle bone are validated here.
  */
-const bakeMountFollow = (
+function bakeMountFollow(
   mount: IAutoMovieStagedSet.IMount,
   context: ICoupleContext,
-  parentPathOf: (
-    parent: string,
-  ) => ((t: number) => IAutoMovieTransform) | undefined,
-  keep: (child: string, clip: IAutoMovieClip) => void,
   out: ViolationCollector,
-): void => {
-  // Staging validated the parent is a placed actor, so it is always a scene
-  // node (the `!` below); the rig and bone are the mount's own preconditions.
-  const parentRig = context.skeleton(mount.binding.parent);
+): void {
+  const parent: string = mount.binding.parent;
+  const parentRig: IAutoMovieSkeleton | null = context.skeleton(parent);
   if (parentRig === null) {
     out.push(
       "type",
       "$staged.mounts",
-      mountRiggedMessage(mount.node, mount.binding.parent),
-      mount.binding.parent,
+      `mount rider "${mount.node}" rides "${parent}", which must be a rigged node to carry a saddle bone`,
+      parent,
     );
     return;
   }
-  if (!parentRig.bones.some((b) => b.bone === mount.binding.bone)) {
+  if (
+    !parentRig.bones.some(
+      (b: IAutoMovieBone): boolean => b.bone === mount.binding.bone,
+    )
+  ) {
     out.push(
       "type",
       "$staged.mounts",
-      mountBoneMessage(mount.binding.bone, mount.binding.parent),
+      `mount bone "${mount.binding.bone}" is not on ${parent}'s skeleton`,
       mount.binding.bone,
     );
     return;
   }
-  const parentNode = context.scene.nodes.find(
-    (n) => n.id === mount.binding.parent,
-  )!;
-  keep(
+  context.keep(
     mount.node,
     compileAttach({
       child: mount.node,
       bone: mount.binding.bone,
-      parentTransform: parentNode.transform,
-      parentTransformAt: parentPathOf(mount.binding.parent),
+      parentTransform: context.nodes.get(parent)!.transform,
+      parentTransformAt: context.parentPathOf(parent),
       parentSkeleton: parentRig,
-      parentMotion: context.motions[mount.binding.parent],
+      parentMotion: context.motions[parent],
       start: 0,
       duration: context.duration,
       shotDuration: context.duration,
-      jointAxes:
-        context.jointAxes?.(mount.binding.parent) ?? HUMANOID_JOINT_AXES,
-      restFrames: context.restFrames?.(mount.binding.parent),
+      jointAxes: context.jointAxes?.(parent) ?? HUMANOID_JOINT_AXES,
+      restFrames: context.restFrames?.(parent),
     }),
   );
-};
-
-const mountRiggedMessage = (rider: string, parent: string): string =>
-  `mount rider "${rider}" rides "${parent}", which must be a rigged node to carry a saddle bone`;
-
-const mountBoneMessage = (bone: string, parent: string): string =>
-  `mount bone "${bone}" is not on ${parent}'s skeleton`;
+}

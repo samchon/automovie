@@ -1,57 +1,54 @@
+import type { IAutoMovieHumanFaceOralArch as ImportedIAutoMovieHumanFaceOralArch } from "@automovie/human";
+
 import type { IAutoMovieHumanFaceOral } from "../../structures/IAutoMovieHumanFaceOral";
 import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimensions";
 
 /**
  * Resolve one arch's lining dimensions from the oral document, in metres.
  *
- * A value the document states is used as given. An omitted value takes the
- * default below; the defaults are authored dimensions of a generic adult
- * lining and neither a clinical normal range nor a person's anatomy.
+ * A value the document states is used as given. An omitted value takes the default below; the defaults are authored dimensions of a generic adult lining and neither a clinical normal range nor a person's anatomy.
  *
- * - Palatal vault 15 mm. Huang et al. 2024 (Head Face Med, PMC10821571)
- *   measured the height of the palate's three-dimensional bounding box on
- *   CBCT in 85 skeletal Class I Mongolian adults aged 18–35: 16.38 ± 1.76 mm
- *   in men and 14.52 ± 1.55 mm in women of the normodivergent group. Their
- *   reference is the horizontal plane through the lowest point of the
- *   anterior maxillary alveolar ridge; this lining rises from the local
- *   cervical ring, and the offset between the two references is unmeasured.
- * - Gingival collar 4.25 mm. Moosa et al. 2024 (Heliyon, PMC10826647)
- *   measured the mid-facial width of keratinized gingiva at the maxillary
- *   central incisors of 510 periodontally healthy Pakistani adults aged
- *   20–35 as 4.25 ± 1.17 mm. That is one tooth, one surface and one tissue
- *   band. Using it as the cervical-to-fornix reach of every tooth of both
- *   arches is an authored extension: the alveolar mucosa beyond the
- *   keratinized band and every other site are unmeasured here.
- * - Collar thickness 1.5 mm and floor depth 8 mm are authored without a
- *   read source. Moosa et al. classify gingival thickness only as thick or
- *   thin by probe transparency, and no read study gives the depth of the
- *   sublingual sulcus below the lingual gingival margin.
- * - The vestibular wall clearance defaults to the collar thickness, and the
- *   posterior reach to the wall clearance.
+ * - Palatal vault 15 mm. Huang et al. 2024 (Head Face Med, PMC10821571) measured the height of the palate's three-dimensional bounding box on CBCT in 85 skeletal Class I Mongolian adults aged 18–35: 16.38 ± 1.76 mm in men and 14.52 ± 1.55 mm in women of the normodivergent group. Their reference is the horizontal plane through the lowest point of the anterior maxillary alveolar ridge; this lining rises from the local cervical ring, and the offset between the two references is unmeasured. - Gingival collar 4.25 mm. Moosa et al. 2024 (Heliyon, PMC10826647) measured the mid-facial width of keratinized gingiva at the maxillary central incisors of 510 periodontally healthy Pakistani adults aged 20–35 as 4.25 ± 1.17 mm. That is one tooth, one surface and one tissue band. Using it as the cervical-to-fornix reach of every tooth of both arches is an authored extension: the alveolar mucosa beyond the keratinized band and every other site are unmeasured here. - Collar thickness 1.5 mm and floor depth 8 mm are authored without a read source. Moosa et al. classify gingival thickness only as thick or thin by probe transparency, and no read study gives the depth of the sublingual sulcus below the lingual gingival margin. - The vestibular wall clearance defaults to the collar thickness, and the posterior reach to the wall clearance.
+ *
+ * @evidence contracts/common.md#principled-implementation Specified millimetres or named generic defaults resolve positive finite metre dimensions for one arch.
+ * @evidence contracts/common.md#clear-and-simple-design Thickness-to-wall and wall-to-posterior omission dependencies remain explicit within one owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Palatal/collar defaults extend differently referenced published observations, while thickness/floor defaults are unsourced authored values; none are clinical normal limits or this person's measured anatomy.
+ * @evidence contracts/common.md#meaningful-documentation Caller values are not clamped and unrepresentable/nonpositive resolved distances refuse.
+ * @evidence contracts/performance.md#efficient-algorithms Five scalar conversions and positivity checks take constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The field and assembly reuse one resolved record rather than repeating inconsistent default logic.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a small owned scalar record escapes and no document/geometry reference is retained.
  */
 export function resolveHumanFaceOralLiningDimensions(
   oral: IAutoMovieHumanFaceOral,
   mandibular: boolean,
 ): IHumanFaceOralLiningDimensions {
-  const metres = (value: number | undefined, fallback: number): number => {
-    const result = value === undefined ? fallback : value / 1000;
+  const metres: (value: number | undefined, fallback: number) => number = (
+    value: number | undefined,
+    fallback: number,
+  ): number => {
+    const result: number = value === undefined ? fallback : value / 1000;
     if (!Number.isFinite(result) || result <= 0)
       throw new Error(
         "Oral lining needs positive finite representable dimensions.",
       );
     return result;
   };
-  const arch = mandibular ? oral.mandibular : oral.maxillary;
-  const collarThicknessMetres = metres(arch?.gingivalThicknessMm, 0.0015);
-  const collarHeightMetres = metres(arch?.gingivalHeightMm, 0.00425);
-  const wallClearanceMetres = metres(
+  const arch: ImportedIAutoMovieHumanFaceOralArch | undefined = mandibular
+    ? oral.mandibular
+    : oral.maxillary;
+  const collarThicknessMetres: number = metres(
+    arch?.gingivalThicknessMm,
+    0.0015,
+  );
+  const collarHeightMetres: number = metres(arch?.gingivalHeightMm, 0.00425);
+  const wallClearanceMetres: number = metres(
     oral.space?.wallClearanceMm,
     collarThicknessMetres,
   );
-  const vaultMetres = mandibular
+  const vaultMetres: number = mandibular
     ? metres(oral.space?.floorDepthMm, 0.008)
     : metres(oral.space?.palateHeightMm, 0.015);
-  const posteriorReachMetres = metres(
+  const posteriorReachMetres: number = metres(
     oral.space?.posteriorReachMm,
     wallClearanceMetres,
   );

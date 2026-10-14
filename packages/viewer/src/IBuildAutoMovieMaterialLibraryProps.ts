@@ -7,26 +7,26 @@ import type { AutoMovieTextureCache } from "./AutoMovieTextureCache.js";
  * lower borrowed surface materials. Resolution admits the complete requested
  * identity set before constructing any runtime materials.
  *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Supplies the declared model population and explicit surface material identities resolved by the library.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Separates immutable material definitions from the texture cache supplied by the shot runtime.
+ * @evidence contracts/common.md#principled-implementation Complete model declarations and requested material ids admit one definition per identity before runtime construction, with an optional already-owned shot cache providing decoded texture bindings.
+ * @evidence contracts/common.md#clear-and-simple-design Separates cross-model identity search, borrowing-surface demand and texture ownership in the three inputs the library builder requires.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal repeated declarations are allowed but conflicts refuse; null means renderer default while blank ids and missing textured cache cannot silently choose a fallback.
+ * @evidence contracts/common.md#meaningful-documentation Documents model borrowing, duplicate/conflict semantics, requested id deduplication and texture-cache requirements and ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The input record chooses no definition-search or material-build algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Repeated requested ids and texture assets are deduplicated by their owning builders/cache, not by this type.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources All supplied models and the optional shot cache remain caller-owned; the returned library owns only its new materials.
+ *
  * @author Samchon
  */
 export interface IBuildAutoMovieMaterialLibraryProps {
   /**
    * Caller-owned compiled models searched for each requested material. Equal
    * declarations may repeat; conflicting definitions are refused, not ordered.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Supplies the full definition population used to detect missing or conflicting material identities.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Keeps definition resolution independent of model order.
    */
   models: readonly IAutoMovieModel[];
 
   /**
    * Material ids requested by borrowing surfaces; null uses their renderer-owned
    * default. Blank ids refuse, and repeated ids are constructed only once.
-   *
-   * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Preserves explicit named material requests and the null default alternative.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Defines the identities shared across borrowing surfaces by this library.
    */
   materialIds: Iterable<string | null>;
 
@@ -34,9 +34,6 @@ export interface IBuildAutoMovieMaterialLibraryProps {
    * Shot-owned cache primed before construction; omission is supported only
    * when the requested definitions have no texture bindings. The library
    * borrows its resolver and never disposes this cache.
-   *
-   * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-lowering-ownership Retains texture ownership with the supplying shot rather than the borrowed material library.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Keeps texture lifetime separate from disposal of derived materials.
    */
   textures?: AutoMovieTextureCache;
 }

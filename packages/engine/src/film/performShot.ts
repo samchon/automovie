@@ -1,126 +1,58 @@
 import {
-  AutoMovieHumanoidBone,
   IAutoMovieActionCall,
-  IAutoMovieActionTarget,
   IAutoMovieBeatEndState,
-  IAutoMovieBlocking,
-  IAutoMovieBlockingCoverage,
   IAutoMovieCamera,
-  IAutoMovieCameraAction,
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
+  IAutoMovieConstraintViolation,
   IAutoMovieFormationMotion,
-  IAutoMovieGroupTarget,
   IAutoMovieInteractionEvent,
-  IAutoMovieModel,
+  IAutoMovieLight,
   IAutoMovieMotion,
   IAutoMoviePerformance,
-  IAutoMoviePropSpec,
   IAutoMovieQuaternion,
+  IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieShot,
-  IAutoMovieShotCoverage,
+  IAutoMovieShotPerformance,
   IAutoMovieSkeleton,
-  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { armChainFault } from "../kinematics/armChainFault";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
-import { plantStanceFeet } from "../motion/plantStanceFeet";
-import { sampleMotion } from "../motion/sampleMotion";
 import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
-import { actionRegion } from "../perform/actionRegion";
-import { bodyRegionBones } from "../perform/bodyRegionBones";
+import { IAutoMovieCompiledPerformance } from "../perform/IAutoMovieCompiledPerformance";
+import { IAutoMovieMaskedContent } from "../perform/IAutoMovieMaskedContent";
 import { compilePerformance } from "../perform/compilePerformance";
-import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
-import { positionalTargetFault } from "../perform/positionalTargetFault";
-import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { scenePlacements } from "../perform/scenePlacements";
-import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { sampleFormationMotion } from "../sampleFormationMotion";
-import { spaceGround } from "../space/spaceGround";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { withArticle } from "../text/withArticle";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
-import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
-import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
-import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
-import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
 import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
-import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
+import { IPerformShotActionPlan } from "./IPerformShotActionPlan";
+import { IPerformShotCoverageJob } from "./IPerformShotCoverageJob";
+import { IPerformShotGateContext } from "./IPerformShotGateContext";
+import { IPerformShotProps } from "./IPerformShotProps";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
-import { compileCameraCoverage } from "./compileCameraCoverage";
-import { compileCameraMove } from "./compileCameraMove";
-import { compileLaunch } from "./compileLaunch";
-import { computeModelRestExtent } from "./computeModelRestExtent";
-import { computeRestHeight } from "./computeRestHeight";
-import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
+import { compilePerformShotCameras } from "./compilePerformShotCameras";
+import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { coupleObjects } from "./coupleObjects";
-import { formationMemberExtent } from "./formationMemberExtent";
-import { formationSubjectBox } from "./formationSubjectBox";
-import { framedBoxOf } from "./framedBoxOf";
+import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
-import { nodeSubjectBox } from "./nodeSubjectBox";
-import { nodeSubjectExtent } from "./nodeSubjectExtent";
-import { unionSubjectBoxes } from "./unionSubjectBoxes";
+import { gatePerformShotActions } from "./gatePerformShotActions";
+import { gatePerformShotBlocking } from "./gatePerformShotBlocking";
+import { gatePerformShotCamera } from "./gatePerformShotCamera";
+import { gatePerformShotFrameOverlaps } from "./gatePerformShotFrameOverlaps";
+import { gatePerformShotRegionOverlaps } from "./gatePerformShotRegionOverlaps";
+import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
+import { validatePerformShotId } from "./validatePerformShotId";
 
-/**
- * A node's animated **world** position over shot time: its staged `base` plus
- * the node-local root displacement of `motion` at that instant, rotated into
- * the world by the node's staged `facing`. The read shared by a `follow` camera
- * tracking a walking actor and a `launch` leading a moving target, one place,
- * one convention (the root is node-local; the renderer applies it under the
- * same facing).
- */
-const animatedBaseAt =
-  (
-    base: IAutoMovieVector3,
-    facing: IAutoMovieQuaternion,
-    motion: IAutoMovieMotion,
-  ) =>
-  (seconds: number): IAutoMovieVector3 =>
-    Vector3.add(
-      base,
-      Quaternion.rotateVector(
-        facing,
-        sampleMotion(motion, seconds).pose.root?.translation ?? {
-          x: 0,
-          y: 0,
-          z: 0,
-        },
-      ),
-    );
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-const isFiniteVector3 = (vector: IAutoMovieVector3): boolean =>
-  [vector.x, vector.y, vector.z].every((coordinate) =>
-    Number.isFinite(coordinate),
-  );
-
-const isFiniteQuaternion = (rotation: IAutoMovieQuaternion): boolean =>
-  [rotation.x, rotation.y, rotation.z, rotation.w].every((component) =>
-    Number.isFinite(component),
-  );
-
-const actionActors = (action: IAutoMovieActionCall): string[] =>
-  typeof action.actor === "string"
-    ? [action.actor]
-    : Array.isArray(action.actor)
-      ? action.actor
-      : [];
-
+/** Event order at one instant: cause before effect, pickup before release. */
 const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
   contact: 0,
   hit: 1,
@@ -131,1645 +63,190 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
   release: 6,
 };
 
-const CAMERA_FRAMINGS = new Set<IAutoMovieCameraAction["framing"]>([
-  "wide",
-  "full",
-  "medium",
-  "close",
-]);
-
-const CAMERA_MOVES = new Set<IAutoMovieCameraAction["move"]>([
-  "static",
-  "follow",
-  "orbit",
-  "push-in",
-  "truck",
-  "whip",
-]);
-
-const orderEvents = (
-  events: readonly IAutoMovieInteractionEvent[],
-): IAutoMovieInteractionEvent[] =>
-  [...events].sort(
-    (a, b) =>
-      a.time - b.time ||
-      EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
-      compareCodeUnits(a.id, b.id),
-  );
-
 /**
- * The PERFORMANCE consumer, fold one beat's action calls into an
- * {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of
- * the seam: the calls must reference the staged world (a beat the script
- * planned, actors the stage placed), and the clips the synthesizer fattened
- * them into must survive `validateMotion` against each actor's skeleton. The
- * revise pass wins by construction: `revise.final ?? draft` is the list that
- * performs.
+ * Fold one beat's action calls into an {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of the seam.
  *
- * A camera the shot compiles a move FROM is itself gated: its vertical field of
- * view must lie within (0, 180)° and its placement must be finite, the same
- * bounds staging applies, because an explicit staged set never passes through
- * staging and the framing solve divides by `tan(fovY / 2)`. Ungated, a zero
- * field of view baked an infinite distance into every keyframe and the shot
- * came back successful with a clip its own artifact validator refuses. Only the
- * elected camera and the coverage cameras are checked; an unused degenerate
- * camera never fails a shot that does not frame through it.
+ * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
  *
- * Camera `frame` actions elect the live camera and author its move: the first
- * one names the shot's camera (staging aimed it already), rival `frame` calls
- * on a second camera are a violation, one take, one live camera, and the
- * elected camera's frame actions compile into `cameraMotion` through
- * {@link compileCameraMove}'s framing grammar. Frame subjects must resolve to a
- * point (node/point/group), and same-camera moves must not overlap in time. A
- * shot with no `frame` call falls back to the scene's first camera, locked off
- * (`cameraMotion: null`); a scene with no cameras at all cannot be framed and
- * fails.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
+ * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
+ * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
+ * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
+ * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
+ * 6. Cameras: the live camera's move and each coverage take compile through the framing grammar, subjects measured by {@link createPerformShotSubjectFramer}, and any physical clearance envelope is checked by {@link compileCameraClearanceReports}.
  *
- * A group subject is measured as the BOX its members occupy, not as a point
- * with a figure's height: each staged member contributes its placement raised
- * by its own measured extent, and each formation the group names contributes
- * its whole transformed footprint under the cue playing at that instant. The
- * solve then fits that box both ways, so a mass wider than it is tall is framed
- * from the distance its width demands. This is the only subject that may name a
- * formation, and it must name one this shot compiled: a formation is a mass a
- * camera frames, never one body an actor can aim at, so the same group named on
- * a `lookAt`, `reach`, gesture aim or `launch` aim is refused rather than
- * silently aimed at the middle of a crowd.
+ * A shot with no frame action is locked off on the scene's first camera. Positional targets resolve against every staged placement, cameras included, so an actor may look down the lens, but a camera performs only frame. Only a camera subject may name a formation. The assembled artifact is checked independently and a failure throws as a compilation defect. This does not prove every possible authored failure was located earlier: typed outer containers, generated event-id collisions, mutable callbacks and downstream arithmetic remain distinct exception boundaries.
  *
- * The blocking's `coverage` intents (#1187) are the plural half of that rule.
- * They never join the election; each compiles into its own alternate take on
- * `shot.coverage` through {@link compileCameraCoverage}, playing its single
- * intent across the whole beat so a render host can cut to the angle at any
- * instant. A coverage camera must be staged, must not be the elected live
- * camera or a sibling coverage camera, must state a real framing/move, and must
- * favour something that resolves to a point.
- *
- * Positional targets (`lookAt`, `reach`, a `point`/`strike` gesture aim, a
- * `launch` aim, a frame subject or focus, a coverage subject) resolve against
- * every staged placement, {@link scenePlacements}, **cameras included**: an
- * actor may be directed to look down the lens, which is ordinary film grammar
- * (#1294). That does not loosen the camera-as-actor rule, a camera still
- * performs nothing but `frame`; it only makes a camera a place one can point
- * at. A target that does not resolve names the id (or the relative kind) that
- * failed, never the discriminator of a kind that was legal all along.
- *
- * `launch` actions are compiled through {@link compileLaunch}: the projectile (a
- * staged scene node) gets its baked flight as a shot `objectMotion`, and, for a
- * node aim carrying `onHit`, the struck actor's recoil is folded into the
- * action list at the **engine-computed** contact, so it rides the same
- * synthesis and ROM gate as an authored `react`. The projectile must be staged,
- * the aim must resolve to a point, and the shot must reach the target at the
- * given speed, each an input violation otherwise. An `onHit` aim must also name
- * a staged scene NODE: a camera is a place to shoot at, but nothing recoils it,
- * and the injected react would otherwise name a camera as its actor behind the
- * back of the gate that refuses exactly that.
- *
- * `attachTo` actions are compiled through {@link compileAttach} once the parent
- * pose is known: the coupled child (a prop, not a rig) gets a shot
- * `objectMotion` that rides the parent's bone in scene space each frame. The
- * parent must be a staged, rigged node carrying the named bone, each an input
- * violation otherwise.
- *
- * Staged `mounts` (the persistent couplings staging declared, #674) descend
- * through the SAME {@link compileAttach} baker, spanning the whole shot, so a
- * rider rides every beat without re-issuing `attachTo`. An explicit `attachTo`
- * for the same child this beat overrides its mount; a mount emits no
- * grab/attach/detach/release events (it is standing scene state, not a per-shot
- * pickup). A mount onto a rig-less parent or an absent bone is a violation.
- *
- * Locomotion and gait-bearing actor motions pass through {@link plantStanceFeet}
- * before ROM and artifact validation. A first stride therefore emits the
- * world-space plant facts a later beat can resume; an existing opening plant is
- * converted into model space for the solve and back into scene world space
- * exactly once at this boundary. When staging supplies a scene space, its world
- * surface height is transformed into the actor's model frame for contact and
- * pinning; otherwise the legacy model-space y=0 plane remains. Static non-gait
- * clips keep their authored key grid. This conversion reads the unit-scale,
- * yaw-only actor transform {@link stageScene} emits; `staged` is that validated
- * stage result, not an arbitrary fabricated scene graph.
- *
- * @param props.skeleton Rig lookup for ROM validation; return null for a node
- *   that has no skeleton (its clip skips ROM).
- * @param props.hasActorContext Optional actor-registry membership lookup. It
- *   keeps a missing context distinct from a present context with no rig.
- * @param props.jointAxes Optional per-node clinical joint-axis lookup. Supply
- *   the same axes the renderer/player uses so ground planting and attachment
- *   baking read the rig through one basis.
- * @param props.restFrames Optional per-node clinical rest-frame lookup. Supply
- *   the same frame table the renderer/player uses so ground planting and
- *   `attachTo` objectMotions read the visible pose, not raw rig-space FK.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay Validates staged action references and synthesized motions before producing one deterministic performed-shot result.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-spatial-validation Resolves every action actor, target, projectile, attachment parent, and camera against the staged scene, then refuses delivered camera envelopes that contact current modeled obstacles.
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-temporal-validation Refuses non-finite, non-positive, overlapping, or out-of-shot action spans before sampling motion and interaction results on the shot clock.
- * @evidence requirements/staging/events-and-timing.md#staging-fixed-film-clock Uses the performed beat duration and shot-local seconds as the shared clock for actor clips, object clips, camera motion, and emitted interaction events.
- * @evidence requirements/staging/events-and-timing.md#staging-simultaneous-events Orders equal-time interaction events by an explicit semantic kind priority and then stable event id, independent of action traversal order.
- * @evidence requirements/staging/interactions-and-choreography.md#staging-choreography-phases Converts authored launch, reaction, grab, attach, detach, and release actions into timed motion plus their contact and ownership consequences.
- * @evidence requirements/staging/interactions-and-choreography.md#staging-choreography-time-sampling Places generated contact, hit, coupling, and reaction results on the same shot-local clock used to sample the motions that caused them.
- * @evidence requirements/staging/scope-and-source-of-truth.md#staging-resolved-scene-state Resolves targets from the staged scene placements and samples actor or object motion at the addressed shot time instead of mixing a nominal blocking point with a live result.
- * @evidence requirements/staging/subjects-and-object-staging.md#staging-rest-active-placement Starts each subject from its staged rest transform, then gives active actor, launch, attachment, or mounted motion explicit shot-local authority without duplicating the subject.
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-subject-dependencies Requires every performed actor, camera, frame or focus target, projectile, and attachment parent to resolve through the authored script and staged scene before compiling the shot.
- * @evidence requirements/story/scenes-and-observable-action.md#story-unfilmable-scene-refusal Returns addressed violations when required actor, camera, target, projectile, or carried-object dependencies are absent or contradictory instead of fabricating a filmable substitute.
- * @evidence requirements/camera/position-and-movement.md#camera-path-refusal Refuses invalid or non-finite camera timing and transforms, unresolved frame targets, rival live cameras, overlapping frame moves, and current-revision body or parent-rig obstruction.
- * @evidence requirements/camera/projection-lens-and-sensor.md#camera-optical-refusal Refuses non-finite or non-positive focal length and a framing camera field of view outside the finite open interval `(0, 180)`.
- * @evidence requirements/camera/scope-and-identity.md#camera-shot-distinction Elects one stable `shot.camera` identity and carries coverage cameras as separate take records instead of treating an edit or shot id as the camera.
- * @evidence requirements/camera/scope-and-identity.md#camera-authored-intent Validates and preserves the authored framing, move, focus target, and focal-length metadata without inferring dramatic intent from the resulting picture.
- * @evidence requirements/camera/scope-and-identity.md#camera-missing-refusal Refuses an absent or invalid framing camera and unresolved frame targets rather than fabricating a default camera at the world origin.
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-focus-distance Resolves the authored focus target to a world point and preserves it with focal-length metadata; it does not calculate a numeric depth-of-field result.
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-depth-of-field-boundary Keeps focus and focal length as declarative camera intent while FOV alone drives geometric framing, making no rendered blur claim.
- * @evidence requirements/camera/targets-focus-and-depth-boundary.md#camera-target-refusal Refuses missing or unresolvable frame, focus, and coverage targets before camera motion is compiled.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result performShot realizes deterministic staging replay and validation: The PERFORMANCE consumer, fold one beat's action calls into an {@link IAutoMovieShot} through {@link compilePerformance}, gating both sides of the seam: the calls must reference the staged world (a beat the script planned, actors the stage placed), and the clips the synthesizer fattened them into must survive `validateMotion` against each actor's skeleton. The revise pass wins by construction: `revise.final ?? draft` is the list that performs. A camera the shot compiles a move FROM is itself gated: its vertical field of view must lie within (0, 180)° and its placement must be finite, the same bounds staging applies, because an explicit staged set never passes through staging and the framing solve divides by `tan(fovY / 2)`. Ungated, a zero field of view baked an infinite distance into every keyframe and the shot came back successful with a clip its own artifact validator refuses. Only the elected camera and the coverage cameras are checked; an unused degenerate camera never fails a shot that does not frame through it. Camera `frame` actions elect the live camera and author its move: the first one names the shot's camera (staging aimed it already), rival `frame` calls on a second camera are a violation, one take, one live camera, and the elected camera's frame actions compile into `cameraMotion` through {@link compileCameraMove}'s framing grammar. Frame subjects must resolve to a point (node/point/group), and same-camera moves must not overlap in time. A shot with no `frame` call falls back to the scene's first camera, locked off (`cameraMotion: null`); a scene with no cameras at all cannot be framed and fails. A group subject is measured as the BOX its members occupy, not as a point with a figure's height: each staged member contributes its placement raised by its own measured extent, and each formation the group names contributes its whole transformed footprint under the cue playing at that instant. The solve then fits that box both ways, so a mass wider than it is tall is framed from the distance its width demands. This is the only subject that may name a formation, and it must name one this shot compiled: a formation is a mass a camera frames, never one body an actor can aim at, so the same group named on a `lookAt`, `reach`, gesture aim or `launch` aim is refused rather than silently aimed at the middle of a crowd. The blocking's `coverage` intents (#1187) are the plural half of that rule. They never join the election; each compiles into its own alternate take on `shot.coverage` through {@link compileCameraCoverage}, playing its single intent across the whole beat so a render host can cut to the angle at any instant. A coverage camera must be staged, must not be the elected live camera or a sibling coverage camera, must state a real framing/move, and must favour something that resolves to a point. Positional targets (`lookAt`, `reach`, a `point`/`strike` gesture aim, a `launch` aim, a frame subject or focus, a coverage subject) resolve against every staged placement, {@link scenePlacements}, **cameras included**: an actor may be directed to look down the lens, which is ordinary film grammar (#1294). That does not loosen the camera-as-actor rule, a camera still performs nothing but `frame`; it only makes a camera a place one can point at. A target that does not resolve names the id (or the relative kind) that failed, never the discriminator of a kind that was legal all along. `launch` actions are compiled through {@link compileLaunch}: the projectile (a staged scene node) gets its baked flight as a shot `objectMotion`, and, for a node aim carrying `onHit`, the struck actor's recoil is folded into the action list at the **engine-computed** contact, so it rides the same synthesis and ROM gate as an authored `react`. The projectile must be staged, the aim must resolve to a point, and the shot must reach the target at the given speed, each an input violation otherwise. An `onHit` aim must also name a staged scene NODE: a camera is a place to shoot at, but nothing recoils it, and the injected react would otherwise name a camera as its actor behind the back of the gate that refuses exactly that. `attachTo` actions are compiled through {@link compileAttach} once the parent pose is known: the coupled child (a prop, not a rig) gets a shot `objectMotion` that rides the parent's bone in scene space each frame. The parent must be a staged, rigged node carrying the named bone, each an input violation otherwise. Staged `mounts` (the persistent couplings staging declared, #674) descend through the SAME {@link compileAttach} baker, spanning the whole shot, so a rider rides every beat without re-issuing `attachTo`. An explicit `attachTo` for the same child this beat overrides its mount; a mount emits no grab/attach/detach/release events (it is standing scene state, not a per-shot pickup). A mount onto a rig-less parent or an absent bone is a violation. Locomotion and gait-bearing actor motions pass through {@link plantStanceFeet} before ROM and artifact validation. A first stride therefore emits the world-space plant facts a later beat can resume; an existing opening plant is converted into model space for the solve and back into scene world space exactly once at this boundary. When staging supplies a scene space, its world surface height is transformed into the actor's model frame for contact and pinning; otherwise the legacy model-space y=0 plane remains. Static non-gait clips keep their authored key grid. This conversion reads the unit-scale, yaw-only actor transform {@link stageScene} emits; `staged` is that validated stage result, not an arbitrary fabricated scene graph.   that has no skeleton (its clip skips ROM).   keeps a missing context distinct from a present context with no rig.   the same axes the renderer/player uses so ground planting and attachment   baking read the rig through one basis.   the same frame table the renderer/player uses so ground planting and   `attachTo` objectMotions read the visible pose, not raw rig-space FK.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Carries all performed-shot outputs on shot-local seconds and makes equal-time interaction ordering explicit through semantic kind priority plus stable identity.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership Reads staged placements and current motion samples as the spatial authority for targets and emitted transforms; it does not claim mark, surface, or zone membership.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-interaction-choreography-role Compiles action participants into timed contact, reaction, attachment, and release consequences while preserving one active transform authority per subject.
- * @evidence specifications/narrative-and-intent/scene-coverage-and-acceptance.md#narrative-intent-scene-dependency-refusal Gates the concrete actor, camera, target, projectile, and attachment dependencies this shot consumes and fails on an unresolved required binding.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Refuses malformed, unresolved, overlapping, stale, or physically blocked hero and coverage camera paths with an author-addressed correction path.
- * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-projection-sampling-refusal performShot rejects impossible framing FOV and focal-length inputs before projection or camera-motion compilation can create non-finite artifacts.
- * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-camera-authority-spatial-binding Keeps the elected shot camera and each coverage camera explicit, preserves only validated authored intent, and fails when the required camera cannot be resolved.
- * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-intent-appearance-boundary Preserves the resolved focus point and focal length as intent metadata distinct from geometric FOV and from any rendered depth-of-field appearance.
- * @evidence specifications/camera-light-and-visibility/target-focus-exposure-and-sampling.md#clv-focus-diagnostics-refusal Emits addressed failures for missing frame, focus, and coverage targets instead of continuing from an inferred or cached point.
+ * @evidence contracts/common.md#principled-implementation Sequences admitted stage groups before compilation and validates its assembled artifact against the commit contract; failed output validation throws as an engine defect. Target admission remains valid only while caller inputs and targetAt callbacks stay stable between gate and compile reads; custom synthesis can still return null.
+ * @evidence contracts/common.md#clear-and-simple-design This function owns the stage order, the shared gate context and the assembly; each gate and compile stage lives in its own module with its own contract, so the function reads as a sequence of named stages.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No beat, actor, camera or prop is special-cased; every refusal carries a path into the author's input, and the artifact check throws rather than downgrading an engine defect into an authoring violation.
+ * @evidence contracts/common.md#meaningful-documentation States which list performs, every stage in order with its owner, the stop-at-first-failing-group rule, the locked-off fallback, how cameras and formations may be targeted, and when and why it throws; each input field documents its meaning and what omitting it does.
+ * @evidence contracts/performance.md#efficient-algorithms Gates include pairwise same-actor region overlap checks and sorted frame spans, so their cost is not uniformly linear; delegated launch, planting, camera, clip and artifact checks add their own population costs. Synthesis is invoked at most once per action object and actor within this call.
+ * @evidence contracts/performance.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
  */
-export const performShot = (props: {
-  script: IAutoMovieScript;
-  staged: IAutoMovieStagedSet.ISuccess;
-  performance: IAutoMoviePerformance;
-  synthesize: IAutoMovieActionSynthesizer;
-  skeleton: (node: string) => IAutoMovieSkeleton | null;
-  /**
-   * Compiler-owned models for the staged nodes, used to measure what a camera
-   * frames. A rig's joint span is not the figure's height — the generated
-   * `stickman` has no foot or head-top bone and spans 0.680 of its declared
-   * height — so framing solved from the rig alone crops an actor's head off.
-   * Omit only where no model is available; the rig measurement then stands as
-   * the documented fallback.
-   */
-  models?: readonly IAutoMovieModel[];
-  /**
-   * Compiler-owned current geometry revision and fixed inspection clock. A
-   * take whose camera declares a physical envelope requires this context;
-   * legacy cameras without an envelope remain byte-identical when it is
-   * omitted.
-   */
-  cameraClearance?: IAutoMovieCameraClearanceRuntime;
-  /**
-   * Compiler-owned compact formations present in this shot, so a camera can
-   * frame a mass. A group target naming a formation this list does not carry is
-   * a violation rather than a silently smaller frame: the alternative is a shot
-   * that succeeds having framed a crowd as one figure standing at its
-   * centroid.
-   */
-  formations?: readonly IAutoMovieCompiledFormation[];
-  /**
-   * The shot's compact formation cues, so a framed unit is measured where the
-   * cue playing at the framed instant has actually put it. Omitted, every
-   * formation is framed at rest, which is exactly what an uncued unit does.
-   */
-  formationMotions?: readonly IAutoMovieFormationMotion[];
-  /**
-   * Delivery raster, for the horizontal half of the framing fit. A camera
-   * states only its vertical field of view, so nothing else knows how wide the
-   * frame is; omitted, a subject with horizontal extent is fitted to a square
-   * frame, which pulls back far enough for any raster of that height rather
-   * than cropping a mass the solve could not measure.
-   */
-  frameFormat?: { width: number; height: number };
-  hasActorContext?: (node: string) => boolean;
-  jointAxes?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
-  restFrames?: (
-    node: string,
-  ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
-  /** Optional live resolver for targets whose point changes during the shot. */
-  targetAt?: (
-    target: IAutoMovieActionTarget,
-    seconds: number,
-  ) => IAutoMovieVector3 | null;
-  /**
-   * The gait names each actor's context supplies, for validating `locomote`
-   * actions: a `locomote` naming a gait this lookup does not list for the actor
-   * is a `type` violation, so the reference synthesiser never silently drops it
-   * (an unresolved gait produces no motion). Omit, or return `undefined` for a
-   * node, to skip the check (byte-identical to before: no gait gate).
-   */
-  gaits?: (node: string) => readonly string[] | undefined;
-  /**
-   * The beat's validated blocking (from `blockBeat`), when the pipeline runs
-   * the full stage ladder. Supplying it arms the coherence gates between intent
-   * and realization: matching beat and duration, every timing anchor covered by
-   * an action of its actor, and the camera intent honoured.
-   */
-  blocking?: IAutoMovieBlocking;
-  /**
-   * Clips moving the staged lights over this shot's own clock, carried onto the
-   * assembled shot's `lightMotions`.
-   *
-   * Light placement is an animatable channel and the applier that plays these
-   * clips already exists; what did not exist was any way for an authored change
-   * of light to reach a compiled shot, so a film of any length was lit by one
-   * unchanging rig. Each track addresses one STAGED light by pointer channel,
-   * which is checked here rather than at the artifact gate: that gate throws on
-   * failure because reaching it means an engine defect, and a clip naming a
-   * light this set never staged is an authoring fault with a path to name.
-   *
-   * Omitted, the assembled shot carries no such field and is byte-identical to
-   * one assembled before this input existed.
-   */
-  lightMotions?: readonly IAutoMovieClip[];
-  /**
-   * Clips the source authored over this shot's non-performing scene nodes,
-   * carried onto the assembled shot's `objectMotions` beside the baked ones.
-   *
-   * The half of a moving world no verb reaches: a building's panel swinging on
-   * its own opening, a prop's leaf turning on its own hinge. Both were promised
-   * by contracts and reachable by nothing, because every entry on
-   * `objectMotions` was baked by the engine from a `launch` or an `attachTo`.
-   * {@link gateAuthoredObjectMotions} states what is admitted, and measures a
-   * driven prop joint against the travel that prop's own profile declares.
-   *
-   * Omitted, the assembled shot carries exactly the baked clips it always did.
-   */
-  objectMotions?: readonly IAutoMovieClip[];
-  /**
-   * The shot's prop registry, whose articulation lowers the joint ids an
-   * authored object clip may address and whose profile bounds their travel.
-   * Omit for a shot that stages no forged prop.
-   */
-  props?: readonly IAutoMoviePropSpec[];
-  /**
-   * Registered source identity for direct code authoring. Omit on the legacy
-   * beat ladder to retain its `shot:${beat}` identity.
-   */
-  shotId?: string;
-  /**
-   * Prior verified beat state supplied to every action synthesizer call.
-   *
-   * The caller owns resuming `staged` from this same state before entering the
-   * performance boundary, as `compileDefinedShot` does. This function keeps the
-   * staged scene as the one coordinate authority for rendering, targeting,
-   * ground conversion, and coupling; it does not partially restage lookup
-   * tables behind the scene's back.
-   */
-  previous?: IAutoMovieBeatEndState | null;
-}): IAutoMoviePerformedShot => {
-  const {
-    script,
+export function performShot(props: IPerformShotProps): IAutoMoviePerformedShot {
+  const staged: IAutoMovieStagedSet.ISuccess = props.staged;
+  const performance: IAutoMoviePerformance = props.performance;
+  const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
+  const out: ViolationCollector = new ViolationCollector();
+  const failure: () => IAutoMoviePerformedShot.IFailure =
+    (): IAutoMoviePerformedShot.IFailure => ({
+      success: false,
+      violations: out.items,
+    });
+  const formationMotions: readonly IAutoMovieFormationMotion[] =
+    props.formationMotions ?? [];
+  const formationById: Map<string, IAutoMovieCompiledFormation> = new Map(
+    (props.formations ?? []).map(
+      (
+        formation: IAutoMovieCompiledFormation,
+      ): [string, IAutoMovieCompiledFormation] => [formation.id, formation],
+    ),
+  );
+  const synthesize: IAutoMovieActionSynthesizer = memoizeSynthesis(
+    props.synthesize,
+    props.previous,
+  );
+  const rotations: Map<string, IAutoMovieQuaternion> = new Map(
+    staged.scene.nodes.map(
+      (node: IAutoMovieSceneNode): [string, IAutoMovieQuaternion] => [
+        node.id,
+        node.transform.rotation,
+      ],
+    ),
+  );
+  const context: IPerformShotGateContext = {
+    out,
     staged,
     performance,
-    synthesize,
+    base:
+      performance.revise.final !== null
+        ? "$input.revise.final"
+        : "$input.draft",
     skeleton,
-    hasActorContext,
-    jointAxes,
-    restFrames,
-    targetAt: resolveLiveTarget,
-    gaits,
-    blocking,
-    previous,
-  } = props;
-  const shotId = props.shotId ?? `shot:${performance.beat}`;
-  const cameraClipScope = props.shotId ?? performance.beat;
-  const out = new ViolationCollector();
-  // The masses this shot can frame, and the cues that move them. Both are
-  // read-only inputs, so they are bound once here and every framing question
-  // below asks these two rather than re-deriving a unit's geometry.
-  const formationById = new Map(
-    (props.formations ?? []).map((formation) => [formation.id, formation]),
+    hasActorContext: props.hasActorContext,
+    gaits: props.gaits,
+    nodeIds: new Set(rotations.keys()),
+    cameraIds: new Set(
+      staged.scene.cameras.map((camera: IAutoMovieCamera): string => camera.id),
+    ),
+    nodePositions: scenePlacements(staged.scene),
+    formationById,
+    formationPoints: new Map(
+      [...formationById].map(
+        ([id, formation]: [string, IAutoMovieCompiledFormation]): [
+          string,
+          IAutoMovieVector3,
+        ] => [
+          id,
+          transformFormationPoint(
+            formation.centroid,
+            formation.anchor,
+            sampleFormationMotion(formationMotions, id, 0),
+            formation.facingDeg,
+          ),
+        ],
+      ),
+    ),
+    targetAt: props.targetAt,
+  };
+
+  // 1. Input.
+  const beat: IAutoMovieScript["beats"][number] | undefined = gateScript(
+    context,
+    props.script,
   );
-  const formationMotions = props.formationMotions ?? [];
-  /**
-   * Frame width over height, or undefined when no raster was supplied. Only the
-   * horizontal half of the framing fit reads it, so a caller without one still
-   * frames every single-body subject exactly as before.
-   */
-  const frameAspect =
-    props.frameFormat === undefined ||
-    !(props.frameFormat.width > 0) ||
-    !(props.frameFormat.height > 0)
-      ? undefined
-      : props.frameFormat.width / props.frameFormat.height;
-  const synthesisCache = new WeakMap<
-    IAutoMovieActionCall,
-    Map<string, IAutoMovieMotion | null>
-  >();
-  const synthesizeOnce: IAutoMovieActionSynthesizer = (action, actor) => {
-    const cachedByActor = synthesisCache.get(action);
-    if (cachedByActor?.has(actor) === true) return cachedByActor.get(actor)!;
-    const motion = synthesize(action, actor, previous);
-    const byActor = cachedByActor ?? new Map<string, IAutoMovieMotion | null>();
-    byActor.set(actor, motion);
-    synthesisCache.set(action, byActor);
-    return motion;
-  };
-  const beatById = new Map<
-    string,
-    {
-      beat: IAutoMovieScript["beats"][number];
-      index: number;
-    }
-  >();
-  script.beats.forEach((beat, index) => {
-    const existing = beatById.get(beat.id);
-    if (existing !== undefined) {
-      out.push(
-        "type",
-        `$script.beats[${index}].id`,
-        `script beat id "${beat.id}" is duplicated; first declared at $script.beats[${existing.index}].id`,
-        beat.id,
-      );
-      return;
-    }
-    beatById.set(beat.id, { beat, index });
-  });
-
-  const validateNonEmptyId = (
-    id: unknown,
-    path: string,
-    label: string,
-  ): void => {
-    if (typeof id !== "string") {
-      out.push("type", path, `${label} must be a string`, id);
-      return;
-    }
-    if (id.trim().length === 0)
-      out.push("type", path, `${label} must be a non-empty id`, id);
-  };
-
-  const nodeIds = new Set(staged.scene.nodes.map((n) => n.id));
-  const cameraIds = new Set(staged.scene.cameras.map((c) => c.id));
-
-  // The shot's own statement about its light, held to exactly the contract the
-  // artifact gate holds it to, against the scene this shot actually staged.
-  const lightMotions =
+  const lightMotions: IAutoMovieClip[] | undefined =
     props.lightMotions === undefined ? undefined : [...props.lightMotions];
   appendLightMotionsArtifact(
     lightMotions,
     "$input.lightMotions",
-    new Map(staged.scene.lights.map((light) => [light.id, light.type])),
+    new Map(
+      staged.scene.lights.map(
+        (light: IAutoMovieLight): [string, IAutoMovieLight["type"]] => [
+          light.id,
+          light.type,
+        ],
+      ),
+    ),
     out.items,
   );
-
-  const validateTargetNodeIds = (
-    target: unknown,
-    path: string,
-    label: string,
-  ): target is IAutoMovieActionTarget => {
-    if (!isRecord(target)) {
-      out.push("type", path, `${label} must be an action target`, target);
-      return false;
-    }
-    if (target.kind === "node") {
-      validateNonEmptyId(target.node, `${path}.node`, `${label} node id`);
-      return true;
-    }
-    if (target.kind === "bone") {
-      validateNonEmptyId(target.node, `${path}.node`, `${label} bone node id`);
-      validateNonEmptyId(target.bone, `${path}.bone`, `${label} bone id`);
-      if (typeof target.node === "string" && typeof target.bone === "string") {
-        if (!nodeIds.has(target.node))
-          out.push(
-            "type",
-            `${path}.node`,
-            `bone target actor "${target.node}" must be a staged scene node`,
-            target.node,
-          );
-        else if (hasActorContext !== undefined && !hasActorContext(target.node))
-          out.push(
-            "type",
-            `${path}.node`,
-            `staged bone target actor "${target.node}" has no actor context`,
-            target.node,
-          );
-        else {
-          const rig = skeleton(target.node);
-          if (rig === null)
-            out.push(
-              "type",
-              `${path}.bone`,
-              `staged bone target actor "${target.node}" has no rig`,
-              target.bone,
-            );
-          else if (!rig.bones.some((bone) => bone.bone === target.bone))
-            out.push(
-              "type",
-              `${path}.bone`,
-              `bone "${target.bone}" is not carried by rigged staged actor "${target.node}"`,
-              target.bone,
-            );
-        }
-      }
-      return true;
-    }
-    if (target.kind === "group") {
-      if (!Array.isArray(target.nodes)) {
-        out.push(
-          "type",
-          `${path}.nodes`,
-          `${label} group nodes must be an array`,
-          target.nodes,
-        );
-        return false;
-      }
-      target.nodes.forEach((node, j) =>
-        validateNonEmptyId(
-          node,
-          `${path}.nodes[${j}]`,
-          `${label} group node id`,
-        ),
-      );
-      if (target.formations !== undefined) {
-        if (!Array.isArray(target.formations)) {
-          out.push(
-            "type",
-            `${path}.formations`,
-            `${label} group formations must be an array`,
-            target.formations,
-          );
-          return false;
-        }
-        // A formation id must name a unit this shot actually compiled. Left
-        // ungated it would resolve to nothing, the group would fall back to
-        // whatever nodes it also listed, and the shot would come back
-        // successful having framed one figure instead of the crowd around it.
-        target.formations.forEach((formation, j) => {
-          validateNonEmptyId(
-            formation,
-            `${path}.formations[${j}]`,
-            `${label} group formation id`,
-          );
-          if (
-            typeof formation === "string" &&
-            formation.trim().length > 0 &&
-            !formationById.has(formation)
-          )
-            out.push(
-              "type",
-              `${path}.formations[${j}]`,
-              `${label} group formation "${formation}" is not one of this shot's compiled formations (${
-                formationById.size === 0
-                  ? "none were supplied"
-                  : [...formationById.keys()].join(", ")
-              })`,
-              formation,
-            );
-        });
-      }
-      return true;
-    }
-    return true;
-  };
-
-  validateNonEmptyId(performance.beat, "$input.beat", "beat id");
-
-  const foundBeat = beatById.get(performance.beat);
-  if (foundBeat === undefined)
+  validatePerformShotId(out, performance.beat, "$input.beat", "beat id");
+  if (beat === undefined)
     out.push(
       "type",
       "$input.beat",
-      `beat "${performance.beat}" must be one of the script's beats`,
+      `beat "${describeInvalidValue(performance.beat)}" must be one of the script's beats`,
       performance.beat,
     );
-  const beat = foundBeat?.beat;
-
   if (!Number.isFinite(performance.duration) || !(performance.duration > 0))
     out.push(
       "range",
       "$input.duration",
-      `shot duration must be a finite number > 0 seconds, but was ${performance.duration}`,
+      `shot duration must be a finite number > 0 seconds, but was ${describeInvalidValue(performance.duration)}`,
       performance.duration,
     );
+  const actions: IAutoMovieActionCall[] =
+    performance.revise.final ?? performance.draft;
+  const plan: IPerformShotActionPlan = gatePerformShotActions(context, actions);
+  gatePerformShotFrameOverlaps(context, plan.frames);
+  gatePerformShotRegionOverlaps(context, actions, synthesize);
+  if (props.blocking !== undefined)
+    gatePerformShotBlocking(
+      context,
+      props.blocking,
+      plan.stageActions,
+      plan.frames,
+    );
+  const cameras: {
+    liveCamera: string | null;
+    coverageJobs: IPerformShotCoverageJob[];
+  } = gatePerformShotCamera(context, {
+    liveCamera: plan.liveCamera,
+    frames: plan.frames,
+    coverage: props.blocking?.coverage ?? [],
+  });
+  if (out.items.length > 0) return failure();
 
-  const actions = performance.revise.final ?? performance.draft;
-  const base =
-    performance.revise.final !== null ? "$input.revise.final" : "$input.draft";
+  // 2. Launches.
+  const launched: {
+    clips: IAutoMovieClip[];
+    events: IAutoMovieInteractionEvent[];
+  } = compilePerformShotLaunches(context, plan, synthesize, rotations);
+  if (out.items.length > 0) return failure();
+  const objectMotions: IAutoMovieClip[] = launched.clips;
+  const events: IAutoMovieInteractionEvent[] = launched.events;
 
-  // Every placed thing a target may name, cameras included (#1294): one table
-  // shared with the reference synthesizer, so a target the gate accepts is a
-  // target the performer can actually aim at.
-  const nodePositions = scenePlacements(staged.scene);
-  const nodeRotations = new Map(
-    staged.scene.nodes.map((n) => [n.id, n.transform.rotation]),
+  // 3. Performance.
+  const compiled: IAutoMovieCompiledPerformance = compilePerformance(
+    plan.stageActions,
+    synthesize,
   );
-  /**
-   * Where each compiled formation stands at the shot's opening, one entry per
-   * unit. The compiled centroid goes through the same cue transform the ground
-   * gate and the oracle use, so the mass has one place and not one per reader.
-   */
-  const formationPoints = new Map(
-    [...formationById].map(([id, formation]) => [
-      id,
-      transformFormationPoint(
-        formation.centroid,
-        formation.anchor,
-        sampleFormationMotion(formationMotions, id, 0),
-        formation.facingDeg,
-      ),
-    ]),
-  );
-
-  const resolvePositionalTarget = (
-    target: unknown,
-    path: string,
-    label: string,
-    subject: string,
-    seconds = 0,
-    /**
-     * Whether this target may name formations. Only a camera may: a `frame`
-     * subject, its focus, and a coverage angle's subject each ask where to
-     * point a lens, which a mass answers. Every other positional target asks
-     * one body for one point — where to look, where to reach, what to throw at
-     * — and a crowd has no such point. Refusing it here is the difference
-     * between a correction round the author can act on and a shot that succeeds
-     * having aimed an actor at the middle of a crowd.
-     */
-    formationsFramed = false,
-  ): IAutoMovieVector3 | null => {
-    // Refused BEFORE the id check, so the correction round is told the one
-    // thing it can act on. Checking membership first would answer "that
-    // formation is not compiled" to an author whose real mistake was asking an
-    // actor to look at a crowd, and a compiled formation would have made that
-    // sentence disappear without making the target legal.
-    if (formationsFramed === false && isRecord(target)) {
-      const named = Array.isArray(target.formations) ? target.formations : [];
-      if (named.length > 0) {
-        out.push(
-          "type",
-          path,
-          `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but its group names formation ${named
-            .map((formation) => `"${String(formation)}"`)
-            .join(
-              ", ",
-            )}: a formation is a mass a camera frames, not one body with one point to aim at; name the staged nodes to aim at instead`,
-          target,
-        );
-        return null;
-      }
-    }
-    if (!validateTargetNodeIds(target, path, label)) return null;
-    const point =
-      resolveLiveTarget?.(target, seconds) ??
-      resolveTargetPoint(target, nodePositions, formationPoints);
-    if (
-      point === null ||
-      point === undefined ||
-      !Number.isFinite(point.x) ||
-      !Number.isFinite(point.y) ||
-      !Number.isFinite(point.z)
-    ) {
-      out.push(
-        "type",
-        path,
-        `${subject} must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but ${positionalTargetFault(target)}`,
-        target,
-      );
-      return null;
-    }
-    return point;
-  };
-
-  /**
-   * Refuse an arm verb asked of a rig whose elbow cannot bend that arm.
-   *
-   * The reference synthesizer answers such a verb with `null`, and a `null`
-   * synthesis is SKIPPED by the builder, so without this gate the shot would
-   * come back successful having quietly performed nothing (#1349's failure
-   * shape, one verb lower). Stated here, at the action that asked, so the
-   * correction round gets the rig's own geometry rather than a missing clip.
-   */
-  const refuseUnbendableArm = (
-    side: "left" | "right",
-    path: string,
-    performers: readonly string[],
-  ): void => {
-    for (const performer of performers) {
-      const rig = skeleton(performer);
-      if (rig === null) continue;
-      const fault = armChainFault(rig, side);
-      if (fault === null) continue;
-      out.push(
-        "type",
-        path,
-        `"${performer}" cannot perform an arm verb on its ${side} arm: ${fault.reason}`,
-        side,
-      );
-    }
-  };
-
-  let liveCamera: string | null = null;
-  const stageActions: IAutoMovieActionCall[] = [];
-  // Where a masked-content violation lands for each entry in `stageActions`,
-  // index for index. The builder reports a masked clip by its position in the
-  // list it was handed, and that list is neither `actions` (frames are filtered
-  // out) nor stable (engine-injected reacts are appended), so the mapping is
-  // carried rather than recomputed from object identity, which a list repeating
-  // one action object would collapse. The whole path is stored, not a prefix,
-  // because an authored action is fixed at its own `region` field while an
-  // engine-injected react has no such field to name.
-  const stageActionPaths: string[] = [];
-  const frames: { action: IAutoMovieCameraAction; index: number }[] = [];
-  // Launch jobs collected while validating, the projectile must be a staged
-  // node and the target must resolve to a point; compiled after the input
-  // gate (below) into the projectile's flight and the target's scheduled react.
-  const launches: {
-    action: IAutoMovieActionCall & { verb: "launch" };
-    index: number;
-    origin: IAutoMovieVector3;
-    target: IAutoMovieVector3;
-    targetNode: string | null;
-  }[] = [];
-  // Attach jobs, the parent must be a staged, rigged node carrying the target
-  // bone; the child's follow-clip is baked after the parent's pose compiles.
-  const attachments: {
-    action: IAutoMovieActionCall & { verb: "attachTo" };
-    index: number;
-  }[] = [];
-  actions.forEach((action, i) => {
-    const actors = actionActors(action);
-    if (typeof action.actor === "string")
-      validateNonEmptyId(
-        action.actor,
-        `${base}[${i}].actor`,
-        "action actor id",
-      );
-    else if (Array.isArray(action.actor)) {
-      if (action.actor.length === 0)
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          "an action actor list must name at least one staged scene node or camera",
-          action.actor,
-        );
-      const seen = new Set<string>();
-      action.actor.forEach((actor, j) => {
-        validateNonEmptyId(
-          actor,
-          `${base}[${i}].actor[${j}]`,
-          "action actor id",
-        );
-        if (seen.has(actor))
-          out.push(
-            "type",
-            `${base}[${i}].actor[${j}]`,
-            `actor "${actor}" is duplicated in this action's actor list`,
-            actor,
-          );
-        seen.add(actor);
-      });
-    } else {
-      out.push(
-        "type",
-        `${base}[${i}].actor`,
-        "action actor must be a staged scene node id or an array of ids",
-        action.actor,
-      );
-    }
-    actors.forEach((actor) => {
-      const isNode = nodeIds.has(actor);
-      const isCamera = cameraIds.has(actor);
-      if (!isNode && !isCamera)
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          `actor "${actor}" must be a staged scene node or camera`,
-          actor,
-        );
-      else if (action.verb !== "frame" && isCamera)
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          `${withArticle(action.verb)} action's actor must be a staged scene node, but "${actor}" is a camera`,
-          actor,
-        );
+  const motions: Record<string, IAutoMovieMotion> = compiled.performances;
+  const plants: IAutoMoviePerformedShot.ISuccess["plants"] =
+    plantPerformShotStanceFeet({
+      staged,
+      motions,
+      previous: props.previous,
+      skeleton,
+      jointAxes: props.jointAxes,
+      restFrames: props.restFrames,
     });
-    const finiteStart = Number.isFinite(action.start);
-    if (!finiteStart || action.start < 0 || action.start > performance.duration)
-      out.push(
-        "range",
-        `${base}[${i}].start`,
-        `action start must be within [0, ${performance.duration}] (the shot), but was ${action.start}`,
-        action.start,
-      );
-    const finiteDuration =
-      action.duration === "auto" || Number.isFinite(action.duration);
-    if (
-      action.duration !== "auto" &&
-      (!finiteDuration || !(action.duration > 0))
-    )
-      out.push(
-        "range",
-        `${base}[${i}].duration`,
-        `action duration must be a finite number > 0 seconds or "auto", but was ${action.duration}`,
-        action.duration,
-      );
-    if (
-      action.duration !== "auto" &&
-      finiteStart &&
-      finiteDuration &&
-      action.start + action.duration > performance.duration
-    )
-      out.push(
-        "range",
-        `${base}[${i}].duration`,
-        `action span [${action.start}, ${action.start + action.duration}] must lie inside the shot [0, ${performance.duration}]`,
-        action.duration,
-      );
-    // An "auto" duration fills to the shot end, so it needs a positive span to
-    // fill: an action that starts exactly at the shot end has zero span. A
-    // numeric duration is already caught above (start + duration > shot); the
-    // auto case is not span-checked there, and a zero-span auto coupling bakes
-    // a degenerate clip with duplicate keyframe times that throws the moment
-    // anything samples it. `start > shot` is already reported as a start range
-    // error, so this fires only on the exact `start === shot` remainder.
-    if (
-      action.duration === "auto" &&
-      finiteStart &&
-      action.start <= performance.duration &&
-      performance.duration - action.start <= 0
-    )
-      out.push(
-        "range",
-        `${base}[${i}].duration`,
-        `an "auto" duration leaves no span when the action starts at the shot end (${performance.duration}s), start earlier`,
-        action.duration,
-      );
-    if (
-      action.repeat !== undefined &&
-      (!Number.isInteger(action.repeat) || action.repeat < 1)
-    )
-      out.push(
-        "range",
-        `${base}[${i}].repeat`,
-        `action repeat must be a positive integer when present, but was ${action.repeat}`,
-        action.repeat,
-      );
-    if (action.verb === "frame") {
-      const camera = typeof action.actor === "string" ? action.actor : "";
-      if (!CAMERA_FRAMINGS.has(action.framing))
-        out.push(
-          "type",
-          `${base}[${i}].framing`,
-          `camera framing must be one of wide, full, medium, close, but was "${String(action.framing)}"`,
-          action.framing,
-        );
-      if (!CAMERA_MOVES.has(action.move))
-        out.push(
-          "type",
-          `${base}[${i}].move`,
-          `camera move must be one of static, follow, orbit, push-in, truck, whip, but was "${String(action.move)}"`,
-          action.move,
-        );
-      const target = resolvePositionalTarget(
-        action.on,
-        `${base}[${i}].on`,
-        "frame target",
-        "a frame subject",
-        0,
-        true,
-      );
-      // The two lens INTENTS (#1187): validated like any target/scalar, but
-      // never consumed by the camera solve, they ride to shot.cameraIntent.
-      if (action.focus !== undefined)
-        resolvePositionalTarget(
-          action.focus,
-          `${base}[${i}].focus`,
-          "focus target",
-          "a focus subject",
-          0,
-          true,
-        );
-      if (
-        action.focalLength !== undefined &&
-        (!Number.isFinite(action.focalLength) || !(action.focalLength > 0))
-      )
-        out.push(
-          "range",
-          `${base}[${i}].focalLength`,
-          `a focal length must be a finite number > 0 mm, but was ${action.focalLength}`,
-          action.focalLength,
-        );
-      if (typeof action.actor !== "string")
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          `a frame action must name exactly one staged camera, not an actor list`,
-          action.actor,
-        );
-      if (typeof action.actor === "string" && !cameraIds.has(camera))
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          `a frame action's actor must be a staged camera, but "${camera}" is not`,
-          camera,
-        );
-      else if (typeof action.actor === "string" && liveCamera === null)
-        liveCamera = camera;
-      else if (typeof action.actor === "string" && liveCamera !== camera)
-        out.push(
-          "type",
-          `${base}[${i}].actor`,
-          `one live camera per shot, "${liveCamera}" already frames it`,
-          camera,
-        );
-      if (target !== null) frames.push({ action, index: i });
-    } else {
-      stageActions.push(action);
-      stageActionPaths.push(`${base}[${i}].region`);
-      if (action.verb === "locomote" && gaits !== undefined) {
-        // A locomote names a gait by the actor's own vocabulary; the reference
-        // synthesiser resolves it by name and would otherwise silently produce
-        // no motion for an unknown one. Surface it as a violation so the gap
-        // between the free-string schema and the actor's actual gaits is caught.
-        actors.forEach((actor) => {
-          const available = gaits(actor);
-          if (available !== undefined && !available.includes(action.gait))
-            out.push(
-              "type",
-              `${base}[${i}].gait`,
-              `locomote gait "${action.gait}" is not one of actor "${actor}"'s gaits (${
-                available.length === 0 ? "none supplied" : available.join(", ")
-              })`,
-              action.gait,
-            );
-        });
-      }
-      if (action.verb === "locomote") {
-        const relative =
-          isRecord(action.to) &&
-          (action.to.kind === "direction" || action.to.kind === "offscreen");
-        if (!relative) {
-          const destination = resolvePositionalTarget(
-            action.to,
-            `${base}[${i}].to`,
-            "locomote target",
-            "a locomote destination",
-            action.start,
-          );
-          if (destination !== null)
-            for (const actor of actors.filter((candidate) =>
-              nodeIds.has(candidate),
-            )) {
-              const origin = nodePositions.get(actor)!;
-              const displacement = classifyLocomoteGroundDisplacement({
-                x: destination.x - origin.x,
-                y: destination.y - origin.y,
-                z: destination.z - origin.z,
-              });
-              if (displacement.verticalOnly)
-                out.push(
-                  "range",
-                  `${base}[${i}].to`,
-                  `actor "${actor}" cannot locomote to a vertical-only destination (${Math.abs(destination.y - origin.y)} m height change with ${displacement.groundDistance} m XZ travel); choose a walkable ground point with horizontal travel or use another action verb`,
-                  action.to,
-                );
-            }
-        }
-      } else if (action.verb === "launch") {
-        // The projectile is a scene object, so it must be staged (its placed
-        // position is where the flight begins), and the aim must resolve to a
-        // point. A node aim also names the actor the hit recoils; a point/group
-        // aim flies but recoils no one (no single actor). Out-of-range is
-        // caught below, once the aim is solved.
-        if (!Number.isFinite(action.speed) || !(action.speed > 0))
-          out.push(
-            "range",
-            `${base}[${i}].speed`,
-            `a launch speed must be a finite number > 0 m/s, but was ${action.speed}`,
-            action.speed,
-          );
-        if (
-          action.onHit !== undefined &&
-          !(action.onHit.force >= 0 && action.onHit.force <= 1)
-        )
-          out.push(
-            "range",
-            `${base}[${i}].onHit.force`,
-            `reaction force must be within [0, 1], but was ${action.onHit.force}`,
-            action.onHit.force,
-          );
-        validateNonEmptyId(
-          action.projectile,
-          `${base}[${i}].projectile`,
-          "launch projectile id",
-        );
-        const target = resolvePositionalTarget(
-          action.at,
-          `${base}[${i}].at`,
-          "launch target",
-          "a launch target",
-        );
-        const aimNode =
-          isRecord(action.at) &&
-          (action.at.kind === "node" || action.at.kind === "bone") &&
-          typeof action.at.node === "string"
-            ? action.at.node
-            : null;
-        // A camera is a place to aim at, never a performer. `at` may therefore
-        // name one (the projectile flies to the lens, ordinary film grammar),
-        // but `onHit` schedules a RECOIL on the struck id, and the react it
-        // injects rides the action list past the actor gate above, which would
-        // otherwise refuse a camera outright. Left open, the shot compiles with
-        // a camera in `shot.performances`, which the artifact validator then
-        // refuses at commit: the engine would be declaring a shot successful
-        // that its own consumers cannot accept.
-        if (
-          action.onHit !== undefined &&
-          aimNode !== null &&
-          cameraIds.has(aimNode)
-        )
-          out.push(
-            "type",
-            `${base}[${i}].at`,
-            `a launch's onHit recoils the id it strikes, but "${aimNode}" is a camera, and a camera performs nothing but frame; drop onHit to shoot at the lens, or aim at a staged scene node`,
-            action.at,
-          );
-        const stagedProjectile = nodeIds.has(action.projectile);
-        if (!stagedProjectile)
-          out.push(
-            "type",
-            `${base}[${i}].projectile`,
-            `a launch's projectile "${action.projectile}" must be a staged scene node`,
-            action.projectile,
-          );
-        if (actors.includes(action.projectile))
-          out.push(
-            "type",
-            `${base}[${i}].projectile`,
-            `a launch's projectile "${action.projectile}" cannot also be a launching actor`,
-            action.projectile,
-          );
-        if (
-          isRecord(action.at) &&
-          action.at.kind === "node" &&
-          action.at.node === action.projectile
-        )
-          out.push(
-            "type",
-            `${base}[${i}].at`,
-            `a launch's projectile "${action.projectile}" cannot target itself`,
-            action.at,
-          );
-        if (stagedProjectile && target !== null)
-          launches.push({
-            action,
-            index: i,
-            origin: nodePositions.get(action.projectile)!,
-            target,
-            targetNode: aimNode,
-          });
-      } else if (action.verb === "enact") {
-        // The clip id is the caller's handle into host-supplied content; the
-        // synthesizer resolves it, but an empty id can never resolve.
-        validateNonEmptyId(action.clip, `${base}[${i}].clip`, "enact clip id");
-      } else if (
-        action.verb === "react" &&
-        !(action.force >= 0 && action.force <= 1)
-      ) {
-        out.push(
-          "range",
-          `${base}[${i}].force`,
-          `reaction force must be within [0, 1], but was ${action.force}`,
-          action.force,
-        );
-      } else if (
-        action.verb === "emote" &&
-        !(action.intensity >= 0 && action.intensity <= 1)
-      ) {
-        out.push(
-          "range",
-          `${base}[${i}].intensity`,
-          `emote intensity must be within [0, 1], but was ${action.intensity}`,
-          action.intensity,
-        );
-      } else if (action.verb === "lookAt") {
-        resolvePositionalTarget(
-          action.to,
-          `${base}[${i}].to`,
-          "lookAt target",
-          "a lookAt target",
-        );
-      } else if (action.verb === "reach") {
-        resolvePositionalTarget(
-          action.to,
-          `${base}[${i}].to`,
-          "reach target",
-          "a reach target",
-        );
-        refuseUnbendableArm(action.hand, `${base}[${i}].hand`, actors);
-      } else if (
-        action.verb === "gesture" &&
-        (action.kind === "point" || action.kind === "strike")
-      ) {
-        // The arm gestures always solve the RIGHT arm (see the reference
-        // synthesizer), so the fault is asked of that side.
-        refuseUnbendableArm("right", `${base}[${i}].kind`, actors);
-        if (action.at !== undefined)
-          resolvePositionalTarget(
-            action.at,
-            `${base}[${i}].at`,
-            `${action.kind} gesture target`,
-            `a ${action.kind} gesture target`,
-          );
-        else
-          out.push(
-            "type",
-            `${base}[${i}].at`,
-            `a ${action.kind} gesture target must resolve to a point (${POSITIONAL_TARGET_SHAPE}), but none was given`,
-            action.at,
-          );
-      } else if (action.verb === "attachTo") {
-        // The child rides a bone of the parent, so the parent must be a staged,
-        // rigged node carrying that bone. The child's follow-clip is baked
-        // after the parent's pose compiles (it samples that motion).
-        for (const child of actors)
-          if (child === action.parent)
-            out.push(
-              "type",
-              `${base}[${i}].actor`,
-              `an attachTo child "${child}" cannot attach to itself`,
-              child,
-            );
-        validateNonEmptyId(
-          action.parent,
-          `${base}[${i}].parent`,
-          "attach parent id",
-        );
-        const parentRig = nodeIds.has(action.parent)
-          ? skeleton(action.parent)
-          : null;
-        if (!nodeIds.has(action.parent))
-          out.push(
-            "type",
-            `${base}[${i}].parent`,
-            `an attachTo parent "${action.parent}" must be a staged scene node`,
-            action.parent,
-          );
-        else if (parentRig === null)
-          out.push(
-            "type",
-            `${base}[${i}].parent`,
-            `an attachTo parent "${action.parent}" must have a rig to attach a bone of`,
-            action.parent,
-          );
-        else if (!parentRig.bones.some((b) => b.bone === action.bone))
-          out.push(
-            "type",
-            `${base}[${i}].bone`,
-            `bone "${action.bone}" is not on ${action.parent}'s skeleton`,
-            action.bone,
-          );
-        else attachments.push({ action, index: i });
-      }
-    }
-  });
-
-  const spanOf = (action: IAutoMovieActionCall): [number, number] => [
-    action.start,
-    action.duration === "auto"
-      ? performance.duration
-      : Math.min(action.start + action.duration, performance.duration),
-  ];
-
-  // Frame moves on the one live camera must not overlap. An "auto" duration
-  // yields to the next move by definition (its span ends where the successor
-  // starts), so only an explicit duration can double-book the camera.
-  frames.sort((a, b) => a.action.start - b.action.start);
-  for (let i = 0; i + 1 < frames.length; ++i) {
-    const move = frames[i]!.action;
-    const next = frames[i + 1]!.action;
-    if (next.start <= move.start + 1e-9) {
-      out.push(
-        "range",
-        `${base}[${frames[i + 1]!.index}].start`,
-        `frame moves share the same start time ${next.start}s on the live camera; choose one framing for that instant`,
-        next.start,
-      );
-      continue;
-    }
-    if (move.duration === "auto") continue;
-    const end = Math.min(move.start + move.duration, performance.duration);
-    if (end > next.start + 1e-9)
-      out.push(
-        "range",
-        `${base}[${frames[i + 1]!.index}].start`,
-        `frame moves overlap, the previous move runs until ${end}s, but this one starts at ${frames[i + 1]!.action.start}s`,
-        frames[i + 1]!.action.start,
-      );
-  }
-
-  // Overlapping actions are compatible when the content they actually carry
-  // after their region masks is disjoint. Region names are only mask policy:
-  // a fullBody gait that authors legs+arms shares nothing with a head-only
-  // lookAt, while that same gait really does collide with an arm gesture.
-  const actorActions = new Map<
-    string,
-    { action: IAutoMovieActionCall; index: number }[]
-  >();
-  actions.forEach((action, index) => {
-    if (action.verb === "frame") return;
-    for (const actor of actionActors(action)) {
-      const list = actorActions.get(actor) ?? [];
-      list.push({ action, index });
-      actorActions.set(actor, list);
-    }
-  });
-  for (const [actor, list] of actorActions) {
-    // Synthesis used to begin only after the complete input gate. Preserve that
-    // boundary: a malformed request must return its located violations rather
-    // than reaching a throwing content constructor during overlap inspection.
-    if (out.items.length > 0) continue;
-    const layered =
-      new Set(list.map(({ action }) => actionRegion(action))).size > 1;
-    const carried = new Map<
-      IAutoMovieActionCall,
-      {
-        bones: Set<AutoMovieHumanoidBone>;
-        expression: boolean;
-        root: boolean;
-      }
-    >();
-    const contentOf = (action: IAutoMovieActionCall) => {
-      const cached = carried.get(action);
-      if (cached !== undefined) return cached;
-      const motion = synthesizeOnce(action, actor);
-      const region = actionRegion(action);
-      const allowed = new Set(bodyRegionBones(region));
-      const content = {
-        bones: new Set<AutoMovieHumanoidBone>(),
-        expression: false,
-        root: false,
-      };
-      if (motion !== null)
-        for (const keyframe of motion.keyframes) {
-          for (const joint of keyframe.pose.joints)
-            if (allowed.has(joint.bone)) content.bones.add(joint.bone);
-          if (
-            keyframe.pose.root !== null &&
-            (!layered || region === "lowerBody" || region === "fullBody")
-          )
-            content.root = true;
-          if (keyframe.expression !== null && region === "face")
-            content.expression = true;
-        }
-      carried.set(action, content);
-      return content;
-    };
-    const sorted = [...list].sort(
-      (a, b) => spanOf(a.action)[0] - spanOf(b.action)[0],
-    );
-    for (let i = 0; i + 1 < sorted.length; ++i) {
-      const a = sorted[i]!;
-      const [a0, a1] = spanOf(a.action);
-      const aRegion = actionRegion(a.action);
-      for (let j = i + 1; j < sorted.length; ++j) {
-        const b = sorted[j]!;
-        const [b0, b1] = spanOf(b.action);
-        if (b0 >= a1 - 1e-9) break;
-        const bRegion = actionRegion(b.action);
-        const aContent = contentOf(a.action);
-        const bContent = contentOf(b.action);
-        const sharedBones = [...aContent.bones]
-          .filter((bone) => bContent.bones.has(bone))
-          .sort(compareCodeUnits);
-        const shared = [
-          ...(aContent.root && bContent.root ? ["root"] : []),
-          ...sharedBones,
-          ...(aContent.expression && bContent.expression ? ["expression"] : []),
-        ];
-        if (shared.length > 0 && b1 > a0 + 1e-9)
-          out.push(
-            "range",
-            `${base}[${b.index}].start`,
-            `${actor} has overlapping ${aRegion} and ${bRegion} actions that both author ${shared.join(", ")} after region masking; move one action, shorten it, or author disjoint content`,
-            b.action.start,
-          );
-      }
-    }
-  }
-
-  // Blocking coherence: when the beat was blocked, the performance must
-  // realize that plan, not another one. The beat and duration must match,
-  // every timing anchor must be covered by some action of its actor (an
-  // anchored key moment nobody performs is a dropped beat), and the camera
-  // intent must be honoured by the first frame move, or, for a static
-  // intent, a locked-off camera will do.
-  if (blocking !== undefined) {
-    if (blocking.beat !== performance.beat)
-      out.push(
-        "type",
-        "$input.beat",
-        `the performance realizes beat "${performance.beat}" but the blocking plans "${blocking.beat}"`,
-        performance.beat,
-      );
-    if (Math.abs(blocking.duration - performance.duration) > 1e-6)
-      out.push(
-        "range",
-        "$input.duration",
-        `the blocking fixed this beat at ${blocking.duration}s, but the performance runs ${performance.duration}s`,
-        performance.duration,
-      );
-
-    for (const intent of blocking.actors)
-      for (const anchor of intent.anchors ?? []) {
-        const covered = stageActions.some((action) => {
-          if (!actionActors(action).includes(intent.node)) return false;
-          const [from, to] = spanOf(action);
-          return anchor.t >= from - 1e-9 && anchor.t <= to + 1e-9;
-        });
-        if (!covered)
-          out.push(
-            "range",
-            base,
-            `anchor "${anchor.cue}" pins ${intent.node} at t=${anchor.t}s, but no action of that actor covers the instant`,
-            anchor.t,
-          );
-      }
-
-    const lead = frames[0];
-    if (lead === undefined) {
-      if (blocking.camera.move !== "static")
-        out.push(
-          "type",
-          base,
-          `the blocking asks for a "${blocking.camera.move}" camera, but no frame action authors it`,
-          blocking.camera.move,
-        );
-    } else {
-      if (lead.action.framing !== blocking.camera.framing)
-        out.push(
-          "type",
-          `${base}[${lead.index}].framing`,
-          `the blocking frames this beat "${blocking.camera.framing}", but the performance frames "${lead.action.framing}"`,
-          lead.action.framing,
-        );
-      if (lead.action.move !== blocking.camera.move)
-        out.push(
-          "type",
-          `${base}[${lead.index}].move`,
-          `the blocking moves the camera "${blocking.camera.move}", but the performance moves "${lead.action.move}"`,
-          lead.action.move,
-        );
-    }
-  }
-
-  if (liveCamera === null) {
-    const first = staged.scene.cameras[0];
-    if (first === undefined)
-      out.push(
-        "type",
-        "$input",
-        "the staged scene has no camera, so the shot cannot be framed",
-        performance.beat,
-      );
-    else {
-      // The id this fallback picks becomes `shot.camera`, which the artifact
-      // contract requires to be non-empty. The other two routes to that field
-      // already check it (a `frame` action through its actor, a coverage intent
-      // through its own id), so an unchecked fallback was the one way to
-      // assemble a shot the validator refuses (#1318).
-      validateNonEmptyId(
-        first.id,
-        "$staged.scene.cameras[0].id",
-        "the fallback camera id",
-      );
-      liveCamera = first.id;
-    }
-  }
-
-  // Coverage (#1187): the blocking's ADDITIONAL angles become alternate takes
-  // of this same shot. Gate them here, the first point where the elected live
-  // camera is final, because the rules are relative to it: a coverage entry
-  // must name a staged camera that is neither the hero nor a sibling's (one
-  // angle never blurs into another), state a real framing/move, and favour
-  // something that resolves to a point. The election itself is untouched: a
-  // coverage camera never becomes a second live `frame`.
-  const coverageJobs: {
-    intent: IAutoMovieBlockingCoverage;
-    camera: IAutoMovieCamera;
-  }[] = [];
-  const coveredCameras = new Map<string, number>();
-  (blocking?.coverage ?? []).forEach((intent, i) => {
-    const path = `$blocking.coverage[${i}]`;
-    validateNonEmptyId(intent.camera, `${path}.camera`, "coverage camera id");
-    const camera = staged.scene.cameras.find((c) => c.id === intent.camera);
-    if (camera === undefined)
-      out.push(
-        "type",
-        `${path}.camera`,
-        `a coverage camera must be a staged camera, but "${intent.camera}" is not`,
-        intent.camera,
-      );
-    else if (intent.camera === liveCamera)
-      out.push(
-        "type",
-        `${path}.camera`,
-        `coverage plays ANOTHER angle of the beat, but "${intent.camera}" is already this shot's live camera`,
-        intent.camera,
-      );
-    const first = coveredCameras.get(intent.camera);
-    if (first !== undefined)
-      out.push(
-        "type",
-        `${path}.camera`,
-        `coverage camera id "${intent.camera}" is duplicated; first declared at $blocking.coverage[${first}].camera`,
-        intent.camera,
-      );
-    else coveredCameras.set(intent.camera, i);
-    const framed = CAMERA_FRAMINGS.has(intent.framing);
-    if (!framed)
-      out.push(
-        "type",
-        `${path}.framing`,
-        `camera framing must be one of wide, full, medium, close, but was "${String(intent.framing)}"`,
-        intent.framing,
-      );
-    const moved = CAMERA_MOVES.has(intent.move);
-    if (!moved)
-      out.push(
-        "type",
-        `${path}.move`,
-        `camera move must be one of static, follow, orbit, push-in, truck, whip, but was "${String(intent.move)}"`,
-        intent.move,
-      );
-    const subject = resolvePositionalTarget(
-      intent.on,
-      `${path}.on`,
-      "coverage target",
-      "a coverage subject",
-      0,
-      true,
-    );
-    if (
-      camera !== undefined &&
-      intent.camera !== liveCamera &&
-      first === undefined &&
-      framed &&
-      moved &&
-      subject !== null
-    )
-      coverageJobs.push({ intent, camera });
-  });
-
-  // A camera the shot compiles a move FROM must be one the framing grammar can
-  // solve. `stageScene` already bounds a camera's field of view to (0, 180) and
-  // its position to a finite point, but an EXPLICIT staged set never passes
-  // through staging, so nothing re-checks it here. The solve divides by
-  // `tan(fovY / 2)`: a zero or NaN field of view makes the framed distance
-  // infinite, every keyframe non-finite, and the shot one that `performShot`
-  // calls successful while the artifact validator refuses its clip. Gate only
-  // the cameras a move is actually compiled from, so a scene carrying an unused
-  // degenerate camera does not fail a shot that never frames through it.
-  const validateFramingCamera = (
-    camera: IAutoMovieCamera,
-    path: string,
-    /**
-     * Whether this camera's move copies its staged ROTATION into the clip. Only
-     * `whip` does: it pans in place from the staged orientation, so that
-     * quaternion is pushed verbatim as the first keyframe, while every other
-     * move derives its rotation through {@link lookRotation}. Checking it
-     * unconditionally would refuse a shot whose move never reads it (#1316).
-     */
-    readsRotation: boolean,
-  ): void => {
-    if (!(camera.fovY > 0 && camera.fovY < 180))
-      out.push(
-        "range",
-        `${path}.fovY`,
-        `a camera that frames must have a vertical field of view within (0, 180)°, but "${camera.id}" has ${camera.fovY}`,
-        camera.fovY,
-      );
-    if (!isFiniteVector3(camera.transform.translation))
-      out.push(
-        "range",
-        `${path}.transform.translation`,
-        `a camera that frames must be placed at a finite point, but "${camera.id}" is not`,
-        camera.transform.translation,
-      );
-    if (readsRotation && !isFiniteQuaternion(camera.transform.rotation))
-      out.push(
-        "range",
-        `${path}.transform.rotation`,
-        `a "whip" pans from the camera's staged orientation, so "${camera.id}" must carry a finite rotation`,
-        camera.transform.rotation,
-      );
-  };
-  // Walking the staged cameras (rather than looking the elected one up) keeps
-  // the read total: there is no "the hero id names no camera" case to defend
-  // against, because only a camera that IS in this list can be reached here.
-  staged.scene.cameras.forEach((camera, i) => {
-    const job = coverageJobs.find((entry) => entry.camera === camera);
-    const hero = frames.length > 0 && camera.id === liveCamera;
-    if (job === undefined && !hero) return;
-    // A coverage camera is never the elected one (the coverage gate refuses
-    // that), so a job settles which move this camera plays.
-    validateFramingCamera(
-      camera,
-      `$staged.scene.cameras[${i}]`,
-      job !== undefined
-        ? job.intent.move === "whip"
-        : frames.some((entry) => entry.action.move === "whip"),
-    );
-  });
-
-  if (out.items.length > 0) return { success: false, violations: out.items };
-
-  // Launch: solve each aim, bake the projectile's flight into an object clip,
-  // and fold the target's engine-timed recoil into the action list so the
-  // performance compiles it. Do this before `compilePerformance`, the injected
-  // reacts must ride the same synthesis and ROM gate as authored ones. A launch
-  // that cannot reach its target at the given speed is a range violation.
-  const objectMotions: IAutoMovieClip[] = [];
-  const trajectoryCounts = new Map<string, number>();
-  const events: IAutoMovieInteractionEvent[] = [];
-  for (const job of launches) {
-    // Lead a moving target: when the struck node travels during the shot (it
-    // carries a `locomote`), resolve where it WILL be rather than aiming at its
-    // start. Compile just that node's own motion for the animated position,
-    // node-local root rotated into the world by its staged facing, the same
-    // read a `follow` camera uses. Its own recoil fires at impact, past the
-    // lead window, so it does not perturb the pre-hit path. A static target
-    // keeps the plain intercept.
-    let targetAt: ((t: number) => IAutoMovieVector3) | undefined;
-    const targetsNode = (action: IAutoMovieActionCall): boolean =>
-      job.targetNode !== null && actionActors(action).includes(job.targetNode);
-    if (job.action.at.kind === "bone" && resolveLiveTarget !== undefined)
-      targetAt = (time) => resolveLiveTarget(job.action.at, time) ?? job.target;
-    else if (
-      job.targetNode !== null &&
-      stageActions.some(
-        (action) => action.verb === "locomote" && targetsNode(action),
-      )
-    )
-      targetAt = animatedBaseAt(
-        nodePositions.get(job.targetNode)!,
-        nodeRotations.get(job.targetNode)!,
-        // just this node's own motion, its recoil fires at impact, past the
-        // lead window, so it never perturbs the pre-hit path being sampled.
-        // Its `masked` report is deliberately dropped: this is a probe over a
-        // SUBSET of the same actions, and the authoritative compile below
-        // reports every one of those drops once, at the same authoring paths.
-        compilePerformance(
-          stageActions.filter((action) => targetsNode(action)),
-          synthesizeOnce,
-        ).performances[job.targetNode]!,
-      );
-    const result = compileLaunch({
-      action: job.action,
-      origin: job.origin,
-      target: job.target,
-      targetNode: job.targetNode,
-      targetAt,
-    });
-    if (result === null) {
-      out.push(
-        "range",
-        `${base}[${job.index}].speed`,
-        `the launch cannot reach its target at ${job.action.speed} m/s, raise the speed or move the shooter closer`,
-        job.action.speed,
-      );
-      continue;
-    }
-    // The baked flight is clip-local (0 → hitTime); place it on the shot clock
-    // so it launches at the action's start and lands exactly when the react
-    // fires (start + hitTime). Times shift by start; the clip spans the shot,
-    // holding at the origin before launch and at the target after (sampleClip
-    // clamps), the same shot-local convention as `cameraMotion`.
-    const hitAt = job.action.start + result.hitTime;
-    if (hitAt > performance.duration + 1e-9) {
-      out.push(
-        "range",
-        `${base}[${job.index}].speed`,
-        `the launch lands at ${hitAt}s, outside the shot ending at ${performance.duration}s, fire earlier, raise the speed, or lengthen the shot`,
-        job.action.speed,
-      );
-      continue;
-    }
-    // Repeated launches of one projectile node would collide on the stable
-    // `trajectory:<node>` id (#989); suffix later flights so the shot stays
-    // committable (`validateUniqueIds` on objectMotions).
-    const flightCount = (trajectoryCounts.get(result.clip.id) ?? 0) + 1;
-    trajectoryCounts.set(result.clip.id, flightCount);
-    objectMotions.push({
-      ...result.clip,
-      id:
-        flightCount === 1 ? result.clip.id : `${result.clip.id}:${flightCount}`,
-      duration: performance.duration,
-      tracks: result.clip.tracks.map((track) => ({
-        ...track,
-        times: track.times.map((t) => t + job.action.start),
-      })),
-    });
-    events.push(
-      ...result.events.map((event) => ({
-        ...event,
-        actionIndex: job.index,
-      })),
-    );
-    // The injected react stays EXEMPT from the region-overlap gate (#1003
-    // decision): the engine schedules it at a computed hit instant the model
-    // cannot know, and the flagship idiom is a MOVING target, rejecting the
-    // overlap would make `onHit` unusable exactly where it matters. The
-    // layering envelope bounds its blend to the flinch window, so the
-    // disruption reads as the hit interrupting the stride, not as a
-    // shot-long dilution.
-    if (result.react !== null) {
-      stageActions.push(result.react);
-      // The recoil is engine-scheduled and carries no `region` of its own, so
-      // a masked react points the author at the `onHit` they wrote, never at a
-      // field that does not exist or an action index absent from their input.
-      stageActionPaths.push(`${base}[${job.index}].onHit`);
-    }
-  }
-  if (out.items.length > 0) return { success: false, violations: out.items };
-
-  const compiled = compilePerformance(stageActions, synthesizeOnce);
-  const motions = compiled.performances;
-  const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
-  const previousByNode = new Map(
-    (previous?.actors ?? []).map((actor) => [actor.node, actor]),
-  );
-  const sceneSpace = staged.scene.space ?? null;
-  const worldGround = sceneSpace === null ? null : spaceGround(sceneSpace);
-  // A first stride must create the plant state a later stride can resume.
-  // Restrict the pass to actual gait-bearing output or an existing pin so a
-  // custom locomotion synthesizer without gait/contact data, and every static
-  // gesture/hold clip, keep their authored key grid.
-  for (const [actor, motion] of Object.entries(motions).sort(([x], [y]) =>
-    compareCodeUnits(x, y),
-  )) {
-    const priorPlants = previousByNode.get(actor)?.footPlants ?? null;
-    if (priorPlants === null && (motion.gaitCycle ?? null) === null) continue;
-    const rig = skeleton(actor);
-    const node = staged.scene.nodes.find((entry) => entry.id === actor);
-    if (rig === null || node === undefined) continue;
-    const inverse = Quaternion.inverse(node.transform.rotation);
-    const toModelPoint = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(point, node.transform.translation),
-      );
-    const toWorldPoint = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
-        node.transform.translation,
-        Quaternion.rotateVector(node.transform.rotation, point),
-      );
-    const modelGround =
-      worldGround === null
-        ? null
-        : (x: number, z: number): number => {
-            const plan = toWorldPoint({ x, y: 0, z });
-            return toModelPoint({
-              x: plan.x,
-              y: worldGround(plan.x, plan.z),
-              z: plan.z,
-            }).y;
-          };
-    const planted = plantStanceFeet({
-      skeleton: rig,
-      motion,
-      jointAxes: jointAxes?.(actor),
-      restFrames: restFrames?.(actor),
-      ...(modelGround === null ? {} : { groundY: modelGround }),
-      openingPlants: (priorPlants ?? []).map((plant) => ({
-        foot: plant.foot,
-        position: toModelPoint(plant.position),
-      })),
-    });
-    // A rig may have no recognized foot effectors. In that case this pass has
-    // established no authority: preserve the authored clip and do not shadow
-    // host-provided plant measurements (or their duplicate diagnostics).
-    if (planted.plants.length === 0) continue;
-    motions[actor] = planted.motion;
-    plants.push({
-      node: actor,
-      plants: planted.plants.map((plant) => ({
-        ...plant,
-        position: toWorldPoint(plant.position),
-      })),
-    });
-  }
-
-  // An authored channel the builder does not apply is REPORTED (#1349). The
-  // region mask itself is deliberate, but it used to discard content in
-  // silence: for example, explicitly forcing a retargeted quadruped gait to
-  // `lowerBody` excludes its front-leg ARM chains. The remedy is a field the
-  // author owns, so the violation points at `region` rather than at the clip.
-  for (const drop of compiled.masked) {
-    const path = stageActionPaths[drop.action]!;
-    const lost = [
-      ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),
-      ...(drop.root ? ["a root displacement"] : []),
-      ...(drop.expression ? ["an expression"] : []),
-    ].join(" and ");
+  for (const drop of compiled.masked)
     out.push(
       "type",
-      path,
-      `${drop.actor}'s clip authors ${lost}, which the "${drop.region}" body region does not carry, so the performance would drop that content; set region to one that owns it ("fullBody" owns every bone and the root, only "face" carries an expression), or move the content to its own action`,
+      plan.stageActionPaths[drop.action]!,
+      `${drop.actor}'s clip authors ${maskedContent(drop)}, which the "${drop.region}" body region does not carry, so the performance would drop that content; set region to one that owns it ("fullBody" owns every bone and the root, only "face" carries an expression), or move the content to its own action`,
       drop.region,
     );
-  }
-
   for (const [node, motion] of Object.entries(motions)) {
-    const rig = skeleton(node);
+    const rig: IAutoMovieSkeleton | null = skeleton(node);
     if (rig === null) continue;
-    const validated = validateMotion({ motion, skeleton: rig });
+    const validated: ReturnType<typeof validateMotion> = validateMotion({
+      motion,
+      skeleton: rig,
+    });
     if (validated.success === false)
       for (const violation of validated.violations)
         out.items.push({
@@ -1777,398 +254,179 @@ export const performShot = (props: {
           path: violation.path.replace("$input", `$compiled["${node}"]`),
         });
   }
-  if (out.items.length > 0) return { success: false, violations: out.items };
+  if (out.items.length > 0) return failure();
 
-  // Couple objects: bake the per-beat `attachTo` handoffs and the persistent
-  // staged `mounts` into follow clips now that the parents' poses have compiled
-  // (see {@link coupleObjects}). Mount preconditions (parent rig, saddle bone)
-  // surface as violations here, the first place with skeleton access.
-  const coupled = coupleObjects({
-    attachments,
+  // 4. Coupling, now that the parents' poses have compiled.
+  const coupled: ReturnType<typeof coupleObjects> = coupleObjects({
+    attachments: plan.attachments,
     mounts: staged.mounts,
     scene: staged.scene,
     motions,
     skeleton,
-    jointAxes,
-    restFrames,
+    jointAxes: props.jointAxes,
+    restFrames: props.restFrames,
     duration: performance.duration,
   });
   objectMotions.push(...coupled.clips);
   events.push(...coupled.events);
   out.items.push(...coupled.violations);
-  if (out.items.length > 0) return { success: false, violations: out.items };
+  if (out.items.length > 0) return failure();
 
-  // The source's own object clips, gated here rather than earlier because the
-  // two facts they are held against are only settled now: which nodes a
-  // performance drives, and which the engine already baked a clip for.
-  const authoredMotions = props.objectMotions ?? [];
+  // 5. Authored object clips, once the performed and baked nodes are settled.
+  const authored: readonly IAutoMovieClip[] = props.objectMotions ?? [];
   out.items.push(
     ...gateAuthoredObjectMotions({
       scene: staged.scene,
       props: props.props,
-      clips: authoredMotions,
+      clips: authored,
       baked: objectMotions,
       performed: new Set(Object.keys(motions)),
       duration: performance.duration,
       path: "$input.objectMotions",
     }),
   );
-  if (out.items.length > 0) return { success: false, violations: out.items };
-  objectMotions.push(...authoredMotions);
+  if (out.items.length > 0) return failure();
+  objectMotions.push(...authored);
 
-  // Compile the live camera's move from its frame actions. Subjects resolve
-  // against the staged placements; a node subject's extent is measured from the
-  // geometry its model actually draws, on every axis it fills (staging
-  // doctrine: measure, don't hope), and its animated base rides either a
-  // compiled actor clip or an effective object motion, so `follow` tracks a
-  // walking actor, launched prop, or handoff.
-  const cameraObject = staged.scene.cameras.find((c) => c.id === liveCamera)!;
-  /** Every staged node by id, for the placement and model reads below. */
-  const stagedNodes = new Map(
-    staged.scene.nodes.map((entry) => [entry.id, entry] as const),
-  );
-  /**
-   * A staged node's drawn model-space box, memoized because a shot frames the
-   * same subject from the hero camera and again from every coverage angle. Null
-   * whenever the model is absent or has nothing to measure, which hands the rig
-   * measurement back its documented fallback role.
-   */
-  const measuredExtents = new Map<string, IAutoMovieSubjectBox | null>();
-  const modelExtentOf = (node: string): IAutoMovieSubjectBox | null => {
-    const cached = measuredExtents.get(node);
-    if (cached !== undefined) return cached;
-    const staffed = stagedNodes.get(node);
-    const model =
-      staffed === undefined
+  // 6. Cameras.
+  const liveCamera: string = cameras.liveCamera!;
+  const camera: Pick<
+    IAutoMovieShot,
+    "cameraMotion" | "cameraIntent" | "coverage" | "cameraClearance"
+  > = compilePerformShotCameras(context, {
+    liveCamera,
+    frames: plan.frames,
+    coverageJobs: cameras.coverageJobs,
+    scope: props.shotId ?? performance.beat,
+    aspect:
+      props.frameFormat === undefined ||
+      !(props.frameFormat.width > 0) ||
+      !(props.frameFormat.height > 0)
         ? undefined
-        : (props.models ?? []).find((entry) => entry.id === staffed.model);
-    const extent = model === undefined ? null : computeModelRestExtent(model);
-    measuredExtents.set(node, extent);
-    return extent;
-  };
-  /**
-   * A staged node's framed extent in model space: the box the renderer draws
-   * when a model was supplied, the rig's joint span as the documented fallback,
-   * and the stand-in height when neither measures anything. Stated once because
-   * a node is framed both on its own and as one member of a group, and two
-   * answers to "what does he fill" is how a two-shot comes to disagree with the
-   * singles cut beside it.
-   */
-  const nodeExtent = (node: string): IAutoMovieSubjectBox => {
-    const extent = modelExtentOf(node);
-    const rig = extent === null ? skeleton(node) : null;
-    return nodeSubjectExtent(
-      extent,
-      rig === null ? null : computeRestHeight(rig),
-    );
-  };
-  /**
-   * Where a staged node stands, as the placement its measured extent is carried
-   * out through. `translation` is supplied rather than read back, because a
-   * subject may be framed at a resolved live point rather than at the staged
-   * one; the rotation and scale are the staged node's own, and a target that
-   * names no staged node (a bare point, or a camera) keeps the identity
-   * placement its degenerate extent makes indistinguishable anyway.
-   */
-  const nodePlacement = (
-    node: string | null,
-    translation: IAutoMovieVector3,
-  ): IAutoMovieTransform => {
-    const staffed = node === null ? undefined : stagedNodes.get(node);
-    return {
-      translation,
-      rotation: staffed?.transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 },
-      scale: staffed?.transform.scale ?? { x: 1, y: 1, z: 1 },
-    };
-  };
-  /**
-   * What each member of a group target occupies at a shot-local instant, one
-   * box per member that resolves.
-   *
-   * Every member contributes what it actually occupies: a staged node the box
-   * its model draws, carried out through its own placement, a formation its
-   * whole transformed footprint under the cue playing at that instant. Their union is
-   * the thing the camera has to hold, which is the datum a centroid destroyed —
-   * two thousand figures and one figure have the same centroid, and only one of
-   * them fits in a frame solved for a person.
-   *
-   * The list rather than the union, because WHICH members resolve is a fact
-   * about the shot's own placement and formation tables and not about the
-   * instant: a group that measured something at zero measures something at
-   * every second of the shot. Returning the union would hide that behind a
-   * `null` the re-frame below would have to answer for and could never
-   * receive.
-   *
-   * Node members are read at their staged placements rather than at their
-   * animated bases, which is what a group subject has always been; a formation
-   * is read at `seconds` because its cue is the only thing that moves a mass.
-   */
-  const groupSubjectBoxes = (
-    on: IAutoMovieGroupTarget,
-    seconds: number,
-  ): IAutoMovieSubjectBox[] => [
-    ...on.nodes.flatMap((node) => {
-      const placement = nodePositions.get(node);
-      return placement === undefined
-        ? []
-        : [nodeSubjectBox(nodePlacement(node, placement), nodeExtent(node))];
-    }),
-    ...(on.formations ?? []).flatMap((id) => {
-      const formation = formationById.get(id);
-      return formation === undefined
-        ? []
-        : [
-            formationSubjectBox({
-              formation,
-              motions: formationMotions,
-              member: formationMemberExtent(formation, props.models),
-              seconds,
-            }),
-          ];
-    }),
-  ];
-  // What a camera entry frames, resolved once for every take: the hero's frame
-  // spans and each coverage angle read the SAME subject, so an alternate camera
-  // frames the beat's subject exactly as the hero does, only from its own
-  // staged bearing. A subject may be any staged placement, a camera included
-  // (#1294), which is why the lookups below may not be asserted non-null: the
-  // placement table carries cameras and `nodeRotations` does not. `motions`
-  // does not either, now that the one path which used to smuggle a camera into
-  // it (a `launch` `onHit` aimed at a camera, injecting a react named on the
-  // struck id) is refused at the aim, so a camera subject falls out on the
-  // `motion === undefined` clause; the facing clause is what keeps the read
-  // total for the builder. Without a staged facing there is no node-local root
-  // to rotate into the world, so such a subject holds still: `at: null`, the
-  // documented degenerate case a `follow` move already handles.
-  const framedSubject = (
-    on: IAutoMovieActionTarget,
-  ): IAutoMovieFramedSubject => {
-    // A group is the one subject with an extent of its own, so it is measured
-    // as a box rather than collapsed to a point and given a figure's height.
-    // The live resolver is not consulted for it: it answers with ONE point,
-    // which is exactly the datum that cannot describe a mass.
-    if (on.kind === "group" && groupSubjectBoxes(on, 0).length !== 0) {
-      // Non-null: the guard above measured at least one member, and which
-      // members resolve is a fact about this shot's placement and formation
-      // tables rather than about the instant they are read at.
-      const framedAt = (seconds: number): IAutoMovieFramedBox =>
-        framedBoxOf(unionSubjectBoxes(groupSubjectBoxes(on, seconds))!);
-      const framed = framedAt(0);
-      // A cue is the only thing that moves a unit, so a group carrying one is
-      // the only group a `follow` can track; without one the mass holds still
-      // and `at: null` states that, the same as every group before it.
-      const cued = (on.formations ?? []).some((id) =>
-        formationMotions.some((cue) => cue.formation === id),
-      );
-      return {
-        base: framed.base,
-        height: framed.height >= 0.1 ? framed.height : DEFAULT_SUBJECT_HEIGHT,
-        radius: framed.radius,
-        at: cued === false ? null : (seconds) => framedAt(seconds).base,
-      };
-    }
-    const point =
-      resolveLiveTarget?.(on, 0) ??
-      (resolveTargetPoint(
-        on,
-        nodePositions,
-        formationPoints,
-      ) as IAutoMovieVector3);
-    const node = on.kind === "node" ? on.node : null;
-    // Measure the figure, not the rig, and measure it on every axis it fills.
-    // The extent is model-space, so carrying it out through the node's own
-    // placement is what makes `base` the bottom CENTRE of what the camera sees
-    // — the point the framing grammar's aim fractions are written against —
-    // and what gives the fit a width to stand back for. A 60 m facade authored
-    // outward from its element origin is framed at the middle of the mass
-    // rather than 30 m off its own centre, and from the distance its width
-    // demands rather than the one its height alone would ask for.
-    const framed = framedBoxOf(
-      nodeSubjectBox(
-        nodePlacement(node, point),
-        node === null ? nodeSubjectExtent(null, null) : nodeExtent(node),
-      ),
-    );
-    // The framed base and the resolved root differ by a constant world offset
-    // (the drawn floor, and the horizontal centre of what is drawn), so a
-    // subject that moves keeps being framed on the same part of itself.
-    const shift: IAutoMovieVector3 = {
-      x: framed.base.x - point.x,
-      y: framed.base.y - point.y,
-      z: framed.base.z - point.z,
-    };
-    const onFramed = (value: IAutoMovieVector3): IAutoMovieVector3 => ({
-      x: value.x + shift.x,
-      y: value.y + shift.y,
-      z: value.z + shift.z,
-    });
-    const motion = node === null ? undefined : motions[node];
-    const facing = node === null ? undefined : nodeRotations.get(node);
-    const objectAt =
-      node === null
-        ? null
-        : (seconds: number): IAutoMovieVector3 | null =>
-            bakedTransformFromClipsAt(objectMotions, node, seconds)
-              ?.translation ?? null;
-    const hasObjectMotion =
-      node !== null &&
-      objectMotions.some((clip) =>
-        clip.tracks.some(
-          (track) =>
-            track.channel.kind === "node" &&
-            track.channel.node === node &&
-            track.channel.path === "translation",
-        ),
-      );
-    const animated =
-      on.kind === "bone" && resolveLiveTarget !== undefined
-        ? (seconds: number) => resolveLiveTarget(on, seconds) ?? point
-        : motion !== undefined && facing !== undefined
-          ? animatedBaseAt(point, facing, motion)
-          : objectAt === null || !hasObjectMotion
-            ? null
-            : (seconds: number) => objectAt(seconds) ?? point;
-    return {
-      base: framed.base,
-      height: framed.height,
-      radius: framed.radius,
-      // Actor root motion rides the staged facing. A skeleton-less prop has no
-      // actor clip/facing, so read its effective object authority instead: the
-      // same trajectory/attachment handoff the player applies. This runs after
-      // coupling, deliberately, so a camera follows a launch into a hand.
-      at: animated === null ? null : (seconds) => onFramed(animated(seconds)),
-    };
-  };
-  const entries: IAutoMovieCameraFrameEntry[] = frames.map(({ action }) => ({
-    action,
-    subject: framedSubject(action.on),
-  }));
-  const cameraMotion = compileCameraMove({
-    clipId: `cam:${cameraClipScope}`,
-    camera: cameraObject,
-    entries,
-    shotDuration: performance.duration,
-    aspect: frameAspect,
-  });
-
-  // One alternate take per validated coverage intent (#1187). A blocking's
-  // coverage angle carries no timing of its own, so each covering camera plays
-  // its single intent across the WHOLE beat: an alternate a host can cut to at
-  // any instant, which is the point of coverage. The take compiles through the
-  // same framing grammar with its own staged camera as the parameter, so the
-  // side the director staged is the side the angle plays from.
-  const coverage: IAutoMovieShotCoverage[] = coverageJobs.map(
-    ({ intent, camera }) =>
-      compileCameraCoverage({
-        camera,
-        clipId: `cam:${cameraClipScope}:${camera.id}`,
-        entries: [
-          {
-            action: {
-              verb: "frame",
-              actor: camera.id,
-              start: 0,
-              duration: "auto",
-              framing: intent.framing,
-              move: intent.move,
-              on: intent.on,
-            },
-            subject: framedSubject(intent.on),
-            // The blocking's coverage grammar carries framing/move/subject
-            // only, so the two lens INTENTS a `frame` action may add stay null
-            // here rather than being invented for the alternate angle.
-            intent: {
-              start: 0,
-              framing: intent.framing,
-              move: intent.move,
-              focus: null,
-              focalLength: null,
-            },
-          },
-        ],
-        shotDuration: performance.duration,
-        aspect: frameAspect,
-      }),
-  );
-
-  const cameraClearance = compileCameraClearanceReports({
-    scene: staged.scene,
-    hero: { camera: cameraObject, motion: cameraMotion },
-    coverage,
-    duration: performance.duration,
+        : props.frameFormat.width / props.frameFormat.height,
+    models: props.models,
+    formationMotions,
     motions,
     objectMotions,
-    models: props.models ?? [],
+    rotations,
     runtime: props.cameraClearance,
-    out,
   });
-  if (out.items.length > 0) return { success: false, violations: out.items };
+  if (out.items.length > 0) return failure();
 
+  // Keys keep their historical order, because the artifact is serialized.
   const shot: IAutoMovieShot = {
-    id: shotId,
+    id: props.shotId ?? `shot:${performance.beat}`,
     name: beat!.name,
     scene: staged.scene.id,
-    camera: liveCamera!,
-    cameraMotion,
-    performances: Object.entries(motions).map(([node, motion]) => ({
-      node,
-      motion: motion.id,
-      startOffset: 0,
-    })),
+    camera: liveCamera,
+    cameraMotion: camera.cameraMotion,
+    performances: Object.entries(motions).map(
+      ([node, motion]: [
+        string,
+        IAutoMovieMotion,
+      ]): IAutoMovieShotPerformance => ({
+        node,
+        motion: motion.id,
+        startOffset: 0,
+      }),
+    ),
     objectMotions,
-    // Present exactly when the caller stated one, so a shot that says nothing
-    // about its light assembles the record it always did.
     ...(lightMotions === undefined ? {} : { lightMotions }),
-    events: orderEvents(events),
-    // Directorial intent per frame span (#1187): the focus subject resolves
-    // to a world point the same way `on` did; the solve itself never reads
-    // these, a diffusion/render host does, beside cameraMotion.
-    cameraIntent: frames.map(({ action }) => ({
-      start: action.start,
-      framing: action.framing,
-      move: action.move,
-      focus:
-        action.focus === undefined
-          ? null
-          : (resolveLiveTarget?.(action.focus, 0) ??
-            (resolveTargetPoint(
-              action.focus,
-              nodePositions,
-              formationPoints,
-            ) as IAutoMovieVector3)),
-      focalLength: action.focalLength ?? null,
-    })),
-    // The beat's other staged angles (#1187), compiled from the blocking's
-    // coverage intent. Empty when the beat was covered by one camera; the
-    // hero take stays the singular camera/cameraMotion every consumer reads.
-    coverage,
-    ...(cameraClearance === undefined ? {} : { cameraClearance }),
+    events: [...events].sort(
+      (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
+        a.time - b.time ||
+        EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
+        compareCodeUnits(a.id, b.id),
+    ),
+    cameraIntent: camera.cameraIntent,
+    coverage: camera.coverage,
+    ...(camera.cameraClearance === undefined
+      ? {}
+      : { cameraClearance: camera.cameraClearance }),
     duration: performance.duration,
   };
 
-  // The producer states the contract its output satisfies. Until #1320 the shot
-  // contract lived only beside the commit gate, so every field this builder
-  // forgot became a shot returned as success that a consumer then refused, five
-  // times over (#1224, #1308, #1314, #1316, #1318). One definition now, checked
-  // here, against the same scene and clips the caller is about to receive.
-  //
-  // A failure is NOT an author fault: every author-reachable way to reach it is
-  // gated above and refused with a path the author can act on. Reaching here
-  // means a gate is missing, which is an engine defect, so it throws rather than
-  // returning violations that would blame the wrong party (#1294's lesson).
-  // Callers reading `{ success: false, violations }` see no change.
-  const assembled = validateShotArtifact(
-    shot,
-    staged.scene,
-    new Set(Object.values(motions).map((motion) => motion.id)),
-  );
+  const assembled: ReturnType<typeof validateShotArtifact> =
+    validateShotArtifact(
+      shot,
+      staged.scene,
+      new Set(
+        Object.values(motions).map(
+          (motion: IAutoMovieMotion): string => motion.id,
+        ),
+      ),
+    );
   if (assembled.success === false)
     throw new Error(
       `performShot produced a shot that violates the shot artifact contract, which is an engine defect rather than an authoring fault: ${assembled.violations
         .slice(0, 5)
-        .map((item) => `${item.kind} at ${item.path}: ${item.expected}`)
+        .map(
+          (item: IAutoMovieConstraintViolation): string =>
+            `${item.kind} at ${item.path}: ${item.expected}`,
+        )
         .join("; ")}`,
     );
-
   return { success: true, shot, motions, plants };
-};
+}
+
+/**
+ * Refuse duplicate script beat ids and answer the beat the performance names, the first declaration of its id.
+ */
+function gateScript(
+  context: IPerformShotGateContext,
+  script: IAutoMovieScript,
+): IAutoMovieScript["beats"][number] | undefined {
+  const first: Map<string, number> = new Map();
+  script.beats.forEach(
+    (beat: IAutoMovieScript["beats"][number], index: number): void => {
+      const existing: number | undefined = first.get(beat.id);
+      if (existing === undefined) first.set(beat.id, index);
+      else
+        context.out.push(
+          "type",
+          `$script.beats[${index}].id`,
+          `script beat id "${beat.id}" is duplicated; first declared at $script.beats[${existing}].id`,
+          beat.id,
+        );
+    },
+  );
+  const index: number | undefined = first.get(context.performance.beat);
+  return index === undefined ? undefined : script.beats[index];
+}
+
+/**
+ * The synthesizer once per action object and actor, with the prior beat state bound, so every stage that needs a clip shares one.
+ */
+function memoizeSynthesis(
+  synthesize: IAutoMovieActionSynthesizer,
+  previous: IAutoMovieBeatEndState | null | undefined,
+): IAutoMovieActionSynthesizer {
+  const cache: WeakMap<
+    IAutoMovieActionCall,
+    Map<string, IAutoMovieMotion | null>
+  > = new WeakMap();
+  return (
+    action: IAutoMovieActionCall,
+    actor: string,
+  ): IAutoMovieMotion | null => {
+    let byActor: Map<string, IAutoMovieMotion | null> | undefined =
+      cache.get(action);
+    if (byActor === undefined) {
+      byActor = new Map();
+      cache.set(action, byActor);
+    }
+    if (byActor.has(actor)) return byActor.get(actor)!;
+    const motion: IAutoMovieMotion | null = synthesize(action, actor, previous);
+    byActor.set(actor, motion);
+    return motion;
+  };
+}
+
+/** What a masked clip authored that its region drops, in words. */
+function maskedContent(drop: IAutoMovieMaskedContent): string {
+  return [
+    ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),
+    ...(drop.root ? ["a root displacement"] : []),
+    ...(drop.expression ? ["an expression"] : []),
+  ].join(" and ");
+}

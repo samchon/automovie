@@ -1,4 +1,3 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMovieSubjectReviewPose } from "./IAutoMovieSubjectReviewPose";
 import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
@@ -6,14 +5,12 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 /**
  * Receipt for one subject observation made from an inspection-owned viewpoint.
  *
- * The `kind` discriminator deliberately differs from frame evidence. A shot
- * capture therefore cannot satisfy subject coverage merely because it contains
- * the subject.
+ * The distinct subject-view kind and deliveryEvidence false keep subject inspection separate from delivered film-frame evidence.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Binds an observation to the subject, compiled revision, viewpoint and exact artifact that was inspected.
- * @evidence requirements/review/subject-inspection.md#review-subject-time-noninterchange Makes subject-view evidence structurally distinct from frame and range evidence.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Types the independently addressable subject observation record.
- * @evidence specifications/review-and-acceptance/target-scope-and-context.md#review-system-presentation-context Preserves the subject, viewpoint, pose, artifact, evidence kind, runtime identity, and terminal status that bound the observation.
+ * @evidence contracts/common.md#principled-implementation A passed observation records target, subject revision, compile, ordered viewpoint plan, camera pose, capture runtime and artifact identity; the engine coverage fold compares supplied context and validates record shape without reopening image bytes or proving capture occurred.
+ * @evidence contracts/common.md#clear-and-simple-design The receipt carries provenance for one inspection-owned viewpoint without claiming screenplay time or delivery eligibility, which belong to film-frame evidence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime remains ineligible. The fold requires a nonblank artifact digest without validating its syntax or agreement with actual bytes, which remain caller premises.
+ * @evidence contracts/common.md#meaningful-documentation Defines production and artifact-qualified target, current revision/compile/plan/runtime identities, exact camera and image digest, terminal verdict and delivery exclusion.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewObservation {
@@ -33,10 +30,10 @@ export interface IAutoMovieSubjectReviewObservation {
   revision: string;
 
   /** Current source compile identity used for the observation. */
-  compileFingerprint: AutoMovieContentDigest;
+  compileFingerprint: string;
 
   /** Canonical identity of the exact ordered plan and its poses. */
-  planIdentity: AutoMovieContentDigest;
+  planIdentity: string;
 
   /** Required viewpoint identity this observation answers. */
   viewpoint: string;
@@ -51,7 +48,7 @@ export interface IAutoMovieSubjectReviewObservation {
   artifact: string;
 
   /** Content digest of the exact inspected artifact. */
-  digest: AutoMovieContentDigest;
+  digest: string;
 
   /** Only a terminal passed observation can satisfy coverage. */
   verdict: "passed";

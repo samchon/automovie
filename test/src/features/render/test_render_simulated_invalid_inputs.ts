@@ -1,12 +1,21 @@
 import { IAutoMovieRenderSubject } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingDomain,
+  IAutoMovieRenderInventory,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
-import { boxModel, material, modelsFixture } from "../internal/renderFixtures";
-import { plantingCluster, plantingRecipe, softPanel } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
 import { leaflessPlantingRecipeFixture } from "../internal/leaflessPlantingRecipeFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { namedFacts, throwsError } from "../internal/predicates";
+import { boxModel, material, modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import {
+  plantingCluster,
+  plantingRecipe,
+  softPanel,
+} from "../internal/softFixtures";
 
 /**
  * Invalid simulated material and prototype records refuse without selecting an arbitrary definition.
@@ -14,18 +23,30 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  * Scenarios:
  *
  * 1. Missing panel, leaf and water materials, conflicting material declarations and malformed prototype counts each name their refusal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual render inventory through six refusal callbacks and checks the named error fragments, catching missing or conflicting material references accepted for simulated drawables and fractional or negative prototype counts multiplied into a report.
+ * @evidence contracts/testing.md#independent-expectations Absent velvet is not declared by the model fixture; the conflicting stone record deliberately changes roughness and the literal diagnostic names all declaring models. Integer vertex/triangle cardinality excludes 1.5 and -1 independently of any measured inventory output.
+ * @evidence contracts/testing.md#distinguishing-cases Covers absent panel, leaf and water materials separately, conflicting panel material, fractional vertices and negative triangles. Valid named/default material and positive prototype neighbours are exercised by the simulated budget, shared-material and foliage tests; this unit retains every refusal's existing message requirements.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_simulated_invalid_inputs entry owns six synchronous namedFacts cases over in-memory domains and models; each reaches real engine admission without replacing globals, creating native geometry, starting a renderer or installing a consumer.
  */
-export const test_render_simulated_invalid_inputs = (): void => {
-  const scene = simulatedRenderSceneFixture;
-  const bareRecipe = leaflessPlantingRecipeFixture;
+export function test_render_simulated_invalid_inputs(): void {
+  const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
+  const bareRecipe: typeof leaflessPlantingRecipeFixture =
+    leaflessPlantingRecipeFixture;
 
-  const BRANCH = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
-  const LEAF = { vertices: 4, triangles: 2 };
+  const LEAF: { vertices: number; triangles: number } = {
+    vertices: 4,
+    triangles: 2,
+  };
 
   // A leafy cluster submits a second batch and pays a second material; a
   // leafless one pays for neither.
-  const leafy = plantingRecipe({
+  const leafy: IAutoMoviePlantingDomain = plantingRecipe({
     foliage: {
       density: 2,
       minLevel: 1,
@@ -37,7 +58,10 @@ export const test_render_simulated_invalid_inputs = (): void => {
   });
 
   /** One cluster whose branch prototype carries the stated cost. */
-  const prototyped = (branch: {
+  const prototyped: (branch: {
+    vertices: number;
+    triangles: number;
+  }) => IAutoMovieRenderSubject = (branch: {
     vertices: number;
     triangles: number;
   }): IAutoMovieRenderSubject => ({
@@ -61,9 +85,9 @@ export const test_render_simulated_invalid_inputs = (): void => {
     namedFacts([
       [
         "absent panel material",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderInventory =>
               measure({
                 scene: scene(),
                 models: modelsFixture(),
@@ -80,9 +104,9 @@ export const test_render_simulated_invalid_inputs = (): void => {
       ],
       [
         "absent leaf material",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderInventory =>
               measure({
                 scene: scene(),
                 models: modelsFixture(),
@@ -103,9 +127,9 @@ export const test_render_simulated_invalid_inputs = (): void => {
       ],
       [
         "absent water material",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderInventory =>
               measure({
                 scene: scene(),
                 models: modelsFixture(),
@@ -126,9 +150,9 @@ export const test_render_simulated_invalid_inputs = (): void => {
       ],
       [
         "conflicting panel material",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderInventory =>
               measure({
                 scene: scene(),
                 models: [
@@ -155,17 +179,19 @@ export const test_render_simulated_invalid_inputs = (): void => {
       ],
       [
         "fractional prototype",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure(prototyped({ vertices: 1.5, triangles: 1 })),
+            (): IAutoMovieRenderInventory =>
+              measure(prototyped({ vertices: 1.5, triangles: 1 })),
             "vertices must be a safe integer",
           ),
       ],
       [
         "negative prototype",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure(prototyped({ vertices: 1, triangles: -1 })),
+            (): IAutoMovieRenderInventory =>
+              measure(prototyped({ vertices: 1, triangles: -1 })),
             "triangles must be a safe integer",
           ),
       ],
@@ -179,4 +205,4 @@ export const test_render_simulated_invalid_inputs = (): void => {
       "negative prototype": true,
     },
   );
-};
+}

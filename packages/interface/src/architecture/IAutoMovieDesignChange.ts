@@ -6,47 +6,31 @@
  * alternatives are compared by comparing these strings verbatim, so the same
  * authored value always reads as the same decision.
  *
- * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `IAutoMovieDesignChange` as the portable data boundary for the provenance lineage gaps requirement.
- * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `IAutoMovieDesignChange` for the evp lineage gap representation system contract.
+ * Lineage never applies the value to the edited graph; it is compared, hashed
+ * into view digests, and reported.
+ *
+ * @evidence contracts/common.md#principled-implementation Equality of two alternatives' edits is exact string equality on the authored value keyed by subject and aspect, and the view digest hashes length-prefixed subject, aspect, and value fields so no authored text can forge a separator.
+ * @evidence contracts/common.md#clear-and-simple-design A subject, an aspect, an opaque value, and a rationale are all lineage needs to compare and digest alternatives, so it carries no patch schema for graphs it does not own.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The value is never parsed or normalized, so two spellings of one setting read as a difference, which is the stated cost of verbatim comparison rather than a hidden heuristic.
+ * @evidence contracts/common.md#meaningful-documentation States why the value is a string, that it is compared verbatim and never applied, the id's uniqueness scope, that subject resolves, that aspect and rationale are non-blank, and the once-per-subject-and-aspect rule.
+ * @author Samchon
  */
 export interface IAutoMovieDesignChange {
-  /**
-   * Stable change identity within the lineage.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `id` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
-   */
+  /** Stable change identity, unique across every variant of the lineage. */
   id: string;
 
-  /**
-   * Declared subject id this change edits.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `subject` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `subject` for the evp lineage gap representation system contract.
-   */
+  /** Declared lineage subject id this change edits; it must resolve. */
   subject: string;
 
   /**
-   * Open aspect label such as `material`, `layout`, `lighting`, `opening`.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `aspect` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `aspect` for the evp lineage gap representation system contract.
+   * Non-blank open aspect label such as `material`, `layout`, `lighting`, or
+   * `opening`; one variant edits each subject and aspect pair at most once.
    */
   aspect: string;
 
-  /**
-   * Author-serialized replacement value, compared verbatim across variants.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `value` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `value` for the evp lineage gap representation system contract.
-   */
+  /** Author-serialized replacement value, compared verbatim across variants. */
   value: string;
 
-  /**
-   * Why this alternative makes the change.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `rationale` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `rationale` for the evp lineage gap representation system contract.
-   */
+  /** Non-blank reason this alternative makes the change. */
   rationale: string;
 }

@@ -1,8 +1,11 @@
 import { cutSequence } from "@automovie/engine";
-import { IAutoMovieShot } from "@automovie/interface";
+import {
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieShot,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts } from "../internal/predicates";
+import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 
 const SHOT: IAutoMovieShot = {
   id: "shot:beat-1",
@@ -16,10 +19,9 @@ const SHOT: IAutoMovieShot = {
 };
 
 /**
- * Pins every entry-level gate of the ASSEMBLE consumer from one incoherent cut,
- * so the correction round reads the whole damage report at once.
+ * Assembly reports independent entry faults together and refuses transition overlaps that cannot fit their neighbours.
  *
- * Scenarios (one entry each, against a single 3-second shot):
+ * Scenarios:
  *
  * 1. A transition on the first entry → `type` (nothing to transition from).
  * 2. An entry referencing the never-performed `shot:ghost` → `type`.
@@ -32,9 +34,14 @@ const SHOT: IAutoMovieShot = {
  *    `transition.duration`.
  * 8. Adjacent transitions whose durations overlap inside the middle entry yield
  *    `range` on the second transition's duration.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls cutSequence on malformed entries and two additional overlap edits, requiring field-specific kinds and paths and one-second excesses for trim and incoming-span overflow. These checks catch skipped independent faults, unchecked outgoing spans and nested transition overlap.
+ * @evidence contracts/testing.md#independent-expectations The literal three-second source and authored spans determine the expected bounds: trim [2, 4] exceeds by one, and a two-second transition exceeds a one-second played span by one. Adjacent two-second overlaps cannot both fit a three-second middle entry. Scalar excesses use nclose and no product timeline computes the oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Owns all eight numbered entry decisions, including a missing shot, zero durations, positive overflows, outgoing-span overflow and overlapping adjacent transitions; valid edits and nonfinite operands have separate assembly tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_invalid_entries entry owns its three portable cutSequence calls and every literal edit case, observing returned violations without installing a consumer, compiling native code or starting a host.
  */
-export const test_film_cut_sequence_invalid_entries = (): void => {
-  const cut = cutSequence(
+export function test_film_cut_sequence_invalid_entries(): void {
+  const cut: ReturnType<typeof cutSequence> = cutSequence(
     {
       sequence: { id: "seq-bad", name: "the mess" },
       fps: 24,
@@ -88,10 +95,11 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
   TestValidator.predicate(
     "out-of-shot trim rejected with overshoot",
     cut.violations.some(
-      (v) =>
+      (v: IAutoMovieConstraintViolation): boolean =>
         v.kind === "range" &&
         v.path === "$input.entries[3].trim" &&
-        v.overshoot === 1,
+        v.overshoot !== undefined &&
+        nclose(v.overshoot, 1),
     ),
   );
   TestValidator.predicate(
@@ -101,14 +109,15 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
   TestValidator.predicate(
     "overlong transition rejected with overshoot",
     cut.violations.some(
-      (v) =>
+      (v: IAutoMovieConstraintViolation): boolean =>
         v.kind === "range" &&
         v.path === "$input.entries[5].transition.duration" &&
-        v.overshoot === 1,
+        v.overshoot !== undefined &&
+        nclose(v.overshoot, 1),
     ),
   );
 
-  const overPrevious = cutSequence(
+  const overPrevious: ReturnType<typeof cutSequence> = cutSequence(
     {
       sequence: { id: "seq-bad-prev", name: "the early dissolve" },
       fps: 24,
@@ -137,10 +146,10 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
   TestValidator.equals(
     "overlong outgoing transition rejected",
     namedFacts([
-      ["refused", () => overPrevious.success === false],
+      ["refused", (): boolean => overPrevious.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           overPrevious.success === false &&
           hasViolation(
             overPrevious,
@@ -152,7 +161,7 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
     { refused: true, violated: true },
   );
 
-  const overlappingAdjacent = cutSequence(
+  const overlappingAdjacent: ReturnType<typeof cutSequence> = cutSequence(
     {
       sequence: { id: "seq-bad-overlap", name: "the nested dissolve" },
       fps: 24,
@@ -182,10 +191,10 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
   TestValidator.equals(
     "nested transition overlap rejected",
     namedFacts([
-      ["refused", () => overlappingAdjacent.success === false],
+      ["refused", (): boolean => overlappingAdjacent.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           overlappingAdjacent.success === false &&
           hasViolation(
             overlappingAdjacent,
@@ -196,4 +205,4 @@ export const test_film_cut_sequence_invalid_entries = (): void => {
     ]),
     { refused: true, violated: true },
   );
-};
+}

@@ -1,43 +1,53 @@
-import type {
+import {
   IAutoMovieAcousticResponseProfile,
+  IAutoMovieCamera,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledInstanceSet,
   IAutoMovieCompiledShotSource,
   IAutoMovieFilmTimeline,
+  IAutoMovieFilmTimelineSegment,
   IAutoMovieFormationBounds,
+  IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
+  IAutoMovieSceneNode,
   IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
   IAutoMovieSoundPropagationProfile,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { IAutoMovieSampledFormationMotion } from "../IAutoMovieSampledFormationMotion";
+import { IAutoMovieResolvedCamera } from "../film/IAutoMovieResolvedCamera";
 import { resolveCameraAt } from "../film/resolveCameraAt";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { IAutoMovieSampledChannel } from "../resolve/IAutoMovieSampledChannel";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { sampleFormationMotion } from "../sampleFormationMotion";
+import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationBounds } from "../transformFormationBounds";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
 
 /**
- * Lower semantic shot events, authored score cues, and shared caption timing
- * into one immutable sound plan on the finished-film clock.
+ * Lower semantic shot events and authored cues/dialogue onto one finished-film sound clock.
  *
- * Each event's source is the extended incoherent mass its subjects add up to
- * ({@link resolveSourceMass}), not a bare point: the plan carries how many
- * members sound ({@link IAutoMovieProductionSoundEvent.memberCount}), how far
- * they are spread ({@link IAutoMovieProductionSoundEvent.spreadRadiusMeters}),
- * and the `sqrt(N)` level that many uncorrelated sources produce
- * ({@link IAutoMovieProductionSoundEvent.densityGain}), so a mass sounds like a
- * mass and a crowd's size is audible rather than assumed. A lone actor is a
- * one-member mass of zero radius and plans exactly as it always did.
- *
- * @evidence requirements/sound/event-cues-and-timing.md#sound-event-derived-timing Places each semantic sound occurrence on the finished-film clock.
- * @evidence requirements/sound/scope-and-identity.md#sound-emission-presentation Keeps the semantic emission frame while an optional propagation receipt carries a separate listener-arrival frame.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-kind-and-event-timing Lowers authored and event-derived sources into one ordered sound plan.
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-extended-group-sources Aggregates resolved formation members into centroid, spread, and density gain.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-extended-group-source-aggregation Implements the bounded group-source reduction before mixing.
+ * @evidence contracts/common.md#principled-implementation Event trim joins use the film frame clock; subject masses combine count-weighted centroids and parallel-axis variance, approximating formations/instances as uniform axis-aligned boxes. sqrt(memberCount), RMS distance, softened attenuation and clamped pan are declared source-model choices, not measured member distributions.
+ * @evidence contracts/common.md#clear-and-simple-design The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown individual subjects are skipped if another resolves, but zero total resolved mass throws. Missing compiled evidence/camera/events throws, and finite assumptions do not establish byte provenance or universal cross-host transcendental identity.
+ * @evidence contracts/common.md#meaningful-documentation Documents event/cue/dialogue clocks, spatial approximation and fresh arrays; static resolved camera positions can be borrowed in event.listener, so the plan is not deeply immutable. Production delivery validation consumes this planner to compare expected plans.
+ * @evidence contracts/performance.md#efficient-algorithms For E event samples, each event can scan declared events, subject node/formation/instance lists and object motions; camera/source sampling plus final O(E log E) sort dominate, and event/cue/dialogue arrays use O(E+C+L) storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current contract/source maps share identity lookup and one camera/source mass serves each event's pan/attenuation/optional propagation; all object motions are still sampled per resolved event, with no cross-event pose cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh plan arrays and copied profiles, while listener positions may retain static camera translations; local mass parts and sampled channels leave scope, and no audio assets or decoder handles are acquired.
+ * @author Samchon
  */
-export const deriveProductionSoundPlan = (props: {
+export const deriveProductionSoundPlan: (props: {
+  timeline: IAutoMovieFilmTimeline;
+  contracts: ReadonlyMap<string, IAutoMovieShotContract>;
+  compiled: ReadonlyMap<string, IAutoMovieCompiledShotSource>;
+  propagationProfile?: IAutoMovieSoundPropagationProfile | undefined;
+  acousticProfile?: IAutoMovieAcousticResponseProfile | undefined;
+}) => IAutoMovieProductionSoundPlan = (props: {
   timeline: IAutoMovieFilmTimeline;
   contracts: ReadonlyMap<string, IAutoMovieShotContract>;
   compiled: ReadonlyMap<string, IAutoMovieCompiledShotSource>;
@@ -47,88 +57,109 @@ export const deriveProductionSoundPlan = (props: {
   acousticProfile?: IAutoMovieAcousticResponseProfile;
 }): IAutoMovieProductionSoundPlan => {
   const events: IAutoMovieProductionSoundPlan["events"] = [];
-  props.timeline.segments.forEach((segment, segmentIndex) => {
-    const contract = props.contracts.get(segment.shot);
-    const compiled = props.compiled.get(segment.shot);
-    if (contract === undefined || compiled === undefined)
-      throw new Error(
-        `Sound planning requires current contract and compiled source for shot "${segment.shot}".`,
+  props.timeline.segments.forEach(
+    (segment: IAutoMovieFilmTimelineSegment, segmentIndex: number): void => {
+      const contract: IAutoMovieShotContract | undefined = props.contracts.get(
+        segment.shot,
       );
-    const camera = compiled.scene.cameras.find(
-      (candidate) => candidate.id === compiled.shot.camera,
-    );
-    if (camera === undefined)
-      throw new Error(
-        `Sound planning cannot find shot "${segment.shot}" camera "${compiled.shot.camera}".`,
-      );
-    for (const sample of compiled.eventSamples) {
-      const event = contract.events.find(
-        (candidate) => candidate.id === sample.id,
-      );
-      if (event === undefined)
+      const compiled: IAutoMovieCompiledShotSource | undefined =
+        props.compiled.get(segment.shot);
+      if (contract === undefined || compiled === undefined)
         throw new Error(
-          `Compiled shot "${segment.shot}" sampled undeclared event "${sample.id}".`,
+          `Sound planning requires current contract and compiled source for shot "${segment.shot}".`,
         );
-      const sourceFrame = Math.round(sample.time * props.timeline.fps);
-      if (
-        sourceFrame < segment.sourceInFrame ||
-        sourceFrame >= segment.sourceOutFrame
-      )
-        continue;
-      const frame = segment.startFrame + sourceFrame - segment.sourceInFrame;
-      const listener = resolveCameraAt(
-        camera.transform,
-        compiled.shot.cameraMotion,
-        camera.id,
-        sample.time,
+      const camera: IAutoMovieCamera | undefined = compiled.scene.cameras.find(
+        (candidate: IAutoMovieCamera): boolean =>
+          candidate.id === compiled.shot.camera,
       );
-      const mass = resolveSourceMass(compiled, event.subjects, sample.time);
-      const emitter = mass.centroid;
-      const delta = Vector3.subtract(emitter, listener.position);
-      const distanceMeters = Vector3.length(delta);
-      const local = Quaternion.rotateVector(
-        Quaternion.inverse(listener.rotation),
-        delta,
-      );
-      // The listener is not `distanceMeters` from a source that has size: it is
-      // that far from the CENTROID. Substituting the root-mean-square
-      // source/listener distance is the whole of the extended-source model, and
-      // it serves the pan and the attenuation from one number.
-      const spreadRadiusMeters = Math.sqrt(mass.variance);
-      const rmsDistanceMeters = Math.hypot(distanceMeters, spreadRadiusMeters);
-      events.push({
-        id: `${segmentIndex}:${segment.shot}:${event.id}`,
-        shot: segment.shot,
-        event: event.id,
-        kind: event.kind,
-        frame,
-        timeSeconds: frame / props.timeline.fps,
-        emitter,
-        listener: listener.position,
-        distanceMeters,
-        memberCount: mass.count,
-        spreadRadiusMeters,
-        densityGain: Math.sqrt(mass.count),
-        pan: clamp(local.x / Math.max(rmsDistanceMeters, 1e-9), -1, 1),
-        attenuation: 1 / (1 + 0.08 * rmsDistanceMeters * rmsDistanceMeters),
-        ...(props.propagationProfile === undefined
-          ? {}
-          : {
-              propagation: deriveAutoMovieSoundPropagation({
-                distanceMeters: rmsDistanceMeters,
-                emissionFrame: frame,
-                segmentEndFrame: segment.endFrame,
-                fps: props.timeline.fps,
-                totalFrames: props.timeline.totalFrames,
-                profile: props.propagationProfile,
+      if (camera === undefined)
+        throw new Error(
+          `Sound planning cannot find shot "${segment.shot}" camera "${compiled.shot.camera}".`,
+        );
+      for (const sample of compiled.eventSamples) {
+        const event: IAutoMovieShotEventContract | undefined =
+          contract.events.find(
+            (candidate: IAutoMovieShotEventContract): boolean =>
+              candidate.id === sample.id,
+          );
+        if (event === undefined)
+          throw new Error(
+            `Compiled shot "${segment.shot}" sampled undeclared event "${sample.id}".`,
+          );
+        const sourceFrame: number = Math.round(
+          sample.time * props.timeline.fps,
+        );
+        if (
+          sourceFrame < segment.sourceInFrame ||
+          sourceFrame >= segment.sourceOutFrame
+        )
+          continue;
+        const frame: number =
+          segment.startFrame + sourceFrame - segment.sourceInFrame;
+        const listener: IAutoMovieResolvedCamera = resolveCameraAt(
+          camera.transform,
+          compiled.shot.cameraMotion,
+          camera.id,
+          sample.time,
+        );
+        const mass: IAutoMovieSoundMass = resolveSourceMass(
+          compiled,
+          event.subjects,
+          sample.time,
+        );
+        const emitter: IAutoMovieVector3 = mass.centroid;
+        const delta: IAutoMovieVector3 = Vector3.subtract(
+          emitter,
+          listener.position,
+        );
+        const distanceMeters: number = Vector3.length(delta);
+        const local: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(listener.rotation),
+          delta,
+        );
+        // The listener is not `distanceMeters` from a source that has size: it is
+        // that far from the CENTROID. Substituting the root-mean-square
+        // source/listener distance is the whole of the extended-source model, and
+        // it serves the pan and the attenuation from one number.
+        const spreadRadiusMeters: number = Math.sqrt(mass.variance);
+        const rmsDistanceMeters: number = Math.hypot(
+          distanceMeters,
+          spreadRadiusMeters,
+        );
+        events.push({
+          id: `${segmentIndex}:${segment.shot}:${event.id}`,
+          shot: segment.shot,
+          event: event.id,
+          kind: event.kind,
+          frame,
+          timeSeconds: frame / props.timeline.fps,
+          emitter,
+          listener: listener.position,
+          distanceMeters,
+          memberCount: mass.count,
+          spreadRadiusMeters,
+          densityGain: Math.sqrt(mass.count),
+          pan: clamp(local.x / Math.max(rmsDistanceMeters, 1e-9), -1, 1),
+          attenuation: 1 / (1 + 0.08 * rmsDistanceMeters * rmsDistanceMeters),
+          ...(props.propagationProfile === undefined
+            ? {}
+            : {
+                propagation: deriveAutoMovieSoundPropagation({
+                  distanceMeters: rmsDistanceMeters,
+                  emissionFrame: frame,
+                  segmentEndFrame: segment.endFrame,
+                  fps: props.timeline.fps,
+                  totalFrames: props.timeline.totalFrames,
+                  profile: props.propagationProfile,
+                }),
               }),
-            }),
-        seed: soundSeed(
-          `${props.timeline.inputFingerprint}|${segmentIndex}|${segment.shot}|${event.id}|${frame}`,
-        ),
-      });
-    }
-  });
+          seed: soundSeed(
+            `${props.timeline.inputFingerprint}|${segmentIndex}|${segment.shot}|${event.id}|${frame}`,
+          ),
+        });
+      }
+    },
+  );
   return {
     version: 1,
     inputFingerprint: props.timeline.inputFingerprint,
@@ -146,25 +177,69 @@ export const deriveProductionSoundPlan = (props: {
       ? {}
       : { acousticProfile: cloneAcousticProfile(props.acousticProfile) }),
     events: events.sort(
-      (left, right) =>
+      (
+        left: IAutoMovieProductionSoundEvent,
+        right: IAutoMovieProductionSoundEvent,
+      ): number =>
         left.frame - right.frame || compareCodeUnits(left.id, right.id),
     ),
-    cues: props.timeline.tracks.audio.map((cue) => ({
-      id: cue.id,
-      asset: cue.asset,
-      startFrame: cue.startFrame,
-      durationFrames: cue.durationFrames,
-      sourceOffsetFrame: cue.sourceOffsetFrame,
-      sourceDurationFrames: cue.sourceDurationFrames,
-      gain: cue.gain,
-      fadeInFrames: cue.fadeInFrames,
-      fadeOutFrames: cue.fadeOutFrames,
-      bus: cue.bus,
-      seed: soundSeed(
-        `${props.timeline.inputFingerprint}|cue|${cue.id}|${cue.asset}`,
-      ),
-    })),
-    dialogue: props.timeline.tracks.captions.map((line) => ({ ...line })),
+    cues: props.timeline.tracks.audio.map(
+      (cue: {
+        id: string;
+        asset: string;
+        sourceDurationFrames: number;
+        sourceOffsetFrame: number;
+        startFrame: number;
+        durationFrames: number;
+        gain: number;
+        fadeInFrames: number;
+        fadeOutFrames: number;
+        bus: "dialogue" | "music" | "effects" | "ambience";
+      }): {
+        id: string;
+        asset: string;
+        startFrame: number;
+        durationFrames: number;
+        sourceOffsetFrame: number;
+        sourceDurationFrames: number;
+        gain: number;
+        fadeInFrames: number;
+        fadeOutFrames: number;
+        bus: "dialogue" | "music" | "effects" | "ambience";
+        seed: number;
+      } => ({
+        id: cue.id,
+        asset: cue.asset,
+        startFrame: cue.startFrame,
+        durationFrames: cue.durationFrames,
+        sourceOffsetFrame: cue.sourceOffsetFrame,
+        sourceDurationFrames: cue.sourceDurationFrames,
+        gain: cue.gain,
+        fadeInFrames: cue.fadeInFrames,
+        fadeOutFrames: cue.fadeOutFrames,
+        bus: cue.bus,
+        seed: soundSeed(
+          `${props.timeline.inputFingerprint}|cue|${cue.id}|${cue.asset}`,
+        ),
+      }),
+    ),
+    dialogue: props.timeline.tracks.captions.map(
+      (line: {
+        id: string;
+        text: string;
+        language: string;
+        speaker?: string | undefined;
+        startFrame: number;
+        endFrame: number;
+      }): {
+        id: string;
+        text: string;
+        language: string;
+        speaker?: string | undefined;
+        startFrame: number;
+        endFrame: number;
+      } => ({ ...line }),
+    ),
   };
 };
 
@@ -172,13 +247,17 @@ export const deriveProductionSoundPlan = (props: {
  * One subject's contribution to an event's sound source: where its members are
  * centered, how many there are, and how far they lie from that center.
  *
- * `variance` is the MEAN SQUARED radius in m^2, not the radius, because that is
- * the quantity that composes: variances of disjoint groups add by weight, radii
- * do not.
+ * Variance is a modeled mean squared radius in square metres; group values
+ * use a uniform-box approximation and combine by the parallel-axis identity.
  */
 interface IAutoMovieSoundMass {
+  /** Modeled centre in the shot's world metre frame; temporary subject records may borrow it. */
   centroid: IAutoMovieVector3;
+
+  /** Equal-source member count supplied by the compiled subject. */
   count: number;
+
+  /** Modeled mean squared radius about centroid, in square metres. */
   variance: number;
 }
 
@@ -194,114 +273,134 @@ interface IAutoMovieSoundMass {
  *
  * ## Combining subjects
  *
- * Each member is one equal, mutually uncorrelated source, so the group's
- * acoustic center is the member-count-weighted mean of the subject centroids,
- * not their arithmetic mean. The unweighted mean was the second half of the
- * scale defect: an event naming one figure and the crowd behind it emitted from
- * the empty midpoint between them, as though the crowd were one person.
+ * The model treats each member as one equal, mutually uncorrelated source and
+ * combines subject centroids by member count.
  *
- * The combined spread follows by the parallel-axis identity, which makes it
- * exact rather than approximate:
+ * Given each modeled group variance, the parallel-axis identity combines it:
  *
  *     variance = sum_i n_i * (variance_i + |centroid_i - centroid|^2) / sum_i n_i
  *
  * ## A group's own radius
  *
  * The compiled runtime publishes a member count and an axis-aligned box, so the
- * members are taken as uniformly distributed over that box, the only
- * distribution its two facts support. For a uniform box with half-extents `h`,
+ * members are approximated as uniformly distributed over that box. Count and
+ * bounds alone do not determine an actual distribution. For half-extents `h`,
  * the mean squared distance from the center is `(hx^2 + hy^2 + hz^2)/3`, one
  * third of the squared half-diagonal.
  *
  * A formation's box is transformed by its live cue first
  * ({@link transformFormationBounds}), because a cue that rescales spacing
- * changes the crowd's size, and a crowd closing ranks should tighten in the mix
- * exactly as it tightens on screen.
+ * changes the bounding-box approximation used by the mix.
  *
  * Throwing when nothing resolves also covers the degenerate group: a subject
  * table that names only empty sets contributes no sources, and no sources is
  * silence, which is a contradiction in an event the contract says is audible.
  */
-const resolveSourceMass = (
+const resolveSourceMass: (
+  compiled: IAutoMovieCompiledShotSource,
+  subjects: readonly string[],
+  time: number,
+) => IAutoMovieSoundMass = (
   compiled: IAutoMovieCompiledShotSource,
   subjects: readonly string[],
   time: number,
 ): IAutoMovieSoundMass => {
-  const sampled = sampleClipSequence(compiled.shot.objectMotions, time);
-  const resolved = subjects.flatMap((subject): IAutoMovieSoundMass[] => {
-    const node = compiled.scene.nodes.find(
-      (candidate) => candidate.id === subject,
-    );
-    if (node !== undefined) {
-      const translation = sampled.get(`node:${subject}:translation`)?.value;
-      return [
-        {
-          centroid:
-            translation === undefined
-              ? node.transform.translation
-              : { x: translation[0]!, y: translation[1]!, z: translation[2]! },
-          count: 1,
-          variance: 0,
-        },
-      ];
-    }
-    const formation = compiled.formations.find(
-      (candidate) => candidate.id === subject,
-    );
-    if (formation !== undefined) {
-      const motion = sampleFormationMotion(
-        compiled.formationMotions ?? [],
-        formation.id,
-        time,
+  const sampled: Map<string, IAutoMovieSampledChannel> = sampleClipSequence(
+    compiled.shot.objectMotions,
+    time,
+  );
+  const resolved: IAutoMovieSoundMass[] = subjects.flatMap(
+    (subject: string): IAutoMovieSoundMass[] => {
+      const node: IAutoMovieSceneNode | undefined = compiled.scene.nodes.find(
+        (candidate: IAutoMovieSceneNode): boolean => candidate.id === subject,
       );
-      return [
-        {
-          centroid: transformFormationPoint(
-            formation.centroid,
-            formation.anchor,
-            motion,
-            formation.facingDeg,
-          ),
-          count: formation.count,
-          variance: boxVariance(
-            transformFormationBounds(
-              formation.bounds,
+      if (node !== undefined) {
+        const translation: number[] | undefined = sampled.get(
+          `node:${subject}:translation`,
+        )?.value;
+        return [
+          {
+            centroid:
+              translation === undefined
+                ? node.transform.translation
+                : {
+                    x: translation[0]!,
+                    y: translation[1]!,
+                    z: translation[2]!,
+                  },
+            count: 1,
+            variance: 0,
+          },
+        ];
+      }
+      const formation: IAutoMovieCompiledFormation | undefined =
+        compiled.formations.find(
+          (candidate: IAutoMovieCompiledFormation): boolean =>
+            candidate.id === subject,
+        );
+      if (formation !== undefined) {
+        const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+          compiled.formationMotions ?? [],
+          formation.id,
+          time,
+        );
+        return [
+          {
+            centroid: transformFormationPoint(
+              formation.centroid,
               formation.anchor,
               motion,
               formation.facingDeg,
             ),
-          ),
-        },
-      ];
-    }
-    const instances = compiled.instanceSets.find(
-      (candidate) => candidate.id === subject,
-    );
-    return instances === undefined
-      ? []
-      : [
-          {
-            centroid: instances.centroid,
-            count: instances.count,
-            variance: boxVariance(instances.bounds),
+            count: formation.count,
+            variance: boxVariance(
+              transformFormationBounds(
+                formation.bounds,
+                formation.anchor,
+                motion,
+                formation.facingDeg,
+              ),
+            ),
           },
         ];
-  });
-  const count = resolved.reduce((sum, mass) => sum + mass.count, 0);
+      }
+      const instances: IAutoMovieCompiledInstanceSet | undefined =
+        compiled.instanceSets.find(
+          (candidate: IAutoMovieCompiledInstanceSet): boolean =>
+            candidate.id === subject,
+        );
+      return instances === undefined
+        ? []
+        : [
+            {
+              centroid: instances.centroid,
+              count: instances.count,
+              variance: boxVariance(instances.bounds),
+            },
+          ];
+    },
+  );
+  const count: number = resolved.reduce(
+    (sum: number, mass: IAutoMovieSoundMass): number => sum + mass.count,
+    0,
+  );
   if (count === 0)
     throw new Error(
       `Sound event in shot "${compiled.shot.id}" has no spatially resolved subject among ${subjects.join(", ")}.`,
     );
-  const centroid = Vector3.scale(
+  const centroid: IAutoMovieVector3 = Vector3.scale(
     resolved.reduce(
-      (sum, mass) => Vector3.add(sum, Vector3.scale(mass.centroid, mass.count)),
+      (sum: IAutoMovieVector3, mass: IAutoMovieSoundMass): IAutoMovieVector3 =>
+        Vector3.add(sum, Vector3.scale(mass.centroid, mass.count)),
       Vector3.create(),
     ),
     1 / count,
   );
-  const variance =
-    resolved.reduce((sum, mass) => {
-      const offset = Vector3.length(Vector3.subtract(mass.centroid, centroid));
+  const variance: number =
+    resolved.reduce((sum: number, mass: IAutoMovieSoundMass): number => {
+      const offset: number = Vector3.length(
+        Vector3.subtract(mass.centroid, centroid),
+      );
       return sum + mass.count * (mass.variance + offset * offset);
     }, 0) / count;
   return { centroid, count, variance };
@@ -313,18 +412,22 @@ const resolveSourceMass = (
  *
  * Each axis is independent and uniform over `[-h, h]`, whose second moment is
  * `h^2/3`; summing the three gives the whole. A degenerate box (one slot, or a
- * line of them) correctly yields zero on the collapsed axes, so a single-member
- * formation is a point source and mixes exactly as it did before size existed.
+ * line of them) contributes zero on collapsed axes; a single member whose
+ * bounds include visible geometry can still have nonzero modeled spread.
  */
-const boxVariance = (bounds: IAutoMovieFormationBounds): number => {
-  const x = (bounds.max.x - bounds.min.x) / 2;
-  const y = (bounds.max.y - bounds.min.y) / 2;
-  const z = (bounds.max.z - bounds.min.z) / 2;
+const boxVariance: (bounds: IAutoMovieFormationBounds) => number = (
+  bounds: IAutoMovieFormationBounds,
+): number => {
+  const x: number = (bounds.max.x - bounds.min.x) / 2;
+  const y: number = (bounds.max.y - bounds.min.y) / 2;
+  const z: number = (bounds.max.z - bounds.min.z) / 2;
   return (x * x + y * y + z * z) / 3;
 };
 
 /** Defensively retain the exact selected propagation profile in the plan. */
-const clonePropagationProfile = (
+const clonePropagationProfile: (
+  profile: IAutoMovieSoundPropagationProfile,
+) => IAutoMovieSoundPropagationProfile = (
   profile: IAutoMovieSoundPropagationProfile,
 ): IAutoMovieSoundPropagationProfile => ({
   ...profile,
@@ -334,30 +437,42 @@ const clonePropagationProfile = (
 });
 
 /** Defensively retain the exact selected room-response source in the plan. */
-const cloneAcousticProfile = (
+const cloneAcousticProfile: (
+  profile: IAutoMovieAcousticResponseProfile,
+) => IAutoMovieAcousticResponseProfile = (
   profile: IAutoMovieAcousticResponseProfile,
 ): IAutoMovieAcousticResponseProfile =>
   profile.kind === "derived-room-analysis"
     ? { ...profile }
     : {
         ...profile,
-        roomMappings: profile.roomMappings.map((mapping) => ({ ...mapping })),
+        roomMappings: profile.roomMappings.map(
+          (mapping: {
+            source: string;
+            listener: string;
+            response: string;
+          }): { source: string; listener: string; response: string } => ({
+            ...mapping,
+          }),
+        ),
         ...(profile.provider === undefined
           ? {}
           : { provider: { ...profile.provider } }),
       };
 
-const soundSeed = (value: string): number => {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < value.length; ++index) {
+/** Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural palette; collisions are allowed and this value does not certify plan or asset identity. */
+const soundSeed: (value: string) => number = (value: string): number => {
+  let hash: number = 0x811c9dc5;
+  for (let index: number = 0; index < value.length; ++index) {
     hash ^= value.charCodeAt(index);
     hash = Math.imul(hash, 0x01000193);
   }
   return hash >>> 0;
 };
 
-const clamp = (value: number, minimum: number, maximum: number): number =>
-  Math.min(maximum, Math.max(minimum, value));
-
-const compareCodeUnits = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
+/** Clip the calculated pan to the declared scalar interval; NaN remains NaN for malformed spatial arithmetic rather than being replaced by a plausible direction. */
+const clamp: (value: number, minimum: number, maximum: number) => number = (
+  value: number,
+  minimum: number,
+  maximum: number,
+): number => Math.min(maximum, Math.max(minimum, value));

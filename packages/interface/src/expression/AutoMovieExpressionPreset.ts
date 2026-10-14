@@ -1,38 +1,33 @@
 /**
- * The closed set of **VRM 1.0 expression presets**: high-level named emotions
- * and visemes.
+ * Closed VRM 1.0 preset names for emotions, visemes and eye controls.
  *
- * Where {@link AutoMovieArkitChannel} is the fine-grained 52-channel control,
- * presets are the _coarse, semantic_ control surface: a single name an LLM can
- * pick to convey an emotion or a mouth shape, which the runtime expands into
- * the underlying blendshapes. Presets retarget across every VRM avatar
- * generically (the avatar author defines how each preset deforms its own mesh),
- * making them the most portable and most LLM-reliable expression handle.
+ * A preset supplies coarse intent while ARKit channels supply fine coefficients. Visemes name mouth-shape intent; blink and look presets name eye intent. The avatar's targets or expression sink determine whether and how those names deform its appearance.
  *
- * The five `aa`/`ih`/`ou`/`ee`/`oh` visemes drive lip-sync; the emotion set
- * drives mood; `blink` and the look directions drive eyes.
+ * applyExpression writes a non-neutral preset's own name and expands its explicit illustrative ARKit factor table at clamped intensity. Explicit blendshape weights then replace expanded values. Neutral alone adds no weights, while authored overrides still apply. Existing supported names reset before writes; absent morph targets remain absent and supplied sinks own external interpretation. validateExpression refuses unknown preset names.
  *
  * Reference: VRM 1.0 expressions (https://vrm.dev/en/vrm/vrm_features/).
  *
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-expression-channels Exposes `AutoMovieExpressionPreset` as the portable data boundary for the actor expression channels requirement.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Types `AutoMovieExpressionPreset` for the performance actor pose gaze expression state system contract.
+ * @evidence contracts/common.md#principled-implementation The union is the VRM 1.0 preset list verbatim; `applyExpression` maps each non-neutral preset to an authored ARKit channel table scaled by the intensity clamped to `[0, 1]`, which is an approximation for meshes without VRM preset targets rather than a mapping either standard defines.
+ * @evidence contracts/common.md#clear-and-simple-design One closed union is the whole coarse vocabulary, typed into `IAutoMovieExpression.preset`; the per-preset channel table lives in the viewer that applies it, not in this type.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No preset is given avatar-specific handling; like the ARKit channels, the engine's runtime `Set` and the viewer's preset list are type-checked only as subsets of this union, so review alone keeps them complete.
+ * @evidence contracts/common.md#meaningful-documentation States how presets relate to ARKit channels, which presets serve lip-sync, mood and eyes, how the viewer applies a preset to both target kinds and what `neutral` drives, the validator's refusal, and the upstream reference.
  * @author Samchon
  */
 export type AutoMovieExpressionPreset =
-  // ── emotion ──
+  // emotion
   | "neutral"
   | "happy"
   | "angry"
   | "sad"
   | "relaxed"
   | "surprised"
-  // ── lip-sync visemes ──
+  // lip-sync visemes
   | "aa"
   | "ih"
   | "ou"
   | "ee"
   | "oh"
-  // ── eyes ──
+  // eyes
   | "blink"
   | "blinkLeft"
   | "blinkRight"

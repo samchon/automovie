@@ -1,41 +1,24 @@
 import { IAutoMovieWorldBounds } from "./IAutoMovieWorldBounds";
 
 /**
- * An axis-aligned world-space effect volume.
+ * Named deterministic effect region binding a world-meter volume to a declared recipe and seed.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieWorldEffectZone` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieWorldEffectZone` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Recipe membership, ordered finite corners and nonnegative safe-integer seed are caller premises after world-gate retirement. Materialization uses the selected cue and shot or film owner, taking 52 bits from a domain-separated digest for the stream seed; equal zone seeds alone do not imply equal streams and truncation permits collisions. Bounds select initial positions rather than confining later drift.
+ * @evidence contracts/common.md#clear-and-simple-design Spatial bounds and stream seed stay on the zone while recipe behavior and temporal cue intensity remain separate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts materializeCompiledEffects drops cues with missing zones or recipes and copies other supplied zone fields without full bounds/seed admission. No region is inferred from a shot name or test-specific world arrangement; callers must establish the documented numeric domain.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable zone identity, existing recipe reference, world-meter volume and deterministic seed range.
+ * @author Samchon
  */
 export interface IAutoMovieWorldEffectZone {
-  /**
-   * Stable zone id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Stable zone id. */
   id: string;
 
-  /**
-   * Existing deterministic effect recipe id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `recipe` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `recipe` for the narrative intent story design ownership system contract.
-   */
+  /** Existing deterministic effect recipe id. */
   recipe: string;
 
-  /**
-   * World-space volume.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `bounds` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `bounds` for the narrative intent story design ownership system contract.
-   */
+  /** World-space volume. */
   bounds: IAutoMovieWorldBounds;
 
-  /**
-   * Explicit deterministic zone seed.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `seed` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `seed` for the narrative intent story design ownership system contract.
-   */
+  /** Explicit non-negative safe-integer deterministic zone seed. */
   seed: number;
 }

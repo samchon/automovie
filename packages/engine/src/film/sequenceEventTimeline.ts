@@ -1,114 +1,99 @@
-import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
-import { sequenceTimeline } from "./sequenceTimeline";
+import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
-const indexShots = (
-  shots: readonly IAutoMovieShot[],
-): Map<string, { shot: IAutoMovieShot; index: number }> => {
-  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
-  shots.forEach((shot, index) => {
-    const existing = byId.get(shot.id);
-    if (existing !== undefined)
-      throw new Error(
-        `shot id "${shot.id}" is duplicated at shots[${index}].id; first declared at shots[${existing.index}].id`,
-      );
-    byId.set(shot.id, { shot, index });
-  });
-  return byId;
-};
+/** Seconds within which two clock values count as the same instant. */
+const TIME_EPSILON: number = 1e-9;
 
 /**
- * Place every shot interaction event onto the sequence output clock. Events
- * outside a sequence entry's trimmed source range are omitted. The range is
- * half-open (`[from, to)`) so an event sitting exactly on a contiguous trim
- * seam is emitted once, by the entry that starts there, not once per
- * neighbouring entry (#1009); it closes at `to` when the trim ends at the
- * shot's own end (a shot-final event is never lost) AND when no other entry of
- * the same shot both starts at that shot-local instant and plays GLOBALLY
- * contiguous with this entry (#1061, #1099), cutting away exactly on a hit
- * hands the hit to the cut, not to silence, and a re-play of the same source
- * span elsewhere on the output clock (a flashback) cannot claim it.
+ * Place every shot interaction event onto the sequence output clock, once per play.
  *
- * Semantics are **per play** (#1080): each entry that shows an instant emits
- * that instant's events at its own global time, one source event re-played by a
- * flashback lands once per play, not once per film. "Emitted once" (#1009)
- * binds a single contiguous seam, where two entries share one on-screen
- * instant. Included events keep their shot-local `time` and also expose
- * `shotTime` plus `globalTime`.
+ * An entry emits the events inside its trimmed source range `[from, to)`, each at `start + (time - offset)`; events outside every trim are omitted. The range is half-open so an event exactly on a contiguous trim seam is emitted once, by the entry that starts there. It closes at `to` in two cases: when the trim ends at the shot's own end, so a shot-final event is never lost, and when no other entry of the same shot both starts at that shot-local instant and starts at this entry's global end, so cutting away exactly on a hit keeps the hit. A replay of the same source span elsewhere on the output clock, such as a flashback, does not take the seam event from the cut, because only a globally contiguous entry shows the same on-screen instant.
  *
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-canonical-time Maps in-range shot events to output time with half-open trim boundaries so a seam event is emitted exactly once.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-time-transforms Applies the supported unity-rate affine mapping `globalTime = entry.start + event.time - entry.offset`, without claiming scale, reverse, or hold support.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-story-film-order Keeps each source event's shot-local instant while assigning a distinct entry and global instant to every presentation replay.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-source-preservation Copies the source event payload unchanged and adds entry, shot-local, and global placement facts instead of rewriting the source shot.
- * @evidence requirements/story/beats-and-causality.md#story-semantic-event-identity Preserves the event's stable source id across trims and repeated presentation placements instead of replacing it with a frame or sequence index.
- * @evidence requirements/story/story-clock-and-state.md#story-presentation-chronology Keeps source `shotTime` separate from the authored sequence's affine `globalTime`; it does not infer chronology, reverse, or causal order.
- * @evidence requirements/staging/events-and-timing.md#staging-fixed-film-clock Converts each included shot-local event through the entry's trim offset and output start into one explicit global film-clock instant.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Projects trimmed events from shot-local seconds to deterministic output seconds while preserving per-play ownership.
- * @evidence specifications/editorial-render-and-delivery/editorial-version-conform-and-validation.md#spec-editorial-film-identity Preserves the source occurrence and represents each authored presentation placement as separate film-order data.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-semantic-event-occurrence Keeps one semantic event identity while separating every replayed sequence occurrence by its placement data.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-chronology-presentation Exposes the supported unity-rate source-to-presentation placement without rewriting source event time as story chronology.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output Maps every admitted occurrence onto the production clock and assigns a contiguous trim-boundary occurrence to exactly one play.
+ * Each entry that shows an instant emits that instant's events at its own global time, so an event replayed by a flashback lands once per play. The events are ordered by global time, then entry index, then event id by UTF-16 code units. Each keeps its shot-local `time` and adds `shotTime`, `entry`, `shot` and `globalTime`. Throws what {@link sequenceTimeline} throws.
+ *
+ * @param sequence The cut, already accepted by `cutSequence`.
+ * @param shots Every shot the cut references.
+ * @returns Every emitted play of every event, in output order.
+ *
+ * @evidence contracts/common.md#principled-implementation Maps each event through the entry's affine clock map and decides membership with half-open trim ranges, the interval convention under which contiguous ranges partition time without double counting; seam ownership requires both a shot-local and a global coincidence because only a contiguous entry shows the same frame, and all comparisons use one `1e-9` second tolerance for the floating sums the timeline produces.
+ * @evidence contracts/common.md#clear-and-simple-design Reads layout and the admitted shot index from preparePlaybackTimeline, the preparation sequenceTimeline also uses, so events and frames share one clock; the only additional index is the per-shot entry list the seam rule needs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No event kind, shot or entry is special-cased; the shot-end and seam rules apply to every entry by the same tests, and ties sort by code units rather than locale.
+ * @evidence contracts/common.md#meaningful-documentation States the range rule and both closing cases with their reasons, the per-play semantics, the order and its tie-breaks, the added fields, and the inherited throws.
+ * @evidence contracts/performance.md#efficient-algorithms O(S + E) to lay out and index, O(sum of events per played entry) to place, plus an O(Es) scan of the same shot's entries only for an event exactly on a trim end, and O(V log V) to sort the V emitted events; the sort is needed because entries overlap in transitions.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses preparePlaybackTimeline's shot index for every event lookup instead of indexing supplied shots twice; the layout and index refer to the same synchronous inputs. Callers derive events once per film; no cross-call cache exists.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The timeline, shot index and per-shot entry lists are released on return; the result holds one fresh record per emitted play, which grows with plays times events and lives as long as the caller keeps it.
  */
-export const sequenceEventTimeline = (
+export function sequenceEventTimeline(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
-): IAutoMoviePlaybackEvent[] => {
-  const timeline = sequenceTimeline(sequence, shots);
-  const byId = indexShots(shots);
-  const events: IAutoMoviePlaybackEvent[] = [];
-  const entriesByShot = new Map<string, IAutoMoviePlaybackEntry[]>();
+): IAutoMoviePlaybackEvent[] {
+  const { timeline, shotById }: ReturnType<typeof preparePlaybackTimeline> =
+    preparePlaybackTimeline(sequence, shots);
+  const entriesByShot: Map<string, IAutoMoviePlaybackEntry[]> = new Map();
   for (const entry of timeline.entries) {
-    const list = entriesByShot.get(entry.shot) ?? [];
+    const list: IAutoMoviePlaybackEntry[] = entriesByShot.get(entry.shot) ?? [];
     list.push(entry);
     entriesByShot.set(entry.shot, list);
   }
+
+  const events: IAutoMoviePlaybackEvent[] = [];
   for (const entry of timeline.entries) {
-    const shot = byId.get(entry.shot)!.shot;
-    const from = entry.offset;
-    const to = entry.offset + entry.played;
-    const globalEnd = entry.start + entry.played;
-    const atShotEnd = Math.abs(to - shot.duration) <= 1e-9;
-    // An event landing EXACTLY on this entry's trim end belongs to the entry
-    // that starts there (#1009), but ONLY when that entry plays globally
-    // contiguous with this one, sharing the on-screen instant. A same-shot
-    // entry re-playing the source span elsewhere on the output clock (a
-    // flashback) owns nothing here: shot-local coincidence alone suppressed
-    // the flashback's own cut hit into silence (#1099). And when no entry
-    // qualifies at all, this entry keeps the event (#1061).
-    const ownedElsewhere = (time: number): boolean =>
-      entriesByShot
+    const shot: IAutoMovieShot = shotById.get(entry.shot)!.shot;
+    const from: number = entry.offset;
+    const to: number = entry.offset + entry.played;
+    const globalEnd: number = entry.start + entry.played;
+    const atShotEnd: boolean = Math.abs(to - shot.duration) <= TIME_EPSILON;
+    // An event exactly on this entry's trim end belongs to the entry that
+    // starts there only when that entry also starts at this entry's global
+    // end, sharing the on-screen instant; otherwise this entry keeps it.
+    function ownedElsewhere(time: number): boolean {
+      return entriesByShot
         .get(entry.shot)!
         .some(
-          (other) =>
-            Math.abs(other.offset - time) <= 1e-9 &&
-            Math.abs(other.start - globalEnd) <= 1e-9,
+          (other: IAutoMoviePlaybackEntry): boolean =>
+            Math.abs(other.offset - time) <= TIME_EPSILON &&
+            Math.abs(other.start - globalEnd) <= TIME_EPSILON,
         );
+    }
     for (const event of shot.events ?? []) {
-      if (event.time < from - 1e-9) continue;
+      if (event.time < from - TIME_EPSILON) continue;
       if (
         atShotEnd
-          ? event.time > to + 1e-9
-          : Math.abs(event.time - to) <= 1e-9
+          ? event.time > to + TIME_EPSILON
+          : Math.abs(event.time - to) <= TIME_EPSILON
             ? ownedElsewhere(event.time)
-            : event.time >= to - 1e-9
+            : event.time >= to - TIME_EPSILON
       )
         continue;
-      events.push({
-        ...event,
-        entry: entry.entry,
-        shot: entry.shot,
-        shotTime: event.time,
-        globalTime: entry.start + (event.time - entry.offset),
-      });
+      events.push(placed(event, entry));
     }
   }
   return events.sort(
-    (a, b) =>
+    (a: IAutoMoviePlaybackEvent, b: IAutoMoviePlaybackEvent): number =>
       a.globalTime - b.globalTime ||
       a.entry - b.entry ||
       compareCodeUnits(a.id, b.id),
   );
-};
+}
+
+/** One play of `event` by `entry`, stamped with its output time. */
+function placed(
+  event: IAutoMovieInteractionEvent,
+  entry: IAutoMoviePlaybackEntry,
+): IAutoMoviePlaybackEvent {
+  return {
+    ...event,
+    entry: entry.entry,
+    shot: entry.shot,
+    shotTime: event.time,
+    globalTime: entry.start + (event.time - entry.offset),
+  };
+}

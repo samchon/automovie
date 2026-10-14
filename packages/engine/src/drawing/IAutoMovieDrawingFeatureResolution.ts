@@ -3,51 +3,50 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 /**
  * What resolving one annotation target against the current design produced.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Carries the exact anchor, orientation, feature count, and stale explanation that keeps a drawing annotation traceable to current geometry.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Defines the complete resolved-or-stale result of looking up one authored drawing feature in the built environment.
+ * `resolveAutoMovieDrawingFeature` returns one per target. A resolved target
+ * carries a world point in metres and a null `reason`; a stale one carries a
+ * null point and direction and the sentence explaining why, so a drawing can
+ * keep the note visible as stale instead of dropping it or pinning it to a
+ * guessed place.
+ *
+ * @evidence contracts/common.md#principled-implementation A two-state result with nullable payload fields records success or the exact cause of failure as data, so a target that no longer resolves is reported rather than approximated or thrown.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record for every feature kind, with `direction` null where a kind has none, so drawing and annotation code reads one shape whatever the target names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No direction is invented for a directionless feature and no nearest feature substitutes for a missing one; `count` is reported as measured, including zero for unreachable or invalid targets.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states who produces it, what each status carries, the units, which kinds have a direction and why the rest do not, every case in which `count` is zero, and what `reason` holds.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; the resolver builds one per target.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the resolver reuses one design index across targets, not results.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of at most two points, a count and a sentence, owned by the caller that asked for it.
+ * @author Samchon
  */
 export interface IAutoMovieDrawingFeatureResolution {
-  /**
-   * Whether the target still addresses a feature of the design.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Marks whether the annotation target still names a real feature or must be shown as stale.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Distinguishes a successful current-geometry lookup from an invalidated feature reference.
-   */
+  /** Whether the target still addresses a feature of the design. */
   status: "resolved" | "stale";
-  /**
-   * World position of the feature, or `null` when stale.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Supplies the current world-space anchor from which the drawing places the resolved note or dimension.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Holds the transformed feature coordinate on success and `null` for a stale reference.
-   */
+
+  /** World position of the feature in metres, or `null` when stale. */
   point: IAutoMovieVector3 | null;
+
   /**
    * Unit world direction the feature carries, or `null`.
    *
    * An edge and an axis have one; a vertex, a face centre and a centroid do
    * not, and inventing an arbitrary direction for them would make a leader line
-   * point somewhere the design never said.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Supplies the normalized world direction used to orient an axis- or edge-based annotation.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Preserves a directional feature's transformed orientation while leaving nondirectional features explicitly directionless.
+   * point somewhere the design never said. Always `null` when stale.
    */
   direction: IAutoMovieVector3 | null;
+
   /**
    * How many features of this kind the design currently has.
    *
-   * Populated even when the target is stale because the count changed, since
-   * that number is exactly what the author has to write to re-pin the note.
-   * Zero when the element, part or model could not be reached at all.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Reports the current number of selectable features so a stale indexed annotation can be repaired against the revised model.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Retains the actual feature cardinality even when the authored expected count or index no longer matches.
+   * Populated even when the target is stale because the count changed or its
+   * index fell outside the features, since that number is exactly what the
+   * author has to write to re-pin the note. Zero when the element, part or
+   * model could not be reached at all, and also when an axis or centroid
+   * target names an invalid index, an axis collapses under its element's
+   * scale, or the element has no geometry for a centroid; zero alone therefore
+   * does not mean the element was unreachable.
    */
   count: number;
-  /**
-   * Exactly why the target no longer resolves, or `null` when resolved.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views States why a pinned annotation no longer resolves instead of silently omitting or relocating it.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Carries the precise lookup, topology, or count failure for a stale target and `null` after successful resolution.
-   */
+
+  /** Exactly why the target no longer resolves, or `null` when resolved. */
   reason: string | null;
 }

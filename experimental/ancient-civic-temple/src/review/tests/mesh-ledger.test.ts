@@ -1,7 +1,8 @@
 /**
- * mesh-ledger 측정 경로를 독립적으로 아는 경우에 대조한다(`review-verification/measurements.md`):
- * 닫힌 상자, 한 면만 나눈 T 접합 상자, 뚜껑 없는 상자, 뒤집힌 면, 떨어진 두 상자, 모서리에 붙은
- * 한 장짜리 막음(production의 지붕 높이 차이 막음과 같은 형태), 반복 호출의 결정성.
+ * Checks mesh-ledger against independently known measurement cases
+ * (): a closed box, a T-junction box with only
+ * one face split, a lidless box, an inverted face, two separate boxes, one sheet
+ * attached to an edge (the production's roof step-closure form), and repeated-call determinism.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -52,7 +53,7 @@ void test("flipped face: winding errors are reported", () => {
   const account = accountFaces("flipped", faces);
   assert.ok(account.windingErrors > 0);
   assert.ok(account.openEdges > 0, "unpaired directed sub-edges");
-  assert.ok(closureFindings(account, true).some((f) => f.startsWith("감김 오류")));
+  assert.ok(closureFindings(account, true).some((f) => f.startsWith("winding errors")));
 });
 
 void test("two separate boxes: two components, summed volume", () => {
@@ -102,5 +103,5 @@ void test("determinism and input preservation", () => {
   assert.deepEqual(first, second);
   assert.equal(JSON.stringify(mesh), copy);
   near(first.volume, 1);
-  assert.throws(() => accountMeshes("empty", []), /결산할 mesh가 없습니다/);
+  assert.throws(() => accountMeshes("empty", []), /no meshes to account/);
 });

@@ -1,75 +1,97 @@
 import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo.js";
 import type { IHumanViewerRevisionReadIo } from "./IHumanViewerRevisionReadIo.js";
 
-const SOURCE = [".ts", ".mts", ".cts", ".tsx", ".js", ".mjs", ".json", ".wasm"];
+const SOURCE: readonly string[] = [
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".js",
+  ".mjs",
+  ".json",
+  ".wasm",
+];
 
 /**
- * The source file an import specifier names, or `null` for a module outside
- * the repository's own source (a registry package, a Node built-in).
+ * Resolve a supported relative or workspace import, returning null for registry packages, Node built-ins and unavailable targets. The supplied filesystem owner enforces physical checkout containment; an escaping relative path or symlink can throw rather than returning null.
  *
- * A relative specifier is tried as written, then with each source extension,
- * then as a folder index, and a written `.js`, `.mjs` or `.cjs` also stands for
- * the TypeScript module of the same emitted kind. Workspace imports select
- * the actual package manifest's exact or most-specific pattern export, then
- * its ordered Node/import/default conditions. These are source-graph consumers:
- * the numerical Node realm uses those conditions and the inspection browser's
- * explicit Human source aliases currently select the same declared source.
- * Normal Playground browser/library receipts have their own input authority.
- * Browser-only exports are not silently guessed into a private source leaf.
- * With no export map, only the declared root main entry is supported. Public
- * assets and compiled targets retain their declared path and bytes as well.
- * Paths are forward-slash and absolute; an unavailable target returns null.
+ * A relative specifier is tried as written, then with each source extension, then as a folder index, and a written `.js`, `.mjs` or `.cjs` also stands for the TypeScript module of the same emitted kind. Workspace imports select the actual package manifest's exact or most-specific pattern export, then its ordered Node/import/default conditions. These are source-graph consumers: the numerical Node realm uses those conditions and the inspection browser's explicit Human source aliases currently select the same declared source. Normal Playground browser/library receipts have their own input authority. Browser-only exports are not silently guessed into a private source leaf. With no export map, only the declared root main entry is supported. Public assets and compiled targets retain their declared path and bytes as well. Paths are forward-slash and absolute; an unavailable target returns null.
  *
- * @evidence contracts/common.md#principled-implementation Relative module kinds retain their emitted extension mapping, while workspace ownership follows the actual declared export and ordered active Node conditions.
- * @evidence contracts/common.md#clear-and-simple-design One resolver separates relative-source probing from public manifest selection without a private-package leaf fallback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, blocked or unsupported public targets remain unknown; an existing private file cannot override the package's declared route.
- * @evidence contracts/common.md#meaningful-documentation States the current inspection source consumers, separate normal browser authority, manifest selection and actual target ownership.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supported relative and workspace specifiers probe actual source and emitted-extension candidates through the supplied filesystem authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One existence-based resolver supplies the revision graph with a shared path and extension convention.
+ * @evidence contracts/common.md#principled-implementation Resolves relative source forms and workspace manifest exact/pattern exports under ordered node/import/default conditions, returning null for unsupported registry/builtin or unavailable targets. Relative path construction itself is lexical; createNodeHumanViewerResolveIo supplies the physical checkout check and propagates outside-root refusal.
+ * @evidence contracts/common.md#clear-and-simple-design Source-form lookup and manifest target selection remain in one source-graph resolver; the actual dependency collector owns traversal and byte hashing.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry modules and browser-only targets are not guessed into convenient repository leaves; export arrays are unsupported and this adapter is not a general Node resolver.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies supported extensions, emitted-kind mapping, workspace conditions and physical target availability limitations.
+ * @evidence contracts/performance.md#efficient-algorithms Relative resolution tries a fixed extension list; workspace selection scans and sorts matching export patterns and parses manifest bytes, with work driven by manifest size and export count.
+ * @evidence contracts/performance.md#reuse-equivalent-work The supplied IO records manifest/source dependencies; completed graph reuse belongs to revision ownership and this resolver holds no independent path memo.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only temporary path strings and manifest objects are allocated; file reads and physical path ownership remain with the supplied IO and no handle is retained.
  */
 export function resolveHumanViewerImport(
   specifier: string,
   from: string,
-  props: { root: string; io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo },
+  props: {
+    root: string;
+    io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo;
+  },
 ): string | null {
-  const stem = (base: string): string | null => {
-    const written = base.replace(/\.(mjs|cjs|js)$/, "");
-    const emitted = base.endsWith(".mjs") ? [".mts"] : base.endsWith(".cjs") ? [".cts"] : [".ts", ".tsx"];
-    const forms = [
+  const stem: (base: string) => string | null = (
+    base: string,
+  ): string | null => {
+    const written: string = base.replace(/\.(mjs|cjs|js)$/, "");
+    const emitted: string[] = base.endsWith(".mjs")
+      ? [".mts"]
+      : base.endsWith(".cjs")
+        ? [".cts"]
+        : [".ts", ".tsx"];
+    const forms: string[] = [
       base,
-      ...(written === base ? SOURCE.map((extension) => base + extension) : []),
+      ...(written === base
+        ? SOURCE.map((extension: string): string => base + extension)
+        : []),
       ...(written === base
         ? []
-        : emitted.map((extension) => written + extension)),
-      ...(written === base ? SOURCE.map((extension) => `${base}/index${extension}`) : []),
+        : emitted.map((extension: string): string => written + extension)),
+      ...(written === base
+        ? SOURCE.map((extension: string): string => `${base}/index${extension}`)
+        : []),
     ];
-    return forms.find((form) => props.io.exists(form)) ?? null;
+    return forms.find((form: string): boolean => props.io.exists(form)) ?? null;
   };
   if (specifier.startsWith(".")) {
-    const parts = from.split("/").slice(0, -1);
+    const parts: string[] = from.split("/").slice(0, -1);
     for (const part of specifier.split("/")) {
       if (part === "..") parts.pop();
       else if (part !== ".") parts.push(part);
     }
     return stem(parts.join("/"));
   }
-  const workspace = /^@automovie\/([^/]+)(?:\/(.+))?$/.exec(specifier);
+  const workspace: RegExpExecArray | null =
+    /^@automovie\/([^/]+)(?:\/(.+))?$/.exec(specifier);
   if (workspace === null) return null;
-  const base = `${props.root}/packages/${workspace[1]}`;
-  const manifestFile = `${base}/package.json`;
+  const base: string = `${props.root}/packages/${workspace[1]}`;
+  const manifestFile: string = `${base}/package.json`;
   if (!props.io.exists(manifestFile)) return null;
-  const text = props.io.read(manifestFile);
+  const text: string | undefined = props.io.read(manifestFile);
   if (text === undefined) return null;
   let manifest: Record<string, unknown>;
-  try { manifest = JSON.parse(text) as Record<string, unknown>; }
-  catch { return null; }
-  const key = workspace[2] === undefined ? "." : `./${workspace[2]}`;
-  const choose = (value: unknown): string | null | undefined => {
+  try {
+    manifest = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+  const key: string = workspace[2] === undefined ? "." : `./${workspace[2]}`;
+  const choose: (value: unknown) => string | null | undefined = (
+    value: unknown,
+  ): string | null | undefined => {
     if (typeof value === "string") return value;
-    if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
+    if (value === null || typeof value !== "object" || Array.isArray(value))
+      return null;
     for (const [condition, target] of Object.entries(value))
-      if (condition === "node" || condition === "import" || condition === "default") {
-        const selected = choose(target);
+      if (
+        condition === "node" ||
+        condition === "import" ||
+        condition === "default"
+      ) {
+        const selected: string | null | undefined = choose(target);
         if (selected !== undefined) return selected;
       }
     return undefined;
@@ -77,30 +99,59 @@ export function resolveHumanViewerImport(
   let target: string | null;
   if (manifest.exports === undefined) {
     if (key !== "." || typeof manifest.main !== "string") return null;
-    target = manifest.main.startsWith("./") ? manifest.main : "./" + manifest.main;
+    target = manifest.main.startsWith("./")
+      ? manifest.main
+      : "./" + manifest.main;
   } else {
-    const exports = manifest.exports;
-    if (exports !== null && typeof exports === "object" && !Array.isArray(exports) &&
-        Object.keys(exports).some((name) => name.startsWith("."))) {
-      const entries = exports as Record<string, unknown>;
+    const exports: unknown = manifest.exports;
+    if (
+      exports !== null &&
+      typeof exports === "object" &&
+      !Array.isArray(exports) &&
+      Object.keys(exports).some((name: string): boolean => name.startsWith("."))
+    ) {
+      const entries: Record<string, unknown> = exports as Record<
+        string,
+        unknown
+      >;
       if (Object.hasOwn(entries, key)) target = choose(entries[key]) ?? null;
       else {
-        const pattern = Object.keys(entries).filter((name) => {
-          const star = name.indexOf("*");
-          return star !== -1 && key.startsWith(name.slice(0, star)) &&
-            key.endsWith(name.slice(star + 1)) && key.length >= name.length - 1;
-        }).sort((left, right) => right.indexOf("*") - left.indexOf("*") || right.length - left.length)[0];
+        const pattern: string | undefined = Object.keys(entries)
+          .filter((name: string): boolean => {
+            const star: number = name.indexOf("*");
+            return (
+              star !== -1 &&
+              key.startsWith(name.slice(0, star)) &&
+              key.endsWith(name.slice(star + 1)) &&
+              key.length >= name.length - 1
+            );
+          })
+          .sort(
+            (left: string, right: string): number =>
+              right.indexOf("*") - left.indexOf("*") ||
+              right.length - left.length,
+          )[0];
         if (pattern === undefined) return null;
-        const star = pattern.indexOf("*");
-        const matched = key.slice(star, key.length - (pattern.length - star - 1));
+        const star: number = pattern.indexOf("*");
+        const matched: string = key.slice(
+          star,
+          key.length - (pattern.length - star - 1),
+        );
         target = choose(entries[pattern]) ?? null;
         if (target !== null) target = target.replaceAll("*", matched);
       }
-    } else target = key === "." ? choose(exports) ?? null : null;
+    } else target = key === "." ? (choose(exports) ?? null) : null;
   }
-  if (target === null || !target.startsWith("./") || target.includes("\\")) return null;
-  const segments = target.slice(2).split("/");
-  if (segments.some((segment) => segment === "." || segment === ".." || segment === "node_modules")) return null;
-  const selected = `${base}/${target.slice(2)}`;
+  if (target === null || !target.startsWith("./") || target.includes("\\"))
+    return null;
+  const segments: string[] = target.slice(2).split("/");
+  if (
+    segments.some(
+      (segment: string): boolean =>
+        segment === "." || segment === ".." || segment === "node_modules",
+    )
+  )
+    return null;
+  const selected: string = `${base}/${target.slice(2)}`;
   return props.io.exists(selected) ? selected : null;
 }

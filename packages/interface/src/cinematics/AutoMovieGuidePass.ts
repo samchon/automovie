@@ -1,42 +1,45 @@
 /**
- * One diffusion-guide render pass over the same deterministic frame.
+ * One beauty or structural render pass over an engine frame.
  *
- * A automovie render is not the final image; it is the stable performance a
- * generative video pass paints over. Each pass name selects what the viewer
- * draws for a frame so a diffusion workflow (ControlNet-style conditioning) can
- * follow the structure automovie computed:
+ * `beauty` delivers the ordinary shaded film frame. Structural passes support inspection and can also supply external conditioning; each name selects the viewer projection of the current scene:
  *
- * - `beauty`: the ordinary shaded render (the default preview).
- * - `depth`: depth-to-grayscale on a scene-stable metric range, the depth hint.
- * - `mask`: per-scene-node flat silhouette colors, the segmentation hint.
- * - `normal`: the unlit surface-normal render, the normal-map hint (#1166).
- * - `outline`: real white silhouette edges on black (an inverted-hull contour),
- *   the line/edge hint (#1166); no host post-processing required.
- * - `pose`: the skeleton overlay: bone segments over a flat background, the pose
- *   hint.
+ * - `beauty`: the ordinary shaded render and the default preview.
+ * - `depth`: grays linear in camera-space distance over a scene-stable metric
+ *   range rather than the clip planes, with a black background for infinite
+ *   distance; the depth hint.
+ * - `mask`: flat unlit colours per semantic entity, or per top-level scene
+ *   child when the scene carries no semantic palette; the segmentation hint.
+ * - `normal`: the unlit surface-normal render; the normal-map hint.
+ * - `outline`: white inverted-hull silhouette contours on black, with no host
+ *   post-processing; the line hint.
+ * - `pose`: meshes hidden and every bone-to-child segment drawn over black;
+ *   the pose hint.
  *
- * Closed union so an invalid pass name is structurally impossible at the LLM
- * surface; the render/viewer packages carry the matching runtime list.
+ * The closed union makes an unknown pass name a type error at the authoring
+ * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list
+ * for untyped input.
  *
- * @evidence requirements/camera/axis-eyeline-and-screen-direction.md#camera-180-line Exposes `AutoMovieGuidePass` as the portable data boundary for the camera 180 line requirement.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-line-eyeline-travel-evaluation Types `AutoMovieGuidePass` for the clv line eyeline travel evaluation system contract.
+ * @evidence contracts/common.md#principled-implementation The closed union matches `AUTOMOVIE_GUIDE_PASSES`; `applyRenderMode` leaves beauty unchanged and dispatches structural builders that replace materials or add overlays, returning a restoration handle. Anonymous instanced actors have no scene bones for the pose overlay, so equal source frames do not imply equal represented populations across passes.
+ * @evidence contracts/common.md#clear-and-simple-design A bare literal union with one member per pass is the whole vocabulary; how each pass is drawn belongs to the viewer and how its frames are named belongs to render, so the type carries only identity and meaning.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The union is the only structural constraint, with no wrapper alias or validator tag, and the runtime list lives in render because this package is pure types.
+ * @evidence contracts/common.md#meaningful-documentation Names beauty as the shaded output, describes each structural projection and optional conditioning use, states depth normalization and mask fallback, and identifies the runtime list and pose-population limitation.
  * @author Samchon
  */
 export type AutoMovieGuidePass =
   /** Ordinary shaded render. */
   | "beauty"
 
-  /** Depth-to-grayscale conditioning pass. */
+  /** Metric depth rendered as linear gray. */
   | "depth"
 
-  /** Per-node flat-color segmentation pass. */
+  /** Flat-colour segmentation by semantic entity. */
   | "mask"
 
-  /** Unlit surface-normal pass. */
+  /** Unlit surface-normal render. */
   | "normal"
 
-  /** Silhouette edge pass: white contour lines on black. */
+  /** White silhouette contours on black. */
   | "outline"
 
-  /** Skeleton-overlay pose pass. */
+  /** Bone segments over black with meshes hidden. */
   | "pose";

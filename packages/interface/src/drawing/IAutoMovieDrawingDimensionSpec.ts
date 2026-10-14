@@ -3,32 +3,24 @@ import { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
 /**
  * What a dimension measures, and between which two features.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingDimensionSpec` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingDimensionSpec` for the interior space drawing schedule quantity system contract.
+ * Every derivation resolves both features against the current design and
+ * measures between their points. `deriveAutoMovieDrawing` refuses a view in
+ * which two dimensions share an id.
+ *
+ * @evidence contracts/common.md#principled-implementation A dimension stores its two pinned features and the measure, never a number, so `deriveAutoMovieDrawing` recomputes the distance from the current design on each derivation.
+ * @evidence contracts/common.md#clear-and-simple-design Two feature targets and one measure literal describe every linear dimension; its stroke comes from the view's pen and its value from the derivation, so neither is stored.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No typed or cached value can override the computed one; a repeated id within a view's dimensions is refused by the derivation rather than resolved twice.
+ * @evidence contracts/common.md#meaningful-documentation States that both ends are re-resolved, what each measure computes and why both exist, and that a repeated id is refused.
+ * @author Samchon
  */
 export interface IAutoMovieDrawingDimensionSpec {
-  /**
-   * Stable dimension identity within the view.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `id` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `id` for the interior space drawing schedule quantity system contract.
-   */
+  /** Dimension id, unique among the view's dimensions. */
   id: string;
 
-  /**
-   * Feature the measurement starts at.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `from` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `from` for the interior space drawing schedule quantity system contract.
-   */
+  /** Feature the measurement starts at. */
   from: IAutoMovieDrawingFeature;
 
-  /**
-   * Feature the measurement ends at.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `to` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `to` for the interior space drawing schedule quantity system contract.
-   */
+  /** Feature the measurement ends at. */
   to: IAutoMovieDrawingFeature;
 
   /**
@@ -38,9 +30,6 @@ export interface IAutoMovieDrawingDimensionSpec {
    * A plan dimension across a sloped ramp is a different number in each, and a
    * drawing that could not say which one it meant would be unusable for setting
    * out.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `measure` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `measure` for the interior space drawing schedule quantity system contract.
    */
   measure: "page" | "world";
 }

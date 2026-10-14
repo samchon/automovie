@@ -6,6 +6,7 @@ import { materialBaseColourRgb } from "../../../common/colour/materialBaseColour
 import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisEye } from "../../structures/IAutoMovieHumanFaceBasisEye";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
 import { HUMAN_FACE_IRIS_EDGE } from "./HUMAN_FACE_IRIS_EDGE";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
@@ -63,6 +64,14 @@ import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisP
  * records remain admitted, while an unselected source eye still requires its
  * textured globe. The selected owner population is part of the cache key and
  * preparation is rebuilt when it changes; the caller's set is never retained.
+ *
+ * @evidence contracts/common.md#principled-implementation Neutral articulated globe registration and the canonical polar pigment rule repaint only admitted iris texels, preserving remaining source texture bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Preparation owns decoding/disc rasterization lazily; the returned rule replaces textures only in the builder-owned material array.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A neutral-geometry pigment cache does not preserve absolute iris diameter under nonrigid identity morphs; excluded generated owners still retain pigment admission.
+ * @evidence contracts/common.md#meaningful-documentation The prose states metric neutral geometry, pixel/radian charts, omission behavior, material mutation and owner-selection invalidation.
+ * @evidence contracts/performance.md#efficient-algorithms Compilation scans source regions once per articulated eye. Every call admits both eight-band palettes and selects owners; a cache miss copies and encodes each selected material's entire image and paints its prepared texels. Publication searches the destination material array once per resulting texture, including on cache hits.
+ * @evidence contracts/performance.md#reuse-equivalent-work Ordered selected owner IDs invalidate preparation; JSON serialization of those IDs and both pigment records keys the single last PNG result. Neutral copied globe geometry and source texture strings stay fixed for this compiled rule; identity morphs do not invalidate that neutral correspondence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The rule retains neutral globe readings, one selected preparation and one last texture map until builder release; no independent texture-size bound or external handle is acquired.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,
@@ -71,14 +80,24 @@ export function createHumanFaceIrisPigment(
   materials: IAutoMovieMaterial[],
   excludedOwners?: ReadonlySet<string>,
 ) => void {
-  const globes = (basis.articulation?.eyes ?? []).map((eye) => ({
-    eye: eye.id,
-    globe: findHumanFaceIrisGlobe(basis, eye.id),
-  }));
+  const globes: { eye: string; globe: IHumanFaceIrisGlobe | null }[] = (
+    basis.articulation?.eyes ?? []
+  ).map(
+    (
+      eye: IAutoMovieHumanFaceBasisEye,
+    ): { eye: string; globe: IHumanFaceIrisGlobe | null } => ({
+      eye: eye.id,
+      globe: findHumanFaceIrisGlobe(basis, eye.id),
+    }),
+  );
   let prepared: Map<string, IHumanFaceIrisPreparedTexture> | undefined;
   let preparedOwners: string | undefined;
   let cache: { key: string; textures: Map<string, string> } | undefined;
-  return (iris, materials, excludedOwners) => {
+  return (
+    iris: IAutoMovieHumanFaceIris | null | undefined,
+    materials: IAutoMovieMaterial[],
+    excludedOwners: ReadonlySet<string> | undefined,
+  ): void => {
     if (iris === undefined || iris === null) return;
     const bands: Record<string, [number, number, number][]> = {
       leftEye: createPortraitIrisMaterials("iris", iris.left).map(
@@ -90,46 +109,70 @@ export function createHumanFaceIrisPigment(
     };
     if (globes.length === 0)
       throw new Error("Iris pigment needs a basis with articulated eyes.");
-    const selected = globes.filter(({ eye }) => !excludedOwners?.has(eye));
-    const paintable: IHumanFaceIrisGlobe[] = selected.map(({ eye, globe }) => {
-      if (bands[eye] === undefined)
-        throw new Error(
-          "Iris pigment names leftEye and rightEye only, not " + eye + ".",
-        );
-      if (globe === null)
-        throw new Error("Iris pigment needs a textured globe for " + eye + ".");
-      return globe;
-    });
-    const owners = JSON.stringify(selected.map(({ eye }) => eye));
-    const key = JSON.stringify([owners, iris.left, iris.right]);
+    const selected: { eye: string; globe: IHumanFaceIrisGlobe | null }[] =
+      globes.filter(
+        ({
+          eye,
+        }: {
+          eye: string;
+          globe: IHumanFaceIrisGlobe | null;
+        }): boolean => !excludedOwners?.has(eye),
+      );
+    const paintable: IHumanFaceIrisGlobe[] = selected.map(
+      ({
+        eye,
+        globe,
+      }: {
+        eye: string;
+        globe: IHumanFaceIrisGlobe | null;
+      }): IHumanFaceIrisGlobe => {
+        if (bands[eye] === undefined)
+          throw new Error(
+            "Iris pigment names leftEye and rightEye only, not " + eye + ".",
+          );
+        if (globe === null)
+          throw new Error(
+            "Iris pigment needs a textured globe for " + eye + ".",
+          );
+        return globe;
+      },
+    );
+    const owners: string = JSON.stringify(
+      selected.map(
+        ({ eye }: { eye: string; globe: IHumanFaceIrisGlobe | null }): string =>
+          eye,
+      ),
+    );
+    const key: string = JSON.stringify([owners, iris.left, iris.right]);
     if (cache?.key !== key) {
       if (preparedOwners !== owners) {
         prepared = prepareHumanFaceIrisTextures(paintable);
         preparedOwners = owners;
       }
-      const textures = new Map<string, string>();
+      const textures: Map<string, string> = new Map<string, string>();
       for (const [material, texture] of prepared!) {
-        const rgba = texture.rgba.slice();
+        const rgba: Uint8Array<ArrayBuffer> = texture.rgba.slice();
         for (const { eye, disc, texels, sclera } of texture.eyes)
-          texels.index.forEach((index, at) => {
-            const theta = texels.theta[at];
-            const painted = [0, 1, 2].map((c) =>
+          texels.index.forEach((index: number, at: number): void => {
+            const theta: number = texels.theta[at];
+            const painted: number[] = [0, 1, 2].map((c: number): number =>
               srgbByteToLinear(texture.rgba[4 * index + c]),
             );
             // Under an anatomical disc smaller than the texture's painted
             // iris, the rest of that iris becomes sclera, blended into the
             // painting across its edge.
-            const cover =
+            const cover: number =
               disc.painted > disc.limbus
                 ? clampAutoMovieUnitInterval(
                     (disc.painted + HUMAN_FACE_IRIS_EDGE - theta) /
                       (2 * HUMAN_FACE_IRIS_EDGE),
                   )
                 : 0;
-            const original = painted.map(
-              (value, c) => value + (sclera[c] - value) * cover,
+            const original: number[] = painted.map(
+              (value: number, c: number): number =>
+                value + (sclera[c] - value) * cover,
             );
-            const colour = humanFaceIrisTexelColour({
+            const colour: [number, number, number] = humanFaceIrisTexelColour({
               theta,
               phi: texels.phi[at],
               limbus: disc.limbus,
@@ -138,7 +181,7 @@ export function createHumanFaceIrisPigment(
               edge: HUMAN_FACE_IRIS_EDGE,
               original: original as [number, number, number],
             });
-            for (let c = 0; c < 3; ++c)
+            for (let c: number = 0; c < 3; ++c)
               rgba[4 * index + c] = linearToSrgbByte(colour[c]);
           });
         textures.set(
@@ -153,6 +196,8 @@ export function createHumanFaceIrisPigment(
       cache = { key, textures };
     }
     for (const [id, uri] of cache.textures)
-      materials.find((one) => one.id === id)!.baseColorTexture = uri;
+      materials.find(
+        (one: IAutoMovieMaterial): boolean => one.id === id,
+      )!.baseColorTexture = uri;
   };
 }

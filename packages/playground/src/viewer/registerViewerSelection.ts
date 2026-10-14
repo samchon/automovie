@@ -1,21 +1,20 @@
-import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 import type { AutoMovieGuidePass } from "@automovie/interface";
+import { isGuidePass } from "@automovie/render";
+
+import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 
 /**
- * Preserve a product's actual named selection through its original setter.
- * A missing choice refuses the source candidate; it cannot retire the live page.
- * Selection is applied before the optional guide pass and final selection read.
- * A setter or equality failure may leave the candidate changed; this adapter
- * supplies no atomic rollback of the original product setters.
- * The mounted producer owns scene resources, playback and completed frames;
- * the page bridge retains the prior page when this restoration refuses.
+ * Restore a product's supported named selection through its original setter, then restore an optional admitted guide pass and check actual selection equality. Unsupported choices refuse the candidate. Setter/equality failure can leave that candidate changed; this adapter supplies no atomic rollback and the host still retains the prior completed page.
  *
- * @evidence contracts/common.md#principled-implementation Validates membership before invoking the product-owned selection setter and verifies its result.
- * @evidence contracts/common.md#clear-and-simple-design Reuses the same page application transfer owner for both selectable clip products.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No widget replay, inferred choice or named default substitutes for current state.
- * @evidence contracts/common.md#meaningful-documentation Defines ownership and the candidate refusal boundary.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Restores the product's captured named clip and supported guide pass through its original setters instead of choosing a default.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Checks actual choice membership and reads the selection back after restoration, preserving the product-owned choice component across source candidates.
+ * @evidence contracts/common.md#principled-implementation Owner-supplied names define supported selections and canonical render pass validation guards optional pass restoration before any setters run; a final original-owner read checks the requested selection.
+ * @evidence contracts/common.md#clear-and-simple-design One application registration composes existing selection/pass setters while scene resources, clock and completed frames remain producer-owned.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing choices/pass values refuse rather than substituting a default, and selection equality does not prove an unchanged guide pass, atomic rollback, model health or completed hardware draw.
+ * @evidence contracts/common.md#meaningful-documentation The comment states setter order, optional pass and the distinction between retained prior page and mutable failed candidate.
+ * @evidence contracts/performance.md#efficient-algorithms Name membership is O(n) for n supported names and fixed pass validation is constant-size; actual setter redraw/build work remains the product owner's cost. The current supplied catalogues are small and their order remains owner-authored.
+ * @evidence contracts/performance.md#reuse-equivalent-work Original read/set/pass callbacks and the existing canonical guide-pass predicate are reused; effectful restorations are not cached or merged by equal choice names.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registration borrows names and callbacks until the bridge/page ends; the original product owns its scene/player/GPU resources. No timer, worker, new renderer or local restoration queue is acquired here.
+ *
+ * @author Samchon
  */
 export function registerViewerSelection(props: {
   /** Product-owned selectable names admitted during transfer. */
@@ -33,22 +32,36 @@ export function registerViewerSelection(props: {
     read: () => AutoMovieGuidePass;
 
     /** Apply an admitted guide pass through its original product owner. */
-    restore: (pass: AutoMovieGuidePass) => void
+    restore: (pass: AutoMovieGuidePass) => void;
   };
 }): void {
   registerPlaygroundViewerApplication({
-    ready: Promise.resolve(), capture: () => ({ selection: props.read(), pass: props.pass?.read() }),
-    restore: async (state) => {
-      if (state === null || typeof state !== "object") throw new Error("The product selection has no state.");
+    ready: Promise.resolve(),
+    capture: (): {
+      selection: string;
+      pass: AutoMovieGuidePass | undefined;
+    } => ({ selection: props.read(), pass: props.pass?.read() }),
+    restore: async (state: unknown): Promise<void> => {
+      if (state === null || typeof state !== "object")
+        throw new Error("The product selection has no state.");
       const value: unknown = Reflect.get(state, "selection");
-      if (typeof value !== "string" || !props.names.includes(value)) throw new Error("The product selection is unavailable.");
+      if (typeof value !== "string" || !props.names.includes(value))
+        throw new Error("The product selection is unavailable.");
       const pass: unknown = Reflect.get(state, "pass");
-      if (props.pass !== undefined && pass !== "beauty" && pass !== "mask" && pass !== "normal" && pass !== "depth" && pass !== "outline" && pass !== "pose")
+      if (
+        props.pass !== undefined &&
+        (typeof pass !== "string" || !isGuidePass(pass))
+      )
         throw new Error("The product guide pass is unavailable.");
       props.select(value);
-      if (props.pass !== undefined && (pass === "beauty" || pass === "mask" || pass === "normal" || pass === "depth" || pass === "outline" || pass === "pose"))
+      if (
+        props.pass !== undefined &&
+        typeof pass === "string" &&
+        isGuidePass(pass)
+      )
         props.pass.restore(pass);
-      if (props.read() !== value) throw new Error("The product did not restore its selection.");
+      if (props.read() !== value)
+        throw new Error("The product did not restore its selection.");
     },
   });
 }

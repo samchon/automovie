@@ -1,37 +1,42 @@
-import type {
+import {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftAnchorBinding,
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftCollider,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { Quaternion } from "../math/Quaternion";
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
+import { IAutoMovieSoftNodeTransform } from "./IAutoMovieSoftNodeTransform";
+import { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPose";
 import { IAutoMovieWearableSoftFrame } from "./IAutoMovieWearableSoftFrame";
 import { IAutoMovieWearableSoftResult } from "./IAutoMovieWearableSoftResult";
 import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
-/**
- * Resolve and simulate one explicitly admitted moving soft-body domain.
+/** Resolve admitted node/bone moving anchors and body capsules from complete absolute primary-motion snapshots, then replay cloth. This exported resolver currently has portable test consumers and no production/viewer live host.
  *
- * Authored moving anchors and body capsules come directly from the domain. The
- * caller supplies an immutable primary-motion snapshot for every absolute soft
- * step; this function never samples an animation cursor, selects a subject, or
- * substitutes an origin for a missing target. Calling this API is the explicit
- * `live deterministic` choice. The existing {@link simulateSoftBody} path is
- * still the byte-compatible static choice.
+ * @evidence contracts/common.md#principled-implementation Budget slot admission, unique keyed frame subjects, unique required bone lookup, finite offsets and unit rotations resolve world targets before complete-boundary admission and the shared solver. Bone/node scale is not applied to anchor offsets by this representation; supplied snapshots and domain validity remain caller premises.
+ * @evidence contracts/common.md#clear-and-simple-design Primary motion stays with its supplying host; this resolver owns boundary translation and delegates completeness and integration to their canonical owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/duplicate subjects and bones throw rather than become an origin; no animation cursor, inferred garment subject or automatically enlarged live-subject budget hides absent author data.
+ * @evidence contracts/common.md#meaningful-documentation States snapshot coverage, budget choice, rigid offset semantics, failures and actual unwired runtime reach.
+ * @evidence contracts/performance.md#efficient-algorithms For K frames with N nodes, R actors, A moving anchors, B capsules and J scanned bone rows per query, resolution costs O(K*(N+R+(A+B)*J)); boundary storage O(K*(A+B)) precedes the shared P-particle solver replay cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Node/actor indexes are built once per frame and reused for all targets; required bone scans preserve duplicate detection. Snapshots, domain and budget are not assumed equivalent across calls for a retained solve cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Frame maps and resolved histories are local; only fresh solved arrays and budget scalars transfer, without retaining subject maps, rig callbacks or a host task.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Drives soft state from same-clock primary motion.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Implements the explicit live deterministic boundary path.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-author-solver Consumes the author-selected live deterministic solver tier.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-claim-boundary Reports only bounded proxy state and cost.
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-static-compatibility Leaves the established static solver as a separate explicit path.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Projects contacts after each fixed-step primary boundary is resolved.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Resolves explicit node and actor-bone attachment targets.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-determinism-compatibility Consumes complete immutable boundary snapshots for deterministic seek.
+ * @author Samchon
  */
-export const simulateAutoMovieWearableSoftBody = (props: {
+export const simulateAutoMovieWearableSoftBody: (props: {
+  domain: IAutoMovieSoftBodyDomain;
+  step: number;
+  frames: readonly IAutoMovieWearableSoftFrame[];
+  subjectIndex: number;
+  maxSubjects: number;
+  state?: string | null | undefined;
+}) => IAutoMovieWearableSoftResult = (props: {
   /** Authored domain carrying static or moving anchors and colliders. */
   domain: IAutoMovieSoftBodyDomain;
   /** Absolute target step. */
@@ -53,83 +58,126 @@ export const simulateAutoMovieWearableSoftBody = (props: {
       `wearable soft solve needs primary-motion frames 0 through ${props.step}`,
     );
 
-  const movingAnchors = props.domain.anchors.filter(
-    (anchor) => anchor.binding !== undefined,
+  const movingAnchors: IAutoMovieSoftAnchor[] = props.domain.anchors.filter(
+    (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
   );
-  const bodyCapsules = props.domain.colliders.filter(
-    (collider) => collider.kind === "body-capsule",
-  );
+  const bodyCapsules: IAutoMovieSoftCollider.IBodyCapsule[] =
+    props.domain.colliders.filter(
+      (
+        collider: IAutoMovieSoftCollider,
+      ): collider is IAutoMovieSoftCollider.IBodyCapsule =>
+        collider.kind === "body-capsule",
+    );
   if (movingAnchors.length === 0 && bodyCapsules.length === 0)
     throw new Error(
       `soft body "${props.domain.id}" declares no moving boundary; use the static solver`,
     );
 
   const boundaries: IAutoMovieSoftBodyBoundarySample[] = props.frames.map(
-    (frame, index) => {
+    (
+      frame: IAutoMovieWearableSoftFrame,
+      index: number,
+    ): {
+      step: number;
+      anchors: { particle: number; position: IAutoMovieVector3 }[];
+      capsules: {
+        id: string;
+        from: { x: number; y: number; z: number };
+        to: { x: number; y: number; z: number };
+        radius: number;
+      }[];
+    } => {
       if (frame.step !== index)
         throw new Error(
           `wearable soft frame[${index}] must name absolute step ${index}`,
         );
-      const nodes = keyed(frame.nodes, (node) => node.node, "node", index);
-      const actors = keyed(
-        frame.actors,
-        (actor) => actor.actor,
-        "actor",
+      const nodes: ReadonlyMap<string, IAutoMovieSoftNodeTransform> = keyed(
+        frame.nodes,
+        (node: IAutoMovieSoftNodeTransform): string => node.node,
+        "node",
         index,
       );
+      const actors: ReadonlyMap<string, IAutoMovieWearableSoftActorPose> =
+        keyed(
+          frame.actors,
+          (actor: IAutoMovieWearableSoftActorPose): string => actor.actor,
+          "actor",
+          index,
+        );
       return {
         step: index,
-        anchors: movingAnchors.map((anchor) => {
-          const binding = anchor.binding!;
-          if (binding.kind === "node") {
-            const node = nodes.get(binding.node);
-            if (node === undefined)
-              throw new Error(
-                `wearable soft frame[${index}] is missing node "${binding.node}"`,
+        anchors: movingAnchors.map(
+          (
+            anchor: IAutoMovieSoftAnchor,
+          ): { particle: number; position: IAutoMovieVector3 } => {
+            const binding: IAutoMovieSoftAnchorBinding = anchor.binding!;
+            if (binding.kind === "node") {
+              const node: IAutoMovieSoftNodeTransform | undefined = nodes.get(
+                binding.node,
               );
+              if (node === undefined)
+                throw new Error(
+                  `wearable soft frame[${index}] is missing node "${binding.node}"`,
+                );
+              return {
+                particle: anchor.particle,
+                position: resolveLocalPoint(
+                  node.worldPosition,
+                  node.worldRotation,
+                  binding.offset,
+                ),
+              };
+            }
+            const actor: IAutoMovieWearableSoftActorPose | undefined =
+              actors.get(binding.actor);
+            if (actor === undefined)
+              throw new Error(
+                `wearable soft frame[${index}] is missing actor "${binding.actor}"`,
+              );
+            const bone: IAutoMovieResolvedBone = resolvedBone(
+              actor.bones,
+              binding.bone,
+              index,
+            );
             return {
               particle: anchor.particle,
               position: resolveLocalPoint(
-                node.worldPosition,
-                node.worldRotation,
+                bone.worldPosition,
+                bone.worldRotation,
                 binding.offset,
               ),
             };
-          }
-          const actor = actors.get(binding.actor);
-          if (actor === undefined)
-            throw new Error(
-              `wearable soft frame[${index}] is missing actor "${binding.actor}"`,
-            );
-          const bone = resolvedBone(actor.bones, binding.bone, index);
-          return {
-            particle: anchor.particle,
-            position: resolveLocalPoint(
-              bone.worldPosition,
-              bone.worldRotation,
-              binding.offset,
-            ),
-          };
-        }),
-        capsules: bodyCapsules.map((collider) => {
-          const actor = actors.get(collider.actor);
-          if (actor === undefined)
-            throw new Error(
-              `wearable soft frame[${index}] is missing capsule actor "${collider.actor}"`,
-            );
-          return {
-            id: collider.id,
-            from: {
-              ...resolvedBone(actor.bones, collider.capsule.from, index)
-                .worldPosition,
-            },
-            to: {
-              ...resolvedBone(actor.bones, collider.capsule.to, index)
-                .worldPosition,
-            },
-            radius: collider.capsule.radius,
-          };
-        }),
+          },
+        ),
+        capsules: bodyCapsules.map(
+          (
+            collider: IAutoMovieSoftCollider.IBodyCapsule,
+          ): {
+            id: string;
+            from: { x: number; y: number; z: number };
+            to: { x: number; y: number; z: number };
+            radius: number;
+          } => {
+            const actor: IAutoMovieWearableSoftActorPose | undefined =
+              actors.get(collider.actor);
+            if (actor === undefined)
+              throw new Error(
+                `wearable soft frame[${index}] is missing capsule actor "${collider.actor}"`,
+              );
+            return {
+              id: collider.id,
+              from: {
+                ...resolvedBone(actor.bones, collider.capsule.from, index)
+                  .worldPosition,
+              },
+              to: {
+                ...resolvedBone(actor.bones, collider.capsule.to, index)
+                  .worldPosition,
+              },
+              radius: collider.capsule.radius,
+            };
+          },
+        ),
       };
     },
   );
@@ -151,15 +199,22 @@ export const simulateAutoMovieWearableSoftBody = (props: {
   };
 };
 
-const keyed = <Entry>(
+/** Index caller-owned frame subject references by nonblank unique ids; duplicate admission preserves named frame diagnostics. */
+
+const keyed: <Entry>(
+  entries: readonly Entry[],
+  key: (entry: Entry) => string,
+  label: string,
+  step: number,
+) => ReadonlyMap<string, Entry> = <Entry>(
   entries: readonly Entry[],
   key: (entry: Entry) => string,
   label: string,
   step: number,
 ): ReadonlyMap<string, Entry> => {
-  const output = new Map<string, Entry>();
+  const output: Map<string, Entry> = new Map<string, Entry>();
   for (const entry of entries) {
-    const id = key(entry);
+    const id: string = key(entry);
     if (id.trim().length === 0 || output.has(id))
       throw new Error(
         `wearable soft frame[${step}] ${label} ids must be non-blank and unique`,
@@ -169,7 +224,13 @@ const keyed = <Entry>(
   return output;
 };
 
-const resolvedBone = (
+/** Scan all supplied bone rows to refuse duplicate or missing required names, returning the unique caller-owned pose reference. */
+
+const resolvedBone: (
+  bones: readonly IAutoMovieResolvedBone[],
+  name: AutoMovieHumanoidBone,
+  step: number,
+) => IAutoMovieResolvedBone = (
   bones: readonly IAutoMovieResolvedBone[],
   name: AutoMovieHumanoidBone,
   step: number,
@@ -186,7 +247,13 @@ const resolvedBone = (
   return resolved;
 };
 
-const resolveLocalPoint = (
+/** Validate a rigid world placement and local metre offset, rotate the offset without scale, and allocate its translated target. */
+
+const resolveLocalPoint: (
+  position: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  offset: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   position: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   offset: IAutoMovieVector3,
@@ -194,7 +261,7 @@ const resolveLocalPoint = (
   assertVector(position, "moving subject position");
   assertVector(offset, "moving subject local offset");
   assertQuaternion(rotation, "moving subject rotation");
-  const rotated = Quaternion.rotateVector(rotation, offset);
+  const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
   return {
     x: position.x + rotated.x,
     y: position.y + rotated.y,
@@ -202,10 +269,15 @@ const resolveLocalPoint = (
   };
 };
 
-const assertQuaternion = (value: IAutoMovieQuaternion, label: string): void => {
+/** Refuse nonfinite components and squared unit-length error above 1e-6 before rotating a moving anchor offset. */
+
+const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
+  value: IAutoMovieQuaternion,
+  label: string,
+): void => {
   if ([value.x, value.y, value.z, value.w].every(Number.isFinite) === false)
     throw new Error(`${label} must contain finite coordinates`);
-  const squaredLength =
+  const squaredLength: number =
     value.x * value.x +
     value.y * value.y +
     value.z * value.z +
@@ -214,7 +286,12 @@ const assertQuaternion = (value: IAutoMovieQuaternion, label: string): void => {
     throw new Error(`${label} must be unit length`);
 };
 
-const assertAdmission = (subjectIndex: number, maxSubjects: number): void => {
+/** Admit nonnegative safe subject/budget integers and refuse a slot at or beyond its declared live-subject ceiling. */
+
+const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
+  subjectIndex: number,
+  maxSubjects: number,
+): void => {
   if (!Number.isSafeInteger(maxSubjects) || maxSubjects < 0)
     throw new Error(
       "wearable soft max subjects must be a non-negative integer",
@@ -229,7 +306,12 @@ const assertAdmission = (subjectIndex: number, maxSubjects: number): void => {
     );
 };
 
-const assertVector = (value: IAutoMovieVector3, label: string): void => {
+/** Refuse nonfinite target components without substituting a world origin. */
+
+const assertVector: (value: IAutoMovieVector3, label: string) => void = (
+  value: IAutoMovieVector3,
+  label: string,
+): void => {
   if ([value.x, value.y, value.z].every(Number.isFinite) === false)
     throw new Error(`${label} must contain finite coordinates`);
 };

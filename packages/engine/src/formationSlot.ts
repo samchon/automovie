@@ -8,30 +8,23 @@ import { formationSlotPosition } from "./formationSlotPosition";
 import { formationSlotRecord } from "./formationSlotRecord";
 
 /**
- * Regenerate one exact source-designed formation slot in constant memory.
+ * Regenerate one exact formation slot from its design, in constant memory.
  *
- * The builder and ordinary measurement scripts share this pure derivation so a
- * slot queried from loaded project state is exactly the slot materialized into
- * the compiled formation. No filesystem or project state is consulted.
+ * Measurement scripts call this on loaded design records. The compiled path,
+ * `compiledFormationSlot` behind the source oracle, hands the same
+ * {@link formationSlotRecord} identity law and {@link formationSlotPosition}
+ * placement a compiled formation, so a slot asked of a design grounded on the
+ * compiled terrain snapshot equals the slot the viewer draws. Without
+ * `ground`, the member stands at the anchor's height. No filesystem or project
+ * state is consulted. Throws a `RangeError` for a slot outside `[0, count)`.
  *
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-deterministic-population Regenerates stable anonymous identities, promoted heroes, positions, facing, and motion phase from formation identity, seed, and slot.
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Derives the anonymous node key from formation identity and the logical slot instead of enumeration order.
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-stable-background-identity Recreates a background member with the same slot-derived node and seeded motion phase across repeated materialization.
- * @evidence requirements/actors/populations-and-doubles.md#actor-prototype-variation Reuses the declared model recipe while deriving each member's motion phase from the stable formation seed and slot.
- * @evidence requirements/formations/scope-and-identity.md#formation-authoring-mode-selection Materializes one reviewable member from the compact prototype, layout, hero-override, and slot contract on demand.
- * @evidence requirements/production-design/subject-breakdown-and-asset-plan.md#production-design-subject-prototype-instance Keeps the shared model recipe distinct from the slot-derived member identity and the optional named hero actor.
- * @evidence requirements/production-design/subject-breakdown-and-asset-plan.md#production-design-hero-background Distinguishes a seeded anonymous background member from a hero override occupying the same logical slot.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Reuses one declared model recipe while assigning each logical slot its own stable node, transform, motion phase, and optional hero identity.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality Regenerates a compact member by stable slot without erasing its independently addressable node identity or hero exception.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability Derives identity and seeded variation from the formation id and logical slot so an unrelated population change does not renumber an existing member.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Keeps logical slot identity explicit in the compact placement result.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hero-variation-group-state Applies hero override and deterministic background variation without per-member stored nodes.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-population-double-variation Combines one shared prototype with a stable member identity, seeded phase, and optional named-actor promotion.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Regenerates the same compact member record without storing or independently re-deriving anonymous nodes.
- * @evidence specifications/narrative-and-intent/locations-subjects-and-assets.md#narrative-intent-subject-prototype-role Materializes the prototype, stable slot occurrence, seeded background variation, and optional hero identity as separate fields.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Keeps the shared model recipe separate from the slot-owned identity, placement, seeded phase, and hero override.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Keeps each regenerated group member independently addressable by its slot-derived node and optional actor identity.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-deterministic-instance-generation Derives the same member identity and seeded variation from the stable formation and slot inputs without storing expanded nodes.
+ * @evidence contracts/common.md#principled-implementation A pure function of the design and slot index: the hero override is looked up by slot, the position comes from the one placement law, and the identity, recipe, heading and seeded motion phase come from the shared record law.
+ * @evidence contracts/common.md#clear-and-simple-design Composes the two shared laws and owns only the design's spelling of a hero, an override list, which is the one thing the compiled record spells differently.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No slot, hero or layout is special-cased, and no compiled-record value is substituted for an ungrounded design; an absent terrain snapshot is an authored fact giving zero relief.
+ * @evidence contracts/common.md#meaningful-documentation States who calls it, which laws it shares with the compiled path, what an absent `ground` means, that it reads no external state, and its range error.
+ * @evidence contracts/performance.md#efficient-algorithms One scan of the hero overrides, bounded by the design's hero count, plus the constant-time placement and its terrain lookup; regenerating a member costs no storage, which is why a formation of up to 100,000 slots is never materialized for one query.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one slot per call and shares nothing across calls beyond the anchor datum `formationGroundRelief` keeps per record.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned record is fresh and caller-owned.
  */
 export const formationSlot = (
   formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding,
@@ -39,6 +32,9 @@ export const formationSlot = (
 ): IAutoMovieFormationSlot =>
   formationSlotRecord(formation, slot, {
     actor:
-      formation.heroOverrides.find((hero) => hero.slot === slot)?.actor ?? null,
+      formation.heroOverrides.find(
+        (hero: IAutoMovieFormationDesign["heroOverrides"][number]): boolean =>
+          hero.slot === slot,
+      )?.actor ?? null,
     position: formationSlotPosition(formation, slot),
   });

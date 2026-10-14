@@ -10,23 +10,19 @@ import { joint } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /**
- * Detect and enforce must be one calculation: `validateJointRom` used to skip
- * `angle === 0` unconditionally, but a per-bone override may legally EXCLUDE
- * zero (`flexion: [10, 90]`, only min ≤ max is enforced), and `clampJointRom`
- * moves that 0 to the min. Validation calling the authored 0 clean while the
- * clamp rewrites it broke the pair's contract (#1057). The zero skip exists
- * only for the IMMOBILE axis, where 0 is that axis's rest.
+ * A specified zero outside an override interval must fail validation and clamp to its minimum; immobile-axis zero and zero-containing intervals retain their accepted meaning.
  *
  * Scenarios:
  *
- * 1. Flexion 0 against a zero-excluding `[10, 90]` override reports a `rom`
- *    violation at the axis path, and `clampJointRom` moves the same input to 10
- *    (clamp/validate parity).
- * 2. Zero on an immobile (`null`) axis of the same constraint stays clean, and a
- *    zero against a zero-INCLUDING range stays clean: the skip survives exactly
- *    where it is correct.
+ * 1. Flexion zero against [10,90] reports one ROM fault at its axis path and clamps to ten.
+ * 2. Interior flexion, immobile abduction zero and twist zero inside [-30,30] remain clean.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Validates specified zero against a nonzero-minimum interval, checks its exact ROM address and clamps it to the minimum, contrasting a clean pose whose immobile and zero-containing axes remain zero.
+ * @evidence contracts/testing.md#independent-expectations Zero is outside [10,90] and its nearest admitted endpoint is ten; zero lies inside [-30,30] and is the neutral specified value of an immobile axis. Literal kind/path/count and numeric endpoint judge the detector and clamp independently.
+ * @evidence contracts/testing.md#distinguishing-cases The zero-excluding refusal contrasts accepted interior flexion, immobile zero and zero-containing twist; cone coupling and nonfinite input repair are separate ROM tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns two collectors and calls portable detector/clamp owners with the existing joint fixture, without a Human asset, native artifact or host.
  */
-export const test_rom_validate_zero_excluding_override = (): void => {
+export function test_rom_validate_zero_excluding_override(): void {
   const constraint: IAutoMovieJointConstraint = {
     flexion: { min: 10, max: 90 },
     abduction: null,
@@ -34,7 +30,7 @@ export const test_rom_validate_zero_excluding_override = (): void => {
   };
 
   // 1. zero against a zero-excluding override reports and clamps to the min
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", { flexion: 0, abduction: 0, twist: 0 }),
     constraint,
@@ -44,11 +40,11 @@ export const test_rom_validate_zero_excluding_override = (): void => {
   TestValidator.equals(
     "zero against a zero-excluding override is a rom violation",
     namedFacts([
-      ["collectorItems", () => collector.items.length === 1],
-      ["collectorItemsKind", () => collector.items[0]!.kind === "rom"],
+      ["collectorItems", (): boolean => collector.items.length === 1],
+      ["collectorItemsKind", (): boolean => collector.items[0]!.kind === "rom"],
       [
         "collectorItemsinput",
-        () => collector.items[0]!.path === "$input.flexion",
+        (): boolean => collector.items[0]!.path === "$input.flexion",
       ],
     ]),
     {
@@ -57,7 +53,7 @@ export const test_rom_validate_zero_excluding_override = (): void => {
       collectorItemsinput: true,
     },
   );
-  const clamped = clampJointRom(
+  const clamped: ReturnType<typeof joint> = clampJointRom(
     joint("leftLowerArm", { flexion: 0, abduction: 0, twist: 0 }),
     constraint,
   );
@@ -68,7 +64,7 @@ export const test_rom_validate_zero_excluding_override = (): void => {
 
   // 2. the immobile-axis skip and zero-including ranges stay clean (the
   //    abduction 0 and twist 0 above produced no violations of their own)
-  const clean = new ViolationCollector();
+  const clean: ViolationCollector = new ViolationCollector();
   validateJointRom({
     joint: joint("leftLowerArm", { flexion: 45, abduction: 0, twist: 0 }),
     constraint,
@@ -80,4 +76,4 @@ export const test_rom_validate_zero_excluding_override = (): void => {
     clean.items.length,
     0,
   );
-};
+}

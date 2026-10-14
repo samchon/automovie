@@ -8,11 +8,19 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
  * The physics layer weighs real shapes. A `plane` is a degenerate solid and
  * contributes no volume.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-weight-cues Derives a physical weight cue from the authored primitive dimensions.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Supplies the solid-volume fact used by center-of-mass support reasoning.
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Use closed-form solid volumes for box, sphere, cylinder, cone, capsule and torus in cubic metres; plane and mesh contribute zero because no closed solid volume is declared.
+ * @evidence contracts/common.md#clear-and-simple-design One primitive-kind dispatch keeps volume semantics independent of triangulation and aggregate placement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Capsule volume includes cylinder plus sphere under the declared dimensions even where render approximation differs; mesh zero is an explicit missing-measurement policy, not a claimed physical volume.
+ * @evidence contracts/common.md#meaningful-documentation Docs give cubic-metre units and enumerate unsupported zero-volume cases; valid finite dimensions are a caller admission premise.
+ * @evidence contracts/performance.md#efficient-algorithms All cases use constant arithmetic rather than tessellation or surface integration, with no output collection.
+ * @evidence contracts/performance.md#reuse-equivalent-work deriveCenterOfMass reuses this owner for every part; no identity cache would be valid after dimension mutation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number is returned; no vectors, mesh storage, handles or tasks survive the call.
  */
-export const primitiveVolume = (shape: AutoMoviePrimitiveShape): number => {
+export const primitiveVolume: (shape: AutoMoviePrimitiveShape) => number = (
+  shape: AutoMoviePrimitiveShape,
+): number => {
   switch (shape.type) {
     case "box":
       return shape.width * shape.height * shape.depth;

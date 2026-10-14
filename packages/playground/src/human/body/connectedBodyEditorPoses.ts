@@ -1,15 +1,11 @@
 import { createHumanBodyJointPoseRow as joint } from "@automovie/human/body/document/createHumanBodyJointPoseRow";
 import { createHumanBodyShoulderPose as shoulder } from "@automovie/human/body/document/createHumanBodyShoulderPose";
 
-import type { BodyPosePreset } from "./bodyPosePresets";
+import type { BodyPosePreset } from "./BodyPosePreset";
 
 /**
- * The body editor's pose presets, in button order. Angles are clinical
- * degrees; "Arms down" is solved on the current body, each arm hanging as low
- * as its skin lets it.
+ * The body editor's pose presets, in button order. Angles are clinical degrees; "Arms down" uses the current body's finite sampled skin-clearance solve, rather than a claim of the globally lowest admissible arm position.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lists the A/T-pose, arms-down, elbow, overhead, squat, sit and twist presets the editor offers as document edits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Supplies each preset's replacement joint rows in clinical degrees, with arms down left to the body's own solve.
  * @author Samchon
  */
 export const connectedBodyEditorPoses: readonly BodyPosePreset[] = [

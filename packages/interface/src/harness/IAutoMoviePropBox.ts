@@ -1,30 +1,25 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One axis-aligned model-local volume.
+ * One axis-aligned volume in the prop's model frame, in metres: a declared
+ * footprint, or the base of a clearance box.
  *
- * The engine transforms all eight corners by the prop's full staged TRS
- * (translation, unit quaternion, per-axis scale) and takes the world bounds of
- * the result, so a rotated box widens rather than being silently re-fitted.
+ * `validatePropPlacements` refuses a box whose bounds are not finite with
+ * `min < max` on every axis. The engine carries all eight corners through the
+ * set piece's staged transform (translation, unit rotation and per-axis scale)
+ * and takes the world-axis-aligned bound of the result, so a rotated box widens
+ * rather than being re-fitted.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `IAutoMoviePropBox` as the portable data boundary for the story scene local arc requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMoviePropBox` for the narrative intent scene prose index system contract.
+ * @evidence contracts/common.md#principled-implementation `transformedBoxBounds` takes per-axis extrema of eight transformed corners, the exact-real axis-aligned bound of an affine box image. It encloses the rotated volume rather than preserving its orientation; binary64 products/sums can round or overflow even for finite authored bounds and transforms, and this local box gate does not validate the derived world bounds.
+ * @evidence contracts/common.md#clear-and-simple-design Two corners describe the volume, and `IAutoMovieClearanceBox` extends this record with an id, so footprints and clearances share one corner rule and one transform.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A flat, inverted or non-finite box is refused rather than widened by a tolerance or reordered.
+ * @evidence contracts/common.md#meaningful-documentation States the frame and unit, where the box is used, the corner rule and its validator, and how staging transforms it; members give each corner's role and bound.
  * @author Samchon
  */
 export interface IAutoMoviePropBox {
-  /**
-   * Local minimum corner.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `min` as the portable data boundary for the story scene local arc requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `min` for the narrative intent scene prose index system contract.
-   */
+  /** Model-local minimum corner. */
   min: IAutoMovieVector3;
 
-  /**
-   * Local maximum corner, strictly greater on every axis.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `max` as the portable data boundary for the story scene local arc requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `max` for the narrative intent scene prose index system contract.
-   */
+  /** Model-local maximum corner, strictly greater on every axis. */
   max: IAutoMovieVector3;
 }

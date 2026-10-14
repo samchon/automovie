@@ -15,269 +15,285 @@ import {
   subjectInspectionInstanceSet,
   subjectInspectionModel,
 } from "../internal/subjectInspectionFixtures";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
- * Subject description preserves explicit absence and less common compiled
- * geometry, hierarchy, population, and placement forms.
+ * Subject description preserves explicit absence and less common compiled geometry, hierarchy, population, and placement forms.
  *
  * Scenarios:
  *
- * 1. Primitive geometry, a non-identity part transform, a rigid rest-bone
- *    attachment, a missing attachment bone, and a null material all produce
- *    honest prototype facts.
- * 2. A transform-only scene node with no resident model reports null content,
- *    no materials, and no members rather than throwing or inventing geometry.
- * 3. A child element and child shell space report their owners; the shell has a
- *    declared box but no content, while a semantic-only space has neither.
- * 4. A building population links its compact set and instance to the owning
- *    logical space.
- * 5. Missing runtime LODs yield null prototype and geometry, while seeded
- *    rotation, non-uniform scale, and zero-weight prototype fallback remain
- *    deterministic.
+ * 1. Primitive geometry, a non-identity part transform, a rigid rest-bone attachment, a missing attachment bone, and a null material all produce honest prototype facts.
+ * 2. A transform-only scene node with no resident model reports null content, no materials, and no members rather than throwing or inventing geometry.
+ * 3. A child element and child shell space report their owners; the shell has a declared box but no content, while a semantic-only space has neither.
+ * 4. A building population links its compact set and instance to the owning logical space.
+ * 5. Missing runtime LODs yield null prototype and geometry, while seeded rotation, non-uniform scale, and zero-weight prototype fallback remain deterministic.
  * 6. A logical-space declaration edit is classified as one reshape.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls direct descriptions and subject diff for less common compiled forms, checking explicit absence, ownership, bounds, prototype selection and one-space reshape; invented payloads or broken hierarchy links fail.
+ * @evidence contracts/testing.md#independent-expectations Authored box dimensions, one-metre part offset, five-metre rigid rest and explicit shell coordinates determine geometry; zero-weight selection follows the final-prototype contract, while finite checks do not assert an exact seed draw.
+ * @evidence contracts/testing.md#distinguishing-cases Primitive and rigid attachments including a missing bone, empty/missing models, shell/semantic spaces, population ownership, missing LOD, seeded variation and a logical-space edit are retained; full enumeration and coordinate-oracle units own their separate cases.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_subject_description_edges entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
  */
-export const test_inspection_subject_description_edges = (): void => {
-  const primitive = primitiveModel();
-  const rigged = riggedModel();
-  const empty = emptyModel();
-  const noModelSet = subjectInspectionInstanceSet({
-    id: "no-model",
-    model: "absent",
-    count: 1,
-    overrides: { lod: [] },
-  });
-  const enhanced = enhancedSet();
-  const base = subjectInspectionArtifact();
-  const environment = edgeEnvironment(
+export function test_inspection_subject_description_edges(): void {
+  const primitive: IAutoMovieModel = primitiveModel();
+  const rigged: IAutoMovieModel = riggedModel();
+  const empty: IAutoMovieModel = emptyModel();
+  const noModelSet: IAutoMovieCompiledInstanceSet =
+    subjectInspectionInstanceSet({
+      id: "no-model",
+      model: "absent",
+      count: 1,
+      overrides: { lod: [] },
+    });
+  const enhanced: IAutoMovieCompiledInstanceSet = enhancedSet();
+  const base: import("@automovie/interface").IAutoMovieSubjectArtifact =
+    subjectInspectionArtifact();
+  const environment: IAutoMovieBuiltEnvironment = edgeEnvironment(
     structuredClone(base.compiled.builtEnvironments![0]!),
     noModelSet,
   );
-  const artifact = subjectInspectionArtifact({
-    revision: "edge-revision",
-    models: [
-      ...base.compiled.models,
-      primitive,
-      rigged,
-      empty,
-      subjectInspectionModel({
-        id: "alternate",
-        min: { x: -1, y: -1, z: -1 },
-        max: { x: 1, y: 1, z: 1 },
-      }),
-    ],
-    nodes: [
-      ...base.compiled.scene.nodes,
-      {
-        id: "primitive-node",
-        model: "primitive",
-        transform: subjectInspectionIdentityTransform(),
-        motion: null,
-        pose: null,
-      },
-      {
-        id: "ghost",
-        model: "missing-model",
-        transform: subjectInspectionIdentityTransform(),
-        motion: null,
-        pose: null,
-      },
-    ],
-    instanceSets: [noModelSet, enhanced],
-    environment,
-  });
+  const artifact: import("@automovie/interface").IAutoMovieSubjectArtifact =
+    subjectInspectionArtifact({
+      revision: "edge-revision",
+      models: [
+        ...base.compiled.models,
+        primitive,
+        rigged,
+        empty,
+        subjectInspectionModel({
+          id: "alternate",
+          min: { x: -1, y: -1, z: -1 },
+          max: { x: 1, y: 1, z: 1 },
+        }),
+      ],
+      nodes: [
+        ...base.compiled.scene.nodes,
+        {
+          id: "primitive-node",
+          model: "primitive",
+          transform: subjectInspectionIdentityTransform(),
+          motion: null,
+          pose: null,
+        },
+        {
+          id: "ghost",
+          model: "missing-model",
+          transform: subjectInspectionIdentityTransform(),
+          motion: null,
+          pose: null,
+        },
+      ],
+      instanceSets: [noModelSet, enhanced],
+      environment,
+    });
 
-  const primitivePart = describeAutoMovieSubject(
-    artifact,
-    "prototype-part:primitive/body",
-  );
-  const placedPrimitivePart = describeAutoMovieSubject(
-    artifact,
-    "element-part:primitive-node/body",
-  );
-  const rig = describeAutoMovieSubject(artifact, "prototype:rigged");
-  const emptyPrototype = describeAutoMovieSubject(artifact, "prototype:empty");
-  TestValidator.equals(
+  const primitivePart: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "prototype-part:primitive/body");
+  const placedPrimitivePart: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "element-part:primitive-node/body");
+  const rig: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "prototype:rigged");
+  const emptyPrototype: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "prototype:empty");
+  TestValidator.predicate(
     "primitive transforms rigid rest bones missing bones and null materials remain explicit",
-    {
-      primitive: {
-        bounds: primitivePart.bounds.content,
-        transform: primitivePart.transform,
-        materials: primitivePart.materials,
-        placedSpace: placedPrimitivePart.space,
-      },
-      rig: {
-        semanticKind: rig.semanticKind,
-        bounds: rig.bounds.content,
-      },
-      empty: emptyPrototype.bounds.content,
-    },
-    {
-      primitive: {
-        bounds: {
-          min: { x: 0, y: -2, z: -3 },
-          max: { x: 2, y: 2, z: 3 },
+    test12ValuesClose(
+      {
+        primitive: {
+          bounds: primitivePart.bounds.content,
+          transform: primitivePart.transform,
+          materials: primitivePart.materials,
+          placedSpace: placedPrimitivePart.space,
         },
-        transform: {
-          translation: { x: 1, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
+        rig: {
+          semanticKind: rig.semanticKind,
+          bounds: rig.bounds.content,
         },
-        materials: [],
-        placedSpace: null,
+        empty: emptyPrototype.bounds.content,
       },
-      rig: {
-        semanticKind: "actor",
-        bounds: {
-          min: { x: 0, y: 0, z: 0 },
-          max: { x: 1, y: 6, z: 1 },
+      {
+        primitive: {
+          bounds: {
+            min: { x: 0, y: -2, z: -3 },
+            max: { x: 2, y: 2, z: 3 },
+          },
+          transform: {
+            translation: { x: 1, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+            scale: { x: 1, y: 1, z: 1 },
+          },
+          materials: [],
+          placedSpace: null,
         },
+        rig: {
+          semanticKind: "actor",
+          bounds: {
+            min: { x: 0, y: 0, z: 0 },
+            max: { x: 1, y: 6, z: 1 },
+          },
+        },
+        empty: null,
       },
-      empty: null,
-    },
+    ),
   );
 
-  const ghost = describeAutoMovieSubject(artifact, "element:ghost");
-  TestValidator.equals(
+  const ghost: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "element:ghost");
+  TestValidator.predicate(
     "a scene node whose model payload is absent reports explicit empty geometry",
-    {
-      semanticKind: ghost.semanticKind,
-      name: ghost.name,
-      bounds: ghost.bounds.content,
-      materials: ghost.materials,
-      members: ghost.members,
-    },
-    {
-      semanticKind: "scene-node",
-      name: null,
-      bounds: null,
-      materials: [],
-      members: { total: 0, offset: 0, items: [], omitted: 0 },
-    },
-  );
-
-  const child = describeAutoMovieSubject(
-    artifact,
-    "element:castle/solar-oriel",
-  );
-  const childPart = describeAutoMovieSubject(
-    artifact,
-    "element-part:castle/solar-oriel/body",
-  );
-  const shell = describeAutoMovieSubject(artifact, "space:castle/shell-room");
-  const semantic = describeAutoMovieSubject(
-    artifact,
-    "space:castle/semantic-zone",
-  );
-  TestValidator.equals(
-    "built hierarchy and empty declared or semantic spaces keep their exact relations",
-    {
-      childOwner: child.owner,
-      childPartSpace: childPart.space,
-      shellOwner: shell.owner,
-      shellBounds: shell.bounds,
-      semanticBounds: semantic.bounds,
-    },
-    {
-      childOwner: "element:castle/guard-rack-west-pole-0",
-      childPartSpace: "space:castle/hall",
-      shellOwner: "space:castle/hall",
-      shellBounds: {
-        declared: {
-          min: { x: 0, y: 0, z: 0 },
-          max: { x: 2, y: 2, z: 2 },
-        },
-        content: null,
-        coordinateSpace: "world",
+    test12ValuesClose(
+      {
+        semanticKind: ghost.semanticKind,
+        name: ghost.name,
+        bounds: ghost.bounds.content,
+        materials: ghost.materials,
+        members: ghost.members,
       },
-      semanticBounds: {
-        declared: null,
-        content: null,
-        coordinateSpace: "world",
-      },
-    },
-  );
-
-  const population = describeAutoMovieSubject(
-    artifact,
-    "instance-set:no-model",
-  );
-  const populationMember = describeAutoMovieSubject(
-    artifact,
-    "instance:no-model:slot:000000",
-  );
-  TestValidator.equals(
-    "a building population links set and member to its owning space despite missing runtime geometry",
-    {
-      set: {
-        owner: population.owner,
-        space: population.space,
-        prototype: population.prototype,
-        materials: population.materials,
-      },
-      member: {
-        space: populationMember.space,
-        prototype: populationMember.prototype,
-        bounds: populationMember.bounds.content,
-        materials: populationMember.materials,
-      },
-    },
-    {
-      set: {
-        owner: "space:castle/hall",
-        space: "space:castle/hall",
-        prototype: null,
-        materials: [],
-      },
-      member: {
-        space: "space:castle/hall",
-        prototype: null,
+      {
+        semanticKind: "scene-node",
+        name: null,
         bounds: null,
         materials: [],
+        members: { total: 0, offset: 0, items: [], omitted: 0 },
       },
-    },
+    ),
   );
 
-  const enhancedMember = describeAutoMovieSubject(
-    artifact,
-    "instance:enhanced:slot:000000",
+  const child: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "element:castle/solar-oriel");
+  const childPart: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "element-part:castle/solar-oriel/body");
+  const shell: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "space:castle/shell-room");
+  const semantic: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "space:castle/semantic-zone");
+  TestValidator.predicate(
+    "built hierarchy and empty declared or semantic spaces keep their exact relations",
+    test12ValuesClose(
+      {
+        childOwner: child.owner,
+        childPartSpace: childPart.space,
+        shellOwner: shell.owner,
+        shellBounds: shell.bounds,
+        semanticBounds: semantic.bounds,
+      },
+      {
+        childOwner: "element:castle/guard-rack-west-pole-0",
+        childPartSpace: "space:castle/hall",
+        shellOwner: "space:castle/hall",
+        shellBounds: {
+          declared: {
+            min: { x: 0, y: 0, z: 0 },
+            max: { x: 2, y: 2, z: 2 },
+          },
+          content: null,
+          coordinateSpace: "world",
+        },
+        semanticBounds: {
+          declared: null,
+          content: null,
+          coordinateSpace: "world",
+        },
+      },
+    ),
   );
-  TestValidator.equals(
+
+  const population: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "instance-set:no-model");
+  const populationMember: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "instance:no-model:slot:000000");
+  TestValidator.predicate(
+    "a building population links set and member to its owning space despite missing runtime geometry",
+    test12ValuesClose(
+      {
+        set: {
+          owner: population.owner,
+          space: population.space,
+          prototype: population.prototype,
+          materials: population.materials,
+        },
+        member: {
+          space: populationMember.space,
+          prototype: populationMember.prototype,
+          bounds: populationMember.bounds.content,
+          materials: populationMember.materials,
+        },
+      },
+      {
+        set: {
+          owner: "space:castle/hall",
+          space: "space:castle/hall",
+          prototype: null,
+          materials: [],
+        },
+        member: {
+          space: "space:castle/hall",
+          prototype: null,
+          bounds: null,
+          materials: [],
+        },
+      },
+    ),
+  );
+
+  const enhancedMember: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "instance:enhanced:slot:000000");
+  TestValidator.predicate(
     "seeded non-uniform variation and zero-weight fallback select the final prototype deterministically",
-    {
-      model: enhancedMember.model,
-      semanticKind: enhancedMember.semanticKind,
-      finite: [
-        ...Object.values(enhancedMember.transform!.rotation),
-        ...Object.values(enhancedMember.transform!.scale),
-      ].every(Number.isFinite),
-    },
-    { model: "alternate", semanticKind: "alternate", finite: true },
+    test12ValuesClose(
+      {
+        model: enhancedMember.model,
+        semanticKind: enhancedMember.semanticKind,
+        finite:
+          Object.keys(enhancedMember.transform!.rotation).length === 4 &&
+          Object.keys(enhancedMember.transform!.scale).length === 3 &&
+          [
+            ...Object.values(enhancedMember.transform!.rotation),
+            ...Object.values(enhancedMember.transform!.scale),
+          ].every(Number.isFinite),
+      },
+      { model: "alternate", semanticKind: "alternate", finite: true },
+    ),
   );
 
-  const changedEnvironment = structuredClone(environment);
-  changedEnvironment.spaces.find((space) => space.id === "shell-room")!.kind =
-    "gallery";
-  const spaceDiff = diffAutoMovieSubjects(
-    artifact,
-    subjectInspectionArtifact({
-      revision: "edge-revision-next",
-      models: artifact.compiled.models,
-      nodes: artifact.compiled.scene.nodes,
-      instanceSets: artifact.compiled.instanceSets,
-      environment: changedEnvironment,
-    }),
-  );
-  TestValidator.equals(
+  const changedEnvironment: IAutoMovieBuiltEnvironment =
+    structuredClone(environment);
+  changedEnvironment.spaces.find(
+    (space: import("@automovie/interface").IAutoMovieBuiltSpace): boolean =>
+      space.id === "shell-room",
+  )!.kind = "gallery";
+  const spaceDiff: import("@automovie/interface").IAutoMovieSubjectDiff =
+    diffAutoMovieSubjects(
+      artifact,
+      subjectInspectionArtifact({
+        revision: "edge-revision-next",
+        models: artifact.compiled.models,
+        nodes: artifact.compiled.scene.nodes,
+        instanceSets: artifact.compiled.instanceSets,
+        environment: changedEnvironment,
+      }),
+    );
+  TestValidator.predicate(
     "one logical-space declaration edit is one reshape",
-    spaceDiff.reshaped
-      .filter((change) => change.kind === "space")
-      .map((change) => change.id),
-    ["space:castle/shell-room"],
+    test12ValuesClose(
+      spaceDiff.reshaped
+        .filter(
+          (
+            change: import("@automovie/interface").IAutoMovieSubjectChange,
+          ): boolean => change.kind === "space",
+        )
+        .map(
+          (
+            change: import("@automovie/interface").IAutoMovieSubjectChange,
+          ): string => change.id,
+        ),
+      ["space:castle/shell-room"],
+    ),
   );
-};
+}
 
-const primitiveModel = (): IAutoMovieModel => {
-  const model = subjectInspectionModel({
+const primitiveModel: () => IAutoMovieModel = (): IAutoMovieModel => {
+  const model: IAutoMovieModel = subjectInspectionModel({
     id: "primitive",
     min: { x: 0, y: 0, z: 0 },
     max: { x: 0, y: 0, z: 0 },
@@ -295,8 +311,8 @@ const primitiveModel = (): IAutoMovieModel => {
   return model;
 };
 
-const riggedModel = (): IAutoMovieModel => {
-  const model = subjectInspectionModel({
+const riggedModel: () => IAutoMovieModel = (): IAutoMovieModel => {
+  const model: IAutoMovieModel = subjectInspectionModel({
     id: "rigged",
     min: { x: 0, y: 0, z: 0 },
     max: { x: 1, y: 1, z: 1 },
@@ -324,7 +340,7 @@ const riggedModel = (): IAutoMovieModel => {
   return model;
 };
 
-const emptyModel = (): IAutoMovieModel =>
+const emptyModel: () => IAutoMovieModel = (): IAutoMovieModel =>
   ({
     ...subjectInspectionModel({
       id: "empty",
@@ -335,34 +351,65 @@ const emptyModel = (): IAutoMovieModel =>
     name: null,
   }) as IAutoMovieModel;
 
-const enhancedSet = (): IAutoMovieCompiledInstanceSet => {
-  const set = subjectInspectionInstanceSet({
-    id: "enhanced",
-    model: "primitive",
-    count: 1,
-  });
-  return {
-    ...set,
-    prototypes: [
-      prototype("default", "primitive"),
-      prototype("alternate", "alternate"),
-    ],
-    variation: {
-      ...set.variation,
-      scale3: {
-        min: { x: 0.5, y: 0.75, z: 1 },
-        max: { x: 1, y: 1.25, z: 1.5 },
+const enhancedSet: () => IAutoMovieCompiledInstanceSet =
+  (): IAutoMovieCompiledInstanceSet => {
+    const set: IAutoMovieCompiledInstanceSet = subjectInspectionInstanceSet({
+      id: "enhanced",
+      model: "primitive",
+      count: 1,
+    });
+    return {
+      ...set,
+      prototypes: [
+        prototype("default", "primitive"),
+        prototype("alternate", "alternate"),
+      ],
+      variation: {
+        ...set.variation,
+        scale3: {
+          min: { x: 0.5, y: 0.75, z: 1 },
+          max: { x: 1, y: 1.25, z: 1.5 },
+        },
+        rotationDeg: {
+          x: { min: -5, max: 5 },
+          y: { min: -10, max: 10 },
+          z: { min: -15, max: 15 },
+        },
       },
-      rotationDeg: {
-        x: { min: -5, max: 5 },
-        y: { min: -10, max: 10 },
-        z: { min: -15, max: 15 },
-      },
-    },
+    };
   };
-};
 
-const prototype = (id: string, model: string) => ({
+const prototype: (
+  id: string,
+  model: string,
+) => {
+  id: string;
+  modelRecipe: string;
+  weight: number;
+  lod: {
+    tier: "near";
+    maxDistance: null;
+    recipe: string;
+    recipeDigest: `sha256:${string}`;
+    model: string;
+  }[];
+  projectionRadius: number;
+} = (
+  id: string,
+  model: string,
+): {
+  id: string;
+  modelRecipe: string;
+  weight: number;
+  lod: {
+    tier: "near";
+    maxDistance: null;
+    recipe: string;
+    recipeDigest: `sha256:${string}`;
+    model: string;
+  }[];
+  projectionRadius: number;
+} => ({
   id,
   modelRecipe: model,
   weight: 0,
@@ -378,12 +425,17 @@ const prototype = (id: string, model: string) => ({
   projectionRadius: 1,
 });
 
-const edgeEnvironment = (
+const edgeEnvironment: (
+  environment: IAutoMovieBuiltEnvironment,
+  populationSet: IAutoMovieCompiledInstanceSet,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
   populationSet: IAutoMovieCompiledInstanceSet,
 ): IAutoMovieBuiltEnvironment => {
-  environment.elements.find((element) => element.id === "solar-oriel")!.parent =
-    "guard-rack-west-pole-0";
+  environment.elements.find(
+    (element: import("@automovie/interface").IAutoMovieBuiltElement): boolean =>
+      element.id === "solar-oriel",
+  )!.parent = "guard-rack-west-pole-0";
   environment.spaces.push(
     {
       id: "shell-room",

@@ -1,47 +1,28 @@
 import type { IHumanViewerReferenceBox } from "./IHumanViewerReferenceBox.js";
 
 /**
- * One layer of the composed capture, drawn in array order.  *
+ * One layer of the composed capture, drawn in array order.
  *
- * @evidence contracts/common.md#principled-implementation Source selection, destination pixels, alpha and optional clip describe one canvas layer in painter order.
- * @evidence contracts/common.md#clear-and-simple-design The layer records layout decisions once so drawing only executes their order.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Render and photo are supported composition sources, without per-subject image treatment.
- * @evidence contracts/common.md#meaningful-documentation A null clip exposes the whole destination; alpha is unit-range and box coordinates are capture pixels.
+ * @evidence contracts/common.md#principled-implementation Ordered render/photo layers express split, overlay and swipe composition through a destination box, opacity and optional clip rectangle.
+ * @evidence contracts/common.md#clear-and-simple-design A single layer record serves canvas capture and shared layout without carrying filenames or numerical document state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The render/photo union selects actual composition sources; no photograph-specific correction or hidden subject placement is encoded.
+ * @evidence contracts/common.md#meaningful-documentation Documentation gives array-order drawing, already-fitted destinations, unit-range alpha and null meaning an unclipped destination.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Layer metadata chooses no raster algorithm; drawHumanViewerReference submits its boxes to the borrowed canvas.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A layer describes one composition and carries no identity cache that could reuse stale photograph pixels.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The source discriminator owns no image object; decoded photograph and render canvas remain owned by the drawing caller.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Source selection, destination pixels, alpha and optional clip describe one canvas layer in painter order.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Render and photo are supported composition sources, without per-subject image treatment.
  * @author Samchon
  */
 export interface IHumanViewerReferenceLayer {
-  /**
-   * The rendered viewport, or the local reference photograph.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Selects the supplied render canvas or local photograph as one explicit composition input.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Selects the supplied render canvas or local photograph as one explicit composition input.
-   */
+  /** The rendered viewport, or the local reference photograph. */
   source: "render" | "photo";
 
-  /**
-   * Destination rectangle, with the photograph already fitted.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Carries the shared layout's already-fitted capture-pixel destination rather than recomputing geometry while drawing.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Carries the shared layout's already-fitted capture-pixel destination rather than recomputing geometry while drawing.
-   */
+  /** Destination rectangle, with the photograph already fitted. */
   box: IHumanViewerReferenceBox;
 
-  /**
-   * Opacity of this layer, between zero and one.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Carries the selected unit-range layer opacity independently of numerical model material state.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Carries the selected unit-range layer opacity independently of numerical model material state.
-   */
+  /** Opacity of this layer, between zero and one. */
   alpha: number;
 
-  /**
-   * Visible window inside the destination, or null for all of it.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Keeps an optional capture-pixel visible window, with null for the whole destination.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Keeps an optional capture-pixel visible window, with null for the whole destination.
-   */
+  /** Visible window inside the destination, or null for all of it. */
   clip: IHumanViewerReferenceBox | null;
 }

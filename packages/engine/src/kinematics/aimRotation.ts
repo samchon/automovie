@@ -1,48 +1,62 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
 import { rotationBetween } from "../math/rotationBetween";
 
-const VECTOR_AXES = ["x", "y", "z"] as const;
+/** Components checked for finiteness, in message order. */
+const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /**
- * The shortest-arc rotation that turns the vector `from` onto `to`: the core of
- * an **aim / look-at** driver (a head or eye whose forward axis tracks a
- * target, a camera that follows its subject) and the analytic two-bone lowering
- * (`twoBoneChainArticulation`, hence `reachPose`/`legPlant`). Feed `from` = the
- * bone's rest forward axis and `to` = `target − bonePosition` and the returned
- * quaternion orients the bone at the target.
+ * The shortest-arc rotation that turns the direction of `from` onto the
+ * direction of `to`.
  *
- * This validates finite inputs, normalizes them, and delegates to the engine's
- * single shortest-arc primitive {@link rotationBetween}, the same
- * **deadzone-free** `atan2` helper the world-driver / iterative IK path uses,
- * so the analytic and iterative IK families cannot disagree (#643, #720). Every
- * angle down to numerical zero produces its exact rotation, so a target a
- * fraction of a degree off-axis is tracked exactly instead of snapped to the
- * identity.
+ * It is the core of an aim or look-at driver, such as a light aimed along its
+ * direction or a projectile turned along its velocity, and of the analytic
+ * two-bone solves (`twoBoneChainArticulation`, `hingedArmArticulation`). Pass
+ * the bone's rest forward axis as `from` and `target - bonePosition` as `to`,
+ * and the result orients the bone at the target.
  *
- * Degenerate cases are handled by {@link rotationBetween}: already-aligned
- * returns identity; antiparallel returns a 180° turn about a deterministic
- * perpendicular (the `|a.x| < 0.9` axis split) so it never divides by a zero
- * cross product.
+ * Inputs are validated as finite, normalized, and passed to the engine's
+ * single shortest-arc primitive {@link rotationBetween}, the same deadzone-free
+ * `atan2` helper the world-driver IK path uses, so the analytic and iterative
+ * IK families use the same turn. Representable nonzero cross products remain
+ * active, subject to binary64 precision in the normalized directions and result.
  *
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-gaze-attention Turns a declared target direction into the bone rotation that realizes gaze.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-gaze-expression-attention Implements the target-tracking rotation primitive used by the bounded gaze solve.
+ * Aligned inputs return the identity, and antiparallel inputs a 180 degree
+ * turn about a deterministic perpendicular. A zero-length input has no
+ * direction and also returns the identity, which keeps a projectile at rest
+ * facing its authored forward axis.
+ *
+ * @param from Direction to turn, any finite length.
+ * @param to Direction to turn onto, any finite length.
+ * @returns A unit quaternion.
+ * @throws Error naming the vector and component when a component is not finite.
+ *
+ * @evidence contracts/common.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
+ * @evidence contracts/common.md#clear-and-simple-design A validating front for the one shared shortest-arc primitive, so every aim, light, projectile and two-bone caller turns vectors the same way while non-finite input is refused with the aim's own message.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Non-finite components are refused rather than replaced, and no tolerance snaps a small angle to the identity.
+ * @evidence contracts/common.md#meaningful-documentation States its uses and how to call it for aiming, the shared primitive and why that matters, the aligned, antiparallel and zero-length results, and the refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Six input finiteness checks precede the shared constant-time shortest-arc computation; direction normalization occurs only in rotationBetween.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors; callers that need it per frame or per candidate pass different vectors each time.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
  * @author Samchon
  */
-export const aimRotation = (
+export const aimRotation: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
   validateVector("from", from);
   validateVector("to", to);
-  return rotationBetween(Vector3.normalize(from), Vector3.normalize(to));
+  return rotationBetween(from, to);
 };
 
-const validateVector = (
+/** Refuse a vector with a non-finite component, naming the argument and axis. */
+const validateVector: (
   label: "from" | "to",
   value: IAutoMovieVector3,
-): void => {
+) => void = (label: "from" | "to", value: IAutoMovieVector3): void => {
   for (const axis of VECTOR_AXES)
     if (!Number.isFinite(value[axis]))
       throw new Error(

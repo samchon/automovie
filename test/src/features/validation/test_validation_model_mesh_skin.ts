@@ -4,6 +4,8 @@ import {
   IAutoMovieMesh,
   IAutoMovieMeshSkin,
   IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,15 +26,19 @@ const VALID_MESH: IAutoMovieMesh = {
   skin: VALID_SKIN,
 };
 
-const modelWithSkin = (skin: IAutoMovieMeshSkin): IAutoMovieModel => {
-  const base = createModel();
+const modelWithSkin: (skin: IAutoMovieMeshSkin) => IAutoMovieModel = (
+  skin: IAutoMovieMeshSkin,
+): IAutoMovieModel => {
+  const base: IAutoMovieModel = createModel();
   return {
     ...base,
     origin: "imported",
-    parts: base.parts.map((part) => ({
-      ...part,
-      geometry: { type: "mesh", mesh: { ...VALID_MESH, skin } },
-    })),
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...part,
+        geometry: { type: "mesh", mesh: { ...VALID_MESH, skin } },
+      }),
+    ),
   };
 };
 
@@ -48,15 +54,20 @@ const modelWithSkin = (skin: IAutoMovieMeshSkin): IAutoMovieModel => {
  * 3. Bone indices must be integer references into the skin joint array.
  * 4. Weights must be finite normalized values in `[0,1]`.
  * 5. Bone-index and weight buffers must contain four entries per vertex.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateModel on admitted skin and malformed joint/index/weight populations, requiring failed admission with each precise diagnostic path and both packing-length findings. This catches skipped duplicate or unresolved joints, invalid influence references, bad weights and missing per-vertex cardinality checks.
+ * @evidence contracts/testing.md#independent-expectations Three authored vertices require twelve influence slots; valid weight groups independently sum to one, while the first malformed group sums to 0.9 and other selected weights exceed [0,1] or are nonfinite. Literal skeleton names, index bounds and paths are authored independently of validation output.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps an admitted three-vertex skin, duplicate and unknown joints, negative/high/fractional indices, above/below/nonfinite weights, a nonunit weight sum and both short buffers. Actual deformation, export and weight-tolerance boundary cases are outside this unit.
+ * @evidence contracts/testing.md#execution-ownership The file-named synchronous entry supplies the existing generic model/skeleton fixture and local mesh buffers to portable engine validation without generating a Human asset or starting a native host.
  */
-export const test_validation_model_mesh_skin = (): void => {
+export function test_validation_model_mesh_skin(): void {
   TestValidator.equals(
     "valid skin succeeds",
     validateModel({ model: modelWithSkin(VALID_SKIN) }).success,
     true,
   );
 
-  const invalid = validateModel({
+  const invalid: IAutoMovieValidation = validateModel({
     model: modelWithSkin({
       joints: ["leftUpperArm", "leftUpperArm", "jaw" as AutoMovieHumanoidBone],
       boneIndices: [0, -1, 3, 1.5, 0, 1, 2, 0, 0, 1, 2, 0],
@@ -138,7 +149,7 @@ export const test_validation_model_mesh_skin = (): void => {
     ),
   );
 
-  const badLengths = validateModel({
+  const badLengths: IAutoMovieValidation = validateModel({
     model: modelWithSkin({
       ...VALID_SKIN,
       boneIndices: [0, 1],
@@ -162,4 +173,4 @@ export const test_validation_model_mesh_skin = (): void => {
       "$input.parts[0].geometry.mesh.skin.weights",
     ),
   );
-};
+}

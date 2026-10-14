@@ -1,34 +1,63 @@
 import { CAT_PROFILE, HORSE_PROFILE } from "@automovie/archetypes";
 import { bindProfileGaits } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieMotion } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
+/** Sampled angular degrees or root metres, according to the caller's channel; the reader owns the nonempty sample premise.
+ * @author Samchon
+ */
 interface NumericRange {
+  /** Smallest sampled channel value. */
   min: number;
+
+  /** Largest sampled channel value. */
   max: number;
 }
 
-const rangeOf = (values: number[]): NumericRange => ({
+const rangeOf: (values: number[]) => NumericRange = (
+  values: number[],
+): NumericRange => ({
   min: Math.min(...values),
   max: Math.max(...values),
 });
 
-const flexionRange = (
+const flexionRange: (
+  motion: IAutoMovieMotion,
+  bone: AutoMovieHumanoidBone,
+) => NumericRange = (
   motion: IAutoMovieMotion,
   bone: AutoMovieHumanoidBone,
 ): NumericRange =>
   rangeOf(
     motion.keyframes.map(
-      (kf) => kf.pose.joints.find((j) => j.bone === bone)?.flexion ?? 0,
+      (kf: IAutoMovieKeyframe): number =>
+        kf.pose.joints.find(
+          (j: IAutoMovieJointPose): boolean => j.bone === bone,
+        )?.flexion ?? 0,
     ),
   );
 
-const rootYRange = (motion: IAutoMovieMotion): NumericRange =>
-  rangeOf(motion.keyframes.map((kf) => kf.pose.root?.translation.y ?? 0));
+const rootYRange: (motion: IAutoMovieMotion) => NumericRange = (
+  motion: IAutoMovieMotion,
+): NumericRange =>
+  rangeOf(
+    motion.keyframes.map(
+      (kf: IAutoMovieKeyframe): number => kf.pose.root?.translation.y ?? 0,
+    ),
+  );
 
-const coversRange = (
+const coversRange: (
+  actual: NumericRange,
+  expected: NumericRange,
+  tolerance: number,
+) => boolean = (
   actual: NumericRange,
   expected: NumericRange,
   tolerance: number,
@@ -36,15 +65,26 @@ const coversRange = (
   actual.min <= expected.min + tolerance &&
   actual.max >= expected.max - tolerance;
 
-const closesRange = (
+const closesRange: (
+  actual: NumericRange,
+  expected: NumericRange,
+  tolerance: number,
+) => boolean = (
   actual: NumericRange,
   expected: NumericRange,
   tolerance: number,
 ): boolean =>
-  Math.abs(actual.min - expected.min) <= tolerance &&
-  Math.abs(actual.max - expected.max) <= tolerance;
+  nclose(actual.min, expected.min, tolerance) &&
+  nclose(actual.max, expected.max, tolerance);
 
-const horseHandAuthored = {
+const horseHandAuthored: Record<
+  "walk" | "trot" | "gallop" | "rear",
+  { duration: number; leftUpperArm: NumericRange; leftLowerArm: NumericRange }
+> & {
+  trot: { rootY: NumericRange };
+  gallop: { rootY: NumericRange };
+  rear: { spine: NumericRange };
+} = {
   walk: {
     duration: 1,
     leftUpperArm: { min: -16, max: 16 },
@@ -70,7 +110,18 @@ const horseHandAuthored = {
   },
 } as const;
 
-const catHandAuthored = {
+const catHandAuthored: Record<
+  "walk" | "leap",
+  {
+    duration: number;
+    leftUpperArm: NumericRange;
+    leftLowerArm: NumericRange;
+    leftUpperLeg: NumericRange;
+  }
+> & {
+  walk: { rightLowerLeg: NumericRange };
+  leap: { leftLowerLeg: NumericRange; rootY: NumericRange };
+} = {
   walk: {
     duration: 0.8,
     leftUpperArm: { min: -24, max: 24 },
@@ -89,22 +140,24 @@ const catHandAuthored = {
 } as const;
 
 /**
- * Profile-generated creature clips must preserve the key observables extracted
- * from the current handwritten playground TypeScript clips. This is the
- * migration lock before playground rendering starts consuming Profile output:
- * duration, limb ranges, and root-height ranges may be approximate, but they
- * must still cover the visible motion envelope of the source clips.
+ * Observe profile-generated creature clips against the preserved local hand-authored duration and channel-range fixtures. Current playground walk producers already bind the same profiles, so these literal fixture tables are the independent historical contract here; no current handwritten source comparison, visual envelope or biological motion is certified.
  *
  * Scenarios:
  *
- * 1. Horse Profile clips preserve handwritten walk/trot/gallop/rear durations and
- *    limb/root envelopes from `packages/playground/src/horse-motion.ts`.
- * 2. Cat Profile clips preserve handwritten walk/leap durations and limb/root
- *    envelopes from `packages/playground/src/cat-motion.ts`; stalk is new
- *    Profile data and is covered by its own fixture test.
+ * 1. Horse profile clips preserve the local walk/trot/gallop/rear duration and limb/root envelopes; the old horse-motion.ts aggregate is no longer a current source.
+ * 2. Cat profile clips preserve the local walk/leap duration and limb/root envelopes; stalk is outside this unchanged fixture selection.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Binds shipped horse and cat profiles at 48 samples, then observes literal durations, sampled flexion ranges, the trot root-height lower bound and closed gallop/leap root ranges. The unit inspects product clip data rather than the profile arrangement alone.
+ * @evidence contracts/testing.md#independent-expectations Local hand-authored tables retain the existing expected periods and degree/metre envelopes without extracting expectations from the generated clips or the current profile-backed playground producers. One-sided range coverage intentionally allows wider extrema, and closesRange retains the original absolute tolerances through nclose. Fixture provenance is historical rather than a claim that removed aggregate files were freshly read.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves horse walk/trot/gallop/rear and cat walk/leap, different limb subsets, one-sided angular coverage, trot root maximum and two-sided gallop/leap root bounds with every original tolerance. Phase, contacts, stalk and rendered geometry belong to other units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both bindProfileGaits calls and private sampled-range readers. Fixtures contain only authored data and register no cases; no playground, viewer, process or native artifact is started.
  */
-export const test_motion_profile_observables = (): void => {
-  const horse = bindProfileGaits(HORSE_PROFILE, "horse", 48);
+export function test_motion_profile_observables(): void {
+  const horse: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    HORSE_PROFILE,
+    "horse",
+    48,
+  );
   TestValidator.predicate(
     "horse walk duration matches handwritten clip",
     nclose(horse.walk!.duration, horseHandAuthored.walk.duration),
@@ -126,7 +179,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeHorse",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.walk!, "leftUpperArm"),
             horseHandAuthored.walk.leftUpperArm,
@@ -135,7 +188,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeHorse2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.walk!, "leftLowerArm"),
             horseHandAuthored.walk.leftLowerArm,
@@ -150,7 +203,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeHorse",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.trot!, "leftUpperArm"),
             horseHandAuthored.trot.leftUpperArm,
@@ -159,7 +212,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeHorse2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.trot!, "leftLowerArm"),
             horseHandAuthored.trot.leftLowerArm,
@@ -168,7 +221,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "rootYRangeHorseTrot",
-        () =>
+        (): boolean =>
           rootYRange(horse.trot!).max >=
           horseHandAuthored.trot.rootY.max - 0.005,
       ],
@@ -184,7 +237,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeHorse",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.gallop!, "leftUpperArm"),
             horseHandAuthored.gallop.leftUpperArm,
@@ -193,7 +246,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeHorse2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.gallop!, "leftLowerArm"),
             horseHandAuthored.gallop.leftLowerArm,
@@ -202,7 +255,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "closesRangeRootYRangeHorse",
-        () =>
+        (): boolean =>
           closesRange(
             rootYRange(horse.gallop!),
             horseHandAuthored.gallop.rootY,
@@ -221,7 +274,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeHorse",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.rear!, "leftUpperArm"),
             horseHandAuthored.rear.leftUpperArm,
@@ -230,7 +283,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeHorse2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.rear!, "leftLowerArm"),
             horseHandAuthored.rear.leftLowerArm,
@@ -239,7 +292,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeHorse3",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(horse.rear!, "spine"),
             horseHandAuthored.rear.spine,
@@ -254,7 +307,11 @@ export const test_motion_profile_observables = (): void => {
     },
   );
 
-  const cat = bindProfileGaits(CAT_PROFILE, "cat", 48);
+  const cat: ReturnType<typeof bindProfileGaits> = bindProfileGaits(
+    CAT_PROFILE,
+    "cat",
+    48,
+  );
   TestValidator.predicate(
     "cat walk duration matches handwritten clip",
     nclose(cat.walk!.duration, catHandAuthored.walk.duration),
@@ -268,7 +325,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeCat",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.walk!, "leftUpperArm"),
             catHandAuthored.walk.leftUpperArm,
@@ -277,7 +334,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.walk!, "leftLowerArm"),
             catHandAuthored.walk.leftLowerArm,
@@ -286,7 +343,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat3",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.walk!, "leftUpperLeg"),
             catHandAuthored.walk.leftUpperLeg,
@@ -295,7 +352,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat4",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.walk!, "rightLowerLeg"),
             catHandAuthored.walk.rightLowerLeg,
@@ -315,7 +372,7 @@ export const test_motion_profile_observables = (): void => {
     namedFacts([
       [
         "coversRangeFlexionRangeCat",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.leap!, "leftUpperArm"),
             catHandAuthored.leap.leftUpperArm,
@@ -324,7 +381,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat2",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.leap!, "leftLowerArm"),
             catHandAuthored.leap.leftLowerArm,
@@ -333,7 +390,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat3",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.leap!, "leftUpperLeg"),
             catHandAuthored.leap.leftUpperLeg,
@@ -342,7 +399,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "coversRangeFlexionRangeCat4",
-        () =>
+        (): boolean =>
           coversRange(
             flexionRange(cat.leap!, "leftLowerLeg"),
             catHandAuthored.leap.leftLowerLeg,
@@ -351,7 +408,7 @@ export const test_motion_profile_observables = (): void => {
       ],
       [
         "closesRangeRootYRangeCat",
-        () =>
+        (): boolean =>
           closesRange(rootYRange(cat.leap!), catHandAuthored.leap.rootY, 0.02),
       ],
     ]),
@@ -363,4 +420,4 @@ export const test_motion_profile_observables = (): void => {
       closesRangeRootYRangeCat: true,
     },
   );
-};
+}

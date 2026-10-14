@@ -1,10 +1,17 @@
-import type { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 /** One shared identity rotation for the existing visual-read inputs. */
-const IDENTITY_Q = { x: 0, y: 0, z: 0, w: 1 };
+const IDENTITY_Q: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /** Construct the original world translation while retaining its shared identity rotation. */
-export const createFilmVisualReadTransform = (
+export const createFilmVisualReadTransform: (
+  x: number,
+  y: number,
+  z: number,
+) => IAutoMovieTransform = (
   x: number,
   y: number,
   z: number,

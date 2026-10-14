@@ -1,11 +1,17 @@
+import type { IAutoMovieHumanSkinLandmark as IAutoMovieHumanSkinLandmarkImported } from "../../../common/basis/IAutoMovieHumanSkinLandmark";
 import { findHumanSkinLandmark } from "../../../common/basis/findHumanSkinLandmark";
+import type { IHumanFaceLipMarginPoint as IHumanFaceLipMarginPointImported } from "../../basis/IHumanFaceLipMarginPoint";
+import type { IHumanFaceLipMarginPoints as IHumanFaceLipMarginPointsImported } from "../../basis/IHumanFaceLipMarginPoints";
 import { readHumanFaceLipMarginPoints } from "../../basis/readHumanFaceLipMarginPoints";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceRegionalRelief } from "../../structures/IAutoMovieHumanFaceRegionalRelief";
 import type { IAutoMovieHumanFaceSkinRelief } from "../../structures/IAutoMovieHumanFaceSkinRelief";
+import type { IHumanFaceSkinHost as IHumanFaceSkinHostImported } from "./IHumanFaceSkinHost";
+import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 import { applyHumanFaceSkinCourseRelief } from "./applyHumanFaceSkinCourseRelief";
 import { createHumanFaceSkinHost } from "./createHumanFaceSkinHost";
 import { createHumanFaceSkinMaterialCourse } from "./createHumanFaceSkinMaterialCourse";
-import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialGuidePoint";
 
 /**
  * Shape forehead, glabellar, marionette, philtral and perioral relief on the
@@ -32,6 +38,14 @@ import type { IHumanFaceSkinMaterialGuidePoint } from "./IHumanFaceSkinMaterialG
  * For the shape-only reference, the orchestrator omits performance values.
  * Clinical observations never enter this displacement owner.
  *
+ * @evidence contracts/common.md#principled-implementation Registered landmarks and the shape-only material reference define supported regional courses; signed rest minus performed fold depth converts once to metres and accumulates on the same unchanged skin while holding source landmarks and lip support.
+ * @evidence contracts/common.md#clear-and-simple-design One region loop owns course-role admission and one shared skin host; existing chart/kernel owners retain correspondence and displacement, with ocular deformation left to its cage owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Named regions select actual anatomical registrations; clinical grades, free sculpt curves, unsupported dimension overrides and ineffective active widths do not receive fallback geometry or clamped values.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies conventional rather than measured trajectories, reference/performance separation, held anatomy, missing-support refusal and regeneration of contact/normal derivatives.
+ * @evidence contracts/performance.md#efficient-algorithms Up to eight supported regions each compile their native chart and scan V vertices against S course spans, costing O(VS) per active course plus exact chart work; one host/position copy and one complete lip/landmark collection serve the application.
+ * @evidence contracts/performance.md#reuse-equivalent-work Regions share immutable source positions and welded host normals, while each distinct registered domain owns its course; a moved skin or changed reference invalidates those courses rather than reusing physical metrics across states.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Held/support sets, host, courses and changed positions are invocation-local and scale with actual native geometry; failed courses discard the local output, and only completed active positions enter the returned map.
+ *
  * @author Samchon
  */
 export function applyHumanFaceRegionalRelief(
@@ -41,10 +55,12 @@ export function applyHumanFaceRegionalRelief(
   reference: ReadonlyMap<string, readonly number[]>,
 ): ReadonlyMap<string, readonly number[]> {
   if (relief?.regions === undefined) return positions;
-  const glabella = findHumanSkinLandmark(basis, "glabella");
-  const surface =
+  const glabella: IAutoMovieHumanSkinLandmarkImported | undefined =
+    findHumanSkinLandmark(basis, "glabella");
+  const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
     glabella === undefined ? undefined : basis.surfaces[glabella.surface];
-  const source = surface === undefined ? undefined : positions.get(surface.id);
+  const source: readonly number[] | undefined =
+    surface === undefined ? undefined : positions.get(surface.id);
   if (
     source === undefined ||
     surface === undefined ||
@@ -55,17 +71,29 @@ export function applyHumanFaceRegionalRelief(
     throw new Error(
       "Regional skin relief needs registered connected head skin and complete lip ports.",
     );
-  const margin = readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
-  const held = new Set([
-    ...[...margin.upper, ...margin.lower].flatMap((point) =>
-      point.vertices.filter((_, axis) => point.weights[axis] !== 0)),
+  const margin: IHumanFaceLipMarginPointsImported =
+    readHumanFaceLipMarginPoints(surface, basis.contact.margin, source);
+  const held: Set<number> = new Set([
+    ...[...margin.upper, ...margin.lower].flatMap(
+      (point: IHumanFaceLipMarginPointImported): number[] =>
+        point.vertices.filter(
+          (_: number, axis: number): boolean => point.weights[axis] !== 0,
+        ),
+    ),
     ...Object.values(basis.skinLandmarks ?? {})
-      .filter((landmark) => landmark.surface === glabella.surface)
-      .map((landmark) => landmark.vertex),
+      .filter(
+        (landmark: IAutoMovieHumanSkinLandmarkImported): boolean =>
+          landmark.surface === glabella.surface,
+      )
+      .map(
+        (landmark: IAutoMovieHumanSkinLandmarkImported): number =>
+          landmark.vertex,
+      ),
   ]);
-  const supportVertices = new Set<number>();
-  const point = (name: string): number[] => {
-    const landmark = findHumanSkinLandmark(basis, name);
+  const supportVertices: Set<number> = new Set<number>();
+  const point: (name: string) => number[] = (name: string): number[] => {
+    const landmark: IAutoMovieHumanSkinLandmarkImported | undefined =
+      findHumanSkinLandmark(basis, name);
     if (landmark === undefined || landmark.surface !== glabella.surface)
       throw new Error(
         "Regional skin relief needs a registered source landmark: " + name,
@@ -73,15 +101,20 @@ export function applyHumanFaceRegionalRelief(
     supportVertices.add(landmark.vertex);
     return source.slice(3 * landmark.vertex, 3 * landmark.vertex + 3);
   };
-  const host = createHumanFaceSkinHost(surface.indices, source);
-  const changed = [...source];
-  let active = false;
-  for (const [name, settings] of Object.entries(relief.regions)) {
+  const host: IHumanFaceSkinHostImported = createHumanFaceSkinHost(
+    surface.indices,
+    source,
+  );
+  const changed: number[] = [...source];
+  let active: boolean = false;
+  const regions: [string, IAutoMovieHumanFaceRegionalRelief | undefined][] =
+    Object.entries(relief.regions);
+  for (const [name, settings] of regions) {
     if (settings === undefined) continue;
     supportVertices.clear();
-    const rest = settings.restOffsetMm ?? 0,
-      fold = settings.foldDepthMm ?? 0,
-      performance = settings.performance ?? 0;
+    const rest: number = settings.restOffsetMm ?? 0,
+      fold: number = settings.foldDepthMm ?? 0,
+      performance: number = settings.performance ?? 0;
     if (
       ![rest, fold, performance, settings.widthMm].every(Number.isFinite) ||
       fold < 0 ||
@@ -94,8 +127,8 @@ export function applyHumanFaceRegionalRelief(
           name +
           " needs finite offsets, nonnegative fold depth, positive width and a performed fraction in [0,1].",
       );
-    const offset = (rest - fold * performance) / 1000,
-      width = settings.widthMm / 1000;
+    const offset: number = (rest - fold * performance) / 1000,
+      width: number = settings.widthMm / 1000;
     if (!Number.isFinite(offset) || !(width > 0))
       throw new Error(
         "Regional skin dimensions must be representable in metres: " + name,
@@ -110,7 +143,11 @@ export function applyHumanFaceRegionalRelief(
         "Regional skin guide dimensions are unsupported: " + name,
       );
     let guide: number[][];
-    const side = name.endsWith("Left") ? 1 : name.endsWith("Right") ? -1 : 0;
+    const side: 0 | 1 | -1 = name.endsWith("Left")
+      ? 1
+      : name.endsWith("Right")
+        ? -1
+        : 0;
     if (name === "forehead" || name === "glabellar") {
       if (
         settings.lengthMm === undefined ||
@@ -121,8 +158,8 @@ export function applyHumanFaceRegionalRelief(
             name +
             " requires an explicitly authored source-guide length/height.",
         );
-      const anchor = point("glabella"),
-        length = settings.lengthMm / 1000;
+      const anchor: number[] = point("glabella"),
+        length: number = settings.lengthMm / 1000;
       guide =
         name === "forehead"
           ? [
@@ -170,10 +207,15 @@ export function applyHumanFaceRegionalRelief(
         "Glabellar source course starts at its registered glabella without an elevation override.",
       );
     // The admission of a course keeps its original frontal-projection measure.
-    const lengths = guide
+    const lengths: number[] = guide
       .slice(1)
-      .map((b, k) => Math.hypot(b[0] - guide[k][0], b[1] - guide[k][1]));
-    const total = lengths.reduce((sum, length) => sum + length, 0);
+      .map((b: number[], k: number): number =>
+        Math.hypot(b[0] - guide[k][0], b[1] - guide[k][1]),
+      );
+    const total: number = lengths.reduce(
+      (sum: number, length: number): number => sum + length,
+      0,
+    );
     if (!(total > 0) || !Number.isFinite(total))
       throw new Error(
         "Regional skin source course has no finite projected length: " + name,
@@ -183,19 +225,28 @@ export function applyHumanFaceRegionalRelief(
         "Regional skin width exceeds its current source-course length: " + name,
       );
     if (offset === 0) continue;
-    const anchors = [...supportVertices];
+    const anchors: number[] = [...supportVertices];
     const materialGuide: IHumanFaceSkinMaterialGuidePoint[] =
       name === "forehead" || name === "glabellar"
         ? (name === "forehead"
-            ? [[-settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
-               [settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0]]
-            : [[0, 0, 0], [0, settings.lengthMm! / 1000, 0]])
-          .map((displacement) => ({
-            vertex: glabella.vertex,
-            displacement,
-          }))
-        : anchors.map((vertex) => ({ vertex }));
-    const supported = applyHumanFaceSkinCourseRelief({
+            ? [
+                [-settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
+                [settings.lengthMm! / 2000, settings.elevationMm! / 1000, 0],
+              ]
+            : [
+                [0, 0, 0],
+                [0, settings.lengthMm! / 1000, 0],
+              ]
+          ).map(
+            (
+              displacement: number[],
+            ): { vertex: number; displacement: number[] } => ({
+              vertex: glabella.vertex,
+              displacement,
+            }),
+          )
+        : anchors.map((vertex: number): { vertex: number } => ({ vertex }));
+    const supported: boolean = applyHumanFaceSkinCourseRelief({
       host,
       source,
       changed,
@@ -219,7 +270,7 @@ export function applyHumanFaceRegionalRelief(
     active = true;
   }
   if (!active) return positions;
-  const output = new Map(positions);
+  const output: Map<string, readonly number[]> = new Map(positions);
   output.set(surface.id, changed);
   return output;
 }

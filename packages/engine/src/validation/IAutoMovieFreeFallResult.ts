@@ -5,34 +5,27 @@ import {
 } from "@automovie/interface";
 
 /**
- * The outcome of a gravity-expectation check: the `warning` envelope, the
- * `fall` interaction event(s), and a suggested fall trajectory (or `null`).
+ * Advice, fall events and an optional trajectory returned by detectFreeFall.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieFreeFallResult` keeps the support finding, fall event, and suggested arc attached to one evaluated body state.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieFreeFallResult` separates invalid input, temporal event scope, and optional trajectory output in the gravity check.
+ * @evidence contracts/common.md#principled-implementation The canonical detector keeps validation separate from generated time-zero fall advice; invalid duration/margin produces an error with no suggested arc, and supported/attached/falling bodies produce no fall suggestion.
+ * @evidence contracts/common.md#clear-and-simple-design One outcome joins physical advice and the corresponding interaction event without turning a warning into a failed authored model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A trajectory is proposed only when the detector expects unsupported free fall; the record does not claim a host applied it or a collider-free path was proved.
+ * @evidence contracts/common.md#meaningful-documentation Names the producer, warning/error distinction, shot-clock events and nullable suggested clip; generated trajectory failures may still propagate from the detector.
+ * @evidence contracts/performance.md#efficient-algorithms This record performs no projectile sampling; duration, frame population and trajectory costs belong to detectFreeFall and projectileTrajectory.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same detector outcome supplies its event and trajectory without an independent cached physical verdict in this wrapper.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned findings, events and clip; event points may borrow the supplied center-of-mass reference, and the wrapper acquires no playback task.
  * @author Samchon
  */
 export interface IAutoMovieFreeFallResult {
-  /**
-   * Warning-severity feedback (or an error for bad input).
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validation` locates malformed gravity or body inputs and the unsupported-state warning at their supplied root.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validation` preserves severity and expected support condition independently from the generated fall data.
-   */
+  /** Warning-severity feedback (or an error for bad input). */
   validation: IAutoMovieValidation;
-  /**
-   * Fall events on the shot clock: "one calculation, two consumers".
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `events` identifies the falling node at the evaluated shot-clock time for downstream consumers.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `events` retains subject and temporal scope even when an authored physics intent suppresses advisory output.
-   */
+
+  /** Fall events on the shot clock: "one calculation, two consumers". */
   events: IAutoMovieInteractionEvent[];
+
   /**
    * Suggested free-fall arc from this frame, or `null` when not expected to
    * fall.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `trajectory` records the suggested arc for the body and instant found to be unsupported.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `trajectory` remains null outside the diagnosed fall state, bounding the correction to the affected sample.
    */
   trajectory: IAutoMovieClip | null;
 }

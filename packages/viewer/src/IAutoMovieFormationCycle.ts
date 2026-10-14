@@ -16,56 +16,34 @@ import type { IAutoMovieFormationCycleUniforms } from "./IAutoMovieFormationCycl
  * itself, which is exactly the shape a crowd has: one figure, many phases. What
  * they perform, and how fast, belongs to the unit and changes with its cues.
  *
- * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Shares a tier repertoire and uniform state while each member adds its own seeded phase and distance from the turn pivot.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Shares a tier repertoire and uniform state while each member adds its own seeded phase and distance from the turn pivot.
+ * @evidence contracts/common.md#principled-implementation A repertoire maps gait names to equally sampled rest-to-posed affine tables, with one active take and shared uniform cells; anonymous members supply phase and instance transforms rather than independent skeletons.
+ * @evidence contracts/common.md#clear-and-simple-design Separates per-figure baked tables from per-unit cadence and per-member phase, matching the instanced vertex shader's actual input responsibilities.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Gaits come from the model's declared repertoire and fallback is an actual baked take; no member-specific pose library or named crowd fixture is embedded here.
+ * @evidence contracts/common.md#meaningful-documentation Explains why anonymous members use tables, wraparound samples, part-name indexing, active/fallback takes and material-shared uniform cells.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The repertoire interface runs no bake; bakeFormationCycle owns costs in gait count, part count and cycle samples.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type describes shared tables, while formation representation ownership decides which LOD/material consumers can reuse them.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface acquires no texture; formation representation disposal owns every retained take table and its GPU texture.
+ *
  * @author Samchon
  */
 export interface IAutoMovieFormationCycle {
-  /**
-   * Even samples across one cycle; sample `samples` wraps to sample zero.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Keeps one periodic sampling resolution across the repertoire and its interpolation.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Keeps one periodic sampling resolution across the repertoire and its interpolation.
-   */
+  /** Even samples across one cycle; sample `samples` wraps to sample zero. */
   samples: number;
 
   /**
    * Rigid part names in the order the `automoviePart` attribute indexes them.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Preserves the rigid-part ordering shared by flattened vertex indices and table rows.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Preserves the rigid-part ordering shared by flattened vertex indices and table rows.
    */
   names: readonly string[];
 
-  /**
-   * Every gait this figure declares, by name.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Resolves cue gait identities to their own stride and pose tables.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Resolves cue gait identities to their own stride and pose tables.
-   */
+  /** Every gait this figure declares, by name. */
   takes: ReadonlyMap<string, IAutoMovieFormationCycleTake>;
 
-  /**
-   * Take performed where a cue calls for no gait this figure declares.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Keeps the declared fallback take for intervals that name no available gait.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Keeps the declared fallback take for intervals that name no available gait.
-   */
+  /** Take performed where a cue calls for no gait this figure declares. */
   fallback: IAutoMovieFormationCycleTake;
 
-  /**
-   * Take the last written frame selected.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Identifies the take selected by the most recent cadence projection.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Identifies the take selected by the most recent cadence projection.
-   */
+  /** Take the last written frame selected. */
   active: IAutoMovieFormationCycleTake;
 
-  /**
-   * Uniform cells shared by every material drawing this figure.
-   *
-   * @evidence requirements/formations/reform-and-group-motion.md#formation-turn-speed-response Shares one table and cadence binding across materials drawing that tier.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Shares one table and cadence binding across materials drawing that tier.
-   */
+  /** Uniform cells shared by every material drawing this figure. */
   uniforms: IAutoMovieFormationCycleUniforms;
 }

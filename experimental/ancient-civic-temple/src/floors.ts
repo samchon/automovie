@@ -1,10 +1,10 @@
 /**
- * 아홉 방의 바닥 소유 입력을 실제 mesh와 native support로 조립한다.
- * 공간 치수는 각 room source, 구조 두께는 storey가 소유한다. 이 파일은
- * 같은 입력에서 경계면→표면 소유→engine mesh 순서만 수행한다.
- * 모든 방을 함께 계산해야 문턱/주랑/중정 접합의 내부 면이 남지 않는다.
- * surface별 index group은 한 완결 시각 표면의 전체 조각을 묶는다.
- * 재료·model·element·walkable 결속은 후속 환경 조립에서 소비한다.
+ * Assembles the floor ownership inputs of the nine rooms into actual meshes and native support.
+ * Each room source owns the space dimensions and the storey owns the structural thickness; this file
+ * only runs boundary faces, then surface ownership, then engine meshes from the same inputs.
+ * All rooms are computed together so no interior face survives at threshold, portico or courtyard joints.
+ * Each surface's index group bundles every piece of one complete visual surface.
+ * Later environment assembly consumes the material, model, element and walkable bindings.
  */
 import {
   buildAutoMoviePolyhedron,
@@ -24,9 +24,9 @@ import { templeServiceYardFloor } from "./spaces/rooms/service-yard";
 import { templeStorageFloor } from "./spaces/rooms/storage";
 
 /**
- * 방별 바닥 소유 입력. exteriorBottom은 docs/spaces/storey.md#wall-ground-contact의
- * 공통 하단이며, 대지 지면에 닿는 현관 석단 앞 구조체가 그 높이까지 내려간다.
- * null이면 일반 두께만 쓴다(공통 하단을 유도하기 위한 완성면 읽기 전용).
+ * Per-room floor ownership input. exteriorBottom is the common bottom;
+ * the structure in front of the entrance steps that meets the site ground goes down to that height.
+ * Null uses the ordinary thickness only (a read-only finished face used to derive the common bottom).
  */
 export const templeFloorInputs = (exteriorBottom: number | null) => [
   templeEntranceFloor(exteriorBottom), templeCourtyardFloor(), templeColonnadeFloor(),
@@ -35,9 +35,9 @@ export const templeFloorInputs = (exteriorBottom: number | null) => [
 ];
 
 /**
- * 호출 시마다 현재 소유 입력을 평가한다. 캐시/전역 mutable mesh는 없다.
- * 바닥 slab는 문틀 밑을 포함하지만 support는 유효 통과 영역만 포함한다.
- * mesh query 결과는 실제 호출 때 생성되며 함수 저작 자체는 검증 결과가 아니다.
+ * Evaluates the current ownership inputs on every call; there is no cache or global mutable mesh.
+ * The floor slab runs under the door frames, but support covers only the effective passage area.
+ * Mesh query results are produced by the actual call; authoring the function is not itself a verification result.
  */
 export const createTempleFloors = (exteriorBottom: number | null = null) => {
   const inputs = templeFloorInputs(exteriorBottom);

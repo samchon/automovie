@@ -7,7 +7,7 @@ import {
 import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
 const CLINICAL: IAutoMovieJointConstraint = {
   flexion: { min: -60, max: 180 },
@@ -22,9 +22,7 @@ const badNeutral: IAutoMovieAxisFrame = {
 };
 
 /**
- * Rest-frame scalars are runtime inputs whenever callers provide custom rig
- * frames. Invalid signs or neutrals must stop before they create non-finite
- * clinical/rig angles or shifted ROM ranges.
+ * Refuse invalid supplied frame signs and neutrals before scalar conversion or interval reconciliation uses them.
  *
  * Scenarios:
  *
@@ -32,12 +30,17 @@ const badNeutral: IAutoMovieAxisFrame = {
  * 2. `toClinicalAngle` rejects non-finite neutrals.
  * 3. `restRelativeConstraint` rejects invalid frame entries before shifting.
  * 4. Omitted frames and null angles remain identity cases.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises both scalar conversions and interval reconciliation with malformed supplied frames, requiring actionable Error fragments before an invalid sign or neutral propagates.
+ * @evidence contracts/testing.md#independent-expectations An affine rest frame admits only sign plus/minus one and a finite neutral; omitted frames preserve degrees and null angles preserve rest. Message fragments pin the offending quantity without depending on a full rendered message.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts invalid zero sign, NaN neutral, interval conversion of each defect, absent-frame scalar identity and null rest; valid mirror/shift arithmetic is covered by rest-frame reconciliation.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit calls maintained scalar and interval owners with local records, observes thrown Errors and starts no host or asset pipeline.
  */
-export const test_rom_rest_frame_scalars = (): void => {
+export function test_rom_rest_frame_scalars(): void {
   TestValidator.predicate(
     "toRigAngle rejects invalid sign",
     throwsError(
-      () => toRigAngle(150, badSign),
+      (): number | null => toRigAngle(150, badSign),
       ["rest frame sign", "1 or -1", "0"],
     ),
   );
@@ -45,7 +48,7 @@ export const test_rom_rest_frame_scalars = (): void => {
   TestValidator.predicate(
     "toClinicalAngle rejects non-finite neutral",
     throwsError(
-      () => toClinicalAngle(-60, badNeutral),
+      (): number | null => toClinicalAngle(-60, badNeutral),
       ["rest frame neutral", "finite", "NaN"],
     ),
   );
@@ -53,7 +56,8 @@ export const test_rom_rest_frame_scalars = (): void => {
   TestValidator.predicate(
     "restRelativeConstraint rejects invalid sign",
     throwsError(
-      () => restRelativeConstraint(CLINICAL, { abduction: badSign }),
+      (): IAutoMovieJointConstraint =>
+        restRelativeConstraint(CLINICAL, { abduction: badSign }),
       ["rest frame abduction sign", "1 or -1", "0"],
     ),
   );
@@ -61,15 +65,19 @@ export const test_rom_rest_frame_scalars = (): void => {
   TestValidator.predicate(
     "restRelativeConstraint rejects non-finite neutral",
     throwsError(
-      () => restRelativeConstraint(CLINICAL, { flexion: badNeutral }),
+      (): IAutoMovieJointConstraint =>
+        restRelativeConstraint(CLINICAL, { flexion: badNeutral }),
       ["rest frame flexion neutral", "finite", "NaN"],
     ),
   );
 
-  TestValidator.equals("no frame is identity", toRigAngle(12, undefined), 12);
+  TestValidator.predicate(
+    "no frame is identity",
+    nclose(toRigAngle(12, undefined)!, 12, 0),
+  );
   TestValidator.equals(
     "null angle is identity",
     toClinicalAngle(null, { sign: -1, neutral: 90 }),
     null,
   );
-};
+}

@@ -3,78 +3,44 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One run joining exactly two ports: a pipe, a duct, a conduit, a cable tray.
  *
- * The centre line is authored in world metres because that is what a clash is
- * measured in, and the radius is what turns that line into the volume the run
- * actually occupies. A run that leaves the space it started in is expected to
- * name the sleeve it went through, which is the only way a wall can be shown to
- * have been drilled on purpose.
+ * The centre line is authored in world metres because that is what a clash is measured in, and the radius is what turns that line into the volume the run actually occupies. A run that leaves the space it started in is expected to name the sleeve it went through, which is the only way a wall can be shown to have been drilled on purpose.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `IAutoMovieServiceSegment` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `IAutoMovieServiceSegment` for the interior space service network contract system contract.
+ * @evidence contracts/common.md#principled-implementation A world-meter polyline joins compatible ports within the gate's 1e-6 metre endpoint tolerance. Positive radius supplies swept clash bounds; declared section matches nonnull port sections within the existing 1e-9 square-metre tolerance, and sleeve references undergo fit and crossing checks.
+ * @evidence contracts/common.md#clear-and-simple-design Route geometry and its two-port topology stay together, with boundary-owned sleeves referenced rather than embedded into each run.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint and section tolerances are explicit. Crossings inspect route vertices rather than every point of a leg, and shared-node run pairs are exempt from clash comparison; axis-aligned swept bounds do not establish exact cylindrical separation or hydraulic performance.
+ * @evidence contracts/common.md#meaningful-documentation Defines system and direction-compatible ports, world route endpoints, positive radius/section and sleeve references.
+ * @author Samchon
  */
 export interface IAutoMovieServiceSegment {
-  /**
-   * Stable segment identity within the network.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `id` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `id` for the interior space service network contract system contract.
-   */
+  /** Stable segment identity within the network. */
   id: string;
 
-  /**
-   * Id of the system this run belongs to.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `system` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `system` for the interior space service network contract system contract.
-   */
+  /** Id of the system this run belongs to. */
   system: string;
 
   /**
    * Id of the port the medium leaves from; it must be `out` or `bidirectional`.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `from` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `from` for the interior space service network contract system contract.
    */
   from: string;
 
   /**
    * Id of the port the medium arrives at; it must be `in` or `bidirectional`.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `to` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `to` for the interior space service network contract system contract.
    */
   to: string;
 
   /**
-   * World centre line in metres, including both endpoints. The first point must
-   * coincide with the `from` port and the last with the `to` port.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `route` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `route` for the interior space service network contract system contract.
+   * World centre line in metres with at least two finite points. Its endpoints must lie within 1e-6 metres of their ports; consecutive points must be farther apart than 1e-9 metres. Vertex-based crossing checks do not prove continuous containment along every leg.
    */
   route: IAutoMovieVector3[];
 
-  /**
-   * Outer radius in metres used for clash and clearance; greater than `0`.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `radius` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `radius` for the interior space service network contract system contract.
-   */
+  /** Outer radius in metres used for clash and clearance; greater than `0`. */
   radius: number;
 
-  /**
-   * Internal cross-section in square metres; greater than `0`.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `section` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `section` for the interior space service network contract system contract.
-   */
+  /** Internal cross-section in square metres; greater than `0`. */
   section: number;
 
   /**
    * Ids of the penetrations this run passes through, in no particular order.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `penetrations` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `penetrations` for the interior space service network contract system contract.
    */
   penetrations: string[];
 }

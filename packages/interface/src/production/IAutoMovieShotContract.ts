@@ -7,38 +7,25 @@ import { IAutoMovieShotReviewFrame } from "./IAutoMovieShotReviewFrame";
 import { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
 
 /**
- * A code-bound shot contract, not a dense keyframe list.
+ * Source-bound shot obligations measured against compiled performance, camera and event output.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieShotContract` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieShotContract` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Explicit participants, boundary-state predicates, event windows and required review samples describe one shot; realizeShotContract grades those obligations from supplied artifacts. Valid contract clocks and source attribution are caller premises, while direct compileDefinedShot uses its registered declaration and a synthetic source address without a resident project loader.
+ * @evidence contracts/common.md#clear-and-simple-design Separates narrative identity and source binding from measurable opening, closing, camera and event obligations, leaving dense motion and scene construction to the source and engine pipeline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Echoed ids and camera intent prose do not prove realization; occlusion ratio remains an external current-frame review requirement rather than a builder-measured mask statistic, and style intent suppresses only its named heuristic.
+ * @evidence contracts/common.md#meaningful-documentation Defines source path admission, shot seconds and frame clock, independent story pin, participant and predicate obligations, camera limits and required visual evidence.
+ * @author Samchon
  */
 export interface IAutoMovieShotContract {
-  /**
-   * Non-blank stable shot id, unique under portable case folding.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Non-blank stable shot id, unique under portable case folding. */
   id: string;
 
-  /**
-   * Non-blank narrative beat id owned by the coding-agent treatment.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `beat` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `beat` for the narrative intent story design ownership system contract.
-   */
+  /** Non-blank narrative beat id owned by the coding-agent treatment. */
   beat: string;
 
-  /**
-   * Coding-agent-owned source export.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `source` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `source` for the narrative intent story design ownership system contract.
-   */
+  /** Coding-agent-owned source export. */
   source: {
     /**
-     * Canonical project-relative POSIX TypeScript path. Backslashes, absolute
-     * paths, dot segments and case-variant aliases are refused.
+     * Intended canonical project-relative POSIX TypeScript path. The production path resolver is retired; direct compileDefinedShot uses a synthetic source address and does not load this path.
      */
     module: string;
 
@@ -49,108 +36,57 @@ export interface IAutoMovieShotContract {
   /**
    * Screenplay scenes and optional canon claims this shot intends to realize.
    *
-   * Project lint requires this field once a screenplay index is resident.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `evidence` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `evidence` for the narrative intent story design ownership system contract.
+   * Retains optional screenplay attribution; the production screenplay/project lint gate is retired.
    */
   evidence?: IAutoMovieSceneEvidence[];
 
   /**
-   * Finite shot runtime in seconds, strictly above zero and on the production
-   * frame clock.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `durationSeconds` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `durationSeconds` for the narrative intent story design ownership system contract.
+   * Finite shot runtime in seconds, strictly above zero and on the production frame clock.
    */
   durationSeconds: number;
 
   /**
    * Where this shot's local time zero lands on the production story clock.
    *
-   * Omitted means the shot asserts nothing about story time, which is the
-   * default. A pin is legal only once the production declares `storyClock`, and
-   * a cross-shot criterion may only compare events in pinned shots. Pinning is
-   * independent of the edit: the pin says when the shot happened, never where
-   * it is cut.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `storyTime` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `storyTime` for the narrative intent story design ownership system contract.
+   * Omitted means the shot asserts nothing about story time, which is the default. A pin is legal only once the production declares `storyClock`, and a cross-shot criterion may only compare events in pinned shots. Pinning is independent of the edit: the pin says when the shot happened, never where it is cut.
    */
   storyTime?: IAutoMovieShotStoryTime;
 
   /**
-   * Unique deliberate film-grammar exceptions. Each value suppresses only its
-   * corresponding heuristic diagnostic; unrelated facts remain visible.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `styleIntent` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `styleIntent` for the narrative intent story design ownership system contract.
+   * Unique deliberate film-grammar exceptions. Each value suppresses only its corresponding heuristic diagnostic; unrelated facts remain visible.
    */
   styleIntent?: AutoMovieGrammarStyleIntent[];
 
-  /**
-   * Unique required actor and formation ids; formations must already exist.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `participants` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `participants` for the narrative intent story design ownership system contract.
-   */
+  /** Unique required actor and formation ids; formations must already exist. */
   participants: IAutoMovieShotParticipant[];
 
-  /**
-   * Required opening states.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `opening` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `opening` for the narrative intent story design ownership system contract.
-   */
+  /** Required opening states. */
   opening: IAutoMovieNamedState[];
 
-  /**
-   * Required closing states.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `closing` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `closing` for the narrative intent story design ownership system contract.
-   */
+  /** Required closing states. */
   closing: IAutoMovieNamedState[];
 
-  /**
-   * Camera readability constraints.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `camera` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `camera` for the narrative intent story design ownership system contract.
-   */
+  /** Camera readability constraints. */
   camera: {
     /** Non-blank creative camera intent. */
     intent: string;
 
     /**
-     * Non-empty unique compiled scene-node or formation ids that must remain
-     * readable.
+     * Non-empty unique compiled scene-node or formation ids that must remain readable.
      */
     requiredSubjects: string[];
 
     /**
      * Finite maximum allowed pixel-occlusion ratio, inclusive from zero to one.
      *
-     * The builder projects subject root points but does not measure this
-     * ratio. The external reviewer must compare current mask, depth, outline or
-     * beauty frames against it.
+     * realizeShotContract tests sampled subject boxes against the cropped camera frustum and declared depth precision; it does not measure this pixel-occlusion ratio. External review must compare current mask, depth, outline or beauty frames against the authored threshold.
      */
     maxOcclusionRatio: number;
   };
 
-  /**
-   * Timed semantic events.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `events` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `events` for the narrative intent story design ownership system contract.
-   */
+  /** Timed semantic events. */
   events: IAutoMovieShotEventContract[];
 
-  /**
-   * At least one required visual-review frame.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `reviewFrames` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `reviewFrames` for the narrative intent story design ownership system contract.
-   */
+  /** At least one required visual-review frame. */
   reviewFrames: IAutoMovieShotReviewFrame[];
 }

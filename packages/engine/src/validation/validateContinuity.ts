@@ -1,48 +1,30 @@
 import {
-  IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndState,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
+import { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
 import { ViolationCollector } from "./ViolationCollector";
-
-/** Default world-space position drift tolerated across a cut (metres). */
-const DEFAULT_POSITION_TOLERANCE = 0.05;
-
-/** Default facing drift tolerated across a cut (degrees). */
-const DEFAULT_FACING_TOLERANCE_DEG = 5;
-
-/** The two tolerances a continuity comparison reads, once validated. */
-interface ITolerances {
-  position: number;
-  facingDeg: number;
-}
+import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
- * Validate one cut boundary: the incoming beat's OPENING state against the
- * previous beat's recorded END state. This is the check the forward-written
- * {@link IAutoMovieBeatEndState} always implied but nothing performed: a cut
- * that fails to resume where the prior beat left off is the README's named
- * failure ("characters drift, props disappear").
+ * Compare every prior-end actor to the incoming opening for missing presence, Euclidean drift, facing angle and persistent mount changes.
  *
- * Drift is **advisory** (a `warning`, never a gate): a hard cut can
- * legitimately jump an actor to a new mark, a time-skip, or a new blocking. The
- * linter surfaces the drift with the exact actor, offset, and tolerance so the
- * author decides whether the cut intends it. It does not refuse the film. This
- * mirrors the physical-plausibility advisory tier.
- *
- * Per actor present at the prior beat's end:
- *
- * - World position drift beyond `positionTolerance` metres.
- * - Facing drift beyond `facingToleranceDeg` degrees.
- * - A persistent mount dropped or changed (the rider's horse vanished).
- * - The actor missing entirely from the incoming opening.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateContinuity` locates each actor position, facing, mount, or prop-state mismatch at the incoming beat's opening member.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateContinuity` preserves the previous end observation, opening observation, expected tolerance, and actor identity for one cut boundary.
+ * @evidence contracts/common.md#principled-implementation Compare every prior-end actor to the incoming opening for missing presence, Euclidean drift, facing angle and persistent mount changes.
+ * @evidence contracts/common.md#clear-and-simple-design One pairwise owner appends advisory faults; tolerance admission precedes snapshot comparison.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only prior actors are required to persist; new incoming actors are allowed and drift warnings do not refuse an intentional cut.
+ * @evidence contracts/common.md#meaningful-documentation Metre/degree tolerances default50mm/5deg and missing/mount warnings carry actor paths.
+ * @evidence contracts/performance.md#efficient-algorithms P prior actors and O opening actors require O(P+O) indexing/comparison plus id text.
+ * @evidence contracts/performance.md#reuse-equivalent-work The opening id map shares lookup work within this boundary, without caching mutable snapshots.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Snapshots are borrowed; only report rows escape and no film playback state is retained.
  */
-export const validateContinuity = (props: {
+export const validateContinuity: (props: {
+  previous: IAutoMovieBeatEndState;
+  opening: IAutoMovieBeatEndState;
+  positionTolerance?: number;
+  facingToleranceDeg?: number;
+}) => IAutoMovieValidation = (props: {
   /** The previous beat's resolved end-state. */
   previous: IAutoMovieBeatEndState;
 
@@ -55,15 +37,16 @@ export const validateContinuity = (props: {
   /** Facing drift tolerated (degrees); defaults to 5. */
   facingToleranceDeg?: number;
 }): IAutoMovieValidation => {
-  const collector = new ViolationCollector();
-  const tolerances = readTolerances(
-    props.positionTolerance,
-    props.facingToleranceDeg,
-    "$input",
-    collector,
-  );
+  const collector: ViolationCollector = new ViolationCollector();
+  const tolerances: IAutoMovieContinuityTolerances | null =
+    readContinuityTolerances(
+      props.positionTolerance,
+      props.facingToleranceDeg,
+      "$input",
+      collector,
+    );
   if (tolerances === null) return collector.toValidation();
-  compareBoundary(
+  compareContinuityBoundary(
     props.previous,
     props.opening,
     "$input",
@@ -72,127 +55,3 @@ export const validateContinuity = (props: {
   );
   return collector.toValidation();
 };
-
-/**
- * Validate and default the two tolerances. Returns `null` (after pushing range
- * violations) when either is non-finite or out of its band, so the caller stops
- * before comparing against a nonsensical bar.
- */
-const readTolerances = (
-  position: number | undefined,
-  facingDeg: number | undefined,
-  root: string,
-  collector: ViolationCollector,
-): ITolerances | null => {
-  const pos = position ?? DEFAULT_POSITION_TOLERANCE;
-  const facing = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;
-  const badPos = !Number.isFinite(pos) || pos < 0;
-  const badFacing = !Number.isFinite(facing) || facing < 0 || facing > 180;
-  if (badPos)
-    collector.push(
-      "range",
-      `${root}.positionTolerance`,
-      "a finite position tolerance >= 0 metres",
-      position,
-    );
-  if (badFacing)
-    collector.push(
-      "range",
-      `${root}.facingToleranceDeg`,
-      "a finite facing tolerance in [0, 180] degrees",
-      facingDeg,
-    );
-  if (badPos || badFacing) return null;
-  return { position: pos, facingDeg: facing };
-};
-
-/** Compare one incoming opening against the prior end, pushing drift warnings. */
-const compareBoundary = (
-  previous: IAutoMovieBeatEndState,
-  opening: IAutoMovieBeatEndState,
-  root: string,
-  tolerances: ITolerances,
-  collector: ViolationCollector,
-): void => {
-  const openingByNode = new Map(
-    opening.actors.map((actor) => [actor.node, actor]),
-  );
-  previous.actors.forEach((prev) => {
-    const open = openingByNode.get(prev.node);
-    if (open === undefined) {
-      collector.warn(
-        "physics",
-        `${root}.opening.actors`,
-        `actor "${prev.node}" ended the previous beat but is absent from the incoming beat's opening: continuity cannot be verified`,
-        prev.node,
-      );
-      return;
-    }
-    compareActor(
-      prev,
-      open,
-      `${root}.opening.actors[node=${prev.node}]`,
-      tolerances,
-      collector,
-    );
-  });
-};
-
-/** Position, facing, and mount drift for one actor carried across a cut. */
-const compareActor = (
-  prev: IAutoMovieBeatEndActorState,
-  open: IAutoMovieBeatEndActorState,
-  path: string,
-  tolerances: ITolerances,
-  collector: ViolationCollector,
-): void => {
-  const drift = Vector3.length(
-    Vector3.subtract(open.transform.translation, prev.transform.translation),
-  );
-  if (drift > tolerances.position)
-    collector.warn(
-      "physics",
-      `${path}.transform.translation`,
-      `resume within ${tolerances.position} m of where the previous beat ended`,
-      open.transform.translation,
-      drift - tolerances.position,
-    );
-
-  const facingDeg = angleBetweenDeg(prev.facing, open.facing);
-  if (facingDeg > tolerances.facingDeg)
-    collector.warn(
-      "physics",
-      `${path}.facing`,
-      `resume within ${tolerances.facingDeg} deg of the previous beat's facing`,
-      open.facing,
-      facingDeg - tolerances.facingDeg,
-    );
-
-  if (prev.mount !== null && !sameMount(prev.mount, open.mount))
-    collector.warn(
-      "physics",
-      `${path}.mount`,
-      `keep riding "${prev.mount.parent}"'s "${prev.mount.bone}" the rider ended the previous beat mounted on`,
-      open.mount,
-    );
-};
-
-/**
- * Angle between two facing vectors in degrees; 0 when either is
- * degenerate-equal.
- */
-const angleBetweenDeg = (
-  a: IAutoMovieBeatEndActorState["facing"],
-  b: IAutoMovieBeatEndActorState["facing"],
-): number => {
-  const dot = Vector3.dot(Vector3.normalize(a), Vector3.normalize(b));
-  const clamped = Math.min(1, Math.max(-1, dot));
-  return (Math.acos(clamped) * 180) / Math.PI;
-};
-
-/** Whether the incoming mount preserves the prior persistent coupling exactly. */
-const sameMount = (
-  prev: NonNullable<IAutoMovieBeatEndActorState["mount"]>,
-  open: IAutoMovieBeatEndActorState["mount"],
-): boolean =>
-  open !== null && open.parent === prev.parent && open.bone === prev.bone;

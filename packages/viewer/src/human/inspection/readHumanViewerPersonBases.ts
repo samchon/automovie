@@ -2,23 +2,22 @@ import type { IHumanViewerPersonBases } from "./IHumanViewerPersonBases.js";
 import type { IHumanViewerPersonParts } from "./IHumanViewerPersonParts.js";
 
 /**
- * Read the two basis names a person document declares: `face.basis` and
- * `body.basis`, each a nonempty string. This is all the catalogue checks of a
- * person; the full schema is admitted by the Person owner when the document is
- * built, and that refusal reaches the render. A missing or malformed name
- * refuses here with the reason, so it is listed among the rejected inputs.
+ * Read the two basis names a person document declares: `face.basis` and `body.basis`, each a nonempty string. This helper checks only those two names; other catalogue owners check ids, categories and selected generation/sidecar structure, while the full schema is admitted by the Person owner when the document is built, and that refusal reaches the render. A missing or malformed name refuses here with the reason, so it is listed among the rejected inputs.
  *
- * @evidence contracts/common.md#principled-implementation Reads only the identities the catalogue compares, leaving schema admission to its owner.
- * @evidence contracts/common.md#clear-and-simple-design One reader owns the two fields the server depends on.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the two original nonempty basis names without inventing a missing side or replacing complete Person schema admission.
- * @evidence contracts/common.md#meaningful-documentation States what is read, what refuses and who admits the rest.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Reads only the identities the catalogue compares, leaving schema admission to its owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document One reader owns the two fields the server depends on.
+ * @evidence contracts/common.md#principled-implementation Reads the face and body object's nonempty basis strings; the Person constructor, rather than this catalogue projection, admits the complete document.
+ * @evidence contracts/common.md#clear-and-simple-design One local basis reader serves the two required sides and leaves all numerical construction with the Person owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or malformed references refuse without supplying a default basis or altering the caller's document.
+ * @evidence contracts/common.md#meaningful-documentation Documentation identifies the two required references and the limited catalogue judgment before full owner admission.
+ * @evidence contracts/performance.md#efficient-algorithms Two property lookups and string checks require fixed work and one two-string result, independent of the document's mesh dimensions.
+ * @evidence contracts/performance.md#reuse-equivalent-work This pure projection has no memo; each supplied document is checked at the call boundary and no previous reference substitutes for it.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Input objects are borrowed and only the two reference strings escape; no worker, file or resident resource is acquired.
  */
 export function readHumanViewerPersonBases(
   document: object,
 ): IHumanViewerPersonBases {
-  const basisOf = (side: "face" | "body"): string => {
+  const basisOf: (side: "face" | "body") => string = (
+    side: "face" | "body",
+  ): string => {
     const part: unknown = (document as IHumanViewerPersonParts)[side];
     if (
       part === null ||

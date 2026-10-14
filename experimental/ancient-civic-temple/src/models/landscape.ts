@@ -1,4 +1,4 @@
-/** Site silhouettes from docs/models/landscape.md. Placement remains with instances. */
+/** Site silhouettes Placement remains with instances. */
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
 import {
@@ -10,19 +10,8 @@ import { TempleRectilinearUnion } from "./rectilinear-union";
 const p=(x:number,y:number,z:number)=>({ x,y,z });
 /**
  * Emits local vegetation and two neighboring house envelopes.
- * @evidence models/landscape.md These four builders provide the three site plants and the two variants of the neighboring house envelope.
- * @evidence principles/core/source-units.md#source-scope-preservation The methods own local trunks, foliage, blades and house shells; world placement and count remain with instances.
- * @evidence principles/core/source-units.md#source-substantive-completion Each method emits deterministic triangles and named parts for the reviewed local prototype, including the closed recess backing of both house variants.
- * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The landscape H2s specify the plant sections, blade formulas and both house envelopes, so these builders need no new site boundary or variant decision.
- * @evidence obligations/design/model-sources.md#design-owned-construction The source directly emits the landscape H2s' plant and house profiles rather than passing descriptive data to a later modeller.
  */
 export class TempleLandscape {
-  /**
-   * @evidence models/landscape.md#cypress A 12-sided tapered trunk and three 10-by-6 ellipsoid crowns use the reviewed centers and half-axes.
-   * @evidence principles/core/source-units.md#source-scope-preservation Its ground-centered local prototype has trunk and crown parts and does not select any site position.
-   * @evidence principles/core/source-units.md#source-substantive-completion The three overlapping crowns and tapered trunk emit actual normals, UVs and triangles, retaining the narrow vertical silhouette.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The cypress H2 fixes all three crown centers and extents and the trunk taper, leaving no unowned tree profile.
-   */
   cypress():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("trunk",0,0,0,1.4,0.12,0.08,12);
@@ -32,15 +21,8 @@ export class TempleLandscape {
       [-0.10, 7.6, 0.42, 2.8],
     ])
       modelEllipsoid(m,"crown",p(x,y,0),p(r,h/2,r),10,6);
-    return m.model("landscape.cypress","좁고 높은 상록수");
+    return m.model("landscape.cypress","Narrow tall evergreen");
   }
-
-  /**
-   * @evidence models/landscape.md#broad-tree A tapered trunk, three rods to the reviewed endpoints and six ellipsoid crowns make the broad silhouette.
-   * @evidence principles/core/source-units.md#source-scope-preservation It builds a ground-centered trunk/branch/crown model without choosing a planting point.
-   * @evidence principles/core/source-units.md#source-substantive-completion Three branch rods remain separate from six crown volumes so their gaps can be inspected in emitted geometry.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The broad-tree H2 determines each rod endpoint, crown center, half-axis and sector count used here.
-   */
   broadTree():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("trunk",0,0,0,1.6,0.18,0.13,12);
@@ -58,15 +40,8 @@ export class TempleLandscape {
       [1.15, 3.45, 0.95, 0.90, 1.30, 1.10],
       [0, 3.50, -0.95, 1.05, 1.40, 1.15],
     ]) modelEllipsoid(m,"crown",p(x,y,z),p(rx,ry,rz),10,6);
-    return m.model("landscape.broad-tree","넓은 수관의 나무");
+    return m.model("landscape.broad-tree","Broad-crowned tree");
   }
-
-  /**
-   * @evidence models/landscape.md#grass-tuft Twelve indexed radial blades use the H2 width, height and lean expressions and emit both sides of each triangle.
-   * @evidence principles/core/source-units.md#source-scope-preservation The blades use the ground-center origin, leaving exclusion from paths and thresholds to site placement.
-   * @evidence principles/core/source-units.md#source-substantive-completion The blade part contains twenty-four faces, with deterministic outward tips rather than a placeholder tuft box.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The grass H2 gives the twelve formulas and local origin; the source chooses no new plant distribution.
-   */
   grassTuft():IAutoMovieModel {
     const m=new ObjectMesh();
     for(let i=0;i<12;i++){
@@ -79,16 +54,8 @@ export class TempleLandscape {
       m.face("blade",[a,b,tip]);
       m.face("blade",[tip,b,a]);
     }
-    return m.model("landscape.grass-tuft","벽 밑 풀");
+    return m.model("landscape.grass-tuft","Grass at the wall foot");
   }
-
-  /**
-   * @evidence models/landscape.md#neighbor-house The gable or shed branch emits roof slabs with eave-to-high UV0, sloped side walls, a 0.30 m wall shell, plinth band and closed 0.20 m door/window recesses.
-   * @evidence principles/core/source-units.md#source-scope-preservation This local exterior has no navigable room, tile modules, world transform or independent site floor.
-   * @evidence principles/core/source-units.md#source-substantive-completion The emitted wall faces omit each front opening, recess faces bridge to a backing plane, and both roof profiles and plinth surfaces are separate parts.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The neighbor-house H2 fixes both footprints, roof slopes, opening arrays, wall thickness and recess depth; the source derives the two envelopes from them.
-   * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit These are background envelope slabs with opaque openings and no interior or individual roof tiles, as the model H2 limits their detail.
-   */
   neighborHouse(kind:"gable"|"shed"):IAutoMovieModel {
     const m=new ObjectMesh();
     const gable=kind==="gable",w=gable?8:6,d=gable?6:7;
@@ -247,7 +214,7 @@ export class TempleLandscape {
     }
     const model=m.model(
       `landscape.neighbor-house.${kind}`,
-      `이웃 회벽집 ${kind}`,
+      `Neighbouring plastered house ${kind}`,
     );
     model.parts.push({
       id:"plinth",

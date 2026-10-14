@@ -1,298 +1,20 @@
-import {
-  IAutoMovieMeshAssembly,
-  IAutoMovieMeshPart,
-  IAutoMovieProfilePoint,
-  buildAutoMoviePolyhedron,
-  buildAutoMovieWall,
-  extrudeAutoMovieProfile,
-  inspectAutoMovieMeshTopology,
-  mergeAutoMovieMeshParts,
-  revolveAutoMovieProfile,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
-import { IAutoMovieMesh, IAutoMovieQuaternion } from "@automovie/interface";
+import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
-
-/** The axis-aligned bounds of a mesh, as `[min, max]` per axis. */
-const bounds = (mesh: IAutoMovieMesh): Array<[number, number]> =>
-  [0, 1, 2].map((axis) => {
-    const values = mesh.positions.filter((_, index) => index % 3 === axis);
-    return [Math.min(...values), Math.max(...values)] as [number, number];
-  });
-
-/** Shoelace area of a simple polygon, the oracle a prism volume rests on. */
-const area = (ring: readonly IAutoMovieProfilePoint[]): number =>
-  Math.abs(
-    ring.reduce((sum, point, index) => {
-      const next = ring[(index + 1) % ring.length]!;
-      return sum + point.x * next.y - next.x * point.y;
-    }, 0) / 2,
-  );
-
-/** A rectangle profile, the one shape every rectilinear member starts from. */
-const rectangle = (
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-): IAutoMovieProfilePoint[] => [
-  { x, y },
-  { x: x + width, y },
-  { x: x + width, y: y + height },
-  { x, y: y + height },
-];
-
-/** A box in the XZ ground plane: a rectangle prism laid down on its face. */
-const slab = (width: number, height: number, depth: number): IAutoMovieMesh =>
-  transformAutoMovieMesh(
-    extrudeAutoMovieProfile({
-      profile: rectangle(-width / 2, -depth / 2, width, depth),
-      depth: height,
-    }),
-    { rotation: { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 } },
-  );
-
-const yaw = (radians: number): IAutoMovieQuaternion => ({
-  x: 0,
-  y: Math.sin(radians / 2),
-  z: 0,
-  w: Math.cos(radians / 2),
-});
-
-/** A voussoir ring on optional piers, composed from convex quads only. */
-const arch = (props: {
-  span: number;
-  rise: number;
-  thickness: number;
-  depth: number;
-  springing: number;
-  segments: number;
-}): { assembly: IAutoMovieMeshAssembly; volume: number } => {
-  const inner = props.span / 2;
-  const outer = inner + props.thickness;
-  const at = (
-    step: number,
-  ): [IAutoMovieProfilePoint, IAutoMovieProfilePoint] => {
-    const angle = (step / props.segments) * Math.PI;
-    return [
-      {
-        x: -inner * Math.cos(angle),
-        y: props.springing + props.rise * Math.sin(angle),
-      },
-      {
-        x: -outer * Math.cos(angle),
-        y: props.springing + (props.rise + props.thickness) * Math.sin(angle),
-      },
-    ];
-  };
-  const parts: IAutoMovieMeshPart[] = [];
-  let volume = 0;
-  for (let step = 0; step < props.segments; ++step) {
-    const [innerFrom, outerFrom] = at(step);
-    const [innerTo, outerTo] = at(step + 1);
-    const quad = [innerFrom, innerTo, outerTo, outerFrom];
-    volume += area(quad) * props.depth;
-    parts.push({
-      id: `voussoir-${step + 1}`,
-      mesh: extrudeAutoMovieProfile({ profile: quad, depth: props.depth }),
-    });
-  }
-  if (props.springing > 0)
-    for (const [name, left] of [
-      ["left", -outer],
-      ["right", inner],
-    ] as const) {
-      const pier = rectangle(left, 0, props.thickness, props.springing);
-      volume += area(pier) * props.depth;
-      parts.push({
-        id: `pier-${name}`,
-        mesh: extrudeAutoMovieProfile({ profile: pier, depth: props.depth }),
-      });
-    }
-  return { assembly: mergeAutoMovieMeshParts(parts), volume };
-};
-
-/** A row of faceted shafts, one revolve reused by placement. */
-const colonnade = (props: {
-  count: number;
-  spacing: number;
-  radius: number;
-  height: number;
-  segments: number;
-}): IAutoMovieMeshAssembly => {
-  const shaft = revolveAutoMovieProfile({
-    profile: [
-      { x: 0, y: 0 },
-      { x: props.radius, y: 0 },
-      { x: props.radius, y: props.height },
-      { x: 0, y: props.height },
-    ],
-    segments: props.segments,
-  });
-  const span = (props.count - 1) * props.spacing;
-  return mergeAutoMovieMeshParts(
-    Array.from({ length: props.count }, (_, index) => ({
-      id: `column-${index + 1}`,
-      mesh: shaft,
-      transform: {
-        translation: { x: index * props.spacing - span / 2, y: 0, z: 0 },
-      },
-    })),
-  );
-};
-
-/** A ridged roof: gable at `ridgeInset` zero, hip at any positive inset. */
-const roof = (props: {
-  width: number;
-  depth: number;
-  height: number;
-  ridgeInset: number;
-}): IAutoMovieMesh => {
-  const b0 = { x: -props.width / 2, y: 0, z: -props.depth / 2 };
-  const b1 = { x: props.width / 2, y: 0, z: -props.depth / 2 };
-  const b2 = { x: props.width / 2, y: 0, z: props.depth / 2 };
-  const b3 = { x: -props.width / 2, y: 0, z: props.depth / 2 };
-  const r0 = {
-    x: 0,
-    y: props.height,
-    z: -props.depth / 2 + props.ridgeInset,
-  };
-  const r1 = { x: 0, y: props.height, z: props.depth / 2 - props.ridgeInset };
-  return buildAutoMoviePolyhedron([
-    [b0, b1, b2, b3],
-    [b1, r0, r1, b2],
-    [b3, r1, r0, b0],
-    [b0, r0, b1],
-    [b2, r1, b3],
-  ]);
-};
-
-/** A flight of treads and risers, straight at zero turn and helical beyond. */
-const stair = (props: {
-  steps: number;
-  rise: number;
-  run: number;
-  width: number;
-  turnDeg: number;
-  innerRadius: number;
-}): IAutoMovieMeshAssembly => {
-  const treadThickness = props.rise * 0.2;
-  const riserHeight = props.rise - treadThickness;
-  const riserDepth = props.run * 0.15;
-  const tread = slab(props.width, treadThickness, props.run);
-  const riser = slab(props.width, riserHeight, riserDepth);
-  const parts: IAutoMovieMeshPart[] = [];
-  for (let step = 0; step < props.steps; ++step) {
-    const angle = ((props.turnDeg * step) / props.steps) * (Math.PI / 180);
-    const radius = props.innerRadius + props.width / 2;
-    const centre =
-      props.turnDeg === 0
-        ? { x: 0, z: (step + 0.5) * props.run }
-        : {
-            x: Math.sin(angle) * radius,
-            z: Math.cos(angle) * radius - radius,
-          };
-    const top = (step + 1) * props.rise;
-    parts.push({
-      id: `tread-${step + 1}`,
-      mesh: tread,
-      transform: {
-        translation: { x: centre.x, y: top - treadThickness / 2, z: centre.z },
-        rotation: yaw(angle),
-      },
-    });
-    parts.push({
-      id: `riser-${step + 1}`,
-      mesh: riser,
-      transform: {
-        translation: {
-          x: centre.x,
-          y: top - treadThickness - riserHeight / 2,
-          z: centre.z - props.run / 2,
-        },
-        rotation: yaw(angle),
-      },
-    });
-  }
-  return mergeAutoMovieMeshParts(parts);
-};
-
-/** A beam lattice closed by a panel: every beam generated, never copied. */
-const cofferedCeiling = (props: {
-  width: number;
-  depth: number;
-  rows: number;
-  columns: number;
-  beam: number;
-  drop: number;
-  panel: number;
-}): IAutoMovieMeshAssembly => {
-  const across = (index: number, count: number, span: number): number =>
-    (index / count) * (span - props.beam) - (span - props.beam) / 2;
-  const parts: IAutoMovieMeshPart[] = [
-    {
-      id: "panel",
-      mesh: slab(props.width, props.panel, props.depth),
-      transform: { translation: { x: 0, y: props.panel / 2, z: 0 } },
-    },
-  ];
-  for (let column = 0; column <= props.columns; ++column)
-    parts.push({
-      id: `beam-x-${column + 1}`,
-      mesh: slab(props.beam, props.drop, props.depth),
-      transform: {
-        translation: {
-          x: across(column, props.columns, props.width),
-          y: -props.drop / 2,
-          z: 0,
-        },
-      },
-    });
-  for (let row = 0; row <= props.rows; ++row)
-    parts.push({
-      id: `beam-z-${row + 1}`,
-      mesh: slab(props.width, props.drop, props.beam),
-      transform: {
-        translation: {
-          x: 0,
-          y: -props.drop / 2,
-          z: across(row, props.rows, props.depth),
-        },
-      },
-    });
-  return mergeAutoMovieMeshParts(parts);
-};
-
-/** A jointed tile field, one group per tile. */
-const tiledFloor = (props: {
-  rows: number;
-  columns: number;
-  tile: number;
-  joint: number;
-  thickness: number;
-}): IAutoMovieMeshAssembly => {
-  const pitch = props.tile + props.joint;
-  const width = props.columns * pitch - props.joint;
-  const depth = props.rows * pitch - props.joint;
-  const unit = slab(props.tile, props.thickness, props.tile);
-  const parts: IAutoMovieMeshPart[] = [];
-  for (let row = 0; row < props.rows; ++row)
-    for (let column = 0; column < props.columns; ++column)
-      parts.push({
-        id: `tile-${row + 1}-${column + 1}`,
-        mesh: unit,
-        transform: {
-          translation: {
-            x: column * pitch + props.tile / 2 - width / 2,
-            y: 0,
-            z: row * pitch + props.tile / 2 - depth / 2,
-          },
-        },
-      });
-  return mergeAutoMovieMeshParts(parts);
-};
+import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
+import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
+import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
+import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
+import { arch } from "../internal/arch";
+import { bounds } from "../internal/bounds";
+import { cofferedCeiling } from "../internal/cofferedCeiling";
+import { colonnade } from "../internal/colonnade";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { roof } from "../internal/roof";
+import { stair } from "../internal/stair";
+import { tiledFloor } from "../internal/tiledFloor";
 
 /**
  * A code-only fixture builds a building's members from the kernel alone.
@@ -304,7 +26,7 @@ const tiledFloor = (props: {
  * and not in the engine on purpose: the engine ships operations a customer
  * composes, not a catalogue of components they were going to author anyway.
  *
- * Every expectation is hand math on the authored dimensions — shoelace area
+ * Volume expectations use hand math on the authored dimensions: shoelace area
  * times depth, the analytic n-gon prism, the prismatoid volume of a ridged
  * solid — so a builder that drifts is caught by arithmetic rather than by a
  * re-recorded snapshot.
@@ -325,9 +47,14 @@ const tiledFloor = (props: {
  * 6. A coffered ceiling generates `1 + (rows + 1) + (columns + 1)` members and a
  *    tiled floor `rows · columns`, each spanning its authored field.
  * 7. An opening wall composes with the members and keeps its own volume.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes wall, extrusion, revolution, polyhedron, transform and merge source through the existing member builders; asserts assembly group identities, bounds, topology and volume to catch misplaced or lost members while allowing their authored tessellation.
+ * @evidence contracts/testing.md#independent-expectations Prism, polygon-area and prismatoid formulas determine volumes and dimension arithmetic determines bounds. Arch area shares the builder's authored ring coordinates but uses shoelace accumulation rather than mesh tetrahedra; it cannot detect a common mistake in those ring coordinates. Watertightness is the topology observer's result, not a pixel or full building-admission proof.
+ * @evidence contracts/testing.md#distinguishing-cases Retains piers versus zero-springing vault, repeated columns, gable versus inset hip, straight versus turning stairs, ceiling/floor grids and an opening wall composed with a roof. Malformed kernel inputs belong to the individual procedural-operation tests; these compositions do not establish arbitrary architectural validity.
+ * @evidence contracts/testing.md#execution-ownership The named geometry entry constructs its existing code-only fixtures through the canonical arch, colonnade, roof, stair, ceiling and floor helpers and calls portable engine source and numerical observers directly. It starts no process, browser, GPU or native build and registers no additional cases.
  */
-export const test_geometry_architecture_fixture = (): void => {
-  const ringed = arch({
+export function test_geometry_architecture_fixture(): void {
+  const ringed: { assembly: IAutoMovieMeshAssembly; volume: number } = arch({
     span: 3,
     rise: 1.5,
     thickness: 0.4,
@@ -335,32 +62,33 @@ export const test_geometry_architecture_fixture = (): void => {
     springing: 2,
     segments: 6,
   });
-  const archBounds = bounds(ringed.assembly.mesh);
+  const archBounds: [number, number][] = bounds(ringed.assembly.mesh);
   TestValidator.equals(
     "an arch on piers merges its voussoirs and piers at the authored extrados",
     namedFacts([
-      ["groups", () => ringed.assembly.groups.length === 6 + 2],
+      ["groups", (): boolean => ringed.assembly.groups.length === 6 + 2],
       [
         "ids",
-        () =>
+        (): boolean =>
           ringed.assembly.groups.at(-1)!.id === "pier-right" &&
           ringed.assembly.groups[0]!.id === "voussoir-1",
       ],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(ringed.assembly.mesh).volume,
             ringed.volume,
             1e-12,
           ),
       ],
-      ["span", () => nclose(archBounds[0]![1], 3 / 2 + 0.4, 1e-12)],
-      ["crown", () => nclose(archBounds[1]![1], 2 + 1.5 + 0.4, 1e-12)],
-      ["springing", () => nclose(archBounds[1]![0], 0, 1e-12)],
+      ["span", (): boolean => nclose(archBounds[0]![1], 3 / 2 + 0.4, 1e-12)],
+      ["crown", (): boolean => nclose(archBounds[1]![1], 2 + 1.5 + 0.4, 1e-12)],
+      ["springing", (): boolean => nclose(archBounds[1]![0], 0, 1e-12)],
       [
         "depth",
-        () => nclose(archBounds[2]![1] - archBounds[2]![0], 0.6, 1e-12),
+        (): boolean =>
+          nclose(archBounds[2]![1] - archBounds[2]![0], 0.6, 1e-12),
       ],
     ]),
     {
@@ -374,7 +102,7 @@ export const test_geometry_architecture_fixture = (): void => {
     },
   );
 
-  const vault = arch({
+  const vault: { assembly: IAutoMovieMeshAssembly; volume: number } = arch({
     span: 4,
     rise: 2,
     thickness: 0.3,
@@ -385,10 +113,10 @@ export const test_geometry_architecture_fixture = (): void => {
   TestValidator.equals(
     "the same builder at zero springing is a barrel vault of pure ring",
     namedFacts([
-      ["groups", () => vault.assembly.groups.length === 8],
+      ["groups", (): boolean => vault.assembly.groups.length === 8],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(vault.assembly.mesh).volume,
             vault.volume,
@@ -397,8 +125,8 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "length",
-        () => {
-          const box = bounds(vault.assembly.mesh);
+        (): boolean => {
+          const box: [number, number][] = bounds(vault.assembly.mesh);
           return nclose(box[2]![1] - box[2]![0], 8, 1e-12);
         },
       ],
@@ -406,22 +134,22 @@ export const test_geometry_architecture_fixture = (): void => {
     { groups: true, volume: true, length: true },
   );
 
-  const row = colonnade({
+  const row: IAutoMovieMeshAssembly = colonnade({
     count: 4,
     spacing: 2.5,
     radius: 0.3,
     height: 4,
     segments: 12,
   });
-  const ngon = (12 / 2) * 0.3 * 0.3 * Math.sin((2 * Math.PI) / 12);
-  const rowBounds = bounds(row.mesh);
+  const ngon: number = (12 / 2) * 0.3 * 0.3 * Math.sin((2 * Math.PI) / 12);
+  const rowBounds: [number, number][] = bounds(row.mesh);
   TestValidator.equals(
     "a column row is one revolve placed four times, of four n-gon prisms",
     namedFacts([
-      ["groups", () => row.groups.length === 4],
+      ["groups", (): boolean => row.groups.length === 4],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(row.mesh).volume,
             4 * ngon * 4,
@@ -430,24 +158,40 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "span",
-        () =>
+        (): boolean =>
           nclose(rowBounds[0]![1] - rowBounds[0]![0], 3 * 2.5 + 2 * 0.3, 1e-9),
       ],
-      ["height", () => nclose(rowBounds[1]![1], 4, 1e-12)],
+      ["height", (): boolean => nclose(rowBounds[1]![1], 4, 1e-12)],
     ]),
     { groups: true, volume: true, span: true, height: true },
   );
 
-  const gable = roof({ width: 6, depth: 10, height: 2.5, ridgeInset: 0 });
-  const hip = roof({ width: 6, depth: 10, height: 2.5, ridgeInset: 2 });
+  const gable: IAutoMovieMesh = roof({
+    width: 6,
+    depth: 10,
+    height: 2.5,
+    ridgeInset: 0,
+  });
+  const hip: IAutoMovieMesh = roof({
+    width: 6,
+    depth: 10,
+    height: 2.5,
+    ridgeInset: 2,
+  });
   TestValidator.equals(
     "a gable and a hip roof share their eaves and differ by the prismatoid rule",
     namedFacts([
-      ["gableClosed", () => inspectAutoMovieMeshTopology(gable).watertight],
-      ["hipClosed", () => inspectAutoMovieMeshTopology(hip).watertight],
+      [
+        "gableClosed",
+        (): boolean => inspectAutoMovieMeshTopology(gable).watertight,
+      ],
+      [
+        "hipClosed",
+        (): boolean => inspectAutoMovieMeshTopology(hip).watertight,
+      ],
       [
         "gableVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(gable).volume,
             (6 * 2.5 * 10) / 2,
@@ -456,7 +200,7 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "hipVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(hip).volume,
             6 * 2.5 * (10 / 2 - 2 / 3),
@@ -465,8 +209,8 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "eaves",
-        () =>
-          JSON.stringify(bounds(gable)[0]) === JSON.stringify(bounds(hip)[0]),
+        (): boolean =>
+          equalGeometryTestValues(bounds(gable)[0], bounds(hip)[0]),
       ],
     ]),
     {
@@ -478,7 +222,7 @@ export const test_geometry_architecture_fixture = (): void => {
     },
   );
 
-  const straight = stair({
+  const straight: IAutoMovieMeshAssembly = stair({
     steps: 5,
     rise: 0.18,
     run: 0.28,
@@ -486,7 +230,7 @@ export const test_geometry_architecture_fixture = (): void => {
     turnDeg: 0,
     innerRadius: 0,
   });
-  const helical = stair({
+  const helical: IAutoMovieMeshAssembly = stair({
     steps: 5,
     rise: 0.18,
     run: 0.28,
@@ -494,23 +238,24 @@ export const test_geometry_architecture_fixture = (): void => {
     turnDeg: 90,
     innerRadius: 0.2,
   });
-  const stepVolume =
+  const stepVolume: number =
     1.1 * 0.28 * (0.18 * 0.2) + 1.1 * (0.18 * 0.8) * (0.28 * 0.15);
-  const straightBounds = bounds(straight.mesh);
+  const straightBounds: [number, number][] = bounds(straight.mesh);
   TestValidator.equals(
     "a straight flight rises over its going and a helical flight keeps its stock",
     namedFacts([
-      ["groups", () => straight.groups.length === 2 * 5],
-      ["helicalGroups", () => helical.groups.length === 2 * 5],
-      ["top", () => nclose(straightBounds[1]![1], 5 * 0.18, 1e-12)],
-      ["going", () => nclose(straightBounds[2]![1], 5 * 0.28, 1e-12)],
+      ["groups", (): boolean => straight.groups.length === 2 * 5],
+      ["helicalGroups", (): boolean => helical.groups.length === 2 * 5],
+      ["top", (): boolean => nclose(straightBounds[1]![1], 5 * 0.18, 1e-12)],
+      ["going", (): boolean => nclose(straightBounds[2]![1], 5 * 0.28, 1e-12)],
       [
         "width",
-        () => nclose(straightBounds[0]![1] - straightBounds[0]![0], 1.1, 1e-12),
+        (): boolean =>
+          nclose(straightBounds[0]![1] - straightBounds[0]![0], 1.1, 1e-12),
       ],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(straight.mesh).volume,
             5 * stepVolume,
@@ -519,14 +264,17 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "helicalVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(helical.mesh).volume,
             5 * stepVolume,
             1e-12,
           ),
       ],
-      ["turns", () => bounds(helical.mesh)[0]![1] > straightBounds[0]![1]],
+      [
+        "turns",
+        (): boolean => bounds(helical.mesh)[0]![1] > straightBounds[0]![1],
+      ],
     ]),
     {
       groups: true,
@@ -540,7 +288,7 @@ export const test_geometry_architecture_fixture = (): void => {
     },
   );
 
-  const ceiling = cofferedCeiling({
+  const ceiling: IAutoMovieMeshAssembly = cofferedCeiling({
     width: 6,
     depth: 4,
     rows: 3,
@@ -549,22 +297,22 @@ export const test_geometry_architecture_fixture = (): void => {
     drop: 0.3,
     panel: 0.1,
   });
-  const floor = tiledFloor({
+  const floor: IAutoMovieMeshAssembly = tiledFloor({
     rows: 3,
     columns: 5,
     tile: 0.6,
     joint: 0.02,
     thickness: 0.02,
   });
-  const floorBounds = bounds(floor.mesh);
+  const floorBounds: [number, number][] = bounds(floor.mesh);
   TestValidator.equals(
     "a coffered ceiling and a tiled floor generate every member from their counts",
     namedFacts([
-      ["ceilingGroups", () => ceiling.groups.length === 1 + 4 + 5],
-      ["floorGroups", () => floor.groups.length === 3 * 5],
+      ["ceilingGroups", (): boolean => ceiling.groups.length === 1 + 4 + 5],
+      ["floorGroups", (): boolean => floor.groups.length === 3 * 5],
       [
         "floorWidth",
-        () =>
+        (): boolean =>
           nclose(
             floorBounds[0]![1] - floorBounds[0]![0],
             5 * 0.62 - 0.02,
@@ -573,7 +321,7 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "floorDepth",
-        () =>
+        (): boolean =>
           nclose(
             floorBounds[2]![1] - floorBounds[2]![0],
             3 * 0.62 - 0.02,
@@ -582,14 +330,17 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "floorVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(floor.mesh).volume,
             3 * 5 * 0.6 * 0.6 * 0.02,
             1e-12,
           ),
       ],
-      ["ceilingDrop", () => nclose(bounds(ceiling.mesh)[1]![0], -0.3, 1e-12)],
+      [
+        "ceilingDrop",
+        (): boolean => nclose(bounds(ceiling.mesh)[1]![0], -0.3, 1e-12),
+      ],
     ]),
     {
       ceilingGroups: true,
@@ -601,7 +352,7 @@ export const test_geometry_architecture_fixture = (): void => {
     },
   );
 
-  const walled = mergeAutoMovieMeshParts([
+  const walled: IAutoMovieMeshAssembly = mergeAutoMovieMeshParts([
     {
       id: "wall",
       mesh: buildAutoMovieWall({
@@ -623,10 +374,10 @@ export const test_geometry_architecture_fixture = (): void => {
   TestValidator.equals(
     "an opening wall composes with a roof and keeps its own volume",
     namedFacts([
-      ["groups", () => walled.groups.length === 2],
+      ["groups", (): boolean => walled.groups.length === 2],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(walled.mesh).volume,
             (6 * 3 - 1 * 2.1 - 1.2 * 1) * 0.25 + (6 * 2.5 * 10) / 2,
@@ -635,9 +386,9 @@ export const test_geometry_architecture_fixture = (): void => {
       ],
       [
         "attributes",
-        () => walled.mesh.normals !== null && walled.mesh.uvs === null,
+        (): boolean => walled.mesh.normals !== null && walled.mesh.uvs === null,
       ],
     ]),
     { groups: true, volume: true, attributes: true },
   );
-};
+}

@@ -1,67 +1,52 @@
 /**
- * Triangulate the ribbon between two boundary loops by merging them in order
- * along the first, so that a second loop lying on the first is bridged by
- * triangles that lie along it.
+ * Merge two opposite-oriented cyclic boundary populations into logical ribbon adjacency. First-loop vertex i has parameter i, with count equivalent to zero; second-loop parameters are in [0,count] and nonincreasing with at most one cyclic wrap in their given direction. Reverse walking yields increasing merge order, with the first loop advancing on ties. Local indices are first-loop 0..count-1 then count+j.
  *
- * The first loop has `count` vertices `0 .. count - 1` in the direction its
- * surface's triangles run, and vertex `i` stands at position `i` along it, with
- * the edge from `i` to `i + 1` covering positions `i` to `i + 1` (the last edge
- * wraps to position `count`). `parameters[j]` is where vertex `j` of the second
- * loop lies along the first, in the same units, and the second loop is given in
- * the direction its own surface's triangles run, which is the reverse of the
- * first's, so its parameters must run down as `j` rises. Walking the second loop
- * backwards then visits its vertices in increasing position, and the two loops
- * are merged as two sorted lists: at every step the pointer whose next vertex
- * lies sooner along the first loop advances (the first loop on a tie), and one
- * triangle joins the edge it crosses to the vertex the other pointer holds. Each
- * loop edge therefore lies in exactly one triangle, `count + parameters.length`
- * in all, wound so that every ribbon edge on a loop runs opposite to the
- * surface edge it meets and the two surfaces and the ribbon are one oriented
- * manifold. Local vertex numbers are the first loop's `0 .. count - 1` followed
- * by the second loop's `count + j`.
+ * Caller supplies a finite integral source-sized count; this function enforces only count/second length at least two and parameter range/order. It emits count+secondLength logical triangles whose loop-facing direction opposes each source edge under those premises. Collinear/wedge triangles are not final emitted surface geometry; downstream stitching subdivides actual skins onto common samples. This stencil supplies no global manifold, collision or clinical/current visual proof.
  *
- * When the second-loop vertices lie on the first polyline, triangles on one
- * edge are collinear but triangles spanning a corner retain area: a body edge
- * cuts across that corner rather than following it. The stencil therefore
- * supplies logical adjacency for the seam's normal sharing, not renderable
- * zero-area geometry. `stitchHumanPersonBoundary` subdivides each skin onto
- * the union of the loop samples before display, so neither a collinear face
- * nor the corner's wedge needs to be emitted as a third skin region.
- *
- * The parameters must be cyclically ordered, that is nonincreasing in the
- * given direction around the loop with at most one wrap from the smallest back
- * to the largest; anything else has no merge and refuses. Positions run in
- * `[0, count]`, and `count` and `0` name the same place.
+ * @evidence contracts/common.md#principled-implementation Actual cyclic follow parameters determine deterministic opposite-loop adjacency and preserve first-loop tie ownership.
+ * @evidence contracts/common.md#clear-and-simple-design One ordered two-pointer merge creates a logical source-index stencil while final surface subdivision remains with the stitch owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range/noncyclic parameters refuse instead of guessed joins, and logical degenerate adjacency is not exported or certified as global manifold geometry.
+ * @evidence contracts/common.md#meaningful-documentation Prose states dimensionless edge coordinates, count admission premise, cyclic equivalence, tie policy and logical/final surface distinction.
+ * @evidence contracts/performance.md#efficient-algorithms Finding the cyclic start and merging source populations costs O(first count+second count), without geometry projection or sorting each triangle.
+ * @evidence contracts/performance.md#reuse-equivalent-work One cyclic order/position table serves the complete merge, and the resulting stencil is reused by seam consumers until source correspondence changes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owned indices scale with the two boundary counts, while order/position workspace is local and no geometry, asset task or renderer is retained.
  */
 export function mergeHumanBoundaryLoops(
   count: number,
   parameters: readonly number[],
 ): number[] {
-  const m = parameters.length;
+  const m: number = parameters.length;
   if (count < 2 || m < 2)
     throw new Error("A ribbon needs two loops of at least two vertices.");
   // the second loop walked backwards, as indices into it
-  const walk = parameters.map((_, k) => m - 1 - k);
-  const along = walk.map((j) => parameters[j]);
-  let descents = 0;
-  let start = 0;
-  for (let k = 0; k < m; k++)
+  const walk: number[] = parameters.map(
+    (_: number, k: number): number => m - 1 - k,
+  );
+  const along: number[] = walk.map((j: number): number => parameters[j]);
+  let descents: number = 0;
+  let start: number = 0;
+  for (let k: number = 0; k < m; k++)
     if (along[k] < along[(k + m - 1) % m]) {
       descents++;
       start = k;
     }
-  if (descents > 1 || along.some((value) => !(value >= 0 && value <= count)))
+  if (
+    descents > 1 ||
+    along.some((value: number): boolean => !(value >= 0 && value <= count))
+  )
     throw new Error("The second loop does not run along the first in order.");
-  const order = walk.map((_, b) => walk[(start + b) % m]);
-  const position = order.map((j) => parameters[j]);
-  const first = Math.min(Math.floor(position[0]), count - 1);
+  const order: number[] = walk.map(
+    (_: number, b: number): number => walk[(start + b) % m],
+  );
+  const position: number[] = order.map((j: number): number => parameters[j]);
+  const first: number = Math.min(Math.floor(position[0]), count - 1);
   const indices: number[] = [];
-  let faceDone = 0;
-  let bodyDone = 0;
+  let faceDone: number = 0;
+  let bodyDone: number = 0;
   while (faceDone < count || bodyDone < m) {
-    const face = (first + faceDone) % count;
-    const nextFace = (first + faceDone + 1) % count;
-    const nextPosition =
+    const face: number = (first + faceDone) % count;
+    const nextFace: number = (first + faceDone + 1) % count;
+    const nextPosition: number =
       bodyDone >= m
         ? Infinity
         : bodyDone + 1 < m

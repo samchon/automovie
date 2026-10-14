@@ -10,19 +10,18 @@ import { TestValidator } from "@nestia/e2e";
 import { makeMotion } from "../internal/fixtures";
 import { validationHasWarning } from "../internal/predicates";
 
-const restAt = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /**
- * A skeleton where two DISTINCT bones (`hips`, `spine`) resolve to the SAME
- * world point: `spine` is parented to `hips` with a zero rest offset, so its FK
- * position coincides with `hips` at the origin. A capsule declared over that
- * pair has a centerline that collapses to a single point: the zero-length
- * segment the shared distance oracle must survive. The `leftUpperArm →
- * leftLowerArm` chain lays a second capsule straight through the origin.
+ * Distinct bones `hips` and `spine` share the origin because the child has a zero rest offset, so their capsule centreline collapses to a point. The `leftUpperArm` to `leftLowerArm` chain places the other capsule across that point.
  */
 const skeleton: IAutoMovieSkeleton = {
   id: "collapsed",
@@ -50,7 +49,9 @@ const pose: IAutoMoviePose = {
   joints: [],
 };
 
-const key = (time: number): IAutoMovieKeyframe => ({
+const key: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose,
   expression: null,
@@ -59,30 +60,31 @@ const key = (time: number): IAutoMovieKeyframe => ({
 });
 
 /**
- * The zero-length-centerline regression: a capsule whose two endpoint bones are
- * distinct in the skeleton but coincident in world space collapses to a point.
- * Its centerline distance to a second capsule passing through that point is a
- * true `0`, well inside the summed radii: a real self-intersection.
+ * A capsule with distinct endpoint bones at one world point has zero separation from a second centreline through that point, inside the summed radii.
  *
- * Before the span guard in `closestPointOnSegment`, the four-candidate distance
- * of `segmentSegmentDistance` produced `NaN` for the two collapsed-segment
- * candidates, `Math.min(0, 0, NaN, NaN)` was `NaN`, and `NaN < minimum` was
- * `false`: the overlap slipped through and the frame validated as clean. This
- * test pins that the detection now fires (as a D015 plausibility warning; the
- * span guard is what makes the distance finite so the overlap is seen at all).
+ * The retired four-endpoint approximation could propagate NaN from a collapsed span and suppress its warning. The current shared clamped segment solver handles degenerate spans explicitly; this regression observes the resulting distance warning through the validator rather than attributing it to the retired implementation.
+ *
+ * Scenarios:
+ * 1. Distinct bones at one world point collapse the first centreline; a second bounded segment through that point must emit the addressed advisory warning.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples the actual self-intersection validator with distinct endpoint bones whose world positions coincide. The coincident capsule and a second centreline through the origin must produce an addressed advisory distance warning instead of silently passing a nonfinite distance comparison.
+ * @evidence contracts/testing.md#independent-expectations Authored rest offsets place the collapsed segment at the origin and the other segment across [-1,1] on X, so their separation is zero and less than radii 0.3+0.15. This geometric oracle concerns supplied proxies, not a Human skin mesh or anatomical measurement.
+ * @evidence contracts/testing.md#distinguishing-cases This existing regression isolates coincident world endpoints while keeping distinct declared bone identities. The ordinary suite owns malformed annotations, rates, separated proxies and intent suppression; the crossing unit owns two noncollapsed interior spans.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit invokes sampling/FK and geometric warning production through an existing authored motion fixture. It starts no simulation world, viewer or Human inspection host and registers no extra cases.
  */
-export const test_validation_self_intersection_collapsed = (): void => {
-  const result = validateSelfIntersection({
-    motion: makeMotion([key(0), key(1)], 1),
-    skeleton,
-    pairs: [
-      {
-        first: { from: "hips", to: "spine", radius: 0.3 },
-        second: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.15 },
-      },
-    ],
-    sampleRate: 1,
-  });
+export function test_validation_self_intersection_collapsed(): void {
+  const result: ReturnType<typeof validateSelfIntersection> =
+    validateSelfIntersection({
+      motion: makeMotion([key(0), key(1)], 1),
+      skeleton,
+      pairs: [
+        {
+          first: { from: "hips", to: "spine", radius: 0.3 },
+          second: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.15 },
+        },
+      ],
+      sampleRate: 1,
+    });
 
   TestValidator.predicate(
     "collapsed-centerline overlap no longer slips through as NaN",
@@ -93,4 +95,4 @@ export const test_validation_self_intersection_collapsed = (): void => {
       "$input.pairs[0].samples[0].distance",
     ),
   );
-};
+}

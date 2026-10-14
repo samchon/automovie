@@ -8,9 +8,6 @@
  * ladder toward the interior centre keeps that deterministic: two callers
  * asking for the same station receive the same point, and a station the ladder
  * cannot place is reported unplaced rather than dropped.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Keeps an interior station inside its own space without a caller-supplied inset.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Fixes the deterministic ladder every interior station is placed by.
  */
 export const AUTOMOVIE_OBSERVATION_INSET_LADDER: readonly number[] = [
   0.05, 0.1, 0.2, 0.35, 0.5,

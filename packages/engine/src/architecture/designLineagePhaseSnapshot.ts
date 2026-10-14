@@ -1,58 +1,62 @@
 import {
   AutoMovieDesignLifecycleRole,
   AutoMovieDesignPresence,
+  IAutoMovieDesignLifecycle,
   IAutoMovieDesignLineage,
+  IAutoMovieDesignPhase,
   IAutoMovieDesignPhaseSnapshot,
   IAutoMovieDesignPhaseState,
+  IAutoMovieDesignSubject,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { validateDesignLineage } from "./validateDesignLineage";
+import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
  * Report every declared subject's role and presence once a phase completes.
  *
- * This exists so a phased scene, drawing, schedule, and render can read one
- * answer instead of computing "what is standing" four times, because four
- * computations are four chances to disagree and a demolition drawing that
- * contradicts the demolition render is worse than neither existing.
+ * This exists so a phased scene, drawing, schedule, and render can read one answer instead of computing "what is standing" four times, because four computations are four chances to disagree and a demolition drawing that contradicts the demolition render is worse than neither existing.
  *
- * None of those four reads it. The callers are {@link designLineageProject} and
- * {@link designLineageViewDigest} in this file, the scaffold's renovation
- * example, and the test suite; no compiled scene, derived drawing, derived
- * schedule, or draw list is filtered by it. The four cannot disagree because
- * none of them asks, which is not the same property.
+ * None of those four reads it. The callers are {@link designLineageProject} and {@link designLineageViewDigest} in this package and the test suite; no compiled scene, derived drawing, derived schedule, or draw list is filtered by it. The four cannot disagree because none of them asks, which is not the same property.
  *
- * A null phase asks for the completed work: everything the plan ever removes is
- * gone and everything else stands. That is also the only sensible answer for a
- * lineage that records alternatives without recording a construction sequence.
+ * A null phase asks for the completed work: everything the plan ever removes is gone and everything else stands. That is also the only sensible answer for a lineage that records alternatives without recording a construction sequence.
  *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineagePhaseSnapshot` reports every declared subject's role and presence once a phase completes. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineagePhaseSnapshot` records each declared subject's role and presence after a selected construction phase.
- * @evidence requirements/interior/existing-conditions-phases-and-alternatives.md#interior-construction-renovation-phases `designLineagePhaseSnapshot` resolves each declared subject to pending, present, or removed after the selected prerequisite-ordered construction phase.
- * @evidence specifications/interior-space/construction-phases-and-alternatives.md#interior-space-phase-alternative-graph The snapshot implements phase-ordered lifecycle presence for tracked interior identities without claiming interior-specific support, access, or collision state.
- * @evidence requirements/building-exterior/existing-phases-and-alternatives.md#building-exterior-construction-phases `designLineagePhaseSnapshot` evaluates install and remove lifecycle events over the declared prerequisite graph rather than assuming a fixed linear phase order.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-phase-input-output The function consumes the lineage phase graph and lifecycle roles and returns a deterministic identity-by-identity presence snapshot.
- * @evidence requirements/map/temporal-change.md#map-existing-change-demolition `designLineagePhaseSnapshot` resolves every tracked world identity to pending, present, or removed after the selected prerequisite-ordered phase.
- * @evidence specifications/world-and-site/temporal-state-and-staleness.md#world-site-existing-change-demolition The snapshot materializes existing, installed, and demolished presence from explicit lifecycle events rather than source-array position.
+ * A subject's role comes from its whole lifecycle (`retained`, `demolished`, `new`, `temporary`) and its presence from the named phase: `present` once its introducing phase is reached, `removed` once its removing phase is reached, `pending` before either. A phase counts as reached when it is the named phase or one of its transitive prerequisites. One state is reported per lifecycle, sorted by subject id in code-unit order. An invalid lineage or an undeclared phase id throws an `Error`.
+ *
+ * @param lineage Lineage whose lifecycles are read.
+ * @param phase Construction phase id, or null for the completed work.
+ * @returns The phase and one state per lifecycle.
+ *
+ * @evidence contracts/common.md#principled-implementation The reached set is the named phase plus its transitive prerequisites by breadth-first search over `requires`, and each lifecycle's role and presence are a closed truth table over whether its introducing and removing phases are null or reached; validation guarantees every phase and subject reference resolves.
+ * @evidence contracts/common.md#clear-and-simple-design One reached set and one map over the lifecycles behind the shared validation guard; the projection and view digest read this answer instead of recomputing presence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no phase or subject; the null phase is the completed work for every lineage, and the documentation states plainly that no compiled consumer reads this yet rather than claiming the drift it exists to prevent is prevented.
+ * @evidence contracts/common.md#meaningful-documentation States the purpose and its unmet wiring, the null-phase meaning, the four roles, the three presences and when each applies, what counts as reached, the order, and every refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Pays full lineage validation, including per-lifecycle prerequisite reachability and decision-by-artifact fairness scans. Snapshot construction then costs O(P + R + S + L log L) for phases, prerequisite edges, subjects and lifecycles; its reached queue is read by index.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one phase per call from the caller's mutable record; nothing is cached across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reached set and index live only for the call; the caller owns the returned snapshot.
  */
-export const designLineagePhaseSnapshot = (
+export const designLineagePhaseSnapshot: (
+  lineage: IAutoMovieDesignLineage,
+  phase: string | null,
+) => IAutoMovieDesignPhaseSnapshot = (
   lineage: IAutoMovieDesignLineage,
   phase: string | null,
 ): IAutoMovieDesignPhaseSnapshot => {
-  requireValidLineage(lineage);
-  requirePhase(lineage, phase);
-  const reached =
-    phase === null
-      ? new Set<string>()
-      : new Set<string>([phase, ...phasesBefore(lineage, phase)]);
-  const graphs = new Map(
-    lineage.subjects.map((subject) => [subject.id, subject.graph] as const),
+  requireValidDesignLineage(lineage);
+  const reached: Set<string> =
+    phase === null ? new Set() : reachedPhases(lineage, phase);
+  const graphs: Map<string, string> = new Map(
+    lineage.subjects.map(
+      (subject: IAutoMovieDesignSubject): [string, string] => [
+        subject.id,
+        subject.graph,
+      ],
+    ),
   );
   const states: IAutoMovieDesignPhaseState[] = lineage.lifecycles
-    .map((lifecycle) => {
-      const removed = lifecycle.removedIn !== null;
-      const existing = lifecycle.introducedIn === null;
+    .map((lifecycle: IAutoMovieDesignLifecycle): IAutoMovieDesignPhaseState => {
+      const removed: boolean = lifecycle.removedIn !== null;
+      const existing: boolean = lifecycle.introducedIn === null;
       const role: AutoMovieDesignLifecycleRole = existing
         ? removed
           ? "demolished"
@@ -60,11 +64,11 @@ export const designLineagePhaseSnapshot = (
         : removed
           ? "temporary"
           : "new";
-      const installed =
+      const installed: boolean =
         phase === null ||
         lifecycle.introducedIn === null ||
         reached.has(lifecycle.introducedIn);
-      const gone =
+      const gone: boolean =
         lifecycle.removedIn !== null &&
         (phase === null || reached.has(lifecycle.removedIn));
       const presence: AutoMovieDesignPresence = gone
@@ -79,48 +83,42 @@ export const designLineagePhaseSnapshot = (
         presence,
       };
     })
-    .sort((a, b) => compareCodeUnits(a.subject, b.subject));
+    .sort(
+      (a: IAutoMovieDesignPhaseState, b: IAutoMovieDesignPhaseState): number =>
+        compareCodeUnits(a.subject, b.subject),
+    );
   return { phase, states };
 };
 
-const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
-  const validated = validateDesignLineage({ lineage });
-  if (validated.success === false) {
-    const first = validated.violations[0]!;
-    throw new Error(
-      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
-    );
-  }
-};
-
-const requirePhase = (
+/**
+ * The named phase and every phase that must complete before it, or a thrown `Error` when the lineage declares no such phase.
+ */
+const reachedPhases: (
   lineage: IAutoMovieDesignLineage,
-  phase: string | null,
-): void => {
-  if (phase !== null && !lineage.phases.some((entry) => entry.id === phase))
-    throw new Error(
-      `design lineage "${lineage.id}" has no construction phase "${phase}"`,
-    );
-};
-
-/** Every phase that must complete strictly before the given one. */
-const phasesBefore = (
+  phase: string,
+) => Set<string> = (
   lineage: IAutoMovieDesignLineage,
   phase: string,
 ): Set<string> => {
-  const byId = new Map(
-    lineage.phases.map((entry) => [entry.id, entry] as const),
+  const byId: Map<string, IAutoMovieDesignPhase> = new Map(
+    lineage.phases.map(
+      (entry: IAutoMovieDesignPhase): [string, IAutoMovieDesignPhase] => [
+        entry.id,
+        entry,
+      ],
+    ),
   );
-  const before = new Set<string>();
-  const queue = [...byId.get(phase)!.requires];
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (before.has(current)) continue;
-    before.add(current);
-    // A prerequisite naming no phase is reported on its own path; walking it
-    // further would only repeat that one defect as an ordering complaint.
-    const next = byId.get(current);
-    if (next !== undefined) queue.push(...next.requires);
-  }
-  return before;
+  if (!byId.has(phase))
+    throw new Error(
+      `design lineage "${lineage.id}" has no construction phase "${phase}"`,
+    );
+  const reached: Set<string> = new Set([phase]);
+  const queue: string[] = [phase];
+  for (let index: number = 0; index < queue.length; ++index)
+    for (const required of byId.get(queue[index]!)?.requires ?? [])
+      if (!reached.has(required)) {
+        reached.add(required);
+        queue.push(required);
+      }
+  return reached;
 };

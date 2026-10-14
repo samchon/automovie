@@ -1,4 +1,3 @@
-import { IAutoMovieSampledChannel, resolveDrivers } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieDrivenCurve,
@@ -7,20 +6,37 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
+import { evaluateDrivenCurve } from "../../../../packages/engine/src/resolve/evaluateDrivenCurve";
+import { resolveDrivers } from "../../../../packages/engine/src/resolve/resolveDrivers";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
-const ptr = (p: string): IAutoMovieChannel => ({
+const ptr: (p: string) => IAutoMovieChannel = (
+  p: string,
+): IAutoMovieChannel => ({
   kind: "pointer",
   pointer: p,
   valueType: "scalar",
 });
 
-const seed = (
+const seed: (
+  entries: [string, IAutoMovieChannel, number[]][],
+) => Map<string, IAutoMovieSampledChannel> = (
   entries: [string, IAutoMovieChannel, number[]][],
 ): Map<string, IAutoMovieSampledChannel> =>
-  new Map(entries.map(([k, channel, value]) => [k, { channel, value }]));
+  new Map(
+    entries.map(
+      ([k, channel, value]: [string, IAutoMovieChannel, number[]]): [
+        string,
+        { channel: IAutoMovieChannel; value: number[] },
+      ] => [k, { channel, value }],
+    ),
+  );
 
-const driven = (
+const driven: (
+  over: Partial<IAutoMovieDrivenDriver>,
+) => IAutoMovieDrivenDriver = (
   over: Partial<IAutoMovieDrivenDriver>,
 ): IAutoMovieDrivenDriver => ({
   type: "driven",
@@ -32,7 +48,11 @@ const driven = (
   ...over,
 });
 
-const curve = (over: Partial<IAutoMovieDrivenCurve> = {}) =>
+const curve: (over?: Partial<IAutoMovieDrivenCurve>) => {
+  points: IAutoMovieDrivenCurvePoint[];
+} = (
+  over: Partial<IAutoMovieDrivenCurve> = {},
+): { points: IAutoMovieDrivenCurvePoint[] } =>
   ({
     points: [
       { source: 0, output: 0 },
@@ -42,11 +62,13 @@ const curve = (over: Partial<IAutoMovieDrivenCurve> = {}) =>
     ...over,
   }) satisfies IAutoMovieDrivenCurve;
 
+/** Preserve scalar width while comparing its value numerically. */
+function scalarMatches(actual: number[], expected: number): boolean {
+  return actual.length === 1 && nclose(actual[0]!, expected, 0);
+}
+
 /**
- * The nonlinear `driven.curve` contract is separate from the linear range
- * remap: it carries named `{ source, output }` points, supplies its own
- * source-absent default, and rejects malformed curve data before
- * interpolation.
+ * A nonlinear driven curve uses named source/output points and its own missing-source default; malformed curve data rejects before interpolation.
  *
  * Scenarios:
  *
@@ -56,29 +78,45 @@ const curve = (over: Partial<IAutoMovieDrivenCurve> = {}) =>
  *    than the linear driver's `inRange[0]`.
  * 3. Malformed curve objects, point lists, point objects, non-finite coordinates,
  *    and non-increasing source values reject before output.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal including null at the curve object's own boundary.
+ * @evidence contracts/testing.md#independent-expectations At source 8.5 the authored (7,10)-(10,100) segment is halfway, so output is 55; source outside 0..10 holds the corresponding endpoint and missing source selects the first point. Strictly increasing finite points are independent curve admission requirements.
+ * @evidence contracts/testing.md#distinguishing-cases Covers interior/below/above/missing source, array/primitive/null curve, absent/empty point list, malformed/null point, nonfinite output and duplicate source neighbors; linear range-driven behavior belongs to the separate driven driver test.
+ * @evidence contracts/testing.md#execution-ownership The exported test_resolve_driven_curve owns synchronous portable sampled-map cases through the real driver seam, without consumer installation, Human assets, native host or replaced globals.
  */
-export const test_resolve_driven_curve = (): void => {
-  const run = (d: IAutoMovieDrivenDriver, src?: number): number[] => {
-    const sampled =
+export function test_resolve_driven_curve(): void {
+  const run: (d: IAutoMovieDrivenDriver, src?: number) => number[] = (
+    d: IAutoMovieDrivenDriver,
+    src?: number,
+  ): number[] => {
+    const sampled: Map<string, IAutoMovieSampledChannel> =
       src === undefined ? seed([]) : seed([["ptr:/in", ptr("/in"), [src]]]);
     resolveDrivers([d], sampled, new Map());
     return sampled.get("ptr:/out")!.value;
   };
 
-  const curl = driven({ curve: curve() });
-  TestValidator.equals(
+  const curl: IAutoMovieDrivenDriver = driven({ curve: curve() });
+  TestValidator.predicate(
     "curve interpolates between named points",
-    run(curl, 8.5),
-    [55],
+    scalarMatches(run(curl, 8.5), 55),
   );
-  TestValidator.equals("curve holds below first point", run(curl, -3), [0]);
-  TestValidator.equals("curve holds above last point", run(curl, 20), [100]);
-  TestValidator.equals("curve absent source uses first point", run(curl), [0]);
+  TestValidator.predicate(
+    "curve holds below first point",
+    scalarMatches(run(curl, -3), 0),
+  );
+  TestValidator.predicate(
+    "curve holds above last point",
+    scalarMatches(run(curl, 20), 100),
+  );
+  TestValidator.predicate(
+    "curve absent source uses first point",
+    scalarMatches(run(curl), 0),
+  );
 
   TestValidator.predicate(
     "driven curve rejects array contract",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: [
@@ -94,7 +132,7 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects primitive contract",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: "bad" as unknown as IAutoMovieDrivenCurve,
@@ -105,9 +143,21 @@ export const test_resolve_driven_curve = (): void => {
     ),
   );
   TestValidator.predicate(
+    "direct curve evaluator rejects null at its object boundary",
+    throwsError(
+      (): number =>
+        evaluateDrivenCurve(1, null as unknown as IAutoMovieDrivenCurve),
+      ["driven driver curve", "object"],
+    ),
+  );
+  TestValidator.predicate(
+    "null driver curve keeps the declared linear fallback",
+    scalarMatches(run(driven({ curve: null }), 55), 550),
+  );
+  TestValidator.predicate(
     "driven curve rejects missing points",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: {} as unknown as IAutoMovieDrivenCurve,
@@ -120,14 +170,14 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects empty points",
     throwsError(
-      () => run(driven({ curve: curve({ points: [] }) }), 1),
+      (): number[] => run(driven({ curve: curve({ points: [] }) }), 1),
       ["driven driver curve.points", "at least one"],
     ),
   );
   TestValidator.predicate(
     "driven curve rejects array point",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: curve({
@@ -145,7 +195,7 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects primitive point",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: curve({
@@ -163,7 +213,7 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects null point",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: curve({
@@ -181,7 +231,7 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects non-finite output",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: curve({
@@ -199,7 +249,7 @@ export const test_resolve_driven_curve = (): void => {
   TestValidator.predicate(
     "driven curve rejects non-increasing source",
     throwsError(
-      () =>
+      (): number[] =>
         run(
           driven({
             curve: curve({
@@ -214,4 +264,4 @@ export const test_resolve_driven_curve = (): void => {
       ["driven driver curve.points", "strictly increasing", "0"],
     ),
   );
-};
+}

@@ -1,4 +1,7 @@
-import { IAutoMovieCompiledEffect } from "@automovie/interface";
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieEffectRecipe,
+} from "@automovie/interface";
 
 import { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
 import { IAutoMovieEffectSample } from "./IAutoMovieEffectSample";
@@ -9,74 +12,85 @@ import { mixSeed } from "./math/mixSeed";
  *
  * Spawn identity depends only on compiled bytes and particle index. Call
  * scheduling, wall time, worker count and GPU randomness cannot change it.
+ * Inputs must be admitted compiled recipes and finite sampling coordinates.
+ * Time is floored to the effect's absolute step with a 1e-9 quotient allowance;
+ * the cue is half-open. Far LOD retains indexes divisible by four, and the
+ * output caps live particles rather than all candidate allocations.
  *
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-seek-reconstruction Derives the complete sample from absolute time without cursor history.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-arbitrary-seek Recomputes the sampled boundary, live population, and particle state solely from the requested absolute time and compiled effect.
- * @evidence requirements/effects-and-simulation/clock-seek-and-determinism.md#effects-film-time-mapping Floors the request once onto the compiled fixed-step clock before evaluating cue or particle state.
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Keys every spawned particle from compiled seed and stable particle index.
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-emitter-geometry Samples every initial particle position inside the compiled world-space emitter bounds.
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-spawn-interval-boundary Assigns each regular birth to one ordinal-derived interval boundary and counts it with the same floor rule on every seek.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#arbitrary-seek-reconstruction-contract Reconstructs the same active set for repeated and out-of-order samples.
- * @evidence specifications/simulation-effects-and-sound/clocks-ordering-seek-and-checkpoints.md#effect-film-time-step-boundary Maps the absolute request to its owning fixed-step boundary before any effect evaluation.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Uses fixed-step emission intervals and stable index-derived variation.
+ * @evidence contracts/common.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
+ * @evidence contracts/common.md#clear-and-simple-design Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
+ * @evidence contracts/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
+ * @evidence contracts/performance.md#efficient-algorithms Work and temporary indexes scale with burst plus regular spawns in the maximum-lifetime window, while returned live records stop at maxParticles; a large burst can allocate more candidates than that cap.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
  */
-export const sampleCompiledEffect = (
+export const sampleCompiledEffect: (
   effect: IAutoMovieCompiledEffect,
   time: number,
-  cameraDistance = 0,
+  cameraDistance?: number,
+) => IAutoMovieEffectSample = (
+  effect: IAutoMovieCompiledEffect,
+  time: number,
+  cameraDistance: number = 0,
 ): IAutoMovieEffectSample => {
-  const step = effect.fixedStepSeconds;
-  const sampledTime = Math.floor(Math.max(0, time) / step + 1e-9) * step;
+  const step: number = effect.fixedStepSeconds;
+  const sampledTime: number =
+    Math.floor(Math.max(0, time) / step + 1e-9) * step;
   if (sampledTime < effect.start || sampledTime >= effect.end)
     return { time: sampledTime, active: false, intensity: 0, particles: [] };
-  const cueProgress =
+  const cueProgress: number =
     (sampledTime - effect.start) / Math.max(step, effect.end - effect.start);
-  const intensity =
+  const intensity: number =
     effect.intensity.from +
     (effect.intensity.to - effect.intensity.from) * cueProgress;
-  const recipe = effect.recipe;
-  const emissionElapsed = Math.min(
+  const recipe: IAutoMovieEffectRecipe = effect.recipe;
+  const emissionElapsed: number = Math.min(
     sampledTime - effect.start,
     recipe.emission.duration,
   );
-  const regularSpawned = Math.floor(
+  const regularSpawned: number = Math.floor(
     emissionElapsed * recipe.emission.rate + 1e-9,
   );
-  const maximumLifetime = recipe.particle.lifetime.max;
-  const earliestRegular = Math.max(
+  const maximumLifetime: number = recipe.particle.lifetime.max;
+  const earliestRegular: number = Math.max(
     0,
     Math.floor(
       Math.max(0, sampledTime - effect.start - maximumLifetime) *
         recipe.emission.rate,
     ),
   );
-  const candidates = [
-    ...Array.from({ length: recipe.emission.burst }, (_, index) => index),
+  const candidates: number[] = [
+    ...Array.from(
+      { length: recipe.emission.burst },
+      (_: unknown, index: number): number => index,
+    ),
     ...Array.from(
       { length: Math.max(0, regularSpawned - earliestRegular) },
-      (_, offset) => recipe.emission.burst + earliestRegular + offset,
+      (_: unknown, offset: number): number =>
+        recipe.emission.burst + earliestRegular + offset,
     ),
   ];
-  const thinned =
+  const thinned: number[] =
     cameraDistance > recipe.budget.lodDistance
-      ? candidates.filter((index) => index % 4 === 0)
+      ? candidates.filter((index: number): boolean => index % 4 === 0)
       : candidates;
   const particles: IAutoMovieEffectParticle[] = [];
   for (const index of thinned) {
-    const regular = index - recipe.emission.burst;
-    const spawnTime =
+    const regular: number = index - recipe.emission.burst;
+    const spawnTime: number =
       regular < 0
         ? effect.start
         : effect.start + (regular + 1) / recipe.emission.rate;
-    const age = sampledTime - spawnTime;
-    const lifetime = interpolate(
+    const age: number = sampledTime - spawnTime;
+    const lifetime: number = interpolate(
       recipe.particle.lifetime.min,
       recipe.particle.lifetime.max,
       effectValue(effect.seed, index, 0x6c696665),
     );
     if (age < 0 || age >= lifetime) continue;
-    const ageRatio = age / lifetime;
-    const initial = {
+    const ageRatio: number = age / lifetime;
+    const initial: { x: number; y: number; z: number } = {
       x: interpolate(
         effect.bounds.min.x,
         effect.bounds.max.x,
@@ -93,11 +107,11 @@ export const sampleCompiledEffect = (
         effectValue(effect.seed, index, 0x706f735a),
       ),
     };
-    const turbulenceAngle =
+    const turbulenceAngle: number =
       effectValue(effect.seed, index, 0x74757262) * Math.PI * 2;
-    const turbulenceSpeed =
+    const turbulenceSpeed: number =
       recipe.motion.turbulence * effectValue(effect.seed, index, 0x73706565);
-    const opacity =
+    const opacity: number =
       interpolate(
         recipe.particle.opacity.min,
         recipe.particle.opacity.max,
@@ -131,19 +145,26 @@ export const sampleCompiledEffect = (
   return { time: sampledTime, active: true, intensity, particles };
 };
 
-const interpolate = (from: number, to: number, ratio: number): number =>
-  from * (1 - ratio) + to * ratio;
+const interpolate: (from: number, to: number, ratio: number) => number = (
+  from: number,
+  to: number,
+  ratio: number,
+): number => from * (1 - ratio) + to * ratio;
 
 /**
  * Preserve the compiled-effect v1 stream while the public multi-part sampler
  * serves new domains. The effect digest does not carry a sampler version, so
  * changing this fold would make identical compiled bytes replay differently.
  */
-const effectValue = (seed: number, index: number, domain: number): number => {
-  let state = mixSeed(seed, domain);
+const effectValue: (seed: number, index: number, domain: number) => number = (
+  seed: number,
+  index: number,
+  domain: number,
+): number => {
+  let state: number = mixSeed(seed, domain);
   state = mixSeed(index, state);
   state = (state + 0x6d2b79f5) >>> 0;
-  let output = state;
+  let output: number = state;
   output = Math.imul(output ^ (output >>> 15), output | 1);
   output ^= output + Math.imul(output ^ (output >>> 7), output | 61);
   return ((output ^ (output >>> 14)) >>> 0) / 4_294_967_296;

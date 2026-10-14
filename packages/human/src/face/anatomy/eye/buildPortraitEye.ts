@@ -1,19 +1,11 @@
-/**
- * Finish an attached eye after common skin refinement and optical contact.
- * The eye component supplies head-millimetre lid vertices, fixed identity and
- * optional canthal hull. This module reads those inputs and owns emitted parts.
- * Exact canthal endpoints bound the interpolated wet tissue; sclera and the
- * connective region partition one external hull. Iris/pupil/cornea use the
- * optical sphere and rotate together with gaze, independently of that lining.
- * Only createMetricMeshPart crosses to model metres. Changing support or a refined
- * margin invalidates tissue, optics, lashes and brow attachment together.
- */
 import {
+  type IAutoMovieMeshTransform,
   createAutoMovieMeshDepthSampler,
   mergeAutoMovieMeshes,
   transformAutoMovieMesh,
 } from "@automovie/engine";
 import type {
+  IAutoMovieMesh,
   IAutoMovieModelPart,
   IAutoMovieVector3 as Point,
 } from "@automovie/interface";
@@ -42,12 +34,28 @@ import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
 import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+import type { IPortraitOcularTissueMeshes } from "./structures/IPortraitOcularTissueMeshes";
 
-const pi = Math.PI,
-  tau = pi * 2;
+const pi: number = Math.PI,
+  tau: number = pi * 2;
 
 /**
  * Build the sclera, gaze, iris, lashes and brow against this eye's refined rim.
+ * The component supplies head-millimetre lid vertices, fixed optical identity
+ * and an optional canthal hull after common skin refinement and contact.
+ * Exact canthal endpoints bound interpolated wet tissue; sclera and connective
+ * support partition one external hull. Iris, pupil and cornea rotate together
+ * with gaze. Only createMetricMeshPart crosses to model metres. The caller
+ * retains its source and refined cage; returned parts own published geometry.
+ * A changed support or refined margin requires rebuilding every emitted part.
+ *
+ * @evidence contracts/common.md#principled-implementation The refined actual lid rim, shared sphere/canthal support and one gaze centre drive emitted optics, wet tissues, lashes and brow attachment.
+ * @evidence contracts/common.md#clear-and-simple-design Actual drawing/contact support shares canonical cornea/globe owners; construction millimetres cross to model metres only through createMetricMeshPart.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored fibre/pigment/sampling constants do not infer individual anatomy; finite bisection assumes ordered rim-X and full tissue contact remains directional.
+ * @evidence contracts/common.md#meaningful-documentation The prose identifies caller ownership, refined-margin dependence, head frame, unit conversion and optical/support invalidation.
+ * @evidence contracts/performance.md#efficient-algorithms Two 257-sample lid tables use eighteen-step interpolation searches; emitted iris grids, support queries, requested lashes and brow fibres drive remaining work.
+ * @evidence contracts/performance.md#reuse-equivalent-work One sampled lid table per margin and one actual support depth sampler serve repeated optical/tissue queries; angular extents are solved once per column.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned metric parts own emitted meshes; lid tables/support samplers and intermediate construction arrays expire without retained background resources.
  */
 export function buildPortraitEye(
   source: number[][],
@@ -63,47 +71,59 @@ export function buildPortraitEye(
   canthal?: ReturnType<typeof buildPortraitCanthalMesh>,
 ): IAutoMovieModelPart[] {
   const parts: IAutoMovieModelPart[] = [];
-  const add = (
+  const add: (
+    id: string,
+    mesh: Parameters<typeof createMetricMeshPart>[1],
+    finish: string,
+  ) => void = (
     id: string,
     mesh: Parameters<typeof createMetricMeshPart>[1],
     finish: string,
   ): void => {
     parts.push(createMetricMeshPart(id, mesh, finish));
   };
-  const landmark = (id: number): Point =>
+  const landmark: (id: number) => Point = (id: number): Point =>
     p(source[id][0], source[id][1], source[id][2]);
-  const white = "sclera",
-    pupil = "pupil",
-    brow = "brows";
-  const eye = socket;
+  const white: string = "sclera" as const,
+    pupil: string = "pupil" as const,
+    brow: string = "brows" as const;
+  const eye: IPortraitEyeSocket = socket;
   {
-    const margin = (id: number): Point => {
-      const point = refined.positions[eyeMargins.get(id)!];
+    const margin: (id: number) => Point = (id: number): Point => {
+      const point: number[] = refined.positions[eyeMargins.get(id)!];
       return p(point[0], point[1], point[2]);
     };
-    const upper = eye.top.map(margin),
-      lower = eye.bottom.map(margin);
-    const lidSamples = [lower, upper].map((points) =>
-      Array.from({ length: 257 }, (_, i) => {
-        // The closed interval already supplies exact endpoint roots. A finite
-        // bisection midpoint would pair endpoint X with an interior Y/Z and
-        // leave a canthal apex's support, even though the actual rim meets it.
-        if (i === 0 || i === 256)
-          return { ...points[i === 0 ? 0 : points.length - 1] };
-        const x = mix(points[0].x, points[points.length - 1].x, i / 256);
-        let low = 0,
-          high = 1;
-        for (let iteration = 0; iteration < 18; iteration++) {
-          const t = (low + high) / 2;
-          if (interpolate(points, t).x < x) low = t;
-          else high = t;
-        }
-        return interpolate(points, (low + high) / 2);
-      }),
+    const upper: Point[] = eye.top.map(margin),
+      lower: Point[] = eye.bottom.map(margin);
+    const lidSamples: Point[][] = [lower, upper].map(
+      (points: Point[]): Point[] =>
+        Array.from({ length: 257 }, (_: unknown, i: number): Point => {
+          // The closed interval already supplies exact endpoint roots. A finite
+          // bisection midpoint would pair endpoint X with an interior Y/Z and
+          // leave a canthal apex's support, even though the actual rim meets it.
+          if (i === 0 || i === 256)
+            return { ...points[i === 0 ? 0 : points.length - 1] };
+          const x: number = mix(
+            points[0].x,
+            points[points.length - 1].x,
+            i / 256,
+          );
+          let low: number = 0,
+            high: number = 1;
+          for (let iteration: number = 0; iteration < 18; iteration++) {
+            const t: number = (low + high) / 2;
+            if (interpolate(points, t).x < x) low = t;
+            else high = t;
+          }
+          return interpolate(points, (low + high) / 2);
+        }),
     );
-    const lidAt = (x: number, points: Point[]): Point => {
-      const samples = lidSamples[points === lower ? 0 : 1];
-      const t = Math.max(
+    const lidAt: (x: number, points: Point[]) => Point = (
+      x: number,
+      points: Point[],
+    ): Point => {
+      const samples: Point[] = lidSamples[points === lower ? 0 : 1];
+      const t: number = Math.max(
         0,
         Math.min(
           256,
@@ -111,7 +131,7 @@ export function buildPortraitEye(
             (points[points.length - 1].x - points[0].x),
         ),
       );
-      const i = Math.min(255, Math.floor(t));
+      const i: number = Math.min(255, Math.floor(t));
       return p(
         x,
         mix(samples[i].y, samples[i + 1].y, t - i),
@@ -120,7 +140,9 @@ export function buildPortraitEye(
     };
     // Spherical curvature is independent of aperture height and gaze. The
     // fitted lid alone determines how much of that surface remains visible.
-    const canthalDepth =
+    const canthalDepth:
+      | ((u: number, v: number) => { minimum: number; maximum: number } | null)
+      | undefined =
       canthal === undefined
         ? undefined
         : createAutoMovieMeshDepthSampler(
@@ -128,25 +150,31 @@ export function buildPortraitEye(
               .geometry.mesh,
             "z",
           );
-    const eyeZ = (x: number, y: number): number => {
+    const eyeZ: (x: number, y: number) => number = (
+      x: number,
+      y: number,
+    ): number => {
       if (canthalDepth === undefined)
         return portraitEyeSphereHeight(sphere, x, y);
-      const hit = canthalDepth(x * 0.001, y * 0.001);
+      const hit: { minimum: number; maximum: number } | null = canthalDepth(
+        x * 0.001,
+        y * 0.001,
+      );
       if (hit === null)
         throw new Error(
           `Ocular tissue at (${x}, ${y}) must stay on its canthal support.`,
         );
       return hit.maximum * 1000;
     };
-    const sclera =
+    const sclera: IAutoMovieMesh =
       canthal?.exposed ??
       (performance === undefined && shape.opticalFrame !== "radial"
         ? patch(
-            (u, v) => {
-              const top = interpolate(upper, u),
-                bottom = interpolate(lower, u);
-              const x = mix(bottom.x, top.x, v),
-                y = mix(bottom.y, top.y, v);
+            (u: number, v: number): Point => {
+              const top: Point = interpolate(upper, u),
+                bottom: Point = interpolate(lower, u);
+              const x: number = mix(bottom.x, top.x, v),
+                y: number = mix(bottom.y, top.y, v);
               return p(x, y, eyeZ(x, y));
             },
             shape.sampling.eyeColumns,
@@ -162,10 +190,15 @@ export function buildPortraitEye(
     // radius millimetres to obtain dimensionless outward unit normals. This
     // remains defined at a collapsed canthal row where triangle-area averaging
     // has no direction, and avoids a sampling-dependent optical normal field.
-    const sphereCenter = [sphere.center.x, sphere.center.y, sphere.center.z];
+    const sphereCenter: number[] = [
+      sphere.center.x,
+      sphere.center.y,
+      sphere.center.z,
+    ];
     if (canthal === undefined)
       sclera.normals = sclera.positions.map(
-        (value, index) => (value - sphereCenter[index % 3]) / sphere.radius,
+        (value: number, index: number): number =>
+          (value - sphereCenter[index % 3]) / sphere.radius,
       );
     add(`${eye.name}-sclera`, sclera, white);
     // The exposed connective support shares the optical boundary vertices.
@@ -176,17 +209,20 @@ export function buildPortraitEye(
     // One gaze centre feeds drawing and tissue support. Full-limbus contact
     // includes the actual optical shell, whose anterior surface is above the
     // basic globe; following the latter buried the wet margin in the cornea.
-    const center = portraitEyeSphereIntersection(
+    const center: Point = portraitEyeSphereIntersection(
       sphere,
       landmark(eye.iris),
       p(viewRay[0], viewRay[1], viewRay[2]),
     );
-    const radial =
+    const radial:
+      | { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform }
+      | undefined =
       shape.opticalFrame === "radial"
         ? createPortraitOpticalFrame(sphere, center)
         : undefined;
-    const opticalCenter = radial === undefined ? center : radial.sphere.center;
-    const support = createMetricMeshPart(
+    const opticalCenter: Point =
+      radial === undefined ? center : radial.sphere.center;
+    const support: IAutoMovieMesh = createMetricMeshPart(
       "ocular-tissue-support",
       mergeAutoMovieMeshes([
         sclera,
@@ -197,15 +233,19 @@ export function buildPortraitEye(
       ]),
       white,
     ).geometry.mesh;
-    const surface = createAutoMovieMeshDepthSampler(support, "z");
+    const surface: (
+      u: number,
+      v: number,
+    ) => { minimum: number; maximum: number } | null =
+      createAutoMovieMeshDepthSampler(support, "z");
     if (tissues !== undefined && performance?.blink !== 1) {
-      const surfaces = tissues({
+      const surfaces: IPortraitOcularTissueMeshes = tissues({
         side: eye.name,
         minimumX: lower[0].x,
         maximumX: lower[lower.length - 1].x,
-        lower: (x) => lidAt(x, lower),
-        upper: (x) => lidAt(x, upper),
-        globe: (x, y) =>
+        lower: (x: number): Point => lidAt(x, lower),
+        upper: (x: number): Point => lidAt(x, upper),
+        globe: (x: number, y: number): number =>
           Math.max(
             eyeZ(x, y),
             (surface(x / 1000, y / 1000)?.maximum ?? -Infinity) * 1000,
@@ -216,17 +256,18 @@ export function buildPortraitEye(
       // construction mm before add() crosses the common model-unit boundary.
       for (const mesh of [surfaces.corner, surfaces.lowerMargin]) {
         if (mesh === null) continue;
-        const metric = createMetricMeshPart(
+        const metric: IAutoMovieMesh = createMetricMeshPart(
           "ocular-tissue-contact",
           mesh,
           white,
         ).geometry.mesh;
-        const targets = portraitDirectionalSurfaceTargets(
-          metric,
-          support,
-          p(0, 0, 1),
-          0.00002,
-        );
+        const targets: { vertex: number; target: Point }[] =
+          portraitDirectionalSurfaceTargets(
+            metric,
+            support,
+            p(0, 0, 1),
+            0.00002,
+          );
         for (const { vertex, target } of targets)
           mesh.positions.splice(
             vertex * 3,
@@ -255,24 +296,24 @@ export function buildPortraitEye(
     ] as const) {
       // All radial samples on one ray share the same clipped endpoint. Solve
       // it once per angular column, retaining the exact same ray and bisection.
-      const extents = Array.from(
+      const extents: number[] = Array.from(
         { length: shape.sampling.irisColumns + 1 },
-        (_, column) => {
+        (_: unknown, column: number): number => {
           if (performance !== undefined || radial !== undefined) return radius;
-          const angle = tau * (column / shape.sampling.irisColumns);
-          const inside = (r: number): boolean => {
-            const x = center.x + r * Math.cos(angle),
-              y = center.y - r * Math.sin(angle);
+          const angle: number = tau * (column / shape.sampling.irisColumns);
+          const inside: (r: number) => boolean = (r: number): boolean => {
+            const x: number = center.x + r * Math.cos(angle),
+              y: number = center.y - r * Math.sin(angle);
             return (
               y >= lidAt(x, lower).y + 0.15 && y <= lidAt(x, upper).y - 0.15
             );
           };
           let extent: number = radius;
           if (!inside(radius)) {
-            let low = 0,
+            let low: number = 0,
               high: number = radius;
-            for (let i = 0; i < 24; i++) {
-              const r = (low + high) / 2;
+            for (let i: number = 0; i < 24; i++) {
+              const r: number = (low + high) / 2;
               if (inside(r)) low = r;
               else high = r;
             }
@@ -281,17 +322,18 @@ export function buildPortraitEye(
           return extent;
         },
       );
-      let mesh = patch(
-        (u, v) => {
-          const angle = tau * u;
-          const extent = extents[Math.round(u * shape.sampling.irisColumns)];
-          const x =
+      let mesh: IAutoMovieMesh = patch(
+        (u: number, v: number): Point => {
+          const angle: number = tau * u;
+          const extent: number =
+            extents[Math.round(u * shape.sampling.irisColumns)];
+          const x: number =
               opticalCenter.x +
               extent * (0.0001 + 0.9999 * v) * Math.cos(angle),
-            y =
+            y: number =
               opticalCenter.y -
               extent * (0.0001 + 0.9999 * v) * Math.sin(angle);
-          const z =
+          const z: number =
             radial === undefined
               ? eyeZ(x, y)
               : portraitEyeSphereHeight(radial.sphere, x, y);
@@ -320,25 +362,28 @@ export function buildPortraitEye(
         // Pigment follows radial fibres. The outer 13 percent forms a dark
         // limbal ring; the inner bands vary in brown. All regions retain the
         // exact same positions and normals, so this edit cannot enlarge an eye.
-        const regions = Array.from({ length: 8 }, () => [] as number[]);
-        for (let i = 0; i < mesh.indices!.length; i += 6) {
-          const cell = i / 6;
-          const angle =
+        const regions: number[][] = Array.from(
+          { length: 8 },
+          (): number[] => [] as number[],
+        );
+        for (let i: number = 0; i < mesh.indices!.length; i += 6) {
+          const cell: number = i / 6;
+          const angle: number =
             (tau * ((cell % shape.sampling.irisColumns) + 0.5)) /
             shape.sampling.irisColumns;
-          const radius =
+          const radius: number =
             (Math.floor(cell / shape.sampling.irisColumns) + 0.5) /
             shape.sampling.irisRows;
-          const fiber =
+          const fiber: number =
             0.48 +
             0.23 * Math.sin(angle * 37 + radius * 7) +
             0.17 * Math.sin(angle * 71 - radius * 11) +
             0.12 * Math.cos(angle * 13);
-          const group =
+          const group: number =
             radius > 0.87 ? 0 : Math.max(0, Math.min(7, Math.floor(fiber * 8)));
           regions[group].push(...mesh.indices!.slice(i, i + 6));
         }
-        regions.forEach((indices, group) => {
+        regions.forEach((indices: number[], group: number): void => {
           if (indices.length === 0) return;
           add(
             `${eye.name}-iris-${group}`,
@@ -351,11 +396,11 @@ export function buildPortraitEye(
     add(
       `${eye.name}-lash-line`,
       tube(
-        (t) => {
-          const point = interpolate(upper, t);
+        (t: number): Point => {
+          const point: Point = interpolate(upper, t);
           return p(point.x, point.y, point.z + 0.04);
         },
-        (t) => 0.06 + 0.16 * Math.sin(pi * t),
+        (t: number): number => 0.06 + 0.16 * Math.sin(pi * t),
         70,
       ),
       brow,
@@ -363,22 +408,22 @@ export function buildPortraitEye(
     // Short curled upper lashes belong to the eyelid, not the deferred scalp
     // hairstyle. They project in front of the measured rim, so their shadows
     // affect the eye without changing the opening's geometric silhouette.
-    const outward = eye.name === "left" ? 1 : -1;
-    for (let i = 0; i < shape.upperLashes; i++) {
-      const u = 0.04 + (0.92 * (i + 0.5)) / shape.upperLashes;
-      const origin = interpolate(upper, u);
-      const length = 0.5 + (eye.name === "left" ? u : 1 - u);
+    const outward: 1 | -1 = eye.name === "left" ? 1 : -1;
+    for (let i: number = 0; i < shape.upperLashes; i++) {
+      const u: number = 0.04 + (0.92 * (i + 0.5)) / shape.upperLashes;
+      const origin: Point = interpolate(upper, u);
+      const length: number = 0.5 + (eye.name === "left" ? u : 1 - u);
       add(
         `${eye.name}-upper-lash-${i}`,
         shape.upperLashProfile === undefined
           ? tube(
-              (t) =>
+              (t: number): Point =>
                 p(
                   origin.x + outward * 0.25 * length * t,
                   origin.y + 0.45 * length * t * t,
                   origin.z + 0.05 + length * t,
                 ),
-              (t) => 0.055 * (1 - 0.9 * t),
+              (t: number): number => 0.055 * (1 - 0.9 * t),
               6,
             )
           : buildPortraitEyelash(

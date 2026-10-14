@@ -1,68 +1,37 @@
 /**
- * The status report for a viewer port that gave no health answer. `absent` means nothing listens, so `ensure` may start a viewer; `unanswered` means a listener accepted the connection but did not answer within the probe, so a viewer is probably alive and busy and another must not be started on the same port.
+ * Status for a port without a complete health answer. `absent` records connection refusal during the probe and permits a startup attempt. `unanswered` includes other transport or answer failures and establishes neither an accepted listener nor absence; another viewer must not be started from this result alone.
  *
- * @evidence contracts/common.md#principled-implementation Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
- * @evidence contracts/common.md#clear-and-simple-design The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Ready remains false without a health answer; elapsed probe time alone establishes neither absence nor restart authority.
- * @evidence contracts/common.md#meaningful-documentation Explains absent versus unanswered outcomes, millisecond probe duration and process-record limitations.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
+ * @evidence contracts/common.md#principled-implementation The refusal flag selects absent and every other incomplete probe selects unanswered; neither outcome establishes viewer readiness or lasting port state.
+ * @evidence contracts/common.md#clear-and-simple-design The status record combines the observed port result and process-record facts with a caller-facing next-action meaning.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unanswered ports are not treated as permission to launch a competing viewer, and recorded process liveness is not readiness proof.
+ * @evidence contracts/common.md#meaningful-documentation Comments define absent versus unanswered, millisecond probe duration, nullable recorded pid and the always-false ready flag.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The silence report selects no connection-probe or process-identity algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A probe report is a point-in-time observation, not authority to reuse listener or process state after it changes.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only diagnostic scalars and text are retained; no socket or process-control handle is transferred with the report.
+ *
  * @author Samchon
  */
 export interface IHumanViewerSilence {
-  /**
-   * Always false: no health answer establishes readiness.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Always false: no health answer establishes readiness. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Always false: no health answer establishes readiness. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** Always false: no health answer establishes readiness. */
   ready: false;
 
   /**
-   * `absent` when the connection was refused, `unanswered` when it timed out.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation `absent` when the connection was refused, `unanswered` when it timed out. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform `absent` when the connection was refused, `unanswered` when it timed out. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
+   * `absent` on connection refusal, otherwise `unanswered` for an incomplete probe.
    */
   answer: "absent" | "unanswered";
 
-  /**
-   * Port that was probed.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Port that was probed. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Port that was probed. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** Port that was probed. */
   port: number;
 
-  /**
-   * How long the probe waited for `/health`, in milliseconds.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation How long the probe waited for `/health`, in milliseconds. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform How long the probe waited for `/health`, in milliseconds. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** How long the probe waited for `/health`, in milliseconds. */
   probeMs: number;
 
-  /**
-   * Pid in this port's process record, or null without a record.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Pid in this port's process record, or null without a record. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Pid in this port's process record, or null without a record. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** Pid in this port's process record, or null without a record. */
   recordedPid: number | null;
 
-  /**
-   * Whether the recorded process still exists.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Whether the recorded process still exists. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Whether the recorded process still exists. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** Whether the recorded pid answered signal-zero probing; false also includes permission failure. */
   recordedAlive: boolean;
 
-  /**
-   * One sentence saying what the caller may do next.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation One sentence saying what the caller may do next. Refused connections and accepted-but-unanswered probes are distinct so a timed-out observation cannot authorize a duplicate viewer.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One sentence saying what the caller may do next. The status record separates probe duration, recorded PID existence and the caller-facing interpretation.
-   */
+  /** One sentence saying what the caller may do next. */
   meaning: string;
 }

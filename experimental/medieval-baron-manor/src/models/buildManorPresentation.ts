@@ -104,7 +104,7 @@ for(const v of views){
  if(v.id==='corridor--south'){v.eye=[.35,4.93,-1.1];v.at=[2.5,4.05,-.08];}
  if(v.id==='landing--east'){v.eye=[2.30,4.93,-3.30];v.at=[2.8,3.95,-2.02];}
 }
-// Keep oblique detail evidence separate from the required eye-level cardinal rays.
+// Keep oblique detail observations separate from the required eye-level cardinal rays.
 for(const v of [...views])if(v.room&&/--(north|east|south|west)$/.test(v.id)){
  const r=roomFor(v.room),[x0,x1,z0,z1]=r.bounds,y=levels[r.level]+1.6,d=v.id.split('--')[1];
  const expected=[(x0+x1)/2,y,(z0+z1)/2],directions: Partial<Record<string, number[]>>={north:[0,-1],east:[1,0],south:[0,1],west:[-1,0]},dir=directions[d];

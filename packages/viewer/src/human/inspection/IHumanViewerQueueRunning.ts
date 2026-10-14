@@ -1,33 +1,20 @@
 /**
- * The request the GPU page is working on.
+ * The request the GPU page is working on.  The label and clock origin describe the task occupying one GPU slot. They do not establish a job lease or permit termination by age.
  *
- * The label and clock origin describe the task occupying one GPU slot. They do not establish a job lease or permit termination by age.
- *
- * @evidence contracts/common.md#meaningful-documentation Names the request and when it started.
- *
- * @evidence contracts/common.md#principled-implementation The active task label and monotonic start reading identify the actual GPU work occupying the queue.
- * @evidence contracts/common.md#clear-and-simple-design Only active request identity and its clock origin are retained.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A start timestamp reports duration and supplies no elapsed-age cancellation policy.
- *
- * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work The active task label and monotonic start reading identify the actual GPU work occupying the queue.
- * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot A start timestamp reports duration and supplies no elapsed-age cancellation policy.
+ * @evidence contracts/common.md#principled-implementation Records the actual unsettled task occupying the queue's single GPU slot with label and shared monotonic clock start.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps running ownership separate from lane waiting counts and last-settled result telemetry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Requester cancellation does not clear this slot before actual task settlement, and task age is not a termination permission.
+ * @evidence contracts/common.md#meaningful-documentation Documents route/query label and start milliseconds from the queue clock, not wall-clock or job-lease authority.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no scheduling; fixed three-lane selection and bounded waiting-array operations belong to the queue.
+ * @evidence contracts/performance.md#reuse-equivalent-work The running reference is shared only for observation of that same task; equal labels do not merge requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Exactly one unsettled task callback remains with the queue until finally; callback settlement is not an independent native GPU retirement observation, and this scalar record owns no additional page or signal.
  *
  * @author Samchon
  */
 export interface IHumanViewerQueueRunning {
-  /**
-   * Request label, the route and query.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work Identifies the actual route/query task currently occupying the GPU queue slot.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot Identifies the actual route/query task currently occupying the GPU queue slot.
-   */
+  /** Request label, the route and query. */
   label: string;
 
-  /**
-   * Clock reading at its start, in milliseconds.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-progress-remaining-work Retains its monotonic millisecond start reading for duration observation without permitting age-based cancellation.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-progress-snapshot Retains its monotonic millisecond start reading for duration observation without permitting age-based cancellation.
-   */
+  /** Clock reading at its start, in milliseconds. */
   start: number;
 }

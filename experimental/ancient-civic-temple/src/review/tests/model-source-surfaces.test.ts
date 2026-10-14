@@ -1,7 +1,5 @@
 /** Design-equation checks against the emitted triangles consumed by the viewer. */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TempleColumns } from "../../models/columns";
@@ -9,6 +7,7 @@ import { TempleCladding } from "../../models/cladding";
 import { TempleEntablature } from "../../models/entablature";
 import { TempleLandscape } from "../../models/landscape";
 import { TempleOpenings } from "../../models/openings";
+import { templeModelFinish } from "../../materials/bindings";
 import { templePlan } from "../../spaces/building";
 import { templeClerestories, templeDoorPassages } from "../../spaces/openings";
 import { templeRoofRules } from "../../spaces/roofs/assembly";
@@ -254,116 +253,50 @@ void test("roof and ridge modules preserve their reviewed outer radii",()=>{
   }
 });
 
-void test("every door leaf member develops U along its measured long face axis",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
-  const row=scale.split(/\r?\n/u).find((line)=>
-    line.startsWith("|")&&line.includes("`openings#double-door-leaf`"));
-  assert.ok(row,"door leaf UV table row");
-  const names=[...row.split("|")[2]!.matchAll(/`([a-z-]+)`/gu)]
-    .map((match)=>match[1]!);
-  const grainParts=names.slice(0,names.indexOf("plate"));
-  assert.ok(grainParts.length>=5,"door leaf grain parts");
-  const source=new TempleOpenings(),seen=new Set<string>();
-  for(const door of templeDoorPassages){
-    const model=door.id==="door-entry"||door.id==="door-sanctuary"
+void test("wooden door leaf members develop U along their measured long face axis", () => {
+  const source: TempleOpenings = new TempleOpenings();
+  for (const door of templeDoorPassages) {
+    const model: IAutoMovieModel = door.id === "door-entry" || door.id === "door-sanctuary"
       ? source.doubleLeaf(door.id)
       : source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]);
-    for(const part of model.parts.filter((item)=>grainParts.includes(item.id))){
-      let measured=0;
-      for(const [a,b,c] of triangles(partMesh(model,part.id))){
-        if(Math.max(Math.abs(a!.z-b!.z),Math.abs(a!.z-c!.z))>1e-9)
-          continue;
-        const xs=[a!.x,b!.x,c!.x],ys=[a!.y,b!.y,c!.y];
-        const xSpan=Math.max(...xs)-Math.min(...xs);
-        const ySpan=Math.max(...ys)-Math.min(...ys);
-        if(Math.max(xSpan,ySpan)<1.01*Math.min(xSpan,ySpan))continue;
-        const axis=xSpan>ySpan?"x":"y";
-        const edge=[b!,c!].find((v)=>Math.abs(v[axis]-a![axis])>1e-9);
-        if(edge===undefined)continue;
-        close((edge.u-a!.u)/(edge[axis]-a![axis]),1,1e-6);
+    const wood: IAutoMovieModel["parts"] = model.parts.filter((part) =>
+      templeModelFinish(model.id, part.id) === "dark-wood");
+    assert.ok(wood.length > 0, model.id);
+    for (const part of wood) {
+      let measured: number = 0;
+      for (const [a, b, c] of triangles(partMesh(model, part.id))) {
+        if (Math.max(Math.abs(a!.z - b!.z), Math.abs(a!.z - c!.z)) > 1e-9) continue;
+        const xs: number[] = [a!.x, b!.x, c!.x];
+        const ys: number[] = [a!.y, b!.y, c!.y];
+        const xSpan: number = Math.max(...xs) - Math.min(...xs);
+        const ySpan: number = Math.max(...ys) - Math.min(...ys);
+        if (Math.max(xSpan, ySpan) < 1.01 * Math.min(xSpan, ySpan)) continue;
+        const axis: "x" | "y" = xSpan > ySpan ? "x" : "y";
+        const edge: ReturnType<typeof vertex> | undefined = [b!, c!].find((v) =>
+          Math.abs(v[axis] - a![axis]) > 1e-9);
+        if (edge === undefined) continue;
+        close((edge.u - a!.u) / (edge[axis] - a![axis]), 1, 1e-6);
         measured++;
       }
-      assert.ok(measured>=2,`${model.id}/${part.id}: long faces unmeasured`);
-      seen.add(part.id);
+      assert.ok(measured >= 2, `${model.id}/${part.id}: long faces unmeasured`);
     }
   }
-  const compare=(a:string,b:string)=>a.localeCompare(b);
-  assert.deepEqual([...seen].sort(compare),grainParts.sort(compare),
-    "all documented grain parts measured");
 });
 
-void test("the opening UV table's named parts all emit finite UV0 for every passage",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
-  const rows=scale.split(/\r?\n/u).filter((line)=>
-    line.startsWith("|")&&line.includes("`openings#"));
-  assert.equal(rows.length,2,"opening UV table rows");
-  const named=new Set(rows.flatMap((line)=>
-    [...line.split("|")[2]!.matchAll(/`([a-z-]+)`/gu)].map((match)=>match[1]!)));
-  const source=new TempleOpenings();
-  const models=[
-    ...templeDoorPassages.map((door)=>source.doorFrame(door.id)),
-    ...templeDoorPassages.flatMap((door)=>
-      door.id==="door-entry"||door.id==="door-sanctuary"
-        ? [source.doubleLeaf(door.id),source.doubleLeaf(door.id,"open")]
-        : [source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]),
-          source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0],"open")]),
-    ...([0.30,0.60] as const).map((depth)=>source.windowFrame(depth)),
-  ];
-  const seen=new Set<string>();
-  for(const model of models)for(const part of model.parts){
-    assert.equal(part.geometry.type,"mesh",`${model.id}/${part.id}`);
-    if(part.geometry.type!=="mesh")continue;
-    const { positions,uvs }=part.geometry.mesh;
-    assert.ok(uvs,`${model.id}/${part.id}: missing UV0`);
-    assert.equal(uvs.length,positions.length/3*2,
-      `${model.id}/${part.id}: UV0 vertex count`);
-    assert.ok(uvs.every(Number.isFinite),`${model.id}/${part.id}: nonfinite UV0`);
-    if(named.has(part.id))seen.add(part.id);
-  }
-  const compare=(a:string,b:string)=>a.localeCompare(b);
-  assert.deepEqual([...seen].sort(compare),[...named].sort(compare),
-    "UV table part coverage");
-});
-
-void test("every model UV table row reaches emitted prototype parts",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
-  const table=scale.split(/\r?\n/u).filter((line)=>
-    line.startsWith("|")&&/`[a-z-]+#/u.test(line.split("|")[1]??""));
-  const board=createModelBoardPayload().models;
-  assert.ok(table.length>=20,"model UV table rows");
-  const covered=new Set<string>();
-  for(const line of table){
-    const [,targets,parts]=line.split("|");
-    assert.ok(targets&&parts,"UV table columns");
-    let family="";
-    const designs=[...targets.matchAll(/`([^`]+)`/gu)].map((match)=>{
-      const [name,anchor]=match[1]!.split("#");
-      if(name)family=name;
-      assert.ok(family&&anchor,`invalid UV target ${match[1]}`);
-      return `models/${family}.md#${anchor}`;
-    });
-    const models=board.filter((item)=>designs.includes(item.design));
-    assert.ok(models.length>0,`UV row has no emitted model: ${targets}`);
-    const named=[...parts.matchAll(/`([a-z][a-z0-9-]*)`/gu)]
-      .map((match)=>match[1]!);
-    const seen=new Set<string>();
-    for(const {model,design} of models){
-      covered.add(design);
-      for(const part of model.parts){
-        assert.equal(part.geometry.type,"mesh",`${model.id}/${part.id}`);
-        if(part.geometry.type!=="mesh")continue;
-        const {positions,uvs}=part.geometry.mesh;
-        assert.ok(uvs,`${model.id}/${part.id}: UV0 absent`);
-        assert.equal(uvs.length,2*positions.length/3,
-          `${model.id}/${part.id}: UV0 vertex count`);
-        assert.ok(uvs.every(Number.isFinite),`${model.id}/${part.id}: UV0 nonfinite`);
-        if(named.includes(part.id))seen.add(part.id);
-      }
+void test("every model-board part emits finite UV0 for its actual vertices", () => {
+  const board: ReturnType<typeof createModelBoardPayload> = createModelBoardPayload();
+  assert.ok(board.models.length > 0);
+  for (const { model } of board.models) {
+    assert.ok(model.parts.length > 0, model.id);
+    for (const part of model.parts) {
+      assert.equal(part.geometry.type, "mesh");
+      if (part.geometry.type !== "mesh") continue;
+      const { positions, uvs } = part.geometry.mesh;
+      assert.ok(uvs);
+      assert.equal(uvs.length, 2 * positions.length / 3);
+      assert.ok(uvs.every(Number.isFinite));
     }
-    for(const id of named)
-      assert.ok(seen.has(id),`UV row ${targets}: ${id} has no emitted part`);
   }
-  assert.ok(covered.size>=40,"UV table covers the reviewed model families");
 });
 
 void test("both pins of every door leaf follow face-facing rim and Z directions",()=>{

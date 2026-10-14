@@ -1,38 +1,57 @@
-import { drawHumanViewerReference } from "./drawHumanViewerReference.js";
 import { type IHumanViewerReferenceContext } from "./IHumanViewerReferenceContext.js";
+import { drawHumanViewerReference } from "./drawHumanViewerReference.js";
 import { layoutHumanViewerReference } from "./layoutHumanViewerReference.js";
 
 /**
- * Paint the completed display and its visible reference layers onto an owned
- * surface. Both synchronous capture and asynchronous display saving consume
- * this composition, so split, overlay, swipe and landmarks share one owner.
+ * Paint the completed display and its visible reference layers onto an owned surface. Both synchronous capture and asynchronous display saving consume this composition, so split, overlay, swipe and landmarks share one owner.
  *
- * @evidence contracts/common.md#principled-implementation The existing layout and painter reproduce the DOM reference composition without changing its photograph or camera.
- * @evidence contracts/common.md#clear-and-simple-design One compositor supplies a surface independently of PNG encoding.
- * @evidence contracts/common.md#meaningful-documentation States surface ownership and the two encoding consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Creates an owned 2D surface and consumes the shared reference layout/painter with the caller's real canvas and photo, without altering their pixels or substituting a subject-specific composition.
+ * @evidence contracts/common.md#principled-implementation Shared layout computes fitted photograph/layer/landmark pixels, then canvas composition reproduces the visible reference mode on the caller-created output surface.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry belongs to layoutHumanViewerReference and borrowed drawing-state isolation to drawHumanViewerReference; this function coordinates output sizing and context admission only.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Display saving and synchronous capture use identical composition coordinates instead of maintaining separately tuned screenshot layouts.
+ * @evidence contracts/common.md#meaningful-documentation The prose identifies owned output versus borrowed completed display/reference layers and both production consumers of the shared composition.
+ * @evidence contracts/performance.md#efficient-algorithms Marker layout costs O(M), while layer rasterization follows output area; one surface is created and reused by the delegated drawing without an additional encoded-image intermediate.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowed canvas/photo contents and requested composition can change, so this owner does not cache output by surface identity alone.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The factory-created surface transfers to the caller on success; missing 2D context refuses, and temporary references retain no input photograph or filesystem handle after return.
  */
-export function composeHumanViewerReference<Surface extends {
-  width: number;
-  height: number;
-  getContext: (kind: "2d") => IHumanViewerReferenceContext | null;
-}>(props: {
-  composition: { mode: "split" | "overlay" | "swipe"; opacity: number; size: number };
+export function composeHumanViewerReference<
+  Surface extends {
+    width: number;
+    height: number;
+    getContext: (kind: "2d") => IHumanViewerReferenceContext | null;
+  },
+>(props: {
+  composition: {
+    mode: "split" | "overlay" | "swipe";
+    opacity: number;
+    size: number;
+  };
   photo: { naturalWidth: number; naturalHeight: number };
   landmarks: { x: number; y: number; group: string }[];
   render: unknown;
   create: () => Surface;
 }): Surface {
-  const { composition, photo } = props;
-  const layout = layoutHumanViewerReference(
-    composition.mode, composition.size, composition.opacity,
-    { width: photo.naturalWidth, height: photo.naturalHeight }, props.landmarks,
-  );
-  const out = props.create();
+  const { composition, photo }: Pick<typeof props, "composition" | "photo"> =
+    props;
+  const layout: ReturnType<typeof layoutHumanViewerReference> =
+    layoutHumanViewerReference(
+      composition.mode,
+      composition.size,
+      composition.opacity,
+      { width: photo.naturalWidth, height: photo.naturalHeight },
+      props.landmarks,
+    );
+  const out: Surface = props.create();
   out.width = layout.width;
   out.height = layout.height;
-  const context = out.getContext("2d");
-  if (context === null) throw new Error("A 2D surface is required to compose the reference");
-  drawHumanViewerReference(context, layout.layers, { render: props.render, photo }, layout.markers, layout.markerRadius);
+  const context: IHumanViewerReferenceContext | null = out.getContext("2d");
+  if (context === null)
+    throw new Error("A 2D surface is required to compose the reference");
+  drawHumanViewerReference(
+    context,
+    layout.layers,
+    { render: props.render, photo },
+    layout.markers,
+    layout.markerRadius,
+  );
   return out;
 }

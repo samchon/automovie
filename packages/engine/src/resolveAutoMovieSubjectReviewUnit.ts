@@ -1,29 +1,39 @@
 import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieFormationSubjectReviewDescription,
   IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectDescription,
   IAutoMovieSubjectReviewTarget,
   IAutoMovieSubjectReviewUnit,
 } from "@automovie/interface";
 
 import { describeAutoMovieSubject } from "./describeAutoMovieSubject";
+import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 
 /**
- * Resolve one subject-review unit from compiled truth.
+ * Resolve a compiled subject review wrapper with inspection-owned viewpoint and delivery-evidence ineligibility. Formations list only hero-slot members plus explicit omitted count; other subjects use the shared descriptor. Target and compiled records remain borrowed.
  *
- * Subject identity and composition come from the shared subject-description
- * query. This resolver adds only review semantics: artifact qualification,
- * inspection-owned viewpoint authority, and delivery-evidence separation.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity Reuses the compiled subject identity rather than reconstructing it from names.
- * @evidence requirements/review/subject-inspection.md#review-observable-judgeable-parity Resolves every supported public subject target into its own observable review unit.
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Assigns viewpoint authority to inspection and excludes the result from delivery evidence.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record Resolves the shared compiled description into one review record.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-target-parity Gives every resolvable compiled subject an independent review unit.
+ * @evidence contracts/common.md#principled-implementation Resolve revision-qualified compiled composition, using compact hero-slot formation members or the shared descriptor; viewpoint is inspection-owned and delivery evidence remains ineligible.
+ * @evidence contracts/common.md#clear-and-simple-design The adapter adds review authority without another subject model or expansion of all population members.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing subjects throw and omitted formation members remain explicit; supplied target identity does not independently prove current revision equality or rendering.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify borrowed target/compiled records, compact members and inspection/delivery authority separation.
+ * @evidence contracts/performance.md#efficient-algorithms Formation lookup scans F records and sorts H hero slots with O(H) output; other subjects include their descriptor's actual lookup/projection costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Subject semantics and code-unit ordering share canonical owners; each mutable artifact is read anew without target-id-only caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns review wrapper/member array and borrows compiled/target records; no viewer session, camera, resource handle or task is held.
  */
-export const resolveAutoMovieSubjectReviewUnit = (
+export const resolveAutoMovieSubjectReviewUnit: (
+  artifact: IAutoMovieSubjectArtifact,
+  target: IAutoMovieSubjectReviewTarget,
+) => IAutoMovieSubjectReviewUnit = (
   artifact: IAutoMovieSubjectArtifact,
   target: IAutoMovieSubjectReviewTarget,
 ): IAutoMovieSubjectReviewUnit => {
-  const description = target.subject.startsWith("formation:")
+  const description:
+    | IAutoMovieSubjectDescription
+    | IAutoMovieFormationSubjectReviewDescription = target.subject.startsWith(
+    "formation:",
+  )
     ? formationDescription(artifact, target.subject)
     : describeAutoMovieSubject(artifact, target.subject);
   return {
@@ -34,25 +44,34 @@ export const resolveAutoMovieSubjectReviewUnit = (
     deliveryEvidenceEligible: false,
   };
 };
-
-const formationDescription = (
+const formationDescription: (
+  artifact: IAutoMovieSubjectArtifact,
+  subject: string,
+) => Extract<
+  IAutoMovieSubjectReviewUnit["description"],
+  { kind: "formation" }
+> = (
   artifact: IAutoMovieSubjectArtifact,
   subject: string,
 ): Extract<
   IAutoMovieSubjectReviewUnit["description"],
   { kind: "formation" }
 > => {
-  const id = subject.slice("formation:".length);
-  const formation = artifact.compiled.formations.find(
-    (candidate) => candidate.id === id,
-  );
+  const id: string = subject.slice("formation:".length);
+  const formation: IAutoMovieCompiledFormation | undefined =
+    artifact.compiled.formations.find(
+      (candidate: IAutoMovieCompiledFormation): boolean => candidate.id === id,
+    );
   if (formation === undefined)
     throw new Error(
       `Compiled subject "${subject}" does not exist in revision "${artifact.revision}".`,
     );
-  const heroes = formation.heroes
-    .map((hero) => `formation-slot:${formation.id}:${hero.slot}`)
-    .sort(compareCodeUnits);
+  const heroes: string[] = formation.heroes
+    .map(
+      (hero: IAutoMovieCompiledFormationHero): string =>
+        `formation-slot:${formation.id}:${hero.slot}`,
+    )
+    .sort(compareAutoMovieRenderIds);
   return {
     revision: artifact.revision,
     id: subject,
@@ -66,6 +85,3 @@ const formationDescription = (
     },
   };
 };
-
-const compareCodeUnits = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;

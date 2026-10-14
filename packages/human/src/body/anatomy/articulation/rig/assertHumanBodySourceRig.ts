@@ -1,8 +1,32 @@
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
+import type { AutoMovieHumanBodyBoneId } from "../../identity/AutoMovieHumanBodyBoneId";
+import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
+import type { IAutoMovieHumanBodySourceJointAxis } from "./IAutoMovieHumanBodySourceJointAxis";
+import type { IAutoMovieHumanBodySourcePelvicRhythm } from "./IAutoMovieHumanBodySourcePelvicRhythm";
+import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
+import type { IAutoMovieHumanBodySourcePublicPoseJoint } from "./IAutoMovieHumanBodySourcePublicPoseJoint";
 import type { IAutoMovieHumanBodySourceRig } from "./IAutoMovieHumanBodySourceRig";
+import type { IAutoMovieHumanBodySourceToeBase } from "./IAutoMovieHumanBodySourceToeBase";
 import { readHumanBodySourceProfile } from "./readHumanBodySourceProfile";
 
-/** Admit a common-neutral source graph before evaluating any motion or exposing a partial assembly. */
+/**
+ * Admit a common-neutral source graph before evaluating any motion or exposing a partial assembly.
+ *
+ * Throws before evaluation for duplicate or out-of-order graph ownership, missing registration accounts, invalid source frames, unsupported coordinate declarations or incompatible neutral profiles. Unit-direction, unit-quaternion and shared-frame comparisons use an absolute 1e-6 tolerance. This check reads the source graph without changing it and establishes numerical registration premises, not anatomical or clinical validation.
+ *
+ * @evidence contracts/common.md#principled-implementation Parent-before-child identity sets admit unique bones, projections and sites before FK; finite unit frames, source coordinate ranges and ordered profiles enforce registered numerical premises without claiming clinical anatomy.
+ * @evidence contracts/common.md#clear-and-simple-design The graph admission owner checks structural source relationships in one function and delegates profile neutral mapping to the same reader used during resolution.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical tolerances of 1e-6 qualify unit rotations/directions and frame agreement; source accounts do not become a clinical certificate or replace explicit supported-axis checks.
+ * @evidence contracts/common.md#meaningful-documentation The public description identifies pre-evaluation graph admission; detailed refusals and numeric tolerance ownership are exposed below in the expanded prose.
+ * @evidence contracts/performance.md#efficient-algorithms Sets give expected constant-time uniqueness checks while arrays of nodes/sites/axes/knots are scanned; toe-consumer searches and repeated same-node projection lookup add their actual local products, without retained indexing.
+ * @evidence contracts/performance.md#reuse-equivalent-work Source profile neutral checks call the runtime profile reader to avoid a separate interpolation definition; admission is repeated for each supplied graph because caller records may change.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Identity sets and frame closures belong to one admission call and are released on return or refusal; source graphs are referenced only during the check.
+ */
 export function assertHumanBodySourceRig(
   rig: IAutoMovieHumanBodySourceRig,
 ): void {
@@ -10,14 +34,17 @@ export function assertHumanBodySourceRig(
     throw new Error(
       "An anatomical source graph needs a generation and actual nodes.",
     );
-  const bones = new Set<string>();
-  const projections = new Set<string>();
-  const toeProjections = new Set<string>();
-  const frame = (
+  const bones: Set<string> = new Set<string>();
+  const projections: Set<string> = new Set<string>();
+  const toeProjections: Set<string> = new Set<string>();
+  const frame: (
+    one: IAutoMovieHumanBodyBoneWorldRest,
+    address: string,
+  ) => void = (
     one: IAutoMovieHumanBodyBoneWorldRest,
     address: string,
   ): void => {
-    const q = one.rotation;
+    const q: IAutoMovieQuaternion = one.rotation;
     if (
       ![
         one.position.x,
@@ -35,7 +62,7 @@ export function assertHumanBodySourceRig(
           address,
       );
   };
-  const toeBases = new Set<string>();
+  const toeBases: Set<string> = new Set<string>();
   for (const base of rig.toeBases ?? []) {
     if (
       toeBases.has(base.side) ||
@@ -44,7 +71,10 @@ export function assertHumanBodySourceRig(
       new Set(base.goal.supportedAxes).size !==
         base.goal.supportedAxes.length ||
       base.goal.supportedAxes.some(
-        (one) => one !== "flexion" && one !== "abduction" && one !== "twist",
+        (
+          one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number],
+        ): boolean =>
+          one !== "flexion" && one !== "abduction" && one !== "twist",
       )
     )
       throw new Error(
@@ -53,7 +83,7 @@ export function assertHumanBodySourceRig(
       );
     if (
       !rig.nodes.some(
-        (node) =>
+        (node: IAutoMovieHumanBodySourceBoneNode): boolean =>
           node.joint.kind === "toe-ray" && node.joint.base === base.side,
       )
     )
@@ -79,7 +109,7 @@ export function assertHumanBodySourceRig(
         "Anatomical source node lacks its source account: " + node.id,
       );
     frame(node.rest, node.id);
-    const sites = new Set<string>();
+    const sites: Set<string> = new Set<string>();
     for (const site of node.sites) {
       if (
         site.id.trim().length === 0 ||
@@ -129,20 +159,26 @@ export function assertHumanBodySourceRig(
       toeProjections.add(projection.bone);
     }
     if (node.joint.kind === "public-pose") {
-      const joint = node.joint;
+      const joint: IAutoMovieHumanBodySourcePublicPoseJoint = node.joint;
       if (
         new Set(joint.supportedAxes).size !== joint.supportedAxes.length ||
         joint.supportedAxes.some(
-          (one) => one !== "flexion" && one !== "abduction" && one !== "twist",
+          (
+            one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number],
+          ): boolean =>
+            one !== "flexion" && one !== "abduction" && one !== "twist",
         )
       )
         throw new Error(
           "Anatomical public pose needs unique supported named axes: " +
             node.id,
         );
-      const reference =
+      const reference: IAutoMovieHumanBodySourceProjection | undefined =
         joint.reference ??
-        node.projections.find((one) => one.bone === joint.bone);
+        node.projections.find(
+          (one: IAutoMovieHumanBodySourceProjection): boolean =>
+            one.bone === joint.bone,
+        );
       if (
         reference === undefined ||
         reference.bone !== joint.bone ||
@@ -156,7 +192,11 @@ export function assertHumanBodySourceRig(
         { position: node.rest.position, rotation: reference.rotation },
         node.id + ".clinicalReference",
       );
-      const output = node.projections.find((one) => one.bone === joint.bone);
+      const output: IAutoMovieHumanBodySourceProjection | undefined =
+        node.projections.find(
+          (one: IAutoMovieHumanBodySourceProjection): boolean =>
+            one.bone === joint.bone,
+        );
       if (
         output !== undefined &&
         joint.reference !== undefined &&
@@ -189,8 +229,12 @@ export function assertHumanBodySourceRig(
     )
       frame(node.joint.frame, node.id + ".joint");
     if (node.joint.kind === "toe-ray") {
-      const joint = node.joint;
-      const base = rig.toeBases?.find((one) => one.side === joint.base);
+      const joint: typeof node.joint = node.joint;
+      const base: IAutoMovieHumanBodySourceToeBase | undefined =
+        rig.toeBases?.find(
+          (one: IAutoMovieHumanBodySourceToeBase): boolean =>
+            one.side === joint.base,
+        );
       if (base === undefined || !bones.has(base.parent) || node.parent === null)
         throw new Error(
           "Source proximal toe needs its preceding actual foot and common MTP account: " +
@@ -201,7 +245,7 @@ export function assertHumanBodySourceRig(
       throw new Error(
         "Anatomical TT joint needs its previously resolved thorax: " + node.id,
       );
-    const jointAxes =
+    const jointAxes: readonly IAutoMovieHumanBodySourceJointAxis[] | undefined =
       node.joint.kind === "axes" || node.joint.kind === "toe-ray"
         ? node.joint.axes
         : node.joint.kind === "humerothoracic" ||
@@ -209,7 +253,7 @@ export function assertHumanBodySourceRig(
           ? node.joint.localAxes
           : undefined;
     if (jointAxes !== undefined) {
-      const axes = new Set<string>();
+      const axes: Set<string> = new Set<string>();
       for (const axis of jointAxes) {
         if (
           (node.joint.kind === "humerothoracic" ||
@@ -229,7 +273,7 @@ export function assertHumanBodySourceRig(
             "Source relative toe axes cannot duplicate their aggregate public authority: " +
               node.id,
           );
-        const d = axis.direction;
+        const d: IAutoMovieVector3 = axis.direction;
         if (
           axes.has(axis.id) ||
           ![
@@ -264,7 +308,7 @@ export function assertHumanBodySourceRig(
               "." +
               axis.id,
           );
-        let previous = -Infinity;
+        let previous: number = -Infinity;
         for (const knot of axis.profile ?? []) {
           if (
             !Number.isFinite(knot.input) ||
@@ -294,12 +338,15 @@ export function assertHumanBodySourceRig(
     }
     bones.add(node.id);
   }
-  const pelvis = rig.pelvicRhythm;
+  const pelvis: IAutoMovieHumanBodySourcePelvicRhythm | undefined =
+    rig.pelvicRhythm;
   if (
     pelvis !== undefined &&
     (new Set(pelvis.members).size !== pelvis.members.length ||
       !pelvis.members.includes(pelvis.pelvis) ||
-      pelvis.members.some((bone) => !bones.has(bone)) ||
+      pelvis.members.some(
+        (bone: AutoMovieHumanBodyBoneId): boolean => !bones.has(bone),
+      ) ||
       pelvis.account.trim().length === 0)
   )
     throw new Error(

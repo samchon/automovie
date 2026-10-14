@@ -1,79 +1,82 @@
 import {
-  simulateSoftBody,
-  softBodyRestConfiguration,
-  softBodyStateDigest,
-} from "@automovie/engine";
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { simulateSoftBody } from "../../../../packages/engine/src/soft/simulateSoftBody";
+import { softBodyRestConfiguration } from "../../../../packages/engine/src/soft/softBodyRestConfiguration";
+import { softBodyStateDigest } from "../../../../packages/engine/src/soft/softBodyStateDigest";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { exactValues, softPanel } from "../internal/softFixtures";
 
 /** A panel in free space with no body force and every anchor left where it is. */
-const undisturbed = () =>
-  softPanel({
-    columns: 4,
-    rows: 3,
-    overrides: {
-      id: "still",
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: { x: 0, y: 0, z: 0 },
-        drag: 0,
-        iterations: 4,
-        stiffness: { structural: 1, shear: 1, bend: 1 },
-        referenceSpeed: 4,
-        maxSteps: 512,
+const undisturbed: () => IAutoMovieSoftBodyDomain =
+  (): IAutoMovieSoftBodyDomain =>
+    softPanel({
+      columns: 4,
+      rows: 3,
+      overrides: {
+        id: "still",
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: { x: 0, y: 0, z: 0 },
+          drag: 0,
+          iterations: 4,
+          stiffness: { structural: 1, shear: 1, bend: 1 },
+          referenceSpeed: 4,
+          maxSteps: 512,
+        },
+        anchors: [
+          { id: "left", particle: 0, position: null },
+          { id: "right", particle: 3, position: null },
+        ],
       },
-      anchors: [
-        { id: "left", particle: 0, position: null },
-        { id: "right", particle: 3, position: null },
-      ],
-    },
-  });
+    });
 
-/**
- * Cloth at rest is numerically exact: an undisturbed panel never drifts,
- * however many steps are integrated.
- *
- * This is the soft-body counterpart of the fluid solver's lake-at-rest
- * property, and it is the whole reason a rest length is measured from the rest
- * mesh with the same expression the solve measures the current distance with. A
- * solver that computed rest lengths any other way would produce a residual of
- * one ulp per constraint per sweep, and a curtain nobody touched would sag over
- * a long take.
+/** Verify the anchored rest configuration and an undisturbed cloth replay, with gravity as a control that must change the result.
  *
  * Scenarios:
  *
  * 1. Two hundred and fifty-six steps of an undisturbed panel leave every position
  *    bit-identical to the authored rest mesh and every velocity at exactly
  *    zero, with no strain and no contact.
- * 2. Two independent integrations to step 256 digest identically, so the whole
- *    state — positions, velocities and measurements together — is reproduced
- *    rather than merely close.
+ * 2. Two independent integrations to step 256 repeat their selected-field digest;
+ *    authored-rest and zero-velocity checks independently pin this witness,
+ *    while checksum collisions remain possible.
  * 3. An anchor declared with `position: null` holds its particle exactly at its
  *    own rest coordinate, which is what makes the default anchor spelling safe
  *    to use instead of restating a coordinate.
  * 4. Turning gravity on breaks the property, proving the assertion above is
  *    measuring the solver and not an accidental no-op: the same panel under
  *    gravity moves.
+
+ *
+ * @evidence contracts/testing.md#behavioral-verification Static solver positions/velocities and rest-target precedence are observed directly; a changed canonical distance expression, lost anchor/state override or accidental no-op fails preserved assertions.
+ * @evidence contracts/testing.md#independent-expectations Authored rest coordinates, exact zero velocities/measurements and explicitly authored anchor targets supply the expectations. Repeated digest equality is only an auxiliary collision-prone diagnostic, not independent proof of whole-state identity.
+ * @evidence contracts/testing.md#distinguishing-cases The preserved 256-step rest, null target, gravity control, explicit target, named override and missing-state refusal cases distinguish integration from boundary setup; moving boundaries belong to the wearable owning tests.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_rest_exactness; fixture builders supply only authored records and no browser, native solver artifact or live host is installed.
  */
-export const test_soft_body_rest_exactness = (): void => {
-  const domain = undisturbed();
-  const settled = simulateSoftBody(domain, 256);
+export function test_soft_body_rest_exactness(): void {
+  const domain: IAutoMovieSoftBodyDomain = undisturbed();
+  const settled: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256);
   TestValidator.equals(
     "an undisturbed panel is bit-identical to its rest mesh",
     namedFacts([
-      ["positions", () => exactValues(settled.positions, domain.rest)],
+      ["positions", (): boolean => exactValues(settled.positions, domain.rest)],
       [
         "velocities",
-        () => settled.velocities.every((value) => Object.is(value, 0)),
+        (): boolean =>
+          settled.velocities.every((value: number): boolean =>
+            Object.is(value, 0),
+          ),
       ],
-      ["strain", () => Object.is(settled.maxStrain, 0)],
-      ["speed", () => Object.is(settled.maxSpeed, 0)],
-      ["contacts", () => settled.contacts === 0],
+      ["strain", (): boolean => Object.is(settled.maxStrain, 0)],
+      ["speed", (): boolean => Object.is(settled.maxSpeed, 0)],
+      ["contacts", (): boolean => settled.contacts === 0],
       [
         "digest",
-        () =>
+        (): boolean =>
           softBodyStateDigest(settled) ===
           softBodyStateDigest(simulateSoftBody(domain, 256)),
       ],
@@ -88,18 +91,18 @@ export const test_soft_body_rest_exactness = (): void => {
     },
   );
 
-  const anchored = simulateSoftBody(domain, 1);
+  const anchored: IAutoMovieSoftBodyState = simulateSoftBody(domain, 1);
   TestValidator.equals(
     "a null anchor position holds the particle at its own rest coordinate",
     namedFacts([
-      ["x", () => Object.is(anchored.positions[9], domain.rest[9])],
-      ["y", () => Object.is(anchored.positions[10], domain.rest[10])],
-      ["z", () => Object.is(anchored.positions[11], domain.rest[11])],
+      ["x", (): boolean => Object.is(anchored.positions[9], domain.rest[9])],
+      ["y", (): boolean => Object.is(anchored.positions[10], domain.rest[10])],
+      ["z", (): boolean => Object.is(anchored.positions[11], domain.rest[11])],
     ]),
     { x: true, y: true, z: true },
   );
 
-  const falling = simulateSoftBody(
+  const falling: IAutoMovieSoftBodyState = simulateSoftBody(
     softPanel({
       columns: 4,
       rows: 3,
@@ -113,13 +116,13 @@ export const test_soft_body_rest_exactness = (): void => {
   TestValidator.equals(
     "the same panel under gravity does move, so the rest claim measures something",
     namedFacts([
-      ["moved", () => falling.positions[10] < -0.5],
-      ["strained", () => falling.maxStrain > 0],
+      ["moved", (): boolean => falling.positions[10] < -0.5],
+      ["strained", (): boolean => falling.maxStrain > 0],
     ]),
     { moved: true, strained: true },
   );
 
-  const gathered = softPanel({
+  const gathered: IAutoMovieSoftBodyDomain = softPanel({
     columns: 4,
     rows: 3,
     overrides: {
@@ -138,7 +141,7 @@ export const test_soft_body_rest_exactness = (): void => {
     namedFacts([
       [
         "default",
-        () =>
+        (): boolean =>
           exactValues(
             softBodyRestConfiguration(domain),
             simulateSoftBody(domain, 0).positions,
@@ -146,7 +149,7 @@ export const test_soft_body_rest_exactness = (): void => {
       ],
       [
         "anchored",
-        () =>
+        (): boolean =>
           exactValues(
             softBodyRestConfiguration(gathered),
             simulateSoftBody(gathered, 0).positions,
@@ -154,7 +157,7 @@ export const test_soft_body_rest_exactness = (): void => {
       ],
       [
         "named",
-        () =>
+        (): boolean =>
           exactValues(
             softBodyRestConfiguration(gathered, "drawn"),
             simulateSoftBody(gathered, 0, "drawn").positions,
@@ -162,17 +165,17 @@ export const test_soft_body_rest_exactness = (): void => {
       ],
       [
         "notTheAuthoredMesh",
-        () =>
+        (): boolean =>
           exactValues(softBodyRestConfiguration(gathered), gathered.rest) ===
             false &&
-          softBodyRestConfiguration(gathered)[0] === 2 &&
-          softBodyRestConfiguration(gathered, "drawn")[0] === -3,
+          nclose(softBodyRestConfiguration(gathered)[0], 2, 0) &&
+          nclose(softBodyRestConfiguration(gathered, "drawn")[0], -3, 0),
       ],
       [
         "undeclaredStateThrows",
-        () =>
+        (): boolean =>
           throwsError(
-            () => softBodyRestConfiguration(gathered, "shut"),
+            (): number[] => softBodyRestConfiguration(gathered, "shut"),
             'does not declare a named state "shut"',
           ),
       ],
@@ -185,4 +188,4 @@ export const test_soft_body_rest_exactness = (): void => {
       undeclaredStateThrows: true,
     },
   );
-};
+}

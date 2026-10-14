@@ -1,20 +1,29 @@
 import {
+  IAutoMovieBodyCollisionResult,
+  IAutoMovieCollisionActor,
   detectBodyCollision,
   validateBalanceSupport,
   validateFootSkate,
   validateSelfIntersection,
 } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const restAt = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -44,14 +53,16 @@ const restPose: IAutoMoviePose = {
   root: null,
   joints: [],
 };
-const key = (time: number): IAutoMovieKeyframe => ({
+const key: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: restPose,
   expression: null,
   easing: "linear",
   bezier: null,
 });
-const MOTION = {
+const MOTION: IAutoMovieMotion = {
   id: "motion-detached",
   skeleton: DETACHED_SKELETON.id,
   duration: 1,
@@ -73,10 +84,21 @@ const MOTION = {
  * (`validateSelfIntersection`, `detectBodyCollision`, #1056) must all report
  * the detached bone as a `type` violation and never throw, while a normal
  * (fully-reachable) rig keeps validating exactly as before.
+ *
+ * Scenarios:
+ *
+ * 1. Detached foot contact, balance center and balance support each report a located reachability error.
+ * 2. Detached self-intersection endpoints and both collision actors report their endpoint paths; collision emits no events or response.
+ * 3. An absent foot reports must-exist rather than not-reachable, and a connected rig succeeds for footskate and balance.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls four physics validators with a declared foot whose parent is absent, checking failed type findings and reachability wording rather than exceptions; body collision additionally checks empty events and response. An absent foot and a repaired parent link distinguish missing membership from detached topology and valid admission.
+ * @evidence contracts/testing.md#independent-expectations A foot parented to undeclared leftLowerLeg has no path to the hips root, whereas rightFoot is not declared at all; reparenting leftFoot to hips supplies that path. Expected field paths and message fragments follow these authored graph facts, not resolved output. Valid controls assert success, allowing advisory balance warnings.
+ * @evidence contracts/testing.md#distinguishing-cases The test covers foot contact, balance center/support, both self-intersection endpoint roles, and both collision actors, then missing-bone and connected negative twins. Cyclic rigs, every malformed graph, numeric transforms, and valid controls for capsule validators are outside this totality regression.
+ * @evidence contracts/testing.md#execution-ownership The named test_validation_detached_bone_totality entry executes portable motion/FK and validator semantics directly; an unexpected throw fails the entry naturally, with no native host or dynamically registered cases.
  */
-export const test_validation_detached_bone_totality = (): void => {
+export function test_validation_detached_bone_totality(): void {
   // footskate: a contact on the detached bone reports, does not crash.
-  const foot = validateFootSkate({
+  const foot: IAutoMovieValidation = validateFootSkate({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -86,21 +108,23 @@ export const test_validation_detached_bone_totality = (): void => {
     namedFacts([
       [
         "hasViolationFootType",
-        () => hasViolation(foot, "type", "contacts[0].bone"),
+        (): boolean => hasViolation(foot, "type", "contacts[0].bone"),
       ],
-      ["footSuccess", () => foot.success === false],
+      ["footSuccess", (): boolean => foot.success === false],
       [
         "footViolationsV",
-        () =>
+        (): boolean =>
           foot.success === false &&
-          foot.violations.some((v) => v.expected.includes("not reachable")),
+          foot.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     { hasViolationFootType: true, footSuccess: true, footViolationsV: true },
   );
 
   // balance: a detached centerBone reports, does not crash.
-  const center = validateBalanceSupport({
+  const center: IAutoMovieValidation = validateBalanceSupport({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     supports: [
@@ -112,14 +136,16 @@ export const test_validation_detached_bone_totality = (): void => {
     namedFacts([
       [
         "hasViolationCenterType",
-        () => hasViolation(center, "type", "supports[0].centerBone"),
+        (): boolean => hasViolation(center, "type", "supports[0].centerBone"),
       ],
-      ["centerSuccess", () => center.success === false],
+      ["centerSuccess", (): boolean => center.success === false],
       [
         "centerViolationsV",
-        () =>
+        (): boolean =>
           center.success === false &&
-          center.violations.some((v) => v.expected.includes("not reachable")),
+          center.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -130,7 +156,7 @@ export const test_validation_detached_bone_totality = (): void => {
   );
 
   // balance: a detached support bone reports, does not crash.
-  const support = validateBalanceSupport({
+  const support: IAutoMovieValidation = validateBalanceSupport({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     supports: [
@@ -142,14 +168,17 @@ export const test_validation_detached_bone_totality = (): void => {
     namedFacts([
       [
         "hasViolationSupportType",
-        () => hasViolation(support, "type", "supports[0].supportBones"),
+        (): boolean =>
+          hasViolation(support, "type", "supports[0].supportBones"),
       ],
-      ["supportSuccess", () => support.success === false],
+      ["supportSuccess", (): boolean => support.success === false],
       [
         "supportViolationsV",
-        () =>
+        (): boolean =>
           support.success === false &&
-          support.violations.some((v) => v.expected.includes("not reachable")),
+          support.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -161,7 +190,7 @@ export const test_validation_detached_bone_totality = (): void => {
 
   // self-intersection: a capsule endpoint on the detached bone reports at the
   // endpoint's own path, does not crash (#1056).
-  const capsule = validateSelfIntersection({
+  const capsule: IAutoMovieValidation = validateSelfIntersection({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     pairs: [
@@ -176,18 +205,20 @@ export const test_validation_detached_bone_totality = (): void => {
     namedFacts([
       [
         "hasViolationCapsuleType",
-        () => hasViolation(capsule, "type", "pairs[0].first.to"),
+        (): boolean => hasViolation(capsule, "type", "pairs[0].first.to"),
       ],
       [
         "hasViolationCapsuleType2",
-        () => hasViolation(capsule, "type", "pairs[0].second.from"),
+        (): boolean => hasViolation(capsule, "type", "pairs[0].second.from"),
       ],
-      ["capsuleSuccess", () => capsule.success === false],
+      ["capsuleSuccess", (): boolean => capsule.success === false],
       [
         "capsuleViolationsV",
-        () =>
+        (): boolean =>
           capsule.success === false &&
-          capsule.violations.some((v) => v.expected.includes("not reachable")),
+          capsule.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -200,31 +231,38 @@ export const test_validation_detached_bone_totality = (): void => {
 
   // body collision: a detached endpoint on either actor reports, does not
   // crash, and sampling is skipped (#1056).
-  const actor = (node: string) => ({
+  const actor: (node: string) => IAutoMovieCollisionActor = (
+    node: string,
+  ): IAutoMovieCollisionActor => ({
     node,
     skeleton: DETACHED_SKELETON,
     motion: MOTION,
     capsules: [{ from: "hips" as const, to: "leftFoot" as const, radius: 0.1 }],
     body: null,
   });
-  const collision = detectBodyCollision({ a: actor("a"), b: actor("b") });
+  const collision: IAutoMovieBodyCollisionResult = detectBodyCollision({
+    a: actor("a"),
+    b: actor("b"),
+  });
   TestValidator.equals(
     "body collision: detached capsule endpoint is a reachability violation, not a crash",
     namedFacts([
       [
         "hasViolationCollisionValidation",
-        () => hasViolation(collision.validation, "type", "a.capsules[0].to"),
+        (): boolean =>
+          hasViolation(collision.validation, "type", "a.capsules[0].to"),
       ],
       [
         "hasViolationCollisionValidation2",
-        () => hasViolation(collision.validation, "type", "b.capsules[0].to"),
+        (): boolean =>
+          hasViolation(collision.validation, "type", "b.capsules[0].to"),
       ],
       [
         "collisionValidationSuccess",
-        () => collision.validation.success === false,
+        (): boolean => collision.validation.success === false,
       ],
-      ["collisionEvents", () => collision.events.length === 0],
-      ["collisionResponse", () => collision.response === null],
+      ["collisionEvents", (): boolean => collision.events.length === 0],
+      ["collisionResponse", (): boolean => collision.response === null],
     ]),
     {
       hasViolationCollisionValidation: true,
@@ -237,7 +275,7 @@ export const test_validation_detached_bone_totality = (): void => {
 
   // A bone entirely absent from the skeleton still reports "must exist", NOT
   // the reachability message: the two failures stay distinct.
-  const absent = validateFootSkate({
+  const absent: IAutoMovieValidation = validateFootSkate({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     contacts: [{ bone: "rightFoot", start: 0, end: 1 }],
@@ -245,18 +283,22 @@ export const test_validation_detached_bone_totality = (): void => {
   TestValidator.equals(
     "footskate: an absent bone reports must-exist, not unreachable",
     namedFacts([
-      ["absentSuccess", () => absent.success === false],
+      ["absentSuccess", (): boolean => absent.success === false],
       [
         "absentViolationsV",
-        () =>
+        (): boolean =>
           absent.success === false &&
-          absent.violations.some((v) => v.expected.includes("must exist")),
+          absent.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("must exist"),
+          ),
       ],
       [
         "absentViolationsV2",
-        () =>
+        (): boolean =>
           absent.success === false &&
-          !absent.violations.some((v) => v.expected.includes("not reachable")),
+          !absent.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     { absentSuccess: true, absentViolationsV: true, absentViolationsV2: true },
@@ -276,7 +318,7 @@ export const test_validation_detached_bone_totality = (): void => {
       },
     ],
   };
-  const wellFormed = validateFootSkate({
+  const wellFormed: IAutoMovieValidation = validateFootSkate({
     motion: { ...MOTION, skeleton: reachableSkeleton.id },
     skeleton: reachableSkeleton,
     contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -286,7 +328,7 @@ export const test_validation_detached_bone_totality = (): void => {
     wellFormed.success,
     true,
   );
-  const wellFormedBalance = validateBalanceSupport({
+  const wellFormedBalance: IAutoMovieValidation = validateBalanceSupport({
     motion: { ...MOTION, skeleton: reachableSkeleton.id },
     skeleton: reachableSkeleton,
     supports: [
@@ -298,4 +340,4 @@ export const test_validation_detached_bone_totality = (): void => {
     wellFormedBalance.success,
     true,
   );
-};
+}

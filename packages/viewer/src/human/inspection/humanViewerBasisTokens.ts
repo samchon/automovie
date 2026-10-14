@@ -1,8 +1,5 @@
 /**
- * The basis token prefixes a viewer document names its basis file with. Each
- * token is `<prefix>@<digests>`, the leading twelve hex digits of the named
- * files' SHA-256, so a changed file names a different resident runtime and
- * the server refuses bytes that no longer match.
+ * The basis token prefixes a viewer document names its basis file with. Each token is `<prefix>@<digests>`, the leading twelve hex digits of the named files' SHA-256. The server refuses a current-prefix mismatch; a prefix collision can still admit changed bytes, so this token is not full content identity. Numerical document keys separately include the full digests.
  *
  * - `published`: the domain's published basis, `published@<d12>`; for a
  *   person on the two separately published bases, `published@<face12>.<body12>`.

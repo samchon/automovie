@@ -3,8 +3,10 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One inspection-owned viewpoint required by a subject review.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Gives the inspection an explicit viewpoint independent from authored cameras and film time.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan Types one deterministic member of the inspection-owned viewpoint plan.
+ * @evidence contracts/common.md#principled-implementation A unit direction and positive meter distance define inspection camera placement relative to the subject; coverage admits unique nonblank ids and unit directions within its declared numeric tolerance.
+ * @evidence contracts/common.md#clear-and-simple-design Separates viewpoint intent from exact rendered camera pose and receipt so an ordered inspection plan can own the coverage denominator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The coverage fold validates viewpoint ids, unit directions and positive distances, but does not apply projection, pose or state to a camera; these fields express caller-owned inspection intent rather than proving an implemented capture path.
+ * @evidence contracts/common.md#meaningful-documentation Defines unique viewpoint id, unit direction, positive distance, projection choice and nullable pose/state identity, with camera application left to the caller.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewViewpoint {

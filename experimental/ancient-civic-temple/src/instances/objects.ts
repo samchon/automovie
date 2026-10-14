@@ -20,23 +20,6 @@ const level = (model:IAutoMovieModel, side:"min"|"max", part?:string):number => 
     throw new Error(`${model.id}/${part??"*"}: finite support geometry required`);
   return side==="min"?Math.min(...values):Math.max(...values);
 };
-
-/**
- * @evidence instances/objects.md Seven room populations place the reviewed object prototypes at their authored role coordinates and actual host levels.
- * @evidence instances/objects.md#sanctuary The altar, niche, paired lamps, bowl, censer, textile and two cushions retain the northern axis and front activity area.
- * @evidence instances/objects.md#offering A long table and two shelves carry small offerings while the direct door and table circulation remain empty.
- * @evidence instances/objects.md#administration One writing desk and stool face the west approach; its tools and the small wall shelf remain distinct from records.
- * @evidence instances/objects.md#records A northern twenty-cell shelf receives fixed rolled and bundled scrolls with a separate reading desk and closed chest to the east.
- * @evidence instances/objects.md#storage Wall-side jars, rack, stand, chest and basket leave the central service entry empty.
- * @evidence instances/objects.md#yard A stationary cart and a few carrying objects occupy the north-east reserve rather than either service-door route.
- * @evidence instances/objects.md#courtyard Three edge benches, two planted pots, a bucket and an unlit lamp leave the fountain and colonnade clear.
- * @evidence principles/core/source-units.md#source-scope-preservation This assembly changes membership and transforms only; no model scale, geometry, material or room boundary is altered.
- * @evidence principles/core/source-units.md#source-substantive-completion Actual minimum mesh heights meet floors or named support parts, and every emitted member has a stable role and one room.
- * @evidence obligations/design/instance-sources.md#instance-source-design-ownership All roles, prototypes, horizontal coordinates, rotations and support owners come from the seven object instance H2s.
- * @evidence obligations/design/instance-sources.md#instance-source-stable-membership Explicit row order and named scroll cells reproduce the same IDs and transforms without random or call-order inputs.
- * @evidence obligations/design/instance-sources.md#instance-source-invalid-placement Duplicate role/model IDs, unknown rooms, missing or non-finite support geometry and forward support references throw before returning an environment.
- * @evidenceExclude upstream/design/instance-sources.md#design-revision-from-instance-source-work The seven H2s supply all membership, transforms and support rules; the rack's missing well is repaired at its model owner rather than hidden here.
- */
 export const addTempleObjectInstances = (environment:IAutoMovieBuiltEnvironment):IAutoMovieBuiltEnvironment => {
   const fixtures=new TempleFixtures(),wares=new TempleWares(),portable=new TemplePortable(),ritual=new TempleRitual();
   const rows:Row[]=[];

@@ -1,5 +1,9 @@
 import { sampleMotion } from "@automovie/engine";
-import { IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieMotion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -11,18 +15,16 @@ import {
 } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-const shift = (x: number): IAutoMovieTransform => ({
+const shift: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /**
- * Interpolation must handle keyframes whose joint axes, root transform, and
- * expression are present on one side but not the other: the asymmetric cases a
- * uniform clip never produces. Each interpolation helper treats a missing value
- * as its neutral (an absent angle as 0, an absent root as identity) and an
- * absent expression by carrying the present one through.
+ * Observe asymmetric clinical-axis and root interpolation, plus the retained preset identity of a one-sided expression. Missing numeric axes interpolate from zero and missing roots from identity; only the preset is asserted for expressions, whose current intensity ramps through neutral rather than carrying the whole expression unchanged.
  *
  * Scenarios (forward clip, sampled at t=0.5):
  *
@@ -30,16 +32,17 @@ const shift = (x: number): IAutoMovieTransform => ({
  * 2. Abduction absent at the start, 10 at the end → 5 (missing treated as 0).
  * 3. Twist 5 at the start, absent at the end → 2.5 (missing treated as 0).
  * 4. Root absent at the start, +1 at the end → +0.5 (missing treated as identity).
- * 5. Expression present at the start, absent at the end → the start expression is
- *    carried through.
+ * 5. Expression present at the start and absent at the end retains the start preset name; intensity is not asserted here.
  *
- * Then a reversed clip covers the mirror branches (root present→absent → +1.0
- * from shift(2); expression absent→present → the end expression carries), and a
- * both-roots-present clip covers the ordinary transform blend (shift 0→2 →
- * 1.0).
+ * The unchanged reversed clip observes root present-to-absent midpoint 1 from shift(2) and the end expression preset, while the both-roots-present clip observes midpoint 1 from shifts 0/2. The axis-swap twin observes start-only abduction and end-only twist.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls sampleMotion on four authored two-stop clips and checks flexion/abduction/twist midpoint values, root presence and X midpoints, and happy/angry preset identity for opposite one-sided expressions.
+ * @evidence contracts/testing.md#independent-expectations Linear half progress gives the literal 60, 5, 2.5, 0.5, 1, 4 and 3 from unchanged authored endpoints and neutral zero/identity conventions. Preset names are authored literals, not extracted expectations; expression intensity/channel behavior is not inferred from name agreement and belongs to the expression units.
+ * @evidence contracts/testing.md#distinguishing-cases Retains both-present axes, each missing-side axis direction, missing-start/missing-end/both-present roots and both expression directions at t=0.5. Null-null values, loop/clamp clocks and complete expression blends have separate owners.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns four direct sample calls with existing in-memory fixture constructors. Private shift and predicate readers register no cases and start no viewer, process or native artifact.
  */
-export const test_motion_sample_asymmetric = (): void => {
-  const forward = makeMotion(
+export function test_motion_sample_asymmetric(): void {
+  const forward: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -59,8 +62,10 @@ export const test_motion_sample_asymmetric = (): void => {
     ],
     1,
   );
-  const f = sampleMotion(forward, 0.5);
-  const fj = f.pose.joints.find((j) => j.bone === "leftLowerArm")!;
+  const f: ReturnType<typeof sampleMotion> = sampleMotion(forward, 0.5);
+  const fj: IAutoMovieJointPose = f.pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!;
   TestValidator.predicate(
     "flexion both-present → 60",
     nclose(fj.flexion ?? NaN, 60),
@@ -73,10 +78,11 @@ export const test_motion_sample_asymmetric = (): void => {
   TestValidator.equals(
     "root absent→present → 0.5",
     namedFacts([
-      ["fPoseRoot", () => f.pose.root !== null],
+      ["fPoseRoot", (): boolean => f.pose.root !== null],
       [
         "ncloseFPose",
-        () => f.pose.root !== null && nclose(f.pose.root.translation.x, 0.5),
+        (): boolean =>
+          f.pose.root !== null && nclose(f.pose.root.translation.x, 0.5),
       ],
     ]),
     { fPoseRoot: true, ncloseFPose: true },
@@ -87,7 +93,7 @@ export const test_motion_sample_asymmetric = (): void => {
     "happy",
   );
 
-  const reversed = makeMotion(
+  const reversed: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -104,14 +110,15 @@ export const test_motion_sample_asymmetric = (): void => {
     ],
     1,
   );
-  const r = sampleMotion(reversed, 0.5);
+  const r: ReturnType<typeof sampleMotion> = sampleMotion(reversed, 0.5);
   TestValidator.equals(
     "root present→absent → 1.0",
     namedFacts([
-      ["rPoseRoot", () => r.pose.root !== null],
+      ["rPoseRoot", (): boolean => r.pose.root !== null],
       [
         "ncloseRPose",
-        () => r.pose.root !== null && nclose(r.pose.root.translation.x, 1),
+        (): boolean =>
+          r.pose.root !== null && nclose(r.pose.root.translation.x, 1),
       ],
     ]),
     { rPoseRoot: true, ncloseRPose: true },
@@ -122,7 +129,7 @@ export const test_motion_sample_asymmetric = (): void => {
     "angry",
   );
 
-  const bothRoots = makeMotion(
+  const bothRoots: IAutoMovieMotion = makeMotion(
     [
       keyframe(
         0,
@@ -139,14 +146,15 @@ export const test_motion_sample_asymmetric = (): void => {
     ],
     1,
   );
-  const b = sampleMotion(bothRoots, 0.5);
+  const b: ReturnType<typeof sampleMotion> = sampleMotion(bothRoots, 0.5);
   TestValidator.equals(
     "both roots present → midpoint 1.0",
     namedFacts([
-      ["bPoseRoot", () => b.pose.root !== null],
+      ["bPoseRoot", (): boolean => b.pose.root !== null],
       [
         "ncloseBPose",
-        () => b.pose.root !== null && nclose(b.pose.root.translation.x, 1),
+        (): boolean =>
+          b.pose.root !== null && nclose(b.pose.root.translation.x, 1),
       ],
     ]),
     { bPoseRoot: true, ncloseBPose: true },
@@ -154,15 +162,17 @@ export const test_motion_sample_asymmetric = (): void => {
 
   // axes present on opposite keyframes: abduction only at the start, twist only
   // at the end (mirrors scenarios 2–3 onto the other side of each blend).
-  const axisSwap = makeMotion(
+  const axisSwap: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { abduction: 8 })])),
       keyframe(1, makePose([joint("leftLowerArm", { twist: 6 })])),
     ],
     1,
   );
-  const a = sampleMotion(axisSwap, 0.5);
-  const aj = a.pose.joints.find((j) => j.bone === "leftLowerArm")!;
+  const a: ReturnType<typeof sampleMotion> = sampleMotion(axisSwap, 0.5);
+  const aj: IAutoMovieJointPose = a.pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "leftLowerArm",
+  )!;
   TestValidator.predicate(
     "start-only abduction 8→absent → 4",
     nclose(aj.abduction ?? NaN, 4),
@@ -171,4 +181,4 @@ export const test_motion_sample_asymmetric = (): void => {
     "end-only twist absent→6 → 3",
     nclose(aj.twist ?? NaN, 3),
   );
-};
+}

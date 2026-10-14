@@ -1,5 +1,5 @@
 /**
- * Coat and linen closet fittings from docs/models/05-closet-fittings.md.
+ * Coat and linen closet fittings
  * Geometry is in the documented house XZ frame and floor-local Y metres; the
  * linen instance lifts this prototype by 3.06 m. The builder owns no finishes.
  */

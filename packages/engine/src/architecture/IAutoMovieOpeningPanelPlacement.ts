@@ -3,50 +3,41 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 /**
  * Where one movable panel stands, in world space, at one operating state.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `IAutoMovieOpeningPanelPlacement` defines where one movable panel stands, in world space, at one operating state. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `IAutoMovieOpeningPanelPlacement` structures where one movable panel stands, in world space, at one operating state for the system that resolves ownership, topology, and geometry inside one building-interior boundary.
+ * Produced by `builtOpeningPanelPlacements`, one per panel in authored order;
+ * without a named state the record's own current state is used, and a state
+ * the opening does not declare throws. A state is a configuration, not a
+ * moment: a door swinging on screen is a shot motion clip over `node`. The
+ * named state is applied to every opening and run that declares it, so an
+ * ancestor leaf displaced by that state carries this panel with it.
+ *
+ * @evidence contracts/common.md#principled-implementation Composes the panel element's world affine matrix with state displacements, then decomposes it to translation, normalized rotation and scale. Meaningful TRS correspondence requires finite, representable world TRS; staged validation checks a numerical round trip, while this record does not represent arbitrary shear.
+ * @evidence contracts/common.md#clear-and-simple-design Names the panel, its element and staged node beside the world pose, so a shot can stage the configuration or animate the node without another lookup; it carries no served space because an opening serves none.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A state is a configuration, not a clock, so motion over time is left to the shot's object motions rather than simulated here, and a member lacking the state stands at rest.
+ * @evidence contracts/common.md#meaningful-documentation States the producer and order, the default state, the refusal of an undeclared state, that the state applies to every opening and run declaring it, the node id format and the world units of the pose.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the per-call matrix table and one decomposition per panel are answered on `builtOpeningPanelPlacements`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One matrix table per call serves every panel of the opening, and placements are not cached between states.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh vectors and strings, owned by the caller's list; the matrix table is discarded when the producer returns.
+ * @author Samchon
  */
 export interface IAutoMovieOpeningPanelPlacement {
-  /**
-   * Panel id inside its opening.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `panel` records `IAutoMovieOpeningPanelPlacement`'s panel id inside its opening. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `panel` supplies `IAutoMovieOpeningPanelPlacement`'s panel id inside its opening when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+  /** Panel id inside its opening. */
   panel: string;
-  /**
-   * The visible element the panel drives.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `element` records `IAutoMovieOpeningPanelPlacement`'s visible element the panel drives. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `element` supplies `IAutoMovieOpeningPanelPlacement`'s visible element the panel drives when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** The visible element the panel drives. */
   element: string;
+
   /**
-   * The staged node id {@link lowerBuiltEnvironment} emits for that element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `node` records `IAutoMovieOpeningPanelPlacement`'s staged node id `lowerBuiltEnvironment` emits for that element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `node` supplies `IAutoMovieOpeningPanelPlacement`'s staged node id `lowerBuiltEnvironment` emits for that element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
+   * The staged node id {@link lowerBuiltEnvironment} emits for that element,
+   * `"<environment id>/<element id>"`.
    */
   node: string;
-  /**
-   * World translation of the panel's element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `position` records `IAutoMovieOpeningPanelPlacement`'s world translation of the panel's element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `position` supplies `IAutoMovieOpeningPanelPlacement`'s world translation of the panel's element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World translation of the panel's element. */
   position: IAutoMovieVector3;
-  /**
-   * World rotation of the panel's element, as a unit quaternion.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `rotation` records `IAutoMovieOpeningPanelPlacement`'s world rotation of the panel's element, as a unit quaternion. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `rotation` supplies `IAutoMovieOpeningPanelPlacement`'s world rotation of the panel's element, as a unit quaternion when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World rotation of the panel's element, as a unit quaternion. */
   rotation: IAutoMovieQuaternion;
-  /**
-   * World per-axis scale of the panel's element.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `scale` records `IAutoMovieOpeningPanelPlacement`'s world per-axis scale of the panel's element. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `scale` supplies `IAutoMovieOpeningPanelPlacement`'s world per-axis scale of the panel's element when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World per-axis scale of the panel's element. */
   scale: IAutoMovieVector3;
 }

@@ -6,6 +6,7 @@
  * the caller's declared units. No geometry, scaling or constraint is changed.
  * The reusable heap contains no retained solver instance or warm-start state.
  */
+import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
 import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory";
 
 let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
@@ -21,8 +22,13 @@ let memory: ReturnType<typeof createAutoMovieQuadraticMemory> | undefined;
  * by the cold interior-point solver; no preceding call seeds the next solve.
  * Null-bound conversion and independent residual checks belong to the adapter.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Evaluates an explicitly assembled shared-displacement problem without changing its coefficients or resident geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Copies complete numeric inputs and returns owned solve buffers plus native failure status before releasing intermediate storage.
+ * @evidence contracts/common.md#principled-implementation Packs admitted CSC coefficients into eight-byte-aligned wasm32 workspace blocks and invokes the pinned Clarabel bridge without changing the objective or constraints. Bridge API errors remain negative statuses, solver status stays distinct, and output values are copied from fresh memory views after any native growth.
+ * @evidence contracts/common.md#clear-and-simple-design Owns buffer layout and transport only; assembleAutoMovieQuadraticProgram owns admission and CSC layout, createAutoMovieQuadraticMemory owns borrowed workspace lifetime, and the native bridge owns one cold solver per invocation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No variable, row or caller is special-cased. The native bridge ignores its initial pointer, so compatibility input initial is deliberately neither copied nor used to seed another solve.
+ * @evidence contracts/common.md#meaningful-documentation States assembled-input premises, native status meaning, unusable unsuccessful output, cold-start behavior, caller units and separation from original residual checks.
+ * @evidence contracts/performance.md#efficient-algorithms Transport and copying cost O(n+m+nnz) for variables, rows and CSC entries plus the native solve; each coefficient is transferred once and the unused initial vector allocates no workspace.
+ * @evidence contracts/performance.md#reuse-equivalent-work One lazy WebAssembly reactor and its compilation are reused for sequential calls within this module; solver state is cold and each workspace receives the current arrays, so no earlier problem or warm start is reused.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The module retains its reactor and non-shrinking memory high-water pages for module lifetime. withWorkspace frees each allocation in finally on success or throw; returned primal and dual arrays are copied, while native memory growth has no application-level cap beyond wasm32 limits.
  */
 export function solveAutoMovieQuadraticKernel(input: {
   diagonal: readonly number[];
@@ -43,81 +49,89 @@ export function solveAutoMovieQuadraticKernel(input: {
   primal: number[];
   dual: number[];
 } {
-  const n = input.diagonal.length,
-    m = input.lower.length;
+  const n: number = input.diagonal.length;
+  const m: number = input.lower.length;
   const blocks: {
     values: readonly number[];
     integer: boolean;
     offset: number;
   }[] = [];
-  let length = 0;
-  const append = (values: readonly number[], integer = false): number => {
-    const offset = length;
+  let length: number = 0;
+  const append: (values: readonly number[], integer?: boolean) => number = (
+    values: readonly number[],
+    integer: boolean = false,
+  ): number => {
+    const offset: number = length;
     // Every following double starts at an eight-byte boundary, even after an
     // odd number of int32 indices. Empty CSC arrays need no separate storage.
     length += Math.ceil((values.length * (integer ? 4 : 8)) / 8) * 8;
     blocks.push({ values, integer, offset });
     return offset;
   };
-  const pColumns = append(
-    Array.from({ length: n + 1 }, (_, i) => i),
+  const pColumns: number = append(
+    Array.from({ length: n + 1 }, (_: unknown, i: number): number => i),
     true,
   );
-  const pRows = append(
-    Array.from({ length: n }, (_, i) => i),
+  const pRows: number = append(
+    Array.from({ length: n }, (_: unknown, i: number): number => i),
     true,
   );
-  const diagonal = append(input.diagonal),
-    linear = append(input.linear);
-  const columns = append(input.columns, true),
-    rows = append(input.rowIndices, true);
-  const values = append(input.values),
-    lower = append(input.lower),
-    upper = append(input.upper);
-  const initial = input.initial === undefined ? null : append(input.initial);
-  const primal = append(new Array<number>(n).fill(0));
-  const dual = append(new Array<number>(m).fill(0));
-  const info = append(new Array<number>(6).fill(0));
+  const diagonal: number = append(input.diagonal);
+  const linear: number = append(input.linear);
+  const columns: number = append(input.columns, true);
+  const rows: number = append(input.rowIndices, true);
+  const values: number = append(input.values);
+  const lower: number = append(input.lower);
+  const upper: number = append(input.upper);
+  const primal: number = append(new Array<number>(n).fill(0));
+  const dual: number = append(new Array<number>(m).fill(0));
+  const info: number = append(new Array<number>(6).fill(0));
   memory ??= createAutoMovieQuadraticMemory();
-  return memory.withWorkspace(length, (heap, base) => {
-    for (const block of blocks)
-      (block.integer ? heap.integers : heap.floats).set(
-        block.values,
-        (base + block.offset) / (block.integer ? 4 : 8),
+  return memory.withWorkspace(
+    length,
+    (
+      heap: IAutoMovieQuadraticHeap,
+      base: number,
+    ): ReturnType<typeof solveAutoMovieQuadraticKernel> => {
+      for (const block of blocks)
+        (block.integer ? heap.integers : heap.floats).set(
+          block.values,
+          (base + block.offset) / (block.integer ? 4 : 8),
+        );
+      const code: number = heap.solve(
+        n,
+        m,
+        input.values.length,
+        base + pColumns,
+        base + pRows,
+        base + diagonal,
+        base + linear,
+        base + columns,
+        base + rows,
+        base + values,
+        base + lower,
+        base + upper,
+        0,
+        base + primal,
+        base + dual,
+        base + info,
       );
-    const code = heap.solve(
-      n,
-      m,
-      input.values.length,
-      base + pColumns,
-      base + pRows,
-      base + diagonal,
-      base + linear,
-      base + columns,
-      base + rows,
-      base + values,
-      base + lower,
-      base + upper,
-      initial === null ? 0 : base + initial,
-      base + primal,
-      base + dual,
-      base + info,
-    );
-    // The native solve may have grown memory. Read fresh views only now.
-    const at = (base + info) / 8;
-    return {
-      status: code === 0 ? heap.floats[at] : -code,
-      iterations: heap.floats[at + 1],
-      primalResidual: heap.floats[at + 2],
-      dualResidual: heap.floats[at + 3],
-      objective: heap.floats[at + 4],
-      dualObjective: heap.floats[at + 5],
-      primal: Array.from(
-        heap.floats.subarray((base + primal) / 8, (base + primal) / 8 + n),
-      ),
-      dual: Array.from(
-        heap.floats.subarray((base + dual) / 8, (base + dual) / 8 + m),
-      ),
-    };
-  });
+      // The native solve may have grown memory. Read fresh views only now.
+      const at: number = (base + info) / 8;
+      return {
+        status: code === 0 ? heap.floats[at] : -code,
+        iterations: heap.floats[at + 1],
+        primalResidual: heap.floats[at + 2],
+        dualResidual: heap.floats[at + 3],
+        objective: heap.floats[at + 4],
+        dualObjective: heap.floats[at + 5],
+        primal: Array.from(
+          heap.floats.subarray((base + primal) / 8, (base + primal) / 8 + n),
+        ),
+        dual: Array.from(
+          heap.floats.subarray((base + dual) / 8, (base + dual) / 8 + m),
+        ),
+      };
+    },
+  );
 }

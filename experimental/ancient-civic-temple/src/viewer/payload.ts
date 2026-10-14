@@ -1,8 +1,8 @@
 /**
- * 뷰어 전송값. 실제 production producer와 공개 engine lowering을 CJS에서
- * 한 번 실행하고, 결과 geometry·배치·공간·관찰을 그대로 클라이언트에 넘긴다.
- * 건물을 다시 만들지 않으며 재료가 결속되지 않은 part는 null로 전달한다.
- * 대지(temple-site)의 지면·경계석·먼 능선도 같은 environment의 model로 온다.
+ * Viewer payload. Run the actual production producer and public engine lowering
+ * once in CJS, forwarding their geometry, placements, spaces and observations.
+ * Unbound parts retain null materials. Site ground, curbs and distant ridges
+ * arrive as models in the same environment.
  */
 import {
   builtEnvironmentBuildingCensus,
@@ -46,7 +46,7 @@ export const createViewerPayload = () => {
     name: model.name,
     materials: model.materials,
     parts: model.parts.map((part): ViewerPart => {
-      if (part.transform !== null) throw new Error(`${model.id}/${part.id}: part 변환은 이 전달 경로에서 지원하지 않습니다.`);
+      if (part.transform !== null) throw new Error(`${model.id}/${part.id}: part transforms are unsupported by this delivery path.`);
       return {
         id: part.id,
         material: part.material,
@@ -66,7 +66,7 @@ export const createViewerPayload = () => {
       : (entry.scale ?? { x: 1, y: 1, z: 1 }),
   }));
   for (const placement of placements) {
-    if (!models.some((m) => m.id === placement.model)) throw new Error(`${placement.node}: model ${placement.model} 누락`);
+    if (!models.some((m) => m.id === placement.model)) throw new Error(`${placement.node}: missing model ${placement.model}`);
   }
   const census = builtEnvironmentBuildingCensus(environment)[0];
   const triangles = models.reduce((sum, m) => sum + m.parts.reduce((s, part) =>
@@ -115,16 +115,16 @@ export const createViewerPayload = () => {
       triangles,
     },
     notices: [
-      "현재 건물의 공간 면과 독립 부재에 검토된 재료 팔레트를 결속했습니다.",
-      "국소 대지에는 이웃 외피 셋, 좁은 수목 둘·넓은 수목 둘과 벽 밑 풀 여섯이 배치됩니다.",
-      "기둥·문짝·문틀·목구조·기와·분수는 현재 건물 장면에 배치됩니다.",
-      "제실·봉헌실·관리실·기록실·보관실·서비스 마당·중정 가장자리의 소품을 실제 받침 높이로 배치합니다.",
-      "조명 미결정: systems 층 미개시. 뷰어는 설정 주광의 방향·고도(정면 좌측 위 45°)만 따르고 강도·노출은 검토용 기본값입니다.",
+      "The reviewed material palette is bound to the current building's spatial surfaces and separate members.",
+      "The local site contains three neighboring envelopes, two narrow and two broad trees, and six grass tufts along wall bases.",
+      "Columns, door leaves, frames, timberwork, tiles and the fountain are placed in the current building scene.",
+      "Props in the sanctuary, offering room, administration, records, storage, service yard and courtyard edges use actual support heights.",
+      "Lighting is undecided: the systems layer has not begun. The viewer follows the configured daylight direction and elevation (upper front left, 45°), with review defaults for intensity and exposure.",
     ],
   };
 };
 
-/** 검사 표시용 support 높이 평면. 격자 높이장은 이 전달 경로에서 쓰지 않는다. */
+/** Support height plane for inspection; this delivery path does not use grid heightfields. */
 const supportPlane = (id: string, rule: IAutoMovieHeightRule | undefined) => {
   if (rule === undefined) return { origin: 0, slopeX: 0, slopeZ: 0 };
   if (rule.kind === "constant") return {
@@ -138,7 +138,7 @@ const supportPlane = (id: string, rule: IAutoMovieHeightRule | undefined) => {
     slopeZ: rule.slopeZ,
   };
   throw new Error(
-    `${id}: 격자 높이장 support는 이 전달 경로에서 지원하지 않습니다.`,
+    `${id}: grid heightfield supports are unsupported by this delivery path.`,
   );
 };
 

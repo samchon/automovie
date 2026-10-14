@@ -7,26 +7,33 @@
  * The active query reports lifecycle availability, including uncommitted
  * staging; it does not assert an admitted display or completed filesystem IO.
  *
- * @evidence contracts/common.md#principled-implementation Candidate snapshot and admitted generation are separate transitions, so a rejected candidate cannot supersede its retained predecessor's saves.
- * @evidence contracts/common.md#clear-and-simple-design One lifecycle operates the existing bitmap owner's copy/start/release ports without a second queue.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No server ordering exception or fabricated frame bypasses parent activation.
- * @evidence contracts/common.md#meaningful-documentation Defines copy refusal, direct commitment, staged activation and disposal effects.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Keeps candidate publication and retained display ownership inside the original saver lifecycle.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation A generation starts upload only after its owning host admits it.
+ * @evidence contracts/common.md#principled-implementation Separates successful original bitmap copy from admitted session/generation and subsequent start; failed copy leaves prior identity/preparation intact, while disposal closes authority before releasing pending work. Caller supplies valid identity and transactional copy behavior; start failure occurs after identity commit and is not rolled back.
+ * @evidence contracts/common.md#clear-and-simple-design One small publication state machine owns preparation/commit/change authority while caller ports own actual pixels, encoding/upload and pending bitmap release.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Admission is actual copy success rather than a quiet watcher or fixture generation; closed/precommit branches follow lifecycle meaning, with no replacement native methods or fabricated persisted-frame success.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes original staging, identity commitment, start side effects, active availability and completed filesystem IO; disposal and failed-copy obligations are explicit.
+ * @evidence contracts/performance.md#efficient-algorithms Coordinator uses constant scalar state and one optional identity record; real copy/start costs remain accounted by the supplied ports and are not reduced by this wrapper.
+ * @evidence contracts/performance.md#reuse-equivalent-work A successful prepare is reused by the next commit without another copy, while changed copies real current pixels under the committed identity; effectful repeated changes are not cached by identity alone.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one identity and prepared/closed flags while the caller owns one pending bitmap; dispose marks closed and invokes release once. A release throw is not retried or memoized as a repeated failure by this primitive, so native bitmap release uncertainty remains with its caller port.
  */
 export function createViewerDisplayPublication(props: {
   copy: () => boolean;
   start: (session: string, generation: number) => void;
   release: () => void;
-}) {
+}): {
+  active: () => boolean;
+  prepare: () => boolean;
+  commit: (session: string, generation: number) => boolean;
+  changed: () => boolean;
+  dispose: () => void;
+} {
   let identity: { session: string; generation: number } | undefined;
-  let prepared = false;
-  let disposed = false;
+  let prepared: boolean = false;
+  let disposed: boolean = false;
   return {
     active: (): boolean => !disposed,
     prepare: (): boolean => {
       if (disposed || identity !== undefined) return false;
-      const copied = props.copy();
+      const copied: boolean = props.copy();
       if (copied) prepared = true;
       return copied;
     },

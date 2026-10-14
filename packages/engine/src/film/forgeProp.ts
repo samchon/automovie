@@ -1,67 +1,59 @@
 import {
   IAutoMovieModel,
+  IAutoMovieModelPart,
   IAutoMovieNode,
+  IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../validation/validateModel";
 import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 
+/** The builder-sealed ingest closure of an imported appearance. */
+type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;
+
+/** One sealed asset path and digest of an imported appearance. */
+type IImportedAsset = IImportedClosure["assets"][number];
+
+/** One sealed LOD level of an imported appearance. */
+type IImportedLod = IImportedClosure["lod"][number];
+
 /**
- * The FORGE consumer's object side, accept a prop an agent authored as data
- * (crude primitive proxy, rich meaning: body, affordances, self-declared
- * articulation, D011) and gate it on both contracts. `forgeCast` forges the
- * performers; this forges the things they hold, open, and stack.
+ * An articulation node with the index it was first declared at.
  *
- * The **model contract**: the prop's `model.id` must equal `node` (the staged
- * scene joins on it, exactly as a forged cast member does), `origin` must be
- * `"generated"` unless the spec names the registration its imported bytes came
- * from ({@link gateImportedAppearance}), and `skeleton` must be `null`, a
- * riggable actor goes through `forgeCast`; a prop's moving parts are
- * articulation nodes, not bones. `validateModel` covers parts/materials/extents
- * plus the body (#595) and affordance (#604) semantics, remapped onto the
- * spec's path.
- *
- * The **articulation contract** (when present): joint node ids unique and
- * non-empty, parents resolving within the declared nodes (`null` = the prop's
- * root) without a cycle; each joint's optional `mesh` naming one part of this
- * prop's own model, and no part claimed by two joints; the binding targeting
- * the declared profile; every `boneMap` value naming a declared node; and every
- * semantic key the profile references ({@link profileSemanticKeys}) mapped,
- * reported **all at once**, where `bindProfile` itself would throw on the
- * first, so one correction round sees the whole list. A spec that passes these
- * gates binds without a throw; the door round-trip test drives the forged
- * artifact through `resolveFrame` to prove the declared limit clamps and the
- * declared driver drives.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-purpose-validation forgeProp admits an authored prop only when its geometry, affordances, and articulation satisfy the object's declared staging purpose.
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-gltf-scene Accepts only a builder-sealed rigid glTF appearance profile for an imported prop while preserving its model and LOD records.
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-provenance-digest Requires every imported asset and LOD reference to carry a well-formed sealed content digest and one explicit model registration.
- * @evidence requirements/asset-authoring/external-assets.md#asset-external-resource-closure Verifies that every imported LOD asset is present in the sealed asset ledger with the same digest and profile.
- * @evidence requirements/asset-authoring/external-assets.md#asset-semantic-enrichment Keeps imported appearance separate from the project-authored affordances, articulation, binding, and purpose semantics validated beside it.
- * @evidence requirements/asset-authoring/validation.md#asset-external-generated-validation Applies the same geometry and purpose validation after distinguishing builder-sealed imported appearance from generated model input.
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-general-joint-relations Validates unique articulation nodes, resolvable acyclic parents, unambiguous mesh ownership, and complete profile mappings for a skeleton-less prop.
- * @evidence requirements/external-inputs/adoption-modes-and-composition.md#external-adoption-direct-placement Preserves a registered imported prop's sealed model, asset, and LOD closure while adding only its project-owned prop semantics and placement identity.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-elements-dependencies Keeps the adopted model id and every sealed asset and LOD dependency attached to the forged prop gate.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-hard-failure Withholds an imported prop whose registered appearance closure or project-native semantic structure is invalid instead of substituting a placeholder.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-fidelity-semantic-boundary Validates geometry appearance separately from affordance, articulation, profile, and physical-purpose semantics.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics Applies the imported model gate before the distinct prop articulation and declared-purpose semantic gates.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-purpose-inputs forgeProp realizes purpose-driven prop validation: The FORGE consumer's object side, accept a prop an agent authored as data (crude primitive proxy, rich meaning: body, affordances, self-declared articulation, D011) and gate it on both contracts. `forgeCast` forges the performers; this forges the things they hold, open, and stack. The **model contract**: the prop's `model.id` must equal `node` (the staged scene joins on it, exactly as a forged cast member does), `origin` must be `"generated"` unless the spec names the registration its imported bytes came from ({@link gateImportedAppearance}), and `skeleton` must be `null`, a riggable actor goes through `forgeCast`; a prop's moving parts are articulation nodes, not bones. `validateModel` covers parts/materials/extents plus the body (#595) and affordance (#604) semantics, remapped onto the spec's path. The **articulation contract** (when present): joint node ids unique and non-empty, parents resolving within the declared nodes (`null` = the prop's root) without a cycle; each joint's optional `mesh` naming one part of this prop's own model, and no part claimed by two joints; the binding targeting the declared profile; every `boneMap` value naming a declared node; and every semantic key the profile references ({@link profileSemanticKeys}) mapped, reported **all at once**, where `bindProfile` itself would throw on the first, so one correction round sees the whole list. A spec that passes these gates binds without a throw; the door round-trip test drives the forged artifact through `resolveFrame` to prove the declared limit clamps and the declared driver drives.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-external-adoption-alternatives Admits the supported rigid glTF direct-placement subset while refusing humanoid profiles and leaving native conversion or group composition to their owners.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-adoption-output Preserves the accepted model reference, import profile, asset digests, and LOD closure in the returned prop record; it does not claim to create the builder's full adoption receipt.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-resource-closure Checks the sealed path-to-digest ledger and every LOD dependency before the imported appearance can pass the prop gate.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Joins imported appearance identity to the exact project-authored prop node and keeps its added articulation and affordance semantics distinct.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-joint-control-invariants Enforces the prop articulation hierarchy, mesh ownership, binding target, and semantic control-map invariants used by downstream motion.
- * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-direct-placement-boundary Admits the registered appearance closure without relabeling it as project-native prop semantics.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-element-dependency-identity Preserves the imported model identity and sealed asset and LOD dependencies consumed by the prop.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-hard-refusal-predicate Returns the located gate violations and no forged prop when the sealed imported closure or required semantic structure fails.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-appearance-semantics-fence Prevents accepted imported appearance from implying valid articulation, affordance, collision, or authored-purpose semantics.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation Separates imported model closure validation from prop hierarchy, binding, affordance, and purpose validation.
+ * @author Samchon
  */
-export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
-  const out = new ViolationCollector();
+interface IDeclaredNode {
+  /** The first declaration of the node id. */
+  node: IAutoMovieNode;
+
+  /** Its index in `articulation.nodes`, for duplicate and cycle reports. */
+  index: number;
+}
+
+/**
+ * The FORGE consumer's object side: accept a prop an agent authored as data (crude primitive proxy, rich meaning: body, affordances, self-declared articulation, D011), returning the spec itself on success or every violation of the contracts below at once. {@link forgeCast} forges the performers; this forges the things they hold, open, and stack.
+ *
+ * The model contract: `node` is non-blank and `model.id` equals it (the staged scene joins on it, as for a forged cast member); `origin` is `"generated"` unless the spec names a `modelRef`, in which case the imported appearance is gated as below; and `skeleton` is `null`, because a riggable actor goes through `forgeCast` and a prop's moving parts are articulation nodes, not bones. `validateModel` covers parts, materials, extents, body (#595) and affordances (#604), with paths remapped onto `$input.model`.
+ *
+ * An imported appearance needs a non-blank `modelRef`, origin `"imported"`, a non-null `asset`, and a sealed closure: unique non-blank asset paths with `sha256:` digests of 64 lowercase hex digits, the rigid `gltf-static-v1` profile on the closure and every LOD with no humanoid bones, unique LOD levels whose asset and digest match the sealed ledger, and a `hero` LOD binding the model's own asset. Whether the reference resolves and the digests match bytes on disk is the builder's check, since the engine holds neither the registry nor the files.
+ *
+ * The articulation contract (when present): at least one joint; joint node ids unique and non-blank; parents resolving within the declared nodes (`null` is the prop's root) without a cycle; each joint's optional `mesh` naming a part of this prop's own model, and no part claimed by two joints; the binding targeting the declared profile; every `boneMap` value naming a declared node; and every semantic key the profile references ({@link profileSemanticKeys}) mapped. `bindProfile` would throw on the first missing key, so reporting all of them lets one correction round see the whole list, and a spec that passes binds without a throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Collects findings through ViolationCollector, delegates model validation and checks anchored digest representation. Iterative path coloring resolves articulation parent chains once and memoizes their first repeated node, preserving one located diagnostic per cyclic chain without repeated ancestor walks or depth-dependent recursion.
+ * @evidence contracts/common.md#clear-and-simple-design The exported gate reads as the model contract, with the imported appearance and the articulation each in one private helper writing into the same collector, because both are reached only through a prop spec and report under its paths.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Never judges what an imported mesh depicts or guesses at registry and file contents it does not hold, and names no prop, part or profile; a malformed digest is reported once rather than again as a ledger mismatch, which is a reporting rule, not a compensation.
+ * @evidence contracts/common.md#meaningful-documentation States every model, imported-appearance and articulation rule, what is left to the builder and why, that all violations are returned together, and that success returns the spec itself.
+ * @evidence contracts/performance.md#efficient-algorithms Indexes parts, sealed assets, LOD levels, articulation nodes and boneMap entries with maps/sets, plus validateModel and profileSemanticKeys costs and inspected text lengths. Iterative parent-chain coloring completes each unique node once in O(J) time and space, preserving authored diagnostic order without quadratic repeated walks.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one prop spec that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; success references the caller's spec, and failure owns a violation list bounded by a few violations per joint, asset, LOD level and mapped key plus the model's own.
+ */
+export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
+  const out: ViolationCollector = new ViolationCollector();
 
   if (spec.node.trim().length === 0)
     out.push(
@@ -77,7 +69,7 @@ export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
       `model id must equal the prop node "${spec.node}" (the staged scene joins on it), but was "${spec.model.id}"`,
       spec.model.id,
     );
-  const modelRef = spec.modelRef ?? null;
+  const modelRef: string | null = spec.modelRef ?? null;
   if (modelRef === null) {
     if (spec.model.origin !== "generated")
       out.push(
@@ -95,7 +87,9 @@ export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
       spec.model.skeleton.id,
     );
 
-  const validated = validateModel({ model: spec.model });
+  const validated: IAutoMovieValidation = validateModel({
+    model: spec.model,
+  });
   if (validated.success === false)
     for (const violation of validated.violations)
       out.items.push({
@@ -108,44 +102,23 @@ export const forgeProp = (spec: IAutoMoviePropSpec): IAutoMovieForgedProp => {
 
   if (out.items.length > 0) return { success: false, violations: out.items };
   return { success: true, prop: spec };
-};
-
-/** A builder-sealed digest: `sha256:` and 64 lowercase hexadecimal digits. */
-const SEALED_DIGEST = /^sha256:[0-9a-f]{64}$/;
+}
 
 /**
- * The escape hatch to an external asset, opened exactly as far as the record
- * can be checked.
+ * The escape hatch to an external asset, opened exactly as far as the record can be checked.
  *
- * A prop that names a registration is drawing somebody else's bytes, and the
- * one thing that must not travel with them is meaning: the appearance is
- * imported, while the volume the engine measures, the body it weighs, the
- * affordances it rests things on and the articulation it drives all stay
- * authored on this spec. So this gate never asks whether the mesh is a chair.
- * It asks whether the reference is a reference at all, whether the media is the
- * kind a prop can be, and whether the sealed closure is internally coherent,
- * which is every question about imported bytes that can be settled without the
- * bytes.
+ * A prop that names a registration is drawing somebody else's bytes, and the one thing that must not travel with them is meaning: the appearance is imported, while the volume the engine measures, the body it weighs, the affordances it rests things on and the articulation it drives all stay authored on this spec. So this gate never asks whether the mesh is a chair. It asks whether the reference is a reference at all, whether the media is the kind a prop can be, and whether the sealed closure is internally coherent, which is every question about imported bytes that can be settled without the bytes.
  *
- * The media test is `gltf-static-v1`, the same profile general instancing
- * accepts, because the other two profiles are rigged humans: a skinned or VRM
- * appearance is a performer, and a performer is `forgeCast`'s subject, not a
- * thing that can be stacked on a table. `forgeProp` already refuses a prop
- * carrying a skeleton for that reason; an imported humanoid whose skeleton
- * lives in the file rather than the record would otherwise walk straight past
- * it.
+ * The media test is `gltf-static-v1`, the same profile general instancing accepts, because the other two profiles are rigged humans: a skinned or VRM appearance is a performer, and a performer is `forgeCast`'s subject, not a thing that can be stacked on a table. `forgeProp` already refuses a prop carrying a skeleton for that reason; an imported humanoid whose skeleton lives in the file rather than the record would otherwise walk straight past it.
  *
- * What is deliberately NOT judged here is whether the reference resolves and
- * whether each digest matches bytes on disk. The engine holds neither the
- * production's model registry nor its files, so it would have to guess, and the
- * builder answers both where the registry and the files actually are.
+ * Whether the reference resolves and whether each digest matches bytes on disk remain the builder's responsibility. The engine holds neither the production's model registry nor its files, while the builder holds both.
  */
-const gateImportedAppearance = (
+function gateImportedAppearance(
   model: IAutoMovieModel,
   modelRef: string,
   out: ViolationCollector,
-): void => {
-  const path = "$input.model";
+): void {
+  const path: string = "$input.model";
   if (modelRef.trim().length === 0)
     out.push(
       "type",
@@ -168,7 +141,7 @@ const gateImportedAppearance = (
       model.asset,
     );
 
-  const imported = model.imported;
+  const imported: IImportedClosure | undefined = model.imported;
   if (imported === undefined) {
     out.push(
       "type",
@@ -179,10 +152,10 @@ const gateImportedAppearance = (
     return;
   }
 
-  const ledger = new Map<string, string>();
-  imported.assets.forEach((entry, index) => {
-    const ap = `${path}.imported.assets[${index}]`;
-    const known = ledger.has(entry.path);
+  const ledger: Map<string, string> = new Map();
+  imported.assets.forEach((entry: IImportedAsset, index: number): void => {
+    const ap: string = `${path}.imported.assets[${index}]`;
+    const known: boolean = ledger.has(entry.path);
     if (entry.path.trim().length === 0)
       out.push(
         "type",
@@ -200,7 +173,7 @@ const gateImportedAppearance = (
     // The first entry wins, so a path sealed twice is reported once above
     // rather than turning every later reader of it into a second complaint.
     if (!known) ledger.set(entry.path, entry.digest);
-    if (!SEALED_DIGEST.test(entry.digest))
+    if (!SHA256_DIGEST_PATTERN.test(entry.digest))
       out.push(
         "type",
         `${ap}.digest`,
@@ -224,9 +197,9 @@ const gateImportedAppearance = (
       imported.humanoidBones.length,
     );
 
-  const levels = new Set<string>();
-  imported.lod.forEach((entry, index) => {
-    const lp = `${path}.imported.lod[${index}]`;
+  const levels: Set<string> = new Set();
+  imported.lod.forEach((entry: IImportedLod, index: number): void => {
+    const lp: string = `${path}.imported.lod[${index}]`;
     if (levels.has(entry.level))
       out.push(
         "type",
@@ -249,7 +222,7 @@ const gateImportedAppearance = (
         `a rigid prop's LOD "${entry.level}" maps no humanoid bones, but ${entry.humanoidBones.length} were sealed`,
         entry.humanoidBones.length,
       );
-    const wellFormed = SEALED_DIGEST.test(entry.digest);
+    const wellFormed: boolean = SHA256_DIGEST_PATTERN.test(entry.digest);
     if (!wellFormed)
       out.push(
         "type",
@@ -257,7 +230,7 @@ const gateImportedAppearance = (
         `a sealed digest must be "sha256:" followed by 64 lowercase hexadecimal digits, but was "${entry.digest}"`,
         entry.digest,
       );
-    const sealed = ledger.get(entry.asset);
+    const sealed: string | undefined = ledger.get(entry.asset);
     if (sealed === undefined)
       out.push(
         "type",
@@ -276,13 +249,15 @@ const gateImportedAppearance = (
       );
   });
 
-  const hero = imported.lod.find((entry) => entry.level === "hero");
+  const hero: IImportedLod | undefined = imported.lod.find(
+    (entry: IImportedLod): boolean => entry.level === "hero",
+  );
   if (hero === undefined)
     out.push(
       "type",
       `${path}.imported.lod`,
       "an imported appearance needs a hero LOD: the level the prop's own asset binds",
-      imported.lod.map((entry) => entry.level),
+      imported.lod.map((entry: IImportedLod): string => entry.level),
     );
   else if (model.asset !== null && hero.asset !== model.asset)
     out.push(
@@ -291,31 +266,26 @@ const gateImportedAppearance = (
       `the hero LOD binds "${hero.asset}" while the prop draws "${model.asset}"; one appearance is one set of bytes`,
       hero.asset,
     );
-};
+}
 
 /**
  * Gate the prop's declared joints, and what each of them carries.
  *
- * The model is here for the `mesh` payload. An articulation node is an
- * {@link IAutoMovieNode}, so it can name the piece of the prop that rides it,
- * and that reference is the whole of how a declared joint becomes a part that
- * visibly moves: without it a hinge turns an empty frame while the leaf stands
- * still, which is a shot that validates clean and shows nothing. The reference
- * resolves inside this prop's own model, because a prop's moving part is a part
- * of the prop; two joints may not claim the same part, since a part rides one
- * frame.
+ * The model is here for the `mesh` payload. An articulation node is an {@link IAutoMovieNode}, so it can name the piece of the prop that rides it, and that reference is the whole of how a declared joint becomes a part that visibly moves: without it a hinge turns an empty frame while the leaf stands still, which is a shot that validates clean and shows nothing. The reference resolves inside this prop's own model, because a prop's moving part is a part of the prop; two joints may not claim the same part, since a part rides one frame.
  */
-const gateArticulation = (
-  articulation: NonNullable<IAutoMoviePropSpec["articulation"]>,
+function gateArticulation(
+  articulation: IAutoMoviePropArticulation,
   model: IAutoMovieModel,
   out: ViolationCollector,
-): void => {
-  const path = "$input.articulation";
-  const parts = new Set(model.parts.map((part) => part.id));
-  const claimed = new Map<string, number>();
-  articulation.nodes.forEach((node, i) => {
+): void {
+  const path: string = "$input.articulation";
+  const parts: Set<string> = new Set(
+    model.parts.map((part: IAutoMovieModelPart): string => part.id),
+  );
+  const claimed: Map<string, number> = new Map();
+  articulation.nodes.forEach((node: IAutoMovieNode, i: number): void => {
     if (node.mesh === null) return;
-    const np = `${path}.nodes[${i}].mesh`;
+    const np: string = `${path}.nodes[${i}].mesh`;
     if (!parts.has(node.mesh)) {
       out.push(
         "type",
@@ -325,7 +295,7 @@ const gateArticulation = (
       );
       return;
     }
-    const first = claimed.get(node.mesh);
+    const first: number | undefined = claimed.get(node.mesh);
     if (first !== undefined)
       out.push(
         "type",
@@ -343,9 +313,9 @@ const gateArticulation = (
       articulation.nodes,
     );
 
-  const byId = new Map<string, { node: IAutoMovieNode; index: number }>();
-  articulation.nodes.forEach((node, i) => {
-    const np = `${path}.nodes[${i}]`;
+  const byId: Map<string, IDeclaredNode> = new Map();
+  articulation.nodes.forEach((node: IAutoMovieNode, i: number): void => {
+    const np: string = `${path}.nodes[${i}]`;
     if (node.id.trim().length === 0)
       out.push(
         "type",
@@ -353,7 +323,7 @@ const gateArticulation = (
         "articulation node id must be non-empty",
         node.id,
       );
-    const existing = byId.get(node.id);
+    const existing: IDeclaredNode | undefined = byId.get(node.id);
     if (existing !== undefined) {
       out.push(
         "type",
@@ -366,7 +336,7 @@ const gateArticulation = (
     byId.set(node.id, { node, index: i });
   });
 
-  articulation.nodes.forEach((node, i) => {
+  articulation.nodes.forEach((node: IAutoMovieNode, i: number): void => {
     if (node.parent !== null && !byId.has(node.parent))
       out.push(
         "type",
@@ -375,25 +345,53 @@ const gateArticulation = (
         node.parent,
       );
   });
-  for (const [id, entry] of byId) {
-    const trail = new Set<string>([id]);
-    let parent = entry.node.parent;
-    while (parent !== null) {
-      if (trail.has(parent)) {
-        out.push(
-          "type",
-          `${path}.nodes[${entry.index}].parent`,
-          `articulation parent chain of "${id}" is cyclic at "${parent}"`,
-          parent,
-        );
-        break;
-      }
-      trail.add(parent);
-      parent = byId.get(parent)?.node.parent ?? null;
+  const completed: Set<string> = new Set();
+  const cycleAt: Map<string, string> = new Map();
+  for (const id of byId.keys()) {
+    if (completed.has(id)) continue;
+    const trail: string[] = [];
+    const active: Map<string, number> = new Map();
+    let cursor: string | null = id;
+    while (
+      cursor !== null &&
+      byId.has(cursor) &&
+      !completed.has(cursor) &&
+      !active.has(cursor)
+    ) {
+      active.set(cursor, trail.length);
+      trail.push(cursor);
+      cursor = byId.get(cursor)!.node.parent;
     }
+    const cycleStart: number | undefined =
+      cursor === null ? undefined : active.get(cursor);
+    const repeated: string | undefined =
+      cursor === null
+        ? undefined
+        : cycleStart === undefined
+          ? cycleAt.get(cursor)
+          : cursor;
+    trail.forEach((node: string, index: number): void => {
+      if (repeated !== undefined)
+        cycleAt.set(
+          node,
+          cycleStart !== undefined && index >= cycleStart ? node : repeated,
+        );
+      completed.add(node);
+    });
+  }
+  for (const [id, entry] of byId) {
+    const repeated: string | undefined = cycleAt.get(id);
+    if (repeated !== undefined)
+      out.push(
+        "type",
+        `${path}.nodes[${entry.index}].parent`,
+        `articulation parent chain of "${id}" is cyclic at "${repeated}"`,
+        repeated,
+      );
   }
 
-  const { profile, binding } = articulation;
+  const profile: IAutoMoviePropArticulation["profile"] = articulation.profile;
+  const binding: IAutoMoviePropArticulation["binding"] = articulation.binding;
   if (binding.profile !== profile.id)
     out.push(
       "type",
@@ -403,7 +401,7 @@ const gateArticulation = (
     );
 
   for (const [key, mapped] of Object.entries(binding.boneMap)) {
-    const bp = `${path}.binding.boneMap["${key}"]`;
+    const bp: string = `${path}.binding.boneMap["${key}"]`;
     if (mapped.trim().length === 0) {
       out.push("type", bp, `boneMap maps "${key}" to an empty node id`, mapped);
       continue;
@@ -418,11 +416,14 @@ const gateArticulation = (
   }
 
   for (const key of profileSemanticKeys(profile))
-    if (binding.boneMap[key] === undefined)
+    if (
+      !Object.hasOwn(binding.boneMap, key) ||
+      binding.boneMap[key] === undefined
+    )
       out.push(
         "type",
         `${path}.binding.boneMap`,
         `profile "${profile.id}" references "${key}" but the binding does not map it`,
         key,
       );
-};
+}

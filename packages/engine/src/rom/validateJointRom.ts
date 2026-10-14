@@ -7,32 +7,52 @@ import {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { swingConeAngle } from "./swingConeAngle";
 
-const AXES = ["flexion", "abduction", "twist"] as const;
+const AXES: readonly ["flexion", "abduction", "twist"] = [
+  "flexion",
+  "abduction",
+  "twist",
+] as const;
 
 /**
- * Validate one joint's articulation against its anatomical range of motion,
- * pushing a `rom` violation per offending axis.
+ * Append axis range/ROM violations and a combined swing violation to the caller's collector. Null angles mean rest and contribute zero to swing; immobile axes admit null/zero. Field paths and degree overshoots preserve correction provenance, while constraint admission is separate.
  *
- * Two failure modes per axis:
- *
- * - The joint specifies a non-zero angle on an axis the constraint marks `null`
- *   (the joint physically does not move that way, e.g. an elbow abducting);
- * - The angle is outside the allowed `[min, max]`.
- *
- * `path` is the JSON path of the joint (e.g. `$input.joints[3]`); the offending
- * axis is appended so the `// ❌` feedback points at the exact field.
- *
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-pose-validation Reports each pose field that violates its effective joint constraint.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Validates resolved pose controls against the rig's ROM before accepting actor state.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Report nonfinite, interval and immobile-axis violations in axis order, then combined swing with null as zero; the collector retains paths, actual values and degree overshoots.
+ * @evidence contracts/common.md#clear-and-simple-design Axis and cone detection share projection owners' semantics/angular metric while the caller's collector owns diagnostics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null is rest and zero is automatically valid only for immobile axes; constraint admission and periodic multi-turn limitations are separate rather than hidden here.
+ * @evidence contracts/common.md#meaningful-documentation Props state joint/constraint/path/collector roles and degree overshoots; nonfinite angles produce range diagnostics before axis comparison.
+ * @evidence contracts/performance.md#efficient-algorithms Three fixed axis checks plus one swing metric use constant work and append at most four rows.
+ * @evidence contracts/performance.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
  */
-export const validateJointRom = (props: {
+export const validateJointRom: (props: {
   joint: IAutoMovieJointPose;
   constraint: IAutoMovieJointConstraint;
   path: string;
   collector: ViolationCollector;
+}) => void = (props: {
+  /** Borrowed joint angles in the constraint's degree frame; null means rest. */
+  joint: IAutoMovieJointPose;
+
+  /** Admitted finite ordered axis intervals and optional coupled swing policy. */
+  constraint: IAutoMovieJointConstraint;
+
+  /** Base JSON address; axis or swing suffixes identify each reported fault. */
+  path: string;
+
+  /** Caller-owned append-only diagnostic sink, advanced by this validation. */
+  collector: ViolationCollector;
 }): void => {
-  const { joint, constraint, path, collector } = props;
+  const {
+    joint,
+    constraint,
+    path,
+    collector,
+  }: {
+    joint: IAutoMovieJointPose;
+    constraint: IAutoMovieJointConstraint;
+    path: string;
+    collector: ViolationCollector;
+  } = props;
   for (const axis of AXES) {
     const angle: number | null = joint[axis];
     const allowed: IAutoMovieAngleRange | null = constraint[axis];
@@ -52,7 +72,7 @@ export const validateJointRom = (props: {
     }
     if (allowed === null) {
       // immobile axis: the gap is the whole distance from the required 0
-      const overshoot = Math.abs(angle);
+      const overshoot: number = Math.abs(angle);
       collector.push(
         "rom",
         `${path}.${axis}`,
@@ -63,7 +83,7 @@ export const validateJointRom = (props: {
       continue;
     }
     if (angle < allowed.min || angle > allowed.max) {
-      const overshoot =
+      const overshoot: number =
         angle < allowed.min ? allowed.min - angle : angle - allowed.max;
       collector.push(
         "rom",
@@ -83,9 +103,12 @@ export const validateJointRom = (props: {
   // identical twin `{flexion:150, abduction:0}` (the same quaternion) failed
   // (#1245).
   if (typeof constraint.swingDeg === "number") {
-    const swing = swingConeAngle(joint.flexion ?? 0, joint.abduction ?? 0);
+    const swing: number = swingConeAngle(
+      joint.flexion ?? 0,
+      joint.abduction ?? 0,
+    );
     if (swing > constraint.swingDeg) {
-      const overshoot = swing - constraint.swingDeg;
+      const overshoot: number = swing - constraint.swingDeg;
       collector.push(
         "rom",
         `${path}.swing`,

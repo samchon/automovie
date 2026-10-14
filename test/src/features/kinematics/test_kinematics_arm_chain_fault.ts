@@ -1,10 +1,4 @@
 import {
-  HUMANOID_JOINT_AXES,
-  armChainFault,
-  reachPose,
-  resolvePose,
-} from "@automovie/engine";
-import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieSkeleton,
@@ -12,9 +6,20 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { IAutoMovieArmChainFault } from "../../../../packages/engine/src/kinematics/IAutoMovieArmChainFault";
+import { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { armChainFault } from "../../../../packages/engine/src/kinematics/armChainFault";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { reachPose } from "../../../../packages/engine/src/kinematics/reachPose";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
 
-const bone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  translation: IAutoMovieVector3,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   translation: IAutoMovieVector3,
@@ -37,8 +42,12 @@ const bone = (
  *
  * One property apart, which is what makes the pair a twin.
  */
-const armRig = (direction: "down" | "out"): IAutoMovieSkeleton => {
-  const step = (length: number): IAutoMovieVector3 =>
+const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (
+  direction: "down" | "out",
+): IAutoMovieSkeleton => {
+  const step: (length: number) => IAutoMovieVector3 = (
+    length: number,
+  ): IAutoMovieVector3 =>
     direction === "down"
       ? { x: 0, y: -length, z: 0 }
       : { x: -length, y: 0, z: 0 };
@@ -56,8 +65,11 @@ const armRig = (direction: "down" | "out"): IAutoMovieSkeleton => {
 };
 
 /** Shoulder-to-hand distance at one elbow flexion angle. */
-const spanAt = (skeleton: IAutoMovieSkeleton, flexion: number): number => {
-  const resolved = resolvePose(
+const spanAt: (skeleton: IAutoMovieSkeleton, flexion: number) => number = (
+  skeleton: IAutoMovieSkeleton,
+  flexion: number,
+): number => {
+  const resolved: IAutoMovieResolvedBone[] = resolvePose(
     {
       skeleton: skeleton.id,
       root: null,
@@ -66,10 +78,12 @@ const spanAt = (skeleton: IAutoMovieSkeleton, flexion: number): number => {
     skeleton,
     HUMANOID_JOINT_AXES,
   );
-  const shoulder = resolved.find(
-    (b) => b.bone === "rightUpperArm",
+  const shoulder: IAutoMovieVector3 = resolved.find(
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "rightUpperArm",
   )!.worldPosition;
-  const hand = resolved.find((b) => b.bone === "rightHand")!.worldPosition;
+  const hand: IAutoMovieVector3 = resolved.find(
+    (b: IAutoMovieResolvedBone): boolean => b.bone === "rightHand",
+  )!.worldPosition;
   return Math.hypot(
     hand.x - shoulder.x,
     hand.y - shoulder.y,
@@ -77,29 +91,24 @@ const spanAt = (skeleton: IAutoMovieSkeleton, flexion: number): number => {
   );
 };
 
-const SWEEP = [0, 15, 30, 60, 90, 150];
+const SWEEP: number[] = [0, 15, 30, 60, 90, 150];
 
 /**
- * The arm kinematics assume the VRM T-pose rest convention, and a rig that
- * rests otherwise loses its elbow entirely (#1346).
+ * The humanoid arm axes cannot bend a forearm whose rest offset is parallel
+ * to the declared elbow flexion axis (#1346).
  *
  * `HUMANOID_JOINT_AXES` maps the arm's `flexion` onto local **+Y** because a
  * T-pose arm points along local X, so flexion swings it sagittally instead of
  * rolling it. Applied to an arm that HANGS along local −Y, that same table
- * names the bone's own long axis: elbow flexion becomes a roll, the hand does
- * not move at all, and the arm is a rigid stick. Nothing refused such a rig.
- * `forge` accepted it, no validator inspects a rest direction, and `getReach`
- * answered `reachable: true` with a pose that loaded abduction and twist onto
- * axes the rig declared immobile, because on that rig those were the only axes
- * that could bend the arm at all.
+ * names the bone's own long axis: elbow flexion becomes a roll and does not
+ * change the hand's position relative to the elbow. This case diagnoses that
+ * rest geometry at reach use rather than testing an authoring or harness gate.
  *
  * The refusal belongs at the point of USE, not at authoring time: the humanoid
  * bone enum is the only vocabulary the surface has, so a retargeted quadruped's
- * front legs ride the arm chains and legitimately rest along −Y. A blanket
- * `forge` refusal would forbid every quadruped, including the one the benchmark
- * corpus shipped successfully. The test is therefore rig-shaped rather than a
- * convention sniff: is the elbow's flexion axis parallel to the forearm's rest
- * direction?
+ * front legs can ride the arm chains and rest along −Y. The test therefore asks
+ * a geometric question: is the elbow's flexion axis parallel to the forearm's
+ * rest direction? It does not establish acceptance of any production rig.
  *
  * The expected spans below are hand-computed, not sampled from the code: an
  * elbow rolling about the forearm's own axis cannot change the shoulder-to-hand
@@ -115,7 +124,7 @@ const SWEEP = [0, 15, 30, 60, 90, 150];
  *    every angle and falls from `0.600000` to `0.160026`, so the sweep itself
  *    is a working measurement rather than a constant.
  * 3. `armChainFault` names the arms-down rig's elbow, and returns `null` for the
- *    T-pose rig: the diagnosis matches the measurement on both sides.
+ *    T-pose rig: the diagnosis matches both measured right-arm geometries.
  * 4. `reachPose` refuses the arms-down rig rather than returning a pose whose bend
  *    rides axes the rig declares immobile, and still solves the T-pose rig.
  * 5. Boundary, per SIDE not per rig: a rig with one arm T-posed and the other
@@ -125,10 +134,21 @@ const SWEEP = [0, 15, 30, 60, 90, 150];
  * 7. Boundary, an ill-posed question: a zero-length forearm has no direction to be
  *    parallel to, and an axis table that names no elbow hinge (or names a
  *    zero-length one) states no convention to break. None is a fault.
+ * 8. Boundary, a broken chain: a hand parented to the upper arm instead of the
+ *    lower arm has a rest offset outside the elbow's frame, so the arms-down rig
+ *    is not diagnosed as an elbow fault and `reachPose` refuses even the T-pose
+ *    rig rather than solving offsets that are not one chain.
+ * 9. A finite diagonal forearm remains nonparallel to the hinge even when its
+ *    Euclidean length exceeds binary64, so normalization cannot collapse it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls armChainFault, reachPose and forward kinematics, checking unbendable diagnosis versus valid T-pose reach and refusing misparented offsets outside the elbow frame.
+ * @evidence contracts/testing.md#independent-expectations The arms-down span is 0.32+0.28 metres and the T-pose sweep follows the law of cosines; returned fault side/bone/reason identify the geometric cause.
+ * @evidence contracts/testing.md#distinguishing-cases Covers both sides, conforming/unbendable twins, missing hand, collapsed/large finite forearms, missing/zero axes and broken parenting; reach tests own general targets and ROM gates.
+ * @evidence contracts/testing.md#execution-ownership A discoverable kinematics entry uses numerical skeleton records and direct TypeScript source, with no Human basis, probe, GPU or external driver.
  */
-export const test_kinematics_arm_chain_fault = (): void => {
-  const down = armRig("down");
-  const out = armRig("out");
+export function test_kinematics_arm_chain_fault(): void {
+  const down: IAutoMovieSkeleton = armRig("down");
+  const out: IAutoMovieSkeleton = armRig("out");
 
   // 1. the degeneracy: the elbow cannot change the span at all
   for (const flexion of SWEEP)
@@ -140,8 +160,8 @@ export const test_kinematics_arm_chain_fault = (): void => {
   // 2. NEGATIVE TWIN: the same measurement on the conforming rig moves, and
   // moves to where the law of cosines says it should.
   for (const flexion of SWEEP) {
-    const interior = ((180 - flexion) * Math.PI) / 180;
-    const expected = Math.sqrt(
+    const interior: number = ((180 - flexion) * Math.PI) / 180;
+    const expected: number = Math.sqrt(
       0.32 * 0.32 + 0.28 * 0.28 - 2 * 0.32 * 0.28 * Math.cos(interior),
     );
     TestValidator.predicate(
@@ -152,26 +172,32 @@ export const test_kinematics_arm_chain_fault = (): void => {
   TestValidator.equals(
     "and that sweep really moves: 0.600000 at 0 deg down to 0.160026 at 150",
     namedFacts([
-      ["ncloseSpanAtOut", () => nclose(spanAt(out, 0), 0.6, 1e-9)],
-      ["ncloseSpanAtOut2", () => nclose(spanAt(out, 150), 0.160026, 1e-6)],
+      ["ncloseSpanAtOut", (): boolean => nclose(spanAt(out, 0), 0.6, 1e-9)],
+      [
+        "ncloseSpanAtOut2",
+        (): boolean => nclose(spanAt(out, 150), 0.160026, 1e-6),
+      ],
     ]),
     { ncloseSpanAtOut: true, ncloseSpanAtOut2: true },
   );
 
-  // 3. the diagnosis agrees with the measurement on both sides
-  const fault = armChainFault(down, "right");
+  // 3. the diagnosis agrees with both measured right-arm geometries
+  const fault: IAutoMovieArmChainFault | null = armChainFault(down, "right");
   TestValidator.equals(
     "the arms-down rig is faulted, at its elbow, with a reason that says why",
     namedFacts([
-      ["fault", () => fault !== null],
-      ["faultSideRight", () => fault !== null && fault.side === "right"],
+      ["fault", (): boolean => fault !== null],
+      [
+        "faultSideRight",
+        (): boolean => fault !== null && fault.side === "right",
+      ],
       [
         "faultBoneRightLowerArm",
-        () => fault !== null && fault.bone === "rightLowerArm",
+        (): boolean => fault !== null && fault.bone === "rightLowerArm",
       ],
       [
         "faultReasonIncludes",
-        () => fault !== null && fault.reason.includes("parallel"),
+        (): boolean => fault !== null && fault.reason.includes("parallel"),
       ],
     ]),
     {
@@ -213,8 +239,14 @@ export const test_kinematics_arm_chain_fault = (): void => {
   TestValidator.equals(
     "a mixed rig faults only the hanging side",
     namedFacts([
-      ["armChainFaultMixedRight", () => armChainFault(mixed, "right") !== null],
-      ["armChainFaultMixedLeft", () => armChainFault(mixed, "left") === null],
+      [
+        "armChainFaultMixedRight",
+        (): boolean => armChainFault(mixed, "right") !== null,
+      ],
+      [
+        "armChainFaultMixedLeft",
+        (): boolean => armChainFault(mixed, "left") === null,
+      ],
     ]),
     { armChainFaultMixedRight: true, armChainFaultMixedLeft: true },
   );
@@ -222,7 +254,9 @@ export const test_kinematics_arm_chain_fault = (): void => {
   // 6. BOUNDARY: an absent chain is a different fact from an unbendable one.
   const handless: IAutoMovieSkeleton = {
     id: "rig-handless",
-    bones: armRig("down").bones.filter((b) => b.bone !== "rightHand"),
+    bones: armRig("down").bones.filter(
+      (b: IAutoMovieBone): boolean => b.bone !== "rightHand",
+    ),
   };
   TestValidator.equals(
     "a rig with no hand bone is not a convention fault",
@@ -242,10 +276,11 @@ export const test_kinematics_arm_chain_fault = (): void => {
   // can actually decide.
   const collapsed: IAutoMovieSkeleton = {
     id: "rig-collapsed",
-    bones: armRig("down").bones.map((b) =>
-      b.bone === "rightHand"
-        ? { ...b, rest: { ...b.rest, translation: { x: 0, y: 0, z: 0 } } }
-        : b,
+    bones: armRig("down").bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "rightHand"
+          ? { ...b, rest: { ...b.rest, translation: { x: 0, y: 0, z: 0 } } }
+          : b,
     ),
   };
   TestValidator.equals(
@@ -269,4 +304,46 @@ export const test_kinematics_arm_chain_fault = (): void => {
     }),
     null,
   );
-};
+
+  // 8. BOUNDARY: a hand that does not hang from the lower arm breaks the chain
+  // both functions read, so neither may treat its offset as the forearm.
+  const misparented: (rig: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
+    rig: IAutoMovieSkeleton,
+  ): IAutoMovieSkeleton => ({
+    ...rig,
+    bones: rig.bones.map(
+      (b: IAutoMovieBone): IAutoMovieBone =>
+        b.bone === "rightHand" ? { ...b, parent: "rightUpperArm" } : b,
+    ),
+  });
+  TestValidator.equals(
+    "a hand outside the elbow's frame is not an elbow fault",
+    armChainFault(misparented(down), "right"),
+    null,
+  );
+  TestValidator.equals(
+    "and reachPose refuses offsets that are not one chain",
+    reachPose(misparented(out), "right", { x: -0.35, y: 1.1, z: 0.3 }),
+    null,
+  );
+  const large: IAutoMovieSkeleton = {
+    ...out,
+    bones: out.bones.map(
+      (entry: IAutoMovieBone): IAutoMovieBone =>
+        entry.bone === "rightHand"
+          ? {
+              ...entry,
+              rest: {
+                ...entry.rest,
+                translation: { x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 },
+              },
+            }
+          : entry,
+    ),
+  };
+  TestValidator.equals(
+    "finite forearm direction survives an unrepresentable Euclidean length",
+    armChainFault(large, "right"),
+    null,
+  );
+}

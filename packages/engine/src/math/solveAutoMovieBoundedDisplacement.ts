@@ -1,3 +1,7 @@
+import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
+import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
+
 /**
  * Constraint generation for minimum squared nonnegative displacement. A solve
  * retains all vertex bounds and a growing subset of affine contact conditions.
@@ -6,9 +10,6 @@
  * numerical residual. Grouping chooses work order, never which contacts count.
  * Geometry and physical units belong to the caller; no tissue model is inferred.
  */
-import { type IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
-import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
  * Minimize 1/2 sum(mass[i] * travel[i]^2) with 0 <= travel <= upper and every
@@ -26,8 +27,13 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * residual and round count. This owner admits displacement before any
  * geometry consumer can apply it; no relaxed bound or objective is substituted.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Jointly minimizes area-weighted geometric travel while retaining complete contact constraints and conservative per-vertex upper bounds.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Checks all original affine conditions after each restricted solve and preserves native failure and residual information before geometry can be accepted.
+ * @evidence contracts/common.md#principled-implementation Constraint generation solves positive diagonal squared travel under box bounds and selected contacts; full-row feasibility admits restricted minima, and uninvolved coordinates retain their exact zero optimum.
+ * @evidence contracts/common.md#clear-and-simple-design This owner handles worst-per-group insertion and reconstruction; the shared QP solver owns factors and kernel work while callers supply geometry and units.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Groups order work rather than dropping contacts; original rows are checked on exact clipped outputs, and exhausted budgets or constant contradictions refuse.
+ * @evidence contracts/common.md#meaningful-documentation States positive masses, caps, grouping/ties, zero start, caller scaling, absolute tolerance, finite rounds and native/convergence diagnostics.
+ * @evidence contracts/performance.md#efficient-algorithms For B rounds and Z coefficients, each round scans all contacts in O(Z) and solves only selected incident coordinates; selected population is bounded by original constraints.
+ * @evidence contracts/performance.md#reuse-equivalent-work Selected rows accumulate across rounds and absent-coordinate minima remain zeros; no global solution survives changed inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Selected sets and reduced rows are bounded by input dimensions; delegated workspaces release on failure or completion, and only final travel/diagnostics escape.
  */
 export function solveAutoMovieBoundedDisplacement(input: {
   mass: readonly number[];
@@ -52,45 +58,82 @@ export function solveAutoMovieBoundedDisplacement(input: {
     );
   if (
     input.upper.length !== input.mass.length ||
-    input.mass.some((value) => value <= 0)
+    input.mass.some((value: number): boolean => value <= 0)
   )
     throw new Error(
       "Displacement needs positive masses and matching upper bounds.",
     );
-  const bounds = Array.from(input.upper, (upper, i) => ({
-    indices: [i],
-    weights: [1],
-    lower: 0,
-    upper,
-  }));
-  const problem = {
+  const bounds: {
+    indices: number[];
+    weights: number[];
+    lower: number;
+    upper: number;
+  }[] = Array.from(
+    input.upper,
+    (
+      upper: number,
+      i: number,
+    ): {
+      indices: number[];
+      weights: number[];
+      lower: number;
+      upper: number;
+    } => ({
+      indices: [i],
+      weights: [1],
+      lower: 0,
+      upper,
+    }),
+  );
+  const problem: {
+    diagonal: readonly number[];
+    linear: number[];
+    rows: IAutoMovieQuadraticRow[];
+    initial: readonly number[];
+  } = {
     diagonal: input.mass,
-    linear: input.mass.map(() => 0),
-    rows: [...input.constraints.map(({ row }) => row), ...bounds],
+    linear: input.mass.map((): number => 0),
+    rows: [
+      ...input.constraints.map(
+        ({
+          row,
+        }: {
+          row: IAutoMovieQuadraticRow;
+          group: number;
+        }): IAutoMovieQuadraticRow => row,
+      ),
+      ...bounds,
+    ],
     initial: input.upper,
   };
   // Use the same admission as the full QP, including currently clear rows.
-  assembleAutoMovieQuadraticProgram(problem);
-  const selected = new Set<number>();
-  let travel = input.mass.map(() => 0),
+  admitAutoMovieQuadraticProgram(problem);
+  const selected: Set<number> = new Set<number>();
+  let travel: number[] = input.mass.map((): number => 0),
     status: number | null = null;
-  for (let rounds = 0; ; rounds++) {
-    let violation = 0;
-    const worst = new Map<number, { index: number; error: number }>();
-    for (let i = 0; i < input.constraints.length; i++) {
-      const { row, group } = input.constraints[i];
-      const value = row.indices.reduce(
-        (sum, id, j) => sum + row.weights[j] * travel[id],
+  for (let rounds: number = 0; ; rounds++) {
+    let violation: number = 0;
+    const worst: Map<number, { index: number; error: number }> = new Map<
+      number,
+      { index: number; error: number }
+    >();
+    for (let i: number = 0; i < input.constraints.length; i++) {
+      const { row, group }: { row: IAutoMovieQuadraticRow; group: number } =
+        input.constraints[i];
+      const value: number = row.indices.reduce(
+        (sum: number, id: number, j: number): number =>
+          sum + row.weights[j] * travel[id],
         0,
       );
-      const error = Math.max(
+      const error: number = Math.max(
         0,
         row.lower === null ? 0 : row.lower - value,
         row.upper === null ? 0 : value - row.upper,
       );
       violation = Math.max(violation, error);
       if (selected.has(i) || error <= input.tolerance) continue;
-      const previous = worst.get(group);
+      const previous: { index: number; error: number } | undefined =
+        worst.get(group);
       if (previous === undefined || error > previous.error)
         worst.set(group, { index: i, error });
     }
@@ -101,39 +144,88 @@ export function solveAutoMovieBoundedDisplacement(input: {
         `Bounded displacement did not converge: status ${status}, residual ${violation}, rounds ${rounds}.`,
       );
     for (const { index } of worst.values()) selected.add(index);
-    const rows = [...selected].map((i) => input.constraints[i].row);
+    const rows: IAutoMovieQuadraticRow[] = [...selected].map(
+      (i: number): IAutoMovieQuadraticRow => input.constraints[i].row,
+    );
     // This restricted objective is diagonal with positive mass and zero linear
     // cost. A variable absent from every selected affine row has the exact
     // minimizer zero inside its [0, cap] interval. Eliminate that independent
     // block before numerical iteration: an interior-point barrier otherwise
     // leaves sqrt(energy error) travel near its zero optimum. Exact zero weights
     // do not couple variables; every nonzero weight, however small, does.
-    const incident = new Set<number>();
+    const incident: Set<number> = new Set<number>();
     for (const row of rows)
-      for (let j = 0; j < row.indices.length; j++)
+      for (let j: number = 0; j < row.indices.length; j++)
         if (row.weights[j] !== 0) incident.add(row.indices[j]);
-    const variables = input.mass
-      .map((_, i) => i)
-      .filter((i) => incident.has(i));
+    const variables: number[] = input.mass
+      .map((_: number, i: number): number => i)
+      .filter((i: number): boolean => incident.has(i));
     if (variables.length === 0)
       throw new Error("Bounded displacement has inconsistent constant rows.");
-    const lookup = new Map(variables.map((id, i) => [id, i]));
-    const solved = solveAutoMovieQuadraticProgram({
-      diagonal: variables.map((id) => input.mass[id]),
-      linear: variables.map(() => 0),
-      rows: rows
-        .map((row) => {
-          const columns = row.indices
-            .map((id, j) => ({ id, weight: row.weights[j] }))
-            .filter(({ weight }) => weight !== 0);
-          return {
-            ...row,
-            indices: columns.map(({ id }) => lookup.get(id)!),
-            weights: columns.map(({ weight }) => weight),
-          };
-        })
-        .concat(variables.map((id, i) => ({ ...bounds[id], indices: [i] }))),
-    });
+    const lookup: Map<number, number> = new Map(
+      variables.map((id: number, i: number): [number, number] => [id, i]),
+    );
+    const solved: {
+      status: number;
+      iterations: number;
+      primalResidual: number;
+      dualResidual: number;
+      objective: number;
+      dualObjective: number;
+      primal: number[];
+      dual: number[];
+    } & { maximumViolation: number; stationarityResidual: number } =
+      solveAutoMovieQuadraticProgram({
+        diagonal: variables.map((id: number): number => input.mass[id]),
+        linear: variables.map((): number => 0),
+        rows: rows
+          .map(
+            (
+              row: IAutoMovieQuadraticRow,
+            ): {
+              indices: number[];
+              weights: number[];
+              lower: number | null;
+              upper: number | null;
+            } => {
+              const columns: { id: number; weight: number }[] = row.indices
+                .map(
+                  (id: number, j: number): { id: number; weight: number } => ({
+                    id,
+                    weight: row.weights[j],
+                  }),
+                )
+                .filter(
+                  ({ weight }: { id: number; weight: number }): boolean =>
+                    weight !== 0,
+                );
+              return {
+                ...row,
+                indices: columns.map(
+                  ({ id }: { id: number; weight: number }): number =>
+                    lookup.get(id)!,
+                ),
+                weights: columns.map(
+                  ({ weight }: { id: number; weight: number }): number =>
+                    weight,
+                ),
+              };
+            },
+          )
+          .concat(
+            variables.map(
+              (
+                id: number,
+                i: number,
+              ): {
+                indices: number[];
+                weights: number[];
+                lower: number;
+                upper: number;
+              } => ({ ...bounds[id], indices: [i] }),
+            ),
+          ),
+      });
     status = solved.status;
     if (status !== 1)
       throw new Error(
@@ -141,9 +233,9 @@ export function solveAutoMovieBoundedDisplacement(input: {
       );
     // Roundoff cannot spend more than the caller's cap or retreat into a support.
     // Recheck all original rows on these exact returned values next iteration.
-    travel = input.mass.map(() => 0);
-    for (let i = 0; i < variables.length; i++) {
-      const id = variables[i];
+    travel = input.mass.map((): number => 0);
+    for (let i: number = 0; i < variables.length; i++) {
+      const id: number = variables[i];
       travel[id] = Math.max(0, Math.min(input.upper[id], solved.primal[i]));
     }
   }

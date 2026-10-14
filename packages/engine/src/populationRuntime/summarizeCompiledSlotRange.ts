@@ -3,6 +3,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
+
 /**
  * Exact bounds and running-mean centroid of one contiguous slot range.
  *
@@ -15,35 +17,29 @@ import {
  * them, are unchanged by the kernels moving here.
  *
  * Package-private: the engine root does not export it.
+ *
+ * @evidence contracts/common.md#principled-implementation Fold ascending positions into axis extrema and the historical incremental mean through createCompiledSlotSummary; order is preserved because compiled digest identity depends on binary64 operation order.
+ * @evidence contracts/common.md#clear-and-simple-design The range owner supplies slot addresses while the shared accumulator owns summary arithmetic, preventing drift between range and combined chunk/global folds.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No slot or content id changes arithmetic; empty ranges retain infinite bounds and zero centroid and therefore are outside admitted positive population summaries.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify exact placement-point bounds, incremental centroid, ascending traversal and package-private sharing; geometry expansion remains separate.
+ * @evidence contracts/performance.md#efficient-algorithms N positions take O(N) callback work plus constant arithmetic per point and O(1) auxiliary fold storage; callback placement cost must be included by its owner.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both range and combined summaries share the accumulator implementation; each call recomputes from its ordered current points rather than caching mutable placements.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the summary vectors transfer to the caller; no point history, callback reference, task or resource survives completion or failure.
  */
-export const summarizeCompiledSlotRange = (
+export const summarizeCompiledSlotRange: (
+  start: number,
+  count: number,
+  position: (slot: number) => IAutoMovieVector3,
+) => { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } = (
   start: number,
   count: number,
   position: (slot: number) => IAutoMovieVector3,
 ): { bounds: IAutoMovieFormationBounds; centroid: IAutoMovieVector3 } => {
-  const min = {
-    x: Number.POSITIVE_INFINITY,
-    y: Number.POSITIVE_INFINITY,
-    z: Number.POSITIVE_INFINITY,
-  };
-  const max = {
-    x: Number.NEGATIVE_INFINITY,
-    y: Number.NEGATIVE_INFINITY,
-    z: Number.NEGATIVE_INFINITY,
-  };
-  const centroid = { x: 0, y: 0, z: 0 };
-  for (let slot = start; slot < start + count; ++slot) {
-    const point = position(slot);
-    min.x = Math.min(min.x, point.x);
-    min.y = Math.min(min.y, point.y);
-    min.z = Math.min(min.z, point.z);
-    max.x = Math.max(max.x, point.x);
-    max.y = Math.max(max.y, point.y);
-    max.z = Math.max(max.z, point.z);
-    const seen = slot - start + 1;
-    centroid.x = centroid.x * ((seen - 1) / seen) + point.x / seen;
-    centroid.y = centroid.y * ((seen - 1) / seen) + point.y / seen;
-    centroid.z = centroid.z * ((seen - 1) / seen) + point.z / seen;
+  const summary: ReturnType<typeof createCompiledSlotSummary> =
+    createCompiledSlotSummary();
+  for (let slot: number = start; slot < start + count; ++slot) {
+    const point: IAutoMovieVector3 = position(slot);
+    summary.add(point);
   }
-  return { bounds: { min, max }, centroid };
+  return summary.finish();
 };

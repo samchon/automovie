@@ -3,58 +3,30 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
 
 /**
- * A semantic contact point an object declares in its **own model-local frame**,
- * where another body may rest, grab, plug, or hang, independent of any bone.
+ * A semantic contact point an object declares in its **own model-local frame**, where another body may rest, grab, plug, or hang, independent of any bone.
  *
- * This is the model-frame sibling of {@link IAutoMovieAttachment}: where that
- * couples a child to a **bone** of a posed skeleton (a rider on a horse), an
- * affordance marks a contact on the model itself (a crate's stackable top, a
- * mug's handle), so stacking and grabbing become authored data instead of
- * hand-tuned offsets. The engine's `resolveAffordanceSeat` aligns one model's
- * affordance frame onto another's; `affordanceSupportContacts` turns a
- * `stack-top` extent into the support contacts the topple judgment consumes.
+ * Bone attachments couple to a posed skeleton; an affordance instead marks a model-local contact used by prop anchoring and support consumers. propSupportFace transforms a stack-top footprint through the full affordance and staged matrices for placement support. The separate rigid-only affordanceSupportContacts helper currently has no product caller and does not establish a wired toppling pipeline.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `IAutoMovieAffordance` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `IAutoMovieAffordance` for the performance interaction attachment object handoff system contract.
+ * @evidence contracts/common.md#principled-implementation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
+ * @evidence contracts/common.md#clear-and-simple-design Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Point contacts require null extent. Stack-top admission checks finite XZ points and a noncollinear convex hull, without certifying the authored order as a simple convex polygon; propSupportFace constructs the transformed hull, so an authored concavity is not preserved as a support notch.
+ * @evidence contracts/common.md#meaningful-documentation States model-local frame ownership, contact-axis convention, coincident seating, model-scoped ids and the stack-top convex XZ extent with null for point contacts.
  * @author Samchon
  */
 export interface IAutoMovieAffordance {
-  /**
-   * Stable id, unique within the model; action targets cite it by this.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `id` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `id` for the performance interaction attachment object handoff system contract.
-   */
+  /** Stable id, unique within the model; action targets cite it by this. */
   id: string;
 
-  /**
-   * What the point is for. Drives which fields apply (see `extent`).
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `kind` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `kind` for the performance interaction attachment object handoff system contract.
-   */
+  /** What the point is for. Drives which fields apply (see `extent`). */
   kind: AutoMovieAffordanceKind;
 
   /**
-   * The contact frame in the model's local space: `translation` is where the
-   * contact sits, `rotation` orients it (`+Y` out of a stack-top face, out of a
-   * socket mouth). Seating aligns two of these frames coincident.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `frame` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `frame` for the performance interaction attachment object handoff system contract.
+   * The contact frame in the model's local space: `translation` is where the contact sits, `rotation` orients it (`+Y` out of a stack-top face, out of a socket mouth). Seating aligns two of these frames coincident.
    */
   frame: IAutoMovieTransform;
 
   /**
-   * The supporting face's footprint for a `"stack-top"`: a convex polygon in
-   * the affordance frame's XZ plane, at least three non-collinear points, `y`
-   * ignored (write `0`): the same minimal parameterization as
-   * {@link IAutoMovieSurface.polygon}. Its corners, transformed to world, become
-   * #601 support contacts. **Must be `null` for point-like kinds** (`handle` /
-   * `socket` / `hook`), which have no face to rest on.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `extent` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `extent` for the performance interaction attachment object handoff system contract.
+   * Stack-top support points in the affordance-local XZ plane, with at least three noncollinear finite XZ points; y is ignored. The intended footprint is convex: propSupportFace transforms the points and constructs their convex hull, filling any authored concavity. Point-like handle, socket and hook kinds require null. This does not establish a wired toppling judgment.
    */
   extent: IAutoMovieVector3[] | null;
 }

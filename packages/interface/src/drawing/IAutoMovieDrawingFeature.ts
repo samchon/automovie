@@ -4,66 +4,39 @@ import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
  * Which geometric feature of the design an annotation or dimension is pinned
  * to.
  *
- * A note that says "2.4 m" beside a wall is a lie the moment the wall moves. A
- * note pinned to a feature is re-derived from the design every time the drawing
- * is taken, so it either moves with the wall or says out loud that it could not
- * find it. Both outcomes are correct; a stale number that still looks right is
- * the only wrong one.
+ * Derivation re-resolves this positional address against current static CPU geometry. It moves the note anchor or recomputes a dimension, but note text is copied as authored. Coordinate sorting can renumber features after rotation or deformation, and equal feature counts do not establish that an index still identifies the originally intended feature.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `IAutoMovieDrawingFeature` as the portable data boundary for the interior drawing views requirement.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingFeature` for the interior space drawing schedule quantity system contract.
+ * @evidence contracts/common.md#principled-implementation `resolveAutoMovieDrawingFeature` places the element by its world matrix, filters the model's parts when `part` is set, builds the addressed family in a canonical order, and refuses a non-integer or out-of-range index or a count that differs from the current family size.
+ * @evidence contracts/common.md#clear-and-simple-design Element, optional part, family, index and optional count form a coordinate-free positional address. The count detects size changes in the addressed family, not arbitrary replacements; stable feature identity or geometry-version tracking is not stored.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed feature count makes the target stale instead of relocating it onto whichever feature inherited the index, and an unresolvable target never snaps to the nearest surviving feature.
+ * @evidence contracts/common.md#meaningful-documentation States what places the feature, when `part` is ignored, which families renumber under reordering and which do not, the legal index for `axis` and `centroid`, and what the authored count protects against.
  * @author Samchon
  */
 export interface IAutoMovieDrawingFeature {
-  /**
-   * Building element the feature belongs to.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `element` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `element` for the interior space drawing schedule quantity system contract.
-   */
+  /** Building element the feature belongs to; its world matrix places it. */
   element: string;
 
   /**
    * Model part within the element, or `null` for the element's whole geometry.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `part` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `part` for the interior space drawing schedule quantity system contract.
+   * Ignored for `axis`.
    */
   part: string | null;
 
-  /**
-   * Which family of feature is addressed.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `kind` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Which family of feature is addressed. */
   kind: AutoMovieDrawingFeatureKind;
 
   /**
-   * Index into the addressed family, in the engine's canonical order.
+   * Integer index into the addressed family.
    *
-   * Vertices, edges and faces are addressed in a canonical order derived from
-   * the geometry itself rather than in the order the model happened to emit
-   * them, so reordering a model's parts does not move every note on every
-   * sheet. For `axis` this is `0`, `1` or `2` for the element's local X, Y or
-   * Z; for `centroid` it is ignored and must be `0`.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `index` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `index` for the interior space drawing schedule quantity system contract.
+   * Vertices and edges are welded at six decimals and sorted by world grid coordinates; unchanged grid geometry keeps its ordering when parts reorder. Within a shared grid key the last emitted unrounded representative wins, so part order can still change the resolved point. Rotation or deformation can reorder keys. Faces retain part/triangle emission order. Axis indices are 0, 1 and 2 for local X, Y and Z; centroid requires 0.
    */
   index: number;
 
   /**
    * Feature count the target was authored against, or `null` to skip the check.
+   * An `axis` family always counts `3` and a `centroid` family `1`.
    *
-   * This is what separates "the wall moved" from "the wall is a different
-   * wall". A positional index re-resolves happily against changed geometry,
-   * which is the point; but if the count changed, the index now addresses a
-   * different feature, and the target is reported stale rather than silently
-   * relocated onto whichever feature inherited the number.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Exposes `count` as the portable data boundary for the interior drawing views requirement.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `count` for the interior space drawing schedule quantity system contract.
+   * A changed family count makes the target stale even when its index remains in range. Equal counts skip that refusal and do not prove unchanged topology, coordinates or intended identity; null skips only the count check, not index admission.
    */
   count: number | null;
 }

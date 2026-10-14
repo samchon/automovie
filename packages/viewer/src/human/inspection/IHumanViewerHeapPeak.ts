@@ -1,57 +1,29 @@
 /**
- * The largest heap reading of the resident page since the server started,
- * with the work stage that produced it, so a memory peak can be traced to the
- * document and generation that caused it.
+ * The largest successful resident-page heap sample since server start, labeled with the work event that triggered its asynchronous query. That event is descriptive provenance rather than exact contemporaneous causation.
  *
- * @evidence contracts/common.md#principled-implementation Ties each peak to the stage and source generation it was read at.
- * @evidence contracts/common.md#meaningful-documentation Names every field a memory investigation needs.
- *
- * @evidence contracts/common.md#clear-and-simple-design One byte peak keeps its source, document, phase and time beside the observed amount.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The record cannot certify unseen intra-stage memory peaks; it stores the stage sample the owner actually read.
- *
- * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Ties each peak to the stage and source generation it was read at.
- * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting The record cannot certify unseen intra-stage memory peaks; it stores the stage sample the owner actually read.
+ * @evidence contracts/common.md#principled-implementation Associates the largest successful page-heap reading with the work event that triggered its asynchronous sample.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps scalar byte peak and descriptive document/source/phase provenance together without storing a complete sample history.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The trigger is not exact contemporaneous stage causation; within-stage or absorbed events can exceed the sampled peak.
+ * @evidence contracts/common.md#meaningful-documentation Documents used bytes and sample-completion ISO time, with revision/doc/phase taken from the initiating work observation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Peak records perform no query; the gauge updates only when a successfully sampled usedSize exceeds the prior value.
+ * @evidence contracts/performance.md#reuse-equivalent-work The gauge retains this maximum for server-lifetime reporting, while per-capture learning has a separate marked-window peak.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One record/string set remains until a larger sample replaces it; it owns no page, worker or numerical model arrays.
  *
  * @author Samchon
  */
 export interface IHumanViewerHeapPeak {
-  /**
-   * Bytes in use at the peak.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Carries V8's measured used-heap bytes at the actual sampled peak.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Carries V8's measured used-heap bytes at the actual sampled peak.
-   */
+  /** Bytes in use at the peak. */
   usedSize: number;
 
-  /**
-   * Source generation the page had loaded.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Associates the sampled peak with the source generation loaded by that page.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Associates the sampled peak with the source generation loaded by that page.
-   */
+  /** Source revision reported by the work event that triggered sampling. */
   revision: string;
 
-  /**
-   * Document the page was working on.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Identifies the document whose work accompanied the largest observed heap reading.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Identifies the document whose work accompanied the largest observed heap reading.
-   */
+  /** Document reported by the triggering work event. */
   doc: string;
 
-  /**
-   * Work stage reported just before the reading.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Retains the actual work phase reported before the peak sample.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Retains the actual work phase reported before the peak sample.
-   */
+  /** Work phase that triggered this asynchronous reading. */
   phase: string;
 
-  /**
-   * ISO time of the reading.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Locates the actual measurement in wall time without treating its age as a memory limit.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Locates the actual measurement in wall time without treating its age as a memory limit.
-   */
+  /** ISO wall-clock time when the successful reading completed. */
   at: string;
 }

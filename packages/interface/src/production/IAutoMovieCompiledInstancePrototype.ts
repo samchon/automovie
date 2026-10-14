@@ -1,49 +1,27 @@
 import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 
 /**
- * One builder-resolved reusable prototype in a general instance set.
+ * One engine-compiled reusable prototype in a general instance set. Weight participates in seeded per-slot selection; projectionRadius is an unscaled source-radius estimate rather than a certified geometry bound.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `IAutoMovieCompiledInstancePrototype` as the portable data boundary for the asset prototype and instance requirement.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `IAutoMovieCompiledInstancePrototype` for the asset prototype and instance system contract.
+ * @evidence contracts/common.md#principled-implementation Stable prototype identity and positive weight define seeded choices; compiled tiers and the maximum applicable radius estimate supply LOD/culling inputs. Missing estimates use base then 0.5m with a 0.01m floor, without proving root-centered model enclosure.
+ * @evidence contracts/common.md#clear-and-simple-design Prototype-specific recipe, weight, tiers and radius live once in the compiled table instead of repeating model definitions and selection parameters on each generated slot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Prototype selection uses the declared weighted seeded law rather than instance labels, and per-slot scale must act on the stored source radius rather than silently treating every instance as unit sized.
+ * @evidence contracts/common.md#meaningful-documentation Defines engine compilation, positive deterministic weight, LOD ordering, recipe ownership and the radius's metre units before slot scaling.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledInstancePrototype {
-  /**
-   * Stable source prototype id.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `id` as the portable data boundary for the asset prototype and instance requirement.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `id` for the asset prototype and instance system contract.
-   */
+  /** Stable source prototype id. */
   id: string;
 
-  /**
-   * Source model recipe.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `modelRecipe` as the portable data boundary for the asset prototype and instance requirement.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `modelRecipe` for the asset prototype and instance system contract.
-   */
+  /** Source model recipe. */
   modelRecipe: string;
 
-  /**
-   * Positive deterministic selection weight.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `weight` as the portable data boundary for the asset prototype and instance requirement.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `weight` for the asset prototype and instance system contract.
-   */
+  /** Positive deterministic selection weight. */
   weight: number;
 
-  /**
-   * Ordered automatic LOD representations for this prototype.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `lod` as the portable data boundary for the asset prototype and instance requirement.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `lod` for the asset prototype and instance system contract.
-   */
+  /** Ordered automatic LOD representations for this prototype. */
   lod: IAutoMovieCompiledFormationLod[];
 
-  /**
-   * Conservative source-model radius before per-slot scaling.
-   *
-   * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Exposes `projectionRadius` as the portable data boundary for the asset prototype and instance requirement.
-   * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Types `projectionRadius` for the asset prototype and instance system contract.
-   */
+  /** Supplied or fallback source-radius estimate in metres before slot scaling; model root offset and complete geometry coverage are separate producer premises. */
   projectionRadius: number;
 }

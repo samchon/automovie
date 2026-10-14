@@ -1,7 +1,9 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 /** The original zero-thickness plane fixture used to distinguish unmeasurable tiers from real columns. */
-export const createFormationFlatModel = (wide: IAutoMovieModel): IAutoMovieModel => {
+export const createFormationFlatModel = (
+  wide: IAutoMovieModel,
+): IAutoMovieModel => {
   return {
     ...wide,
     id: "flat",

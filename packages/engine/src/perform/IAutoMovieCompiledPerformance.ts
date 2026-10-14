@@ -3,29 +3,25 @@ import { IAutoMovieMotion } from "@automovie/interface";
 import { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
 
 /**
- * What {@link compilePerformance} produced: the per-actor clips, and the
- * authored content its region masks discarded.
+ * compilePerformance's actor-keyed clips and every channel removed by body-region masks. Actors without a returned clip have no entry; mask reports retain the original action index and actor.
  *
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-local-clock Carries the resolved per-actor motions on their shot-local performance clock.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Defines the public receipt for a compiled actor performance.
+ * @evidence contracts/common.md#principled-implementation A string-keyed record matches downstream per-node motion lookup, and a separate ordered report prevents discarded authored content from being confused with successfully applied content.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps timeline output and loss diagnostics in one return value without a status wrapper or extra synthesis pass.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty masked means no region loss, not universal ROM or physical validity; those gates remain downstream.
+ * @evidence contracts/common.md#meaningful-documentation Documents exact actor keys, null-synthesis absence, original action indices and report ordering.
+ * @evidence contracts/performance.md#efficient-algorithms The type adds no processing; clip/keyframe population and mask count determine storage allocated by compilePerformance.
+ * @evidence contracts/performance.md#reuse-equivalent-work Consumers reuse the compiled clips and report directly; the type introduces no duplicate motion representation or cross-shot cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result and clips, including nested borrowed content documented by motion assembly; no background job or external handle is retained.
  * @author Samchon
  */
 export interface IAutoMovieCompiledPerformance {
-  /**
-   * Per-actor performance motion, keyed by actor node id.
-   *
-   * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-local-clock Binds every compiled actor motion to its resolved shot-local timeline.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Emits the per-actor resolved performance state.
-   */
+  /** Per-actor performance motion, keyed by actor node id. */
   performances: Record<string, IAutoMovieMotion>;
 
   /**
-   * Every piece of authored content a region mask dropped, ordered by action
-   * index then actor. Empty when every clip fell inside its own region, which
-   * is the ordinary case.
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Preserves every non-empty mask loss beside the compiled performance.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Makes layer-composition omissions part of the public result rather than a silent drop.
+   * Every action/actor's content removed by its region mask. Traversal follows
+   * first-encounter actor and region order, then placement start and action
+   * index within that region; it is not globally action-index sorted.
    */
   masked: IAutoMovieMaskedContent[];
 }

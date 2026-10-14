@@ -1,5 +1,5 @@
 /**
- * One variable-length lap-siding board from docs/models/15-outdoor.md.
+ * One variable-length lap-siding board
  * The wall datum and course membership come from instances; this source owns
  * only the board's local Y-up metre section and independently bound faces.
  */

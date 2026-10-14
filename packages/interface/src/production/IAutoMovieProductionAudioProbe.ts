@@ -1,90 +1,69 @@
 import { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
 
 /**
- * Parser-observed audio track and presentation facts.
+ * Parser-observed MP4 audio track and presentation facts.
  *
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Makes final channel layout and sample-clock identity inspectable from the published stream.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Binds the final audio inventory to its actual timebase, samples, and codec description.
+ * @evidence contracts/common.md#principled-implementation The rendered-media probe parses resident MP4 track tables, sample entry and edit list, deriving presentation runtime from movie duration and timescale and decoder priming from the Opus pre-skip.
+ * @evidence contracts/common.md#clear-and-simple-design Separates convenient scalar audio facts from raw integer clocks and the complete codec entry so delivery checks can compare exact timebases and codec identity without reparsing bytes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Values come from parsed bytes rather than render-manifest claims; packet count is not PCM sample count, and priming is retained instead of folded silently into presentation duration.
+ * @evidence contracts/common.md#meaningful-documentation Defines audio class, MP4 container, seconds, channels, sample rate, packet count, priming samples and movie versus media tick domains.
+ * @author Samchon
  */
 export interface IAutoMovieProductionAudioProbe {
-  /**
-   * Parsed media class.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-supported-combinations Identifies one final audio track within the delivered container and codec combination.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the audio inventory kind.
-   */
+  /** Parsed media class. */
   kind: "audio";
 
-  /**
-   * Parsed container family.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-supported-combinations Preserves the observed container family of the final audio stream.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the audio inventory container.
-   */
+  /** Parsed container family. */
   container: "mp4";
 
-  /**
-   * Parsed codec string.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-supported-combinations Preserves the observed codec of the final audio stream.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the audio inventory codec.
-   */
+  /** Parsed codec string. */
   codec: string;
 
-  /**
-   * Parsed presentation runtime.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-stream-duration-interleave Preserves the observed presentation duration of the final audio stream.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#audio-visual-duration-and-timebase-join Supplies the audio side of the duration join.
-   */
+  /** Parsed presentation runtime. */
   runtimeSeconds: number;
 
-  /**
-   * Parsed channel count.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the actual final channel population.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final channel count.
-   */
+  /** Parsed channel count. */
   channels: number;
 
-  /**
-   * Parsed media sample rate.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Preserves the final audio clock every sample count is measured against.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final sample rate.
-   */
+  /** Parsed media sample rate. */
   sampleRate: number;
 
-  /**
-   * Parsed packet count.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Proves the exact resident coded sample count of the final track.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the coded packet population.
-   */
+  /** Parsed packet count. */
   sampleCount: number;
 
-  /**
-   * Parsed decoder priming in samples.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-stream-duration-interleave Preserves the observed priming-like presentation offset of the final audio stream.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#audio-visual-duration-and-timebase-join Supplies the audio priming fact.
-   */
+  /** Parsed decoder priming in samples. */
   primingSamples: number;
 
-  /**
-   * Raw movie and media integer clocks.
-   * @evidence requirements/delivery-and-accessibility/frame-rate-timebase-and-timecode.md#delivery-stream-synchronization Preserves exact presentation and media timebases.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#audio-visual-duration-and-timebase-join Supplies the integer audio clock join.
-   */
+  /** Raw movie and media integer clocks. */
   timebase: {
+    /** Movie presentation ticks per second. */
     movieTimescale: number;
+
+    /** Audio media ticks per second. */
     mediaTimescale: number;
+
+    /** Track presentation duration in movie ticks. */
     movieDuration: number;
+
+    /** Encoded media duration in media ticks, including priming. */
     mediaDuration: number;
+
+    /** Parsed edit-list entries in their resident order. */
     edits: Array<{
+      /** Presentation segment length in movie ticks. */
       segmentDuration: number;
+
+      /** Media start in media ticks; minus one denotes an empty edit. */
       mediaTime: number;
+
+      /** Integer part of the signed fixed-point media rate. */
       mediaRateInteger: number;
+
+      /** Fractional part of the fixed-point media rate. */
       mediaRateFraction: number;
     }>;
   };
 
-  /**
-   * Complete parsed codec sample entry.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves channel mapping and gain beside track facts.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-delivery-stream-and-inventory Supplies the final codec description.
-   */
+  /** Complete parsed codec sample entry. */
   sampleEntry: IAutoMovieProductionOpusDescription;
 }

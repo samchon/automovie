@@ -1,20 +1,23 @@
 import {
-  IAutoMovieActionSynthesizer,
-  compareCodeUnits,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
-import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
   IAutoMovieExpression,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { compareCodeUnits } from "../../../../packages/engine/src/text/compareCodeUnits";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -23,7 +26,9 @@ import {
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-/** The hind legs of a retargeted quadruped: the humanoid `lowerBody` chain. */
+/**
+ * The hind legs of a retargeted quadruped: the humanoid `lowerBody` chain.
+ */
 const HIND: AutoMovieHumanoidBone[] = [
   "leftUpperLeg",
   "leftLowerLeg",
@@ -33,7 +38,9 @@ const HIND: AutoMovieHumanoidBone[] = [
   "rightFoot",
 ];
 
-/** The front legs of a retargeted quadruped: the humanoid arm chains. */
+/**
+ * The front legs of a retargeted quadruped: the humanoid arm chains.
+ */
 const FORE: AutoMovieHumanoidBone[] = [
   "leftUpperArm",
   "leftLowerArm",
@@ -43,14 +50,20 @@ const FORE: AutoMovieHumanoidBone[] = [
   "rightHand",
 ];
 
-/** Every bone the twelve-channel quadruped gait drives. */
+/**
+ * Every bone the twelve-channel quadruped gait drives.
+ */
 const QUADRUPED: AutoMovieHumanoidBone[] = [...HIND, ...FORE];
 
-/** The hind chain plus the boundary member `lowerBody` also owns. */
+/**
+ * The hind chain plus the boundary member `lowerBody` also owns.
+ */
 const INSIDE_LOWER: AutoMovieHumanoidBone[] = ["hips", ...HIND];
 
-/** The fore-leg bones as the violation must name them: code-unit sorted. */
-const FORE_SORTED =
+/**
+ * The fore-leg bones as the violation must name them: code-unit sorted.
+ */
+const FORE_SORTED: string =
   "leftHand, leftLowerArm, leftUpperArm, rightHand, rightLowerArm, rightUpperArm";
 
 const HAPPY: IAutoMovieExpression = {
@@ -59,24 +72,38 @@ const HAPPY: IAutoMovieExpression = {
   blendshapes: null,
 };
 
-const rootAt = (x: number): IAutoMovieTransform => ({
+const rootAt: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-/** A two-keyframe clip over `bones`, optionally carrying a root / expression. */
-const clip = (props: {
+/**
+ * A two-keyframe clip over `bones`, optionally carrying a root / expression.
+ */
+const clip: (props: {
+  bones: AutoMovieHumanoidBone[];
+  root?: boolean;
+  expression?: boolean;
+}) => IAutoMovieMotion = (props: {
   bones: AutoMovieHumanoidBone[];
   root?: boolean;
   expression?: boolean;
 }): IAutoMovieMotion => {
-  const pose = (flexion: number): IAutoMoviePose =>
+  const pose: (flexion: number) => IAutoMoviePose = (
+    flexion: number,
+  ): IAutoMoviePose =>
     makePose(
-      props.bones.map((bone) => joint(bone, { flexion })),
+      props.bones.map(
+        (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
+          joint(bone, { flexion }),
+      ),
       props.root === true ? rootAt(flexion / 20) : null,
     );
-  const expression = props.expression === true ? HAPPY : null;
+  const expression: IAutoMovieExpression | null =
+    props.expression === true ? HAPPY : null;
   return makeMotion(
     [
       keyframe(0, pose(0), "linear", expression),
@@ -86,7 +113,9 @@ const clip = (props: {
   );
 };
 
-const gait = (
+const gait: (
+  region?: IAutoMovieActionCall["region"],
+) => IAutoMovieActionCall = (
   region?: IAutoMovieActionCall["region"],
 ): IAutoMovieActionCall => ({
   verb: "locomote",
@@ -108,45 +137,45 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const bonesOf = (motion: IAutoMovieMotion): Set<AutoMovieHumanoidBone> =>
-  new Set(motion.keyframes.flatMap((k) => k.pose.joints.map((j) => j.bone)));
+const bonesOf: (motion: IAutoMovieMotion) => Set<AutoMovieHumanoidBone> = (
+  motion: IAutoMovieMotion,
+): Set<AutoMovieHumanoidBone> =>
+  new Set(
+    motion.keyframes.flatMap((k: IAutoMovieKeyframe): AutoMovieHumanoidBone[] =>
+      k.pose.joints.map(
+        (j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone,
+      ),
+    ),
+  );
 
 /**
- * `perform` must never drop authored content in silence (#1349). The
- * body-region mask is deliberate (disjoint regions are what let a walk and a
- * wave layer), but it used to discard whatever fell outside the action's region
- * and still return `success: true` with zero violations: a benchmark run
- * shipped a walking quadruped whose two front legs never moved, because a
- * retargeted quadruped's fore legs ride the humanoid ARM chains and an author
- * can explicitly narrow `locomote` to `lowerBody`. The builder holds both
- * facts at the moment it drops one, so it now states what it masked and the
- * shot gate refuses, pointing at the `region` field the author owns rather than
- * at the compiled clip they would have to diff.
+ * Performs synthesized clips through region masks and checks located dropped-bone/root/expression diagnoses, surviving channels and actor-ordered reports.
  *
  * Scenarios:
+ * 1. Refuse fore-leg channels masked by lowerBody and report every lost bone.
+ * 2. Keep all twelve channels under the default fullBody region.
+ * 3. Keep hips and hind-chain channels inside lowerBody.
+ * 4. Distinguish combined root/expression loss from expression-only loss.
+ * 5. Report each actor in a shared action in actor-id order.
  *
- * 1. Positive. A twelve-bone quadruped gait explicitly narrowed to `lowerBody`
- *    fails, with a `type` violation on `$input.draft[0].region` naming every
- *    one of the six masked fore-leg bones in code-unit order.
- * 2. Negative twin. The same gait with the default `fullBody` region performs, and
- *    all twelve authored bones reach the compiled clip.
- * 3. Boundary, the region's own bones. A gait confined to `hips` plus the hind
- *    chain (all inside `lowerBody`, `hips` being the member a leg chain sits
- *    next to) performs, and every one of those bones survives.
- * 4. The other two masked channels. A `head` action layered beside a `lowerBody`
- *    one loses its root, and any non-`face` clip loses its expression; both are
- *    named in one violation, while a clip losing only its expression names just
- *    that.
- * 5. One record per (action, actor): a unison action masked for two actors reports
- *    each separately, ordered by action index then actor id.
+ * @evidence contracts/testing.md#behavioral-verification Performs synthesized clips through region masks and checks located dropped-bone/root/expression diagnoses, surviving channels and actor-ordered reports.
+ * @evidence contracts/testing.md#independent-expectations The authored quadruped and hips/hind bone lists define membership; expected foreground names are independently code-unit ordered and the caller's channel data defines every expected drop.
+ * @evidence contracts/testing.md#distinguishing-cases Retains narrowed/default masks, boundary hips, combined and expression-only losses, and two-actor reporting; ROM is deliberately absent here and covered elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_masked_channels unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_masked_channels = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_masked_channels(): void {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
-  const perform = (
+  const perform: (
     draft: IAutoMovieActionCall[],
     synthesize: IAutoMovieActionSynthesizer,
-  ) =>
+  ) => IAutoMoviePerformedShot = (
+    draft: IAutoMovieActionCall[],
+    synthesize: IAutoMovieActionSynthesizer,
+  ): IAutoMoviePerformedShot =>
     performShot({
       script: makeScriptWrite(),
       staged,
@@ -157,12 +186,15 @@ export const test_film_perform_shot_masked_channels = (): void => {
       synthesize,
       // No rig: this scenario is about the region mask, not about ROM, so the
       // motion gate stays out of the picture on both sides of the twin.
-      skeleton: () => null,
+      skeleton: (): null => null,
     });
 
   // 1. positive: an explicitly narrow region cannot carry the fore legs
-  const quadruped = clip({ bones: QUADRUPED });
-  const dropped = perform([gait("lowerBody"), frame], () => quadruped);
+  const quadruped: IAutoMovieMotion = clip({ bones: QUADRUPED });
+  const dropped: IAutoMoviePerformedShot = perform(
+    [gait("lowerBody"), frame],
+    (): IAutoMovieMotion => quadruped,
+  );
   TestValidator.equals(
     "a gait reaching outside its region fails the shot",
     dropped.success,
@@ -175,13 +207,13 @@ export const test_film_perform_shot_masked_channels = (): void => {
   TestValidator.equals(
     "the violation names every masked bone in code-unit order",
     namedFacts([
-      ["refused", () => dropped.success === false],
+      ["refused", (): boolean => dropped.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           dropped.success === false &&
           dropped.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path === "$input.draft[0].region" &&
               v.expected.includes(FORE_SORTED) &&
               v.expected.includes('"lowerBody"') &&
@@ -193,7 +225,10 @@ export const test_film_perform_shot_masked_channels = (): void => {
   );
 
   // 2. negative twin: the default full-body gait owns every authored bone
-  const widened = perform([gait(), frame], () => quadruped);
+  const widened: IAutoMoviePerformedShot = perform(
+    [gait(), frame],
+    (): IAutoMovieMotion => quadruped,
+  );
   TestValidator.equals(
     "the same gait on fullBody performs",
     widened.success,
@@ -208,8 +243,9 @@ export const test_film_perform_shot_masked_channels = (): void => {
   );
 
   // 3. boundary: hips is the lowerBody member a leg gait sits next to
-  const clean = perform([gait("lowerBody"), frame], () =>
-    clip({ bones: INSIDE_LOWER }),
+  const clean: IAutoMoviePerformedShot = perform(
+    [gait("lowerBody"), frame],
+    (): IAutoMovieMotion => clip({ bones: INSIDE_LOWER }),
   );
   TestValidator.equals(
     "a gait entirely inside its region performs",
@@ -225,7 +261,7 @@ export const test_film_perform_shot_masked_channels = (): void => {
   );
 
   // 4. the root and expression channels, and an expression-only drop
-  const rootAndFace = perform(
+  const rootAndFace: IAutoMoviePerformedShot = perform(
     [
       gait("lowerBody"),
       {
@@ -237,7 +273,7 @@ export const test_film_perform_shot_masked_channels = (): void => {
       },
       frame,
     ],
-    (action) =>
+    (action: IAutoMovieActionCall): IAutoMovieMotion =>
       action.verb === "locomote"
         ? clip({ bones: ["hips"], expression: true })
         : clip({ bones: ["head"], root: true, expression: true }),
@@ -245,13 +281,13 @@ export const test_film_perform_shot_masked_channels = (): void => {
   TestValidator.equals(
     "a layered non-locomotion region reports its dropped root and expression",
     namedFacts([
-      ["refused", () => rootAndFace.success === false],
+      ["refused", (): boolean => rootAndFace.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           rootAndFace.success === false &&
           rootAndFace.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path === "$input.draft[1].region" &&
               v.expected.includes("a root displacement and an expression") &&
               v.value === "head",
@@ -263,13 +299,13 @@ export const test_film_perform_shot_masked_channels = (): void => {
   TestValidator.equals(
     "a clip losing only its expression names only that",
     namedFacts([
-      ["refused", () => rootAndFace.success === false],
+      ["refused", (): boolean => rootAndFace.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           rootAndFace.success === false &&
           rootAndFace.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path === "$input.draft[0].region" &&
               v.expected.includes("authors an expression") &&
               !v.expected.includes("root displacement") &&
@@ -281,7 +317,7 @@ export const test_film_perform_shot_masked_channels = (): void => {
   );
 
   // 5. one record per (action, actor), ordered by action index then actor
-  const unison = perform(
+  const unison: IAutoMoviePerformedShot = perform(
     [
       {
         verb: "locomote",
@@ -294,13 +330,16 @@ export const test_film_perform_shot_masked_channels = (): void => {
       },
       frame,
     ],
-    () => quadruped,
+    (): IAutoMovieMotion => quadruped,
   );
   TestValidator.equals(
     "a unison action reports each masked actor, ordered by actor id",
     unison.success === false
-      ? unison.violations.map((v) => v.expected.split("'s clip")[0]!)
+      ? unison.violations.map(
+          (v: IAutoMovieConstraintViolation): string =>
+            v.expected.split("'s clip")[0]!,
+        )
       : [],
     ["knightA", "knightB"],
   );
-};
+}

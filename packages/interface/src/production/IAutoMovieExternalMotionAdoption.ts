@@ -5,104 +5,39 @@ import { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalMotion
 /**
  * User-owned decision to adopt one external motion take in one shot.
  *
- * The engine validates and applies this record. It does not select the asset,
- * take, target actor, adoption mode, or retarget mapping.
+ * This retains production intent; the production conversion host is retired. Ingest's executable adoption API uses its own separate local contract and does not automatically consume this record.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes native use and retargeting explicit user choices.
- * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Carries the selected source member, target, and composition mode.
- *
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `IAutoMovieExternalMotionAdoption` for the performance motion external adoption receipt system contract.
+ * @evidence contracts/common.md#principled-implementation Asset, take, shot, actor, exposed clip, source rig and mapping explicitly describe one intended conversion. This pure declaration has no surviving production inventory/conversion reader; byte identity, rig compatibility, conversion precision and actor binding require an explicit host rather than following from these fields.
+ * @evidence contracts/common.md#clear-and-simple-design Asset and take selection, actor ownership, exposed clip and mapping are declared once, with retarget-only translation scale confined to the mode union.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No automatic asset/take selection or name-derived mapping is declared. Actor/clip exclusivity and actual enactment are intended obligations without a surviving production enforcement gate; retaining this metadata does not create a converted clip.
+ * @evidence contracts/common.md#meaningful-documentation Identifies user ownership of every adoption choice, manifest and inspected take addressing, shot and actor scope, exposed clip identity and byte-grounded source characterization.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionAdoption {
-  /**
-   * Stable adoption identity.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-receipt Gives the adoption a production-owned receipt identity.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Identifies this exact source-to-target decision.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Exposes `id` as the portable data boundary for the motion external adoption mode requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `id` for the performance motion external adoption receipt system contract.
-   */
+  /** Stable adoption identity. */
   id: string;
 
-  /**
-   * Manifest-owned external motion asset path.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Joins the decision to digest-bound source bytes.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Names the adopted source identity.
-   *
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `asset` for the performance motion external adoption receipt system contract.
-   */
+  /** Manifest-owned external motion asset path. */
   asset: string;
 
-  /**
-   * Take id from the asset's inspected motion record.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Makes source-member selection explicit.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Selects one inspected member without provider inference.
-   *
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `take` for the performance motion external adoption receipt system contract.
-   */
+  /** Take id from the asset's inspected motion record. */
   take: string;
 
-  /**
-   * Shot contract in which the adoption is available.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Bounds use to one authored shot decision.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Identifies the composition scope.
-   *
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `shot` for the performance motion external adoption receipt system contract.
-   */
+  /** Shot contract in which the adoption is available. */
   shot: string;
 
-  /**
-   * Actor participant that performs the adopted take.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Leaves target selection to the production.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Identifies the selected target participant.
-   *
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `actor` for the performance motion external adoption receipt system contract.
-   */
+  /** Actor participant that performs the adopted take. */
   actor: string;
 
-  /**
-   * Stable clip id exposed to the shot source after successful adoption.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-receipt Gives downstream composition a stable adopted-result identity.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Preserves motion identity at the source boundary.
-   */
+  /** Stable clip id exposed to the shot source after successful adoption. */
   clip: string;
 
-  /**
-   * Authored semantic source rig reconciled with the byte-inspected basis.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Provides the source rig basis needed to interpret imported node tracks.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-external-adoption-retarget-characterization Carries source rest hierarchy for native compatibility and retarget characterization.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Exposes `sourceRig` as the portable data boundary for the motion external adoption mode requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `sourceRig` for the performance motion external adoption receipt system contract.
-   */
+  /** Authored semantic source rig reconciled with the byte-inspected basis. */
   sourceRig: IAutoMovieSkeleton;
 
-  /**
-   * Explicit source-node to target-semantic-bone mappings.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-compatibility-override Makes imported channel interpretation explicit in both adoption modes.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-external-adoption-retarget-characterization Carries the characterized node-to-semantic mapping.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Exposes `mapping` as the portable data boundary for the motion external adoption mode requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `mapping` for the performance motion external adoption receipt system contract.
-   */
+  /** Explicit source-node to target-semantic-bone mappings. */
   mapping: IAutoMovieExternalMotionMappingEntry[];
 
-  /**
-   * Explicit native or humanoid-retarget adoption decision.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Prevents the engine from choosing retargeting on the user's behalf.
-   * @evidence specifications/interchange-and-adoption/adoption-decisions-and-composition.md#interchange-selection-override-resolution Records the selected adoption mode and its parameters.
-   *
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types `mode` for the performance motion external adoption receipt system contract.
-   */
+  /** Explicit native or humanoid-retarget adoption decision. */
   mode: IAutoMovieExternalMotionAdoptionMode;
 }

@@ -28,6 +28,14 @@ import type { IAutoMovieHumanBasisNormalSubdivision } from "./IAutoMovieHumanBas
  * The source compiler and geometry owner retain coverage, fold and collision
  * checks; the assembly owns performed transport and rendered observation.
  *
+ * @evidence contracts/common.md#principled-implementation Shared fixed-source subdivisions and per-half cell and vertex bindings carry ancestral normal incidence through deformation.
+ * @evidence contracts/common.md#clear-and-simple-design The transport metadata preserves geometric source identities separately from deformation-side normal domains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generation labels alone establish neither compatible reference geometry nor valid coverage; shading convention is not a tissue law.
+ * @evidence contracts/common.md#meaningful-documentation The prose states area-ratio differential transport, unchanged-state behavior and binding refusal conditions.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The ancestral normal transport schema has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ancestral normal transport schema schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The ancestral normal transport schema declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBasisNormalTransport {

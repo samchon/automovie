@@ -9,51 +9,68 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { createModel } from "../internal/fixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-/** A loader that counts decodes and lets one named asset fail. */
-const recordingLoader = (props?: { fails?: string }) => {
+/** The existing callback counts host load requests and lets one named asset fail. */
+const recordingLoader: (props?: { fails?: string }) => {
+  decoded: string[];
+  disposals: string[];
+  load: (asset: string) => Promise<THREE.Texture>;
+} = (props?: {
+  fails?: string;
+}): {
+  decoded: string[];
+  disposals: string[];
+  load: (asset: string) => Promise<THREE.Texture>;
+} => {
   const decoded: string[] = [];
   const disposals: string[] = [];
-  const load = async (asset: string): Promise<THREE.Texture> => {
+  const load: (asset: string) => Promise<THREE.Texture> = async (
+    asset: string,
+  ): Promise<THREE.Texture> => {
     decoded.push(asset);
     if (asset === props?.fails)
       throw new Error(`decode refused for "${asset}"`);
-    const texture = new THREE.Texture();
+    const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
+      new THREE.Texture();
     texture.name = asset;
-    texture.addEventListener("dispose", () => disposals.push(asset));
+    texture.addEventListener("dispose", (): number => disposals.push(asset));
     return texture;
   };
   return { decoded, disposals, load };
 };
 
-const TILE = "public/textures/tile.png";
-const NORMAL = "public/textures/tile-normal.png";
+const TILE: string = "public/textures/tile.png";
+const NORMAL: string = "public/textures/tile-normal.png";
 
-const material = (patch: Partial<IAutoMovieMaterial>): IAutoMovieMaterial => ({
+const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
+  patch: Partial<IAutoMovieMaterial>,
+): IAutoMovieMaterial => ({
   ...createModel().materials[0]!,
   ...patch,
 });
 
 /**
- * One texture asset is decoded once, sampled per binding, and released once.
+ * Exercises asset-keyed host loads, binding-private Texture state and one cache close completion.
  *
  * Scenarios:
+ * 1. Repeated priming loads each asset once; issued clones share Source identity but retain independent repeats and optional normal bindings.
+ * 2. Repeated close requests exactly one disposal event for every observed source/clone and rejects later priming/resolution.
+ * 3. An unprimed asset refuses; a failed controlled host load names its own asset and still retires the healthy source.
  *
- * 1. Two models and two slots naming the same image decode it exactly once, and
- *    every binding receives a distinct texture object over the one shared
- *    `Source`, so per-binding repeat and wrap cannot contaminate each other.
- * 2. Disposal releases every issued clone and every decoded source exactly once
- *    however many times it is called, and a disposed cache refuses further
- *    priming and resolving instead of filling a bucket nobody will empty.
- * 3. A binding whose asset was never primed throws rather than silently rendering
- *    an untextured surface, and a decode failure names every asset that failed
- *    while leaving the ones that succeeded disposable.
+ * @evidence contracts/testing.md#behavioral-verification Calls real cache/material/binding APIs and observes loader calls, actual shared Source identity, distinct wrappers, sampler projection and disposal requests/refusal.
+ * @evidence contracts/testing.md#independent-expectations Authored asset names/transforms and independently counted wrapper/source events define expectations. The existing loader produces CPU Texture objects, not real image decoding or native uploads.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts repeated priming/shared assets, independent repeats, absent normals, unprimed/closed refusal and partial load failure with healthy resource retirement.
+ * @evidence contracts/testing.md#execution-ownership The named async entry reuses its existing owned loader callback and actual CPU Texture objects, closes its caches/materials and starts no browser, decoder, renderer or new driver.
  */
-export const test_viewer_texture_cache = async (): Promise<void> => {
-  const loader = recordingLoader();
-  const cache = new AutoMovieTextureCache(loader.load);
-  const floor = material({
+export async function test_viewer_texture_cache(): Promise<void> {
+  const loader: {
+    decoded: string[];
+    disposals: string[];
+    load: (asset: string) => Promise<THREE.Texture>;
+  } = recordingLoader();
+  const cache: AutoMovieTextureCache = new AutoMovieTextureCache(loader.load);
+  const floor: IAutoMovieMaterial = material({
     id: "floor",
     baseColorTexture: {
       asset: TILE,
@@ -67,7 +84,7 @@ export const test_viewer_texture_cache = async (): Promise<void> => {
     },
     normalTexture: { asset: NORMAL, texCoord: 0, colorSpace: "linear" },
   });
-  const tabletop = material({
+  const tabletop: IAutoMovieMaterial = material({
     id: "tabletop",
     baseColorTexture: {
       asset: TILE,
@@ -84,28 +101,54 @@ export const test_viewer_texture_cache = async (): Promise<void> => {
     ...materialTextureBindings(floor),
     ...materialTextureBindings(tabletop),
   ]);
-  // Priming again is what a second model in the same shot does; it must not
-  // decode a second copy of anything.
+  // A second model in the same shot primes again; it must request no second host load for the same asset.
   await cache.prime(materialTextureBindings(tabletop));
 
-  const builtFloor = buildMaterial(floor, cache.resolve);
-  const builtTable = buildMaterial(tabletop, cache.resolve);
+  const builtFloor: THREE.MeshPhysicalMaterial = buildMaterial(
+    floor,
+    cache.resolve,
+  );
+  const builtTable: THREE.MeshPhysicalMaterial = buildMaterial(
+    tabletop,
+    cache.resolve,
+  );
+  const cloneDisposals: number[] = [0, 0, 0];
+  const clones: THREE.Texture[] = [
+    builtFloor.map!,
+    builtFloor.normalMap!,
+    builtTable.map!,
+  ];
+  clones.forEach((texture: THREE.Texture, index: number): void => {
+    texture.addEventListener("dispose", (): void => {
+      cloneDisposals[index] = cloneDisposals[index]! + 1;
+    });
+  });
   TestValidator.equals(
-    "one asset, one decode, one upload source, separate sampling state",
+    "one host load per asset, shared Source and separate sampling state",
     namedFacts([
       [
         "decodedOnce",
-        () => loader.decoded.filter((a) => a === TILE).length === 1,
+        (): boolean =>
+          loader.decoded.filter((a: string): boolean => a === TILE).length ===
+          1,
       ],
-      ["twoAssets", () => loader.decoded.length === 2 && cache.size === 2],
-      ["distinctObjects", () => builtFloor.map !== builtTable.map],
-      ["sharedSource", () => builtFloor.map!.source === builtTable.map!.source],
+      [
+        "twoAssets",
+        (): boolean => loader.decoded.length === 2 && cache.size === 2,
+      ],
+      ["distinctObjects", (): boolean => builtFloor.map !== builtTable.map],
+      [
+        "sharedSource",
+        (): boolean => builtFloor.map!.source === builtTable.map!.source,
+      ],
       [
         "independentRepeat",
-        () => builtFloor.map!.repeat.x === 40 && builtTable.map!.repeat.x === 2,
+        (): boolean =>
+          nclose(builtFloor.map!.repeat.x, 40, 0) &&
+          nclose(builtTable.map!.repeat.x, 2, 0),
       ],
-      ["normalResolved", () => builtFloor.normalMap?.name === NORMAL],
-      ["tableHasNoNormal", () => builtTable.normalMap === null],
+      ["normalResolved", (): boolean => builtFloor.normalMap?.name === NORMAL],
+      ["tableHasNoNormal", (): boolean => builtTable.normalMap === null],
     ]),
     {
       decodedOnce: true,
@@ -126,28 +169,39 @@ export const test_viewer_texture_cache = async (): Promise<void> => {
 
   await cache.dispose();
   await cache.dispose();
-  const primeAfterDispose = await cache
+  TestValidator.equals(
+    "each issued clone receives one disposal event despite repeated close",
+    cloneDisposals,
+    [1, 1, 1],
+  );
+  const primeAfterDispose: string | null = await cache
     .prime([TILE])
-    .then(() => null)
-    .catch((error: unknown) =>
+    .then((): null => null)
+    .catch((error: unknown): string =>
       error instanceof Error ? error.message : String(error),
     );
   TestValidator.equals(
-    "every source is released exactly once, and the cache is closed",
+    "each original source receives one disposal event and the cache is closed",
     namedFacts([
       [
         "sourcesDisposedOnce",
-        () =>
+        (): boolean =>
           loader.disposals.length === 2 && new Set(loader.disposals).size === 2,
       ],
-      ["emptied", () => cache.size === 0],
+      ["emptied", (): boolean => cache.size === 0],
       [
         "primeRefused",
-        () => primeAfterDispose?.includes("already been disposed") === true,
+        (): boolean =>
+          primeAfterDispose?.includes("already been disposed") === true,
       ],
       [
         "resolveRefused",
-        () => throwsError(() => cache.resolve(TILE), "already been disposed"),
+        (): boolean =>
+          throwsError(
+            (): THREE.Texture<unknown, THREE.TextureEventMap> =>
+              cache.resolve(TILE),
+            "already been disposed",
+          ),
       ],
     ]),
     {
@@ -157,27 +211,38 @@ export const test_viewer_texture_cache = async (): Promise<void> => {
       resolveRefused: true,
     },
   );
+  builtFloor.dispose();
+  builtTable.dispose();
 
-  const strict = new AutoMovieTextureCache(recordingLoader().load);
+  const strict: AutoMovieTextureCache = new AutoMovieTextureCache(
+    recordingLoader().load,
+  );
   TestValidator.predicate(
     "an unprimed asset is refused rather than rendered untextured",
     throwsError(
-      () => strict.resolve(TILE),
+      (): THREE.Texture<unknown, THREE.TextureEventMap> => strict.resolve(TILE),
       [TILE, "was never primed into this shot cache"],
     ),
   );
+  await strict.dispose();
 
-  const failing = recordingLoader({ fails: NORMAL });
-  const partial = new AutoMovieTextureCache(failing.load);
-  const refusal = await partial
+  const failing: {
+    decoded: string[];
+    disposals: string[];
+    load: (asset: string) => Promise<THREE.Texture>;
+  } = recordingLoader({ fails: NORMAL });
+  const partial: AutoMovieTextureCache = new AutoMovieTextureCache(
+    failing.load,
+  );
+  const refusal: string | null = await partial
     .prime([TILE, NORMAL])
-    .then(() => null)
-    .catch((error: unknown) =>
+    .then((): null => null)
+    .catch((error: unknown): string =>
       error instanceof Error ? error.message : String(error),
     );
   await partial.dispose();
   TestValidator.equals(
-    "a failed decode names its asset and leaves the rest releasable",
+    "a failed host load names its asset and leaves the rest releasable",
     [
       refusal !== null && refusal.includes(NORMAL),
       refusal !== null && refusal.includes(TILE),
@@ -185,4 +250,4 @@ export const test_viewer_texture_cache = async (): Promise<void> => {
     ],
     [true, false, [TILE]],
   );
-};
+}

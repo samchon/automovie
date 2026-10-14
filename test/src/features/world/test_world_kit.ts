@@ -1,19 +1,24 @@
 import {
-  assertWorldPlacements,
-  worldAlongRoute,
-  worldBlock,
-  worldGrid,
-  worldRamp,
-  worldScatter,
-  worldSurfaceHeight,
-  worldTerrain,
-} from "@automovie/engine";
-import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { IAutoMovieWorldBlock } from "../../../../packages/engine/src/IAutoMovieWorldBlock";
+import { assertWorldPlacements } from "../../../../packages/engine/src/assertWorldPlacements";
+import { worldAlongRoute } from "../../../../packages/engine/src/worldAlongRoute";
+import { worldBlock } from "../../../../packages/engine/src/worldBlock";
+import { worldGrid } from "../../../../packages/engine/src/worldGrid";
+import { worldRamp } from "../../../../packages/engine/src/worldRamp";
+import { worldScatter } from "../../../../packages/engine/src/worldScatter";
+import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurfaceHeight";
+import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const instanceBase = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
+const instanceBase: () => Omit<
+  IAutoMovieInstanceSetDesign,
+  "layout"
+> = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
   id: "trees",
   modelRecipe: "tree",
   count: 12,
@@ -27,9 +32,24 @@ const instanceBase = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
   },
 });
 
-/** World-kit constructors stay procedural while placement contradictions throw. */
-export const test_world_kit = (): void => {
-  const ground = worldTerrain({
+/**
+ * World constructors produce procedural design records, and placement admission refuses the authored contradictions.
+ *
+ * Scenarios:
+ * 1. Terrain, ramp, block and layout constructors retain selected recipe, bounds,
+ *    height and layout facts without resolving the whole population.
+ * 2. Ground, raised support, route-only and rim landmarks admit their actual
+ *    authored placement inputs.
+ * 3. Blank id, collapsed/nonfinite block extents, zero-length ramp, overlap,
+ *    overhang, floating bounds, blocked route and unreachable landmark throw.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong recipes/layouts/heights, while the existing contradiction cases must throw.
+ * @evidence contracts/testing.md#independent-expectations Authored block base and dimensions determine bounds, ramp endpoints determine its height, and layouts retain their requested discriminator. Geometry and walkable/route membership determine the supported and refused placement cases; this does not inspect rendered buildings or every output field.
+ * @evidence contracts/testing.md#distinguishing-cases Ordinary ground and raised support, route-only and exact-rim landmarks contrast malformed sizes/coordinates, overlap, overhang, unsupported height and blocked/unreachable placements. Heightfield interpolation belongs to its separate owning test.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_world_kit; this exported function owns the constructor assertions and registered rejected callbacks, without generating a production artifact or installing a browser/GPU host.
+ */
+export function test_world_kit(): void {
+  const ground: IAutoMovieWorldSurface = worldTerrain({
     id: "ground",
     polygon: [
       { x: -20, z: -20 },
@@ -40,7 +60,7 @@ export const test_world_kit = (): void => {
     height: 0,
     walkable: true,
   });
-  const ramp = worldRamp({
+  const ramp: IAutoMovieWorldSurface = worldRamp({
     id: "ramp",
     from: { x: -4, z: -4 },
     to: { x: -4, z: 4 },
@@ -49,14 +69,14 @@ export const test_world_kit = (): void => {
     rise: 2,
     walkable: true,
   });
-  const building = worldBlock({
+  const building: IAutoMovieWorldBlock = worldBlock({
     id: "house",
     kind: "building",
     base: { x: 8, y: 0, z: 8 },
     size: { x: 3, y: 4, z: 3 },
     color: "#886644",
   });
-  const wall = worldBlock({
+  const wall: IAutoMovieWorldBlock = worldBlock({
     id: "wall",
     kind: "wall",
     base: { x: -8, y: 0, z: 8 },
@@ -66,7 +86,11 @@ export const test_world_kit = (): void => {
     // names it here; the default is the shipped one.
     archetype: "registered-block",
   });
-  const route = {
+  const route: {
+    id: string;
+    waypoints: { x: number; z: number }[];
+    allowedFormationWidth: number;
+  } = {
     id: "road",
     waypoints: [
       { x: -15, z: -10 },
@@ -75,7 +99,12 @@ export const test_world_kit = (): void => {
     ],
     allowedFormationWidth: 2,
   };
-  const landmark = {
+  const landmark: {
+    id: string;
+    position: { x: number; y: number; z: number };
+    radius: number;
+    meaning: string;
+  } = {
     id: "square",
     position: { x: 0, y: 0, z: 0 },
     radius: 2,
@@ -87,14 +116,14 @@ export const test_world_kit = (): void => {
     routes: [route],
     landmarks: [landmark],
   });
-  const raisedBlock = worldBlock({
+  const raisedBlock: IAutoMovieWorldBlock = worldBlock({
     id: "raised",
     kind: "building",
     base: { x: 0, y: 1, z: 0 },
     size: { x: 2, y: 2, z: 2 },
     color: "#665544",
   });
-  const platform = worldTerrain({
+  const platform: IAutoMovieWorldSurface = worldTerrain({
     id: "platform",
     polygon: [
       { x: -2, z: -2 },
@@ -111,42 +140,52 @@ export const test_world_kit = (): void => {
     routes: [],
     landmarks: [],
   });
-  const grid = worldGrid(instanceBase(), {
+  const gridBase: Omit<IAutoMovieInstanceSetDesign, "layout"> = instanceBase();
+  const grid: IAutoMovieInstanceSetDesign = worldGrid(gridBase, {
     kind: "grid",
     rows: 3,
     columns: 4,
     spacing: { x: 2, z: 2 },
   });
-  const scatter = worldScatter(instanceBase(), {
+  const scatter: IAutoMovieInstanceSetDesign = worldScatter(instanceBase(), {
     kind: "scatter",
     radius: 10,
   });
-  const alongRoute = worldAlongRoute(instanceBase(), {
-    kind: "along-route",
-    route: route.id,
-    lateralJitter: 0.5,
-  });
+  const alongRoute: IAutoMovieInstanceSetDesign = worldAlongRoute(
+    instanceBase(),
+    {
+      kind: "along-route",
+      route: route.id,
+      lateralJitter: 0.5,
+    },
+  );
   TestValidator.equals(
     "terrain, ramp, blocks, and compact placement helpers retain exact facts",
     namedFacts([
       [
         "buildingRecipeParameters",
-        () => building.recipe.parameters.shape === "box",
+        (): boolean => building.recipe.parameters.shape === "box",
       ],
-      ["buildingNodeModel", () => building.node.model.endsWith(":house")],
-      ["buildingBoundsMin", () => building.bounds.min.y === 0],
+      [
+        "buildingNodeModel",
+        (): boolean => building.node.model.endsWith(":house"),
+      ],
+      ["buildingBoundsMin", (): boolean => nclose(building.bounds.min.y, 0, 0)],
       [
         "worldSurfaceHeightGroundX",
-        () => worldSurfaceHeight(ground, { x: 0, z: 0 }) === 0,
+        (): boolean => nclose(worldSurfaceHeight(ground, { x: 0, z: 0 }), 0, 0),
       ],
       [
         "worldSurfaceHeightRampX",
-        () => worldSurfaceHeight(ramp, { x: -4, z: 4 }) === 2,
+        (): boolean => nclose(worldSurfaceHeight(ramp, { x: -4, z: 4 }), 2, 0),
       ],
-      ["gridLayoutKind", () => grid.layout.kind === "grid"],
-      ["scatterLayoutKind", () => scatter.layout.kind === "scatter"],
-      ["alongRouteLayoutKind", () => alongRoute.layout.kind === "along-route"],
-      ["gridInstanceBase", () => grid !== instanceBase()],
+      ["gridLayoutKind", (): boolean => grid.layout.kind === "grid"],
+      ["scatterLayoutKind", (): boolean => scatter.layout.kind === "scatter"],
+      [
+        "alongRouteLayoutKind",
+        (): boolean => alongRoute.layout.kind === "along-route",
+      ],
+      ["gridInstanceBase", (): boolean => grid !== gridBase],
     ]),
     {
       buildingRecipeParameters: true,
@@ -161,7 +200,12 @@ export const test_world_kit = (): void => {
     },
   );
 
-  const routeLandmark = {
+  const routeLandmark: {
+    id: string;
+    position: { x: number; y: number; z: number };
+    radius: number;
+    meaning: string;
+  } = {
     ...landmark,
     id: "route-only",
     position: { x: 0, y: 0, z: -10 },
@@ -172,9 +216,20 @@ export const test_world_kit = (): void => {
     routes: [route],
     landmarks: [routeLandmark],
   });
+  // The edge of a floor is still floor: a landmark exactly on the walkable
+  // ground's outer edge is reachable without any route, as the ground oracle
+  // already answers for a point on that edge.
+  assertWorldPlacements({
+    blocks: [],
+    surfaces: [ground],
+    routes: [],
+    landmarks: [
+      { ...landmark, id: "edge", radius: 0, position: { x: 20, y: 0, z: 0 } },
+    ],
+  });
 
-  const rejected = [
-    () =>
+  const rejected: (() => void)[] = [
+    (): IAutoMovieWorldBlock =>
       worldBlock({
         id: "",
         kind: "wall",
@@ -182,7 +237,7 @@ export const test_world_kit = (): void => {
         size: { x: 1, y: 1, z: 1 },
         color: "#ffffff",
       }),
-    () =>
+    (): IAutoMovieWorldBlock =>
       worldBlock({
         id: "size",
         kind: "wall",
@@ -190,7 +245,7 @@ export const test_world_kit = (): void => {
         size: { x: 0, y: 1, z: 1 },
         color: "#ffffff",
       }),
-    () =>
+    (): IAutoMovieWorldBlock =>
       worldBlock({
         id: "base",
         kind: "wall",
@@ -198,7 +253,7 @@ export const test_world_kit = (): void => {
         size: { x: 1, y: 1, z: 1 },
         color: "#ffffff",
       }),
-    () =>
+    (): IAutoMovieWorldBlock =>
       worldBlock({
         id: "color",
         kind: "wall",
@@ -206,7 +261,7 @@ export const test_world_kit = (): void => {
         size: { x: 1, y: 1, z: 1 },
         color: "white",
       }),
-    () =>
+    (): IAutoMovieWorldSurface =>
       worldRamp({
         id: "invalid",
         from: { x: 0, z: 0 },
@@ -216,7 +271,7 @@ export const test_world_kit = (): void => {
         rise: 0,
         walkable: true,
       }),
-    () =>
+    (): void =>
       assertWorldPlacements({
         blocks: [
           building,
@@ -231,7 +286,7 @@ export const test_world_kit = (): void => {
         routes: [],
         landmarks: [],
       }),
-    () =>
+    (): void =>
       assertWorldPlacements({
         blocks: [
           worldBlock({
@@ -258,7 +313,7 @@ export const test_world_kit = (): void => {
         routes: [],
         landmarks: [],
       }),
-    () =>
+    (): void =>
       assertWorldPlacements({
         blocks: [
           {
@@ -273,7 +328,7 @@ export const test_world_kit = (): void => {
         routes: [],
         landmarks: [],
       }),
-    () =>
+    (): void =>
       assertWorldPlacements({
         blocks: [building],
         surfaces: [ground],
@@ -288,7 +343,7 @@ export const test_world_kit = (): void => {
         ],
         landmarks: [],
       }),
-    () =>
+    (): void =>
       assertWorldPlacements({
         blocks: [],
         surfaces: [],
@@ -302,10 +357,22 @@ export const test_world_kit = (): void => {
         ],
       }),
   ];
-  rejected.forEach((callback, index) =>
+  const refusalMessages: readonly string[] = [
+    "must contain non-whitespace text",
+    "size.x must be positive",
+    "base must be finite",
+    "color must be #RRGGBB",
+    "requires finite distinct endpoints",
+    "overlap",
+    "floats or lacks a supporting surface",
+    "floats or lacks a supporting surface",
+    "is blocked by",
+    "is unreachable from walkable terrain",
+  ];
+  rejected.forEach((callback: () => void, index: number): void =>
     TestValidator.predicate(
       `invalid world placement ${index} throws`,
-      throwsError(callback),
+      throwsError(callback, refusalMessages[index]!),
     ),
   );
-};
+}

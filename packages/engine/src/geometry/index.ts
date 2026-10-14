@@ -4,6 +4,7 @@ export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
 export * from "./IAutoMovieMeshAttachmentCap";
 export * from "./IAutoMovieMeshQueryBudget";
+export * from "./IAutoMovieMeshQueryHierarchy";
 export * from "./IAutoMovieMeshSeparationAttachment";
 export * from "./IAutoMovieMeshSeparationOptions";
 export * from "./IAutoMovieMeshSeparationQuery";

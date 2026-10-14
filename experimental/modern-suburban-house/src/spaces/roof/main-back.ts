@@ -1,12 +1,13 @@
 /**
  * `roof.main.back`: the main roof's back face.
  *
- * Design owner: `docs/spaces/roof/main-back.md#main-back-roof`. Region
+ * Region
  * X = [LEFT_EAVE_X, 1.60], Z = [back eave −11.10, ridge −5.35] under
  * Mback(Z) = 6.30 + (8/12)(Z + 10.70), underside 0.24 m lower (roof/00).
  */
 import { PALETTE } from "../palette";
-import { part, type IHousePart } from "../solid-records";
+import { part } from "../part";
+import type { IHousePart } from "../../types/IHousePart";
 import { rect, slopedSlab } from "../solids";
 import { roofFreeEdge } from "./edges";
 import {
@@ -20,11 +21,6 @@ import {
 
 /**
  * Emit the main back face.
- * @evidence spaces/roof/main-back.md This export builds the rear main-roof surface west of the right-roof step.
- * @evidence spaces/roof/main-back.md#main-back-roof The rectangle runs from LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z, with mBack setting its rising rear profile.
- * @evidence principles/core/source-units.md#source-scope-preservation The function takes the split and eave positions from junctions and leaves the lower right roof to its own source owner.
- * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab constructs the rear pitched mesh with the shared roof thickness and a stable roof-main-back part id.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-back-roof spans LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z with the 8/12 profile and ROOF_THICKNESS underside.
  */
 export const buildMainBackRoof = (): IHousePart[] => [
   part(

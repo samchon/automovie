@@ -1,10 +1,11 @@
 /**
- * 판정된 공간 owner들을 한 번 평가하는 순수 조립 진입점.
- * 지붕 envelope를 먼저 구하고 동일 결과로 현관·제실·주랑 cell을 만든다.
- * 반환값은 공간 source draft의 기하 입력이며 완성 BuiltEnvironment가 아니다.
- * 바닥은 실제 mesh/support를 반환한다. 벽/개구부 실체, connector,
- * 외부 지면 및 renderer 결속은 아직 구현 전이다.
- * viewer/계측의 후속 소비자가 별도 좌표나 cell을 재저작하지 않게 공유한다.
+ * Pure assembly entry evaluating the reviewed space owners once.
+ * Resolves the roof envelope first, then uses that same result for entrance,
+ * sanctuary and colonnade cells. Returns geometry inputs for the space-source
+ * draft rather than a complete BuiltEnvironment. Floors return actual meshes
+ * and supports; wall/opening solids, connectors, exterior ground and renderer
+ * binding remain outside this entry. Viewer and measurement consumers share
+ * these inputs instead of authoring separate coordinates or cells.
  */
 import { createTempleFloors } from "./floors";
 import { templeSpaceHierarchy } from "./spaces/building";

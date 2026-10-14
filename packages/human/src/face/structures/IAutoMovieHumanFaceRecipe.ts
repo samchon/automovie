@@ -18,6 +18,14 @@ import type { IPortraitTongueShape } from "../anatomy/tongue/IPortraitTongueShap
  * Complete subject-owned part profiles. These are shape inputs, not a mesh
  * cache or a population preset. Optional supports retain their fixed defaults.
  *
+ * @evidence contracts/common.md#principled-implementation resolveHumanFaceDocument composes source recipe, fixed profile defaults, controls, explicit detail and independent sides before buildHumanFace constructs the same host-bound eyes/nose/mouth/skin and selected hair, tongue and dentition.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical part profiles separate identity from expression and source bindings; independent dentition requires explicit row/placement rather than duplicated lip-attached crowns.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Editable detail cannot replace source geometry, arrays replace completely, tongue/lower teeth require the existing jaw hinge and separate upper teeth require an empty legacy crown population; resolved profiles establish neither clinical reconstruction nor likeness or current visual acceptance.
+ * @evidence contracts/common.md#meaningful-documentation Member units, optional fixed supports, full-array replacement and independent upper/lower dentition explain actual replay without describing a mesh cache or subject preset.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This recipe schema performs no settings merge, host construction or model validation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared host/binding ownership is declared input, not part-geometry caching implemented here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller profiles create no resident mesh, image detector or GPU resources in this interface.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceRecipe {
@@ -45,7 +53,7 @@ export interface IAutoMovieHumanFaceRecipe {
   /** Lip and oral-cavity profile. Separate dentition requires an empty legacy crowns array. */
   mouth: IPortraitMouthShape;
 
-  /** Optional closed tongue with an observed lower-oral attachment; requires an explicit jaw hinge and named resident material. */
+  /** Optional closed tongue with the registered lower-oral source attachment; requires an explicit jaw hinge and named resident material. */
   tongue?: IPortraitTongueShape;
 
   /** Common malar, medial, buccal and modiolus supports; omission adds no cheek layer. */

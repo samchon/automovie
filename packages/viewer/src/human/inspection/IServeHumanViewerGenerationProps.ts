@@ -5,48 +5,36 @@ import type { createHumanViewerGenerationWindows } from "./createHumanViewerGene
 /**
  * What the generation window routes act on.
  *
- * @evidence contracts/common.md#principled-implementation Generation routes act on the existing generation-window owner and the current HTTP response.
- * @evidence contracts/common.md#clear-and-simple-design The route receives only URL, response, JSON output and generation windows.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The request binding contains no independent generation authority or replacement publication mechanism.
- * @evidence contracts/common.md#meaningful-documentation Names the request URL, response transport and generation-window state used by the route.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Generation routes act on the existing generation-window owner and the current HTTP response.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The route receives only URL, response, JSON output and generation windows.
+ * @evidence contracts/common.md#principled-implementation Generation routes bind a candidate window owner to the real HTTP response so a held connection scopes source-generation observation.
+ * @evidence contracts/common.md#clear-and-simple-design URL, response, JSON writer and existing window owner provide the complete hold/label route dependencies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A window label comes from observed source proof rather than assigning the desired revision to every candidate.
+ * @evidence contracts/common.md#meaningful-documentation Comments identify request routing, response writing and the generation-window owner borrowed by the routes.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The route-props record chooses no token lookup or source-window labeling algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each hold is an effectful candidate lifetime; equal desired source revisions alone cannot merge different connection holds.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The response-close listener ends its held window; the generation-window owner retains label authority and the HTTP server owns the transport.
+ *
  * @author Samchon
  */
 export interface IServeHumanViewerGenerationProps {
-  /**
-   * The request URL.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The request URL. Generation routes act on the existing generation-window owner and the current HTTP response.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The request URL. The route receives only URL, response, JSON output and generation windows.
-   */
+  /** The request URL. */
   url: URL;
 
-  /**
-   * The response.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The response. Generation routes act on the existing generation-window owner and the current HTTP response.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The response. The route receives only URL, response, JSON output and generation windows.
-   */
+  /** The response. */
   response: ServerResponse;
 
   /**
-   * Send a JSON answer.
+   * Serialize the generation label or refusal and finish its HTTP response.
    *
-   * @evidence contracts/common.md#principled-implementation Generation-route JSON output returns the value selected by the generation-window owner.
-   * @evidence contracts/common.md#clear-and-simple-design The HTTP binding serializes while the route reads existing window state.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Sending a generation answer cannot create an accepted replacement generation.
-   * @evidence contracts/common.md#meaningful-documentation Names the generation route's JSON response callback.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Generation-route JSON output returns the value selected by the generation-window owner.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The HTTP binding serializes while the route reads existing window state.
+   * @evidence contracts/common.md#principled-implementation Generation-label responses preserve the window owner's proven label, null unproven label or explicit unknown-token refusal.
+   * @evidence contracts/common.md#clear-and-simple-design A server writer supplies HTTP JSON completion while window routes choose the label result.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unproven source labels are not rewritten as the current revision during response serialization.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies label/refusal serialization and response completion.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The generation JSON writer chooses no label lookup or encoding implementation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answering one label request changes that response; identical labels do not share response-write effects.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The transport owns its completion buffers; label writing creates no additional generation hold.
    */
   json: (value: unknown) => void;
 
-  /**
-   * The generation windows.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state The generation windows. Generation routes act on the existing generation-window owner and the current HTTP response.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The generation windows. The route receives only URL, response, JSON output and generation windows.
-   */
+  /** The generation windows. */
   windows: ReturnType<typeof createHumanViewerGenerationWindows>;
 }

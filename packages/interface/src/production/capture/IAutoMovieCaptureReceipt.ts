@@ -1,77 +1,39 @@
 import { IAutoMovieSemanticMaskReceipt } from "../../render/IAutoMovieSemanticMaskReceipt";
-import { AutoMovieContentDigest } from "../AutoMovieContentDigest";
 import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 
 /**
- * Persisted provenance returned for one verified capture.
+ * Retained intended receipt for the removed legacy capture result; no current producer or reopening consumer implements this shape.
  *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `IAutoMovieCaptureReceipt` as the portable data boundary for the agent contract guidance requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `IAutoMovieCaptureReceipt` for the spec authoring knowledge request output system contract.
+ * @evidence contracts/common.md#principled-implementation Fields describe the intended registry target, compile/local identities, runtime, bundle and PNG digest, with a semantic dependency for shot masks. Only the retained Frame type currently references this receipt; supplied fields alone establish no verified capture.
+ * @evidence contracts/common.md#clear-and-simple-design The retained identity record separates target and byte claims without duplicating full frame/runtime state; active Oracle preview and bundles use their own current contracts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Intended currentness and shot-mask dependency obligations are not currently implemented for this result shape. A digest or bundle path is a supplied claim rather than proof that bytes were reopened, and no replacement host is introduced.
+ * @evidence contracts/common.md#meaningful-documentation Defines production and target identity, compile versus local freshness, capture runtime, content-addressed bundle, exact output digest and mask-null semantics.
+ * @author Samchon
  */
 export interface IAutoMovieCaptureReceipt {
-  /**
-   * Receipt format.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `version` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `version` for the spec authoring knowledge request output system contract.
-   */
+  /** Receipt format. */
   version: 2;
 
-  /**
-   * Production namespace used to resolve the registry target.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `productionId` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `productionId` for the spec authoring knowledge request output system contract.
-   */
+  /** Production namespace used to resolve the registry target. */
   productionId: string;
 
-  /**
-   * Exact evidence target.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `target` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `target` for the spec authoring knowledge request output system contract.
-   */
+  /** Exact evidence target. */
   target: AutoMovieCaptureTarget;
 
-  /**
-   * Current builder-owned target registry fingerprint.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `compileFingerprint` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `compileFingerprint` for the spec authoring knowledge request output system contract.
-   */
-  compileFingerprint: AutoMovieContentDigest;
+  /** Current builder-owned target registry fingerprint. */
+  compileFingerprint: string;
 
-  /**
-   * Target-local render fingerprint from the verified bundle manifest.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `targetFingerprint` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `targetFingerprint` for the spec authoring knowledge request output system contract.
-   */
-  targetFingerprint: AutoMovieContentDigest;
+  /** Target-local render fingerprint from the verified bundle manifest. */
+  targetFingerprint: string;
 
-  /**
-   * Canonical structured capture-runtime identity.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `rendererIdentity` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `rendererIdentity` for the spec authoring knowledge request output system contract.
-   */
+  /** Canonical structured capture-runtime identity. */
   rendererIdentity: string;
 
-  /**
-   * Content-addressed project-relative render bundle.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `bundle` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `bundle` for the spec authoring knowledge request output system contract.
-   */
+  /** Content-addressed project-relative render bundle. */
   bundle: string;
 
-  /**
-   * Verified PNG digest.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-contract-guidance Exposes `outputDigest` as the portable data boundary for the agent contract guidance requirement.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-knowledge-request-output Types `outputDigest` for the spec authoring knowledge request output system contract.
-   */
-  outputDigest: AutoMovieContentDigest;
+  /** Verified PNG digest. */
+  outputDigest: string;
 
   /** Semantic dependency of a shot mask, or null for every other product. */
   semanticMask: IAutoMovieSemanticMaskReceipt | null;

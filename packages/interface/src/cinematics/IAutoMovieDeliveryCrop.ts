@@ -6,42 +6,27 @@
  * with `right` and `bottom`; geometry outside those closed boundaries is not
  * delivered. The selected window is projected back onto the complete output
  * raster, so the same crop remains exact across final, proxy, and diagnostic
- * resolutions.
+ * resolutions. `resolveAutoMovieDeliveryCrop` throws a `RangeError` for a
+ * malformed window instead of clamping it.
  *
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Exposes the output crop independently of the delivery raster so required landmarks are judged in the actual delivered window.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the delivery crop used by clipping evaluation in one resolution-independent coordinate system.
+ * @evidence contracts/common.md#principled-implementation `resolveAutoMovieDeliveryCrop` accepts four finite edges in `[0, 1]` with `left < right` and `top < bottom` and returns a copy; the viewer installs the window as a `three.js` view offset on the full aspect, and frustum culling maps the same edges to normalized device coordinates, so rendering and visibility use one window.
+ * @evidence contracts/common.md#clear-and-simple-design Four normalized edges are the whole window, resolution-independent by construction; omission of the whole record on its owner means the full gate, so the record never needs a "no crop" flag.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed window throws instead of being clamped into range, and the full `0, 0, 1, 1` window clears the view offset rather than installing an identity one.
+ * @evidence contracts/common.md#meaningful-documentation States the origin, normalization, inclusive boundaries, resolution independence, the open and closed range of every edge, and the failure a malformed window raises.
  * @author Samchon
  */
 export interface IAutoMovieDeliveryCrop {
-  /**
-   * Left edge in `[0, 1)`, measured from the uncropped gate's left edge.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Addresses the selected delivery window's left boundary.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the left clipping boundary in the specified crop coordinate system.
-   */
+  /** Left edge in `[0, 1)`, measured from the uncropped gate's left edge. */
   left: number;
 
-  /**
-   * Top edge in `[0, 1)`, measured from the uncropped gate's top edge.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Addresses the selected delivery window's top boundary.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the top clipping boundary in the specified crop coordinate system.
-   */
+  /** Top edge in `[0, 1)`, measured from the uncropped gate's top edge. */
   top: number;
 
   /**
    * Right edge in `(left, 1]`, measured from the uncropped gate's left edge.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Addresses the selected delivery window's right boundary.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the right clipping boundary in the specified crop coordinate system.
    */
   right: number;
 
-  /**
-   * Bottom edge in `(top, 1]`, measured from the uncropped gate's top edge.
-   *
-   * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-delivery-gate Addresses the selected delivery window's bottom boundary.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the bottom clipping boundary in the specified crop coordinate system.
-   */
+  /** Bottom edge in `(top, 1]`, measured from the uncropped gate's top edge. */
   bottom: number;
 }

@@ -1,6 +1,7 @@
 import {
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
 } from "@automovie/interface";
 
 import { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift";
@@ -16,13 +17,18 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * re-measured anything. So a mismatch is `stale`, never `pass`, and every
  * differing field is named so the drift is actionable instead of mysterious.
  *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Rejects reuse when renderer, settings, asset membership, or asset bytes differ from the reported target.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Compares every sealed render-input and dependency field before treating a prior report as reusable evidence.
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-stale-cache-invalidation Marks the prior report stale and names each renderer, setting, asset membership, or digest drift instead of reusing it.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Compares every field in the sealed target closure and returns stable ordered drift.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Implements render-report invalidation from the sealed canonical target comparison without claiming ownership of a general cache store.
+ * @evidence contracts/common.md#principled-implementation Compare sealed protocol, texture identity, renderer fields, settings and asset path/digest sets, then sort all differences by field path; freshness means no compared field changed, not that a target was remeasured.
+ * @evidence contracts/common.md#clear-and-simple-design One comparator owns report/current equality while summaries and consumers format or act on its explicit drift rows.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent texture/asset markers cannot alias an admitted SHA digest; no stale target is converted into a budget pass or repaired using an expected value.
+ * @evidence contracts/common.md#meaningful-documentation Props distinguish borrowed report and current target, and return docs identify freshness and ordered diagnostic rows; caller-admitted sealed records are required.
+ * @evidence contracts/performance.md#efficient-algorithms A reported/current assets build two maps and linear comparison passes, followed by O(D log D) drift sorting; storage is O(A+D), including field strings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Asset maps serve all lookups in one comparison and each caller reuses the returned drift; no persistent cache assumes mutable sealed records remain unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only drift rows transfer to the caller; target assets remain borrowed and no asset handle, renderer or asynchronous work is retained.
  */
-export const compareAutoMovieRenderTarget = (props: {
+export const compareAutoMovieRenderTarget: (props: {
+  report: IAutoMovieRenderReport;
+  current: IAutoMovieRenderTarget;
+}) => { fresh: boolean; drift: IAutoMovieRenderTargetDrift[] } = (props: {
   /** The report being re-used as evidence. */
   report: IAutoMovieRenderReport;
   /** The target a consumer is about to render with. */
@@ -33,15 +39,23 @@ export const compareAutoMovieRenderTarget = (props: {
   /** Every differing field, ascending; empty when fresh. */
   drift: IAutoMovieRenderTargetDrift[];
 } => {
-  const reported = props.report.target;
-  const current = props.current;
+  const reported: IAutoMovieRenderTarget = props.report.target;
+  const current: IAutoMovieRenderTarget = props.current;
   const drift: IAutoMovieRenderTargetDrift[] = [];
-  const compare = (field: string, left: unknown, right: unknown): void => {
+  const compare: (field: string, left: unknown, right: unknown) => void = (
+    field: string,
+    left: unknown,
+    right: unknown,
+  ): void => {
     if (String(left) !== String(right))
       drift.push({ field, reported: String(left), current: String(right) });
   };
   compare("protocol", reported.protocol, current.protocol);
-  compare("textureDigest", reported.textureDigest ?? "absent", current.textureDigest ?? "absent");
+  compare(
+    "textureDigest",
+    reported.textureDigest ?? "absent",
+    current.textureDigest ?? "absent",
+  );
   compare("renderer.api", reported.renderer.api, current.renderer.api);
   compare("renderer.vendor", reported.renderer.vendor, current.renderer.vendor);
   compare("renderer.device", reported.renderer.device, current.renderer.device);
@@ -55,8 +69,13 @@ export const compareAutoMovieRenderTarget = (props: {
     "exposure",
   ] as const)
     compare(`settings.${key}`, reported.settings[key], current.settings[key]);
-  const currentAssets = new Map(
-    current.assets.map((asset) => [asset.path, asset.digest]),
+  const currentAssets: Map<string, string> = new Map(
+    current.assets.map(
+      (asset: IAutoMovieRenderTargetAsset): [string, string] => [
+        asset.path,
+        asset.digest,
+      ],
+    ),
   );
   for (const asset of reported.assets)
     compare(
@@ -64,8 +83,13 @@ export const compareAutoMovieRenderTarget = (props: {
       asset.digest,
       currentAssets.get(asset.path) ?? "absent",
     );
-  const reportedAssets = new Map(
-    reported.assets.map((asset) => [asset.path, asset.digest]),
+  const reportedAssets: Map<string, string> = new Map(
+    reported.assets.map(
+      (asset: IAutoMovieRenderTargetAsset): [string, string] => [
+        asset.path,
+        asset.digest,
+      ],
+    ),
   );
   for (const asset of current.assets)
     if (!reportedAssets.has(asset.path))
@@ -74,8 +98,11 @@ export const compareAutoMovieRenderTarget = (props: {
         reported: "absent",
         current: asset.digest,
       });
-  drift.sort((left, right) =>
-    compareAutoMovieRenderIds(left.field, right.field),
+  drift.sort(
+    (
+      left: IAutoMovieRenderTargetDrift,
+      right: IAutoMovieRenderTargetDrift,
+    ): number => compareAutoMovieRenderIds(left.field, right.field),
   );
   return { fresh: drift.length === 0, drift };
 };

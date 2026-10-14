@@ -1,15 +1,15 @@
 import type { IRouteHumanViewerConsoleProps } from "./IRouteHumanViewerConsoleProps.js";
 
 /**
- * Route one page console line by its protocol prefix. Lines without one are
- * ordinary page logs and are ignored.
+ * Route one page console line by its protocol prefix. Lines without one are ordinary page logs and are ignored.
  *
- * @evidence contracts/common.md#clear-and-simple-design One function owns the console protocol prefixes.
- * @evidence contracts/common.md#principled-implementation Exact protocol prefixes dispatch their original payload to the corresponding lifecycle or telemetry owner; unrelated logs have no state authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Forwards existing messages without inspecting rendered pixels, rewriting source failures or guessing lifecycle transitions from ordinary console prose.
- * @evidence contracts/common.md#meaningful-documentation States the ignored case.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Exact protocol prefixes dispatch their original payload to the corresponding lifecycle or telemetry owner; unrelated logs have no state authority.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor One function owns the console protocol prefixes.
+ * @evidence contracts/common.md#principled-implementation Dispatches actual page console text by the closed protocol prefix set, passing the remaining bytes to the matching progress/error/display owner.
+ * @evidence contracts/common.md#clear-and-simple-design One mutually exclusive prefix chain keeps decoding and status interpretation in the supplied callbacks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrecognized page logs are ignored rather than interpreted as progress or renderer readiness; optional cache reporting stays explicitly optional.
+ * @evidence contracts/common.md#meaningful-documentation Documentation identifies protocol-prefix dispatch and ordinary-log omission without claiming payload validation in this router.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed prefix set and at most one substring allocation make work linear only in the selected line's payload bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work Console events are individual notifications and are routed once; this function caches no prior event or readiness state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Callbacks and text are borrowed for this invocation; no console listener is registered or retained by the router.
  */
 export function routeHumanViewerConsole(
   text: string,

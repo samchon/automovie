@@ -1,3 +1,4 @@
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
 import { AutoMoviePatternTextureSheet } from "./AutoMoviePatternTextureSheet";
 import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
@@ -6,7 +7,7 @@ import { IAutoMoviePatternTexturing } from "./IAutoMoviePatternTexturing";
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 
 /** Greatest relative skew a UV transform is still counted as free of. */
-const SHEAR_EPSILON = 1e-9;
+const SHEAR_EPSILON: number = 1e-9;
 
 /**
  * Say how each laid piece samples its material, in the UV transform the PBR
@@ -38,19 +39,25 @@ const SHEAR_EPSILON = 1e-9;
  * materials calls it once per material and keeps the occurrences belonging to
  * that material's zones, exactly as the prototype table is stated per call.
  *
- * The renderer's texture matrix scales and then rotates, so a piece samples
- * exactly when its own two axes stay perpendicular under the map, which they do
- * when the piece is square or when it is laid square to its grain. A long piece
- * turned off its grain by anything else needs a shear the transform has no term
- * for, and is reported by id rather than handed back as a transform that
- * quietly skews the image.
+ * At zero texture centre, the viewer/Three matrix is `diag(scale) · R(-rotationDeg) · uv + offset`: it rotates the UV column vector first, then applies axis scales. Orthogonal rows admit this ideal factorization; the implementation accepts their relative dot product within `1e-9` and reports larger residual skew by occurrence id.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `autoMoviePatternTextureTransforms` says how each laid piece samples its material, in the UV transform the PBR record already carries. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `autoMoviePatternTextureTransforms` performs pattern texture transforms derivation when the engine resolves the declared physical-module pattern deterministically.
- * @evidence requirements/interior/grain-seams-and-continuity.md#interior-grain-bookmatch `autoMoviePatternTextureTransforms` derives each piece's mirror, grain, stable sheet offset, scale, and rotation so declared bookmatch relations survive texture sampling.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-joint-edge-grain-continuity The UV transforms retain the declared mirror and grain relation across neighboring pieces without claiming a raw-stock catalogue.
+ * Every placement of the run lands in exactly one of the two lists, in
+ * placement order. Throws when a tile length is not a finite number above zero
+ * or a face sheet's origin is not finite.
+ *
+ * @evidence contracts/common.md#principled-implementation Builds `diag(1/tile) · R(rotation − grain) · diag(±width, height)` and factors rows whose relative dot product is within `1e-9`. Exact orthogonality permits the ideal factorization; tolerated residual skew is approximate. Valid generated placement fields and finite, non-underflowing intermediate row lengths/determinants are premises beyond the tile/origin input checks.
+ * @evidence contracts/common.md#clear-and-simple-design Emits the offset, scale and rotation the material texture reference already carries, so no second texturing path is opened, and one call states one material's sheet as the prototype table is stated per call.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no material, module or production. Rows exceeding the stated relative skew tolerance are reported by id; smaller residual skew is admitted explicitly. Cut pieces retain module-rectangle mapping instead of renormalizing their surviving outlines.
+ * @evidence contracts/common.md#meaningful-documentation States the normalized UV source a prototype must use, how whole and cut pieces span it, how grain and mirror enter, the per-material call rule, when a piece is sheared, the list order and partition, and both throws.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per placement, so linear in the placement count, with no intermediate matrix allocation beyond two small row records.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map over one run's placements for one sheet; nothing coordinates work across calls, and a caller texturing several materials reuses the same run result.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned transforms and sheared ids, together bounded by the placement count.
  */
-export const autoMoviePatternTextureTransforms = (props: {
+export const autoMoviePatternTextureTransforms: (props: {
+  result: IAutoMovieSurfacePatternResult;
+  tile: { u: number; v: number };
+  sheet: AutoMoviePatternTextureSheet;
+}) => IAutoMoviePatternTexturing = (props: {
   result: IAutoMovieSurfacePatternResult;
   /** Metres one turn of the texture covers along its own two axes. */
   tile: {
@@ -64,30 +71,32 @@ export const autoMoviePatternTextureTransforms = (props: {
 }): IAutoMoviePatternTexturing => {
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
-  const sheet = props.sheet;
+  const sheet: AutoMoviePatternTextureSheet = props.sheet;
   if (sheet.kind === "face")
     finitePoint(sheet.origin, "pattern texture sheet origin");
   const transforms: IAutoMoviePatternTextureTransform[] = [];
   const sheared: string[] = [];
   for (const placement of props.result.placements) {
-    const grain = placement.grainDeg * Quaternion.DEG2RAD;
-    const turn = placement.rotationDeg * Quaternion.DEG2RAD - grain;
-    const cosine = Math.cos(turn);
-    const sine = Math.sin(turn);
-    const width = placement.mirror ? -placement.size.u : placement.size.u;
-    const height = placement.size.v;
+    const grain: number = placement.grainDeg * Quaternion.DEG2RAD;
+    const turn: number = placement.rotationDeg * Quaternion.DEG2RAD - grain;
+    const cosine: number = Math.cos(turn);
+    const sine: number = Math.sin(turn);
+    const width: number = placement.mirror
+      ? -placement.size.u
+      : placement.size.u;
+    const height: number = placement.size.v;
     // The two rows of `diag(1/tile) · R(turn) · diag(width, height)`: the map
     // from the piece's own unit UV onto the sheet's.
-    const first = {
+    const first: IUvRow = {
       x: (cosine * width) / props.tile.u,
       y: (-sine * height) / props.tile.u,
     };
-    const second = {
+    const second: IUvRow = {
       x: (sine * width) / props.tile.v,
       y: (cosine * height) / props.tile.v,
     };
-    const across = Math.hypot(first.x, first.y);
-    const down = Math.hypot(second.x, second.y);
+    const across: number = Math.hypot(first.x, first.y);
+    const down: number = Math.hypot(second.x, second.y);
     if (
       Math.abs(first.x * second.x + first.y * second.y) >
       SHEAR_EPSILON * across * down
@@ -95,13 +104,13 @@ export const autoMoviePatternTextureTransforms = (props: {
       sheared.push(placement.id);
       continue;
     }
-    // Scaling and then rotating carries the second row to `ry · (sin, cos)`, so
+    // `diag(scale) · R(angle)` has second row `ry · (sin, cos)`, so
     // the angle is read off that row and `ry` is its length. That leaves the
     // first row as `rx · (cos, -sin)`, whose signed length along the same
     // direction is the pair's determinant over `ry`, which is where a flipped
     // piece shows up as a negative scale.
-    const angle = Math.atan2(second.x, second.y);
-    const base =
+    const angle: number = Math.atan2(second.x, second.y);
+    const base: IUvRow =
       sheet.kind === "module"
         ? { x: 0.5, y: 0.5 }
         : sheetPoint(placement.center, sheet.origin, grain, props.tile);
@@ -121,29 +130,46 @@ export const autoMoviePatternTextureTransforms = (props: {
   return { transforms, sheared };
 };
 
+/**
+ * A two-component UV quantity: a matrix row or sheet point, in turns.
+ *
+ * @author Samchon
+ */
+interface IUvRow {
+  /** First component. */
+  x: number;
+
+  /** Second component. */
+  y: number;
+}
+
 /** Where a face point falls on a sheet turned by the grain, in turns. */
-const sheetPoint = (
+const sheetPoint: (
   point: IAutoMoviePatternPoint,
   origin: IAutoMoviePatternPoint,
   grain: number,
   tile: { u: number; v: number },
-): { x: number; y: number } => {
-  const cosine = Math.cos(grain);
-  const sine = Math.sin(grain);
-  const alongU = point.u - origin.u;
-  const alongV = point.v - origin.v;
+) => IUvRow = (
+  point: IAutoMoviePatternPoint,
+  origin: IAutoMoviePatternPoint,
+  grain: number,
+  tile: { u: number; v: number },
+): IUvRow => {
+  const cosine: number = Math.cos(grain);
+  const sine: number = Math.sin(grain);
+  const alongU: number = point.u - origin.u;
+  const alongV: number = point.v - origin.v;
   return {
     x: (cosine * alongU + sine * alongV) / tile.u,
     y: (-sine * alongU + cosine * alongV) / tile.v,
   };
 };
 
-const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
+/** Refuse a point with a non-finite coordinate. */
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
+  point: IAutoMoviePatternPoint,
+  label: string,
+): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
-};
-
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
 };

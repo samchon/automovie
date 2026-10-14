@@ -1,11 +1,13 @@
 /**
  * Review-facing formation behavior vocabulary.
  *
- * The builder does not infer or restrict source motion from these labels.
- * Observable shot predicates and review evidence remain authoritative.
+ * The engine does not infer or restrict source motion from these labels. Observable shot predicates and review evidence remain authoritative.
  *
- * @evidence requirements/formations/budgets-and-validation.md#formation-motion-validation Exposes `AutoMovieFormationCapability` as the portable data boundary for the formation motion validation requirement.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Types `AutoMovieFormationCapability` for the performance formation geometry layout motion validation system contract.
+ * @evidence contracts/common.md#principled-implementation Six locomotion labels describe formation intent for review, while compiled motion and observable predicates establish actual movement; declaring charge alone does not produce acceleration or contact.
+ * @evidence contracts/common.md#clear-and-simple-design A closed vocabulary annotates formation design without becoming another motion-command language or duplicating the authored motion segments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Capability labels never substitute for measured source behavior, and no formation name selects a movement preset or bypasses review evidence.
+ * @evidence contracts/common.md#meaningful-documentation Explicitly identifies review-facing intent and states that the labels do not infer or restrict source motion.
+ * @author Samchon
  */
 export type AutoMovieFormationCapability =
   | "hold"

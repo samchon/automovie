@@ -27,7 +27,3 @@ If the same failure returns or local improvements do not reach the consumer, rev
 Report research findings, integrated behavior, and verified delivery separately. Base remaining-time estimates on concrete remaining work, verified integration state, and unresolved dependencies. Report measured execution costs separately from estimates of implementation and verification effort. Neither experiment count nor a passing component check measures completion of the requested result.
 
 ## Workflow handoff
-
-Production research uses [Research](../production-lifecycle/research.md) for external evidence and its interpretation. Narrowing the declared production population uses [Pilot](../production-lifecycle/pilot.md), which owns eligibility, selection, and resumption of the full population. A diagnostic sample does not itself narrow the evidence population or advance a stage.
-
-A changed design follows [Upstream revision](../production-lifecycle/upstream-revision.md); experiments do not bypass its preservation or stage rules. [Review verification](../review-verification/SKILL.md) owns observation and completion, and [Evidence graph](../evidence-graph/SKILL.md) owns contract relationships. Use the host repository's corresponding owners when this procedure is invoked for library development.

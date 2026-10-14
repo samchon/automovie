@@ -1,41 +1,26 @@
 /**
- * One realized shot event placed on the production story clock.
+ * One addressed shot event with its realized local and mapped story times.
  *
- * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Exposes `IAutoMovieStorySyncPoint` as the portable data boundary for the story simultaneous events requirement.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `IAutoMovieStorySyncPoint` for the narrative intent story synchronization system contract.
+ * @evidence contracts/common.md#principled-implementation The synchronization evaluator retains the exact shot/event operand and finite realized local seconds, then applies the owning shot's affine story pin to obtain story seconds.
+ * @evidence contracts/common.md#clear-and-simple-design Nullable local and story fields distinguish absent realization from absent pin or mapped overflow without inventing a second event identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable operands are retained in declared order rather than skipped; a null time cannot become zero and accidentally satisfy simultaneity.
+ * @evidence contracts/common.md#meaningful-documentation Defines exact operand identities, local versus story-second units and missing-realization, missing-pin or overflow null meaning.
+ * @author Samchon
  */
 export interface IAutoMovieStorySyncPoint {
-  /**
-   * Owning shot id.
-   *
-   * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Exposes `shot` as the portable data boundary for the story simultaneous events requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `shot` for the narrative intent story synchronization system contract.
-   */
+  /** Owning shot id. */
   shot: string;
 
-  /**
-   * Exact event id.
-   *
-   * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Exposes `event` as the portable data boundary for the story simultaneous events requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `event` for the narrative intent story synchronization system contract.
-   */
+  /** Exact event id. */
   event: string;
 
   /**
-   * Compiler-realized shot-local time in seconds, or null when the owning shot
-   * has no current realization for the event.
-   *
-   * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Exposes `localSeconds` as the portable data boundary for the story simultaneous events requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `localSeconds` for the narrative intent story synchronization system contract.
+   * Supplied realized shot-local time in seconds, or null when absent or nonfinite. The Engine evaluator reads its host-provided realization callback; the production adapter is retired.
    */
   localSeconds: number | null;
 
   /**
-   * Story-clock time in seconds, or null when the local time is unavailable or
-   * the owning shot carries no story-clock pin.
-   *
-   * @evidence requirements/story/story-clock-and-state.md#story-simultaneous-events Exposes `storySeconds` as the portable data boundary for the story simultaneous events requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-story-synchronization Types `storySeconds` for the narrative intent story synchronization system contract.
+   * Story-clock time in seconds, or null when the local time or pin is unavailable or the affine result is nonfinite, including overflow.
    */
   storySeconds: number | null;
 }

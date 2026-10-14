@@ -1,6 +1,6 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import type { Primitive } from "@gltf-transform/core";
+import type { Accessor, Primitive } from "@gltf-transform/core";
 import typia from "typia";
 
 import type { IHumanMeshPhysicalSourceTable } from "./IHumanMeshPhysicalSourceTable";
@@ -15,12 +15,22 @@ import type { IHumanMeshPhysicalSourceTable } from "./IHumanMeshPhysicalSourceTa
  * Present metadata and its accessor must agree with resident Float32 geometry.
  * The existing engine resolver admits aliases and nullable legacy semantics;
  * returned arrays are owned and no primitive or caller record is mutated.
+ *
+ * @evidence contracts/common.md#principled-implementation Resident Float32 XYZ, complete unsigned triangles and aligned unnormalized Uint16 low/high references carry the versioned source table. typia admits its shape and the engine resolver checks aliases/reference semantics; orphan metadata refuses.
+ * @evidence contracts/common.md#clear-and-simple-design This reader owns physical-source transport admission, reusing the engine's canonical pair resolver while exporters independently decide anatomical qualification.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The radix 65536 encodes unsigned 32-bit references; zero is declared nullable legacy incidence, with no synthesized IDs, primitive mutation or specimen exception.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives accessor format, index-plus-one lookup, legacy absence, owned output and lack of anatomical or provenance certification.
+ * @evidence contracts/performance.md#efficient-algorithms For S source pairs, V vertices and I indices, admission costs O(S+V+I) plus source-key work; restored arrays and validation positions occupy O(S+V) space.
+ * @evidence contracts/performance.md#reuse-equivalent-work The engine resolver supplies shared pair/reference semantics; no primitive-read cache assumes mutable accessors or extras remain equivalent.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Restored pairs/references transfer to the caller; copied validation positions and other call-local arrays become unreachable on completion or refusal, with no persistent primitive handles.
  */
 export function readHumanMeshPhysicalVertices(
   primitive: Primitive,
 ): IAutoMovieMesh["physicalVertices"] {
-  const extras = primitive.getExtras();
-  const attribute = primitive.getAttribute("_AUTOMOVIE_PHYSICAL_SOURCE");
+  const extras: ReturnType<Primitive["getExtras"]> = primitive.getExtras();
+  const attribute: Accessor | null = primitive.getAttribute(
+    "_AUTOMOVIE_PHYSICAL_SOURCE",
+  );
   if (!Object.hasOwn(extras, "automoviePhysicalVertices")) {
     if (attribute !== null)
       throw new Error(
@@ -36,12 +46,16 @@ export function readHumanMeshPhysicalVertices(
     input.version !== 1
   )
     throw new Error("Unsupported physical source namespace version.");
-  const record = typia.assertEquals<IHumanMeshPhysicalSourceTable>(input);
-  const positions = primitive.getAttribute("POSITION");
-  const indices = primitive.getIndices();
-  const xyz = positions?.getArray();
-  const references = attribute?.getArray();
-  const triangles = indices?.getArray();
+  const record: IHumanMeshPhysicalSourceTable =
+    typia.assertEquals<IHumanMeshPhysicalSourceTable>(input);
+  const positions: Accessor | null = primitive.getAttribute("POSITION");
+  const indices: Accessor | null = primitive.getIndices();
+  const xyz: ReturnType<Accessor["getArray"]> | undefined =
+    positions?.getArray();
+  const references: ReturnType<Accessor["getArray"]> | undefined =
+    attribute?.getArray();
+  const triangles: ReturnType<Accessor["getArray"]> | undefined =
+    indices?.getArray();
   if (
     primitive.getMode() !== 4 ||
     positions?.getType() !== "VEC3" ||
@@ -63,18 +77,27 @@ export function readHumanMeshPhysicalVertices(
   if (
     triangles.length === 0 ||
     triangles.length % 3 !== 0 ||
-    Array.from(triangles).some((vertex) => vertex >= positions.getCount())
+    Array.from(triangles).some(
+      (vertex: number): boolean => vertex >= positions.getCount(),
+    )
   )
     throw new Error(
       "Physical source correspondence needs complete in-range actual triangles.",
     );
-  const result = {
-    sources: record.sources.map((source) => ({ ...source })),
-    vertices: Array.from({ length: references.length / 2 }, (_, vertex) => {
-      const reference =
-        references[vertex * 2] + 65536 * references[vertex * 2 + 1];
-      return reference === 0 ? null : reference - 1;
-    }),
+  const result: NonNullable<IAutoMovieMesh["physicalVertices"]> = {
+    sources: record.sources.map(
+      (
+        source: IHumanMeshPhysicalSourceTable["sources"][number],
+      ): IHumanMeshPhysicalSourceTable["sources"][number] => ({ ...source }),
+    ),
+    vertices: Array.from(
+      { length: references.length / 2 },
+      (_value: unknown, vertex: number): number | null => {
+        const reference: number =
+          references[vertex * 2] + 65536 * references[vertex * 2 + 1];
+        return reference === 0 ? null : reference - 1;
+      },
+    ),
   };
   resolveAutoMovieMeshPhysicalVertices({
     positions: Array.from(xyz),

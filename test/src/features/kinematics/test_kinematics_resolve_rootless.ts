@@ -1,10 +1,15 @@
-import { reachableBoneNames, resolvePose } from "@automovie/engine";
 import { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { makePose } from "../internal/fixtures";
+import { reachableBoneNames } from "../../../../packages/engine/src/kinematics/reachableBoneNames";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { makePose } from "../internal/makePose";
 
-const rest = {
+const rest: {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -23,8 +28,13 @@ const rest = {
  *
  * Scenario A (rootless): `spine`→`hips` and `chest`→`spine`, but no `hips`
  * root. Scenario B (cycle): `spine`→`chest` and `chest`→`spine`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves and indexes rootless and cyclic parent graphs, asserting empty outputs rather than a crash or fabricated pose; entering an unreachable component or infinitely traversing a cycle fails.
+ * @evidence contracts/testing.md#independent-expectations Every declared bone has a nonnull parent and neither fixture has an entry root, so the root-seeded traversal reaches no bones. Literal zero cardinality is independent of both product traversals, whose agreement alone would be a weaker oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps unresolved-parent rootlessness and a two-node cycle; valid complete hierarchies and a valid-root-plus-orphan mixture are owned by resolve_rest/resolve_orphan. This checks partial-return semantics, not validation acceptance of malformed rigs.
+ * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry directly invokes FK and reachability source on local malformed records, without an external graph service, process or graphical host.
  */
-export const test_kinematics_resolve_rootless = (): void => {
+export function test_kinematics_resolve_rootless(): void {
   const rootless: IAutoMovieSkeleton = {
     id: "rootless",
     bones: [
@@ -60,4 +70,4 @@ export const test_kinematics_resolve_rootless = (): void => {
     reachableBoneNames(cyclic).size,
     0,
   );
-};
+}

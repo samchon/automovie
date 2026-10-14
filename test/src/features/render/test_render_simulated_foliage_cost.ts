@@ -1,10 +1,15 @@
 import { plantingBudget } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingDomain,
+  IAutoMovieRenderInventory,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { modelsFixture } from "../internal/renderFixtures";
-import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
-import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+
 import { leaflessPlantingRecipeFixture } from "../internal/leaflessPlantingRecipeFixture";
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { modelsFixture } from "../internal/renderFixtures";
+import { simulatedRenderSceneFixture } from "../internal/simulatedRenderSceneFixture";
+import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
 /**
  * A leaf-bearing planting recipe pays a second batch and prototype storage.
@@ -12,23 +17,36 @@ import { measureRenderBudgetSubject as measure } from "../internal/measureRender
  * Scenarios:
  *
  * 1. A supported leafy cluster draws both populations, while a leafless cluster retains only its branch batch.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures leafless and foliated subjects and compares draw, slot, triangle, vertex, prototype-byte and material costs, detecting an omitted leaf batch or prototype, per-instance buffer duplication or a leafless default material charged without a draw.
+ * @evidence contracts/testing.md#independent-expectations Branch population is independently seven branches times six cluster members, while branch and leaf prototype counts are authored inputs with explicit attribute/index byte widths. Leaf population comes from the separate plantingBudget owner, so this test checks inventory multiplication and batching rather than independently proving that owner's recurrence; leaves greater than zero prevents a vacuous leafy case.
+ * @evidence contracts/testing.md#distinguishing-cases Leafless and positive-leaf recipes distinguish one versus two batches and materials, shared per-prototype storage versus repeated instance vertices, and two frame submissions versus resident slot count. Unknown prototype and malformed count admission belong to their separate simulated tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported test_render_simulated_foliage_cost entry invokes plantingBudget and the engine inventory synchronously over numerical domains, creating no plant meshes, native buffers, renderer, installed consumer or dynamic cases.
  */
-export const test_render_simulated_foliage_cost = (): void => {
-  const scene = simulatedRenderSceneFixture;
-  const bareRecipe = leaflessPlantingRecipeFixture;
+export function test_render_simulated_foliage_cost(): void {
+  const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
+  const bareRecipe: typeof leaflessPlantingRecipeFixture =
+    leaflessPlantingRecipeFixture;
 
   // A complete two-child tree of three levels is 1 + 2 + 4 branches, and the
   // cluster places six members of it.
-  const BRANCH_INSTANCES = 7 * 6;
+  const BRANCH_INSTANCES: number = 7 * 6;
 
-  const BRANCH = { vertices: 40, triangles: 24 };
+  const BRANCH: { vertices: number; triangles: number } = {
+    vertices: 40,
+    triangles: 24,
+  };
 
-  const LEAF = { vertices: 4, triangles: 2 };
+  const LEAF: { vertices: number; triangles: number } = {
+    vertices: 4,
+    triangles: 2,
+  };
 
-  const BRANCH_BYTES =
+  const BRANCH_BYTES: number =
     BRANCH.vertices * (12 + 12 + 8) + BRANCH.triangles * 3 * 4;
 
-  const LEAF_BYTES = LEAF.vertices * (12 + 12 + 8) + LEAF.triangles * 3 * 4;
+  const LEAF_BYTES: number =
+    LEAF.vertices * (12 + 12 + 8) + LEAF.triangles * 3 * 4;
 
   // Opaque geometry is submitted more than once in a frame, and the inventory
   // reports the conservative one-frame peak rather than the beauty pass alone.
@@ -37,9 +55,9 @@ export const test_render_simulated_foliage_cost = (): void => {
   // complete pass over every opaque draw. Resident cost is not multiplied,
   // because vertices, memory, nodes and instance slots are allocated once and
   // reused by each pass.
-  const PASSES = 2;
+  const PASSES: 2 = 2 as const;
 
-  const unstated = measure({
+  const unstated: IAutoMovieRenderInventory = measure({
     scene: scene(),
     models: modelsFixture(),
     plantings: [
@@ -57,7 +75,7 @@ export const test_render_simulated_foliage_cost = (): void => {
 
   // A leafy cluster submits a second batch and pays a second material; a
   // leafless one pays for neither.
-  const leafy = plantingRecipe({
+  const leafy: IAutoMoviePlantingDomain = plantingRecipe({
     foliage: {
       density: 2,
       minLevel: 1,
@@ -71,12 +89,12 @@ export const test_render_simulated_foliage_cost = (): void => {
   // The law relating a recipe to its leaf count belongs to the planting domain,
   // not to the inventory; what is under test here is that the inventory
   // multiplies that declared worst case by the prototype the renderer builds.
-  const leaves = plantingBudget({
+  const leaves: number = plantingBudget({
     domain: leafy,
     cluster: plantingCluster(),
   }).worstCaseLeafInstances;
 
-  const foliated = measure({
+  const foliated: IAutoMovieRenderInventory = measure({
     scene: scene(),
     models: modelsFixture(),
     plantings: [
@@ -127,4 +145,4 @@ export const test_render_simulated_foliage_cost = (): void => {
       bearing: true,
     },
   );
-};
+}

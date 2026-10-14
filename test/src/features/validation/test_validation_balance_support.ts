@@ -1,9 +1,12 @@
 import { validateBalanceSupport } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,13 +19,20 @@ import {
   validationHasWarning,
 } from "../internal/predicates";
 
-const restAt = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const skeleton = (centerX: number, centerZ: number): IAutoMovieSkeleton => ({
+const skeleton: (centerX: number, centerZ: number) => IAutoMovieSkeleton = (
+  centerX: number,
+  centerZ: number,
+): IAutoMovieSkeleton => ({
   id: `balance-${centerX}-${centerZ}`,
   bones: [
     { bone: "hips", parent: null, rest: restAt(0, 1, 0), constraint: null },
@@ -59,19 +69,24 @@ const skeleton = (centerX: number, centerZ: number): IAutoMovieSkeleton => ({
   ],
 });
 
-const root = (): IAutoMovieTransform => ({
+const root: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const pose = (target: IAutoMovieSkeleton): IAutoMoviePose => ({
+const pose: (target: IAutoMovieSkeleton) => IAutoMoviePose = (
+  target: IAutoMovieSkeleton,
+): IAutoMoviePose => ({
   skeleton: target.id,
   root: root(),
   joints: [],
 });
 
-const key = (target: IAutoMovieSkeleton, time: number): IAutoMovieKeyframe => ({
+const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (
+  target: IAutoMovieSkeleton,
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(target),
   expression: null,
@@ -79,13 +94,14 @@ const key = (target: IAutoMovieSkeleton, time: number): IAutoMovieKeyframe => ({
   bezier: null,
 });
 
-const motion = (target: IAutoMovieSkeleton) =>
-  makeMotion([key(target, 0), key(target, 1)], 1);
+const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
+  target: IAutoMovieSkeleton,
+): IAutoMovieMotion => makeMotion([key(target, 0), key(target, 1)], 1);
 
 /**
  * `validateBalanceSupport` pins the balance heuristic: callers declare a
  * support window, the validator projects the center of mass and support
- * contacts to XZ, then rejects samples whose COM falls outside the support hull
+ * contacts to XZ, then warns when COM falls outside the support hull
  * margin. With an explicit `centerBone` the COM is that single bone; omitted,
  * it is the segment-mass-weighted whole-body COM (#1184).
  *
@@ -94,21 +110,24 @@ const motion = (target: IAutoMovieSkeleton) =>
  * 1. A single-bone (`spine`) COM beyond a two-foot support segment reports a
  *    physics violation on
  *    `$input.supports[i].samples[j].centerOfMass.supportDistance`.
- * 2. Widening the margin accepts the same segment case, proving the distance
- *    threshold is the gate.
+ * 2. Widening the margin leaves the same segment case successful; the marker suppresses warnings.
  * 3. One-foot support and the whole-body COM pass when the COM is on the support
  *    point or segment.
- * 4. A convex four-point foot/toe hull accepts an inside COM and rejects an
- *    outside COM.
+ * 4. A convex four-point foot/toe hull leaves interior and edge cases successful and warns for an outside COM.
  * 5. The mass-weighted whole-body COM (#1184) warns on a forward-leaning trunk
  *    that a single-hips proxy misses: the pelvis stays over the feet while the
- *    body's real COM has pitched past them.
+ *    weighted joint-position estimate has pitched past them.
  * 6. Invalid support annotations and invalid sample rates report deterministic
  *    non-physics failures before sampling.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateBalanceSupport with point, segment and polygon supports, asserts located imbalance warnings and a 0.25 m overshoot, checks physicsIntent suppression and a weighted-center warning absent from a hips-only proxy, and delegates structural refusal assertions to assertBalanceSupportInputRefusals. Several accepting geometry cases assert success only, which permits advisory warnings.
+ * @evidence contracts/testing.md#independent-expectations A center at x=0.5 lies 0.3 m beyond feet spanning [-0.2,0.2], leaving 0.25 m after margin 0.05; foot/toe coordinates define the support rectangle independently. A displaced heavy trunk must move the weighted center while hips remain over the feet. The refusal helper's explicit field paths and counts follow annotation domains; it does not use validator output to construct expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Six groups cover segment overshoot and margin, singleton/default center, polygon interior/edge/exterior, a fractional window, weighted versus hips center, intent suppression, and combined plus isolated malformed bone/support/window/margin/rate inputs. Acceptance checks that only inspect success do not prove warning absence; detached bones belong to the totality test.
+ * @evidence contracts/testing.md#execution-ownership The named test_validation_balance_support entry owns the directly invoked refusal helper's cases as well as its in-memory rigs and motions; portable sampling/FK/hull validation starts no host and dynamically registers no cases.
  */
-export const test_validation_balance_support = (): void => {
-  const outsideLine = skeleton(0.5, 0);
-  const rejected = validateBalanceSupport({
+export function test_validation_balance_support(): void {
+  const outsideLine: IAutoMovieSkeleton = skeleton(0.5, 0);
+  const rejected: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(outsideLine),
     skeleton: outsideLine,
     supports: [
@@ -131,24 +150,28 @@ export const test_validation_balance_support = (): void => {
       "$input.supports[0].samples[0].centerOfMass.supportDistance",
     ),
   );
-  const first =
+  const first: IAutoMovieConstraintViolation | undefined | null =
     rejected.success === true
-      ? (rejected.warnings ?? []).find((v) => v.path.includes("samples[0]"))
+      ? (rejected.warnings ?? []).find(
+          (v: IAutoMovieConstraintViolation): boolean =>
+            v.path.includes("samples[0]"),
+        )
       : null;
   TestValidator.equals(
     "balance support overshoot",
     namedFacts([
-      ["firstKindPhysics", () => first?.kind === "physics"],
+      ["firstKindPhysics", (): boolean => first?.kind === "physics"],
       [
         "ncloseFirstOvershoot",
-        () => first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.25),
+        (): boolean =>
+          first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.25),
       ],
     ]),
     { firstKindPhysics: true, ncloseFirstOvershoot: true },
   );
 
   // physicsIntent (wire-fu / a deliberately off-balance pose) suppresses it.
-  const acknowledged = validateBalanceSupport({
+  const acknowledged: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(outsideLine),
     skeleton: outsideLine,
     supports: [
@@ -187,7 +210,7 @@ export const test_validation_balance_support = (): void => {
     true,
   );
 
-  const oneFoot = skeleton(-0.2, 0);
+  const oneFoot: IAutoMovieSkeleton = skeleton(-0.2, 0);
   TestValidator.equals(
     "one-foot support succeeds",
     validateBalanceSupport({
@@ -207,7 +230,7 @@ export const test_validation_balance_support = (): void => {
     true,
   );
 
-  const defaultCenter = skeleton(0, 0);
+  const defaultCenter: IAutoMovieSkeleton = skeleton(0, 0);
   TestValidator.equals(
     "whole-body COM over an upright rig stays within the foot segment",
     validateBalanceSupport({
@@ -245,7 +268,7 @@ export const test_validation_balance_support = (): void => {
       },
     ],
   };
-  const leanDefault = validateBalanceSupport({
+  const leanDefault: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(leaningTrunk),
     skeleton: leaningTrunk,
     supports: [
@@ -267,7 +290,7 @@ export const test_validation_balance_support = (): void => {
       "$input.supports[0].samples[0].centerOfMass.supportDistance",
     ),
   );
-  const leanHips = validateBalanceSupport({
+  const leanHips: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(leaningTrunk),
     skeleton: leaningTrunk,
     supports: [
@@ -286,7 +309,7 @@ export const test_validation_balance_support = (): void => {
     validationHasNoWarnings("single-hips balance proxy", leanHips),
   );
 
-  const insidePolygon = skeleton(0, 0.2);
+  const insidePolygon: IAutoMovieSkeleton = skeleton(0, 0.2);
   TestValidator.equals(
     "polygon support succeeds",
     validateBalanceSupport({
@@ -306,7 +329,7 @@ export const test_validation_balance_support = (): void => {
     true,
   );
 
-  const edgePolygon = skeleton(0, 0);
+  const edgePolygon: IAutoMovieSkeleton = skeleton(0, 0);
   TestValidator.equals(
     "polygon edge support succeeds",
     validateBalanceSupport({
@@ -345,8 +368,8 @@ export const test_validation_balance_support = (): void => {
     true,
   );
 
-  const outsidePolygon = skeleton(0.5, 0.2);
-  const polygonRejected = validateBalanceSupport({
+  const outsidePolygon: IAutoMovieSkeleton = skeleton(0.5, 0.2);
+  const polygonRejected: IAutoMovieValidation = validateBalanceSupport({
     motion: motion(outsidePolygon),
     skeleton: outsidePolygon,
     supports: [
@@ -372,4 +395,4 @@ export const test_validation_balance_support = (): void => {
   );
 
   assertBalanceSupportInputRefusals(defaultCenter, motion);
-};
+}

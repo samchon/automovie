@@ -1,7 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A rectangular grid of measurement points on one plane.
+ * A grid of measurement points on one plane, rectangular when its two axes are
+ * perpendicular.
  *
  * The grid is stated in the plane's own axes rather than in world axes, so a
  * sloped roof light, a tilted desk and a wall panel are all one shape. Samples
@@ -15,58 +16,42 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * floor. The order is a declaration rather than a detail, so it is never
  * inferred from which answer looks brighter.
  *
- * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `IAutoMovieAnalysisWorkplane` declares the oriented rectangular grid on which lighting performance is measured.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The workplane supplies a corner, two ordered axes, physical extents, and cell counts for deterministic centre samples.
+ * Both axes are normalized before use, so their lengths do not matter, and they
+ * are not orthogonalized: two non-perpendicular axes give a parallelogram grid.
+ * A grid may hold at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` cells.
+ *
+ * @evidence contracts/common.md#principled-implementation A parametric grid `origin + u * axisU + v * axisV` sampled at cell centres, with the measured face fixed by the right-handed cross product of the normalized axes, so a 1x1 grid measures the middle and the face is a declaration, not an inference.
+ * @evidence contracts/common.md#clear-and-simple-design Origin, two axes, two sizes and two counts describe any planar grid, horizontal, tilted or vertical, with no separate shape per orientation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The measured face is never chosen by which answer is brighter, and non-perpendicular axes give a parallelogram rather than being silently orthogonalized.
+ * @evidence contracts/common.md#meaningful-documentation States the cell-centre sampling, the measured face rule and how swapping axes flips it, normalization without orthogonalization, the metre unit, the count and size ranges, and the sample cap.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the grid is walked once in `analyzeAutoMovieDaylight`, whose cost per cell is answered there.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sky directions shared across the grid are built by the analyzer, not this type, and no grid point is cached across studies.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three vectors and four numbers owned by the request; the cells it describes are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`.
+ * @author Samchon
  */
 export interface IAutoMovieAnalysisWorkplane {
-  /**
-   * World-space corner the grid grows from, in metres.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary Workplane `origin` anchors the measured rectangle at an authored world-space corner.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The corner is the base point from which both cell-centre offsets are constructed.
-   */
+  /** World-space corner the grid grows from, in metres; every axis finite. */
   origin: IAutoMovieVector3;
-  /**
-   * In-plane direction the first axis runs along; non-zero.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `axisU` declares the first in-plane direction used to place lighting samples.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state Its normalized direction spans the U extent and forms the first operand of the measured-face cross product.
-   */
+
+  /** In-plane direction the first axis runs along; finite, non-zero, normalized. */
   axisU: IAutoMovieVector3;
+
   /**
-   * In-plane direction the second axis runs along; non-zero, not parallel.
-   * `cross(axisU, axisV)` is the face light is gathered on.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `axisV` declares the second in-plane direction and therefore which face receives light.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state Crossing U with this nonparallel vector produces the sampling normal and spans the V extent.
+   * In-plane direction the second axis runs along; finite, non-zero, not
+   * parallel to {@link axisU}, normalized before use. `cross(axisU, axisV)` is
+   * the face light is gathered on.
    */
   axisV: IAutoMovieVector3;
-  /**
-   * Extent along {@link axisU} in metres; strictly positive.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `sizeU` states the measured workplane's physical reach along its first axis.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The positive metre extent determines each U cell's centre offset and sample spacing.
-   */
+
+  /** Extent along {@link axisU} in metres; finite and strictly positive. */
   sizeU: number;
-  /**
-   * Extent along {@link axisV} in metres; strictly positive.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `sizeV` bounds the illuminated rectangle along its second authored direction.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state This V dimension converts the row index into a world-space centre displacement.
-   */
+
+  /** Extent along {@link axisV} in metres; finite and strictly positive. */
   sizeV: number;
-  /**
-   * Cells along {@link axisU}; a whole number at or above one.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `countU` declares how many measurement columns resolve the first workplane dimension.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The whole-number column count fixes U sample spacing and contributes to the bounded total sample count.
-   */
+
+  /** Cells along {@link axisU}; a safe integer at or above one. */
   countU: number;
-  /**
-   * Cells along {@link axisV}; a whole number at or above one.
-   *
-   * @evidence requirements/interior/lighting-daylight-and-optics.md#interior-lighting-analysis-boundary `countV` declares the number of measurement rows across the second workplane dimension.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-lighting-optical-state The row count closes the deterministic grid cardinality and locates every V cell centre.
-   */
+
+  /** Cells along {@link axisV}; a safe integer at or above one. */
   countV: number;
 }

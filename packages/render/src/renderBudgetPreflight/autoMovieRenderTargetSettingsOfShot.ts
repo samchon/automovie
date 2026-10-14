@@ -1,27 +1,30 @@
-import { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieRenderTargetSettings,
+} from "@automovie/interface";
 
 /**
- * The renderer settings one compiled shot is drawn under.
+ * Project intended renderer settings from one compiled shot and caller-supplied target dimensions.
  *
- * Precedence is the viewer's, restated nowhere: a scene that declares an
- * `environment` owns the curve, the exposure and the shadow policy of its own
- * beauty pass, and a scene that declares none keeps the delivery's tone mapping
- * at the renderer's untouched exposure with no shadow map. Deriving it here
- * rather than guessing is what makes the sealed target the settings a frame was
- * actually drawn with; a target that claimed shadows a scene switched off would
- * price a cost nobody pays and call a fresh report stale.
+ * A scene environment supplies the beauty pass's curve, exposure and shadow policy. Without one this helper projects delivery tone mapping, exposure one and disabled shadows, assuming a host initialized to those defaults. applyRendererEnvironment instead preserves existing host exposure/shadows on that branch, so this projection is not a live settings observation.
  *
- * `shadowType` is `none` exactly when shadows are off, which is the render
- * target's own invariant: an environment naming a filter family it never
- * renders states what it WOULD use, and recording that as the drawn setting
- * would be a claim about a map that does not exist.
+ * `shadowType` is `none` exactly when the supplied policy disables shadows, preserving the render-target invariant without claiming a live shadow allocation.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `autoMovieRenderTargetSettingsOfShot` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `autoMovieRenderTargetSettingsOfShot` exposes that responsibility through the package-independent system contract.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Scene environment values supply tone mapping, exposure and shadow policy; disabled shadows map to shadowType none. Without an environment this helper chooses exposure one and disabled shadows, which match live settings only under the caller's neutral-host premise, since applyRendererEnvironment preserves existing exposure/shadows on that branch.
+ * @evidence contracts/common.md#clear-and-simple-design This boundary projects compiled scene policy into target settings while the engine target sealer owns runtime admission of dimensions and setting values.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No shot is special-cased; absent-environment defaults are explicit projected assumptions, not observed host state. A previously configured host can differ, and this helper does not compensate for or detect that mismatch.
+ * @evidence contracts/common.md#meaningful-documentation The comment names environment precedence and shadow invariants, and input members specify drawing-buffer pixels, device pixel ratio and delivery tone mapping.
+ * @evidence contracts/performance.md#efficient-algorithms The projection reads one environment and allocates one settings record, performing constant work irrespective of shot geometry or frame count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Compiled environment policy is read directly without rebuilding scene state or resealing assets; each invocation reflects its supplied dimensions and pixel ratio.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The settings record contains only scalar values, so no compiled geometry, GPU allocation or host session is retained.
  */
-export const autoMovieRenderTargetSettingsOfShot = (props: {
+export const autoMovieRenderTargetSettingsOfShot: (props: {
+  compiled: IAutoMovieCompiledShotSource;
+  width: number;
+  height: number;
+  pixelRatio: number;
+  delivery: IAutoMovieRenderTargetSettings["toneMapping"];
+}) => IAutoMovieRenderTargetSettings = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Drawing-buffer width in pixels. */
@@ -33,8 +36,14 @@ export const autoMovieRenderTargetSettingsOfShot = (props: {
   /** The delivery's own tone mapping, for a scene that declares none. */
   delivery: IAutoMovieRenderTargetSettings["toneMapping"];
 }): IAutoMovieRenderTargetSettings => {
-  const environment = props.compiled.scene.environment ?? null;
-  const shadows =
+  const environment:
+    | IAutoMovieCompiledShotSource["scene"]["environment"]
+    | null = props.compiled.scene.environment ?? null;
+  const shadows:
+    | NonNullable<
+        IAutoMovieCompiledShotSource["scene"]["environment"]
+      >["shadows"]
+    | null =
     environment !== null && environment.shadows.enabled
       ? environment.shadows
       : null;

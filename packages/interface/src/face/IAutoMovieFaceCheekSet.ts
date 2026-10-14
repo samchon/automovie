@@ -1,30 +1,22 @@
 import { IAutoMovieFaceCheek } from "./IAutoMovieFaceCheek";
 
 /**
- * The cheek PAIR of an {@link IAutoMovieFace}.
+ * The cheek pair of an {@link IAutoMovieFace}.
  *
- * **Side rule:** when only ONE of `left`/`right` is defined, it applies to BOTH
- * cheeks (the symmetric shorthand); when both are defined, each side stands
- * alone.
+ * When only one of `left` and `right` is stated, it applies to both cheeks as
+ * the symmetric shorthand; when both are stated, each drives only its own
+ * cheek. Sides are the subject's own.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieFaceCheekSet` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieFaceCheekSet` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * @evidence contracts/common.md#principled-implementation `flattenFace` resolves each of the `R` and `L` cheek targets from its own side when stated and from the opposite side otherwise, so a lone side yields equal weights on both targets.
+ * @evidence contracts/common.md#clear-and-simple-design The pair is two optional instances of the cheek record, which covers the symmetric and asymmetric cases without a third field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Mirroring applies only when a side is absent and never overrides a stated side, matching the brow and eye pairs exactly.
+ * @evidence contracts/common.md#meaningful-documentation States the shorthand for one stated side, the independence of two stated sides, and the subject-relative sides; members repeat when each side covers both cheeks.
  * @author Samchon
  */
 export interface IAutoMovieFaceCheekSet {
-  /**
-   * The subject's LEFT cheek; applies to BOTH cheeks when `right` is omitted.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `left` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `left` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
+  /** The subject's left cheek; applies to both cheeks when `right` is omitted. */
   left?: IAutoMovieFaceCheek;
 
-  /**
-   * The subject's RIGHT cheek; applies to BOTH cheeks when `left` is omitted.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `right` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `right` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
+  /** The subject's right cheek; applies to both cheeks when `left` is omitted. */
   right?: IAutoMovieFaceCheek;
 }

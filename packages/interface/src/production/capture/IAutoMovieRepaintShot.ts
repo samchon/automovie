@@ -4,62 +4,36 @@ import { IAutoMovieRepaintReceipt } from "./IAutoMovieRepaintReceipt";
 import { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
 
 /**
- * Result of one optional diffusion rendition request.
+ * Retained repaint candidate result shape; its former generation and selection host has been removed.
  *
- * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IAutoMovieRepaintShot` as the portable data boundary for the repaint reference roles requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IAutoMovieRepaintShot` for the asset spec repaint controls references system contract.
+ * @evidence contracts/common.md#principled-implementation Separate result flags describe intended candidate publication and active selection, alongside request identity, receipt and diagnostics; no current product producer establishes these effects.
+ * @evidence contracts/common.md#clear-and-simple-design Separate generated and selected booleans distinguish candidate existence from active delivery, and nullable request and receipt identify admission failure before a request exists versus later attempt refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied success flags and receipts prove no publication, byte admission, selection or visual review; the retained type supplies no replacement execution path.
+ * @evidence contracts/common.md#meaningful-documentation Defines generation versus selection effects, immutable retry request identity, production and shot, accepted receipt nulls and attributed refusal diagnostics.
+ * @author Samchon
  */
 export interface IAutoMovieRepaintShot {
-  /**
-   * True only after media parsing and atomic receipt commit.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `repainted` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `repainted` for the asset spec repaint controls references system contract.
-   */
+  /** Intended media-parsed and atomically committed candidate status; no current producer enforces it. */
   repainted: boolean;
 
-  /** True only when a separate guarded selection transaction made it active. */
+  /** Intended active selection status from a separate transaction; this type performs none. */
   selected: boolean;
 
   /**
-   * Immutable request identity that a transport retry resumes, or null when
-   * validation refused before a request existed.
-   *
-   * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-request-boundary Makes a failed attempt addressable by the explicit retry operation without changing its request controls.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Returns the stable request side of the stored request/attempt lineage.
+   * Immutable request identity that a transport retry resumes, or null when validation refused before a request existed.
    */
   requestId: string | null;
 
-  /**
-   * Current production namespace.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `productionId` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `productionId` for the asset spec repaint controls references system contract.
-   */
+  /** Current production namespace. */
   productionId: string;
 
-  /**
-   * Compiled shot id.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `shot` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `shot` for the asset spec repaint controls references system contract.
-   */
+  /** Compiled shot id. */
   shot: string;
 
-  /**
-   * Accepted receipt, or null on refusal.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `receipt` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `receipt` for the asset spec repaint controls references system contract.
-   */
+  /** Accepted receipt, or null on refusal. */
   receipt: IAutoMovieRepaintReceipt | null;
 
-  /**
-   * Provisioning or evidence diagnostics, empty on success.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `diagnostics` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `diagnostics` for the asset spec repaint controls references system contract.
-   */
+  /** Provisioning or evidence diagnostics, empty on success. */
   diagnostics: IAutoMovieDiagnostic[];
 }
 
@@ -69,42 +43,27 @@ export interface IAutoMovieRepaintShot {
  */
 export namespace IAutoMovieRepaintShot {
   /**
-   * One structure-preserving shot rendition request.
+   * One shot repaint request with fixed role-specific references and exact generation controls.
    *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IProps` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IProps` for the asset spec repaint controls references system contract.
+   * @evidence contracts/common.md#principled-implementation Production and shot strings address the intended source, while references and parameters describe appearance guidance; this erased request performs no registry, byte or adoption validation.
+   * @evidence contracts/common.md#clear-and-simple-design Input contains shot identity and appearance guidance without embedding provider configuration, execution policy or deterministic source acquisition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape provides no arbitrary geometry or provider field, but it also supplies no compile, frame, reference or adoption gate; the former execution host has been removed.
+   * @evidence contracts/common.md#meaningful-documentation Defines production and shot addressing, non-collapsible manifest references and exact controls retained by the candidate receipt.
+   * @author Samchon
    */
   export interface IProps {
-    /**
-     * Exact production namespace owning the shot.
-     *
-     * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `productionId` as the portable data boundary for the repaint reference roles requirement.
-     * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `productionId` for the asset spec repaint controls references system contract.
-     */
+    /** Exact production namespace owning the shot. */
     productionId: string;
 
-    /**
-     * Exact current builder-registry shot id.
-     *
-     * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `shot` as the portable data boundary for the repaint reference roles requirement.
-     * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `shot` for the asset spec repaint controls references system contract.
-     */
+    /** Exact current builder-registry shot id. */
     shot: string;
 
     /**
      * Fixed non-collapsible role-specific references from the asset manifest.
-     *
-     * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `references` as the portable data boundary for the repaint reference roles requirement.
-     * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `references` for the asset spec repaint controls references system contract.
      */
     references: IAutoMovieRepaintReferenceInput[];
 
-    /**
-     * Exact adapter controls stored in the rendition receipt.
-     *
-     * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `parameters` as the portable data boundary for the repaint reference roles requirement.
-     * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `parameters` for the asset spec repaint controls references system contract.
-     */
+    /** Exact adapter controls stored in the rendition receipt. */
     parameters: IAutoMovieRepaintParameters;
   }
 }

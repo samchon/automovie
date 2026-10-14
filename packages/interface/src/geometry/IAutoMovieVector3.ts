@@ -1,37 +1,21 @@
 /**
- * A 3D vector in automovie space (y-up, right-handed; see the package README
- * coordinate convention).
+ * A 3D vector in automovie's right-handed, y-up frame, as in glTF 2.0 and VRM 1.0.
  *
- * Used both for positions / translations (in meters) and for unitless
- * directions (axes, normals). Which one a given field means is documented at
- * that field; the engine range-checks positions where it matters.
+ * The same shape carries metre positions/translations, unitless directions and per-axis factors such as scale. The containing field states its meaning and required range; this type enforces neither finiteness nor length, which remain the owning record's admission responsibility.
  *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `IAutoMovieVector3` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `IAutoMovieVector3` within the declared spatial transform chain.
+ * @evidence contracts/common.md#principled-implementation Three Cartesian components in the right-handed y-up frame glTF and `three.js` use, so engine values pass to the viewer and to imported clips without an axis swap or handedness flip.
+ * @evidence contracts/common.md#clear-and-simple-design One plain three-number record serves points, directions and scale factors, with meaning stated at each field rather than split into nominal point and direction types that interface's no-wrapper rule forbids.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The type promises no unit length or finiteness it cannot enforce; each owning validator, such as `validateTransformScalars` for a transform, checks the values its field needs.
+ * @evidence contracts/common.md#meaningful-documentation States the frame and handedness, that one shape carries several meanings decided by the field, and where ranges are enforced; members give each axis's direction relative to a character at zero heading.
  * @author Samchon
  */
 export interface IAutoMovieVector3 {
-  /**
-   * X: toward the character's left (+) / right (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `x` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `x` within the declared spatial transform chain.
-   */
+  /** X: toward the left (+) of a character facing +Z, its right (−). */
   x: number;
 
-  /**
-   * Y: up (+) / down (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `y` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `y` within the declared spatial transform chain.
-   */
+  /** Y: up (+) / down (−). */
   y: number;
 
-  /**
-   * Z: toward the character's front (+) / back (−).
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `z` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `z` within the declared spatial transform chain.
-   */
+  /** Z: the front (+) of a character at zero heading, its back (−). */
   z: number;
 }

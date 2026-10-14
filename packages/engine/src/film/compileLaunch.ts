@@ -1,4 +1,5 @@
 import {
+  IAutoMovieClip,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
   IAutoMovieReactAction,
@@ -6,6 +7,9 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { IAutoMovieBallisticSolution } from "../physics/IAutoMovieBallisticSolution";
+import { IAutoMovieProjectile } from "../physics/IAutoMovieProjectile";
+import { IAutoMovieProjectileState } from "../physics/IAutoMovieProjectileState";
 import { projectileAt } from "../physics/projectileAt";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { solveBallisticLaunch } from "../physics/solveBallisticLaunch";
@@ -16,101 +20,131 @@ import { eventTimeKey } from "./eventTimeKey";
 /** The default fall the launch solves against: Earth gravity, world −Y. */
 const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 
-const firstActor = (action: IAutoMovieLaunchAction): string | null =>
-  typeof action.actor === "string" ? action.actor : (action.actor[0] ?? null);
+/** Below this landing speed in m/s the incoming direction is undefined. */
+const STILL_SPEED: number = 1e-9;
+
+function firstActor(action: IAutoMovieLaunchAction): string | null {
+  return typeof action.actor === "string"
+    ? action.actor
+    : (action.actor[0] ?? null);
+}
 
 /**
- * Compose the `launch` verb's engine primitives into one result, the missing
- * orchestrator that turns the model's thin _"loose the arrow at him"_ into the
- * projectile's motion **and** the struck target's reaction, timed to the
- * engine-computed hit rather than a number the model had to guess.
+ * Compose the `launch` verb's engine primitives into one result: the projectile's flight and the struck target's reaction, timed to the engine-computed hit rather than a number the model had to guess.
  *
- * It {@link solveBallisticLaunch solves the aim} that connects `origin` to
- * `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into
- * the projectile node's clip, and, when the launch carries an `onHit`, emits
- * the target's `react` at the detected contact time. This is the reactive event
- * the schema promises ("knock him off the ledge" without hand-timing the fall):
- * the contact time is a computed output, so the reaction is scheduled, not
- * authored. Returns `null` when the target is out of range at that speed
- * (nothing to fly, nothing to hit).
+ * It {@link solveBallisticLaunch solves the aim} that connects `origin` to `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into the projectile node's clip, and, when the launch carries an `onHit` and strikes a node, schedules that node's `react` at the contact. Pass `targetAt` to lead a moving target: the aim then solves through {@link solveMovingLaunch} against where the mover will be when the projectile arrives, and `target` only names the fallback sightline.
  *
- * `target` is the target's world point resolved by the caller. Pass `targetAt`
- * as well to **lead a moving target**. The aim then solves against where the
- * mover _will be_ (via {@link solveMovingLaunch}) rather than its start point,
- * and `target` is only the fallback origin of the sightline. Feed the returned
- * `clip` to the projectile node and fold `react` into the target's action list
- * before the performance compiles.
+ * Times differ by output. The clip is flight-local, keyed over `[0, hitTime]` with id `trajectory:<projectile>`, and the caller shifts it by `action.start` onto the shot clock. The `react` start, the event times, and `targetAt`'s argument are shot-local seconds, so the hit lands at `action.start + hitTime`. The events are a `contact` always, a `hit` when a node is struck, and a `fall` when the react unbalances it; their `actionIndex` is null for the caller to stamp.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory compileLaunch turns the authored launch intent into an analytic flight and schedules the reaction at the engine-computed contact time.
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-events-contacts Connects the launch actor, projectile contact, target hit, and optional reaction to the same computed shot-local impact instant.
- * @evidence requirements/staging/interactions-and-choreography.md#staging-choreography-phases Connects the launch action to its computed contact and hit phase, then emits the optional recoil or fall as the reaction consequence at that same instant.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Solves and bakes the authored launch while keeping the engine-computed contact time authoritative for downstream reaction.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Returns the realized impact event and target reaction on the performance clock beside the projectile motion.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-interaction-choreography-role Realizes action, impact, and reaction as ordered records with stable projectile and target identities and explicit hit consequences.
+ * Returns null when the target is out of range at that speed. Throws `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can perform that requested reaction.
+ *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Solves the closed-form ballistic aim, or its fixed-point lead against a moving target sampled at `action.start` plus flight time, samples the closed-form flight so there is no integration drift, and derives the recoil source one metre up the incoming velocity, falling back to the sightline when the projectile arrives still.
+ * @evidence contracts/common.md#clear-and-simple-design Orchestrates the physics primitives and owns only what joins them into a verb: the react, the events and their ids; shifting the clip onto the shot clock and suffixing repeated flights stay with `performShot`, which owns the shot's object-motion list.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no projectile or target; Earth gravity follows world down, the stillness threshold guards a zero direction, and a requested recoil without a struck node is refused instead of silently omitted or assigned to an arbitrary group member.
+ * @evidence contracts/common.md#meaningful-documentation States what is solved and baked, when a react is scheduled, the leading behaviour, the time base of every output including `targetAt`, the events emitted and their ids, the clip id, and the null case.
+ * @evidence contracts/performance.md#efficient-algorithms Static aim takes constant local work; leading adds a bounded fixed-point iteration whose targetAt callback cost is delegated. Output construction then grows with the flight's sampled frame count, O(hitTime × fps), and retains each emitted key.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compiles one launch from its own inputs and coordinates nothing across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned clip, at most one react and three events.
  */
-export const compileLaunch = (props: {
-  /** The launch to compile (its `projectile`, `speed`, `onHit`, `start`). */
+export function compileLaunch(props: {
+  /** The launch to compile: its `projectile`, `speed`, `onHit` and `start`. */
   action: IAutoMovieLaunchAction;
-  /** Where the projectile launches from (world meters). */
+
+  /** Where the projectile launches from, in world metres. */
   origin: IAutoMovieVector3;
-  /** The struck target's world point (the solved flight lands here). */
+
+  /** The struck target's world point, where a static aim lands. */
   target: IAutoMovieVector3;
+
   /**
-   * The struck scene node (the emitted `react`'s actor), or `null` when the aim
-   * is a point/group with no single actor to recoil (the flight still bakes;
-   * only the reaction is withheld).
+   * The struck scene node, the emitted `react`'s actor, or null when the aim is a point or group with no single actor to recoil. A null value supports flight and contact without `onHit`; requesting `onHit` without a non-blank target node throws.
    */
   targetNode: string | null;
+
   /**
-   * The target's world position at flight-time `t`, when it moves during the
-   * shot (its animated base plus root travel). Supplied, the aim **leads** the
-   * mover to the intercept ({@link solveMovingLaunch}); omitted, the launch is a
-   * static intercept on `target`.
+   * The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`.
    */
   targetAt?: (t: number) => IAutoMovieVector3;
-  /** Constant fall; defaults to Earth gravity along world −Y. */
+
+  /** Constant acceleration in m/s²; defaults to Earth gravity along world −Y. */
   gravity?: IAutoMovieVector3;
-  /** Flat `direct` shot (default) or lobbed `high` arc. */
+
+  /** A flat `direct` shot, the default, or a lobbed `high` arc. */
   arc?: "direct" | "high";
-  /** Sample rate of the baked flight clip (default 30). */
+
+  /** Samples per second of the baked flight clip; defaults to 30. */
   fps?: number;
-}): IAutoMovieLaunchResult | null => {
-  const { action, origin, target, targetNode } = props;
-  const gravity = props.gravity ?? DEFAULT_GRAVITY;
-  const arc = props.arc ?? "direct";
+}): IAutoMovieLaunchResult | null {
+  const action: IAutoMovieLaunchAction = props.action;
+  if (
+    action.onHit !== undefined &&
+    (props.targetNode === null || props.targetNode.trim().length === 0)
+  )
+    throw new RangeError(
+      "A launch's onHit requires a non-blank targetNode identifying the struck actor; point and group aims identify no actor to recoil.",
+    );
+  const gravity: IAutoMovieVector3 = props.gravity ?? DEFAULT_GRAVITY;
+  const arc: "direct" | "high" = props.arc ?? "direct";
+  const targetAt: ((t: number) => IAutoMovieVector3) | undefined =
+    props.targetAt;
 
-  const solution =
-    props.targetAt !== undefined
-      ? solveMovingLaunch(origin, props.targetAt, action.speed, gravity, arc)
-      : solveBallisticLaunch(origin, target, action.speed, gravity, arc);
-  if (solution === null) return null; // out of range at this speed
+  // The lead solver measures time from the release, so the mover is read at
+  // the release instant plus flight time on the shot clock.
+  const solution: IAutoMovieBallisticSolution | null =
+    targetAt !== undefined
+      ? solveMovingLaunch(
+          props.origin,
+          (flight: number): IAutoMovieVector3 =>
+            targetAt(action.start + flight),
+          action.speed,
+          gravity,
+          arc,
+        )
+      : solveBallisticLaunch(
+          props.origin,
+          props.target,
+          action.speed,
+          gravity,
+          arc,
+        );
+  if (solution === null) return null;
 
-  const projectile = { origin, velocity: solution.velocity, gravity };
-  const clip = projectileTrajectory(
+  const projectile: IAutoMovieProjectile = {
+    origin: props.origin,
+    velocity: solution.velocity,
+    gravity,
+  };
+  const clip: IAutoMovieClip = projectileTrajectory(
     action.projectile,
     projectile,
     solution.hitTime,
     props.fps,
   );
-  const landing = projectileAt(projectile, solution.hitTime);
+  const landing: IAutoMovieProjectileState = projectileAt(
+    projectile,
+    solution.hitTime,
+  );
+  const hitAt: number = action.start + solution.hitTime;
+  const targetNode: string | null = props.targetNode;
 
   let react: IAutoMovieReactAction | null = null;
   if (action.onHit !== undefined && targetNode !== null) {
-    // Where the blow comes from: one meter upstream along the incoming
-    // velocity, so `target − from` points down the arrow's travel and the
-    // synthesiser recoils the body that way (up-and-back for a lobbed shot,
-    // straight back for a flat one). Degenerate velocity → aim from the origin
-    // to the impact point (the met point when leading a mover, else the target).
-    const aimRef = props.targetAt !== undefined ? landing.position : target;
-    const incoming =
-      Vector3.length(landing.velocity) < 1e-9
-        ? Vector3.normalize(Vector3.subtract(aimRef, origin))
+    // The blow comes from one metre upstream along the incoming velocity, so
+    // `target - from` points down the projectile's travel and the synthesiser
+    // recoils the body that way. A projectile arriving still has no direction,
+    // so the sightline from the origin to the impact is used instead.
+    const aimRef: IAutoMovieVector3 =
+      targetAt !== undefined ? landing.position : props.target;
+    const incoming: IAutoMovieVector3 =
+      Vector3.length(landing.velocity) < STILL_SPEED
+        ? Vector3.normalize(Vector3.subtract(aimRef, props.origin))
         : Vector3.normalize(landing.velocity);
     react = {
       verb: "react",
       actor: targetNode,
-      start: action.start + solution.hitTime,
+      start: hitAt,
       duration: "auto",
       from: {
         kind: "point",
@@ -120,24 +154,23 @@ export const compileLaunch = (props: {
       unbalance: action.onHit.unbalance,
     };
   }
-  const hitAt = action.start + solution.hitTime;
-  const sourceActor = firstActor(action);
-  const targetKey = targetNode ?? "point";
-  const contact: IAutoMovieInteractionEvent = {
-    id: `contact:${action.projectile}:${targetKey}:${eventTimeKey(hitAt)}`,
-    kind: "contact",
-    source: "collisionSolver",
-    time: hitAt,
-    actor: sourceActor,
-    target: targetNode,
-    object: action.projectile,
-    point: landing.position,
-    actionIndex: null,
-    reaction: null,
-  };
-  const events: IAutoMovieInteractionEvent[] = [contact];
+  const sourceActor: string | null = firstActor(action);
+  const events: IAutoMovieInteractionEvent[] = [
+    {
+      id: `contact:${action.projectile}:${targetNode ?? "point"}:${eventTimeKey(hitAt)}`,
+      kind: "contact",
+      source: "collisionSolver",
+      time: hitAt,
+      actor: sourceActor,
+      target: targetNode,
+      object: action.projectile,
+      point: landing.position,
+      actionIndex: null,
+      reaction: null,
+    },
+  ];
   if (targetNode !== null) {
-    const hit: IAutoMovieInteractionEvent = {
+    events.push({
       id: `hit:${action.projectile}:${targetNode}:${eventTimeKey(hitAt)}`,
       kind: "hit",
       source: "impactOutput",
@@ -148,8 +181,7 @@ export const compileLaunch = (props: {
       point: landing.position,
       actionIndex: null,
       reaction: react === null ? null : targetNode,
-    };
-    events.push(hit);
+    });
     if (react?.unbalance === true)
       events.push({
         id: `fall:${targetNode}:${eventTimeKey(hitAt)}`,
@@ -173,4 +205,4 @@ export const compileLaunch = (props: {
     velocity: solution.velocity,
     events,
   };
-};
+}

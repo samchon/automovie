@@ -1,24 +1,16 @@
 /**
  * Explicit production adoption that consumes one external motion source.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Keeps source selection and adoption mode under production authority.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types the source-to-adoption consumer edge recorded by the receipt.
+ * @evidence contracts/common.md#principled-implementation The discriminator and id declare a provenance use by one intended production adoption. The production ledger resolver is retired; Engine texture closure does not resolve this arm and the record establishes no byte or conversion authorization itself.
+ * @evidence contracts/common.md#clear-and-simple-design One closed consumer arm names the production decision, leaving clip, actor, mapping and source path on their owning adoption and asset records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A matching asset path or id alone cannot authorize adoption. An explicit host must resolve the intended consumer and verify current source bytes rather than treating the declaration as an executed check.
+ * @evidence contracts/common.md#meaningful-documentation Defines the explicit adoption role and exact production-declared id used by provenance admission.
  * @author Samchon
  */
 export interface IAutoMovieMotionAdoptionConsumer {
-  /**
-   * External motion adoption consumer discriminator.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Distinguishes a chosen adoption from passive source-resource ownership.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Identifies this use as a production adoption decision.
-   */
+  /** External motion adoption consumer discriminator. */
   kind: "motion-adoption";
 
-  /**
-   * Exact production-declared adoption identity.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-adoption-mode Binds source use to the user's explicit adoption decision.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Joins the source bytes to the selected adoption receipt.
-   */
+  /** Exact production-declared adoption identity. */
   id: string;
 }

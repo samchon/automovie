@@ -6,6 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { segmentIndex } from "../math/segmentIndex";
 import { AutoMoviePathGround } from "./AutoMoviePathGround";
 import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
 import { IAutoMoviePathLocomotion } from "./IAutoMoviePathLocomotion";
@@ -16,80 +17,72 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-const RAD2DEG = 180 / Math.PI;
+const RAD2DEG: number = 180 / Math.PI;
 
-const DEG2RAD = Math.PI / 180;
+const DEG2RAD: number = Math.PI / 180;
 
-const MIN_SEGMENT = 1e-9;
+const MIN_SEGMENT: number = 1e-9;
 
-const DEFAULT_TURN_WINDOW = 0.5;
+const DEFAULT_TURN_WINDOW: number = 0.5;
 
 /** One straight XZ stretch of the polyline, arc-length addressed. */
 interface ISegment {
   /** Start of the stretch on the ground plan. */
   x: number;
   z: number;
+
   /** Unit XZ direction. */
   dirX: number;
   dirZ: number;
+
   /** Facing of this stretch, degrees about +Y. */
   yawDeg: number;
+
   /** Stretch length, meters. */
   length: number;
+
   /** Cumulative arc length at the stretch start. */
   from: number;
 }
 
 /**
- * Bake a looping gait cycle **along a waypoint path**: curved walking with
- * natural turning and ground-height adaptation, where {@link locomoteMotion}
- * only walks a straight line. The motion side of long-form staging: a character
- * that rounds a corner or climbs a ramp instead of teleport-facing its goal.
+ * Bake an admitted in-place gait along an authored world XZ polyline, ignoring waypoint Y and sampling height from optional ground. Whole cycles nearest requested speed determine exact-arrival duration; yaw follows the tangent with a shortest-arc corner blend, and gait root bob/sway rotates with heading. Pathfinding is outside this operation.
  *
- * The path is a world-space polyline over the ground plan: arc length is
- * measured on XZ (piecewise linear: no smoothing solver, deterministic), and
- * **waypoint `y` is ignored**. Height comes from `ground` (a plane scalar or a
- * `(x, z) → y` callback; #605's surfaces will refine this seam). Root
- * translation follows arc length at the gait's pace; like {@link travelMotion}
- * the offset is a continuous function of global time, so it carries across
- * every cycle seam, and any root bob the gait carries is preserved on top. The
- * engine sizes the travel exactly as `locomoteMotion` does (whole cycles
- * nearest the requested `speed`, at least one), then snaps the effective speed
- * so the path completes exactly at the clip end (no end-of-path plateau for
- * feet to skate on).
- *
- * **Facing follows the path tangent**: yaw = `atan2(dx, dz)` per stretch (model
- * +Z forward, as `locomoteMotion`), composed onto the base root rotation. At a
- * corner the yaw blends linearly in arc length over a window of `min(turnWindow
- * / 2, half of each adjacent stretch)` on either side, taking the shortest
- * angular arc, a bounded turn rate instead of a snap (`turnWindow: 0` snaps).
- * Gait phase never resets: keyframe times replicate the base cycle untouched
- * (#597's continuity spirit), the corner only steers the root.
- *
- * Feed the result through {@link plantStanceFeet} (#596) to pin the stance feet.
- * Pathfinding and obstacle avoidance are out of scope: the path is authored
- * (blocking / #605's navigable space provide it).
- *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-terrain-adaptation Samples the authored route and ground source while preserving gait phase through corners.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Bakes a compact gait deterministically into terrain-adjusted path motion and frame records.
- * @evidence requirements/motion/root-motion-and-trajectories.md#motion-root-ground-clearance Samples the declared ground height at each path position into the emitted root translation.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Addresses each positive finite stretch by cumulative arc length and uses the shared earlier-boundary binary search; one segment index supplies position and yaw. Corner half-windows are capped by adjacent half-lengths, while source gait timing/easing repeats with incoming seam easing preserved.
+ * @evidence contracts/common.md#clear-and-simple-design The baker owns path length, heading and repeated root placement; supplied gait articulation remains source content, ground is a scalar/callback seam, and later plantStanceFeet owns contact correction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid authored scalars, coincident XZ, nonfinite/lost cumulative arc and unrepresentable cycle/duration arithmetic refuse before repetition; finite ground samples are required. Turn-window and minimum-stretch constants express stated path tolerances rather than fixture-specific steering.
+ * @evidence contracts/common.md#meaningful-documentation States XZ metres, ignored waypoint Y, sampled height, model +Z heading, corner window, exact arrival, source gait admission and out-of-scope pathfinding; outputs report baseline frames separately from carried gait sway/bob.
+ * @evidence contracts/performance.md#efficient-algorithms For W waypoints and F baked frames, preparation is O(W), segment lookup O(log W) per frame and output O(F), replacing two repeated linear segment scans. Each actual ground callback is sampled once per emitted path frame and output population grows with requested cycles.
+ * @evidence contracts/performance.md#reuse-equivalent-work The frame's located segment is reused for position/yaw, and fixed segments/corner windows serve the whole bake; source gait values are reused without caching effectful ground samples across requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned motion/sidecar arrays grow with baked frame population and belong to the caller; source nested joints/expression and authored nonnull scale may remain shared, but fallback identity scale is freshly owned per output frame. No retained path cache or handles exist.
  */
-export const followPathMotion = (props: {
+export const followPathMotion: (props: {
+  /** Output clip id. */ id: string;
+  /** The looping in-place gait cycle to carry along the path. */ gait: IAutoMovieMotion;
+  /** World-space waypoints, at least two; `y` is ignored (see `ground`). */ waypoints: readonly IAutoMovieVector3[];
+  /** Requested pace along the path, m/s. The engine snaps to whole cycles. */ speed: number;
+  /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */ ground?: AutoMoviePathGround;
+  /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */ turnWindow?: number;
+}) => IAutoMoviePathLocomotion = (props: {
   /** Output clip id. */
   id: string;
+
   /** The looping in-place gait cycle to carry along the path. */
   gait: IAutoMovieMotion;
+
   /** World-space waypoints, at least two; `y` is ignored (see `ground`). */
   waypoints: readonly IAutoMovieVector3[];
+
   /** Requested pace along the path, m/s. The engine snaps to whole cycles. */
   speed: number;
+
   /** Ground height: plane scalar or `(x, z) → y` callback. Defaults to `0`. */
   ground?: AutoMoviePathGround;
+
   /** Corner blend span, meters of arc on both sides combined. Default `0.5`. */
   turnWindow?: number;
 }): IAutoMoviePathLocomotion => {
-  const turnWindow = props.turnWindow ?? DEFAULT_TURN_WINDOW;
+  const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
   if (!Number.isFinite(props.speed) || props.speed <= 0)
     throw new Error("path speed must be finite and positive");
   if (!Number.isFinite(props.gait.duration) || props.gait.duration <= 0)
@@ -99,26 +92,30 @@ export const followPathMotion = (props: {
   if (typeof props.ground === "number" && !Number.isFinite(props.ground))
     throw new Error("path ground height must be finite");
 
-  const segments = buildSegments(props.waypoints);
-  const last = segments[segments.length - 1]!;
-  const length = last.from + last.length;
-  const cycles = Math.max(
+  const segments: ISegment[] = buildSegments(props.waypoints);
+  const last: ISegment = segments[segments.length - 1]!;
+  const length: number = last.from + last.length;
+  const cycles: number = Math.max(
     1,
     Math.round(length / (props.speed * props.gait.duration)),
   );
-  const duration = cycles * props.gait.duration;
-  const speed = length / duration;
-  const halfWindows = cornerHalfWindows(segments, turnWindow);
+  if (!Number.isSafeInteger(cycles))
+    throw new Error("path cycle count must be a safe positive integer");
+  const duration: number = cycles * props.gait.duration;
+  if (!Number.isFinite(duration) || duration <= 0)
+    throw new Error("path duration must be finite and positive");
+  const speed: number = length / duration;
+  const halfWindows: number[] = cornerHalfWindows(segments, turnWindow);
 
   const keyframes: IAutoMovieKeyframe[] = [];
   const frames: IAutoMoviePathFrame[] = [];
-  for (let c = 0; c < cycles; ++c)
+  for (let c: number = 0; c < cycles; ++c)
     for (const k of props.gait.keyframes) {
       // drop the duplicate seam keyframe (a later cycle's time:0) so times stay
       // strictly increasing: the prior cycle's final frame covers the pose,
       // but the seam carries the incoming cycle's first-segment easing (#1012)
       if (c > 0 && k.time === 0) {
-        const seam = keyframes[keyframes.length - 1]!;
+        const seam: IAutoMovieKeyframe = keyframes[keyframes.length - 1]!;
         keyframes[keyframes.length - 1] = {
           ...seam,
           easing: k.easing,
@@ -126,15 +123,16 @@ export const followPathMotion = (props: {
         };
         continue;
       }
-      const globalT = c * props.gait.duration + k.time;
-      const s = Math.min(length, speed * globalT);
-      const seg = segments[segmentIndexAt(segments, s)]!;
-      const x = seg.x + seg.dirX * (s - seg.from);
-      const z = seg.z + seg.dirZ * (s - seg.from);
-      const y = groundHeightAt(props.ground, x, z);
-      const yawDeg = yawAt(segments, halfWindows, s);
-      const facing = Quaternion.fromAxisAngle(UP, yawDeg);
-      const baseRoot = k.pose.root;
+      const globalT: number = c * props.gait.duration + k.time;
+      const s: number = Math.min(length, speed * globalT);
+      const index: number = segmentIndexAt(segments, s);
+      const seg: ISegment = segments[index]!;
+      const x: number = seg.x + seg.dirX * (s - seg.from);
+      const z: number = seg.z + seg.dirZ * (s - seg.from);
+      const y: number = groundHeightAt(props.ground, x, z);
+      const yawDeg: number = yawAt(segments, halfWindows, s, index);
+      const facing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, yawDeg);
+      const baseRoot: IAutoMovieKeyframe["pose"]["root"] = k.pose.root;
       frames.push({
         time: globalT,
         position: { x, y, z },
@@ -147,7 +145,7 @@ export const followPathMotion = (props: {
       });
       // The gait's own root (a bob or sway) is model-frame data; rotate it by
       // the path facing before adding the world path position (#1012).
-      const baseTranslation =
+      const baseTranslation: IAutoMovieVector3 | undefined =
         baseRoot === null
           ? undefined
           : Quaternion.rotateVector(facing, baseRoot.translation);
@@ -166,7 +164,7 @@ export const followPathMotion = (props: {
               facing,
               baseRoot?.rotation ?? IDENTITY_ROT,
             ),
-            scale: baseRoot?.scale ?? IDENTITY_SCALE,
+            scale: baseRoot?.scale ?? { ...IDENTITY_SCALE },
           },
         },
       });
@@ -194,23 +192,30 @@ export const followPathMotion = (props: {
 };
 
 /** Validate the waypoints and cut them into arc-length-addressed stretches. */
-const buildSegments = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {
+const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (
+  waypoints: readonly IAutoMovieVector3[],
+): ISegment[] => {
   if (waypoints.length < 2)
     throw new Error("path needs at least two waypoints");
-  for (let i = 0; i < waypoints.length; ++i) {
+  for (let i: number = 0; i < waypoints.length; ++i) {
     if (!Number.isFinite(waypoints[i]!.x))
       throw new Error(`path waypoint[${i}].x must be finite`);
     if (!Number.isFinite(waypoints[i]!.z))
       throw new Error(`path waypoint[${i}].z must be finite`);
   }
   const segments: ISegment[] = [];
-  let from = 0;
-  for (let i = 0; i + 1 < waypoints.length; ++i) {
-    const dx = waypoints[i + 1]!.x - waypoints[i]!.x;
-    const dz = waypoints[i + 1]!.z - waypoints[i]!.z;
-    const stretch = Math.hypot(dx, dz);
+  let from: number = 0;
+  for (let i: number = 0; i + 1 < waypoints.length; ++i) {
+    const dx: number = waypoints[i + 1]!.x - waypoints[i]!.x;
+    const dz: number = waypoints[i + 1]!.z - waypoints[i]!.z;
+    const stretch: number = Math.hypot(dx, dz);
+    if (!Number.isFinite(stretch))
+      throw new Error(`path stretch ${i} must have a finite XZ length`);
     if (stretch <= MIN_SEGMENT)
       throw new Error(`path waypoints ${i} and ${i + 1} coincide in XZ`);
+    const end: number = from + stretch;
+    if (!Number.isFinite(end) || end <= from)
+      throw new Error(`path stretch ${i} must advance a finite arc length`);
     segments.push({
       x: waypoints[i]!.x,
       z: waypoints[i]!.z,
@@ -220,7 +225,7 @@ const buildSegments = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {
       length: stretch,
       from,
     });
-    from += stretch;
+    from = end;
   }
   return segments;
 };
@@ -230,12 +235,15 @@ const buildSegments = (waypoints: readonly IAutoMovieVector3[]): ISegment[] => {
  * starts): capped so adjacent corners' windows never overlap past a stretch
  * midpoint. Index 0 (the path start) has no corner.
  */
-const cornerHalfWindows = (
+const cornerHalfWindows: (
+  segments: readonly ISegment[],
+  turnWindow: number,
+) => number[] = (
   segments: readonly ISegment[],
   turnWindow: number,
 ): number[] => {
-  const halves = [0];
-  for (let i = 1; i < segments.length; ++i)
+  const halves: number[] = [0];
+  for (let i: number = 1; i < segments.length; ++i)
     halves.push(
       Math.min(
         turnWindow / 2,
@@ -247,23 +255,37 @@ const cornerHalfWindows = (
 };
 
 /** The stretch containing arc length `s`; boundaries go to the earlier one. */
-const segmentIndexAt = (segments: readonly ISegment[], s: number): number => {
-  for (let i = 0; i + 1 < segments.length; ++i)
-    if (s <= segments[i]!.from + segments[i]!.length) return i;
-  return segments.length - 1;
+const segmentIndexAt: (segments: readonly ISegment[], s: number) => number = (
+  segments: readonly ISegment[],
+  s: number,
+): number => {
+  const last: ISegment = segments[segments.length - 1]!;
+  if (s <= 0) return 0;
+  if (s >= last.from + last.length) return segments.length - 1;
+  return segmentIndex(
+    segments.length + 1,
+    (index: number): number =>
+      index === 0 ? 0 : segments[index - 1]!.from + segments[index - 1]!.length,
+    s,
+  );
 };
 
 /** Facing at arc length `s`, linearly blended inside a corner window. */
-const yawAt = (
+const yawAt: (
   segments: readonly ISegment[],
   halfWindows: readonly number[],
   s: number,
+  k: number,
+) => number = (
+  segments: readonly ISegment[],
+  halfWindows: readonly number[],
+  s: number,
+  k: number,
 ): number => {
-  const k = segmentIndexAt(segments, s);
-  const seg = segments[k]!;
+  const seg: ISegment = segments[k]!;
   if (k + 1 < segments.length) {
-    const corner = seg.from + seg.length;
-    const half = halfWindows[k + 1]!;
+    const corner: number = seg.from + seg.length;
+    const half: number = halfWindows[k + 1]!;
     if (half > 0 && s >= corner - half)
       return blendYaw(
         seg.yawDeg,
@@ -272,8 +294,8 @@ const yawAt = (
       );
   }
   if (k > 0) {
-    const corner = seg.from;
-    const half = halfWindows[k]!;
+    const corner: number = seg.from;
+    const half: number = halfWindows[k]!;
     if (half > 0 && s < corner + half)
       return blendYaw(
         segments[k - 1]!.yawDeg,
@@ -285,18 +307,25 @@ const yawAt = (
 };
 
 /** Blend from `a` toward `b` (degrees) along the shortest angular arc. */
-const blendYaw = (a: number, b: number, t: number): number =>
-  a + (((((b - a) % 360) + 540) % 360) - 180) * t;
+const blendYaw: (a: number, b: number, t: number) => number = (
+  a: number,
+  b: number,
+  t: number,
+): number => a + (((((b - a) % 360) + 540) % 360) - 180) * t;
 
 /** Ground height at a plan point: scalar plane, callback, or flat 0. */
-const groundHeightAt = (
+const groundHeightAt: (
+  ground: AutoMoviePathGround | undefined,
+  x: number,
+  z: number,
+) => number = (
   ground: AutoMoviePathGround | undefined,
   x: number,
   z: number,
 ): number => {
   if (ground === undefined) return 0;
   if (typeof ground === "number") return ground;
-  const y = ground(x, z);
+  const y: number = ground(x, z);
   if (!Number.isFinite(y))
     throw new Error(`path ground height at (${x}, ${z}) must be finite`);
   return y;

@@ -1,6 +1,14 @@
-import { performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMovieShotPerformance,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -8,34 +16,34 @@ import {
   validSynthesizer,
 } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
+import { nclose } from "../internal/predicates";
 
 /**
- * Pins the happy path of the PERFORMANCE consumer: a coherent action list
- * compiles into one clip per actor, the `frame` action picks the live camera,
- * and every clip passes ROM validation against its actor's rig.
+ * Performs the coherent duel and checks shot/camera identities and clips, actor motion joins, clocks, positive repeat and a staged-node reach target.
  *
  * Scenarios:
+ * 1. Preserve authored shot/camera identities, two-second clip clocks and both actor-motion joins with zero offsets.
+ * 2. Admit positive integer repeat with the existing fixture synthesizer.
+ * 3. Admit a reach to a staged node with the same synthesizer.
  *
- * 1. The duel performance (unison locomote for both knights + a strike + one
- *    `frame` on `cam-main`, `final: null` so the draft performs) → success; the
- *    shot is `shot:beat-1`, named after the beat, on the staged scene, with
- *    `cam-main` live and a locked-off (`null`) camera motion.
- * 2. Both knights get a performance entry whose `motion` id matches the compiled
- *    clip in `motions`, each starting at offset 0.
- * 3. A positive integer `repeat` is accepted by the performance gate.
- * 4. A `reach` whose target is a staged node is accepted by the positional target
- *    gate.
+ * @evidence contracts/testing.md#behavioral-verification Performs the coherent duel and checks shot/camera identities and clips, actor motion joins, clocks, positive repeat and a staged-node reach target.
+ * @evidence contracts/testing.md#independent-expectations Authored beat/scene/camera ids determine output identity and two seconds determine duration within canonical 1e-6 predicates. Each performance must reference its own emitted motion, which is a join consistency check. Repeat and reach observe admission only, without independently measuring repeated motion content, reach geometry or pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the two-actor draft with null final, camera motion, zero offsets, integer repeat and positional reach; invalid input and ROM excess are separate entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_valid unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_valid = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_valid(): void {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals("success", performed.success, true);
   if (performed.success !== true) return;
@@ -44,7 +52,7 @@ export const test_film_perform_shot_valid = (): void => {
   TestValidator.equals("shot name", performed.shot.name, "the charge");
   TestValidator.equals("shot scene", performed.shot.scene, "scene-duel");
   TestValidator.equals("live camera", performed.shot.camera, "cam-main");
-  TestValidator.equals("shot duration", performed.shot.duration, 2);
+  TestValidator.predicate("shot duration", nclose(performed.shot.duration, 2));
 
   TestValidator.predicate(
     "frame action compiled into a camera clip",
@@ -58,23 +66,22 @@ export const test_film_perform_shot_valid = (): void => {
     );
     TestValidator.equals(
       "camera clip drives the live camera",
-      performed.shot.cameraMotion.tracks.map((t) =>
+      performed.shot.cameraMotion.tracks.map((t: IAutoMovieTrack): string =>
         t.channel.kind === "node" ? t.channel.node : "",
       ),
       ["cam-main", "cam-main"],
     );
-    TestValidator.equals(
+    TestValidator.predicate(
       "camera clip spans the shot",
-      performed.shot.cameraMotion.duration,
-      2,
+      nclose(performed.shot.cameraMotion.duration, 2),
     );
   }
 
   TestValidator.equals(
     "one performance per knight",
     performed.shot.performances
-      .map((p) => p.node)
-      .sort((a, b) => a.localeCompare(b)),
+      .map((p: IAutoMovieShotPerformance): string => p.node)
+      .sort((a: string, b: string): number => a.localeCompare(b)),
     ["knightA", "knightB"],
   );
   for (const p of performed.shot.performances) {
@@ -83,10 +90,13 @@ export const test_film_perform_shot_valid = (): void => {
       p.motion,
       performed.motions[p.node]!.id,
     );
-    TestValidator.equals(`start offset of ${p.node}`, p.startOffset, 0);
+    TestValidator.predicate(
+      `start offset of ${p.node}`,
+      nclose(p.startOffset, 0),
+    );
   }
 
-  const repeated = performShot({
+  const repeated: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -103,7 +113,7 @@ export const test_film_perform_shot_valid = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "positive integer repeat accepted",
@@ -111,7 +121,7 @@ export const test_film_perform_shot_valid = (): void => {
     true,
   );
 
-  const reaching = performShot({
+  const reaching: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -128,11 +138,11 @@ export const test_film_perform_shot_valid = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "positional reach target accepted",
     reaching.success,
     true,
   );
-};
+}

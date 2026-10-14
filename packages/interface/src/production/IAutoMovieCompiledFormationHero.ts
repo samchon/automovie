@@ -1,33 +1,21 @@
 import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 
 /**
- * One slot promoted out of anonymous batches into an explicit scene node.
+ * One formation slot promoted out of anonymous batches into an explicit actor. Its base transform precedes source-authored hero performance.
  *
- * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `IAutoMovieCompiledFormationHero` as the portable data boundary for the formation slot identity requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `IAutoMovieCompiledFormationHero` for the performance formation layout slot assignment system contract.
+ * @evidence contracts/common.md#principled-implementation Slot identity selects the same deterministic formation position used by anonymous members, while actor identity promotes that slot into an explicit scene node whose compiled base transform can be checked against the formation.
+ * @evidence contracts/common.md#clear-and-simple-design Slot, actor and base transform are the entire promotion record; full model geometry and performance remain on the ordinary scene actor instead of being duplicated in the population.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Promotion removes the slot from anonymous instance batches rather than drawing two members, and the actor's authored motion composes over its actual compiled base position.
+ * @evidence contracts/common.md#meaningful-documentation Defines promoted slot identity, explicit node identity and ownership and timing of the compiler-produced base transform.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledFormationHero {
-  /**
-   * Exact promoted slot.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `slot` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `slot` for the performance formation layout slot assignment system contract.
-   */
+  /** Exact promoted slot. */
   slot: number;
 
-  /**
-   * Named explicit scene-node id.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `actor` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `actor` for the performance formation layout slot assignment system contract.
-   */
+  /** Named explicit scene-node id. */
   actor: string;
 
-  /**
-   * Compiler-owned base transform before source-authored performance.
-   *
-   * @evidence requirements/formations/layouts-and-slots.md#formation-slot-identity Exposes `transform` as the portable data boundary for the formation slot identity requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-layout-slot-assignment Types `transform` for the performance formation layout slot assignment system contract.
-   */
+  /** Compiler-owned base transform before source-authored performance. */
   transform: IAutoMovieTransform;
 }

@@ -10,6 +10,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * boundaries. Interior cage stations may also be pinned. The helper refuses
  * conflicting pins on aliases instead of selecting one by insertion order.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Complete native annulus incidence and exact source-sample constraints define the positive-weight Dirichlet problem.
+ * @evidence contracts/common.md#clear-and-simple-design The seating owner supplies geometry while interpolateHumanFaceLidDisplacement owns quotient/admission/solve.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every boundary sample needs a pin and aliases may not select conflicting displacement by insertion order.
+ * @evidence contracts/common.md#meaningful-documentation The prose states metre inputs, internal source interpolation and complete boundary obligations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IHumanFaceLidDisplacementInput is an erased source contract; its concrete producing/consuming operations own algorithms and actual population scans.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IHumanFaceLidDisplacementInput declares correspondence and ownership only; its concrete owner decides copied state and reuse equivalence.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IHumanFaceLidDisplacementInput itself acquires no buffer, handle or task; concrete builders/readers own referenced array and callback lifetimes.
+ *
  * @author Samchon
  */
 export interface IHumanFaceLidDisplacementInput {

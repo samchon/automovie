@@ -1,9 +1,10 @@
 /**
- * 연직 단면 판독: 외피 겹침 스캔과 같은 볼록 실체(벽 기둥 구간·지붕 slab·
- * 코핑·기단·바닥 slab)를 X 또는 Z 평면으로 잘라 정확한 단면 조각을 낸다.
- * 각 실체의 평면 다각형과 절단선의 교차 구간 양끝에서 하단·상단 평면 높이를
- * 읽어 사다리꼴을 만든다. 조각 사이의 틈·겹침이 그대로 드러나는 측정 도면이며
- * 시각 판정이나 문서 통과를 뜻하지 않는다.
+ * Vertical section inspection: cuts the overlap scan's convex solids (wall
+ * columns, roof slabs, coping, plinth and floor slabs) with an X or Z plane to
+ * produce exact section pieces. At both ends of each plan polygon's intersection
+ * with the cut line, reads the bottom and top plane heights to form a trapezoid.
+ * This measurement drawing exposes gaps and overlaps between pieces; it does
+ * not establish visual acceptance or document compliance.
  */
 import { planeHeight, type PlanPoint } from "../geometry/planar-domain";
 import type { ScanSolid } from "./envelope-overlaps";
@@ -11,7 +12,7 @@ import type { ScanSolid } from "./envelope-overlaps";
 export interface SectionPiece {
   group: string;
   kind: "wall" | "roof" | "trim" | "floor";
-  /** 절단 평면 좌표(u = 다른 수평 축, y = 높이)의 반시계 사다리꼴. */
+  /** Counterclockwise trapezoid in section coordinates: u is the other horizontal axis; y is height. */
   points: Array<{ u: number; y: number }>;
 }
 

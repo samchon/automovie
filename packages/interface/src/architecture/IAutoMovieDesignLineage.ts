@@ -7,96 +7,50 @@ import { IAutoMovieDesignSubject } from "./IAutoMovieDesignSubject";
 import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
 
 /**
- * Phases, alternatives, and derivation for one work, over identities other
- * graphs own.
+ * Phases, alternatives, and derivation for one work, over identities other graphs own.
  *
- * Nothing here is a building. The record annotates ids that already exist
- * elsewhere, which is what keeps a renovation from being modelled as a second
- * building and an alternative from being modelled as a third. A production that
- * declares no lineage at all is unaffected: this fold is additive, and its
- * absence means only that no phase or alternative claim is being made.
+ * Nothing here is a building. The record annotates ids that already exist elsewhere, which is what keeps a renovation from being modelled as a second building and an alternative from being modelled as a third. A production that declares no lineage at all is unaffected: this fold is additive, and its absence means only that no phase or alternative claim is being made.
  *
- * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `IAutoMovieDesignLineage` as the portable data boundary for the provenance lineage gaps requirement.
- * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `IAutoMovieDesignLineage` for the evp lineage gap representation system contract.
+ * Explicit Engine lineage validators check coherence and supplied host identities. Production shot/build integration is retired; callers must invoke those checks and supply current graph identities rather than treating this record as automatic admission.
+ *
+ * @evidence contracts/common.md#principled-implementation Explicit validateDesignLineage checks identity/reference coherence, acyclic graphs, resolving head, total lifecycles and recorded freshness; validateDesignLineageBinding checks subjects and derived-id collisions against a caller-supplied known-id list. Production orchestration is retired. Neither validator applies variants, inspects output bytes or certifies dependency completeness.
+ * @evidence contracts/common.md#clear-and-simple-design One record holds the seven lists a lineage answers from, each owned by its own member type, and points at foreign graphs only through subject ids, so no building type gains a phase or variant field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit coherence validation refuses stale recorded derivations and invents no lifecycle. Cross-shot canonical merging and conflicting-id refusal no longer have a production host, so callers must preserve consistent shared identities.
+ * @evidence contracts/common.md#meaningful-documentation States foreign identity annotation, absence semantics, coherence and binding gates, artifact head stamps, minimum revisions and canonical-equality sharing with conflicting-id refusal.
+ * @author Samchon
  */
 export interface IAutoMovieDesignLineage {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `version` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `version` for the evp lineage gap representation system contract.
-   */
+  /** Schema version; validation accepts only `1`. */
   version: 1;
 
   /**
-   * Stable lineage identity within the production.
+   * Stable, non-blank lineage identity within the production.
    *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `id` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `id` for the evp lineage gap representation system contract.
+   * Shared lineages should be canonically equal under one id; cross-shot consistency requires an explicit host after production merger retirement.
    */
   id: string;
 
-  /**
-   * Revision the work is on now; every derived artifact must stamp it.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `head` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `head` for the evp lineage gap representation system contract.
-   */
+  /** Revision the work is on now; every derived artifact must stamp it. */
   head: string;
 
-  /**
-   * Every identity this lineage speaks about.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `subjects` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `subjects` for the evp lineage gap representation system contract.
-   */
+  /** Every identity this lineage speaks about. */
   subjects: IAutoMovieDesignSubject[];
 
-  /**
-   * Every recorded state of the authored source; at least one.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `revisions` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `revisions` for the evp lineage gap representation system contract.
-   */
+  /** Every recorded state of the authored source; at least one. */
   revisions: IAutoMovieDesignRevision[];
 
-  /**
-   * The construction plan, as a graph of prerequisites.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `phases` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `phases` for the evp lineage gap representation system contract.
-   */
+  /** The construction plan, as an acyclic graph of prerequisites. */
   phases: IAutoMovieDesignPhase[];
 
-  /**
-   * Exactly one entry per declared subject.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `lifecycles` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `lifecycles` for the evp lineage gap representation system contract.
-   */
+  /** Exactly one entry per declared subject. */
   lifecycles: IAutoMovieDesignLifecycle[];
 
-  /**
-   * Alternatives preserved side by side over their base revisions.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `variants` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `variants` for the evp lineage gap representation system contract.
-   */
+  /** Alternatives preserved side by side over their base revisions. */
   variants: IAutoMovieDesignVariant[];
 
-  /**
-   * Open and settled comparisons between those alternatives.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `decisions` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `decisions` for the evp lineage gap representation system contract.
-   */
+  /** Open and settled comparisons between those alternatives. */
   decisions: IAutoMovieDesignDecision[];
 
-  /**
-   * Outputs computed from the identities above.
-   *
-   * @evidence requirements/evidence-and-provenance/entities-activities-agents-and-lineage.md#provenance-lineage-gaps Exposes `derived` as the portable data boundary for the provenance lineage gaps requirement.
-   * @evidence specifications/evidence-and-provenance/entities-activities-agents-and-lineage.md#evp-lineage-gap-representation Types `derived` for the evp lineage gap representation system contract.
-   */
+  /** Outputs computed from the identities above. */
   derived: IAutoMovieDerivedArtifact[];
 }

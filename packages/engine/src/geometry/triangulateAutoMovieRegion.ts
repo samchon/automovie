@@ -7,11 +7,12 @@ import { triangulateRegion } from "./triangulateRegion";
  *
  * This is the kernel's escape from convexity. A convex hull is the wrong answer
  * for an L-shaped section, a channel, a cornice, or a tube, because the hull
- * covers ground the region does not; [extrudeAutoMovieProfile](./proceduralConvexProfile.ts) refuses a
+ * covers ground the region does not; {@link extrudeAutoMovieProfile} refuses a
  * concave contour rather than quietly filling it in, and this is what the
  * refusal points at. The contour is taken as authored, each hole is bridged
  * into it, and the result is ear-clipped, so the triangles cover exactly the
- * enclosed area and nothing else.
+ * enclosed area and nothing else. Coordinates are metres in the region's own
+ * `x, y` plane.
  *
  * Rings are refused rather than repaired: fewer than three points, a non-finite
  * coordinate, a point repeated beside itself, a spike that doubles back along
@@ -29,12 +30,23 @@ import { triangulateRegion } from "./triangulateRegion";
  * `sourceIndices` retains every canonical point's index in the original outer
  * then hole population. Winding changes ordering, never point identity.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Refuses malformed planar topology before producing triangles.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Implements the shared numeric and topology validation contract for free-form regions.
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Preserves each authored boundary identity through winding normalization.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Returns the original-input permutation beside unchanged canonical coordinates and triangles.
+ * @param props.outer Outer boundary in any winding.
+ * @param props.holes Voids inside the outer boundary; omitted means none.
+ * @returns A new triangulation whose points are copies of the input.
+ * @throws Error with the first ring diagnostic named `polygon`, or when floating-point search finds no hole bridge or ear.
+ *
+ * @evidence contracts/common.md#principled-implementation Delegates to `triangulateRegion`, which validates and canonically winds the rings in `canonicalRegion` and then bridges holes and ear-clips in `trianglesOf`; ear clipping a bridged simple ring covers exactly its interior with its own vertices, and the only premise left to rounding is that the bridge and ear searches succeed, which they refuse rather than assume.
+ * @evidence contracts/common.md#clear-and-simple-design The public entry for authors and the portrait oral and skin builders, fixing the diagnostic label to `polygon` and defaulting holes, while `triangulateRegion` stays the labelled internal form extrusion uses.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid rings are refused with their own diagnostic and never hulled, merged or reordered beyond a winding reversal.
+ * @evidence contracts/common.md#meaningful-documentation States why it exists beside the convex builders, the unit and plane, every refusal, the winding rule and its reason, the face direction and what `sourceIndices` preserves.
+ * @evidence contracts/performance.md#efficient-algorithms Adds constant work to `triangulateRegion`, whose O(N^2) validation and O(N^3) worst-case ear clipping over N points are answered on `autoMoviePlanarRegionFailure` and `trianglesOf`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of the rings passed in; each caller triangulates one region per call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned record owns copies of every point and arrays linear in the point count.
  */
-export const triangulateAutoMovieRegion = (props: {
+export const triangulateAutoMovieRegion: (props: {
+  outer: readonly IAutoMovieProfilePoint[];
+  holes?: readonly (readonly IAutoMovieProfilePoint[])[] | undefined;
+}) => IAutoMovieRegionTriangulation = (props: {
   outer: readonly IAutoMovieProfilePoint[];
   holes?: ReadonlyArray<readonly IAutoMovieProfilePoint[]>;
 }): IAutoMovieRegionTriangulation =>

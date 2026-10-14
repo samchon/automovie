@@ -1,5 +1,5 @@
 /**
- * Open eave gutter and hollow downspout from docs/models/15-outdoor.md.
+ * Open eave gutter and hollow downspout
  * The caller gives a roof-edge length, eave-to-grade height, and wall datum in
  * the local Y-up frame. Roof, fascia, wall, openings and world placement stay
  * with their structural and instance owners.

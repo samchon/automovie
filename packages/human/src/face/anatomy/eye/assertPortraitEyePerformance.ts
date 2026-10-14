@@ -11,6 +11,14 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
  * are engineering limits of the rigid optical rotation and not measured
  * ocular ductions, and the check reads the performance without changing it.
  * A violation throws one message naming both rules.
+ *
+ * @evidence contracts/common.md#principled-implementation Finite blink, observed closure and gaze controls are admitted against this construction's declared operating ranges.
+ * @evidence contracts/common.md#clear-and-simple-design One admission owner separates supported engineering motion from the later pose and identity builders.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The .95 observed-closure bound excludes unrecoverable full photographic closure; bounds are not clinical population claims.
+ * @evidence contracts/common.md#meaningful-documentation The prose identifies normalized closure, degree angles and engineering limits.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of scalar checks requires constant work without geometry traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both eye construction paths share this admission owner and perform no cached effectful validation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources No state, buffer, handle or task is acquired; failures throw before dependent pose construction.
  */
 export function assertPortraitEyePerformance(
   input: IPortraitEyePerformance,

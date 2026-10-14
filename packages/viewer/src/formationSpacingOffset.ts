@@ -1,5 +1,8 @@
 import { transformFormationPoint } from "@automovie/engine";
-import type { IAutoMovieCompiledFormation, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 /**
@@ -20,35 +23,31 @@ const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });
  * the group node above already carries the anchor, the cue's travel and the
  * cue's turn, so the unit state passed here is at rest apart from the spacing.
  *
- * A private copy is how a gate and a renderer come to disagree about where a
- * unit is standing, and the copy that stood here did disagree. It converted the
- * heading with `THREE.MathUtils.degToRad`, which rounds `PI / 180` before
- * multiplying, while the engine multiplies by `Math.PI` and then divides by
- * 180. Those are different doubles for 93 of the 361 whole-degree headings, and
- * at a plain three degrees, once a cue rewrote their places, 886 of a
- * 2,049-strong line's members landed on positions the engine's own placement
- * law does not name. One unit in the last place is not a pixel, and an instance
- * matrix rounds it away on the way to float32; what it does reach is the
- * accounting kept in doubles beside it, where a chunk's world centre decides an
- * LOD tier and a frustum test on every frame — cue or no cue — and a chunk far
- * from its anchor turns that ulp into several ulps of camera distance.
+ * Degree conversion by multiply-then-divide can round differently from a
+ * pre-rounded PI/180 multiplier. The engine owns that order. Instance buffers
+ * later narrow to Float32, while chunk-centre culling keeps double values;
+ * sharing one placement law avoids independently rounded coordinates.
  *
- * Only the point transform was ever affected. A heading turned into a
- * quaternion still goes through `setFromAxisAngle`, which performs the same
- * rounded multiply the engine's own `Quaternion.fromAxisAngle` performs, so
- * those conversions already agree and converting them "the builder's way" is
- * what would break them.
- *
- * @evidence requirements/formations/resolution-culling-and-evidence.md#formation-resolution-policy-selection Converts engine-owned metre placement into the local offset consumed by chunk matrices and culling.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Converts engine-owned metre placement into the local offset consumed by chunk matrices and culling.
+ * @evidence contracts/common.md#principled-implementation Subtracts the compiled anchor and delegates spacing/heading to engine transformFormationPoint with frozen zero root travel/turn, preserving engine double arithmetic order; finite admitted metre points/spacing/degrees and a group carrying the real anchor/motion are premises, with final instance-buffer Float32 narrowing owned later.
+ * @evidence contracts/common.md#clear-and-simple-design One native Vector3 adapter shares canonical engine placement rather than maintaining a second degree conversion/point-transform law; root motion remains in the parent group.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Frozen zero origin is the explicit group-local coordinate convention, not a fixture offset; no angle-specific rounding branch, replaced engine math or sampled correction changes the placement.
+ * @evidence contracts/common.md#meaningful-documentation Gives group-local/anchor/heading/spacing interpretation and why engine arithmetic order matters; double-versus-Float32 responsibilities remain explicit without claiming a measured rendering improvement.
+ * @evidence contracts/performance.md#efficient-algorithms Performs one fixed-size point transform and constructs one Vector3, constant work/storage per point; the population update owner decides when changed spacing/reform requires the full member rewrite.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares the frozen module origin and engine transform implementation across points; each returned mutable vector is independent, while arrangement-equivalence reuse belongs to the parent formation update.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one fixed frozen origin value for module lifetime, borrows arguments only during the call and transfers one small vector; owns no geometry, texture or task.
  */
-export const formationSpacingOffset = (
+export const formationSpacingOffset: (
+  point: { x: number; y: number; z: number },
+  anchor: IAutoMovieCompiledFormation["anchor"],
+  spacing: { lateral: number; depth: number },
+  baseFacingDeg: number,
+) => THREE.Vector3 = (
   point: { x: number; y: number; z: number },
   anchor: IAutoMovieCompiledFormation["anchor"],
   spacing: { lateral: number; depth: number },
   baseFacingDeg: number,
 ): THREE.Vector3 => {
-  const placed = transformFormationPoint(
+  const placed: IAutoMovieVector3 = transformFormationPoint(
     {
       x: point.x - anchor.x,
       y: point.y - anchor.y,

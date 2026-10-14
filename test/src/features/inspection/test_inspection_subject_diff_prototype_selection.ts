@@ -1,43 +1,58 @@
 import {
-  diffAutoMovieSubjects,
-  instanceSlot,
-  materializeCompiledInstanceSet,
-  productionRuntimeModelId,
-} from "@automovie/engine";
-import {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieSubjectDiff,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { diffAutoMovieSubjects } from "../../../../packages/engine/src/diffAutoMovieSubjects";
+import { instanceSlot } from "../../../../packages/engine/src/populationRuntime/instanceSlot";
+import { materializeCompiledInstanceSet } from "../../../../packages/engine/src/populationRuntime/materializeCompiledInstanceSet";
+import { productionRuntimeModelId } from "../../../../packages/engine/src/productionRuntimeModelId";
 import {
-  subjectInspectionArtifact,
-  subjectInspectionModel,
-} from "../internal/subjectInspectionFixtures";
+  type IAutoMovieModel,
+  type IAutoMovieSubjectArtifact,
+  type IAutoMovieSubjectChange,
+} from "../../../../packages/interface/src/index";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
+import { subjectInspectionModel } from "../internal/subjectInspectionModel";
+import { throwsError } from "../internal/throwsError";
 
-const PROTOTYPES = [
+const PROTOTYPES: { id: string; modelRecipe: string; weight: number }[] = [
   { id: "tall", modelRecipe: "tall-tree", weight: 2 },
   { id: "short", modelRecipe: "shrub", weight: 1 },
 ];
 
 /** The runtime model each prototype draws, the base recipe's default included. */
-const MODEL = {
+const MODEL: { default: string; tall: string; short: string } = {
   default: productionRuntimeModelId("tree"),
   tall: productionRuntimeModelId("tall-tree"),
   short: productionRuntimeModelId("shrub"),
 };
 type PrototypeId = keyof typeof MODEL;
-const PROTOTYPE_IDS = Object.keys(MODEL) as PrototypeId[];
+const PROTOTYPE_IDS: ("default" | "tall" | "short")[] = Object.keys(
+  MODEL,
+) as PrototypeId[];
 
-const VARIATION = {
+const VARIATION: {
+  scale: { min: number; max: number };
+  palette: string[];
+  traits: never[];
+} = {
   scale: { min: 1, max: 1 },
   palette: ["#336633"],
   traits: [],
 };
 
 /** Members in a row drawing the default, tall and short prototypes 1:2:1. */
-const orchard = (count: number, seed: number): IAutoMovieCompiledInstanceSet =>
+const orchard: (
+  count: number,
+  seed: number,
+) => IAutoMovieCompiledInstanceSet = (
+  count: number,
+  seed: number,
+): IAutoMovieCompiledInstanceSet =>
   materializeCompiledInstanceSet({
     instanceSet: {
       id: "orchard",
@@ -59,11 +74,14 @@ const orchard = (count: number, seed: number): IAutoMovieCompiledInstanceSet =>
   });
 
 /** One explicit member, compiled naming "tall" and then edited to name `prototype`. */
-const statue = (
+const statue: (
   prototype: string,
-  seed = 11,
+  seed?: number,
+) => IAutoMovieCompiledInstanceSet = (
+  prototype: string,
+  seed: number = 11,
 ): IAutoMovieCompiledInstanceSet => {
-  const compiled = structuredClone(
+  const compiled: IAutoMovieCompiledInstanceSet = structuredClone(
     materializeCompiledInstanceSet({
       instanceSet: {
         id: "statue",
@@ -96,8 +114,12 @@ const statue = (
 };
 
 /** One member whose prototype table holds an entry nothing can read. */
-const unreadable = (explicit: boolean): IAutoMovieCompiledInstanceSet => {
-  const set = explicit ? statue("tall") : orchard(1, 11);
+const unreadable: (explicit: boolean) => IAutoMovieCompiledInstanceSet = (
+  explicit: boolean,
+): IAutoMovieCompiledInstanceSet => {
+  const set: IAutoMovieCompiledInstanceSet = explicit
+    ? statue("tall")
+    : orchard(1, 11);
   return {
     ...set,
     prototypes: [
@@ -107,23 +129,31 @@ const unreadable = (explicit: boolean): IAutoMovieCompiledInstanceSet => {
 };
 
 /** Diff two revisions of one set whose prototype models all grow a metre taller. */
-const diffOf = (
+const diffOf: (
+  before: IAutoMovieCompiledInstanceSet,
+  after: IAutoMovieCompiledInstanceSet,
+) => IAutoMovieSubjectDiff = (
   before: IAutoMovieCompiledInstanceSet,
   after: IAutoMovieCompiledInstanceSet,
 ): IAutoMovieSubjectDiff => {
-  const revision = (
+  const revision: (
     name: string,
     height: number,
     set: IAutoMovieCompiledInstanceSet,
-  ) =>
+  ) => IAutoMovieSubjectArtifact = (
+    name: string,
+    height: number,
+    set: IAutoMovieCompiledInstanceSet,
+  ): IAutoMovieSubjectArtifact =>
     subjectInspectionArtifact({
       revision: name,
-      models: PROTOTYPE_IDS.map((id) =>
-        subjectInspectionModel({
-          id: MODEL[id],
-          min: { x: -0.5, y: 0, z: -0.5 },
-          max: { x: 0.5, y: height, z: 0.5 },
-        }),
+      models: PROTOTYPE_IDS.map(
+        (id: "default" | "tall" | "short"): IAutoMovieModel =>
+          subjectInspectionModel({
+            id: MODEL[id],
+            min: { x: -0.5, y: 0, z: -0.5 },
+            max: { x: 0.5, y: height, z: 0.5 },
+          }),
       ),
       nodes: [],
       instanceSets: [set],
@@ -136,25 +166,37 @@ const diffOf = (
 };
 
 /** How many members the diff counts as drawing each prototype's model. */
-const drawnCounts = (
+const drawnCounts: (
+  set: IAutoMovieCompiledInstanceSet,
+) => Record<PrototypeId, number> = (
   set: IAutoMovieCompiledInstanceSet,
 ): Record<PrototypeId, number> => {
-  const diff = diffOf(set, set);
+  const diff: IAutoMovieSubjectDiff = diffOf(set, set);
   return Object.fromEntries(
-    PROTOTYPE_IDS.map((id) => [
-      id,
-      diff.reshaped.find((change) => change.id === `prototype:${MODEL[id]}`)
-        ?.fanout.instances ?? 0,
-    ]),
+    PROTOTYPE_IDS.map(
+      (
+        id: "default" | "tall" | "short",
+      ): ["default" | "tall" | "short", number] => [
+        id,
+        diff.reshaped.find(
+          (change: IAutoMovieSubjectChange): boolean =>
+            change.id === `prototype:${MODEL[id]}`,
+        )?.fanout.instances ?? 0,
+      ],
+    ),
   ) as Record<PrototypeId, number>;
 };
 
-const prototypeChanges = (
+const prototypeChanges: (
+  before: IAutoMovieCompiledInstanceSet,
+  after: IAutoMovieCompiledInstanceSet,
+) => number | undefined = (
   before: IAutoMovieCompiledInstanceSet,
   after: IAutoMovieCompiledInstanceSet,
 ): number | undefined =>
   diffOf(before, after).reshaped.find(
-    (change) => change.id === `instance-set:${before.id}`,
+    (change: IAutoMovieSubjectChange): boolean =>
+      change.id === `instance-set:${before.id}`,
   )?.fanout.prototypeChanges;
 
 /**
@@ -185,54 +227,85 @@ const prototypeChanges = (
  * 5. A prototype table holding an unreadable entry fails the diff through the
  *    weighted draw and through an explicit member's lookup alike, instead of
  *    being counted as a missing prototype.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Compares aggregate prototype counts and reseeded selection changes with regenerated slots, then checks that only missing names are tolerated while unreadable table entries propagate failures; wrong fallback ownership or swallowed draw errors fails.
+ * @evidence contracts/testing.md#independent-expectations Explicit missing-name transitions and the authored 1:2:1 weights provide independent expectations; slot-by-slot and reseed comparisons are cross-consumer parity with instanceSlot and cannot independently prove that shared generator's random law. The 0.04 share margin is this fixed-seed sampling assertion, not population validation.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps 24 incremental slots, the 2000-member share check, 200 reseeded slots, present-to-missing and distinct/equal missing identities, plus malformed weighted and explicit tables; geometry fan-out and numeric tolerance are separate entries.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers this exported CPU entry and it imports actual diff, materialization and slot source; the in-memory compiled records need no asset installation, process, browser or GPU.
  */
-export const test_inspection_subject_diff_prototype_selection = (): void => {
-  const row = orchard(24, 5);
-  const counts = [
+export function test_inspection_subject_diff_prototype_selection(): void {
+  const row: IAutoMovieCompiledInstanceSet = orchard(24, 5);
+  const counts: Record<"default" | "tall" | "short", number>[] = [
     { default: 0, tall: 0, short: 0 },
-    ...Array.from({ length: row.count }, (_, slot) =>
-      drawnCounts({ ...row, count: slot + 1 }),
+    ...Array.from(
+      { length: row.count },
+      (
+        _: unknown,
+        slot: number,
+      ): Record<"default" | "tall" | "short", number> =>
+        drawnCounts({ ...row, count: slot + 1 }),
     ),
   ];
-  const regenerated = Array.from(
+  const regenerated: (string | undefined)[] = Array.from(
     { length: row.count },
-    (_, slot) => instanceSlot(row, slot).prototype,
+    (_: unknown, slot: number): string | undefined =>
+      instanceSlot(row, slot).prototype,
   );
   TestValidator.equals(
     "each member the diff counts draws the prototype its regenerator draws",
-    Array.from({ length: row.count }, (_, slot): string | undefined =>
-      PROTOTYPE_IDS.find(
-        (id) => counts[slot + 1]![id] - counts[slot]![id] === 1,
-      ),
+    Array.from(
+      { length: row.count },
+      (_: unknown, slot: number): string | undefined =>
+        PROTOTYPE_IDS.find(
+          (id: "default" | "tall" | "short"): boolean =>
+            counts[slot + 1]![id] - counts[slot]![id] === 1,
+        ),
     ),
     regenerated,
   );
 
-  const crowd = drawnCounts(orchard(2_000, 9));
-  const before = orchard(200, 11);
-  const after = orchard(200, 12);
-  const reseeded = Array.from(
+  const crowd: Record<"default" | "tall" | "short", number> = drawnCounts(
+    orchard(2_000, 9),
+  );
+  const before: IAutoMovieCompiledInstanceSet = orchard(200, 11);
+  const after: IAutoMovieCompiledInstanceSet = orchard(200, 12);
+  const reseeded: number = Array.from(
     { length: before.count },
-    (_, slot) => slot,
+    (_: unknown, slot: number): number => slot,
   ).filter(
-    (slot) =>
+    (slot: number): boolean =>
       instanceSlot(before, slot).prototype !==
       instanceSlot(after, slot).prototype,
   ).length;
   TestValidator.equals(
     "the diff's counts follow the declared weights and the regenerated members",
     namedFacts([
-      ["allDrawn", () => new Set(regenerated).size === 3],
+      ["allDrawn", (): boolean => new Set(regenerated).size === 3],
       [
         "everyMemberCounted",
-        () => crowd.default + crowd.tall + crowd.short === 2_000,
+        (): boolean => crowd.default + crowd.tall + crowd.short === 2_000,
       ],
-      ["defaultShare", () => Math.abs(crowd.default / 2_000 - 0.25) < 0.04],
-      ["tallShare", () => Math.abs(crowd.tall / 2_000 - 0.5) < 0.04],
-      ["shortShare", () => Math.abs(crowd.short / 2_000 - 0.25) < 0.04],
+      [
+        "defaultShare",
+        (): boolean =>
+          nclose(crowd.default / 2_000, 0.25, 0.04) &&
+          Math.abs(crowd.default / 2_000 - 0.25) < 0.04,
+      ],
+      [
+        "tallShare",
+        (): boolean =>
+          nclose(crowd.tall / 2_000, 0.5, 0.04) &&
+          Math.abs(crowd.tall / 2_000 - 0.5) < 0.04,
+      ],
+      [
+        "shortShare",
+        (): boolean =>
+          nclose(crowd.short / 2_000, 0.25, 0.04) &&
+          Math.abs(crowd.short / 2_000 - 0.25) < 0.04,
+      ],
       [
         "reseeded",
-        () =>
+        (): boolean =>
           prototypeChanges(before, after) === reseeded &&
           reseeded > 0 &&
           reseeded < before.count,
@@ -253,29 +326,33 @@ export const test_inspection_subject_diff_prototype_selection = (): void => {
     namedFacts([
       [
         "presentToMissing",
-        () => prototypeChanges(statue("tall"), statue("ghost")) === 1,
+        (): boolean => prototypeChanges(statue("tall"), statue("ghost")) === 1,
       ],
       [
         "missingToMissing",
-        () => prototypeChanges(statue("ghost"), statue("phantom")) === 1,
+        (): boolean =>
+          prototypeChanges(statue("ghost"), statue("phantom")) === 1,
       ],
       [
         "sameMissing",
-        () => prototypeChanges(statue("ghost"), statue("ghost", 12)) === 0,
+        (): boolean =>
+          prototypeChanges(statue("ghost"), statue("ghost", 12)) === 0,
       ],
       [
         "weightedDrawFails",
-        () =>
+        (): boolean =>
           throwsError(
-            () => diffOf(unreadable(false), { ...unreadable(false), seed: 12 }),
+            (): IAutoMovieSubjectDiff =>
+              diffOf(unreadable(false), { ...unreadable(false), seed: 12 }),
             "reading 'weight'",
           ),
       ],
       [
         "explicitLookupFails",
-        () =>
+        (): boolean =>
           throwsError(
-            () => diffOf(unreadable(true), { ...unreadable(true), seed: 12 }),
+            (): IAutoMovieSubjectDiff =>
+              diffOf(unreadable(true), { ...unreadable(true), seed: 12 }),
             "reading 'id'",
           ),
       ],
@@ -288,4 +365,4 @@ export const test_inspection_subject_diff_prototype_selection = (): void => {
       explicitLookupFails: true,
     },
   );
-};
+}

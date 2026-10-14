@@ -1,27 +1,22 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A world-space sphere collider: the simplest body to test a hit against (an
- * arrow vs. a rider's torso). Cheap, rotation-free, and enough to answer the
- * one question a strike needs: _did it connect, and when?_
+ * A world-space sphere supplied as an approximate collider for a segment hit.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-collision-proxies Represents the bounded sphere proxy used by deterministic contact queries.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the world-space center and radius consumed by the first-contact solve.
+ * @evidence contracts/common.md#principled-implementation A center in world metres and positive radius define the rotation-invariant sphere used by segmentSphere; that predicate admits finite components and a finite positive radius.
+ * @evidence contracts/common.md#clear-and-simple-design The collider carries only geometry needed by the analytic segment intersection, without a rig or mesh adapter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The sphere is an explicit caller approximation of a body; this type does not claim to enclose an arbitrary rider or mesh.
+ * @evidence contracts/common.md#meaningful-documentation Members identify world-space center and metre radius; callers own the vectors and admission occurs at the intersection seam.
+ * @evidence contracts/performance.md#efficient-algorithms One vector and one scalar are fixed-size; the intersection uses constant arithmetic independent of model complexity.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same borrowed collider can be tested against successive trajectory chords while the caller keeps its values unchanged; no identity cache is implied.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the collider as needed; the type opens no resource and stores no intersection history.
+ *
  * @author Samchon
  */
 export interface IAutoMovieSphere {
-  /**
-   * Sphere center in world space.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-collision-proxies Locates the bounded contact proxy in world space.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the center consumed by deterministic first-contact queries.
-   */
+  /** Borrowed world-space center in metres; intersection admits finite values. */
   center: IAutoMovieVector3;
-  /**
-   * Positive radius in world meters.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-collision-proxies Bounds the spherical contact proxy with a physical radius.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the proxy extent consumed by first-contact queries.
-   */
+
+  /** Positive radius in world meters. */
   radius: number;
 }

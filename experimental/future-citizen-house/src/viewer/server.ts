@@ -19,8 +19,8 @@ async function sourceBasis(): Promise<string> {
       else if (item.isFile()) hash.update(child).update(await readFile(resolve(productionRoot, child)));
     }
   }
-  for (const directory of ["src", "docs/settings", "docs/spaces", "docs/materials", "docs/models", "docs/instances", "docs/contracts", "public"]) await visit(directory);
-  for (const file of ["package.json", "lint.config.ts"]) hash.update(file).update(await readFile(resolve(productionRoot, file)));
+  for (const directory of ["src", "public"]) await visit(directory);
+  for (const file of ["package.json"]) hash.update(file).update(await readFile(resolve(productionRoot, file)));
   return hash.digest("hex");
 }
 

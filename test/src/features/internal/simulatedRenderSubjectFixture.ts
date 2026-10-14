@@ -1,18 +1,24 @@
 import { IAutoMovieRenderSubject } from "@automovie/engine";
-import { flatBasin } from "./fluidFixtures";
-import { modelsFixture } from "./renderFixtures";
-import { plantingCluster, softPanel } from "./softFixtures";
-import { simulatedRenderSceneFixture } from "./simulatedRenderSceneFixture";
-import { leaflessPlantingRecipeFixture } from "./leaflessPlantingRecipeFixture";
 
-const scene = simulatedRenderSceneFixture;
-const bareRecipe = leaflessPlantingRecipeFixture;
+import { flatBasin } from "./fluidFixtures";
+import { leaflessPlantingRecipeFixture } from "./leaflessPlantingRecipeFixture";
+import { modelsFixture } from "./renderFixtures";
+import { simulatedRenderSceneFixture } from "./simulatedRenderSceneFixture";
+import { plantingCluster, softPanel } from "./softFixtures";
+
+const scene: typeof simulatedRenderSceneFixture = simulatedRenderSceneFixture;
+const bareRecipe: typeof leaflessPlantingRecipeFixture =
+  leaflessPlantingRecipeFixture;
 
 /** The stated branch prototype is input data, independent of measured output. */
-const BRANCH = { vertices: 40, triangles: 24 };
+const BRANCH: { vertices: number; triangles: number } = {
+  vertices: 40,
+  triangles: 24,
+};
 
 /** Build the composed render subject used by resource-budget scenarios. */
-export const simulatedRenderSubjectFixture = (): IAutoMovieRenderSubject => ({
+export const simulatedRenderSubjectFixture: () => IAutoMovieRenderSubject =
+  (): IAutoMovieRenderSubject => ({
     scene: scene(),
     models: modelsFixture(),
     softBodies: [

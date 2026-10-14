@@ -1,43 +1,37 @@
 import {
-  arrangePlantingCluster,
-  growPlanting,
-  plantingBudget,
-} from "@automovie/engine";
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingPlacement,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { arrangePlantingCluster } from "../../../../packages/engine/src/soft/arrangePlantingCluster";
+import { growPlanting } from "../../../../packages/engine/src/soft/growPlanting";
+import { plantingBudget } from "../../../../packages/engine/src/soft/plantingBudget";
 import { hasPlantingSpacingOracle } from "../internal/hasPlantingSpacingOracle";
-
-import { namedFacts, qunit } from "../internal/predicates";
+import { namedFacts, nclose, qunit } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
 /** Smallest horizontal distance between any two accepted members. */
-const closestPair = (
+const closestPair: (
+  placements: readonly { translation: { x: number; z: number } }[],
+) => number = (
   placements: ReadonlyArray<{ translation: { x: number; z: number } }>,
 ): number => {
-  let closest = Infinity;
-  for (let a = 0; a < placements.length; ++a)
-    for (let b = a + 1; b < placements.length; ++b) {
-      const dx = placements[a].translation.x - placements[b].translation.x;
-      const dz = placements[a].translation.z - placements[b].translation.z;
+  let closest: number = Infinity;
+  for (let a: number = 0; a < placements.length; ++a)
+    for (let b: number = a + 1; b < placements.length; ++b) {
+      const dx: number =
+        placements[a].translation.x - placements[b].translation.x;
+      const dz: number =
+        placements[a].translation.z - placements[b].translation.z;
       closest = Math.min(closest, Math.sqrt(dx * dx + dz * dz));
     }
   return closest;
 };
 
-/**
- * A planting cluster is generated from its seed, honours its own spacing rule,
- * and hands every member out as a lossless full transform.
- *
- * Repetition must be generated. A bed of ferns typed out as forty coordinates
- * is forty places for the arrangement to disagree with itself, and nothing
- * about it can be re-derived after an edit. Here every candidate comes from
- * `(seed, slot, attempt)` alone, a candidate too close to an accepted member is
- * refused rather than squeezed in, and a slot that exhausts its attempts is
- * **counted** so an author can see the bed was too small instead of wondering
- * where the plants went.
- *
- * Each accepted member carries translation, a unit quaternion and a per-axis
- * scale, which is exactly what GPU instancing consumes without loss.
+/** Verify seeded cluster placement, counted spacing refusal, full transforms and declared tree/leaf budgets, preserving the 4,000-member witness.
  *
  * Scenarios:
  *
@@ -50,45 +44,51 @@ const closestPair = (
  *    drawn onto the same point.
  * 3. Every member's transform is lossless: a unit quaternion, a pure turn about
  *    `+y`, and three independently drawn scale axes inside the declared range.
- * 4. The arrangement is a pure function of the cluster: two calls agree bit for
- *    bit, a different seed disagrees, and slot ids and indices are stable.
+ * 4. Two calls reproduce each ordinary member's X position, rotation W and
+ *    scale Y exactly; a different seed changes X, and slot ids and indices are stable.
  * 5. Boundaries: a single member with zero extent lands exactly on the anchor; a
  *    cluster with zero yaw jitter hands out the exact identity rotation; and a
  *    cluster whose extent is zero but whose spacing is positive rejects every
  *    slot after the first.
  * 6. A four-thousand-member meadow places, accounts for and spaces every slot, and
- *    reproduces itself exactly. The spacing test is answered through a uniform
- *    grid of side `minSpacing` rather than against every member placed so far,
- *    which is what makes the declared budget bounded work instead of a number
- *    of distance tests nobody could wait for.
+ *    reproduces every X position and the rejection count exactly. Production
+ *    admission uses a uniform grid of side minSpacing; this test verifies its
+ *    spacing independently through an X-sorted pair sweep.
  * 7. The cost of the whole bed is derived from the recipe and the cluster alone,
  *    with no branch grown: the complete `k`-ary tree times the member count, so
  *    a production can be refused before anything is derived. Foliage is counted
  *    the same way and not read off the declared cap — a bare winter branch
  *    costs no leaves at all, and a leafed recipe costs exactly the eight blades
  *    the derivation goes on to emit.
+
+ *
+ * @evidence contracts/testing.md#behavioral-verification Real arrangement and growth/budget outputs catch lost spacing, slots, seed influence, per-axis scale, yaw normalization or count accounting. The independent large-population spacing oracle remains intact.
+ * @evidence contracts/testing.md#independent-expectations Authored rectangle/spacing/scale bounds, quaternion unit law, exhaustive small-population distances and the independent x-sorted large-population sweep supply expectations. Complete binary depth-three counts give 7 branches, 42 requested instances and 8 density-derived leaves; repeated output checks are metamorphic replay witnesses.
+ * @evidence contracts/testing.md#distinguishing-cases Preserve ordinary/tight/no-spacing populations, seed changes, singleton/zero extents, identity yaw/fixed scale, impossible positive spacing, all 4,000 meadow slots and bare/leafed/jitter budget cases without reducing population or weakening checks.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_planting_cluster_arrangement; the exported test owns authored cases and delegates only its independent large-spacing predicate, without starting a GPU instancing host.
  */
-export const test_planting_cluster_arrangement = (): void => {
-  const cluster = plantingCluster();
-  const arrangement = arrangePlantingCluster(cluster);
+export function test_planting_cluster_arrangement(): void {
+  const cluster: IAutoMoviePlantingCluster = plantingCluster();
+  const arrangement: IAutoMoviePlantingArrangement =
+    arrangePlantingCluster(cluster);
   TestValidator.equals(
     "an ordinary cluster places every member inside its rectangle",
     namedFacts([
-      ["count", () => arrangement.placements.length === 6],
-      ["rejected", () => arrangement.rejected === 0],
-      ["cluster", () => arrangement.cluster === "atrium-bed"],
-      ["domain", () => arrangement.domain === "fern"],
+      ["count", (): boolean => arrangement.placements.length === 6],
+      ["rejected", (): boolean => arrangement.rejected === 0],
+      ["cluster", (): boolean => arrangement.cluster === "atrium-bed"],
+      ["domain", (): boolean => arrangement.domain === "fern"],
       [
         "inside",
-        () =>
+        (): boolean =>
           arrangement.placements.every(
-            (placement) =>
+            (placement: IAutoMoviePlantingPlacement): boolean =>
               Math.abs(placement.translation.x) <= 2 &&
               Math.abs(placement.translation.z) <= 2 &&
-              placement.translation.y === 0,
+              nclose(placement.translation.y, 0, 0),
           ),
       ],
-      ["bounds", () => arrangement.bounds !== null],
+      ["bounds", (): boolean => arrangement.bounds !== null],
     ]),
     {
       count: true,
@@ -100,20 +100,23 @@ export const test_planting_cluster_arrangement = (): void => {
     },
   );
 
-  const tight = arrangePlantingCluster(
+  const tight: IAutoMoviePlantingArrangement = arrangePlantingCluster(
     plantingCluster({ count: 8, minSpacing: 3 }),
   );
   TestValidator.equals(
     "the spacing rule is honoured, and what it refuses is counted",
     namedFacts([
-      ["spacing", () => closestPair(arrangement.placements) >= 0.5],
-      ["tightSpacing", () => closestPair(tight.placements) >= 3],
-      ["refused", () => tight.rejected === 8 - tight.placements.length],
-      ["someRefused", () => tight.rejected > 0],
+      ["spacing", (): boolean => closestPair(arrangement.placements) >= 0.5],
+      ["tightSpacing", (): boolean => closestPair(tight.placements) >= 3],
+      [
+        "refused",
+        (): boolean => tight.rejected === 8 - tight.placements.length,
+      ],
+      ["someRefused", (): boolean => tight.rejected > 0],
       [
         "noRuleRefusesNothing",
-        () => {
-          const packed = arrangePlantingCluster(
+        (): boolean => {
+          const packed: IAutoMoviePlantingArrangement = arrangePlantingCluster(
             plantingCluster({
               count: 12,
               minSpacing: 0,
@@ -123,7 +126,7 @@ export const test_planting_cluster_arrangement = (): void => {
           return (
             packed.placements.length === 12 &&
             packed.rejected === 0 &&
-            closestPair(packed.placements) === 0
+            nclose(closestPair(packed.placements), 0, 0)
           );
         },
       ],
@@ -142,24 +145,26 @@ export const test_planting_cluster_arrangement = (): void => {
     namedFacts([
       [
         "unit",
-        () =>
-          arrangement.placements.every((placement) =>
-            qunit(placement.rotation),
+        (): boolean =>
+          arrangement.placements.every(
+            (placement: IAutoMoviePlantingPlacement): boolean =>
+              qunit(placement.rotation),
           ),
       ],
       [
         "yawOnly",
-        () =>
+        (): boolean =>
           arrangement.placements.every(
-            (placement) =>
-              placement.rotation.x === 0 && placement.rotation.z === 0,
+            (placement: IAutoMoviePlantingPlacement): boolean =>
+              nclose(placement.rotation.x, 0, 0) &&
+              nclose(placement.rotation.z, 0, 0),
           ),
       ],
       [
         "scaleRange",
-        () =>
+        (): boolean =>
           arrangement.placements.every(
-            (placement) =>
+            (placement: IAutoMoviePlantingPlacement): boolean =>
               placement.scale.x >= 0.75 &&
               placement.scale.x <= 1.25 &&
               placement.scale.y >= 0.5 &&
@@ -170,16 +175,21 @@ export const test_planting_cluster_arrangement = (): void => {
       ],
       [
         "perAxis",
-        () =>
+        (): boolean =>
           arrangement.placements.some(
-            (placement) =>
+            (placement: IAutoMoviePlantingPlacement): boolean =>
               placement.scale.x !== placement.scale.y &&
               placement.scale.y !== placement.scale.z,
           ),
       ],
       [
         "turned",
-        () => new Set(arrangement.placements.map((p) => p.rotation.y)).size > 1,
+        (): boolean =>
+          new Set(
+            arrangement.placements.map(
+              (p: IAutoMoviePlantingPlacement): number => p.rotation.y,
+            ),
+          ).size > 1,
       ],
     ]),
     {
@@ -196,9 +206,9 @@ export const test_planting_cluster_arrangement = (): void => {
     namedFacts([
       [
         "identical",
-        () =>
+        (): boolean =>
           arrangePlantingCluster(plantingCluster()).placements.every(
-            (placement, index) =>
+            (placement: IAutoMoviePlantingPlacement, index: number): boolean =>
               Object.is(
                 placement.translation.x,
                 arrangement.placements[index].translation.x,
@@ -215,15 +225,15 @@ export const test_planting_cluster_arrangement = (): void => {
       ],
       [
         "reseeded",
-        () =>
+        (): boolean =>
           arrangePlantingCluster(plantingCluster({ seed: 99 })).placements[0]
             .translation.x !== arrangement.placements[0].translation.x,
       ],
       [
         "identity",
-        () =>
+        (): boolean =>
           arrangement.placements.every(
-            (placement, index) =>
+            (placement: IAutoMoviePlantingPlacement, index: number): boolean =>
               placement.slot === index &&
               placement.id === `atrium-bed#${index}`,
           ),
@@ -232,7 +242,7 @@ export const test_planting_cluster_arrangement = (): void => {
     { identical: true, reseeded: true, identity: true },
   );
 
-  const lone = arrangePlantingCluster(
+  const lone: IAutoMoviePlantingArrangement = arrangePlantingCluster(
     plantingCluster({
       count: 1,
       extent: { x: 0, z: 0 },
@@ -241,7 +251,7 @@ export const test_planting_cluster_arrangement = (): void => {
       scale: { min: { x: 1, y: 1, z: 1 }, max: { x: 1, y: 1, z: 1 } },
     }),
   );
-  const crowded = arrangePlantingCluster(
+  const crowded: IAutoMoviePlantingArrangement = arrangePlantingCluster(
     plantingCluster({ count: 4, extent: { x: 0, z: 0 }, minSpacing: 1 }),
   );
   TestValidator.equals(
@@ -249,29 +259,30 @@ export const test_planting_cluster_arrangement = (): void => {
     namedFacts([
       [
         "onAnchor",
-        () =>
-          lone.placements[0].translation.x === 3 &&
-          lone.placements[0].translation.y === 1 &&
-          lone.placements[0].translation.z === -2,
+        (): boolean =>
+          nclose(lone.placements[0].translation.x, 3, 0) &&
+          nclose(lone.placements[0].translation.y, 1, 0) &&
+          nclose(lone.placements[0].translation.z, -2, 0),
       ],
       [
         "identityRotation",
-        () =>
-          lone.placements[0].rotation.w === 1 &&
-          lone.placements[0].rotation.y === 0,
+        (): boolean =>
+          nclose(lone.placements[0].rotation.w, 1, 0) &&
+          nclose(lone.placements[0].rotation.y, 0, 0),
       ],
       [
         "fixedScale",
-        () =>
-          lone.placements[0].scale.x === 1 && lone.placements[0].scale.z === 1,
+        (): boolean =>
+          nclose(lone.placements[0].scale.x, 1, 0) &&
+          nclose(lone.placements[0].scale.z, 1, 0),
       ],
-      ["onlyOneFits", () => crowded.placements.length === 1],
-      ["restRefused", () => crowded.rejected === 3],
+      ["onlyOneFits", (): boolean => crowded.placements.length === 1],
+      ["restRefused", (): boolean => crowded.rejected === 3],
       [
         "degenerateBounds",
-        () =>
+        (): boolean =>
           crowded.bounds !== null &&
-          crowded.bounds.min.x === crowded.bounds.max.x,
+          nclose(crowded.bounds.min.x, crowded.bounds.max.x, 0),
       ],
     ]),
     {
@@ -287,7 +298,7 @@ export const test_planting_cluster_arrangement = (): void => {
   // Retain the full 4,000-member witness; an independent x-sorted sweep
   // replaces only its quadratic exhaustive spacing oracle. Small populations
   // above still use the original exhaustive closest-pair calculation.
-  const crowd = arrangePlantingCluster(
+  const crowd: IAutoMoviePlantingArrangement = arrangePlantingCluster(
     plantingCluster({
       id: "meadow",
       count: 4_000,
@@ -299,13 +310,16 @@ export const test_planting_cluster_arrangement = (): void => {
   TestValidator.equals(
     "the declared member budget is bounded work, not a quarter-trillion tests",
     namedFacts([
-      ["placed", () => crowd.placements.length > 3_000],
-      ["accounted", () => crowd.placements.length + crowd.rejected === 4_000],
-      ["spacing", () => hasPlantingSpacingOracle(crowd.placements, 1)],
+      ["placed", (): boolean => crowd.placements.length > 3_000],
+      [
+        "accounted",
+        (): boolean => crowd.placements.length + crowd.rejected === 4_000,
+      ],
+      ["spacing", (): boolean => hasPlantingSpacingOracle(crowd.placements, 1)],
       [
         "reproducible",
-        () => {
-          const again = arrangePlantingCluster(
+        (): boolean => {
+          const again: IAutoMoviePlantingArrangement = arrangePlantingCluster(
             plantingCluster({
               id: "meadow",
               count: 4_000,
@@ -316,11 +330,15 @@ export const test_planting_cluster_arrangement = (): void => {
           );
           return (
             again.rejected === crowd.rejected &&
-            again.placements.every((placement, index) =>
-              Object.is(
-                placement.translation.x,
-                crowd.placements[index].translation.x,
-              ),
+            again.placements.every(
+              (
+                placement: IAutoMoviePlantingPlacement,
+                index: number,
+              ): boolean =>
+                Object.is(
+                  placement.translation.x,
+                  crowd.placements[index].translation.x,
+                ),
             )
           );
         },
@@ -344,7 +362,7 @@ export const test_planting_cluster_arrangement = (): void => {
     },
   );
 
-  const leafed = plantingRecipe({
+  const leafed: IAutoMoviePlantingDomain = plantingRecipe({
     foliage: {
       density: 4,
       minLevel: 1,
@@ -358,18 +376,18 @@ export const test_planting_cluster_arrangement = (): void => {
     namedFacts([
       [
         "worstCase",
-        () => plantingBudget({ domain: leafed }).worstCaseLeaves === 8,
+        (): boolean => plantingBudget({ domain: leafed }).worstCaseLeaves === 8,
       ],
-      ["grown", () => growPlanting(leafed).leaves.length === 8],
+      ["grown", (): boolean => growPlanting(leafed).leaves.length === 8],
       [
         "instances",
-        () =>
+        (): boolean =>
           plantingBudget({ domain: leafed, cluster }).worstCaseLeafInstances ===
           48,
       ],
       [
         "jitterWidensTheBound",
-        () =>
+        (): boolean =>
           plantingBudget({
             domain: plantingRecipe({
               structure: { ...leafed.structure, lengthJitter: 0.5 },
@@ -385,4 +403,4 @@ export const test_planting_cluster_arrangement = (): void => {
       jitterWidensTheBound: true,
     },
   );
-};
+}

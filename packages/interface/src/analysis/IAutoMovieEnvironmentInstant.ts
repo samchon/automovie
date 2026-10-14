@@ -3,79 +3,46 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One moment of sun and sky, exactly as the production declares it.
  *
- * The sun direction is an input, not a computation. A repository that derived
- * it from a place and a calendar would be shipping named locations and climate
- * data as content; what the product owes is the contract and the solvers, so a
- * production states the direction and the illuminance it wants answered and
- * keeps its own sources.
+ * The production supplies sun direction and illuminance from its own source. Current analysis consumes those values; this repository implements no solar-position derivation from coordinates and calendar time.
  *
- * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-time-sampling Represents one explicitly timed environment sample rather than an inferred climate state.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Carries the authored environment state evaluated at one declared production instant.
+ * @evidence contracts/common.md#principled-implementation Context validation checks finite sun components with length above 1e-12, non-negative finite illuminances, null or finite temperature and null or [0,1] humidity. It requires zero direct beam for a non-positive normalized sun/up dot product only when both measured norms are finite and above 1e-12; an overflowing norm can skip that check.
+ * @evidence contracts/common.md#clear-and-simple-design Scalar fields hold declared sun, sky and outdoor air quantities, nullable where a study does not need them; outdoorRelativeHumidity currently has validation but no analysis consumer, so it promises no humidity-dependent result.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No solar position algorithm or weather default exists; an instant without outdoor air temperature makes the envelope study return `not-run` instead of assuming a value, and the unread humidity field is stated as unread.
+ * @evidence contracts/common.md#meaningful-documentation States why the sun is declared, the units and ranges of every quantity, the horizon rule and its reference, the null meaning of both outdoor fields, and which solver reads which field.
+ * @author Samchon
  */
 export interface IAutoMovieEnvironmentInstant {
-  /**
-   * Stable instant identity within the context.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-time-sampling Identifies the exact authored environment sample on the production timeline.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Gives each sampled environment state a stable identity.
-   */
+  /** Non-blank stable instant identity, unique within the context. */
   id: string;
 
   /**
-   * Open label such as `summer-solstice-1400` or `overcast-morning`.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-time-sampling Retains the production's authored label for the sampled environment alternative.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Names the sampled state without inventing a location or climate catalogue.
+   * Non-blank open label such as `summer-solstice-1400` or `overcast-morning`.
    */
   label: string;
 
-  /**
-   * Ordering key in seconds from the production's own epoch; finite.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-time-sampling Places this environment state on the production's explicit time basis.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-sampling-claims Supplies the deterministic ordering and lookup key for environment sampling.
-   */
+  /** Ordering key in seconds from the production's own epoch; finite. */
   time: number;
 
-  /**
-   * World direction from the site toward the sun; non-zero.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-declared-sun Carries the production-declared sun direction without implying an unrecorded location or solar calculation.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `sun` for the clv environment image spatial variation system contract.
-   */
+  /** World direction from the site toward the sun; finite and non-zero. */
   sun: IAutoMovieVector3;
 
   /**
-   * Illuminance on a surface facing the sun directly, in lux; at or above zero.
-   * A sun at or below the horizon must declare zero, because a source under the
-   * ground plane delivers no beam.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-declared-sun Carries the declared direct solar illuminance used with the authored sun direction.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `directNormalIlluminance` for the clv environment image spatial variation system contract.
+   * Illuminance on a surface facing the sun directly, in lux; at or above zero. A sun at or below the horizon must declare zero, because a source under the ground plane delivers no beam. The horizon is judged against the context ground's up direction.
    */
   directNormalIlluminance: number;
 
   /**
-   * Diffuse sky illuminance on an unobstructed horizontal plane, in lux.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-declared-sun Separates the declared diffuse sky contribution from direct solar illuminance.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `diffuseHorizontalIlluminance` for the clv environment image spatial variation system contract.
+   * Diffuse sky illuminance on an unobstructed horizontal plane, in lux; at or above zero.
    */
   diffuseHorizontalIlluminance: number;
 
   /**
-   * Outdoor dry-bulb air temperature in degrees Celsius, or null.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-spatial-variation Carries the production's local outdoor-air condition as an optional environment state.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `outdoorAirTemperature` for the clv environment image spatial variation system contract.
+   * Outdoor dry-bulb air temperature in degrees Celsius, or null. The envelope study returns `not-run` for an instant that leaves it null.
    */
   outdoorAirTemperature: number | null;
 
   /**
-   * Outdoor relative humidity as a `[0, 1]` fraction, or null.
-   *
-   * @evidence requirements/lighting/sun-sky-and-environment.md#lighting-environment-spatial-variation Carries the production's local humidity condition without promoting a global climate default.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-environment-image-spatial-variation Types `outdoorRelativeHumidity` for the clv environment image spatial variation system contract.
+   * Outdoor relative humidity as a `[0, 1]` fraction, or null. No solver reads it yet; the envelope study takes indoor humidity from its own request.
    */
   outdoorRelativeHumidity: number | null;
 }

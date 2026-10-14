@@ -1,5 +1,10 @@
 import { evaluateAutoMovieRenderBudget } from "@automovie/engine";
-import { IAutoMovieRenderBudget, IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget } from "@automovie/interface";
+import {
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
 
 /** Evaluate an inventory against a fixed empty semantic palette and the caller's sealed target. */
 export const evaluateRenderBudgetFixture = (

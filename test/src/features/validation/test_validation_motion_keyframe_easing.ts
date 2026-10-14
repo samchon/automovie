@@ -1,32 +1,44 @@
-import { validateMotion } from "@automovie/engine";
-import { AutoMovieEasing } from "@automovie/interface";
+import type {
+  AutoMovieEasing,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, createValidMotion } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
+import { createSkeleton } from "../internal/createSkeleton";
+import { createValidMotion } from "../internal/createValidMotion";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Keyframe easing names are closed in the interface, but JSON payloads can
- * still carry forged strings. Motion validation must reject unknown easing
- * names before sampling reaches the easing evaluator.
+ * Exercise the closed keyframe easing menu through motion admission.
  *
- * Scenario: an otherwise valid two-keyframe clip uses an unknown `bounce`
- * easing on the first keyframe. Validation fails with a `type` violation on the
- * keyframe easing field.
+ * Scenarios:
+ * 1. An otherwise valid two-keyframe clip uses unknown bounce easing on its first keyframe and fails with a type violation at easing.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateMotion after replacing only the first easing name, requiring refusal at easing and catching acceptance of an unsupported evaluator variant.
+ * @evidence contracts/testing.md#independent-expectations The supported easing union excludes bounce; its rejection and field address are literal menu expectations rather than evaluated easing samples.
+ * @evidence contracts/testing.md#distinguishing-cases Owns an unknown easing on an otherwise supported clip; motion_valid retains linear acceptance and keyframe_bezier owns cubic control domains.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit uses the existing clip/rig factories and creates no evaluator host or dynamically registered cases.
  */
-export const test_validation_motion_keyframe_easing = (): void => {
-  const base = createValidMotion();
-  const motion = {
+export function test_validation_motion_keyframe_easing(): void {
+  const base: IAutoMovieMotion = createValidMotion();
+  const motion: IAutoMovieMotion = {
     ...base,
-    keyframes: base.keyframes.map((kf, i) =>
-      i === 0 ? { ...kf, easing: "bounce" as AutoMovieEasing } : kf,
+    keyframes: base.keyframes.map(
+      (kf: IAutoMovieKeyframe, i: number): IAutoMovieKeyframe =>
+        i === 0 ? { ...kf, easing: "bounce" as AutoMovieEasing } : kf,
     ),
   };
 
-  const result = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({
+    motion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals("unknown easing fails", result.success, false);
   TestValidator.predicate(
     "easing type violation",
     hasViolation(result, "type", ".easing"),
   );
-};
+}

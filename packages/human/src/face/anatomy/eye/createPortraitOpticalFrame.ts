@@ -23,12 +23,23 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * a witness at the centre throws. An antipodal witness (straight back along
  * -Z) is a valid direction and rotates by half a turn about a perpendicular
  * axis.
+ *
+ * @evidence contracts/common.md#principled-implementation Shortest-arc rotation carries local +Z optics onto the globe-centre-to-axial-witness direction without changing dimensions.
+ * @evidence contracts/common.md#clear-and-simple-design A local origin sphere and one rigid transform separate optical authoring from head placement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Antipodal direction is supported by the canonical rotation owner; noncentral finite placement is admitted without in-plane optical refitting.
+ * @evidence contracts/common.md#meaningful-documentation The prose states millimetres, local/head frames, preserved radius/thickness and invalid directions.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed vector arithmetic and canonical shortest-arc rotation require constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work One transform is shared by iris/cornea consumers constructed on the returned local sphere.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned frame records own their vectors; the supplied sphere is unchanged and no cache/resource survives.
  */
 export function createPortraitOpticalFrame(
   sphere: IPortraitEyeSphere,
   axialWitness: IAutoMovieVector3,
 ): { sphere: IPortraitEyeSphere; transform: IAutoMovieMeshTransform } {
-  const direction = Vector3.subtract(axialWitness, sphere.center);
+  const direction: IAutoMovieVector3 = Vector3.subtract(
+    axialWitness,
+    sphere.center,
+  );
   if (
     ![
       sphere.radius,

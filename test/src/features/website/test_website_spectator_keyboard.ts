@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { vclose } from "../internal/predicates";
-import { spectatorFixture } from "../internal/websiteSpectatorFixture";
+import { websiteSpectatorFixture as spectatorFixture } from "../internal/websiteSpectatorFixture";
 
 /**
  * Focused or mouse-captured flight responds to held physical keys, including slow Shift.
@@ -10,9 +10,14 @@ import { spectatorFixture } from "../internal/websiteSpectatorFixture";
  * 1. Both key families travel on the expected axes; opposite keys cancel.
  * 2. Either Shift gives 2 m/s and releasing it immediately restores 8 m/s.
  * 3. Reset is single-shot; unrelated, modified, handled and form keys preserve browser behavior.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Dispatches key events through mounted spectator controls and observes default prevention, camera displacement, held-key cancellation, reset counts and cleared travel after focus/reset changes; wrong key axes, repeated reset or sticky input fails.
+ * @evidence contracts/testing.md#independent-expectations Authored key/axis pairs and 8/2-meter-per-second public speeds over 100 milliseconds determine expected vectors independently; counts and event default state observe callbacks and JSDOM dispatch, not native pointer-lock success.
+ * @evidence contracts/testing.md#distinguishing-cases Covers both key families, both Shift keys and release, opposite holds, repeat/modified/prevented/unmapped keys, form focus and touch reset; pointer routing and asynchronous capture completion have separate units.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_website_spectator_keyboard entry owns its cases, but spectatorFixture currently replaces foreign pointer-lock/capture methods and document lock state. This unresolved harness violation prevents treating these observations as compliant native-input verification.
  */
-export const test_website_spectator_keyboard = (): void => {
-  const f = spectatorFixture();
+export function test_website_spectator_keyboard(): void {
+  const f: ReturnType<typeof spectatorFixture> = spectatorFixture();
   TestValidator.predicate(
     "unfocused key ignored",
     !f.key("KeyW").defaultPrevented,
@@ -86,7 +91,7 @@ export const test_website_spectator_keyboard = (): void => {
     "unmapped key preserved",
     !f.key("KeyZ").defaultPrevented,
   );
-  const prevented = new f.dom.window.KeyboardEvent("keydown", {
+  const prevented: KeyboardEvent = new f.dom.window.KeyboardEvent("keydown", {
     code: "KeyR",
     bubbles: true,
     cancelable: true,
@@ -95,7 +100,7 @@ export const test_website_spectator_keyboard = (): void => {
   f.canvas.dispatchEvent(prevented);
   TestValidator.equals("handled reset not repeated", f.calls.reset, 1);
   f.lock(true);
-  const input = f.document.querySelector("input")!;
+  const input: HTMLInputElement = f.document.querySelector("input")!;
   TestValidator.predicate(
     "form key preserved while locked",
     !f.key("KeyW", "keydown", {}, input).defaultPrevented,
@@ -120,4 +125,4 @@ export const test_website_spectator_keyboard = (): void => {
   f.controls.frame(0.2);
   TestValidator.predicate("reset button clears travel", !f.controls.frame(0.3));
   f.close();
-};
+}

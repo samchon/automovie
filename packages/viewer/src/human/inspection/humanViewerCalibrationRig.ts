@@ -1,16 +1,7 @@
 /**
- * The calibration rig: spheres whose centres and colours were typed by hand
- * and are read by nothing in the code under test, so a frame that shows them
- * can be checked against arithmetic that does not touch the viewer's camera.
- * Positions are metres in the displayed model's frame (Y up, +Z toward the
- * front, origin at the head centre; a body hangs from y of about -0.08 down to
- * about -1.4). Four spheres stand in a plane 0.4 m in front of the figure at
- * x of plus and minus 0.3 and y of -0.4 and -1.0, and one stands 0.4 m behind
- * it on the midline, so a front view hides it behind the torso and a back view
- * shows it. Colours are pure unlit primaries and secondaries, so a rendered
- * pixel names its sphere exactly.
- * One table owns these drawing and observation inputs; its authored coordinates
- * are independent of the camera projection being judged.
+ * Authored calibration markers consumed by addHumanViewerCalibration. Positions are metres in the displayed model frame (Y up, +Z front); these conventional coordinates are independent of camera projection and do not measure anatomy.
+ *
+ * Four markers use z=0.4 and one uses z=-0.4. Whether the rear marker is occluded depends on the actual subject and camera. Unlit primary/secondary colors identify intended marker regions, while antialiasing, occlusion and display composition can change boundary pixels; the table alone establishes no exact pixel identity or completed calibration result.
  */
 export const humanViewerCalibrationRig = [
   {

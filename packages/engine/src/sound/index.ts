@@ -1,3 +1,4 @@
+export * from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 export * from "./IAutoMovieDialogueExpressionLayers";
 export * from "./IAutoMovieDialogueMouthRange";
 export * from "./IAutoMovieDialogueSpeakerBinding";

@@ -1,8 +1,14 @@
-import {
+import type {
+  IAutoMovieCompiledFormationLod,
   IAutoMovieCompiledInstanceSet,
+  IAutoMovieFormationBounds,
   IAutoMovieInstanceSetDesign,
+  IAutoMovieInstanceSetLayout,
+  IAutoMovieInstanceVariation,
   IAutoMovieModelRecipe,
+  IAutoMovieVector3,
   IAutoMovieWorldDesign,
+  IAutoMovieWorldRoute,
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
@@ -11,7 +17,7 @@ import { IAutoMovieInstanceSetPlacement } from "./IAutoMovieInstanceSetPlacement
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { instanceSlot } from "./instanceSlot";
-import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
+import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 
 /**
  * Compile one world instance set into its compact runtime without expanding it.
@@ -19,7 +25,7 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  * The record keeps the placement and variation laws, the route snapshot a
  * route layout follows, one bounds and centroid per chunk of
  * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
- * conservative radius of the base recipe and of every declared prototype, and
+ * measured or fallback radius of the base recipe and every declared prototype, and
  * a digest of every other field. A declared prototype table is compiled with
  * the base recipe's default first, which is the choice list every member is
  * regenerated against afterwards.
@@ -27,19 +33,33 @@ import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
  * Bounds are measured by regenerating each slot through {@link instanceSlot},
  * so a member whose seeded variation is non-finite, or whose route is missing
  * or has no length, refuses compilation instead of producing a set no consumer
- * can regenerate. Member radii come from the host as a table, as they do for a
- * formation. The digest is SHA-256 over canonical JSON v2 computed without a
+ * can regenerate. Member radii are supplied host estimates that this kernel does not verify against geometry; missing estimates use the base then 0.5m. The digest is SHA-256 over canonical JSON v2 computed without a
  * Node built-in, equal to the Node builder's digest of the same canonical
  * bytes.
  *
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-compression-individuality Stores a large set as laws, seed, and bounded chunk summaries from which each member's identity is still regenerated.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-group-individuality Compresses the population by count, index, seed, and prototype while keeping one conservative radius over every selectable prototype.
- * @evidence requirements/asset-authoring/identity-and-instances.md#asset-prototype-instance Compiles the reusable prototypes, the base recipe's default included once, apart from the occurrences that select them.
- * @evidence specifications/asset-and-representation/alternatives-instances-and-groups.md#asset-spec-prototype-instance Records each prototype's tiers and radius as the shared definition every slot occurrence refers to.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Rebuilds the same compiled set, including its seeded variation law, from the same design, routes, recipes, and radii.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Digests the canonical record so identical declared inputs and seed yield the identical runtime identity.
+ * @evidence contracts/common.md#principled-implementation Resolve the named route, prepend the default prototype once, regenerate slots into chunk/global summaries, then clone the compact laws and hash their canonical record. Host radius fallback remains approximate when measurements are absent.
+ * @evidence contracts/common.md#clear-and-simple-design The compiler owns route resolution and compact snapshots; instanceSlot owns placement and the shared chunk fold owns summary arithmetic.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Default choice, fixed chunk size and fallback radius are declared existing policies, not per-content compensation; regeneration refusal propagates before a compiled record is returned.
+ * @evidence contracts/common.md#meaningful-documentation Docs state route snapshot, complete prototypes, metre radius policy, point bounds and canonical SHA digest; callers own cloned output rather than an expanded member array.
+ * @evidence contracts/performance.md#efficient-algorithms Each of N slots is generated once for both summaries; along-route placement still costs O(NR), prototype selection/traits add their scans, and C chunks plus cloned route/prototype laws drive output storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work A single point feeds chunk and global folds in identical ascending order; the default prototype representation is reused in the compiled table and base fields. Mutable inputs prevent cross-call caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The compact record and cloned route/laws transfer to the caller; only current accumulators and returned chunks remain during compilation, with no task or native handle.
  */
-export const materializeCompiledInstanceSet = (props: {
+export const materializeCompiledInstanceSet: (props: {
+  /** Instance set design to compile. */ instanceSet: IAutoMovieInstanceSetDesign;
+  /** World routes a route layout resolves its route from. */ world: Pick<
+    IAutoMovieWorldDesign,
+    "routes"
+  >;
+  /** Model recipes keyed by id; empty when none are declared. */ recipes?: ReadonlyMap<
+    string,
+    IAutoMovieModelRecipe
+  >;
+  /** Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows its prototype's base recipe radius and then half a metre. */ projectionRadii?: ReadonlyMap<
+    string,
+    number
+  >;
+}) => IAutoMovieCompiledInstanceSet = (props: {
   /** Instance set design to compile. */
   instanceSet: IAutoMovieInstanceSetDesign;
   /** World routes a route layout resolves its route from. */
@@ -47,19 +67,21 @@ export const materializeCompiledInstanceSet = (props: {
   /** Model recipes keyed by id; empty when none are declared. */
   recipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
   /**
-   * Conservative member radius in metres keyed by recipe id; an id without one
-   * borrows its prototype's base recipe radius and then half a metre.
+   * Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows its prototype's base recipe radius and then half a metre.
    */
   projectionRadii?: ReadonlyMap<string, number>;
 }): IAutoMovieCompiledInstanceSet => {
-  const instanceSet = props.instanceSet;
-  const layout = instanceSet.layout;
-  const recipes = props.recipes ?? new Map<string, IAutoMovieModelRecipe>();
-  const projectionRadii = props.projectionRadii ?? new Map<string, number>();
-  const route =
+  const instanceSet: IAutoMovieInstanceSetDesign = props.instanceSet;
+  const layout: IAutoMovieInstanceSetLayout = instanceSet.layout;
+  const recipes: ReadonlyMap<string, IAutoMovieModelRecipe> =
+    props.recipes ?? new Map<string, IAutoMovieModelRecipe>();
+  const projectionRadii: ReadonlyMap<string, number> =
+    props.projectionRadii ?? new Map<string, number>();
+  const route: IAutoMovieWorldRoute | null =
     layout.kind === "along-route"
       ? (props.world.routes.find(
-          (candidate) => candidate.id === layout.route,
+          (candidate: IAutoMovieWorldRoute): boolean =>
+            candidate.id === layout.route,
         ) ?? null)
       : null;
   const placement: IAutoMovieInstanceSetPlacement = {
@@ -81,32 +103,42 @@ export const materializeCompiledInstanceSet = (props: {
           ],
         }),
   };
-  const position = (slot: number) => instanceSlot(placement, slot).position;
-  const chunks = Array.from(
-    {
-      length: Math.ceil(instanceSet.count / AUTOMOVIE_INSTANCE_CHUNK_SIZE),
-    },
-    (_, index) => {
-      const start = index * AUTOMOVIE_INSTANCE_CHUNK_SIZE;
-      const count = Math.min(
-        AUTOMOVIE_INSTANCE_CHUNK_SIZE,
-        instanceSet.count - start,
-      );
-      return {
-        index,
-        start,
-        count,
-        ...summarizeCompiledSlotRange(start, count, position),
-      };
-    },
-  );
-  const summary = summarizeCompiledSlotRange(0, instanceSet.count, position);
-  const compilePrototype = (prototype: {
+  const position: (slot: number) => IAutoMovieVector3 = (
+    slot: number,
+  ): IAutoMovieVector3 => instanceSlot(placement, slot).position;
+  const measured: ReturnType<typeof summarizeCompiledSlotChunks> =
+    summarizeCompiledSlotChunks(
+      instanceSet.count,
+      AUTOMOVIE_INSTANCE_CHUNK_SIZE,
+      position,
+    );
+  const chunks: typeof measured.chunks = measured.chunks;
+  const summary: typeof measured.summary = measured.summary;
+  const compilePrototype: (prototype: {
     id: string;
     modelRecipe: string;
     weight: number;
   }) => {
-    const representation = compiledPopulationRepresentation({
+    lod: IAutoMovieCompiledFormationLod[];
+    projectionRadius: number;
+    id: string;
+    modelRecipe: string;
+    weight: number;
+  } = (prototype: {
+    id: string;
+    modelRecipe: string;
+    weight: number;
+  }): {
+    lod: IAutoMovieCompiledFormationLod[];
+    projectionRadius: number;
+    id: string;
+    modelRecipe: string;
+    weight: number;
+  } => {
+    const representation: {
+      lod: IAutoMovieCompiledFormationLod[];
+      projectionRadius: number;
+    } = compiledPopulationRepresentation({
       modelRecipe: prototype.modelRecipe,
       tiers: recipes.get(prototype.modelRecipe)?.lod ?? [],
       recipes,
@@ -118,16 +150,61 @@ export const materializeCompiledInstanceSet = (props: {
       projectionRadius: representation.projectionRadius,
     };
   };
-  const defaultPrototype = compilePrototype({
+  const defaultPrototype: {
+    lod: IAutoMovieCompiledFormationLod[];
+    projectionRadius: number;
+    id: string;
+    modelRecipe: string;
+    weight: number;
+  } = compilePrototype({
     id: "default",
     modelRecipe: instanceSet.modelRecipe,
     weight: 1,
   });
-  const prototypes =
+  const prototypes:
+    | {
+        lod: IAutoMovieCompiledFormationLod[];
+        projectionRadius: number;
+        id: string;
+        modelRecipe: string;
+        weight: number;
+      }[]
+    | undefined =
     instanceSet.prototypes === undefined
       ? undefined
       : [defaultPrototype, ...instanceSet.prototypes.map(compilePrototype)];
-  const core = {
+  const core: {
+    projectionRadius: number;
+    chunks: {
+      bounds: IAutoMovieFormationBounds;
+      centroid: IAutoMovieVector3;
+      index: number;
+      start: number;
+      count: number;
+    }[];
+    lod: IAutoMovieCompiledFormationLod[];
+    bounds: IAutoMovieFormationBounds;
+    centroid: IAutoMovieVector3;
+    layout: IAutoMovieInstanceSetLayout;
+    route: IAutoMovieWorldRoute | null;
+    anchor: IAutoMovieVector3;
+    facingDeg: number;
+    seed: number;
+    variation: IAutoMovieInstanceVariation;
+    prototypes?:
+      | {
+          lod: IAutoMovieCompiledFormationLod[];
+          projectionRadius: number;
+          id: string;
+          modelRecipe: string;
+          weight: number;
+        }[]
+      | undefined;
+    version: 1;
+    id: string;
+    count: number;
+    modelRecipe: string;
+  } = {
     version: 1 as const,
     id: instanceSet.id,
     count: instanceSet.count,
@@ -144,7 +221,15 @@ export const materializeCompiledInstanceSet = (props: {
       prototypes === undefined
         ? defaultPrototype.projectionRadius
         : Math.max(
-            ...prototypes.map((prototype) => prototype.projectionRadius),
+            ...prototypes.map(
+              (prototype: {
+                lod: IAutoMovieCompiledFormationLod[];
+                projectionRadius: number;
+                id: string;
+                modelRecipe: string;
+                weight: number;
+              }): number => prototype.projectionRadius,
+            ),
           ),
     chunks,
     lod: defaultPrototype.lod,

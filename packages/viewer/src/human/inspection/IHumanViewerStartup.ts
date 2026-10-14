@@ -1,28 +1,20 @@
 /**
- * What a starting server is doing, as `/health` reports it. The phase stays `ready` once the first source generation can draw.
+ * What a starting server is doing, as `/health` reports it. The ready phase follows the first reported bridge/renderer readiness; it does not independently establish a drawn model or physical hardware.
  *
- * @evidence contracts/common.md#principled-implementation Startup reporting records the named phase and its actual entry time independently from numerical or appearance acceptance.
- * @evidence contracts/common.md#clear-and-simple-design One health record describes startup progress without embedding the startup orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A phase name and timestamp are progress facts and supply no elapsed-time shutdown condition.
- * @evidence contracts/common.md#meaningful-documentation Explains the startup step, ISO entry time and retention of the ready phase after initial display readiness.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Startup reporting records the named phase and its actual entry time independently from numerical or appearance acceptance.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform One health record describes startup progress without embedding the startup orchestration.
+ * @evidence contracts/common.md#principled-implementation A phase label and ISO start time describe server startup progress; the ready phase records the first reported bridge/renderer readiness rather than an independent model observation.
+ * @evidence contracts/common.md#clear-and-simple-design The health-facing record contains progress only, leaving transition logging with createHumanViewerStartupPhase.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The startup record does not infer drawable readiness from listening on a port or completing an unrelated build.
+ * @evidence contracts/common.md#meaningful-documentation Documentation gives the step's start-time format and the ready phase's first-generation meaning.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The startup value chooses no readiness probe, scheduling or transition algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Phase values are current observations rather than cached results reusable across server instances.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two status strings retain no startup tasks or browser resources; their owners maintain the actual lifecycle.
+ *
  * @author Samchon
  */
 export interface IHumanViewerStartup {
-  /**
-   * The current startup step.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation The current startup step. Startup reporting records the named phase and its actual entry time independently from numerical or appearance acceptance.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The current startup step. One health record describes startup progress without embedding the startup orchestration.
-   */
+  /** The current startup step. */
   phase: string;
 
-  /**
-   * ISO time the step began.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation ISO time the step began. Startup reporting records the named phase and its actual entry time independently from numerical or appearance acceptance.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform ISO time the step began. One health record describes startup progress without embedding the startup orchestration.
-   */
+  /** ISO time the step began. */
   since: string;
 }

@@ -2,62 +2,38 @@ import type { IHumanViewerPacketIdentities } from "./IHumanViewerPacketIdentitie
 import type { IHumanViewerPersonSidecar } from "./IHumanViewerPersonSidecar.js";
 
 /**
- * What the input reader learned from one sidecar file, kept until the file's stamp changes so a rescan neither rereads nor rehashes unchanged bytes.
+ * What the input reader learned from one sidecar file, reused while its provider stamp matches. The current mtime/size provider can miss a byte rewrite preserving both values; stamp equality is not fresh-byte proof.
  *
- * @evidence contracts/common.md#principled-implementation Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
- * @evidence contracts/common.md#clear-and-simple-design One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unreadable sidecar keeps its failure and nullable identity fields rather than becoming a fabricated valid basis.
- * @evidence contracts/common.md#meaningful-documentation Documents stamp-based reuse, SHA-256, file-kind identities and the unreadable-byte state.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
+ * @evidence contracts/common.md#principled-implementation File-stamped facts separate compressed-byte digest from basis, person-packet and generation-view identities, with explicit parse/read failure.
+ * @evidence contracts/common.md#clear-and-simple-design One small record exposes the metadata catalogue admission needs while keeping large sidecar bytes outside catalogue reads.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Identities are scanned from the supplied file rather than inferred from file names; failure remains available instead of being hidden.
+ * @evidence contracts/common.md#meaningful-documentation Members explain the stamp, SHA-256 bytes, kind-specific nullable identities and nullable failure cause.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The metadata shape implements no inflation or structural scan; createHumanViewerSidecarFacts owns those costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equal provider stamps reuse facts; changed stamps start a new read and publication refuses a stamp differing from the current tracked stamp. Repeated stamps do not distinguish request generations, and the mtime/size provider misses rewrites preserving both values.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The facts owner retains one metadata entry per encountered filename without an eviction bound; this record retains no compressed or inflated buffers.
+ *
  * @author Samchon
  */
 export interface IHumanViewerSidecarFacts {
-  /**
-   * The provider's version stamp the facts were read at.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The provider's version stamp the facts were read at. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The provider's version stamp the facts were read at. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
-   */
+  /** The provider's version stamp the facts were read at. */
   stamp: string;
 
-  /**
-   * Hex SHA-256 of the bytes.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Hex SHA-256 of the bytes. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Hex SHA-256 of the bytes. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
-   */
+  /** Hex SHA-256 of the bytes. */
   digest: string;
 
   /**
    * The basis identity of a `.basis.json.gz`, or null for a person packet or a generation view.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The basis identity of a `.basis.json.gz`, or null for a person packet or a generation view. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The basis identity of a `.basis.json.gz`, or null for a person packet or a generation view. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
    */
   basis: string | null;
 
-  /**
-   * The identities of a `.person.json.gz`, or null for any other kind.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The identities of a `.person.json.gz`, or null for any other kind. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The identities of a `.person.json.gz`, or null for any other kind. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
-   */
+  /** The identities of a `.person.json.gz`, or null for any other kind. */
   packet: IHumanViewerPersonSidecar | null;
 
   /**
    * The identities of a published generation view, or null for any other kind.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The identities of a published generation view, or null for any other kind. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The identities of a published generation view, or null for any other kind. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
    */
   view: IHumanViewerPacketIdentities | null;
 
-  /**
-   * Why the bytes could not be read as their kind, or null when they could.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Why the bytes could not be read as their kind, or null when they could. Memoized sidecar facts pair the provider's actual byte stamp and digest with one typed basis, packet or generation-view identity.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Why the bytes could not be read as their kind, or null when they could. One record groups mutually applicable decoded identities and a nullable failure while the provider owns reading.
-   */
+  /** Why the bytes could not be read as their kind, or null when they could. */
   failure: string | null;
 }

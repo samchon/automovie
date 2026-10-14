@@ -1,28 +1,19 @@
 /**
  * Why a metric produced no value, and what would change that.
  *
- * The two fields mirror the render report's analysis gap deliberately: one
- * project should have one way of saying "this was not measured", and a second
- * spelling of the same idea is how two artifacts start disagreeing about what
- * an absent number means.
+ * The two fields match the render inventory's `IAutoMovieRenderAnalysisGap` so
+ * the project has one way of saying "this was not measured".
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisMetricGap` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisMetricGap` for the validation failed not run states system contract.
+ * @evidence contracts/common.md#principled-implementation A reason and remedy pair that `validateAutoMovieAnalysisRun` requires to be non-blank on every value-less metric; the summarizer copies both verbatim into the report gap.
+ * @evidence contracts/common.md#clear-and-simple-design Two strings with no code field, matching the render inventory's analysis gap so readers parse one shape for an absent number.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing fills a default reason; `autoMovieAnalysisMetric` throws when a null value arrives without a gap.
+ * @evidence contracts/common.md#meaningful-documentation States what each string must say, that both are non-blank, and which render record shares the shape.
+ * @author Samchon
  */
 export interface IAutoMovieAnalysisMetricGap {
-  /**
-   * Non-blank statement of what is missing or unimplemented.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `reason` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `reason` for the validation failed not run states system contract.
-   */
+  /** Non-blank statement of what is missing or unimplemented. */
   reason: string;
 
-  /**
-   * Non-blank statement of the exact change that would produce a value.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `remedy` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `remedy` for the validation failed not run states system contract.
-   */
+  /** Non-blank statement of the exact change that would produce a value. */
   remedy: string;
 }

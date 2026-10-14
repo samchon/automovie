@@ -3,36 +3,30 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 /**
  * One steady noise source inside the room, such as a fan or a diffuser.
  *
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `IAutoMovieAcousticSource` declares one steady emitter whose level, location, and directivity feed the bounded room-noise estimate.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The source record supplies the power and geometric operands for the scenario's direct-plus-diffuse pressure calculation.
+ * Contributes `10^(Lw / 10) * (Q / (4 * pi * r^2) + 4 / R)` to the energy at
+ * every receiver. When the energy at a receiver underflows to zero or
+ * overflows past double precision, that receiver has no level, and the run
+ * reports the level metrics as a gap.
+ *
+ * @evidence contracts/common.md#principled-implementation A steady point source with a directivity factor, combined with the diffuse field through the room constant, the classical direct-plus-reverberant energy sum that holds for a diffuse room and a receiver outside the near field.
+ * @evidence contracts/common.md#clear-and-simple-design Position, broadband sound power and directivity are the only inputs the energy law reads, so the source carries no spectrum or orientation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A silent or overflowing source set is reported as a gap rather than an infinite decibel value, and directivity must be positive rather than clamped.
+ * @evidence contracts/common.md#meaningful-documentation States the energy contribution formula, the underflow and overflow gap conditions, the metre unit, the dB re 1 pW reference, and the meaning of a directivity of one.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; each source adds one constant-time term per receiver inside `analyzeAutoMovieAcoustics`, answered there.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The analyzer converts each source's `10^(Lw/10)` power once per study and shares it across every receiver and the diffuse term; nothing is shared across studies.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id, one position and two numbers owned by the request; the study references none of them after sealing the run.
+ * @author Samchon
  */
 export interface IAutoMovieAcousticSource {
-  /**
-   * Stable source identity within the request.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary The source `id` preserves which declared emitter contributed to the room-level calculation.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario This key makes source validation deterministic when several emitters share the same acoustic scenario.
-   */
+  /** Stable source identity, unique among the request's sources. */
   id: string;
-  /**
-   * World position in metres.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary Source `position` places the emitter so receiver distance can affect the reported direct field.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The world-space point supplies the distance term in the inverse-square source contribution.
-   */
+
+  /** World position in metres; every axis finite. */
   position: IAutoMovieVector3;
-  /**
-   * Sound power level in dB re 1 pW; finite.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `soundPower` states the emitter strength used for the supported steady broadband level estimate.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The declared dB re 1 pW value is converted to linear power before sources are summed at a receiver.
-   */
+
+  /** Sound power level in dB re 1 pW; finite. */
   soundPower: number;
-  /**
-   * Directivity factor; strictly positive, `1` being omnidirectional.
-   *
-   * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `directivity` declares how strongly this source favors its direct-field contribution over an omnidirectional emitter.
-   * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The positive factor scales the source's inverse-square term while leaving the diffuse room term unchanged.
-   */
+
+  /** Directivity factor; finite and strictly positive, `1` being omnidirectional. */
   directivity: number;
 }

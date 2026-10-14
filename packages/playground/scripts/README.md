@@ -1,12 +1,12 @@
 # Regenerating model and demonstration outputs
 
-The model and demonstration outputs listed here are ignored derivatives of Playground's TypeScript models and view pages. These scripts regenerate their own outputs. The repository's `.shots` also holds required Human inputs, reference photographs and resident viewer runtime files; its [Human cleanup procedure](../../../.agents/skills/project/human.md#visual-debugging-files) owns the preservation boundary.
+The model and demonstration outputs listed here are ignored derivatives of Playground's TypeScript models and view pages. These scripts regenerate their own outputs. The repository's `.shots` also holds required Human inputs, reference photographs and resident viewer runtime files; the [Human skill's visual debugging files](../../../.agents/skills/human/SKILL.md#visual-debugging-files) define their preservation boundary.
 
 All commands run from `packages/playground` or through `pnpm --filter @automovie/playground <script>`.
 
 ## Type-check boundary
 
-[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts` and `scripts/*.cts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
+[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
 
 ## Models (`.glb`)
 
@@ -26,11 +26,7 @@ No browser needed: these run headless in Node.
 
 ## Demo clips (`.mp4`)
 
-The clips are deterministic captures of the viewer pages, encoded straight to
-H.264 MP4 in-process (no ffmpeg). One **persistent** headless-Chromium session
-(Playwright) loads each page once, then `window.__afSeek(t)` (the `?cap=1` hook
-in every view) steps it to each frame and the canvas is screenshotted, so it
-takes seconds per clip, not a browser relaunch per frame.
+The clip script uses one persistent headless Chromium process and opens one page per selected clip, loading that clip's route once. Clips that share an HTML entry still acquire separate pages. The page's `window.__afSeek(t)` hook steps and draws each sample, then the canvas screenshot is decoded and supplied to the in-process H.264 encoder. Capture work grows with frame count, pixel dimensions and the host's drawing/encoding costs; deterministic engine sampling alone does not establish identical GPU pixels across hosts.
 
 Needs:
 
@@ -52,16 +48,7 @@ capture a new clip. Encoding uses `h264-mp4-encoder` (wasm) + `pngjs`.
 
 ## Capture smoke (`smoke:capture`, #1170)
 
-The one REAL (non-faked) headless-capture check: Chrome renders the live
-stickman page, the multi-pass adapter captures beauty/mask/pose twice, and the
-frames are judged **structurally** (not byte-hashed against a golden file:
-GPU rasterization differs across hosts): two sessions must be byte-identical
-to each other, the mask must carry the exact segment color over a plausible
-subject fraction on dominant black, the pose must draw white skeleton lines,
-and beauty must differ from mask. Reuses a running dev server at `--base`
-(default `http://127.0.0.1:5173`), else spawns and kills its own Vite. Needs
-Google Chrome (`--chrome` / `CHROME` to override). Exits non-zero on any
-failed check.
+Chrome renders the served stickman page and the existing adapter captures beauty, mask and pose in two sessions. The script compares their bytes on that host, checks the declared mask/pose color-population thresholds and requires beauty to differ from mask. These checks do not prove anatomical or visual quality or cross-host GPU equivalence. It reuses a responding server at `--base` (default `http://127.0.0.1:5173`) or acquires and terminates its own Vite process. Google Chrome is required (`--chrome` or `CHROME` selects its executable); a failed check exits nonzero.
 
 ```bash
 pnpm smoke:capture
@@ -72,7 +59,9 @@ pnpm smoke:capture
 `render:see` is the render seam smoke path: it drives one playground route
 through `@automovie/render`'s `createHeadlessCaptureAdapter` and `renderAndSee`,
 then writes PNG frames, an MP4, and a JSON artifact describing frame paths,
-sample times, ffmpeg-equivalent args, route, and encoder.
+sample times, Render's planned argument vector, route, and encoder.
+
+The existing encoder sets width, height, frame rate and HME quantization parameter 20. The recorded Render spec and argument vector are planning metadata; they do not equate that parameter with ffmpeg CRF or independently observe encoded chroma and page tone mapping. Encoding uses the headless adapter's returned primary image: beauty when included, otherwise the first requested guide.
 
 ```bash
 pnpm render:see
@@ -96,10 +85,10 @@ pnpm render:sequence -- --fps 12 --out .shots/_render-see/film-sequence.mp4
 
 ## Observing the connected person editor
 
-`observe:person` drives the real `connected-person.html` page through a list of user actions and records what the page shows after each one: the status line and its state, which buttons are disabled, the working document, the admission report as displayed, the files the page downloaded with their SHA-256, and how long each step took. It asserts nothing; the record is read by a person. Serve the page first (`vite` or `vite preview`), set `CHROME` to a GPU-backed Chromium, and close the page when the observation is done.
+`observe:person` drives the real `connected-person.html` page through a list of user actions and records status/state, disabled buttons, document textarea text and its unapplied indicator, displayed admission JSON, saved downloads with SHA-256 and step elapsed time. The textarea may contain unapplied edits, and the renderer string comes from a separate WebGL2 context in that page; neither establishes current application-model provenance. It asserts nothing; a person reads the record. Serve the page first and set `CHROME` to the Chromium executable to use.
 
 ```bash
 pnpm observe:person -- record.json base=http://127.0.0.1:4173 load=person.json set=face/shape/noseWidth:0.3 click=undo click=glb
 ```
 
-The header of `scripts/observe-connected-person.cts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.
+The header of `scripts/observe-connected-person.ts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.

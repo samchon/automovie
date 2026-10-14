@@ -6,14 +6,20 @@ import {
   worldRamp,
 } from "@automovie/engine";
 import {
+  type IAutoMovieCompiledFormation,
+  type IAutoMovieCompiledInstanceSet,
   IAutoMovieFormationDesign,
   IAutoMovieInstanceSetDesign,
+  type IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const unit = (id: string): IAutoMovieFormationDesign => ({
+const unit: (id: string) => IAutoMovieFormationDesign = (
+  id: string,
+): IAutoMovieFormationDesign => ({
   id,
   modelRecipe: "member",
   count: 4,
@@ -30,7 +36,9 @@ const unit = (id: string): IAutoMovieFormationDesign => ({
   heroOverrides: [],
 });
 
-const grove = (id: string): IAutoMovieInstanceSetDesign => ({
+const grove: (id: string) => IAutoMovieInstanceSetDesign = (
+  id: string,
+): IAutoMovieInstanceSetDesign => ({
   id,
   modelRecipe: "tree",
   count: 3,
@@ -41,7 +49,7 @@ const grove = (id: string): IAutoMovieInstanceSetDesign => ({
   variation: { scale: { min: 1, max: 1 }, palette: ["#00ff00"], traits: [] },
 });
 
-const field = worldRamp({
+const field: IAutoMovieWorldSurface = worldRamp({
   id: "field",
   from: { x: -5, z: -5 },
   to: { x: -5, z: 5 },
@@ -53,58 +61,74 @@ const field = worldRamp({
 
 /**
  * A production's compiled populations are keyed by id in code-unit order, and
- * each record is the one its own kernel compiles from the same inputs.
+ * selected records match direct kernel calls with the same inputs.
  *
- * Code-unit order puts an upper-case id before every lower-case one, which is
+ * For these ASCII ids, code-unit order puts upper-case before lower-case, which is
  * not the order the designs are listed in here, so a key order that merely
  * followed insertion would fail.
  *
  * Scenarios:
  *
- * 1. Formations listed b, B, a are keyed B, a, b, and each record equals the
- *    formation kernel's output for the same recipes, radii and terrain.
- * 2. Instance sets declared y, X, x are keyed X, x, y, and each record equals the
- *    instance-set kernel's output for the same world, recipes and radii.
+ * 1. Formations listed b, B, a are keyed B, a, b, and the selected
+ *    B record matches a direct kernel call with radii, terrain and no recipes.
+ * 2. Instance sets declared y, X, x are keyed X, x, y, and X matches the direct
+ *    instance-set kernel's output for the same world, radii and no recipes.
  * 3. No formations, and a world that declares no instance sets or an empty list,
  *    compile to empty inventories.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls both population inventory compilers with deliberately unsorted ids, checks complete own-key order and selected radius/terrain forwarding, compares full B/X records with direct compiler calls, and checks absent/empty inventory inputs.
+ * @evidence contracts/testing.md#independent-expectations Literal B,a,b and X,x,y key sequences independently distinguish code-unit ordering from declaration order; one retained formation surface and authored radii 0.75/two anchor forwarding. Direct-record parity intentionally shares the underlying compiler and does not independently verify its geometry, canonical digest, seed law or omitted recipe behavior.
+ * @evidence contracts/testing.md#distinguishing-cases Mixed upper/lower-case ids distinguish order, populated versus absent/empty inputs distinguish no-population behavior, and separately supplied formation terrain and prototype radii distinguish forwarding from default inputs. Only representative B/X full records are compared, while every authored id appears in the key oracle.
+ * @evidence contracts/testing.md#execution-ownership Uses synchronous local design/maps/world records and existing numerical comparators, with no renderer, filesystem publication, task, clock or global replacement. Produced dictionaries are caller-owned test values; this case does not exercise prototype-sensitive/integer-like ids, duplicates or production inventory consumers.
  */
-export const test_engine_compiled_population_inventory = (): void => {
-  const radii = new Map([
+export function test_engine_compiled_population_inventory(): void {
+  const radii: Map<string, number> = new Map([
     ["member", 0.75],
     ["tree", 2],
   ]);
-  const formations = materializeCompiledFormationInventory({
-    formations: new Map([
-      ["b", unit("b")],
-      ["B", unit("B")],
-      ["a", unit("a")],
-    ]),
-    projectionRadii: radii,
-    surfaces: [field],
-  });
-  const world = {
+  const formations: Readonly<Record<string, IAutoMovieCompiledFormation>> =
+    materializeCompiledFormationInventory({
+      formations: new Map([
+        ["b", unit("b")],
+        ["B", unit("B")],
+        ["a", unit("a")],
+      ]),
+      projectionRadii: radii,
+      surfaces: [field],
+    });
+  const world: {
+    routes: never[];
+    instanceSets: IAutoMovieInstanceSetDesign[];
+  } = {
     routes: [],
     instanceSets: [grove("y"), grove("X"), grove("x")],
   };
-  const instanceSets = materializeCompiledInstanceSetInventory({
-    world,
-    projectionRadii: radii,
-  });
+  const instanceSets: Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =
+    materializeCompiledInstanceSetInventory({
+      world,
+      projectionRadii: radii,
+    });
 
   TestValidator.equals(
     "compiled populations are keyed in code-unit order",
     namedFacts([
-      ["formationKeys", () => Object.keys(formations).join(",") === "B,a,b"],
+      [
+        "formationKeys",
+        (): boolean => Object.keys(formations).join(",") === "B,a,b",
+      ],
       [
         "instanceSetKeys",
-        () => Object.keys(instanceSets).join(",") === "X,x,y",
+        (): boolean => Object.keys(instanceSets).join(",") === "X,x,y",
       ],
-      ["terrainPassedThrough", () => formations.a!.ground.length === 1],
+      [
+        "terrainPassedThrough",
+        (): boolean => formations.a!.ground.length === 1,
+      ],
       [
         "radiiPassedThrough",
-        () =>
-          formations.a!.projectionRadius === 0.75 &&
-          instanceSets.x!.projectionRadius === 2,
+        (): boolean =>
+          nclose(formations.a!.projectionRadius, 0.75, 0) &&
+          nclose(instanceSets.x!.projectionRadius, 2, 0),
       ],
     ]),
     {
@@ -114,44 +138,48 @@ export const test_engine_compiled_population_inventory = (): void => {
       radiiPassedThrough: true,
     },
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "an inventory formation is the formation kernel's record",
-    formations.B,
-    materializeCompiledFormation({
-      formation: unit("B"),
-      projectionRadii: radii,
-      surfaces: [field],
-    }),
+    test12ValuesClose(
+      formations.B,
+      materializeCompiledFormation({
+        formation: unit("B"),
+        projectionRadii: radii,
+        surfaces: [field],
+      }),
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "an inventory instance set is the instance-set kernel's record",
-    instanceSets.X,
-    materializeCompiledInstanceSet({
-      instanceSet: grove("X"),
-      world,
-      projectionRadii: radii,
-    }),
+    test12ValuesClose(
+      instanceSets.X,
+      materializeCompiledInstanceSet({
+        instanceSet: grove("X"),
+        world,
+        projectionRadii: radii,
+      }),
+    ),
   );
   TestValidator.equals(
     "no declared population compiles to an empty inventory",
     namedFacts([
       [
         "noFormations",
-        () =>
+        (): boolean =>
           Object.keys(
             materializeCompiledFormationInventory({ formations: new Map() }),
           ).length === 0,
       ],
       [
         "noInstanceSetsKey",
-        () =>
+        (): boolean =>
           Object.keys(
             materializeCompiledInstanceSetInventory({ world: { routes: [] } }),
           ).length === 0,
       ],
       [
         "emptyInstanceSets",
-        () =>
+        (): boolean =>
           Object.keys(
             materializeCompiledInstanceSetInventory({
               world: { routes: [], instanceSets: [] },
@@ -161,4 +189,4 @@ export const test_engine_compiled_population_inventory = (): void => {
     ]),
     { noFormations: true, noInstanceSetsKey: true, emptyInstanceSets: true },
   );
-};
+}

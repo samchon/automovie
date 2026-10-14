@@ -1,4 +1,3 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
@@ -6,12 +5,24 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError, vclose } from "../internal/predicates";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { type IAutoMovieSpringState } from "../../../../packages/engine/src/resolve/IAutoMovieSpringState";
+import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
+import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
-const W = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const trs = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -28,42 +39,50 @@ const spring: IAutoMovieSpringDriver = {
   center: null,
 };
 
-const local = new Map<string, IAutoMovieTransform>([
+const local: Map<string, IAutoMovieTransform> = new Map<
+  string,
+  IAutoMovieTransform
+>([
   ["j1", trs(1, 0, 0)],
   ["j2", trs(1, 0, 0)],
 ]);
 
-const at = (world: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(world.get(id)!);
+const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(world.get(id)!);
 
-const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 /** Run `steps` of the spring from a fresh rest chain laid out along +X. */
-const run = (steps: number): Map<string, number[]> => {
-  const world = new Map<string, number[]>([
+const run: (steps: number) => Map<string, number[]> = (
+  steps: number,
+): Map<string, number[]> => {
+  const world: Map<string, number[]> = new Map<string, number[]>([
     ["root", W({ x: 0, y: 0, z: 0 })],
     ["j1", W({ x: 1, y: 0, z: 0 })],
     ["j2", W({ x: 2, y: 0, z: 0 })],
   ]);
-  const state = createSpringState();
-  for (let s = 0; s < steps; ++s)
+  const state: IAutoMovieSpringState = createSpringState();
+  for (let s: number = 0; s < steps; ++s)
     stepSpring(spring, world, state, 1 / 60, local);
   return world;
 };
 
 /**
- * The Verlet spring driver: a horizontal hair/skirt-like chain sags under
- * gravity, keeps its bone lengths, and replays identically.
+ * A horizontal numerical spring chain sags under gravity, keeps link lengths within 1e-9 and replays checked positions identically.
  *
  * Scenarios:
  *
  * 1. After enough steps the chain laid out along +X has sagged downward: both
  *    joints sit below the rest line, the tip lower than the mid.
- * 2. Each bone keeps its rest length exactly (the hard length constraint), so the
+ * 2. Each bone keeps its rest length within 1e-9, so the
  *    joints ride a unit sphere around their parent.
- * 3. The same inputs replay bit-for-bit (determinism: the property that makes
- *    spring usable in a reproducible render).
+ * 3. The same inputs replay joint positions with zero tolerance. This does not
+ *    compare every transform coefficient or a rendered frame.
  * 4. Invalid integration parameters reject before the integrator reads world or
  *    local transforms.
  * 5. A `center` reference subtracts body locomotion from inertia: after the
@@ -72,9 +91,15 @@ const run = (steps: number): Map<string, number[]> => {
  * 6. `hitRadius` is a physical collision radius and rejects non-finite or
  *    non-positive values before the integrator reads transform inputs.
  * 7. Spring force magnitudes allow zero but reject negative values.
+ * 8. Distinct chains sharing a moving center each subtract its translation, independent of driver order.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual stepSpring with carried state and asserts sag, length, replay, input refusal and body-translation compensation; two chains sharing a center reject center memory that only compensates the first driver.
+ * @evidence contracts/testing.md#independent-expectations Gravity must lower an initially horizontal unconstrained-inertia chain and unit local translations fix one-metre bones. With gravity/stiffness/drag zero, equal center/root/joint translation adds no relative velocity, so both one-metre offsets remain (1,0,0) in either driver order.
+ * @evidence contracts/testing.md#distinguishing-cases Covers repeated integration/replay, null center, moving/missing center, invalid finite/range parameters, zero force neighbors and missing world/local inputs. Two separate chains with one center distinguish chain-specific history from center-global consumption; collision geometry is owned by test_resolve_spring_collision.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_resolve_spring runs portable numeric scene-node chains synchronously through the real world/state seam, without a Human asset, viewer, GPU or replaced foreign method.
  */
-export const test_resolve_spring = (): void => {
-  const w = run(180);
+export function test_resolve_spring(): void {
+  const w: Map<string, number[]> = run(180);
 
   // 1. sagged under gravity
   TestValidator.predicate("mid joint sagged below rest", at(w, "j1").y < 0);
@@ -94,7 +119,7 @@ export const test_resolve_spring = (): void => {
   );
 
   // 3. deterministic replay
-  const w2 = run(180);
+  const w2: Map<string, number[]> = run(180);
   TestValidator.predicate(
     "deterministic mid",
     vclose(at(w, "j1"), at(w2, "j1"), 0),
@@ -104,7 +129,12 @@ export const test_resolve_spring = (): void => {
     vclose(at(w, "j2"), at(w2, "j2"), 0),
   );
 
-  const invalid = (
+  const invalid: (
+    title: string,
+    over: Partial<IAutoMovieSpringDriver>,
+    dt: number,
+    expected: string | string[],
+  ) => void = (
     title: string,
     over: Partial<IAutoMovieSpringDriver>,
     dt: number,
@@ -113,7 +143,7 @@ export const test_resolve_spring = (): void => {
     TestValidator.predicate(
       title,
       throwsError(
-        () =>
+        (): void =>
           stepSpring(
             { ...spring, ...over },
             new Map(),
@@ -213,12 +243,12 @@ export const test_resolve_spring = (): void => {
     gravityPower: 0,
     center: "center",
   };
-  const centeredWorld = new Map<string, number[]>([
+  const centeredWorld: Map<string, number[]> = new Map<string, number[]>([
     ["center", W({ x: 0, y: 0, z: 0 })],
     ["root", W({ x: 0, y: 0, z: 0 })],
     ["j1", W({ x: 1, y: 0, z: 0 })],
   ]);
-  const centeredState = createSpringState();
+  const centeredState: IAutoMovieSpringState = createSpringState();
   stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
   centeredWorld.set("center", W({ x: 0, y: 10, z: 0 }));
   centeredWorld.set("root", W({ x: 0, y: 10, z: 0 }));
@@ -228,10 +258,48 @@ export const test_resolve_spring = (): void => {
     "center motion does not become spring inertia",
     vclose(at(centeredWorld, "j1"), { x: 1, y: 10, z: 0 }, 1e-9),
   );
+  const sharedCenter: (reverse: boolean) => Map<string, number[]> = (
+    reverse: boolean,
+  ): Map<string, number[]> => {
+    const world: Map<string, number[]> = new Map([
+      ["center", W({ x: 0, y: 0, z: 0 })],
+      ["root", W({ x: 0, y: 0, z: 0 })],
+      ["j1", W({ x: 1, y: 0, z: 0 })],
+      ["otherRoot", W({ x: 0, y: 0, z: 2 })],
+      ["otherJoint", W({ x: 1, y: 0, z: 2 })],
+    ]);
+    const state: ReturnType<typeof createSpringState> = createSpringState();
+    const sharedLocal: Map<string, IAutoMovieTransform> = new Map([
+      ...local,
+      ["otherJoint", trs(1, 0, 0)],
+    ]);
+    const drivers: IAutoMovieSpringDriver[] = [
+      centeredSpring,
+      { ...centeredSpring, chain: ["otherRoot", "otherJoint"] },
+    ];
+    if (reverse) drivers.reverse();
+    for (const driver of drivers)
+      stepSpring(driver, world, state, 1 / 60, sharedLocal);
+    for (const [id, matrix] of world) {
+      const position: IAutoMovieVector3 = Matrix4.position(matrix);
+      world.set(id, W({ ...position, y: position.y + 10 }));
+    }
+    for (const driver of drivers)
+      stepSpring(driver, world, state, 1 / 60, sharedLocal);
+    return world;
+  };
+  for (const reverse of [false, true]) {
+    const translated: Map<string, number[]> = sharedCenter(reverse);
+    TestValidator.predicate(
+      "both chains sharing a center preserve translated rest offsets",
+      vclose(at(translated, "j1"), { x: 1, y: 10, z: 0 }, 1e-9) &&
+        vclose(at(translated, "otherJoint"), { x: 1, y: 10, z: 2 }, 1e-9),
+    );
+  }
   TestValidator.predicate(
     "missing spring center rejects incomplete world map",
     throwsError(
-      () =>
+      (): void =>
         stepSpring(
           { ...spring, center: "missing" },
           new Map(),
@@ -246,7 +314,7 @@ export const test_resolve_spring = (): void => {
   TestValidator.predicate(
     "missing spring parent rejects incomplete world map",
     throwsError(
-      () =>
+      (): void =>
         stepSpring(
           spring,
           new Map([["j1", W({ x: 1, y: 0, z: 0 })]]),
@@ -260,7 +328,7 @@ export const test_resolve_spring = (): void => {
   TestValidator.predicate(
     "missing spring joint rejects incomplete world map",
     throwsError(
-      () =>
+      (): void =>
         stepSpring(
           spring,
           new Map([["root", W({ x: 0, y: 0, z: 0 })]]),
@@ -274,7 +342,7 @@ export const test_resolve_spring = (): void => {
   TestValidator.predicate(
     "missing spring local transform rejects incomplete local map",
     throwsError(
-      () =>
+      (): void =>
         stepSpring(
           spring,
           new Map([
@@ -288,4 +356,4 @@ export const test_resolve_spring = (): void => {
       'spring driver local transform node "j1" was not provided',
     ),
   );
-};
+}

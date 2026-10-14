@@ -1,40 +1,26 @@
 /**
  * One component of a channel value that exceeded its bound and was clamped.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Makes each applied channel-range correction visible instead of silently accepting it.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Defines the per-component result emitted when the constraint pass clamps a channel.
+ *
+ * @evidence contracts/common.md#principled-implementation Record one crossed min/max bound with component index, admitted limit and original value, preserving diagnostic cause separately from the clamped result.
+ * @evidence contracts/common.md#clear-and-simple-design A fixed diagnostic row gives applyChannelLimit and resolveFrame enough information without retaining an entire channel or parsing prose.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual compared component values populate the row; no fixture id, guessed index or alternate threshold compensates for malformed input.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish original actual value from chosen bound and its component address; units follow the owning channel property.
+ * @evidence contracts/performance.md#efficient-algorithms One violation is fixed-size scalar storage; aggregate rows grow with crossed components in the clamp producer.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same row is reused in frame diagnostics after clamping; the type owns no cross-request equality or cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar facts are retained for the caller's reporting lifetime, with no value vector, node graph, handle or task owned.
  * @author Samchon
  */
 export interface IAutoMovieClampViolation {
-  /**
-   * Index of the offending component within the channel value vector.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Identifies the exact constrained degree of freedom that crossed its range.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Locates the corrected component in the channel constraint result.
-   */
+  /** Index of the offending component within the channel value vector. */
   component: number;
 
-  /**
-   * Which bound was crossed.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Distinguishes a lower-range breach from an upper-range breach.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Reports which side of the declared ROM constrained the value.
-   */
+  /** Which bound was crossed. */
   bound: "min" | "max";
 
-  /**
-   * The bound value the component was clamped to.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Preserves the declared numeric limit that resolved the invalid component.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Emits the applied constraint boundary beside the correction.
-   */
+  /** The bound value the component was clamped to. */
   limit: number;
 
-  /**
-   * The component's value before clamping.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Keeps the requested out-of-range value available for diagnosis.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Records the requested component value before correction.
-   */
+  /** The component's value before clamping. */
   actual: number;
 }

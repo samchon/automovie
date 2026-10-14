@@ -1,9 +1,12 @@
 /**
- * src/geometry/roof-solids.ts와 roof-planes.ts: 지붕 slab·널판 천장·높이 차이 막음·박공/외쪽 평면.
- * fixture: 경사 상면의 볼록 사각 slab(하부 영역 없음/절반 영역), 삼각 slab(박공 반쪽), 얇은 slab,
- * 맞닿은 두 조각의 높이 차이 막음(있음/같은 높이/같은 방향 변), 널판 천장, 박공 용마루 위치와
- * 지지선 높이, 외쪽 지붕 평면, 수직 두께, 결정성. slab은 T 접합 해소 뒤 닫힌 실체다.
- * 높이 차이 막음은 한 장의 면이며 닫힌 실체가 아니다(mesh-ledger 시험의 막음 형태와 같다).
+ * src/geometry/roof-solids.ts and roof-planes.ts: roof slabs, boarding ceilings,
+ * step closures, and gable or mono-pitch planes. Fixtures: convex quadrilateral
+ * slabs with sloped tops (no underside region or a half region), triangular
+ * slabs (half gables), thin slabs, step closures between touching pieces
+ * (present, equal height or same-direction edges), boarding ceilings, gable
+ * ridge position and support height, mono-pitch planes, vertical thickness,
+ * and determinism. Slabs are closed after T-junction resolution. A step closure
+ * is one face rather than a closed solid, matching the mesh-ledger closure fixture.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

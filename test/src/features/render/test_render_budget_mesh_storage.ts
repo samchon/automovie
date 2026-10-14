@@ -1,7 +1,13 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_GEOMETRY_BYTES, instanceSetFixture, modelsFixture, sceneFixture } from "../internal/renderFixtures";
+
 import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { rawMeshModelFixture as rawMesh } from "../internal/rawMeshModelFixture";
+import {
+  BOX_GEOMETRY_BYTES,
+  instanceSetFixture,
+  modelsFixture,
+  sceneFixture,
+} from "../internal/renderFixtures";
 import { skinnedMeshModelFixture as skinnedMesh } from "../internal/skinnedMeshModelFixture";
 
 /**
@@ -10,9 +16,14 @@ import { skinnedMeshModelFixture as skinnedMesh } from "../internal/skinnedMeshM
  * Scenarios:
  *
  * 1. Raw positions, indexed skin attributes and shared or mixed LOD citations retain their independent costs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures authored raw/skinned meshes and shared instance prototypes, asserting complete model-cost records and shared-versus-mixed tier labels, catching omitted attributes, repeated prototype storage or last-citation tier takeover.
+ * @evidence contracts/testing.md#independent-expectations Six loose vertices carry only 12-byte positions; the indexed skin block carries four 56-byte vertices plus six four-byte indices and the original box cost. Literal part/vertex/triangle/material counts and near/null tier meanings derive from the authored fixture representation, not measured output.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves unindexed raw, indexed skinned plus primitive, two shared prototype sets and a model cited both by a staged node and an LOD tier; other tests own ground/texture storage and budget limits.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_mesh_storage owns these portable inventory calls through numerical fixtures and starts no model loader, renderer, native geometry upload or GPU context.
  */
-export const test_render_budget_mesh_storage = (): void => {
-  const meshed = measure({
+export function test_render_budget_mesh_storage(): void {
+  const meshed: ReturnType<typeof measure> = measure({
     scene: {
       ...sceneFixture(),
       nodes: [
@@ -60,10 +71,18 @@ export const test_render_budget_mesh_storage = (): void => {
   TestValidator.equals(
     "raw and skinned mesh geometry cost what the documented byte model says",
     {
-      raw: meshed.models.find((cost) => cost.model === "raw-mesh"),
-      skinned: meshed.models.find((cost) => cost.model === "skinned-mesh"),
-      sharedTier: meshed.models.find((cost) => cost.model === "prop-model")
-        ?.tier,
+      raw: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "raw-mesh",
+      ),
+      skinned: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "skinned-mesh",
+      ),
+      sharedTier: meshed.models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "prop-model",
+      )?.tier,
       // The same model behind a staged node AND a level-of-detail tier has no
       // single tier to report, so the row reports none rather than the last
       // citation to win the race.
@@ -78,7 +97,10 @@ export const test_render_budget_mesh_storage = (): void => {
             model: "prop-model",
           }),
         ],
-      }).models.find((cost) => cost.model === "prop-model")?.tier,
+      }).models.find(
+        (cost: (typeof meshed.models)[number]): boolean =>
+          cost.model === "prop-model",
+      )?.tier,
     },
     {
       raw: {
@@ -103,4 +125,4 @@ export const test_render_budget_mesh_storage = (): void => {
       mixedTier: null,
     },
   );
-};
+}

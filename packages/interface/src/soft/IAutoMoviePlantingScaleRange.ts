@@ -1,25 +1,18 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * The per-axis scale range cluster members are drawn from.
+ * Per-axis scale range sampled for cluster members.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IAutoMoviePlantingScaleRange` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingScaleRange` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation arrangePlantingCluster linearly maps seeded samples into each axis interval; validatePlantingCluster requires finite positive minima and maxima no smaller than their corresponding minima.
+ * @evidence contracts/common.md#clear-and-simple-design Two vectors expose the three independent intervals without adding a distribution object to the current linear sampling rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal endpoints express fixed scale directly; no species-specific scale or replacement minimum is selected.
+ * @evidence contracts/common.md#meaningful-documentation Endpoint comments state positivity and axis-wise ordering; these are dimensionless instance scales rather than lengths.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingScaleRange {
-  /**
-   * Minimum per-axis scale; each strictly positive.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `min` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `min` for the interior space soft furnishing planting system contract.
-   */
+  /** Minimum per-axis scale; each strictly positive. */
   min: IAutoMovieVector3;
 
-  /**
-   * Maximum per-axis scale; each at least the matching minimum.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `max` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `max` for the interior space soft furnishing planting system contract.
-   */
+  /** Maximum per-axis scale; each at least the matching minimum. */
   max: IAutoMovieVector3;
 }

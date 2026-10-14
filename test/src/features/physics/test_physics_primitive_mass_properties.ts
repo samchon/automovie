@@ -19,8 +19,13 @@ import { nclose, vclose } from "../internal/predicates";
  * 6. Plane is a degenerate solid with zero volume.
  * 7. Only the cone has an off-origin centroid, at +height/4 along +Y; every other
  *    primitive is centered on its origin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Evaluates primitive solid volume and centroid functions against analytic values, catching missing factors, omitted capsule caps, a nonzero plane volume or an inverted cone centroid.
+ * @evidence contracts/testing.md#independent-expectations Standard solid-volume equations and symmetry supply the expected numbers; the cone sign follows the supported +Y-base convention. This numerical unit does not inspect rendered tessellation or all symmetric primitive kinds.
+ * @evidence contracts/testing.md#distinguishing-cases Covers box, sphere, cylinder, cone, capsule and zero-volume plane plus asymmetric cone versus symmetric sphere centroid; part transforms and aggregate weighting belong to derivation units.
+ * @evidence contracts/testing.md#execution-ownership The named exported unit calls portable formula functions with authored records and direct numeric predicates; no rendering host or dynamic test is involved.
  */
-export const test_physics_primitive_mass_properties = (): void => {
+export function test_physics_primitive_mass_properties(): void {
   TestValidator.predicate(
     "box volume = w·h·d",
     nclose(primitiveVolume({ type: "box", width: 2, height: 3, depth: 4 }), 24),
@@ -73,4 +78,4 @@ export const test_physics_primitive_mass_properties = (): void => {
       z: 0,
     }),
   );
-};
+}

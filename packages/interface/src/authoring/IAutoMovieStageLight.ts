@@ -5,117 +5,141 @@ import { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
 /**
  * One physical light placed on the authored set.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieStageLight` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieStageLight` for the spec authoring authority compatibility system contract.
+ * Each family takes exactly its own parameters: a field that cannot act on the declared family is refused, not ignored. `stageScene` lowers the placement to the scene light its `type` names, aiming local -Z along `direction` and translating to `position`.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateLightPlacementShape` derives the family from `type`, defaulting to directional, then requires or forbids each field by family: an aim for every family but point, a position for every family but directional, `range` only on point and spot, `coneAngle` only on spot within `(0, 90]`, and `width` and `height` only on area. Area forbids castShadow presence; punctual castShadow true requires shadow tuning, while false permits no tuning. Colour components must lie in `[0, 1]`.
+ * @evidence contracts/common.md#clear-and-simple-design Shared identity, colour and intensity intersect a union discriminated by light type; every arm requires its physical inputs and marks inapplicable fields never, while the directional arm alone permits omission of type for the established sun-light default.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Defaults exist only where the family defines one, a `range` of `0`, a 45 degree cone and neutral white, and an area panel's extent has no default because an unstated window size is an undecided design, not a usual softbox.
+ * @evidence contracts/common.md#meaningful-documentation States the per-family requirement of every optional field, the default each omission takes, intensity units per family, that `role` is never read, and why an area light takes neither `range` nor a shadow.
+ * @author Samchon
  */
-export interface IAutoMovieStageLight {
-  /**
-   * Unique light identity.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `node` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
-   */
+export type IAutoMovieStageLight = {
+  /** Non-blank light identity, unique across every node of the stage. */
   node: string;
 
-  /**
-   * Optional dramatic annotation; lowering reads the physical fields below.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `role` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `role` for the spec authoring authority compatibility system contract.
-   */
+  /** Optional dramatic annotation for review; no engine stage reads it. */
   role?: "key" | "fill" | "rim" | "ambient" | "sun";
 
   /**
-   * Light family; omitted means a directional source.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `type` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `type` for the spec authoring authority compatibility system contract.
-   */
-  type?: "directional" | "point" | "spot" | "area";
-
-  /**
-   * Required aim for directional, spot and area sources; forbidden for point.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `direction` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `direction` for the spec authoring authority compatibility system contract.
-   */
-  direction?: IAutoMovieVector3;
-
-  /**
-   * Required origin for point, spot and area sources; forbidden for
-   * directional.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `position` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
-   */
-  position?: IAutoMovieVector3;
-
-  /**
-   * Linear light color; omitted means neutral white.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `color` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `color` for the spec authoring authority compatibility system contract.
+   * Linear light color with `r`, `g`, `b` in `[0, 1]` and `a` either `null` or in `[0, 1]`; omitted means neutral white with `a: null`.
    */
   color?: IAutoMovieColor;
 
   /**
-   * Finite non-negative relative brightness.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `intensity` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `intensity` for the spec authoring authority compatibility system contract.
+   * Finite non-negative intensity, lowered verbatim: lux for directional, candela for point and spot, and nits for an area panel.
    */
   intensity: number;
+} & (
+  | {
+      /** Parallel source; omission preserves the directional default. */
+      type?: "directional";
 
-  /**
-   * Point/spot falloff distance, where zero means unbounded.
-   *
-   * An area panel has none: its falloff follows from the emitting area below,
-   * so a second distance here would contradict it.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `range` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `range` for the spec authoring authority compatibility system contract.
-   */
-  range?: number;
+      /** Finite nonzero world aim; local -Z is aligned with this vector. */
+      direction: IAutoMovieVector3;
 
-  /**
-   * Spot half-angle in degrees, greater than zero and at most 90.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `coneAngle` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `coneAngle` for the spec authoring authority compatibility system contract.
-   */
-  coneAngle?: number;
+      /** An infinitely distant source has no world position. */
+      position?: never;
 
-  /**
-   * Area-panel width in meters along its local X axis, finite and greater than
-   * zero. Required on an area source and forbidden on every other family.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `width` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `width` for the spec authoring authority compatibility system contract.
-   */
-  width?: number;
+      /** Parallel illumination has no distance cutoff. */
+      range?: never;
 
-  /**
-   * Area-panel height in meters along its local Y axis, finite and greater than
-   * zero. Required on an area source and forbidden on every other family.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `height` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `height` for the spec authoring authority compatibility system contract.
-   */
-  height?: number;
+      /** A parallel source has no cone. */
+      coneAngle?: never;
 
-  /**
-   * Whether this source casts shadows.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `castShadow` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `castShadow` for the spec authoring authority compatibility system contract.
-   */
-  castShadow?: boolean;
+      /** A parallel source has no panel width. */
+      width?: never;
 
-  /**
-   * Optional shadow-map camera and bias tuning.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `shadow` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `shadow` for the spec authoring authority compatibility system contract.
-   */
-  shadow?: IAutoMovieLightShadow;
-}
+      /** A parallel source has no panel height. */
+      height?: never;
+
+      /** Enabling shadows requires the shadow-map tuning record. */
+      castShadow?: boolean;
+
+      /** Allowed only with castShadow true. */
+      shadow?: IAutoMovieLightShadow;
+    }
+  | {
+      /** Omnidirectional source at one world position. */
+      type: "point";
+
+      /** Omnidirectional illumination has no aim vector. */
+      direction?: never;
+
+      /** Finite world origin in metres. */
+      position: IAutoMovieVector3;
+
+      /** Finite nonnegative cutoff in metres; omitted or zero is unbounded. */
+      range?: number;
+
+      /** An omnidirectional source has no cone. */
+      coneAngle?: never;
+
+      /** A punctual source has no panel width. */
+      width?: never;
+
+      /** A punctual source has no panel height. */
+      height?: never;
+
+      /** Enabling shadows requires the shadow-map tuning record. */
+      castShadow?: boolean;
+
+      /** Allowed only with castShadow true. */
+      shadow?: IAutoMovieLightShadow;
+    }
+  | {
+      /** Aimed punctual source with a conical beam. */
+      type: "spot";
+
+      /** Finite nonzero world aim; local -Z is aligned with this vector. */
+      direction: IAutoMovieVector3;
+
+      /** Finite world origin in metres. */
+      position: IAutoMovieVector3;
+
+      /** Finite nonnegative cutoff in metres; omitted or zero is unbounded. */
+      range?: number;
+
+      /** Cone half-angle in degrees, within (0, 90]; omitted means 45. */
+      coneAngle?: number;
+
+      /** A spot source has no panel width. */
+      width?: never;
+
+      /** A spot source has no panel height. */
+      height?: never;
+
+      /** Enabling shadows requires the shadow-map tuning record. */
+      castShadow?: boolean;
+
+      /** Allowed only with castShadow true. */
+      shadow?: IAutoMovieLightShadow;
+    }
+  | {
+      /** Rectangular emitting panel with extent-dependent falloff. */
+      type: "area";
+
+      /** Finite nonzero world aim; local -Z is aligned with this vector. */
+      direction: IAutoMovieVector3;
+
+      /** Finite world centre in metres. */
+      position: IAutoMovieVector3;
+
+      /** Panel extent determines falloff without a separate cutoff. */
+      range?: never;
+
+      /** A rectangular panel has no spot cone. */
+      coneAngle?: never;
+
+      /** Finite positive panel width along local X, in metres. */
+      width: number;
+
+      /** Finite positive panel height along local Y, in metres. */
+      height: number;
+
+      /** Area lights render no shadow map. */
+      castShadow?: never;
+
+      /** Area lights render no shadow map. */
+      shadow?: never;
+    }
+);

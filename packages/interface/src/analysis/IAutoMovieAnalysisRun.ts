@@ -1,100 +1,52 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
 import { IAutoMovieAnalysisOutcome } from "./IAutoMovieAnalysisOutcome";
 import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
 
 /**
- * One analysis run: what was asked, of which design revision, by which solver,
- * and what honestly came back.
+ * One analysis run: what was asked, of which design revision, by which solver, and what came back.
  *
- * {@link inputRevision} is what makes a result perishable. A run that read
- * revision `r7` is evidence about `r7` and about nothing else, so a report
- * assembled at `r8` reports it as stale rather than counting it as an answer.
- * {@link digest} seals the whole record, so an artifact whose outcome was edited
- * after the fact fails validation instead of passing as a measurement.
+ * {@link inputRevision} makes a result perishable. A run that names revision `r7` is counted stale by a report for `r8`; the producing owner must establish which inputs were actually read. The digest binds covered canonical fields, not solver execution or scientific accuracy: changed encoded fields generally break the seal, while extra unencoded fields and signed-zero changes do not, and hash collisions remain possible.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisRun` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisRun` for the validation failed not run states system contract.
+ * @evidence contracts/common.md#principled-implementation `sealAutoMovieAnalysisRun` digests the settings text, checks the record with the contents rules `validateAutoMovieAnalysisRun` also applies, throws on the first violation, and only then digests the record; the validator recomputes that digest, so the stored seal is checked against the same canonical text that produced it.
+ * @evidence contracts/common.md#clear-and-simple-design Only the supplied canonical settings text's digest is stored; complete settings acquisition belongs to the producer. Solver and outcome stay nested records read in fixed order and are retained by reference by sealing, so later mutation requires resealing or renewed validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts JSON-array lines escape embedded separators without banning characters. Admission visits missing metric/sample/warning slots, but other nested containers and ordinary data fields remain typed premises and malformed host records can throw before returning violations; sealing is neither an exact-key schema check nor independent execution provenance.
+ * @evidence contracts/common.md#meaningful-documentation States why the input revision makes a result stale, what the digest seals and that validation recomputes it, the digest text form, and the id uniqueness a report enforces.
  * @author Samchon
  */
 export interface IAutoMovieAnalysisRun {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `version` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `version` for the validation failed not run states system contract.
-   */
+  /** Schema version. */
   version: 1;
 
-  /**
-   * Versioned run protocol.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `protocol` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `protocol` for the validation failed not run states system contract.
-   */
+  /** Versioned run protocol. */
   protocol: "automovie.analysis-run.v1";
 
-  /**
-   * Stable run identity within the production.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `id` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `id` for the validation failed not run states system contract.
-   */
+  /** Non-blank stable run identity; a report refuses two runs with one id. */
   id: string;
 
-  /**
-   * Domain this run answers for.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `domain` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `domain` for the validation failed not run states system contract.
-   */
+  /** Domain this run answers for. */
   domain: AutoMovieAnalysisDomain;
 
   /**
-   * Open subject label, usually the logical space or boundary analysed.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `subject` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `subject` for the validation failed not run states system contract.
+   * Non-blank open subject label, usually the logical space or boundary analysed.
    */
   subject: string;
 
-  /**
-   * Design revision the run read.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `inputRevision` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `inputRevision` for the validation failed not run states system contract.
-   */
+  /** Non-blank design revision the run read. */
   inputRevision: string;
 
-  /**
-   * Solver identity.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `solver` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `solver` for the validation failed not run states system contract.
-   */
+  /** Solver identity. */
   solver: IAutoMovieAnalysisSolver;
 
   /**
-   * Digest of the canonical settings the run was configured with.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `settings` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `settings` for the validation failed not run states system contract.
+   * Digest of the canonical settings text the run was configured with, written `sha256:` followed by 64 lowercase hex digits.
    */
-  settings: AutoMovieContentDigest;
+  settings: string;
 
-  /**
-   * Honest outcome.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `outcome` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `outcome` for the validation failed not run states system contract.
-   */
+  /** What the run produced, or why it produced nothing. */
   outcome: IAutoMovieAnalysisOutcome;
 
   /**
-   * Digest over protocol, identity, solver, settings and outcome.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `digest` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `digest` for the validation failed not run states system contract.
+   * Digest over protocol, version, id, domain, subject, input revision, solver, settings and outcome, in the same `sha256:` form; validation recomputes it.
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

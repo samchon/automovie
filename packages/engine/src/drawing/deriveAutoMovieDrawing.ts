@@ -1,11 +1,12 @@
 import {
-  AutoMovieDrawingRole,
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
   IAutoMovieDrawing,
   IAutoMovieDrawingAnnotation,
+  IAutoMovieDrawingAnnotationSpec,
   IAutoMovieDrawingDimension,
-  IAutoMovieDrawingExtent,
+  IAutoMovieDrawingDimensionSpec,
   IAutoMovieDrawingFrame,
   IAutoMovieDrawingGap,
   IAutoMovieDrawingLine,
@@ -13,113 +14,97 @@ import {
   IAutoMovieDrawingPoint,
   IAutoMovieDrawingRegion,
   IAutoMovieDrawingView,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { Vector3 } from "../math/Vector3";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { IAutoMovieDrawingEdge } from "./IAutoMovieDrawingEdge";
-import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
-import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
-import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
-import { autoMovieDrawingCellSection } from "./autoMovieDrawingCellSection";
-import { autoMovieDrawingCutEdges } from "./autoMovieDrawingCutEdges";
+import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { IAutoMovieDrawingDesignIndex } from "./IAutoMovieDrawingDesignIndex";
+import { IAutoMovieDrawingFeatureResolution } from "./IAutoMovieDrawingFeatureResolution";
+import { autoMovieDrawingExtent } from "./autoMovieDrawingExtent";
 import { autoMovieDrawingFrame } from "./autoMovieDrawingFrame";
 import { autoMovieDrawingHasCut } from "./autoMovieDrawingHasCut";
-import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
-import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
-import { autoMovieDrawingPolygonArea } from "./autoMovieDrawingPolygonArea";
-import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
-import { autoMovieDrawingSilhouetteEdges } from "./autoMovieDrawingSilhouetteEdges";
-import { autoMovieDrawingWorldMatrices } from "./autoMovieDrawingWorldMatrices";
-import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
-import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
+import { autoMovieDrawingIncludedSpaces } from "./autoMovieDrawingIncludedSpaces";
+import { autoMovieDrawingOpeningMark } from "./autoMovieDrawingOpeningMark";
 import { autoMovieOpeningHasArc } from "./autoMovieOpeningHasArc";
-import { autoMovieOpeningOutlinePoints } from "./autoMovieOpeningOutlinePoints";
-import { clipAutoMovieDrawingTriangles } from "./clipAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
+import { draftAutoMovieDrawingLines } from "./draftAutoMovieDrawingLines";
+import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { resolveAutoMovieDrawingFeature } from "./resolveAutoMovieDrawingFeature";
+import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
-import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
-
-/** Order the four line roles are drafted and sorted in. */
-const ROLE_ORDER: AutoMovieDrawingRole[] = [
-  "cut",
-  "projected",
-  "overhead",
-  "hidden",
-];
-
-/** One thing the view draws, reduced to what drafting needs to know about it. */
-interface IDrawable {
-  id: string;
-  kind: string;
-  space: string | null;
-  triangles: IAutoMovieDrawingTriangle[];
-}
+import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
+import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
 
 /**
- * Derive one drawing from one design.
+ * Derive one drawing from one design and one view.
  *
- * The design is validated first and an invalid one throws, for the same reason
- * `lowerBuiltEnvironment` refuses to lower one: a drawing of a building whose
- * graph does not resolve would be a picture of nothing, handed on as evidence.
+ * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming the first violation, because a drawing of a graph that does not resolve would be a picture of nothing handed on as evidence. Throws when the view is degenerate, as `autoMovieDrawingFrame` describes, and when it declares two dimensions or two annotations with one id, since a consumer addresses them by id.
  *
- * Everything below is computed. No line is drafted by hand, no dimension is
- * typed, and nothing produced here may be read back into the design: the
- * drawing is a projection of the model, so the two cannot disagree and the
- * model stays the only source of truth. What the derivation cannot compute is
- * reported in {@link IAutoMovieDrawing.gaps} rather than omitted, because a
- * sheet that silently leaves out what it could not work out reads as a building
- * that has none of it.
+ * Everything is computed from the design: lines from element and face-only boundary geometry in each element's current operating state, regions from the cells a cutting view passes through, opening marks from each opening's void or fill, and dimensions and notes from the features their targets pin. Nothing produced here may be read back into the design. What cannot be computed is reported in {@link IAutoMovieDrawing.gaps} rather than omitted, because a sheet that silently leaves something out reads as a building without it. Openings are marked whatever the kind filter says, because the schedule counts them all, and only the space filter selects them.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Derives the requested view's actual page lines, space regions, annotations, extent, and unresolved gaps from the validated environment.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Canonicalizes one validated environment and drawing view into deterministic cut geometry, projected geometry, feature resolutions, and a digest.
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-deliverable-consistency `deriveAutoMovieDrawing` derives one identified view, geometry, annotations, gaps, and digest from the same validated built-environment record without copying an editable design.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-capture-deliverable-consistency The drawing implements the shared-environment and deterministic-derived-output subset without claiming rendered captures or a full provenance manifest.
- * @evidence requirements/building-exterior/deliverables.md#building-exterior-drawing-views `deriveAutoMovieDrawing` resolves plan, elevation, and section frames, extent, scale, projected geometry, annotations, and gaps from the building state.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-input-manifest The result preserves environment identity, view settings, coordinate frame, scale, and deterministic digest without claiming producer or generated-time fields.
+ * The digest is SHA-256 over the canonical JSON of every other field. Identical canonical payloads give identical digests; a shared digest does not prove field equality because SHA-256 collisions are possible.
+ *
+ * @param props.environment Design the drawing is taken from.
+ * @param props.view View that decides the cut, the direction, the filters and the targets.
+ * @returns The drawing, with sorted lines, regions, openings and gaps and the view's own dimension and note order.
+ *
+ * @evidence contracts/common.md#principled-implementation An orthographic drafting pipeline over the validated design: one resolved frame, element staging shared with the scene through `builtEnvironmentWorldMatrices`, convex-cell sections, shared opening sizing, and feature resolution against current geometry; the digest is SHA-256 of `canonicalizeAutoMovieJson`, with deterministic member ordering and escaping over the authored JSON payload, and the stated limitations are the gaps the record carries.
+ * @evidence contracts/common.md#clear-and-simple-design The derivation validates, indexes the design once, delegates drafting, sectioning, opening marks, extent and feature resolution to one helper each, and keeps only the gap wording and record assembly, so each stage owns one responsibility.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No design, view or element is special-cased; the gaps are fixed statements of what this derivation does not compute, and duplicate dimension and note ids are refused rather than silently disambiguated.
+ * @evidence contracts/common.md#meaningful-documentation The comment states every refusal and its cause, where each kind of content comes from, the one-way rule, the gap policy, why openings ignore the kind filter, the digest's coverage and the ordering of each array.
+ * @evidence contracts/performance.md#efficient-algorithms Includes full environment validation, model tessellation/placement and linear triangle drafting, quadratic clipping in each cell's plane count, and feature-local corner/edge sorting for each dimension end or annotation. Output arrays and canonical object keys are sorted before text encoding/hashing; unknown filter ids use a shared set rather than repeated space scans.
+ * @evidence contracts/performance.md#reuse-equivalent-work One design index serves every stage, so element lookups, world matrices and part tessellations are computed once and shared by drafting, opening marks and every dimension end and note; the index is built per call because the environment is the caller's mutable record.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The design index and stage temporaries are owned by this call and released when it returns, bounded by the design's size; only the returned drawing, owned by the caller, survives.
  * @author Samchon
  */
-export const deriveAutoMovieDrawing = (props: {
+export const deriveAutoMovieDrawing: (props: {
+  environment: IAutoMovieBuiltEnvironment;
+  view: IAutoMovieDrawingView;
+}) => IAutoMovieDrawing = (props: {
   /** Design the drawing is taken from. */
   environment: IAutoMovieBuiltEnvironment;
-  /** View that decides the cut, the direction, the filter and the pen. */
+
+  /** View that decides the cut, the direction, the filters and the pen. */
   view: IAutoMovieDrawingView;
 }): IAutoMovieDrawing => {
-  const { environment, view } = props;
-  const validated = validateBuiltEnvironment({ environment });
+  const {
+    environment,
+    view,
+  }: { environment: IAutoMovieBuiltEnvironment; view: IAutoMovieDrawingView } =
+    props;
+  const validated: ReturnType<typeof validateBuiltEnvironment> =
+    validateBuiltEnvironment({ environment });
   if (validated.success === false) {
-    const first = validated.violations[0]!;
+    const first: (typeof validated.violations)[number] =
+      validated.violations[0]!;
     throw new Error(
       `built environment "${environment.id}" is invalid at ${first.path}: ${first.expected}`,
     );
   }
-  const frame = autoMovieDrawingFrame(view);
-  const matrices = autoMovieDrawingWorldMatrices(environment);
-  const cut = autoMovieDrawingHasCut(view.projection);
-  const spaces = includedSpaces(environment, view);
-  const drawn = (kind: string, space: string | null): boolean =>
-    (view.elementKinds.length === 0 || view.elementKinds.includes(kind)) &&
-    (spaces === null || (space !== null && spaces.has(space)));
-
-  const drafted: IAutoMovieDrawingLine[] = [];
+  requireUniqueIds(view, "dimension", view.dimensions);
+  requireUniqueIds(view, "annotation", view.annotations);
+  const frame: IAutoMovieDrawingFrame = autoMovieDrawingFrame(view);
+  const design: IAutoMovieDrawingDesignIndex =
+    indexAutoMovieDrawingDesign(environment);
+  const cut: boolean = autoMovieDrawingHasCut(view.projection);
+  const spaces: Set<string> | null = autoMovieDrawingIncludedSpaces(
+    environment,
+    view,
+  );
   const gaps: IAutoMovieDrawingGap[] = [];
-  // A space is a reference into the design's own graph, so a filter naming one
-  // the design does not declare is a dangling reference and is reported like
-  // every other: the sheet that comes back would otherwise be a blank one with
-  // nothing on it to say why. An element kind is deliberately not treated the
-  // same way, because kinds are an open vocabulary with no registry to be
-  // absent from, and a discipline that matches nothing is an honest empty
+
+  // A space filter naming a space the design does not declare is a dangling
+  // reference, reported once per distinct name. An element kind is an open
+  // vocabulary with no registry, so a kind matching nothing is an honest empty
   // sheet rather than a mistake.
-  // Deduplicated because the filter itself is: a name written twice restricts
-  // the view no further than a name written once, so counting it twice would
-  // report two mistakes where the author made one.
-  const unknownSpaces = [...new Set(view.spaces)]
-    .filter((id) => !environment.spaces.some((space) => space.id === id))
+  const declared: Set<string> = new Set(
+    environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id),
+  );
+  const unknownSpaces: string[] = [...new Set(view.spaces)]
+    .filter((id: string): boolean => !declared.has(id))
     .sort(compareAutoMovieRenderIds);
   if (unknownSpaces.length !== 0)
     gaps.push({
@@ -129,302 +114,47 @@ export const deriveAutoMovieDrawing = (props: {
       remedy:
         "name a space the design declares, or clear the filter to draw every space",
     });
-  const drawables: IDrawable[] = [];
-  let unresolvedModels = 0;
 
-  for (const element of environment.elements) {
-    if (!drawn(element.kind, element.space)) continue;
-    if (element.model === null) continue;
-    const model = environment.models.find(
-      (candidate) => candidate.id === element.model,
-    );
-    if (model === undefined) {
-      ++unresolvedModels;
-      continue;
-    }
-    drawables.push({
-      id: element.id,
-      kind: element.kind,
-      space: element.space,
-      triangles: transformAutoMovieDrawingTriangles(
-        matrices.get(element.id)!,
-        model.parts.flatMap((part) =>
-          autoMovieDrawingPartTriangles(model, part),
-        ),
-      ),
+  const drafted: { lines: IAutoMovieDrawingLine[]; unresolvedModels: number } =
+    draftAutoMovieDrawingLines({
+      environment,
+      view,
+      frame,
+      design,
+      cut,
+      drawn: (kind: string, space: string | null): boolean =>
+        (view.elementKinds.length === 0 || view.elementKinds.includes(kind)) &&
+        (spaces === null || (space !== null && spaces.has(space))),
     });
-  }
-  for (const boundary of environment.boundaries) {
-    // A boundary realized by elements is already drawn by them; drafting its
-    // face as well would put two pens on one wall. A boundary that carries a
-    // face and nothing else is the only thing in the design that knows where
-    // that separation is, so it draws itself.
-    if (boundary.face === undefined || boundary.elements.length !== 0) continue;
-    // A separation belongs to both the spaces it separates, so a view filtered
-    // to either of them draws it. Asking only about the first would drop the
-    // party wall from every sheet that names the room on the far side of it,
-    // and which side that is would be decided by the order the design happened
-    // to list the two rooms in. The openings on the same boundary already read
-    // it that way, and the boundary must not disagree with its own openings.
-    if (!boundary.spaces.some((candidate) => drawn(boundary.kind, candidate)))
-      continue;
-    // Validation already refused a boundary that cites no space, so the first
-    // one always exists and drafting it needs no absent case. The line carries
-    // that first space rather than whichever one the filter reached, so a wall
-    // reads the same on both of its rooms' sheets.
-    const space = boundary.spaces[0]!;
-    drawables.push({
-      id: boundary.id,
-      kind: boundary.kind,
-      space,
-      triangles: autoMovieBoundaryShellTriangles(boundary.face),
-    });
-  }
-
-  for (const drawable of drawables) {
-    if (drawable.triangles.length === 0) continue;
-    // Signed distances from the cut plane, positive on the viewer's side, so
-    // the smallest is the deepest corner of the thing and the largest the one
-    // closest to the viewer. Every band below is a question about one of those
-    // two and about nothing in between.
-    const distance = autoMovieDrawingRange(
-      drawable.triangles.flatMap((triangle) =>
-        [triangle.a, triangle.b, triangle.c].map((corner) =>
-          autoMovieDrawingPlaneDistance(frame, corner),
-        ),
-      ),
-    );
-    if (cut && distance.min > AUTOMOVIE_DRAWING_EPSILON) {
-      // Wholly on the viewer's side: the cut removed it, and it is drafted as
-      // overhead only while it stays inside the band the view declared.
-      if (view.overhead === null || distance.min > view.overhead) continue;
-      push(drafted, drawable, "overhead", frame, drawable.triangles, cut);
-      continue;
-    }
-    if (view.depth !== null && distance.max < -view.depth) {
-      push(drafted, drawable, "hidden", frame, drawable.triangles, cut);
-      continue;
-    }
-    if (cut)
-      for (const edge of autoMovieDrawingCutEdges(frame, drawable.triangles))
-        append(drafted, drawable, "cut", frame, edge);
-    push(drafted, drawable, "projected", frame, drawable.triangles, cut);
-  }
-
-  // Two edges of one solid can project onto one page segment — the near and far
-  // rings of a wall seen face-on are the same stroke — and a drawing draws each
-  // stroke once, so the sheet, its digest and its size stay properties of what
-  // is drawn rather than of how the geometry happened to be built.
-  const unique = new Map<string, IAutoMovieDrawingLine>();
-  for (const line of drafted) unique.set(lineKey(line), line);
-  const lines = [...unique.values()];
-
-  if (unresolvedModels !== 0)
+  if (drafted.unresolvedModels !== 0)
     gaps.push({
       subject: "external-model-geometry",
       status: "not-run",
-      reason: `${unresolvedModels} drawn element(s) cite a builder-owned runtime model whose geometry this design does not carry`,
+      reason: `${drafted.unresolvedModels} drawn element(s) cite a builder-owned runtime model whose geometry this design does not carry`,
       remedy:
         "author the element's geometry as an environment-owned model, or derive the drawing after the builder has resolved the external asset",
     });
 
-  const regions: IAutoMovieDrawingRegion[] = [];
-  const faceted: string[] = [];
-  let unbounded = 0;
-  let shelled = 0;
-  if (cut)
-    for (const space of environment.spaces) {
-      if (spaces !== null && !spaces.has(space.id)) continue;
-      if (space.fidelity === "faceted") faceted.push(space.id);
-      if (space.shell !== undefined) {
-        ++shelled;
-        continue;
-      }
-      for (const cell of space.cells) {
-        const section = autoMovieDrawingCellSection(frame, cell.planes);
-        if (section.bounded === false) {
-          ++unbounded;
-          continue;
-        }
-        if (section.polygon.length < 3) continue;
-        const polygon = section.polygon.map(round);
-        regions.push({
-          space: space.id,
-          cell: cell.id,
-          kind: space.kind,
-          polygon,
-          area: roundAutoMovieDrawingScalar(
-            autoMovieDrawingPolygonArea(polygon),
-          ),
-          finish: finishOf(environment, space.id),
-        });
-      }
-    }
-  if (faceted.length !== 0)
-    gaps.push({
-      // The same subject and the same word the quantity report uses, because a
-      // sheet and a take-off that disagree about whether a dome was drawn or
-      // approximated is worse than either of them saying nothing.
-      subject: "curved-space-boundary",
-      status: "unsupported",
-      reason: `${faceted.length} sectioned space(s) (${[...faceted].sort(compareAutoMovieRenderIds).join(", ")}) declare their stated volume faceted, so the outline drawn for them is the flats they were written as and not the curved region those flats stand for`,
-      remedy:
-        "read the faceted outline as chords of the region it stands for; a true section needs a curved boundary primitive this record does not carry",
-    });
-  if (shelled !== 0)
-    gaps.push({
-      // `unsupported` rather than `not-run`, and the distinction is the point:
-      // the shell is exactly the region and nothing is missing from it. What is
-      // missing is the derivation, because cutting a closed triangle boundary
-      // means assembling the crossed edges into ordered loops and this drafter
-      // only sections half-space cells.
-      subject: "shelled-space-section",
-      status: "unsupported",
-      reason: `${shelled} logical space(s) state their volume as a closed boundary shell, which this drafter cannot section: only half-space cells are cut, so those spaces contribute no region to the sheet`,
-      remedy:
-        "state the space as convex cells to have it sectioned, or read its extent from the shell itself until plane-versus-shell sectioning exists",
-    });
-  if (unbounded !== 0)
-    gaps.push({
-      // `not-run` rather than `unsupported`, and the same word the quantity
-      // report uses for the same subject: sectioning a cell is a derivation
-      // that exists and works, and what is missing is a cell closed enough to
-      // run it on. Two artifacts naming one subject must not disagree about
-      // whose fault it is.
-      subject: "unbounded-space-cell",
-      status: "not-run",
-      reason: `${unbounded} logical cell(s) are not bounded by their own half-spaces, so their cross-section has no finite outline`,
-      remedy:
-        "close each cell with enough half-spaces to bound it, or split the region into bounded cells",
-    });
-
-  const openings: IAutoMovieDrawingOpeningMark[] = [];
-  let unprovenOpenings = 0;
-  let substitutedOpenings = 0;
-  let arcedOpenings = 0;
-  for (const opening of environment.openings) {
-    const boundary = environment.boundaries.find(
-      (candidate) => candidate.id === opening.boundary,
-    )!;
-    if (
-      spaces !== null &&
-      !boundary.spaces.some((candidate) => spaces.has(candidate))
-    )
-      continue;
-    const mark = openingMark(environment, matrices, frame, opening, boundary);
-    openings.push(mark);
-    if (mark.basis === "none") ++unprovenOpenings;
-    if (mark.basis === "fill") ++substitutedOpenings;
-    if (
-      mark.basis === "profile" &&
-      autoMovieOpeningHasArc(opening.profile!) === true
-    )
-      ++arcedOpenings;
-  }
-  if (unprovenOpenings !== 0)
-    gaps.push({
-      subject: "opening-geometry",
-      status: "not-run",
-      reason: `${unprovenOpenings} drawn opening(s) carry neither a void of their own on a boundary face nor a filling element with geometry, so nothing in the design says where or how large they are`,
-      remedy:
-        "give the opening a profile on a boundary that carries a face, or a filling element with geometry",
-    });
-  if (substitutedOpenings !== 0)
-    gaps.push({
-      subject: "opening-profile",
-      status: "not-run",
-      reason: `${substitutedOpenings} drawn opening(s) have no void of their own, so their size is the filling element's extent, which is the leaf and not the hole`,
-      remedy:
-        "author the opening's profile on its host boundary's face, then re-derive",
-    });
-  if (arcedOpenings !== 0)
-    gaps.push({
-      subject: "curved-linework",
-      status: "unsupported",
-      reason: `${arcedOpenings} drawn opening(s) have arc edges, which are drafted as chords at a fixed density rather than as true curve segments`,
-      remedy:
-        "read the chorded outline as linework; the scheduled width and height are computed from the arcs themselves and are exact",
-    });
-  if (openings.some((mark) => mark.basis === "profile"))
-    gaps.push({
-      subject: "opening-void-subtraction",
-      status: "unsupported",
-      reason:
-        "an opening's void is drafted as its own outline over its host's linework rather than subtracted from it, so the host reads as unbroken behind the opening",
-      remedy:
-        "read the opening outline as the void; subtract it from the host once boolean linework exists",
-    });
-
-  gaps.push(
-    {
-      subject: "hidden-line-removal",
-      status: "unsupported",
-      reason:
-        "linework is classified by its relation to the cut plane and the view depth, not by what occludes it, so an element behind another is drafted as though it were visible",
-      remedy:
-        "read the depth classification as drafting semantics rather than visibility, or render the view and read occlusion from the semantic mask",
-    },
-    {
-      subject: "material-build-up",
-      status: "unsupported",
-      reason:
-        "a region's finish is the surface material bound to the elements realizing its boundaries; a material assembly is a separate record from the built environment, this derivation is handed only the environment, and nothing here hatches a layer order, a thickness or a coursing pattern even when one is authored",
-      remedy:
-        "extend the derivation to accept the work's material assemblies, then hatch each cut boundary by its own layers",
-    },
-    {
-      subject: "service-network",
-      status: "unsupported",
-      reason:
-        "a service network is a separate record from the built environment, this derivation is handed only the environment, and nothing here draws a segment, a port or a penetration even when one is authored, so a services view is a kind-filtered projection of ordinary elements rather than a network-aware one",
-      remedy:
-        "extend the derivation to accept the work's service networks, then draw their segments, ports and penetrations as their own linework",
-    },
+  const regions: IAutoMovieDrawingRegion[] = cut
+    ? sectionRegions(environment, frame, design, spaces, gaps)
+    : [];
+  const openings: IAutoMovieDrawingOpeningMark[] = markOpenings(
+    environment,
+    frame,
+    design,
+    spaces,
+    gaps,
   );
+  gaps.push(...FIXED_GAPS);
 
   const dimensions: IAutoMovieDrawingDimension[] = view.dimensions.map(
-    (spec) => {
-      const from = resolveAutoMovieDrawingFeature(
-        environment,
-        spec.from,
-        matrices,
-      );
-      const to = resolveAutoMovieDrawingFeature(environment, spec.to, matrices);
-      if (from.status === "stale" || to.status === "stale")
-        return {
-          id: spec.id,
-          measure: spec.measure,
-          status: "stale",
-          from: null,
-          to: null,
-          value: null,
-          reason: from.status === "stale" ? from.reason : to.reason,
-        };
-      const pageFrom = round(projectAutoMovieDrawingPoint(frame, from.point!));
-      const pageTo = round(projectAutoMovieDrawingPoint(frame, to.point!));
-      return {
-        id: spec.id,
-        measure: spec.measure,
-        status: "resolved",
-        from: pageFrom,
-        to: pageTo,
-        value: roundAutoMovieDrawingScalar(
-          spec.measure === "world"
-            ? Vector3.length(Vector3.subtract(to.point!, from.point!))
-            : Math.hypot(pageTo.x - pageFrom.x, pageTo.y - pageFrom.y),
-        ),
-        reason: null,
-      };
-    },
+    (spec: IAutoMovieDrawingDimensionSpec): IAutoMovieDrawingDimension =>
+      dimensionOf(environment, design, frame, spec),
   );
-
   const annotations: IAutoMovieDrawingAnnotation[] = view.annotations.map(
-    (spec) => {
-      const resolution = resolveAutoMovieDrawingFeature(
-        environment,
-        spec.target,
-        matrices,
-      );
+    (spec: IAutoMovieDrawingAnnotationSpec): IAutoMovieDrawingAnnotation => {
+      const resolution: IAutoMovieDrawingFeatureResolution =
+        resolveAutoMovieDrawingFeature(environment, spec.target, design);
       return resolution.status === "stale"
         ? {
             id: spec.id,
@@ -437,13 +167,19 @@ export const deriveAutoMovieDrawing = (props: {
             id: spec.id,
             text: spec.text,
             status: "resolved",
-            at: round(projectAutoMovieDrawingPoint(frame, resolution.point!)),
+            at: roundAutoMovieDrawingPoint(
+              projectAutoMovieDrawingPoint(frame, resolution.point!),
+            ),
             reason: null,
           };
     },
   );
-
-  if (annotations.some((annotation) => annotation.status === "resolved"))
+  if (
+    annotations.some(
+      (annotation: IAutoMovieDrawingAnnotation): boolean =>
+        annotation.status === "resolved",
+    )
+  )
     gaps.push({
       subject: "note-text-extent",
       status: "unsupported",
@@ -452,17 +188,7 @@ export const deriveAutoMovieDrawing = (props: {
       remedy:
         "read the note's position as an anchor and measure the set text in whatever renders it; the drawing's extent holds every note's anchor and not necessarily its last letter",
     });
-
-  lines.sort(compareLines);
-  regions.sort(
-    (left, right) =>
-      compareAutoMovieRenderIds(left.space, right.space) ||
-      compareAutoMovieRenderIds(left.cell, right.cell),
-  );
-  openings.sort((left, right) =>
-    compareAutoMovieRenderIds(left.opening, right.opening),
-  );
-  gaps.sort((left, right) =>
+  gaps.sort((left: IAutoMovieDrawingGap, right: IAutoMovieDrawingGap): number =>
     compareAutoMovieRenderIds(left.subject, right.subject),
   );
 
@@ -474,365 +200,272 @@ export const deriveAutoMovieDrawing = (props: {
     discipline: view.discipline,
     scale: view.scale,
     environment: environment.id,
-    frame: roundFrame(frame),
-    extent: extentOf(lines, regions, openings, dimensions, annotations),
-    lines,
+    frame: {
+      origin: roundAutoMovieDrawingVector(frame.origin),
+      right: roundAutoMovieDrawingVector(frame.right),
+      up: roundAutoMovieDrawingVector(frame.up),
+      normal: roundAutoMovieDrawingVector(frame.normal),
+    },
+    extent: autoMovieDrawingExtent({
+      lines: drafted.lines,
+      regions,
+      openings,
+      dimensions,
+      annotations,
+    }),
+    lines: drafted.lines,
     regions,
     openings,
     dimensions,
     annotations,
     gaps,
   };
-  return { ...drawing, digest: autoMovieRenderDigest(canonical(drawing)) };
-};
-
-/**
- * The logical spaces a view draws, descendants included, or `null` for all.
- *
- * Descendants are included because a view filtered to a storey means the rooms
- * in it, not the storey record itself; a filter that stopped at the named space
- * would draw an empty sheet for every building that partitions its floors.
- */
-const includedSpaces = (
-  environment: IAutoMovieBuiltEnvironment,
-  view: IAutoMovieDrawingView,
-): Set<string> | null => {
-  if (view.spaces.length === 0) return null;
-  const included = new Set<string>(view.spaces);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const space of environment.spaces)
-      if (
-        space.parent !== null &&
-        included.has(space.parent) &&
-        !included.has(space.id)
-      ) {
-        included.add(space.id);
-        changed = true;
-      }
-  }
-  return included;
-};
-
-/**
- * The one surface material every element realizing a space's boundaries agrees
- * on, or `null`.
- *
- * A room finished throughout in one material names it; a room whose boundaries
- * disagree names none rather than picking the first, because a finish plan that
- * silently chose one wall's material would be read as a specification.
- */
-const finishOf = (
-  environment: IAutoMovieBuiltEnvironment,
-  space: string,
-): string | null => {
-  const materials = new Set<string>();
-  for (const boundary of environment.boundaries) {
-    if (!boundary.spaces.includes(space)) continue;
-    for (const id of boundary.elements) {
-      const element = environment.elements.find(
-        (candidate) => candidate.id === id,
-      )!;
-      const model = environment.models.find(
-        (candidate) => candidate.id === element.model,
-      );
-      if (model === undefined) continue;
-      for (const part of model.parts)
-        if (part.material !== null) materials.add(part.material);
-    }
-  }
-  return materials.size === 1 ? [...materials][0]! : null;
-};
-
-/**
- * One opening as the drawing can state it, and where that statement came from.
- *
- * The opening's own void on its host boundary's face is preferred over
- * everything else, because it is the only record that describes the hole rather
- * than something standing in it. A filling element is the fallback and is
- * labelled as such: a leaf's bounding extent is a door's size, and reporting it
- * as the opening's would quietly turn a stand-in into a measurement.
- */
-const openingMark = (
-  environment: IAutoMovieBuiltEnvironment,
-  matrices: ReadonlyMap<string, number[]>,
-  frame: IAutoMovieDrawingFrame,
-  opening: IAutoMovieBuiltEnvironment["openings"][number],
-  boundary: IAutoMovieBuiltBoundary,
-): IAutoMovieDrawingOpeningMark => {
-  const identity = {
-    opening: opening.id,
-    boundary: opening.boundary,
-    kind: opening.kind,
-    fill: opening.fill,
-  };
-  // Validation already refuses a void whose host boundary declares no face, so
-  // a stated profile always has a face to be placed on; re-testing it here
-  // would be a branch no validated design can take.
-  if (opening.profile !== undefined) {
-    const extent = autoMovieOpeningExtent(opening.profile);
-    return {
-      ...identity,
-      basis: "profile",
-      polygon: autoMovieOpeningOutlinePoints(opening.profile).map((point) =>
-        round(
-          projectAutoMovieDrawingPoint(
-            frame,
-            autoMovieBoundaryFacePoint(boundary.face!, point),
-          ),
-        ),
-      ),
-      width: extent.width,
-      height: extent.height,
-    };
-  }
-  const element =
-    opening.fill === null
-      ? undefined
-      : environment.elements.find((candidate) => candidate.id === opening.fill);
-  const model =
-    element === undefined
-      ? undefined
-      : environment.models.find((candidate) => candidate.id === element.model);
-  if (element === undefined || model === undefined)
-    return {
-      ...identity,
-      basis: "none",
-      polygon: [],
-      width: null,
-      height: null,
-    };
-  const corners = transformAutoMovieDrawingTriangles(
-    matrices.get(element.id)!,
-    model.parts.flatMap((part) => autoMovieDrawingPartTriangles(model, part)),
-  ).flatMap((triangle) => [triangle.a, triangle.b, triangle.c]);
-  if (corners.length === 0)
-    return {
-      ...identity,
-      basis: "none",
-      polygon: [],
-      width: null,
-      height: null,
-    };
   return {
-    ...identity,
-    basis: "fill",
-    polygon: [],
-    ...autoMovieOpeningFillExtent(corners),
+    ...drawing,
+    digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(drawing)),
   };
 };
 
-const push = (
-  lines: IAutoMovieDrawingLine[],
-  drawable: IDrawable,
-  role: AutoMovieDrawingRole,
-  frame: IAutoMovieDrawingFrame,
-  triangles: readonly IAutoMovieDrawingTriangle[],
-  cut: boolean,
+/** Statements every drawing carries about derivations it never performs. */
+const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
+  {
+    subject: "hidden-line-removal",
+    status: "unsupported",
+    reason:
+      "linework is classified by its relation to the cut plane and the view depth, not by what occludes it, so an element behind another is drafted as though it were visible",
+    remedy:
+      "read the depth classification as drafting semantics rather than visibility, or render the view and read occlusion from the semantic mask",
+  },
+  {
+    subject: "material-build-up",
+    status: "unsupported",
+    reason:
+      "a region's finish is the surface material bound to the elements realizing its boundaries; a material assembly is a separate record from the built environment, this derivation is handed only the environment, and nothing here hatches a layer order, a thickness or a coursing pattern even when one is authored",
+    remedy:
+      "extend the derivation to accept the work's material assemblies, then hatch each cut boundary by its own layers",
+  },
+  {
+    subject: "service-network",
+    status: "unsupported",
+    reason:
+      "a service network is a separate record from the built environment, this derivation is handed only the environment, and nothing here draws a segment, a port or a penetration even when one is authored, so a services view is a kind-filtered projection of ordinary elements rather than a network-aware one",
+    remedy:
+      "extend the derivation to accept the work's service networks, then draw their segments, ports and penetrations as their own linework",
+  },
+];
+
+/** Check one view list's exact ids with a set, throwing at its first repeat without renaming entries. O(N) expected work/O(N) temporary ids preserve authored order; the set releases on return or throw and neither ids nor a verdict are cached. */
+const requireUniqueIds: (
+  view: IAutoMovieDrawingView,
+  label: string,
+  entries: readonly { id: string }[],
+) => void = (
+  view: IAutoMovieDrawingView,
+  label: string,
+  entries: readonly { id: string }[],
 ): void => {
-  const kept =
-    cut && role !== "overhead"
-      ? clipAutoMovieDrawingTriangles(frame, triangles)
-      : triangles;
-  for (const edge of autoMovieDrawingSilhouetteEdges(frame, kept)) {
-    // A silhouette edge lying in the cut plane is the boundary the clip just
-    // created, and the cut linework already draws it; drafting it twice would
-    // put a light pen exactly under a heavy one.
+  const seen: Set<string> = new Set();
+  for (const entry of entries) {
+    if (seen.has(entry.id))
+      throw new Error(
+        `drawing view "${view.id}" declares ${label} "${entry.id}" more than once, so it cannot be addressed by its id`,
+      );
+    seen.add(entry.id);
+  }
+};
+
+/**
+ * Delegate cell sectioning and translate its faceted ids, omitted shells and unbounded-cell counts into caller-owned gaps, returning the actual regions unchanged. The validated design/frame and optional inclusion set are shared with drafting; no shell section or curved correction is invented here.
+ *
+ * Cost follows the full section owner, including per-cell plane clipping and region sorting; gap additions are constant except formatting faceted ids, and no section data survives except the returned regions/gaps.
+ */
+const sectionRegions: (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+) => IAutoMovieDrawingRegion[] = (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+): IAutoMovieDrawingRegion[] => {
+  const section: ReturnType<typeof sectionAutoMovieDrawingSpaces> =
+    sectionAutoMovieDrawingSpaces({ environment, frame, design, spaces });
+  if (section.faceted.length !== 0)
+    gaps.push({
+      // The same subject and word the quantity report uses, so a sheet and a
+      // take-off agree about whether a dome was drawn or approximated.
+      subject: "curved-space-boundary",
+      status: "unsupported",
+      reason: `${section.faceted.length} sectioned space(s) (${section.faceted.join(", ")}) declare their stated volume faceted, so the outline drawn for them is the flats they were written as and not the curved region those flats stand for`,
+      remedy:
+        "read the faceted outline as chords of the region it stands for; a true section needs a curved boundary primitive this record does not carry",
+    });
+  if (section.shelled !== 0)
+    gaps.push({
+      // `unsupported`: the shell is exactly the region, and what is missing is
+      // plane-versus-shell sectioning, which this drafter does not perform.
+      subject: "shelled-space-section",
+      status: "unsupported",
+      reason: `${section.shelled} logical space(s) state their volume as a closed boundary shell, which this drafter cannot section: only half-space cells are cut, so those spaces contribute no region to the sheet`,
+      remedy:
+        "state the space as convex cells to have it sectioned, or read its extent from the shell itself until plane-versus-shell sectioning exists",
+    });
+  if (section.unbounded !== 0)
+    gaps.push({
+      // `not-run`, as in the quantity report: sectioning exists, and what is
+      // missing is a cell closed enough to run it on.
+      subject: "unbounded-space-cell",
+      status: "not-run",
+      reason: `${section.unbounded} logical cell(s) are not bounded by their own half-spaces, so their cross-section has no finite outline`,
+      remedy:
+        "close each cell with enough half-spaces to bound it, or split the region into bounded cells",
+    });
+  return section.regions;
+};
+
+/**
+ * Select openings through any host-boundary space, derive profile/fill/absent marks, and state missing geometry, substituted fill size, chorded arcs and unperformed host subtraction as gaps. The element-kind filter deliberately does not choose openings.
+ *
+ * One opening walk reuses the design index's staging/tessellation; a few linear basis counts and O(O log O) id sort follow. The returned marks and caller-owned gap sink survive, with no cross-view cache.
+ */
+const markOpenings: (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+) => IAutoMovieDrawingOpeningMark[] = (
+  environment: IAutoMovieBuiltEnvironment,
+  frame: IAutoMovieDrawingFrame,
+  design: IAutoMovieDrawingDesignIndex,
+  spaces: ReadonlySet<string> | null,
+  gaps: IAutoMovieDrawingGap[],
+): IAutoMovieDrawingOpeningMark[] => {
+  const openings: IAutoMovieDrawingOpeningMark[] = [];
+  let arced: number = 0;
+  for (const opening of environment.openings) {
+    const boundary: IAutoMovieBuiltBoundary = design.boundaries.get(
+      opening.boundary,
+    )!;
     if (
-      cut &&
-      Math.abs(autoMovieDrawingPlaneDistance(frame, edge.from)) <=
-        AUTOMOVIE_DRAWING_EPSILON &&
-      Math.abs(autoMovieDrawingPlaneDistance(frame, edge.to)) <=
-        AUTOMOVIE_DRAWING_EPSILON
+      spaces !== null &&
+      !boundary.spaces.some((candidate: string): boolean =>
+        spaces.has(candidate),
+      )
     )
       continue;
-    append(lines, drawable, role, frame, edge);
+    const mark: IAutoMovieDrawingOpeningMark = autoMovieDrawingOpeningMark(
+      design,
+      frame,
+      opening,
+    );
+    openings.push(mark);
+    if (mark.basis === "profile" && autoMovieOpeningHasArc(opening.profile!))
+      ++arced;
   }
+  const count: (basis: IAutoMovieDrawingOpeningMark["basis"]) => number = (
+    basis: IAutoMovieDrawingOpeningMark["basis"],
+  ): number =>
+    openings.filter(
+      (mark: IAutoMovieDrawingOpeningMark): boolean => mark.basis === basis,
+    ).length;
+  const unproven: number = count("none");
+  const substituted: number = count("fill");
+  if (unproven !== 0)
+    gaps.push({
+      subject: "opening-geometry",
+      status: "not-run",
+      reason: `${unproven} drawn opening(s) carry neither a void of their own on a boundary face nor a filling element with geometry, so nothing in the design says where or how large they are`,
+      remedy:
+        "give the opening a profile on a boundary that carries a face, or a filling element with geometry",
+    });
+  if (substituted !== 0)
+    gaps.push({
+      subject: "opening-profile",
+      status: "not-run",
+      reason: `${substituted} drawn opening(s) have no void of their own, so their size is the filling element's extent, which is the leaf and not the hole`,
+      remedy:
+        "author the opening's profile on its host boundary's face, then re-derive",
+    });
+  if (arced !== 0)
+    gaps.push({
+      subject: "curved-linework",
+      status: "unsupported",
+      reason: `${arced} drawn opening(s) have arc edges, which are drafted as chords at a fixed density rather than as true curve segments`,
+      remedy:
+        "read the chorded outline as linework; the scheduled width and height are the bounding hull the wall kernel cuts, which is tight for an arc on a chord parallel to a face axis",
+    });
+  if (count("profile") !== 0)
+    gaps.push({
+      subject: "opening-void-subtraction",
+      status: "unsupported",
+      reason:
+        "an opening's void is drafted as its own outline over its host's linework rather than subtracted from it, so the host reads as unbroken behind the opening",
+      remedy:
+        "read the opening outline as the void; subtract it from the host once boolean linework exists",
+    });
+  return openings.sort(
+    (
+      left: IAutoMovieDrawingOpeningMark,
+      right: IAutoMovieDrawingOpeningMark,
+    ): number => compareAutoMovieRenderIds(left.opening, right.opening),
+  );
 };
-
-const append = (
-  lines: IAutoMovieDrawingLine[],
-  drawable: IDrawable,
-  role: AutoMovieDrawingRole,
-  frame: IAutoMovieDrawingFrame,
-  edge: IAutoMovieDrawingEdge,
-): void => {
-  const from = round(projectAutoMovieDrawingPoint(frame, edge.from));
-  const to = round(projectAutoMovieDrawingPoint(frame, edge.to));
-  if (from.x === to.x && from.y === to.y) return;
-  const forward = comparePoints(from, to) <= 0;
-  lines.push({
-    owner: drawable.id,
-    space: drawable.space,
-    layer: drawable.kind,
-    role,
-    from: forward ? from : to,
-    to: forward ? to : from,
-  });
-};
-
-const round = (point: IAutoMovieDrawingPoint): IAutoMovieDrawingPoint => ({
-  x: roundAutoMovieDrawingScalar(point.x),
-  y: roundAutoMovieDrawingScalar(point.y),
-});
-
-const roundFrame = (frame: IAutoMovieDrawingFrame): IAutoMovieDrawingFrame => ({
-  origin: roundVector(frame.origin),
-  right: roundVector(frame.right),
-  up: roundVector(frame.up),
-  normal: roundVector(frame.normal),
-});
-
-const roundVector = (vector: IAutoMovieVector3): IAutoMovieVector3 => ({
-  x: roundAutoMovieDrawingScalar(vector.x),
-  y: roundAutoMovieDrawingScalar(vector.y),
-  z: roundAutoMovieDrawingScalar(vector.z),
-});
-
-const comparePoints = (
-  left: IAutoMovieDrawingPoint,
-  right: IAutoMovieDrawingPoint,
-): number => left.x - right.x || left.y - right.y;
-
-const lineKey = (line: IAutoMovieDrawingLine): string =>
-  [
-    line.role,
-    line.layer,
-    line.owner,
-    line.from.x,
-    line.from.y,
-    line.to.x,
-    line.to.y,
-  ].join("|");
-
-const compareLines = (
-  left: IAutoMovieDrawingLine,
-  right: IAutoMovieDrawingLine,
-): number =>
-  ROLE_ORDER.indexOf(left.role) - ROLE_ORDER.indexOf(right.role) ||
-  compareAutoMovieRenderIds(left.layer, right.layer) ||
-  compareAutoMovieRenderIds(left.owner, right.owner) ||
-  comparePoints(left.from, right.from) ||
-  comparePoints(left.to, right.to);
 
 /**
- * The page box that holds everything the sheet puts on paper.
+ * Resolve both pinned features against the shared current design, propagating the first stale reason with null endpoints/value. Otherwise round page endpoints and measure either raw world distance or distance between those rounded page points, then round the scalar result.
  *
- * Dimensions and notes count, and they are why this is not simply the box
- * around the linework. A dimension string is drawn beside the plan rather than
- * across it and a note is led out past the wall it describes, so a box taken
- * from the geometry alone is a sheet whose own annotation hangs off the edge of
- * it — and the serializer sizes the page from this box, so what falls outside
- * is not merely close to the border, it is outside the viewBox and gone.
- *
- * A note contributes the point its text is set from and not the run of glyphs
- * that text becomes, which is the whole of what the derivation can know without
- * font metrics; the drawing declares that reach as a gap rather than letting
- * the box imply it measured the lettering. A stale target contributes nothing,
- * because it has no place on the page to be at.
+ * Cost is both feature resolutions, which can place/weld/sort model geometry despite shared part tessellation; only one new dimension record escapes and no previous measurement is retained.
  */
-const extentOf = (
-  lines: readonly IAutoMovieDrawingLine[],
-  regions: readonly IAutoMovieDrawingRegion[],
-  openings: readonly IAutoMovieDrawingOpeningMark[],
-  dimensions: readonly IAutoMovieDrawingDimension[],
-  annotations: readonly IAutoMovieDrawingAnnotation[],
-): IAutoMovieDrawingExtent | null => {
-  const points = [
-    ...lines.flatMap((line) => [line.from, line.to]),
-    ...regions.flatMap((region) => region.polygon),
-    ...openings.flatMap((mark) => mark.polygon),
-    ...dimensions.flatMap((dimension) =>
-      dimension.status === "resolved" ? [dimension.from!, dimension.to!] : [],
-    ),
-    ...annotations.flatMap((annotation) =>
-      annotation.status === "resolved" ? [annotation.at!] : [],
-    ),
-  ];
-  if (points.length === 0) return null;
-  const xs = autoMovieDrawingRange(points.map((point) => point.x));
-  const ys = autoMovieDrawingRange(points.map((point) => point.y));
+const dimensionOf: (
+  environment: IAutoMovieBuiltEnvironment,
+  design: IAutoMovieDrawingDesignIndex,
+  frame: IAutoMovieDrawingFrame,
+  spec: IAutoMovieDrawingDimensionSpec,
+) => IAutoMovieDrawingDimension = (
+  environment: IAutoMovieBuiltEnvironment,
+  design: IAutoMovieDrawingDesignIndex,
+  frame: IAutoMovieDrawingFrame,
+  spec: IAutoMovieDrawingDimensionSpec,
+): IAutoMovieDrawingDimension => {
+  const from: IAutoMovieDrawingFeatureResolution =
+    resolveAutoMovieDrawingFeature(environment, spec.from, design);
+  const to: IAutoMovieDrawingFeatureResolution = resolveAutoMovieDrawingFeature(
+    environment,
+    spec.to,
+    design,
+  );
+  if (from.status === "stale" || to.status === "stale")
+    return {
+      id: spec.id,
+      measure: spec.measure,
+      status: "stale",
+      from: null,
+      to: null,
+      value: null,
+      reason: from.status === "stale" ? from.reason : to.reason,
+    };
+  const pageFrom: IAutoMovieDrawingPoint = roundAutoMovieDrawingPoint(
+    projectAutoMovieDrawingPoint(frame, from.point!),
+  );
+  const pageTo: IAutoMovieDrawingPoint = roundAutoMovieDrawingPoint(
+    projectAutoMovieDrawingPoint(frame, to.point!),
+  );
   return {
-    min: { x: xs.min, y: ys.min },
-    max: { x: xs.max, y: ys.max },
+    id: spec.id,
+    measure: spec.measure,
+    status: "resolved",
+    from: pageFrom,
+    to: pageTo,
+    value: roundAutoMovieDrawingScalar(
+      spec.measure === "world"
+        ? Vector3.length(Vector3.subtract(to.point!, from.point!))
+        : Math.hypot(pageTo.x - pageFrom.x, pageTo.y - pageFrom.y),
+    ),
+    reason: null,
   };
 };
-
-const canonical = (drawing: Omit<IAutoMovieDrawing, "digest">): string =>
-  [
-    drawing.protocol,
-    drawing.view,
-    drawing.projection,
-    drawing.discipline,
-    String(drawing.scale),
-    drawing.environment,
-    [
-      drawing.frame.origin,
-      drawing.frame.right,
-      drawing.frame.up,
-      drawing.frame.normal,
-    ]
-      .map((vector) => `${vector.x},${vector.y},${vector.z}`)
-      .join(";"),
-    drawing.extent === null
-      ? "none"
-      : `${drawing.extent.min.x},${drawing.extent.min.y},${drawing.extent.max.x},${drawing.extent.max.y}`,
-    ...drawing.lines.map((line) =>
-      [
-        line.role,
-        line.layer,
-        line.owner,
-        String(line.space),
-        line.from.x,
-        line.from.y,
-        line.to.x,
-        line.to.y,
-      ].join("|"),
-    ),
-    ...drawing.regions.map((region) =>
-      [
-        region.space,
-        region.cell,
-        region.kind,
-        String(region.finish),
-        String(region.area),
-        region.polygon.map((point) => `${point.x},${point.y}`).join(";"),
-      ].join("|"),
-    ),
-    ...drawing.openings.map((mark) =>
-      [
-        mark.opening,
-        mark.boundary,
-        mark.kind,
-        String(mark.fill),
-        mark.basis,
-        String(mark.width),
-        String(mark.height),
-        mark.polygon.map((point) => `${point.x},${point.y}`).join(";"),
-      ].join("|"),
-    ),
-    ...drawing.dimensions.map((dimension) =>
-      [
-        dimension.id,
-        dimension.measure,
-        dimension.status,
-        String(dimension.value),
-        String(dimension.reason),
-      ].join("|"),
-    ),
-    ...drawing.annotations.map((annotation) =>
-      [
-        annotation.id,
-        annotation.text,
-        annotation.status,
-        annotation.at === null
-          ? "none"
-          : `${annotation.at.x},${annotation.at.y}`,
-        String(annotation.reason),
-      ].join("|"),
-    ),
-    ...drawing.gaps.map((gap) =>
-      [gap.subject, gap.status, gap.reason, gap.remedy].join("|"),
-    ),
-  ].join("\n");

@@ -6,20 +6,16 @@ import { IAutoMovieParentDriver } from "./IAutoMovieParentDriver";
 import { IAutoMovieSpringDriver } from "./IAutoMovieSpringDriver";
 
 /**
- * A driver: a relationship that computes channels from other channels, the
- * joint-dependency layer that turns a bare imported model into a rig. The
- * engine resolves drivers in dependency order (a cached topological DAG) each
- * frame, after sampling tracks and before clamping constraints. This is the
- * layer glTF and USD deliberately omit (they bake the result); automovie keeps
- * it live, which is what makes it an engine rather than a model holder.
+ * A relationship that computes channel values or world transforms from other scene inputs.
  *
- * Discriminated on `type`. The taxonomy is reduced from the established DCC
- * constraint/driver set (Blender/Maya): copy, aim, ik, parent, driven, spring.
- * (A pure value limit is a {@link IAutoMovieChannelLimit}, not a driver:
- * computation and restriction are kept separate.)
+ * resolveFrame places profile descriptors before direct descriptors, then dependency-sorts copy/driven operations before clamping sampled values. Dependencies can move a direct producer ahead of a profile consumer; reciprocal driver cycles throw, while a driver's own input/output identity follows the explicit one-step policy. Aim, parent and IK run in combined list order after composition, and springs step afterward only with supplied state. Otherwise springs and non-three-node twoBone descriptors remain deferred. Unknown driver types throw.
  *
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-dependencies Exposes `IAutoMovieDriver` as the portable data boundary for the motion channel dependencies requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieDriver` for the performance motion clip keytime interpolation system contract.
+ * Discriminated on type: copy, aim, IK, parent, driven and spring. IAutoMovieChannelLimit separately expresses component restriction.
+ *
+ * @evidence contracts/common.md#principled-implementation `resolveDrivers` partitions by `type`, orders copy and driven drivers by a depth-first topological sort over the channel keys they read and write, and `resolveWorldDrivers` then applies aim, parent and solvable IK in list order on composed world matrices, deferring the rest.
+ * @evidence contracts/common.md#clear-and-simple-design A six-member union discriminated on `type`, where each member carries only its own solve's inputs and the pass a driver runs in follows from its type rather than from a flag.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported world/stateful descriptors that this pass does not execute remain deferred; unknown driver types and reciprocal value-driver cycles throw. A driver's own input/output identity is excluded from dependency edges under the existing one-step policy.
+ * @evidence contracts/common.md#meaningful-documentation States the two passes and their order relative to limits and composition, the profile-first ordering, which drivers are deferred and when, the throws, and why limits are not drivers.
  * @author Samchon
  */
 export type IAutoMovieDriver =

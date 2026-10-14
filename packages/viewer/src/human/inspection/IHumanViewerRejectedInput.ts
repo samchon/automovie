@@ -1,62 +1,39 @@
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 
 /**
- * A document the viewer refused or has not yet decided, with the reason: an
- * input file, the published person generation, or a document the viewer
- * itself authors (the standard people), which takes the same owner admission.
+ * A document the viewer refused or has not yet decided, with the reason: an input file, the published person generation, or a document the viewer itself authors (the standard people), which takes the same owner admission.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the refused file and why.
- *
- * @evidence contracts/common.md#principled-implementation File identity, cause and pending state preserve refusals separately from admissions still awaiting authority.
- * @evidence contracts/common.md#clear-and-simple-design Optional document identity and descriptor extend the same record for individual entries without creating a second rejection channel.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A pending candidate descriptor is selectable for admission work and cannot become a drawable accepted document by transport alone.
- *
- * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic File identity, cause and pending state preserve refusals separately from admissions still awaiting authority.
- * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation A pending candidate descriptor is selectable for admission work and cannot become a drawable accepted document by transport alone.
+ * @evidence contracts/common.md#principled-implementation Pending and refused inputs carry their cause separately from optional document identity; a pending candidate remains a descriptor, not an admitted drawable.
+ * @evidence contracts/common.md#clear-and-simple-design One catalogue rejection record accommodates file, published-generation and application-authored inputs without changing owner admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejection reasons come from source reading or owner admission; the record neither promotes a candidate nor masks failures for selected documents.
+ * @evidence contracts/common.md#meaningful-documentation Comments explain file labels, per-document ids, pending transition semantics and the candidate's lack of drawing authority.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Rejection metadata defines no admission or scanning algorithm; readHumanViewerInputs and catalogue publication populate it.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This outcome shape keeps no admission cache; retries and file-change invalidation belong to the catalogue controller.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The rejection holds descriptive data rather than worker or GPU handles; published catalogue replacement releases its references.
  *
  * @author Samchon
  */
 export interface IHumanViewerRejectedInput {
   /**
-   * The input file name inside the inputs directory, the generation view
-   * paths, or `viewer-authored <document id>` for a document the viewer builds.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Identifies the actual input file, generation views or application-authored document whose admission is unavailable or refused.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Identifies the actual input file, generation views or application-authored document whose admission is unavailable or refused.
+   * The input file name inside the inputs directory, the generation view paths, or `viewer-authored <document id>` for a document the viewer builds.
    */
   file: string;
 
-  /**
-   * Why it was refused, or what it is waiting for when pending.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Preserves the original refusal or infrastructure waiting cause rather than an assumed valid result.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Preserves the original refusal or infrastructure waiting cause rather than an assumed valid result.
-   */
+  /** Why it was refused, or what it is waiting for when pending. */
   reason: string;
 
   /**
-   * True while the input is not yet decided (a sidecar still being read, a
-   * document awaiting admission); false for a refusal that stands until the
-   * file changes.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Distinguishes undecided sidecar/admission work from a standing refusal that changes only with its input.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Distinguishes undecided sidecar/admission work from a standing refusal that changes only with its input.
+   * True while the input is not yet decided (a sidecar still being read or a document awaiting admission); false for a completed refusal under the current input and source authority.
    */
   pending: boolean;
 
   /**
    * The document id when the entry is one document of a file (or one viewer-authored document).
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Keeps an optional individual document identity when one file offers several entries.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Keeps an optional individual document identity when one file offers several entries.
    */
   id?: string;
 
   /**
    * Selectable numerical descriptor while pending; it is not a drawable or admitted document.
-   *
-   * @evidence requirements/operations-and-recovery/observability-and-secret-protection.md#operations-failure-diagnostic Exposes a selectable pending descriptor for owner admission without classifying it as drawable or already admitted.
-   * @evidence specifications/execution-and-recovery/progress-heartbeats-and-observation.md#execution-failure-observation Exposes a selectable pending descriptor for owner admission without classifying it as drawable or already admitted.
    */
   candidate?: IHumanViewerCatalogueEntry;
 }

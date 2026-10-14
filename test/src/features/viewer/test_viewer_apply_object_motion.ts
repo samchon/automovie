@@ -5,10 +5,11 @@ import * as THREE from "three";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const node = (
-  // The FULL node-channel union on purpose: a helper that cannot express
-  // `weights` is how the fourth path stayed unapplied while a scenario claimed
-  // to prove the mapping complete (#1357), the same shape that hid `scale`.
+const node: (
+  path: "translation" | "rotation" | "scale" | "weights",
+  values: number[],
+) => IAutoMovieTrack = (
+  // The complete node-channel union preserves the scale and weights cases.
   path: "translation" | "rotation" | "scale" | "weights",
   values: number[],
 ): IAutoMovieTrack => ({
@@ -19,30 +20,25 @@ const node = (
 });
 
 /** A mesh carrying `count` morph targets, all resting at zero. */
-const morphMesh = (count: number): THREE.Mesh => {
-  const mesh = new THREE.Mesh(
+const morphMesh: (count: number) => THREE.Mesh = (
+  count: number,
+): THREE.Mesh => {
+  const mesh: THREE.Mesh = new THREE.Mesh(
     new THREE.BufferGeometry(),
     new THREE.MeshBasicMaterial(),
   );
-  mesh.morphTargetInfluences = Array.from({ length: count }, () => 0);
+  mesh.morphTargetInfluences = Array.from({ length: count }, (): number => 0);
   return mesh;
 };
 
 /**
- * `applyObjectMotion` is the render side of the engine's clip bakers: every
- * node channel the engine composes must land on the `THREE.Object3D` the same
- * way. Scale used to fall through silently (#1049): a clip growing a prop 1→2
- * rendered rigid while every engine-side consumer (`sampleClip` width
- * validation, `resolveFrame` matrix composition) saw it at 1.5 mid-clip.
+ * `applyObjectMotion` applies sampled node channels to native transform and morph state. The former missing scale path left a 1-to-2 scale clip rigid despite engine consumers observing 1.5 at its midpoint.
  *
- * `weights` was the last path still falling through (#1357): the gate accepted
- * such a track, `resolveFrame` interpolated it, and the render left the mesh
- * where it was, so a clip that morphs a prop validated clean and changed
- * nothing on screen.
+ * The former missing weights path similarly admitted and sampled a morph track without updating the native influence array.
  *
  * Scenarios:
  *
- * 1. Translation, rotation, AND scale tracks all write onto the resolved object at
+ * 1. Translation, rotation and scale tracks all write onto the resolved object at
  *    the sampled instant (t=0.5 of a 1s clip: position (1,2,3), the 45° slerped
  *    quaternion, scale 1.5).
  * 2. An unresolved node and a non-node (pointer) channel are skipped without
@@ -50,12 +46,12 @@ const morphMesh = (count: number): THREE.Mesh => {
  * 3. The documented carry-over contract: a channel absent from the clip keeps the
  *    object's existing value (the helper owns no rest poses: hosts that swap
  *    clips restore staged bases themselves).
- * 4. A `weights` track writes the sampled vector, by INDEX, onto every morphable
+ * 4. A `weights` track writes the sampled vector, by index, onto every morphable
  *    mesh beneath the resolved object, including a nested one; the value is the
  *    interpolated midpoint, not either endpoint.
  * 5. Boundaries of that write: an object with no morphable mesh is skipped without
- *    throwing, a mesh with FEWER influences than the track is filled as far as
- *    it goes (a clip authored against another model), and a mesh with MORE
+ *    throwing, a mesh with fewer influences than the track is filled as far as
+ *    it goes (a clip authored against another model), and a mesh with more
  *    keeps its untouched tail.
  * 6. A two-clip handoff uses the earlier translation before the later track's
  *    first key and the later translation after it; a future-only clip writes
@@ -63,9 +59,14 @@ const morphMesh = (count: number): THREE.Mesh => {
  * 7. Authority is per channel: a simultaneous scale composes with translation,
  *    while equal-start duplicate translations choose producer append order.
  * 8. Renaming the same clips leaves the selected values unchanged.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies actual single and sequence object clips to native transform/morph state, asserting all four node paths, partial-channel preservation and per-channel temporal authority. Unresolved and pointer channels must not alter the resolved prop, while nested morphable meshes receive only their available indexed influences.
+ * @evidence contracts/testing.md#independent-expectations Authored endpoints give midpoint translation (1,2,3), scale 1.5, quaternion sin/cos(pi/8) and morph weights (0.5,0.25); future starts, ordered equal-start duplicates and explicit tail 0.9 define the handoff/tail oracle. These values are independent of sampler output and inspect native CPU state, not rendered motion or anatomy.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts present/absent channels, resolved/unresolved nodes, direct/nested/no morph meshes, shorter/equal/longer influence counts and earlier/later/future-only authority. Disjoint channels compose, equal starts use producer order and renamed clip IDs preserve meaning; artifact admission and interpolation family coverage belong to engine units.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named unit directly invokes production appliers through owned node lookup callbacks with existing Three metadata fixtures. It starts no renderer, browser, GPU or Human host, and namedFacts executes only local predicates without registering another unit.
  */
-export const test_viewer_apply_object_motion = (): void => {
-  const s = Math.SQRT1_2;
+export function test_viewer_apply_object_motion(): void {
+  const s: number = Math.SQRT1_2;
   const clip: IAutoMovieClip = {
     id: "c",
     name: null,
@@ -91,26 +92,28 @@ export const test_viewer_apply_object_motion = (): void => {
   };
 
   // 1. all three TRS channels write
-  const prop = new THREE.Object3D();
-  applyObjectMotion(clip, 0.5, (n) => (n === "prop" ? prop : undefined));
-  const halfAngle = Math.PI / 8; // slerp(identity, 90°@Y, 0.5) = 45° about Y
+  const prop: THREE.Object3D = new THREE.Object3D();
+  applyObjectMotion(clip, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? prop : undefined,
+  );
+  const halfAngle: number = Math.PI / 8; // slerp(identity, 90°@Y, 0.5) = 45° about Y
   TestValidator.equals(
     "translation, rotation, and scale all land on the object",
     namedFacts([
-      ["nclosePropPosition", () => nclose(prop.position.x, 1)],
-      ["nclosePropPosition2", () => nclose(prop.position.y, 2)],
-      ["nclosePropPosition3", () => nclose(prop.position.z, 3)],
+      ["nclosePropPosition", (): boolean => nclose(prop.position.x, 1)],
+      ["nclosePropPosition2", (): boolean => nclose(prop.position.y, 2)],
+      ["nclosePropPosition3", (): boolean => nclose(prop.position.z, 3)],
       [
         "nclosePropQuaternion",
-        () => nclose(prop.quaternion.y, Math.sin(halfAngle)),
+        (): boolean => nclose(prop.quaternion.y, Math.sin(halfAngle)),
       ],
       [
         "nclosePropQuaternion2",
-        () => nclose(prop.quaternion.w, Math.cos(halfAngle)),
+        (): boolean => nclose(prop.quaternion.w, Math.cos(halfAngle)),
       ],
-      ["nclosePropScale", () => nclose(prop.scale.x, 1.5)],
-      ["nclosePropScale2", () => nclose(prop.scale.y, 1.5)],
-      ["nclosePropScale3", () => nclose(prop.scale.z, 1.5)],
+      ["nclosePropScale", (): boolean => nclose(prop.scale.x, 1.5)],
+      ["nclosePropScale2", (): boolean => nclose(prop.scale.y, 1.5)],
+      ["nclosePropScale3", (): boolean => nclose(prop.scale.z, 1.5)],
     ]),
     {
       nclosePropPosition: true,
@@ -124,8 +127,7 @@ export const test_viewer_apply_object_motion = (): void => {
     },
   );
 
-  // 2. unresolved node + pointer channel skipped (nothing throws, prop keeps
-  //    its sampled state)
+  // 2. Unresolved nodes and pointer channels preserve the sampled prop state without throwing.
   TestValidator.predicate(
     "unresolved and non-node channels are skipped",
     nclose(prop.position.x, 1),
@@ -136,12 +138,14 @@ export const test_viewer_apply_object_motion = (): void => {
     ...clip,
     tracks: [node("translation", [0, 0, 0, 2, 4, 6])],
   };
-  applyObjectMotion(rigid, 1, (n) => (n === "prop" ? prop : undefined));
+  applyObjectMotion(rigid, 1, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? prop : undefined,
+  );
   TestValidator.equals(
     "a channel absent from the clip keeps the object's existing value",
     namedFacts([
-      ["nclosePropPosition", () => nclose(prop.position.x, 2)],
-      ["nclosePropScale", () => nclose(prop.scale.x, 1.5)],
+      ["nclosePropPosition", (): boolean => nclose(prop.position.x, 2)],
+      ["nclosePropScale", (): boolean => nclose(prop.scale.x, 1.5)],
     ]),
     { nclosePropPosition: true, nclosePropScale: true },
   );
@@ -151,32 +155,34 @@ export const test_viewer_apply_object_motion = (): void => {
     ...clip,
     tracks: [node("weights", [0, 0, 1, 0.5])],
   };
-  const carrier = new THREE.Object3D();
-  const direct = morphMesh(2);
-  const nested = new THREE.Object3D();
-  const buried = morphMesh(2);
+  const carrier: THREE.Object3D = new THREE.Object3D();
+  const direct: THREE.Mesh = morphMesh(2);
+  const nested: THREE.Object3D = new THREE.Object3D();
+  const buried: THREE.Mesh = morphMesh(2);
   nested.add(buried);
   carrier.add(direct);
   carrier.add(nested);
-  applyObjectMotion(morphs, 0.5, (n) => (n === "prop" ? carrier : undefined));
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? carrier : undefined,
+  );
   TestValidator.equals(
     "a weights track writes the sampled vector onto every morphable mesh",
     namedFacts([
       [
         "ncloseDirectMorphTargetInfluences",
-        () => nclose(direct.morphTargetInfluences![0]!, 0.5),
+        (): boolean => nclose(direct.morphTargetInfluences![0]!, 0.5),
       ],
       [
         "ncloseDirectMorphTargetInfluences2",
-        () => nclose(direct.morphTargetInfluences![1]!, 0.25),
+        (): boolean => nclose(direct.morphTargetInfluences![1]!, 0.25),
       ],
       [
         "ncloseBuriedMorphTargetInfluences",
-        () => nclose(buried.morphTargetInfluences![0]!, 0.5),
+        (): boolean => nclose(buried.morphTargetInfluences![0]!, 0.5),
       ],
       [
         "ncloseBuriedMorphTargetInfluences2",
-        () => nclose(buried.morphTargetInfluences![1]!, 0.25),
+        (): boolean => nclose(buried.morphTargetInfluences![1]!, 0.25),
       ],
     ]),
     {
@@ -187,43 +193,47 @@ export const test_viewer_apply_object_motion = (): void => {
     },
   );
 
-  // 5. BOUNDARIES: no morphable mesh, a shorter influence array, a longer one
-  const bare = new THREE.Object3D();
-  applyObjectMotion(morphs, 0.5, (n) => (n === "prop" ? bare : undefined));
+  // 5. Boundaries: no morphable mesh, a shorter influence array, a longer one.
+  const bare: THREE.Object3D = new THREE.Object3D();
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? bare : undefined,
+  );
   TestValidator.equals(
     "an object with no morphable mesh is skipped",
     bare.children.length,
     0,
   );
-  const short = morphMesh(1);
-  const long = morphMesh(3);
+  const short: THREE.Mesh = morphMesh(1);
+  const long: THREE.Mesh = morphMesh(3);
   long.morphTargetInfluences![2] = 0.9;
-  const mixed = new THREE.Object3D();
+  const mixed: THREE.Object3D = new THREE.Object3D();
   mixed.add(short);
   mixed.add(long);
-  applyObjectMotion(morphs, 0.5, (n) => (n === "prop" ? mixed : undefined));
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? mixed : undefined,
+  );
   TestValidator.equals(
     "a shorter influence array fills as far as it goes and a longer one keeps its tail",
     namedFacts([
       [
         "shortMorphTargetInfluences",
-        () => short.morphTargetInfluences!.length === 1,
+        (): boolean => short.morphTargetInfluences!.length === 1,
       ],
       [
         "ncloseShortMorphTargetInfluences",
-        () => nclose(short.morphTargetInfluences![0]!, 0.5),
+        (): boolean => nclose(short.morphTargetInfluences![0]!, 0.5),
       ],
       [
         "ncloseLongMorphTargetInfluences",
-        () => nclose(long.morphTargetInfluences![0]!, 0.5),
+        (): boolean => nclose(long.morphTargetInfluences![0]!, 0.5),
       ],
       [
         "ncloseLongMorphTargetInfluences2",
-        () => nclose(long.morphTargetInfluences![1]!, 0.25),
+        (): boolean => nclose(long.morphTargetInfluences![1]!, 0.25),
       ],
       [
         "ncloseLongMorphTargetInfluences3",
-        () => nclose(long.morphTargetInfluences![2]!, 0.9),
+        (): boolean => nclose(long.morphTargetInfluences![2]!, 0.9),
       ],
     ]),
     {
@@ -263,19 +273,27 @@ export const test_viewer_apply_object_motion = (): void => {
       },
     ],
   };
-  const authoritySink = new THREE.Object3D();
-  applyObjectMotions([handoffA, handoffB], 0.5, () => authoritySink);
+  const authoritySink: THREE.Object3D = new THREE.Object3D();
+  applyObjectMotions(
+    [handoffA, handoffB],
+    0.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "a future handoff does not overwrite the current authority",
     nclose(authoritySink.position.x, 0.5),
   );
-  applyObjectMotions([handoffA, handoffB], 1.5, () => authoritySink);
+  applyObjectMotions(
+    [handoffA, handoffB],
+    1.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "the later handoff takes authority after its first key",
     nclose(authoritySink.position.x, 1.5),
   );
   authoritySink.position.x = -3;
-  applyObjectMotions([handoffB], 0.5, () => authoritySink);
+  applyObjectMotions([handoffB], 0.5, (): THREE.Object3D => authoritySink);
   TestValidator.predicate(
     "a future-only channel leaves the staged value untouched",
     nclose(authoritySink.position.x, -3),
@@ -298,20 +316,23 @@ export const test_viewer_apply_object_motion = (): void => {
   applyObjectMotions(
     [handoffA, handoffB, simultaneousScale],
     1.5,
-    () => authoritySink,
+    (): THREE.Object3D => authoritySink,
   );
   TestValidator.equals(
     "disjoint channels compose independently",
     namedFacts([
       [
         "ncloseAuthoritySinkPosition",
-        () => nclose(authoritySink.position.x, 1.5),
+        (): boolean => nclose(authoritySink.position.x, 1.5),
       ],
-      ["ncloseAuthoritySinkScale", () => nclose(authoritySink.scale.x, 1.75)],
+      [
+        "ncloseAuthoritySinkScale",
+        (): boolean => nclose(authoritySink.scale.x, 1.75),
+      ],
     ]),
     { ncloseAuthoritySinkPosition: true, ncloseAuthoritySinkScale: true },
   );
-  const tied = {
+  const tied: IAutoMovieClip = {
     ...handoffB,
     id: "replacement",
     tracks: [
@@ -321,23 +342,27 @@ export const test_viewer_apply_object_motion = (): void => {
       },
     ],
   } satisfies IAutoMovieClip;
-  applyObjectMotions([handoffA, handoffB, tied], 1.5, () => authoritySink);
+  applyObjectMotions(
+    [handoffA, handoffB, tied],
+    1.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "equal-start duplicates choose later producer order",
     nclose(authoritySink.position.x, 15),
   );
 
-  const renamedSink = new THREE.Object3D();
+  const renamedSink: THREE.Object3D = new THREE.Object3D();
   applyObjectMotions(
     [
       { ...handoffA, id: "anything" },
       { ...handoffB, id: "unrelated-name" },
     ],
     1.5,
-    () => renamedSink,
+    (): THREE.Object3D => renamedSink,
   );
   TestValidator.predicate(
     "clip ids do not participate in authority",
     nclose(renamedSink.position.x, 1.5),
   );
-};
+}

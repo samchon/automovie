@@ -1,33 +1,29 @@
 import { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
 
 /**
- * One actor's ordered prose intent and sparse authoritative moments.
+ * One staged scene node's prose intent and sparse ordered action-coverage times.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieBlockingActor` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieBlockingActor` for the spec authoring authority compatibility system contract.
+ * The node reference and anchor times are machine-checked; beats and cue text are not interpreted. A later listed anchor may not land earlier in time, and every anchor must lie within a non-frame action naming this node. Those checks establish temporal order and interval coverage, not that the described event occurred.
+ *
+ * @evidence contracts/common.md#principled-implementation blockBeat walks anchors in listed order, refusing nonfinite t, times outside [0, duration] and times earlier than the last finite predecessor. performShot then requires a non-frame action naming this node whose span contains t within 1e-9 s; this does not inspect cue prose or independently measure a causal event.
+ * @evidence contracts/common.md#clear-and-simple-design The record is a node join key, one prose field and an optional anchor list; timing alignment lives in the engine gates, so the intent stores no derived action spans.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal anchor times are accepted because simultaneous moments are ordinary staging, and no node, cue text or actor kind changes the rule; `beats` is declared unchecked rather than parsed for verbs.
+ * @evidence contracts/common.md#meaningful-documentation States which node the intent may name, that the prose is never read, that list order is causal order, the inclusive time window, and that each anchor must be covered by one of the actor's actions.
+ * @author Samchon
  */
 export interface IAutoMovieBlockingActor {
   /**
-   * Staged actor node.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `node` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
+   * Non-blank staged scene node this intent belongs to; blockBeat refuses an id absent from scene.nodes, while duplicate intent rows remain permitted.
    */
   node: string;
 
   /**
-   * Ordered action intent; dense motion remains engine-owned.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `beats` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `beats` for the spec authoring authority compatibility system contract.
+   * Prose of what the node does in the beat, for review; no gate reads it, and dense motion stays engine-owned.
    */
   beats: string;
 
   /**
-   * Sparse causal anchors the action spans must cover in listed order.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `anchors` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `anchors` for the spec authoring authority compatibility system contract.
+   * Sparse ordered times. Each t is finite, lies within [0, duration], is never earlier than its predecessor and must fall inside a non-frame action naming this node. Omitted means no time is pinned.
    */
   anchors?: IAutoMovieTimingAnchor[];
 }

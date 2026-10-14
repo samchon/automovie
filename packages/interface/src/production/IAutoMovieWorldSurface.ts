@@ -1,26 +1,20 @@
 import { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
 
 /**
- * A bounded horizontal polygon with a deterministic height function.
+ * Bounded world-XZ polygon with a deterministic terrain height law and explicit traversability.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieWorldSurface` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieWorldSurface` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Finite simple footprints and representable height arithmetic are caller premises; the retired production world validator no longer establishes them. Ground queries select the first containing footprint, including its 1e-9 m edge band, without comparing elevation or skipping a nonwalkable winner; the shared height rule evaluates that record with its own representability limits.
+ * @evidence contracts/common.md#clear-and-simple-design Footprint, height and walkability keep geometric sampling distinct from performer permission without baking terrain into dense mesh samples in this contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Ground queries do not validate self-intersections, repeated vertices or area. No containing surface means the nullable ground-query absence result rather than fabricated walkable terrain; the source oracle explicitly converts that absence to zero height.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable id, simple XZ polygon requirements, meter coordinates, height-law ownership and explicit walkability.
+ * @author Samchon
  */
 export interface IAutoMovieWorldSurface {
-  /**
-   * Stable surface id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Stable surface id. */
   id: string;
 
   /**
-   * At least three distinct finite XZ vertices forming a simple,
-   * non-self-intersecting polygon with non-zero area.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `polygon` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `polygon` for the narrative intent story design ownership system contract.
+   * At least three distinct finite XZ vertices forming a simple, non-self-intersecting polygon with non-zero area.
    */
   polygon: Array<{
     /** World X in meters. */
@@ -30,19 +24,9 @@ export interface IAutoMovieWorldSurface {
     z: number;
   }>;
 
-  /**
-   * Surface height function.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `height` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `height` for the narrative intent story design ownership system contract.
-   */
+  /** Surface height function. */
   height: IAutoMovieHeightRule;
 
-  /**
-   * Whether performers may traverse the surface.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `walkable` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `walkable` for the narrative intent story design ownership system contract.
-   */
+  /** Whether performers may traverse the surface. */
   walkable: boolean;
 }

@@ -1,19 +1,14 @@
 /**
- * Kind of authored thing one subject inspection opens.
+ * Authored subject categories used by the inspection identity parser; these categories carry no shot or delivery identity.
  *
- * The list is the viewable tree read as node kinds rather than as a path: a
- * space decomposes into elements, an element into parts, a model into meshes,
- * a population into its members. Naming the kind beside the id is what keeps
- * two identical strings apart when a placed element and the model it places
- * were authored under the same name, which is the prototype-placement
- * distinction the requirement refuses to collapse.
+ * @evidence contracts/common.md#principled-implementation The closed union distinguishes placed elements, reusable models and population members even when their authored ids coincide; parsing admits the same maintained category set.
+ * @evidence contracts/common.md#clear-and-simple-design A category travels with the id rather than introducing another tree or screenshot identity representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The type promises category membership only, not existence in a current scene or an authored production.
+ * @evidence contracts/common.md#meaningful-documentation States authored inspection scope and its distinction from shot/delivery identity.
+ * @evidence contracts/performance.md#efficient-algorithms The union chooses no traversal; parser membership and actual subject lookup retain their own costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Categories are shared static vocabulary; equal categories do not establish equal subject ids or revisions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This erased type owns no scene, renderer or task; consumers own any resolved object population.
  *
- * No member of this union is a shot, a frame or a take. That absence is the
- * point: a subject is named by what it is, never by the delivered picture that
- * happens to contain it.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `AutoMovieViewerSubjectKind` enumerates the authored kinds a subject identity may name, keeping prototype and placement apart.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record `AutoMovieViewerSubjectKind` types the kind field of the subject record the inspection surface resolves.
  * @author Samchon
  */
 export type AutoMovieViewerSubjectKind =

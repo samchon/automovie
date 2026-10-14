@@ -1,7 +1,2 @@
-/**
- * Sources, and separately drains, one domain may declare.
- *
- * @evidence requirements/effects-and-simulation/budgets-and-bounded-work.md#effects-budget-refusal Bounds declared flow work before execution.
- * @evidence specifications/simulation-effects-and-sound/budget-admission.md#effect-budget-refusal-and-compatibility Fixes the supported source and drain population ceiling.
- */
-export const FLUID_MAX_FLOWS = 256;
+/** validateFluidDomain admits at most this many sources and separately this many drains per domain. The fixed population limit bounds each replay step's flow walk, not flow-rate magnitude or accumulated volume. */
+export const FLUID_MAX_FLOWS: 256 = 256 as const;

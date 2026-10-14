@@ -1,27 +1,22 @@
 /**
- * The reaction the engine applies to whatever a projectile is detected
- * striking, carried on an {@link IAutoMovieLaunchAction} so the model says
- * "shoot him off his horse" and the engine schedules the target's recoil at the
- * _computed_ contact time, not a hand-timed one.
+ * The recoil an {@link IAutoMovieLaunchAction} schedules on whatever its projectile strikes, at the engine-computed contact time rather than a hand-timed one.
  *
- * @evidence requirements/story/beats-and-causality.md#story-action-reaction Exposes `IAutoMovieOnHitReaction` as the portable data boundary for the story action reaction requirement.
- * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-action-reaction-knowledge Types `IAutoMovieOnHitReaction` for the narrative intent action reaction knowledge system contract.
+ * `compileLaunch` turns it into an ordinary `react` action on the struck node, starting at the impact with an `"auto"` span and a blow coming from one metre up the projectile's incoming path, and `performShot` adds that action to the performance under the launch's `onHit` path. The reaction needs a single struck actor, so performShot refuses onHit for a point or group aim, which identifies no individual struck body, and for a camera, which cannot perform. Those target kinds remain valid flight aims when onHit is absent.
+ *
+ * @evidence contracts/common.md#principled-implementation The reaction source is one metre upstream of the computed landing velocity direction, or of the origin-to-aim sightline below 1e-9 m/s landing speed. React synthesis then projects the source-to-actor direction horizontally in the actor's staged frame; it is choreographed recoil and need not reproduce the projectile's full 3D incoming direction.
+ * @evidence contracts/common.md#clear-and-simple-design Two fields mirror the `react` verb's force and unbalance, because the engine expands this record into a `react` and reuses that verb's synthesis and range-of-motion gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A point or group does not identify which actor was struck, so the gate refuses that onHit declaration rather than silently dropping it or choosing a group member; a camera cannot receive actor recoil.
+ * @evidence contracts/common.md#meaningful-documentation States react expansion, impact timing and incoming source, the single-struck-actor requirement and point, group and camera refusals; members give force bounds and the limits of unbalance behavior.
  * @author Samchon
  */
 export interface IAutoMovieOnHitReaction {
   /**
-   * Impulse strength the engine scales the recoil by.
-   *
-   * @evidence requirements/story/beats-and-causality.md#story-action-reaction Exposes `force` as the portable data boundary for the story action reaction requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-action-reaction-knowledge Types `force` for the narrative intent action reaction knowledge system contract.
+   * Blow strength within `[0, 1]`, refused outside it. The reference synthesizer scales the flinch's peak deflection in proportion.
    */
   force: number;
 
   /**
-   * Whether the hit unseats / floors the target (a fall within ROM + balance).
-   *
-   * @evidence requirements/story/beats-and-causality.md#story-action-reaction Exposes `unbalance` as the portable data boundary for the story action reaction requirement.
-   * @evidence specifications/narrative-and-intent/events-causality-and-time.md#narrative-intent-action-reaction-knowledge Types `unbalance` for the narrative intent action reaction knowledge system contract.
+   * Whether the blow is meant to floor or unseat the target. The reference synthesizer flinches harder and the launch emits a `fall` event, but no fall or dismount motion is produced.
    */
   unbalance?: boolean;
 }

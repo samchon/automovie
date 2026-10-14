@@ -4,76 +4,42 @@
 
 ## Attitude
 
-Follow the literal request; it is the contract, not a hint at what the user "really" wants.
+- Do the literal request, widening it only when the user hands that over.
+- The user's instruction outranks any skill.
+- Answer a question from the user before continuing any work.
+- Write everything the user sees in the user's language.
+- Write code, comments, commits, issues, and pull requests in English.
+- Let a test run, CI run, or review round finish, then fix all of its findings together by cause.
+- Do the work yourself; use subagents only when the user asks.
+- Ship each topic as its own pull request.
+- Delete every scratch file once it has served.
 
-- **The user outranks a skill.** A direct instruction outranks this file and every skill, and a standing instruction recorded here keeps that authority until the user changes it. Infer no override from a terse request or a deadline.
-- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the pull-request chronology, not in the durable rule.
-- **Scope is the user's to widen.** Expand or reinterpret the task only on an explicit hand-off ("you decide"), and report an unrelated defect as a follow-up unless the requested behavior cannot work without fixing it. Inside the goal, act with full initiative.
-- **Choose the principled course.** Decide from correctness, evidence and durable consequence. Size, difficulty and blast radius change how much investigation a decision needs, never the standard it must meet.
-- **Evidence precedes correction.** Treat a report, a claim that something is wrong or missing, and your own recall of anything outside this repository as hypotheses. Verify the real code, output and history first.
-- **Default over ask.** Pick the sensible default and say what you chose. Ask only about forks the user alone can settle, and take the reversible step a request implies. A problem report or a question calls for your assessment.
-- **Match the user's language.** Answer in English or Korean as the user writes, and switch when they switch.
-- **Finish the turn's work.** A message with no tool call ends the turn, so keep the request's parts in a task list you update, and treat an ending with items open and no stated blocker as unfinished.
-  - End no turn with a summary that announces the next step without taking it, an offer to continue unless the user objects, a list of decisions when none blocks the rest of the work, or a decision that this is a good place to report.
-  - Put status notes in the message with your next tool call.
-  - Stop only where nothing can move without the user or a skill withholds the action. Session length is never a reason, and confirmation before a destructive or outward-facing action still applies.
-- **Background work never ends the turn.** While a build, test run or CI job runs, keep reviewing, developing or researching the next item, and check the job with a targeted command instead of sleeping.
-- **Collect every symptom before correcting.** When a check or review reports failures, read all of them, find the shared cause, and fix the class in one pass.
-- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, whether the current method is the fastest and most efficient feasible way to meet the same correctness, acceptance conditions and complete scope, and whether what you learned changes the plan. Compare feasible alternatives using observed bottlenecks, duplicate work and unnecessary waits, and adjust the method when the evidence supports a better path. Correct course at once, record the correction in the pull-request chronology, and continue.
-- **Ship each topic as its own PR** and never commit to `master` directly. The [pull-request skill](.agents/skills/pull-request/SKILL.md) owns the flow and the merge conditions.
+## Finishing Work
+
+A message without a tool call ends the turn. While work remains, do not end it with:
+
+- a summary that announces the next step;
+- an offer to continue;
+- a list of decisions that do not block the work;
+- a report because a stage finished;
+- a wait on background work.
+
+Put status notes in the same message as the next tool call.
+
+Stop only when nothing can move without the user, a protected target blocks you, or a destructive or outward-facing action needs confirmation.
 
 ## Skills
 
-Read a skill when its topic applies. Each skill links its own conditional topic documents.
+Read the skill whose trigger applies.
 
-### [Project](.agents/skills/project/SKILL.md)
-
-Product contract, decided exclusions, workspace layout, commands. Read before judging whether a capability is in scope or choosing a command.
-
-### [Development](.agents/skills/development/SKILL.md)
-
-Source and test rules, the per-change 100% coverage obligation, validation. Read before writing or changing code.
-
-### [Contracts](.agents/skills/contracts/SKILL.md)
-
-Layered implementation checklists that source declarations answer with `@evidence` tags. Read before implementing or reviewing maintained source.
-
-### [Scaffold Authoring](.agents/skills/scaffold/SKILL.md)
-
-The self-contained harness every generated project inherits (`packages/template`). Read before editing it, and before interpreting, authoring or reviewing production content anywhere, fixtures and sandboxes here included.
-
-### [Documentation](.agents/skills/documentation/SKILL.md)
-
-Package READMEs, JSDoc, and the writing rules for agent instructions. Read before writing docs or instructions.
-
-### [Evidence Graph](.agents/skills/evidence-graph/SKILL.md)
-
-The requirement, specification and public-source triangle, and the scaffold contract corpus. Read before changing those sources, public-export evidence JSDoc or repository graph and source-guard configuration.
-
-### [Review](.agents/skills/review/SKILL.md)
-
-Self-Review and exhaustive review rounds over one whole surface. Read for every review request.
-
-### [Issue Campaign](.agents/skills/issue-campaign/SKILL.md)
-
-Exhaustive discovery, vetted issues, implementation in dependency order, one PR per cycle. Read for a broad audit or many issue candidates, not for one defined issue.
-
-### [Mission Supervision](.agents/skills/mission-supervision/SKILL.md)
-
-Assignment, shared ownership and intermediate acceptance for a long mission. Read only when the user explicitly invokes `mission-supervision`.
-
-### [3D Modeling](.agents/skills/3d-modeling/SKILL.md)
-
-Modeling boundaries and visual debugging of geometry, rigs, assets, viewer behavior, materials, lighting and motion. Read before modeling or changing visual output and before claiming a visual change works.
-
-### [Pull Request Submission](.agents/skills/pull-request/SKILL.md)
-
-Branch, commit, PR, checks, merge. Read when shipping, opening, updating or merging a PR; never merge on unprompted initiative.
-
-## Maintenance
-
-AGENTS.md is the portal for Claude Code (via `CLAUDE.md -> @AGENTS.md`) and Codex CLI: product identity, global attitude, skill index. `## Attitude` is the one home of global agent-behavior rules.
-
-Update this file only for a repository-contract change: a new, renamed or merged skill, a workflow that fits no skill, or a rule that must apply before any skill loads.
-
-The [documentation skill's instructions document](.agents/skills/documentation/instructions.md) owns skill layout, how instructions are written, and their review.
+- [project](.agents/skills/project/SKILL.md): judging product scope, choosing a package owner, or choosing a command.
+- [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing maintained source or tests, for their `@evidence` checklists.
+- [development](.agents/skills/development/SKILL.md): changing code, tests, or workflows.
+- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
+- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human inspection application.
+- [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
+- [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
+- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
+- [review](.agents/skills/review/SKILL.md): any review or self-review.
+- [issue-campaign](.agents/skills/issue-campaign/SKILL.md): a broad audit or repeated issue-to-pull-request work.
+- [pull-request](.agents/skills/pull-request/SKILL.md): only when asked to push, open, update, or merge, or under a delivery mandate.

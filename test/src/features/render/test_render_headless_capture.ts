@@ -1,11 +1,15 @@
-import {
-  AutoMovieHeadlessCaptureError,
-  IAutoMovieHeadlessCaptureOptions,
-  IAutoMovieHeadlessLocator,
-  IAutoMovieHeadlessPage,
-  createHeadlessCaptureAdapter,
-} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
+import { type Context, createContext } from "node:vm";
+
+import { AutoMovieHeadlessCaptureError } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureError";
+import { AutoMovieHeadlessCaptureErrorCode } from "../../../../packages/render/src/headlessCapture/AutoMovieHeadlessCaptureErrorCode";
+import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureOptions";
+import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessCaptureSession";
+import { IAutoMovieHeadlessLocator } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessLocator";
+import { IAutoMovieHeadlessPage } from "../../../../packages/render/src/headlessCapture/IAutoMovieHeadlessPage";
+import { createHeadlessCaptureAdapter } from "../../../../packages/render/src/headlessCapture/createHeadlessCaptureAdapter";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 
 type Failure = "goto" | "wait" | "style" | "evaluate" | "screenshot" | null;
 
@@ -19,11 +23,12 @@ class FakeLocator implements IAutoMovieHeadlessLocator {
 }
 
 class FakePage implements IAutoMovieHeadlessPage {
+  public context: Context = createContext();
   public readonly gotos: Array<{ url: string; waitUntil: string }> = [];
   public readonly styles: string[] = [];
   public readonly selectors: string[] = [];
   public readonly closed: number[] = [];
-  public bytes = new Uint8Array([1, 2, 3]);
+  public bytes: Uint8Array = new Uint8Array([1, 2, 3]);
   public fail: Failure = null;
 
   public async goto(
@@ -39,7 +44,8 @@ class FakePage implements IAutoMovieHeadlessPage {
     arg: T,
   ): Promise<void> {
     if (this.fail === "wait") throw new Error("wait failed");
-    if (!predicate(arg)) throw new Error("predicate false");
+    if (!runHeadlessPageCallback(this.context, predicate, arg))
+      throw new Error("predicate false");
   }
 
   public async addStyleTag(options: { content: string }): Promise<void> {
@@ -49,7 +55,7 @@ class FakePage implements IAutoMovieHeadlessPage {
 
   public async evaluate<T>(task: (arg: T) => unknown, arg: T): Promise<void> {
     if (this.fail === "evaluate") throw new Error("evaluate failed");
-    task(arg);
+    runHeadlessPageCallback(this.context, task, arg);
   }
 
   public locator(selector: string): IAutoMovieHeadlessLocator {
@@ -62,29 +68,30 @@ class FakePage implements IAutoMovieHeadlessPage {
   }
 }
 
-const withSeek = async <T>(
+const withSeek: <T>(
+  page: FakePage,
+  name: string,
+  seek: (time: number) => void,
+  task: () => Promise<T>,
+) => Promise<T> = async <T>(
+  page: FakePage,
   name: string,
   seek: (time: number) => void,
   task: () => Promise<T>,
 ): Promise<T> => {
-  const host = globalThis as unknown as Record<string, unknown>;
-  const previous = host[name];
-  host[name] = seek;
-  try {
-    return await task();
-  } finally {
-    if (previous === undefined) Reflect.deleteProperty(host, name);
-    else host[name] = previous;
-  }
+  page.context = createContext({ [name]: seek });
+  return task();
 };
 
-const rejectsCapture = async (
+const rejectsCapture: (
+  task: () => Promise<unknown>,
+) => Promise<AutoMovieHeadlessCaptureErrorCode | null> = async (
   task: () => Promise<unknown>,
 ): Promise<AutoMovieHeadlessCaptureError["code"] | null> => {
   try {
     await task();
     return null;
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof AutoMovieHeadlessCaptureError) {
       TestValidator.predicate("capture error keeps source", "source" in error);
       return error.code;
@@ -93,31 +100,36 @@ const rejectsCapture = async (
   }
 };
 
-const open = async (
+const open: (
+  page: FakePage,
+  options?: Partial<IAutoMovieHeadlessCaptureOptions>,
+) => Promise<IAutoMovieHeadlessCaptureSession> = async (
   page: FakePage,
   options: Partial<IAutoMovieHeadlessCaptureOptions> = {},
-) =>
+): Promise<IAutoMovieHeadlessCaptureSession> =>
   createHeadlessCaptureAdapter({
     page,
     url: "http://localhost:5173/film.html?cap=1",
-    writeFrame: async () => undefined,
+    writeFrame: async (): Promise<undefined> => undefined,
     ...options,
   });
 
 /**
- * The reusable headless capture adapter turns a Playwright-like page into the
- * `captureFrame` half of `renderVideo`.
+ * The reusable headless capture adapter turns a Playwright-like page into the `captureFrame` half of `renderVideo`.
  *
  * Scenarios:
  *
- * 1. The adapter loads a route once, waits for the deterministic seek hook, hides
- *    UI chrome, writes a PNG frame, and returns its path.
+ * 1. The page seam records one navigation request, seek-hook wait and UI-hiding style; the adapter forwards supplied capture bytes to its writer and returns the path.
  * 2. Custom selectors, seek hook, and wait condition override the defaults.
- * 3. Route, seek-hook, style, screenshot, and empty-frame failures are reported
- *    with structured error codes.
+ * 3. Route, seek-hook, style, screenshot, and empty-frame failures are reported with structured error codes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real adapter through the existing page seam and records navigation, style, selector, page-local seek, supplied bytes, writer metadata and close calls, including structured step failures.
+ * @evidence contracts/testing.md#independent-expectations The declared defaults and authored custom names determine expected calls and frame_00002.png; captured bytes are the existing supplied [1,2,3], not decoded PNG evidence. Self-contained product callbacks execute in the page instance's isolated VM context instead of a patched Node global.
+ * @evidence contracts/testing.md#distinguishing-cases Default/custom settings and route, missing seek, style, evaluation, screenshot and empty-byte failures preserve all existing cases. The synchronous wait seam models refusal, not a real browser timeout or polling implementation.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_headless_capture owns its cases. Portable adapter/callback semantics in the existing FakePage, with no navigation process, filesystem writer, actual screenshot, browser or GPU.
  */
-export const test_render_headless_capture = async (): Promise<void> => {
-  const page = new FakePage();
+export async function test_render_headless_capture(): Promise<void> {
+  const page: FakePage = new FakePage();
   const writes: Array<{
     path: string;
     bytes: number[];
@@ -126,11 +138,16 @@ export const test_render_headless_capture = async (): Promise<void> => {
   }> = [];
   const seeks: number[] = [];
   await withSeek(
+    page,
     "__afSeek",
-    (time) => seeks.push(time),
-    async () => {
-      const session = await open(page, {
-        writeFrame: async (path, bytes, metadata) => {
+    (time: number): number => seeks.push(time),
+    async (): Promise<void> => {
+      const session: IAutoMovieHeadlessCaptureSession = await open(page, {
+        writeFrame: async (
+          path: string,
+          bytes: Uint8Array<ArrayBufferLike>,
+          metadata: { timeSeconds: number; index: number },
+        ): Promise<void> => {
           writes.push({
             path,
             bytes: [...bytes],
@@ -139,7 +156,7 @@ export const test_render_headless_capture = async (): Promise<void> => {
           });
         },
       });
-      const path = await session.captureFrame(0.5, 2, "out/frames/");
+      const path: string = await session.captureFrame(0.5, 2, "out/frames/");
       await session.close();
       TestValidator.equals("captured path", path, "out/frames/frame_00002.png");
     },
@@ -151,24 +168,28 @@ export const test_render_headless_capture = async (): Promise<void> => {
     "#clips{display:none!important}",
   ]);
   TestValidator.equals("default selector", page.selectors, ["#view"]);
-  TestValidator.equals("seek called", seeks, [0.5]);
-  TestValidator.equals("frame written", writes, [
-    {
-      path: "out/frames/frame_00002.png",
-      bytes: [1, 2, 3],
-      timeSeconds: 0.5,
-      index: 2,
-    },
-  ]);
+  TestValidator.predicate("seek called", filmEffectValuesClose(seeks, [0.5]));
+  TestValidator.predicate(
+    "frame written",
+    filmEffectValuesClose(writes, [
+      {
+        path: "out/frames/frame_00002.png",
+        bytes: [1, 2, 3],
+        timeSeconds: 0.5,
+        index: 2,
+      },
+    ]),
+  );
   TestValidator.equals("page closed", page.closed.length, 1);
 
-  const custom = new FakePage();
+  const custom: FakePage = new FakePage();
   const customSeeks: number[] = [];
   await withSeek(
+    custom,
     "seekClip",
-    (time) => customSeeks.push(time),
-    async () => {
-      const session = await open(custom, {
+    (time: number): number => customSeeks.push(time),
+    async (): Promise<void> => {
+      const session: IAutoMovieHeadlessCaptureSession = await open(custom, {
         url: "http://localhost:5173/stickman.html?cap=1",
         waitUntil: "domcontentloaded",
         seekFunction: "seekClip",
@@ -186,78 +207,99 @@ export const test_render_headless_capture = async (): Promise<void> => {
   ]);
   TestValidator.equals("hide disabled", custom.styles, []);
   TestValidator.equals("custom selector", custom.selectors, ["#canvas"]);
-  TestValidator.equals("custom seek", customSeeks, [0.25]);
+  TestValidator.predicate(
+    "custom seek",
+    filmEffectValuesClose(customSeeks, [0.25]),
+  );
 
-  const routeFailure = new FakePage();
+  const routeFailure: FakePage = new FakePage();
   routeFailure.fail = "goto";
   TestValidator.equals(
     "route failure code",
-    await rejectsCapture(() => open(routeFailure)),
+    await rejectsCapture(
+      (): Promise<IAutoMovieHeadlessCaptureSession> => open(routeFailure),
+    ),
     "route",
   );
 
-  const waitFailure = new FakePage();
+  const waitFailure: FakePage = new FakePage();
   TestValidator.equals(
     "seek-hook wait failure code",
-    await rejectsCapture(() => open(waitFailure)),
+    await rejectsCapture(
+      (): Promise<IAutoMovieHeadlessCaptureSession> => open(waitFailure),
+    ),
     "seek-hook",
   );
 
-  const styleFailure = new FakePage();
+  const styleFailure: FakePage = new FakePage();
   styleFailure.fail = "style";
   await withSeek(
+    styleFailure,
     "__afSeek",
-    () => undefined,
-    async () =>
+    (): undefined => undefined,
+    async (): Promise<void> =>
       TestValidator.equals(
         "style failure code",
-        await rejectsCapture(() => open(styleFailure)),
+        await rejectsCapture(
+          (): Promise<IAutoMovieHeadlessCaptureSession> => open(styleFailure),
+        ),
         "capture",
       ),
   );
 
-  const evaluateFailure = new FakePage();
+  const evaluateFailure: FakePage = new FakePage();
   await withSeek(
+    evaluateFailure,
     "__afSeek",
-    () => undefined,
-    async () => {
-      const session = await open(evaluateFailure);
+    (): undefined => undefined,
+    async (): Promise<void> => {
+      const session: IAutoMovieHeadlessCaptureSession =
+        await open(evaluateFailure);
       evaluateFailure.fail = "evaluate";
       TestValidator.equals(
         "seek evaluate failure code",
-        await rejectsCapture(() => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "seek-hook",
       );
     },
   );
 
-  const screenshotFailure = new FakePage();
+  const screenshotFailure: FakePage = new FakePage();
   await withSeek(
+    screenshotFailure,
     "__afSeek",
-    () => undefined,
-    async () => {
-      const session = await open(screenshotFailure);
+    (): undefined => undefined,
+    async (): Promise<void> => {
+      const session: IAutoMovieHeadlessCaptureSession =
+        await open(screenshotFailure);
       screenshotFailure.fail = "screenshot";
       TestValidator.equals(
         "screenshot failure code",
-        await rejectsCapture(() => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "capture",
       );
     },
   );
 
-  const emptyFrame = new FakePage();
+  const emptyFrame: FakePage = new FakePage();
   emptyFrame.bytes = new Uint8Array([]);
   await withSeek(
+    emptyFrame,
     "__afSeek",
-    () => undefined,
-    async () => {
-      const session = await open(emptyFrame);
+    (): undefined => undefined,
+    async (): Promise<void> => {
+      const session: IAutoMovieHeadlessCaptureSession = await open(emptyFrame);
       TestValidator.equals(
         "empty frame failure code",
-        await rejectsCapture(() => session.captureFrame(0, 0, "frames")),
+        await rejectsCapture(
+          (): Promise<string> => session.captureFrame(0, 0, "frames"),
+        ),
         "empty-frame",
       );
     },
   );
-};
+}

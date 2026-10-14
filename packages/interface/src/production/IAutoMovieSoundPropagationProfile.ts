@@ -1,50 +1,31 @@
 /**
  * Production-selected bounded direct-path propagation model.
  *
- * AutoMovie supplies the calculation, not atmospheric content. Every physical
- * scalar and the cut-boundary decision are declared by the production.
+ * The production selects every physical scalar and the cut-boundary decision; the engine applies the declared bounded calculation.
  *
- * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Makes sound speed, distance gain, and spectral absorption one declared model.
- * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Defines the deterministic direct-path inputs without inferring climate or provider state.
+ * @evidence contracts/common.md#principled-implementation Propagation divides effective source/listener distance by declared positive speed, rounds delay once to film frames, applies the softened inverse-square gain and optional decibel-per-meter high-frequency amplitude loss, then honors the selected cut-boundary policy.
+ * @evidence contracts/common.md#clear-and-simple-design One production-owned profile groups speed, distance and spectral laws, segment-boundary choice and explicit assumptions while event receipts carry the calculated arrival and gains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Spectral none returns null rather than claiming zero measured absorption, and arrivals outside the finished film refuse; no atmospheric speed or cut policy is inferred when a profile is absent.
+ * @evidence contracts/common.md#meaningful-documentation Defines speed units, exact gain law, non-negative coefficient, optional spectral model units, cut carry/trim behavior and authored physical assumptions.
  * @author Samchon
  */
 export interface IAutoMovieSoundPropagationProfile {
-  /**
-   * Stable profile identity within the production.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Binds events to one declared propagation model.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Identifies the exact calculation inputs.
-   */
+  /** Stable profile identity within the production. */
   id: string;
 
-  /**
-   * Finite strictly positive propagation speed in meters per second.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Makes propagation delay production-owned.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Supplies arrival-time calculation speed.
-   */
+  /** Finite strictly positive propagation speed in meters per second. */
   speedOfSoundMetersPerSecond: number;
 
-  /**
-   * Declared distance-gain law.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Prevents hidden attenuation defaults.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Selects the bounded gain calculation.
-   */
+  /** Declared distance-gain law. */
   distanceGain: {
     /** Current bounded law, `1 / (1 + coefficient * distance^2)`. */
     kind: "softened-inverse-square-v1";
 
-    /** Finite non-negative softening coefficient. */
+    /** Finite non-negative softening coefficient in inverse square metres. */
     coefficient: number;
   };
 
-  /**
-   * Declared spectral treatment; `none` never masquerades as absorption.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Separates omitted spectral physics from modeled attenuation.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Makes spectral output conditional on a declared model.
-   */
+  /** Declared spectral treatment; `none` never masquerades as absorption. */
   spectral:
     | {
         /** No spectral propagation is claimed. */
@@ -60,17 +41,9 @@ export interface IAutoMovieSoundPropagationProfile {
 
   /**
    * Authored edit decision when arrival lies beyond the source shot segment.
-   *
-   * @evidence requirements/sound/event-cues-and-timing.md#sound-arrival-time Leaves carry-versus-trim to the production.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-cue-sample-boundary-and-arrival Makes cut-boundary handling deterministic.
    */
   segmentBoundary: "carry-across-cut" | "trim-at-segment";
 
-  /**
-   * Non-empty statements of the physical assumptions this profile adopts.
-   *
-   * @evidence requirements/sound/spatialization-and-propagation.md#sound-direct-path Exposes the bounded model's claim assumptions.
-   * @evidence specifications/simulation-effects-and-sound/ambience-music-spatial-and-acoustics.md#spatial-direct-path-and-output-mapping Keeps physical interpretation explicit.
-   */
+  /** Non-empty statements of the physical assumptions this profile adopts. */
   assumptions: string[];
 }

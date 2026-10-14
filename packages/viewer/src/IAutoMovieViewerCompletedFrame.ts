@@ -5,12 +5,14 @@ import type * as THREE from "three";
  * A controller, when supplied, owns typed state capture/restoration. Consumers
  * observe synchronously and must not treat requested state as rendered facts.
  *
- * @evidence contracts/common.md#principled-implementation The producer supplies its actual scene and camera after drawing rather than an inferred request.
- * @evidence contracts/common.md#clear-and-simple-design One completion shape supports ordinary viewports and handled composites.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No copied renderer, subject lookup or fabricated ready/model state is introduced.
- * @evidence contracts/common.md#meaningful-documentation Defines observation timing and controller ownership.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Exposes original completed view and runtime objects to the application observation owner.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Separates source-produced observation from requested state and review verdicts.
+ * @evidence contracts/common.md#principled-implementation Carries original draw-completion scene/camera/pass and optional observed clock, with an application-owned state controller for capture, restoration, explicit redraw and clock freezing; composite layer facts remain separate from original native objects.
+ * @evidence contracts/common.md#clear-and-simple-design The producer publishes one completion record while numerical application admission and transport consumers retain their own responsibilities; optional fields distinguish unavailable observations from false or zero values.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested state never substitutes for completed rendering; changed=false preserves idle facts, absent changed preserves eager saving and application-document changes still require fresh display facts.
+ * @evidence contracts/common.md#meaningful-documentation Defines native versus composite objects, optional time semantics, numerical application prerequisite, idle/change classification and controller ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This completion record performs no draw, readback or application transaction.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Producer change classification supplies facts for downstream saving decisions but is not itself proof that two draws are equivalent.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scene, camera and controller are borrowed from the draw owner; the record acquires no framebuffer or playback task.
+ *
  * @author Samchon
  */
 export interface IAutoMovieViewerCompletedFrame {
@@ -46,10 +48,15 @@ export interface IAutoMovieViewerCompletedFrame {
 
   /** Actual application controller; its state is serialized only by its owner. */
   control?: {
+    /** Capture application-owned state corresponding to the live completed view. */
     capture: () => unknown;
+
+    /** Restore only states admitted by this application's controller. */
     restore: (state: unknown) => void;
+
     /** Synchronously redraw through the original producer or report failure. */
     redraw?: () => void;
+
     /** Freeze an owned playback clock while retaining its live rendered view. */
     freeze?: () => () => void;
   };

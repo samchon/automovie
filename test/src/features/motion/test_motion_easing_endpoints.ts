@@ -5,16 +5,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/predicates";
 
 /**
- * Every continuous easing curve must map 0→0 and 1→1 and clamp inputs outside
- * [0,1]. This pins that keyframe interpolation lands exactly on each keyframe's
- * pose at the segment boundaries and never overshoots, whatever curve shape is
- * chosen between them.
+ * The four named polynomial easing curves retain their endpoint and clamping
+ * values. Interior shape and pose interpolation are observed in other entries.
  *
- * Scenario: across linear, easeIn, easeOut, and easeInOut, each curve returns 0
- * at t=0 and 1 at t=1, and clamps a below-range input (−1) to 0 and an
- * above-range input (2) to 1.
+ * Scenarios:
+ * 1. Linear, easeIn, easeOut and easeInOut return zero/one at progress zero/one.
+ * 2. Each curve clamps progress -1 to zero and progress two to one.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls ease for each of four named curves at both endpoints and both exterior inputs, asserting retained endpoint values. Broken clamping or an endpoint offset fails without depending on the intermediate curve shape.
+ * @evidence contracts/testing.md#independent-expectations Normalized polynomial easing fixes zero and one, and finite exterior progress is clamped to that closed interval by contract. Literal scalar endpoints are independent of product output; this entry does not prove interior boundedness or interpolated pose identity.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps all four continuous named curves at zero, one, -1 and two. Step/interior shape, parameterized Bezier curves and malformed input are owned by their separate easing entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its four-curve loop and directly calls portable easing source, without installed consumers, native builds, host startup or dynamic registration.
  */
-export const test_motion_easing_endpoints = (): void => {
+export function test_motion_easing_endpoints(): void {
   const curves: AutoMovieEasing[] = [
     "linear",
     "easeIn",
@@ -27,4 +30,4 @@ export const test_motion_easing_endpoints = (): void => {
     TestValidator.predicate(`${c} clamps below`, nclose(ease(c, -1), 0));
     TestValidator.predicate(`${c} clamps above`, nclose(ease(c, 2), 1));
   }
-};
+}

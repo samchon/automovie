@@ -1,4 +1,3 @@
-import { sampleClip, sampleClipSequence } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -6,14 +5,17 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  namedFacts,
-  nclose,
-  qclose,
-  throwsError,
-} from "../internal/predicates";
+import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { sampleClipSequence } from "../../../../packages/engine/src/resolve/sampleClipSequence";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { throwsError } from "../internal/throwsError";
 
-const NODE = (
+const NODE: (
+  path: "translation" | "rotation" | "scale" | "weights",
+) => IAutoMovieChannel = (
   path: "translation" | "rotation" | "scale" | "weights",
 ): IAutoMovieChannel => ({ kind: "node", node: "n", path });
 
@@ -23,31 +25,48 @@ const PTR: IAutoMovieChannel = {
   valueType: "scalar",
 };
 
-const track = (
+const track: (
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+  interpolation: IAutoMovieTrack["interpolation"],
+) => IAutoMovieTrack = (
   channel: IAutoMovieChannel,
   times: number[],
   values: number[],
   interpolation: IAutoMovieTrack["interpolation"],
 ): IAutoMovieTrack => ({ channel, times, values, interpolation });
 
-const clip = (
+const clip: (
   tracks: IAutoMovieTrack[],
   duration: number,
-  loop = false,
+  loop?: boolean,
+) => IAutoMovieClip = (
+  tracks: IAutoMovieTrack[],
+  duration: number,
+  loop: boolean = false,
 ): IAutoMovieClip => ({ id: "c", name: null, duration, loop, tracks });
 
-const val = (c: IAutoMovieClip, t: number, key: string): number[] => {
-  const hit = sampleClip(c, t).get(key);
+const val: (c: IAutoMovieClip, t: number, key: string) => number[] = (
+  c: IAutoMovieClip,
+  t: number,
+  key: string,
+): number[] => {
+  const hit: IAutoMovieSampledChannel | undefined = sampleClip(c, t).get(key);
   if (hit === undefined) throw new Error(`${key} missing`);
   return hit.value;
 };
 
-const close = (a: number[], b: number[], eps = 1e-6): boolean =>
-  a.length === b.length && a.every((v, i) => nclose(v, b[i]!, eps));
+const close: (a: number[], b: number[], eps?: number) => boolean = (
+  a: number[],
+  b: number[],
+  eps: number = 1e-6,
+): boolean =>
+  a.length === b.length &&
+  a.every((v: number, i: number): boolean => nclose(v, b[i]!, eps));
 
 /**
- * The SAMPLE pass across every interpolation mode, channel width, and the
- * time-normalization branches a real clip exercises.
+ * Sample existing linear, step and cubic tracks across scalar, vector, quaternion and weights channels, including time normalization and malformed-input refusals.
  *
  * Scenarios:
  *
@@ -56,8 +75,10 @@ const close = (a: number[], b: number[], eps = 1e-6): boolean =>
  * 2. Step interpolation holds the left keyframe mid-segment, while an EXACT hit on
  *    an interior key takes that key's value (glTF `v_k for t_k <= t < t_(k+1)`,
  *    #1054): just-before stays held, and the final key clamps.
- * 3. A linear rotation track slerps (not lerps): identity→90°-about-Y at t=0.5 is
- *    the 45° quaternion, and stays unit length.
+ * 3. A linear rotation track's identity→90°-about-Y midpoint passes the
+ *    sign-insensitive predicate against a unit 45° quaternion. That predicate
+ *    does not separately establish the observed norm or distinguish this
+ *    symmetric midpoint from normalized lerp.
  * 4. Cubicspline with zero tangents reduces to the Hermite blend of the values:
  *    0→10 at t=0.5 is 5 (the `[in,value,out]` triplet layout is read
  *    correctly).
@@ -83,10 +104,15 @@ const close = (a: number[], b: number[], eps = 1e-6): boolean =>
  *     end.
  * 16. Duplicate track channel keys reject instead of silently overwriting the
  *     earlier sampled value.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples real clips and observes linear/step/cubic values, rotation norm, key/timeline behavior, variable weights width and refusal of malformed tracks, duplicate channels and invalid clocks.
+ * @evidence contracts/testing.md#independent-expectations Authored endpoints determine linear means and STEP holds; zero-tangent Hermite gives5 halfway from0 to10, while sine/cosine give the rotation midpoint. That symmetric midpoint alone cannot distinguish slerp from normalized lerp over the whole arc.
+ * @evidence contracts/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid mode/width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_sample_clip entry owns portable synchronous numerical sampler/refusal cases through direct source imports; no renderer clock, browser or Human asset is created.
  */
-export const test_resolve_sample_clip = (): void => {
+export function test_resolve_sample_clip(): void {
   // 1. linear vec3
-  const lin = clip(
+  const lin: IAutoMovieClip = clip(
     [track(NODE("translation"), [0, 1], [0, 0, 0, 10, 20, 30], "linear")],
     1,
   );
@@ -95,7 +121,7 @@ export const test_resolve_sample_clip = (): void => {
     close(val(lin, 0.5, "node:n:translation"), [5, 10, 15]),
   );
 
-  const multi = sampleClip(
+  const multi: Map<string, IAutoMovieSampledChannel> = sampleClip(
     clip(
       [
         track(PTR, [0, 1], [0, 1], "linear"),
@@ -108,17 +134,21 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.equals(
     "distinct channels sample together",
     namedFacts([
-      ["closeMultiGet", () => close(multi.get("ptr:/x")?.value ?? [], [0.5])],
+      [
+        "closeMultiGet",
+        (): boolean => close(multi.get("ptr:/x")?.value ?? [], [0.5]),
+      ],
       [
         "closeMultiGet2",
-        () => close(multi.get("node:n:scale")?.value ?? [], [1.5, 1.5, 1.5]),
+        (): boolean =>
+          close(multi.get("node:n:scale")?.value ?? [], [1.5, 1.5, 1.5]),
       ],
     ]),
     { closeMultiGet: true, closeMultiGet2: true },
   );
 
   // 2. step holds left
-  const stepClip = clip(
+  const stepClip: IAutoMovieClip = clip(
     [track(NODE("translation"), [0, 1], [0, 0, 0, 10, 20, 30], "step")],
     1,
   );
@@ -131,20 +161,29 @@ export const test_resolve_sample_clip = (): void => {
   // v_k for t_k <= t < t_(k+1), and the fixed sampling clock makes exact
   // frame-aligned hits the norm, so holding the PREVIOUS key here played
   // every step change one sample late (#1054)
-  const stepThree = clip([track(PTR, [0, 1, 2], [10, 20, 30], "step")], 2);
+  const stepThree: IAutoMovieClip = clip(
+    [track(PTR, [0, 1, 2], [10, 20, 30], "step")],
+    2,
+  );
   TestValidator.equals(
     "step exact interior hit takes the hit key, asymptotes stay held",
     namedFacts([
-      ["closeValStepThree", () => close(val(stepThree, 1, "ptr:/x"), [20])],
+      [
+        "closeValStepThree",
+        (): boolean => close(val(stepThree, 1, "ptr:/x"), [20]),
+      ],
       [
         "closeValStepThree2",
-        () => close(val(stepThree, 1 - 1e-9, "ptr:/x"), [10]),
+        (): boolean => close(val(stepThree, 1 - 1e-9, "ptr:/x"), [10]),
       ],
       [
         "closeValStepThree3",
-        () => close(val(stepThree, 1.999, "ptr:/x"), [20]),
+        (): boolean => close(val(stepThree, 1.999, "ptr:/x"), [20]),
       ],
-      ["closeValStepThree4", () => close(val(stepThree, 2, "ptr:/x"), [30])],
+      [
+        "closeValStepThree4",
+        (): boolean => close(val(stepThree, 2, "ptr:/x"), [30]),
+      ],
     ]),
     {
       closeValStepThree: true,
@@ -154,7 +193,7 @@ export const test_resolve_sample_clip = (): void => {
     },
   );
 
-  const weights = clip(
+  const weights: IAutoMovieClip = clip(
     [track(NODE("weights"), [0, 1], [0, 0, 1, 1], "linear")],
     1,
   );
@@ -164,14 +203,14 @@ export const test_resolve_sample_clip = (): void => {
   );
 
   // 3. linear rotation slerps
-  const s = Math.SQRT1_2;
-  const rot = clip(
+  const s: number = Math.SQRT1_2;
+  const rot: IAutoMovieClip = clip(
     [track(NODE("rotation"), [0, 1], [0, 0, 0, 1, 0, s, 0, s], "linear")],
     1,
   );
-  const half = val(rot, 0.5, "node:n:rotation");
-  const c225 = Math.cos(Math.PI / 8);
-  const s225 = Math.sin(Math.PI / 8);
+  const half: number[] = val(rot, 0.5, "node:n:rotation");
+  const c225: number = Math.cos(Math.PI / 8);
+  const s225: number = Math.sin(Math.PI / 8);
   TestValidator.predicate(
     "linear rotation slerps to the 45° quaternion",
     qclose(
@@ -181,7 +220,7 @@ export const test_resolve_sample_clip = (): void => {
   );
 
   // 4. cubicspline scalar, zero tangents → Hermite blend
-  const cubic = clip(
+  const cubic: IAutoMovieClip = clip(
     [track(PTR, [0, 1], [0, 0, 0, 0, 10, 0], "cubicspline")],
     1,
   );
@@ -197,7 +236,7 @@ export const test_resolve_sample_clip = (): void => {
   );
 
   // 5. cubicspline rotation renormalizes
-  const cubicRot = clip(
+  const cubicRot: IAutoMovieClip = clip(
     [
       track(
         NODE("rotation"),
@@ -233,14 +272,17 @@ export const test_resolve_sample_clip = (): void => {
     ],
     1,
   );
-  const cr = val(cubicRot, 0.5, "node:n:rotation");
+  const cr: number[] = val(cubicRot, 0.5, "node:n:rotation");
   TestValidator.predicate(
     "cubicspline rotation stays unit length",
     nclose(Math.hypot(cr[0]!, cr[1]!, cr[2]!, cr[3]!), 1),
   );
 
   // 6. before first (first key time > 0) and at/after last
-  const offset = clip([track(PTR, [0.5, 1], [3, 9], "linear")], 1);
+  const offset: IAutoMovieClip = clip(
+    [track(PTR, [0.5, 1], [3, 9], "linear")],
+    1,
+  );
   TestValidator.predicate(
     "before first keyframe returns first value",
     close(val(offset, 0.2, "ptr:/x"), [3]),
@@ -251,21 +293,28 @@ export const test_resolve_sample_clip = (): void => {
   );
 
   // 7. single keyframe
-  const single = clip([track(PTR, [0.5], [7], "linear")], 1);
+  const single: IAutoMovieClip = clip([track(PTR, [0.5], [7], "linear")], 1);
   TestValidator.predicate(
     "single keyframe returns its value",
     close(val(single, 0.5, "ptr:/x"), [7]),
   );
 
   // 8. interior segment of three keyframes
-  const three = clip([track(PTR, [0, 1, 2], [0, 10, 30], "linear")], 2);
+  const three: IAutoMovieClip = clip(
+    [track(PTR, [0, 1, 2], [0, 10, 30], "linear")],
+    2,
+  );
   TestValidator.predicate(
     "three-keyframe interior segment",
     close(val(three, 1.5, "ptr:/x"), [20]),
   );
 
   // 9. looping wrap (positive and negative)
-  const loop = clip([track(PTR, [0, 1], [0, 10], "linear")], 1, true);
+  const loop: IAutoMovieClip = clip(
+    [track(PTR, [0, 1], [0, 10], "linear")],
+    1,
+    true,
+  );
   TestValidator.predicate(
     "loop wraps t=1.25 to 0.25",
     close(val(loop, 1.25, "ptr:/x"), [2.5]),
@@ -280,7 +329,7 @@ export const test_resolve_sample_clip = (): void => {
     "non-loop clamps past end to last value",
     close(val(lin, 5, "node:n:translation"), [10, 20, 30]),
   );
-  const zero = clip([track(PTR, [0, 1], [4, 8], "linear")], 0);
+  const zero: IAutoMovieClip = clip([track(PTR, [0, 1], [4, 8], "linear")], 0);
   TestValidator.predicate(
     "zero-duration normalizes to start",
     close(val(zero, 5, "ptr:/x"), [4]),
@@ -289,7 +338,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "empty track keyframes reject sampling",
     throwsError(
-      () => sampleClip(clip([track(PTR, [], [], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [], [], "linear")], 1), 0),
       'track "ptr:/x" must have keyframes to sample',
     ),
   );
@@ -297,14 +347,15 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "non-finite sample time rejects",
     throwsError(
-      () => sampleClip(lin, Number.NaN),
+      (): Map<string, IAutoMovieSampledChannel> => sampleClip(lin, Number.NaN),
       ["sampleClip seconds", "finite"],
     ),
   );
   TestValidator.predicate(
     "non-finite sequence time rejects even when the sequence is empty",
     throwsError(
-      () => sampleClipSequence([], Number.NaN),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClipSequence([], Number.NaN),
       ["sampleClipSequence seconds", "finite"],
     ),
   );
@@ -312,7 +363,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "non-finite clip duration rejects",
     throwsError(
-      () => sampleClip({ ...lin, duration: Infinity }, 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip({ ...lin, duration: Infinity }, 0),
       ["clip duration", "finite"],
     ),
   );
@@ -320,7 +372,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "negative clip duration rejects",
     throwsError(
-      () => sampleClip({ ...lin, duration: -1 }, 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip({ ...lin, duration: -1 }, 0),
       ["clip duration", "non-negative", "-1"],
     ),
   );
@@ -328,7 +381,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "non-boolean clip loop rejects",
     throwsError(
-      () => sampleClip({ ...lin, loop: "false" as unknown as boolean }, 2),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip({ ...lin, loop: "false" as unknown as boolean }, 2),
       ["clip loop", "boolean", "false"],
     ),
   );
@@ -336,7 +390,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "unknown interpolation rejects",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(
           clip(
             [
@@ -358,7 +412,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track keyframe times reject NaN",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(clip([track(PTR, [0, Number.NaN], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "keyframe times", "finite"],
     ),
@@ -367,7 +421,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track keyframe times reject negative start",
     throwsError(
-      () => sampleClip(clip([track(PTR, [-0.5, 0.5], [0, 1], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [-0.5, 0.5], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "keyframe times", "non-negative", "-0.5"],
     ),
   );
@@ -375,7 +430,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track keyframe times reject past clip duration",
     throwsError(
-      () => sampleClip(clip([track(PTR, [0, 2], [0, 1], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [0, 2], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "clip duration", "1", "2"],
     ),
   );
@@ -383,7 +439,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "duplicate track channels reject sampling",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(
           clip(
             [
@@ -401,7 +457,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track keyframe times reject duplicates",
     throwsError(
-      () => sampleClip(clip([track(PTR, [0, 0], [0, 1], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [0, 0], [0, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "strictly increasing"],
     ),
   );
@@ -409,7 +466,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track values reject empty payload",
     throwsError(
-      () => sampleClip(clip([track(PTR, [0], [], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [0], [], "linear")], 1), 0),
       ['track "ptr:/x"', "values", "must not be empty"],
     ),
   );
@@ -417,7 +475,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track values reject NaN",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(clip([track(PTR, [0, 1], [0, Number.NaN], "linear")], 1), 0),
       ['track "ptr:/x"', "values[1]", "finite", "NaN"],
     ),
@@ -426,7 +484,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track values reject infinity",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(clip([track(PTR, [0, 1], [0, Infinity], "linear")], 1), 0),
       ['track "ptr:/x"', "values[1]", "finite", "Infinity"],
     ),
@@ -435,7 +493,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "track values reject uneven keyframe stride",
     throwsError(
-      () => sampleClip(clip([track(PTR, [0, 1], [0, 1, 2], "linear")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [0, 1], [0, 1, 2], "linear")], 1), 0),
       ['track "ptr:/x"', "values length", "divide evenly"],
     ),
   );
@@ -443,7 +502,8 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "cubicspline values reject non-triplet stride",
     throwsError(
-      () => sampleClip(clip([track(PTR, [0], [0, 1], "cubicspline")], 1), 0),
+      (): Map<string, IAutoMovieSampledChannel> =>
+        sampleClip(clip([track(PTR, [0], [0, 1], "cubicspline")], 1), 0),
       ['track "ptr:/x"', "cubicspline", "divisible by 3"],
     ),
   );
@@ -451,7 +511,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "scalar channel rejects vec2-width values",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(clip([track(PTR, [0, 1], [0, 0, 1, 1], "linear")], 1), 0),
       ['track "ptr:/x"', "value width", "1", "2"],
     ),
@@ -460,7 +520,7 @@ export const test_resolve_sample_clip = (): void => {
   TestValidator.predicate(
     "rotation channel rejects vec3-width values",
     throwsError(
-      () =>
+      (): Map<string, IAutoMovieSampledChannel> =>
         sampleClip(
           clip(
             [track(NODE("rotation"), [0, 1], [0, 0, 1, 0, 0, 1], "linear")],
@@ -471,4 +531,4 @@ export const test_resolve_sample_clip = (): void => {
       ['track "node:n:rotation"', "value width", "4", "3"],
     ),
   );
-};
+}

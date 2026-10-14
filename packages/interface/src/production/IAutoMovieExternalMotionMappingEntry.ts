@@ -3,24 +3,16 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 /**
  * Explicit source-node to target-semantic-bone mapping entry.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-compatibility-override Makes automatic or authored mapping inspectable and overridable.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types the mapping decision retained by external motion adoption receipts.
+ * @evidence contracts/common.md#principled-implementation One declared source-node identity maps to a semantic bone in the authored sourceRig. Node/bone presence, one-to-one mapping and rest/hierarchy agreement remain host premises after production adoption retirement; the target label does not prove compatibility with a receiving actor rig.
+ * @evidence contracts/common.md#clear-and-simple-design The row records only correspondence, leaving rig definitions, adoption mode and translation scaling on their owning records instead of duplicating them per bone.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional source display names do not drive mapping, and fuzzy aliases or repeated target assignments cannot replace the author's explicit byte-grounded correspondence.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes stable inspected source-node addressing from normalized target-semantic bone identity.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionMappingEntry {
-  /**
-   * Stable source node identity from the inspected byte basis.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-compatibility-override Identifies the exact source node participating in the reviewed mapping.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Joins one byte-grounded source node to the retained mapping decision.
-   */
+  /** Stable source node identity from the inspected byte basis. */
   source: string;
 
-  /**
-   * Target normalized humanoid bone.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-compatibility-override Exposes the selected target control for user review or override.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Records the semantic target selected for the source node.
-   */
+  /** Semantic source-rig bone assigned to the inspected node, using the shared humanoid vocabulary. */
   target: AutoMovieHumanoidBone;
 }

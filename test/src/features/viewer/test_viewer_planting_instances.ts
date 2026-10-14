@@ -1,4 +1,12 @@
 import { arrangePlantingCluster, growPlanting } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingLeaf,
+  IAutoMoviePlantingPlacement,
+  IAutoMoviePlantingState,
+} from "@automovie/interface";
 import { buildPlantingObject } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -6,7 +14,13 @@ import * as THREE from "three";
 import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
-const FOLIAGE = {
+const FOLIAGE: {
+  density: number;
+  minLevel: number;
+  size: { x: number; y: number; z: number };
+  scaleJitter: number;
+  rollJitter: number;
+} = {
   density: 4,
   minLevel: 1,
   size: { x: 0.05, y: 0.125, z: 0.05 },
@@ -15,59 +29,39 @@ const FOLIAGE = {
 };
 
 /**
- * A planting cluster is drawn as GPU-instanced batches whose matrices are the
- * lossless composition of the member's transform with the branch's or leaf's
- * own.
+ * A planting cluster projects into native instanced batches whose stored matrices compose each member transform with its branch or leaf transform.
  *
- * Repetition must never become scene nodes. A bed of six ferns is two draws —
- * one batch of branches and one of leaves — and the instance count is exactly
- * `members × parts`, which is the whole reason the engine derives one prototype
- * structure and a list of placements instead of duplicating geometry.
+ * A nonempty bed with foliage has one branch batch and one leaf batch, with instance counts of members times the respective part population. This checks the compact representation rather than observing camera-dependent native draw submissions.
  *
- * Losslessness is the second half of the contract. Decomposing an instance's
- * matrix must return the member's own translation, its unit quaternion and its
- * three independent scale axes, composed with the part's: a degraded yaw or a
- * uniform scale would be a fact about the plant nobody authored. The comparison
- * is made to single-precision tolerance because `InstancedMesh` stores its
- * matrices as 32-bit floats — that rounding is the GPU's, not the derivation's,
- * and the reference values on the engine side stay double precision.
+ * Independent matrix composition checks full translation, rotation and per-axis scale; a nonuniform parent can shear a rotated leaf, so the composed matrix is checked before relying on a decomposition. Float32 instance-buffer rounding determines the tolerance, while Engine inputs remain double precision; no GPU has been acquired here.
  *
  * Scenarios:
  *
- * 1. The group holds exactly two instanced meshes, with instance counts equal to
- *    `members × branches` and `members × leaves`.
- * 2. The first branch instance decomposes to the first member's transform composed
- *    with the branch's own: the midpoint of the trunk, the rotation carrying
- *    `+y` onto the trunk axis, and the mean radius by the length.
- * 3. The first leaf instance is, element for element, the member's matrix times
- *    the leaf's own — and the leaf's own matrix round-trips back to exactly the
- *    translation, unit quaternion and per-axis scale the derivation emitted.
- *    The composed matrix deliberately does **not** decompose back to the
- *    product of the two scales: a per-axis parent scale composed with a rotated
- *    child is a sheared transform, which is why the check is on the matrix
- *    rather than on a decomposition that would have to invent a rotation for
- *    it.
- * 4. Every instance matrix is finite and every batch reports a bounding sphere, so
- *    nothing is culled against an unset volume.
- * 5. A branch the envelope cut to nothing keeps its instance slot and collapses to
- *    a zero-height cylinder, rather than being skipped — which would shift
- *    every later branch's index — or drawn with an undefined axis.
- * 6. A bare structure with no foliage rule produces no leaf batch at all rather
- *    than an empty one, and disposing releases what the object created while
- *    leaving a borrowed material alone.
- * 7. A structure that never emerged draws nothing: the batch is hidden and its
- *    bounding sphere is a point, rather than the empty sphere of radius
- *    `-Infinity` that computing bounds over zero instances would leave for a
- *    camera to cull against.
+ * 1. The group holds exactly two instanced meshes, with instance counts equal to `members × branches` and `members × leaves`.
+ * 2. The first branch instance decomposes to the first member's transform composed with the branch's own: the midpoint of the trunk, the rotation carrying `+y` onto the trunk axis, and the mean radius by the length.
+ * 3. The first leaf matrix equals member times leaf, while the leaf's own matrix round-trips its derived transform. The composed matrix is checked directly because a rotated child beneath nonuniform parent scale can produce shear.
+ * 4. Every instance matrix is finite and every batch reports a bounding sphere, so nothing is culled against an unset volume.
+ * 5. A branch cut to nothing retains its instance slot with zero height and a defined axis.
+ * 6. A bare structure with no foliage rule produces no leaf batch at all rather than an empty one, and disposing releases what the object created while leaving a borrowed material alone.
+ * 7. A structure that never emerged draws nothing: the batch is hidden and its bounding sphere is a point, rather than the empty sphere of radius `-Infinity` that computing bounds over zero instances would leave for a camera to cull against.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds actual branch/leaf batches, reads matrices/bounds/counts and retires returned owners; catches lost per-axis transforms, skipped pruned slots, invalid empty bounds and retirement of supplied materials.
+ * @evidence contracts/testing.md#independent-expectations Independent matrix composition and hand-derived branch midpoint/radius/length define values within Float32 tolerance. Engine plant derivation supplies input rather than an independent botanical oracle, and dispose events count public attempts without certifying GPU release.
+ * @evidence contracts/testing.md#distinguishing-cases Covers branches/leaves, nonuniform/sheared composition, pruned zero-length slots, bare foliage, dormant populations and borrowed lifetime; placement derivation and observed pixels are separate obligations.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit reuses existing generic planting fixtures and maintained source with CPU-side Three objects, disposes local owners and starts no renderer, browser, native process or new asset.
  */
-export const test_viewer_planting_instances = (): void => {
-  const domain = plantingRecipe({ foliage: FOLIAGE });
-  const plant = growPlanting(domain);
-  const arrangement = arrangePlantingCluster(plantingCluster());
-  const object = buildPlantingObject({ plant, arrangement });
+export function test_viewer_planting_instances(): void {
+  const domain: IAutoMoviePlantingDomain = plantingRecipe({ foliage: FOLIAGE });
+  const plant: IAutoMoviePlantingState = growPlanting(domain);
+  const arrangement: IAutoMoviePlantingArrangement =
+    arrangePlantingCluster(plantingCluster());
+  const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+    plant,
+    arrangement,
+  });
 
   TestValidator.equals(
-    "a cluster is two instanced draws, not a forest of scene nodes",
+    "the cluster stores one branch batch and one leaf batch with the declared instance counts",
     {
       children: object.object.children.length,
       branches: object.branchCount,
@@ -75,7 +69,8 @@ export const test_viewer_planting_instances = (): void => {
       branchInstances: object.branches.count,
       leafInstances: object.leaves?.count ?? -1,
       instancedMeshes: object.object.children.filter(
-        (child) => child instanceof THREE.InstancedMesh,
+        (child: THREE.Object3D<THREE.Object3DEventMap>): boolean =>
+          child instanceof THREE.InstancedMesh,
       ).length,
     },
     {
@@ -88,15 +83,15 @@ export const test_viewer_planting_instances = (): void => {
     },
   );
 
-  const member = arrangement.placements[0];
-  const trunk = plant.branches[0];
-  const matrix = new THREE.Matrix4();
+  const member: IAutoMoviePlantingPlacement = arrangement.placements[0];
+  const trunk: IAutoMoviePlantingBranch = plant.branches[0];
+  const matrix: THREE.Matrix4 = new THREE.Matrix4();
   object.branches.getMatrixAt(0, matrix);
-  const translation = new THREE.Vector3();
-  const rotation = new THREE.Quaternion();
-  const scale = new THREE.Vector3();
+  const translation: THREE.Vector3 = new THREE.Vector3();
+  const rotation: THREE.Quaternion = new THREE.Quaternion();
+  const scale: THREE.Vector3 = new THREE.Vector3();
   matrix.decompose(translation, rotation, scale);
-  const expected = new THREE.Matrix4()
+  const expected: THREE.Matrix4 = new THREE.Matrix4()
     .compose(
       new THREE.Vector3(
         member.translation.x,
@@ -133,18 +128,21 @@ export const test_viewer_planting_instances = (): void => {
         ),
       ),
     );
-  const wantTranslation = new THREE.Vector3();
-  const wantRotation = new THREE.Quaternion();
-  const wantScale = new THREE.Vector3();
+  const wantTranslation: THREE.Vector3 = new THREE.Vector3();
+  const wantRotation: THREE.Quaternion = new THREE.Quaternion();
+  const wantScale: THREE.Vector3 = new THREE.Vector3();
   expected.decompose(wantTranslation, wantRotation, wantScale);
   TestValidator.equals(
     "a branch instance is the member's transform composed with the branch's",
     namedFacts([
-      ["translation", () => vclose(translation, wantTranslation, 1e-5)],
-      ["rotation", () => qclose(rotation, wantRotation, 1e-5)],
+      [
+        "translation",
+        (): boolean => vclose(translation, wantTranslation, 1e-5),
+      ],
+      ["rotation", (): boolean => qclose(rotation, wantRotation, 1e-5)],
       [
         "scaleY",
-        () =>
+        (): boolean =>
           nclose(
             scale.y,
             member.scale.y *
@@ -158,14 +156,18 @@ export const test_viewer_planting_instances = (): void => {
       ],
       [
         "scaleX",
-        () =>
+        (): boolean =>
           nclose(
             scale.x,
             member.scale.x * ((trunk.radiusStart + trunk.radiusEnd) / 2),
             1e-5,
           ),
       ],
-      ["nonUniform", () => scale.x !== scale.y && scale.y !== scale.z],
+      [
+        "nonUniform",
+        (): boolean =>
+          !nclose(scale.x, scale.y, 0) && !nclose(scale.y, scale.z, 0),
+      ],
     ]),
     {
       translation: true,
@@ -176,10 +178,10 @@ export const test_viewer_planting_instances = (): void => {
     },
   );
 
-  const leaf = plant.leaves[0];
-  const leafMatrix = new THREE.Matrix4();
+  const leaf: IAutoMoviePlantingLeaf = plant.leaves[0];
+  const leafMatrix: THREE.Matrix4 = new THREE.Matrix4();
   object.leaves?.getMatrixAt(0, leafMatrix);
-  const leafLocal = new THREE.Matrix4().compose(
+  const leafLocal: THREE.Matrix4 = new THREE.Matrix4().compose(
     new THREE.Vector3(
       leaf.translation.x,
       leaf.translation.y,
@@ -193,7 +195,7 @@ export const test_viewer_planting_instances = (): void => {
     ),
     new THREE.Vector3(leaf.scale.x, leaf.scale.y, leaf.scale.z),
   );
-  const leafExpected = new THREE.Matrix4()
+  const leafExpected: THREE.Matrix4 = new THREE.Matrix4()
     .compose(
       new THREE.Vector3(
         member.translation.x,
@@ -209,32 +211,32 @@ export const test_viewer_planting_instances = (): void => {
       new THREE.Vector3(member.scale.x, member.scale.y, member.scale.z),
     )
     .multiply(leafLocal);
-  const backTranslation = new THREE.Vector3();
-  const backRotation = new THREE.Quaternion();
-  const backScale = new THREE.Vector3();
+  const backTranslation: THREE.Vector3 = new THREE.Vector3();
+  const backRotation: THREE.Quaternion = new THREE.Quaternion();
+  const backScale: THREE.Vector3 = new THREE.Vector3();
   leafLocal.decompose(backTranslation, backRotation, backScale);
   TestValidator.equals(
     "a leaf instance is the exact composition of two full transforms",
     namedFacts([
       [
         "elements",
-        () =>
-          leafMatrix.elements.every((value, index) =>
+        (): boolean =>
+          leafMatrix.elements.every((value: number, index: number): boolean =>
             nclose(value, leafExpected.elements[index], 1e-5),
           ),
       ],
       [
         "localRoundTrip",
-        () =>
+        (): boolean =>
           vclose(backTranslation, leaf.translation, 1e-12) &&
           qclose(backRotation, leaf.rotation, 1e-12) &&
           vclose(backScale, leaf.scale, 1e-12),
       ],
-      ["perAxis", () => leaf.scale.x !== leaf.scale.y],
+      ["perAxis", (): boolean => !nclose(leaf.scale.x, leaf.scale.y, 0)],
       [
         "shearedByDesign",
-        () => {
-          const scale = new THREE.Vector3();
+        (): boolean => {
+          const scale: THREE.Vector3 = new THREE.Vector3();
           leafMatrix.decompose(
             new THREE.Vector3(),
             new THREE.Quaternion(),
@@ -257,23 +259,29 @@ export const test_viewer_planting_instances = (): void => {
     namedFacts([
       [
         "branches",
-        () =>
-          Array.from(object.branches.instanceMatrix.array).every((value) =>
-            Number.isFinite(value),
+        (): boolean =>
+          Array.from(object.branches.instanceMatrix.array).every(
+            (value: number): boolean => Number.isFinite(value),
           ),
       ],
       [
         "leaves",
-        () =>
-          Array.from(object.leaves?.instanceMatrix.array ?? []).every((value) =>
-            Number.isFinite(value),
+        (): boolean =>
+          Array.from(object.leaves?.instanceMatrix.array ?? []).every(
+            (value: number): boolean => Number.isFinite(value),
           ),
       ],
-      ["branchBounds", () => object.branches.boundingSphere !== null],
-      ["leafBounds", () => (object.leaves?.boundingSphere ?? null) !== null],
-      ["cluster", () => object.object.userData.cluster === "atrium-bed"],
-      ["stage", () => object.object.userData.stage === 1],
-      ["rejected", () => object.object.userData.rejected === 0],
+      ["branchBounds", (): boolean => object.branches.boundingSphere !== null],
+      [
+        "leafBounds",
+        (): boolean => (object.leaves?.boundingSphere ?? null) !== null,
+      ],
+      [
+        "cluster",
+        (): boolean => object.object.userData.cluster === "atrium-bed",
+      ],
+      ["stage", (): boolean => object.object.userData.stage === 1],
+      ["rejected", (): boolean => object.object.userData.rejected === 0],
     ]),
     {
       branches: true,
@@ -286,13 +294,17 @@ export const test_viewer_planting_instances = (): void => {
     },
   );
 
-  const borrowed = new THREE.MeshBasicMaterial();
-  const bare = buildPlantingObject({
+  const borrowed: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
+  let borrowedDisposals: number = 0;
+  borrowed.addEventListener("dispose", (): void => {
+    ++borrowedDisposals;
+  });
+  const bare: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
     plant: growPlanting(plantingRecipe()),
     arrangement,
     branchMaterial: borrowed,
   });
-  const cut = growPlanting(
+  const cut: IAutoMoviePlantingState = growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, length: 2 },
       pruning: {
@@ -302,38 +314,44 @@ export const test_viewer_planting_instances = (): void => {
       },
     }),
   );
-  const pruned = buildPlantingObject({ plant: cut, arrangement });
-  const stub = new THREE.Matrix4();
+  const pruned: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+    plant: cut,
+    arrangement,
+  });
+  const stub: THREE.Matrix4 = new THREE.Matrix4();
   pruned.branches.getMatrixAt(cut.branches.length - 1, stub);
   TestValidator.equals(
     "a branch pruned to nothing keeps its slot and collapses instead of skewing",
     namedFacts([
       [
         "zeroLength",
-        () => {
-          const tip = cut.branches[cut.branches.length - 1];
-          return (
-            tip.start.x === tip.end.x &&
-            tip.start.y === tip.end.y &&
-            tip.start.z === tip.end.z
-          );
+        (): boolean => {
+          const tip: IAutoMoviePlantingBranch =
+            cut.branches[cut.branches.length - 1];
+          return vclose(tip.start, tip.end, 0);
         },
       ],
-      ["finite", () => stub.elements.every((value) => Number.isFinite(value))],
+      [
+        "finite",
+        (): boolean =>
+          stub.elements.every((value: number): boolean =>
+            Number.isFinite(value),
+          ),
+      ],
       [
         "collapsed",
-        () => {
-          // A singular matrix has no unique rotation/scale decomposition.
-          // Its Y column directly measures the rendered branch-axis extent.
-          return (
-            Math.hypot(stub.elements[4], stub.elements[5], stub.elements[6]) ===
-            0
+        (): boolean => {
+          // A singular matrix has no unique rotation/scale decomposition; its Y column measures the stored branch-axis extent.
+          return nclose(
+            Math.hypot(stub.elements[4], stub.elements[5], stub.elements[6]),
+            0,
+            0,
           );
         },
       ],
       [
         "slots",
-        () =>
+        (): boolean =>
           pruned.branchCount ===
           arrangement.placements.length * cut.branches.length,
       ],
@@ -345,13 +363,13 @@ export const test_viewer_planting_instances = (): void => {
   TestValidator.equals(
     "a bare structure has no leaf batch, and a borrowed material is left alone",
     namedFacts([
-      ["noLeaves", () => bare.leaves === null && bare.leafCount === 0],
-      ["oneChild", () => bare.object.children.length === 1],
-      ["borrowed", () => bare.branches.material === borrowed],
+      ["noLeaves", (): boolean => bare.leaves === null && bare.leafCount === 0],
+      ["oneChild", (): boolean => bare.object.children.length === 1],
+      ["borrowed", (): boolean => bare.branches.material === borrowed],
     ]),
     { noLeaves: true, oneChild: true, borrowed: true },
   );
-  const dormant = buildPlantingObject({
+  const dormant: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
     plant: growPlanting(
       plantingRecipe({ growth: { stage: 0, onset: 0.25 }, foliage: FOLIAGE }),
     ),
@@ -360,12 +378,17 @@ export const test_viewer_planting_instances = (): void => {
   TestValidator.equals(
     "a structure that never emerged is hidden and bounded at a point",
     namedFacts([
-      ["branchCount", () => dormant.branchCount === 0],
-      ["leafCount", () => dormant.leafCount === 0],
-      ["hidden", () => dormant.branches.visible === false],
-      ["bounded", () => dormant.branches.boundingSphere?.radius === 0],
-      ["noLeafBatch", () => dormant.leaves === null],
-      ["oneChild", () => dormant.object.children.length === 1],
+      ["branchCount", (): boolean => dormant.branchCount === 0],
+      ["leafCount", (): boolean => dormant.leafCount === 0],
+      ["hidden", (): boolean => dormant.branches.visible === false],
+      [
+        "bounded",
+        (): boolean =>
+          dormant.branches.boundingSphere !== null &&
+          nclose(dormant.branches.boundingSphere.radius, 0, 0),
+      ],
+      ["noLeafBatch", (): boolean => dormant.leaves === null],
+      ["oneChild", (): boolean => dormant.object.children.length === 1],
     ]),
     {
       branchCount: true,
@@ -379,6 +402,16 @@ export const test_viewer_planting_instances = (): void => {
   dormant.dispose();
 
   bare.dispose();
+  TestValidator.equals(
+    "planting retirement leaves its supplied material borrowed",
+    borrowedDisposals,
+    0,
+  );
   object.dispose();
   borrowed.dispose();
-};
+  TestValidator.equals(
+    "the supplied material's own caller retires it once",
+    borrowedDisposals,
+    1,
+  );
+}

@@ -1,5 +1,13 @@
 import { validateServiceNetwork } from "@automovie/engine";
-import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePenetration,
+  IAutoMovieServiceSegment,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -18,30 +26,37 @@ import {
   withSleeve,
 } from "../internal/serviceFixtures";
 
-const environment = serviceEnvironment();
-const refuse = (network = serviceNetwork()) =>
-  validateServiceNetwork({ network, environment });
+const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /** The same building with every room reduced to a name and no volume. */
-const semantic = (): IAutoMovieBuiltEnvironment => {
-  const built = serviceEnvironment();
-  return {
-    ...built,
-    spaces: built.spaces.map((space) => ({ ...space, cells: [] })),
+const semantic: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment => {
+    const built: IAutoMovieBuiltEnvironment = serviceEnvironment();
+    return {
+      ...built,
+      spaces: built.spaces.map(
+        (space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({
+          ...space,
+          cells: [],
+        }),
+      ),
+    };
   };
-};
 
 /**
  * A run that leaves the room it started in has been through a wall, and the
  * record has to say so.
  *
- * Boundaries carry no surface geometry yet, so the crossing cannot be found by
- * intersecting a wall. It is found in the logical spaces instead: the moment
- * two consecutive points of a centre line disagree about which rooms contain
- * them, the run has left one region for another and is expected to name a
- * sleeve on a boundary of one of them. That reading is exact where volumes are
- * declared and deliberately silent where they are not — a purely semantic
- * partition is a name on a plan, not a wall anybody drilled.
+ * Crossing detection reads logical spaces separately from optional boundary
+ * faces. Changed room membership between consecutive centre-line vertices
+ * requires a sleeve on a boundary of one of those rooms. That membership
+ * comparison uses declared space volumes and remains silent where none exist;
+ * a purely semantic
+ * partition is a name on a plan, not a wall anybody drilled. Vertex sampling
+ * does not independently detect crossings between equal-membership endpoints.
  *
  * The sleeve then answers for itself. It must be wide enough for what passes
  * through it, it must sit on the run that claims it, it must belong to a
@@ -74,37 +89,50 @@ const semantic = (): IAutoMovieBuiltEnvironment => {
  *     separation's own thickness, wider than the face it pierces, or outside
  *     the void it claims to pass through, each refused. A boundary with no face
  *     and an opening with no profile are skipped rather than guessed at.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Validates actual crossing, sleeve citation, radius/route fit, opening/boundary and waterproof-seal decisions; reads exact authored finding paths, selected counts, warnings and metre overshoots to catch dropped or duplicate diagnoses.
+ * @evidence contracts/testing.md#independent-expectations Authored references and tanking membership define citation/seal obligations, while 0.025-0.01 metre radius and 0.5-0.1 metre face-offset differences pin overshoots independently. Typed fixtures do not independently prove continuous crossing geometry, exact circular corner fit or built waterproof performance.
+ * @evidence contracts/testing.md#distinguishing-cases Covers missing/unused/unknown/duplicate sleeves, narrow/adrift penetrations, missing/wrong openings and boundaries, sealed/untanked twins, off-face/oversized/off-void placements and absent face/profile/space volumes. Successful skipped checks are admission only; exact warning counts are separately asserted where owned.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit calls maintained portable Engine validation with the existing service fixture and local record mutations, owning all cases without a browser, renderer, process, native artifact or dynamic registration.
  */
-export const test_service_penetration_seal = (): void => {
-  const clean = serviceNetwork();
+export function test_service_penetration_seal(): void {
+  const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
-  const bare = refuse(
-    withSegment(clean, "cold-run", (run) => ({ ...run, penetrations: [] })),
+  const bare: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: [],
+      }),
+    ),
   );
   TestValidator.equals(
     "a run that leaves its room without a sleeve is refused",
     namedFacts([
       [
         "crossing",
-        () => hasViolation(bare, "type", "$input.segments[0].penetrations"),
+        (): boolean =>
+          hasViolation(bare, "type", "$input.segments[0].penetrations"),
       ],
       [
         "message",
-        () =>
+        (): boolean =>
           bare.success === false &&
-          bare.violations.some((item) =>
+          bare.violations.some((item: IAutoMovieConstraintViolation): boolean =>
             item.expected.includes("crossing between logical spaces"),
           ),
       ],
       [
         "orphanedPlantSleeve",
-        () => hasViolation(bare, "coverage", "$input.penetrations[0]"),
+        (): boolean => hasViolation(bare, "coverage", "$input.penetrations[0]"),
       ],
       [
         "orphanedBathSleeve",
-        () => hasViolation(bare, "coverage", "$input.penetrations[1]"),
+        (): boolean => hasViolation(bare, "coverage", "$input.penetrations[1]"),
       ],
-      ["exactly", () => violationCount(bare) === 3],
+      ["exactly", (): boolean => violationCount(bare) === 3],
     ]),
     {
       crossing: true,
@@ -115,7 +143,7 @@ export const test_service_penetration_seal = (): void => {
     },
   );
 
-  const spare = validateServiceNetwork({
+  const spare: IAutoMovieValidation = validateServiceNetwork({
     network: {
       ...clean,
       penetrations: [
@@ -134,7 +162,7 @@ export const test_service_penetration_seal = (): void => {
     namedFacts([
       [
         "warned",
-        () =>
+        (): boolean =>
           validationHasWarning(
             "spare sleeve",
             spare,
@@ -144,74 +172,92 @@ export const test_service_penetration_seal = (): void => {
       ],
       [
         "onlyWarning",
-        () => validationHasWarningCount("spare sleeve", spare, 1),
+        (): boolean => validationHasWarningCount("spare sleeve", spare, 1),
       ],
     ]),
     { warned: true, onlyWarning: true },
   );
 
-  const tight = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      radius: 0.01,
-    })),
+  const tight: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        radius: 0.01,
+      }),
+    ),
   );
   TestValidator.equals(
     "a run does not pass through a sleeve narrower than itself",
     namedFacts([
       [
         "refused",
-        () => hasViolation(tight, "range", "$input.segments[0].radius"),
+        (): boolean =>
+          hasViolation(tight, "range", "$input.segments[0].radius"),
       ],
       [
         "overshoot",
-        () =>
+        (): boolean =>
           tight.success === false &&
-          tight.violations.some((item) =>
-            nclose(item.overshoot ?? -1, 0.015, 1e-12),
+          tight.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.015, 1e-12),
           ),
       ],
-      ["alone", () => violationCount(tight) === 1],
+      ["alone", (): boolean => violationCount(tight) === 1],
     ]),
     { refused: true, overshoot: true, alone: true },
   );
 
-  const adrift = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      position: { x: 4, y: 1, z: 1 },
-    })),
+  const adrift: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4, y: 1, z: 1 },
+      }),
+    ),
   );
-  const unknown = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      penetrations: ["ghost", "cold-plant-hall", "cold-bath-hall"],
-    })),
+  const unknown: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: ["ghost", "cold-plant-hall", "cold-bath-hall"],
+      }),
+    ),
   );
-  const twice = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      penetrations: ["cold-plant-hall", "cold-plant-hall", "cold-bath-hall"],
-    })),
+  const twice: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: ["cold-plant-hall", "cold-plant-hall", "cold-bath-hall"],
+      }),
+    ),
   );
   TestValidator.equals(
     "a citation is checked as a citation, not as the sleeve it names",
     namedFacts([
       [
         "adrift",
-        () =>
+        (): boolean =>
           hasViolation(adrift, "range", "$input.segments[0].penetrations[1]") &&
           violationCount(adrift) === 1,
       ],
       [
         "unknown",
-        () =>
+        (): boolean =>
           hasViolation(unknown, "type", "$input.segments[0].penetrations[0]") &&
           violationCount(unknown) === 1,
       ],
       [
         "twice",
-        () =>
+        (): boolean =>
           hasViolation(twice, "type", "$input.segments[0].penetrations[1]") &&
           violationCount(twice) === 1,
       ],
@@ -219,42 +265,55 @@ export const test_service_penetration_seal = (): void => {
     { adrift: true, unknown: true, twice: true },
   );
 
-  const homeless = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      boundary: "nowhere",
-    })),
+  const homeless: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        boundary: "nowhere",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve on a boundary that does not exist is refused exactly once",
     namedFacts([
       [
         "refused",
-        () => hasViolation(homeless, "type", "$input.penetrations[1].boundary"),
+        (): boolean =>
+          hasViolation(homeless, "type", "$input.penetrations[1].boundary"),
       ],
-      ["alone", () => violationCount(homeless) === 1],
+      ["alone", (): boolean => violationCount(homeless) === 1],
     ]),
     { refused: true, alone: true },
   );
 
-  const ghostOpening = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry) => ({
-      ...entry,
-      opening: "no-such-opening",
-    })),
+  const ghostOpening: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "no-such-opening",
+      }),
+    ),
   );
-  const wrongOpening = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry) => ({
-      ...entry,
-      opening: "plant-hatch",
-    })),
+  const wrongOpening: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "plant-hatch",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve may only cite an opening cut through its own boundary",
     namedFacts([
       [
         "ghost",
-        () =>
+        (): boolean =>
           hasViolation(
             ghostOpening,
             "type",
@@ -263,7 +322,7 @@ export const test_service_penetration_seal = (): void => {
       ],
       [
         "wrongBoundary",
-        () =>
+        (): boolean =>
           hasViolation(
             wrongOpening,
             "type",
@@ -274,85 +333,116 @@ export const test_service_penetration_seal = (): void => {
     { ghost: true, wrongBoundary: true },
   );
 
-  const leaking = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      sealed: false,
-    })),
+  const leaking: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        sealed: false,
+      }),
+    ),
   );
   TestValidator.equals(
     "waterproofing is only waterproof where the sleeves through it were made good",
     namedFacts([
       [
         "refused",
-        () => hasViolation(leaking, "type", "$input.penetrations[1].sealed"),
+        (): boolean =>
+          hasViolation(leaking, "type", "$input.penetrations[1].sealed"),
       ],
-      ["alone", () => violationCount(leaking) === 1],
+      ["alone", (): boolean => violationCount(leaking) === 1],
       [
         "untankedBoundaryUnaffected",
-        () => clean.penetrations[12]!.sealed === false && refuse().success,
+        (): boolean =>
+          clean.penetrations[12]!.sealed === false && refuse().success,
       ],
     ]),
     { refused: true, alone: true, untankedBoundaryUnaffected: true },
   );
 
-  const offPlane = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      position: { x: 4.5, y: 2.5, z: 1 },
-    })),
+  const offPlane: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4.5, y: 2.5, z: 1 },
+      }),
+    ),
   );
-  const oversize = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({ ...entry, radius: 3 })),
+  const oversize: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        radius: 3,
+      }),
+    ),
   );
-  const offVoid = refuse(
-    withSleeve(clean, "waste-bath-hall", (entry) => ({
-      ...entry,
-      position: { x: 4, y: 1.5, z: 1 },
-    })),
+  const offVoid: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "waste-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        position: { x: 4, y: 1.5, z: 1 },
+      }),
+    ),
   );
-  const faceless = refuse(
-    withSleeve(clean, "cold-bath-hall", (entry) => ({
-      ...entry,
-      boundary: "bath-shell",
-    })),
+  const faceless: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "cold-bath-hall",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        boundary: "bath-shell",
+      }),
+    ),
   );
-  const plainHatch = refuse(
-    withSleeve(clean, "air-hall-plant", (entry) => ({
-      ...entry,
-      opening: "plant-hatch",
-    })),
+  const plainHatch: IAutoMovieValidation = refuse(
+    withSleeve(
+      clean,
+      "air-hall-plant",
+      (entry: IAutoMovieServicePenetration): IAutoMovieServicePenetration => ({
+        ...entry,
+        opening: "plant-hatch",
+      }),
+    ),
   );
   TestValidator.equals(
     "a sleeve is held inside the face it pierces, and inside the void it cites",
     namedFacts([
       [
         "offPlane",
-        () =>
+        (): boolean =>
           hasViolation(offPlane, "range", "$input.penetrations[1].position") &&
           offPlane.success === false &&
-          offPlane.violations.some((item) =>
-            nclose(item.overshoot ?? -1, 0.4, 1e-12),
+          offPlane.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.4, 1e-12),
           ) &&
           violationCount(offPlane) === 1,
       ],
       [
         "oversize",
-        () =>
+        (): boolean =>
           hasViolation(oversize, "type", "$input.penetrations[1].position") &&
           violationCount(oversize) === 1,
       ],
       [
         "offVoid",
-        () => hasViolation(offVoid, "type", "$input.penetrations[5].opening"),
+        (): boolean =>
+          hasViolation(offVoid, "type", "$input.penetrations[5].opening"),
       ],
       [
         "offVoidLeftItsRunToo",
-        () =>
+        (): boolean =>
           hasViolation(offVoid, "range", "$input.segments[5].penetrations[0]"),
       ],
-      ["facelessBoundarySkipped", () => faceless.success === true],
-      ["profilelessOpeningSkipped", () => plainHatch.success === true],
+      ["facelessBoundarySkipped", (): boolean => faceless.success === true],
+      ["profilelessOpeningSkipped", (): boolean => plainHatch.success === true],
     ]),
     {
       offPlane: true,
@@ -364,20 +454,24 @@ export const test_service_penetration_seal = (): void => {
     },
   );
 
-  const nowhere = validateServiceNetwork({
-    network: withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      penetrations: [],
-    })),
+  const nowhere: IAutoMovieValidation = validateServiceNetwork({
+    network: withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        penetrations: [],
+      }),
+    ),
     environment: semantic(),
   });
   TestValidator.equals(
     "where no room declares a volume, no crossing is invented",
     namedFacts([
-      ["accepted", () => nowhere.success === true],
+      ["accepted", (): boolean => nowhere.success === true],
       [
         "warningCount",
-        () =>
+        (): boolean =>
           // The `success` comparison is restated only to narrow the union
           // inside this closure.
           nowhere.success === true && (nowhere.warnings ?? []).length === 2,
@@ -385,4 +479,4 @@ export const test_service_penetration_seal = (): void => {
     ]),
     { accepted: true, warningCount: true },
   );
-};
+}

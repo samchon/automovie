@@ -2,14 +2,18 @@ import { simulateSoftBody, validateSoftBodyDomain } from "@automovie/engine";
 import {
   AutoMovieViolationKind,
   IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertSoftBodyBoundaryRefusals } from "../internal/assertSoftBodyBoundaryRefusals";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
 
 /** A valid 3×3 panel every negative below is one property away from. */
-const sound = (
+const sound: (
+  overrides?: Partial<IAutoMovieSoftBodyDomain>,
+) => IAutoMovieSoftBodyDomain = (
   overrides: Partial<IAutoMovieSoftBodyDomain> = {},
 ): IAutoMovieSoftBodyDomain =>
   softPanel({
@@ -53,8 +57,12 @@ const sound = (
     },
   });
 
-/** True when one property away from sound produces exactly the named refusal. */
-const refuses = (
+/** True when the changed domain includes a refusal of the named kind at the requested path. */
+const refuses: (
+  overrides: Partial<IAutoMovieSoftBodyDomain>,
+  kind: AutoMovieViolationKind,
+  path: string,
+) => boolean = (
   overrides: Partial<IAutoMovieSoftBodyDomain>,
   kind: AutoMovieViolationKind,
   path: string,
@@ -66,12 +74,12 @@ const refuses = (
   );
 
 /**
- * Every soft-body authoring mistake is refused with the path of the offending
- * field, and every neighbouring correct authoring is accepted.
+ * Selected soft-body authoring mistakes produce located field refusals, while
+ * a complete domain and adjacent valid collider/wind cases remain accepted.
  *
  * A validator that only ever fires is as useless as one that never does, so the
- * complete panel is asserted clean first and each refusal below is exactly one
- * property away from it. The pass exists so the solver never has to guess what
+ * complete panel is asserted successful first and each refusal changes the
+ * relevant field or annotation group. The pass exists so the solver never has to guess what
  * an inconsistent record meant: an array of the wrong length, a zero mass, two
  * coincident rest particles with no direction between them, two anchors
  * fighting over one particle, a named state citing an anchor nobody declared,
@@ -101,14 +109,18 @@ const refuses = (
  *    overflow.
  * 7. Colliders: a duplicated id, a zero and a non-finite plane normal, a
  *    non-positive radius, an inverted box, a collider budget overflow, and a
- *    plane whose degenerate normal makes the embedding test unanswerable rather
- *    than wrong. A panel that starts buried in a box is refused, while one
+ *    non-finite plane offset. A panel that starts buried in a box is refused, while one
  *    clear of that box on a single axis is not: the embedding test reads all
  *    three axes rather than concluding from the first two.
  * 8. Wind: a zero direction, a non-finite acceleration, a negative gust amplitude
  *    and a negative gust frequency.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateSoftBodyDomain on a valid panel and malformed identity, lattice, array, solver, geometry, anchor/state, collider and wind fields, checking located refusal kinds through refuses/hasViolation. Direct simulation of coincident rest particles remains finite, demonstrating why numerical survival alone does not admit that geometry.
+ * @evidence contracts/testing.md#independent-expectations Version 1/metre units, dense three-coordinate particles, positive masses/clock, bounded solver values, unique references, nonzero edges/normals and strict box intervals supply the oracle. Literal oversized values cross the declared budgets of 16384 particles, 64 sweeps/colliders, 32 states and 100000 steps. The finding predicates require presence and location, not an exact singleton finding count or universal malformed-input totality.
+ * @evidence contracts/testing.md#distinguishing-cases Eight groups retain the clean control, isolated field changes, both lattice axes, both coincident-edge directions, duplicated identities/references, box embedding versus one-axis clearance, and absent wind. The test does not exhaust every field boundary or moving-body binding, travel-number and arbitrary malformed container case; specialized soft tests own those paths.
+ * @evidence contracts/testing.md#execution-ownership The named test_soft_body_validation entry owns the synchronously invoked assertSoftBodyBoundaryRefusals cases and passes the original sound/refuses function objects into that helper. Portable admission and CPU replay use no renderer, host or dynamically registered cases.
  */
-export const test_soft_body_validation = (): void => {
+export function test_soft_body_validation(): void {
   TestValidator.equals(
     "a complete panel validates clean",
     validateSoftBodyDomain({ domain: sound() }).success,
@@ -118,14 +130,15 @@ export const test_soft_body_validation = (): void => {
   TestValidator.equals(
     "identity and schema are named",
     namedFacts([
-      ["blankId", () => refuses({ id: "  " }, "type", "$input.id")],
+      ["blankId", (): boolean => refuses({ id: "  " }, "type", "$input.id")],
       [
         "version",
-        () => refuses({ version: 2 as unknown as 1 }, "type", "$input.version"),
+        (): boolean =>
+          refuses({ version: 2 as unknown as 1 }, "type", "$input.version"),
       ],
       [
         "units",
-        () =>
+        (): boolean =>
           refuses(
             { units: "feet" as unknown as "meter" },
             "type",
@@ -145,7 +158,7 @@ export const test_soft_body_validation = (): void => {
     namedFacts([
       [
         "fractionalColumns",
-        () =>
+        (): boolean =>
           refuses(
             { lattice: { columns: 2.5, rows: 3 } },
             "type",
@@ -154,12 +167,12 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "fractionalRows",
-        () =>
+        (): boolean =>
           refuses({ lattice: { columns: 3, rows: 0 } }, "type", "lattice.rows"),
       ],
       [
         "tooMany",
-        () =>
+        (): boolean =>
           hasViolation(
             validateSoftBodyDomain({ domain: oversized }),
             "range",
@@ -168,7 +181,7 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "tooFew",
-        () =>
+        (): boolean =>
           hasViolation(
             validateSoftBodyDomain({
               domain: softPanel({ columns: 1, rows: 1 }),
@@ -177,20 +190,26 @@ export const test_soft_body_validation = (): void => {
             "$input.lattice",
           ),
       ],
-      ["restLength", () => refuses({ rest: [0, 0, 0] }, "type", "$input.rest")],
-      ["massLength", () => refuses({ mass: [1] }, "type", "$input.mass")],
+      [
+        "restLength",
+        (): boolean => refuses({ rest: [0, 0, 0] }, "type", "$input.rest"),
+      ],
+      [
+        "massLength",
+        (): boolean => refuses({ mass: [1] }, "type", "$input.mass"),
+      ],
       [
         "restValue",
-        () => {
-          const rest = sound().rest.slice();
+        (): boolean => {
+          const rest: number[] = sound().rest.slice();
           rest[4] = Number.NaN;
           return refuses({ rest }, "range", "$input.rest[4]");
         },
       ],
       [
         "massValue",
-        () => {
-          const mass = sound().mass.slice();
+        (): boolean => {
+          const mass: number[] = sound().mass.slice();
           mass[2] = 0;
           return refuses({ mass }, "range", "$input.mass[2]");
         },
@@ -208,7 +227,9 @@ export const test_soft_body_validation = (): void => {
     },
   );
 
-  const solver = (
+  const solver: (
+    patch: Partial<IAutoMovieSoftBodyDomain["solver"]>,
+  ) => Partial<IAutoMovieSoftBodyDomain> = (
     patch: Partial<IAutoMovieSoftBodyDomain["solver"]>,
   ): Partial<IAutoMovieSoftBodyDomain> => ({
     solver: { ...sound().solver, ...patch },
@@ -218,7 +239,7 @@ export const test_soft_body_validation = (): void => {
     namedFacts([
       [
         "step",
-        () =>
+        (): boolean =>
           refuses(
             solver({ fixedStepSeconds: 0 }),
             "range",
@@ -227,25 +248,30 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "gravity",
-        () =>
+        (): boolean =>
           refuses(
             solver({ gravity: { x: 0, y: Number.NaN, z: 0 } }),
             "range",
             "solver.gravity.y",
           ),
       ],
-      ["drag", () => refuses(solver({ drag: -1 }), "range", "solver.drag")],
+      [
+        "drag",
+        (): boolean => refuses(solver({ drag: -1 }), "range", "solver.drag"),
+      ],
       [
         "iterations",
-        () => refuses(solver({ iterations: 0 }), "type", "solver.iterations"),
+        (): boolean =>
+          refuses(solver({ iterations: 0 }), "type", "solver.iterations"),
       ],
       [
         "iterationBudget",
-        () => refuses(solver({ iterations: 65 }), "type", "solver.iterations"),
+        (): boolean =>
+          refuses(solver({ iterations: 65 }), "type", "solver.iterations"),
       ],
       [
         "stiffness",
-        () =>
+        (): boolean =>
           refuses(
             solver({ stiffness: { structural: 1.5, shear: 0.5, bend: 0.25 } }),
             "range",
@@ -254,7 +280,7 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "referenceSpeed",
-        () =>
+        (): boolean =>
           refuses(
             solver({ referenceSpeed: 0 }),
             "range",
@@ -263,7 +289,8 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "maxSteps",
-        () => refuses(solver({ maxSteps: 100_001 }), "type", "solver.maxSteps"),
+        (): boolean =>
+          refuses(solver({ maxSteps: 100_001 }), "type", "solver.maxSteps"),
       ],
     ]),
     {
@@ -278,30 +305,32 @@ export const test_soft_body_validation = (): void => {
     },
   );
 
-  const stacked = (): IAutoMovieSoftBodyDomain => {
-    const rest = sound().rest.slice();
-    rest[3] = rest[0];
-    rest[4] = rest[1];
-    rest[5] = rest[2];
-    return sound({ rest, anchors: [], states: [], colliders: [] });
-  };
+  const stacked: () => IAutoMovieSoftBodyDomain =
+    (): IAutoMovieSoftBodyDomain => {
+      const rest: number[] = sound().rest.slice();
+      rest[3] = rest[0];
+      rest[4] = rest[1];
+      rest[5] = rest[2];
+      return sound({ rest, anchors: [], states: [], colliders: [] });
+    };
   TestValidator.equals(
     "coincident rest particles are named on both lattice axes",
     namedFacts([
       [
         "solvedAnyway",
-        () => {
-          const state = simulateSoftBody(stacked(), 2);
+        (): boolean => {
+          const state: IAutoMovieSoftBodyState = simulateSoftBody(stacked(), 2);
           return (
-            state.positions.every((value) => Number.isFinite(value)) &&
-            Object.is(state.positions[0], state.positions[3])
+            state.positions.every((value: number): boolean =>
+              Number.isFinite(value),
+            ) && Object.is(state.positions[0], state.positions[3])
           );
         },
       ],
       [
         "row",
-        () => {
-          const rest = sound().rest.slice();
+        (): boolean => {
+          const rest: number[] = sound().rest.slice();
           rest[3] = rest[0];
           rest[4] = rest[1];
           rest[5] = rest[2];
@@ -310,8 +339,8 @@ export const test_soft_body_validation = (): void => {
       ],
       [
         "column",
-        () => {
-          const rest = sound().rest.slice();
+        (): boolean => {
+          const rest: number[] = sound().rest.slice();
           rest[9] = rest[0];
           rest[10] = rest[1];
           rest[11] = rest[2];
@@ -322,403 +351,5 @@ export const test_soft_body_validation = (): void => {
     { solvedAnyway: true, row: true, column: true },
   );
 
-  TestValidator.equals(
-    "anchors and named states are named",
-    namedFacts([
-      [
-        "blank",
-        () =>
-          refuses(
-            { anchors: [{ id: " ", particle: 0, position: null }], states: [] },
-            "type",
-            "anchors[0].id",
-          ),
-      ],
-      [
-        "duplicateId",
-        () =>
-          refuses(
-            {
-              anchors: [
-                { id: "hook", particle: 0, position: null },
-                { id: "hook", particle: 1, position: null },
-              ],
-              states: [],
-            },
-            "type",
-            "anchors[1].id",
-          ),
-      ],
-      [
-        "particleRange",
-        () =>
-          refuses(
-            {
-              anchors: [{ id: "hook", particle: 9, position: null }],
-              states: [],
-            },
-            "type",
-            "anchors[0].particle",
-          ),
-      ],
-      [
-        "duplicateParticle",
-        () =>
-          refuses(
-            {
-              anchors: [
-                { id: "a", particle: 0, position: null },
-                { id: "b", particle: 0, position: null },
-              ],
-              states: [],
-            },
-            "type",
-            "anchors[1].particle",
-          ),
-      ],
-      [
-        "position",
-        () =>
-          refuses(
-            {
-              anchors: [
-                {
-                  id: "hook",
-                  particle: 0,
-                  position: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-                },
-              ],
-              states: [],
-            },
-            "range",
-            "anchors[0].position.y",
-          ),
-      ],
-      [
-        "unknownAnchor",
-        () =>
-          refuses(
-            {
-              states: [
-                {
-                  id: "open",
-                  anchors: [
-                    { anchor: "nobody", position: { x: 0, y: 0, z: 0 } },
-                  ],
-                },
-              ],
-            },
-            "type",
-            "states[0].anchors[0].anchor",
-          ),
-      ],
-      [
-        "posedTwice",
-        () =>
-          refuses(
-            {
-              states: [
-                {
-                  id: "open",
-                  anchors: [
-                    { anchor: "hook", position: { x: 0, y: 0, z: 0 } },
-                    { anchor: "hook", position: { x: 1, y: 0, z: 0 } },
-                  ],
-                },
-              ],
-            },
-            "type",
-            "states[0].anchors[1].anchor",
-          ),
-      ],
-      [
-        "stateBudget",
-        () =>
-          refuses(
-            {
-              states: Array.from({ length: 33 }, (_, index) => ({
-                id: `state-${index}`,
-                anchors: [],
-              })),
-            },
-            "range",
-            "$input.states",
-          ),
-      ],
-      [
-        "blankState",
-        () =>
-          refuses(
-            { states: [{ id: "", anchors: [] }] },
-            "type",
-            "states[0].id",
-          ),
-      ],
-      [
-        "duplicateState",
-        () =>
-          refuses(
-            {
-              states: [
-                { id: "open", anchors: [] },
-                { id: "open", anchors: [] },
-              ],
-            },
-            "type",
-            "states[1].id",
-          ),
-      ],
-    ]),
-    {
-      blank: true,
-      duplicateId: true,
-      particleRange: true,
-      duplicateParticle: true,
-      position: true,
-      unknownAnchor: true,
-      posedTwice: true,
-      stateBudget: true,
-      blankState: true,
-      duplicateState: true,
-    },
-  );
-
-  TestValidator.equals(
-    "colliders are named",
-    namedFacts([
-      [
-        "duplicate",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "floor",
-                  normal: { x: 0, y: 1, z: 0 },
-                  offset: -4,
-                },
-                {
-                  kind: "plane",
-                  id: "floor",
-                  normal: { x: 0, y: 1, z: 0 },
-                  offset: -5,
-                },
-              ],
-            },
-            "type",
-            "colliders[1].id",
-          ),
-      ],
-      [
-        "zeroNormal",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "flat",
-                  normal: { x: 0, y: 0, z: 0 },
-                  offset: 0,
-                },
-              ],
-            },
-            "type",
-            "colliders[0].normal",
-          ),
-      ],
-      [
-        "nonFiniteNormal",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "flat",
-                  normal: { x: Number.NaN, y: 1, z: 0 },
-                  offset: 0,
-                },
-              ],
-            },
-            "range",
-            "colliders[0].normal.x",
-          ),
-      ],
-      [
-        "offset",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "flat",
-                  normal: { x: 0, y: 1, z: 0 },
-                  offset: Number.NaN,
-                },
-              ],
-            },
-            "range",
-            "colliders[0].offset",
-          ),
-      ],
-      [
-        "radius",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "sphere",
-                  id: "ball",
-                  center: { x: 0, y: -4, z: 0 },
-                  radius: 0,
-                },
-              ],
-            },
-            "range",
-            "colliders[0].radius",
-          ),
-      ],
-      [
-        "invertedBox",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "box",
-                  id: "crate",
-                  min: { x: -1, y: -6, z: -1 },
-                  max: { x: -1, y: -5, z: 1 },
-                },
-              ],
-            },
-            "range",
-            "colliders[0].max.x",
-          ),
-      ],
-      [
-        "clearOnlyOnOneAxis",
-        () =>
-          validateSoftBodyDomain({
-            domain: sound({
-              colliders: [
-                {
-                  kind: "box",
-                  id: "beam",
-                  min: { x: -4, y: -4, z: -4 },
-                  max: { x: 4, y: 4, z: -0.5 },
-                },
-              ],
-            }),
-          }).success === true,
-      ],
-      [
-        "embeddedInBox",
-        () =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "box",
-                  id: "beam",
-                  min: { x: -4, y: -4, z: -4 },
-                  max: { x: 4, y: 4, z: 4 },
-                },
-              ],
-            },
-            "type",
-            "colliders[0]",
-          ),
-      ],
-      [
-        "budget",
-        () =>
-          refuses(
-            {
-              colliders: Array.from({ length: 65 }, (_, index) => ({
-                kind: "plane" as const,
-                id: `plane-${index}`,
-                normal: { x: 0, y: 1, z: 0 },
-                offset: -4,
-              })),
-            },
-            "range",
-            "$input.colliders",
-          ),
-      ],
-    ]),
-    {
-      duplicate: true,
-      zeroNormal: true,
-      nonFiniteNormal: true,
-      offset: true,
-      radius: true,
-      invertedBox: true,
-      clearOnlyOnOneAxis: true,
-      embeddedInBox: true,
-      budget: true,
-    },
-  );
-
-  const still = {
-    direction: { x: 1, y: 0, z: 0 },
-    acceleration: 1,
-    gustAcceleration: 1,
-    gustHz: 2,
-  };
-  const wind = (
-    patch: Partial<NonNullable<IAutoMovieSoftBodyDomain["wind"]>>,
-  ): Partial<IAutoMovieSoftBodyDomain> => ({
-    wind: { ...still, ...patch },
-  });
-  TestValidator.equals(
-    "the draught is named",
-    namedFacts([
-      [
-        "zeroDirection",
-        () =>
-          refuses(
-            wind({ direction: { x: 0, y: 0, z: 0 } }),
-            "type",
-            "wind.direction",
-          ),
-      ],
-      [
-        "acceleration",
-        () =>
-          refuses(
-            wind({ acceleration: Number.NaN }),
-            "range",
-            "wind.acceleration",
-          ),
-      ],
-      [
-        "gust",
-        () =>
-          refuses(
-            wind({ gustAcceleration: -1 }),
-            "range",
-            "wind.gustAcceleration",
-          ),
-      ],
-      ["hz", () => refuses(wind({ gustHz: -1 }), "range", "wind.gustHz")],
-      [
-        "absent",
-        () =>
-          validateSoftBodyDomain({ domain: sound({ wind: null }) }).success ===
-          true,
-      ],
-    ]),
-    {
-      zeroDirection: true,
-      acceleration: true,
-      gust: true,
-      hz: true,
-      absent: true,
-    },
-  );
-};
+  assertSoftBodyBoundaryRefusals(sound, refuses);
+}

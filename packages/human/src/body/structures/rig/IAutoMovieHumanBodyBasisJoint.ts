@@ -25,10 +25,17 @@ import type { IAutoMovieHumanBodySourceReferenceGoal } from "./IAutoMovieHumanBo
  * that line. This population observation identifies a missing anatomical
  * frame; it is not a fixed sideways correction to apply to every arm.
  * The basis publisher owns its landmark protocol, constraint sources and valid
- * range. The shipped generation's upstream and extraction ancestry is retained
- * in `erased-data`; historical input
- * paths and hashes there do not provide a maintained receipt or establish
- * clinical qualification. Other bases carry their own source and valid range.
+ * range, and a basis carries its own source and valid range; neither
+ * establishes clinical qualification.
+ *
+ * @evidence contracts/common.md#principled-implementation Shape-dependent head and tail landmarks plus a reference direction define the bone rest frame; optional shoulder and source-reference goals preserve their own coordinate contracts.
+ * @evidence contracts/common.md#clear-and-simple-design The joint record groups parent identity, frame construction, sign and neutral data with its constraint.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A public bone slot or head-to-tail axis does not establish an internal bone surface or clinically qualified individual frame.
+ * @evidence contracts/common.md#meaningful-documentation Members document metres, degrees, frame products, optional axis meanings and registration limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The basis joint frame schema declares data and signatures without implementing runtime algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The basis joint frame schema declaration shares no computations across consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The basis joint frame schema type has no runtime acquisition, retention or release operation.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisJoint {

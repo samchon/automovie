@@ -32,10 +32,6 @@ A group is an extended source and the derived plan measures it as one. An event 
 
 Use spread or multiple emitters for large sources only when the shot scale needs it. Keep near-field details localized and distant mass coherent. A production may adopt a bounded direct-path profile that states its sound speed, distance law, spectral absorption, environment revision, and cut-boundary policy. The sound event keeps its visual `emissionFrame`; the derived `arrivalFrame` is when the listener hears it and may cross a shot boundary without moving the event itself. Use only that declared profile. Do not infer temperature, humidity, weather, or a provider from a place label, and do not disguise missing spectral inputs as a generic gain. Doppler, occlusion, diffraction, ground reflection, and any other unimplemented path remain absent or `unsupported`, not implied by the direct-path result.
 
-When a shot is inside a built space, its acoustic response is adopted from declared evidence rather than guessed. Resolve the emitter and listener against the same spatial graph: outdoor sound uses the direct path, same-room sound may consume one bounded room response, and cross-room sound requires a declared transmission result. A scalar analysis may provide reverberation time and direct/diffuse balance; an authored impulse response or external acoustic result remains a different source kind. Every adopted result fixes its geometry mapping, units, frequency scope, sample rate where applicable, input and output digests, solver or provider metadata, and revision. The user or delegated authoring agent chooses the source and adoption; AutoMovie does not select a provider or ship an IR library.
-
-Apply the adopted response to the declared bus or source and keep its identity in mix evidence. Never derive acoustic absorption from a texture, material appearance, room name, building style, or provider label. Use only authored substance coefficients and fixed analysis results whose revisions match the room, openings, furnishings, occupancy, emitter, and listener. The bounded response does not claim full wave acoustics, diffraction, an early-reflection pattern, speech transmission index, or building compliance. Missing inputs remain `unsupported` or `not-run`; a simple estimate is never promoted to an impulse response.
-
 ## Dialogue and speech
 
 Write speakable lines and let the user or delegated authoring agent choose a recorded or synthesized voice source appropriate to the declared production. If that choice uses a provider, pin adapter, model, voice, version, controls, final source artifacts, and provenance in cache and receipt identity. AutoMovie requires no particular provider, model, or voice and never fills an omitted choice from host availability. A model alias that tracks remote `main` is not a reproducible revision.
@@ -53,9 +49,5 @@ Shape ambience across edits with L-cuts and J-cuts. Crossfade room tone where co
 ## Verification
 
 Probe final media facts, resident sample count, duration, channel count, sample rate, codec, and audiovisual runtime. Derive the audio sample boundary from the exact reduced rational film rate with the shared nearest-half-up mapper; never estimate it from decimal `fps`. Listen on headphones and small speakers at a stable level. Check dialogue, event sync, spatial motion, loops, clipping, accidental gaps, captions, and the first and last second of every sequence.
-
-## Evidence for a sound verdict
-
-Sound has no turntable, so its evidence is the media facts and the delivered timeline rather than a frame. Probe the final media, then record what it proved in the evidence citation that owns it: the cut's own audio on its sequence owner, and the mix, the dialogue intelligibility, and the audiovisual runtime on the film source.
 
 A picture review never discharges a sound obligation, and neither does a waveform nobody listened to.

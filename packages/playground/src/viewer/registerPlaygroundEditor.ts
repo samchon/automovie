@@ -1,24 +1,19 @@
 import { registerPlaygroundViewerApplication } from "./registerPlaygroundViewerApplication";
 
 /**
- * Bind one existing editor's displayed document and validated loader to source
- * transfer. A displayed document may be an accepted result or a retained
- * construction draft. JSON comparison ignores object-key order but preserves
- * every value; this adapter compares the document, not its qualification facts.
- * The editor supplies its own parser and transaction; failed restore refuses
- * candidate publication. Current widgets merely reflect restored actual view.
- * Load or equality failure may leave the candidate changed; transaction rollback
- * remains with the editor rather than this adapter.
+ * Transfer an existing editor's displayed document through its original loader. Displayed input may be accepted history or a labelled construction draft. Comparison sorts object keys and preserves array order for supported acyclic JSON document values; it is not general object equality and compares no captured qualification facts.
  *
- * @evidence contracts/common.md#principled-implementation Transfers the displayed editor document, including a retained construction draft, and verifies the validated load produced the same values.
- * @evidence contracts/common.md#clear-and-simple-design One binding reuses application parsing/transactions without creating another document evaluator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no simulated input event, inferred parameter or expected-model substitution.
- * @evidence contracts/common.md#meaningful-documentation Defines equality, empty editors and view reflection boundaries.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Retains the existing body/person/anatomical input owner across source replacement.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Uses the original typed loader and verifies the resulting displayed document.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state For the face editor, transfers its successful snapshot through the original validated loader and compares document values independently of camera state; the person caller may instead supply a labelled construction draft.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Uses the original editor loader and verifies the resulting displayed document; history, generation checks and successful snapshot publication remain with the face or person transaction owner.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Reflects the original viewport's restored display toggles without numerical edits.
+ * Loader/equality failure refuses the candidate but can leave it changed; rollback belongs to the original transaction. Optional view reflection updates existing clay/shadow checkbox state without firing edits. Intentionally empty editors can omit a document explicitly.
+ *
+ * @evidence contracts/common.md#principled-implementation Original loading parses/adopts document text, then canonical JSON-compatible value comparison checks actual displayed input independent of object-key insertion order; qualified facts remain separately captured rather than silently treated as equal.
+ * @evidence contracts/common.md#clear-and-simple-design One application registration borrows document/load/readiness and widget roots, keeping transaction rollback, hardware frame completion and source replacement outside this adapter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A retained draft is not accepted history, captured qualification facts are not checked by document equality, and cyclic/non-JSON inputs fall outside the actual document premise rather than receiving guessed equality.
+ * @evidence contracts/common.md#meaningful-documentation The comment states JSON comparison scope, ordering, qualification omission, mutation failure and event-free checkbox reflection.
+ * @evidence contracts/performance.md#efficient-algorithms Capture borrows displayed data; restore serializes/loads the full document and recursively canonicalizes both documents, sorting each object's keys. For n values with local object sizes k, work includes O(n + sum(k log k)) plus loader/build cost and nested string allocation, with recursion depth equal to document nesting.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each restoration is an effect through the editor's transaction; canonical strings are rebuilt from actual current values rather than cached across mutable documents or qualification changes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registered callbacks borrow the editor and controls until bridge/page teardown, with no adapter-local close or restoration cap. Temporary canonical strings expire after comparison; actual candidate tasks, DOM, workers and GPU frames remain application/bridge-owned.
+ *
+ * @author Samchon
  */
 export function registerPlaygroundEditor(props: {
   /** Completion of this editor's initial transaction; rejection refuses the candidate. */
@@ -38,36 +33,56 @@ export function registerPlaygroundEditor(props: {
 
   /** The editor-owned DOM root whose existing clay and shadows checkboxes reflect restored display state. */
   controls: ParentNode;
-}) {
-  const canonical = (value: unknown): string => {
+}): void {
+  const canonical: (value: unknown) => string = (value: unknown): string => {
     if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
-    if (value !== null && typeof value === "object") return "{" + Object.keys(value).sort((left, right) =>
-      left < right ? -1 : left > right ? 1 : 0).map((key) =>
-      JSON.stringify(key) + ":" + canonical(Reflect.get(value, key)),
-    ).join(",") + "}";
+    if (value !== null && typeof value === "object")
+      return (
+        "{" +
+        Object.keys(value)
+          .sort((left: string, right: string): number =>
+            left < right ? -1 : left > right ? 1 : 0,
+          )
+          .map(
+            (key: string): string =>
+              JSON.stringify(key) + ":" + canonical(Reflect.get(value, key)),
+          )
+          .join(",") +
+        "}"
+      );
     return JSON.stringify(value) ?? "undefined";
   };
   registerPlaygroundViewerApplication({
     ready: props.ready,
     empty: props.empty,
-    capture: () => {
-      const document = props.document();
-      return document === undefined ? undefined : { document, facts: props.facts?.() };
+    capture: ():
+      | { document: object; facts: object | undefined }
+      | undefined => {
+      const document: object | undefined = props.document();
+      return document === undefined
+        ? undefined
+        : { document, facts: props.facts?.() };
     },
-    restore: async (state) => {
+    restore: async (state: unknown): Promise<void> => {
       if (state === undefined && props.empty) return;
-      if (state === null || typeof state !== "object") throw new Error("Editor transfer has no committed document.");
+      if (state === null || typeof state !== "object")
+        throw new Error("Editor transfer has no committed document.");
       const document: unknown = Reflect.get(state, "document");
-      if (document === null || typeof document !== "object") throw new Error("Editor transfer has no document object.");
+      if (document === null || typeof document !== "object")
+        throw new Error("Editor transfer has no document object.");
       await props.load(JSON.stringify(document));
-      if (canonical(props.document()) !== canonical(document)) throw new Error("The candidate did not commit the transferred document.");
+      if (canonical(props.document()) !== canonical(document))
+        throw new Error(
+          "The candidate did not commit the transferred document.",
+        );
     },
-    reflectView: (state) => {
+    reflectView: (state: unknown): void => {
       if (state === null || typeof state !== "object") return;
       for (const name of ["clay", "shadows"] as const) {
         const value: unknown = Reflect.get(state, name);
         if (typeof value !== "boolean") continue;
-        const control = props.controls.querySelector<HTMLInputElement>("#" + name);
+        const control: HTMLInputElement | null =
+          props.controls.querySelector<HTMLInputElement>("#" + name);
         if (control !== null) control.checked = value;
       }
     },

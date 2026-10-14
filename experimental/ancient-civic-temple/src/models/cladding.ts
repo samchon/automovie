@@ -1,5 +1,5 @@
 /**
- * Reviewed roof modules from docs/models/cladding.md. Each prototype stays in
+ * Reviewed roof modules Each prototype stays in
  * its roof-local metre frame. roofTile uses +Z uphill and +Y roof normal;
  * ridgeTile uses +Z along the ridge and +Y vertically. Instances
  * own pitches, clipping to roof pieces, coping clearance and placements.
@@ -16,20 +16,8 @@ type RectilinearSolid=Parameters<typeof TempleRectilinearUnion.mesh>[1][number];
 
 /**
  * Tile prototypes and declared host-cut variants preserve overlaps and empty semicircles.
- * @evidence models/cladding.md The roofTile builder uses +Z uphill and +Y roof normal, while ridgeTile uses +Z along the ridge and +Y vertically; both keep stable tile part identities.
- * @evidence principles/core/source-units.md#source-scope-preservation Roof and ridge builders retain their authored local tile profiles; instances select host cut planes, ridge termination and placement, and the model owns each resulting boundary variant.
- * @evidence principles/core/source-units.md#source-substantive-completion roofTile returns tegula, lip and imbrex meshes; the ridge support strip and host cuts retain their surviving parts, and ridgeTile returns the selected slope's full or terminal shell.
- * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work Both cladding H2s specify overlap pitches, radii, foot contacts and local axes; the emitted modules use those inputs without requiring a newly chosen tile silhouette.
- * @evidence obligations/design/model-sources.md#design-owned-construction The class emits the reviewed tile profiles from equations and loops rather than transcribing vertex arrays or substituting a roof texture.
  */
 export class TempleCladding {
-  /**
-   * @evidence models/cladding.md#roof-tile A boundary variant retains the original metric tegula, lip and imbrex, clips them at the actual roof host planes, and closes each new ceramic cut.
-   * @evidence principles/core/source-units.md#source-scope-preservation The crop changes only the tile boundary; it neither scales the tile nor changes its rib, thickness or curvature.
-   * @evidence principles/core/source-units.md#source-substantive-completion Every surviving part retains normals and metric UVs, and a crop entirely outside the host returns null rather than a dummy shape.
-   * @evidence upstream/design/model-sources.md#design-revision-from-model-source-work The roof-tile H2 now declares host-boundary cut variants because self-render inspection exposed missing valley-edge modules.
-   * @evidence obligations/design/model-sources.md#deterministic-build Ordered roof half-spaces clip one immutable prototype through deterministic triangle intersections and planar cap triangulation.
-   */
   roofTileCut(id: string, planes: readonly TileCutPlane[], ridgeEnd: number | null = null): IAutoMovieModel | null {
     const original = this.roofTile(ridgeEnd);
     const parts = original.parts.flatMap((part) => {
@@ -44,11 +32,6 @@ export class TempleCladding {
   }
   /**
    * One 0.40 m-wide pitch, with the lifted 0.08 m leading overlap.
-   * @evidence models/cladding.md#roof-tile The flat panel raises its leading 0.08 m, omits the last 0.08 m rib, and the eight-sector half shell keeps its underside open between two rib-foot lines.
-   * @evidence principles/core/source-units.md#source-scope-preservation Tegula, lip and imbrex retain their local profiles and metric UVs; an optional ridge-end coordinate ends raised parts and retains the declared flat support strip without scaling the tile.
-   * @evidence principles/core/source-units.md#source-substantive-completion The builder returns a full 0.52 m module with both panel and half-shell geometry, side normals, UVs and 0.44 m overlap interfaces.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The roof-tile H2 locates the raised front, removed rear ribs and tapered imbrex feet; these emitted faces exposed no further thickness or seam decision.
-   * @evidence obligations/design/model-sources.md#deterministic-build Fixed solids, eight angular sectors and linear taper yield deterministic ordered part meshes, and a finite ridge-end coordinate trims only the declared support strip.
    */
   roofTile(ridgeEnd: number | null = null):IAutoMovieModel{
     if (ridgeEnd !== null && !Number.isFinite(ridgeEnd)) throw new Error("invalid tile ridge end");
@@ -112,7 +95,7 @@ export class TempleCladding {
     }
     const imbrex = ridgeEnd === null ? modelMesh(cover, "imbrex") :
       cutTileMesh(modelMesh(cover, "imbrex"), [{ x: 0, y: 0, z: -1, constant: ridgeEnd }]);
-    return reviewedModel("tile.roof", "평기와와 둥근기와", [
+    return reviewedModel("tile.roof", "Flat and round roof tiles", [
       ["tegula", roofUvs(tegula)],
       ...(lip === null ? [] : [["lip", roofUvs(lip)] as [string, IAutoMovieMesh]]),
       ...(imbrex === null ? [] : [["imbrex", imbrex] as [string, IAutoMovieMesh]]),
@@ -121,10 +104,6 @@ export class TempleCladding {
 
   /**
    * Raised 0.05 m front nose and 0.40 m rear shell for one ridge pitch.
-   * @evidence models/cladding.md#ridge-tile The 0.15 m front radius and 0.13 m rear radius meet at Z=0.05 m; each profile's lower edge follows the max of the inner arc and the 19°/22° flat-tile plane.
-   * @evidence principles/core/source-units.md#source-scope-preservation The ridge module uses the H2's two slope values and one ridge part; instances select a terminal length no greater than the nominal 0.45m, preserving the fixed row pitch.
-   * @evidence principles/core/source-units.md#source-substantive-completion Twenty-four bisection steps locate each inner arc/tile intersection, and segment extrusions return faces, normals and UVs for both radius zones.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The ridge-tile H2 provides both shell radii, 0.02 m thickness, angular sampling, intersection rule and pitched foot plane; constructing the sections needed no new ridge height.
    */
   ridgeTile(slopeDegrees:19|22, length = 0.45):IAutoMovieModel{
     if (!(length > 0 && length <= 0.45 && Number.isFinite(length))) throw new Error("invalid ridge tile cut length");
@@ -189,7 +168,7 @@ export class TempleCladding {
     if (length > 0.05) segment(0.13,0.05,length);
     return reviewedModel(
       `tile.ridge.${slopeDegrees}${length === 0.45 ? "" : `.end.${length.toFixed(8)}`}`,
-      `용마루 ${slopeDegrees}°`,
+      `Ridge ${slopeDegrees}°`,
       [["ridge", modelMesh(shell, "ridge")]],
     );
   }

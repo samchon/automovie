@@ -2,49 +2,27 @@ import { IAutoMovieContinuityProof } from "./IAutoMovieContinuityProof";
 import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 
 /**
- * One canon fact and the only evidence family allowed to prove it.
+ * One canon fact with an explicitly selected proof family and owner. Scene citations provide traceability; the exact proof selector establishes whether the claim is discharged.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `IAutoMovieContinuityClaim` as the portable data boundary for the story screenplay index prose requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMovieContinuityClaim` for the narrative intent scene prose index system contract.
+ * @evidence contracts/common.md#principled-implementation Claim identity connects screenplay citations to one intended geometry, frame-review or acceptance proof. The surviving screenplay shape retains these declarations, but its production cross-record resolver is retired; matching attribution and current passing evidence remain explicit host obligations.
+ * @evidence contracts/common.md#clear-and-simple-design Text, verification family, proof selector and scene scope separate the human fact from the machine-addressable evidence allowed to establish it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A generic scene citation or equal outcome id in another shot cannot discharge the claim, and a different verification family cannot borrow authority from the selected one.
+ * @evidence contracts/common.md#meaningful-documentation Gives stable claim identity, human canon meaning, exclusive verification authority, claim-specific proof and scene scope, distinct from traceability alone.
+ * @author Samchon
  */
 export interface IAutoMovieContinuityClaim {
-  /**
-   * Stable claim identity cited by downstream evidence.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `id` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
-   */
+  /** Stable claim identity cited by downstream evidence. */
   id: string;
 
-  /**
-   * Human-readable canon fact, such as handedness or persistent weather.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `text` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `text` for the narrative intent scene prose index system contract.
-   */
+  /** Human-readable canon fact, such as handedness or persistent weather. */
   text: string;
 
-  /**
-   * Evidence family that alone can discharge this claim.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `verification` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `verification` for the narrative intent scene prose index system contract.
-   */
+  /** Evidence family that alone can discharge this claim. */
   verification: "frame-review" | "geometry" | "acceptance";
 
-  /**
-   * Exact claim-specific evidence selected inside that family.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `proof` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `proof` for the narrative intent scene prose index system contract.
-   */
+  /** Exact claim-specific evidence selected inside that family. */
   proof: IAutoMovieContinuityProof;
 
-  /**
-   * Authored scenes in which the canon fact must hold.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `evidence` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `evidence` for the narrative intent scene prose index system contract.
-   */
+  /** Authored scenes in which the canon fact must hold. */
   evidence: IAutoMovieSceneEvidence[];
 }

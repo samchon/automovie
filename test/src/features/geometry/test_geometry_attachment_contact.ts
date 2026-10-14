@@ -1,11 +1,17 @@
 import {
-  boundAutoMovieTriangleAttachmentContact,
-  createAutoMovieMeshSeparationQuery,
-} from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
+  type IAutoMovieMesh,
+  type IAutoMovieMeshPhysicalVertices,
+  type IAutoMovieMeshSkin,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { type IAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationQuery";
+import { type IAutoMovieMeshSeparationResult } from "../../../../packages/engine/src/geometry/IAutoMovieMeshSeparationResult";
+import { boundAutoMovieTriangleAttachmentContact } from "../../../../packages/engine/src/geometry/boundAutoMovieTriangleAttachmentContact";
+import { createAutoMovieMeshSeparationQuery } from "../../../../packages/engine/src/geometry/createAutoMovieMeshSeparationQuery";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * A root contact qualifies only its original support manifold; a second host
@@ -16,9 +22,18 @@ import { throwsError } from "../internal/predicates";
  * 2. Moving the root or supplying unrelated supports cannot expand attachment.
  * 3. A second plane intersects the fan away from its root and certification fails.
  * 4. Inward/tangent corners and collapsed supports leave the fan proof false.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes primitive contact bounds and resident separation queries, asserting bounded certification only for the registered outward fan, zero global gap, a small reported cap, and refusal or unproved status for moved roots, unrelated supports and piercing hosts.
+ * @evidence contracts/testing.md#independent-expectations The authored plane and barycentric root place the fan at zero support gap with outward corners at z=0.1; a second plane at z=0.05 pierces it away from that root. Source and Math.fround coordinates exercise actual representation inputs. The 1e-12 cap ceiling is this fixture's numerical bound, not a physical or visual contact tolerance.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves source/Float32 frames, moved root, second host, unrelated or malformed supports, positive clearance, invalid weights, tangent/inward corners, and collapsed/collinear primitive supports. General float-frame amplification is owned by the representation test; no arbitrary surface safety follows from these plane cases.
+ * @evidence contracts/testing.md#execution-ownership The named entry calls portable geometry source with existing synthetic vectors and buffers, observing output and exception names without a browser, GPU, host process or native build. No Human asset, new geometry case or dynamically registered test is introduced.
  */
-export const test_geometry_attachment_contact = (): void => {
-  const p = (x: number, y: number, z: number) => ({ x, y, z });
+export function test_geometry_attachment_contact(): void {
+  const p: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    z: number,
+  ): IAutoMovieVector3 => ({ x, y, z });
   const mesh: IAutoMovieMesh = {
     positions: [0, 0, 0, 2, 0, 0, 0, 2, 0],
     indices: [0, 1, 2],
@@ -26,17 +41,27 @@ export const test_geometry_attachment_contact = (): void => {
     uvs: [],
     skin: null,
   };
-  const fan = [p(0.5, 0.5, 0), p(0.4, 0.5, 0.1), p(0.6, 0.5, 0.1)];
-  const attachment = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
+  const fan: IAutoMovieVector3[] = [
+    p(0.5, 0.5, 0),
+    p(0.4, 0.5, 0.1),
+    p(0.6, 0.5, 0.1),
+  ];
+  const attachment: {
+    triangle: number;
+    weights: number[];
+    supports: number[];
+  } = { triangle: 0, weights: [0.5, 0.25, 0.25], supports: [0] };
   for (const mode of ["source", "float32"] as const) {
-    const query = createAutoMovieMeshSeparationQuery(mesh, mode);
-    const points =
+    const query: IAutoMovieMeshSeparationQuery =
+      createAutoMovieMeshSeparationQuery(mesh, mode);
+    const points: IAutoMovieVector3[] =
       mode === "source"
         ? fan
-        : fan.map((v) =>
-            p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
+        : fan.map(
+            (v: IAutoMovieVector3): IAutoMovieVector3 =>
+              p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)),
           );
-    const result = query(points, {
+    const result: IAutoMovieMeshSeparationResult = query(points, {
       clearance: 0,
       budget: { remaining: 100 },
       attachment,
@@ -46,10 +71,9 @@ export const test_geometry_attachment_contact = (): void => {
       result.certified,
       true,
     );
-    TestValidator.equals(
+    TestValidator.predicate(
       "attachment never reports positive global gap",
-      result.lowerBound,
-      0,
+      nclose(result.lowerBound, 0, 0),
     );
     TestValidator.predicate(
       "cap is numerical, not a whole face exemption",
@@ -59,7 +83,7 @@ export const test_geometry_attachment_contact = (): void => {
     TestValidator.predicate(
       "root authority mismatch refuses",
       throwsError(
-        () =>
+        (): IAutoMovieMeshSeparationResult =>
           query([{ ...points[0], z: 0.01 }, ...points.slice(1)], {
             clearance: 0,
             budget: { remaining: 100 },
@@ -69,7 +93,16 @@ export const test_geometry_attachment_contact = (): void => {
       ),
     );
   }
-  const obstacle = {
+  const obstacle: {
+    positions: number[];
+    indices: number[];
+    physicalVertices?: IAutoMovieMeshPhysicalVertices;
+    normals: number[] | null;
+    uvs: number[] | null;
+    colors?: number[];
+    reliefWeights?: number[];
+    skin: IAutoMovieMeshSkin | null;
+  } = {
     ...mesh,
     positions: [
       ...mesh.positions,
@@ -85,7 +118,8 @@ export const test_geometry_attachment_contact = (): void => {
     ],
     indices: [0, 1, 2, 3, 4, 5],
   };
-  const obstructed = createAutoMovieMeshSeparationQuery(obstacle);
+  const obstructed: IAutoMovieMeshSeparationQuery =
+    createAutoMovieMeshSeparationQuery(obstacle);
   TestValidator.equals(
     "another host piercing cannot hide behind root0",
     obstructed(fan, { clearance: 0, budget: { remaining: 1000 }, attachment })
@@ -95,7 +129,7 @@ export const test_geometry_attachment_contact = (): void => {
   TestValidator.predicate(
     "unrelated support metadata refuses",
     throwsError(
-      () =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0,
           budget: { remaining: 1000 },
@@ -112,7 +146,7 @@ export const test_geometry_attachment_contact = (): void => {
     TestValidator.predicate(
       "malformed attachment admission",
       throwsError(
-        () =>
+        (): IAutoMovieMeshSeparationResult =>
           obstructed(fan, {
             clearance: 0,
             budget: { remaining: 1000 },
@@ -124,7 +158,7 @@ export const test_geometry_attachment_contact = (): void => {
   TestValidator.predicate(
     "positive gap cannot authorize root contact",
     throwsError(
-      () =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0.1,
           budget: { remaining: 1000 },
@@ -136,7 +170,7 @@ export const test_geometry_attachment_contact = (): void => {
   TestValidator.predicate(
     "invalid weights keep seating admission",
     throwsError(
-      () =>
+      (): IAutoMovieMeshSeparationResult =>
         obstructed(fan, {
           clearance: 0,
           budget: { remaining: 1000 },
@@ -145,19 +179,20 @@ export const test_geometry_attachment_contact = (): void => {
       "seating",
     ),
   );
-  const support = [p(0, 0, 0), p(2, 0, 0), p(0, 2, 0)];
+  const support: IAutoMovieVector3[] = [p(0, 0, 0), p(2, 0, 0), p(0, 2, 0)];
   for (const z of [0, -0.1]) {
-    const invalidFan = [fan[0], p(0.4, 0.5, z), fan[2]];
+    const invalidFan: IAutoMovieVector3[] = [fan[0], p(0.4, 0.5, z), fan[2]];
     TestValidator.equals(
       "tangent/inward corner proof false",
       boundAutoMovieTriangleAttachmentContact(invalidFan, support).proved,
       false,
     );
-    const unproved = createAutoMovieMeshSeparationQuery(mesh)(invalidFan, {
-      clearance: 0,
-      budget: { remaining: 1000 },
-      attachment,
-    });
+    const unproved: IAutoMovieMeshSeparationResult =
+      createAutoMovieMeshSeparationQuery(mesh)(invalidFan, {
+        clearance: 0,
+        budget: { remaining: 1000 },
+        attachment,
+      });
     TestValidator.equals(
       "resident fan cannot admit an unproved cap",
       unproved.certified,
@@ -168,10 +203,9 @@ export const test_geometry_attachment_contact = (): void => {
       unproved.triangle,
       0,
     );
-    TestValidator.equals(
+    TestValidator.predicate(
       "unproved attachment reports no positive bound",
-      unproved.lowerBound,
-      0,
+      nclose(unproved.lowerBound, 0, 0),
     );
   }
   TestValidator.equals(
@@ -192,4 +226,4 @@ export const test_geometry_attachment_contact = (): void => {
     ]).proved,
     false,
   );
-};
+}

@@ -1,13 +1,22 @@
-/** Model scene input tests for explicit prototype, instance, face, and UV binding. */
+/**
+ * Exercise the actual model lowerer with an explicit one-triangle prototype and
+ * controlled repeated parts. node:test compares numeric translation, metric tile
+ * division, face-qualified finish precedence, optical fields and optional batch
+ * identity; invalid model/face/finish/UV/normal/primitive/scale inputs must throw.
+ * One house-scene call checks composition with that supplied input. These fixtures
+ * are not a census of real models or a texture, optical or GPU rendering verdict.
+ * Tests own their in-memory clones; source/assertion failures reach the runner and
+ * no browser, native renderer or persistent resource is acquired.
+ */
 import type { IAutoMovieModel } from "@automovie/interface";
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { buildHouseScene } from "../viewer/houseScene.cjs";
+import { buildHouseScene } from "../viewer/buildHouseScene.js";
 import {
   type IViewerModelInputs,
   lowerViewerModels,
-} from "../viewer/modelScene.cjs";
+} from "../viewer/modelScene.js";
 
 const model: IAutoMovieModel = {
   id: "sample-window",
@@ -38,7 +47,7 @@ const model: IAutoMovieModel = {
   asset: null,
 };
 
-const input = (): IViewerModelInputs => ({
+const input: () => IViewerModelInputs = (): IViewerModelInputs => ({
   prototypes: [{ model, faceByPart: { frame: "frame" } }],
   instances: [
     {
@@ -57,9 +66,9 @@ const input = (): IViewerModelInputs => ({
   },
 });
 
-void test("model placement carries face finish and model metric UVs", () => {
+void test("model placement carries face finish and model metric UVs", () : void => {
   assert.deepEqual(lowerViewerModels({ ...input(), instances: [] }), []);
-  const [item] = lowerViewerModels(input());
+  const [item]: import("../viewer/IViewerSceneItem").IViewerSceneItem[] = lowerViewerModels(input());
   assert.equal(item?.id, "window-1/frame");
   assert.equal(item?.modelId, "sample-window");
   assert.equal(item?.faceId, "frame");
@@ -67,8 +76,8 @@ void test("model placement carries face finish and model metric UVs", () => {
   assert.deepEqual(item?.positions, [2, 3, 4, 3, 3, 4, 2, 4, 4]);
   assert.deepEqual(item?.uvs, [0, 0, 1, 0, 0, 1]);
 });
-void test("isolated inspection preserves repeated source parts and producer membership while house batching stays on", () => {
-  const prototype = structuredClone(model);
+void test("isolated inspection preserves repeated source parts and producer membership while house batching stays on", () : void => {
+  const prototype: IAutoMovieModel = structuredClone(model);
   prototype.id = "roof:sample-shingle-0";
   prototype.parts.push({
     ...structuredClone(prototype.parts[0]!),
@@ -86,20 +95,20 @@ void test("isolated inspection preserves repeated source parts and producer memb
     finishes: { frame: { color: 0x333333, roughness: 0.4, metalness: 0 } },
   };
   assert.equal(lowerViewerModels(i).length, 1);
-  const separated = lowerViewerModels({ ...i, batchRepetitions: false });
+  const separated: import("../viewer/IViewerSceneItem").IViewerSceneItem[] = lowerViewerModels({ ...i, batchRepetitions: false });
   assert.deepEqual(
-    separated.map((p) => p.id),
+    separated.map((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : string => p.id),
     ["sample/frame", "sample/second"],
   );
   assert.deepEqual(
-    separated.map((p) => p.assemblyMember),
+    separated.map((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : string | undefined => p.assemblyMember),
     ["0", "1"],
   );
   assert.deepEqual(separated[0]!.positions, separated[1]!.positions);
 });
 
-void test("a material tile module converts model metres into texture repeats", () => {
-  const tiled = input();
+void test("a material tile module converts model metres into texture repeats", () : void => {
+  const tiled: IViewerModelInputs = input();
   tiled.finishes = {
     frame: {
       color: 0xffffff,
@@ -118,19 +127,19 @@ void test("a material tile module converts model metres into texture repeats", (
       textureMetres: [0, 1],
     },
   };
-  assert.throws(() => lowerViewerModels(tiled), /invalid texture module/);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(tiled), /invalid texture module/);
 });
 
-void test("house scene accepts an authored model placement input", () => {
-  const scene = buildHouseScene("test-source", input());
+void test("house scene accepts an authored model placement input", () : void => {
+  const scene: import("../viewer/IViewerScene").IViewerScene = buildHouseScene("test-source", input());
   assert.equal(
-    scene.items.find((item) => item.id === "window-1/frame")?.faceId,
+    scene.items.find((item: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => item.id === "window-1/frame")?.faceId,
     "frame",
   );
 });
 
-void test("a glass model face retains its authored physical optics in the scene", () => {
-  const glassInput = input();
+void test("a glass model face retains its authored physical optics in the scene", () : void => {
+  const glassInput: IViewerModelInputs = input();
   glassInput.finishes = {
     frame: {
       color: 0xe8eef0,
@@ -142,15 +151,15 @@ void test("a glass model face retains its authored physical optics in the scene"
       doubleSided: true,
     },
   };
-  const [glass] = lowerViewerModels(glassInput);
+  const [glass]: import("../viewer/IViewerSceneItem").IViewerSceneItem[] = lowerViewerModels(glassInput);
   assert.equal(glass?.transmission, 0.92);
   assert.equal(glass?.ior, 1.5);
   assert.equal(glass?.thickness, 0.006);
   assert.equal(glass?.doubleSided, true);
 });
 
-void test("a model-qualified finish wins when different prototypes reuse a face id", () => {
-  const bound = input();
+void test("a model-qualified finish wins when different prototypes reuse a face id", () : void => {
+  const bound: IViewerModelInputs = input();
   bound.finishes = {
     ...bound.finishes,
     "sample-window/frame": {
@@ -159,45 +168,45 @@ void test("a model-qualified finish wins when different prototypes reuse a face 
       metalness: 0.4,
     },
   };
-  const [item] = lowerViewerModels(bound);
+  const [item]: import("../viewer/IViewerSceneItem").IViewerSceneItem[] = lowerViewerModels(bound);
   assert.equal(item?.color, 0x111111);
   assert.equal(item?.roughness, 0.2);
   assert.equal(item?.metalness, 0.4);
 });
 
-void test("model path refuses unresolved identity and texture coordinates", () => {
-  const missingModel = input();
+void test("model path refuses unresolved identity and texture coordinates", () : void => {
+  const missingModel: IViewerModelInputs = input();
   missingModel.instances[0]!.modelId = "unknown";
-  assert.throws(() => lowerViewerModels(missingModel), /unknown model/);
-  const missingFace = input();
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(missingModel), /unknown model/);
+  const missingFace: IViewerModelInputs = input();
   missingFace.prototypes[0]!.faceByPart = {};
-  assert.throws(() => lowerViewerModels(missingFace), /unbound model face/);
-  const missingFinish = input();
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(missingFace), /unbound model face/);
+  const missingFinish: IViewerModelInputs = input();
   missingFinish.finishes = {};
-  assert.throws(() => lowerViewerModels(missingFinish), /missing finish/);
-  const missingUvs = input();
-  const bare = structuredClone(model);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(missingFinish), /missing finish/);
+  const missingUvs: IViewerModelInputs = input();
+  const bare: IAutoMovieModel = structuredClone(model);
   if (bare.parts[0]!.geometry.type !== "mesh")
     throw new Error("test needs mesh");
   bare.parts[0]!.geometry.mesh.uvs = null;
   missingUvs.prototypes[0]!.model = bare;
-  assert.throws(() => lowerViewerModels(missingUvs), /lacks aligned UVs/);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(missingUvs), /lacks aligned UVs/);
   missingUvs.finishes = {
     frame: { color: 0xffffff, roughness: 1, metalness: 0 },
   };
-  assert.throws(() => lowerViewerModels(missingUvs), /lacks aligned UVs/);
-  const scaled = input();
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(missingUvs), /lacks aligned UVs/);
+  const scaled: IViewerModelInputs = input();
   scaled.instances[0]!.transform.scale = { x: 2, y: 1, z: 1 };
-  assert.throws(() => lowerViewerModels(scaled), /must keep metric UV scale/);
-  const noNormals = input();
-  const flat = structuredClone(model);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(scaled), /must keep metric UV scale/);
+  const noNormals: IViewerModelInputs = input();
+  const flat: IAutoMovieModel = structuredClone(model);
   if (flat.parts[0]!.geometry.type !== "mesh")
     throw new Error("test needs mesh");
   flat.parts[0]!.geometry.mesh.normals = null;
   noNormals.prototypes[0]!.model = flat;
-  assert.throws(() => lowerViewerModels(noNormals), /lacks normals or indices/);
-  const primitive = input();
-  const box = structuredClone(model);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(noNormals), /lacks normals or indices/);
+  const primitive: IViewerModelInputs = input();
+  const box: IAutoMovieModel = structuredClone(model);
   box.parts[0]!.geometry = {
     type: "primitive",
     shape: { type: "box", width: 1, height: 1, depth: 1 },
@@ -206,5 +215,5 @@ void test("model path refuses unresolved identity and texture coordinates", () =
   primitive.finishes = {
     frame: { color: 0xffffff, roughness: 1, metalness: 0 },
   };
-  assert.throws(() => lowerViewerModels(primitive), /lacks aligned UVs/);
+  assert.throws(() : import("../viewer/IViewerSceneItem").IViewerSceneItem[] => lowerViewerModels(primitive), /lacks aligned UVs/);
 });

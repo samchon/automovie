@@ -1,7 +1,7 @@
 /**
  * `tub-bathroom`: the second upper bathroom at the end of the hall.
  *
- * Design owner: `docs/spaces/rooms/tub-bath.md#tub-bath-plan`. Finished inner
+ * Finished inner
  * X = [3.22, 5.50], Z = [-8.80, -4.71] m. 07 assigns this owner its partitions
  * to the hall and shower bathroom (X = [3.07, 3.22], carrying `hall-tub-door`
  * Z = [-5.86, -4.86], Y = [3.06, 5.26] m) and to bedroom-three
@@ -25,10 +25,6 @@ import {
 import { ceilingOf, floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/tub-bath.md The hall-tub-door void follows the partition assigned to tub-bath.
- * @evidence principles/core/source-units.md#source-scope-preservation The hall-tub-door interval remains with tub-bath while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The hall-tub-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan places hall-tub-door in the left corridor wall at Z=[-5.86, -4.86], Y=[3.06, 5.26], apart from the shower room; this export carries its Z cut.
  */
 export const DOOR_HALL_TUB_DOOR = door(
   "hall-tub-door",
@@ -45,7 +41,7 @@ const TUB_BATH: IRoomSpace = {
   storey: "upper-storey",
   outline: box([3.22, 5.5], [-8.8, STAIR_OPENING.guardBack]),
   floor: PALETTE.tile,
-  // tub-bath.md#tub-fixture-use; right ends are the inner face X = 5.50, heights above the upper floor (+3.06).
+  // ; right ends are the inner face X = 5.50, heights above the upper floor (+3.06).
   reservations: [
     { id: "tub-bathroom-vanity", kind: "fixture", x: [4.95, 5.5], z: [-5.75, -4.9], y: [FLOOR, FLOOR + 0.85] },
     { id: "tub-bathroom-vanity-use", kind: "use", x: [4.3, 4.95], z: [-5.7, -4.95] },
@@ -61,15 +57,6 @@ const TUB_BATH: IRoomSpace = {
     { id: "tub-bathroom-mirror", kind: "fixture", x: [5.46, 5.5], z: [-5.75, -4.9], y: [FLOOR + 1.1, FLOOR + 1.9] },
   ],
 };
-
-/**
- * @evidence spaces/rooms/tub-bath.md This builder owns the long upper tub bathroom at the hall end.
- * @evidence spaces/rooms/tub-bath.md#tub-bath-plan It cuts one hall door and closes the shower-side and bedroom-three-side runs at their assigned corners.
- * @evidence spaces/rooms/tub-bath.md#tub-fixture-use Vanity, toilet, tub, towel, mirror, and their use/route areas remain separately reserved.
- * @evidence principles/core/source-units.md#source-scope-preservation The function emits tile finish and three walls without authoring sanitary fixtures or stealing adjacent T corners.
- * @evidence principles/core/source-units.md#source-substantive-completion The return contains the room, floor/ceiling, door strip, and three concrete partition parts.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan gives one hall-tub-door, and tub-fixture-use places the long left route beside basin, toilet, bath, and curtain-rail reservations.
- */
 export const buildTubBath = (): IRoomBuild => ({
   space: TUB_BATH,
   parts: [

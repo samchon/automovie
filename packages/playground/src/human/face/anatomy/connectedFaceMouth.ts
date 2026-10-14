@@ -2,8 +2,6 @@ import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
 
 /**
  * Oral hierarchy over shared vermilion skin, rigid dentition and tongue mesh.
- * The expression endpoint provenance is source extra targets at
- * the upstream source .
  * Kozlov et al. 2017, https://la.disneyresearch.com/wp-content/uploads/Enriching-Facial-Blendshape-Rigs-with-Physical-Simulation-Paper2.pdf ,
  * show why blendshape lips need tissue and dental contact. Their volumetric
  * simulation is not the deterministic surface-floor rule of this editor.

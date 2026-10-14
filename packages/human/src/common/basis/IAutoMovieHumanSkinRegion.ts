@@ -9,6 +9,14 @@
  * area; the basis states which of its vertices it holds. A
  * rule naming an area the basis does not declare refuses by that name.
  *
+ * @evidence contracts/common.md#principled-implementation A surface ordinal and strictly increasing vertex set register a named skin area for measurement selection.
+ * @evidence contracts/common.md#clear-and-simple-design The basis owns vertex membership while instruments refer to a stable region name.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Region names avoid copying topology-specific vertex lists into measurement rules.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains basis ownership, feature exclusion and undeclared-region refusal.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The named skin region binding has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The named skin region binding schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The named skin region binding declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanSkinRegion {

@@ -1,15 +1,14 @@
 /**
- * The 12-hex-digit file digests a basis token names after its prefix,
- * `<prefix>@<d1>[.<d2>]`. The caller classifies the token's prefix; this
- * suffix parser refuses a different digest count or lowercase-hex form.
+ * The twelve-hex file digest prefixes a basis token names after its domain prefix, `<prefix>@<d1>[.<d2>]`. The caller classifies that domain prefix; this suffix parser refuses a different digest count or lowercase-hex form. Matching digest prefixes do not establish complete byte identity.
  *
- * @evidence contracts/common.md#principled-implementation Splits the suffix at the caller's classified prefix boundary and admits exactly the required count of twelve lowercase hexadecimal characters.
- * @evidence contracts/common.md#clear-and-simple-design One parser supplies the one-file and paired publication token readers while prefix dispatch remains with their caller.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest syntax is the existing publication protocol, not a subject identifier or an expected asset hash.
- * @evidence contracts/common.md#meaningful-documentation States the caller's prefix-classification precondition, suffix grammar and named refusal for a malformed digest list.
+ * @evidence contracts/common.md#principled-implementation Suffix parsing enforces the requested digest count and twelve lowercase hex digits after the caller-classified prefix.
+ * @evidence contracts/common.md#clear-and-simple-design A single suffix split and digit check adapt the fixed basis token grammar without filesystem access.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only suffix shape is admitted here; caller domain classification and server file-digest-prefix checks remain separate, and collisions can accept changed bytes.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines suffix grammar, exact count and caller-owned prefix classification instead of promising complete token or asset validation.
+ * @evidence contracts/performance.md#efficient-algorithms Splitting and validating tokens is linear in token length and requested digest count.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each token is parsed independently; this helper retains no expensive derived result or memo.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned digest strings survive the invocation, with no file, buffer or network resource retained.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Checks the existing basis-token digest count and twelve-character lowercase hexadecimal grammar before the selected publication is requested.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Keeps suffix admission separate from prefix classification and numerical basis admission; it defines no production frame fingerprint.
  * @author Samchon
  */
 export function humanViewerBasisDigests(
@@ -17,10 +16,10 @@ export function humanViewerBasisDigests(
   prefix: string,
   count: number,
 ): string[] {
-  const digests = token.slice(prefix.length + 1).split(".");
+  const digests: string[] = token.slice(prefix.length + 1).split(".");
   if (
     digests.length !== count ||
-    digests.some((digest) => !/^[0-9a-f]{12}$/.test(digest))
+    digests.some((digest: string): boolean => !/^[0-9a-f]{12}$/.test(digest))
   )
     throw new Error(
       `A ${prefix} basis token names ${count} 12-digit file digest(s): ${token}`,

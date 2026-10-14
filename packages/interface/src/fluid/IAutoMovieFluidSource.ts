@@ -1,55 +1,36 @@
 /**
  * One declared inflow into a single cell.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `IAutoMovieFluidSource` as the portable data boundary for the interior fluid volume level requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieFluidSource` for the interior space water feature fluid domain system contract.
+ * validateFluidDomain requires a nonsolid in-grid cell, a nonblank id unique among sources and finite authored numbers. simulateFluidDomain accumulates admitted flow in sourceVolume without capping it to current or design depth; derived accumulation limits remain those of IAutoMovieFluidState.
+ *
+ * @evidence contracts/common.md#principled-implementation For each active step start in [start, end), simulateFluidDomain adds flowRate * dt to the cell update and the source ledger. The same contribution targets finite-arithmetic volume balance; authored-field finiteness alone does not prove finite products or cumulative totals.
+ * @evidence contracts/common.md#clear-and-simple-design A single-cell constant-rate inflow with a time window covers taps, jets and supply ports, and `lowerWetZoneDrainage` produces these records from service-network supply ports without a second flow model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No current-depth or referenceDepth cap discards authored inflow. Rising beyond the stability design depth and nonfinite derived ledger arithmetic remain the solver/state types' documented limits rather than a universal conservation guarantee.
+ * @evidence contracts/common.md#meaningful-documentation States the validation rules and where added volume is counted; members give units, index ranges, that the full amount arrives however deep the cell is, and the half-open activity window.
+ * @author Samchon
  */
 export interface IAutoMovieFluidSource {
-  /**
-   * Stable source identity within the domain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `id` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `id` for the interior space water feature fluid domain system contract.
-   */
+  /** Stable source identity within the domain. */
   id: string;
 
-  /**
-   * Cell column receiving the water; `0 <= column < grid.columns`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `column` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `column` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell column receiving the water; `0 <= column < grid.columns`. */
   column: number;
 
-  /**
-   * Cell row receiving the water; `0 <= row < grid.rows`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `row` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `row` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell row receiving the water; `0 <= row < grid.rows`. */
   row: number;
 
   /**
-   * Volumetric inflow in m³/s; must be `>= 0`. Use a drain to remove water.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `flowRate` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `flowRate` for the interior space water feature fluid domain system contract.
+   * Finite nonnegative inflow in cubic metres per second. Each active step requests the full flowRate * dt regardless of current depth; use a drain for outflow.
    */
   flowRate: number;
 
   /**
-   * Domain-clock second at which the source starts; finite and `>= 0`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `start` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `start` for the interior space water feature fluid domain system contract.
+   * Nonnegative domain-clock start second; a step receives water when its start time satisfies start <= t < end.
    */
   start: number;
 
   /**
-   * Domain-clock second at which it stops, or `null` for "never".
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `end` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `end` for the interior space water feature fluid domain system contract.
+   * End second strictly after start, or null for no end.
    */
   end: number | null;
 }

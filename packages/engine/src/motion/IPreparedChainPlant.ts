@@ -10,8 +10,14 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * The solver and residual reader share these same rest transforms and constraints;
  * offsets and endpoints use the resolved model metre frame.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Carries the actual two-link rest geometry used to bound and reconstruct a contact solve.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Retains the compiled chain frames and effective joint domains shared by inverse solving and final effector readback.
+ * @evidence contracts/common.md#principled-implementation Captures articulation-free chain frames under the current parent pose plus root/mid effective clinical domains; local offsets and relative lower rotation let each clamped candidate's effector be resolved by two compositions.
+ * @evidence contracts/common.md#clear-and-simple-design Separates pose-invariant preparation from candidate-specific target/bend choice so the inverse solve and residual scorer consume identical frames and constraints.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Domains come from the actual skeleton and shared defaults; this record has no alternate rig limits or copied measurement that overrides solved FK.
+ * @evidence contracts/common.md#meaningful-documentation Describes articulation removal, current parent pose, model-metre coordinates, local offsets and the relative lower orientation required to reconstruct a candidate.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record itself performs no FK; preparation scans the current rig once and candidate evaluation uses these fixed fields.
+ * @evidence contracts/performance.md#reuse-equivalent-work One prepared record is reused for all bend candidates of one unchanged pose/chain/mapping; it must be rebuilt when those inputs change and is not a cross-frame cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One solve owns a fixed-size record referencing its chain/domains and resolved frames; releasing the solve releases it with no native or renderer resources.
+ *
  * @author Samchon
  */
 export interface IPreparedChainPlant {

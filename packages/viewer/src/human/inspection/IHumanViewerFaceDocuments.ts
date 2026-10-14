@@ -3,42 +3,25 @@ import type { IHumanViewerReferenceFaceDocument } from "./IHumanViewerReferenceF
 import type { IHumanViewerSubjectDocument } from "./IHumanViewerSubjectDocument.js";
 
 /**
- * The face documents of the catalogue: the reference face, the published
- * subjects and their catalogue entries on the published face basis.
+ * The face documents of the catalogue: the reference face, the published subjects and their catalogue entries on the published face basis.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the documents other groups build on and the entries.
- *
- * @evidence contracts/common.md#principled-implementation The connected reference, published subjects and catalogue entries keep the common face document sources together.
- * @evidence contracts/common.md#clear-and-simple-design Shared reference documents remain separate from the wire entries derived from them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Subject data is supplied by the application source; this record embeds no subject-specific geometry implementation.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The connected reference, published subjects and catalogue entries keep the common face document sources together.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Subject data is supplied by the application source; this record embeds no subject-specific geometry implementation.
+ * @evidence contracts/common.md#principled-implementation Joins the supplied reference parameter document, parsed application subject documents and their keyed face entries on one published basis.
+ * @evidence contracts/common.md#clear-and-simple-design One projection exposes original subjects for person composition and entries for face selection without duplicate geometry construction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Published subject JSON is projected without full schema admission; malformed or refused numerical documents remain their domain owner's judgment.
+ * @evidence contracts/common.md#meaningful-documentation Identifies reference versus subjects and order-preserving entries, with basis/source keys supplied by readHumanViewerFaceDocuments.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The container performs no IO; parsing and per-document JSON hashing scale with source/document bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The source's face memo can share the projection under stamp/basis/source/reference signature; equal subject id alone is not equivalent work.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The catalogue retains parsed document references and entry arrays proportional to subjects, with no image, worker or GPU object acquired.
  *
  * @author Samchon
  */
 export interface IHumanViewerFaceDocuments {
-  /**
-   * The connected reference face.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Carries the application-supplied neutral face reused in Person composition without a Viewer-owned preset generator.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Carries the application-supplied neutral face reused in Person composition without a Viewer-owned preset generator.
-   */
+  /** The connected reference face. */
   reference: IHumanViewerReferenceFaceDocument;
 
-  /**
-   * The published face subjects.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Carries application-owned face subjects whose remaining schema stays with the Face admission owner.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Carries application-owned face subjects whose remaining schema stays with the Face admission owner.
-   */
+  /** The published face subjects. */
   subjects: IHumanViewerSubjectDocument[];
 
-  /**
-   * Catalogue entries of the reference and every subject.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Keeps each original face document paired with the catalogue identity and cache authority derived for it.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Keeps each original face document paired with the catalogue identity and cache authority derived for it.
-   */
+  /** Catalogue entries of the reference and every subject. */
   entries: IHumanViewerCatalogueEntry[];
 }

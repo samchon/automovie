@@ -30,7 +30,7 @@ export class ObjectMesh {
     const ny = (b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z);
     const nz = (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
     const magnitude = Math.hypot(nx, ny, nz);
-    if (!(magnitude > 1e-12)) throw new Error(`${name}: 퇴화된 면은 법선을 낼 수 없습니다.`);
+    if (!(magnitude > 1e-12)) throw new Error(`${name}: a degenerate face cannot give a normal.`);
     const projected = (v: Point): readonly [number, number] => {
       if (Math.abs(ny) >= Math.abs(nx) && Math.abs(ny) >= Math.abs(nz))
         return ny >= 0 ? [v.x, -v.z] : [v.x, v.z];
@@ -53,13 +53,13 @@ export class ObjectMesh {
   /** An explicitly bounded polygon whose ordered corners determine the outward face. */
   face(name: string, vertices: readonly Point[], coordinates?: readonly (readonly [number, number])[]): this {
     if (vertices.length < 3 || (coordinates !== undefined && coordinates.length !== vertices.length))
-      throw new Error(`${name}: 면의 꼭짓점과 UV 수가 일치해야 합니다.`);
+      throw new Error(`${name}: a face's vertex and UV counts must match.`);
     this.polygon(name, vertices, coordinates);
     return this;
   }
 
   box(name: string, x: number, y: number, z: number, width: number, height: number, depth: number): this {
-    if (!(width > 0 && height > 0 && depth > 0)) throw new Error(`${name}: 상자 치수는 양수여야 합니다.`);
+    if (!(width > 0 && height > 0 && depth > 0)) throw new Error(`${name}: box dimensions must be positive.`);
     const a = x - width / 2, b = x + width / 2;
     const c = y, d = y + height, e = z - depth / 2, f = z + depth / 2;
     const v = point;
@@ -73,7 +73,7 @@ export class ObjectMesh {
   }
 
   frustum(name: string, x: number, z: number, bottom: number, top: number, lowerRadius: number, upperRadius: number, segments = 16): this {
-    if (!(top > bottom && lowerRadius > 0 && upperRadius > 0 && segments >= 3)) throw new Error(`${name}: 원뿔대 입력 오류`);
+    if (!(top > bottom && lowerRadius > 0 && upperRadius > 0 && segments >= 3)) throw new Error(`${name}: invalid frustum input`);
     const low: Point[] = [], high: Point[] = [];
     for (let i = 0; i < segments; ++i) {
       const angle = 2 * Math.PI * i / segments;
@@ -96,7 +96,7 @@ export class ObjectMesh {
   /** Open vessel: outside profile rises, inside profile returns to a closed floor. */
   vessel(name: string, x: number, z: number, outside: readonly (readonly [number, number])[], inside: readonly (readonly [number, number])[], segments = 16): this {
     const profile = [...outside, ...inside];
-    if (profile.length < 4) throw new Error(`${name}: 용기 단면 부족`);
+    if (profile.length < 4) throw new Error(`${name}: vessel profile too short`);
     const ring = (height: number, radius: number): Point[] => Array.from({ length: segments }, (_, i) => {
       const angle = 2 * Math.PI * i / segments;
       return point(x + radius * Math.cos(angle), height, z - radius * Math.sin(angle));
@@ -130,7 +130,7 @@ export class ObjectMesh {
   rod(name: string, from: Point, to: Point, radius: number, segments = 8, uStart = 0): this {
     const dx = to.x-from.x, dy = to.y-from.y, dz = to.z-from.z;
     const length = Math.hypot(dx,dy,dz);
-    if (!(length > 0 && radius > 0)) throw new Error(`${name}: 막대 입력 오류`);
+    if (!(length > 0 && radius > 0)) throw new Error(`${name}: invalid rod input`);
     const axis = point(dx/length,dy/length,dz/length);
     const seed = Math.abs(axis.y) < 0.9 ? point(0,1,0) : point(1,0,0);
     const ux = axis.y*seed.z-axis.z*seed.y, uy = axis.z*seed.x-axis.x*seed.z, uz = axis.x*seed.y-axis.y*seed.x;
@@ -160,10 +160,10 @@ export class ObjectMesh {
     const dx=to.x-from.x,dy=to.y-from.y,dz=to.z-from.z;
     const length=Math.hypot(dx,dy,dz);
     if(!(length>0&&radius>0&&segments>=3))
-      throw new Error(`${name}: 원통 입력 오류`);
+      throw new Error(`${name}: invalid cylinder input`);
     const axis=point(dx/length,dy/length,dz/length);
     if(seam==="x"&&!(dx>0&&Math.abs(dy)<1e-10&&Math.abs(dz)<1e-10))
-      throw new Error(`${name}: X축 원통은 +X로 놓아야 합니다.`);
+      throw new Error(`${name}: an X-axis cylinder must point along +X.`);
     const radial=seam==="x"?point(0,0,1):(()=>{
       const projected=(seed:Point)=>{
         const dot=seed.x*axis.x+seed.y*axis.y+seed.z*axis.z;
@@ -220,7 +220,7 @@ export class ObjectMesh {
   }
 
   model(id: string, name: string): IAutoMovieModel {
-    if (this.parts.size === 0) throw new Error(`${id}: 부재가 없습니다.`);
+    if (this.parts.size === 0) throw new Error(`${id}: no members.`);
     return {
       id, name, origin: "generated", skeleton: null, body: null, asset: null, materials: [],
       parts: [...this.parts].map(([part, buffer]) => {

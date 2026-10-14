@@ -1,36 +1,30 @@
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 
 /**
- * How far the neck extends below the collar, read from the body's own rig.
+ * Read sorted finite collar distances until the running count share of isNeck vertices falls below neckShare=0.5. The seam's callback classifies neck/head-dominated source rig vertices; counts are uniform per vertex, not surface-area or clinical tissue sampling. Caller supplies admitted nonnegative metre distances and a stable source classifier. Infinity is excluded, and any other finite value is accepted here without separate sign validation.
  *
- * The body's skin weights say which bone carries each vertex. Walking the skin
- * outward from the collar in order of distance, the neck and head carry
- * nearly all of it at first, and the upper chest, the shoulder girdle and the
- * arms take over as the walk reaches the trapezius and the shoulder. The reach
- * is the distance at which the running share of neck- or head-dominated
- * vertices falls below `HUMAN_PERSON_SEAM.neckShare`: inside it the skin is
- * mostly the neck's, beyond it mostly the trunk's and shoulder's, so a neck
- * that differs between the two documents reshapes what the rig calls neck and
- * leaves the shoulder alone.
+ * No finite distance refuses. If the sampled share never falls below 0.5, return the last finite distance; zero is possible and the seam compiler separately requires positive reach. This is a rig transition convention rather than a surveyed neck extent, general anatomical admission or current visual observation.
  *
- * `distance[v]` is the distance from the collar to vertex `v` along the skin
- * (`Infinity` for a vertex the collar cannot reach, which is ignored) and
- * `isNeck(v)` says whether the neck or head bone has the largest weight there.
- * A skin that never falls below the share returns its greatest finite
- * distance; one with no reachable vertex refuses.
+ * @evidence contracts/common.md#principled-implementation Actual reachable source distance and caller-owned dominant-bone classification determine the cumulative sampled neck-share statistic.
+ * @evidence contracts/common.md#clear-and-simple-design This observer owns finite sorting/count threshold only; graph traversal, source weight classification and positive-reach admission retain their existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No reachable sample refuses and no area-weighted/geodesic/clinical neck extent is fabricated from uniform vertex counts or source rig labels.
+ * @evidence contracts/common.md#meaningful-documentation Prose states metre distance, 0.5 convention, density dependence, finite/sign premise and threshold/fallback/zero behavior.
+ * @evidence contracts/performance.md#efficient-algorithms N distances filter to K finite indices; O(K log K) sorting precedes at most K source-classifier calls and scalar count updates.
+ * @evidence contracts/performance.md#reuse-equivalent-work One sorted reachable order supplies the threshold walk and fallback distance without recomputing graph reach or source rig weights here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate indices are call-local and only the scalar metre distance escapes; no callback, geometry, task or render resource is retained.
  */
 export function measureHumanNeckReach(
   distance: Float64Array,
   isNeck: (vertex: number) => boolean,
 ): number {
   const order: number[] = [];
-  for (let vertex = 0; vertex < distance.length; vertex++)
+  for (let vertex: number = 0; vertex < distance.length; vertex++)
     if (Number.isFinite(distance[vertex])) order.push(vertex);
   if (order.length === 0)
     throw new Error("No skin vertex is reachable from the collar.");
-  order.sort((a, b) => distance[a] - distance[b]);
-  let neck = 0;
-  for (let counted = 1; counted <= order.length; counted++) {
+  order.sort((a: number, b: number): number => distance[a] - distance[b]);
+  let neck: number = 0;
+  for (let counted: number = 1; counted <= order.length; counted++) {
     if (isNeck(order[counted - 1])) neck++;
     if (neck / counted < HUMAN_PERSON_SEAM.neckShare)
       return distance[order[counted - 1]];

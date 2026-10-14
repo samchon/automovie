@@ -1,38 +1,42 @@
 import * as THREE from "three";
+
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import type { IMaterialOverlayShading } from "./IMaterialOverlayShading.js";
+import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
 import { getOverlayFlatNormal } from "./getOverlayFlatNormal.js";
-import { materialOverlayVertex } from "./materialOverlayVertex.js";
 import { materialOverlayFragment } from "./materialOverlayFragment.js";
+import { materialOverlayVertex } from "./materialOverlayVertex.js";
 
 /**
- * Composite surface overlays over a material, in order, each where its own
- * colour image covers, its colour times its colour factor: its coverage is
- * the image's alpha times its strength,
- * over which the base colour is multiplied by the image's colour (`multiply`)
- * or replaced by it (`replace`), the roughness moves to the overlay's own
- * when it names one, and its normal map, scaled by its normal scale, bends
- * the tangent-space normal: a tint's slopes, times its strength too, add to
- * the material's by whiteout blending, and a replacing layer's normal
- * replaces the material's by its coverage, as another tissue's surface
- * does. An overlay with a
- * normal map on a material without one gives the material a flat normal map,
- * so the tangent frame it bends exists.
+ * Compose overlays in order, with coverage equal to image alpha times strength. Linear colour factors modify each image before multiply tint or replacement of the base colour; optional roughness mixes by the same coverage.
  *
- * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves a material's surface overlays into the declared render material.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the overlay composite at the render boundary.
+ * A tint normal's xy slopes scale by normalScale times strength and combine with the existing tangent normal by whiteout blending; this branch does not use color alpha and retains the sampled z factor even at zero strength. Replacement normals mix by alpha-times-strength coverage. A supplied normal on a material without one adds the shared conventional flat map to provide a tangent frame. These formulas do not establish measured tissue response or observed appearance.
+ *
+ * @evidence contracts/common.md#principled-implementation Registers ordered color/roughness and replacement-normal coverage by alpha times strength. Multiply normals instead use strength-scaled xy and the sampled z in whiteout, ignoring alpha and potentially changing an existing normal at zero strength. Public compile hooks add the shared conventional flat normal when a tangent frame is required.
+ * @evidence contracts/common.md#clear-and-simple-design Uniform values stay material-local while structural overlay shapes select shared vertex/fragment generators and their program key.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Texture transforms and order are preserved, no SDK prototype/internal is replaced and registration assumes the existing buildMaterial precompile phase rather than patching a compiled material silently.
+ * @evidence contracts/common.md#meaningful-documentation Documentation describes blend/coverage/normal semantics, optional roughness and the flat-normal prerequisite without claiming an observed material appearance.
+ * @evidence contracts/performance.md#efficient-algorithms For L layers, uniform/shapes/key construction is O(L); shader expansion and actual per-pixel texture samples grow with enabled layer components.
+ * @evidence contracts/performance.md#reuse-equivalent-work Ordered blend/roughness/normal shapes identify program-source equivalence while colour/normal texture transforms and scalar uniforms remain distinct per material.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The material and its patch closure retain O(L) overlay/uniform references until material release; textures are borrowed, the flat normal is one module singleton and this helper has no layer-count cap or unregister API.
  */
-export const applyMaterialOverlays = (
+export const applyMaterialOverlays: (
+  material: THREE.MeshPhysicalMaterial,
+  overlays: readonly IMaterialOverlayShading[],
+) => void = (
   material: THREE.MeshPhysicalMaterial,
   overlays: readonly IMaterialOverlayShading[],
 ): void => {
   if (overlays.length === 0) return;
-  if (material.normalMap === null && overlays.some((o) => o.normal !== null)) {
+  if (
+    material.normalMap === null &&
+    overlays.some((o: IMaterialOverlayShading): boolean => o.normal !== null)
+  ) {
     material.normalMap = getOverlayFlatNormal();
     material.userData.autoMovieOverlayFlatNormal = material.normalMap;
   }
   const uniforms: Record<string, THREE.IUniform> = {};
-  overlays.forEach((overlay, i) => {
+  overlays.forEach((overlay: IMaterialOverlayShading, i: number): void => {
     overlay.color.updateMatrix();
     uniforms[`overlayColorMap${i}`] = { value: overlay.color };
     uniforms[`overlayColorTransform${i}`] = {
@@ -58,19 +62,21 @@ export const applyMaterialOverlays = (
     }
   });
   material.userData.overlays = overlays;
-  const shapes = overlays.map((overlay) => ({
-    blend: overlay.blend,
-    roughness: overlay.roughness !== null,
-    normal: overlay.normal !== null,
-  }));
+  const shapes: IMaterialOverlayShape[] = overlays.map(
+    (overlay: IMaterialOverlayShading): IMaterialOverlayShape => ({
+      blend: overlay.blend,
+      roughness: overlay.roughness !== null,
+      normal: overlay.normal !== null,
+    }),
+  );
   addMaterialShaderPatch(material, {
     key: `automovie-overlays-${shapes
       .map(
-        (shape) =>
+        (shape: IMaterialOverlayShape): string =>
           `${shape.blend[0]}${shape.roughness ? "r" : ""}${shape.normal ? "n" : ""}`,
       )
       .join(".")}`,
-    apply: (shader) => {
+    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = materialOverlayVertex(shader.vertexShader, shapes);
       shader.fragmentShader = materialOverlayFragment(
@@ -80,4 +86,3 @@ export const applyMaterialOverlays = (
     },
   });
 };
-

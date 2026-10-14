@@ -1,36 +1,26 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
 import { IAutoMovieFaceLips } from "./IAutoMovieFaceLips";
 
 /**
  * Mouth traits of an {@link IAutoMovieFace}: signed morph weights in `[-2, 2]`,
- * `0`/omitted meaning the template's mouth unchanged.
+ * with `0` or omission leaving the template's mouth unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieFaceMouth` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieFaceMouth` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * `width` and `height` drive the `mouthWidth` and `mouthHeight` morph targets.
+ * These are resting shape only; a smile or any other movement belongs to
+ * {@link IAutoMovieExpression}.
+ *
+ * @evidence contracts/common.md#principled-implementation `flattenFace` reads `mouth.width` and `mouth.height` into `mouthWidth` and `mouthHeight` through its single-target table and descends into `lips` for `lipFullness`, each leaf range-checked at its own path.
+ * @evidence contracts/common.md#clear-and-simple-design The mouth group carries two placement traits and the nested lips record, while movement stays on the expression contract so identity and performance never share a field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No smile or viseme is approximated through these shape weights; motion is left to `IAutoMovieExpression` rather than baked into the identity morph.
+ * @evidence contracts/common.md#meaningful-documentation States the weight range and neutral meaning, the two morph targets, and that movement is out of scope with the type that owns it; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieFaceMouth {
-  /**
-   * Width of the mouth: `+` a wider smile line.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `width` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  width?: AutoMovieFaceWeight;
+  /** Width of the mouth: `+` a wider mouth line, `-` a narrower one. */
+  width?: number;
 
-  /**
-   * Vertical position of the whole mouth: `+` higher toward the nose.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `height` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `height` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  height?: AutoMovieFaceWeight;
+  /** Vertical position of the whole mouth: `+` higher toward the nose. */
+  height?: number;
 
-  /**
-   * The lips themselves. See {@link IAutoMovieFaceLips}.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `lips` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `lips` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
+  /** The lips themselves. */
   lips?: IAutoMovieFaceLips;
 }

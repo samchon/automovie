@@ -1,24 +1,16 @@
 /**
- * One production-owned numeric caption boundary.
+ * One production-owned numeric caption boundary. Its enclosing profile field determines maximum versus minimum and the unit.
  *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Makes equality behavior part of the declared threshold.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Carries each numeric value with inclusive or exclusive semantics.
+ * @evidence contracts/common.md#principled-implementation A numeric threshold and explicit equality policy define one comparison boundary; render uses upper-bound comparisons for maxima and lower-bound comparisons for duration and gap minima, relying on callers for the documented finite nonnegative domain.
+ * @evidence contracts/common.md#clear-and-simple-design Value and inclusivity are shared by all five profile measurements, while the profile field supplies direction and units instead of duplicating those choices on each boundary.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Equality follows the authored inclusive flag without a hidden tolerance or global preset, so an exclusive boundary cannot pass by using the maximum rule's inclusive comparison.
+ * @evidence contracts/common.md#meaningful-documentation Gives numeric domain, equality semantics and ownership of comparison direction and measurement unit on the enclosing profile field.
  * @author Samchon
  */
 export interface IAutoMovieCaptionReadabilityBoundary {
-  /**
-   * Finite non-negative threshold value.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Carries the production's numeric threshold.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Supplies the value used by deterministic comparison.
-   */
+  /** Finite non-negative threshold value. */
   value: number;
 
-  /**
-   * Whether equality satisfies this boundary.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Declares inclusive versus exclusive equality semantics.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Prevents validators from assuming one boundary convention.
-   */
+  /** Whether equality satisfies this boundary. */
   inclusive: boolean;
 }

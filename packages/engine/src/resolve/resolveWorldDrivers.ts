@@ -18,30 +18,25 @@ import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
-const VECTOR_AXES = ["x", "y", "z"] as const;
+const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
 /**
- * The world-space DRIVE pass: drivers that need the composed hierarchy (a
- * node's world position/orientation) rather than just other channels. It runs
- * **after** the initial compose, reads world matrices, recomputes the owner's
- * world transform, and recomposes the owner's subtree so descendants follow.
+ * Apply world-space aim, parent and analytic/iterative IK in producer order, updating matrices and recomposing affected descendants. Springs and malformed two-bone chains remain deferred. Geometry must be admitted finite/nondegenerate and TRS-decomposable; partial influence and epsilon reach shells are numerical policies rather than anatomical ROM guarantees.
  *
- * This step resolves {@link IAutoMovieAimDriver} (look-at: orient a node so one
- * of its axes points at a target: eyes, head, a camera),
- * {@link IAutoMovieParentDriver} (Child-Of: make a node inherit another's world
- * frame, per component: a sword following a hand), the analytic two-bone
- * {@link IAutoMovieIKDriver} (back-solve a 3-node limb so its tip reaches a
- * goal: arms, legs), and the iterative `ccd`/`fabrik` solvers for longer chains
- * ({@link applyIterativeIK}, fixed budgets, S2 of the core wiring). Only
- * `spring` still defers here: it is stateful, and steps inside
- * {@link resolveFrame} when the caller provides `dt` + state, or in the host's
- * own pass otherwise; nothing is silently dropped.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Evaluates each driver that depends on composed world state.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Implements the world-space stage of the declared deterministic driver graph.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Apply aim, parent and analytic/iterative IK in producer order to composed matrices, recompose affected descendants and visibly defer springs/malformed two-bone chains.
+ * @evidence contracts/common.md#clear-and-simple-design Shared readers, influence guards and blends support driver-specific geometry while iterative IK has its own solver owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Aim skips undefined roll and two-bone reach uses epsilon shells; finite nondegenerate TRS geometry is a premise, not ROM or arbitrary overflow certification.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify world-map mutation, descendant effects, solver budgets and deferral; earlier drivers may have changed state before a later failure.
+ * @evidence contracts/performance.md#efficient-algorithms D drivers add fixed aim/parent/two-bone work and descendant visits plus iterative I/C costs; overlapping subtrees may be recomposed repeatedly.
+ * @evidence contracts/performance.md#reuse-equivalent-work All drivers share caller local/child maps and observe previous effects, so matching descriptors are not memoized as equivalent effectful work.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns matrix updates/deferred array; vector temporaries release with each call and no host worker or handle survives.
  */
-export const resolveWorldDrivers = (
+export const resolveWorldDrivers: (
+  drivers: IAutoMovieDriver[],
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => IAutoMovieDriver[] = (
   drivers: IAutoMovieDriver[],
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
@@ -60,7 +55,12 @@ export const resolveWorldDrivers = (
   return deferred;
 };
 
-const applyAim = (
+const applyAim: (
+  d: IAutoMovieAimDriver,
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => void = (
   d: IAutoMovieAimDriver,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
@@ -70,13 +70,26 @@ const applyAim = (
   validateAimVector("aimAxis", d.aimAxis);
   validateAimVector("upAxis", d.upAxis);
   validateAimVector("worldUp", d.worldUp);
-  const dec = Matrix4.decompose(readWorld(world, d.owner, "aim owner"));
-  const dir = Vector3.subtract(
+  const dec: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(readWorld(world, d.owner, "aim owner"));
+  const dir: IAutoMovieVector3 = Vector3.subtract(
     Matrix4.position(readWorld(world, d.target, "aim target")),
     dec.position,
   );
-  const aimed = aimRotation(dir, d.aimAxis, d.upAxis, d.worldUp);
-  const blended = Quaternion.slerp(dec.rotation, aimed, d.influence);
+  const aimed: IAutoMovieQuaternion = aimRotation(
+    dir,
+    d.aimAxis,
+    d.upAxis,
+    d.worldUp,
+  );
+  const blended: IAutoMovieQuaternion = Quaternion.slerp(
+    dec.rotation,
+    aimed,
+    d.influence,
+  );
   world.set(d.owner, Matrix4.compose(dec.position, blended, dec.scale));
   recompose(d.owner, world, localById, childrenById);
 };
@@ -86,7 +99,12 @@ const applyAim = (
  * component (translation / rotation / scale), keeping its own value for the
  * components the flags leave off. Then its subtree recomposes.
  */
-const applyParent = (
+const applyParent: (
+  d: IAutoMovieParentDriver,
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => void = (
   d: IAutoMovieParentDriver,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
@@ -95,8 +113,16 @@ const applyParent = (
   validateParentFlag(d.translation, "translation");
   validateParentFlag(d.rotation, "rotation");
   validateParentFlag(d.scale, "scale");
-  const own = Matrix4.decompose(readWorld(world, d.owner, "parent owner"));
-  const par = Matrix4.decompose(readWorld(world, d.parent, "parent parent"));
+  const own: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(readWorld(world, d.owner, "parent owner"));
+  const par: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(readWorld(world, d.parent, "parent parent"));
   world.set(
     d.owner,
     Matrix4.compose(
@@ -108,7 +134,10 @@ const applyParent = (
   recompose(d.owner, world, localById, childrenById);
 };
 
-const validateParentFlag = (
+const validateParentFlag: (
+  value: boolean,
+  label: "translation" | "rotation" | "scale",
+) => void = (
   value: boolean,
   label: "translation" | "rotation" | "scale",
 ): void => {
@@ -129,7 +158,12 @@ const validateParentFlag = (
  * Operates directly on the chain's world matrices (the renderer consumes world
  * transforms), so it needs no world→local round-trip.
  */
-const applyTwoBoneIK = (
+const applyTwoBoneIK: (
+  d: IAutoMovieIKDriver,
+  world: Map<string, number[]>,
+  localById: Map<string, IAutoMovieTransform>,
+  childrenById: Map<string, string[]>,
+) => void = (
   d: IAutoMovieIKDriver,
   world: Map<string, number[]>,
   localById: Map<string, IAutoMovieTransform>,
@@ -137,21 +171,23 @@ const applyTwoBoneIK = (
 ): void => {
   validateInfluence("two-bone IK", d.influence);
   if (d.pole !== null) validatePoleAngle(d.pole.angle);
-  const rootId = d.chain[0]!;
-  const midId = d.chain[1]!;
-  const tipId = d.chain[2]!;
-  const rootM = readWorld(world, rootId, "two-bone IK root");
-  const midM = readWorld(world, midId, "two-bone IK mid");
-  const tipM = readWorld(world, tipId, "two-bone IK tip");
-  const rootP = Matrix4.position(rootM);
-  const midP = Matrix4.position(midM);
-  const tipP = Matrix4.position(tipM);
-  const goalP = Matrix4.position(readWorld(world, d.goal, "two-bone IK goal"));
+  const rootId: string = d.chain[0]!;
+  const midId: string = d.chain[1]!;
+  const tipId: string = d.chain[2]!;
+  const rootM: number[] = readWorld(world, rootId, "two-bone IK root");
+  const midM: number[] = readWorld(world, midId, "two-bone IK mid");
+  const tipM: number[] = readWorld(world, tipId, "two-bone IK tip");
+  const rootP: IAutoMovieVector3 = Matrix4.position(rootM);
+  const midP: IAutoMovieVector3 = Matrix4.position(midM);
+  const tipP: IAutoMovieVector3 = Matrix4.position(tipM);
+  const goalP: IAutoMovieVector3 = Matrix4.position(
+    readWorld(world, d.goal, "two-bone IK goal"),
+  );
 
-  const upper = Vector3.subtract(midP, rootP);
-  const lower = Vector3.subtract(tipP, midP);
-  const l1 = Vector3.length(upper);
-  const l2 = Vector3.length(lower);
+  const upper: IAutoMovieVector3 = Vector3.subtract(midP, rootP);
+  const lower: IAutoMovieVector3 = Vector3.subtract(tipP, midP);
+  const l1: number = Vector3.length(upper);
+  const l2: number = Vector3.length(lower);
   if (!(l1 > 0))
     throw new Error(
       `world driver two-bone IK upper bone length must be > 0, but was ${l1}`,
@@ -161,23 +197,27 @@ const applyTwoBoneIK = (
       `world driver two-bone IK lower bone length must be > 0, but was ${l2}`,
     );
 
-  const toGoal = Vector3.subtract(goalP, rootP);
-  const goalLen = Vector3.length(toGoal);
-  const reach = clamp(goalLen, Math.abs(l1 - l2) + 1e-5, l1 + l2 - 1e-5);
-  const dir =
+  const toGoal: IAutoMovieVector3 = Vector3.subtract(goalP, rootP);
+  const goalLen: number = Vector3.length(toGoal);
+  const reach: number = clamp(
+    goalLen,
+    Math.abs(l1 - l2) + 1e-5,
+    l1 + l2 - 1e-5,
+  );
+  const dir: IAutoMovieVector3 =
     goalLen < 1e-8
       ? Vector3.normalize(upper)
       : Vector3.scale(toGoal, 1 / goalLen);
 
   // Bend plane: from the pole (when one is wired) else the limb's current bend.
-  const poleRef =
+  const poleRef: IAutoMovieVector3 =
     d.pole !== null && d.pole.node !== null
       ? Vector3.subtract(
           Matrix4.position(readWorld(world, d.pole.node, "two-bone IK pole")),
           rootP,
         )
       : upper;
-  let axis = Vector3.cross(dir, poleRef);
+  let axis: IAutoMovieVector3 = Vector3.cross(dir, poleRef);
   if (Vector3.length(axis) < 1e-8) axis = anyPerp(dir);
   if (d.pole !== null && d.pole.angle !== 0)
     axis = Quaternion.rotateVector(
@@ -186,33 +226,48 @@ const applyTwoBoneIK = (
     );
   axis = Vector3.normalize(axis);
 
-  const cosRoot = clamp(
+  const cosRoot: number = clamp(
     (l1 * l1 + reach * reach - l2 * l2) / (2 * l1 * reach),
     -1,
     1,
   );
-  const bend = Quaternion.fromAxisAngle(
+  const bend: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     axis,
     (Math.acos(cosRoot) * 180) / Math.PI,
   );
-  const newMid = Vector3.add(
+  const newMid: IAutoMovieVector3 = Vector3.add(
     rootP,
     Vector3.scale(Quaternion.rotateVector(bend, dir), l1),
   );
-  const newTip = Vector3.add(rootP, Vector3.scale(dir, reach));
+  const newTip: IAutoMovieVector3 = Vector3.add(
+    rootP,
+    Vector3.scale(dir, reach),
+  );
 
-  const rootDelta = rotationBetween(
+  const rootDelta: IAutoMovieQuaternion = rotationBetween(
     Vector3.normalize(upper),
     Vector3.normalize(Vector3.subtract(newMid, rootP)),
   );
-  const midDelta = rotationBetween(
+  const midDelta: IAutoMovieQuaternion = rotationBetween(
     Vector3.normalize(lower),
     Vector3.normalize(Vector3.subtract(newTip, newMid)),
   );
-  const rootDec = Matrix4.decompose(rootM);
-  const midDec = Matrix4.decompose(midM);
-  const tipDec = Matrix4.decompose(tipM);
-  const t = d.influence;
+  const rootDec: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(rootM);
+  const midDec: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(midM);
+  const tipDec: {
+    position: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    scale: IAutoMovieVector3;
+  } = Matrix4.decompose(tipM);
+  const t: number = d.influence;
 
   world.set(
     rootId,
@@ -245,17 +300,23 @@ const applyTwoBoneIK = (
   recompose(tipId, world, localById, childrenById);
 };
 
-const clamp = (x: number, lo: number, hi: number): number =>
-  Math.min(hi, Math.max(lo, x));
+const clamp: (x: number, lo: number, hi: number) => number = (
+  x: number,
+  lo: number,
+  hi: number,
+): number => Math.min(hi, Math.max(lo, x));
 
-const validatePoleAngle = (angle: number): void => {
+const validatePoleAngle: (angle: number) => void = (angle: number): void => {
   if (!Number.isFinite(angle))
     throw new Error(
       `world driver two-bone IK pole angle must be finite, but was ${angle}`,
     );
 };
 
-const validateAimVector = (
+const validateAimVector: (
+  label: "aimAxis" | "upAxis" | "worldUp",
+  value: IAutoMovieVector3,
+) => void = (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
 ): void => {
@@ -269,8 +330,10 @@ const validateAimVector = (
 };
 
 /** Some unit vector perpendicular to `v` (for a straight limb's free bend). */
-const anyPerp = (v: IAutoMovieVector3): IAutoMovieVector3 => {
-  const c = Vector3.cross(v, { x: 0, y: 1, z: 0 });
+const anyPerp: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+  v: IAutoMovieVector3,
+): IAutoMovieVector3 => {
+  const c: IAutoMovieVector3 = Vector3.cross(v, { x: 0, y: 1, z: 0 });
   return Vector3.length(c) > 1e-6
     ? Vector3.normalize(c)
     : Vector3.normalize(Vector3.cross(v, { x: 1, y: 0, z: 0 }));
@@ -282,26 +345,37 @@ const anyPerp = (v: IAutoMovieVector3): IAutoMovieVector3 => {
  * (the standard two-step aim constraint). If `worldUp` (or the rolled up
  * vector) is parallel to `dir` the roll is undefined and skipped.
  */
-const aimRotation = (
+const aimRotation: (
+  dir: IAutoMovieVector3,
+  aimAxis: IAutoMovieVector3,
+  upAxis: IAutoMovieVector3,
+  worldUp: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   dir: IAutoMovieVector3,
   aimAxis: IAutoMovieVector3,
   upAxis: IAutoMovieVector3,
   worldUp: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
-  const f = Vector3.normalize(dir);
-  const r1 = rotationBetween(Vector3.normalize(aimAxis), f);
+  const f: IAutoMovieVector3 = Vector3.normalize(dir);
+  const r1: IAutoMovieQuaternion = rotationBetween(
+    Vector3.normalize(aimAxis),
+    f,
+  );
 
-  const desired = projectPerp(worldUp, f);
-  const current = projectPerp(Quaternion.rotateVector(r1, upAxis), f);
-  const dl = Vector3.length(desired);
-  const cl = Vector3.length(current);
+  const desired: IAutoMovieVector3 = projectPerp(worldUp, f);
+  const current: IAutoMovieVector3 = projectPerp(
+    Quaternion.rotateVector(r1, upAxis),
+    f,
+  );
+  const dl: number = Vector3.length(desired);
+  const cl: number = Vector3.length(current);
   if (dl < 1e-8 || cl < 1e-8) return r1;
 
-  const du = Vector3.scale(desired, 1 / dl);
-  const cu = Vector3.scale(current, 1 / cl);
-  const cos = Math.max(-1, Math.min(1, Vector3.dot(cu, du)));
-  const sin = Vector3.dot(Vector3.cross(cu, du), f);
-  const r2 = Quaternion.fromAxisAngle(
+  const du: IAutoMovieVector3 = Vector3.scale(desired, 1 / dl);
+  const cu: IAutoMovieVector3 = Vector3.scale(current, 1 / cl);
+  const cos: number = Math.max(-1, Math.min(1, Vector3.dot(cu, du)));
+  const sin: number = Vector3.dot(Vector3.cross(cu, du), f);
+  const r2: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     f,
     (Math.atan2(sin, cos) * 180) / Math.PI,
   );
@@ -309,7 +383,10 @@ const aimRotation = (
 };
 
 /** Component of `v` perpendicular to the unit axis `f`. */
-const projectPerp = (
+const projectPerp: (
+  v: IAutoMovieVector3,
+  f: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   v: IAutoMovieVector3,
   f: IAutoMovieVector3,
 ): IAutoMovieVector3 =>

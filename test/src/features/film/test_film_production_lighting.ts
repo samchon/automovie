@@ -1,4 +1,3 @@
-import { Quaternion, inheritProductionLighting } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -10,19 +9,33 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { inheritProductionLighting } from "../../../../packages/engine/src/film/inheritProductionLighting";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-/** Half an hour of story time, in seconds: the span the film runs across. */
-const SPAN = 1800;
+/**
+ * Half an hour of story time, in seconds: the span the film runs across.
+ */
+const SPAN: number = 1800;
 
-const pointer = (
+const pointer: (
+  target: string,
+  valueType: AutoMovieChannelValueType,
+) => IAutoMovieChannel = (
   target: string,
   valueType: AutoMovieChannelValueType,
 ): IAutoMovieChannel => ({ kind: "pointer", pointer: target, valueType });
 
-/** A one-track clip on the STORY clock, which is as long as the span it covers. */
-const storyClip = (
+/**
+ * A one-track clip on the STORY clock, which is as long as the span it covers.
+ */
+const storyClip: (
+  id: string,
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+) => IAutoMovieClip = (
   id: string,
   channel: IAutoMovieChannel,
   times: number[],
@@ -35,18 +48,21 @@ const storyClip = (
   tracks: [{ channel, times, values, interpolation: "linear" }],
 });
 
-const keyed = (q: IAutoMovieQuaternion): number[] => [q.x, q.y, q.z, q.w];
+const keyed: (q: IAutoMovieQuaternion) => number[] = (
+  q: IAutoMovieQuaternion,
+): number[] => [q.x, q.y, q.z, q.w];
 
-const aboutY = (deg: number): IAutoMovieQuaternion =>
-  Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+const aboutY: (deg: number) => IAutoMovieQuaternion = (
+  deg: number,
+): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
-const directionOf = (light: IAutoMovieLight): IAutoMovieVector3 =>
+const directionOf: (light: IAutoMovieLight) => IAutoMovieVector3 = (
+  light: IAutoMovieLight,
+): IAutoMovieVector3 =>
   Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /**
- * The production's one source: a directional light that turns a quarter turn
- * and fades over the whole span. Nothing about it names a subject; it is the
- * shape any production takes when its length is part of what it is about.
+ * The authored directional source turns a quarter turn and fades over the span.
  */
 const daylight: IAutoMovieLight = {
   id: "daylight",
@@ -64,7 +80,9 @@ const moon: IAutoMovieLight = {
   intensity: 0.2,
 };
 
-const lighting = (
+const lighting: (
+  overrides?: Partial<IAutoMovieProductionLighting>,
+) => IAutoMovieProductionLighting = (
   overrides: Partial<IAutoMovieProductionLighting> = {},
 ): IAutoMovieProductionLighting => ({
   id: "production-light",
@@ -87,7 +105,9 @@ const lighting = (
   ...overrides,
 });
 
-/** A scene light of the shot's own, which the production never addresses. */
+/**
+ * A scene light of the shot's own, which the production never addresses.
+ */
 const practical: IAutoMovieLight = {
   id: "practical",
   type: "point",
@@ -100,11 +120,8 @@ const practical: IAutoMovieLight = {
 /**
  * A scene's own copy of the production source: a reference, not a restaging.
  *
- * Deliberately NOT the state the source holds at any story moment a case below
- * reads — it faces `+Z` at a tenth of the intensity, where the source opens
- * facing `−Z` at three. A staged copy that already matched the source's first
- * moment would let a shot pinned at story zero read the staging and pass, which
- * is the one outcome the whole inheritance exists to rule out.
+ * It faces +Z at intensity .1 while the source opens facing -Z at intensity 3,
+ * distinguishing inherited state from an unchanged staged copy.
  */
 const stagedDaylight: IAutoMovieLight = {
   id: "daylight",
@@ -117,56 +134,32 @@ const stagedDaylight: IAutoMovieLight = {
   intensity: 0.1,
 };
 
-const lightOf = (lights: IAutoMovieLight[], id: string): IAutoMovieLight =>
-  lights.find((light) => light.id === id)!;
+const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (
+  lights: IAutoMovieLight[],
+  id: string,
+): IAutoMovieLight =>
+  lights.find((light: IAutoMovieLight): boolean => light.id === id)!;
 
 /**
- * A production states ONE moving source and every shot inherits its state at
- * that shot's own story moment, instead of each shot restaging the light.
- *
- * The gap this closes is a scale gap. A shot's `lightMotions` runs on the
- * shot's clock, which is seconds long, so the longest statement a film could
- * make about its light was a few seconds long too. A production running a
- * stretch of story could not say the light crossed it, and every shot restaged
- * its own lighting with nothing at all relating the first shot's light to the
- * last's — consistency was whatever the author happened to retype.
- *
- * The clock is not invented here. `IAutoMovieShotStoryTime` — the pin a shot
- * already carries — is the affine map from shot-local seconds to story seconds,
- * so this pass is only ever "map the second, ask the one source". The edit is
- * not consulted at all: shots cut far apart may sit adjacent in the story, and
- * that is the fact a cut list cannot express and a pin can.
- *
- * Expected values are hand geometry and hand arithmetic. The source turns a
- * quarter turn about Y across the span, carrying its local −Z from `(0, 0, -1)`
- * to `(-1, 0, 0)`; the `quaternion` type makes that a SLERP, so the halfway
- * story moment is exactly 45° along. Intensity ramps linearly from 3 to 0.5, so
- * its halfway value is 1.75.
+ * Resolves inherited story-clock lights and checks endpoint/midpoint direction and intensity, rate mapping, missing lighting/pin pass-through identity and ordered replacement/append.
  *
  * Scenarios:
+ * 1. Resolve start, midpoint and end against deliberately different staged state.
+ * 2. Compress the authored story span into two shot seconds.
+ * 3. Preserve staged element identity/order/count when production or pin is absent.
+ * 4. Replace production ids in place, retain practical identity and append the untouched moon.
  *
- * 1. Two shots at different story times inherit DIFFERENT states from one source:
- *    shots pinned at the start, the middle and the end of the span read 0°/3,
- *    45°/1.75 and 90°/0.5. One declaration, three lightings, and nothing in any
- *    shot restating it.
- * 2. A shot's `rate` carries the same source at the shot's own pace: a two second
- *    shot pinned at 900 story seconds per shot second covers the whole span
- *    from within, so a film may run a long stretch of story inside a short take
- *    and the light crosses it correctly.
- * 3. The additivity promise, in both of its forms. A production that declares no
- *    lighting leaves the staged lights untouched, ELEMENT BY ELEMENT, and so
- *    does a shot carrying no story pin — an unpinned shot claims no story
- *    moment, so there is none at which to read a story-clock source, and
- *    assuming one would put every unpinned shot under the same light and call
- *    it a fact.
- * 4. The merge, by id and in a fixed order: a staged light the production names is
- *    replaced in place by the inherited state, a staged light it does not name
- *    comes back by identity, and a source the scene never staged is appended
- *    after them in declaration order.
+ * @evidence contracts/testing.md#behavioral-verification Resolves inherited story-clock lights and checks endpoint/midpoint direction and intensity, rate mapping, missing lighting/pin pass-through identity and ordered replacement/append.
+ * @evidence contracts/testing.md#independent-expectations A quarter Y-turn carries -Z to -X with a -sqrt(1/2) midpoint, and linear intensity 3 to .5 gives 1.75 halfway; authored ids define the merge order. Product quaternion helpers generate/read rotations, so common quaternion defects remain outside the independent intensity arithmetic.
+ * @evidence contracts/testing.md#distinguishing-cases Retains start/middle/end, compressed shot rate, deliberately different staged state, null production/pin, practical identity and unstaged moon append; malformed lighting is not owned by this positive entry.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_production_lighting = (): void => {
+export function test_film_production_lighting(): void {
   const staged: IAutoMovieLight[] = [practical, stagedDaylight];
-  const at = (originSeconds: number, seconds = 0): IAutoMovieLight =>
+  const at: (originSeconds: number, seconds?: number) => IAutoMovieLight = (
+    originSeconds: number,
+    seconds: number = 0,
+  ): IAutoMovieLight =>
     lightOf(
       inheritProductionLighting({
         lighting: lighting(),
@@ -178,47 +171,28 @@ export const test_film_production_lighting = (): void => {
     );
 
   // 1. one source, three story moments, three lightings.
-  const opening = at(0);
-  const midday = at(SPAN / 2);
-  const closing = at(SPAN);
-  TestValidator.equals(
+  const opening: IAutoMovieLight = at(0);
+  const midday: IAutoMovieLight = at(SPAN / 2);
+  const closing: IAutoMovieLight = at(SPAN);
+  TestValidator.predicate(
     "shots pinned at different story times inherit different states from one source",
-    namedFacts([
-      // The staged copy faces +Z at 0.1, so these two are the SOURCE's opening
-      // state arriving rather than the staging being left alone.
-      [
-        "opensFacingMinusZ",
-        () => vclose(directionOf(opening), { x: 0, y: 0, z: -1 }),
-      ],
-      ["opensAtFullIntensity", () => nclose(opening.intensity, 3)],
-      [
-        "turnsHalfwayByMidSpan",
-        () =>
-          vclose(directionOf(midday), {
-            x: -Math.SQRT1_2,
-            y: 0,
-            z: -Math.SQRT1_2,
-          }),
-      ],
-      ["fadesHalfwayByMidSpan", () => nclose(midday.intensity, 1.75)],
-      [
-        "endsFacingMinusX",
-        () => vclose(directionOf(closing), { x: -1, y: 0, z: 0 }),
-      ],
-      ["endsDim", () => nclose(closing.intensity, 0.5)],
-    ]),
-    {
-      opensFacingMinusZ: true,
-      opensAtFullIntensity: true,
-      turnsHalfwayByMidSpan: true,
-      fadesHalfwayByMidSpan: true,
-      endsFacingMinusX: true,
-      endsDim: true,
-    },
+    // The staged copy faces +Z at .1, distinguishing inheritance from pass-through.
+    vclose(directionOf(opening), { x: 0, y: 0, z: -1 }) &&
+      nclose(opening.intensity, 3) &&
+      vclose(directionOf(midday), {
+        x: -Math.SQRT1_2,
+        y: 0,
+        z: -Math.SQRT1_2,
+      }) &&
+      nclose(midday.intensity, 1.75) &&
+      vclose(directionOf(closing), { x: -1, y: 0, z: 0 }) &&
+      nclose(closing.intensity, 0.5),
   );
 
   // 2. a compressed shot crosses the whole span from inside two seconds.
-  const compressed = (seconds: number): IAutoMovieLight =>
+  const compressed: (seconds: number) => IAutoMovieLight = (
+    seconds: number,
+  ): IAutoMovieLight =>
     lightOf(
       inheritProductionLighting({
         lighting: lighting(),
@@ -228,29 +202,20 @@ export const test_film_production_lighting = (): void => {
       }),
       "daylight",
     );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a shot that compresses story time carries the source at its own rate",
-    namedFacts([
-      [
-        "reachesMidSpanAtOneSecond",
-        () => nclose(compressed(1).intensity, 1.75),
-      ],
-      [
-        "reachesSpanEndAtTwoSeconds",
-        () => vclose(directionOf(compressed(2)), { x: -1, y: 0, z: 0 }),
-      ],
-    ]),
-    { reachesMidSpanAtOneSecond: true, reachesSpanEndAtTwoSeconds: true },
+    nclose(compressed(1).intensity, 1.75) &&
+      vclose(directionOf(compressed(2)), { x: -1, y: 0, z: 0 }),
   );
 
   // 3. nothing declared, or nothing pinned: unchanged, element by element.
-  const undeclared = inheritProductionLighting({
+  const undeclared: IAutoMovieLight[] = inheritProductionLighting({
     lighting: null,
     lights: staged,
     pin: { originSeconds: SPAN },
     seconds: 0,
   });
-  const unpinned = inheritProductionLighting({
+  const unpinned: IAutoMovieLight[] = inheritProductionLighting({
     lighting: lighting(),
     lights: staged,
     pin: null,
@@ -261,14 +226,23 @@ export const test_film_production_lighting = (): void => {
     namedFacts([
       [
         "undeclaredIsTheStagedList",
-        () => undeclared.every((light, i) => light === staged[i]),
+        (): boolean =>
+          undeclared.every(
+            (light: IAutoMovieLight, i: number): boolean => light === staged[i],
+          ),
       ],
-      ["undeclaredAddsNothing", () => undeclared.length === staged.length],
+      [
+        "undeclaredAddsNothing",
+        (): boolean => undeclared.length === staged.length,
+      ],
       [
         "unpinnedIsTheStagedList",
-        () => unpinned.every((light, i) => light === staged[i]),
+        (): boolean =>
+          unpinned.every(
+            (light: IAutoMovieLight, i: number): boolean => light === staged[i],
+          ),
       ],
-      ["unpinnedAddsNothing", () => unpinned.length === staged.length],
+      ["unpinnedAddsNothing", (): boolean => unpinned.length === staged.length],
     ]),
     {
       undeclaredIsTheStagedList: true,
@@ -279,7 +253,7 @@ export const test_film_production_lighting = (): void => {
   );
 
   // 4. replace by id in place, keep the rest by identity, append the unstaged.
-  const merged = inheritProductionLighting({
+  const merged: IAutoMovieLight[] = inheritProductionLighting({
     lighting: lighting({ lights: [daylight, moon] }),
     lights: staged,
     pin: { originSeconds: SPAN },
@@ -287,22 +261,24 @@ export const test_film_production_lighting = (): void => {
   });
   TestValidator.equals(
     "the merge replaces by id in staging order and appends an unstaged source last",
-    merged.map((light) => light.id),
+    merged.map((light: IAutoMovieLight): string => light.id),
     ["practical", "daylight", "moon"],
   );
   TestValidator.equals(
-    "an unnamed staged light and an untouched source both come back by identity",
+    "an unaddressed staged light and an untouched source retain identity",
     namedFacts([
-      ["practicalByIdentity", () => merged[0] === practical],
-      ["daylightIsInherited", () => merged[1] !== stagedDaylight],
-      ["daylightCarriesStoryState", () => nclose(merged[1]!.intensity, 0.5)],
-      ["moonByIdentity", () => merged[2] === moon],
+      ["practicalByIdentity", (): boolean => merged[0] === practical],
+      ["daylightIsInherited", (): boolean => merged[1] !== stagedDaylight],
+      ["moonByIdentity", (): boolean => merged[2] === moon],
     ]),
     {
       practicalByIdentity: true,
       daylightIsInherited: true,
-      daylightCarriesStoryState: true,
       moonByIdentity: true,
     },
   );
-};
+  TestValidator.predicate(
+    "the merged daylight carries its closing intensity",
+    nclose(merged[1]!.intensity, 0.5),
+  );
+}

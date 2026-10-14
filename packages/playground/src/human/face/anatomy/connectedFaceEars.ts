@@ -1,8 +1,7 @@
 import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
 
 /**
- * Paired pinna controls of the selected source basis, whose CC0 source targets
- * are pinned at the upstream source .
+ * Paired pinna controls of the selected basis.
  * The left and right auricles are independently edited source displacements
  * on `Human`, not separate output meshes or clinical measurements of normal
  * pinna proportions. An angular outline endpoint is explicitly stylized.

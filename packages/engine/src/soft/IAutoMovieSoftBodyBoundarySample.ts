@@ -2,31 +2,22 @@ import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAn
 import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedCapsule";
 
 /**
- * Complete moving boundary for one absolute fixed step.
+ * Complete resolved boundary supplied to simulateSoftBodyWithBoundaries at one absolute step.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Aligns primary-motion and secondary-motion samples.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Defines the per-step boundary handoff.
+ * @evidence contracts/common.md#principled-implementation One step identifies the anchor and capsule geometry that the fixed-step solver must use together, preserving absolute sampling rather than wall-clock state.
+ * @evidence contracts/common.md#clear-and-simple-design The sampler resolves moving actor geometry while the soft solver receives only its anchors and capsules, without depending on an actor rig.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Full arrays state the current boundary explicitly; the record contains no silently retained prior actor pose or partial-update convention.
+ * @evidence contracts/common.md#meaningful-documentation Identifies the consumer, absolute step and the two resolved geometry populations that must belong to that step.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This boundary record executes no collision or sampling algorithm; producer and fixed-step solver own those costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A sample applies to one absolute step, and sharing immutable boundary storage is the supplying sampler's decision.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Arrays are caller-owned readonly views; releasing the current boundary reference releases this record's reach to resolved geometry.
+ * @author Samchon
  */
 export interface IAutoMovieSoftBodyBoundarySample {
-  /**
-   * Absolute solver step.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Fixes which primary-motion sample is consumed.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Keeps seek deterministic.
-   */
+  /** Absolute solver step. */
   step: number;
-  /**
-   * Resolved hard anchors for this step.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Drives attachments from declared motion.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Separates static and moving inputs.
-   */
+  /** Resolved hard anchors for this step. */
   anchors: readonly IAutoMovieSoftBodyResolvedAnchor[];
-  /**
-   * Resolved body capsules for this step.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Shares validation collision geometry.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Applies current collider state.
-   */
+  /** Resolved body capsules for this step. */
   capsules: readonly IAutoMovieSoftBodyResolvedCapsule[];
 }

@@ -3,78 +3,44 @@ import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
 
 /**
- * Fields shared by every light kind.
+ * Shared light identity, world placement, linear emission and explicitly admitted shadow state.
  *
- * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `IAutoMovieLightBase` as the portable data boundary for the lighting linking requirement.
- * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `IAutoMovieLightBase` for the clv light link resolution system contract.
+ * @evidence contracts/common.md#principled-implementation Kind-specific intensity units and transform state feed the viewer light adapter; validated position/rotation and emission pointer channels animate them while the scene's shadow master switch controls actual map work.
+ * @evidence contracts/common.md#clear-and-simple-design Common fields avoid duplicating identity and color across light kinds, with shadow tuning linked explicitly to castShadow rather than implicit host presets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Area shadow flags refuse, shadow controls are required exactly for casting punctual sources, and authored light flags do not override a disabled scene shadow policy.
+ * @evidence contracts/common.md#meaningful-documentation Defines transform and channel ownership, linear color, lux/candela/nit units and requested versus actually rendered shadow state.
+ * @author Samchon
  */
 export interface IAutoMovieLightBase {
-  /**
-   * Stable id.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `id` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `id` for the clv light link resolution system contract.
-   */
+  /** Stable id. */
   id: string;
 
   /**
    * World placement. For directional light only the orientation matters.
    *
-   * Animatable, like every other field here: a shot's `lightMotions` reaches
-   * the translation through `/lights/<id>/position` and the rotation through
-   * `/lights/<id>/rotation`, so a light may travel and turn over time. `scale`
-   * is the one component no channel writes — a punctual light has no extent for
-   * a scale to describe.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `transform` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `transform` for the clv light link resolution system contract.
+   * Light motion supports position for point/spot/area and rotation for directional/spot/area, through `/lights/<id>/position` and `/lights/<id>/rotation`. Other supported axes are intensity, RGB colour, point/spot range and spot cone angle. Scale, identity, shadow settings and area dimensions have no light pointer channel; the viewer still applies the authored TRS to its native light object.
    */
   transform: IAutoMovieTransform;
 
-  /**
-   * Light color (linear).
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `color` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `color` for the clv light link resolution system contract.
-   */
+  /** Light color (linear). */
   color: IAutoMovieColor;
 
   /**
-   * Radiant intensity, `>= 0`: lux for directional, candela for point/spot, and
-   * nits (candela per square metre) for an area panel, whose emitted power is
-   * therefore its intensity times its own area.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `intensity` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `intensity` for the clv light link resolution system contract.
+   * Finite nonnegative photometric magnitude: illuminance in lux for directional, luminous intensity in candela for point/spot and luminance in nits (candela per square metre) for an area panel. Three's rectangular-area power convention is luminous flux in lumens equal to intensity times width times height times PI.
    */
   intensity: number;
 
   /**
    * Whether this source casts a shadow map. Omitted preserves legacy output.
    *
-   * What this light WOULD cast, not what the frame renders: a scene's
-   * `environment.shadows.enabled` is the master switch and turning it off
-   * renders no shadow map for any light, which is also how the render budget
-   * prices it. A scene declaring no environment leaves the decision to the host
-   * renderer, exactly as it did before environments existed.
+   * What this light would cast, not what the frame renders: a scene's `environment.shadows.enabled` is the master switch and turning it off renders no shadow map for any light, which is also how the render budget prices it. A scene declaring no environment leaves the decision to the host renderer, exactly as it did before environments existed.
    *
-   * Only the three punctual kinds can cast one. A rectangular area source is
-   * analytically integrated rather than rasterized from a light-space camera,
-   * so `three.js` renders no shadow map for it and the engine refuses
-   * `castShadow` on an {@link IAutoMovieAreaLight} instead of accepting a flag
-   * no frame would honor.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `castShadow` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `castShadow` for the clv light link resolution system contract.
+   * Only the three punctual kinds can cast one. A rectangular area source is analytically integrated rather than rasterized from a light-space camera, so `three.js` renders no shadow map for it and the engine refuses `castShadow` on an {@link IAutoMovieAreaLight} instead of accepting a flag no frame would honor.
    */
   castShadow?: boolean;
 
   /**
-   * Deterministic shadow-camera tuning, required exactly when `castShadow` is
-   * true.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `shadow` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `shadow` for the clv light link resolution system contract.
+   * Deterministic shadow-camera tuning, required exactly when `castShadow` is true.
    */
   shadow?: IAutoMovieLightShadow;
 }

@@ -24,14 +24,19 @@ import { applyLightState } from "./applyLightState.js";
  * source of its own: a page that lights itself proves nothing about the film's
  * lighting, which is how the aim defect in #1356 survived every capture.
  *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-distribution Materializes each resolved light kind, direction, cone, and range.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-distribution-color Implements the runtime source distribution and color mapping.
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Materializes the declared shadow source, map, bias, and clipping identity.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Implements that shadow state on the runtime light.
+ * @evidence contracts/common.md#principled-implementation Chooses native point/area/directional/spot classes from the admitted kind, applies the shared absolute state writer, installs supported shadow camera fields and aims directional/spot targets one metre along local -Z as children; admitted transforms/shadow ranges and the stage's -Z forward convention are premises.
+ * @evidence contracts/common.md#clear-and-simple-design Class/aim/shadow construction is local to this producer while applyLightState owns build/frame field mapping; area lights initialize the native shared BRDF lookup library once rather than requiring each host to know that native prerequisite.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored kind/direction/shadow declaration with no fixture light or browser substitution; the native area lookup initializer is supported global library setup, not replacing a global method. Its installed flag precedes init and does not recover an initializer throw.
+ * @evidence contracts/common.md#meaningful-documentation States class mapping, shared placement writer, parented aim target and area lookup prerequisite; caller owns returned light/any subsequently allocated native shadow product.
+ * @evidence contracts/performance.md#efficient-algorithms Builds one fixed-size light and at most one existing target attachment, constant adapter work; first area-light initialization creates native LUT state once, while actual shadow maps/draw cost belongs to renderer use.
+ * @evidence contracts/performance.md#reuse-equivalent-work Static builds and light-motion frames use one field writer; all area lights share process/module lookup tables via the installed flag, with no per-light texture rebuild.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Transfers returned light/child target to the scene host; no render loop or worker is created. Native area LUT global state persists for the module lifetime without a local release API, and actual rendered shadow maps must be retired by their renderer/light owner.
  */
-export const buildLight = (light: IAutoMovieLight): THREE.Light => {
+export const buildLight: (light: IAutoMovieLight) => THREE.Light = (
+  light: IAutoMovieLight,
+): THREE.Light => {
   if (light.type === "point") {
-    const built = new THREE.PointLight();
+    const built: THREE.PointLight = new THREE.PointLight();
     applyLightState(built, light);
     applyShadow(built, light);
     return built;
@@ -43,7 +48,7 @@ export const buildLight = (light: IAutoMovieLight): THREE.Light => {
     // first panel is built: a host that stages no area light pays nothing, and
     // one that stages ten cannot forget.
     initRectAreaLightUniforms();
-    const built = new THREE.RectAreaLight(
+    const built: THREE.RectAreaLight = new THREE.RectAreaLight(
       undefined,
       undefined,
       light.width,
@@ -55,7 +60,7 @@ export const buildLight = (light: IAutoMovieLight): THREE.Light => {
     // `stageScene` rotated onto the authored direction.
     return built;
   }
-  const built =
+  const built: THREE.DirectionalLight | THREE.SpotLight =
     light.type === "directional"
       ? new THREE.DirectionalLight()
       : new THREE.SpotLight();
@@ -64,19 +69,25 @@ export const buildLight = (light: IAutoMovieLight): THREE.Light => {
   return aimLight(built);
 };
 
-let rectAreaLightUniformsInstalled = false;
+let rectAreaLightUniformsInstalled: boolean = false;
 
 /** Install the `RectAreaLight` BRDF lookup tables exactly once per process. */
-const initRectAreaLightUniforms = (): void => {
+const initRectAreaLightUniforms: () => void = (): void => {
   if (rectAreaLightUniformsInstalled) return;
   rectAreaLightUniformsInstalled = true;
   RectAreaLightUniformsLib.init();
 };
 
-const applyShadow = (built: THREE.Light, light: IAutoMovieLight): void => {
+const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (
+  built: THREE.Light,
+  light: IAutoMovieLight,
+): void => {
   built.castShadow = light.castShadow ?? false;
   if (light.shadow === undefined || !("shadow" in built)) return;
-  const shadow = (
+  const shadow:
+    | THREE.SpotLightShadow
+    | THREE.DirectionalLightShadow
+    | THREE.PointLightShadow = (
     built as THREE.PointLight | THREE.SpotLight | THREE.DirectionalLight
   ).shadow;
   shadow.mapSize.set(light.shadow.mapSize, light.shadow.mapSize);
@@ -107,7 +118,9 @@ const applyShadow = (built: THREE.Light, light: IAutoMovieLight): void => {
  * no second field can drift from it. `three.js` only reads a target that is in
  * the scene graph, and a child of the light always is.
  */
-const aimLight = <Light extends THREE.DirectionalLight | THREE.SpotLight>(
+const aimLight: <Light extends THREE.DirectionalLight | THREE.SpotLight>(
+  light: Light,
+) => Light = <Light extends THREE.DirectionalLight | THREE.SpotLight>(
   light: Light,
 ): Light => {
   light.target.position.set(0, 0, -1);

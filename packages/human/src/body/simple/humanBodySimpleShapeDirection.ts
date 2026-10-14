@@ -4,7 +4,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 
 /** The fractions of a direction's range a measured inversion samples, in order. */
-const SAMPLES = [-1, -0.5, 0, 0.5, 1];
+const SAMPLES: number[] = [-1, -0.5, 0, 0.5, 1];
 
 /**
  * The most readings a solve adds inside its bracketing segment, and the miss
@@ -12,13 +12,13 @@ const SAMPLES = [-1, -0.5, 0, 0.5, 1];
  * resolve a response with a kink between two of them (the weight macro's
  * negative side is another morph target, so the mass rises at about a sixth
  * of the slope below its neutral), and a chord across a kink lands on the
- * wrong side of the target; solving the same bracket with real readings
- * lands on it. Eight false-position steps shrink any bracketed response to a
- * millionth of its span except a pathological one, which the enclosing
- * rounds then carry on.
+ * wrong side of the target. Up to eight Illinois false-position readings
+ * seek an error within one millionth of that sampled reading span; exhausting
+ * the budget returns the last estimate without a convergence guarantee.
+ * Enclosing solve rounds and their final shared-body assertion decide success.
  */
-const REFINEMENTS = 8;
-const TOLERANCE = 1e-6;
+const REFINEMENTS: number = 8;
+const TOLERANCE: number = 1e-6;
 
 /**
  * A direction through the detailed shape that one simple value is solved
@@ -31,10 +31,65 @@ const TOLERANCE = 1e-6;
  * the range and inverted linearly inside the segment that brackets the
  * target, which reads the reach a request can be refused against at the
  * range's ends; the linear estimate is then refined inside that segment on
- * real readings (Illinois false position), so a kink between two samples does
- * not leave the reading off its target.
+ * real readings (Illinois false position). A kink can still leave an unmet
+ * reading after that fixed work budget; the enclosing assertion owns acceptance.
  */
-export const humanBodySimpleShapeDirection = {
+export const humanBodySimpleShapeDirection: {
+  /** One admitted channel's direction and source envelope. */
+  alone(
+    basis: IAutoMovieHumanBodyBasis,
+    channel: string,
+  ): {
+    direction: { channel: string; coefficient: number }[];
+    range: [number, number];
+  };
+  /** Table-authored mass direction within the source weight envelope. */
+  mass(
+    basis: IAutoMovieHumanBodyBasis,
+    parameters: Record<AutoMovieHumanBodySimpleParameter, number>,
+  ): {
+    direction: { channel: string; coefficient: number }[];
+    range: [number, number];
+  };
+  /** A copied shape with the scalar direction applied inside each channel's bounds. */
+  worn(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    direction: { channel: string; coefficient: number }[],
+    t: number,
+  ): Record<string, number>;
+  /** Five source-envelope samples of the caller's numerical reading. */
+  samples(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    along: {
+      direction: { channel: string; coefficient: number }[];
+      range: [number, number];
+    },
+    read: (trial: Record<string, number>) => number | null,
+    what: string,
+  ): [number, number][];
+  /** Bounded Illinois refinement of an already bracketed estimate. */
+  refine(
+    samples: [number, number][],
+    target: number,
+    t: number,
+    read: (scalar: number) => number,
+  ): number;
+  /** Refined solve with optional intermediate endpoint saturation. */
+  solve(
+    basis: IAutoMovieHumanBodyBasis,
+    shape: Record<string, number>,
+    along: {
+      direction: { channel: string; coefficient: number }[];
+      range: [number, number];
+    },
+    target: number,
+    read: (trial: Record<string, number>) => number | null,
+    what: string,
+    saturate?: boolean,
+  ): Record<string, number>;
+} = {
   /** A channel alone over its envelope. */
   alone(
     basis: IAutoMovieHumanBodyBasis,
@@ -43,7 +98,11 @@ export const humanBodySimpleShapeDirection = {
     direction: { channel: string; coefficient: number }[];
     range: [number, number];
   } {
-    const found = basis.channels.find((one) => one.id === channel);
+    const found: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+      basis.channels.find(
+        (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+          one.id === channel,
+      );
     if (found === undefined)
       throw new Error("A simple body shape needs the channel " + channel);
     return {
@@ -60,10 +119,17 @@ export const humanBodySimpleShapeDirection = {
     direction: { channel: string; coefficient: number }[];
     range: [number, number];
   } {
-    const ids = new Set(basis.channels.map((channel) => channel.id));
-    const range = basis.channels.find(
-      (one) => one.id === HUMAN_BODY_SIMPLE_SHAPE.solved.mass.range,
+    const ids: Set<string> = new Set(
+      basis.channels.map(
+        (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+          channel.id,
+      ),
     );
+    const range: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+      basis.channels.find(
+        (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+          one.id === HUMAN_BODY_SIMPLE_SHAPE.solved.mass.range,
+      );
     if (range === undefined)
       throw new Error(
         "A simple body shape needs the channel " +
@@ -71,11 +137,19 @@ export const humanBodySimpleShapeDirection = {
       );
     return {
       direction: HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction
-        .filter((row) => ids.has(row.channel))
-        .map((row) => ({
-          channel: row.channel,
-          coefficient: math.term(row, parameters),
-        })),
+        .filter(
+          (
+            row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number],
+          ): boolean => ids.has(row.channel),
+        )
+        .map(
+          (
+            row: (typeof HUMAN_BODY_SIMPLE_SHAPE.solved.mass.direction)[number],
+          ): { channel: string; coefficient: number } => ({
+            channel: row.channel,
+            coefficient: math.term(row, parameters),
+          }),
+        ),
       range: [range.minimum, range.maximum],
     };
   },
@@ -87,9 +161,13 @@ export const humanBodySimpleShapeDirection = {
     direction: { channel: string; coefficient: number }[],
     t: number,
   ): Record<string, number> {
-    const trial = { ...shape };
+    const trial: Record<string, number> = { ...shape };
     for (const { channel, coefficient } of direction) {
-      const envelope = basis.channels.find((one) => one.id === channel)!;
+      const envelope: IAutoMovieHumanBodyBasis["channels"][number] =
+        basis.channels.find(
+          (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+            one.id === channel,
+        )!;
       trial[channel] = Math.min(
         envelope.maximum,
         Math.max(envelope.minimum, (shape[channel] ?? 0) + t * coefficient),
@@ -109,10 +187,10 @@ export const humanBodySimpleShapeDirection = {
     read: (trial: Record<string, number>) => number | null,
     what: string,
   ): [number, number][] {
-    return SAMPLES.map((fraction) => {
-      const t =
+    return SAMPLES.map((fraction: number): [number, number] => {
+      const t: number =
         fraction < 0 ? -fraction * along.range[0] : fraction * along.range[1];
-      const value = read(
+      const value: number | null = read(
         humanBodySimpleShapeDirection.worn(basis, shape, along.direction, t),
       );
       if (value === null)
@@ -134,19 +212,19 @@ export const humanBodySimpleShapeDirection = {
     t: number,
     read: (scalar: number) => number,
   ): number {
-    let at = 1;
+    let at: number = 1;
     while (
       at < samples.length - 1 &&
       !(target >= samples[at - 1][1] && target <= samples[at][1])
     )
       at++;
-    let [lowT, lowY] = samples[at - 1];
-    let [highT, highY] = samples[at];
-    const tolerance = TOLERANCE * (highY - lowY);
+    let [lowT, lowY]: [number, number] = samples[at - 1];
+    let [highT, highY]: [number, number] = samples[at];
+    const tolerance: number = TOLERANCE * (highY - lowY);
     if (!(tolerance > 0)) return t;
-    let kept = 0;
-    for (let step = 0; step < REFINEMENTS; step++) {
-      const y = read(t);
+    let kept: number = 0;
+    for (let step: number = 0; step < REFINEMENTS; step++) {
+      const y: number = read(t);
       if (Math.abs(y - target) <= tolerance) return t;
       if (y < target) {
         lowT = t;
@@ -182,23 +260,23 @@ export const humanBodySimpleShapeDirection = {
     target: number,
     read: (trial: Record<string, number>) => number | null,
     what: string,
-    saturate = false,
+    saturate: boolean = false,
   ): Record<string, number> {
-    const samples = humanBodySimpleShapeDirection.samples(
+    const samples: [number, number][] = humanBodySimpleShapeDirection.samples(
       basis,
       shape,
       along,
       read,
       what,
     );
-    let inverted = math.invert(samples, target);
+    let inverted: number | null = math.invert(samples, target);
     if (inverted !== null)
       inverted = humanBodySimpleShapeDirection.refine(
         samples,
         target,
         inverted,
-        (at) => {
-          const value = read(
+        (at: number): number => {
+          const value: number | null = read(
             humanBodySimpleShapeDirection.worn(
               basis,
               shape,
@@ -211,8 +289,8 @@ export const humanBodySimpleShapeDirection = {
           return value;
         },
       );
-    const rising = samples[samples.length - 1][1] > samples[0][1];
-    const t =
+    const rising: boolean = samples[samples.length - 1][1] > samples[0][1];
+    const t: number | null =
       inverted !== null || !saturate
         ? inverted
         : target < samples[0][1] === rising

@@ -1,36 +1,23 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One child branch's placement in its parent's frame.
+ * One authored child-branch direction and emergence point in its parent's deterministic local frame.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `IAutoMoviePlantingChild` as the portable data boundary for the interior plant placement state requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingChild` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation Nonzero direction is normalized in the parent's axis frame, whose perpendicular basis follows the shared stable vector construction; offset selects a fraction of the parent's growth-extended length before pruning, and children beyond the clipped length are omitted.
+ * @evidence contracts/common.md#clear-and-simple-design Child identity and two placement inputs form the reusable branching law without species-specific angles or hierarchy objects.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero vectors and out-of-range offsets refuse; direction need not already be unit and no named plant selects a hidden branching preset.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable child id, parent-axis coordinate convention and closed-unit emergence fraction.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingChild {
-  /**
-   * Stable child identity within the structure.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `id` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-   */
+  /** Stable child identity within the structure. */
   id: string;
 
   /**
-   * Direction in the parent's frame, non-zero and need not be unit. `+y` is the
-   * parent's own growth axis; `+x` and `+z` are a deterministic perpendicular
-   * pair derived from that axis alone, so the same child vector means the same
-   * thing wherever the parent points.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `direction` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `direction` for the interior space soft furnishing planting system contract.
+   * Direction in the parent's frame, non-zero and need not be unit. `+y` is the parent's own growth axis; `+x` and `+z` are a deterministic perpendicular pair derived from that axis alone, so the same child vector means the same thing wherever the parent points.
    */
   direction: IAutoMovieVector3;
 
-  /**
-   * Where along the parent it emerges, in `[0, 1]` of the parent's length.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `offset` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `offset` for the interior space soft furnishing planting system contract.
-   */
+  /** Emergence fraction in `[0, 1]` of the parent's growth-extended length before pruning; a cut can remove that emergence point. */
   offset: number;
 }

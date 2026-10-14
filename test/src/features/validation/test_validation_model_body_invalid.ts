@@ -5,14 +5,13 @@ import { TestValidator } from "@nestia/e2e";
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const withBody = (body: IAutoMovieBody) =>
+const withBody: (body: IAutoMovieBody) => ReturnType<typeof validateModel> = (
+  body: IAutoMovieBody,
+): ReturnType<typeof validateModel> =>
   validateModel({ model: { ...createModel(), body } });
 
 /**
- * The body's rough scalars are engine runtime checks, not type constraints.
- * Mass must be finite and strictly positive, friction and restitution sit in
- * [0,1], and an explicit center of mass must be finite on every axis. Each
- * breach is a `range` violation on its own path.
+ * Model admission checks body mass, unit-interval coefficients and explicit center-of-mass coordinates at their owning range paths.
  *
  * Scenarios:
  *
@@ -21,9 +20,14 @@ const withBody = (body: IAutoMovieBody) =>
  * 3. Friction = 2 (above 1) is a range violation on body.friction.
  * 4. Restitution = -0.1 (below 0) is a range violation on body.restitution.
  * 5. A non-finite center-of-mass axis is a range violation on that axis.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with one malformed body quantity per input and requires the corresponding range path, catching unvalidated metadata before physics consumers use it.
+ * @evidence contracts/testing.md#independent-expectations Mass is finite and strictly positive, friction/restitution lie in inclusive [0,1], and each supplied center coordinate is finite; literal paths locate the invalid quantity without copying a product report.
+ * @evidence contracts/testing.md#distinguishing-cases Covers zero/infinite mass, upper friction, lower restitution and NaN center Y; accepted/null bodies and coefficient endpoints have a separate named entry. Other axes and nonfinite coefficients are not exercised here.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns calls through a private helper and existing model fixture; no physics host, geometry builder, renderer or native artifact participates.
  */
-export const test_validation_model_body_invalid = (): void => {
-  const zeroMass = withBody({
+export function test_validation_model_body_invalid(): void {
+  const zeroMass: ReturnType<typeof validateModel> = withBody({
     mass: 0,
     centerOfMass: null,
     friction: 0.5,
@@ -85,4 +89,4 @@ export const test_validation_model_body_invalid = (): void => {
       ".body.centerOfMass.y",
     ),
   );
-};
+}

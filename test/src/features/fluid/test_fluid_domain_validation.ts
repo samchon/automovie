@@ -1,8 +1,5 @@
 import {
   FLUID_MAX_CELLS,
-  FLUID_MAX_FLOWS,
-  FLUID_MAX_SPRAYS,
-  FLUID_MAX_SPRAY_PARTICLES,
   FLUID_MAX_STEPS,
   validateFluidDomain,
 } from "@automovie/engine";
@@ -16,11 +13,20 @@ import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
+import { runFluidDomainPopulationCases } from "../internal/runFluidDomainPopulationCases";
 
-const basin = (overrides: Partial<IAutoMovieFluidDomain> = {}) =>
+/** Construct the original 4x4 quarter-metre-deep basin and apply only each admission case's authored overrides. */
+const basin: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
+  overrides: Partial<IAutoMovieFluidDomain> = {},
+): IAutoMovieFluidDomain =>
   flatBasin({ columns: 4, rows: 4, depth: 0.25, overrides });
 
-const source = (
+/** Original valid jet whose individual fields are replaced by located source-refusal cases; construction performs no admission. */
+const source: (
+  overrides?: Partial<IAutoMovieFluidSource>,
+) => IAutoMovieFluidSource = (
   overrides: Partial<IAutoMovieFluidSource> = {},
 ): IAutoMovieFluidSource => ({
   id: "jet",
@@ -32,7 +38,10 @@ const source = (
   ...overrides,
 });
 
-const drain = (
+/** Original valid return whose fields are replaced by drain window, rate and sill admission cases. */
+const drain: (
+  overrides?: Partial<IAutoMovieFluidDrain>,
+) => IAutoMovieFluidDrain = (
   overrides: Partial<IAutoMovieFluidDrain> = {},
 ): IAutoMovieFluidDrain => ({
   id: "return",
@@ -45,7 +54,10 @@ const drain = (
   ...overrides,
 });
 
-const spray = (
+/** Original valid mist whose overridden fields independently exercise the spray population and scalar admission rules. */
+const spray: (
+  overrides?: Partial<IAutoMovieFluidSpray>,
+) => IAutoMovieFluidSpray = (
   overrides: Partial<IAutoMovieFluidSpray> = {},
 ): IAutoMovieFluidSpray => ({
   id: "mist",
@@ -64,19 +76,16 @@ const spray = (
 });
 
 /**
- * Every budget, range, relation and stability condition a fluid domain declares
- * is enforced, and each is pinned against an adjacent domain one property away
- * where it must not fire.
+ * Observe the original domain-admission scenario groups and their located
+ * refusals, retaining the well-formed basin and selected adjacent valid twins.
  *
- * A validator that only ever says no is indistinguishable from a validator that
- * always says no, so the clean domain below is as load-bearing as any refusal:
- * it is what proves the twenty refusals are about the property named rather
- * than about the fixture.
+ * The clean source/drain/spray basin, stable-limit solver and tiny finite axis
+ * distinguish malformed inputs from supported adjacent inputs.
  *
  * Scenarios:
  *
  * 1. A well-formed basin with a source, a drain and a spray validates clean.
- * 2. Identity and schema: an empty id, a wrong schema version, and non-metre units
+ * 2. Identity and schema: a whitespace-only id, a wrong schema version, and non-metre units
  *    are each refused.
  * 3. The lattice: a fractional column count, a zero row count, a non-positive cell
  *    size, a non-finite origin, a lattice past the cell budget, a lattice whose
@@ -86,9 +95,10 @@ const spray = (
  *    than as a cell count.
  * 4. The solver: a non-positive step, gravity, and reference depth; a negative
  *    drag and dry depth; a step budget past `FLUID_MAX_STEPS`.
- * 5. Stability: a Courant number above one is refused with the overshoot, while a
- *    domain exactly on the limit is accepted; a non-finite Courant number is
- *    reported through its own fields rather than as a stability failure.
+ * 5. Stability: an above-limit step has a located range finding, while the
+ *    limit step is accepted; NaN gravity is reported at gravity without a
+ *    step finding, while finite gravity/depth whose product overflows cause a
+ *    step finding. This entry does not assert the measured overshoot.
  * 6. State arrays: wrong lengths, a negative depth, a depth past the declared
  *    reference depth, a non-finite bed, water sitting in solid matter, and a
  *    solidity flag that is not a boolean beside a sibling flag that is.
@@ -98,11 +108,17 @@ const spray = (
  *    matter, and activity windows that are non-finite or end before they
  *    start.
  * 9. Spray: non-positive rate, lifetime, size and LOD distance; a negative speed;
- *    spread outside `[0, 1]`; a particle cap outside its budget; an unsafe
- *    seed; and a direction that is non-finite or zero.
+ *    spread outside `[0, 1]`; a particle cap outside its budget; a fractional
+ *    seed; and a direction that is non-finite or zero, while a finite axis too
+ *    small to square is still accepted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual domain validator across schema, grid, solver, array, boundary, flow and spray cases and checks located kind/path witnesses, catching admitted malformed fields and rejecting sound adjacent inputs.
+ * @evidence contracts/testing.md#independent-expectations Closed schema spellings, explicit cell/face counts and scalar domains provide the refusal basis; the independent Courant formula distinguishes exactly stable, unstable, nonfinite-input and finite-input-overflow cases. Path witnesses do not certify the entire report population.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the original nine scenario groups, valid basin, finite/safe-integer limits, array cardinality/values, solid occupancy, boundary vocabularies, source/drain windows and spray caps; physical integration and water-space binding remain separate tests.
+ * @evidence contracts/testing.md#execution-ownership This named portable entry owns all admission cases, including cases delegated to its internal population helper, through validateFluidDomain and existing fixtures; it starts no solver host, process or renderer.
  */
-export const test_fluid_domain_validation = (): void => {
-  const clean = validateFluidDomain({
+export function test_fluid_domain_validation(): void {
+  const clean: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       sources: [source()],
       drains: [drain()],
@@ -115,7 +131,7 @@ export const test_fluid_domain_validation = (): void => {
     true,
   );
 
-  const schema = validateFluidDomain({
+  const schema: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       id: "  ",
       version: 2 as unknown as 1,
@@ -125,14 +141,17 @@ export const test_fluid_domain_validation = (): void => {
   TestValidator.equals(
     "identity and schema are refused when wrong",
     namedFacts([
-      ["id", () => hasViolation(schema, "type", "$input.id")],
-      ["version", () => hasViolation(schema, "type", "$input.version")],
-      ["units", () => hasViolation(schema, "type", "$input.units")],
+      ["id", (): boolean => hasViolation(schema, "type", "$input.id")],
+      [
+        "version",
+        (): boolean => hasViolation(schema, "type", "$input.version"),
+      ],
+      ["units", (): boolean => hasViolation(schema, "type", "$input.units")],
     ]),
     { id: true, version: true, units: true },
   );
 
-  const lattice = validateFluidDomain({
+  const lattice: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       grid: {
         columns: 2.5,
@@ -143,7 +162,7 @@ export const test_fluid_domain_validation = (): void => {
       },
     }),
   });
-  const huge = validateFluidDomain({
+  const huge: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       grid: {
         columns: 300,
@@ -152,62 +171,84 @@ export const test_fluid_domain_validation = (): void => {
         cellZ: 1,
         origin: { x: 0, y: 0, z: 0 },
       },
-      bed: new Array(90_000).fill(0),
-      depth: new Array(90_000).fill(0),
-      solid: new Array(90_000).fill(false),
+      bed: new Array<number>(90_000).fill(0),
+      depth: new Array<number>(90_000).fill(0),
+      solid: new Array<boolean>(90_000).fill(false),
     }),
   });
   // Both side lengths are perfectly legal safe integers; only their product,
   // 2⁶⁰ cells, is unaffordable, and it is past `Number.MAX_SAFE_INTEGER`.
-  const overflowing = validateFluidDomain({
-    domain: basin({
-      grid: {
-        columns: 2 ** 30,
-        rows: 2 ** 30,
-        cellX: 1,
-        cellZ: 1,
-        origin: { x: 0, y: 0, z: 0 },
-      },
-    }),
-  });
+  const overflowing: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        grid: {
+          columns: 2 ** 30,
+          rows: 2 ** 30,
+          cellX: 1,
+          cellZ: 1,
+          origin: { x: 0, y: 0, z: 0 },
+        },
+      }),
+    });
   // The twin one property away: a side that is not a number at all has no
   // countable product, so it is named as the side it is rather than dressed up
   // as a budget the author could have met with a smaller grid.
-  const boundless = validateFluidDomain({
-    domain: basin({
-      grid: {
-        columns: Number.POSITIVE_INFINITY,
-        rows: 4,
-        cellX: 1,
-        cellZ: 1,
-        origin: { x: 0, y: 0, z: 0 },
-      },
-    }),
-  });
+  const boundless: ReturnType<typeof validateFluidDomain> = validateFluidDomain(
+    {
+      domain: basin({
+        grid: {
+          columns: Number.POSITIVE_INFINITY,
+          rows: 4,
+          cellX: 1,
+          cellZ: 1,
+          origin: { x: 0, y: 0, z: 0 },
+        },
+      }),
+    },
+  );
   TestValidator.equals(
     "the lattice must be a whole, positive, affordable grid",
     namedFacts([
-      ["columns", () => hasViolation(lattice, "type", "$input.grid.columns")],
-      ["rows", () => hasViolation(lattice, "type", "$input.grid.rows")],
-      ["cellX", () => hasViolation(lattice, "range", "$input.grid.cellX")],
-      ["cellZ", () => hasViolation(lattice, "range", "$input.grid.cellZ")],
-      ["origin", () => hasViolation(lattice, "range", "$input.grid.origin.y")],
-      ["budget", () => hasViolation(huge, "range", "$input.grid")],
-      ["budgetValue", () => FLUID_MAX_CELLS === 65_536],
-      ["overflow", () => hasViolation(overflowing, "range", "$input.grid")],
+      [
+        "columns",
+        (): boolean => hasViolation(lattice, "type", "$input.grid.columns"),
+      ],
+      [
+        "rows",
+        (): boolean => hasViolation(lattice, "type", "$input.grid.rows"),
+      ],
+      [
+        "cellX",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.cellX"),
+      ],
+      [
+        "cellZ",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.cellZ"),
+      ],
+      [
+        "origin",
+        (): boolean => hasViolation(lattice, "range", "$input.grid.origin.y"),
+      ],
+      ["budget", (): boolean => hasViolation(huge, "range", "$input.grid")],
+      ["budgetValue", (): boolean => FLUID_MAX_CELLS === 65_536],
+      [
+        "overflow",
+        (): boolean => hasViolation(overflowing, "range", "$input.grid"),
+      ],
       [
         "overflowSides",
-        () =>
+        (): boolean =>
           hasViolation(overflowing, "type", "$input.grid.columns") === false &&
           hasViolation(overflowing, "type", "$input.grid.rows") === false,
       ],
       [
         "boundlessSide",
-        () => hasViolation(boundless, "type", "$input.grid.columns"),
+        (): boolean => hasViolation(boundless, "type", "$input.grid.columns"),
       ],
       [
         "boundlessNotBudget",
-        () => hasViolation(boundless, "range", "$input.grid") === false,
+        (): boolean =>
+          hasViolation(boundless, "range", "$input.grid") === false,
       ],
     ]),
     {
@@ -225,7 +266,7 @@ export const test_fluid_domain_validation = (): void => {
     },
   );
 
-  const solver = validateFluidDomain({
+  const solver: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       solver: {
         fixedStepSeconds: 0,
@@ -242,16 +283,30 @@ export const test_fluid_domain_validation = (): void => {
     namedFacts([
       [
         "step",
-        () => hasViolation(solver, "range", "$input.solver.fixedStepSeconds"),
+        (): boolean =>
+          hasViolation(solver, "range", "$input.solver.fixedStepSeconds"),
       ],
-      ["gravity", () => hasViolation(solver, "range", "$input.solver.gravity")],
-      ["drag", () => hasViolation(solver, "range", "$input.solver.drag")],
-      ["dry", () => hasViolation(solver, "range", "$input.solver.dryDepth")],
+      [
+        "gravity",
+        (): boolean => hasViolation(solver, "range", "$input.solver.gravity"),
+      ],
+      [
+        "drag",
+        (): boolean => hasViolation(solver, "range", "$input.solver.drag"),
+      ],
+      [
+        "dry",
+        (): boolean => hasViolation(solver, "range", "$input.solver.dryDepth"),
+      ],
       [
         "reference",
-        () => hasViolation(solver, "range", "$input.solver.referenceDepth"),
+        (): boolean =>
+          hasViolation(solver, "range", "$input.solver.referenceDepth"),
       ],
-      ["steps", () => hasViolation(solver, "type", "$input.solver.maxSteps")],
+      [
+        "steps",
+        (): boolean => hasViolation(solver, "type", "$input.solver.maxSteps"),
+      ],
     ]),
     {
       step: true,
@@ -265,8 +320,8 @@ export const test_fluid_domain_validation = (): void => {
 
   // dt·sqrt(g·H)·sqrt(1/dx² + 1/dz²) with g = 8, H = 2, dx = dz = 1 is
   // dt·4·sqrt(2), so dt = 1/(4·sqrt(2)) sits exactly on the stability limit.
-  const onLimit = 1 / (4 * Math.SQRT2);
-  const stable = validateFluidDomain({
+  const onLimit: number = 1 / (4 * Math.SQRT2);
+  const stable: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       grid: {
         columns: 4,
@@ -285,7 +340,7 @@ export const test_fluid_domain_validation = (): void => {
       },
     }),
   });
-  const unstable = validateFluidDomain({
+  const unstable: ReturnType<typeof validateFluidDomain> = validateFluidDomain({
     domain: basin({
       grid: {
         columns: 4,
@@ -304,29 +359,31 @@ export const test_fluid_domain_validation = (): void => {
       },
     }),
   });
-  const nonFiniteCourant = validateFluidDomain({
-    domain: basin({
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: Number.NaN,
-        drag: 0,
-        dryDepth: 0,
-        referenceDepth: 2,
-        maxSteps: 100,
-      },
-    }),
-  });
+  const nonFiniteCourant: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: Number.NaN,
+          drag: 0,
+          dryDepth: 0,
+          referenceDepth: 2,
+          maxSteps: 100,
+        },
+      }),
+    });
   TestValidator.equals(
     "the Courant condition is the stability gate, and it has both sides",
     namedFacts([
-      ["stable", () => stable.success === true],
+      ["stable", (): boolean => stable.success === true],
       [
         "unstable",
-        () => hasViolation(unstable, "range", "$input.solver.fixedStepSeconds"),
+        (): boolean =>
+          hasViolation(unstable, "range", "$input.solver.fixedStepSeconds"),
       ],
       [
         "nonFinite",
-        () =>
+        (): boolean =>
           hasViolation(nonFiniteCourant, "range", "$input.solver.gravity") &&
           hasViolation(
             nonFiniteCourant,
@@ -338,270 +395,47 @@ export const test_fluid_domain_validation = (): void => {
     { stable: true, unstable: true, nonFinite: true },
   );
 
-  const solid = new Array(16).fill(false);
-  solid[5] = true;
-  const arrays = validateFluidDomain({
-    domain: basin({
-      bed: [Number.NaN, 0, 0],
-      depth: [-0.1, 99, 0.25, 0.25],
-      solid,
-    }),
-  });
-  const wetPier = validateFluidDomain({
-    domain: basin({ solid, depth: new Array(16).fill(0.25) }),
-  });
-  // A flag that is neither `true` nor `false` answers "no" to both readers of
-  // it, so the solver would push water through a pier the surface refuses to
-  // draw around. The sibling cell one index away is the twin: it is a real
-  // boolean, and nothing is reported about it.
-  const flags: unknown[] = new Array(16).fill(false);
-  flags[7] = 1;
-  const flagged = validateFluidDomain({
-    domain: basin({ solid: flags as boolean[] }),
-  });
+  // Every input is a legal finite number, but g·H overflows: the Courant
+  // number is infinite, which is unstable rather than unmeasured.
+  const overflowingCourant: ReturnType<typeof validateFluidDomain> =
+    validateFluidDomain({
+      domain: basin({
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: 1e200,
+          drag: 0,
+          dryDepth: 0,
+          referenceDepth: 1e200,
+          maxSteps: 100,
+        },
+      }),
+    });
   TestValidator.equals(
-    "the state arrays must be one finite, non-negative value per cell",
+    "a Courant number that overflows from legal inputs is refused as unstable",
     namedFacts([
-      ["bedLength", () => hasViolation(arrays, "type", "$input.bed")],
-      ["bedFinite", () => hasViolation(arrays, "range", "$input.bed[0]")],
-      ["depthLength", () => hasViolation(arrays, "type", "$input.depth")],
-      ["depthNegative", () => hasViolation(arrays, "range", "$input.depth[0]")],
-      ["depthTooDeep", () => hasViolation(arrays, "range", "$input.depth[1]")],
-      ["wetPier", () => hasViolation(wetPier, "type", "$input.depth[5]")],
       [
-        "solidLength",
-        () =>
+        "refusedAtTheStep",
+        (): boolean =>
           hasViolation(
-            validateFluidDomain({ domain: basin({ solid: [false] }) }),
-            "type",
-            "$input.solid",
+            overflowingCourant,
+            "range",
+            "$input.solver.fixedStepSeconds",
           ),
       ],
-      ["solidFlag", () => hasViolation(flagged, "type", "$input.solid[7]")],
       [
-        "solidFlagTwin",
-        () => hasViolation(flagged, "type", "$input.solid[6]") === false,
+        "inputsThemselvesAccepted",
+        (): boolean =>
+          hasViolation(overflowingCourant, "range", "$input.solver.gravity") ===
+            false &&
+          hasViolation(
+            overflowingCourant,
+            "range",
+            "$input.solver.referenceDepth",
+          ) === false,
       ],
     ]),
-    {
-      bedLength: true,
-      bedFinite: true,
-      depthLength: true,
-      depthNegative: true,
-      depthTooDeep: true,
-      wetPier: true,
-      solidLength: true,
-      solidFlag: true,
-      solidFlagTwin: true,
-    },
+    { refusedAtTheStep: true, inputsThemselvesAccepted: true },
   );
 
-  const edges = validateFluidDomain({
-    domain: basin({
-      boundaries: {
-        xMin: "leak" as unknown as "wall",
-        xMax: "leak" as unknown as "wall",
-        zMin: "leak" as unknown as "wall",
-        zMax: "leak" as unknown as "wall",
-      },
-    }),
-  });
-  TestValidator.equals(
-    "an unknown edge kind is refused on every edge",
-    namedFacts([
-      ["xMin", () => hasViolation(edges, "type", "$input.boundaries.xMin")],
-      ["xMax", () => hasViolation(edges, "type", "$input.boundaries.xMax")],
-      ["zMin", () => hasViolation(edges, "type", "$input.boundaries.zMin")],
-      ["zMax", () => hasViolation(edges, "type", "$input.boundaries.zMax")],
-    ]),
-    { xMin: true, xMax: true, zMin: true, zMax: true },
-  );
-
-  const flows = validateFluidDomain({
-    domain: basin({
-      solid,
-      sources: [
-        source({ id: " " }),
-        source({ id: "jet" }),
-        source({ id: "jet" }),
-        source({ id: "off-lattice", column: 1.5, row: 1 }),
-        source({ id: "negative", column: -1, row: 1 }),
-        source({ id: "past-edge", column: 99, row: 1 }),
-        source({ id: "row-past-edge", column: 1, row: 99 }),
-        source({ id: "on-pier", column: 1, row: 1 }),
-        source({ id: "backwards", flowRate: -1 }),
-      ],
-      drains: [
-        drain({ id: "sill", sillLevel: Number.NaN }),
-        drain({ id: "reverse", flowRate: -2 }),
-        drain({ id: "backwards-window", start: 5, end: 1 }),
-        drain({ id: "unstarted", start: -1 }),
-        drain({ id: "non-finite-end", end: Number.POSITIVE_INFINITY }),
-      ],
-    }),
-  });
-  const tooMany = validateFluidDomain({
-    domain: basin({
-      sources: Array.from({ length: FLUID_MAX_FLOWS + 1 }, (_, at) =>
-        source({ id: `jet-${at}` }),
-      ),
-      drains: Array.from({ length: FLUID_MAX_FLOWS + 1 }, (_, at) =>
-        drain({ id: `drain-${at}` }),
-      ),
-      sprays: Array.from({ length: FLUID_MAX_SPRAYS + 1 }, (_, at) =>
-        spray({ id: `mist-${at}` }),
-      ),
-    }),
-  });
-  TestValidator.equals(
-    "a declared flow must name itself, land on water, and open sanely",
-    namedFacts([
-      ["emptyId", () => hasViolation(flows, "type", "$input.sources[0].id")],
-      [
-        "duplicateId",
-        () => hasViolation(flows, "type", "$input.sources[2].id"),
-      ],
-      [
-        "fractionalColumn",
-        () => hasViolation(flows, "type", "$input.sources[3].column"),
-      ],
-      [
-        "negativeColumn",
-        () => hasViolation(flows, "type", "$input.sources[4].column"),
-      ],
-      [
-        "columnPastEdge",
-        () => hasViolation(flows, "type", "$input.sources[5].column"),
-      ],
-      [
-        "rowPastEdge",
-        () => hasViolation(flows, "type", "$input.sources[6].row"),
-      ],
-      ["onPier", () => hasViolation(flows, "type", "$input.sources[7]")],
-      [
-        "negativeRate",
-        () => hasViolation(flows, "range", "$input.sources[8].flowRate"),
-      ],
-      [
-        "sill",
-        () => hasViolation(flows, "range", "$input.drains[0].sillLevel"),
-      ],
-      [
-        "drainRate",
-        () => hasViolation(flows, "range", "$input.drains[1].flowRate"),
-      ],
-      [
-        "backwardsWindow",
-        () => hasViolation(flows, "range", "$input.drains[2].end"),
-      ],
-      [
-        "negativeStart",
-        () => hasViolation(flows, "range", "$input.drains[3].start"),
-      ],
-      [
-        "nonFiniteEnd",
-        () => hasViolation(flows, "range", "$input.drains[4].end"),
-      ],
-      ["sourceBudget", () => hasViolation(tooMany, "range", "$input.sources")],
-      ["drainBudget", () => hasViolation(tooMany, "range", "$input.drains")],
-      ["sprayBudget", () => hasViolation(tooMany, "range", "$input.sprays")],
-    ]),
-    {
-      emptyId: true,
-      duplicateId: true,
-      fractionalColumn: true,
-      negativeColumn: true,
-      columnPastEdge: true,
-      rowPastEdge: true,
-      onPier: true,
-      negativeRate: true,
-      sill: true,
-      drainRate: true,
-      backwardsWindow: true,
-      negativeStart: true,
-      nonFiniteEnd: true,
-      sourceBudget: true,
-      drainBudget: true,
-      sprayBudget: true,
-    },
-  );
-
-  const mists = validateFluidDomain({
-    domain: basin({
-      sprays: [
-        spray({
-          id: "broken",
-          rate: 0,
-          lifetime: 0,
-          speed: -1,
-          spread: 2,
-          size: 0,
-          lodDistance: 0,
-          maxParticles: FLUID_MAX_SPRAY_PARTICLES + 1,
-          seed: 1.5,
-          direction: { x: 0, y: 0, z: 0 },
-        }),
-        spray({ id: "under", spread: -0.5, maxParticles: 0 }),
-        spray({ id: "nan-axis", direction: { x: Number.NaN, y: 1, z: 0 } }),
-        spray({ id: "nan-y", direction: { x: 0, y: Number.NaN, z: 0 } }),
-        spray({ id: "nan-z", direction: { x: 0, y: 1, z: Number.NaN } }),
-      ],
-    }),
-  });
-  TestValidator.equals(
-    "a spray emitter must describe a bounded, launchable jet",
-    namedFacts([
-      ["rate", () => hasViolation(mists, "range", "$input.sprays[0].rate")],
-      [
-        "lifetime",
-        () => hasViolation(mists, "range", "$input.sprays[0].lifetime"),
-      ],
-      ["speed", () => hasViolation(mists, "range", "$input.sprays[0].speed")],
-      [
-        "spreadOver",
-        () => hasViolation(mists, "range", "$input.sprays[0].spread"),
-      ],
-      ["size", () => hasViolation(mists, "range", "$input.sprays[0].size")],
-      [
-        "lod",
-        () => hasViolation(mists, "range", "$input.sprays[0].lodDistance"),
-      ],
-      [
-        "capOver",
-        () => hasViolation(mists, "type", "$input.sprays[0].maxParticles"),
-      ],
-      ["seed", () => hasViolation(mists, "type", "$input.sprays[0].seed")],
-      [
-        "zeroAxis",
-        () => hasViolation(mists, "type", "$input.sprays[0].direction"),
-      ],
-      [
-        "spreadUnder",
-        () => hasViolation(mists, "range", "$input.sprays[1].spread"),
-      ],
-      [
-        "capUnder",
-        () => hasViolation(mists, "type", "$input.sprays[1].maxParticles"),
-      ],
-      ["nanX", () => hasViolation(mists, "type", "$input.sprays[2].direction")],
-      ["nanY", () => hasViolation(mists, "type", "$input.sprays[3].direction")],
-      ["nanZ", () => hasViolation(mists, "type", "$input.sprays[4].direction")],
-    ]),
-    {
-      rate: true,
-      lifetime: true,
-      speed: true,
-      spreadOver: true,
-      size: true,
-      lod: true,
-      capOver: true,
-      seed: true,
-      zeroAxis: true,
-      spreadUnder: true,
-      capUnder: true,
-      nanX: true,
-      nanY: true,
-      nanZ: true,
-    },
-  );
-};
+  runFluidDomainPopulationCases({ basin, source, drain, spray });
+}

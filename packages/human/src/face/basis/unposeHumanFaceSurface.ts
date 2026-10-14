@@ -9,17 +9,28 @@ type Attachments = NonNullable<
 >;
 
 /** The 3x3 matrix of a unit quaternion, row major, read by rotating the axes. */
-const matrixOf = (
+const matrixOf: (
+  rotation: IAutoMovieHumanFaceRigidMotion["rotation"],
+) => number[] = (
   rotation: IAutoMovieHumanFaceRigidMotion["rotation"],
 ): number[] => {
-  const x = Quaternion.rotateVector(rotation, Vector3.create(1, 0, 0));
-  const y = Quaternion.rotateVector(rotation, Vector3.create(0, 1, 0));
-  const z = Quaternion.rotateVector(rotation, Vector3.create(0, 0, 1));
+  const x: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(1, 0, 0),
+  );
+  const y: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(0, 1, 0),
+  );
+  const z: IAutoMovieVector3 = Quaternion.rotateVector(
+    rotation,
+    Vector3.create(0, 0, 1),
+  );
   return [x.x, y.x, z.x, x.y, y.y, z.y, x.z, y.z, z.z];
 };
 
 /**
- * Exact inverse of `poseHumanFaceSurface` for the same attachments and motions.
+ * Algebraic inverse of the same affine blend as poseHumanFaceSurface.
  *
  * One vertex's blend is affine, `M_v(p) = L p + c` with
  * `L = I + sum w_o (R_o - I)` and `c = sum w_o (pivot_o + t_o - R_o pivot_o)`,
@@ -29,49 +40,64 @@ const matrixOf = (
  * A blend whose rotations cancel to a singular `L` is refused, because such a
  * vertex has no rest position that reproduces the pose; an unattached vertex
  * is returned unchanged. Inputs are never mutated; the result is fresh.
+ * The determinant cutoff 1e-12 is a numerical refusal convention. Floating
+ * Cramer's rule can amplify ill conditioning and proves no bit-exact replay.
+ *
+ * @evidence contracts/common.md#principled-implementation Admitted sparse weights accumulate forward posing's L and c; Cramer's rule solves L inverse times posed-minus-c for unit-quaternion motions. Algebraic equivalence does not remove floating cancellation/conditioning.
+ * @evidence contracts/common.md#clear-and-simple-design Per-vertex maps accumulate the affine terms before inversion; offline preparation consumes fresh rest coordinates and later source/model admission owns replay validity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing absolute determinant cutoff refuses numerical degeneracy without inventing rest points. Missing motion/resident vertex refuses; no fixture-specific adjustment produces an expected inverse.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives affine equations, endpoint-residual purpose, fresh ownership and determinant/conditioning limits instead of exact floating replay.
+ * @evidence contracts/performance.md#efficient-algorithms A attachment rows accumulate matrices in expected O(A), U affected vertices solve fixed 3x3 systems and V coordinates copy, O(A+U+V) work and O(U+V) storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One rotation matrix per attachment record serves its rows; changed motions/attachments require a fresh inverse and no persistent pose cache exists.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Matrix/offset maps are local and the fresh coordinate buffer transfers; refusals mutate no input and acquire no external resource.
  */
 export function unposeHumanFaceSurface(
   posed: readonly number[],
   attachments: Attachments,
   motions: ReadonlyMap<string, IAutoMovieHumanFaceRigidMotion>,
 ): number[] {
-  const count = posed.length / 3;
-  const linear = new Map<number, number[]>();
-  const offset = new Map<number, IAutoMovieVector3>();
+  const count: number = posed.length / 3;
+  const linear: Map<number, number[]> = new Map<number, number[]>();
+  const offset: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   for (const attachment of attachments) {
-    const motion = motions.get(attachment.owner);
+    const motion: IAutoMovieHumanFaceRigidMotion | undefined = motions.get(
+      attachment.owner,
+    );
     if (motion === undefined)
       throw new Error(
         "Facial attachment names an owner without motion: " + attachment.owner,
       );
-    const r = matrixOf(motion.rotation);
-    const shift = Vector3.subtract(
+    const r: number[] = matrixOf(motion.rotation);
+    const shift: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(motion.pivot, motion.translation),
       Quaternion.rotateVector(motion.rotation, motion.pivot),
     );
-    const rows = attachment.rows;
-    for (let i = 0; i < rows.length; i += 2) {
-      const vertex = rows[i];
-      const weight = rows[i + 1];
-      const l = linear.get(vertex) ?? [1, 0, 0, 0, 1, 0, 0, 0, 1];
-      for (let k = 0; k < 9; k++)
+    const rows: number[] = attachment.rows;
+    for (let i: number = 0; i < rows.length; i += 2) {
+      const vertex: number = rows[i];
+      const weight: number = rows[i + 1];
+      const l: number[] = linear.get(vertex) ?? [1, 0, 0, 0, 1, 0, 0, 0, 1];
+      for (let k: number = 0; k < 9; k++)
         l[k] += weight * (r[k] - (k % 4 === 0 ? 1 : 0));
       linear.set(vertex, l);
-      const c = offset.get(vertex) ?? Vector3.create();
+      const c: IAutoMovieVector3 = offset.get(vertex) ?? Vector3.create();
       offset.set(vertex, Vector3.add(c, Vector3.scale(shift, weight)));
     }
   }
-  const output = posed.slice();
+  const output: number[] = posed.slice();
   for (const [vertex, l] of linear) {
     if (vertex >= count)
       throw new Error("Facial attachment names a vertex the surface lacks.");
-    const c = offset.get(vertex)!;
-    const b = [
+    const c: IAutoMovieVector3 = offset.get(vertex)!;
+    const b: number[] = [
       posed[3 * vertex] - c.x,
       posed[3 * vertex + 1] - c.y,
       posed[3 * vertex + 2] - c.z,
     ];
-    const det =
+    const det: number =
       l[0] * (l[4] * l[8] - l[5] * l[7]) -
       l[1] * (l[3] * l[8] - l[5] * l[6]) +
       l[2] * (l[3] * l[7] - l[4] * l[6]);
@@ -81,7 +107,7 @@ export function unposeHumanFaceSurface(
           vertex +
           "; no rest position reproduces its pose.",
       );
-    const inverse = [
+    const inverse: number[] = [
       (l[4] * l[8] - l[5] * l[7]) / det,
       (l[2] * l[7] - l[1] * l[8]) / det,
       (l[1] * l[5] - l[2] * l[4]) / det,
@@ -92,7 +118,7 @@ export function unposeHumanFaceSurface(
       (l[1] * l[6] - l[0] * l[7]) / det,
       (l[0] * l[4] - l[1] * l[3]) / det,
     ];
-    for (let row = 0; row < 3; row++)
+    for (let row: number = 0; row < 3; row++)
       output[3 * vertex + row] =
         inverse[3 * row] * b[0] +
         inverse[3 * row + 1] * b[1] +

@@ -2,7 +2,7 @@ import { tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { passageClearance } from "./passage-clearance.mjs";
+import { passageClearance } from "./passage-clearance.js";
 import { stairCylinderPath } from "./stair-cylinder-path";
 
 /**

@@ -6,28 +6,22 @@ import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
  * Prepared footprint for one surface. Build once when checking many points
  * against the same static polygon.
  *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `IAutoMoviePreparedSurface` represents prepared footprint for one surface. This ensures marks and supports resolve against their declared host geometry.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `IAutoMoviePreparedSurface` structures prepared footprint for one surface for the system that resolves host-relative support geometry and whole-footprint zone membership.
+ * @evidence contracts/common.md#principled-implementation prepareSurface couples the source height/identity record to a footprint whose authored rings preserve concavity and holes; binary64 shoelace and tolerance predicates retain their numerical premises.
+ * @evidence contracts/common.md#clear-and-simple-design Source surface and prepared region form one pair shared by containment, height selection and support queries, avoiding separate competing hull representations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Preparation preserves the rings rather than filling notches or atria; it does not independently validate topology or repair malformed input.
+ * @evidence contracts/common.md#meaningful-documentation Identifies authoritative source borrowing and prepared planar copies; source polygon mutation requires rebuilding this pair to avoid stale projection/area.
+ * @evidence contracts/performance.md#efficient-algorithms E total vertices take O(E) preparation time and planar storage, while repeated containment remains O(E) edge work without new projection arrays.
+ * @evidence contracts/performance.md#reuse-equivalent-work The footprint's projections and signed areas are reused while source vertices remain unchanged; identity and height continue to come from the borrowed surface record.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prepared footprint and retains source surface/point references through it; discarding the pair releases those references without host resources.
  * @author Samchon
  */
 export interface IAutoMoviePreparedSurface {
-  /**
-   * The source surface whose height/identity remains authoritative.
-   *
-   * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `surface` records `IAutoMoviePreparedSurface`'s source surface whose height/identity remains authoritative. This ensures marks and supports resolve against their declared host geometry.
-   * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `surface` supplies `IAutoMoviePreparedSurface`'s source surface whose height/identity remains authoritative when the engine resolves host-relative support geometry and whole-footprint zone membership.
-   */
+  /** The source surface whose height/identity remains authoritative. */
   readonly surface: IAutoMovieSurface;
 
   /**
-   * The exact plan region of {@link IAutoMovieSurface.polygon} and its holes.
-   *
-   * This used to be the footprint's convex hull, which is why an L-shaped plate
-   * had to be refused: a hull fills the notch, and a hull of a holed slab fills
-   * the atrium. The region carried here is the rings themselves.
-   *
-   * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `footprint` records `IAutoMoviePreparedSurface`'s exact plan region of `IAutoMovieSurface.polygon` and its holes. This ensures marks and supports resolve against their declared host geometry.
-   * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `footprint` supplies `IAutoMoviePreparedSurface`'s exact plan region of `IAutoMovieSurface.polygon` and its holes when the engine resolves host-relative support geometry and whole-footprint zone membership.
+   * The authored rings of {@link IAutoMovieSurface.polygon} and its holes,
+   * with planar copies and signed areas prepared for repeated queries.
    */
   readonly footprint: IAutoMovieFootprint;
 }

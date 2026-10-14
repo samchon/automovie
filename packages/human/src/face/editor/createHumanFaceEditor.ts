@@ -19,30 +19,56 @@ import { IAutoMovieHumanFaceEditorSnapshot } from "../structures/IAutoMovieHuman
  * An optional caller disposer releases a successfully built model on
  * supersession or publication refusal; worker cancellation and shared renderer
  * resources remain caller-owned.
+ * History has no entry/byte cap. Committed models remain opaque caller-owned
+ * resources; replacement does not dispose the previous displayed model.
+ *
+ * @evidence contracts/common.md#principled-implementation A monotonically increasing ticket grants only the latest completed asynchronous build commit authority; owned document copies and synchronous nonreentrant publication precede pair/history assignment without an await. Current browser integrations supply admitted immutable models; arbitrary external effects remain outside rollback.
+ * @evidence contracts/common.md#clear-and-simple-design One request path serves edit/reset/restore/undo/redo; injected build/publish/dispose keep numerical, renderer and cancellation responsibilities outside history bookkeeping.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected/superseded requests return false; stale or publication-refused successful candidates reach an optional disposer. Publication must be synchronous/nonreentrant and refuse before external mutation; omitted cleanup remains caller responsibility, and no rejected model is certified accepted.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives validated initial pair, snapshot copies, latest authority, restoration/history semantics, nontransactional external effects, optional candidate disposal and uncapped history/current-model lifetime.
+ * @evidence contracts/performance.md#efficient-algorithms Document clones follow full settings size; each history transition copies stack references proportional to history length and delegated asynchronous builds retain their actual cost. Snapshot clones settings but borrows the immutable model.
+ * @evidence contracts/performance.md#reuse-equivalent-work All transitions share one build/commit path; restore preserves stack identity while revalidating current settings. Matching documents do not suppress request/publication effects, and ticket invalidation prevents stale result reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The editor retains initial/current settings, current model and uncapped past/future document history; pending work can coexist until caller cancellation/completion. Optional disposal handles stale/refused candidates only, renderer retirement of old committed models stays caller-owned, and no worker/GPU handle is created here.
  */
 export function createHumanFaceEditor<
   Model,
   Document = IAutoMovieHumanFaceDocument,
->(props: IAutoMovieHumanFaceEditorProps<Model, Document>) {
-  const initial = structuredClone(props.document);
-  let document = structuredClone(initial);
-  let model = props.model;
+>(
+  props: IAutoMovieHumanFaceEditorProps<Model, Document>,
+): {
+  snapshot: () => IAutoMovieHumanFaceEditorSnapshot<Model, Document>;
+  edit: (next: Document) => Promise<boolean>;
+  cancel: () => void;
+  reset: () => Promise<boolean>;
+  restore: () => Promise<boolean>;
+  undo: () => Promise<boolean>;
+  redo: () => Promise<boolean>;
+} {
+  const initial: Document = structuredClone(props.document);
+  let document: Document = structuredClone(initial);
+  let model: Model = props.model;
   let past: Document[] = [];
   let future: Document[] = [];
-  let generation = 0;
+  let generation: number = 0;
   let status: "ready" | "building" | "error" = "ready";
   let error: string | null = null;
-  const request = async (
+  const request: (
+    next: Document,
+    nextPast: Document[],
+    nextFuture: Document[],
+  ) => Promise<boolean> = async (
     next: Document,
     nextPast: Document[],
     nextFuture: Document[],
   ): Promise<boolean> => {
-    const ticket = ++generation;
-    const candidate = structuredClone(next);
+    const ticket: number = ++generation;
+    const candidate: Document = structuredClone(next);
     status = "building";
     error = null;
     try {
-      const built = await props.build(structuredClone(candidate));
+      const built: Awaited<Model> = await props.build(
+        structuredClone(candidate),
+      );
       if (ticket !== generation) {
         props.dispose?.(built);
         return false;
@@ -66,8 +92,9 @@ export function createHumanFaceEditor<
       return false;
     }
   };
-  const edit = (next: Document): Promise<boolean> =>
-    request(next, [...past, document], []);
+  const edit: (next: Document) => Promise<boolean> = (
+    next: Document,
+  ): Promise<boolean> => request(next, [...past, document], []);
   return {
     /** A caller may edit the returned document without mutating committed state. */
     snapshot: (): IAutoMovieHumanFaceEditorSnapshot<Model, Document> => ({

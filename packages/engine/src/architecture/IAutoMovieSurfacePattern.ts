@@ -10,8 +10,8 @@ import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
  * pattern has to step around, or how many modules were consumed and how much of
  * them was thrown away. This record is the program that does: the author writes
  * the module law per zone, and the engine owns the parts that must be identical
- * every run — clipping, exclusion, cut classification, neighbour measurement,
- * seeded variation, and the take-off.
+ * every run, namely clipping, exclusion, cut classification, neighbour
+ * measurement, seeded variation, and the take-off.
  *
  * Several zones in one pattern is how a transition is expressed: each zone lays
  * its own modules inside its own region, and the neighbour scan then measures
@@ -19,79 +19,67 @@ import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
  * that turns or a joint that fails to line up at the transition is reported
  * with both occurrence ids rather than being invisible.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `IAutoMovieSurfacePattern` represents a deterministic module-laying program over one host face. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `IAutoMovieSurfacePattern` structures a deterministic module-laying program over one host face for the system that resolves the declared physical-module pattern deterministically.
+ * {@link generateAutoMovieSurfacePattern} throws for a declaration whose ids
+ * are blank or repeated, whose zones or exclusions overlap one another, or
+ * whose numeric fields leave the ranges stated below; measured defects of a
+ * valid declaration come back as findings. Lengths are face-local metres.
+ *
+ * @evidence contracts/common.md#principled-implementation The declaration separates the author's module law, a pure generator per zone, from the engine-owned measurement, so a run is a deterministic function of this record and every variant draw is seeded from `seed` and the occurrence id.
+ * @evidence contracts/common.md#clear-and-simple-design One record per face: zones carry their own module programs and regions, while joint, tolerance, adjacency, minimum piece, grain tolerance and the variant seed are pattern-wide because the neighbour scan reads them across zone borders.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no preset bond or catalogue, because a bond is content; every numeric range is checked by the generator, which throws rather than clamping an out-of-range value.
+ * @evidence contracts/common.md#meaningful-documentation States why a pattern is not a texture repeat, how transitions are expressed, which declarations throw and which defects become findings, the metre unit, and each member's range, null meaning and role.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A declaration without behavior; laying and measuring it is answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure input record; whether a caller reuses a run for equal declarations is the caller's decision.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns its zone and exclusion arrays and the zones' generator references; the caller owns the record, and lattice size per zone is capped by `AUTOMOVIE_MAX_PATTERN_CELLS` during a run.
+ * @author Samchon
  */
 export interface IAutoMovieSurfacePattern {
   /**
-   * Stable pattern id.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `id` records `IAutoMovieSurfacePattern`'s stable pattern id. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `id` supplies `IAutoMovieSurfacePattern`'s stable pattern id when the engine resolves the declared physical-module pattern deterministically.
+   * Stable, non-blank pattern id; every occurrence and finding of a run cites
+   * it.
    */
   id: string;
+
   /**
-   * Areas of the face, each with its own module program. Never empty.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `zones` records `IAutoMovieSurfacePattern`'s areas of the face, each with its own module program. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `zones` supplies `IAutoMovieSurfacePattern`'s areas of the face, each with its own module program when the engine resolves the declared physical-module pattern deterministically.
+   * Areas of the face, each with its own module program. Never empty, zone ids
+   * are unique, and no two zone regions may overlap.
    */
   zones: IAutoMovieSurfacePatternZone[];
+
   /**
-   * Areas no module may cover, such as an opening or a drain.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `exclusions` records `IAutoMovieSurfacePattern`'s areas no module may cover, such as an opening or a drain. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `exclusions` supplies `IAutoMovieSurfacePattern`'s areas no module may cover, such as an opening or a drain when the engine resolves the declared physical-module pattern deterministically.
+   * Convex areas subtracted from every zone's coverage, such as an opening or a
+   * drain. A piece an exclusion reaches keeps its outline and reports the lost
+   * area as an `unsupported-piece` finding. Ids are unique and no two may
+   * overlap.
    */
   exclusions: IAutoMoviePatternExclusion[];
-  /**
-   * Nominal gap between neighbouring laid pieces in metres, at least zero.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `joint` records `IAutoMovieSurfacePattern`'s nominal gap between neighbouring laid pieces in metres, at least zero. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `joint` supplies `IAutoMovieSurfacePattern`'s nominal gap between neighbouring laid pieces in metres, at least zero when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Nominal gap between neighbouring laid pieces in metres, at least zero. */
   joint: number;
+
   /**
-   * Metre slack a measured gap may differ from the nominal joint by.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `jointTolerance` records `IAutoMovieSurfacePattern`'s metre slack a measured gap may differ from the nominal joint by. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `jointTolerance` supplies `IAutoMovieSurfacePattern`'s metre slack a measured gap may differ from the nominal joint by when the engine resolves the declared physical-module pattern deterministically.
+   * Metre slack a measured gap may differ from the nominal joint by, at least
+   * zero.
    */
   jointTolerance: number;
+
   /**
-   * Greatest metre gap at which two laid pieces still count as neighbours.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `adjacency` records `IAutoMovieSurfacePattern`'s greatest metre gap at which two laid pieces still count as neighbours. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `adjacency` supplies `IAutoMovieSurfacePattern`'s greatest metre gap at which two laid pieces still count as neighbours when the engine resolves the declared physical-module pattern deterministically.
+   * Edge-normal projection-gap cutoff in metres, at least zero, applied only to pairs selected by the producer's adjacent centre buckets; it is not an exhaustive Euclidean-distance neighbourhood.
    */
   adjacency: number;
-  /**
-   * Smallest acceptable surviving fraction of a module, within `(0, 1]`.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `minimumPiece` records `IAutoMovieSurfacePattern`'s smallest acceptable surviving fraction of a module, within `(0, 1]`. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `minimumPiece` supplies `IAutoMovieSurfacePattern`'s smallest acceptable surviving fraction of a module, within `(0, 1]` when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Smallest acceptable surviving fraction of a module, within `(0, 1]`. */
   minimumPiece: number;
+
   /**
-   * Greatest tolerated grain deviation between neighbours in degrees, or
-   * `null`.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `grainToleranceDeg` records `IAutoMovieSurfacePattern`'s greatest tolerated grain deviation between neighbours in degrees, or `null`. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `grainToleranceDeg` supplies `IAutoMovieSurfacePattern`'s greatest tolerated grain deviation between neighbours in degrees, or `null` when the engine resolves the declared physical-module pattern deterministically.
+   * Greatest tolerated grain deviation between neighbours in degrees, at least
+   * zero, or `null` to skip the grain comparison.
    */
   grainToleranceDeg: number | null;
-  /**
-   * Non-negative safe-integer seed driving every variant draw.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `seed` records `IAutoMovieSurfacePattern`'s non-negative safe-integer seed driving every variant draw. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `seed` supplies `IAutoMovieSurfacePattern`'s non-negative safe-integer seed driving every variant draw when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Non-negative safe-integer seed driving every variant draw. */
   seed: number;
-  /**
-   * Positive integer count of variants the seed may choose between.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `variants` records `IAutoMovieSurfacePattern`'s positive integer count of variants the seed may choose between. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `variants` supplies `IAutoMovieSurfacePattern`'s positive integer count of variants the seed may choose between when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Positive safe-integer count of variants the seed may choose between. */
   variants: number;
 }

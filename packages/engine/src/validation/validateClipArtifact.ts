@@ -1,6 +1,7 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
+import type { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 import { asArray } from "./asArray";
 import { clipLoopFault } from "./clipLoopFault";
 import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
@@ -14,39 +15,22 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
 /**
- * One clip's structural contract, to the depth every consumer dereferences it.
+ * Admit clip id/duration/loop, track uniqueness, channel shape and shared sampler track-shape faults.
  *
- * Exported because the shot artifact is not its only gate: the project store
- * validates stored clips on READ, and a gate that exists to catch a corrupted
- * file must check what its consumers dereference (#1324).
- *
- * The keyframe payload comes from the contract `sampleClip` itself reads
- * ({@link clipTrackShapeFaults}), rather than from a second hand-maintained copy
- * of it. Holding the rule twice is what let this gate learn ONE of the
- * sampler's checks and none of the other seven, so a clip with an uneven value
- * stride, an empty keyframe list, a wrong value width, an unsupported
- * interpolation, a non-triplet `cubicspline` stride, a non-boolean `loop`, or
- * an unknown node channel path validated clean here and threw out of the engine
- * when something played it (#1353).
- *
- * The clip's own `duration` stays stricter here than the sampler's rule: a
- * committed clip must last longer than zero seconds, while the sampler
- * tolerates a zero-length clip by normalizing every query to its start. A gate
- * stricter than its consumer refuses more, never less, so it cannot let a throw
- * escape.
- *
- * Two orthogonal questions, and every clip is asked both. The SHAPE of a track
- * ({@link clipTrackShapeFaults}) is the same for every clip a shot carries,
- * `lightMotions` included, and `channelValueWidth` already reads a pointer
- * channel's width from its `valueType`, so nothing about that contract is
- * node-only. Which channel a track may ADDRESS is the shot FIELD's own rule,
- * because a field admits exactly what its applier writes, and that is what
- * `channelGate` carries.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateClipArtifact` locates invalid clip identity, duration, loop flag, track ids, channel addresses, key times, and value strides at their stored members.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateClipArtifact` preserves the caller's clip root and each relative track fault while applying the field-specific channel gate.
+ * @evidence contracts/common.md#principled-implementation Admit clip id/duration/loop, track uniqueness, channel shape and shared sampler track-shape faults.
+ * @evidence contracts/common.md#clear-and-simple-design clipTrackShapeFaults owns keyframe stride/interpolation rules and the supplied channelGate owns addressability.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Committed duration stays strictly positive while the sampler permits zero; indexed track admission reports holes instead of skipping them, and channel-key serialization assumes JSON-representable artifact values.
+ * @evidence contracts/common.md#meaningful-documentation Default node channel gate versus light gate is explicit, and faults remain attached to exact track fields.
+ * @evidence contracts/performance.md#efficient-algorithms T tracks plus their keyframe buffers require proportional traversal; serialized channel keys also cost channel text length.
+ * @evidence contracts/performance.md#reuse-equivalent-work Sampler predicates are reused instead of maintaining another stride/menu specification.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns violation rows; clip buffers are borrowed and no playback task or decoder is created.
  */
-export const validateClipArtifact = (
+export const validateClipArtifact: (
+  clip: unknown,
+  path: string,
+  violations: IAutoMovieConstraintViolation[],
+  channelGate?: IAutoMovieClipChannelGate,
+) => void = (
   clip: unknown,
   path: string,
   violations: IAutoMovieConstraintViolation[],
@@ -68,7 +52,7 @@ export const validateClipArtifact = (
     violations,
     false,
   );
-  const loop = clipLoopFault(clip.loop);
+  const loop: IAutoMovieClipShapeFault | null = clipLoopFault(clip.loop);
   if (loop !== null)
     pushViolation(
       violations,
@@ -83,20 +67,28 @@ export const validateClipArtifact = (
     "clip tracks",
     violations,
   );
+  const tracks: unknown[] = asArray(clip.tracks);
   validateUniqueBy(
-    asArray(clip.tracks).map((track, index) => ({
-      id: isRecord(track)
-        ? `${String(isRecord(track.channel) ? track.channel.kind : undefined)}:${JSON.stringify(track.channel)}`
-        : undefined,
-      path: `${path}.tracks[${index}].channel`,
-    })),
+    Array.from(
+      tracks,
+      (
+        track: unknown,
+        index: number,
+      ): { id: string | undefined; path: string } => ({
+        id: isRecord(track)
+          ? `${String(isRecord(track.channel) ? track.channel.kind : undefined)}:${JSON.stringify(track.channel)}`
+          : undefined,
+        path: `${path}.tracks[${index}].channel`,
+      }),
+    ),
     "clip track channel",
     violations,
   );
-  asArray(clip.tracks).forEach((track, i) => {
-    const trackPath = `${path}.tracks[${i}]`;
+  for (let i: number = 0; i < tracks.length; ++i) {
+    const track: unknown = tracks[i];
+    const trackPath: string = `${path}.tracks[${i}]`;
     if (!validateObjectArtifact(track, trackPath, "clip track", violations))
-      return;
+      continue;
     const channel: unknown = track.channel;
     if (
       validateObjectArtifact(
@@ -127,5 +119,5 @@ export const validateClipArtifact = (
         `track ${fault.message}`,
         fault.value,
       );
-  });
+  }
 };

@@ -6,33 +6,37 @@ import { Vector3 } from "../math/Vector3";
 /** World up: the horizon a camera keeps level. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
+/** The reference that replaces {@link UP} when the aim is parallel to it. */
+const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
 /**
- * The rotation that points a camera's −Z down `direction` while keeping its
- * horizon level (world-up stabilized), what a shortest-arc `aimRotation` cannot
- * do: the shortest arc from −Z rolls the frame on off-axis aims, which the
- * demo's orbit shot exposed as a tilted horizon. Standard look-at basis (x = up
- * × z, y = z × x) converted to a quaternion; aiming straight up/down
- * degenerates the cross product, so +Z steps in as the reference.
+ * The rotation that points a camera's −Z down `direction` while keeping its horizon level.
  *
- * @evidence requirements/camera/scope-and-identity.md#camera-spatial-state-binding Constructs a world-up-stabilized quaternion that points camera −Z at the authored direction without rolling the horizon.
- * @evidence specifications/camera-light-and-visibility/camera-state-projection-and-gate.md#clv-camera-authority-spatial-binding lookRotation realizes explicit camera spatial binding: The rotation that points a camera's −Z down `direction` while keeping its horizon level (world-up stabilized), what a shortest-arc `aimRotation` cannot do: the shortest arc from −Z rolls the frame on off-axis aims, which the demo's orbit shot exposed as a tilted horizon. Standard look-at basis (x = up × z, y = z × x) converted to a quaternion; aiming straight up/down degenerates the cross product, so +Z steps in as the reference.
+ * A shortest-arc rotation from −Z rolls the frame on an off-axis aim; this one builds the standard look-at basis instead, with camera `+Z = −direction`, `x = up × z` and `y = z × x`, so the camera's local X stays horizontal. When the normalized aim's cross product with up has length below `1e-6`, world `+Z` is the reference and the roll is whatever that reference gives. A zero direction states no aim and answers the identity, the camera's rest orientation looking down −Z with a level horizon. Finite direction length does not matter; finite inputs yield a unit quaternion up to rounding, while a non-finite component yields a non-finite result.
+ *
+ * @param direction World-space direction to look along, any non-zero length.
+ * @returns The camera's world rotation.
+ *
+ * @evidence contracts/common.md#principled-implementation An orthonormal look-at basis converted to a quaternion by Shepperd's method, which takes the branch with the largest diagonal term so the divisor stays away from zero; the x-major branch is omitted because a horizontal `x` gives `x.x = z.z/h` and `y.y = h`, so `x.x > y.y` forces a positive trace, and the near-vertical fallback keeps `x.x` at about `±1` with the positive case also inside the trace branch.
+ * @evidence contracts/common.md#clear-and-simple-design One aim rule shared by every camera move in `compileCameraMove` and by staging's initial aim, so a staged camera and a moving one keep the same horizon convention.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No direction is special-cased except the two degenerate inputs the basis cannot be built from, an up-parallel aim and a zero aim, each answered by a stated rule rather than a tuned value.
+ * @evidence contracts/common.md#meaningful-documentation States the axis convention, horizon rule, normalized cross-product threshold and fallback, zero-direction identity, finite-input unit-length result up to rounding and non-finite propagation.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed-dimensional work normalizes the direction and right axis, forms two basis cross products with one extra cross product near vertical, then converts one branch and normalizes the output quaternion; zero direction returns before basis construction.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one vector that coordinates no work across calls; each keyframe aims along its own direction.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few temporary vectors and retains nothing; the caller owns the returned quaternion.
  */
-export const lookRotation = (
+export function lookRotation(
   direction: IAutoMovieVector3,
-): IAutoMovieQuaternion => {
-  const z = Vector3.scale(Vector3.normalize(direction), -1); // camera +Z = back
-  let x = Vector3.cross(UP, z);
-  if (Vector3.length(x) < 1e-6) x = Vector3.cross({ x: 0, y: 0, z: 1 }, z);
+): IAutoMovieQuaternion {
+  const z: IAutoMovieVector3 = Vector3.scale(Vector3.normalize(direction), -1);
+  if (z.x === 0 && z.y === 0 && z.z === 0) return Quaternion.identity();
+  let x: IAutoMovieVector3 = Vector3.cross(UP, z);
+  if (Vector3.length(x) < 1e-6) x = Vector3.cross(BACK, z);
   x = Vector3.normalize(x);
-  const y = Vector3.cross(z, x);
-  // Basis → quaternion (Shepperd's method, w-branch first). The usual
-  // x-major branch is provably unreachable here: this basis keeps x
-  // horizontal, so x.x = z.z/h and y.y = h ≥ 0 (h = |(z.x, z.z)|), and
-  // x.x > y.y forces trace = x.x + y.y + z.z > 0. The w-branch already
-  // took it. Only w / y-major / z-major remain.
-  const trace = x.x + y.y + z.z;
+  const y: IAutoMovieVector3 = Vector3.cross(z, x);
+  const trace: number = x.x + y.y + z.z;
   if (trace > 0) {
-    const s = Math.sqrt(trace + 1) * 2;
+    const s: number = Math.sqrt(trace + 1) * 2;
     return Quaternion.normalize({
       w: s / 4,
       x: (y.z - z.y) / s,
@@ -41,7 +45,7 @@ export const lookRotation = (
     });
   }
   if (y.y > z.z) {
-    const s = Math.sqrt(1 + y.y - x.x - z.z) * 2;
+    const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
     return Quaternion.normalize({
       w: (z.x - x.z) / s,
       x: (y.x + x.y) / s,
@@ -49,11 +53,11 @@ export const lookRotation = (
       z: (z.y + y.z) / s,
     });
   }
-  const s = Math.sqrt(1 + z.z - x.x - y.y) * 2;
+  const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
   return Quaternion.normalize({
     w: (x.y - y.x) / s,
     x: (z.x + x.z) / s,
     y: (z.y + y.z) / s,
     z: s / 4,
   });
-};
+}

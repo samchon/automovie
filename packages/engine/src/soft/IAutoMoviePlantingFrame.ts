@@ -5,41 +5,27 @@ import {
 } from "@automovie/interface";
 
 /**
- * One installation's derived planting, beside an honest account of it.
+ * One lowerPlantingInstallation result and its explicit analysis status.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Carries both the derived planting state and its named outcome.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Exposes one renderer-ready interior planting result.
+ * @evidence contracts/common.md#principled-implementation Prototype growth and arranged instances accompany an analysis record; null derivative fields distinguish an unperformed derivation from an empty successful population.
+ * @evidence contracts/common.md#clear-and-simple-design Installation identity joins the prototype and arrangement that soft-content consumers need without copying the domain's authored configuration.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported derivations remain null with analysis reasons rather than fabricated plant geometry or an implicit success flag.
+ * @evidence contracts/common.md#meaningful-documentation Names the lowering producer and documents installation identity, prototype/arrangement roles and each not-run null state.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This result type runs no growth or arrangement algorithm; their costs belong to the respective producers.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Frame data joins one installation result and coordinates no retained cross-installation derivation cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned plant and arrangement populations determine retained size; the record itself acquires no host or simulation task.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingFrame {
-  /**
-   * Identity of the installation the frame belongs to.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Preserves which authored installation owns the result.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Keeps the lowered planting addressable at its installation boundary.
-   */
+  /** Identity of the installation the frame belongs to. */
   installation: string;
 
-  /**
-   * What the derivation actually did, including anything it declined.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Reports whether bounded planting derivation ran or was refused.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Carries the status and measured work of the planting result.
-   */
+  /** What the derivation actually did, including anything it declined. */
   analysis: IAutoMovieSoftAnalysis;
 
-  /**
-   * The prototype structure every member instances, or `null` when not run.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Carries the generated plant shared by placed members.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Separates the procedural prototype from its installation arrangement.
-   */
+  /** The prototype structure every member instances, or `null` when not run. */
   plant: IAutoMoviePlantingState | null;
 
-  /**
-   * The deterministic member arrangement, or `null` when not run.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Carries the bounded positions of the planting population.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Exposes the installation transforms independently of prototype geometry.
-   */
+  /** The deterministic member arrangement, or `null` when not run. */
   arrangement: IAutoMoviePlantingArrangement | null;
 }

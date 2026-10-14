@@ -8,6 +8,14 @@ import type { IAutoMovieMesh, IAutoMovieTransform } from "@automovie/interface";
  * the head-frame identity. The instrument
  * rounds both local meshes to Float32 and applies their actual publication TRS before it reads them in the common head frame.
  *
+ * @evidence contracts/common.md#principled-implementation Actual subject/exterior publication meshes, signed boundary mode and optional witness selection define the instrument's rounded vertex and triangle census in common head-frame metres.
+ * @evidence contracts/common.md#clear-and-simple-design Identity/state/admission meaning travel with geometry and publication transforms; measurement and refusal policy remain in measureHumanFaceClearance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Open-sheet reach and immutable exterior reuse require caller grounds; judged false is report-only, and excluding one intended transverse point leaves all other witnesses in scope.
+ * @evidence contracts/common.md#meaningful-documentation Members state units, default TRS/forbidden side, vertex/triangle selection, null crossing omission and local-sign uncertainty beyond rims/reach.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This request performs no traversal; native query/crossing and population sorting costs belong to the instrument.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type schedules no work; the instrument keys immutable references by object, transform and boundary mode.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no resource; request/callback lifetimes remain with their owning admission and reference instrument.
+ *
  * @author Samchon
  */
 export interface IHumanFaceClearanceRequest {

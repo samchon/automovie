@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodySourceRigResult } from "../anatomy/articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IHumanBodySourceQuantityReading } from "../anatomy/assembly/IHumanBodySourceQuantityReading";
 import type { IHumanBodyLayerObservation } from "../anatomy/layer/IHumanBodyLayerObservation";
-import type { IAutoMovieHumanConstructionAdmission } from "../../common/structures/IAutoMovieHumanConstructionAdmission";
 import type { IAutoMovieHumanBodyBasisDocument } from "./IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyPosedSurface } from "./IAutoMovieHumanBodyPosedSurface";
 import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuildBone";
@@ -27,6 +27,14 @@ import type { IAutoMovieHumanBodyBuildBone } from "./rig/IAutoMovieHumanBodyBuil
  * order: garment cutting and contact partitioning read one connected answer
  * before UV seams and materials duplicate its corners. Its arrays belong to
  * this build and are not a second stored body document.
+ *
+ * @evidence contracts/common.md#principled-implementation A completed evaluation carries its static rendered model beside original shared posed skin, rest skeleton and paired bone placements.
+ * @evidence contracts/common.md#clear-and-simple-design Consumers receive one evaluated construction instead of recomputing rig or contact inputs from rendered corners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rig frames and geometric source readings do not certify living tissue segmentation or clinical capacity.
+ * @evidence contracts/common.md#meaningful-documentation Members explain owned evaluated snapshots, optional pre-garment source regions and layer-refusal meaning.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The evaluated body result is a type declaration without executable processing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The evaluated body result coordinates no cross-call computation or caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The evaluated body result type itself acquires no retained runtime resources.
  *
  * @author Samchon
  */

@@ -1,40 +1,27 @@
 /**
- * What the host page's admission bridge answers: whether a viewer frame that
- * carries the human runtime could judge the document, and its owner's verdict.
+ * What the host page's admission bridge answers: whether a viewer frame that carries the human runtime could judge the document, and its owner's verdict.
  *
- * @evidence contracts/common.md#principled-implementation An unavailable bridge is a state of its own, never read as a refusal or an admission.
- * @evidence contracts/common.md#meaningful-documentation Names both members and their combinations.
- *
- * @evidence contracts/common.md#clear-and-simple-design Availability, nullable refusal reason and judging-frame token contain the complete bridge outcome.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unavailable frame cannot produce a current-generation token or be treated as an admitted document.
- *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority An unavailable bridge is a state of its own, never read as a refusal or an admission.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant An unavailable frame cannot produce a current-generation token or be treated as an admitted document.
+ * @evidence contracts/common.md#principled-implementation Carries bridge availability, actual owner refusal/null admission and the selected frame's optional generation token.
+ * @evidence contracts/common.md#clear-and-simple-design Separates transport readiness from numerical verdict without turning unavailable frames into errors for the catalogue.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable replies establish no judgment; token presence is not proof of current code, and the server checks window/source authority separately.
+ * @evidence contracts/common.md#meaningful-documentation Defines false availability, null reason and token absence for unavailable or tokenless frames; malformed envelopes remain refusals at the bridge.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The reply record adds fixed fields; document parsing/admission and frame selection remain with the actual bridge/domain owner.
+ * @evidence contracts/performance.md#reuse-equivalent-work A reply belongs to one selected frame/request; createHumanViewerAdmission also requires its document key to still be current before storage.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources No model or native handle is returned; the caller owns the reply until verdict processing and host windows own generation-token lifetime.
  *
  * @author Samchon
  */
 export interface IHumanViewerAdmissionReply {
   /**
-   * False when no viewer frame has loaded its module yet, so nothing was judged.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Separates a loaded judging frame from a bridge with no available numerical owner.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Separates a loaded judging frame from a bridge with no available numerical owner.
+   * False when the newest present frame lacks a compatible loaded admission hook; an older loaded frame is not used, and nothing was judged.
    */
   available: boolean;
 
-  /**
-   * Null when admitted or unavailable, else the owner's refusal reason.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Retains the original domain refusal while null is distinguished by the available flag.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Retains the original domain refusal while null is distinguished by the available flag.
-   */
+  /** Null when admitted or unavailable, else the owner's refusal reason. */
   reason: string | null;
 
   /**
    * The generation token of the frame that judged it, null when unavailable or opened without one.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Binds a returned verdict to the actual judging frame, remaining null for an unavailable or unlabelled frame.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Binds a returned verdict to the actual judging frame, remaining null for an unavailable or unlabelled frame.
    */
   token: string | null;
 }

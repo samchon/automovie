@@ -1,35 +1,35 @@
-import type { IAutoMovieSemanticMaskCoverage as AutoMovieSemanticMaskCoverage, IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+import type {
+  IAutoMovieSemanticMaskCoverage as AutoMovieSemanticMaskCoverage,
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 import type * as THREE from "three";
+
 import { maskRoots } from "./maskRoots.js";
 import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
 
 /**
- * Hold one palette against one built scene, in both directions.
+ * Join a supplied palette to assembled scene roots in both directions without painting or mutating the scene. Unresolved lists drawable entries with no claimed object root; unaddressed counts Mesh objects lacking a nearest semantic owner, including hidden geometry. Ownership-only room/opening/slot entries do not require their own drawable. Empty unresolved establishes root membership, while actual visibility, submission and pixels remain separate observations; a cached build audit needs renewal after relevant graph changes.
  *
- * This is the join the pipeline was missing. The mask is derived from the
- * compiled artifact and states which drawables one frame commits to; the scene
- * is what a viewer actually assembled. A production can declare a pond, a
- * curtain and a fern bed, compile clean, and render a room with none of them in
- * it, and nothing anywhere goes red, because each half was only ever checked
- * against itself. Holding the two against each other is what turns "declared"
- * into "drawn": an id in `unresolved` exists in the design and in no pixel, and
- * `unaddressed` counts the pixels the palette has no name for.
- *
- * Only entries that claim a drawable are checked for the first. A building
- * unit, a storey, a room, a wall opening and an instanced slot deliberately
- * paint nothing of their own and are reached through `owner`, so listing them
- * would report the whole ownership chain as missing on every well-drawn frame.
- *
- * Nothing here paints, hides, or suspends anything, so a host reads its
- * coverage once at build time and reports it beside every frame, instead of
- * opening a pass boundary it would then have to close.
- *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Makes this public surface part of the stable identity-mask channel.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Implements that channel as a structural render product.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Builds the same canonical roots and counts scene Mesh objects lacking nearest claimed ownership, reporting drawable entries whose roots never resolve without painting or mutating anything.
+ * @evidence contracts/common.md#clear-and-simple-design Pure membership audit shares root/nearest/unresolved laws with the pass, while submission/visibility/pixel coverage remains a renderer/capture responsibility.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Ownership-only entries are not falsely counted missing, but existing roots and hidden meshes do not prove pixels; build-time cached coverage becomes stale after relevant graph/design/palette changes.
+ * @evidence contracts/common.md#meaningful-documentation Documents bidirectional root/mesh membership, ownership-only exceptions, no mutation and the boundary between assembled scene membership and actual rendering.
+ * @evidence contracts/performance.md#efficient-algorithms Index/traversal work is O(E+N+M*D) with O(E+R) root/id references and no material, color buffer or pixel allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Hosts may reuse the returned audit only while its graph/design/palette membership is unchanged; this function maintains no cache and equal model names alone are insufficient invalidation evidence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Roots/ids are call-local and returned coverage contains scalar counts/id strings only; all scene objects remain borrowed and no native resource or task is acquired.
  */
-export const auditAutoMovieSemanticMaskScene = (props: {
+export const auditAutoMovieSemanticMaskScene: (props: {
+  /** The built scene. */
+  scene: THREE.Scene;
+
+  /** The design the scene was built from, in its own declaration order. */
+  design: IAutoMovieScene;
+
+  /** Palette derived from the same production. */
+  mask: IAutoMovieSemanticMask;
+}) => AutoMovieSemanticMaskCoverage = (props: {
   /** The built scene. */
   scene: THREE.Scene;
 
@@ -39,10 +39,10 @@ export const auditAutoMovieSemanticMaskScene = (props: {
   /** Palette derived from the same production. */
   mask: IAutoMovieSemanticMask;
 }): AutoMovieSemanticMaskCoverage => {
-  const roots = maskRoots(props);
-  let unaddressed = 0;
-  props.scene.traverse((object) => {
-    const mesh = object as THREE.Mesh;
+  const roots: ReturnType<typeof maskRoots> = maskRoots(props);
+  let unaddressed: number = 0;
+  props.scene.traverse((object: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
     if (nearest(mesh, roots) === undefined) ++unaddressed;
   });

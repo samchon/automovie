@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 /**
  * Authored gluteal ptosis, volume and pelvic tone relations. Gonzalez 2006 (doi:10.1007/s00266-005-0051-y) associated age and weight with ptosis, while Babuccu et al. 2004 (doi:10.1007/s00266-004-4010-9) found adult weight rather than age effects. These knots are not a universal causal law.
  *
- * The rows are authored derived exterior-skin controls, not muscle or fat
+ * The rows are authored exterior-skin controls, not muscle or fat
  * compartment measurements. QUADRA_HC's 48 healthy adults have separately
  * segmented left/right gluteus maximus, medius and minimus volumes
  * (doi:10.1038/s41597-025-05997-4), but those supine CT volumes do not give

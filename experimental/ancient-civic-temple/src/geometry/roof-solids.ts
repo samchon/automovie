@@ -1,16 +1,16 @@
 /**
- * 합성 지붕 조각을 법선 두께를 가진 닫힌 slab 프리즘으로 만든다.
- * 상면은 조각의 원래 owner 상부 표면, 옆면은 노출 끝 두께, 하부는 아래
- * 평면 영역(방·벽·외부)에 따라 실내 천장/지지 접면/외부 처마 하부로 나눈다.
- * 조각끼리 맞닿는 내부 옆면은 이웃 slab 안에 숨는다. 하부 분할은 같은 평면
- * 위의 면 분할이며 slab 형상을 바꾸지 않는다.
+ * Turns composed roof pieces into closed slab prisms with a normal thickness.
+ * The top is the piece's original owner's upper surface, the sides are exposed end thickness, and the
+ * underside is split by the planar region below (room, wall, exterior) into interior ceiling, support contact
+ * face and exterior eave soffit. Interior sides where pieces touch hide inside the neighbouring slab. The
+ * underside split is a face split on the same plane and does not change the slab shape.
  */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { partitionPlan, planeHeight, simplifyPlan, type PlanPoint, type RoofPatch } from "./planar-domain";
 import { levelPlane, prismFaces } from "./prism";
 import type { WallFace } from "./wall-solids";
 
-/** 하부 분류 영역. 순서대로 소비하며 남은 영역은 soffit이다. 표면은 지붕 owner별이다. */
+/** Underside classification regions, consumed in order; what remains is soffit. Surfaces are per roof owner. */
 export interface UndersideRegion {
   polygon: PlanPoint[];
   surface: (owner: string) => string;
@@ -43,7 +43,7 @@ export const roofSlabFaces = (
   return faces;
 });
 
-/** 방 소유 널판 천장. 아랫면만 방의 노출 천장이고 나머지는 구조 틈의 면이다. */
+/** A room-owned board ceiling. Only the underside is the room's exposed ceiling; the rest are faces of the structural gap. */
 export const ceilingBoardFaces = (
   space: string, polygon: readonly PlanPoint[], underside: number, thickness: number,
 ): WallFace[] => prismFaces(polygon, levelPlane(underside), levelPlane(underside + thickness))
@@ -52,14 +52,14 @@ export const ceilingBoardFaces = (
     corners: face.corners,
   }));
 
-/** 하부 면: 아래를 향하도록 다각형 순서 그대로 평면 위로 올린다. */
+/** Underside face: lifts the polygon onto the plane in its own order so it faces down. */
 const lift = (polygon: readonly PlanPoint[], plane: Parameters<typeof planeHeight>[0]): IAutoMovieVector3[] =>
   polygon.map((p) => ({ x: p.x, y: planeHeight(plane, p), z: p.z }));
 
 /**
- * 같은 합성 단위에서 맞닿은 두 조각의 높이 차이를 닫는 끝면.
- * 높은 조각의 하부가 낮은 조각의 상면보다 위에 있는 공통 변 구간에서,
- * 높은 조각 소유의 수직 면으로 그 사이를 막는다(junctions의 높이 차이 규칙).
+ * The end face that closes the height difference between two touching pieces of the same composition unit.
+ * Along the shared edge where the higher piece's underside is above the lower piece's top, a vertical face
+ * owned by the higher piece closes the gap between them (the height-difference rule of junctions).
  */
 export const roofStepClosures = (patches: readonly RoofPatch[]): WallFace[] => {
   const faces: WallFace[] = [];
@@ -77,7 +77,7 @@ export const roofStepClosures = (patches: readonly RoofPatch[]): WallFace[] => {
           if (offLine(b0) > 1e-6 || offLine(b1) > 1e-6) return;
           const t0 = (b0.x - a0.x) * ux + (b0.z - a0.z) * uz;
           const t1 = (b1.x - a0.x) * ux + (b1.z - a0.z) * uz;
-          if (t0 < t1) return; // 공통 변은 서로 반대 방향이어야 한다.
+          if (t0 < t1) return; // A shared edge must run in opposite directions.
           const from = Math.max(0, t1);
           const to = Math.min(length, t0);
           if (to - from < 1e-4) return;

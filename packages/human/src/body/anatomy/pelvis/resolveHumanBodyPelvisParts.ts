@@ -1,29 +1,28 @@
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
+import type { IAutoMovieHumanBodyPelvisMeasurements } from "./IAutoMovieHumanBodyPelvisMeasurements";
 
 /**
  * Answer the pelvic bones, ligaments, gluteal and iliopsoas muscles.
  *
- * The connected source is one exterior skin. It registers no sacral, coccygeal
- * or iliac-spine landmark (ASIS, PSIS), so the sacrum, coccyx and coxal bones
- * are `missing-bone-landmark`; the pelvic breadth, depth and inter-head
- * distance requests condition the coxal bones they are measured on. It holds
- * no boundary between skin, fat and muscle, so each gluteal muscle, the psoas
- * major, the iliacus and the sacrotuberous ligament are
- * `missing-tissue-boundary`. A combined iliopsoas volume conditions both of
- * its muscles. An observed value in a part's request refuses that part as
- * `acquisition-not-registered` (`humanBodyUnavailablePart`). The hip girth,
- * breadth and buttock depth the exterior answers belong to the skin, not to
- * these parts.
+ * No qualified pelvic internal-part generator is registered here. This resolver does not inspect `input.basis` for landmarks or tissue boundaries: its fixed `missing-bone-landmark` and `missing-tissue-boundary` reasons describe that generation limit rather than proving supplied-source absence. Pelvic breadth, depth and inter-head distances condition both coxal requests; combined iliopsoas volume conditions psoas and iliacus on its side. An observed value in each part's request takes precedence as `acquisition-not-registered` through `humanBodyUnavailablePart`. Exterior hip girth, breadth and buttock depth remain skin measurements and cannot satisfy internal parts.
  *
+ * @evidence contracts/common.md#principled-implementation Fixed per-part unavailable causes expose unregistered pelvic generation; request-local observation detection preserves acquisition failure precedence without interpreting exterior dimensions as internal anatomy.
+ * @evidence contracts/common.md#clear-and-simple-design One pelvis resolver names sixteen owned parts and delegates observation precedence to the shared unavailable-result helper.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis is not inspected, so fixed landmark/tissue reasons remain a generation limitation and cannot certify that the caller's source lacks those structures.
+ * @evidence contracts/common.md#meaningful-documentation The prose states the unused basis, bilateral coxal conditioning, combined iliopsoas ownership and observed-request failure precedence.
+ * @evidence contracts/performance.md#efficient-algorithms Sixteen result records are fixed-size; shared observation detection traverses only the relevant request subtrees, with some repeated scans for bilateral and combined quantities.
+ * @evidence contracts/performance.md#reuse-equivalent-work The shared coxal request tuple is reused across sides; no completed anatomical geometry exists to cache across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Local request arrays end with the call and sixteen new unavailable records escape; no basis geometry or running task is retained.
  * @author Samchon
  */
 export function resolveHumanBodyPelvisParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const pelvis = input.targets?.pelvis;
-  const breadth = [
+  const pelvis: IAutoMovieHumanBodyPelvisMeasurements | undefined =
+    input.targets?.pelvis;
+  const breadth: readonly unknown[] = [
     pelvis?.interAnteriorSuperiorIliacSpineDistance,
     pelvis?.anteriorPosteriorIliacSpineMidpointDepth,
     pelvis?.interFemoralHeadDistance,

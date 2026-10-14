@@ -7,82 +7,42 @@ import { IAutoMovieServiceState } from "./IAutoMovieServiceState";
 /**
  * One fixture, machine, junction, terminal or inline device on the network.
  *
- * A basin, a sprinkler head, a socket outlet, a diffuser, an air handling unit,
- * a tee in a chase and a shut-off valve are all this record. What separates
- * them is the ports they carry and the volume they need to be serviced in, not
- * a class hierarchy: a media wall that is simultaneously a wall, a powered
- * device and a light source declares the ports for each and stays one node.
+ * A basin, a sprinkler head, a socket outlet, a diffuser, an air handling unit, a tee in a chase and a shut-off valve are all this record. What separates them is the ports they carry and the volume they need to be serviced in, not a class hierarchy: a media wall that is simultaneously a wall, a powered device and a light source declares the ports for each and stays one node.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `IAutoMovieServiceNode` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `IAutoMovieServiceNode` for the interior space service network contract system contract.
+ * @evidence contracts/common.md#principled-implementation Node position and ports are held in the referenced logical space where declared cells permit measurement, while its axis-aligned local maintenance box is translated into world keep-out for run checks.
+ * @evidence contracts/common.md#clear-and-simple-design Computational role, element realization, typed ports and operating state share one node; maintenance extent remains explicit instead of inferred from equipment names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Bare junctions intentionally have null element and nonmoving devices null state; missing room extent cannot yield a fabricated placement proof or quantitative equipment model.
+ * @evidence contracts/common.md#meaningful-documentation Defines network identity, logical space and element joins, world-meter point, ports, nullable state and node-local maintenance box composition.
+ * @author Samchon
  */
 export interface IAutoMovieServiceNode {
-  /**
-   * Stable node identity within the network.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `id` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `id` for the interior space service network contract system contract.
-   */
+  /** Stable node identity within the network. */
   id: string;
 
   /**
-   * Computational family; it selects which validations apply, not a catalogue.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `kind` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `kind` for the interior space service network contract system contract.
+   * Semantic equipment role, checked against the closed vocabulary. Current node/port admission applies the same rules to every role; `kind` supplies no inferred geometry, load or operating state.
    */
   kind: AutoMovieServiceNodeKind;
 
-  /**
-   * Id of the logical space of the served environment the node stands in.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `space` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `space` for the interior space service network contract system contract.
-   */
+  /** Id of the logical space of the served environment the node stands in. */
   space: string;
 
-  /**
-   * Id of the built element realizing it, or `null` for a bare junction.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `element` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `element` for the interior space service network contract system contract.
-   */
+  /** Id of the built element realizing it, or `null` for a bare junction. */
   element: string | null;
 
-  /**
-   * World position in metres.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `position` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `position` for the interior space service network contract system contract.
-   */
+  /** World position in metres. */
   position: IAutoMovieVector3;
 
-  /**
-   * Typed connection points this node offers, one per system it touches.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `ports` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `ports` for the interior space service network contract system contract.
-   */
+  /** Typed connection points this node offers; several may belong to the same system. */
   ports: IAutoMovieServicePort[];
 
   /**
-   * Named operating state of an inline device, or `null` when the node has no
-   * moving part. A valve, a damper and a switch are the same object here.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `state` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `state` for the interior space service network contract system contract.
+   * Named operating state of an inline device, or `null` when the node has no moving part. A valve, a damper and a switch are the same object here.
    */
   state: IAutoMovieServiceState | null;
 
   /**
-   * Volume in **node-local** metres that must stay clear for the node to be
-   * serviced — the door swing of a panel, the pull space of a filter, the reach
-   * in front of a valve — or `null` when the node needs none. The world volume
-   * is this box offset by {@link position}, which is the same axis-aligned
-   * keep-out a prop declares, so one collision rule covers both.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `maintenance` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `maintenance` for the interior space service network contract system contract.
+   * Node-local axis-aligned maintenance volume in metres, such as panel-door swing or filter pull space; null declares no keep-out. Translation by position forms its world box without an equipment-specific rotation or inferred extent.
    */
   maintenance: IAutoMoviePropBox | null;
 }

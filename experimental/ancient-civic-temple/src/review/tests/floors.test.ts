@@ -1,9 +1,11 @@
 /**
- * src/geometry/floor-input.ts, floor-faces.ts, floor-supports.ts: 방 바닥 입력, 비균일 격자 경계면,
- * 보행 support 외곽·구멍.
- * fixture: 방 본체와 문턱(볼록 둘의 합), 높이가 다른 두 방(단차), 방 넷이 둘러싼 마당(구멍 있는
- * support), 얇은 slab(1cm), 수치 한계보다 가까운 끝선(거부), 체적 중첩·중복 ID·빈 입력·
- * 비유한 값·잘못된 두께(거부), 분리된 섬(거부), 결정성. 바닥 slab 합은 닫힌 실체다.
+ * src/geometry/floor-input.ts, floor-faces.ts and floor-supports.ts: room floor
+ * inputs, irregular-grid boundary faces, and walking-support outlines and holes.
+ * Fixtures: room body and threshold (union of two convex pieces), two rooms at
+ * different heights (step), a yard enclosed by four rooms (support with a hole),
+ * thin slab (1cm), end lines closer than the numeric limit (refused), volume
+ * overlap, duplicate IDs, empty input, non-finite values and invalid thickness
+ * (refused), separate islands (refused), and determinism. The floor slab union is a closed solid.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -39,13 +41,13 @@ void test("two rooms at different levels touching: one closed solid across the s
 void test("thin slab (1 cm) and refusals", () => {
   const thin = roomFloorInput("t", [{ id: "body", floor: 0, west: 0, east: 1, north: 0, south: 1 }], [], 0.01, 0);
   assertClosed(accountFaces("thin", floorBoundaryFaces([thin]).map((f) => ({ corners: f.corners }))), 0.01);
-  assert.throws(() => roomFloorInput("x", [], [], 0, 0), /두께/);
-  assert.throws(() => floorBoundaryFaces([]), /입력이 없습니다/);
+  assert.throws(() => roomFloorInput("x", [], [], 0, 0), /thickness/);
+  assert.throws(() => floorBoundaryFaces([]), /no floor solid input/);
   const a = room("a", { west: 0, east: 2, north: 0, south: 2 });
-  assert.throws(() => floorBoundaryFaces([a, room("b", { west: 1, east: 3, north: 0, south: 2 })]), /체적 중첩/);
-  assert.throws(() => floorBoundaryFaces([a, room("a", { west: 5, east: 6, north: 0, south: 1 })]), /중복 소유자/);
-  assert.throws(() => floorBoundaryFaces([room("n", { west: 0, east: NaN, north: 0, south: 1 })]), /유한한/);
-  assert.throws(() => floorBoundaryFaces([a, room("c", { west: 2 + 5e-10, east: 3, north: 0, south: 2 })]), /수치 한계/);
+  assert.throws(() => floorBoundaryFaces([a, room("b", { west: 1, east: 3, north: 0, south: 2 })]), /overlap in volume/);
+  assert.throws(() => floorBoundaryFaces([a, room("a", { west: 5, east: 6, north: 0, south: 1 })]), /duplicate owner/);
+  assert.throws(() => floorBoundaryFaces([room("n", { west: 0, east: NaN, north: 0, south: 1 })]), /finite/);
+  assert.throws(() => floorBoundaryFaces([a, room("c", { west: 2 + 5e-10, east: 3, north: 0, south: 2 })]), /numeric limit/);
 });
 
 void test("supports: body plus threshold make one outline; a ring of regions around a court makes a hole", () => {
@@ -60,7 +62,7 @@ void test("supports: body plus threshold make one outline; a ring of regions aro
   assert.equal(court!.surface.holes?.length, 1);
   near(planArea(court!.surface.polygon) + planArea(court!.surface.holes![0]!), 8);
   const islands: FloorInput = { ...ring, supports: [ring.supports[0]!, { id: "far", floor: 0, west: 10, east: 11, north: 0, south: 1 }] };
-  assert.throws(() => floorSupportSurfaces(islands), /분리/);
+  assert.throws(() => floorSupportSurfaces(islands), /separate/);
 });
 
 void test("deterministic and input-preserving", () => {

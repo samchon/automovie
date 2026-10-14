@@ -1,11 +1,12 @@
 /**
  * One compiled subject addressed independently from a film-time review target.
  *
- * The shot identifies the compiled artifact that owns the stable subject id. It
- * is not a claim that the subject review observes that shot or its camera.
+ * The shot qualifies the compiled artifact that owns the subject; inspection uses its own viewpoint rather than that shot's film camera.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity Keeps the review address on one stable authored subject and revision-bearing compiled artifact.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record Types the artifact-qualified address used to resolve one subject record.
+ * @evidence contracts/common.md#principled-implementation A shot artifact id and namespaced subject address resolve one exact compiled subject through shared inspection, preventing identically named subjects from another artifact from sharing coverage.
+ * @evidence contracts/common.md#clear-and-simple-design Two identifiers provide artifact qualification without a frame index or an unrelated film-time target.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The shot address does not imply that its delivery camera observed this subject; viewpoint authority remains with inspection and missing subjects refuse resolution.
+ * @evidence contracts/common.md#meaningful-documentation Defines compiled artifact qualification, stable namespaced subject identity and independence from the shot's camera.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewTarget {

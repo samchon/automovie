@@ -5,41 +5,23 @@ import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
- * Validate a mesh's Tier-5 topology (the codified `"topology"` violation kind,
- * previously declared but never emitted). It resolves physical correspondence
- * when declared and welds legacy vertices by current position, then
- * checks the two invariants EVERY valid triangle mesh must satisfy, regardless
- * of whether it is a closed solid or an open surface:
+ * Run shared welded topology checks with caller-selected closedness policy and return canonical validation.
  *
- * - **2-manifold:** no edge is shared by more than two triangles (a "fin", a
- *   third face growing out of an edge, cannot bound a surface).
- * - **Consistent winding:** two triangles adjacent on an edge traverse it in
- *   opposite directions, so their outward faces agree (the glTF front-face
- *   contract a renderer culls against).
- *
- * These are ERRORS: a mesh violating them is structurally broken, not merely
- * implausible. **Watertightness** (no boundary/open edges) is context-dependent
- * (a plane, decal, or cloth is a legitimate open mesh), so it is only checked
- * when the caller sets `expectClosed` (a baked solid, a collision proxy).
- *
- * The check assumes structurally-valid buffers (positions a multiple of 3,
- * indices whole triangles in range); on malformed input it returns without a
- * topology verdict, leaving the structural report to {@link validateModel}'s
- * mesh checks. Malformed explicit physical correspondence is always a named
- * refusal, including on an otherwise malformed mesh. Coordinate-collapsed
- * triangles remain redundant; this topology verdict does not certify area or
- * absence of geometric intersections. Tessellated primitives are watertight
- * by construction and pass; the beneficiary is imported or authored mesh geometry validated
- * through `validateModel`.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation `validateMeshTopology` reports non-manifold edges and inconsistent shared-edge winding at the standalone mesh root.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `validateMeshTopology` preserves each welded edge identity and observed incidence count or orientation beside the topology constraint.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Run shared welded topology checks over IAutoMovieMesh's typed buffer containers with caller-selected closedness policy and return canonical validation; array-container shape is not independently admitted here.
+ * @evidence contracts/common.md#clear-and-simple-design appendMeshTopology owns finite buffer admission, winding and manifold-edge checks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Open meshes are allowed unless watertightness is requested; malformed containers can throw before topology checks, and this does not prove global embedded-surface self-intersection freedom.
+ * @evidence contracts/common.md#meaningful-documentation The topology policy and caller path are explicit, preserving ordered mesh faults.
+ * @evidence contracts/performance.md#efficient-algorithms Mesh coordinate/index size and welded edge inventory drive time/storage through the shared analyzer.
+ * @evidence contracts/performance.md#reuse-equivalent-work No duplicate weld/edge implementation is kept in the public result wrapper.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns result rows while analyzer tables release; no native mesh resource is retained.
  */
-export const validateMeshTopology = (
+export const validateMeshTopology: (
+  props: IAutoMovieMeshTopologyValidationProps,
+) => IAutoMovieValidation = (
   props: IAutoMovieMeshTopologyValidationProps,
 ): IAutoMovieValidation => {
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   appendMeshTopology(
     props.mesh,
     props.path ?? "$input",

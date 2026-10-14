@@ -1,112 +1,58 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * One bounded decorative spray emitter: the mist of a fountain jet or the
- * curtain at the foot of a water wall.
+ * One bounded decorative spray emitter outside the conserved depth field.
  *
- * Spray is deterministic from `seed` and the particle index alone, so seeking
- * to a time reproduces the same particles regardless of what was sampled
- * before, and it is bounded twice: by `maxParticles` and by distance thinning.
+ * Seed and spawn index determine launch jitter; the supplied state/time and camera distance determine live positions and population. Samples retain no earlier result, and distance thinning precedes maxParticles.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `IAutoMovieFluidSpray` as the portable data boundary for the interior fluid flow spray requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieFluidSpray` for the interior space water feature fluid domain system contract.
+ * Particle i launches at i / rate domain-clock seconds and follows a ballistic arc under solver.gravity. Every live particle uses the nozzle height from the currently supplied cell free surface, rather than retained launch-time water history. Particles collide with neither bed, walls nor solid cells; validation requires a nonsolid in-grid emitter cell and a nonblank id unique among the domain's sprays.
+ *
+ * @evidence contracts/common.md#principled-implementation `sampleFluidSpray` derives each particle's direction from `seededValue(seed, index, axis salt)` and its position from `p0 + d * speed * age - g * age² / 2 * y`, so a sample is a pure function of the emitter, the solved state and the camera distance.
+ * @evidence contracts/common.md#clear-and-simple-design Spray is an emitter description with no particle state, kept beside the conserved field on the domain but outside its mass balance, so the solver never reads it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine applies thinning and the hard cap before projection, rather than asking a renderer to select a population. Particles ignore geometry; jitter cancellation, an unrepresentable finite-axis norm, extreme spawn-index products and ballistic overflow have no separate result-admission gate, so finite authored fields alone do not prove a finite or visually faithful sample.
+ * @evidence contracts/common.md#meaningful-documentation States the determinism, both bounds and their order, the launch time, the nozzle position and that it follows the sampled surface, the absent collisions, and the validation rules; members give units, ranges and how each value shapes the sample.
+ * @author Samchon
  */
 export interface IAutoMovieFluidSpray {
-  /**
-   * Stable emitter identity within the domain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `id` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `id` for the interior space water feature fluid domain system contract.
-   */
+  /** Stable emitter identity within the domain. */
   id: string;
 
-  /**
-   * Cell column the emitter sits in; `0 <= column < grid.columns`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `column` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `column` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell column the emitter sits in; `0 <= column < grid.columns`. */
   column: number;
 
-  /**
-   * Cell row the emitter sits in; `0 <= row < grid.rows`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `row` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `row` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell row the emitter sits in; `0 <= row < grid.rows`. */
   row: number;
 
-  /**
-   * Particles spawned per second; strictly positive.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `rate` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `rate` for the interior space water feature fluid domain system contract.
-   */
+  /** Particles spawned per second; finite and strictly positive. */
   rate: number;
 
-  /**
-   * Particle lifetime in seconds; strictly positive.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `lifetime` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `lifetime` for the interior space water feature fluid domain system contract.
-   */
+  /** Particle lifetime in seconds; finite and strictly positive. */
   lifetime: number;
 
-  /**
-   * Launch speed in m/s along {@link direction}; `>= 0`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `speed` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `speed` for the interior space water feature fluid domain system contract.
-   */
+  /** Launch speed in m/s along {@link direction}; finite and `>= 0`. */
   speed: number;
 
-  /**
-   * Launch direction; must not be the zero vector and need not be unit.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `direction` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `direction` for the interior space water feature fluid domain system contract.
-   */
+  /** Launch direction; finite, not the zero vector, and need not be unit. */
   direction: IAutoMovieVector3;
 
   /**
-   * Symmetric per-axis jitter added to the normalized launch direction, in the
-   * closed range `[0, 1]`. `0` emits a perfectly collimated jet.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `spread` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `spread` for the interior space water feature fluid domain system contract.
+   * Symmetric per-axis jitter amplitude in [0, 1], added to the normalized launch direction before another normalization. Zero removes jitter; derived-direction degeneracies are not independently admitted.
    */
   spread: number;
 
-  /**
-   * World billboard size of one particle in metres; strictly positive.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `size` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `size` for the interior space water feature fluid domain system contract.
-   */
+  /** World billboard size of one particle in metres; finite and positive. */
   size: number;
 
-  /**
-   * Deterministic seed; any safe integer.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `seed` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `seed` for the interior space water feature fluid domain system contract.
-   */
+  /** Deterministic seed; any safe integer. */
   seed: number;
 
   /**
-   * Hard cap on simultaneously live particles; a positive integer.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `maxParticles` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `maxParticles` for the interior space water feature fluid domain system contract.
+   * Hard live-particle cap per sample, a safe integer within [1, 4096], applied after distance thinning and retaining the newest survivors.
    */
   maxParticles: number;
 
   /**
-   * Camera distance in metres past which the live set is deterministically
-   * thinned; strictly positive.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes `lodDistance` as the portable data boundary for the interior fluid flow spray requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `lodDistance` for the interior space water feature fluid domain system contract.
+   * Strictly positive finite metres per thinning level. Spawn indices must be divisible by 1 + floor(max(cameraDistance, 0) / lodDistance); distances below lodDistance thin nothing.
    */
   lodDistance: number;
 }

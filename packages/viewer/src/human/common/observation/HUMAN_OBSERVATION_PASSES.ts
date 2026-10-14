@@ -23,10 +23,7 @@
  *   alpha, without lights, fog or tone mapping. Custom shaders refuse.
  * - `wire` draws the triangle edges: it shows mesh density and topology and
  *   nothing of the lit surface.
- * - `outline` draws a white surface with a dark rim two screen pixels wide
- *   where the silhouette or a self-occluding fold ends: it shows the outer
- *   contour and occlusion boundaries at the current camera, and nothing about
- *   surface shape inside a flat region.
+ * - `outline` draws a white surface with a dark rim where the silhouette or a self-occluding fold ends. Its local normal extrusion targets two CSS pixels at the subject-centre distance; perspective depth, mesh scale and projection zoom can change the observed width. It shows contour and occlusion boundaries at the current camera, and nothing about surface shape inside a flat region.
  */
 export const HUMAN_OBSERVATION_PASSES = [
   "beauty",

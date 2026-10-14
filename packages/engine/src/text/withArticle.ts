@@ -1,33 +1,20 @@
 /**
- * `value` with the indefinite article that belongs in front of it.
+ * Prefix a diagnostic subject with an article selected from its first written letter: a/e/i/o/u choose an, everything else chooses a. Empty strings choose a. Case is ignored for the first letter; the original subject is retained.
  *
- * A diagnostic written as `` `a ${subject}` `` reads as `a opening` the moment
- * the union it interpolates carries a vowel-initial member, and the unions this
- * package names in its diagnostics keep growing: light types, action verbs,
- * analysis domains, schedule subjects. Deriving the article from the value
- * rather than typing it beside the value is what makes that growth safe — the
- * article cannot drift from the word it introduces, because there is only one
- * place it comes from.
+ * This spelling heuristic serves diagnostic labels and does not infer pronunciation. Values such as unit, hour, acronyms and numeral-led strings can need a different spoken article; arbitrary strings from malformed input are not guaranteed grammatical.
  *
- * The choice is made from spelling, which is exactly right for the values this
- * package interpolates and wrong for English at large. Every one of them is a
- * lowercase ASCII name of this project's own coining, so the letter is the
- * sound. The three classes that read against the rule — a `u` that says "you"
- * (`a unit`), a silent `h` (`an hour`), and an `o` that says "wun" (`a one-way
- * route`) — cannot arrive from those unions, and a value that could belongs in
- * a sentence written for it rather than in this helper.
- *
- * A number is not accepted. `an 8-byte chunk` is correct English and the rule
- * that produces it is a different one, read off the spoken numeral rather than
- * the leading character; the diagnostics that would need it say `a chunk of
- * ${n} bytes` instead, which needs no article agreement at all.
- *
- * @internal
+ * @evidence contracts/common.md#principled-implementation Checks the lowercase first code unit against a fixed vowel-letter set, a spelling heuristic rather than a general English phonetic rule; missing first code unit uses the consonant branch.
+ * @evidence contracts/common.md#clear-and-simple-design One diagnostic formatting helper shared by light, action and analysis messages; it performs no source-text grading, admission or rewriting of the supplied subject.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every subject follows the same first-letter membership rule; no fixture, action or light kind gets its own article exception, and pronunciation limitations remain explicit.
+ * @evidence contracts/common.md#meaningful-documentation States first-letter selection, case handling, empty-string behavior, original-text preservation and pronunciation/numeral limitations.
+ * @evidence contracts/performance.md#efficient-algorithms First-letter classification takes constant work; producing the prefixed string uses output-length storage under the host's string representation, with no scan of prior messages.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shares one fixed vowel-letter set and computes each current subject independently; it coordinates no requests or effects.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module retains five fixed letters and the caller owns each result string; no subject, message history or resource handle is retained.
  */
-export const withArticle = (value: string): string =>
+export const withArticle: (value: string) => string = (value: string): string =>
   `${VOWEL_LETTERS.has((value[0] ?? "").toLowerCase()) ? "an" : "a"} ${value}`;
 
 /**
  * The letters that take `an` in front of a name of this project's coining.
  */
-const VOWEL_LETTERS = new Set(["a", "e", "i", "o", "u"]);
+const VOWEL_LETTERS: ReadonlySet<string> = new Set(["a", "e", "i", "o", "u"]);

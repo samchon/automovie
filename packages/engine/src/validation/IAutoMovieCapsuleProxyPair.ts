@@ -1,29 +1,21 @@
-import { IAutoMovieCapsuleProxy } from "./validateCapsule";
+import { IAutoMovieCapsuleProxy } from "@automovie/interface";
 
 /**
- * Explicit capsule pair to test for overlap.
+ * Declare one capsule pair to include in a self-intersection check.
  *
- * Pairing is explicit because adjacent anatomical capsules often share joints
- * and should not be treated as self-intersections.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieCapsuleProxyPair` binds the two explicitly selected body proxies to one self-overlap validation entry.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieCapsuleProxyPair` provides the pair index and endpoint identities needed to reconstruct an affected capsule relation.
+ * @evidence contracts/common.md#principled-implementation Explicit pairing defines the checked population because neighboring anatomical capsules can share joints; each proxy still requires distinct reachable endpoints and a positive radius.
+ * @evidence contracts/common.md#clear-and-simple-design Pair selection is authored separately from the canonical capsule admission and distance owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted pairs are not inferred as safe or tested automatically, and this record does not certify topology or continuous collision freedom.
+ * @evidence contracts/common.md#meaningful-documentation Documents the exact pair population and why adjacent joint-sharing proxies may be omitted deliberately.
+ * @evidence contracts/performance.md#efficient-algorithms The record has constant data shape; the consumer's work grows with declared pairs, sampled frames and FK resolution.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both supplied proxy records are borrowed by the check; the type introduces no duplicate geometry or cached intersection result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the pair and proxies, with no sampled maps, simulation task or host resource retained by the type.
  * @author Samchon
  */
 export interface IAutoMovieCapsuleProxyPair {
-  /**
-   * First capsule in the pair.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `first` identifies the first bone segment and radius participating in the declared overlap test.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `first` retains its own endpoint fields so malformed proxy input is reported under the first pair arm.
-   */
+  /** First capsule in the pair. */
   first: IAutoMovieCapsuleProxy;
 
-  /**
-   * Second capsule in the pair.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `second` identifies the comparison segment whose distance from the first proxy determines penetration.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `second` keeps its endpoint and radius address separate from the other arm of the capsule relation.
-   */
+  /** Second capsule in the pair. */
   second: IAutoMovieCapsuleProxy;
 }

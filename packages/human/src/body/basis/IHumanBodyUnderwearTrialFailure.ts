@@ -6,10 +6,15 @@ import type { IHumanBodyUnderwearSurfaceViolation } from "./IHumanBodyUnderwearS
 /**
  * An original unmet condition or candidate-domain refusal during whole-mesh globalization.
  *
- * The original reading is an observation about that candidate, not an input
- * repair or a permitted geometry. Revised connected proposals still use the same forward
- * evaluator and final acceptance conditions.
+ * The original reading is an observation about that candidate, not an input repair or a permitted geometry. Revised connected proposals still use the same forward evaluator and final acceptance conditions.
  *
+ * @evidence contracts/common.md#principled-implementation Original connected candidate coordinates, phase/step and raw forward/derivative/merit failures retain the actual trial's model-domain provenance.
+ * @evidence contracts/common.md#clear-and-simple-design Optional proposal/evaluation history stays beside required failure cause and base while final candidate conditions remain evaluator-owned.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unmet trial is an observation, not input repair or permitted geometry; null readings and omitted derivatives never become substituted values.
+ * @evidence contracts/common.md#meaningful-documentation Members give owned meter coordinates, dimensionless step/objective, optional historical outputs and unevaluated-domain meanings.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Trial-failure typing performs no whole-mesh globalization or forward condition evaluation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Original trial records describe distinct candidates without implementing evaluator or native-program caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retained trial geometry/history can grow with fitting work; the fitting owner sets that bound and this schema acquires no native handles.
  * @author Samchon
  */
 export interface IHumanBodyUnderwearTrialFailure {

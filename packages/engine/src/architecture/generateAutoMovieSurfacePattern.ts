@@ -1,9 +1,8 @@
+import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
-import { convexHull2D } from "../math/convexHull2D";
-import { positiveModulo } from "../math/positiveModulo";
 import { seededValue } from "../math/seededValue";
 import { IAutoMoviePatternCandidate } from "./IAutoMoviePatternCandidate";
-import { IAutoMoviePatternFinding } from "./IAutoMoviePatternFinding";
+import { IAutoMoviePatternExclusion } from "./IAutoMoviePatternExclusion";
 import { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";
 import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 import { IAutoMoviePatternQuantities } from "./IAutoMoviePatternQuantities";
@@ -11,182 +10,226 @@ import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantiti
 import { IAutoMovieSurfacePattern } from "./IAutoMovieSurfacePattern";
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
+import { autoMoviePatternFindings } from "./autoMoviePatternFindings";
+import { autoMoviePatternPolygonArea } from "./autoMoviePatternPolygonArea";
+import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPolygon";
+import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
 import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./constants/AUTOMOVIE_MAX_PATTERN_CELLS";
 
 /** Domain constant separating variant draws from every other seeded decision. */
-const VARIANT_DOMAIN = 0x7061_7474;
+const VARIANT_DOMAIN: number = 0x7061_7474;
 
 /** Smallest square metre area counted as real coverage. */
-const AREA_EPSILON = 1e-12;
+const AREA_EPSILON: number = 1e-12;
 
-/** Smallest metre length counted as a real gap or overlap. */
-const LENGTH_EPSILON = 1e-9;
+/**
+ * The inclusive span of a face-local outline on both axes, in metres.
+ *
+ * @author Samchon
+ */
+interface IPatternSpan {
+  /** Least U coordinate. */
+  minU: number;
 
-/** Smallest surviving-fraction shortfall counted as a real sliver. */
-const COVERAGE_EPSILON = 1e-12;
+  /** Greatest U coordinate. */
+  maxU: number;
+
+  /** Least V coordinate. */
+  minV: number;
+
+  /** Greatest V coordinate. */
+  maxV: number;
+}
 
 /**
  * Lay one pattern and measure exactly what was laid.
  *
- * The run is a fixed sequence so two runs of the same declaration produce
- * byte-identical output on every platform: zones in declaration order, lattice
- * rows outermost and columns innermost, and each cell's modules in the order
- * the author's generator returned them. Nothing samples a clock, a hash
- * iteration order, or `Math.random`; the only randomness is {@link seededValue},
- * drawn from the pattern seed and the occurrence id.
+ * With stable input and a pure generator, the fixed sequence is repeatable in the same numerical runtime: zones in declaration order, rows outermost, columns innermost and candidates in generator order. Engine code samples neither clock nor `Math.random`; variants use {@link seededValue} with the pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a caller premise.
  *
  * Every module is clipped to its own zone region, then measured against every
  * exclusion. A module the region rejects entirely is not a zero-area
- * occurrence, it is absent. What survives carries the coverage it kept, why it
- * was cut, and the identity that the mesh, the instance slot, the finish, and
- * the take-off all cite, so a quantity can be traced back to the exact piece it
- * counted.
+ * occurrence, it is absent, and so is one an exclusion covers entirely. What
+ * survives carries the coverage it kept, why it was cut, and the identity that
+ * the mesh, the instance slot, the finish, and the take-off all cite, so a
+ * quantity can be traced back to the exact piece it counted. Quantities are
+ * reported per zone and in total, and quality is judged by
+ * {@link autoMoviePatternFindings}.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `generateAutoMovieSurfacePattern` lays one pattern and measures exactly what was laid. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `generateAutoMovieSurfacePattern` performs auto movie surface pattern generation when the engine resolves the declared physical-module pattern deterministically.
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-cuts-borders `generateAutoMovieSurfacePattern` clips lattice cells against zones and exclusions, distinguishes full, cut, and unsupported pieces, enforces minimum pieces, and reports exact waste.
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-deterministic-variation `generateAutoMovieSurfacePattern` derives each occurrence variant from the stable pattern seed and stable occurrence identity instead of draw order or frame time.
- * @evidence requirements/interior/grain-seams-and-continuity.md#interior-grain-continuity-evidence `generateAutoMovieSurfacePattern` returns each piece identity, outline, grain, mirror and variant together with measured grain-break findings.
- * @evidence requirements/interior/joints-edges-and-transitions.md#interior-joint-repetition-exception `generateAutoMovieSurfacePattern` applies explicit zone and exclusion overrides to the repeated joint lattice without changing unaffected occurrences.
- * @evidence requirements/interior/joints-edges-and-transitions.md#interior-joint-validation `generateAutoMovieSurfacePattern` emits overlap, joint-deviation, sliver, unsupported-piece, and grain-break findings at the exact affected occurrence.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-joint-edge-grain-continuity The result preserves piece-level grain and joint observations needed to validate the laid surface without claiming source-stock provenance.
- * @evidence requirements/building-exterior/patterns-and-instances.md#building-exterior-pattern-continuity `generateAutoMovieSurfacePattern` lays the same developed lattice through declared exterior facets, cuts, exclusions, and stable occurrence identities.
- * @evidence specifications/building-envelope/external-assets-patterns-and-instances.md#building-envelope-pattern-input-output The generator consumes the declared exterior pattern domain and returns deterministic pieces, cuts, variants, findings, and quantities.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-physical-module `generateAutoMovieSurfacePattern` expands the declared physical module, period, offset, reach, and host zones into measured piece geometry and quantities.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-procedural-rule `generateAutoMovieSurfacePattern` executes only the declared generator, zone, lattice, clipping, and exclusion rules rather than inferring a decorative layout.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-deterministic-variation `generateAutoMovieSurfacePattern` derives bounded variants from the stable seed and occurrence identity so traversal and frame order cannot change them.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-boundary-exception `generateAutoMovieSurfacePattern` retains clipped and excluded boundary occurrences as separately identified cut pieces or explicit unsupported findings.
- * @evidence requirements/asset-authoring/patterns-and-procedural-composition.md#asset-pattern-local-stability `generateAutoMovieSurfacePattern` preserves every unaffected stable occurrence identity when a local zone, exclusion, or cut changes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-procedural-pattern-inputs The generator consumes explicit module, domain, seed, boundary, and exception inputs and returns deterministic occurrence identities, geometry, variants, and findings.
- * @evidence requirements/interior/groups-instances-and-repetition.md#interior-group-bounded-expansion `generateAutoMovieSurfacePattern` refuses a repeated surface expansion beyond its exported cell ceiling before materializing occurrences.
- * @evidence requirements/interior/groups-instances-and-repetition.md#interior-group-identity-preservation `generateAutoMovieSurfacePattern` derives stable occurrence identities and keeps clipped boundary exceptions distinct from full repeated pieces.
- * @evidence specifications/interior-space/external-assets-and-groups.md#interior-space-repeated-group-identity The generator implements the bounded repeated-piece identity subset without claiming arbitrary nested subject groups or room-storey repetition.
+ * Coordinates are the surface's planar (u, v) metres and angles are degrees. A malformed declaration throws an `Error` naming the field: blank or duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion, overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells, non-safe-integer derived lattice bounds, or a generated module reaching beyond its cell's declared reach. Quality defects are not thrown; they are returned as `findings` (sliver, unsupported-piece, module-overlap, joint-deviation, grain-break).
+ *
+ * @param props.pattern The declaration to lay.
+ * @returns The pattern id, every surviving placement, the quantities, and the quality findings.
+ *
+ * @evidence contracts/common.md#principled-implementation Enumerates safe-integer lattice bounds, clips rectangles against canonical convex outlines and measures binary64 shoelace areas. Zone/exclusion overlap beyond tolerance is refused; smaller overlaps can affect accounting. A run-wide set refuses collisions in slash-composed surviving occurrence ids without restricting authored characters. FNV-1a hashing and `seededValue` stabilize variants, without asserting collision-free hashes or cross-platform transcendental bit identity.
+ * @evidence contracts/common.md#clear-and-simple-design The run owns laying and quantities; clipping, canonical outlines and area live in `clipAutoMoviePatternPolygon`, `canonicalAutoMoviePatternPolygon` and `autoMoviePatternPolygonArea`, and quality judgement in `autoMoviePatternFindings`, and every zone region is canonicalized once and reused for the overlap check and the clip.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no zone, module or material. The shared cell cap refuses oversized enumerations, and derived safe-integer bounds ensure incrementing loop indexes advances. Area tolerances define accepted discrepancies rather than proving every floating-point error is bounded.
+ * @evidence contracts/common.md#meaningful-documentation States the fixed run order and the only source of randomness, when a module is absent, what each placement carries, the units, every thrown refusal, and that quality defects are returned rather than thrown.
+ * @evidence contracts/performance.md#efficient-algorithms Canonical hulls cost the sum of n log n over authored outline sizes. Performs Z² zone and E² exclusion clips, whose costs depend on outline vertices, then capped cell enumeration plus arbitrary generator work and one region/E exclusion clips per candidate. Adds id hashing, quantity folds and the full `autoMoviePatternFindings` partner/geometry/sort cost; candidate count and callback time are not bounded by the cell cap.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lays one declaration per call; the generator is the author's code and may not be pure, so no earlier run's placements are reused.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Placements/outlines and the run-wide occurrence-id set grow with survivors; each zone's seen-id set grows with all generated candidates including discarded ones. Findings can grow quadratically and callback output has no fixed cap. Local sets/clip arrays are released after use; the caller owns returned records.
  */
-export const generateAutoMovieSurfacePattern = (props: {
+export const generateAutoMovieSurfacePattern: (props: {
+  pattern: IAutoMovieSurfacePattern;
+}) => IAutoMovieSurfacePatternResult = (props: {
   pattern: IAutoMovieSurfacePattern;
 }): IAutoMovieSurfacePatternResult => {
-  const { pattern } = props;
-  const exclusions = validatePattern(pattern);
+  const { pattern }: { pattern: IAutoMovieSurfacePattern } = props;
+  const exclusions: IAutoMoviePatternPoint[][] = validatePattern(pattern);
+  const regions: IAutoMoviePatternPoint[][] = pattern.zones.map(
+    (
+      zone: IAutoMovieSurfacePatternZone,
+      index: number,
+    ): IAutoMoviePatternPoint[] =>
+      canonicalAutoMoviePatternPolygon(
+        zone.region,
+        `pattern zone[${index}] region`,
+      ),
+  );
   const placements: IAutoMoviePatternPlacement[] = [];
+  const occurrenceIds: Set<string> = new Set();
   const zoneQuantities: IAutoMoviePatternZoneQuantities[] = [];
 
-  pattern.zones.forEach((zone, zoneIndex) => {
-    const region = convexPolygon(
-      zone.region,
-      `pattern zone[${zoneIndex}] region`,
-    );
-    for (let other = 0; other < zoneIndex; ++other)
-      if (
-        polygonArea(
-          clipConvex(
-            region,
-            convexPolygon(
-              pattern.zones[other]!.region,
-              `pattern zone[${other}] region`,
+  pattern.zones.forEach(
+    (zone: IAutoMovieSurfacePatternZone, zoneIndex: number): void => {
+      const region: IAutoMoviePatternPoint[] = regions[zoneIndex]!;
+      for (let other: number = 0; other < zoneIndex; ++other)
+        if (overlapArea(region, regions[other]!) > AREA_EPSILON)
+          throw new Error(
+            `pattern zones "${pattern.zones[other]!.id}" and "${zone.id}" overlap`,
+          );
+      const start: number = placements.length;
+      layZone(pattern, zone, region, exclusions, placements, occurrenceIds);
+      zoneQuantities.push(
+        summarize(
+          zone.id,
+          placements.slice(start),
+          autoMoviePatternPolygonArea(region) -
+            exclusions.reduce(
+              (sum: number, exclusion: IAutoMoviePatternPoint[]): number =>
+                sum + overlapArea(region, exclusion),
+              0,
             ),
-          ),
-        ) > AREA_EPSILON
-      )
-        throw new Error(
-          `pattern zones "${pattern.zones[other]!.id}" and "${zone.id}" overlap`,
-        );
-    const bounds = boundsOf(region);
-    const columns = latticeRange(
-      bounds.minU,
-      bounds.maxU,
-      zone.origin.u,
-      zone.period.u,
-      zone.reach.u,
-    );
-    const rows = latticeRange(
-      bounds.minV,
-      bounds.maxV,
-      zone.origin.v,
-      zone.period.v,
-      zone.reach.v,
-    );
-    const cells = (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-    if (cells > AUTOMOVIE_MAX_PATTERN_CELLS)
-      throw new Error(
-        `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
+        ),
       );
-    const netRegionArea =
-      polygonArea(region) -
-      exclusions.reduce(
-        (sum, exclusion) => sum + polygonArea(clipConvex(region, exclusion)),
-        0,
-      );
-    const seen = new Set<string>();
-    const start = placements.length;
-    for (let row = rows.min; row <= rows.max; ++row)
-      for (let column = columns.min; column <= columns.max; ++column) {
-        const origin = {
-          u: zone.origin.u + column * zone.period.u,
-          v: zone.origin.v + row * zone.period.v,
-        };
-        for (const candidate of zone.generate({
-          column,
-          row,
-          origin,
-          period: { u: zone.period.u, v: zone.period.v },
-        })) {
-          const outline = clipConvex(
-            validateCandidate(zone, candidate, origin, seen),
-            region,
-          );
-          const clipped = polygonArea(outline);
-          if (clipped <= AREA_EPSILON) continue;
-          const removed = exclusions.reduce(
-            (sum, exclusion) =>
-              sum + polygonArea(clipConvex(outline, exclusion)),
-            0,
-          );
-          const area = clipped - removed;
-          if (area <= AREA_EPSILON) continue;
-          const moduleArea = candidate.size.u * candidate.size.v;
-          const id = `${zone.id}/${candidate.id}`;
-          const boundaryCut = clipped < moduleArea - AREA_EPSILON;
-          const punched = removed > AREA_EPSILON;
-          placements.push({
-            id,
-            zone: zone.id,
-            module: candidate.id,
-            material: zone.material,
-            center: { u: candidate.center.u, v: candidate.center.v },
-            size: { u: candidate.size.u, v: candidate.size.v },
-            rotationDeg: candidate.rotationDeg,
-            grainDeg: candidate.grainDeg,
-            mirror: candidate.mirror,
-            area,
-            coverage: area / moduleArea,
-            cut:
-              boundaryCut && punched
-                ? "both"
-                : boundaryCut
-                  ? "boundary"
-                  : punched
-                    ? "exclusion"
-                    : "none",
-            variant: variantOf(pattern, id),
-            outline,
-            punchedArea: punched ? removed : 0,
-          });
-        }
-      }
-    zoneQuantities.push(
-      summarize(zone.id, placements.slice(start), netRegionArea),
-    );
-  });
+    },
+  );
 
   return {
     id: pattern.id,
     placements,
     quantities: totalQuantities(pattern, placements, zoneQuantities),
-    findings: findingsOf(pattern, placements),
+    findings: autoMoviePatternFindings(pattern, placements),
   };
 };
 
-const validatePattern = (
+/** Enumerate one zone's lattice and append every surviving piece. */
+const layZone: (
+  pattern: IAutoMovieSurfacePattern,
+  zone: IAutoMovieSurfacePatternZone,
+  region: readonly IAutoMoviePatternPoint[],
+  exclusions: readonly IAutoMoviePatternPoint[][],
+  placements: IAutoMoviePatternPlacement[],
+  occurrenceIds: Set<string>,
+) => void = (
+  pattern: IAutoMovieSurfacePattern,
+  zone: IAutoMovieSurfacePatternZone,
+  region: readonly IAutoMoviePatternPoint[],
+  exclusions: readonly IAutoMoviePatternPoint[][],
+  placements: IAutoMoviePatternPlacement[],
+  occurrenceIds: Set<string>,
+): void => {
+  const span: IPatternSpan = spanOf(region);
+  const columns: { min: number; max: number } = latticeRange(
+    span.minU,
+    span.maxU,
+    zone.origin.u,
+    zone.period.u,
+    zone.reach.u,
+  );
+  const rows: { min: number; max: number } = latticeRange(
+    span.minV,
+    span.maxV,
+    zone.origin.v,
+    zone.period.v,
+    zone.reach.v,
+  );
+  const cells: number =
+    (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
+  if (
+    !Number.isSafeInteger(cells) ||
+    cells < 1 ||
+    cells > AUTOMOVIE_MAX_PATTERN_CELLS
+  )
+    throw new Error(
+      `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
+    );
+  const seen: Set<string> = new Set();
+  for (let row: number = rows.min; row <= rows.max; ++row)
+    for (let column: number = columns.min; column <= columns.max; ++column) {
+      const origin: IAutoMoviePatternPoint = {
+        u: zone.origin.u + column * zone.period.u,
+        v: zone.origin.v + row * zone.period.v,
+      };
+      for (const candidate of zone.generate({
+        column,
+        row,
+        origin,
+        period: { u: zone.period.u, v: zone.period.v },
+      })) {
+        const outline: IAutoMoviePatternPoint[] = clipAutoMoviePatternPolygon(
+          validateCandidate(zone, candidate, origin, seen),
+          region,
+        );
+        const clipped: number = autoMoviePatternPolygonArea(outline);
+        if (clipped <= AREA_EPSILON) continue;
+        const removed: number = exclusions.reduce(
+          (sum: number, exclusion: IAutoMoviePatternPoint[]): number =>
+            sum + overlapArea(outline, exclusion),
+          0,
+        );
+        const area: number = clipped - removed;
+        if (area <= AREA_EPSILON) continue;
+        const moduleArea: number = candidate.size.u * candidate.size.v;
+        const id: string = `${zone.id}/${candidate.id}`;
+        if (occurrenceIds.has(id))
+          throw new Error(
+            `pattern occurrence id "${id}" is ambiguous across zones and modules`,
+          );
+        occurrenceIds.add(id);
+        const boundaryCut: boolean = clipped < moduleArea - AREA_EPSILON;
+        const punched: boolean = removed > AREA_EPSILON;
+        placements.push({
+          id,
+          zone: zone.id,
+          module: candidate.id,
+          material: zone.material,
+          center: { u: candidate.center.u, v: candidate.center.v },
+          size: { u: candidate.size.u, v: candidate.size.v },
+          rotationDeg: candidate.rotationDeg,
+          grainDeg: candidate.grainDeg,
+          mirror: candidate.mirror,
+          area,
+          coverage: area / moduleArea,
+          cut:
+            boundaryCut && punched
+              ? "both"
+              : boundaryCut
+                ? "boundary"
+                : punched
+                  ? "exclusion"
+                  : "none",
+          variant: variantOf(pattern, id),
+          outline,
+          punchedArea: punched ? removed : 0,
+        });
+      }
+    }
+};
+
+/** Check the declaration's own fields and canonicalize its exclusions. */
+const validatePattern: (
+  pattern: IAutoMovieSurfacePattern,
+) => IAutoMoviePatternPoint[][] = (
   pattern: IAutoMovieSurfacePattern,
 ): IAutoMoviePatternPoint[][] => {
   nonBlank(pattern.id, "pattern id");
@@ -208,36 +251,42 @@ const validatePattern = (
   if (!Number.isSafeInteger(pattern.variants) || pattern.variants < 1)
     throw new Error("pattern variants must be a safe integer >= 1");
 
-  const zoneIds = new Set<string>();
-  pattern.zones.forEach((zone, index) => {
-    nonBlank(zone.id, `pattern zone[${index}] id`);
-    if (zoneIds.has(zone.id))
-      throw new Error(`pattern zone id "${zone.id}" must be unique`);
-    zoneIds.add(zone.id);
-    finitePoint(zone.origin, `pattern zone "${zone.id}" origin`);
-    positive(zone.period.u, `pattern zone "${zone.id}" period u`);
-    positive(zone.period.v, `pattern zone "${zone.id}" period v`);
-    positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
-    positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
-  });
+  const zoneIds: Set<string> = new Set();
+  pattern.zones.forEach(
+    (zone: IAutoMovieSurfacePatternZone, index: number): void => {
+      nonBlank(zone.id, `pattern zone[${index}] id`);
+      if (zoneIds.has(zone.id))
+        throw new Error(`pattern zone id "${zone.id}" must be unique`);
+      zoneIds.add(zone.id);
+      finitePoint(zone.origin, `pattern zone "${zone.id}" origin`);
+      positive(zone.period.u, `pattern zone "${zone.id}" period u`);
+      positive(zone.period.v, `pattern zone "${zone.id}" period v`);
+      positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
+      positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
+    },
+  );
 
-  const exclusionIds = new Set<string>();
-  const exclusions = pattern.exclusions.map((exclusion, index) => {
-    nonBlank(exclusion.id, `pattern exclusion[${index}] id`);
-    if (exclusionIds.has(exclusion.id))
-      throw new Error(`pattern exclusion id "${exclusion.id}" must be unique`);
-    exclusionIds.add(exclusion.id);
-    return convexPolygon(
-      exclusion.polygon,
-      `pattern exclusion "${exclusion.id}" polygon`,
-    );
-  });
-  for (let left = 0; left < exclusions.length; ++left)
-    for (let right = left + 1; right < exclusions.length; ++right)
-      if (
-        polygonArea(clipConvex(exclusions[left]!, exclusions[right]!)) >
-        AREA_EPSILON
-      )
+  const exclusionIds: Set<string> = new Set();
+  const exclusions: IAutoMoviePatternPoint[][] = pattern.exclusions.map(
+    (
+      exclusion: IAutoMoviePatternExclusion,
+      index: number,
+    ): IAutoMoviePatternPoint[] => {
+      nonBlank(exclusion.id, `pattern exclusion[${index}] id`);
+      if (exclusionIds.has(exclusion.id))
+        throw new Error(
+          `pattern exclusion id "${exclusion.id}" must be unique`,
+        );
+      exclusionIds.add(exclusion.id);
+      return canonicalAutoMoviePatternPolygon(
+        exclusion.polygon,
+        `pattern exclusion "${exclusion.id}" polygon`,
+      );
+    },
+  );
+  for (let left: number = 0; left < exclusions.length; ++left)
+    for (let right: number = left + 1; right < exclusions.length; ++right)
+      if (overlapArea(exclusions[left]!, exclusions[right]!) > AREA_EPSILON)
         throw new Error(
           `pattern exclusions "${pattern.exclusions[left]!.id}" and "${pattern.exclusions[right]!.id}" overlap`,
         );
@@ -251,7 +300,12 @@ const validatePattern = (
  * needs exactly those corners next, so they are returned rather than built a
  * second time in the innermost loop of the whole run.
  */
-const validateCandidate = (
+const validateCandidate: (
+  zone: IAutoMovieSurfacePatternZone,
+  candidate: IAutoMoviePatternCandidate,
+  origin: IAutoMoviePatternPoint,
+  seen: Set<string>,
+) => IAutoMoviePatternPoint[] = (
   zone: IAutoMovieSurfacePatternZone,
   candidate: IAutoMoviePatternCandidate,
   origin: IAutoMoviePatternPoint,
@@ -263,7 +317,7 @@ const validateCandidate = (
       `pattern zone "${zone.id}" module id "${candidate.id}" must be unique`,
     );
   seen.add(candidate.id);
-  const label = `pattern module "${zone.id}/${candidate.id}"`;
+  const label: string = `pattern module "${zone.id}/${candidate.id}"`;
   finitePoint(candidate.center, `${label} center`);
   positive(candidate.size.u, `${label} size u`);
   positive(candidate.size.v, `${label} size v`);
@@ -272,7 +326,7 @@ const validateCandidate = (
     !Number.isFinite(candidate.grainDeg)
   )
     throw new Error(`${label} rotation and grain must be finite`);
-  const corners = moduleCorners(candidate);
+  const corners: IAutoMoviePatternPoint[] = moduleCorners(candidate);
   for (const corner of corners)
     if (
       Math.abs(corner.u - origin.u) > zone.reach.u ||
@@ -287,42 +341,66 @@ const validateCandidate = (
 /**
  * The inclusive lattice range whose cells can still touch the region.
  *
- * A cell contributes when a module reaching {@link reach} from its origin can
- * still meet the region's own span, so the range is the region widened by the
- * reach and then divided by the pitch. Widening before dividing is what keeps a
+ * A cell contributes when a module reaching `reach` from its origin can still
+ * meet the region's own span, so the range is the region widened by the reach
+ * and then divided by the pitch. Widening before dividing is what keeps a
  * module laid across a cell border from being lost at the region's edge.
  */
-const latticeRange = (
+const latticeRange: (
   min: number,
   max: number,
   origin: number,
   period: number,
   reach: number,
-): { min: number; max: number } => ({
-  min: Math.floor((min - reach - origin) / period),
-  max: Math.ceil((max + reach - origin) / period),
-});
+) => { min: number; max: number } = (
+  min: number,
+  max: number,
+  origin: number,
+  period: number,
+  reach: number,
+): { min: number; max: number } => {
+  const range: { min: number; max: number } = {
+    min: Math.floor((min - reach - origin) / period),
+    max: Math.ceil((max + reach - origin) / period),
+  };
+  if (
+    !Number.isSafeInteger(range.min) ||
+    !Number.isSafeInteger(range.max) ||
+    range.min > range.max
+  )
+    throw new Error("pattern lattice bounds must be ordered safe integers");
+  return range;
+};
 
-const moduleCorners = (
+/** A module rectangle's four corners, counter-clockwise, turned in place. */
+const moduleCorners: (
+  candidate: IAutoMoviePatternCandidate,
+) => IAutoMoviePatternPoint[] = (
   candidate: IAutoMoviePatternCandidate,
 ): IAutoMoviePatternPoint[] => {
-  const angle = candidate.rotationDeg * Quaternion.DEG2RAD;
-  const cosine = Math.cos(angle);
-  const sine = Math.sin(angle);
-  const halfU = candidate.size.u / 2;
-  const halfV = candidate.size.v / 2;
+  const angle: number = candidate.rotationDeg * Quaternion.DEG2RAD;
+  const cosine: number = Math.cos(angle);
+  const sine: number = Math.sin(angle);
+  const halfU: number = candidate.size.u / 2;
+  const halfV: number = candidate.size.v / 2;
   return [
     { u: -halfU, v: -halfV },
     { u: halfU, v: -halfV },
     { u: halfU, v: halfV },
     { u: -halfU, v: halfV },
-  ].map((corner) => ({
-    u: candidate.center.u + corner.u * cosine - corner.v * sine,
-    v: candidate.center.v + corner.u * sine + corner.v * cosine,
-  }));
+  ].map(
+    (corner: IAutoMoviePatternPoint): IAutoMoviePatternPoint => ({
+      u: candidate.center.u + corner.u * cosine - corner.v * sine,
+      v: candidate.center.v + corner.u * sine + corner.v * cosine,
+    }),
+  );
 };
 
-const variantOf = (pattern: IAutoMovieSurfacePattern, id: string): number =>
+/** The seeded variant index of one occurrence id, in `[0, variants)`. */
+const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (
+  pattern: IAutoMovieSurfacePattern,
+  id: string,
+): number =>
   Math.min(
     pattern.variants - 1,
     Math.floor(
@@ -331,30 +409,38 @@ const variantOf = (pattern: IAutoMovieSurfacePattern, id: string): number =>
   );
 
 /** Fold an occurrence id into a 32-bit integer with FNV-1a. */
-const hashOf = (id: string): number => {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < id.length; ++index) {
+const hashOf: (id: string) => number = (id: string): number => {
+  let hash: number = 0x811c9dc5;
+  for (let index: number = 0; index < id.length; ++index) {
     hash = (hash ^ id.charCodeAt(index)) >>> 0;
     hash = Math.imul(hash, 0x01000193) >>> 0;
   }
   return hash;
 };
 
-const summarize = (
+/** One zone's take-off from its own placements and net region area. */
+const summarize: (
+  zone: string,
+  placements: readonly IAutoMoviePatternPlacement[],
+  netRegionArea: number,
+) => IAutoMoviePatternZoneQuantities = (
   zone: string,
   placements: readonly IAutoMoviePatternPlacement[],
   netRegionArea: number,
 ): IAutoMoviePatternZoneQuantities => {
-  const coveredArea = placements.reduce((sum, one) => sum + one.area, 0);
-  const consumedArea = placements.reduce(
-    (sum, one) => sum + one.size.u * one.size.v,
-    0,
-  );
+  let coveredArea: number = 0;
+  let consumedArea: number = 0;
+  let whole: number = 0;
+  for (const placement of placements) {
+    coveredArea += placement.area;
+    consumedArea += placement.size.u * placement.size.v;
+    if (placement.cut === "none") ++whole;
+  }
   return {
     zone,
     modules: placements.length,
-    whole: placements.filter((one) => one.cut === "none").length,
-    cut: placements.filter((one) => one.cut !== "none").length,
+    whole,
+    cut: placements.length - whole,
     coveredArea,
     consumedArea,
     wasteArea: consumedArea - coveredArea,
@@ -362,20 +448,41 @@ const summarize = (
   };
 };
 
-const totalQuantities = (
+/** The whole pattern's take-off, summed from its zones. */
+const totalQuantities: (
+  pattern: IAutoMovieSurfacePattern,
+  placements: readonly IAutoMoviePatternPlacement[],
+  zones: readonly IAutoMoviePatternZoneQuantities[],
+) => IAutoMoviePatternQuantities = (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
   zones: readonly IAutoMoviePatternZoneQuantities[],
 ): IAutoMoviePatternQuantities => {
-  const coveredArea = zones.reduce((sum, one) => sum + one.coveredArea, 0);
-  const consumedArea = zones.reduce((sum, one) => sum + one.consumedArea, 0);
-  const netRegionArea = zones.reduce((sum, one) => sum + one.netRegionArea, 0);
-  const wasteArea = consumedArea - coveredArea;
-  const jointArea = netRegionArea - coveredArea;
+  const sum: (
+    read: (zone: IAutoMoviePatternZoneQuantities) => number,
+  ) => number = (
+    read: (zone: IAutoMoviePatternZoneQuantities) => number,
+  ): number =>
+    zones.reduce(
+      (total: number, zone: IAutoMoviePatternZoneQuantities): number =>
+        total + read(zone),
+      0,
+    );
+  const coveredArea: number = sum(
+    (zone: IAutoMoviePatternZoneQuantities): number => zone.coveredArea,
+  );
+  const consumedArea: number = sum(
+    (zone: IAutoMoviePatternZoneQuantities): number => zone.consumedArea,
+  );
+  const netRegionArea: number = sum(
+    (zone: IAutoMoviePatternZoneQuantities): number => zone.netRegionArea,
+  );
+  const wasteArea: number = consumedArea - coveredArea;
+  const jointArea: number = netRegionArea - coveredArea;
   return {
     modules: placements.length,
-    whole: zones.reduce((sum, one) => sum + one.whole, 0),
-    cut: zones.reduce((sum, one) => sum + one.cut, 0),
+    whole: sum((zone: IAutoMoviePatternZoneQuantities): number => zone.whole),
+    cut: sum((zone: IAutoMoviePatternZoneQuantities): number => zone.cut),
     coveredArea,
     consumedArea,
     wasteArea,
@@ -387,295 +494,55 @@ const totalQuantities = (
   };
 };
 
-/**
- * Measure every occurrence and every neighbouring pair against the declaration.
- *
- * Per-occurrence findings come first so a defect that belongs to one piece is
- * never buried under the pair findings its neighbours produced. The partner
- * list is then sorted, so a bucket map's insertion order can never reach the
- * output.
- *
- * Pairs are gathered through a uniform bucket grid rather than an all-pairs
- * sweep, and the grid is sized so the screen provably loses nothing. A piece
- * lies inside its own module rectangle, so it is never further than half that
- * rectangle's diagonal from the centre the grid buckets by. Two pieces whose
- * true separation is within the adjacency gap therefore have centres no further
- * apart than the largest module diagonal plus that gap, which is exactly the
- * cell size, so they always share a bucket or an adjacent one.
- *
- * What is then reported is the edge-normal joint, which is how a joint is read
- * and which never exceeds the true separation. A pair whose projections read
- * close while the pieces themselves sit diagonally further apart than the
- * adjacency gap is not scanned, and should not be: those two are not neighbours
- * on the surface.
- *
- * Neighbours are measured between the pieces as laid, not between the modules
- * as designed. Two zones that each cut their modules at the border they share
- * would otherwise be judged on rectangles that overlap across it and reported
- * as colliding when nothing on the surface does.
- */
-const findingsOf = (
-  pattern: IAutoMovieSurfacePattern,
-  placements: readonly IAutoMoviePatternPlacement[],
-): IAutoMoviePatternFinding[] => {
-  const findings: IAutoMoviePatternFinding[] = [];
-  for (const placement of placements) {
-    if (placement.coverage < pattern.minimumPiece - COVERAGE_EPSILON)
-      findings.push({
-        kind: "sliver",
-        occurrences: [placement.id],
-        measured: placement.coverage,
-        limit: pattern.minimumPiece,
-        detail: `occurrence "${placement.id}" survives at ${placement.coverage} of a module, below the ${pattern.minimumPiece} minimum piece`,
-      });
-    if (placement.punchedArea > 0)
-      findings.push({
-        kind: "unsupported-piece",
-        occurrences: [placement.id],
-        measured: placement.punchedArea,
-        limit: 0,
-        detail: `occurrence "${placement.id}" is cut by an exclusion, so its true piece is the outline minus that area; the convex procedural kernel has no boolean difference and cannot build it`,
-      });
-  }
-  if (placements.length === 0) return findings;
-
-  const cellSize =
-    placements.reduce(
-      (largest, one) =>
-        Math.max(
-          largest,
-          Math.sqrt(one.size.u * one.size.u + one.size.v * one.size.v),
-        ),
-      0,
-    ) + pattern.adjacency;
-  const buckets = new Map<string, number[]>();
-  placements.forEach((placement, index) => {
-    const key = bucketKey(placement, cellSize, 0, 0);
-    const bucket = buckets.get(key);
-    if (bucket === undefined) buckets.set(key, [index]);
-    else bucket.push(index);
-  });
-  placements.forEach((placement, index) => {
-    const partners = new Set<number>();
-    for (let du = -1; du <= 1; ++du)
-      for (let dv = -1; dv <= 1; ++dv)
-        for (const candidate of buckets.get(
-          bucketKey(placement, cellSize, du, dv),
-        ) ?? [])
-          if (candidate > index) partners.add(candidate);
-    for (const partner of [...partners].sort((left, right) => left - right)) {
-      const other = placements[partner]!;
-      const gap = separation(placement.outline, other.outline);
-      if (gap < -LENGTH_EPSILON) {
-        findings.push({
-          kind: "module-overlap",
-          occurrences: [placement.id, other.id],
-          measured: gap,
-          limit: 0,
-          detail: `occurrences "${placement.id}" and "${other.id}" overlap by ${-gap} m instead of leaving a joint`,
-        });
-        continue;
-      }
-      if (gap > pattern.adjacency + LENGTH_EPSILON) continue;
-      if (
-        Math.abs(gap - pattern.joint) >
-        pattern.jointTolerance + LENGTH_EPSILON
-      )
-        findings.push({
-          kind: "joint-deviation",
-          occurrences: [placement.id, other.id],
-          measured: gap,
-          limit: pattern.joint,
-          detail: `occurrences "${placement.id}" and "${other.id}" are ${gap} m apart, off the ${pattern.joint} m joint by more than the ${pattern.jointTolerance} m tolerance`,
-        });
-      if (pattern.grainToleranceDeg === null) continue;
-      const deviation = grainDeviation(placement.grainDeg, other.grainDeg);
-      if (deviation > pattern.grainToleranceDeg + LENGTH_EPSILON)
-        findings.push({
-          kind: "grain-break",
-          occurrences: [placement.id, other.id],
-          measured: deviation,
-          limit: pattern.grainToleranceDeg,
-          detail: `neighbouring occurrences "${placement.id}" and "${other.id}" run their grain ${deviation}° apart, above the ${pattern.grainToleranceDeg}° tolerance`,
-        });
-    }
-  });
-  return findings;
-};
-
-const bucketKey = (
-  placement: IAutoMoviePatternPlacement,
-  cellSize: number,
-  du: number,
-  dv: number,
-): string =>
-  `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
-
-/** Smallest in-plane angle between two 180-periodic grain directions. */
-const grainDeviation = (left: number, right: number): number => {
-  const delta = positiveModulo(left - right, 180);
-  return Math.min(delta, 180 - delta);
-};
-
-/**
- * The gap between two convex pieces, measured along their own edge normals.
- *
- * A joint is read perpendicular to the edges it separates, which is exactly the
- * separating-axis measurement: the largest projection gap over both pieces'
- * edge normals. A negative result is a real overlap, because no axis separated
- * them.
- */
-const separation = (
-  left: readonly IAutoMoviePatternPoint[],
-  right: readonly IAutoMoviePatternPoint[],
-): number => {
-  let best = Number.NEGATIVE_INFINITY;
-  for (const polygon of [left, right])
-    for (let index = 0; index < polygon.length; ++index) {
-      const from = polygon[index]!;
-      const to = polygon[(index + 1) % polygon.length]!;
-      const axis = { u: -(to.v - from.v), v: to.u - from.u };
-      const length = Math.sqrt(axis.u * axis.u + axis.v * axis.v);
-      const normal = { u: axis.u / length, v: axis.v / length };
-      const a = project(left, normal);
-      const b = project(right, normal);
-      best = Math.max(best, Math.max(b.min - a.max, a.min - b.max));
-    }
-  return best;
-};
-
-const project = (
-  polygon: readonly IAutoMoviePatternPoint[],
-  axis: IAutoMoviePatternPoint,
-): { min: number; max: number } => {
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-  for (const point of polygon) {
-    const value = point.u * axis.u + point.v * axis.v;
-    min = Math.min(min, value);
-    max = Math.max(max, value);
-  }
-  return { min, max };
-};
-
-/**
- * Canonicalize an authored polygon to a counter-clockwise convex outline.
- *
- * The hull is taken and then compared with the input, so a reflex corner, an
- * interior point, a repeated point, and a point sitting on an edge are all
- * refused instead of being silently absorbed. That is the same refusal the
- * procedural profile kernel makes, for the same reason: a clipper fed a
- * non-convex outline reports areas the surface does not have.
- */
-const convexPolygon = (
-  polygon: readonly IAutoMoviePatternPoint[],
-  label: string,
-): IAutoMoviePatternPoint[] => {
-  polygon.forEach((point, index) => finitePoint(point, `${label}[${index}]`));
-  const hull = convexHull2D(
-    polygon.map((point) => ({ x: point.u, y: 0, z: point.v })),
-  ).map((point) => ({ u: point.x, v: point.z }));
-  if (hull.length < 3)
-    throw new Error(`${label} needs at least three non-collinear points`);
-  if (hull.length !== polygon.length)
-    throw new Error(`${label} must be convex and contain no interior points`);
-  return hull;
-};
-
-/**
- * Clip one convex polygon by another with the Sutherland–Hodgman half-planes.
- *
- * A crossing is only cut where the corner it crosses to actually leaves the
- * line. A corner sitting exactly on a clip edge already _is_ the intersection,
- * so emitting one for it would put the same point in the outline twice, and a
- * repeated point makes a zero-length edge whose normal is undefined. That
- * outline still measures the right area, which is what makes the fault quiet:
- * the joint measurement between two pieces would divide by that zero, and every
- * comparison against the resulting `NaN` reads false, so the pair passes the
- * joint and overlap tests by never being judged at all.
- */
-const clipConvex = (
+/** The area two convex outlines share, the second canonical. */
+const overlapArea: (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
-): IAutoMoviePatternPoint[] => {
-  let output: IAutoMoviePatternPoint[] = [...subject];
-  for (let index = 0; index < clipper.length && output.length > 0; ++index) {
-    const from = clipper[index]!;
-    const to = clipper[(index + 1) % clipper.length]!;
-    const input = output;
-    output = [];
-    for (let corner = 0; corner < input.length; ++corner) {
-      const current = input[corner]!;
-      const previous = input[(corner + input.length - 1) % input.length]!;
-      const currentSide = side(from, to, current);
-      const previousSide = side(from, to, previous);
-      if (currentSide >= 0) {
-        if (previousSide < 0 && currentSide > 0)
-          output.push(intersect(previous, current, from, to));
-        output.push(current);
-      } else if (previousSide > 0)
-        output.push(intersect(previous, current, from, to));
-    }
-  }
-  return output;
-};
-
-const side = (
-  from: IAutoMoviePatternPoint,
-  to: IAutoMoviePatternPoint,
-  point: IAutoMoviePatternPoint,
+) => number = (
+  subject: readonly IAutoMoviePatternPoint[],
+  clipper: readonly IAutoMoviePatternPoint[],
 ): number =>
-  (to.u - from.u) * (point.v - from.v) - (to.v - from.v) * (point.u - from.u);
+  autoMoviePatternPolygonArea(clipAutoMoviePatternPolygon(subject, clipper));
 
-const intersect = (
-  from: IAutoMoviePatternPoint,
-  to: IAutoMoviePatternPoint,
-  edgeFrom: IAutoMoviePatternPoint,
-  edgeTo: IAutoMoviePatternPoint,
-): IAutoMoviePatternPoint => {
-  const a = side(edgeFrom, edgeTo, from);
-  const b = side(edgeFrom, edgeTo, to);
-  const ratio = a / (a - b);
-  return {
-    u: from.u + (to.u - from.u) * ratio,
-    v: from.v + (to.v - from.v) * ratio,
-  };
-};
-
-const polygonArea = (polygon: readonly IAutoMoviePatternPoint[]): number => {
-  let twice = 0;
-  for (let index = 0; index < polygon.length; ++index) {
-    const from = polygon[index]!;
-    const to = polygon[(index + 1) % polygon.length]!;
-    twice += from.u * to.v - to.u * from.v;
-  }
-  return Math.abs(twice) / 2;
-};
-
-const boundsOf = (
+/** The extent of a non-empty outline on both face-local axes. */
+const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (
   polygon: readonly IAutoMoviePatternPoint[],
-): { minU: number; maxU: number; minV: number; maxV: number } => ({
-  minU: Math.min(...polygon.map((point) => point.u)),
-  maxU: Math.max(...polygon.map((point) => point.u)),
-  minV: Math.min(...polygon.map((point) => point.v)),
-  maxV: Math.max(...polygon.map((point) => point.v)),
-});
+): IPatternSpan => {
+  const span: IPatternSpan = {
+    minU: Infinity,
+    maxU: -Infinity,
+    minV: Infinity,
+    maxV: -Infinity,
+  };
+  for (const point of polygon) {
+    span.minU = Math.min(span.minU, point.u);
+    span.maxU = Math.max(span.maxU, point.u);
+    span.minV = Math.min(span.minV, point.v);
+    span.maxV = Math.max(span.maxV, point.v);
+  }
+  return span;
+};
 
-const finitePoint = (point: IAutoMoviePatternPoint, label: string): void => {
+const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
+  point: IAutoMoviePatternPoint,
+  label: string,
+): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
 };
 
-const nonBlank = (value: string, label: string): void => {
+const nonBlank: (value: string, label: string) => void = (
+  value: string,
+  label: string,
+): void => {
   if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
 };
 
-const positive = (value: number, label: string): void => {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${label} must be a finite number > 0`);
-};
-
-const atLeast = (value: number, limit: number, label: string): void => {
+const atLeast: (value: number, limit: number, label: string) => void = (
+  value: number,
+  limit: number,
+  label: string,
+): void => {
   if (!Number.isFinite(value) || value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };

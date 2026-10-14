@@ -1,5 +1,4 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 import { IAutoMovieCompiledInstancePrototype } from "./IAutoMovieCompiledInstancePrototype";
 import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
@@ -8,148 +7,67 @@ import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
 import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
- * Compact generated runtime for a non-formation instance set.
+ * Compact generated runtime for a non-formation instance set. Bounds summarize slot positions; radius estimates and slot scale feed viewer culling without guaranteeing enclosure of every visible model.
  *
- * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `IAutoMovieCompiledInstanceSet` as the portable data boundary for the formation membership requirement.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `IAutoMovieCompiledInstanceSet` for the performance formation hierarchy membership command system contract.
+ * @evidence contracts/common.md#principled-implementation Layout, route snapshot, seed and variation regenerate positions and prototype choices; chunk and overall summaries are measured through that same slot law, and canonical digest covers the compiled inputs and summaries.
+ * @evidence contracts/common.md#clear-and-simple-design Compact placement and variation laws serve both viewer and oracle, with reusable prototype tables and bounded chunk summaries rather than one persisted record per instance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Along-route placement uses the compiled route snapshot instead of mutable design. Missing or unusable routes, nonfinite sampled position/scalar scale/procedural traits and an unavailable palette selection refuse regeneration; this does not certify all enhanced transforms, explicit traits, count limits or recipe references.
+ * @evidence contracts/common.md#meaningful-documentation Describes optional prototype compatibility, route-null local layouts, world anchor and degree heading, seed and variation, slot-point bounds, radius expansion, chunks, tiers and digest coverage.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledInstanceSet {
-  /**
-   * Generated instance-set format.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `version` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `version` for the performance formation hierarchy membership command system contract.
-   */
+  /** Generated instance-set format. */
   version: 1;
 
-  /**
-   * Stable world-design id.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `id` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `id` for the performance formation hierarchy membership command system contract.
-   */
+  /** Stable world-design id. */
   id: string;
 
-  /**
-   * Exact designed slot count.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `count` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `count` for the performance formation hierarchy membership command system contract.
-   */
+  /** Exact designed slot count. */
   count: number;
 
-  /**
-   * Base design recipe.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `modelRecipe` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `modelRecipe` for the performance formation hierarchy membership command system contract.
-   */
+  /** Base design recipe. */
   modelRecipe: string;
 
-  /**
-   * Resolved prototype runtimes; omitted for a legacy single-prototype set.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `prototypes` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `prototypes` for the performance formation hierarchy membership command system contract.
-   */
+  /** Resolved prototype runtimes with base `default` weight one first; omitted for a legacy single-prototype set. */
   prototypes?: IAutoMovieCompiledInstancePrototype[];
 
-  /**
-   * Exact compact placement law.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `layout` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `layout` for the performance formation hierarchy membership command system contract.
-   */
+  /** Exact compact placement law. */
   layout: IAutoMovieInstanceSetDesign["layout"];
 
   /**
    * Resolved route geometry for `along-route`, or null for local layouts.
    *
-   * The viewer and source oracle regenerate slots from this snapshot without
-   * consulting mutable world design.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `route` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `route` for the performance formation hierarchy membership command system contract.
+   * The viewer and source oracle regenerate slots from this snapshot without consulting mutable world design.
    */
   route: IAutoMovieWorldDesign["routes"][number] | null;
 
-  /**
-   * World-space origin for local layouts.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `anchor` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `anchor` for the performance formation hierarchy membership command system contract.
-   */
+  /** World-space origin for local layouts. */
   anchor: IAutoMovieVector3;
 
-  /**
-   * World-space base heading in degrees.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `facingDeg` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `facingDeg` for the performance formation hierarchy membership command system contract.
-   */
+  /** World-space base heading in degrees. */
   facingDeg: number;
 
-  /**
-   * Full safe-integer design seed.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `seed` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `seed` for the performance formation hierarchy membership command system contract.
-   */
+  /** Full safe-integer design seed. */
   seed: number;
 
-  /**
-   * Exact seed-derived visual and semantic variation law.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `variation` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `variation` for the performance formation hierarchy membership command system contract.
-   */
+  /** Exact seed-derived visual and semantic variation law. */
   variation: IAutoMovieInstanceSetDesign["variation"];
 
-  /**
-   * Exact bounds of all generated slots.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `bounds` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `bounds` for the performance formation hierarchy membership command system contract.
-   */
+  /** Bounds of generated slot positions before geometry-radius expansion. */
   bounds: IAutoMovieFormationBounds;
 
-  /**
-   * Exact arithmetic centroid of all generated slots.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `centroid` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `centroid` for the performance formation hierarchy membership command system contract.
-   */
+  /** Binary64 running-mean centroid of all generated slot positions. */
   centroid: IAutoMovieVector3;
 
-  /**
-   * Compiler-derived representative radius used by viewer culling.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `projectionRadius` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `projectionRadius` for the performance formation hierarchy membership command system contract.
-   */
+  /** Maximum compiled prototype radius estimate in metres for viewer culling; each prototype follows tier/base/0.5m fallback and 0.01m floor policy, with producer-owned root-centering and geometry-coverage premises. */
   projectionRadius: number;
 
-  /**
-   * Bounded independently regenerable slot ranges.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `chunks` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `chunks` for the performance formation hierarchy membership command system contract.
-   */
+  /** Bounded independently regenerable slot ranges. */
   chunks: IAutoMovieInstanceChunk[];
 
-  /**
-   * Ordered automatic LOD representations.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `lod` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `lod` for the performance formation hierarchy membership command system contract.
-   */
+  /** Ordered automatic LOD representations. */
   lod: IAutoMovieCompiledFormationLod[];
 
-  /**
-   * Digest of every field above except this digest.
-   *
-   * @evidence requirements/formations/hierarchies-and-units.md#formation-membership Exposes `digest` as the portable data boundary for the formation membership requirement.
-   * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-hierarchy-membership-command Types `digest` for the performance formation hierarchy membership command system contract.
-   */
-  digest: AutoMovieContentDigest;
+  /** Digest of every field above except this digest. */
+  digest: string;
 }

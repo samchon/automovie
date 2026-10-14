@@ -9,11 +9,11 @@ import {
 } from "./filmFixtures";
 
 /** Preserve the full shot consumer for the existing facade subject. */
-export const performFilmFacade = (
+export function performFilmFacade(
   model: IAutoMovieModel,
   FOV_Y: number,
-): IAutoMovieClip | null => {
-  const script = makeScriptWrite({
+): IAutoMovieClip | null {
+  const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite({
     cast: [
       { node: "west-facade", character: "the west facade", modelRef: model.id },
     ],
@@ -26,7 +26,7 @@ export const performFilmFacade = (
       },
     ],
   });
-  const staged = stageScene(
+  const staged: ReturnType<typeof stageScene> = stageScene(
     script,
     makeStagingWrite({
       actors: [
@@ -46,7 +46,7 @@ export const performFilmFacade = (
     }),
   );
   if (staged.success !== true) throw new Error("staging fixture must succeed");
-  const result = performShot({
+  const result: ReturnType<typeof performShot> = performShot({
     script,
     staged,
     performance: makePerformanceWrite({
@@ -68,9 +68,9 @@ export const performFilmFacade = (
     synthesize: validSynthesizer,
     // A set piece carries no rig, which is why its height had to be measured
     // from geometry in the first place.
-    skeleton: () => null,
+    skeleton: (): null => null,
     models: [model],
     frameFormat: { width: 1920, height: 1080 },
   });
   return result.success === true ? result.shot.cameraMotion : null;
-};
+}

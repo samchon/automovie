@@ -8,29 +8,24 @@ import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHuma
 /**
  * Schema and finite-scalar admission shared by loading and saving a person.
  *
- * This owner admits the person's identity and closed `headShape` numerical
- * record, rejecting nonfinite source-trait differences. Face and body subtree
- * admission stays with each anatomy. The saved head values are millimetre or
- * degree differences under the requested trait's source convention, not raw
- * endpoint weights or clinical observations. No value is converted here.
+ * Admit the exact person schema, nonempty identity and finite closed headShape values, delegating face/body subtree rules to their anatomy owners. Saved head differences use each public trait's millimetre/degree convention rather than raw endpoint weights or clinical observations; no conversion occurs here.
  *
- * The generation resolver checks actual field availability, registered units,
- * authored support and the one body-channel conversion; the builder checks
- * the two bases, joints and cross-document colour/population relations.
- * Loading and saving therefore need no installed source generation, while
- * evaluation can still refuse an unavailable field, including explicit zero.
- * An optional loaded body source supplies the body's registered internal
- * quantity authority. It is host-owned and is not read from a person record;
- * omission retains the original body's unsupported-path admission behavior.
- * An explicitly neutral-only source also requires the face's owner-neutral
- * empty expression and absent oral/regional performance. Identity dimensions
- * remain authored, and this admission never clears a caller's expression.
+ * Generation evaluation separately owns availability, unit/support conversion and cross-basis geometry. An optional host-loaded body source supplies internal quantity authority rather than reading it from the document. Neutral-only source admission requires empty face expression and omitted oral/regional performance without clearing caller values. Successful admission returns the original object; it establishes neither measured anatomy nor rendered acceptance.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact schema and finite identity-trait values combine with anatomy-owned subtree admission and explicit loaded-source neutral-only restrictions.
+ * @evidence contracts/common.md#clear-and-simple-design Person admission owns its closed outer record; face/body owners admit subtrees and the generation resolver owns actual source availability/conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonfinite traits and authored performance under neutral-only sources refuse without clamping or clearing; a valid saved request does not fabricate an available source endpoint.
+ * @evidence contracts/common.md#meaningful-documentation Prose distinguishes storage admission from evaluated source availability, trait units, host source authority and unchanged returned identity.
+ * @evidence contracts/performance.md#efficient-algorithms Exact generated schema and delegated subtree checks traverse actual document/source data; additional work scans head fields, identities and neutral-only regional performance.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This admission reflects the supplied mutable document and host source and owns no validation cache or effectful request coordinator.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Successful output borrows the original admitted object, while generated diagnostics and local key/value arrays are call-local with no retained task or source handle.
  */
 export function admitHumanPersonDocument(
   input: unknown,
   bodySource?: IAutoMovieHumanBodyAnatomicalAssembly,
 ): IAutoMovieHumanPersonDocument {
-  const document = typia.assertEquals<IAutoMovieHumanPersonDocument>(input);
+  const document: IAutoMovieHumanPersonDocument =
+    typia.assertEquals<IAutoMovieHumanPersonDocument>(input);
   admitHumanFaceBasisDocument(document.face);
   admitHumanBodyBasisDocument(document.body, bodySource);
   if (
@@ -38,7 +33,17 @@ export function admitHumanPersonDocument(
     (Object.keys(document.face.expression).length !== 0 ||
       document.face.oral?.performance !== undefined ||
       Object.values(document.face.skinRelief?.regions ?? {}).some(
-        (region) => region?.performance !== undefined,
+        (
+          region: NonNullable<
+            NonNullable<
+              IAutoMovieHumanPersonDocument["face"]["skinRelief"]
+            >["regions"]
+          >[keyof NonNullable<
+            NonNullable<
+              IAutoMovieHumanPersonDocument["face"]["skinRelief"]
+            >["regions"]
+          >],
+        ): boolean => region?.performance !== undefined,
       ))
   )
     throw new Error(
@@ -49,7 +54,9 @@ export function admitHumanPersonDocument(
       throw new Error(
         "A saved head numerical field must be finite: " + id + ".",
       );
-  if ([document.id, document.name].some((id) => id.trim() === ""))
+  if (
+    [document.id, document.name].some((id: string): boolean => id.trim() === "")
+  )
     throw new Error("A person needs nonempty identities.");
   return document;
 }

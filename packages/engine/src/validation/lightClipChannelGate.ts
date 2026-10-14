@@ -1,35 +1,35 @@
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { withArticle } from "../text/withArticle";
+import type { IAutoMovieLightChannelProperty } from "./../resolve/IAutoMovieLightChannelProperty";
+import type { IAutoMovieLightPointer } from "./../resolve/IAutoMovieLightPointer";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { pushViolation } from "./pushViolation";
 
 /**
- * A LIGHT clip's track must address one staged light's animatable property, and
- * exactly the ones {@link resolveShotLighting} writes (#1348).
+ * Create a gate for canonical light pointers and shared property value types, optionally checking staged light presence and kind.
  *
- * Admission is read out of `LIGHT_CHANNEL_PROPERTIES`, the same table the
- * applier folds its sampled values through. There is no second list to keep in
- * step: a property the table does not carry is refused here and unreachable
- * there, and a property added to the table becomes admissible and applied in
- * one edit. That is the mechanical form of the rule two of this campaign's
- * defects sit on either side of: a validated axis with no applier (#1339), and
- * an applier that silently ignores part of its input (#1349).
- *
- * `stagedLights` is the scene's light id → `type` index when the caller has a
- * scene to cross-reference (the submitted-artifact path) and `null` when it
- * does not (the stored-slice path, which reads one file with no scene beside
- * it). Without it the pointer grammar and value type are still gated; only the
- * "does this light exist, and does its kind carry this" pair defers.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `lightClipChannelGate` locates an unknown staged-light target, unsupported property, or mismatched value type at the light track's channel.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `lightClipChannelGate` derives admission from the same light-property table used by the applier and retains the rejected address.
+ * @evidence contracts/common.md#principled-implementation Create a gate for canonical light pointers and shared property value types, optionally checking staged light presence and kind.
+ * @evidence contracts/common.md#clear-and-simple-design LIGHT_CHANNEL_PROPERTIES and parseLightPointer own the accepted/applied property vocabulary and escaping.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A null staged-light map deliberately defers existence/kind checks for stored slices, while syntax and value type remain gated.
+ * @evidence contracts/common.md#meaningful-documentation The returned closure borrows the map and appends faults at kind, pointer or valueType paths.
+ * @evidence contracts/performance.md#efficient-algorithms Pointer length drives parsing/round-trip work; one map lookup follows a fixed property lookup.
+ * @evidence contracts/performance.md#reuse-equivalent-work Property definitions are shared with lighting application, and each invocation reads the current borrowed map.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure and any captured map lifetime; the gate starts no host task.
  */
-export const lightClipChannelGate =
+export const lightClipChannelGate: (
+  stagedLights: ReadonlyMap<string, unknown> | null,
+) => IAutoMovieClipChannelGate =
   (
     stagedLights: ReadonlyMap<string, unknown> | null,
   ): IAutoMovieClipChannelGate =>
-  (channel, path, violations): void => {
+  (
+    channel: Record<string, unknown>,
+    path: string,
+    violations: IAutoMovieConstraintViolation[],
+  ): void => {
     if (channel.kind !== "pointer") {
       pushViolation(
         violations,
@@ -40,7 +40,9 @@ export const lightClipChannelGate =
       );
       return;
     }
-    const target = parseLightPointer(channel.pointer);
+    const target: IAutoMovieLightPointer | null = parseLightPointer(
+      channel.pointer,
+    );
     if (target === null) {
       pushViolation(
         violations,
@@ -51,7 +53,8 @@ export const lightClipChannelGate =
       );
       return;
     }
-    const property = LIGHT_CHANNEL_PROPERTIES[target.property];
+    const property: IAutoMovieLightChannelProperty =
+      LIGHT_CHANNEL_PROPERTIES[target.property];
     if (channel.valueType !== property.valueType)
       pushViolation(
         violations,
@@ -61,7 +64,7 @@ export const lightClipChannelGate =
         channel.valueType,
       );
     if (stagedLights === null) return;
-    const kind = stagedLights.get(target.light);
+    const kind: unknown = stagedLights.get(target.light);
     if (kind === undefined)
       pushViolation(
         violations,

@@ -7,36 +7,36 @@ import type { IAutoMovieMeshSeparationAttachment } from "./IAutoMovieMeshSeparat
  * `clearance` is the requested separation in the resident mesh's metre frame;
  * zero still requires strict positive separation. `budget` is the caller-owned
  * work count the query spends in place. `attachment` registers a canonical root
- * seat for a three-vertex fan at zero clearance only.
+ * seat and is admitted only for a three-vertex fan at zero clearance. The query
+ * throws on a missing, negative or non-finite clearance, a malformed budget, or
+ * an attachment outside those conditions.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Names the requested clearance, shared work budget and optional root registration a composable separation query consumes.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Groups the inputs that qualify complete-feature clearance against the original resident triangles.
+ * @evidence contracts/common.md#principled-implementation The query turns zero clearance into the smallest positive binary64 target, so strict separation is demanded without a spatial tolerance, and it admits the budget and attachment before visiting any box.
+ * @evidence contracts/common.md#clear-and-simple-design The target, the work bound and the optional seat travel together because one hair row needs all three per call, while the resident snapshot stays in the compiled query and is never repeated here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Touching is never accepted by a zero target and an attachment at positive clearance is refused rather than ignored, so no option quietly weakens the proof a caller asked for.
+ * @evidence contracts/common.md#meaningful-documentation States the unit and frame of the clearance, what zero means, who owns the budget, when an attachment is admitted, and every refusal.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms An options record; how clearance and attachment change the walk is answered on the separation query.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per call by hair fitting; verdict reuse keyed on clearance and attachment presence is the ribbon fit's own cache, not this record's.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources References the caller's budget and attachment, mutating only the budget's count; the query keeps no reference after it returns.
  * @author Samchon
  */
 export interface IAutoMovieMeshSeparationOptions {
   /**
-   * Requested nonnegative separation in metres; zero demands strict positive
-   * separation and never accepts touching.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Sets the separation a composable feature must prove against the resident surface.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Caps the reported lower bound and decides certification for the complete feature.
+   * Requested nonnegative finite separation in metres; zero demands strict
+   * positive separation and never accepts touching.
    */
   clearance: number;
 
   /**
-   * Shared mutable work count, spent before each box, triangle and feature test.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Bounds the query by one caller-owned work count shared across refinement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Supplies the budget the separation qualification decrements and refuses on exhaustion.
+   * Shared mutable work count, spent before each box, triangle and feature
+   * test.
    */
   budget: IAutoMovieMeshQueryBudget;
 
   /**
-   * Optional canonical root registration; admitted only at zero clearance for
-   * a three-vertex fan.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Lets an attached fan prove bounded contact on its supports while every other face stays strictly separated.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Carries the seat and support ordinals the query validates against original triangle identity.
+   * Canonical root registration of the feature's first vertex; omitted means
+   * every resident triangle needs strict separation. Admitted only at zero
+   * clearance for a three-vertex fan.
    */
   attachment?: IAutoMovieMeshSeparationAttachment;
 }

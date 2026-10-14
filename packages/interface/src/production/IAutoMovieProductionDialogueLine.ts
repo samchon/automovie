@@ -1,55 +1,28 @@
 /**
- * One caption placement that also owns its synthesized dialogue timing.
+ * One caption placement projected into the sound plan's intended dialogue emission interval.
  *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `IAutoMovieProductionDialogueLine` as the portable data boundary for the sound dialogue voice consistency requirement.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `IAutoMovieProductionDialogueLine` for the dialogue voice consistency and phoneme state system contract.
+ * @evidence contracts/common.md#principled-implementation deriveProductionSoundPlan copies canonical caption identity, text, language, speaker and frame interval into dialogue rows. Supplied PCM and receipt validation use that line identity; this projection neither synthesizes audio nor applies an actor mouth layer.
+ * @evidence contracts/common.md#clear-and-simple-design Carries only shared line content and placement, leaving generated audio, phonemes, visemes and actor joins in their own receipt and runtime records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted speaker remains unspecified. The separately available join helper returns not-run for absent or ambiguous bindings, but currently has only test callers; ProductionDesign.speakerBindings supplies no wired mouth application.
+ * @evidence contracts/common.md#meaningful-documentation Defines caption ownership, spoken text, authored language and speaker labels, and inclusive-start exclusive-end film frames.
+ * @author Samchon
  */
 export interface IAutoMovieProductionDialogueLine {
-  /**
-   * Exact builder-owned caption id.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `id` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `id` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Exact builder-owned caption id. */
   id: string;
 
-  /**
-   * Spoken and captioned text.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `text` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `text` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Spoken and captioned text. */
   text: string;
 
-  /**
-   * BCP-47-ish authored language label.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `language` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `language` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Authored language tag retained from the caption. */
   language: string;
 
-  /**
-   * Optional authored speaker identity.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `speaker` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `speaker` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Optional authored speaker identity. */
   speaker?: string;
 
-  /**
-   * Film-global inclusive start frame.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `startFrame` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `startFrame` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Film-global inclusive start frame. */
   startFrame: number;
 
-  /**
-   * Film-global exclusive end frame.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-voice-consistency Exposes `endFrame` as the portable data boundary for the sound dialogue voice consistency requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-voice-consistency-and-phoneme-state Types `endFrame` for the dialogue voice consistency and phoneme state system contract.
-   */
+  /** Film-global exclusive end frame. */
   endFrame: number;
 }

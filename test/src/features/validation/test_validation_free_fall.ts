@@ -1,5 +1,9 @@
 import { detectFreeFall } from "@automovie/engine";
-import { IAutoMovieBody } from "@automovie/interface";
+import {
+  IAutoMovieBody,
+  IAutoMovieTrack,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -16,7 +20,7 @@ const BODY: IAutoMovieBody = {
   friction: 0.5,
   restitution: 0.5,
 };
-const FOOTPRINT = [
+const FOOTPRINT: IAutoMovieVector3[] = [
   { x: -1, y: 0, z: -1 },
   { x: 1, y: 0, z: -1 },
   { x: 1, y: 0, z: 1 },
@@ -24,24 +28,22 @@ const FOOTPRINT = [
 ];
 
 /**
- * The default physical expectation is that an unheld body falls. A bodied
- * object that is unsupported, unattached, and not already falling earns a
- * warning-level gravity feedback plus a suggested fall arc; a supported one
- * earns nothing.
+ * An unsupported, unattached declared body receives advisory gravity feedback, a fall event and a proposed trajectory; support is judged from the supplied planar contacts.
  *
  * Scenarios:
  *
- * 1. No support contacts at all → warning + a fall event + a suggested arc.
- * 2. Support contacts present but the COM projects outside their hull → still
- *    unsupported → warning, exercising the no-node message and default arc
- *    node.
- * 3. The COM projects inside the support footprint → supported → no warning, no
- *    arc.
- * 4. Arc oracle: the suggested trajectory's height after t seconds is origin.y +
- *    ½·g·t² (free fall from rest).
+ * 1. Empty support produces a warning, one fall event and a proposed trajectory.
+ * 2. A center outside the contact hull remains unsupported and an omitted node uses the fallback trajectory label.
+ * 3. A center inside the footprint produces no warning, event or trajectory.
+ * 4. The proposed translation's final height matches origin.y + 0.5 * g * t squared at the default one-second duration.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual free-fall detector for empty, outside and supported contact populations, reads warnings/events/trajectory and checks its final height, catching a lost fall or a false supported-body warning.
+ * @evidence contracts/testing.md#independent-expectations The supplied square's XZ extent independently separates inside from outside; constant acceleration from rest gives 5-9.81/2 at one second. Only the selected final translation value is checked, not every sample or a simulated collision response.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts empty/nonempty unsupported and supported hulls, explicit/omitted node labels and trajectory/no-trajectory outcomes; suppression and invalid scalar settings are separate free-fall entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns local body/contact records and returned reports, invoking portable hull and trajectory code without a physics host, renderer or native artifact.
  */
-export const test_validation_free_fall = (): void => {
-  const unheld = detectFreeFall({
+export function test_validation_free_fall(): void {
+  const unheld: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "crate",
     body: BODY,
     centerOfMass: { x: 0, y: 5, z: 0 },
@@ -62,7 +64,7 @@ export const test_validation_free_fall = (): void => {
   TestValidator.equals("fall event kind", unheld.events[0]!.kind, "fall");
   TestValidator.predicate("suggested arc present", unheld.trajectory !== null);
 
-  const outside = detectFreeFall({
+  const outside: ReturnType<typeof detectFreeFall> = detectFreeFall({
     body: BODY,
     centerOfMass: { x: 5, y: 5, z: 5 },
     support: FOOTPRINT,
@@ -80,10 +82,10 @@ export const test_validation_free_fall = (): void => {
   TestValidator.equals(
     "no-node arc uses the default node",
     namedFacts([
-      ["outsideTrajectory", () => outside.trajectory !== null],
+      ["outsideTrajectory", (): boolean => outside.trajectory !== null],
       [
         "outsideTrajectoryId",
-        () =>
+        (): boolean =>
           outside.trajectory !== null &&
           outside.trajectory.id.includes("object"),
       ],
@@ -91,7 +93,7 @@ export const test_validation_free_fall = (): void => {
     { outsideTrajectory: true, outsideTrajectoryId: true },
   );
 
-  const supported = detectFreeFall({
+  const supported: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "crate",
     body: BODY,
     centerOfMass: { x: 0, y: 5, z: 0 },
@@ -106,12 +108,13 @@ export const test_validation_free_fall = (): void => {
   TestValidator.equals("supported has no event", supported.events.length, 0);
   TestValidator.equals("supported has no arc", supported.trajectory, null);
 
-  const track = unheld.trajectory!.tracks.find(
-    (t) => t.channel.kind === "node" && t.channel.path === "translation",
+  const track: IAutoMovieTrack = unheld.trajectory!.tracks.find(
+    (t: IAutoMovieTrack): boolean =>
+      t.channel.kind === "node" && t.channel.path === "translation",
   )!;
-  const lastY = track.values[track.values.length - 2]!;
+  const lastY: number = track.values[track.values.length - 2]!;
   TestValidator.predicate(
     "free-fall height = origin.y + ½·g·t²",
     nclose(lastY, 5 + 0.5 * -9.81 * 1 * 1),
   );
-};
+}

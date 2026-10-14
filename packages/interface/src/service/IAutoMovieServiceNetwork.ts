@@ -7,106 +7,45 @@ import { IAutoMovieWetZone } from "./IAutoMovieWetZone";
 /**
  * The distribution networks a built environment is served by, as one graph.
  *
- * Water, drainage, power, data, air, fire suppression and control are the same
- * computational object: equipment that owns typed ports, segments that join two
- * ports, junctions where several meet, and sleeves where a run crosses a
- * boundary. Giving each discipline its own record would make "is this network
- * connected" seven different questions with seven different answers, so the
- * graph is shared and only the **rules** are per discipline: an engine
- * validator decides which media a discipline may carry and which unit each
- * medium is measured in, and a domain solver — flow, circuit load, duct
- * pressure — remains a separate analysis this record does not claim to
- * perform.
+ * Typed ports, two-port segments, junctions and boundary sleeves share one graph across disciplines. Discipline rules select medium and unit; quantitative flow, circuit and pressure models remain separate and are not supplied by this graph alone.
  *
- * Nothing here is a catalogue. There is no fixture library, no pipe schedule
- * and no equipment model: a basin, a sprinkler head and a distribution panel
- * are all authored by the production as nodes with the ports they actually
- * have. What the record owns is the part a rendering that merely _looks_
- * plumbed cannot prove — that every port is joined to something, that the
- * medium and unit agree end to end, that a run crossing a wall declares the
- * sleeve it passes through, that two disciplines do not occupy the same cubic
- * metre, and that the space a panel needs to be opened in stays clear.
+ * Productions author equipment nodes and their ports rather than selecting a built-in fixture catalog. Validation examines declared connectivity, medium/unit agreement, demand, sleeves, run clashes and maintenance keep-outs; missing spatial facts remain explicit analysis gaps rather than measured service performance.
  *
- * The record is **beside** the architecture record rather than inside it, and
- * cites it only by stable id, exactly as an independent fluid domain is bound
- * to a basin by `IAutoMovieWaterFeature`. A drainage network that ends in a
- * floor gully composes that same fluid domain instead of inventing a second
- * model of moving water.
+ * This record sits beside architecture and cites its environment by stable id. The exported `lowerWetZoneDrainage` can compose declared plumbing inlets and drainage outlets into an independent fluid domain, but currently has test callers rather than a production wet-zone binding phase; declaring this graph alone starts no water simulation.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `IAutoMovieServiceNetwork` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `IAutoMovieServiceNetwork` for the interior space service network contract system contract.
+ * @evidence contracts/common.md#principled-implementation A typed port/segment graph joins rooted systems to the served environment, validating declared connectivity, medium/unit/direction, demand capacity, spatial run clashes, maintenance volumes and explicit boundary penetrations.
+ * @evidence contracts/common.md#clear-and-simple-design Shared graph structure serves every discipline while architecture owns spaces/boundaries and domain analysis reports unsupported quantitative solvers separately.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Structural admission cannot prove hydraulic head loss, circuit behavior or duct pressure. Missing spatial cell/face facts limit applicability; `serviceAnalysisSupport` separately describes those limits as capability metadata and is not proof that a check ran or that a production report consumed it.
+ * @evidence contracts/common.md#meaningful-documentation Defines meter units, environment ownership, rooted systems, nodes, two-port runs, sleeves and waterproofed zones.
  * @author Samchon
  */
 export interface IAutoMovieServiceNetwork {
-  /**
-   * Schema version.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `version` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `version` for the interior space service network contract system contract.
-   */
+  /** Schema version. */
   version: 1;
 
-  /**
-   * Stable identity of this network within the production.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `id` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `id` for the interior space service network contract system contract.
-   */
+  /** Stable identity of this network within the production. */
   id: string;
 
-  /**
-   * All authored lengths are measured in metres.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `units` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `units` for the interior space service network contract system contract.
-   */
+  /** All authored lengths are measured in metres. */
   units: "meter";
 
-  /**
-   * Id of the `IAutoMovieBuiltEnvironment` this network serves.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `environment` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `environment` for the interior space service network contract system contract.
-   */
+  /** Id of the `IAutoMovieBuiltEnvironment` this network serves. */
   environment: string;
 
-  /**
-   * Independently rooted distribution systems, each carrying one medium.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `systems` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `systems` for the interior space service network contract system contract.
-   */
+  /** Independently rooted distribution systems, each carrying one medium. */
   systems: IAutoMovieServiceSystem[];
 
-  /**
-   * Every fixture, machine, junction, terminal and inline device.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `nodes` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `nodes` for the interior space service network contract system contract.
-   */
+  /** Every fixture, machine, junction, terminal and inline device. */
   nodes: IAutoMovieServiceNode[];
 
-  /**
-   * Runs joining exactly two ports: a pipe, a duct, a conduit, a cable.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `segments` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `segments` for the interior space service network contract system contract.
-   */
+  /** Runs joining exactly two ports: a pipe, a duct, a conduit, a cable. */
   segments: IAutoMovieServiceSegment[];
 
-  /**
-   * Sleeves where a run crosses a boundary of the served environment.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `penetrations` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `penetrations` for the interior space service network contract system contract.
-   */
+  /** Sleeves where a run crosses a boundary of the served environment. */
   penetrations: IAutoMovieServicePenetration[];
 
   /**
    * Wet and waterproofed regions bound to logical spaces of that environment.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `zones` as the portable data boundary for the interior service network validation requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `zones` for the interior space service network contract system contract.
    */
   zones: IAutoMovieWetZone[];
 }

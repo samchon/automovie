@@ -3,97 +3,65 @@ import { AutoMovieNodeKind } from "./AutoMovieNodeKind";
 
 /**
  * A node in the scene graph: the universal transformable element. Characters,
- * props, bones, cameras, and lights are all nodes; this is the spine the whole
- * core model hangs from (glTF node = USD prim).
+ * props, bones, cameras and lights are all nodes, and the whole core model
+ * hangs from this record (a glTF node, a USD prim).
  *
- * A node is a local TRS transform plus an optional payload referenced by id
- * (mirroring glTF's `node.mesh` / `node.camera` etc., so it round-trips). The
- * hierarchy is by `parent` reference; the engine derives children and walks
- * parent-before-child. **A group is simply a node with children**
- * ({@link AutoMovieNodeKind} `group`): its TRS moves the subtree, its local
- * frame is the rotation pivot, and a {@link IAutoMovieChannelLimit} on its
- * rotation is a group-level ROM; no separate grouping concept exists.
+ * A node is a parent-local TRS transform plus optional payload ids, mirroring
+ * glTF's `node.mesh` and `node.camera` so it round-trips. The hierarchy is the
+ * `parent` reference: a node has at most one parent, so the graph is a forest,
+ * and a group is simply a node with children ({@link AutoMovieNodeKind}
+ * `group`) whose TRS moves the subtree and whose local frame is the rotation
+ * pivot. A relationship between nodes in different branches, such as a sword
+ * following a hand, is an `IAutoMovieDriver` rather than a second parent.
  *
- * Transform is parent-local TRS (never a matrix, so it stays animatable and
- * decomposed). Cross-node relationships (a sword following a hand) are
- * expressed as {@link IAutoMovieDriver}s, not multi-parenting, since the graph
- * is a strict tree on export.
+ * `composeScene` resolves parents on demand, so the node list may be in any
+ * order, and it throws on a duplicate id, a missing parent or a parent cycle.
+ * It does not check that the transform is finite or that the rotation is a
+ * unit quaternion. The resolve pipeline reads only `id`, `parent` and
+ * `transform`; `name`, `kind` and the payload ids are carried for renderers
+ * and round-tripping.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `IAutoMovieNode` as the portable data boundary for the asset rig basis controls requirement.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `IAutoMovieNode` for the asset spec rig inputs system contract.
+ * @evidence contracts/common.md#principled-implementation `composeScene` turns each node into `parent world × compose(translation, rotation, scale)` with a real 4x4 product, memoized per id and guarded by an in-progress set, so declaration order is free and a cycle, duplicate id or missing parent throws; the premise of finite TRS and a unit rotation is left to the producers of the list and is not rechecked there.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record per node with a single parent reference keeps the hierarchy a forest the engine can index in one pass, and payloads are ids rather than nested objects so meshes, cameras and lights stay owned by their own tables.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No node kind is special-cased by the resolver, which reads only id, parent and transform; multi-parent relationships are expressed as drivers rather than patched into the hierarchy. The descriptive `kind` and payload ids are not cross-checked, a gap stated here rather than hidden.
+ * @evidence contracts/common.md#meaningful-documentation States the parent-local frame of the transform, the single-parent forest rule, what `composeScene` refuses and does not check, which fields the resolver reads, and that a transform is the rest pose when no channel animates it.
  * @author Samchon
  */
 export interface IAutoMovieNode {
   /**
-   * Stable id; channels, drivers, skins, and scene structure cite the node by
-   * this.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `id` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `id` for the asset spec rig inputs system contract.
+   * Id unique within the node list; channels, drivers, skins and scene
+   * structure cite the node by it.
    */
   id: string;
 
-  /**
-   * Human / LLM readable name. Null if unnamed.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `name` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `name` for the asset spec rig inputs system contract.
-   */
+  /** Display name for people and the LLM, or `null`; no resolver reads it. */
   name: string | null;
 
   /**
-   * Parent node id, or `null` for a root. Defines the space `transform` is in.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `parent` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `parent` for the asset spec rig inputs system contract.
+   * Parent node id, or `null` for a root. The parent's world frame is the space
+   * `transform` is expressed in.
    */
   parent: string | null;
 
-  /**
-   * What payload (if any) this node carries.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `kind` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `kind` for the asset spec rig inputs system contract.
-   */
+  /** Which payload, if any, this node carries; descriptive only. */
   kind: AutoMovieNodeKind;
 
   /**
-   * Local TRS relative to `parent`.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `transform` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `transform` for the asset spec rig inputs system contract.
+   * Local TRS relative to `parent`; the rest pose when no channel animates it.
+   * A sampled translation, rotation or scale channel replaces only its own
+   * component for that frame.
    */
   transform: IAutoMovieTransform;
 
-  /**
-   * Id of an attached mesh, or `null`.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `mesh` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `mesh` for the asset spec rig inputs system contract.
-   */
+  /** Id of an attached mesh, or `null`. */
   mesh: string | null;
 
-  /**
-   * Id of an attached camera, or `null`.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `camera` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `camera` for the asset spec rig inputs system contract.
-   */
+  /** Id of an attached camera, or `null`. */
   camera: string | null;
 
-  /**
-   * Id of an attached light, or `null`.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `light` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `light` for the asset spec rig inputs system contract.
-   */
+  /** Id of an attached light, or `null`. */
   light: string | null;
 
-  /**
-   * Id of the skin that binds this mesh to a skeleton, or `null`.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Exposes `skin` as the portable data boundary for the asset rig basis controls requirement.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Types `skin` for the asset spec rig inputs system contract.
-   */
+  /** Id of the skin that binds this node's mesh to a skeleton, or `null`. */
   skin: string | null;
 }

@@ -4,4 +4,4 @@
  * motion remains inside the engine's angular-velocity admission boundary.
  * Script, blocking cues and performance consume this same clock.
  */
-export const APPROACH_DURATION = 4;
+export const APPROACH_DURATION: number = 4;

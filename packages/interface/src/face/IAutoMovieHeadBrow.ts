@@ -1,26 +1,20 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
- * Eyebrows.
+ * Brow traits of an {@link IAutoMovieHead}: signed weights in `[-2, 2]`, with
+ * omission leaving the template's brows unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieHeadBrow` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieHeadBrow` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * Both brows move together. `flattenHead` renames `height` to `browHeight` and
+ * `angle` to `browAngle`.
+ *
+ * @evidence contracts/common.md#principled-implementation `HEAD_PARAMETERS.brow` in `flattenHead` maps each of the two leaves to one unsided morph name and copies the weight, so one value drives one template target covering both brows.
+ * @evidence contracts/common.md#clear-and-simple-design Two leaves on one record are the whole coarse brow; per-side brows belong to the sided `IAutoMovieFaceBrowSet` of the face vocabulary, not to this head group.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No raised single brow is approximated by splitting a weight; the head vocabulary simply has no sided brow target.
+ * @evidence contracts/common.md#meaningful-documentation States the range and neutral meaning, that both brows move together, and the two morph names; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieHeadBrow {
-  /**
-   * Vertical brow position: `+` higher (feminine arch), `-` lower.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `height` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `height` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  height?: AutoMovieFaceWeight;
+  /** Vertical brow position: `+` higher, `-` lower. */
+  height?: number;
 
-  /**
-   * Brow tilt: `+` arched up, `-` angled down.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `angle` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `angle` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  angle?: AutoMovieFaceWeight;
+  /** Brow tilt: `+` arched up, `-` angled down. */
+  angle?: number;
 }

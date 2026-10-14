@@ -38,25 +38,29 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_ARM_LENGTH: IAutoMovieHumanBodySimpl
     "measureLowerarmLength",
     "handScaleLeft",
     "handScaleRight",
-  ].map((channel) => ({
-    channel,
-    gain: 1,
-    curves: [
-      {
-        parameter: "sex" as const,
-        points: [
-          [-1, 0.48],
-          [1, 0.135],
-        ] as [number, number][],
-      },
-      {
-        parameter: "ageYears" as const,
-        points: [
-          [11, 0],
-          [17, 1],
-          [60, 1],
-          [80, 0],
-        ] as [number, number][],
-      },
-    ],
-  }));
+  ].map(
+    (
+      channel: string,
+    ): IAutoMovieHumanBodySimpleShapeTable["terms"][number] => ({
+      channel,
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex" as const,
+          points: [
+            [-1, 0.48],
+            [1, 0.135],
+          ] as [number, number][],
+        },
+        {
+          parameter: "ageYears" as const,
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ] as [number, number][],
+        },
+      ],
+    }),
+  );

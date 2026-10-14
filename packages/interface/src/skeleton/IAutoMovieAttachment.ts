@@ -2,38 +2,24 @@ import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
 
 /**
- * A rigid coupling of one model's root to a **bone of another model**: the
- * cross-skeleton joint that lets a rider sit a horse, a passenger ride a cart,
- * or a sword stay in a hand.
+ * A rigid coupling of one model's root to a **bone of another model**: the cross-skeleton joint that lets a rider sit a horse, a passenger ride a cart, or a sword stay in a hand.
  *
- * This is the automovie expression of what a physics engine does with a fixed
- * joint between two bodies: the child's body frame is locked into the parent
- * bone's frame, so wherever and however that bone moves in the world (the
- * horse's saddle pitching back as it rears), the child follows rigidly,
- * position and orientation together. The engine's `resolveAttachment` computes
- * the child root world transform each frame from the parent's posed skeleton.
+ * resolveAttachment composes the offset with forward kinematics in the parent's skeleton model frame. compileAttach separately composes the parent's staged translation and rotation and samples a follow clip; parent scale is not inherited, and interpolation between baked samples is approximate. This coupling is not a dynamic fixed-joint simulation.
  *
- * @evidence requirements/actors/appearance-costume-and-attachments.md#actor-attachment-contact Exposes `IAutoMovieAttachment` as the portable data boundary for the actor attachment contact requirement.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-appearance-costume-attachment Types `IAutoMovieAttachment` for the performance actor appearance costume attachment system contract.
+ * @evidence contracts/common.md#principled-implementation resolveAttachment applies parent-bone forward kinematics then rigidly composes the child offset, rotating translation, multiplying unit rotations and copying offset scale in the parent's model frame.
+ * @evidence contracts/common.md#clear-and-simple-design Parent bone and local offset describe one cross-rig coupling while scene node identity and world placement belong to the surrounding attachment action.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or unreachable parent bones throw, and the bone frame carries no inherited scale; renderer and resolver must use matching clinical axes and rest frames.
+ * @evidence contracts/common.md#meaningful-documentation Defines parent-skeleton bone ownership, local offset composition and rigid following with model-versus-world placement distinction.
  * @author Samchon
  */
 export interface IAutoMovieAttachment {
   /**
-   * The bone on the **parent** skeleton the child rides (e.g. a horse's `chest`
-   * standing in for the saddle).
-   *
-   * @evidence requirements/actors/appearance-costume-and-attachments.md#actor-attachment-contact Exposes `parentBone` as the portable data boundary for the actor attachment contact requirement.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-appearance-costume-attachment Types `parentBone` for the performance actor appearance costume attachment system contract.
+   * The bone on the **parent** skeleton the child rides (e.g. a horse's `chest` standing in for the saddle).
    */
   parentBone: AutoMovieHumanoidBone;
 
   /**
-   * The child root's offset within that bone's local frame: where the seat is
-   * relative to the bone origin (translation) and how the child is oriented on
-   * it (rotation). Composed onto the bone's world transform.
-   *
-   * @evidence requirements/actors/appearance-costume-and-attachments.md#actor-attachment-contact Exposes `offset` as the portable data boundary for the actor attachment contact requirement.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-appearance-costume-attachment Types `offset` for the performance actor appearance costume attachment system contract.
+   * Child root offset in the parent bone's local frame. The resolver rotates its translation, multiplies its rotation and copies its scale into a parent-model-frame result; outer scene placement is separate.
    */
   offset: IAutoMovieTransform;
 }

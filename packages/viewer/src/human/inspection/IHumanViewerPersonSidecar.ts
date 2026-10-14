@@ -1,42 +1,23 @@
 /**
- * What the viewer reads from a person candidate packet
- * `<name>.person.json.gz`: its own identity and the identities of the face
- * and body bases it carries. The rest of the packet belongs to the Person
- * owner's generation type and is admitted where it is built.
+ * What the viewer reads from a person candidate packet `<name>.person.json.gz`: its own identity and the identities of the face and body bases it carries. The rest of the packet belongs to the Person owner's generation type and is admitted where it is built.
  *
- * @evidence contracts/common.md#principled-implementation Exposes the two basis identities a person document must name, read from the packet itself.
- * @evidence contracts/common.md#meaningful-documentation States what is read and who admits the rest.
- *
- * @evidence contracts/common.md#clear-and-simple-design Packet id and two enclosed basis ids are the only facts the catalogue needs from a Person packet.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The enclosed face and body identities are read from packet contents, not manufactured from its file name.
- *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Exposes the two basis identities a person document must name, read from the packet itself.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The enclosed face and body identities are read from packet contents, not manufactured from its file name.
+ * @evidence contracts/common.md#principled-implementation Projects a candidate packet's opening id and required face/body opening basis ids from the shared structural scanner.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps small catalogue naming facts apart from the complete Person generation consumed by its numerical owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Required identities refuse when absent/empty, while structural scanning does not certify complete JSON grammar or full Person semantics.
+ * @evidence contracts/common.md#meaningful-documentation Documents packet versus nested basis ids and candidate sidecar path meaning without embedding source geometry.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The shape scans no bytes; its reader traverses inflated packet bytes and performs two required-member lookups.
+ * @evidence contracts/performance.md#reuse-equivalent-work Path/stamp/digest facts control sidecar reuse; identical opening ids alone cannot authorize changed packet bytes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned three strings retain no full packet object tree; the caller owns its inflated buffer and file stream lifetime.
  *
  * @author Samchon
  */
 export interface IHumanViewerPersonSidecar {
-  /**
-   * The packet `id`.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps the Person packet's declared identity from its actual bytes.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps the Person packet's declared identity from its actual bytes.
-   */
+  /** The packet `id`. */
   id: string;
 
-  /**
-   * `id` of the face basis inside the packet.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Carries the id of the enclosed Face basis rather than a name-derived guess.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Carries the id of the enclosed Face basis rather than a name-derived guess.
-   */
+  /** `id` of the face basis inside the packet. */
   face: string;
 
-  /**
-   * `id` of the body basis inside the packet.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Carries the id of the enclosed Body basis rather than an assumed published default.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Carries the id of the enclosed Body basis rather than an assumed published default.
-   */
+  /** `id` of the body basis inside the packet. */
   body: string;
 }

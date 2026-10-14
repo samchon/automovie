@@ -1,36 +1,24 @@
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
 
 /**
- * Image facts read from an asset's own bytes, never from its file name.
+ * Media discriminator and dimensions inferred from recognized image headers.
  *
- * A manifest can claim anything; a PNG signature cannot. The builder hands
- * these in so this validator stays a pure function of facts, and so the same
- * closure runs against probed bytes in the builder and against fixed facts in
- * a test.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `IAutoMovieTextureImageFacts` carries the byte-proven format and dimensions used to validate a sampled surface image.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `IAutoMovieTextureImageFacts` provides the observed image facts required to reject unresolved or incompatible surface resources.
+ * @evidence contracts/common.md#principled-implementation readAutoMovieImageFacts reads signatures and dimension-bearing headers for its supported formats; these facts originate from supplied bytes rather than a file extension.
+ * @evidence contracts/common.md#clear-and-simple-design Texture closure consumes a small media/extent projection while full decoding and asset provenance remain separate responsibilities.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Header recognition does not prove complete encoding validity, checksums, pixel payload or successful decoding; callers supplying fixed facts must preserve their actual byte provenance.
+ * @evidence contracts/common.md#meaningful-documentation Documents positive integer pixel extents and inferred supported media, without treating a signature as full-image conformance evidence.
+ * @evidence contracts/performance.md#efficient-algorithms This three-field record performs no byte scan or pixel allocation; its parser owns bounded header reads and format-specific traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same facts structure serves byte-reader and closure tests, without an additional inferred-extension schema or image cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only media and dimension scalars survive; the row retains no original byte buffer, decoded pixels or renderer handle.
+ * @author Samchon
  */
 export interface IAutoMovieTextureImageFacts {
-  /**
-   * IANA media type the bytes themselves prove.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `mediaType` records the IANA image format proved by the asset bytes before channel use is accepted.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `mediaType` supplies the observed container identity checked against the texture or environment consumer's accepted set.
-   */
+  /** Media type recognized from supported header bytes. */
   mediaType: AutoMovieTextureMediaType;
-  /**
-   * Pixel width, a positive integer.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `width` records the byte-proven horizontal pixel count used to detect an unusable surface image.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `width` provides the measured edge checked for positivity and the portable sampling limit.
-   */
+
+  /** Pixel width, a positive integer. */
   width: number;
-  /**
-   * Pixel height, a positive integer.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `height` records the byte-proven vertical pixel count used to detect an unusable surface image.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `height` provides the independent vertical edge measurement enforced before model output is accepted.
-   */
+
+  /** Pixel height, a positive integer. */
   height: number;
 }

@@ -1,41 +1,27 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A suggested topple: the support hull edge the object tips over (the pivot
- * axis) and the horizontal direction it falls, when its center of mass
- * overhangs the support.
+ * Nearest support-hull pivot and horizontal fall direction suggested for an overhang.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `IAutoMovieToppling` identifies the support edge, fall direction, and overhang associated with one unstable subject.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `IAutoMovieToppling` bounds the suggested correction to the pivot geometry and measured excess discovered by the support check.
+ * @evidence contracts/common.md#principled-implementation detectSupportToppling chooses the nearest support edge, normalizes its horizontal center-to-edge offset and reports excess distance beyond the authored support margin.
+ * @evidence contracts/common.md#clear-and-simple-design The advice carries explicit geometric quantities rather than hiding pivot choice in a generated animation or physics state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The pivot comes from supplied point support, not a proven solid contact surface; dynamic stability and application of the suggestion remain outside this record.
+ * @evidence contracts/common.md#meaningful-documentation Defines metre overshoot, borrowed edge endpoints and unit XZ direction with Y zero; the producer's finite geometry premises apply.
+ * @evidence contracts/performance.md#efficient-algorithms The record executes no hull or nearest-segment operation; those costs belong to the support detector.
+ * @evidence contracts/performance.md#reuse-equivalent-work One nearest-edge result supplies both pivot and direction, with no retained support-result cache in the row.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh direction and scalar; edge endpoints borrow input support references and no solver or scene task is acquired.
  * @author Samchon
  */
 export interface IAutoMovieToppling {
-  /**
-   * One end of the pivot edge (the nearest support hull edge).
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `tipEdgeStart` records one endpoint of the nearest support-hull edge selected as the topple pivot.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `tipEdgeStart` preserves the first world-space point of the affected support relation.
-   */
+  /** One end of the pivot edge (the nearest support hull edge). */
   tipEdgeStart: IAutoMovieVector3;
-  /**
-   * The other end of the pivot edge.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `tipEdgeEnd` records the other endpoint that completes the unstable subject's pivot axis.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `tipEdgeEnd` preserves the second world-space point needed to reconstruct the chosen hull edge.
-   */
+
+  /** The other end of the pivot edge. */
   tipEdgeEnd: IAutoMovieVector3;
-  /**
-   * Unit horizontal direction (XZ, y=0) the object falls toward.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `fallDirection` identifies the horizontal unit direction from the support edge toward the overhanging center of mass.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `fallDirection` carries the XZ correction direction without inventing a vertical component.
-   */
+
+  /** Unit horizontal direction (XZ, y=0) the object falls toward. */
   fallDirection: IAutoMovieVector3;
-  /**
-   * How far past the margin the COM overhangs, in meters.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `overshoot` measures in meters how far the center of mass exceeds the permitted support margin.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `overshoot` retains the correction magnitude separately from the hull points and direction.
-   */
+
+  /** How far past the margin the COM overhangs, in meters. */
   overshoot: number;
 }

@@ -5,9 +5,13 @@ import { applyPortraitRegionReplacements } from "../../surface/applyPortraitRegi
 import { applyPortraitSurfaceLayers } from "../../surface/applyPortraitSurfaceLayers";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IPortraitComponentPlan } from "../../surface/structures/IPortraitComponentPlan";
+import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
+import type { IPortraitRegionReplacement } from "../../surface/structures/IPortraitRegionReplacement";
 import { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { assertPortraitSkinTopology } from "../skin/assertPortraitSkinTopology";
 import { blendPortraitSkin } from "../skin/blendPortraitSkin";
+import type { IPortraitSkinConstraint } from "../skin/structures/IPortraitSkinConstraint";
 import { appendPortraitCranium } from "./appendPortraitCranium";
 import { appendPortraitNeck } from "./appendPortraitNeck";
 import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
@@ -26,6 +30,14 @@ import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
  * This phase boundary is not a nonintersection or anatomical validity proof.
  * Changing the prepared surface invalidates downstream normals and interiors;
  * callers must derive those from the final surface instead of cached geometry.
+ *
+ * @evidence contracts/common.md#principled-implementation All components fit one unchanged host; admitted cuts/attachments precede reference-formed continuation, common refinement, layers, paired replacements and final proposals.
+ * @evidence contracts/common.md#clear-and-simple-design The preparation boundary retains the shared millimetre surface and finish declarations while buildPortraitHead separately seals contacts and materializes interiors/normals.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate component/cut/region ownership and mismatched reference topology/curves/replacements refuse; this phase does not certify nonintersection or anatomical validity.
+ * @evidence contracts/common.md#meaningful-documentation The prose states owned arrays, resident identities, colour-reference meaning, unsealed seam ownership and invalidation after surface changes.
+ * @evidence contracts/performance.md#efficient-algorithms Fitting and skin blending include their actual helper costs; attachment scans cage triangles and common Loop refinement grows triangles by four per admitted round up to four, with an optional second corresponding appearance assembly.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each assembly's unchanged source and fitted plans feed the same attached cage; paired reference assembly is separately recomputed because its geometry differs, and downstream normals wait for the final surface.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned surface/regions/finishers/source are caller-owned; cages, correspondence checks and closure-captured fitted inputs scale with actual components/refined geometry and no global resource is retained.
  */
 export function preparePortraitHead(
   host: IPortraitComponentHost,
@@ -33,30 +45,56 @@ export function preparePortraitHead(
   rounds: number,
   surfaceLayers: readonly IPortraitSurfaceLayer[] = [],
   anatomy: IPortraitHeadFormation = {},
-) {
+): {
+  surface: IControlMesh;
+  regions: { id: string; material: string }[];
+  finishers: ReturnType<IPortraitComponentPlan["attach"]>[];
+  source: number[][];
+} {
   if (!Number.isInteger(rounds) || rounds < 0 || rounds > 4)
     throw new Error(
       "Portrait subdivision rounds must be an integer from zero through four.",
     );
-  const assemble = (
+  const assemble: (
     host: IPortraitComponentHost,
     components: IPortraitComponent[],
     anatomy: IPortraitHeadFormation,
   ) => {
+    cage: IControlMesh;
+    regions: { id: string; material: string }[];
+    finishers: ReturnType<IPortraitComponentPlan["attach"]>[];
+    source: number[][];
+  } = (
+    host: IPortraitComponentHost,
+    components: IPortraitComponent[],
+    anatomy: IPortraitHeadFormation,
+  ): {
+    cage: IControlMesh;
+    regions: { id: string; material: string }[];
+    finishers: ReturnType<IPortraitComponentPlan["attach"]>[];
+    source: number[][];
+  } => {
     if (
-      new Set(components.map((component) => component.id)).size !==
-      components.length
+      new Set(
+        components.map((component: IPortraitComponent): string => component.id),
+      ).size !== components.length
     )
       throw new Error("Portrait component instance identities must be unique.");
     // Fit all parts to one unchanged basis. Sequentially fitting to another
     // part's displacement would make the result depend on component ordering.
-    const plans = components.map((component) => component.fit(host));
-    const source = blendPortraitSkin(
+    const plans: IPortraitComponentPlan[] = components.map(
+      (component: IPortraitComponent): IPortraitComponentPlan =>
+        component.fit(host),
+    );
+    const source: number[][] = blendPortraitSkin(
       host.positions,
       host.indices,
-      plans.flatMap((plan) => plan.constraints),
+      plans.flatMap(
+        (plan: IPortraitComponentPlan): IPortraitSkinConstraint[] =>
+          plan.constraints,
+      ),
     );
-    const removed = new Set<number>();
+    const removed: Set<number> = new Set<number>();
     for (const plan of plans)
       for (const triangle of plan.cutFaces) {
         if (
@@ -74,50 +112,70 @@ export function preparePortraitHead(
         removed.add(triangle);
       }
     const cage: IControlMesh = {
-      positions: source.map((point) => [...point]),
+      positions: source.map((point: number[]): number[] => [...point]),
       indices: [] as number[],
       groups: [] as number[],
     };
-    for (let i = 0; i < host.indices.length; i += 3) {
+    for (let i: number = 0; i < host.indices.length; i += 3) {
       if (removed.has(i / 3)) continue;
       cage.indices.push(...host.indices.slice(i, i + 3));
       cage.groups.push(0);
     }
-    const regions = [{ id: "head", material: "skin" }];
-    const region = (id: string, material: string): number => {
-      if (regions.some((entry) => entry.id === id))
+    const regions: { id: string; material: string }[] = [
+      { id: "head", material: "skin" },
+    ];
+    const region: (id: string, material: string) => number = (
+      id: string,
+      material: string,
+    ): number => {
+      if (
+        regions.some(
+          (entry: { id: string; material: string }): boolean => entry.id === id,
+        )
+      )
         throw new Error("A component skin region must have a unique identity.");
       return regions.push({ id, material }) - 1;
     };
     // Attachers append shared topology now and return closures for interiors.
     // Those closures are invoked only after the complete skin has been refined.
-    const finishers = plans.map((plan) => plan.attach(cage, source, region));
+    const finishers: ReturnType<IPortraitComponentPlan["attach"]>[] = plans.map(
+      (
+        plan: IPortraitComponentPlan,
+      ): ReturnType<IPortraitComponentPlan["attach"]> =>
+        plan.attach(cage, source, region),
+    );
     if (cage.groups.length * 3 !== cage.indices.length)
       throw new Error(
         "Every attached skin triangle needs one material region.",
       );
     if (
       cage.groups.some(
-        (group) =>
+        (group: number): boolean =>
           !Number.isInteger(group) || group < 0 || group >= regions.length,
       )
     )
       throw new Error("Component skin must use a registered material region.");
-    const continuation =
+    const continuation: IControlMesh =
       anatomy.performance === undefined
         ? cage
         : {
-            positions: cage.positions.map((point, vertex) =>
-              finiteContinuationPoint(
-                anatomy.performance!.reference([...point], vertex),
-              ),
+            positions: cage.positions.map(
+              (point: number[], vertex: number): number[] =>
+                finiteContinuationPoint(
+                  anatomy.performance!.reference([...point], vertex),
+                ),
             ),
             indices: [] as number[],
             groups: [] as number[],
           };
-    const firstContinuation = cage.positions.length;
-    const collar = appendPortraitCranium(continuation, anatomy.cranium);
-    const neckCrop = appendPortraitNeck(continuation, collar, anatomy.neck);
+    const firstContinuation: number = cage.positions.length;
+    const collar: { boundary: number[]; exterior: number[][] } =
+      appendPortraitCranium(continuation, anatomy.cranium);
+    const neckCrop: number[] = appendPortraitNeck(
+      continuation,
+      collar,
+      anatomy.neck,
+    );
     if (anatomy.performance !== undefined) {
       for (const point of continuation.positions.slice(firstContinuation))
         cage.positions.push(
@@ -128,27 +186,35 @@ export function preparePortraitHead(
     }
     assertPortraitSkinTopology(cage, [
       neckCrop,
-      ...finishers.flatMap((attached) => attached.openings),
+      ...finishers.flatMap(
+        (attached: ReturnType<IPortraitComponentPlan["attach"]>): number[][] =>
+          attached.openings,
+      ),
     ]);
     return { cage, regions, finishers, source };
   };
-  const { cage, regions, finishers, source } = assemble(
-    host,
-    components,
-    anatomy,
-  );
-  const appearance = anatomy.appearance;
+  const { cage, regions, finishers, source }: ReturnType<typeof assemble> =
+    assemble(host, components, anatomy);
+  const appearance: IPortraitHeadFormation["appearance"] = anatomy.appearance;
   if (
     appearance !== undefined &&
     (appearance.components.length !== components.length ||
       components.some(
-        (component, i) => component.id !== appearance.components[i].id,
+        (component: IPortraitComponent, i: number): boolean =>
+          component.id !== appearance.components[i].id,
       ))
   )
     throw new Error(
       "Skin colour reference must retain component identities and order.",
     );
-  const reference =
+  const reference:
+    | {
+        cage: IControlMesh;
+        regions: { id: string; material: string }[];
+        finishers: ReturnType<IPortraitComponentPlan["attach"]>[];
+        source: number[][];
+      }
+    | undefined =
     appearance === undefined
       ? undefined
       : assemble(appearance.host, appearance.components, {
@@ -158,23 +224,31 @@ export function preparePortraitHead(
         });
   if (reference !== undefined) {
     assertCorrespondingCages(cage, reference.cage);
-    const currentCurves = finishers.flatMap((part) => part.curves ?? []);
-    const referenceCurves = reference.finishers.flatMap(
-      (part) => part.curves ?? [],
+    const currentCurves: (readonly number[])[] = finishers.flatMap(
+      (
+        part: ReturnType<IPortraitComponentPlan["attach"]>,
+      ): readonly (readonly number[])[] => part.curves ?? [],
+    );
+    const referenceCurves: (readonly number[])[] = reference.finishers.flatMap(
+      (
+        part: ReturnType<IPortraitComponentPlan["attach"]>,
+      ): readonly (readonly number[])[] => part.curves ?? [],
     );
     if (
       currentCurves.length !== referenceCurves.length ||
       currentCurves.some(
-        (curve, i) =>
+        (curve: readonly number[], i: number): boolean =>
           curve.length !== referenceCurves[i].length ||
-          curve.some((id, j) => id !== referenceCurves[i][j]),
+          curve.some(
+            (id: number, j: number): boolean => id !== referenceCurves[i][j],
+          ),
       )
     )
       throw new Error("Skin colour reference must retain subdivision curves.");
     if (
       regions.length !== reference.regions.length ||
       regions.some(
-        (region, i) =>
+        (region: { id: string; material: string }, i: number): boolean =>
           region.id !== reference.regions[i].id ||
           region.material !== reference.regions[i].material,
       )
@@ -184,65 +258,92 @@ export function preparePortraitHead(
       );
     cage.reference = reference.cage.positions;
   }
-  const replacements = finishers.flatMap((attached, index) => {
-    const current = attached.replacements ?? [];
-    if (reference === undefined) return current;
-    const originals = reference.finishers[index].replacements ?? [];
-    if (current.length !== originals.length)
-      throw new Error(
-        "Skin colour reference must retain replacement identities.",
-      );
-    return current.map((replacement, i) => {
-      const original = originals[i];
-      if (replacement.group !== original.group)
+  const replacements: IPortraitRegionReplacement[] = finishers.flatMap(
+    (
+      attached: ReturnType<IPortraitComponentPlan["attach"]>,
+      index: number,
+    ): readonly IPortraitRegionReplacement[] => {
+      const current: readonly IPortraitRegionReplacement[] =
+        attached.replacements ?? [];
+      if (reference === undefined) return current;
+      const originals: readonly IPortraitRegionReplacement[] =
+        reference.finishers[index].replacements ?? [];
+      if (current.length !== originals.length)
         throw new Error(
-          "Skin colour reference must retain replacement regions.",
+          "Skin colour reference must retain replacement identities.",
         );
-      return {
-        group: replacement.group,
-        append: (mesh: IControlMesh, boundary: readonly number[]) => {
-          const originalMesh: IControlMesh = {
-            positions: mesh.reference!.map((p) => [...p]),
-            indices: [...mesh.indices],
-            groups: [...mesh.groups],
+      return current.map(
+        (
+          replacement: IPortraitRegionReplacement,
+          i: number,
+        ): {
+          group: number;
+          append: (mesh: IControlMesh, boundary: readonly number[]) => void;
+        } => {
+          const original: IPortraitRegionReplacement = originals[i];
+          if (replacement.group !== original.group)
+            throw new Error(
+              "Skin colour reference must retain replacement regions.",
+            );
+          return {
+            group: replacement.group,
+            append: (mesh: IControlMesh, boundary: readonly number[]): void => {
+              const originalMesh: IControlMesh = {
+                positions: mesh.reference!.map((p: number[]): number[] => [
+                  ...p,
+                ]),
+                indices: [...mesh.indices],
+                groups: [...mesh.groups],
+              };
+              replacement.append(mesh, boundary);
+              original.append(originalMesh, boundary);
+              assertCorrespondingCages(mesh, originalMesh);
+              mesh.reference = originalMesh.positions;
+            },
           };
-          replacement.append(mesh, boundary);
-          original.append(originalMesh, boundary);
-          assertCorrespondingCages(mesh, originalMesh);
-          mesh.reference = originalMesh.positions;
         },
-      };
-    });
-  });
-  const surface = applyPortraitFinalSurfaces(
+      );
+    },
+  );
+  const surface: IControlMesh = applyPortraitFinalSurfaces(
     applyPortraitRegionReplacements(
       applyPortraitSurfaceLayers(
         subdivideControlMesh(
           cage,
           rounds,
-          finishers.flatMap((attached) => attached.curves ?? []),
+          finishers.flatMap(
+            (
+              attached: ReturnType<IPortraitComponentPlan["attach"]>,
+            ): readonly (readonly number[])[] => attached.curves ?? [],
+          ),
         ),
         surfaceLayers,
       ),
       replacements,
     ),
-    finishers.flatMap((attached, index) =>
-      attached.finalSurface === undefined
-        ? []
-        : [
-            {
-              id: components[index].id,
-              propose: attached.finalSurface,
-            },
-          ],
+    finishers.flatMap(
+      (
+        attached: ReturnType<IPortraitComponentPlan["attach"]>,
+        index: number,
+      ): { id: string; propose: IPortraitFinalSurface }[] =>
+        attached.finalSurface === undefined
+          ? []
+          : [
+              {
+                id: components[index].id,
+                propose: attached.finalSurface,
+              },
+            ],
     ),
   );
   if (appearance !== undefined)
-    surface.colors = surface.reference!.map((point) => {
-      const rgb = appearance.sample(point);
+    surface.colors = surface.reference!.map((point: number[]): number[] => {
+      const rgb: number[] = appearance.sample(point);
       if (
         rgb.length !== 3 ||
-        rgb.some((v) => !Number.isFinite(v) || v < 0 || v > 1)
+        [rgb[0], rgb[1], rgb[2]].some(
+          (v: number): boolean => !Number.isFinite(v) || v < 0 || v > 1,
+        )
       )
         throw new Error("Skin colour must return finite linear RGB in [0,1].");
       return [...rgb];
@@ -250,6 +351,7 @@ export function preparePortraitHead(
   return { surface, regions, finishers, source };
 }
 
+/** Refuse reference cages whose resident counts, triangle identities or material groups differ. */
 function assertCorrespondingCages(
   current: IControlMesh,
   reference: IControlMesh,
@@ -257,17 +359,25 @@ function assertCorrespondingCages(
   if (
     current.positions.length !== reference.positions.length ||
     current.indices.length !== reference.indices.length ||
-    current.indices.some((id, i) => id !== reference.indices[i]) ||
+    current.indices.some(
+      (id: number, i: number): boolean => id !== reference.indices[i],
+    ) ||
     current.groups.length !== reference.groups.length ||
-    current.groups.some((id, i) => id !== reference.groups[i])
+    current.groups.some(
+      (id: number, i: number): boolean => id !== reference.groups[i],
+    )
   )
     throw new Error(
       "Skin colour reference and performance must share control topology.",
     );
 }
 
+/** Copy exactly three finite head-millimetre coordinates returned by a continuation callback. */
 function finiteContinuationPoint(point: number[]): number[] {
-  if (point.length !== 3 || !point.every(Number.isFinite))
+  if (
+    point.length !== 3 ||
+    ![point[0], point[1], point[2]].every(Number.isFinite)
+  )
     throw new Error("Head continuation must return finite XYZ millimetres.");
   return [...point];
 }

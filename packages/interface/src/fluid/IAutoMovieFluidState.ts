@@ -1,100 +1,50 @@
 /**
- * The complete conserved state of a fluid domain at one **absolute** step.
+ * The complete conserved state of a fluid domain at one absolute step.
  *
- * Absolute is the whole contract. A state is a pure function of the domain
- * record and the integer step index, so seeking a shot backwards, forwards, or
- * out of order yields exactly the same numbers as playing it straight through;
- * nothing accumulates in a runtime object between frames.
+ * simulateFluidDomain replays the supplied domain from its authored state for each absolute integer step, with no retained inter-call state. A seek to n costs n lattice updates and rejects a step outside [0, solver.maxSteps]. After each update it checks depth and face velocities for finiteness; returned clock/ledger totals have no corresponding check, and the depth assignment converts a NaN intermediate to zero before that check.
  *
- * Cell arrays are row-major (`row * columns + column`). Face arrays are indexed
- * as documented on each field: a face lies _between_ two cells, so there is one
- * more of them than cells along the axis they cross.
+ * Cell arrays are row-major at row * columns + column. Face arrays contain one extra face along the crossed axis, with their indexing given below.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `IAutoMovieFluidState` as the portable data boundary for the effects fluid seek state requirement.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `IAutoMovieFluidState` for the fluid seek and checkpoint state system contract.
+ * With finite representable arithmetic, the flux ledger targets initial volume plus sourceVolume minus drainVolume and outflowVolume, up to rounding. Extreme admitted fields can overflow flux or ledger intermediates; the current checks do not prove that balance for every returned record.
+ *
+ * @evidence contracts/common.md#principled-implementation Each call replays an explicit flux-form update from zero, with a shared donor-scaled limiter and ledger contributions from the same fluxes. Interior cancellation gives mathematical conservation under finite arithmetic; shape admission and the current depth/velocity checks do not establish finite clock/ledger values or detect a NaN depth intermediate already replaced by zero.
+ * @evidence contracts/common.md#clear-and-simple-design Depth on cells and velocity on faces is the whole state the next step needs, plus four ledger totals that let a caller audit conservation without re-solving.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No result cache makes seek results independent of earlier calls for unchanged inputs. The nonpositive-depth assignment follows limiting but also hides NaN intermediates, and ledger/time overflow is not independently refused; these remain unresolved numerical admission gaps rather than guaranteed roundoff-only corrections.
+ * @evidence contracts/common.md#meaningful-documentation States replay ownership and cost, step refusal, exact scope and limits of finite-state checks, array layouts and the intended finite-arithmetic ledger relation; members give units, indices and each total's meaning.
+ * @author Samchon
  */
 export interface IAutoMovieFluidState {
-  /**
-   * Identity of the domain this state belongs to.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `domain` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `domain` for the fluid seek and checkpoint state system contract.
-   */
+  /** Id of the domain this state belongs to. */
   domain: string;
 
-  /**
-   * Absolute integer step index, `0` being the authored initial state.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `step` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `step` for the fluid seek and checkpoint state system contract.
-   */
+  /** Absolute integer step index, `0` being the authored initial state. */
   step: number;
 
-  /**
-   * Absolute domain-clock second, exactly `step * solver.fixedStepSeconds`.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `time` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `time` for the fluid seek and checkpoint state system contract.
-   */
+  /** Absolute domain-clock second, exactly `step * solver.fixedStepSeconds`. */
   time: number;
 
-  /**
-   * Water depth per cell in metres, row-major, never negative.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `depth` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `depth` for the fluid seek and checkpoint state system contract.
-   */
+  /** Water depth per cell in metres, row-major, never negative. */
   depth: number[];
 
   /**
-   * Face velocity along `+x` in m/s, indexed `row * (columns + 1) + column`
-   * with `column` in `[0, columns]`. Face `column` separates cell `column - 1`
-   * from cell `column`; the outermost two lie on the domain edge.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `velocityX` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `velocityX` for the fluid seek and checkpoint state system contract.
+   * +X face velocity in metres per second at row * (columns + 1) + column for columns within [0, columns]. Face column separates cells column - 1 and column; the first and last faces are domain edges.
    */
   velocityX: number[];
 
   /**
-   * Face velocity along `+z` in m/s, indexed `row * columns + column` with
-   * `row` in `[0, rows]`. Face `row` separates cell row `row - 1` from cell row
-   * `row`; the outermost two lie on the domain edge.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `velocityZ` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `velocityZ` for the fluid seek and checkpoint state system contract.
+   * +Z face velocity in metres per second at row * columns + column for rows within [0, rows]. Face row separates cell rows row - 1 and row; the first and last faces are domain edges.
    */
   velocityZ: number[];
 
-  /**
-   * Water volume currently held by the lattice, in m³.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `volume` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `volume` for the fluid seek and checkpoint state system contract.
-   */
+  /** Water volume currently held by the lattice, in m³. */
   volume: number;
 
-  /**
-   * Cumulative volume admitted by declared sources since step 0, in m³.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `sourceVolume` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `sourceVolume` for the fluid seek and checkpoint state system contract.
-   */
+  /** Cumulative volume admitted by declared sources since step 0, in m³. */
   sourceVolume: number;
 
-  /**
-   * Cumulative volume removed by declared drains since step 0, in m³.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `drainVolume` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `drainVolume` for the fluid seek and checkpoint state system contract.
-   */
+  /** Cumulative volume removed by declared drains since step 0, in m³. */
   drainVolume: number;
 
-  /**
-   * Cumulative volume that left across `open` edges since step 0, in m³.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-seek-state Exposes `outflowVolume` as the portable data boundary for the effects fluid seek state requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-seek-and-checkpoint-state Types `outflowVolume` for the fluid seek and checkpoint state system contract.
-   */
+  /** Cumulative volume that left across `open` edges since step 0, in m³. */
   outflowVolume: number;
 }

@@ -4,84 +4,75 @@ import type { IHumanViewerWarming } from "./IHumanViewerWarming.js";
 /**
  * What a warm pass needs from its host: the documents, the cache and capture steps, queue admission and the progress record it updates.
  *
- * @evidence contracts/common.md#principled-implementation A warm pass binds its document population and counters to one source revision and checks the currently drawable authority.
- * @evidence contracts/common.md#clear-and-simple-design The host supplies cache lookup, capture persistence and lowest-lane queue admission while the pass owns ordering.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A newer revision withdraws the pass through source identity, with failed documents retaining their reasons.
- * @evidence contracts/common.md#meaningful-documentation Documents pass authority, readonly documents, cache lookup, queued capture and progress-record ownership.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale A warm pass binds its document population and counters to one source revision and checks the currently drawable authority.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host supplies cache lookup, capture persistence and lowest-lane queue admission while the pass owns ordering.
+ * @evidence contracts/common.md#principled-implementation A warm pass receives published documents, exact source authority, current-thumbnail lookup and separately queued capture effects with an observable progress record.
+ * @evidence contracts/common.md#clear-and-simple-design The host owns cache paths, capture and queue admission; warm iteration owns only missing-document selection and progress updates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Capture failures remain skipped records with reasons rather than successful completions, and changed source authority withdraws obsolete work.
+ * @evidence contracts/common.md#meaningful-documentation Members define source-generation boundaries, cached-document meaning, capture/store behavior, lowest-lane queueing and shared health progress.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms These warm-pass bindings select no missing-document scan or priority-queue data structure themselves.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current thumbnail-key equivalence is supplied by cached; warm iteration counts matching existing images without rebuilding them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns GPU tasks and disk writes; the warm pass awaits one capture per document and retains only its bounded-by-document-count progress/failure records.
+ *
  * @author Samchon
  */
 export interface IWarmHumanViewerDocumentsProps {
-  /**
-   * Source generation this pass warms.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Source generation this pass warms. A warm pass binds its document population and counters to one source revision and checks the currently drawable authority.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Source generation this pass warms. The host supplies cache lookup, capture persistence and lowest-lane queue admission while the pass owns ordering.
-   */
+  /** Source generation this pass warms. */
   revision: string;
 
-  /**
-   * Published documents the pass covers.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Published documents the pass covers. A warm pass binds its document population and counters to one source revision and checks the currently drawable authority.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Published documents the pass covers. The host supplies cache lookup, capture persistence and lowest-lane queue admission while the pass owns ordering.
-   */
+  /** Published documents the pass covers. */
   documents: readonly IHumanViewerCatalogueEntry[];
 
   /**
-   * The generation the page can draw now; a different one ends the pass.
+   * Return the page's ready-source authority; a different one withdraws this pass before its next item.
    *
-   * @evidence contracts/common.md#principled-implementation Current authority reads the source generation the page can actually draw.
-   * @evidence contracts/common.md#clear-and-simple-design The page owner supplies its live revision while the warm pass decides whether it is superseded.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An older ready frame cannot be presented as the new warm revision.
-   * @evidence contracts/common.md#meaningful-documentation Defines the current drawable-generation accessor.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Current authority reads the source generation the page can actually draw.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The page owner supplies its live revision while the warm pass decides whether it is superseded.
+   * @evidence contracts/common.md#principled-implementation Warm iteration compares its target revision with actual ready page authority before submitting another document.
+   * @evidence contracts/common.md#clear-and-simple-design A current-revision accessor keeps generation observation with the host rather than the warm loop.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Obsolete source work is not kept warming current thumbnails merely because its document ids still exist.
+   * @evidence contracts/common.md#meaningful-documentation The member defines ready authority and withdrawal before the next warm item.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This authority query chooses no source-proof or ready-generation algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Prior ready state is not reusable after a source transition; the accessor must report current authority.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The authority string lends no page or generation hold to the warm pass.
    */
   currentRevision: () => string;
 
   /**
-   * Whether a document already has its thumbnail.
+   * Whether this document's current warm query is already stored or has no supported thumbnail key.
    *
-   * @evidence contracts/common.md#principled-implementation Cache lookup asks whether this document already has its current thumbnail.
-   * @evidence contracts/common.md#clear-and-simple-design The thumbnail owner retains persistence and freshness decisions.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached answer does not claim construction acceptance for a failed document.
-   * @evidence contracts/common.md#meaningful-documentation Names the document-ID thumbnail lookup.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Cache lookup asks whether this document already has its current thumbnail.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The thumbnail owner retains persistence and freshness decisions.
+   * @evidence contracts/common.md#principled-implementation The host resolves its standard warm query to a current thumbnail key and answers whether capture is unnecessary.
+   * @evidence contracts/common.md#clear-and-simple-design Cache eligibility and file existence stay with the host while iteration filters documents using one boolean.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An older revision's stale fallback does not count as an equivalent current thumbnail.
+   * @evidence contracts/common.md#meaningful-documentation The comment defines stored-current or unsupported-key semantics rather than implying every true result denotes a file.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The eligibility callback selects no path hash or filesystem presence algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Only the host's matching source/document/query thumbnail key permits skipping rebuild; unsupported queries need no stored output.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This query returns a boolean without retaining image bytes or file handles.
    */
   cached: (id: string) => boolean;
 
   /**
-   * Draw one document and store its thumbnail.
+   * Draw one document's standard query and await storage of its supported current thumbnail.
    *
-   * @evidence contracts/common.md#principled-implementation Capture draws one requested document and persists its thumbnail through the host.
-   * @evidence contracts/common.md#clear-and-simple-design The capture owner retains GPU work and storage while the warm pass orders documents.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The operation cannot substitute a different document's image for the requested one.
-   * @evidence contracts/common.md#meaningful-documentation Defines document capture and thumbnail persistence completion.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Capture draws one requested document and persists its thumbnail through the host.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The capture owner retains GPU work and storage while the warm pass orders documents.
+   * @evidence contracts/common.md#principled-implementation The host captures the selected document through the product renderer and writes the PNG under its current supported thumbnail key.
+   * @evidence contracts/common.md#clear-and-simple-design Drawing and disk publication remain one awaited host operation while warm iteration handles progress and refusal accounting.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A capture or write refusal is not counted as a successfully warmed document.
+   * @evidence contracts/common.md#meaningful-documentation The member documents standard-query capture and awaited storage where the key is supported.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This warm capture signature chooses no GPU rendering or PNG-write algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Capturing/writing is an owned effect; the preceding cached query decides whether an equivalent stored result already exists.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns the queued renderer operation and temporary PNG/write buffers until the returned promise settles.
    */
   capture: (id: string) => Promise<void>;
 
   /**
-   * Admit one capture to the host queue's lowest lane.
+   * Admit and await one capture in the host queue's lowest lane; do not release the slot before capture settlement.
    *
-   * @evidence contracts/common.md#principled-implementation Queue admission submits one capture into the host's lowest-priority lane.
-   * @evidence contracts/common.md#clear-and-simple-design The shared queue retains GPU serialization and interactive scheduling.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts One warm task does not bypass foreground requests or release a slot before its operation settles.
-   * @evidence contracts/common.md#meaningful-documentation Documents the document label and queued capture operation.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Queue admission submits one capture into the host's lowest-priority lane.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The shared queue retains GPU serialization and interactive scheduling.
+   * @evidence contracts/common.md#principled-implementation One awaited queue entry per warm document permits higher-priority interactive work between background captures.
+   * @evidence contracts/common.md#clear-and-simple-design The host's existing queue owns scheduling; warm iteration submits its capture closure without a parallel queue implementation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Background warm work cannot bypass shared-page admission or release an active capture slot through a timeout race.
+   * @evidence contracts/common.md#meaningful-documentation The comment defines lowest-lane admission and waiting for actual capture settlement.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This queue capability chooses no lane-selection data structure.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each queued capture changes the shared page and thumbnail storage; equal document labels alone cannot merge its effects.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The queue owns the active slot until the submitted capture promise settles, and the pass submits its next item only afterwards.
    */
   queue: (id: string, capture: () => Promise<void>) => Promise<unknown>;
 
-  /**
-   * Progress record `/health` reports, reset by each pass.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Progress record `/health` reports, reset by each pass. A warm pass binds its document population and counters to one source revision and checks the currently drawable authority.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Progress record `/health` reports, reset by each pass. The host supplies cache lookup, capture persistence and lowest-lane queue admission while the pass owns ordering.
-   */
+  /** Progress record `/health` reports, reset by each pass. */
   status: IHumanViewerWarming;
 }

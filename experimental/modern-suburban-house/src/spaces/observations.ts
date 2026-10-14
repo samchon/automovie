@@ -3,7 +3,7 @@
  * spatial questions and self-space poses derived from the house's
  * built-environment record.
  *
- * Design owner: `docs/spaces/04-observations.md`. The derivation reads only
+ * The derivation reads only
  * the record `buildHouseEnvironment` returns, never a second copy of the
  * house, and fixes no view count in advance:
  * - every room, stair, storage and exterior zone gets the engine's stations
@@ -45,7 +45,7 @@ import {
 import type { IHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
 import { standingObservation } from "./observation-standing";
-import type { IPlanPoint } from "./solid-records";
+import type { IPlanPoint } from "../types/IPlanPoint";
 
 /** Eye height above a space's floor (settings frame-condition). */
 const EYE = 1.6;
@@ -161,13 +161,6 @@ const unit = (from: IPlanPoint, to: IPlanPoint): IPlanPoint => {
 
 /**
  * Derive every spatial question and self-space pose of the house.
- * @evidence spaces/04-observations.md The derivation consumes the built environment and house-owned outlines.
- * @evidence spaces/04-observations.md#spatial-observation-derivation Engine stations, concave corners and building census generate questions and poses from the built records.
- * @evidence spaces/04-observations.md#reference-spatial-comparisons Five reference selections connect derived observation ids to their relevant house, room, storage, and storey records.
- * @evidence spaces/04-observations.md#engine-render-handoff The returned poses are inspection data for later rendering, not camera geometry in the house.
- * @evidence principles/core/source-units.md#source-scope-preservation The function derives from the one compiled environment and house record without duplicating their geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion It returns the station list, explicit failures and all five reference selections.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The original logical stations ignored planned furniture and door swings; the revised spatial observation owner requires full standing-footprint clearance, and this producer now resolves each room pose before accepting its unchanged question id.
  */
 export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment, house: IHouse): IObservationDerivation => {
   const observations: IHouseObservation[] = [];

@@ -3,6 +3,14 @@
  * the skin surface, its primary line families and its pores, in physical
  * units, and the relief's deepening with age.
  *
+ * @evidence contracts/common.md#principled-implementation A seeded physical tile describes Gaussian groove families and pores, with an authored age-dependent strength curve.
+ * @evidence contracts/common.md#clear-and-simple-design The relief schema separates resolution, physical scale and feature parameters.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The seed makes the procedural field repeatable; the schema does not establish measured individual skin microstructure.
+ * @evidence contracts/common.md#meaningful-documentation Members give millimetres, micrometres, phase directions and endpoint-held age interpolation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The procedural micro-relief table definition supplies no executable processing strategy.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The procedural micro-relief table type neither schedules requests nor caches results.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The procedural micro-relief table declaration does not acquire or retain runtime resources.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinDetail {
@@ -25,18 +33,34 @@ export interface IAutoMovieHumanBodySkinDetail {
    * reaches nothing.
    */
   lines: {
+    /** Integer phase coefficient multiplying the tile's U coordinate. */
     a: number;
+
+    /** Integer phase coefficient multiplying the tile's V coordinate. */
     b: number;
+
+    /** Gaussian groove depth, micrometres. */
     depth: number;
+
+    /** Gaussian groove width, micrometres. */
     width: number;
+
+    /** Maximum phase wander, as a fraction of one groove period. */
     wander: number;
+
+    /** Maximum depth variation, as a fraction of the groove depth. */
     vary: number;
   }[];
 
   /** Follicular openings: count per square centimetre, Gaussian radius and depth in micrometres. */
   pores: {
+    /** Follicular opening density over the tile's physical area. */
     perSquareCentimetre: number;
+
+    /** Gaussian opening radius, micrometres. */
     radiusMicrometres: number;
+
+    /** Gaussian opening depth, micrometres. */
     depthMicrometres: number;
   };
 

@@ -1,45 +1,28 @@
 import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 
 /**
- * One deliverable the production must eventually materialize.
+ * One authored output obligation the production renders and verifies.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieProductionDeliverable` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieProductionDeliverable` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation A unique deliverable id, output kind and required flag establish the declared delivery population; guide-pass selection adds its structural pass and final validation reopens the actual files for that obligation.
+ * @evidence contracts/common.md#clear-and-simple-design One record selects an output class without embedding renderer settings or byte receipts, which belong to production render configuration and delivered-file records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy guide records alone may omit pass and retain pose; current contracts name one pass explicitly, and required outputs cannot be discharged by another deliverable kind.
+ * @evidence contracts/common.md#meaningful-documentation Defines unique identity, output class, required completion and structural-pass ownership with the legacy pose default.
+ * @author Samchon
  */
 export interface IAutoMovieProductionDeliverable {
-  /**
-   * Non-blank id, unique within this production.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Non-blank id, unique within this production. */
   id: string;
 
-  /**
-   * Output class.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `kind` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `kind` for the narrative intent story design ownership system contract.
-   */
+  /** Output class. */
   kind: "preview" | "feature" | "guide-pass" | "captions" | "audio-mix";
 
   /**
    * Structural render pass owned by a guide-pass deliverable.
    *
-   * Omitted only for legacy production records, which retain the pose default.
-   * New production contracts declare one pass per guide deliverable so depth,
-   * normal, mask, outline, and pose outputs have distinct typed ownership.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `pass` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `pass` for the narrative intent story design ownership system contract.
+   * Omitted only for legacy production records, which retain the pose default. New production contracts declare one pass per guide deliverable so depth, normal, mask, outline, and pose outputs have distinct typed ownership.
    */
   pass?: Exclude<AutoMovieGuidePass, "beauty">;
 
-  /**
-   * Whether final compilation requires the deliverable.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `required` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `required` for the narrative intent story design ownership system contract.
-   */
+  /** Whether final compilation requires the deliverable. */
   required: boolean;
 }

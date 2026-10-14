@@ -13,6 +13,7 @@ import {
   IAutoMovieBone,
   IAutoMovieGestureAction,
   IAutoMovieJointPose,
+  IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,8 +21,13 @@ import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, makePose } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const bone = (
+const bone: (
+  b: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  t: IAutoMovieVector3,
+) => IAutoMovieBone = (
   b: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   t: IAutoMovieVector3,
@@ -64,11 +70,17 @@ const ctx: IAutoMovieActorContext = {
   rig: RIG,
 };
 
-const nodes = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["exit", { x: 3, y: 1.2, z: 1 }], // far: a point extends the arm toward it
 ]);
 
-const gesture = (
+const gesture: (
+  kind: IAutoMovieGestureAction["kind"],
+  overrides?: Partial<IAutoMovieGestureAction>,
+) => IAutoMovieGestureAction = (
   kind: IAutoMovieGestureAction["kind"],
   overrides: Partial<IAutoMovieGestureAction> = {},
 ): IAutoMovieGestureAction => ({
@@ -80,19 +92,19 @@ const gesture = (
   ...overrides,
 });
 
-const boneWorld = (
+const boneWorld: (
+  pose: ReturnType<typeof sampleMotion>["pose"],
+  b: AutoMovieHumanoidBone,
+) => IAutoMovieVector3 = (
   pose: ReturnType<typeof sampleMotion>["pose"],
   b: AutoMovieHumanoidBone,
 ): IAutoMovieVector3 =>
-  resolvePose(pose, RIG, HUMANOID_JOINT_AXES).find((x) => x.bone === b)!
-    .worldPosition;
+  resolvePose(pose, RIG, HUMANOID_JOINT_AXES).find(
+    (x: ReturnType<typeof resolvePose>[number]): boolean => x.bone === b,
+  )!.worldPosition;
 
 /**
- * The reachPose arm gestures the synthesiser rides: `point` (an arm extended
- * toward the `at` target and held) and `strike` (a jab thrown at `at`, then
- * retracted). Both drop the world target into model space and solve the arm
- * unclamped like `reach`, so an impossible reach fails the shot's ROM gate
- * rather than the engine faking it.
+ * Observe reference point/strike/reach envelopes, declared live target handling and clinical rest-frame selection on the unchanged two-arm fixture. The local bone observer uses HUMANOID_JOINT_AXES with omitted rest frames, as originally authored; it is a specific product FK consumer, not an independent physical or rendered-gesture oracle. No shot ROM gate runs here.
  *
  * Scenarios:
  *
@@ -102,39 +114,47 @@ const boneWorld = (
  * 2. `strike at: exit` snaps the right fist toward the target (a jab) and retracts
  *    it: rest → strike → rest.
  * 3. `point`/`strike` with no `at`, a rig-less context, and an unhandled combat
- *    kind (`draw`) all synthesise nothing.
- * 4. The context's rest frames decide the space the IK verbs answer in, and an
- *    omitted table takes the clinical default (#1346), so an ordinary context's
- *    `point` agrees with the explicit clinical solve digit for digit. The
- *    rig-space solve is a DIFFERENT legal pose rather than the same one
- *    renamed, because the solver elects its swivel by ROM legality judged in
- *    the declared space (#1345); the elbow's hinge angle, set by the target
- *    distance alone, is identical across both.
+ *    kind (guard) all synthesise nothing.
+ * 4. Raw and explicit clinical tables both produce clips; their elbow flexion agrees to 1e-12, while omitted restFrames matches explicit clinical shoulder abduction exactly. This does not assert distinct whole poses or whole-pose ROM admission.
  * 5. A bone target's FK point carries its pose-root travel once, then its staged
  *    actor position once; it never doubles locomotion.
  * 6. Live-target point/reach retain rest -> extend -> hold, while strike retains
  *    rest -> 40% peak -> rest; a moving target is sampled inside that
  *    envelope.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Synthesizes point/strike and observes key counts, hand-X extension/retraction and null branches, checks rooted bone-target placement, compares constant-live and static phase joints, observes moving-target change and mid-span disappearance refusal, then compares default/explicit clinical and raw rest-frame solutions.
+ * @evidence contracts/testing.md#independent-expectations Literal extension margin 0.1, root/staging/rest offset sum 6.75 and height 1.4, phase times [0,0.5,1]/[0,0.4,1], and null outcomes bound dispatch and envelopes. Static/live and explicit/default comparisons are metamorphic laws through shared IK; exact plain numeric/field comparisons use existing test12ValuesClose eps0 without quaternion sign normalization or prototype/NaN/signed-zero claims. The unchanged elbow comparison retains 1e-12.
+ * @evidence contracts/testing.md#distinguishing-cases Retains point versus jab versus reach, no target/rig/complete arm, unsupported guard, non-bone and rigless bone lookup, rooted placement, constant/moving/disappearing live targets and default/explicit/empty rest tables. Rendering, shot admission and continuous target-contact guarantees are outside this unit.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all synthesize/resolve/sample calls and the existing callback targets. Local readers and fixture constructors register no additional cases or continuing tasks and start no viewer, process or native artifact.
  */
-export const test_perform_arm_gestures = (): void => {
-  const synth = makeActorSynthesizer(new Map([["hero", ctx]]), nodes);
+export function test_perform_arm_gestures(): void {
+  const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
+    new Map([["hero", ctx]]),
+    nodes,
+  );
 
-  const point = synth(
+  const point: IAutoMovieMotion | null = synth(
     gesture("point", { at: { kind: "node", node: "exit" } }),
     "hero",
   );
   TestValidator.predicate("point produced a clip", point !== null);
   if (point === null) return;
   TestValidator.equals("rest → extend → hold", point.keyframes.length, 3);
-  const restHand = boneWorld(sampleMotion(point, 0).pose, "rightHand");
-  const pointedHand = boneWorld(sampleMotion(point, 1).pose, "rightHand");
+  const restHand: IAutoMovieVector3 = boneWorld(
+    sampleMotion(point, 0).pose,
+    "rightHand",
+  );
+  const pointedHand: IAutoMovieVector3 = boneWorld(
+    sampleMotion(point, 1).pose,
+    "rightHand",
+  );
   TestValidator.predicate(
     "the right hand extends toward the target (+x)",
     pointedHand.x > restHand.x + 0.1,
   );
 
   // strike at the target: a jab; the right fist snaps toward it, then retracts.
-  const strike = synth(
+  const strike: IAutoMovieMotion | null = synth(
     gesture("strike", { at: { kind: "node", node: "exit" } }),
     "hero",
   );
@@ -145,12 +165,15 @@ export const test_perform_arm_gestures = (): void => {
       strike.keyframes.length,
       3,
     );
-    const restFist = boneWorld(sampleMotion(strike, 0).pose, "rightHand");
-    const peakFist = boneWorld(
+    const restFist: IAutoMovieVector3 = boneWorld(
+      sampleMotion(strike, 0).pose,
+      "rightHand",
+    );
+    const peakFist: IAutoMovieVector3 = boneWorld(
       sampleMotion(strike, strike.duration * 0.4).pose,
       "rightHand",
     );
-    const endFist = boneWorld(
+    const endFist: IAutoMovieVector3 = boneWorld(
       sampleMotion(strike, strike.duration).pose,
       "rightHand",
     );
@@ -174,7 +197,7 @@ export const test_perform_arm_gestures = (): void => {
     synth(gesture("point"), "hero"),
     null,
   );
-  const rigless = makeActorSynthesizer(
+  const rigless: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
     new Map([["hero", { ...ctx, rig: undefined }]]),
     nodes,
   );
@@ -213,7 +236,7 @@ export const test_perform_arm_gestures = (): void => {
     ),
     null,
   );
-  const rootedTarget = resolveBoneTarget(
+  const rootedTarget: IAutoMovieVector3 | null = resolveBoneTarget(
     disappearingBone,
     new Map([
       [
@@ -235,14 +258,14 @@ export const test_perform_arm_gestures = (): void => {
   TestValidator.equals(
     "a bone target applies its FK root travel exactly once",
     namedFacts([
-      ["rootedTarget", () => rootedTarget !== null],
+      ["rootedTarget", (): boolean => rootedTarget !== null],
       [
         "ncloseRootedTargetX",
-        () => rootedTarget !== null && nclose(rootedTarget.x, 6.75),
+        (): boolean => rootedTarget !== null && nclose(rootedTarget.x, 6.75),
       ],
       [
         "ncloseRootedTargetY",
-        () => rootedTarget !== null && nclose(rootedTarget.y, 1.4),
+        (): boolean => rootedTarget !== null && nclose(rootedTarget.y, 1.4),
       ],
     ]),
     {
@@ -252,20 +275,21 @@ export const test_perform_arm_gestures = (): void => {
     },
   );
 
-  const constantTarget = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    () => nodes.get("exit")!,
-  );
-  const livePoint = constantTarget(
+  const constantTarget: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (): IAutoMovieVector3 => nodes.get("exit")!,
+    );
+  const livePoint: IAutoMovieMotion = constantTarget(
     gesture("point", { at: disappearingBone }),
     "hero",
   )!;
-  const liveStrike = constantTarget(
+  const liveStrike: IAutoMovieMotion = constantTarget(
     gesture("strike", { at: disappearingBone }),
     "hero",
   )!;
-  const staticReach = synth(
+  const staticReach: IAutoMovieMotion = synth(
     {
       verb: "reach",
       actor: "hero",
@@ -276,7 +300,7 @@ export const test_perform_arm_gestures = (): void => {
     },
     "hero",
   )!;
-  const liveReach = constantTarget(
+  const liveReach: IAutoMovieMotion = constantTarget(
     {
       verb: "reach",
       actor: "hero",
@@ -287,48 +311,80 @@ export const test_perform_arm_gestures = (): void => {
     },
     "hero",
   )!;
-  const jointsAt = (
+  const jointsAt: (
+    clip: IAutoMovieMotion,
+    time: number,
+  ) => IAutoMovieJointPose[] = (
     clip: NonNullable<ReturnType<typeof synth>>,
     time: number,
   ): IAutoMovieJointPose[] => sampleMotion(clip, time).pose.joints;
-  TestValidator.equals(
+  TestValidator.predicate(
     "live point keeps the static rest/extend/hold phases",
-    [0, 0.5, 1].map((time) => jointsAt(livePoint, time)),
-    [0, 0.5, 1].map((time) => jointsAt(point, time)),
+    test12ValuesClose(
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(livePoint, time),
+      ),
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(point, time),
+      ),
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "live strike keeps the static rest/40%-peak/rest phases",
-    [0, 0.4, 1].map((time) => jointsAt(liveStrike, time)),
-    [0, 0.4, 1].map((time) => jointsAt(strike!, time)),
+    test12ValuesClose(
+      [0, 0.4, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(liveStrike, time),
+      ),
+      [0, 0.4, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(strike!, time),
+      ),
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "live reach keeps the static rest/extend/hold phases",
-    [0, 0.5, 1].map((time) => jointsAt(liveReach, time)),
-    [0, 0.5, 1].map((time) => jointsAt(staticReach, time)),
+    test12ValuesClose(
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(liveReach, time),
+      ),
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(staticReach, time),
+      ),
+    ),
   );
 
-  const trackingTarget = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    (_target, seconds) => ({
-      ...nodes.get("exit")!,
-      z: nodes.get("exit")!.z + seconds,
-    }),
-  );
-  const trackingPoint = trackingTarget(
+  const trackingTarget: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (
+        _target: IAutoMovieActionTarget,
+        seconds: number,
+      ): IAutoMovieVector3 => ({
+        ...nodes.get("exit")!,
+        z: nodes.get("exit")!.z + seconds,
+      }),
+    );
+  const trackingPoint: IAutoMovieMotion = trackingTarget(
     gesture("point", { at: disappearingBone }),
     "hero",
   )!;
   TestValidator.predicate(
     "a held live point tracks target motion after extension",
-    JSON.stringify(jointsAt(trackingPoint, 0.5)) !==
-      JSON.stringify(jointsAt(trackingPoint, 1)),
+    !test12ValuesClose(
+      jointsAt(trackingPoint, 0.5),
+      jointsAt(trackingPoint, 1),
+    ),
   );
-  const dynamicThenMissing = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    (_target, seconds) => (seconds === 0 ? nodes.get("exit")! : null),
-  );
+  const dynamicThenMissing: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (
+        _target: IAutoMovieActionTarget,
+        seconds: number,
+      ): IAutoMovieVector3 | null =>
+        seconds === 0 ? nodes.get("exit")! : null,
+    );
   TestValidator.equals(
     "a bone point refuses rather than holding a target that disappears mid-span",
     dynamicThenMissing(gesture("point", { at: disappearingBone }), "hero"),
@@ -355,10 +411,11 @@ export const test_perform_arm_gestures = (): void => {
     null,
   );
   // a rig whose right arm is incomplete cannot point (reachPose returns null)
-  const noRightArm = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, rig: createSkeleton() }]]), // fixture omits rightHand
-    nodes,
-  );
+  const noRightArm: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, rig: createSkeleton() }]]), // fixture omits rightHand
+      nodes,
+    );
   TestValidator.equals(
     "point with no right-arm chain → null",
     noRightArm(
@@ -376,47 +433,46 @@ export const test_perform_arm_gestures = (): void => {
     null,
   );
 
-  // The actor context's rest frames decide the space the point solve answers
-  // in. The rig-space side is asked for EXPLICITLY with an empty table, because
-  // a context that simply omits `restFrames` now takes the clinical default
-  // (#1346).
-  //
-  // The two are NOT `90 − rig` apart, and expecting that was this case's old
-  // premise. Since #1345 every swivel angle around the shoulder-to-hand axis is
-  // an exact solution, so the solver spends that freedom on ROM legality, and
-  // ROM is judged in whichever space the context declared. A different space
-  // therefore elects a different legal pose, not a renaming of one. What the
-  // frame cannot move is the elbow: its hinge angle follows from the
-  // shoulder-to-target distance alone.
-  const jointOf = (
+  // Explicit empty tables ask for raw rest-relative solve semantics; omission
+  // takes the clinical default. Only the existing elbow/default-abduction
+  // observations below constrain these representations here.
+  const jointOf: (
+    clip: ReturnType<typeof synth>,
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieJointPose | null = (
     clip: ReturnType<typeof synth>,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointPose | null =>
     clip === null
       ? null
       : (clip.keyframes[clip.keyframes.length - 1]!.pose.joints.find(
-          (j) => j.bone === bone,
+          (j: IAutoMovieJointPose): boolean => j.bone === bone,
         ) ?? null);
-  const abdOf = (clip: ReturnType<typeof synth>): number | null =>
-    jointOf(clip, "rightUpperArm")?.abduction ?? null;
-  const clinical = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, restFrames: HUMANOID_REST_FRAME }]]),
-    nodes,
-  );
-  const rigSpace = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, restFrames: {} }]]),
-    nodes,
-  );
-  const pointAt = gesture("point", { at: { kind: "node", node: "exit" } });
-  const rigClip = rigSpace(pointAt, "hero");
-  const clinicalClip = clinical(pointAt, "hero");
-  const clinAbd = abdOf(clinicalClip);
+  const abdOf: (clip: ReturnType<typeof synth>) => number | null = (
+    clip: ReturnType<typeof synth>,
+  ): number | null => jointOf(clip, "rightUpperArm")?.abduction ?? null;
+  const clinical: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, restFrames: HUMANOID_REST_FRAME }]]),
+      nodes,
+    );
+  const rigSpace: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, restFrames: {} }]]),
+      nodes,
+    );
+  const pointAt: IAutoMovieGestureAction = gesture("point", {
+    at: { kind: "node", node: "exit" },
+  });
+  const rigClip: IAutoMovieMotion | null = rigSpace(pointAt, "hero");
+  const clinicalClip: IAutoMovieMotion | null = clinical(pointAt, "hero");
+  const clinAbd: number | null = abdOf(clinicalClip);
   TestValidator.equals(
     "both frames synthesise a point clip, each in its own space",
     namedFacts([
-      ["rigClip", () => rigClip !== null],
-      ["clinicalClip", () => clinicalClip !== null],
-      ["clinAbd", () => clinAbd !== null],
+      ["rigClip", (): boolean => rigClip !== null],
+      ["clinicalClip", (): boolean => clinicalClip !== null],
+      ["clinAbd", (): boolean => clinAbd !== null],
     ]),
     { rigClip: true, clinicalClip: true, clinAbd: true },
   );
@@ -432,9 +488,8 @@ export const test_perform_arm_gestures = (): void => {
   // `point` authored with no rest frames must agree with the explicit clinical
   // solve digit for digit, which is what stops `getReach` and `perform` from
   // describing one rig in two spaces.
-  TestValidator.equals(
+  TestValidator.predicate(
     "an actor context with no restFrames performs the CLINICAL point solve",
-    abdOf(synth(pointAt, "hero")),
-    clinAbd,
+    test12ValuesClose(abdOf(synth(pointAt, "hero")), clinAbd),
   );
-};
+}

@@ -1,39 +1,22 @@
 /**
- * One phoneme-derived mouth target on the production frame clock.
+ * One phoneme-derived mouth target over a half-open production-frame interval.
  *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `IAutoMovieProductionViseme` as the portable data boundary for the sound derived source closure requirement.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `IAutoMovieProductionViseme` for the sound decode and derived source closure system contract.
+ * @evidence contracts/common.md#principled-implementation productionPhonemesToVisemes maps native chunk sample extents into bounded film frame bins and selects a closed VRM mouth target from each bin's leading token; joining validates ordered nonoverlapping frame intervals and fills silence gaps with rest.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps source token text, target expression and global interval in one record while actor identity and authored-expression composition remain in the lip-sync join.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Multiple phonemes may share one frame bin and unknown tokens map to rest; the record does not claim measured phoneme onset precision or invent speech analysis for arbitrary external audio.
+ * @evidence contracts/common.md#meaningful-documentation Defines source token ownership, bounded mouth vocabulary, neutral rest and inclusive-start exclusive-end global frame timing.
+ * @author Samchon
  */
 export interface IAutoMovieProductionViseme {
-  /**
-   * Source phoneme or grapheme token.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `phoneme` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `phoneme` for the sound decode and derived source closure system contract.
-   */
+  /** Source phoneme or grapheme token. */
   phoneme: string;
 
-  /**
-   * VRM expression target, or `rest` for a closed/neutral mouth.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `viseme` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `viseme` for the sound decode and derived source closure system contract.
-   */
+  /** VRM expression target, or `rest` for a closed/neutral mouth. */
   viseme: "aa" | "ih" | "ou" | "ee" | "oh" | "rest";
 
-  /**
-   * Film-global inclusive start frame.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `startFrame` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `startFrame` for the sound decode and derived source closure system contract.
-   */
+  /** Film-global inclusive start frame. */
   startFrame: number;
 
-  /**
-   * Film-global exclusive end frame.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Exposes `endFrame` as the portable data boundary for the sound derived source closure requirement.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Types `endFrame` for the sound decode and derived source closure system contract.
-   */
+  /** Film-global exclusive end frame. */
   endFrame: number;
 }

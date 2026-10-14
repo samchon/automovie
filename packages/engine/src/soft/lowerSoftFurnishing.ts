@@ -1,8 +1,11 @@
 import {
+  AutoMovieSoftAnalysisStatus,
   IAutoMovieSoftAnalysis,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
   IAutoMovieSoftFurnishing,
+  IAutoMovieSoftNamedState,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
@@ -11,46 +14,34 @@ import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
-/**
- * Lower one bound furnishing to everything a renderer needs at a shot second,
- * beside an honest account of what was computed.
+/** Lower one typed furnishing into a cloth surface and explicit rest/solved/not-run/unsupported status. Domain/reference/state/budget failures are reported before solve; unexpected numeric integration failures can still throw. No production/viewer currently calls this public lowering API.
  *
- * The account is the point. Four outcomes are possible and each one is named:
+ * @evidence contracts/common.md#principled-implementation Domain admission, state membership and time/budget checks precede canonical rest or fixed-step replay, then the same solved particle field supplies surface geometry. Self-collision returns unsupported rest geometry rather than being presented as solved.
+ * @evidence contracts/common.md#clear-and-simple-design Lowering owns analysis status and joins shared validation, quantization, simulation and surface owners; the result does not install a renderer or live boundary host.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested unsupported self-collision is named, not hidden behind still geometry; numerical solver failures are not swallowed or represented as successful frames.
+ * @evidence contracts/common.md#meaningful-documentation States status applicability, surface source, failure propagation and unwired host reach.
+ * @evidence contracts/performance.md#efficient-algorithms Validation and mesh derivation scan P particles; simulated mode adds O(P*K*(I+C)) replay, while rest mode still allocates anchored configuration and surface arrays. Storage includes O(P) result and temporary geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work The selected state and computed particle field serve one surface derivation; no prior frame is reused under mutable domain/state/time assumptions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh mesh/state arrays and analysis rows transfer to the caller; failed admission retains no geometry, and thrown simulation retains no playback cursor or render task.
  *
- * | Condition                                                       | Status        | Geometry                            |
- * | --------------------------------------------------------------- | ------------- | ----------------------------------- |
- * | the furnishing draws a domain other than the supplied one       | `not-run`     | none                                |
- * | the domain does not validate                                    | `not-run`     | none                                |
- * | the furnishing asks to hold a state the domain does not declare | `not-run`     | none                                |
- * | the domain asks for self-collision                              | `unsupported` | the rest configuration              |
- * | `mode` is `rest`                                                | `rest`        | the rest configuration              |
- * | `mode` is neither `rest` nor `simulated`                        | `not-run`     | none                                |
- * | the shot second is not a real number                            | `not-run`     | none                                |
- * | the shot second lands past the declared `maxSteps`              | `not-run`     | none                                |
- * | `mode` is `simulated`                                           | `solved`      | the fixed-step solve at that second |
- *
- * A panel that could not be simulated is never handed back as though it had
- * been. Returning the rest configuration under an `unsupported` status is the
- * whole difference between a frame a reviewer can act on and a still curtain
- * nobody knew was still because the solver gave up.
- *
- * Nothing here throws. This is the call a builder makes once per furnishing
- * per shot second, so a curtain whose declared step budget stops before the cut
- * does must come back reported rather than take the whole render down with it —
- * and that budget is the author's own declaration, which is exactly the kind of
- * refusal this record exists to carry.
- *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-simulation-bound Lowers the furnishing through the selected bounded tier and preserves refusals.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Produces state, surface, and status as one coherent interior result.
  * @author Samchon
  */
-export const lowerSoftFurnishing = (props: {
+export const lowerSoftFurnishing: (props: {
+  furnishing: IAutoMovieSoftFurnishing;
+  domain: IAutoMovieSoftBodyDomain;
+  time: number;
+}) => IAutoMovieSoftFurnishingFrame = (props: {
   furnishing: IAutoMovieSoftFurnishing;
   domain: IAutoMovieSoftBodyDomain;
   time: number;
 }): IAutoMovieSoftFurnishingFrame => {
-  const { furnishing, domain } = props;
-  const analysis = (
+  const { furnishing, domain }: typeof props = props;
+  /** Create the explicit computation status and unsupported-case report for this furnishing domain. */
+  const analysis: (
+    status: AutoMovieSoftAnalysisStatus,
+    reason: string | null,
+    unsupported?: string[],
+  ) => IAutoMovieSoftAnalysis = (
     status: IAutoMovieSoftAnalysis["status"],
     reason: string | null,
     unsupported: string[] = [],
@@ -61,7 +52,10 @@ export const lowerSoftFurnishing = (props: {
     reason,
     unsupported,
   });
-  const frame = (
+  const frame: (
+    report: IAutoMovieSoftAnalysis,
+    state: IAutoMovieSoftBodyState | null,
+  ) => IAutoMovieSoftFurnishingFrame = (
     report: IAutoMovieSoftAnalysis,
     state: IAutoMovieSoftBodyState | null,
   ): IAutoMovieSoftFurnishingFrame => ({
@@ -82,7 +76,7 @@ export const lowerSoftFurnishing = (props: {
       ),
       null,
     );
-  const validation = validateSoftBodyDomain({ domain });
+  const validation: IAutoMovieValidation = validateSoftBodyDomain({ domain });
   if (validation.success === false)
     return frame(
       analysis(
@@ -93,7 +87,10 @@ export const lowerSoftFurnishing = (props: {
     );
   if (
     furnishing.state !== null &&
-    domain.states.every((state) => state.id !== furnishing.state)
+    domain.states.every(
+      (state: IAutoMovieSoftNamedState): boolean =>
+        state.id !== furnishing.state,
+    )
   )
     return frame(
       analysis(
@@ -128,7 +125,7 @@ export const lowerSoftFurnishing = (props: {
       ),
       null,
     );
-  const step = softBodyStepAt(domain, props.time);
+  const step: number | null = softBodyStepAt(domain, props.time);
   if (step === null)
     return frame(
       analysis(

@@ -1,5 +1,6 @@
 import {
   IAutoMovieBody,
+  IAutoMovieClip,
   IAutoMovieInteractionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,44 +11,43 @@ import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
 import { ViolationCollector } from "./ViolationCollector";
 
-const DEFAULT_MARGIN = 0.02;
+const DEFAULT_MARGIN: number = 0.02;
 
 const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 
 const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-const DEFAULT_FALL_DURATION = 1;
+const DEFAULT_FALL_DURATION: number = 1;
 
-const DEFAULT_FPS = 30;
+const DEFAULT_FPS: number = 30;
 
 /**
- * The default physical expectation: a body that is not held up by anything
- * falls.
+ * Advise free fall for an unsupported, unattached body that is not already falling.
  *
- * At the given frame, an object with a declared {@link IAutoMovieBody} is
- * expected to fall when it is (a) **unsupported** (its center of mass does not
- * project onto any support contact, reusing #601's hull judgment), (b) **not
- * attached / driven** (`attached`), and (c) **not already falling**
- * (`falling`). Because a film may be deliberately unphysical this is an
- * advisory `warning`, not a hard reject: it suggests the fall arc (via
- * {@link projectileTrajectory}, from rest or an inherited velocity) the model
- * can accept, and emits a `fall` event. A `physicsIntent` marker (e.g.
- * `"defies-gravity"`) opts the body out: the warning and suggestion are
- * suppressed while the event still surfaces. A `body: null` object (no declared
- * physics) is never a fall candidate.
- *
- * Support contacts, `attached`, and `falling` are given as input; deriving them
- * from the full scene is deferred to a later pass, and landing/impact chaining
- * to #600/#601. This is the gravity expectation plus the translational fall
- * arc.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `detectFreeFall` ties an unsupported body observation to its input root, node id, and evaluated film time.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `detectFreeFall` produces one consistent warning, fall event, and trajectory scope from the same gravity-state decision.
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-location-time-subject-context `detectFreeFall` attaches the unsupported-body finding and fall event to the supplied field root, node identity, and evaluated shot-clock time.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-spatiotemporal-subject-location The gravity check preserves structural location, subject id, and temporal scope across its validation, event, and trajectory outputs.
+ * @evidence contracts/common.md#principled-implementation Finite nonnegative margin and positive finite fall duration precede XZ convex support-hull distance; unsupported declared bodies emit a time-zero event and, absent physicsIntent, warning plus the canonical projectile clip.
+ * @evidence contracts/common.md#clear-and-simple-design Support judgment and analytic trajectory reuse their geometric owners, keeping supplied support/attachment facts separate from future scene derivation or applied motion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null body, held/falling bodies and supported centers do not fabricate a fall. PhysicsIntent retains the event but suppresses advice; malformed vector/fps or unallocatable sample populations can still throw in delegated trajectory generation.
+ * @evidence contracts/common.md#meaningful-documentation Documents world support/center frame, margin .02m, default gravity/velocity, one-second 30fps proposal, node fallback and invalid-input versus warning behavior.
+ * @evidence contracts/performance.md#efficient-algorithms S support points require O(S log S) hull work and O(S) distance storage; a proposed Q-interval clip adds O(Q) computation/output, while no-fall cases allocate only the result and any gate findings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One support hull decides the candidate and one canonical trajectory supplies its position/facing tracks; changed support or projectile inputs require a fresh evaluation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned clip/findings/events, with the event borrowing the supplied center point; temporary hull storage leaves scope and no simulation cursor or host is acquired.
  * @author Samchon
  */
-export const detectFreeFall = (props: {
+export const detectFreeFall: (props: {
+  node?: string | undefined;
+  body: IAutoMovieBody | null;
+  centerOfMass: IAutoMovieVector3;
+  support: readonly IAutoMovieVector3[];
+  attached: boolean;
+  falling: boolean;
+  margin?: number | undefined;
+  gravity?: IAutoMovieVector3 | undefined;
+  velocity?: IAutoMovieVector3 | undefined;
+  fallDuration?: number | undefined;
+  fps?: number | undefined;
+  physicsIntent?: string | undefined;
+  path?: string | undefined;
+}) => IAutoMovieFreeFallResult = (props: {
   /** Object node id, used to label the event and the suggested clip. */
   node?: string;
   /** The object's physical body. `null` → no declared physics, never falls. */
@@ -75,14 +75,15 @@ export const detectFreeFall = (props: {
   /** JSON path of the annotation being checked. Defaults to `$input`. */
   path?: string;
 }): IAutoMovieFreeFallResult => {
-  const collector = new ViolationCollector();
-  const path = props.path ?? "$input";
-  const margin = props.margin === undefined ? DEFAULT_MARGIN : props.margin;
-  const fallDuration =
+  const collector: ViolationCollector = new ViolationCollector();
+  const path: string = props.path ?? "$input";
+  const margin: number =
+    props.margin === undefined ? DEFAULT_MARGIN : props.margin;
+  const fallDuration: number =
     props.fallDuration === undefined
       ? DEFAULT_FALL_DURATION
       : props.fallDuration;
-  const node = props.node ?? null;
+  const node: string | null = props.node ?? null;
 
   if (!Number.isFinite(margin) || margin < 0) {
     collector.push(
@@ -103,11 +104,11 @@ export const detectFreeFall = (props: {
     return empty(collector);
   }
 
-  const supported =
+  const supported: boolean =
     props.support.length > 0 &&
     pointHullDistance(props.centerOfMass, convexHull2D(props.support)) <=
       margin;
-  const expectedToFall =
+  const expectedToFall: boolean =
     props.body !== null && !supported && !props.attached && !props.falling;
   if (!expectedToFall) return empty(collector);
 
@@ -136,7 +137,7 @@ export const detectFreeFall = (props: {
     `object${node === null ? "" : ` "${node}"`} is unsupported and would fall`,
     props.centerOfMass,
   );
-  const trajectory = projectileTrajectory(
+  const trajectory: IAutoMovieClip = projectileTrajectory(
     node ?? "object",
     {
       origin: props.centerOfMass,
@@ -149,7 +150,9 @@ export const detectFreeFall = (props: {
   return { validation: collector.toValidation(), events: [event], trajectory };
 };
 
-const empty = (collector: ViolationCollector): IAutoMovieFreeFallResult => ({
+const empty: (collector: ViolationCollector) => IAutoMovieFreeFallResult = (
+  collector: ViolationCollector,
+): IAutoMovieFreeFallResult => ({
   validation: collector.toValidation(),
   events: [],
   trajectory: null,
