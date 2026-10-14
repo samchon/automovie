@@ -1,9 +1,10 @@
-import { validateMotion } from "@automovie/engine";
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { IAutoMovieMotion, IAutoMovieValidation, IAutoMovieKeyframe } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, createValidMotion } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { createValidMotion } from "../internal/createValidMotion";
+import { hasViolation } from "../internal/hasViolation";
 import { withoutArraySlot } from "../internal/withoutArraySlot";
 
 /**
@@ -102,9 +103,7 @@ export function test_validation_motion_keyframe_bezier(): void {
     true,
   );
 
-  // #1159: a finite-but-out-of-[0,1] control x breaks the easing solver's
-  // monotonicity, so it must fail with a RANGE (not type) violation. `y` is
-  // unconstrained, so only x1/x2 are gated.
+  // Finite X controls outside [0,1] fail the declared cubic-bezier domain; Y remains unconstrained.
   const outOfRangeX: {
     label: string;
     bezier: [number, number, number, number];

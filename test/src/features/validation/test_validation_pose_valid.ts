@@ -1,17 +1,22 @@
-import { validatePoseResult } from "@automovie/engine";
+import type { IAutoMovieValidation } from "@automovie/interface";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, createValidPose } from "../internal/fixtures";
+import { createSkeleton } from "../internal/createSkeleton";
+import { createValidPose } from "../internal/createValidPose";
 
 /**
- * A pose whose every articulated joint sits inside its anatomical range
- * validates successfully: the "valid input passes" baseline that gives the
- * failure tests their meaning.
+ * Exercise admission of the existing three-joint conventional pose under declared engine constraints.
  *
- * Scenario: the standard valid pose (shoulder, elbow, and hip all well within
- * their ROM) against the test skeleton succeeds.
+ * Scenarios:
+ * 1. The existing shoulder, elbow and hip pose satisfies the target rig's default constraints and succeeds.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult and asserts supported acceptance, catching unconditional refusal of the existing pose.
+ * @evidence contracts/testing.md#independent-expectations The fixture names declared distinct bones with degree angles within default ranges and a supported combined hip swing; acceptance is scalar admission, not a clinical or visual posture oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Supplies the supported neighbor for pose identity, membership, duplicate, finite-axis and range cases; root TRS and authored overrides have separate entries.
+ * @evidence contracts/testing.md#execution-ownership The named unit reuses the existing rig/pose records and evaluates portable validation without FK construction, Human assets or a GPU.
  */
-export const test_validation_pose_valid = (): void => {
-  const result = validatePoseResult(createValidPose(), createSkeleton());
+export function test_validation_pose_valid(): void {
+  const result: IAutoMovieValidation = validatePoseResult(createValidPose(), createSkeleton());
   TestValidator.equals("valid pose succeeds", result.success, true);
-};
+}

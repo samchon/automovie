@@ -1,31 +1,30 @@
-import { validateMotion } from "@automovie/engine";
+import type { IAutoMovieMotion, IAutoMoviePose, IAutoMovieValidation } from "@automovie/interface";
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  createSkeleton,
-  joint,
-  keyframe,
-  makeExpression,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { keyframe } from "../internal/keyframe";
+import { makeExpression } from "../internal/makeExpression";
+import { makeMotion } from "../internal/makeMotion";
+import { makePose } from "../internal/makePose";
+import { hasViolation } from "../internal/hasViolation";
 
-const rest = makePose([joint("leftLowerArm", { flexion: 0 })]);
+const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
 
 /**
- * Motion validation also validates each keyframe's optional expression (range
- * checks on weights/intensity), reporting under that keyframe's expression
- * path. Pins the keyframe-expression branch (and the path/collector-passing arm
- * of `validateExpression`) that the bare pose clips never exercise.
+ * Exercise expression admission through the motion keyframe's owning diagnostic path.
  *
- * Scenario: a 1s clip whose second keyframe carries an expression with an
- * out-of-range blendshape weight (1.5). The clip's poses are all valid, so the
- * only failure must be the `range` violation surfaced under
- * `keyframes[1].expression`.
+ * Scenarios:
+ * 1. A one-second clip has supported poses and a second-keyframe jawOpen weight of 1.5, yielding a range violation beneath keyframes[1].expression.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with one out-of-range expression weight and requires its keyframe-rooted range finding, catching omitted expression validation or lost parent addressing.
+ * @evidence contracts/testing.md#independent-expectations Blendshape weights occupy inclusive [0,1], so 1.5 is unsupported; the second key's literal owning address does not depend on generated facial output.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the first key's supported expression and second key's excessive weight; dedicated expression entries own preset/channel/intensity admission and motion_valid owns null expressions.
+ * @evidence contracts/testing.md#execution-ownership This named unit uses existing expression/pose/clip factories and a portable validator; no face, morph buffer or Human asset is created.
  */
-export const test_validation_motion_keyframe_expression = (): void => {
-  const motion = makeMotion(
+export function test_validation_motion_keyframe_expression(): void {
+  const motion: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, rest, "linear", makeExpression("happy", 0.5)),
       keyframe(
@@ -37,10 +36,10 @@ export const test_validation_motion_keyframe_expression = (): void => {
     ],
     1,
   );
-  const result = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
   TestValidator.equals("bad keyframe expression fails", result.success, false);
   TestValidator.predicate(
     "range violation under a keyframe expression",
     hasViolation(result, "range", "keyframes[1].expression"),
   );
-};
+}

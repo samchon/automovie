@@ -1,22 +1,25 @@
-import { validateModel } from "@automovie/engine";
+import type { IAutoMovieValidation } from "@automovie/interface";
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel } from "../internal/fixtures";
+import { createModel } from "../internal/createModel";
 
 /**
- * A model may be a skeletonless object/prop (`skeleton: null`). Model
- * validation must accept it: there are no bones to resolve `attachedBone`
- * references against, but the parts and materials are still checked. Pins the
- * null-skeleton branch the character-model tests never take.
+ * Exercise admission of a skeletonless generated object whose primitive part references an existing material and no bone.
  *
- * Scenario: the standard valid model with its skeleton stripped to null. Its
- * one primitive part attaches to no bone, so it validates successfully.
+ * Scenarios:
+ * 1. The standard valid model with its skeleton stripped to null validates successfully; its one primitive part attaches to no bone.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateModel with null skeleton and checks success, catching a validator that requires a rig for every object.
+ * @evidence contracts/testing.md#independent-expectations The model contract permits null skeleton and unattached primitive parts; acceptance follows that optional-rig contract rather than a rendered snapshot.
+ * @evidence contracts/testing.md#distinguishing-cases Owns the null-rig neighbor of model_valid's rigged input; unresolved bone/material references and empty parts are covered separately.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit consumes the existing model record factory without loading an object, host or asset.
  */
-export const test_validation_model_object = (): void => {
-  const result = validateModel({ model: { ...createModel(), skeleton: null } });
+export function test_validation_model_object(): void {
+  const result: IAutoMovieValidation = validateModel({ model: { ...createModel(), skeleton: null } });
   TestValidator.equals(
     "skeletonless object model is valid",
     result.success,
     true,
   );
-};
+}

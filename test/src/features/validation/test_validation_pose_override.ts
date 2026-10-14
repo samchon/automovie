@@ -1,22 +1,27 @@
-import { validatePoseResult } from "@automovie/engine";
+import type { IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, joint, makePose } from "../internal/fixtures";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
 
 /**
- * A per-bone constraint on the skeleton overrides the default ROM table, so a
- * stylized or non-human rig can permit motion the anatomical defaults forbid.
- * Pins that the override path actually loosens validation, not just the table
- * lookup.
+ * Exercise authored per-bone constraint precedence over the engine's default elbow interval.
  *
- * Scenario: with the elbow's constraint widened to flexion [0, 200], a 175°
- * flexion (rejected by the default 150° limit) validates successfully.
+ * Scenarios:
+ * 1. With elbow flexion widened to [0,200], 175 degrees validates although the default interval ends at 150 degrees.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult after overriding the elbow constraint and requires acceptance, catching use of the default table despite a supplied override.
+ * @evidence contracts/testing.md#independent-expectations A non-null authored constraint has precedence, and 175 lies within [0,200]; this admission is no clinical range or rendered posture certification.
+ * @evidence contracts/testing.md#distinguishing-cases Owns a widened override while retaining the rest of the rig; pose_rom owns refusal of the same angle under defaults and pose_valid owns ordinary acceptance.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit edits caller-owned rig records through the existing factory, without a new Human asset, host or motion sampler.
  */
-export const test_validation_pose_override = (): void => {
-  const base = createSkeleton();
-  const skeleton = {
+export function test_validation_pose_override(): void {
+  const base: IAutoMovieSkeleton = createSkeleton();
+  const skeleton: IAutoMovieSkeleton = {
     ...base,
-    bones: base.bones.map((b) =>
+    bones: base.bones.map((b: IAutoMovieBone) : IAutoMovieBone =>
       b.bone === "leftLowerArm"
         ? {
             ...b,
@@ -29,9 +34,9 @@ export const test_validation_pose_override = (): void => {
         : b,
     ),
   };
-  const result = validatePoseResult(
+  const result: IAutoMovieValidation = validatePoseResult(
     makePose([joint("leftLowerArm", { flexion: 175 })]),
     skeleton,
   );
   TestValidator.equals("override widens ROM → valid", result.success, true);
-};
+}

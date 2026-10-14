@@ -1,20 +1,25 @@
-import { validatePoseResult } from "@automovie/engine";
+import type { IAutoMovieValidation } from "@automovie/interface";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, joint, makePose } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * A pose may only articulate bones the target skeleton actually has; citing a
- * missing bone is a dangling reference, reported as a `type` violation. Pins
- * that a pose authored against the wrong rig is caught rather than silently
- * ignored.
+ * Exercise joint-bone membership independently of matching pose/rig skeleton identities.
  *
- * Scenario: a pose articulating `jaw` (a bone the test skeleton lacks) fails,
- * with a `type` violation on the bone.
+ * Scenarios:
+ * 1. A pose articulating jaw, which the existing rig lacks, fails with a type violation on bone.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult for an undeclared joint bone and requires its type finding, catching silent omission of a dangling joint reference.
+ * @evidence contracts/testing.md#independent-expectations A pose can articulate only names declared by its supplied rig; the existing twelve-bone fixture contains no jaw, independently of validator indexing.
+ * @evidence contracts/testing.md#distinguishing-cases Retains matching skeleton identities with one absent bone; pose_valid owns declared joints and pose_duplicate_bone owns repeated declared references.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit reuses the existing factories and constructs no jaw geometry, Human asset or host.
  */
-export const test_validation_pose_unknown_bone = (): void => {
-  const result = validatePoseResult(
+export function test_validation_pose_unknown_bone(): void {
+  const result: IAutoMovieValidation = validatePoseResult(
     makePose([joint("jaw", { flexion: 10 })]),
     createSkeleton(),
   );
@@ -23,4 +28,4 @@ export const test_validation_pose_unknown_bone = (): void => {
     "type violation on bone",
     hasViolation(result, "type", ".bone"),
   );
-};
+}

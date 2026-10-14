@@ -1,32 +1,35 @@
-import { validateModel } from "@automovie/engine";
-import { IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieValidation } from "@automovie/interface";
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createModel } from "../internal/createModel";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Model-local identifiers and optional asset references must not be blank.
- * Empty strings can otherwise resolve through sets/maps while still being
- * unusable stable ids in later references and editor surfaces.
+ * Exercise nonblank model identities and non-null references at their owning diagnostic addresses.
  *
- * Scenario: blank model/skeleton/material/part ids plus blank non-null asset
- * and texture ids fail at their own fields.
+ * Scenarios:
+ * 1. Blank model/skeleton/material/part ids plus blank non-null asset and texture ids fail at their own fields; an undefined bone identity is also refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateModel with blank identities/references and an undefined bone name, requiring each field's type finding rather than only an aggregate failure.
+ * @evidence contracts/testing.md#independent-expectations Stable references require non-whitespace identifiers; undefined is not a bone identifier. Literal addresses identify each authored defect without copying validator output.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty, whitespace and malformed identities across model, asset, skeleton, material, texture and part fields; model_valid owns their supported neighbor.
+ * @evidence contracts/testing.md#execution-ownership The named unit validates caller-created records through the existing model factory; no external asset is resolved or generated.
  */
-export const test_validation_model_nonempty_ids = (): void => {
-  const base = createModel();
-  const invalid = validateModel({
+export function test_validation_model_nonempty_ids(): void {
+  const base: IAutoMovieModel = createModel();
+  const invalid: IAutoMovieValidation = validateModel({
     model: {
       ...base,
       id: "",
       asset: " ",
       skeleton: { ...base.skeleton!, id: " " },
-      materials: base.materials.map((material) => ({
+      materials: base.materials.map((material: IAutoMovieMaterial) : IAutoMovieMaterial => ({
         ...material,
         id: "",
         baseColorTexture: " ",
       })),
-      parts: base.parts.map((part) => ({
+      parts: base.parts.map((part: IAutoMovieModelPart) : IAutoMovieModelPart => ({
         ...part,
         id: " ",
         material: "",
@@ -64,7 +67,7 @@ export const test_validation_model_nonempty_ids = (): void => {
     hasViolation(invalid, "type", "$input.parts[0].material"),
   );
 
-  const malformedBone = validateModel({
+  const malformedBone: IAutoMovieValidation = validateModel({
     model: {
       ...base,
       skeleton: {
@@ -87,4 +90,4 @@ export const test_validation_model_nonempty_ids = (): void => {
     "skeleton bone id violation",
     hasViolation(malformedBone, "type", "$input.skeleton.bones[0].bone"),
   );
-};
+}

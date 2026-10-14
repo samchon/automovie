@@ -1,25 +1,27 @@
-import { validateMotion } from "@automovie/engine";
+import type { IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
+import { validateMotion } from "../../../../packages/engine/src/validation/validateMotion";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  createSkeleton,
-  joint,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { keyframe } from "../internal/keyframe";
+import { makeMotion } from "../internal/makeMotion";
+import { makePose } from "../internal/makePose";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Keyframe times must strictly increase, so a clip is an unambiguous timeline;
- * a non-increasing time is a `temporal` violation. Pins that the sampler's
- * "strictly increasing" precondition is enforced at the validation gate.
+ * Exercise strict keyframe time ordering independently of finite in-duration bounds.
  *
- * Scenario: a clip with keyframes at 0, 0.5, and again 0.5 fails, with a
- * `temporal` violation on the time.
+ * Scenarios:
+ * 1. A clip with keyframes at 0, 0.5 and again 0.5 seconds fails with a temporal time violation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with repeated adjacent times and requires a temporal time finding, catching admission of a zero-duration keyframe interval.
+ * @evidence contracts/testing.md#independent-expectations Strict increase requires each next time to exceed its predecessor; 0.5 equals 0.5 and violates that independent ordering relation.
+ * @evidence contracts/testing.md#distinguishing-cases Retains finite in-range values while violating equality; motion_valid owns strictly increasing keys and time_duration/non_finite_timing own other temporal domains.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit uses existing factories without sampling, scheduling or dynamically registering a case.
  */
-export const test_validation_motion_time_order = (): void => {
-  const motion = makeMotion(
+export function test_validation_motion_time_order(): void {
+  const motion: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
       keyframe(0.5, makePose([joint("leftLowerArm", { flexion: 30 })])),
@@ -27,10 +29,10 @@ export const test_validation_motion_time_order = (): void => {
     ],
     1,
   );
-  const result = validateMotion({ motion, skeleton: createSkeleton() });
+  const result: IAutoMovieValidation = validateMotion({ motion, skeleton: createSkeleton() });
   TestValidator.equals("non-increasing time fails", result.success, false);
   TestValidator.predicate(
     "temporal violation on time",
     hasViolation(result, "temporal", ".time"),
   );
-};
+}

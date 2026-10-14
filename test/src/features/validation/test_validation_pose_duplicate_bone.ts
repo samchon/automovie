@@ -1,19 +1,25 @@
-import { validatePoseResult } from "@automovie/engine";
+import type { IAutoMovieValidation } from "@automovie/interface";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, joint, makePose } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { createSkeleton } from "../internal/createSkeleton";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
+import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Articulating the same bone twice in one pose is a conflict (two competing
- * rotations for one joint), reported as a `type` violation so the ambiguity is
- * surfaced rather than resolved arbitrarily.
+ * Exercise pose admission when two joint records compete for the same declared bone.
  *
- * Scenario: a pose listing `leftLowerArm` twice (30° and 60°) fails, with a
- * `type` violation on the bone.
+ * Scenarios:
+ * 1. A pose listing leftLowerArm twice at 30 and 60 degrees fails with a type violation on bone.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult and requires duplicate-bone refusal, catching silent acceptance or arbitrary resolution of competing joint records.
+ * @evidence contracts/testing.md#independent-expectations A pose lists each bone at most once; equal literal bone identities violate uniqueness even though both angles satisfy the default elbow interval.
+ * @evidence contracts/testing.md#distinguishing-cases Owns a duplicate declared bone with supported angles; pose_valid owns distinct joints and pose_unknown_bone owns an undeclared reference.
+ * @evidence contracts/testing.md#execution-ownership This named unit uses portable pose admission and existing factories without constructing a Human figure or evaluating an FK pose.
  */
-export const test_validation_pose_duplicate_bone = (): void => {
-  const result = validatePoseResult(
+export function test_validation_pose_duplicate_bone(): void {
+  const result: IAutoMovieValidation = validatePoseResult(
     makePose([
       joint("leftLowerArm", { flexion: 30 }),
       joint("leftLowerArm", { flexion: 60 }),
@@ -25,4 +31,4 @@ export const test_validation_pose_duplicate_bone = (): void => {
     "type violation on bone",
     hasViolation(result, "type", ".bone"),
   );
-};
+}
