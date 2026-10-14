@@ -15,6 +15,7 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import type { IHumanFaceDynamicCollider } from "./IHumanFaceDynamicCollider";
+import type { IHumanFaceApertureDirections } from "./IHumanFaceApertureDirections";
 import type { IHumanFacePoseGeometry } from "./IHumanFacePoseGeometry";
 import type { IHumanFacePoseResult } from "./IHumanFacePoseResult";
 import { applyHumanFaceSourceClosure } from "./applyHumanFaceSourceClosure";
@@ -28,6 +29,7 @@ import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { measureHumanFaceMarginGaps } from "./measureHumanFaceMarginGaps";
 import { prepareHumanFaceReference } from "./prepareHumanFaceReference";
 import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
+import { resolveHumanFaceApertureDirections } from "./resolveHumanFaceApertureDirections";
 import type { IAutoMovieHumanFaceBasisContact as IAutoMovieHumanFaceBasisContactImported, IAutoMovieHumanFaceSourceClosurePlan as IAutoMovieHumanFaceSourceClosurePlanImported, IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported, IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported, IAutoMovieHumanFaceRigidMotion as IAutoMovieHumanFaceRigidMotionImported, IHumanConstructionCheck as IHumanConstructionCheckImported, IAutoMovieHumanFaceBasisChannel as IAutoMovieHumanFaceBasisChannelImported, IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported, IAutoMovieHumanFaceContactResolutionSummary as IAutoMovieHumanFaceContactResolutionSummaryImported, IAutoMovieHumanFaceMidlinePair as IAutoMovieHumanFaceMidlinePairImported, IAutoMovieHumanFaceTonguePassageSummary as IAutoMovieHumanFaceTonguePassageSummaryImported, IAutoMovieHumanConstructionClearanceReading as IAutoMovieHumanConstructionClearanceReadingImported } from "../../index";
 import type { IHumanFaceNativePose as IHumanFaceNativePoseImported } from "./IHumanFaceNativePose";
 import type { IHumanFacePeriocularTissuePart as IHumanFacePeriocularTissuePartImported } from "../anatomy/eye/structures/IHumanFacePeriocularTissuePart";
@@ -56,6 +58,8 @@ import type { IHumanFaceOcularSurface as IHumanFaceOcularSurfaceImported } from 
  * resulting performed geometry. Native scaling reads the pre-closure aperture, while the
  * admission and summary read the corrected geometry the renderer receives.
  * All positions remain basis metres in the Y-up, +Z-anterior head frame.
+ * Passage projections use the shared orthonormal opening directions, so an
+ * admitted nearly unit jaw axis does not scale metre distances or slab widths.
  * The returned arrays are owned by the caller and must not be modified by a
  * renderer or hair producer if a later appearance edit reuses them. Material
  * colours, iris pixels, scalp hair and ambient occlusion remain downstream.
@@ -67,7 +71,7 @@ import type { IHumanFaceOcularSurface as IHumanFaceOcularSurfaceImported } from 
  * contact stage is also a deterministic authored constraint rather than
  * measured tissue mechanics; resolveHumanFaceContact owns that distinction.
  *
- * @evidence contracts/common.md#principled-implementation The admitted fixed basis and current state drive native rest/articulation, optional fixed-zero/one source closure replay, matched shape references, generated exteriors and unchanged rigid contact/passage predicates. Normals and summaries read the final delivered coordinates; numerical constraints and source-authored motion do not establish a clinical trajectory or full visual correctness.
+ * @evidence contracts/common.md#principled-implementation The admitted fixed basis and current state drive native rest/articulation, optional fixed-zero/one source closure replay, matched shape references, generated exteriors and unchanged rigid contact/passage predicates. Passage receives the shared normalized opening frame, preserving metre projections for jaw axes admitted within the existing unit-length tolerance. Normals and summaries read the final delivered coordinates; numerical constraints and source-authored motion do not establish a clinical trajectory or full visual correctness.
  * @evidence contracts/common.md#clear-and-simple-design One geometry stage coordinates native pose, reference completion, generated contact and final derivative order independently of downstream materials/hair/AO. Owner callbacks identify real completed work and deferred tissue checks preserve their original physical producers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Compiler generations must agree; missing source, jaw motion, generated contact registration or required references refuse. Zero source closure still admits its plan and copies arrays, while an unrequested closure endpoint is not solved; no absent source is substituted.
  * @evidence contracts/common.md#meaningful-documentation Prose states basis-frame metre units, reference versus performed ordering, zero/nonzero closure semantics, caller-owned read-only results, downstream appearance boundary and authored-motion/contact limitations.
@@ -304,11 +308,8 @@ export function createHumanFaceBasisPoseEvaluator(
           oralAssembly.absentDentalVertices.has(vertex),
         );
       const incisors: { upper: IAutoMovieVector3Imported; lower: IAutoMovieVector3Imported; gap: number; } | undefined = missingIncisor ? undefined : pair(contact.incisors);
-      const up: IAutoMovieVector3Imported = native.up!,
-        forward: IAutoMovieVector3Imported = Vector3.cross(
-          Vector3.create(...basis.articulation!.jaw.axis),
-          up,
-        );
+      const { up, forward }: IHumanFaceApertureDirections =
+        resolveHumanFaceApertureDirections(basis.articulation!.jaw.axis);
       const passage: { protrudingMetres: number; thicknessMetres: number; } | null =
         oralAssembly === undefined
           ? evaluateHumanFacePassage(
