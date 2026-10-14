@@ -7,12 +7,13 @@ import {
   mergeAutoMovieMeshParts,
   transformAutoMovieMesh,
 } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
-const meshOf = (
+const meshOf: (positions: number[], indices: number[] | null) => IAutoMovieMesh = (
   positions: number[],
   indices: number[] | null,
 ): IAutoMovieMesh => ({
@@ -24,25 +25,22 @@ const meshOf = (
 });
 
 /** The subset of a topology report a scenario names, kept in one spelling. */
-const summary = (
+const summary: (mesh: IAutoMovieMesh, keys: ReadonlyArray<keyof IAutoMovieMeshTopology>) => Record<string, number | boolean | number[]> = (
   mesh: IAutoMovieMesh,
   keys: ReadonlyArray<keyof IAutoMovieMeshTopology>,
 ): Record<string, number | boolean | number[]> => {
-  const report = inspectAutoMovieMeshTopology(mesh);
-  return Object.fromEntries(keys.map((key) => [key, report[key]]));
+  const report: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(mesh);
+  return Object.fromEntries(keys.map((key: keyof IAutoMovieMeshTopology): [string, number | boolean | number[]] => [key, report[key]]));
 };
 
 /**
  * A closed solid must be provably closed, and an assembly must not be able to
  * pass as one.
  *
- * Nothing in this kernel is allowed to claim watertightness it did not earn, so
- * the check is the 2-manifold oracle: weld vertices by position, then demand
- * that every non-degenerate edge is used by exactly two triangles. That single
- * measure separates the three cases a builder actually produces — a closed
- * prism, an intentionally open surface, and members that share a face — and the
- * divergence-theorem volume is the independent second witness, exact for a
- * closed polyhedron and zero for a flat patch.
+ * The inspector counts edge incidence on the shared position grid and sums
+ * signed tetrahedra for volume. Authored analytic volumes and explicit edge
+ * populations provide expectations, but incidence closure alone does not
+ * prove winding consistency, nonzero area or absence of self-intersection.
  *
  * Scenarios:
  *
@@ -57,8 +55,8 @@ const summary = (
  * 4. A collapsed triangle is counted as degenerate and contributes no edges.
  * 5. Non-finite positions, normals, and uvs are all counted; an attribute-free
  *    mesh counts none of them.
- * 6. Corners spelled a picosecond of a metre apart weld into one, so a builder
- *    that recomputes a seam is still closed.
+ * 6. Corners a trillionth of a metre apart weld into one shared edge, leaving
+ *    four boundary edges around the two-triangle patch.
  * 7. An empty mesh is not watertight, because no edges is not the same as no
  *    holes.
  * 8. Negative twins: an empty face list, a two-corner face, a non-finite corner, a
@@ -67,9 +65,14 @@ const summary = (
  *    a non-planar face.
  * 9. A convex face whose first corner lies straight on an edge is admitted with
  *    the normal its other corners give, not refused as enclosing no area.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the existing prism, ridged solid, open triangle, three-face fin, cut wall, collapsed/seam/empty meshes and nonfinite attributes. It asserts authored volume/incidence/population reports, preserved placed closure, named malformed face/index refusals and admission of a convex face whose first corner is straight.
+ * @evidence contracts/testing.md#independent-expectations Prism and triangular-prism dimensions give volumes 0.5 and twelve; one triangle has three boundary edges, three faces sharing one edge give one non-manifold and six boundary edges, and the 3-by-3 cut wall has 32 exposed quads. Authored grid-near corners yield four boundary edges. Report equality is numerical/topological evidence only: this census omits winding and general intersection checks, and its three nonfinite-attribute probes do not cover every optional attribute.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves nine numbered scenarios including closed/open/non-manifold/degenerate/empty inputs, three nonfinite attributes, nearby welded seam, mirrored rotation, thirteen original malformed face/index cases and the straight-first-corner positive. Physical-source incidence, closedness policy and general validator admission belong to other topology tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable polyhedron/wall/extrusion/placement/topology source on existing in-memory data and observers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all cases belong to this entry without dynamic registration.
  */
-export const test_geometry_procedural_topology = (): void => {
-  const prism = extrudeAutoMovieProfile({
+export function test_geometry_procedural_topology(): void {
+  const prism: IAutoMovieMesh = extrudeAutoMovieProfile({
     profile: [
       { x: -1, y: -0.5 },
       { x: 1, y: -0.5 },
@@ -78,27 +81,27 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     depth: 0.25,
   });
-  const b0 = { x: -1, y: 0, z: -2 };
-  const b1 = { x: 1, y: 0, z: -2 };
-  const b2 = { x: 1, y: 0, z: 2 };
-  const b3 = { x: -1, y: 0, z: 2 };
-  const r0 = { x: 0, y: 3, z: -2 };
-  const r1 = { x: 0, y: 3, z: 2 };
-  const ridged = buildAutoMoviePolyhedron([
+  const b0: IAutoMovieVector3 = { x: -1, y: 0, z: -2 };
+  const b1: IAutoMovieVector3 = { x: 1, y: 0, z: -2 };
+  const b2: IAutoMovieVector3 = { x: 1, y: 0, z: 2 };
+  const b3: IAutoMovieVector3 = { x: -1, y: 0, z: 2 };
+  const r0: IAutoMovieVector3 = { x: 0, y: 3, z: -2 };
+  const r1: IAutoMovieVector3 = { x: 0, y: 3, z: 2 };
+  const ridged: IAutoMovieMesh = buildAutoMoviePolyhedron([
     [b0, b1, b2, b3],
     [b1, r0, r1, b2],
     [b3, r1, r0, b0],
     [b0, r0, b1],
     [b2, r1, b3],
   ]);
-  const ridgedTopology = inspectAutoMovieMeshTopology(ridged);
+  const ridgedTopology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(ridged);
   TestValidator.equals(
     "a closed prism and a face-authored ridged solid report their exact volumes",
     namedFacts([
       [
         "prism",
-        () => {
-          const report = inspectAutoMovieMeshTopology(prism);
+        (): boolean => {
+          const report: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(prism);
           return (
             report.watertight &&
             report.triangles === 12 &&
@@ -109,15 +112,15 @@ export const test_geometry_procedural_topology = (): void => {
           );
         },
       ],
-      ["ridgedClosed", () => ridgedTopology.watertight],
-      ["ridgedTriangles", () => ridgedTopology.triangles === 8],
+      ["ridgedClosed", (): boolean => ridgedTopology.watertight],
+      ["ridgedTriangles", (): boolean => ridgedTopology.triangles === 8],
       [
         "ridgedVolume",
-        () => nclose(ridgedTopology.volume, (2 * 3 * 4) / 2, 1e-12),
+        (): boolean => nclose(ridgedTopology.volume, (2 * 3 * 4) / 2, 1e-12),
       ],
       [
         "ridgedUvs",
-        () =>
+        (): boolean =>
           ridged.uvs !== null &&
           ridged.uvs.length === (ridged.positions.length / 3) * 2,
       ],
@@ -131,18 +134,18 @@ export const test_geometry_procedural_topology = (): void => {
     },
   );
 
-  const patch = meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2]);
-  TestValidator.equals(
+  const patch: IAutoMovieMesh = meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2]);
+  TestValidator.predicate(
     "an open surface reports its boundary instead of claiming closure",
-    summary(patch, ["triangles", "boundaryEdges", "watertight", "volume"]),
-    { triangles: 1, boundaryEdges: 3, watertight: false, volume: 0 },
+    equalGeometryTestValues(summary(patch, ["triangles", "boundaryEdges", "watertight", "volume"]),
+    { triangles: 1, boundaryEdges: 3, watertight: false, volume: 0 }),
   );
 
-  const fin = meshOf(
+  const fin: IAutoMovieMesh = meshOf(
     [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 1],
     [0, 1, 2, 0, 1, 3, 0, 1, 4],
   );
-  const cutWall = buildAutoMovieWall({
+  const cutWall: IAutoMovieMesh = buildAutoMovieWall({
     width: 4,
     height: 3,
     depth: 0.2,
@@ -153,8 +156,8 @@ export const test_geometry_procedural_topology = (): void => {
     namedFacts([
       [
         "fin",
-        () => {
-          const report = inspectAutoMovieMeshTopology(fin);
+        (): boolean => {
+          const report: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(fin);
           return (
             report.nonManifoldEdges === 1 &&
             report.boundaryEdges === 6 &&
@@ -164,8 +167,8 @@ export const test_geometry_procedural_topology = (): void => {
       ],
       [
         "wall",
-        () => {
-          const report = inspectAutoMovieMeshTopology(cutWall);
+        (): boolean => {
+          const report: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(cutWall);
           return (
             report.watertight &&
             report.nonManifoldEdges === 0 &&
@@ -180,11 +183,11 @@ export const test_geometry_procedural_topology = (): void => {
         // = 32 quads survive, which is 64 triangles. A union of boxes would
         // emit all 48 quads and bury 16 of them inside the wall.
         "faces",
-        () => inspectAutoMovieMeshTopology(cutWall).triangles === 64,
+        (): boolean => inspectAutoMovieMeshTopology(cutWall).triangles === 64,
       ],
       [
         "wallVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(cutWall).volume,
             (4 * 3 - 1) * 0.2,
@@ -237,15 +240,15 @@ export const test_geometry_procedural_topology = (): void => {
     4,
   );
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "an empty mesh is not watertight, because no edges is not no holes",
-    summary(meshOf([], []), [
+    equalGeometryTestValues(summary(meshOf([], []), [
       "triangles",
       "degenerateTriangles",
       "watertight",
       "volume",
     ]),
-    { triangles: 0, degenerateTriangles: [], watertight: false, volume: 0 },
+    { triangles: 0, degenerateTriangles: [], watertight: false, volume: 0 }),
   );
 
   TestValidator.predicate(
@@ -261,22 +264,22 @@ export const test_geometry_procedural_topology = (): void => {
   const refusals: Array<readonly [string, () => unknown, string]> = [
     [
       "no faces",
-      () => buildAutoMoviePolyhedron([]),
+      (): IAutoMovieMesh => buildAutoMoviePolyhedron([]),
       "polyhedron needs at least one face",
     ],
     [
       "two-corner face",
-      () => buildAutoMoviePolyhedron([[b0, b1]]),
+      (): IAutoMovieMesh => buildAutoMoviePolyhedron([[b0, b1]]),
       "polyhedron face[0] needs at least three corners",
     ],
     [
       "non-finite corner",
-      () => buildAutoMoviePolyhedron([[b0, b1, { x: Number.NaN, y: 0, z: 0 }]]),
+      (): IAutoMovieMesh => buildAutoMoviePolyhedron([[b0, b1, { x: Number.NaN, y: 0, z: 0 }]]),
       "polyhedron face[0] corner[2] must be finite",
     ],
     [
       "collinear face",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMoviePolyhedron([
           [
             { x: 0, y: 0, z: 0 },
@@ -288,7 +291,7 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "reflex face",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMoviePolyhedron([
           [
             { x: 0, y: 0, z: 0 },
@@ -306,7 +309,7 @@ export const test_geometry_procedural_topology = (): void => {
       // itself. Its area is real, its plane is real, and its first corner still
       // fans, so nothing but the turn test can tell it from a quad.
       "self-intersecting face",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMoviePolyhedron([
           [
             { x: 0, y: 0, z: 0 },
@@ -319,12 +322,12 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "ragged positions",
-      () => inspectAutoMovieMeshTopology(meshOf([0, 0, 0, 1], null)),
+      (): IAutoMovieMeshTopology => inspectAutoMovieMeshTopology(meshOf([0, 0, 0, 1], null)),
       "mesh topology needs positions in whole xyz triples",
     ],
     [
       "ragged indices",
-      () =>
+      (): IAutoMovieMeshTopology =>
         inspectAutoMovieMeshTopology(
           meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2, 0]),
         ),
@@ -332,7 +335,7 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "index past the last vertex",
-      () =>
+      (): IAutoMovieMesh =>
         transformAutoMovieMesh(
           meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 5]),
           {},
@@ -341,7 +344,7 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "fractional index",
-      () =>
+      (): ReturnType<typeof mergeAutoMovieMeshParts> =>
         mergeAutoMovieMeshParts([
           {
             id: "ragged",
@@ -352,7 +355,7 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "negative index",
-      () =>
+      (): IAutoMovieMeshTopology =>
         inspectAutoMovieMeshTopology(
           meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, -1]),
         ),
@@ -360,16 +363,16 @@ export const test_geometry_procedural_topology = (): void => {
     ],
     [
       "non-planar face",
-      () => buildAutoMoviePolyhedron([[b0, b1, b2, { x: -1, y: 0.5, z: 2 }]]),
+      (): IAutoMovieMesh => buildAutoMoviePolyhedron([[b0, b1, b2, { x: -1, y: 0.5, z: 2 }]]),
       "polyhedron face[0] is not planar",
     ],
     [
       // Every corner of a pentagram turns the same way, so the reflex test
       // passes it; only its total turning of 4 pi tells it from a pentagon.
       "pentagram face",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMoviePolyhedron([
-          [0, 2, 4, 1, 3].map((k: number) => ({
+          [0, 2, 4, 1, 3].map((k: number): IAutoMovieVector3 => ({
             x: Math.cos(((90 + 72 * k) * Math.PI) / 180),
             y: 0,
             z: Math.sin(((90 + 72 * k) * Math.PI) / 180),
@@ -386,7 +389,7 @@ export const test_geometry_procedural_topology = (): void => {
 
   // The first corner sits on the middle of the bottom edge, so its own two
   // edges are parallel; the square is still convex, planar and one metre wide.
-  const straightFirst = buildAutoMoviePolyhedron([
+  const straightFirst: IAutoMovieMesh = buildAutoMoviePolyhedron([
     [
       { x: 0.5, y: 0, z: 0 },
       { x: 0, y: 0, z: 0 },
@@ -395,12 +398,12 @@ export const test_geometry_procedural_topology = (): void => {
       { x: 1, y: 0, z: 0 },
     ],
   ]);
-  TestValidator.equals(
+  TestValidator.predicate(
     "a straight first corner is admitted with its face's normal",
-    {
+    equalGeometryTestValues({
       triangles: straightFirst.indices!.length / 3,
       normal: straightFirst.normals!.slice(0, 3),
     },
-    { triangles: 3, normal: [0, 1, 0] },
+    { triangles: 3, normal: [0, 1, 0] }),
   );
-};
+}

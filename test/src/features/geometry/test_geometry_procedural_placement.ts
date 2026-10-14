@@ -6,6 +6,7 @@ import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry
 import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 /** One right triangle on the XY plane, facing +Z, with a known UV corner. */
 const facet: () => IAutoMovieMesh = (): IAutoMovieMesh => ({
   positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
@@ -41,18 +42,18 @@ const close: (values: readonly number[], expected: readonly number[]) => boolean
  * 2. A mirroring scale flips winding, and the cross product of the reordered
  *    corners equals the inverse-transpose normal rather than its negation.
  * 3. UVs ride along untouched and a null-normal, non-indexed mesh stays null and
- *    gains the identity index run.
+ *    gains the consecutive triangle with its mirrored winding.
  * 4. Assembly members merge in declaration order, each owning an index range that
  *    addresses exactly its own triangles; a member with no transform is merged
  *    in place.
  * 5. A placed unit prism keeps its volume under rotation and multiplies it by the
- *    scale determinant.
+ *    absolute scale determinant after reflected winding is corrected.
  * 6. Negative twins: skinning, a non-unit quaternion, a collapsed axis, a
  *    non-finite translation or scale, a blank id, and a duplicate id are all
  *    refused by their own diagnostic.
-  *
- * @evidence contracts/testing.md#behavioral-verification Calls rigid mesh placement and assembly, checking positions, inverse-transpose normals, winding and ownership, including reflection parity after determinant underflow.
- * @evidence contracts/testing.md#independent-expectations Quarter-turn coordinates, cross products and unit-prism volume times scale determinant are hand-derived; underflowed scales still have independently countable negative-axis parity.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls rigid mesh placement and assembly, checking positions, inverse-transpose normals, winding and member-owned index ranges, including reflection parity after determinant underflow. Caller-buffer mutation is not observed here.
+ * @evidence contracts/testing.md#independent-expectations Quarter-turn coordinates, cross products and unit-prism volume times the absolute scale determinant are hand-derived; underflowed scales still have independently countable negative-axis parity. Numeric coordinate checks retain 1e-12 absolute tolerance, while group/range identities remain exact. The topology observer shares engine grid rules and these CPU checks do not certify arbitrary embedding or rendered appearance.
  * @evidence contracts/testing.md#distinguishing-cases Covers ordinary/mirrored/tiny scales, null attributes, nonindexed inputs, assembly order/empty input and malformed placements or member identities; correspondence tests own physical aliases.
  * @evidence contracts/testing.md#execution-ownership This exported geometry entry runs CPU source and mesh observations directly; it neither starts a renderer nor treats numerical checks as visual acceptance.
  */
@@ -222,16 +223,15 @@ export function test_geometry_procedural_placement(): void {
       },
     },
   ]);
-  TestValidator.equals(
+  TestValidator.predicate(
     "assembly members merge in order and each owns exactly its own index range",
-    {
+    equalGeometryTestValues({
       groups: assembly.groups,
       indices: assembly.mesh.indices!.length,
       normals: assembly.mesh.normals,
       uvs: assembly.mesh.uvs,
       placed: assembly.mesh.positions[12]!,
-    },
-    {
+    }, {
       groups: [
         { id: "here", start: 0, count: 3 },
         { id: "there", start: 3, count: 3 },
@@ -241,7 +241,7 @@ export function test_geometry_procedural_placement(): void {
       normals: null,
       uvs: null,
       placed: 11,
-    },
+    }),
   );
   TestValidator.equals(
     "an empty assembly is an empty mesh with no groups",

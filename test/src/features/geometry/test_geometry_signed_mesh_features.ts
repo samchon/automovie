@@ -6,6 +6,8 @@ import {
   createSignedVoxelUnion,
 } from "../internal/createSignedMeshFixture";
 import { nclose } from "../internal/predicates";
+import { type IAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieSignedMeshQueryHit } from "../../../../packages/engine/src/geometry/IAutoMovieSignedMeshQueryHit";
 
 /**
  * Signed distance uses the nearest face, edge or vertex of the actual solid.
@@ -14,11 +16,16 @@ import { nclose } from "../internal/predicates";
  * 2. A three-voxel L has a concave edge at (1,1,z); its inner bisector is inside.
  * 3. Boundary points have zero distance, and reversing winding reverses sign.
  * 4. Caller and result mutations cannot alter a compiled geometry snapshot.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Queries the existing octahedron and concave three-voxel L, asserting feature identity, analytic witness, signed/unsigned distance and unit pseudonormal; boundary points retain zero, reversed winding flips the sign and caller/result mutations cannot change a later compiled reading.
+ * @evidence contracts/testing.md#independent-expectations Projection onto x+y+z=1, the x+y=1 edge and axis vertices yields the authored closest points and distances. The L's inner bisector is minus sqrt(0.02) while the notch is 0.1 outside. Existing nclose tolerances allow binary64 approximation; these chosen analytic features do not certify every surface or renderer, and the last ownership probe directly rechecks signed distance only.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves exterior/interior faces, edge and both axis vertices, three exact surface supports, concave inside versus notch outside, globally reversed winding and compiled/output ownership. General BVH exhaustiveness, closed-manifold admission and sheet rims belong to companion entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable signed-query source with the existing octahedron/voxel fixtures and scalar observer. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all original cases remain locally owned without dynamic registration.
  */
-export const test_geometry_signed_mesh_features = (): void => {
-  const source = createSignedOctahedron();
-  const sample = createAutoMovieSignedMeshQuery(source);
-  const cases = [
+export function test_geometry_signed_mesh_features(): void {
+  const source: IAutoMovieMesh = createSignedOctahedron();
+  const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(source);
+  const cases: ReadonlyArray<{ p: readonly number[]; q: readonly number[]; d: number; feature: IAutoMovieSignedMeshQueryHit["feature"]; }> = [
     {
       p: [0.5, 0.5, 0.5],
       q: [1 / 3, 1 / 3, 1 / 3],
@@ -36,11 +43,11 @@ export const test_geometry_signed_mesh_features = (): void => {
     { p: [-2, 0, 0], q: [-1, 0, 0], d: 1, feature: "vertex" },
   ] as const;
   for (const one of cases) {
-    const hit = sample(one.p);
+    const hit: IAutoMovieSignedMeshQueryHit = sample(one.p);
     TestValidator.equals("nearest feature", hit.feature, one.feature);
     TestValidator.predicate(
       "analytic closest point",
-      hit.point.every((v, k) => nclose(v, one.q[k])),
+      hit.point.length === one.q.length && hit.point.every((v: number, k: number): boolean => nclose(v, one.q[k])),
     );
     TestValidator.predicate(
       "oriented distance",
@@ -61,14 +68,14 @@ export const test_geometry_signed_mesh_features = (): void => {
     [0.25, 0.25, 0.5],
   ])
     TestValidator.predicate("surface contact", nclose(sample(p).distance, 0));
-  const concave = createAutoMovieSignedMeshQuery(
+  const concave: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit = createAutoMovieSignedMeshQuery(
     createSignedVoxelUnion([
       [0, 0, 0],
       [1, 0, 0],
       [0, 1, 0],
     ]),
   );
-  const inner = concave([0.9, 0.9, 0.5]);
+  const inner: IAutoMovieSignedMeshQueryHit = concave([0.9, 0.9, 0.5]);
   TestValidator.equals("concave edge", inner.feature, "edge");
   TestValidator.predicate(
     "concave inner bisector",
@@ -78,8 +85,8 @@ export const test_geometry_signed_mesh_features = (): void => {
     "notch is exterior",
     nclose(concave([1.1, 1.1, 0.5]).signedDistance, 0.1),
   );
-  const reversed = createSignedOctahedron();
-  for (let at = 0; at < reversed.indices!.length; at += 3)
+  const reversed: IAutoMovieMesh = createSignedOctahedron();
+  for (let at: number = 0; at < reversed.indices!.length; at += 3)
     [reversed.indices![at], reversed.indices![at + 1]] = [
       reversed.indices![at + 1],
       reversed.indices![at],
@@ -93,11 +100,11 @@ export const test_geometry_signed_mesh_features = (): void => {
   );
   source.positions.fill(400);
   source.indices!.fill(0);
-  const owned = sample([2, 0, 0]);
+  const owned: IAutoMovieSignedMeshQueryHit = sample([2, 0, 0]);
   owned.point.fill(-100);
   owned.normal.fill(0);
   TestValidator.predicate(
     "owned snapshot and result",
     nclose(sample([2, 0, 0]).signedDistance, 1),
   );
-};
+}

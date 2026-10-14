@@ -18,11 +18,16 @@ import { throwsError } from "../internal/predicates";
  *    including empty requests and storage after actual linear-memory growth.
  * 3. An empty environment writes zero counts; file close/write are unavailable.
  * 4. Native exit becomes a caller exception and leaves another host independent.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual closed WASI import owner and observes logical nanoseconds, unsupported-clock no-write/no-tick behavior, bounded/empty zero entropy, fresh views after memory growth, empty environment, unavailable descriptors and named exit exception. An independently created host must restart its clock sequence.
+ * @evidence contracts/testing.md#independent-expectations The private host contract specifies one logical nanosecond per supported clock, errno 28 for unsupported clocks, zero-filled requested bytes, no environment and errno 8 for unavailable descriptors. Hand-authored sentinels show writes remain in bounds. These import checks do not run or establish the numerical solver's result or any external WASI environment.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves realtime/monotonic versus unsupported clocks, nonempty/empty entropy, actual grown memory, independent host state, environment, file and exit decisions. Numerical kernel transport, allocation cleanup and solver convergence have separate owners.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named unit entry invokes portable import functions against an ordinary WebAssembly.Memory without instantiating the native solver or replacing ambient state. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all cases are local.
  */
-export const test_geometry_quadratic_host = (): void => {
-  const memory = new WebAssembly.Memory({ initial: 1 });
-  const host = createAutoMovieQuadraticHost(() => memory);
-  const view = () => new DataView(memory.buffer);
+export function test_geometry_quadratic_host(): void {
+  const memory: WebAssembly.Memory = new WebAssembly.Memory({ initial: 1 });
+  const host: ReturnType<typeof createAutoMovieQuadraticHost> = createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
+  const view: () => DataView = (): DataView => new DataView(memory.buffer);
   TestValidator.equals("first logical clock", host.clock_time_get(0, 0n, 0), 0);
   TestValidator.equals("one nanosecond", view().getBigUint64(0, true), 1n);
   TestValidator.equals("unsupported clock", host.clock_time_get(2, 0n, 0), 28);
@@ -37,7 +42,7 @@ export const test_geometry_quadratic_host = (): void => {
     view().getBigUint64(0, true),
     2n,
   );
-  const bytes = new Uint8Array(memory.buffer, 16, 4);
+  const bytes: Uint8Array = new Uint8Array(memory.buffer, 16, 4);
   bytes.fill(7);
   TestValidator.equals("entropy request", host.random_get(17, 2), 0);
   TestValidator.equals("bounded zero fill", Array.from(bytes), [7, 0, 0, 7]);
@@ -61,13 +66,13 @@ export const test_geometry_quadratic_host = (): void => {
   TestValidator.equals("no file write", host.fd_write(), 8);
   TestValidator.predicate(
     "exit propagates as exception",
-    throwsError(() => host.proc_exit(17), "code 17"),
+    throwsError((): never => host.proc_exit(17), "code 17"),
   );
-  const other = createAutoMovieQuadraticHost(() => memory);
+  const other: ReturnType<typeof createAutoMovieQuadraticHost> = createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
   other.clock_time_get(1, 0n, 0);
   TestValidator.equals(
     "independent host clock",
     view().getBigUint64(0, true),
     1n,
   );
-};
+}

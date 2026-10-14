@@ -3,9 +3,10 @@ import { IAutoMovieSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
+import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
 
 /** A diamond footprint over a 3x3 lattice carrying a peak, a terrace, a bank. */
-const relief = (samples: number[]): IAutoMovieSurface => ({
+const relief: (samples: number[]) => IAutoMovieSurface = (samples: number[]): IAutoMovieSurface => ({
   id: "relief",
   kind: "floor",
   polygon: [
@@ -27,8 +28,8 @@ const relief = (samples: number[]): IAutoMovieSurface => ({
 });
 
 /** Every tessellated vertex, as an `(x, z, y)` triple. */
-const vertices = (positions: number[]): Array<[number, number, number]> =>
-  Array.from({ length: positions.length / 3 }, (_, index) => [
+const vertices: (positions: number[]) => Array<[number, number, number]> = (positions: number[]): Array<[number, number, number]> =>
+  Array.from({ length: positions.length / 3 }, (_: unknown, index: number): [number, number, number] => [
     positions[index * 3]!,
     positions[index * 3 + 2]!,
     positions[index * 3 + 1]!,
@@ -37,17 +38,16 @@ const vertices = (positions: number[]): Array<[number, number, number]> =>
 /**
  * The support surface a viewer draws is the one engine height queries answer.
  *
- * `buildSpaceObject()` used to lift only the footprint's hull corners, so a
- * lattice peak existed for `surfaceHeightAt` and for foot placement while the
- * drawn ground stayed a flat quad: the crowd stood inside the hill. This case
- * pins the fix at its only honest oracle, which is that every emitted vertex's
- * height equals `surfaceHeightAt` at that vertex's own plan position, for a
- * peak, a terrace, and a bank alike.
+ * The tessellator and canonical height query must agree at emitted vertices.
+ * Authored peak, terrace, bank and ramp values provide independent controls;
+ * shared-query equality alone would miss a common height-rule defect. Neither
+ * this test nor vertex parity establishes the height inside a planar facet
+ * of a twisted bilinear cell or the viewer's rendered appearance.
  *
  * Scenarios:
  *
- * 1. A heightfield footprint splits at every interior lattice coordinate and every
- *    emitted vertex height equals `surfaceHeightAt` exactly.
+ * 1. A heightfield footprint emits more than one fan, retains the peak and
+ *    agrees with `surfaceHeightAt` at each emitted vertex within 1e-12.
  * 2. The lattice peak reaches its authored sample, and a terrace (equal
  *    neighbours) and a bank (a one-cell step) reproduce their own bilinear
  *    values rather than the hull's corner interpolation.
@@ -59,43 +59,49 @@ const vertices = (positions: number[]): Array<[number, number, number]> =>
  *    heightfield path.
  * 6. Negative twin: a collinear footprint encloses no area and tessellates to
  *    nothing at all.
+ * 7. The existing anchor fallback retains one fan at the stated anchor height.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Tessellates the existing peak/terrace/bank/level/corner footprints, comparing emitted vertex heights with canonical queries, authored samples and bilinear controls; checks tilted versus upright normals and removal of cells outside the triangular footprint. Constant/plane/anchor paths retain their fan populations, plane/anchor paths retain analytic heights, and collinear input yields null; the constant case's height is not asserted.
+ * @evidence contracts/testing.md#independent-expectations The peak sample is two, equal terrace samples interpolate to one, and the four bank samples average to 1.5 at its cell centre. The ramp follows 0.5+0.25*x-0.5*z and the fallback anchor is 1.75. Vertex parity retains 1e-12 agreement but shares production height logic, so it does not independently prove every bilinear interior or rendering; normal probes distinguish tilt rather than all normal directions.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves diamond clipping, interior peak, terrace/bank, level versus relief normals, triangular outside-cell removal, constant/plane fan regression, absent-rule anchor and zero-area footprint. Grid admission, extrapolation boundaries and concave/holed decomposition belong to space/surface companions.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable surface tessellation/footprint/height source with original in-memory surfaces and ordinary numeric observers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no cases are dynamically registered.
  */
-export const test_geometry_surface_heightfield = (): void => {
-  const peak = relief([0, 0, 0, 0, 2, 0, 0, 0, 0]);
-  const mesh = tessellateSurface(peak)!;
+export function test_geometry_surface_heightfield(): void {
+  const peak: IAutoMovieSurface = relief([0, 0, 0, 0, 2, 0, 0, 0, 0]);
+  const mesh: ITessellation = tessellateSurface(peak)!;
   TestValidator.equals(
     "every heightfield vertex height is the engine's own query at that point",
     namedFacts([
-      ["triangles", () => mesh.indices.length > 2 * 3],
+      ["triangles", (): boolean => mesh.indices.length > 2 * 3],
       [
         "agrees",
-        () =>
-          vertices(mesh.positions).every(([x, z, y]) =>
+        (): boolean =>
+          vertices(mesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
             nclose(y, surfaceHeightAt(peak, x, z), 1e-12),
           ),
       ],
       [
         "peak",
-        () =>
+        (): boolean =>
           vertices(mesh.positions).some(
-            ([x, z, y]) => x === 1 && z === 1 && nclose(y, 2),
+            ([x, z, y]: [number, number, number]): boolean => nclose(x, 1, 0) && nclose(z, 1, 0) && nclose(y, 2),
           ),
       ],
     ]),
     { triangles: true, agrees: true, peak: true },
   );
 
-  const terraced = relief([1, 1, 1, 1, 1, 1, 0, 0, 4]);
-  const terracedMesh = tessellateSurface(terraced)!;
+  const terraced: IAutoMovieSurface = relief([1, 1, 1, 1, 1, 1, 0, 0, 4]);
+  const terracedMesh: ITessellation = tessellateSurface(terraced)!;
   TestValidator.equals(
     "a terrace and a bank reproduce their own bilinear heights",
     namedFacts([
-      ["terrace", () => nclose(surfaceHeightAt(terraced, 0.5, 0.5), 1, 1e-12)],
-      ["bank", () => nclose(surfaceHeightAt(terraced, 1.5, 1.5), 1.5, 1e-12)],
+      ["terrace", (): boolean => nclose(surfaceHeightAt(terraced, 0.5, 0.5), 1, 1e-12)],
+      ["bank", (): boolean => nclose(surfaceHeightAt(terraced, 1.5, 1.5), 1.5, 1e-12)],
       [
         "agrees",
-        () =>
-          vertices(terracedMesh.positions).every(([x, z, y]) =>
+        (): boolean =>
+          terracedMesh.positions.length > 0 && vertices(terracedMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
             nclose(y, surfaceHeightAt(terraced, x, z), 1e-12),
           ),
       ],
@@ -103,21 +109,21 @@ export const test_geometry_surface_heightfield = (): void => {
     { terrace: true, bank: true, agrees: true },
   );
 
-  const level = tessellateSurface(relief([0, 0, 0, 0, 0, 0, 0, 0, 0]))!;
+  const level: ITessellation = tessellateSurface(relief([0, 0, 0, 0, 0, 0, 0, 0, 0]))!;
   TestValidator.equals(
     "relief tilts normals off vertical and a level lattice does not",
     namedFacts([
       [
         "tilted",
-        () =>
+        (): boolean =>
           mesh.normals.some(
-            (value, index) => index % 3 !== 1 && Math.abs(value) > 1e-6,
+            (value: number, index: number): boolean => index % 3 !== 1 && Math.abs(value) > 1e-6,
           ),
       ],
       [
         "upright",
-        () =>
-          level.normals.every((value, index) =>
+        (): boolean =>
+          level.normals.length > 0 && level.normals.every((value: number, index: number): boolean =>
             index % 3 === 1 ? nclose(value, 1) : nclose(value, 0),
           ),
       ],
@@ -141,22 +147,22 @@ export const test_geometry_surface_heightfield = (): void => {
       spacingZ: 1,
       columns: 5,
       rows: 5,
-      samples: Array.from({ length: 25 }, (_, index) => index % 3),
+      samples: Array.from({ length: 25 }, (_: unknown, index: number): number => index % 3),
     },
   };
-  const cornerMesh = tessellateSurface(corner)!;
+  const cornerMesh: ITessellation = tessellateSurface(corner)!;
   TestValidator.equals(
     "lattice cells lying entirely outside the footprint are dropped",
     namedFacts([
       [
         "inside",
-        () =>
-          vertices(cornerMesh.positions).every(([x, z]) => x + z <= 4 + 1e-9),
+        (): boolean =>
+          cornerMesh.positions.length > 0 && vertices(cornerMesh.positions).every(([x, z]: [number, number, number]): boolean => x + z <= 4 + 1e-9),
       ],
       [
         "agrees",
-        () =>
-          vertices(cornerMesh.positions).every(([x, z, y]) =>
+        (): boolean =>
+          vertices(cornerMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
             nclose(y, surfaceHeightAt(corner, x, z), 1e-12),
           ),
       ],
@@ -168,23 +174,23 @@ export const test_geometry_surface_heightfield = (): void => {
     ...peak,
     height: { kind: "plane", originHeight: 0.5, slopeX: 0.25, slopeZ: -0.5 },
   };
-  const rampMesh = tessellateSurface(ramp)!;
+  const rampMesh: ITessellation = tessellateSurface(ramp)!;
   TestValidator.equals(
     "a constant patch stays one fan and a ramp reproduces its plane exactly",
     namedFacts([
       [
         "fan",
-        () =>
+        (): boolean =>
           tessellateSurface({
             ...peak,
             height: { kind: "constant", value: 3 },
           })!.indices.length === 6,
       ],
-      ["rampFan", () => rampMesh.indices.length === 6],
+      ["rampFan", (): boolean => rampMesh.indices.length === 6],
       [
         "plane",
-        () =>
-          vertices(rampMesh.positions).every(([x, z, y]) =>
+        (): boolean =>
+          vertices(rampMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
             nclose(y, 0.5 + 0.25 * x - 0.5 * z, 1e-12),
           ),
       ],
@@ -192,7 +198,7 @@ export const test_geometry_surface_heightfield = (): void => {
     { fan: true, rampFan: true, plane: true },
   );
 
-  const anchored = tessellateSurface({
+  const anchored: ITessellation = tessellateSurface({
     id: "anchored",
     kind: "floor",
     polygon: peak.polygon,
@@ -202,10 +208,10 @@ export const test_geometry_surface_heightfield = (): void => {
   TestValidator.equals(
     "a patch stating no height rule falls back to its anchor, still one fan",
     namedFacts([
-      ["fan", () => anchored.indices.length === 6],
+      ["fan", (): boolean => anchored.indices.length === 6],
       [
         "anchor",
-        () => vertices(anchored.positions).every(([, , y]) => nclose(y, 1.75)),
+        (): boolean => vertices(anchored.positions).every(([, , y]: [number, number, number]): boolean => nclose(y, 1.75)),
       ],
     ]),
     { fan: true, anchor: true },
@@ -223,4 +229,4 @@ export const test_geometry_surface_heightfield = (): void => {
     }),
     null,
   );
-};
+}

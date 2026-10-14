@@ -8,6 +8,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */
 interface IStretch {
@@ -25,11 +26,11 @@ interface IStretch {
  * and the resulting `2 x 2` matrix is decomposed through the eigenvalues of
  * `M^T M`. Degenerate triangles carry no frame and are reported as such.
  */
-const stretchOf = (mesh: IAutoMovieMesh, triangle: number): IStretch | null => {
-  const corner = (
+const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (mesh: IAutoMovieMesh, triangle: number): IStretch | null => {
+  const corner: (at: number) => readonly [readonly number[], readonly number[]] = (
     at: number,
   ): readonly [readonly number[], readonly number[]] => {
-    const index = mesh.indices![triangle * 3 + at]!;
+    const index: number = mesh.indices![triangle * 3 + at]!;
     return [
       [
         mesh.positions[index * 3]!,
@@ -39,37 +40,37 @@ const stretchOf = (mesh: IAutoMovieMesh, triangle: number): IStretch | null => {
       [mesh.uvs![index * 2]!, mesh.uvs![index * 2 + 1]!],
     ];
   };
-  const [origin, atlas] = corner(0);
-  const [alpha, alphaUv] = corner(1);
-  const [beta, betaUv] = corner(2);
-  const first = alpha.map((value, axis) => value - origin[axis]!);
-  const second = beta.map((value, axis) => value - origin[axis]!);
-  const spanA = Math.hypot(...first);
+  const [origin, atlas]: readonly [readonly number[], readonly number[]] = corner(0);
+  const [alpha, alphaUv]: readonly [readonly number[], readonly number[]] = corner(1);
+  const [beta, betaUv]: readonly [readonly number[], readonly number[]] = corner(2);
+  const first: number[] = alpha.map((value: number, axis: number): number => value - origin[axis]!);
+  const second: number[] = beta.map((value: number, axis: number): number => value - origin[axis]!);
+  const spanA: number = Math.hypot(...first);
   if (spanA === 0) return null;
-  const unit = first.map((value) => value / spanA);
-  const along = second.reduce(
-    (sum, value, axis) => sum + value * unit[axis]!,
+  const unit: number[] = first.map((value: number): number => value / spanA);
+  const along: number = second.reduce(
+    (sum: number, value: number, axis: number): number => sum + value * unit[axis]!,
     0,
   );
-  const spanB = Math.hypot(
-    ...second.map((value, axis) => value - along * unit[axis]!),
+  const spanB: number = Math.hypot(
+    ...second.map((value: number, axis: number): number => value - along * unit[axis]!),
   );
   if (spanB === 0) return null;
   // Surface edges in that basis are (spanA, 0) and (along, spanB); the atlas
   // edges are the uv differences, so M solves M * [surface] = [atlas].
-  const uvA = alphaUv.map((value, axis) => value - atlas[axis]!);
-  const uvB = betaUv.map((value, axis) => value - atlas[axis]!);
-  const column = (row: number): readonly [number, number] => [
+  const uvA: number[] = alphaUv.map((value: number, axis: number): number => value - atlas[axis]!);
+  const uvB: number[] = betaUv.map((value: number, axis: number): number => value - atlas[axis]!);
+  const column: (row: number) => readonly [number, number] = (row: number): readonly [number, number] => [
     uvA[row]! / spanA,
     (uvB[row]! - (uvA[row]! * along) / spanA) / spanB,
   ];
-  const [ux, uy] = column(0);
-  const [vx, vy] = column(1);
-  const xx = ux * ux + vx * vx;
-  const xy = ux * uy + vx * vy;
-  const yy = uy * uy + vy * vy;
-  const half = (xx + yy) / 2;
-  const gap = Math.sqrt(Math.max(0, half * half - (xx * yy - xy * xy)));
+  const [ux, uy]: readonly [number, number] = column(0);
+  const [vx, vy]: readonly [number, number] = column(1);
+  const xx: number = ux * ux + vx * vx;
+  const xy: number = ux * uy + vx * vy;
+  const yy: number = uy * uy + vy * vy;
+  const half: number = (xx + yy) / 2;
+  const gap: number = Math.sqrt(Math.max(0, half * half - (xx * yy - xy * xy)));
   return {
     anisotropy:
       Math.sqrt(half + gap) / Math.sqrt(Math.max(half - gap, Number.MIN_VALUE)),
@@ -77,19 +78,21 @@ const stretchOf = (mesh: IAutoMovieMesh, triangle: number): IStretch | null => {
   };
 };
 
-/** The worst anisotropy any non-degenerate triangle of a mesh carries. */
-const worstAnisotropy = (mesh: IAutoMovieMesh): number => {
-  let worst = 0;
-  for (let triangle = 0; triangle * 3 < mesh.indices!.length; ++triangle) {
-    const stretch = stretchOf(mesh, triangle);
-    if (stretch !== null && stretch.anisotropy > worst)
-      worst = stretch.anisotropy;
+/** The worst finite anisotropy over nondegenerate frames; NaN rejects an empty frame population or a nonfinite measurement instead of silently reporting zero. */
+const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (mesh: IAutoMovieMesh): number => {
+  let worst: number = NaN;
+  for (let triangle: number = 0; triangle * 3 < mesh.indices!.length; ++triangle) {
+    const stretch: IStretch | null = stretchOf(mesh, triangle);
+    if (stretch === null) continue;
+    if (!Number.isFinite(stretch.anisotropy) || !Number.isFinite(stretch.areaScale))
+      return NaN;
+    worst = Number.isNaN(worst) ? stretch.anisotropy : Math.max(worst, stretch.anisotropy);
   }
   return worst;
 };
 
 /** A meridian one metre long leaning `degrees` away from the axis. */
-const leaningCone = (degrees: number): IAutoMovieMesh =>
+const leaningCone: (degrees: number) => IAutoMovieMesh = (degrees: number): IAutoMovieMesh =>
   revolveAutoMovieProfile({
     profile: [
       { x: 1, y: 0 },
@@ -102,13 +105,13 @@ const leaningCone = (degrees: number): IAutoMovieMesh =>
   });
 
 /** The closed form the operator's contract states, at a given meridian slope. */
-const statedWorst = (degrees: number): number => {
-  const k = 2 * Math.PI * Math.abs(Math.sin((degrees * Math.PI) / 180));
+const statedWorst: (degrees: number) => number = (degrees: number): number => {
+  const k: number = 2 * Math.PI * Math.abs(Math.sin((degrees * Math.PI) / 180));
   return (Math.sqrt(k * k + 4) + k) / (Math.sqrt(k * k + 4) - k);
 };
 
-const ring = (radius: number): { x: number; y: number }[] =>
-  Array.from({ length: 24 }, (_point, at) => ({
+const ring: (radius: number) => IAutoMovieProfilePoint[] = (radius: number): IAutoMovieProfilePoint[] =>
+  Array.from({ length: 24 }, (_point: unknown, at: number): IAutoMovieProfilePoint => ({
     x: radius * Math.cos((at / 24) * Math.PI * 2),
     y: radius * Math.sin((at / 24) * Math.PI * 2),
   }));
@@ -116,13 +119,10 @@ const ring = (radius: number): { x: number; y: number }[] =>
 /**
  * The shear a revolved metric atlas costs, and where a directional finish may go.
  *
- * `revolveAutoMovieProfile` measures true arc around each parallel, so `u`
- * carries the radius and therefore changes along the meridian wherever the
- * radius does. That coupling is pure shear rather than any stretch of area, and
- * on a steep meridian it is severe enough that slate, boarding, or any grain
- * with a direction reads as a spiral. The operator's contract states the limit
- * and names what an author reaches for instead; this pins both, so the limit
- * cannot drift and the stated alternatives cannot quietly stop being exact.
+ * Radius-dependent arc coordinates couple meridian travel to angular travel.
+ * Triangle affine-map singular values observe that anisotropy independently
+ * of the revolution builder; these numeric checks do not observe a finish or
+ * the appearance of its grain.
  *
  * Every expected number comes from the geometry rather than from the builder.
  * The worst anisotropy over a full turn of a meridian at slope `dr / ds` is the
@@ -132,26 +132,28 @@ const ring = (radius: number): { x: number; y: number }[] =>
  *
  * Scenarios:
  *
- * 1. A constant radius shears not at all, so a drum carries a directional
- *    finish exactly; the atlas is rigid there rather than merely close.
+ * 1. A constant-radius drum's tessellated atlas has anisotropy below 1.01.
  * 2. The shear follows meridian slope and nothing else, matching the stated
  *    closed form at 6.5, 13.8, 45 and 89.9 degrees off the axis, which are the
  *    2, 4, 21.7 and 41.5 the contract quotes.
- * 3. Distortion is entirely shear: every triangle's uv area equals its surface
- *    area, so no author can diagnose this by looking at texel density.
- * 4. The pole is not the cause. A cone with its tip cut away has no pole, no
- *    degenerate triangle and the same worst shear as the cone it came from, so
- *    a fix aimed at the pole band would leave the flank exactly as it is.
- * 5. The shear varies around the surface rather than sitting uniformly on it:
- *    beside the seam a wedge is near rigid while its opposite is at the worst,
- *    which is why a constant-`u` curve spirals.
- * 6. The stated alternatives are exact. A faceted spire through
+ * 3. Every nondegenerate measured steep-cone triangle retains area ratio one
+ *    within 1e-3; degenerate triangles have no affine frame and are excluded.
+ * 4. The pole is not the cause. A frustum has no zero-radius vertex and its
+ *    worst shear agrees with the cone's within one percent, remaining above 20.
+ * 5. The first and last angular triangles on opposite sides of the UV cut have
+ *    high and near-unit anisotropy respectively.
+ * 6. The stated alternatives retain unit anisotropy within 1e-6. A faceted spire through
  *    `buildAutoMoviePolyhedron` and a flat cap through `extrudeAutoMovieRegion`
  *    are rigid, while `loftAutoMovieSections` measures the same pair and a
  *    tapered loft shears with it, so it is not an escape from this.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds the existing drum, four leaning cones, cone/frustum, faceted spire, region cap and tapered loft; independently measures per-triangle affine singular values and area ratios. Assertions distinguish slope-dependent shear, retained area, pole removal, angular variation and metric faceted alternatives while retaining the loft's high anisotropy.
+ * @evidence contracts/testing.md#independent-expectations A shear of k=2*pi*abs(sin(angle)) has condition number (sqrt(k*k+4)+k)/(sqrt(k*k+4)-k), giving independent continuum expectations compared within the original two-percent tessellation window. Triangle edge bases and UV differences independently measure area/singular values. The observer excludes zero-area frames and clamps cancellation in eigenvalue arithmetic; retained tolerances are numeric agreement rather than an exact universal isometry or rendered proof.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the constant radius, four original slopes, nondegenerate area comparisons, axis pole versus nonzero-radius frustum, first/last angular triangles, faceted spire, flat cap and tapered loft. General UV cardinality/seam rules, malformed builders and other atlas-density behavior have separate owners.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly runs portable revolution/polyhedron/region/loft source and its existing independent scalar affine-map observer on unchanged authored data. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all six scenarios remain local without dynamic registration.
  */
-export const test_geometry_revolve_atlas_shear = (): void => {
-  const drum = revolveAutoMovieProfile({
+export function test_geometry_revolve_atlas_shear(): void {
+  const drum: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: [
       { x: 1, y: 0 },
       { x: 1, y: 2 },
@@ -167,13 +169,13 @@ export const test_geometry_revolve_atlas_shear = (): void => {
     "shear follows meridian slope and matches the stated closed form",
     namedFacts(
       [6.5, 13.8, 45, 89.9].map(
-        (degrees) =>
+        (degrees: number): readonly [string, () => boolean] =>
           [
             `at${degrees}`,
-            () => {
-              const measured = worstAnisotropy(leaningCone(degrees));
+            (): boolean => {
+              const measured: number = worstAnisotropy(leaningCone(degrees));
               return (
-                Math.abs(measured - statedWorst(degrees)) <
+                nclose(measured, statedWorst(degrees), statedWorst(degrees) * 0.02) && Math.abs(measured - statedWorst(degrees)) <
                 statedWorst(degrees) * 0.02
               );
             },
@@ -183,70 +185,69 @@ export const test_geometry_revolve_atlas_shear = (): void => {
     { "at6.5": true, "at13.8": true, at45: true, "at89.9": true },
   );
 
-  const steep = leaningCone(45);
+  const steep: IAutoMovieMesh = leaningCone(45);
+  const stretches: (IStretch | null)[] = Array.from({ length: steep.indices!.length / 3 }, (_triangle: unknown, at: number): IStretch | null => stretchOf(steep, at));
   TestValidator.predicate(
     "the distortion is pure shear: every triangle keeps its area",
-    Array.from({ length: steep.indices!.length / 3 }, (_triangle, at) =>
-      stretchOf(steep, at),
-    ).every(
-      (stretch) => stretch === null || nclose(stretch.areaScale, 1, 1e-3),
+    stretches.some((stretch: IStretch | null): boolean => stretch !== null) && stretches.every(
+      (stretch: IStretch | null): boolean => stretch === null || nclose(stretch.areaScale, 1, 1e-3),
     ),
   );
 
   // A 45-degree cone standing on its point, and the same cone with the top
   // metre of its meridian cut away so that no vertex sits on the axis at all.
-  const cone = revolveAutoMovieProfile({
+  const cone: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: [
       { x: 0, y: 2 },
       { x: 2, y: 0 },
     ],
     segments: 96,
   });
-  const frustum = revolveAutoMovieProfile({
+  const frustum: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: [
       { x: 1, y: 1 },
       { x: 2, y: 0 },
     ],
     segments: 96,
   });
-  const withPole = worstAnisotropy(cone);
-  const without = worstAnisotropy(frustum);
+  const withPole: number = worstAnisotropy(cone);
+  const without: number = worstAnisotropy(frustum);
   TestValidator.equals(
     "cutting the pole away changes nothing: the flank shears just as hard",
     namedFacts([
       [
         "frustumHasNoPole",
-        () =>
-          Array.from({ length: frustum.positions.length / 3 }, (_vertex, at) =>
+        (): boolean =>
+          Array.from({ length: frustum.positions.length / 3 }, (_vertex: unknown, at: number): number =>
             Math.hypot(
               frustum.positions[at * 3]!,
               frustum.positions[at * 3 + 2]!,
             ),
-          ).every((radius) => radius > 0),
+          ).every((radius: number): boolean => radius > 0),
       ],
-      ["sameWorstShear", () => Math.abs(withPole - without) < withPole * 0.01],
-      ["andItIsSevere", () => without > 20],
+      ["sameWorstShear", (): boolean => nclose(withPole, without, withPole * 0.01) && Math.abs(withPole - without) < withPole * 0.01],
+      ["andItIsSevere", (): boolean => without > 20],
     ]),
     { frustumHasNoPole: true, sameWorstShear: true, andItIsSevere: true },
   );
 
   // Triangle 0 sits at theta = 0, where `2 * pi - theta` is at its largest, and
   // the last pair sits at the closing segment, where it has run down to zero.
-  const last = frustum.indices!.length / 3 - 1;
+  const last: number = frustum.indices!.length / 3 - 1;
   TestValidator.equals(
     "the shear sweeps around the surface, which is why constant u spirals",
     namedFacts([
       [
         "seamSideIsNearlyRigid",
-        () => stretchOf(frustum, last)!.anisotropy < 1.2,
+        (): boolean => stretchOf(frustum, last)!.anisotropy < 1.2,
       ],
-      ["oppositeIsAtTheWorst", () => stretchOf(frustum, 0)!.anisotropy > 20],
+      ["oppositeIsAtTheWorst", (): boolean => stretchOf(frustum, 0)!.anisotropy > 20],
     ]),
     { seamSideIsNearlyRigid: true, oppositeIsAtTheWorst: true },
   );
 
   // A square pyramid: the faceted spire the contract sends an author to.
-  const spire = buildAutoMoviePolyhedron([
+  const spire: IAutoMovieMesh = buildAutoMoviePolyhedron([
     [
       { x: -1, y: 0, z: -1 },
       { x: 1, y: 0, z: -1 },
@@ -268,7 +269,7 @@ export const test_geometry_revolve_atlas_shear = (): void => {
       { x: 0, y: 2, z: 0 },
     ],
   ]);
-  const cap = extrudeAutoMovieRegion({
+  const cap: IAutoMovieMesh = extrudeAutoMovieRegion({
     outer: [
       { x: 0, y: 0 },
       { x: 2, y: 0 },
@@ -277,7 +278,7 @@ export const test_geometry_revolve_atlas_shear = (): void => {
     ],
     depth: 0.1,
   });
-  const taper = loftAutoMovieSections({
+  const taper: IAutoMovieMesh = loftAutoMovieSections({
     path: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 2 },
@@ -290,10 +291,10 @@ export const test_geometry_revolve_atlas_shear = (): void => {
   TestValidator.equals(
     "the named alternatives are rigid, and a tapered loft is not one of them",
     namedFacts([
-      ["facetedSpire", () => nclose(worstAnisotropy(spire), 1, 1e-6)],
-      ["flatCap", () => nclose(worstAnisotropy(cap), 1, 1e-6)],
-      ["taperedLoftSharesTheDefect", () => worstAnisotropy(taper) > 20],
+      ["facetedSpire", (): boolean => nclose(worstAnisotropy(spire), 1, 1e-6)],
+      ["flatCap", (): boolean => nclose(worstAnisotropy(cap), 1, 1e-6)],
+      ["taperedLoftSharesTheDefect", (): boolean => worstAnisotropy(taper) > 20],
     ]),
     { facetedSpire: true, flatCap: true, taperedLoftSharesTheDefect: true },
   );
-};
+}

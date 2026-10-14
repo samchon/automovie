@@ -11,12 +11,12 @@ import { TestValidator } from "@nestia/e2e";
  * name rather than returning a separation that a consumer could accept.
  * Scenarios:
  * 1. Adjacent finite ordinary coordinates and positive targets are supported.
- * 2. Empty/oversized features, nonfinite inputs and invalid targets refuse.
+ * 2. Empty features, nonfinite inputs and invalid targets refuse.
  * 3. Difference overflow and an outward enclosure beyond finite range refuse.
  * 4. Invalid resident topology/coordinates and invalid query budgets refuse.
-  *
+ *
  * @evidence contracts/testing.md#behavioral-verification Executes convex/projection bounds and resident mesh separation queries, asserting named refusals so malformed geometry or unrepresentable outward bounds cannot become a certificate.
- * @evidence contracts/testing.md#independent-expectations A point one metre above a triangle admits a half-metre threshold; IEEE binary64 range endpoints define overflow, while contract ranges define invalid budgets and clearances.
+ * @evidence contracts/testing.md#independent-expectations A point one metre above a triangle admits a half-metre threshold; IEEE binary64 range endpoints define overflow, while contract ranges define invalid budgets and clearances. Named refusals establish admission boundaries, not a general geometric separation or rendered validity proof; the adjacent supported fixture supplies only one positive certificate.
  * @evidence contracts/testing.md#distinguishing-cases Includes valid positive separation beside empty/nonfinite/sparse topology, invalid budgets, missing contexts and Float32 overflow; geometric distance/witness tests own general shapes.
  * @evidence contracts/testing.md#execution-ownership The exported geometry entry reaches portable numerical and typed mesh-query source with no native artifact, consumer installation or real host.
  */
@@ -27,7 +27,7 @@ export function test_geometry_separation_refusals(): void {
     try {
       run();
     } catch (error: unknown) {
-      message = (error as Error).message;
+      message = error instanceof Error ? error.message : "";
     }
     TestValidator.predicate(name, message.includes(part));
   };

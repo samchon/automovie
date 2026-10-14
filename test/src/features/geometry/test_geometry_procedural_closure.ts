@@ -11,6 +11,7 @@ import {
   validateModel,
 } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp } from "../internal/fixtures";
@@ -20,16 +21,16 @@ import {
   violationCount,
 } from "../internal/predicates";
 
-const square = [
+const square: IAutoMovieProfilePoint[] = [
   { x: -0.5, y: -0.5 },
   { x: 0.5, y: -0.5 },
   { x: 0.5, y: 0.5 },
   { x: -0.5, y: 0.5 },
 ];
 
-const prism = extrudeAutoMovieProfile({ profile: square, depth: 1 });
+const prism: IAutoMovieMesh = extrudeAutoMovieProfile({ profile: square, depth: 1 });
 
-const cutWall = buildAutoMovieWall({
+const cutWall: IAutoMovieMesh = buildAutoMovieWall({
   width: 4,
   height: 3,
   depth: 0.2,
@@ -40,11 +41,11 @@ const cutWall = buildAutoMovieWall({
 });
 
 /** How many violations the engine raises against a declared closure. */
-const closureViolations = (mesh: IAutoMovieMesh, closed: boolean): number =>
+const closureViolations: (mesh: IAutoMovieMesh, closed: boolean) => number = (mesh: IAutoMovieMesh, closed: boolean): number =>
   violationCount(validateMeshTopology({ mesh, expectClosed: closed }));
 
 /** One prop model carrying nothing but this mesh, as a model would hold it. */
-const asPart = (mesh: IAutoMovieMesh): IAutoMovieModel =>
+const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel =>
   makeProp([
     {
       id: "member",
@@ -60,19 +61,11 @@ const asPart = (mesh: IAutoMovieMesh): IAutoMovieModel =>
  * Every builder's closure is a declaration, and the engine's own verdict is
  * what holds it to it.
  *
- * `inspectAutoMovieMeshTopology` measures this kernel's output with this
- * kernel's own arithmetic, which is exactly the witness that cannot catch a
- * shared mistake. `validateMeshTopology` is the independent one: it welds the
- * same surface, adds the winding consistency the measurement never looks at,
- * takes `expectClosed` as the caller's declaration, and is the same function
- * `validateModel` runs over every mesh a model carries. A builder whose output
- * fails it is a builder whose output no model can hold, however watertight this
- * kernel says it is.
- *
- * That is not hypothetical. A wall built as one box per standing lattice cell
- * measured "not watertight, some non-manifold edges" here and read as a design
- * note, while `validateModel` read the same mesh as 84 topology errors and
- * refused the model outright.
+ * The topology inspector and validator share source identity and weld rules.
+ * The validator additionally checks winding and the caller's `expectClosed`
+ * policy; model validation reaches that same topology owner. Agreement is a
+ * compatibility observation and cannot detect a common weld defect or certify
+ * arbitrary surface embedding.
  *
  * Scenarios:
  *
@@ -91,8 +84,13 @@ const asPart = (mesh: IAutoMovieMesh): IAutoMovieModel =>
  * 4. Consumer parity: the cut wall goes into a model and `validateModel` accepts
  *    it, while the overlapping union is refused there with the same topology
  *    verdict.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds the eight existing closed solids and checks topology admission, distinguishes an open tube's zero versus sixteen boundary violations under the closure policy, refuses the shared-face assembly and observes the same wall/assembly decisions through model validation.
+ * @evidence contracts/testing.md#independent-expectations Closed authored primitive/member boundaries require paired opposite edge incidence, and an eight-segment tube has eight open rim edges at each end. Translating the second unit prism by one makes their coincident face edges over-shared; those authored constructions determine expected admission independently of a stored output. Inspector, topology and model validators share engine weld semantics, so their agreement does not prove independent geometric or rendered validity.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves prism, axis-capped revolve, capped sweep, convex roof, uncut/cut wall, mirrored placement and separated assembly positives; the tube changes only closure policy, and adjacent prisms retain their refusal through both validation entries. Individual builders own malformed dimension/profile inputs.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly runs portable builders and validators through ordinary existing prop fixtures. It installs no consumer, builds no native artifact, starts no process, browser or GPU and owns all listed cases without dynamic registration.
  */
-export const test_geometry_procedural_closure = (): void => {
+export function test_geometry_procedural_closure(): void {
   const solids: ReadonlyArray<readonly [string, IAutoMovieMesh]> = [
     ["prism", prism],
     [
@@ -110,7 +108,7 @@ export const test_geometry_procedural_closure = (): void => {
     [
       "sweep",
       sweepAutoMovieProfile({
-        profile: square.map((point) => ({
+        profile: square.map((point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
           x: point.x * 0.2,
           y: point.y * 0.2,
         })),
@@ -178,12 +176,12 @@ export const test_geometry_procedural_closure = (): void => {
   TestValidator.equals(
     "every builder that declares a closed solid is one by the engine's verdict",
     Object.fromEntries(
-      solids.map(([name, mesh]) => [name, closureViolations(mesh, true)]),
+      solids.map(([name, mesh]: readonly [string, IAutoMovieMesh]): [string, number] => [name, closureViolations(mesh, true)]),
     ),
-    Object.fromEntries(solids.map(([name]) => [name, 0])),
+    Object.fromEntries(solids.map(([name]: readonly [string, IAutoMovieMesh]): [string, number] => [name, 0])),
   );
 
-  const tube = revolveAutoMovieProfile({
+  const tube: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: [
       { x: 1, y: -1 },
       { x: 1, y: 1 },
@@ -193,12 +191,12 @@ export const test_geometry_procedural_closure = (): void => {
   TestValidator.equals(
     "an open tube satisfies the open declaration and fails the closed one",
     namedFacts([
-      ["open", () => closureViolations(tube, false) === 0],
+      ["open", (): boolean => closureViolations(tube, false) === 0],
       // Sixteen rim edges: eight at each end of the ring.
-      ["closed", () => closureViolations(tube, true) === 16],
+      ["closed", (): boolean => closureViolations(tube, true) === 16],
       [
         "boundary",
-        () =>
+        (): boolean =>
           hasViolation(
             validateMeshTopology({ mesh: tube, expectClosed: true }),
             "topology",
@@ -210,13 +208,13 @@ export const test_geometry_procedural_closure = (): void => {
         // implementations of the same weld, so agreeing on the rim is a fact
         // about both rather than one of them repeating itself.
         "measured",
-        () => inspectAutoMovieMeshTopology(tube).boundaryEdges === 16,
+        (): boolean => inspectAutoMovieMeshTopology(tube).boundaryEdges === 16,
       ],
     ]),
     { open: true, closed: true, boundary: true, measured: true },
   );
 
-  const overlapping = mergeAutoMovieMeshParts([
+  const overlapping: IAutoMovieMesh = mergeAutoMovieMeshParts([
     { id: "left", mesh: prism },
     {
       id: "right",
@@ -227,10 +225,10 @@ export const test_geometry_procedural_closure = (): void => {
   TestValidator.equals(
     "members that share a face are refused rather than passed off as a union",
     namedFacts([
-      ["open", () => closureViolations(overlapping, false) > 0],
+      ["open", (): boolean => closureViolations(overlapping, false) > 0],
       [
         "nonManifold",
-        () =>
+        (): boolean =>
           hasViolation(
             validateMeshTopology({ mesh: overlapping, expectClosed: false }),
             "topology",
@@ -246,11 +244,11 @@ export const test_geometry_procedural_closure = (): void => {
     namedFacts([
       [
         "wall",
-        () => validateModel({ model: asPart(cutWall) }).success === true,
+        (): boolean => validateModel({ model: asPart(cutWall) }).success === true,
       ],
       [
         "union",
-        () =>
+        (): boolean =>
           hasViolation(
             validateModel({ model: asPart(overlapping) }),
             "topology",
@@ -260,4 +258,4 @@ export const test_geometry_procedural_closure = (): void => {
     ]),
     { wall: true, union: true },
   );
-};
+}

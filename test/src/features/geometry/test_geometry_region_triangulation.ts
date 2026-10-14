@@ -2,6 +2,7 @@ import { IAutoMovieRegionTriangulation } from "../../../../packages/engine/src/g
 import { triangulateAutoMovieRegion } from "../../../../packages/engine/src/geometry/triangulateAutoMovieRegion";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 interface IPlanarPoint {
   x: number;
   y: number;
@@ -115,15 +116,15 @@ const inner: IPlanarPoint[] = [
  *    bridges against a contour that is not convex, and a hole that sees no
  *    outer corner from inside another hole's cavity bridges after that hole.
  * 4. Winding is canonicalized, not demanded: a clockwise outer ring and a
- *    counter-clockwise hole come back counter-clockwise and clockwise, and the
- *    triangles are identical to the ones the canonical authoring produces.
- * 5. Determinism: the same authored region rebuilds byte-identically.
+ *    counter-clockwise hole come back counter-clockwise and clockwise, with
+ *    the same independently expected area and boundary coverage.
+ * 5. Determinism: the same authored region rebuilds with exact finite values and structure.
  * 6. Negative twins: each refusal fires one property away from a region that
  *    triangulates, covering short, non-finite, repeated, spiked, empty,
  *    self-crossing, touching, escaped, and nested rings.
-  *
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls triangulateAutoMovieRegion for concavity and holes, including a sheltered first hole; positive triangle winding and boundary-chain conservation catch filled holes or inconsistent coverage as well as declaration-order bridge failure.
- * @evidence contracts/testing.md#independent-expectations Authored dimensions give outer-minus-hole areas independently, and oriented-edge cancellation expresses the triangulation boundary contract without using the ear algorithm; separate source-identity tests own each canonical ring point's provenance.
+ * @evidence contracts/testing.md#independent-expectations Authored dimensions give outer-minus-hole areas independently, and oriented-edge cancellation expresses the triangulation boundary contract without using the ear algorithm. Positive triangle areas and the known total retain 1e-12 absolute area agreement; this numerical chain check is not an exact-arithmetic or rendered proof, and separate source-identity tests own each canonical point's provenance.
  * @evidence contracts/testing.md#distinguishing-cases Covers concavity, multiple/sheltered holes, reversed winding, deterministic rebuilds and short/nonfinite/repeated/spiked/crossing/touching/escaped/nested rings; source-identity tests own point provenance.
  * @evidence contracts/testing.md#execution-ownership The discoverable geometry entry runs portable triangulation and ordinary assertion helpers directly; all cases belong to this function without host startup.
  */
@@ -160,8 +161,8 @@ export function test_geometry_region_triangulation(): void {
           holed.rings[1]!.start === 4 &&
           holed.rings[1]!.count === 4,
       ],
-      ["outerWinding", (): boolean => signedArea(ringOf(holed, 0)) === 16],
-      ["holeWinding", (): boolean => signedArea(ringOf(holed, 1)) === -4],
+      ["outerWinding", (): boolean => nclose(signedArea(ringOf(holed, 0)), 16, 0)],
+      ["holeWinding", (): boolean => nclose(signedArea(ringOf(holed, 1)), -4, 0)],
       ["covers", (): boolean => coversExactly(holed, 12)],
     ]),
     {
@@ -279,19 +280,19 @@ export function test_geometry_region_triangulation(): void {
   TestValidator.equals(
     "a region authored the other way round is canonicalized, not refused",
     namedFacts([
-      ["outerWinding", (): boolean => signedArea(ringOf(reversed, 0)) === 16],
-      ["holeWinding", (): boolean => signedArea(ringOf(reversed, 1)) === -4],
+      ["outerWinding", (): boolean => nclose(signedArea(ringOf(reversed, 0)), 16, 0)],
+      ["holeWinding", (): boolean => nclose(signedArea(ringOf(reversed, 1)), -4, 0)],
       ["covers", (): boolean => coversExactly(reversed, 12)],
     ]),
     { outerWinding: true, holeWinding: true, covers: true },
   );
 
-  TestValidator.equals(
-    "the same authored region rebuilds byte-identically",
-    JSON.stringify(
+  TestValidator.predicate(
+    "the same authored region rebuilds with exact finite values and structure",
+    equalGeometryTestValues(
       triangulateAutoMovieRegion({ outer: square, holes: [inner] }),
+      holed,
     ),
-    JSON.stringify(holed),
   );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [

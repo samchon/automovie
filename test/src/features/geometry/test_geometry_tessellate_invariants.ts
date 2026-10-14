@@ -3,6 +3,7 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
+import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
 
 const SHAPES: AutoMoviePrimitiveShape[] = [
   { type: "box", width: 0.4, height: 0.6, depth: 0.2 },
@@ -28,11 +29,16 @@ const SHAPES: AutoMoviePrimitiveShape[] = [
  * 5. Every position is finite (no NaN / Infinity).
  * 6. Every index is an integer inside the vertex range: no out-of-bounds reference
  *    that would read past the vertex buffer.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Tessellates each of the six existing primitive types and checks nonempty triple positions, normal cardinality, triangle indices, finite positions and integer resident references. It catches malformed upload structure while allowing the primitive owner's declared tessellation approximations.
+ * @evidence contracts/testing.md#independent-expectations XYZ/triangle tuple arity, one normal per position and indices in [0,vertexCount) are mesh-buffer contracts independent of sampled outputs. These structural checks do not test normal finiteness/unit length, exact dimensions, winding, watertightness or rendered shape; capsule silhouette approximation remains outside this assertion.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves box, sphere, cylinder, cone, zero-height plane and capsule with all six original invariant categories applied to each. Specific primitive topology/geometry and unknown runtime discriminator refusal belong to companion entries; malformed dimensions are not admitted here.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable tessellation source over its existing authored shape table and ordinary observers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; table rows belong to this entry without dynamic test registration.
  */
-export const test_geometry_tessellate_invariants = (): void => {
+export function test_geometry_tessellate_invariants(): void {
   for (const shape of SHAPES) {
-    const t = tessellate(shape);
-    const vertexCount = t.positions.length / 3;
+    const t: ITessellation = tessellate(shape);
+    const vertexCount: number = t.positions.length / 3;
     TestValidator.predicate(
       `${shape.type}: positions are triples`,
       t.positions.length % 3 === 0,
@@ -49,18 +55,18 @@ export const test_geometry_tessellate_invariants = (): void => {
     TestValidator.equals(
       `${shape.type}: non-empty`,
       namedFacts([
-        ["vertexCount", () => vertexCount > 0],
-        ["tIndicesLength", () => vertexCount > 0 && t.indices.length > 0],
+        ["vertexCount", (): boolean => vertexCount > 0],
+        ["tIndicesLength", (): boolean => vertexCount > 0 && t.indices.length > 0],
       ]),
       { vertexCount: true, tIndicesLength: true },
     );
     TestValidator.predicate(
       `${shape.type}: positions finite`,
-      t.positions.every((n) => Number.isFinite(n)),
+      t.positions.every((n: number): boolean => Number.isFinite(n)),
     );
     TestValidator.predicate(
       `${shape.type}: indices in range`,
-      t.indices.every((i) => Number.isInteger(i) && i >= 0 && i < vertexCount),
+      t.indices.every((i: number): boolean => Number.isInteger(i) && i >= 0 && i < vertexCount),
     );
   }
-};
+}

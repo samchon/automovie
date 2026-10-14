@@ -2,6 +2,8 @@ import {buildAutoMovieWall,inspectAutoMovieMeshTopology} from "@automovie/engine
 import {TestValidator} from "@nestia/e2e";
 import {namedFacts,nclose,throwsError} from "../internal/predicates";
 import {isFiniteProceduralMesh as finiteMesh} from "../internal/isFiniteProceduralMesh";
+import { type IAutoMovieMesh } from "@automovie/interface";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /**
  * Opening-aware walls retain exact cut volume, legal L remainders and both diagonal pinches; every opening admission row remains.
@@ -9,9 +11,14 @@ import {isFiniteProceduralMesh as finiteMesh} from "../internal/isFiniteProcedur
  * Scenarios:
  * 1. Authored positive geometry retains its independent topology and dimensional expectations.
  * 2. Every associated invalid row refuses at the same diagnostic beside supported input.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds the existing door/window wall, plain wall and legal corner-opening L remainder, checking observed finiteness, nonempty indices, populations, analytic cut volumes and L closure. Both diagonal pinch orientations and every original malformed wall/opening row must refuse by its diagnostic; repeated authored construction remains identical.
+ * @evidence contracts/testing.md#independent-expectations Standing rectangular area minus disjoint opening areas, multiplied by depth, gives each expected volume; a single corner opening leaves a connected L while diagonal corner contacts pinch the remaining wall at (1,1). Deterministic rebuild is a compatibility check, finiteMesh is partial, and topology/volume observations do not certify arbitrary architecture or pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves no openings, door/window cuts, a legal L, both diagonal pinches, exact rebuild and eleven wall-size/ID/finite/extent/overlap/total-removal refusals. Lattice face census, texture coordinates and other procedural operations have separate entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable wall/topology source and existing canonical observers on its unchanged cases. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no cases are dynamically registered.
  */
-export const test_geometry_procedural_wall=():void=>{
-  const wall = buildAutoMovieWall({
+export function test_geometry_procedural_wall(): void {
+  const wall: IAutoMovieMesh = buildAutoMovieWall({
     width: 8,
     height: 4,
     depth: 0.3,
@@ -20,7 +27,7 @@ export const test_geometry_procedural_wall=():void=>{
       { id: "window", x: 4, y: 1.2, width: 2, height: 1.4 },
     ],
   });
-  const plainWall = buildAutoMovieWall({
+  const plainWall: IAutoMovieMesh = buildAutoMovieWall({
     width: 2,
     height: 2,
     depth: 0.2,
@@ -29,12 +36,12 @@ export const test_geometry_procedural_wall=():void=>{
   TestValidator.equals(
     "opening-aware segmentation leaves exactly the standing wall solid",
     namedFacts([
-      ["finite", () => finiteMesh(wall)],
-      ["cut", () => wall.positions.length > plainWall.positions.length],
-      ["indexed", () => wall.indices !== null && wall.indices.length > 0],
+      ["finite", (): boolean => finiteMesh(wall)],
+      ["cut", (): boolean => wall.positions.length > plainWall.positions.length],
+      ["indexed", (): boolean => wall.indices !== null && wall.indices.length > 0],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(wall).volume,
             (8 * 4 - 1.5 * 2.4 - 2 * 1.4) * 0.3,
@@ -43,7 +50,7 @@ export const test_geometry_procedural_wall=():void=>{
       ],
       [
         "plainVolume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(plainWall).volume,
             2 * 2 * 0.2,
@@ -62,7 +69,7 @@ export const test_geometry_procedural_wall=():void=>{
 
   // An opening in one corner leaves an L, whose inner corner is a node three
   // cells meet at: legal, and one cell away from the diagonal that is not.
-  const elbow = buildAutoMovieWall({
+  const elbow: IAutoMovieMesh = buildAutoMovieWall({
     width: 2,
     height: 2,
     depth: 0.2,
@@ -71,10 +78,10 @@ export const test_geometry_procedural_wall=():void=>{
   TestValidator.equals(
     "an L-shaped remainder stands while a diagonal one is refused as a pinch",
     namedFacts([
-      ["closed", () => inspectAutoMovieMeshTopology(elbow).watertight],
+      ["closed", (): boolean => inspectAutoMovieMeshTopology(elbow).watertight],
       [
         "volume",
-        () =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(elbow).volume,
             (2 * 2 - 1) * 0.2,
@@ -83,9 +90,9 @@ export const test_geometry_procedural_wall=():void=>{
       ],
       [
         "pinch",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieMesh =>
               buildAutoMovieWall({
                 width: 2,
                 height: 2,
@@ -100,9 +107,9 @@ export const test_geometry_procedural_wall=():void=>{
       ],
       [
         "mirroredPinch",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieMesh =>
               buildAutoMovieWall({
                 width: 2,
                 height: 2,
@@ -120,17 +127,17 @@ export const test_geometry_procedural_wall=():void=>{
   );
 
 
-  TestValidator.equals("cut wall reproduces the same authored solid",JSON.stringify(buildAutoMovieWall({width:8,height:4,depth:.3,openings:[{id:"door",x:1,y:0,width:1.5,height:2.4},{id:"window",x:4,y:1.2,width:2,height:1.4}]})),JSON.stringify(wall));
+  TestValidator.predicate("cut wall reproduces the same authored solid",equalGeometryTestValues(buildAutoMovieWall({width:8,height:4,depth:.3,openings:[{id:"door",x:1,y:0,width:1.5,height:2.4},{id:"window",x:4,y:1.2,width:2,height:1.4}]}),wall));
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "wall width",
-      () => buildAutoMovieWall({ width: 0, height: 1, depth: 1, openings: [] }),
+      (): IAutoMovieMesh => buildAutoMovieWall({ width: 0, height: 1, depth: 1, openings: [] }),
       "wall width must be a finite number > 0",
     ],
     [
       "wall height",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 1,
           height: Number.NaN,
@@ -141,13 +148,13 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "wall depth",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({ width: 1, height: 1, depth: -1, openings: [] }),
       "wall depth must be a finite number > 0",
     ],
     [
       "opening id",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -158,7 +165,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening duplicate",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 3,
           height: 2,
@@ -172,7 +179,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening finite",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -183,7 +190,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening width",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -194,7 +201,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening height",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -205,7 +212,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening bounds",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -216,7 +223,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening overlap",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 3,
           height: 2,
@@ -230,7 +237,7 @@ export const test_geometry_procedural_wall=():void=>{
     ],
     [
       "opening removes wall",
-      () =>
+      (): IAutoMovieMesh =>
         buildAutoMovieWall({
           width: 2,
           height: 2,
@@ -242,4 +249,4 @@ export const test_geometry_procedural_wall=():void=>{
   ];
   for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));
 
-};
+}

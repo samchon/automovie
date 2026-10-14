@@ -8,48 +8,43 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
+import { type IAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /** The uv pair the vertex at `at` carries. */
-const uvAt = (
+const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number; } = (
   uvs: readonly number[],
   at: number,
 ): { u: number; v: number } => ({ u: uvs[at * 2]!, v: uvs[at * 2 + 1]! });
 
-const CYLINDER_RADIUS = 1;
-const CYLINDER_HEIGHT = 2;
-const CYLINDER_SEGMENTS = 4;
+const CYLINDER_RADIUS: number = 1;
+const CYLINDER_HEIGHT: number = 2;
+const CYLINDER_SEGMENTS: number = 4;
 
 /** A straight meridian at a constant radius: an open tube, rim at each end. */
-const cylinderProfile = [
+const cylinderProfile: IAutoMovieProfilePoint[] = [
   { x: CYLINDER_RADIUS, y: 0 },
   { x: CYLINDER_RADIUS, y: CYLINDER_HEIGHT },
 ];
 
 /**
- * The metric atlas a surface of revolution carries, which it had none of before.
- *
- * A revolved form is where balusters, candlesticks, basins and finials come
- * from, and a surface with no texture coordinates cannot carry a finish at all,
- * however correct its geometry measures. The coordinates emitted here are the
- * same pair the swept and lofted surfaces measure, so one declared scale reads
- * the same on a turned baluster and on the rail it holds up: distance travelled
- * around the section against distance travelled along the path.
+ * The emitted atlas measures decreasing angular arc and meridian travel.
  *
  * Every expected number is the surface's own geometry rather than the builder's
  * output. A cylinder of radius 1 m has a circumference of exactly `2 * pi` m, so
- * the closing ring must read that and not one turn of something normalized; its
+ * the first ring must read that and the closing ring zero; its
  * meridian is 2 m of straight polyline, so the far ring must read 2. A cone's
  * meridian rising 1 m over 1 m of radius is `sqrt(2)` m of slant, not the 1 m
  * of either leg.
  *
  * Scenarios:
  *
- * 1. A revolved surface carries one uv pair per vertex, where it carried none.
+ * 1. A revolved surface carries one uv pair per vertex.
  * 2. The seam is an explicit cut over the true circumference: around runs
  *    against the build direction as `2 * pi - theta` so the atlas stays
  *    right-handed, which puts `2 * pi * r` on the first ring and zero on the
- *    duplicate closing ring, and the last quad still does not interpolate
- *    backwards. The phases are deliberately unequal when the repeat does not
+ *    duplicate closing ring. The sampled phases are deliberately unequal when the repeat does not
  *    divide that circumference.
  * 3. Along is the meridian's own length, so a 2 m tube spans 0 to 2, and one
  *    quarter of the way round the lattice reads `3 * pi / 2` m of arc because
@@ -62,10 +57,15 @@ const cylinderProfile = [
  * 5. A merge with another coordinate-bearing member keeps the coordinates, and a
  *    merge with a coordinate-less one drops them for the whole assembly, which
  *    is the stated all-or-nothing rule.
- * 6. The same authored meridian rebuilds byte-identically.
+ * 6. The same authored meridian rebuilds with exact finite values and structure.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Revolves the existing tube/cone meridians and asserts UV cardinality, seam endpoints and quarter-turn arc, meridian/slant travel, zero pole arc, finite pole UVs and declared degeneracy. Merge keeps UVs only when all members carry them, and repeated tube construction retains exact numeric structure.
+ * @evidence contracts/testing.md#independent-expectations Angular arc is (2*pi-theta)*radius; a unit-radius tube spans 2*pi to zero and two metres along its meridian. A unit radial/vertical cone has sqrt(2) slant and six pole-degenerate triangles. These analytic UV expectations do not assert equality with each faceted chord's length, general density/shear or rendered seam filtering; deterministic rebuild is compatibility evidence.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves tube versus axis-pole cone, first/quarter/closing arc samples, all meridian station heights, pole zeroes and finite UVs, merge with UV-bearing plate versus bare wall, and exact repeat. Normal seam continuity, atlas distortion and malformed meridians have separate owners.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes portable revolution/merge/region/wall/topology source on its unchanged fixtures and canonical observers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all six scenarios remain locally owned without dynamic registration.
  */
-export const test_geometry_revolve_uv = (): void => {
-  const tube = revolveAutoMovieProfile({
+export function test_geometry_revolve_uv(): void {
+  const tube: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: cylinderProfile,
     segments: CYLINDER_SEGMENTS,
   });
@@ -81,25 +81,25 @@ export const test_geometry_revolve_uv = (): void => {
     },
   );
 
-  const circumference = 2 * Math.PI * CYLINDER_RADIUS;
-  const closing = CYLINDER_SEGMENTS * cylinderProfile.length;
+  const circumference: number = 2 * Math.PI * CYLINDER_RADIUS;
+  const closing: number = CYLINDER_SEGMENTS * cylinderProfile.length;
   TestValidator.equals(
     "the seam cut spans the true circumference, in metres of arc",
     namedFacts([
-      ["firstRing", () => nclose(uvAt(tube.uvs!, 0).u, circumference)],
-      ["closingRing", () => nclose(uvAt(tube.uvs!, closing).u, 0)],
+      ["firstRing", (): boolean => nclose(uvAt(tube.uvs!, 0).u, circumference)],
+      ["closingRing", (): boolean => nclose(uvAt(tube.uvs!, closing).u, 0)],
       [
         "quarterTurn",
-        () =>
+        (): boolean =>
           nclose(
             uvAt(tube.uvs!, cylinderProfile.length).u,
             circumference - Math.PI / 2,
           ),
       ],
-      ["notNormalized", () => uvAt(tube.uvs!, 0).u > 1],
+      ["notNormalized", (): boolean => uvAt(tube.uvs!, 0).u > 1],
       [
         "phaseIsACut",
-        () =>
+        (): boolean =>
           nclose(uvAt(tube.uvs!, closing).u, uvAt(tube.uvs!, 0).u) === false,
       ],
     ]),
@@ -115,17 +115,17 @@ export const test_geometry_revolve_uv = (): void => {
   TestValidator.equals(
     "along is the meridian's own length, in metres",
     namedFacts([
-      ["foot", () => nclose(uvAt(tube.uvs!, 0).v, 0)],
-      ["head", () => nclose(uvAt(tube.uvs!, 1).v, CYLINDER_HEIGHT)],
+      ["foot", (): boolean => nclose(uvAt(tube.uvs!, 0).v, 0)],
+      ["head", (): boolean => nclose(uvAt(tube.uvs!, 1).v, CYLINDER_HEIGHT)],
       [
         "sameAtEverySegment",
-        () =>
-          Array.from({ length: CYLINDER_SEGMENTS + 1 }, (_ring, segment) =>
+        (): boolean =>
+          Array.from({ length: CYLINDER_SEGMENTS + 1 }, (_ring: unknown, segment: number): boolean =>
             nclose(
               uvAt(tube.uvs!, segment * cylinderProfile.length + 1).v,
               CYLINDER_HEIGHT,
             ),
-          ).every((level) => level),
+          ).every((level: boolean): boolean => level),
       ],
     ]),
     { foot: true, head: true, sameAtEverySegment: true },
@@ -133,7 +133,7 @@ export const test_geometry_revolve_uv = (): void => {
 
   // A cone standing on its point: the meridian rises 1 m while the radius opens
   // 1 m, so its slant is sqrt(2) and its first point sits on the axis.
-  const cone = revolveAutoMovieProfile({
+  const cone: IAutoMovieMesh = revolveAutoMovieProfile({
     profile: [
       { x: 0, y: 0 },
       { x: 1, y: 1 },
@@ -143,17 +143,17 @@ export const test_geometry_revolve_uv = (): void => {
   TestValidator.equals(
     "a cone measures slant as slant, and its pole has no arc to travel",
     namedFacts([
-      ["slant", () => nclose(uvAt(cone.uvs!, 1).v, Math.SQRT2)],
+      ["slant", (): boolean => nclose(uvAt(cone.uvs!, 1).v, Math.SQRT2)],
       [
         "poleRing",
-        () =>
-          Array.from({ length: 7 }, (_ring, segment) =>
+        (): boolean =>
+          Array.from({ length: 7 }, (_ring: unknown, segment: number): boolean =>
             nclose(uvAt(cone.uvs!, segment * 2).u, 0),
-          ).every((flat) => flat),
+          ).every((flat: boolean): boolean => flat),
       ],
-      ["rimStart", () => nclose(uvAt(cone.uvs!, 1).u, 2 * Math.PI)],
-      ["rimHalfTurn", () => nclose(uvAt(cone.uvs!, 3 * 2 + 1).u, Math.PI)],
-      ["rimFullTurn", () => nclose(uvAt(cone.uvs!, 6 * 2 + 1).u, 0)],
+      ["rimStart", (): boolean => nclose(uvAt(cone.uvs!, 1).u, 2 * Math.PI)],
+      ["rimHalfTurn", (): boolean => nclose(uvAt(cone.uvs!, 3 * 2 + 1).u, Math.PI)],
+      ["rimFullTurn", (): boolean => nclose(uvAt(cone.uvs!, 6 * 2 + 1).u, 0)],
     ]),
     {
       slant: true,
@@ -174,7 +174,7 @@ export const test_geometry_revolve_uv = (): void => {
     { coneDegenerates: 6, coneUvsFinite: true, tubeDegenerates: 0 },
   );
 
-  const plate = extrudeAutoMovieRegion({
+  const plate: IAutoMovieMesh = extrudeAutoMovieRegion({
     outer: [
       { x: 0, y: 0 },
       { x: 1, y: 0 },
@@ -183,7 +183,7 @@ export const test_geometry_revolve_uv = (): void => {
     ],
     depth: 0.1,
   });
-  const panel = buildAutoMovieWall({
+  const panel: IAutoMovieMesh = buildAutoMovieWall({
     width: 1,
     height: 1,
     depth: 0.1,
@@ -200,14 +200,14 @@ export const test_geometry_revolve_uv = (): void => {
     { withBearer: true, withoutBearer: null },
   );
 
-  TestValidator.equals(
-    "the same authored meridian rebuilds byte-identically",
-    JSON.stringify(
+  TestValidator.predicate(
+    "the same authored meridian rebuilds with exact finite values and structure",
+    equalGeometryTestValues(
       revolveAutoMovieProfile({
         profile: cylinderProfile,
         segments: CYLINDER_SEGMENTS,
       }),
+      tube,
     ),
-    JSON.stringify(tube),
   );
-};
+}
