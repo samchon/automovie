@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+} from "@automovie/interface";
 
 /**
  * State one named humanoid joint's authored degree angles, filling omitted axes with zero. Zero is a semantic angle interpreted through the page's joint axes/rest-frame mapping, not proof of the skeleton's geometric T-pose or clinical capacity.
@@ -13,15 +16,23 @@ import type { AutoMovieHumanoidBone, IAutoMovieJointPose } from "@automovie/inte
  *
  * @author Samchon
  */
-export function createStickmanMotionJoint(bone: AutoMovieHumanoidBone, angles: {
-  /** Authored flexion in degrees; omission means zero semantic flexion. */
-  flexion?: number;
+export function createStickmanMotionJoint(
+  bone: AutoMovieHumanoidBone,
+  angles: {
+    /** Authored flexion in degrees; omission means zero semantic flexion. */
+    flexion?: number;
 
-  /** Authored abduction in degrees; omission means zero semantic abduction. */
-  abduction?: number;
+    /** Authored abduction in degrees; omission means zero semantic abduction. */
+    abduction?: number;
 
-  /** Authored axial twist in degrees; omission means zero semantic twist. */
-  twist?: number;
-}): IAutoMovieJointPose {
-  return { bone, flexion: angles.flexion ?? 0, abduction: angles.abduction ?? 0, twist: angles.twist ?? 0 };
+    /** Authored axial twist in degrees; omission means zero semantic twist. */
+    twist?: number;
+  },
+): IAutoMovieJointPose {
+  return {
+    bone,
+    flexion: angles.flexion ?? 0,
+    abduction: angles.abduction ?? 0,
+    twist: angles.twist ?? 0,
+  };
 }

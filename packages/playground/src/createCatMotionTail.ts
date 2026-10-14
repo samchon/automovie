@@ -1,9 +1,22 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
@@ -19,7 +32,13 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  *
  * @author Samchon
  */
-export const createCatMotionTail: (sway: number, curl?: number) => IAutoMovieJointPose[] = (sway: number, curl: number = 0): IAutoMovieJointPose[] => [
+export const createCatMotionTail: (
+  sway: number,
+  curl?: number,
+) => IAutoMovieJointPose[] = (
+  sway: number,
+  curl: number = 0,
+): IAutoMovieJointPose[] => [
   j("leftLittleProximal", { abduction: 22 * sway, flexion: -18 + curl }),
   j("leftLittleIntermediate", { abduction: 26 * sway, flexion: -14 + curl }),
   j("leftLittleDistal", { abduction: 30 * sway, flexion: -10 + curl }),

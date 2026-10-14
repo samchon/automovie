@@ -1,4 +1,3 @@
-import type { IStickmanParams } from "./IStickmanParams";
 import { DEFAULT_HUMANOID_ROM, aimRotation } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
@@ -12,9 +11,18 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+import type { IStickmanParams } from "./IStickmanParams";
 
-const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransform = (
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+
+const at: (
+  t: IAutoMovieVector3,
+  r?: IAutoMovieQuaternion,
+) => IAutoMovieTransform = (
   t: IAutoMovieVector3,
   r?: IAutoMovieQuaternion,
 ): IAutoMovieTransform => ({
@@ -23,7 +31,11 @@ const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransfor
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   rest: IAutoMovieTransform,
@@ -40,10 +52,14 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, 
 };
 
 /** Shortest-arc rotation taking the local +Y axis onto a target direction. */
-const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (dir: IAutoMovieVector3): IAutoMovieQuaternion =>
-  aimRotation({ x: 0, y: 1, z: 0 }, dir);
+const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (
+  dir: IAutoMovieVector3,
+): IAutoMovieQuaternion => aimRotation({ x: 0, y: 1, z: 0 }, dir);
 
-const capsule: (radius: number, length: number) => AutoMoviePrimitiveShape = (radius: number, length: number): AutoMoviePrimitiveShape => ({
+const capsule: (radius: number, length: number) => AutoMoviePrimitiveShape = (
+  radius: number,
+  length: number,
+): AutoMoviePrimitiveShape => ({
   type: "capsule",
   radius,
   height: Math.max(0.01, length - 2 * radius),
@@ -52,7 +68,13 @@ const capsule: (radius: number, length: number) => AutoMoviePrimitiveShape = (ra
 /**
  * Attach a rigid capsule along a bone-local segment. Its existing 0.01-metre minimum cylinder can extend beyond very short requested segments; orientation is delegated to aimRotation.
  */
-const rod: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3, radius: number, material: string) => IAutoMovieModelPart = (
+const rod: (
+  id: string,
+  boneName: AutoMovieHumanoidBone,
+  seg: IAutoMovieVector3,
+  radius: number,
+  material: string,
+) => IAutoMovieModelPart = (
   id: string,
   boneName: AutoMovieHumanoidBone,
   seg: IAutoMovieVector3,
@@ -125,7 +147,13 @@ export const buildStickman: (p: IStickmanParams) => {
   const r: number = p.rodRadius;
   const tr: number = p.torsoRadius;
   /** A sphere of arbitrary radius attached at a bone's origin (fists, etc.). */
-  const knob: (id: string, boneName: AutoMovieHumanoidBone, radius: number, material?: string, offset?: IAutoMovieVector3) => IAutoMovieModelPart = (
+  const knob: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+    radius: number,
+    material?: string,
+    offset?: IAutoMovieVector3,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
     radius: number,
@@ -140,7 +168,10 @@ export const buildStickman: (p: IStickmanParams) => {
     transform: at(offset),
   });
   /** A ball joint: a sphere at a bone's origin, hiding the gap between rods. */
-  const ball: (id: string, boneName: AutoMovieHumanoidBone) => IAutoMovieModelPart = (
+  const ball: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
   ): IAutoMovieModelPart => ({

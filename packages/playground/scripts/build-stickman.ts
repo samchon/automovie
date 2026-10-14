@@ -11,7 +11,8 @@ import { buildStickman } from "../src/buildStickman";
  * @author Samchon
  */
 const main: () => Promise<void> = async (): Promise<void> => {
-  const { model }: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+  const { model }: ReturnType<typeof buildStickman> =
+    buildStickman(DEFAULT_STICKMAN);
   const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(model);
   // The glb is a derived artifact: the viewer renders from the AST, so this is
   // regenerable scratch (like the screenshots), not committed source.

@@ -15,15 +15,21 @@ import {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyPose, buildModel, mountViewer, guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement } from "@automovie/viewer";
+import {
+  applyPose,
+  buildModel,
+  guardAutoMovieRenderModeRetirement,
+  guardAutoMovieSceneShadowRetirement,
+  mountViewer,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import { DEFAULT_HORSE } from "./DEFAULT_HORSE";
-import { buildHorse } from "./buildHorse";
-import { horseGallop } from "./horseGallop";
-import { buildKnight } from "./buildKnight";
 import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
 import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
+import { buildHorse } from "./buildHorse";
+import { buildKnight } from "./buildKnight";
+import { horseGallop } from "./horseGallop";
 
 // ── Parthian shot, at the gallop: two knights charge across the field (camera
 // tracking), the lead archer twists back in the saddle and looses an arrow at
@@ -31,9 +37,14 @@ import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
 // the moving target's frame. The fall starts at that contact time or at the
 // authored flight-time fallback when no hit is returned. His horse gallops
 // on while he tumbles to the turf and recedes. The authored loop is 9 seconds.
-const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(location.search);
+const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
+  location.search,
+);
 
-const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number; }) => IAutoMovieJointPose = (
+const j: (
+  bone: AutoMovieHumanoidBone,
+  a: { flexion?: number; abduction?: number; twist?: number },
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -42,31 +53,62 @@ const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number
   abduction: a.abduction ?? 0,
   twist: a.twist ?? 0,
 });
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
-const tf: (t: IAutoMovieVector3) => IAutoMovieTransform = (t: IAutoMovieVector3): IAutoMovieTransform => ({
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+const tf: (t: IAutoMovieVector3) => IAutoMovieTransform = (
+  t: IAutoMovieVector3,
+): IAutoMovieTransform => ({
   translation: t,
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
-const blend: (a: IAutoMovieJointPose[], b: IAutoMovieJointPose[], t: number) => IAutoMovieJointPose[] = (
+const lerp: (a: number, b: number, t: number) => number = (
+  a: number,
+  b: number,
+  t: number,
+): number => a + (b - a) * t;
+const blend: (
+  a: IAutoMovieJointPose[],
+  b: IAutoMovieJointPose[],
+  t: number,
+) => IAutoMovieJointPose[] = (
   a: IAutoMovieJointPose[],
   b: IAutoMovieJointPose[],
   t: number,
 ): IAutoMovieJointPose[] => {
-  const bones: Set<AutoMovieHumanoidBone> = new Set([...a, ...b].map((x: IAutoMovieJointPose): AutoMovieHumanoidBone => x.bone));
-  const at: (arr: IAutoMovieJointPose[], bone: AutoMovieHumanoidBone) => IAutoMovieJointPose | undefined = (arr: IAutoMovieJointPose[], bone: AutoMovieHumanoidBone): IAutoMovieJointPose | undefined =>
+  const bones: Set<AutoMovieHumanoidBone> = new Set(
+    [...a, ...b].map((x: IAutoMovieJointPose): AutoMovieHumanoidBone => x.bone),
+  );
+  const at: (
+    arr: IAutoMovieJointPose[],
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieJointPose | undefined = (
+    arr: IAutoMovieJointPose[],
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointPose | undefined =>
     arr.find((x: IAutoMovieJointPose): boolean => x.bone === bone);
-  return [...bones].map((bone: AutoMovieHumanoidBone): { bone: AutoMovieHumanoidBone; flexion: number; abduction: number; twist: number; } => {
-    const pa: IAutoMovieJointPose | undefined = at(a, bone);
-    const pb: IAutoMovieJointPose | undefined = at(b, bone);
-    return {
-      bone,
-      flexion: lerp(pa?.flexion ?? 0, pb?.flexion ?? 0, t),
-      abduction: lerp(pa?.abduction ?? 0, pb?.abduction ?? 0, t),
-      twist: lerp(pa?.twist ?? 0, pb?.twist ?? 0, t),
-    };
-  });
+  return [...bones].map(
+    (
+      bone: AutoMovieHumanoidBone,
+    ): {
+      bone: AutoMovieHumanoidBone;
+      flexion: number;
+      abduction: number;
+      twist: number;
+    } => {
+      const pa: IAutoMovieJointPose | undefined = at(a, bone);
+      const pb: IAutoMovieJointPose | undefined = at(b, bone);
+      return {
+        bone,
+        flexion: lerp(pa?.flexion ?? 0, pb?.flexion ?? 0, t),
+        abduction: lerp(pa?.abduction ?? 0, pb?.abduction ?? 0, t),
+        twist: lerp(pa?.twist ?? 0, pb?.twist ?? 0, t),
+      };
+    },
+  );
 };
 
 // ── two mounts + riders (face +Z, the charge direction) ──────────────────────
@@ -151,7 +193,10 @@ const B0: IAutoMovieVector3 = v(0, 1.5, bZ(RELEASE)); // target torso at release
 // aim in the TARGET's frame: arrow must cover −Z by ~(G) plus a little arc
 const TAU: number = 0.42; // intended time of flight
 const relVel: IAutoMovieVector3 = v(0, 1.4, -(A0.z - B0.z + 0.05) / TAU);
-const targetTorso: { center: IAutoMovieVector3; radius: number; } = { center: B0, radius: 0.55 };
+const targetTorso: { center: IAutoMovieVector3; radius: number } = {
+  center: B0,
+  radius: 0.55,
+};
 const hit: ReturnType<typeof projectileSphereHit> = projectileSphereHit(
   { origin: A0, velocity: relVel, gravity: g },
   targetTorso,
@@ -167,12 +212,20 @@ console.log(
 );
 
 const arrow: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-const shaft: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const shaft: THREE.Mesh<
+  THREE.CylinderGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.CylinderGeometry(0.013, 0.013, 0.72, 8),
   new THREE.MeshStandardMaterial({ color: 0x6b4a2b }),
 );
 shaft.rotation.x = Math.PI / 2;
-const ahead: THREE.Mesh<THREE.ConeGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const ahead: THREE.Mesh<
+  THREE.ConeGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.ConeGeometry(0.032, 0.11, 8),
   new THREE.MeshStandardMaterial({ color: 0xcfd3da, metalness: 0.4 }),
 );
@@ -180,7 +233,11 @@ ahead.rotation.x = Math.PI / 2;
 ahead.position.z = 0.41;
 arrow.add(shaft, ahead);
 arrow.visible = false;
-const bow: THREE.Mesh<THREE.TorusGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+const bow: THREE.Mesh<
+  THREE.TorusGeometry,
+  THREE.MeshStandardMaterial,
+  THREE.Object3DEventMap
+> = new THREE.Mesh(
   new THREE.TorusGeometry(0.28, 0.02, 8, 24, Math.PI * 1.2),
   new THREE.MeshStandardMaterial({ color: 0x3a2a18 }),
 );
@@ -189,7 +246,8 @@ const bow: THREE.Mesh<THREE.TorusGeometry, THREE.MeshStandardMaterial, THREE.Obj
 const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 scene.background = new THREE.Color(0xeaf0f7);
 scene.add(aRig, bRig, arrow);
-const bowHand: THREE.Object3D<THREE.Object3DEventMap> | undefined = archerObj.bones.get("leftHand");
+const bowHand: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+  archerObj.bones.get("leftHand");
 if (bowHand) {
   bow.rotation.y = Math.PI / 2;
   bowHand.add(bow);
@@ -200,11 +258,21 @@ const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(4, 6, 2);
 scene.add(sun);
 
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(46, 1, 0.05, 400);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  46,
+  1,
+  0.05,
+  400,
+);
 const az: number = (Number(params.get("az") ?? 58) * Math.PI) / 180;
 const dist: number = Number(params.get("dist") ?? 7.5);
 
-const setRider: (riderObj: typeof archerObj, sk: typeof archer.skeleton, joints: IAutoMovieJointPose[], seat: IAutoMovieTransform) => void = (
+const setRider: (
+  riderObj: typeof archerObj,
+  sk: typeof archer.skeleton,
+  joints: IAutoMovieJointPose[],
+  seat: IAutoMovieTransform,
+) => void = (
   riderObj: typeof archerObj,
   sk: typeof archer.skeleton,
   joints: IAutoMovieJointPose[],
@@ -283,7 +351,10 @@ const step: (t: number) => void = (t: number): void => {
     );
     arrow.visible = true;
     arrow.position.set(s.position.x, s.position.y, s.position.z);
-    const q: ReturnType<typeof aimRotation> = aimRotation({ x: 0, y: 0, z: 1 }, s.velocity);
+    const q: ReturnType<typeof aimRotation> = aimRotation(
+      { x: 0, y: 0, z: 1 },
+      s.velocity,
+    );
     arrow.quaternion.set(q.x, q.y, q.z, q.w);
   } else {
     arrow.visible = false;
@@ -308,11 +379,17 @@ const frozen: string | null = params.get("t");
 const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (freezeAt !== null && Number.isFinite(freezeAt)) step(freezeAt);
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 const capMode: boolean = params.get("cap") === "1";
-const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (!capMode && freezeAt === null) step(elapsed % DUR);
-});
+const handle: ReturnType<typeof mountViewer> = mountViewer(
+  canvas,
+  scene,
+  camera,
+  (elapsed: number): void => {
+    if (!capMode && freezeAt === null) step(elapsed % DUR);
+  },
+);
 (window as unknown as { __afSeek: (t: number) => void }).__afSeek = (
   t: number,
 ): void => {

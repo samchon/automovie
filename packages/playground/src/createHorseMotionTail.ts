@@ -1,9 +1,22 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Construct three little-finger-named tail joints using sway-dependent abduction and an optional lift degree offset. Sway [-1,1] is an authoring convention, not an enforced clamp, and the slots denote a quadruped tail rather than human digits.
@@ -18,7 +31,13 @@ import { HORSE_PROFILE } from "@automovie/archetypes";
  *
  * @author Samchon
  */
-export const createHorseMotionTail: (sway: number, lift?: number) => IAutoMovieJointPose[] = (sway: number, lift: number = 0): IAutoMovieJointPose[] => [
+export const createHorseMotionTail: (
+  sway: number,
+  lift?: number,
+) => IAutoMovieJointPose[] = (
+  sway: number,
+  lift: number = 0,
+): IAutoMovieJointPose[] => [
   j("leftLittleProximal", { abduction: 16 * sway, flexion: 10 + lift }),
   j("leftLittleIntermediate", { abduction: 20 * sway, flexion: 14 + lift }),
   j("leftLittleDistal", { abduction: 24 * sway, flexion: 16 + lift }),

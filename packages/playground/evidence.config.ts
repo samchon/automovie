@@ -18,10 +18,7 @@ export default {
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
-        files: [
-          "contracts/common.md",
-          "contracts/performance.md",
-        ],
+        files: ["contracts/common.md", "contracts/performance.md"],
         symbol: "h2",
         checklist: true,
       },

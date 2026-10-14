@@ -1,11 +1,24 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createCatProfileMotion as profileClip } from "./createCatProfileMotion";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Select the authored CAT_PROFILE walk, whose 0.8-second cycle pairs diagonal upper limbs and uses metre root bob; twenty-four samples bind the caller's skeleton name. Seconds, metre translations and degree joint angles are authored demo data. The existing cat page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -20,5 +33,6 @@ import { createCatProfileMotion as profileClip } from "./createCatProfileMotion"
  *
  * @author Samchon
  */
-export const catWalk: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
-  profileClip(sk, "walk");
+export const catWalk: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => profileClip(sk, "walk");

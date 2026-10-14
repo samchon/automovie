@@ -1,4 +1,8 @@
-import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
 import { buildStickman } from "./buildStickman";
@@ -26,7 +30,8 @@ export function buildSparBoxer(
   /** Fresh tint-adjusted document; the page owns its later realized geometry and materials. */
   model: IAutoMovieModel;
 } {
-  const built: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+  const built: ReturnType<typeof buildStickman> =
+    buildStickman(DEFAULT_STICKMAN);
   const skeleton: IAutoMovieSkeleton = { ...built.skeleton, id };
   return {
     skeleton,
@@ -34,10 +39,14 @@ export function buildSparBoxer(
       ...built.model,
       skeleton,
       id,
-      materials: built.model.materials.map((material: IAutoMovieMaterial): IAutoMovieMaterial =>
-        material.id === "ink"
-          ? { ...material, baseColor: { r: rgb[0], g: rgb[1], b: rgb[2], a: 1, hex: null } }
-          : material,
+      materials: built.model.materials.map(
+        (material: IAutoMovieMaterial): IAutoMovieMaterial =>
+          material.id === "ink"
+            ? {
+                ...material,
+                baseColor: { r: rgb[0], g: rgb[1], b: rgb[2], a: 1, hex: null },
+              }
+            : material,
       ),
     },
   };

@@ -198,7 +198,9 @@ const SHOTS: readonly Shot[] = [
 ];
 
 const only: string | undefined = process.argv[2];
-const shots: readonly Shot[] = only ? SHOTS.filter((s: Shot): boolean => s[6].includes(only)) : SHOTS;
+const shots: readonly Shot[] = only
+  ? SHOTS.filter((s: Shot): boolean => s[6].includes(only))
+  : SHOTS;
 if (shots.length === 0) {
   console.error(`no shots match "${only}"`);
   process.exit(1);
@@ -206,12 +208,22 @@ if (shots.length === 0) {
 
 const even: (n: number) => number = (n: number): number => n - (n % 2);
 
-const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
-  executablePath: CHROME,
-  headless: true,
-});
+const browser: Awaited<ReturnType<typeof chromium.launch>> =
+  await chromium.launch({
+    executablePath: CHROME,
+    headless: true,
+  });
 
-const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = async ([
+const capture: ([
+  page,
+  q,
+  dur,
+  n,
+  w,
+  h,
+  out,
+  fps,
+]: Shot) => Promise<void> = async ([
   page,
   q,
   dur,
@@ -226,10 +238,12 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
   const dest: string = path.join(shotsDir, out);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
-  const pg: Awaited<ReturnType<typeof browser.newPage>> = await browser.newPage({
-    viewport: { width: W, height: H },
-    deviceScaleFactor: 1,
-  });
+  const pg: Awaited<ReturnType<typeof browser.newPage>> = await browser.newPage(
+    {
+      viewport: { width: W, height: H },
+      deviceScaleFactor: 1,
+    },
+  );
   let completion: string | undefined;
   let pageFailure: IAutoMoviePlaygroundOperationFailure | undefined;
   try {
@@ -249,7 +263,8 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
     await pg.addStyleTag({ content: "#clips{display:none!important}" });
     const view: ReturnType<typeof pg.locator> = pg.locator("#view");
 
-    const enc: Awaited<ReturnType<typeof createH264MP4Encoder>> = await createH264MP4Encoder();
+    const enc: Awaited<ReturnType<typeof createH264MP4Encoder>> =
+      await createH264MP4Encoder();
     let encoderFailure: IAutoMoviePlaygroundOperationFailure | undefined;
     try {
       enc.width = W;
@@ -262,10 +277,13 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
       for (let i: number = 0; i < n; i++) {
         const t: number = (dur * i) / (n - 1);
         await pg.evaluate((tt: number): void => {
-          const host: CaptureShotsWindow = window as unknown as CaptureShotsWindow;
+          const host: CaptureShotsWindow =
+            window as unknown as CaptureShotsWindow;
           host.__afSeek(tt);
         }, t);
-        const buf: Buffer<ArrayBufferLike> = await view.screenshot({ type: "png" });
+        const buf: Buffer<ArrayBufferLike> = await view.screenshot({
+          type: "png",
+        });
         const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(buf);
         enc.addFrameRgba(new Uint8Array(png.data));
       }
@@ -276,15 +294,21 @@ const capture: ([page, q, dur, n, w, h, out, fps,]: Shot) => Promise<void> = asy
       encoderFailure = { error };
       throw error;
     } finally {
-      await preserveCleanupFailure(encoderFailure, "capture encoder", (): void =>
-        enc.delete(),
+      await preserveCleanupFailure(
+        encoderFailure,
+        "capture encoder",
+        (): void => enc.delete(),
       );
     }
   } catch (error) {
     pageFailure = { error };
     throw error;
   } finally {
-    await preserveCleanupFailure(pageFailure, "capture page", (): Promise<void> => pg.close());
+    await preserveCleanupFailure(
+      pageFailure,
+      "capture page",
+      (): Promise<void> => pg.close(),
+    );
   }
   console.log(completion);
 };
@@ -296,8 +320,10 @@ try {
   browserFailure = { error };
   throw error;
 } finally {
-  await preserveCleanupFailure(browserFailure, "capture browser", (): Promise<void> =>
-    browser.close(),
+  await preserveCleanupFailure(
+    browserFailure,
+    "capture browser",
+    (): Promise<void> => browser.close(),
   );
 }
 console.log("done");

@@ -1,8 +1,4 @@
 /// <reference lib="webworker" />
-import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
-import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
-import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
-import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 /**
  * The anatomy inspection page's numerical worker. It admits the body
  * partition view of the published person generation once, then answers
@@ -13,23 +9,38 @@ import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanRes
  */
 import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
 import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
-import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
-import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { createConnectedBodyAnatomyRuntime } from "@automovie/human/body/runtime/createConnectedBodyAnatomyRuntime";
 import { createConnectedBodySimpleWhole } from "@automovie/human/human/runtime/createConnectedBodySimpleWhole";
+import type { IAutoMovieHumanPersonBodyView } from "@automovie/human/human/structures/IAutoMovieHumanPersonBodyView";
+import type { IAutoMovieHumanPersonHeadView } from "@automovie/human/human/structures/IAutoMovieHumanPersonHeadView";
+import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
+import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
+
+import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
+import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
 import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 
-const scope: DedicatedWorkerGlobalScope = self as unknown as DedicatedWorkerGlobalScope;
-const source: ReturnType<typeof readConnectedPersonSourceUrls> = readConnectedPersonSourceUrls(scope.name, location.href);
-const handle: (request: IHumanResidentRequest<ConnectedBodyRequest>) => Promise<void> = createHumanResidentHandler<
+const scope: DedicatedWorkerGlobalScope =
+  self as unknown as DedicatedWorkerGlobalScope;
+const source: ReturnType<typeof readConnectedPersonSourceUrls> =
+  readConnectedPersonSourceUrls(scope.name, location.href);
+const handle: (
+  request: IHumanResidentRequest<ConnectedBodyRequest>,
+) => Promise<void> = createHumanResidentHandler<
   ConnectedBodyRequest,
   ConnectedBodyResult
 >({
-  prepare: Promise.all([readConnectedHeadView(source?.head), readConnectedBodyView(source?.body)]).then(
-    ([head, view]: [IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView]): (request: ConnectedBodyRequest) => Promise<ConnectedBodyResult> =>
+  prepare: Promise.all([
+    readConnectedHeadView(source?.head),
+    readConnectedBodyView(source?.body),
+  ]).then(
+    ([head, view]: [
+      IAutoMovieHumanPersonHeadView,
+      IAutoMovieHumanPersonBodyView,
+    ]): ((request: ConnectedBodyRequest) => Promise<ConnectedBodyResult>) =>
       createConnectedBodyAnatomyRuntime(
         view.body,
         createConnectedBodySimpleWhole(head, view),

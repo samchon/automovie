@@ -1,11 +1,24 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createCatMotionTail as tail } from "./createCatMotionTail";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Return a 2.2-second looping three-key sit with hind upper/lower angles 78/128 degrees, spine/chest/neck -32/-22/-18 degrees and -0.05-metre root Y. Tail sway -0.6/+0.6/-0.6 carries a ten-degree curl offset. Seconds, metre translations and degree joint angles are authored demo data. The existing cat page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -20,8 +33,12 @@ import { createCatMotionTail as tail } from "./createCatMotionTail";
  *
  * @author Samchon
  */
-export const catSit: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
-  const sitting: (sway: number) => IAutoMoviePose = (sway: number): IAutoMoviePose =>
+export const catSit: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
+  const sitting: (sway: number) => IAutoMoviePose = (
+    sway: number,
+  ): IAutoMoviePose =>
     pose(
       sk,
       [

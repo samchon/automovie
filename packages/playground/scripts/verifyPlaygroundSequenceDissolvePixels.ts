@@ -16,12 +16,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Locator, type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
+
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
-import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
 import type { IAutoMoviePlaygroundSequenceMetadata } from "./IAutoMoviePlaygroundSequenceMetadata";
-import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
 import type { IAutoMoviePlaygroundSequenceRenderArtifact } from "./IAutoMoviePlaygroundSequenceRenderArtifact";
+import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
+import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
+import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
 /**
  * Observe each declared dissolve using the sampled blend nearest alpha 0.5, the existing saved PNG and two isolated-shot PNGs at their local times. Mean absolute RGB byte distances use the existing baseline>0.1 and probe-distance>0.01/<baseline predicate; alpha/distance reports round to three decimals. False observations carry a reason and do not throw merely because the heuristic fails.
@@ -76,7 +77,8 @@ export const verifyPlaygroundSequenceDissolvePixels: (props: {
         frame.blend.alpha > 0 &&
         frame.blend.alpha < 1,
     );
-    const frame: IAutoMovieSequenceRenderFrame | null = nearestMidBlend(candidates);
+    const frame: IAutoMovieSequenceRenderFrame | null =
+      nearestMidBlend(candidates);
     if (frame === null || frame.blend === null) {
       checks.push(emptyDissolveCheck(transition, "no blended frame sampled"));
       continue;
@@ -86,7 +88,9 @@ export const verifyPlaygroundSequenceDissolvePixels: (props: {
       checks.push(emptyDissolveCheck(transition, "captured frame missing"));
       continue;
     }
-    const actual: ReturnType<typeof PNG.sync.read> = PNG.sync.read(await fs.readFile(actualPath));
+    const actual: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
+      await fs.readFile(actualPath),
+    );
     const outgoing: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
       Buffer.from(
         await props.captureShot({
@@ -127,7 +131,9 @@ export const verifyPlaygroundSequenceDissolvePixels: (props: {
   }
   return checks;
 };
-const nearestMidBlend: (frames: IAutoMovieSequenceRenderFrame[]) => IAutoMovieSequenceRenderFrame | null = (
+const nearestMidBlend: (
+  frames: IAutoMovieSequenceRenderFrame[],
+) => IAutoMovieSequenceRenderFrame | null = (
   frames: IAutoMovieSequenceRenderFrame[],
 ): IAutoMovieSequenceRenderFrame | null => {
   let best: IAutoMovieSequenceRenderFrame | null = null;
@@ -140,7 +146,10 @@ const nearestMidBlend: (frames: IAutoMovieSequenceRenderFrame[]) => IAutoMovieSe
       best = frame;
   return best;
 };
-const emptyDissolveCheck: (transition: IAutoMovieSequenceRenderTransitionSpan, reason: string) => IAutoMovieSequenceDissolvePixelCheck = (
+const emptyDissolveCheck: (
+  transition: IAutoMovieSequenceRenderTransitionSpan,
+  reason: string,
+) => IAutoMovieSequenceDissolvePixelCheck = (
   transition: IAutoMovieSequenceRenderTransitionSpan,
   reason: string,
 ): IAutoMovieSequenceDissolvePixelCheck => ({
@@ -153,7 +162,9 @@ const emptyDissolveCheck: (transition: IAutoMovieSequenceRenderTransitionSpan, r
   verified: false,
   reason,
 });
-const transitionSlice: (transition: IAutoMovieSequenceRenderTransitionSpan) => IAutoMovieSequenceDissolvePixelCheck["transition"] = (
+const transitionSlice: (
+  transition: IAutoMovieSequenceRenderTransitionSpan,
+) => IAutoMovieSequenceDissolvePixelCheck["transition"] = (
   transition: IAutoMovieSequenceRenderTransitionSpan,
 ): IAutoMovieSequenceDissolvePixelCheck["transition"] => ({
   from: transition.from,
@@ -173,4 +184,5 @@ const rgbDistance: (a: PNG, b: PNG) => number = (a: PNG, b: PNG): number => {
   }
   return sum / (pixels * 3);
 };
-const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;

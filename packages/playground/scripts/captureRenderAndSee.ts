@@ -10,13 +10,13 @@ import {
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright-core";
+import { type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
-import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
-import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "./IAutoMoviePlaygroundRenderAndSeeOptions";
+import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
 import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "./IAutoMoviePlaygroundRenderAndSeeArtifact";
+import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "./IAutoMoviePlaygroundRenderAndSeeOptions";
+import { preserveCleanupFailure } from "./preserveCleanupFailure";
 
 /**
  * Capture the existing route through the canonical headless adapter and renderAndSee schedule, save PNG frames, encode the current H.264 preview and write the augmented JSON artifact. The requested interval/rate and captured guide files are observations of this route rather than a clinical, geometry-health or photographic-fidelity certificate.
@@ -24,7 +24,9 @@ import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "./IAutoMoviePlayg
  *
  * @author Samchon
  */
-export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOptions) => Promise<IAutoMoviePlaygroundRenderAndSeeArtifact> = async (
+export const captureRenderAndSee: (
+  options: IAutoMoviePlaygroundRenderAndSeeOptions,
+) => Promise<IAutoMoviePlaygroundRenderAndSeeArtifact> = async (
   options: IAutoMoviePlaygroundRenderAndSeeOptions,
 ): Promise<IAutoMoviePlaygroundRenderAndSeeArtifact> => {
   const route: string = routeUrl(
@@ -34,10 +36,11 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
     options.width,
     options.height,
   );
-  const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
-    executablePath: options.chrome,
-    headless: true,
-  });
+  const browser: Awaited<ReturnType<typeof chromium.launch>> =
+    await chromium.launch({
+      executablePath: options.chrome,
+      headless: true,
+    });
   let browserFailure: { error: unknown } | undefined;
   try {
     const page: Page = await browser.newPage({
@@ -48,15 +51,20 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
     let closePage: boolean = true;
     let pageFailure: { error: unknown } | undefined;
     try {
-      const session: Awaited<ReturnType<typeof createHeadlessCaptureAdapter>> = await createHeadlessCaptureAdapter({
-        page,
-        url: route,
-        passes: options.passes,
-        writeFrame: async (file: string, bytes: Uint8Array<ArrayBufferLike>, _metadata: { timeSeconds: number; index: number; }): Promise<void> => {
-          await fs.mkdir(path.dirname(file), { recursive: true });
-          await fs.writeFile(file, Buffer.from(bytes));
-        },
-      });
+      const session: Awaited<ReturnType<typeof createHeadlessCaptureAdapter>> =
+        await createHeadlessCaptureAdapter({
+          page,
+          url: route,
+          passes: options.passes,
+          writeFrame: async (
+            file: string,
+            bytes: Uint8Array<ArrayBufferLike>,
+            _metadata: { timeSeconds: number; index: number },
+          ): Promise<void> => {
+            await fs.mkdir(path.dirname(file), { recursive: true });
+            await fs.writeFile(file, Buffer.from(bytes));
+          },
+        });
       closePage = false;
       let sessionFailure: { error: unknown } | undefined;
       try {
@@ -78,8 +86,16 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
           frameDir: options.frameDir,
           outputPath: options.outputPath,
           adapters: {
-            captureFrame: async (timeSeconds: number, index: number, dir: string): Promise<string> => {
-              const primary: string = await session.captureFrame(timeSeconds, index, dir);
+            captureFrame: async (
+              timeSeconds: number,
+              index: number,
+              dir: string,
+            ): Promise<string> => {
+              const primary: string = await session.captureFrame(
+                timeSeconds,
+                index,
+                dir,
+              );
               captured.set(index, primary);
               return primary;
             },
@@ -114,21 +130,29 @@ export const captureRenderAndSee: (options: IAutoMoviePlaygroundRenderAndSeeOpti
       pageFailure = { error };
       throw error;
     } finally {
-      await preserveCleanupFailure(pageFailure, "render capture page", (): Promise<void> | undefined =>
-        closePage ? page.close() : undefined,
+      await preserveCleanupFailure(
+        pageFailure,
+        "render capture page",
+        (): Promise<void> | undefined => (closePage ? page.close() : undefined),
       );
     }
   } catch (error) {
     browserFailure = { error };
     throw error;
   } finally {
-    await preserveCleanupFailure(browserFailure, "render capture browser", (): Promise<void> =>
-      browser.close(),
+    await preserveCleanupFailure(
+      browserFailure,
+      "render capture browser",
+      (): Promise<void> => browser.close(),
     );
   }
 };
 
-const createH264Encoder: (options: { captured: Map<number, string>; durationSeconds: number; spec: IAutoMovieRenderSpec; }) => IAutoMovieRenderAdapters["encode"] =
+const createH264Encoder: (options: {
+  captured: Map<number, string>;
+  durationSeconds: number;
+  spec: IAutoMovieRenderSpec;
+}) => IAutoMovieRenderAdapters["encode"] =
   (options: {
     captured: Map<number, string>;
     durationSeconds: number;
@@ -151,7 +175,9 @@ const createH264Encoder: (options: { captured: Map<number, string>; durationSeco
         const file: string | undefined = options.captured.get(i);
         if (file === undefined)
           throw new Error(`missing captured frame ${i} before encode`);
-        const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(await fs.readFile(file));
+        const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
+          await fs.readFile(file),
+        );
         encoder.addFrameRgba(new Uint8Array(png.data));
       }
       encoder.finalize();
@@ -165,13 +191,21 @@ const createH264Encoder: (options: { captured: Map<number, string>; durationSeco
       encoderFailure = { error };
       throw error;
     } finally {
-      await preserveCleanupFailure(encoderFailure, "render H.264 encoder", (): void =>
-        encoder.delete(),
+      await preserveCleanupFailure(
+        encoderFailure,
+        "render H.264 encoder",
+        (): void => encoder.delete(),
       );
     }
   };
 
-const routeUrl: (base: string, page: string, query: string, width: number, height: number) => string = (
+const routeUrl: (
+  base: string,
+  page: string,
+  query: string,
+  width: number,
+  height: number,
+) => string = (
   base: string,
   page: string,
   query: string,

@@ -1,4 +1,5 @@
 import type { IAutoMovieSequenceRenderAndSeeResult } from "@automovie/render";
+
 import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
 
 /**

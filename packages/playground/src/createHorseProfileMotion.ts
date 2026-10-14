@@ -1,9 +1,22 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Bind the entire HORSE_PROFILE at twenty-four samples and select one existing walk/trot/gallop row. The four gait names are a fixed catalogue premise; malformed or mutated shared profile data is not repaired by the non-null assertion.
@@ -18,7 +31,10 @@ import { HORSE_PROFILE } from "@automovie/archetypes";
  *
  * @author Samchon
  */
-export const createHorseProfileMotion: (sk: string, name: "walk" | "trot" | "gallop") => IAutoMovieMotion = (
+export const createHorseProfileMotion: (
+  sk: string,
+  name: "walk" | "trot" | "gallop",
+) => IAutoMovieMotion = (
   sk: string,
   name: "walk" | "trot" | "gallop",
 ): IAutoMovieMotion => bindProfileGaits(HORSE_PROFILE, sk, 24)[name]!;

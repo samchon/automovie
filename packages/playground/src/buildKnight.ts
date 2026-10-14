@@ -1,19 +1,30 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
-  IAutoMovieMaterial,
   IAutoMovieSkeleton,
-  IAutoMovieVector3,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
 import { buildStickman } from "./buildStickman";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
-const mat: (id: string, r: number, g: number, b: number, roughness?: number, metallic?: number) => IAutoMovieMaterial = (
+const mat: (
+  id: string,
+  r: number,
+  g: number,
+  b: number,
+  roughness?: number,
+  metallic?: number,
+) => IAutoMovieMaterial = (
   id: string,
   r: number,
   g: number,
@@ -68,13 +79,20 @@ export const buildKnight: (opts?: {
   model: IAutoMovieModel;
 } => {
   const withLance: boolean = opts.lance !== false;
-  const built: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+  const built: ReturnType<typeof buildStickman> =
+    buildStickman(DEFAULT_STICKMAN);
   const skeleton: IAutoMovieSkeleton = built.skeleton;
   const model: IAutoMovieModel = built.model;
   const hr: number = DEFAULT_STICKMAN.headRadius;
   const lower: number = DEFAULT_STICKMAN.lowerArm;
 
-  const knob: (id: string, boneName: AutoMovieHumanoidBone, radius: number, material: string, offset: IAutoMovieVector3) => IAutoMovieModelPart = (
+  const knob: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+    radius: number,
+    material: string,
+    offset: IAutoMovieVector3,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
     radius: number,
@@ -88,7 +106,10 @@ export const buildKnight: (opts?: {
     attachedBone: boneName,
     transform: at(offset),
   });
-  const at: (t: IAutoMovieVector3, rot?: IAutoMovieModelPart["transform"]) => IAutoMovieTransform = (
+  const at: (
+    t: IAutoMovieVector3,
+    rot?: IAutoMovieModelPart["transform"],
+  ) => IAutoMovieTransform = (
     t: IAutoMovieVector3,
     rot?: IAutoMovieModelPart["transform"],
   ): IAutoMovieTransform => ({
@@ -176,7 +197,9 @@ export const buildKnight: (opts?: {
   // the plume / lance / shield palette
   const materials: IAutoMovieMaterial[] = [
     mat("ink", 0.46, 0.5, 0.56, 0.45, 0.2), // armoured steel-blue body
-    ...model.materials.filter((m: IAutoMovieMaterial): boolean => m.id === "eye" || m.id === "pupil"),
+    ...model.materials.filter(
+      (m: IAutoMovieMaterial): boolean => m.id === "eye" || m.id === "pupil",
+    ),
     mat("steel", 0.62, 0.66, 0.72, 0.35, 0.4),
     mat("plume", 0.74, 0.12, 0.12, 0.5),
     mat("lance", 0.4, 0.26, 0.13, 0.6),

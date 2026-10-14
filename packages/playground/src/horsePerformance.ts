@@ -1,15 +1,28 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createHorseGallopBurst as gallopBurst } from "./createHorseGallopBurst";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { horseIdle } from "./horseIdle";
-import { horseWalk } from "./horseWalk";
-import { horseTrot } from "./horseTrot";
 import { horseRear } from "./horseRear";
+import { horseTrot } from "./horseTrot";
 import { horseTurn } from "./horseTurn";
+import { horseWalk } from "./horseWalk";
 
 /**
  * Sequence the existing twenty-one-part looping mounted demo: idle, walks, trots, seven two-gallop bursts, two handwritten rears, one turn and final idle. Mounted rider attachment and its observed safety remain caller/viewer concerns. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -24,7 +37,9 @@ import { horseTurn } from "./horseTurn";
  *
  * @author Samchon
  */
-export const horsePerformance: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const horsePerformance: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   sequenceMotion(
     "performance",
     [

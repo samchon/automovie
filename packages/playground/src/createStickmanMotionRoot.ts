@@ -14,6 +14,15 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  *
  * @author Samchon
  */
-export function createStickmanMotionRoot(x: number, y: number, z: number, yawDeg: number): IAutoMovieTransform {
-  return { translation: { x, y, z }, rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yawDeg), scale: { x: 1, y: 1, z: 1 } };
+export function createStickmanMotionRoot(
+  x: number,
+  y: number,
+  z: number,
+  yawDeg: number,
+): IAutoMovieTransform {
+  return {
+    translation: { x, y, z },
+    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yawDeg),
+    scale: { x: 1, y: 1, z: 1 },
+  };
 }

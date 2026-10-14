@@ -1,7 +1,14 @@
 import { Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
-const j: (bone: AutoMovieHumanoidBone, a: { flexion?: number; abduction?: number; twist?: number }) => IAutoMovieJointPose = (
+const j: (
+  bone: AutoMovieHumanoidBone,
+  a: { flexion?: number; abduction?: number; twist?: number },
+) => IAutoMovieJointPose = (
   bone: AutoMovieHumanoidBone,
   a: { flexion?: number; abduction?: number; twist?: number },
 ): IAutoMovieJointPose => ({
@@ -27,8 +34,16 @@ const GUARD: IAutoMovieJointPose[] = [
   j("rightLowerLeg", { flexion: 22 }),
 ];
 
-const merge: (over: IAutoMovieJointPose[]) => IAutoMovieJointPose[] = (over: IAutoMovieJointPose[]): IAutoMovieJointPose[] => {
-  const m: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(GUARD.map((x: IAutoMovieJointPose): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [x.bone, x]));
+const merge: (over: IAutoMovieJointPose[]) => IAutoMovieJointPose[] = (
+  over: IAutoMovieJointPose[],
+): IAutoMovieJointPose[] => {
+  const m: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    GUARD.map(
+      (
+        x: IAutoMovieJointPose,
+      ): readonly [AutoMovieHumanoidBone, IAutoMovieJointPose] => [x.bone, x],
+    ),
+  );
   for (const o of over) m.set(o.bone, o);
   return [...m.values()];
 };
@@ -40,14 +55,30 @@ const upright: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const fall: (y: number, z: number, pitchDeg: number) => IAutoMovieTransform = (y: number, z: number, pitchDeg: number): IAutoMovieTransform => ({
+const fall: (y: number, z: number, pitchDeg: number) => IAutoMovieTransform = (
+  y: number,
+  z: number,
+  pitchDeg: number,
+): IAutoMovieTransform => ({
   translation: { x: 0, y, z },
   rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, pitchDeg),
   scale: { x: 1, y: 1, z: 1 },
 });
 
 // ── pose vocabulary (each returns the full joint set) ────────────────────────
-const P: { guard: () => IAutoMovieJointPose[]; jab: () => IAutoMovieJointPose[]; cross: () => IAutoMovieJointPose[]; leadHook: () => IAutoMovieJointPose[]; rearUpper: () => IAutoMovieJointPose[]; slip: (d: number) => IAutoMovieJointPose[]; weave: (d: number) => IAutoMovieJointPose[]; duck: () => IAutoMovieJointPose[]; block: () => IAutoMovieJointPose[]; leanBack: () => IAutoMovieJointPose[]; recoil: () => IAutoMovieJointPose[] } = {
+const P: {
+  guard: () => IAutoMovieJointPose[];
+  jab: () => IAutoMovieJointPose[];
+  cross: () => IAutoMovieJointPose[];
+  leadHook: () => IAutoMovieJointPose[];
+  rearUpper: () => IAutoMovieJointPose[];
+  slip: (d: number) => IAutoMovieJointPose[];
+  weave: (d: number) => IAutoMovieJointPose[];
+  duck: () => IAutoMovieJointPose[];
+  block: () => IAutoMovieJointPose[];
+  leanBack: () => IAutoMovieJointPose[];
+  recoil: () => IAutoMovieJointPose[];
+} = {
   guard: (): IAutoMovieJointPose[] => merge([]),
   jab: (): IAutoMovieJointPose[] =>
     merge([
@@ -182,12 +213,16 @@ interface SparMoment {
 
 // a pure vertical sink (weave/duck drop) and a step toward the opponent (+Z
 // local, which for either boxer points at the other once placed)
-const sink: (y: number) => IAutoMovieTransform = (y: number): IAutoMovieTransform => ({
+const sink: (y: number) => IAutoMovieTransform = (
+  y: number,
+): IAutoMovieTransform => ({
   translation: { x: 0, y, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const stepIn: (z: number) => IAutoMovieTransform = (z: number): IAutoMovieTransform => ({
+const stepIn: (z: number) => IAutoMovieTransform = (
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x: 0, y: 0, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -269,7 +304,10 @@ const ROUND: Ex[] = [
   },
 ];
 
-const flip: (e: Ex) => Ex = (e: Ex): Ex => ({ ...e, who: e.who === "R" ? "B" : "R" });
+const flip: (e: Ex) => Ex = (e: Ex): Ex => ({
+  ...e,
+  who: e.who === "R" ? "B" : "R",
+});
 
 /**
  * Single authored exchange timeline for the red and blue stick figures, including a root-driven blue fall. Three fixed rounds share paired instants; local root distances are metres, angles are degrees and times are seconds rounded to milliseconds. These conventional keyframes are not a contact simulation or measured clinical motion.
@@ -303,7 +341,8 @@ export const SPAR_MOMENTS: SparMoment[] = ((): SparMoment[] => {
   }
   // the finish: red steps in behind a one-two and blue is knocked out
   const z: number = t;
-  const at: (dt: number) => number = (dt: number): number => Math.round((z + dt) * 1000) / 1000;
+  const at: (dt: number) => number = (dt: number): number =>
+    Math.round((z + dt) * 1000) / 1000;
   out.push({
     t: at(0.35),
     red: P.jab(),

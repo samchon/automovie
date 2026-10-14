@@ -1,17 +1,30 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
-import { horseIdle } from "./horseIdle";
-import { horseWalk } from "./horseWalk";
-import { horseTrot } from "./horseTrot";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { horseGallop } from "./horseGallop";
 import { horseGallopTravel } from "./horseGallopTravel";
-import { horseRear } from "./horseRear";
-import { horseTurn } from "./horseTurn";
+import { horseIdle } from "./horseIdle";
 import { horsePerformance } from "./horsePerformance";
+import { horseRear } from "./horseRear";
+import { horseTrot } from "./horseTrot";
+import { horseTurn } from "./horseTurn";
+import { horseWalk } from "./horseWalk";
 
 /**
  * Eagerly construct eight horse motions for the existing selector: idle, walk, trot, gallop, gallopTravel, turn, rear and performance. The handwritten rear is distinct from HORSE_PROFILE's rear row, though profile binding also constructs that unused row. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -26,7 +39,9 @@ import { horsePerformance } from "./horsePerformance";
  *
  * @author Samchon
  */
-export const HORSE_CLIPS: (sk: string) => Record<string, IAutoMovieMotion> = (sk: string): Record<string, IAutoMovieMotion> => ({
+export const HORSE_CLIPS: (sk: string) => Record<string, IAutoMovieMotion> = (
+  sk: string,
+): Record<string, IAutoMovieMotion> => ({
   idle: horseIdle(sk),
   walk: horseWalk(sk),
   trot: horseTrot(sk),

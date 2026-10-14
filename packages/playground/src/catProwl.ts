@@ -1,11 +1,24 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { catWalk } from "./catWalk";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Repeat eight walk cycles while advancing +Z at the authored 0.45 metres per second; travelMotion makes the resulting path non-looping. Seconds, metre translations and degree joint angles are authored demo data. The existing cat page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -20,5 +33,7 @@ import { catWalk } from "./catWalk";
  *
  * @author Samchon
  */
-export const catProwl: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const catProwl: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   travelMotion("prowl", catWalk(sk), 8, { x: 0, y: 0, z: 0.45 });

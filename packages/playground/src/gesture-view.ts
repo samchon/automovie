@@ -1,9 +1,3 @@
-import { type IAutoMovieSkeleton, type IAutoMovieModel, type IAutoMovieSceneNode, type IAutoMovieQuaternion, type IAutoMovieShotPerformance, type IAutoMovieCamera, IAutoMovieMotion, IAutoMoviePerformance, IAutoMovieScript, IAutoMovieShot, IAutoMovieStage, IAutoMovieVector3 } from "@automovie/interface";
-
-
-
-
-
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -14,14 +8,27 @@ import {
   resolveSequencePlayback,
   stageScene,
 } from "@automovie/engine";
-
+import {
+  type IAutoMovieCamera,
+  type IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMoviePerformance,
+  type IAutoMovieQuaternion,
+  type IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieShot,
+  type IAutoMovieShotPerformance,
+  type IAutoMovieSkeleton,
+  IAutoMovieStage,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   AutoMoviePlayer,
   assertAutoMovieViewerCameraDepthPrecision,
   buildModel,
-  mountViewer,
   guardAutoMovieRenderModeRetirement,
   guardAutoMovieSceneShadowRetirement,
+  mountViewer,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -108,58 +115,100 @@ const performance: IAutoMoviePerformance = {
 };
 
 // ── rigs + the content seam ──────────────────────────────────────────────────
-const jumperRig: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; } = buildStickman(DEFAULT_STICKMAN);
-const rigOf: { readonly jumper: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; }; } = { jumper: jumperRig } as const;
-const isActor: (node: string) => node is keyof typeof rigOf = (node: string): node is keyof typeof rigOf => node in rigOf;
+const jumperRig: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } =
+  buildStickman(DEFAULT_STICKMAN);
+const rigOf: {
+  readonly jumper: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel };
+} = { jumper: jumperRig } as const;
+const isActor: (node: string) => node is keyof typeof rigOf = (
+  node: string,
+): node is keyof typeof rigOf => node in rigOf;
 
 const staged: ReturnType<typeof stageScene> = stageScene(script, staging);
 if (staged.success !== true)
   throw new Error(`staging failed: ${JSON.stringify(staged)}`);
 
-const nodePositions: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>(
-  staged.scene.nodes.map((n: IAutoMovieSceneNode): [string, IAutoMovieVector3] => [n.id, n.transform.translation]),
+const nodePositions: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>(
+  staged.scene.nodes.map(
+    (n: IAutoMovieSceneNode): [string, IAutoMovieVector3] => [
+      n.id,
+      n.transform.translation,
+    ],
+  ),
 );
-const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>(
+const contexts: Map<string, IAutoMovieActorContext> = new Map<
+  string,
+  IAutoMovieActorContext
+>(
   staged.scene.nodes
     .filter((n: IAutoMovieSceneNode): boolean => isActor(n.id))
-    .map((n: IAutoMovieSceneNode): [string, { skeleton: string; rig: IAutoMovieSkeleton; gaits: never[]; position: IAutoMovieVector3; speed: number; facingDeg: number; eyeHeight: number; restPose: { skeleton: string; root: null; joints: never[]; }; }] => {
-      const rig: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel; } = rigOf[n.id as keyof typeof rigOf];
-      return [
-        n.id,
+    .map(
+      (
+        n: IAutoMovieSceneNode,
+      ): [
+        string,
         {
-          skeleton: rig.skeleton.id,
-          rig: rig.skeleton,
-          gaits: [],
-          position: n.transform.translation,
-          speed: 0.7,
-          facingDeg: 0,
-          eyeHeight: 1.45,
-          restPose: { skeleton: rig.skeleton.id, root: null, joints: [] },
+          skeleton: string;
+          rig: IAutoMovieSkeleton;
+          gaits: never[];
+          position: IAutoMovieVector3;
+          speed: number;
+          facingDeg: number;
+          eyeHeight: number;
+          restPose: { skeleton: string; root: null; joints: never[] };
         },
-      ];
-    }),
+      ] => {
+        const rig: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } =
+          rigOf[n.id as keyof typeof rigOf];
+        return [
+          n.id,
+          {
+            skeleton: rig.skeleton.id,
+            rig: rig.skeleton,
+            gaits: [],
+            position: n.transform.translation,
+            speed: 0.7,
+            facingDeg: 0,
+            eyeHeight: 1.45,
+            restPose: { skeleton: rig.skeleton.id, root: null, joints: [] },
+          },
+        ];
+      },
+    ),
 );
-const synthesize: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(contexts, nodePositions);
+const synthesize: ReturnType<typeof makeActorSynthesizer> =
+  makeActorSynthesizer(contexts, nodePositions);
 
 const performed: ReturnType<typeof performShot> = performShot({
   script,
   staged,
   performance,
   synthesize,
-  skeleton: (node: string): IAutoMovieSkeleton | null => (isActor(node) ? rigOf[node].skeleton : null),
+  skeleton: (node: string): IAutoMovieSkeleton | null =>
+    isActor(node) ? rigOf[node].skeleton : null,
 });
 if (performed.success !== true)
   throw new Error(`perform failed: ${JSON.stringify(performed.violations)}`);
 const shots: IAutoMovieShot[] = [performed.shot];
-const motionsByShot: Map<string, Record<string, IAutoMovieMotion>> = new Map<string, Record<string, IAutoMovieMotion>>([
-  [performed.shot.id, performed.motions],
-]);
+const motionsByShot: Map<string, Record<string, IAutoMovieMotion>> = new Map<
+  string,
+  Record<string, IAutoMovieMotion>
+>([[performed.shot.id, performed.motions]]);
 
 const cut: ReturnType<typeof cutSequence> = cutSequence(
   {
     sequence: { id: "seq-leap", name: "the leap" },
     fps: 30,
-    entries: shots.map((s: IAutoMovieShot): { shot: string; trim: null; transition: null; } => ({ shot: s.id, trim: null, transition: null })),
+    entries: shots.map(
+      (s: IAutoMovieShot): { shot: string; trim: null; transition: null } => ({
+        shot: s.id,
+        trim: null,
+        transition: null,
+      }),
+    ),
     pacing: "two leaps.",
     continuity: "the figure lands where it took off.",
   },
@@ -182,36 +231,51 @@ sun.position.set(3, 4, -1.4);
 scene.add(sun);
 
 const built: Record<string, ReturnType<typeof buildModel>> = Object.fromEntries(
-  staged.scene.nodes.map((node: IAutoMovieSceneNode): readonly [string, ReturnType<typeof buildModel>] => {
-    const obj: ReturnType<typeof buildModel> = buildModel(rigOf[node.id as keyof typeof rigOf].model);
-    const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-    const t: IAutoMovieVector3 = node.transform.translation;
-    group.position.set(t.x, t.y, t.z);
-    const r: IAutoMovieQuaternion = node.transform.rotation;
-    group.quaternion.set(r.x, r.y, r.z, r.w);
-    group.add(obj.object);
-    scene.add(group);
-    return [node.id, obj] as const;
-  }),
+  staged.scene.nodes.map(
+    (
+      node: IAutoMovieSceneNode,
+    ): readonly [string, ReturnType<typeof buildModel>] => {
+      const obj: ReturnType<typeof buildModel> = buildModel(
+        rigOf[node.id as keyof typeof rigOf].model,
+      );
+      const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
+      const t: IAutoMovieVector3 = node.transform.translation;
+      group.position.set(t.x, t.y, t.z);
+      const r: IAutoMovieQuaternion = node.transform.rotation;
+      group.quaternion.set(r.x, r.y, r.z, r.w);
+      group.add(obj.object);
+      scene.add(group);
+      return [node.id, obj] as const;
+    },
+  ),
 );
 
-const playersByShot: Map<string, { node: string; player: AutoMoviePlayer; }[]> = new Map(
-  shots.map((shot: IAutoMovieShot): [string, { node: string; player: AutoMoviePlayer; }[]] => [
-    shot.id,
-    shot.performances.map((p: IAutoMovieShotPerformance): { node: string; player: AutoMoviePlayer; } => ({
-      node: p.node,
-      player: new AutoMoviePlayer(
-        built[p.node]!,
-        rigOf[p.node as keyof typeof rigOf].skeleton,
-        motionsByShot.get(shot.id)![p.node]!,
-        HUMANOID_JOINT_AXES,
-        false,
-        undefined,
-        HUMANOID_REST_FRAME,
-      ),
-    })),
-  ]),
-);
+const playersByShot: Map<string, { node: string; player: AutoMoviePlayer }[]> =
+  new Map(
+    shots.map(
+      (
+        shot: IAutoMovieShot,
+      ): [string, { node: string; player: AutoMoviePlayer }[]] => [
+        shot.id,
+        shot.performances.map(
+          (
+            p: IAutoMovieShotPerformance,
+          ): { node: string; player: AutoMoviePlayer } => ({
+            node: p.node,
+            player: new AutoMoviePlayer(
+              built[p.node]!,
+              rigOf[p.node as keyof typeof rigOf].skeleton,
+              motionsByShot.get(shot.id)![p.node]!,
+              HUMANOID_JOINT_AXES,
+              false,
+              undefined,
+              HUMANOID_REST_FRAME,
+            ),
+          }),
+        ),
+      ],
+    ),
+  );
 
 // ── the projector ────────────────────────────────────────────────────────────
 const stagedCam: IAutoMovieCamera = staged.scene.cameras[0]!;
@@ -231,9 +295,12 @@ const applyStagedCamera: () => void = (): void => {
 };
 applyStagedCamera();
 
-const shotById: Map<string, IAutoMovieShot> = new Map(shots.map((s: IAutoMovieShot): [string, IAutoMovieShot] => [s.id, s]));
+const shotById: Map<string, IAutoMovieShot> = new Map(
+  shots.map((s: IAutoMovieShot): [string, IAutoMovieShot] => [s.id, s]),
+);
 const renderAt: (seconds: number) => void = (seconds: number): void => {
-  const sample: ReturnType<typeof resolveSequencePlayback> = resolveSequencePlayback(cut.sequence, shots, seconds);
+  const sample: ReturnType<typeof resolveSequencePlayback> =
+    resolveSequencePlayback(cut.sequence, shots, seconds);
   if (sample === null) return;
   for (const { player } of playersByShot.get(sample.shot)!)
     player.update(sample.time);
@@ -243,16 +310,25 @@ const renderAt: (seconds: number) => void = (seconds: number): void => {
 
 // ── mount + deterministic seek contract (capture) ────────────────────────────
 const params: URLSearchParams = new URLSearchParams(location.search);
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 const capMode: boolean = params.get("cap") === "1";
 const frozen: string | null = params.get("t");
 const freezeAt: number | null = frozen !== null ? Number(frozen) : null;
 if (freezeAt !== null && Number.isFinite(freezeAt)) renderAt(freezeAt);
 
-const handle: ReturnType<typeof mountViewer> = mountViewer(canvas, scene, camera, (elapsed: number): void => {
-  if (!capMode && freezeAt === null) renderAt(elapsed % (FILM_DURATION + 0.6));
-});
-const cameraDepthPrecision: ReturnType<typeof assertAutoMovieViewerCameraDepthPrecision> = assertAutoMovieViewerCameraDepthPrecision({
+const handle: ReturnType<typeof mountViewer> = mountViewer(
+  canvas,
+  scene,
+  camera,
+  (elapsed: number): void => {
+    if (!capMode && freezeAt === null)
+      renderAt(elapsed % (FILM_DURATION + 0.6));
+  },
+);
+const cameraDepthPrecision: ReturnType<
+  typeof assertAutoMovieViewerCameraDepthPrecision
+> = assertAutoMovieViewerCameraDepthPrecision({
   renderer: handle.renderer,
   source: stagedCam,
   realized: camera,

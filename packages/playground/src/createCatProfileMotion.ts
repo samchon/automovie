@@ -1,9 +1,22 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
@@ -19,7 +32,10 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  *
  * @author Samchon
  */
-export const createCatProfileMotion: (sk: string, name: "walk" | "leap" | "stalk") => IAutoMovieMotion = (
+export const createCatProfileMotion: (
+  sk: string,
+  name: "walk" | "leap" | "stalk",
+) => IAutoMovieMotion = (
   sk: string,
   name: "walk" | "leap" | "stalk",
 ): IAutoMovieMotion => bindProfileGaits(CAT_PROFILE, sk, 24)[name]!;

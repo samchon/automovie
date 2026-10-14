@@ -10,14 +10,14 @@ import {
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "playwright-core";
+import { type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
-import { DEFAULT_CHROME_EXECUTABLE } from "../DEFAULT_CHROME_EXECUTABLE";
-import { preserveCleanupFailure } from "../preserveCleanupFailure";
 
-import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "../IAutoMoviePlaygroundRenderAndSeeOptions";
+import { DEFAULT_CHROME_EXECUTABLE } from "../DEFAULT_CHROME_EXECUTABLE";
 import type { IAutoMoviePlaygroundRenderAndSeeArtifact } from "../IAutoMoviePlaygroundRenderAndSeeArtifact";
+import type { IAutoMoviePlaygroundRenderAndSeeOptions } from "../IAutoMoviePlaygroundRenderAndSeeOptions";
 import { captureRenderAndSee } from "../captureRenderAndSee.ts";
+import { preserveCleanupFailure } from "../preserveCleanupFailure";
 
 const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
 
@@ -28,12 +28,14 @@ const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
 export const main: (argv?: string[]) => Promise<void> = async (
   argv: string[] = process.argv.slice(2),
 ): Promise<void> => {
-  const options: IAutoMoviePlaygroundRenderAndSeeOptions | null = parseArgs(argv);
+  const options: IAutoMoviePlaygroundRenderAndSeeOptions | null =
+    parseArgs(argv);
   if (options === null) {
     printHelp();
     return;
   }
-  const artifact: IAutoMoviePlaygroundRenderAndSeeArtifact = await captureRenderAndSee(options);
+  const artifact: IAutoMoviePlaygroundRenderAndSeeArtifact =
+    await captureRenderAndSee(options);
   console.log(
     JSON.stringify(
       {
@@ -48,7 +50,9 @@ export const main: (argv?: string[]) => Promise<void> = async (
   );
 };
 
-const parseArgs: (argv: string[]) => IAutoMoviePlaygroundRenderAndSeeOptions | null = (
+const parseArgs: (
+  argv: string[],
+) => IAutoMoviePlaygroundRenderAndSeeOptions | null = (
   argv: string[],
 ): IAutoMoviePlaygroundRenderAndSeeOptions | null => {
   if (argv.includes("--help") || argv.includes("-h")) return null;
@@ -85,7 +89,9 @@ const parseArgs: (argv: string[]) => IAutoMoviePlaygroundRenderAndSeeOptions | n
   };
 };
 
-const readFlags: (argv: string[]) => Record<string, string | undefined> = (argv: string[]): Record<string, string | undefined> => {
+const readFlags: (argv: string[]) => Record<string, string | undefined> = (
+  argv: string[],
+): Record<string, string | undefined> => {
   const flags: Record<string, string | undefined> = {};
   for (let i: number = 0; i < argv.length; ++i) {
     const arg: string = argv[i]!;
@@ -102,7 +108,11 @@ const readFlags: (argv: string[]) => Record<string, string | undefined> = (argv:
   return flags;
 };
 
-const positiveNumber: (value: string | undefined, fallback: number, label: string) => number = (
+const positiveNumber: (
+  value: string | undefined,
+  fallback: number,
+  label: string,
+) => number = (
   value: string | undefined,
   fallback: number,
   label: string,
@@ -114,7 +124,11 @@ const positiveNumber: (value: string | undefined, fallback: number, label: strin
   return parsed;
 };
 
-const positiveEvenInteger: (value: string | undefined, fallback: number, label: string) => number = (
+const positiveEvenInteger: (
+  value: string | undefined,
+  fallback: number,
+  label: string,
+) => number = (
   value: string | undefined,
   fallback: number,
   label: string,
@@ -133,8 +147,10 @@ const repoRoot: () => string = (): string => {
     : cwd;
 };
 
-const resolveFromRoot: (root: string, value: string) => string = (root: string, value: string): string =>
-  path.isAbsolute(value) ? value : path.resolve(root, value);
+const resolveFromRoot: (root: string, value: string) => string = (
+  root: string,
+  value: string,
+): string => (path.isAbsolute(value) ? value : path.resolve(root, value));
 
 const printHelp: () => void = (): void => {
   console.log(`Usage:

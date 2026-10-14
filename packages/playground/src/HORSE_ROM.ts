@@ -1,11 +1,26 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
-const range: (min: number, max: number) => { min: number; max: number; } = (min: number, max: number): { min: number; max: number; } => ({ min, max });
-const con: (flexion: { min: number; max: number; } | null, abduction: { min: number; max: number; } | null, twist: { min: number; max: number; } | null) => IAutoMovieJointConstraint = (
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
+
+const range: (min: number, max: number) => { min: number; max: number } = (
+  min: number,
+  max: number,
+): { min: number; max: number } => ({ min, max });
+const con: (
+  flexion: { min: number; max: number } | null,
+  abduction: { min: number; max: number } | null,
+  twist: { min: number; max: number } | null,
+) => IAutoMovieJointConstraint = (
   flexion: { min: number; max: number } | null,
   abduction: { min: number; max: number } | null,
   twist: { min: number; max: number } | null,
 ): IAutoMovieJointConstraint => ({ flexion, abduction, twist });
-const legCon: IAutoMovieJointConstraint = con(range(-80, 90), range(-15, 25), range(-15, 15));
+const legCon: IAutoMovieJointConstraint = con(
+  range(-80, 90),
+  range(-15, 25),
+  range(-15, 15),
+);
 const kneeCon: IAutoMovieJointConstraint = con(range(-10, 150), null, null);
 const hoofCon: IAutoMovieJointConstraint = con(range(-40, 40), null, null);
 /**

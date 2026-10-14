@@ -1,8 +1,9 @@
 import type { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Authored one-second hop loop with stand/crouch/apex/crouch/stand keys. Root height moves through -0.12 and +0.26 metres; apex upper-arm abduction retains the existing 210-degree overshoot. Times/roots/angles are conventional choreography, not ballistic gravity, clinical capacity or verified floor contact.
@@ -17,7 +18,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const hop: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const hop: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   // Arms specified in every keyframe (no rest-T-pose snap): down at rest, swept
   // back in the crouch, thrown up at the apex.
   const stand: IAutoMoviePose = pose(

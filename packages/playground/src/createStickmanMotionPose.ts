@@ -1,4 +1,8 @@
-import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 /**
  * Wrap authored joint records and an optional whole-body root for the supplied skeleton identity. Null root retains absence; joint/root data are borrowed and must not be mutated through another sharing clip.
@@ -13,6 +17,10 @@ import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieTransform } from "@
  *
  * @author Samchon
  */
-export function createStickmanMotionPose(skeleton: string, joints: IAutoMovieJointPose[], root: IAutoMovieTransform | null = null): IAutoMoviePose {
+export function createStickmanMotionPose(
+  skeleton: string,
+  joints: IAutoMovieJointPose[],
+  root: IAutoMovieTransform | null = null,
+): IAutoMoviePose {
   return { skeleton, root, joints };
 }

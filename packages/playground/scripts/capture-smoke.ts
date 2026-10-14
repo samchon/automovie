@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { createHeadlessCaptureAdapter } from "@automovie/render";
 import { maskColor } from "@automovie/viewer";
-import { spawn, type ChildProcessByStdio } from "node:child_process";
-import type { Readable } from "node:stream";
+import { type ChildProcessByStdio, spawn } from "node:child_process";
 import path from "node:path";
+import type { Readable } from "node:stream";
 import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
@@ -24,10 +24,17 @@ interface DevServerExit {
   signal: NodeJS.Signals | null;
 }
 
-const appendDevServerOutput: (current: string, chunk: string) => string = (current: string, chunk: string): string =>
-  `${current}${chunk}`.slice(-DEV_SERVER_OUTPUT_MAX_CHARS);
+const appendDevServerOutput: (current: string, chunk: string) => string = (
+  current: string,
+  chunk: string,
+): string => `${current}${chunk}`.slice(-DEV_SERVER_OUTPUT_MAX_CHARS);
 
-const devServerFailure: (props: { error: Error | null; exit: DevServerExit | null; stderr: string; stdout: string; }) => string | null = (props: {
+const devServerFailure: (props: {
+  error: Error | null;
+  exit: DevServerExit | null;
+  stderr: string;
+  stdout: string;
+}) => string | null = (props: {
   error: Error | null;
   exit: DevServerExit | null;
   stderr: string;
@@ -41,7 +48,11 @@ const devServerFailure: (props: { error: Error | null; exit: DevServerExit | nul
   return null;
 };
 
-const requireCapturedFrame: (runs: ReadonlyArray<ReadonlyMap<string, Uint8Array>>, runIndex: number, name: string) => Uint8Array = (
+const requireCapturedFrame: (
+  runs: ReadonlyArray<ReadonlyMap<string, Uint8Array>>,
+  runIndex: number,
+  name: string,
+) => Uint8Array = (
   runs: ReadonlyArray<ReadonlyMap<string, Uint8Array>>,
   runIndex: number,
   name: string,
@@ -81,27 +92,38 @@ const main: (argv?: string[]) => Promise<void> = async (
   // and the render-and-see harnesses use).
   const route: string = `${base.replace(/\/+$/, "")}/stickman.html?char=human&clip=walk&az=80&cap=1&w=${WIDTH}&h=${HEIGHT}`;
 
-  const server: { spawned: boolean; close: () => Promise<void>; } = await ensureDevServer(base);
+  const server: { spawned: boolean; close: () => Promise<void> } =
+    await ensureDevServer(base);
   let serverFailure: { error: unknown } | undefined;
   try {
     const runs: Array<Map<string, Uint8Array>> = [];
-    const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
-      executablePath: chrome,
-      headless: true,
-    });
+    const browser: Awaited<ReturnType<typeof chromium.launch>> =
+      await chromium.launch({
+        executablePath: chrome,
+        headless: true,
+      });
     let browserFailure: { error: unknown } | undefined;
     try {
       for (let run: number = 0; run < 2; ++run) {
-        const page: Awaited<ReturnType<typeof browser.newPage>> = await browser.newPage({
-          viewport: { width: WIDTH, height: HEIGHT },
-          deviceScaleFactor: 1,
-        });
-        const frames: Map<string, Uint8Array<ArrayBufferLike>> = new Map<string, Uint8Array>();
-        const session: Awaited<ReturnType<typeof createHeadlessCaptureAdapter>> = await createHeadlessCaptureAdapter({
+        const page: Awaited<ReturnType<typeof browser.newPage>> =
+          await browser.newPage({
+            viewport: { width: WIDTH, height: HEIGHT },
+            deviceScaleFactor: 1,
+          });
+        const frames: Map<string, Uint8Array<ArrayBufferLike>> = new Map<
+          string,
+          Uint8Array
+        >();
+        const session: Awaited<
+          ReturnType<typeof createHeadlessCaptureAdapter>
+        > = await createHeadlessCaptureAdapter({
           page,
           url: route,
           passes: ["beauty", "mask", "pose"],
-          writeFrame: async (file: string, bytes: Uint8Array<ArrayBufferLike>): Promise<void> => {
+          writeFrame: async (
+            file: string,
+            bytes: Uint8Array<ArrayBufferLike>,
+          ): Promise<void> => {
             frames.set(path.basename(file), bytes);
           },
         });
@@ -160,7 +182,15 @@ const main: (argv?: string[]) => Promise<void> = async (
     const maskBlackPixels: number = mask.get(rgbKey(0, 0, 0)) ?? 0;
     const poseWhitePixels: number = pose.get(rgbKey(255, 255, 255)) ?? 0;
     const poseMaskPalettePixels: number = pose.get(subjectKey) ?? 0;
-    const observations: { maskBlackFraction: number; maskBlackPixels: number; maskSubjectFraction: number; maskSubjectPixels: number; poseMaskPalettePixels: number; poseWhiteFraction: number; poseWhitePixels: number; } = {
+    const observations: {
+      maskBlackFraction: number;
+      maskBlackPixels: number;
+      maskSubjectFraction: number;
+      maskSubjectPixels: number;
+      poseMaskPalettePixels: number;
+      poseWhiteFraction: number;
+      poseWhitePixels: number;
+    } = {
       maskBlackFraction: maskBlackPixels / total,
       maskBlackPixels,
       maskSubjectFraction: maskSubjectPixels / total,
@@ -183,7 +213,9 @@ const main: (argv?: string[]) => Promise<void> = async (
       requireCapturedFrame(runs, 0, "frame_00000.mask.png"),
     );
 
-    const failed: [string, boolean][] = Object.entries(checks).filter(([, ok]: [string, boolean]): boolean => !ok);
+    const failed: [string, boolean][] = Object.entries(checks).filter(
+      ([, ok]: [string, boolean]): boolean => !ok,
+    );
     console.log(
       JSON.stringify(
         {
@@ -213,7 +245,9 @@ const main: (argv?: string[]) => Promise<void> = async (
 };
 
 /** Reuse a responding server without ownership, or acquire Vite. Owned close requests termination and awaits its native close event; a refused kill rejects without claiming release, and no shutdown timeout is imposed. */
-const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () => Promise<void>; }> = async (
+const ensureDevServer: (
+  base: string,
+) => Promise<{ spawned: boolean; close: () => Promise<void> }> = async (
   base: string,
 ): Promise<{ spawned: boolean; close: () => Promise<void> }> => {
   if (await answers(base, DEV_SERVER_PROBE_TIMEOUT_MS))
@@ -246,21 +280,31 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
   child.once("error", (cause: Error): void => {
     error = cause;
   });
-  child.once("exit", (code: number | null, signal: NodeJS.Signals | null): void => {
-    exit = { code, signal };
-  });
-  const closed: Promise<undefined> = new Promise<undefined>((resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
-    child.once("close", (code: number | null, signal: NodeJS.Signals | null): void => {
+  child.once(
+    "exit",
+    (code: number | null, signal: NodeJS.Signals | null): void => {
       exit = { code, signal };
-      resolve(undefined);
-    });
-  });
+    },
+  );
+  const closed: Promise<undefined> = new Promise<undefined>(
+    (resolve: (value: PromiseLike<undefined> | undefined) => void): void => {
+      child.once(
+        "close",
+        (code: number | null, signal: NodeJS.Signals | null): void => {
+          exit = { code, signal };
+          resolve(undefined);
+        },
+      );
+    },
+  );
   const currentExit: () => DevServerExit | null = (): DevServerExit | null =>
     exit ??
     (child.exitCode !== null || child.signalCode !== null
       ? { code: child.exitCode, signal: child.signalCode }
       : null);
-  const failureAfterClose: () => Promise<string | null> = async (): Promise<string | null> => {
+  const failureAfterClose: () => Promise<string | null> = async (): Promise<
+    string | null
+  > => {
     if (error === null && currentExit() === null) return null;
     await closed;
     return devServerFailure({
@@ -274,13 +318,22 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
     if (currentExit() === null) {
       const requested: boolean = child.kill();
       if (!requested && currentExit() === null)
-        throw error ?? new Error("The owned dev server shutdown request was not accepted.");
+        throw (
+          error ??
+          new Error("The owned dev server shutdown request was not accepted.")
+        );
     }
     await closed;
   };
-  const refuse: (message: string) => Promise<never> = async (message: string): Promise<never> => {
+  const refuse: (message: string) => Promise<never> = async (
+    message: string,
+  ): Promise<never> => {
     const cause: Error = new Error(message);
-    await preserveCleanupFailure({ error: cause }, "capture smoke startup server", close);
+    await preserveCleanupFailure(
+      { error: cause },
+      "capture smoke startup server",
+      close,
+    );
     throw cause;
   };
   const deadline: number = Date.now() + DEV_SERVER_READY_TIMEOUT_MS;
@@ -296,7 +349,10 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
       return refuse(failure);
     }
     if (answered) return { spawned: true, close };
-    const delay: number = Math.min(DEV_SERVER_POLL_INTERVAL_MS, deadline - Date.now());
+    const delay: number = Math.min(
+      DEV_SERVER_POLL_INTERVAL_MS,
+      deadline - Date.now(),
+    );
     if (delay > 0)
       await new Promise((resolve: (value: unknown) => void): void => {
         setTimeout(resolve, delay);
@@ -311,11 +367,17 @@ const ensureDevServer: (base: string) => Promise<{ spawned: boolean; close: () =
   );
 };
 
-const answers: (base: string, timeoutMs: number) => Promise<boolean> = async (base: string, timeoutMs: number): Promise<boolean> => {
+const answers: (base: string, timeoutMs: number) => Promise<boolean> = async (
+  base: string,
+  timeoutMs: number,
+): Promise<boolean> => {
   try {
-    const response: Response = await fetch(`${base.replace(/\/+$/, "")}/stickman.html`, {
-      signal: AbortSignal.timeout(timeoutMs),
-    });
+    const response: Response = await fetch(
+      `${base.replace(/\/+$/, "")}/stickman.html`,
+      {
+        signal: AbortSignal.timeout(timeoutMs),
+      },
+    );
     if (!response.ok) return false;
     return (await response.text()).includes(DEV_SERVER_READY_MARKER);
   } catch {
@@ -324,23 +386,40 @@ const answers: (base: string, timeoutMs: number) => Promise<boolean> = async (ba
 };
 
 /** Exact-color histogram of a PNG: `"r,g,b"` → pixel count. */
-const histogram: (bytes: Uint8Array) => Map<string, number> = (bytes: Uint8Array): Map<string, number> => {
-  const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(Buffer.from(bytes));
+const histogram: (bytes: Uint8Array) => Map<string, number> = (
+  bytes: Uint8Array,
+): Map<string, number> => {
+  const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
+    Buffer.from(bytes),
+  );
   const counts: Map<string, number> = new Map<string, number>();
   for (let i: number = 0; i < png.data.length; i += 4) {
-    const key: string = rgbKey(png.data[i]!, png.data[i + 1]!, png.data[i + 2]!);
+    const key: string = rgbKey(
+      png.data[i]!,
+      png.data[i + 1]!,
+      png.data[i + 2]!,
+    );
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   return counts;
 };
 
-const rgbKey: (r: number, g: number, b: number) => string = (r: number, g: number, b: number): string => `${r},${g},${b}`;
+const rgbKey: (r: number, g: number, b: number) => string = (
+  r: number,
+  g: number,
+  b: number,
+): string => `${r},${g},${b}`;
 
-const equalBytes: (a: Uint8Array, b: Uint8Array) => boolean = (a: Uint8Array, b: Uint8Array): boolean =>
+const equalBytes: (a: Uint8Array, b: Uint8Array) => boolean = (
+  a: Uint8Array,
+  b: Uint8Array,
+): boolean =>
   a.byteLength === b.byteLength &&
   Buffer.compare(Buffer.from(a), Buffer.from(b)) === 0;
 
-const readFlags: (argv: string[]) => Record<string, string | undefined> = (argv: string[]): Record<string, string | undefined> => {
+const readFlags: (argv: string[]) => Record<string, string | undefined> = (
+  argv: string[],
+): Record<string, string | undefined> => {
   const flags: Record<string, string | undefined> = {};
   for (let i: number = 0; i < argv.length; ++i) {
     const arg: string = argv[i]!;

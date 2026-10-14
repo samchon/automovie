@@ -1,9 +1,10 @@
-import type { IAutoMovieMotion } from "@automovie/interface";
 import { sequenceMotion } from "@automovie/engine";
+import type { IAutoMovieMotion } from "@automovie/interface";
+
 import { jumpingJack } from "./jumpingJack";
-import { walk } from "./walk";
-import { run } from "./run";
 import { kick } from "./kick";
+import { run } from "./run";
+import { walk } from "./walk";
 
 /**
  * Concatenate two walks, two runs, one jumping jack and one kick into the existing looping routine, all targeting the caller's compatible stick rig. Component spans sum to 5.2 seconds. Component legacy angles remain unchanged; sequencing requires positive finite component durations and matching skeleton ids, without validating every keyframe time, clinical ROM, contact or observed appearance.
@@ -18,7 +19,9 @@ import { kick } from "./kick";
  *
  * @author Samchon
  */
-export const combo: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const combo: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   sequenceMotion(
     "combo",
     [walk(sk), walk(sk), run(sk), run(sk), jumpingJack(sk), kick(sk)],

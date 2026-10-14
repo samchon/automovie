@@ -81,13 +81,24 @@ interface IPersonRecord {
   observations: IPersonObservation[];
 }
 
-const BUTTONS: readonly ["undo", "redo", "reset", "discard", "save", "glb"] = ["undo", "redo", "reset", "discard", "save", "glb"] as const;
+const BUTTONS: readonly ["undo", "redo", "reset", "discard", "save", "glb"] = [
+  "undo",
+  "redo",
+  "reset",
+  "discard",
+  "save",
+  "glb",
+] as const;
 
-const readState: (page: Page) => Promise<IPersonPageState> = (page: Page): Promise<IPersonPageState> =>
+const readState: (page: Page) => Promise<IPersonPageState> = (
+  page: Page,
+): Promise<IPersonPageState> =>
   page.evaluate((buttons: readonly string[]): IPersonPageState => {
-    const text: (selector: string) => string | null = (selector: string): string | null =>
-      document.querySelector(selector)?.textContent ?? null;
-    const status: HTMLElement | null = document.querySelector<HTMLElement>("#person-status");
+    const text: (selector: string) => string | null = (
+      selector: string,
+    ): string | null => document.querySelector(selector)?.textContent ?? null;
+    const status: HTMLElement | null =
+      document.querySelector<HTMLElement>("#person-status");
     return {
       status: status?.textContent ?? null,
       state: status?.dataset.state ?? null,
@@ -106,7 +117,10 @@ const readState: (page: Page) => Promise<IPersonPageState> = (page: Page): Promi
     };
   }, BUTTONS);
 
-const settle: (page: Page, seconds: number) => Promise<IPersonPageState & Pick<IPersonObservation, "settled">> = async (
+const settle: (
+  page: Page,
+  seconds: number,
+) => Promise<IPersonPageState & Pick<IPersonObservation, "settled">> = async (
   page: Page,
   seconds: number,
 ): Promise<IPersonPageState & Pick<IPersonObservation, "settled">> => {
@@ -122,7 +136,10 @@ const settle: (page: Page, seconds: number) => Promise<IPersonPageState & Pick<I
   }
 };
 
-const act: (page: Page, step: string) => Promise<void> = async (page: Page, step: string): Promise<void> => {
+const act: (page: Page, step: string) => Promise<void> = async (
+  page: Page,
+  step: string,
+): Promise<void> => {
   const cut: number = step.indexOf("=");
   const kind: string = cut < 0 ? step : step.slice(0, cut);
   const value: string = cut < 0 ? "" : step.slice(cut + 1);
@@ -143,7 +160,8 @@ const act: (page: Page, step: string) => Promise<void> = async (page: Page, step
     return;
   }
   if (kind === "set" || kind === "remove") {
-    const colon: number = kind === "set" ? value.lastIndexOf(":") : value.length;
+    const colon: number =
+      kind === "set" ? value.lastIndexOf(":") : value.length;
     const row: string = value.slice(0, colon);
     const leaf: string = row.split("/").at(-1)!.split(".").at(-1)!;
     await page
@@ -151,11 +169,15 @@ const act: (page: Page, step: string) => Promise<void> = async (page: Page, step
       .fill(
         leaf.replace(/([a-z])([A-Z])/gu, "$1 $2").replace(/(Mm|Degrees)$/u, ""),
       );
-    const target: ReturnType<typeof page.locator> = page.locator('[data-path="' + row + '"]');
+    const target: ReturnType<typeof page.locator> = page.locator(
+      '[data-path="' + row + '"]',
+    );
     if (kind === "set")
       await target.locator("input[type=number]").fill(value.slice(colon + 1));
     await target
-      .locator("button", { hasText: kind === "set" ? /^Apply$/ : /^Remove(?: record)?$/ })
+      .locator("button", {
+        hasText: kind === "set" ? /^Apply$/ : /^Remove(?: record)?$/,
+      })
       .click();
     return;
   }
@@ -167,7 +189,9 @@ const act: (page: Page, step: string) => Promise<void> = async (page: Page, step
 };
 
 const main: () => Promise<void> = async (): Promise<void> => {
-  const [out, ...rest]: string[] = process.argv.slice(2).filter((one: string): boolean => one !== "--");
+  const [out, ...rest]: string[] = process.argv
+    .slice(2)
+    .filter((one: string): boolean => one !== "--");
   if (out === undefined)
     throw new Error(
       "Usage: observe-connected-person <record.json> [key=value...] <step>...",
@@ -203,11 +227,12 @@ const main: () => Promise<void> = async (): Promise<void> => {
   const stem: string = path.basename(out).replace(/\.json$/u, "");
   const save: () => void = (): void =>
     fs.writeFileSync(out, JSON.stringify(record, null, 2));
-  const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
-    executablePath: DEFAULT_CHROME_EXECUTABLE,
-    headless: true,
-    args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
-  });
+  const browser: Awaited<ReturnType<typeof chromium.launch>> =
+    await chromium.launch({
+      executablePath: DEFAULT_CHROME_EXECUTABLE,
+      headless: true,
+      args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
+    });
   /** Save the final record and attempt owned browser closure even when that write fails. */
   const finishRecord: () => Promise<void> = async (): Promise<void> => {
     record.finished = new Date().toISOString();
@@ -226,10 +251,11 @@ const main: () => Promise<void> = async (): Promise<void> => {
     }
   };
   try {
-    const context: Awaited<ReturnType<typeof browser.newContext>> = await browser.newContext({
-      viewport: { width: 1500, height: 950 },
-      acceptDownloads: true,
-    });
+    const context: Awaited<ReturnType<typeof browser.newContext>> =
+      await browser.newContext({
+        viewport: { width: 1500, height: 950 },
+        acceptDownloads: true,
+      });
     const page: Page = await context.newPage();
     page.on("pageerror", (error: Error): number =>
       record.pageErrors.push(String(error.stack ?? error).slice(0, 900)),
@@ -243,7 +269,8 @@ const main: () => Promise<void> = async (): Promise<void> => {
             stem + "-" + saved.length + "-" + download.suggestedFilename(),
           );
           await download.saveAs(file);
-          const bytes: ReturnType<typeof fs.readFileSync> = fs.readFileSync(file);
+          const bytes: ReturnType<typeof fs.readFileSync> =
+            fs.readFileSync(file);
           return {
             name: download.suggestedFilename(),
             bytes: bytes.length,
@@ -253,7 +280,12 @@ const main: () => Promise<void> = async (): Promise<void> => {
       );
     });
     let taken: number = 0;
-    const observe: (step: string, started: number, state: IPersonPageState, settled: boolean) => Promise<void> = async (
+    const observe: (
+      step: string,
+      started: number,
+      state: IPersonPageState,
+      settled: boolean,
+    ) => Promise<void> = async (
       step: string,
       started: number,
       state: IPersonPageState,
@@ -261,7 +293,9 @@ const main: () => Promise<void> = async (): Promise<void> => {
     ): Promise<void> => {
       // a file the page is still writing belongs to this step
       await page.waitForTimeout(1500);
-      const downloads: IPersonDownload[] = await Promise.all(saved.slice(taken));
+      const downloads: IPersonDownload[] = await Promise.all(
+        saved.slice(taken),
+      );
       taken = saved.length;
       record.observations.push({
         step,
@@ -284,7 +318,8 @@ const main: () => Promise<void> = async (): Promise<void> => {
       if (step !== "wait") await act(page, step);
       // an export leaves the status untouched; give its download the same patience
       const before: number = saved.length;
-      const { settled, ...state }: Awaited<ReturnType<typeof settle>> = await settle(page, seconds);
+      const { settled, ...state }: Awaited<ReturnType<typeof settle>> =
+        await settle(page, seconds);
       if (step === "click=glb") {
         const limit: number = Date.now() + seconds * 1000;
         while (saved.length === before && Date.now() < limit)
@@ -298,8 +333,11 @@ const main: () => Promise<void> = async (): Promise<void> => {
       );
     }
     record.renderer = await page.evaluate((): string | null => {
-      const gl: WebGL2RenderingContext | null = document.createElement("canvas").getContext("webgl2");
-      const info: WEBGL_debug_renderer_info | null | undefined = gl?.getExtension("WEBGL_debug_renderer_info");
+      const gl: WebGL2RenderingContext | null = document
+        .createElement("canvas")
+        .getContext("webgl2");
+      const info: WEBGL_debug_renderer_info | null | undefined =
+        gl?.getExtension("WEBGL_debug_renderer_info");
       return gl === null || gl === undefined
         ? null
         : String(

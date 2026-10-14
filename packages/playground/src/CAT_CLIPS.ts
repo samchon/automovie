@@ -1,20 +1,33 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { catBound } from "./catBound";
+import { catCombo } from "./catCombo";
 import { catIdle } from "./catIdle";
-import { catWalk } from "./catWalk";
 import { catLeap } from "./catLeap";
-import { catStalk } from "./catStalk";
+import { catProwl } from "./catProwl";
 import { catSit } from "./catSit";
+import { catStalk } from "./catStalk";
 import { catStretch } from "./catStretch";
 import { catTailFlick } from "./catTailFlick";
-import { catCombo } from "./catCombo";
-import { catProwl } from "./catProwl";
-import { catBound } from "./catBound";
+import { catWalk } from "./catWalk";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Eagerly construct ten named cat motions for the existing page selector: idle, walk, leap, stalk, sit, stretch, tailFlick, combo, prowl and bound. Seconds, metre translations and degree joint angles are authored demo data. The existing cat page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -29,7 +42,9 @@ import { catBound } from "./catBound";
  *
  * @author Samchon
  */
-export const CAT_CLIPS: (sk: string) => Record<string, IAutoMovieMotion> = (sk: string): Record<string, IAutoMovieMotion> => ({
+export const CAT_CLIPS: (sk: string) => Record<string, IAutoMovieMotion> = (
+  sk: string,
+): Record<string, IAutoMovieMotion> => ({
   idle: catIdle(sk),
   walk: catWalk(sk),
   leap: catLeap(sk),

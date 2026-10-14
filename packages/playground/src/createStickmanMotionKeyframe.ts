@@ -13,6 +13,9 @@ import type { IAutoMovieKeyframe, IAutoMoviePose } from "@automovie/interface";
  *
  * @author Samchon
  */
-export function createStickmanMotionKeyframe(time: number, pose: IAutoMoviePose): IAutoMovieKeyframe {
+export function createStickmanMotionKeyframe(
+  time: number,
+  pose: IAutoMoviePose,
+): IAutoMovieKeyframe {
   return { time, pose, expression: null, easing: "easeInOut", bezier: null };
 }

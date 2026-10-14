@@ -1,10 +1,3 @@
-import type { IConnectedPersonSourceUrls } from "./human/person/IConnectedPersonSourceUrls";
-import type { IConnectedPersonWorkerShare } from "./human/person/IConnectedPersonWorkerShare";
-import type { ConnectedPersonWorkerEnd } from "./human/person/ConnectedPersonWorkerEnd";
-import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
-import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
-import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
-import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 /**
  * Browser entry for the connected person editor. It reads the caller-selected
  * person generation's head and body files (the head and body partition views
@@ -22,11 +15,15 @@ import type {
   IAutoMovieHumanPersonDocument,
   IAutoMovieHumanPersonHeadView,
 } from "@automovie/human";
+import type { ConnectedBodyRequest } from "@automovie/human/body/runtime/ConnectedBodyRequest";
+import type { ConnectedBodyResult } from "@automovie/human/body/runtime/ConnectedBodyResult";
+import type { IAutoMovieHumanConstructionAdmission } from "@automovie/human/common/structures/IAutoMovieHumanConstructionAdmission";
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { serializeHumanPersonDocument } from "@automovie/human/human/document/serializeHumanPersonDocument";
 import { humanPersonBodyReach } from "@automovie/human/human/measure/humanPersonBodyReach";
-import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body/createConnectedBodyBrowserViewport";
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
+import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body/createConnectedBodyBrowserViewport";
+import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 
 import type { IConnectedBodyMeasurement } from "./human/body/IConnectedBodyMeasurement";
 import { createBodySimpleWorkerTransport } from "./human/body/createBodySimpleWorkerTransport";
@@ -35,43 +32,58 @@ import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
 import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
 import { createHumanWorker } from "./human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
+import type { ConnectedPersonWorkerEnd } from "./human/person/ConnectedPersonWorkerEnd";
 import type { IConnectedPersonFaceSolution } from "./human/person/IConnectedPersonFaceSolution";
 import type { IConnectedPersonHeadSolution } from "./human/person/IConnectedPersonHeadSolution";
 import type { IConnectedPersonMeasuredSolution } from "./human/person/IConnectedPersonMeasuredSolution";
+import type { IConnectedPersonSourceUrls } from "./human/person/IConnectedPersonSourceUrls";
+import type { IConnectedPersonWorkerShare } from "./human/person/IConnectedPersonWorkerShare";
 import { connectedPersonExpressionPresets } from "./human/person/connectedPersonExpressionPresets";
-import { mountConnectedPersonPanel } from "./human/person/mountConnectedPersonPanel";
 import { connectedPersonPosePresets } from "./human/person/connectedPersonPosePresets";
 import { connectedPersonSourceWorkerName } from "./human/person/connectedPersonSourceWorkerName";
 import { connectedPersonStandardDocument } from "./human/person/connectedPersonStandardDocument";
 import { createConnectedPersonWorkerShare } from "./human/person/createConnectedPersonWorkerShare";
+import { mountConnectedPersonPanel } from "./human/person/mountConnectedPersonPanel";
 import { mountConnectedPersonSourceSelection } from "./human/person/mountConnectedPersonSourceSelection";
 import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {
-  const source: IConnectedPersonSourceUrls | undefined = readConnectedPersonSourceUrls(location.search, location.href);
+  const source: IConnectedPersonSourceUrls | undefined =
+    readConnectedPersonSourceUrls(location.search, location.href);
   mountConnectedPersonSourceSelection(source);
-  const [head, body]: [IAutoMovieHumanPersonHeadView, IAutoMovieHumanPersonBodyView] = await Promise.all([
+  const [head, body]: [
+    IAutoMovieHumanPersonHeadView,
+    IAutoMovieHumanPersonBodyView,
+  ] = await Promise.all([
     readConnectedHeadView(source?.head),
     readConnectedBodyView(source?.body),
   ]);
-  const initial: IAutoMovieHumanPersonDocument = connectedPersonStandardDocument(head.face.id, body.body.id);
+  const initial: IAutoMovieHumanPersonDocument =
+    connectedPersonStandardDocument(head.face.id, body.body.id);
   // one worker reads the views once and answers preview and measurement
-  const share: IConnectedPersonWorkerShare = createConnectedPersonWorkerShare((): Worker =>
-    createHumanWorker(connectedPersonSourceWorkerName(source)),
+  const share: IConnectedPersonWorkerShare = createConnectedPersonWorkerShare(
+    (): Worker => createHumanWorker(connectedPersonSourceWorkerName(source)),
   );
   // A measurement can wait behind a preview without an elapsed-time deadline.
-  const { ask, close: closeMeasurement }: ReturnType<typeof createBodySimpleWorkerTransport> = createBodySimpleWorkerTransport((): ConnectedPersonWorkerEnd => share.measure());
-  const panel: ReturnType<typeof mountConnectedPersonPanel> = mountConnectedPersonPanel(
-    document.querySelector<HTMLDivElement>("#app")!,
-    {
+  const {
+    ask,
+    close: closeMeasurement,
+  }: ReturnType<typeof createBodySimpleWorkerTransport> =
+    createBodySimpleWorkerTransport(
+      (): ConnectedPersonWorkerEnd => share.measure(),
+    );
+  const panel: ReturnType<typeof mountConnectedPersonPanel> =
+    mountConnectedPersonPanel(document.querySelector<HTMLDivElement>("#app")!, {
       face: head.face,
       aliases: head.aliases ?? [],
       headShapeSource: head.headShapeSource,
       body: body.body,
       bodyReach: humanPersonBodyReach(joinHumanPersonGeneration(head, body)),
       initial,
-      projectSimple: (person: IAutoMovieHumanPersonDocument): Promise<IAutoMovieHumanBodySimpleShape> =>
+      projectSimple: (
+        person: IAutoMovieHumanPersonDocument,
+      ): Promise<IAutoMovieHumanBodySimpleShape> =>
         ask<IAutoMovieHumanBodySimpleShape>({
           kind: "projectPersonSimple",
           document: serializeHumanPersonDocument(
@@ -79,7 +91,10 @@ async function main(): Promise<void> {
             body.body.anatomicalAssembly,
           ),
         }),
-      expandSimple: (person: IAutoMovieHumanPersonDocument, simple: IAutoMovieHumanBodySimpleShape): Promise<Record<string, number>> =>
+      expandSimple: (
+        person: IAutoMovieHumanPersonDocument,
+        simple: IAutoMovieHumanBodySimpleShape,
+      ): Promise<Record<string, number>> =>
         ask<Record<string, number>>({
           kind: "expandPersonSimple",
           document: serializeHumanPersonDocument(
@@ -90,22 +105,36 @@ async function main(): Promise<void> {
         }),
       poses: connectedPersonPosePresets,
       expressions: connectedPersonExpressionPresets,
-      viewport: (canvas: HTMLCanvasElement): ReturnType<typeof createConnectedBodyBrowserViewport<IAutoMovieHumanPersonDocument>> =>
+      viewport: (
+        canvas: HTMLCanvasElement,
+      ): ReturnType<
+        typeof createConnectedBodyBrowserViewport<IAutoMovieHumanPersonDocument>
+      > =>
         createConnectedBodyBrowserViewport<IAutoMovieHumanPersonDocument>({
           canvas,
-          worker: (): HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult> => createConnectedBodyPort(share.preview()),
+          worker: (): HumanResidentPort<
+            ConnectedBodyRequest,
+            ConnectedBodyResult
+          > => createConnectedBodyPort(share.preview()),
           serialize: (person: IAutoMovieHumanPersonDocument): string =>
             serializeHumanPersonDocument(person, body.body.anatomicalAssembly),
           source: body.body.anatomicalAssembly,
         }),
-      solveMeasurement: (shape: Record<string, number>, channel: string, targetMetres: number): Promise<IConnectedBodyMeasurement> =>
+      solveMeasurement: (
+        shape: Record<string, number>,
+        channel: string,
+        targetMetres: number,
+      ): Promise<IConnectedBodyMeasurement> =>
         ask<IConnectedBodyMeasurement>({
           kind: "solveMeasurement",
           shape,
           channel,
           targetMetres,
         }),
-      readPersonMeasurement: (person: IAutoMovieHumanPersonDocument, channel: string): Promise<number> =>
+      readPersonMeasurement: (
+        person: IAutoMovieHumanPersonDocument,
+        channel: string,
+      ): Promise<number> =>
         ask<number>({
           kind: "readPersonMeasurement",
           document: serializeHumanPersonDocument(
@@ -114,7 +143,11 @@ async function main(): Promise<void> {
           ),
           channel,
         }),
-      solvePersonMeasurement: (person: IAutoMovieHumanPersonDocument, channel: string, targetMetres: number): Promise<IConnectedPersonMeasuredSolution> =>
+      solvePersonMeasurement: (
+        person: IAutoMovieHumanPersonDocument,
+        channel: string,
+        targetMetres: number,
+      ): Promise<IConnectedPersonMeasuredSolution> =>
         ask<IConnectedPersonMeasuredSolution>({
           kind: "solvePersonMeasurement",
           document: serializeHumanPersonDocument(
@@ -124,7 +157,9 @@ async function main(): Promise<void> {
           channel,
           targetMetres,
         }),
-      readPersonHead: (person: IAutoMovieHumanPersonDocument): Promise<Record<string, number>> =>
+      readPersonHead: (
+        person: IAutoMovieHumanPersonDocument,
+      ): Promise<Record<string, number>> =>
         ask<Record<string, number>>({
           kind: "readPersonHead",
           document: serializeHumanPersonDocument(
@@ -132,7 +167,10 @@ async function main(): Promise<void> {
             body.body.anatomicalAssembly,
           ),
         }),
-      solvePersonHead: (person: IAutoMovieHumanPersonDocument, targets: Record<string, number>): Promise<IConnectedPersonHeadSolution> =>
+      solvePersonHead: (
+        person: IAutoMovieHumanPersonDocument,
+        targets: Record<string, number>,
+      ): Promise<IConnectedPersonHeadSolution> =>
         ask<IConnectedPersonHeadSolution>({
           kind: "solvePersonHead",
           document: serializeHumanPersonDocument(
@@ -141,7 +179,9 @@ async function main(): Promise<void> {
           ),
           targets,
         }),
-      readFaceMeasurements: (person: IAutoMovieHumanPersonDocument): Promise<AutoMovieHumanFaceMeasurementReading[]> =>
+      readFaceMeasurements: (
+        person: IAutoMovieHumanPersonDocument,
+      ): Promise<AutoMovieHumanFaceMeasurementReading[]> =>
         ask<AutoMovieHumanFaceMeasurementReading[]>({
           kind: "readFaceMeasurements",
           document: serializeHumanPersonDocument(
@@ -149,7 +189,11 @@ async function main(): Promise<void> {
             body.body.anatomicalAssembly,
           ),
         }),
-      solveFaceMeasurement: (person: IAutoMovieHumanPersonDocument, measurement: string, target: number): Promise<IConnectedPersonFaceSolution> =>
+      solveFaceMeasurement: (
+        person: IAutoMovieHumanPersonDocument,
+        measurement: string,
+        target: number,
+      ): Promise<IConnectedPersonFaceSolution> =>
         ask<IConnectedPersonFaceSolution>({
           kind: "solveFaceMeasurement",
           document: serializeHumanPersonDocument(
@@ -160,21 +204,32 @@ async function main(): Promise<void> {
           target,
         }),
       download: downloadConnectedFile,
-    },
-  );
+    });
   const close: () => Promise<void> = createAutoMovieResourceRetirement([
     panel.close,
     closeMeasurement,
   ]);
   window.addEventListener("pagehide", (event: PageTransitionEvent): void => {
     if (!event.persisted)
-      void close().catch((error: unknown): void => { console.error(error); });
+      void close().catch((error: unknown): void => {
+        console.error(error);
+      });
   });
-  registerPlaygroundEditor({ ready: panel.ready,
-    document: (): IAutoMovieHumanPersonDocument | undefined => panel.session().draft?.document ?? panel.snapshot()?.document,
-    facts: (): { qualification: string; admission: IAutoMovieHumanConstructionAdmission | undefined; } => ({ qualification: panel.session().draft === null ? "accepted" : "construction draft",
-      admission: panel.session().draft?.admission }),
-    load: panel.load, controls: document });
+  registerPlaygroundEditor({
+    ready: panel.ready,
+    document: (): IAutoMovieHumanPersonDocument | undefined =>
+      panel.session().draft?.document ?? panel.snapshot()?.document,
+    facts: (): {
+      qualification: string;
+      admission: IAutoMovieHumanConstructionAdmission | undefined;
+    } => ({
+      qualification:
+        panel.session().draft === null ? "accepted" : "construction draft",
+      admission: panel.session().draft?.admission,
+    }),
+    load: panel.load,
+    controls: document,
+  });
   await panel.ready;
 }
 void main().catch((error: unknown): void => {

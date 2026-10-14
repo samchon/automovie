@@ -1,4 +1,4 @@
-import type {IAutoMovieStage} from "@automovie/interface";
+import type { IAutoMovieStage } from "@automovie/interface";
 
 /** Authored pursuit-film staging; the runtime compiles this tracked example unchanged. */
 export const staging: IAutoMovieStage = {

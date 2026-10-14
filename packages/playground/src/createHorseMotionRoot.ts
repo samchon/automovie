@@ -1,9 +1,22 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Construct a metre Y root translation and a degree pitch quaternion about +X; omitted pitch is zero. The handwritten rear passes -0.5 degrees unchanged.
@@ -18,7 +31,13 @@ import { HORSE_PROFILE } from "@automovie/archetypes";
  *
  * @author Samchon
  */
-export const createHorseMotionRoot: (y: number, pitch?: number) => IAutoMovieTransform = (y: number, pitch: number = 0): IAutoMovieTransform => ({
+export const createHorseMotionRoot: (
+  y: number,
+  pitch?: number,
+) => IAutoMovieTransform = (
+  y: number,
+  pitch: number = 0,
+): IAutoMovieTransform => ({
   translation: { x: 0, y, z: 0 },
   rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, pitch),
   scale: { x: 1, y: 1, z: 1 },

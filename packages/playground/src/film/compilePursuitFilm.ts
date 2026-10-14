@@ -1,6 +1,24 @@
 import { HUMANOID_GAITS } from "@automovie/archetypes";
-import { type IAutoMovieActorContext, blockBeat, cutSequence, makeActorSynthesizer, performShot, stageScene } from "@automovie/engine";
-import type { AutoMoviePrimitiveShape, IAutoMovieModel, IAutoMovieMotion, IAutoMovieShot, IAutoMovieVector3, IAutoMovieSceneNode, IAutoMovieGait, IAutoMoviePerformance, IAutoMovieEditEntry } from "@automovie/interface";
+import {
+  type IAutoMovieActorContext,
+  blockBeat,
+  cutSequence,
+  makeActorSynthesizer,
+  performShot,
+  stageScene,
+} from "@automovie/engine";
+import type {
+  AutoMoviePrimitiveShape,
+  IAutoMovieEditEntry,
+  IAutoMovieGait,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMoviePerformance,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { DEFAULT_STICKMAN } from "../DEFAULT_STICKMAN";
 import { buildStickman } from "../buildStickman";
 import type { ICompilePursuitFilm } from "./ICompilePursuitFilm";
@@ -20,19 +38,37 @@ import type { ICompilePursuitFilm } from "./ICompilePursuitFilm";
  *
  * @author Samchon
  */
-export const compilePursuitFilm: ICompilePursuitFilm = (props: ICompilePursuitFilm.IProps): ICompilePursuitFilm.IResult => {
-  const { script, staging, blockings, performances }: ICompilePursuitFilm.IProps = props;
+export const compilePursuitFilm: ICompilePursuitFilm = (
+  props: ICompilePursuitFilm.IProps,
+): ICompilePursuitFilm.IResult => {
+  const {
+    script,
+    staging,
+    blockings,
+    performances,
+  }: ICompilePursuitFilm.IProps = props;
   if (blockings.length !== performances.length)
-    throw new Error("blocking failed: one blocking is required for each performance, paired by index.");
-  const walkerRig: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
-  const waiterRig: ReturnType<typeof buildStickman> = buildStickman(DEFAULT_STICKMAN);
+    throw new Error(
+      "blocking failed: one blocking is required for each performance, paired by index.",
+    );
+  const walkerRig: ReturnType<typeof buildStickman> =
+    buildStickman(DEFAULT_STICKMAN);
+  const waiterRig: ReturnType<typeof buildStickman> =
+    buildStickman(DEFAULT_STICKMAN);
   const rigOf: Record<string, ReturnType<typeof buildStickman> | undefined> = {
     walker: walkerRig,
     waiter: waiterRig,
   };
   /** The rig of a performing node; set pieces have none and never pose. */
-  const rigFor: (node: string) => ReturnType<typeof buildStickman> = (node: string): ReturnType<typeof buildStickman> => {
-    const rig: ReturnType<typeof buildStickman> | undefined = Object.hasOwn(rigOf, node) ? rigOf[node] : undefined;
+  const rigFor: (node: string) => ReturnType<typeof buildStickman> = (
+    node: string,
+  ): ReturnType<typeof buildStickman> => {
+    const rig: ReturnType<typeof buildStickman> | undefined = Object.hasOwn(
+      rigOf,
+      node,
+    )
+      ? rigOf[node]
+      : undefined;
     if (rig === undefined) throw new Error(`node "${node}" has no rig`);
     return rig;
   };
@@ -79,7 +115,13 @@ export const compilePursuitFilm: ICompilePursuitFilm = (props: ICompilePursuitFi
   /**
    * Resolve a supported staged node's block or own rig; actor identity is the node key because both actors share the stickman model reference.
    */
-  const modelForNode: (node: { id: string; model: string }) => IAutoMovieModel = (node: { id: string; model: string }): IAutoMovieModel =>
+  const modelForNode: (node: {
+    id: string;
+    model: string;
+  }) => IAutoMovieModel = (node: {
+    id: string;
+    model: string;
+  }): IAutoMovieModel =>
     node.model === blockModel.id ? blockModel : rigFor(node.id).model;
 
   // Borrow the archetype's conventional gait target; downstream engine gates
@@ -87,74 +129,103 @@ export const compilePursuitFilm: ICompilePursuitFilm = (props: ICompilePursuitFi
   const WALK: IAutoMovieGait = HUMANOID_GAITS.walk;
 
   const staged: ReturnType<typeof stageScene> = stageScene(script, staging);
-  if (staged.success !== true) throw new Error(`staging failed: ${JSON.stringify(staged.violations)}`);
+  if (staged.success !== true)
+    throw new Error(`staging failed: ${JSON.stringify(staged.violations)}`);
 
   const nodePositions: Map<string, IAutoMovieVector3> = new Map(
-    staged.scene.nodes.map((n: IAutoMovieSceneNode): [string, IAutoMovieVector3] => [n.id, n.transform.translation]),
+    staged.scene.nodes.map(
+      (n: IAutoMovieSceneNode): [string, IAutoMovieVector3] => [
+        n.id,
+        n.transform.translation,
+      ],
+    ),
   );
   // Only the rigged cast gets a motion context; a set piece never performs.
-  const actorNodes: IAutoMovieSceneNode[] = staged.scene.nodes.filter((n: IAutoMovieSceneNode): boolean => Object.hasOwn(rigOf, n.id) && rigOf[n.id] !== undefined);
-  const contexts: Map<string, IAutoMovieActorContext> = new Map(
-    actorNodes.map((n: IAutoMovieSceneNode): [string, IAutoMovieActorContext] => [
-      n.id,
-      {
-        skeleton: rigFor(n.id).skeleton.id,
-        gaits: [WALK],
-        position: n.transform.translation,
-        speed: 0.75,
-        facingDeg: 0,
-        eyeHeight: 1.45,
-        restPose: {
-          skeleton: rigFor(n.id).skeleton.id,
-          root: null,
-          joints: [],
-        },
-      },
-    ]),
+  const actorNodes: IAutoMovieSceneNode[] = staged.scene.nodes.filter(
+    (n: IAutoMovieSceneNode): boolean =>
+      Object.hasOwn(rigOf, n.id) && rigOf[n.id] !== undefined,
   );
-  const synthesize: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(contexts, nodePositions);
+  const contexts: Map<string, IAutoMovieActorContext> = new Map(
+    actorNodes.map(
+      (n: IAutoMovieSceneNode): [string, IAutoMovieActorContext] => [
+        n.id,
+        {
+          skeleton: rigFor(n.id).skeleton.id,
+          gaits: [WALK],
+          position: n.transform.translation,
+          speed: 0.75,
+          facingDeg: 0,
+          eyeHeight: 1.45,
+          restPose: {
+            skeleton: rigFor(n.id).skeleton.id,
+            root: null,
+            joints: [],
+          },
+        },
+      ],
+    ),
+  );
+  const synthesize: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(contexts, nodePositions);
 
   // ── the ladder: block → perform → cut ────────────────────────────────────────
   const shots: IAutoMovieShot[] = [];
-  const motionsByShot: Map<string, Record<string, IAutoMovieMotion>> = new Map();
-  performances.forEach((performance: IAutoMoviePerformance, i: number): void => {
-    const blocked: ReturnType<typeof blockBeat> = blockBeat(script, staged, blockings[i]!);
-    if (blocked.success !== true)
-      throw new Error(`blocking failed: ${JSON.stringify(blocked.violations)}`);
-    const performed: ReturnType<typeof performShot> = performShot({
-      script,
-      staged,
-      performance,
-      synthesize,
-      skeleton: (node: string): ICompilePursuitFilm.IRig["skeleton"] => rigFor(node).skeleton,
-      // Frame the visible model extent, including head and feet beyond rig joints.
-      models: [blockModel, walkerRig.model],
-      blocking: blocked.blocking,
-    });
-    if (performed.success !== true)
-      throw new Error(`perform failed: ${JSON.stringify(performed.violations)}`);
-    shots.push(performed.shot);
-    motionsByShot.set(performed.shot.id, performed.motions);
-  });
+  const motionsByShot: Map<
+    string,
+    Record<string, IAutoMovieMotion>
+  > = new Map();
+  performances.forEach(
+    (performance: IAutoMoviePerformance, i: number): void => {
+      const blocked: ReturnType<typeof blockBeat> = blockBeat(
+        script,
+        staged,
+        blockings[i]!,
+      );
+      if (blocked.success !== true)
+        throw new Error(
+          `blocking failed: ${JSON.stringify(blocked.violations)}`,
+        );
+      const performed: ReturnType<typeof performShot> = performShot({
+        script,
+        staged,
+        performance,
+        synthesize,
+        skeleton: (node: string): ICompilePursuitFilm.IRig["skeleton"] =>
+          rigFor(node).skeleton,
+        // Frame the visible model extent, including head and feet beyond rig joints.
+        models: [blockModel, walkerRig.model],
+        blocking: blocked.blocking,
+      });
+      if (performed.success !== true)
+        throw new Error(
+          `perform failed: ${JSON.stringify(performed.violations)}`,
+        );
+      shots.push(performed.shot);
+      motionsByShot.set(performed.shot.id, performed.motions);
+    },
+  );
 
   const cut: ReturnType<typeof cutSequence> = cutSequence(
     {
       sequence: { id: "seq-pursuit", name: "the pursuit" },
       fps: 30,
-      entries: shots.map((s: IAutoMovieShot, i: number): IAutoMovieEditEntry => ({
-        shot: s.id,
-        trim: null,
-        // dissolve the approach into the face-off full shot (a soft reveal); the
-        // first entry has nothing to transition from.
-        transition:
-          i === 1 ? { kind: "crossDissolve" as const, duration: 0.6 } : null,
-      })),
+      entries: shots.map(
+        (s: IAutoMovieShot, i: number): IAutoMovieEditEntry => ({
+          shot: s.id,
+          trim: null,
+          // dissolve the approach into the face-off full shot (a soft reveal); the
+          // first entry has nothing to transition from.
+          transition:
+            i === 1 ? { kind: "crossDissolve" as const, duration: 0.6 } : null,
+        }),
+      ),
       pacing: "the walk dissolves into the face-off full shot.",
       continuity: "the walker ends where the face-off shot finds him.",
     },
     shots,
   );
-  if (cut.success !== true) throw new Error(`cut failed: ${JSON.stringify(cut.violations)}`);
+  if (cut.success !== true)
+    throw new Error(`cut failed: ${JSON.stringify(cut.violations)}`);
 
   return { staged, rigOf, rigFor, modelForNode, shots, motionsByShot, cut };
 };

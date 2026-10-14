@@ -1,14 +1,27 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { CAT_PROFILE } from "@automovie/archetypes";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { catWalk } from "./catWalk";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { catLeap } from "./catLeap";
 import { catSit } from "./catSit";
 import { catStretch } from "./catStretch";
+import { catWalk } from "./catWalk";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Sequence two walks, a leap, a stretch and a sit into one looping performance. This exact five-part order is the authored demonstration rather than a natural-behavior classifier. Seconds, metre translations and degree joint angles are authored demo data. The existing cat page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -23,7 +36,9 @@ import { catStretch } from "./catStretch";
  *
  * @author Samchon
  */
-export const catCombo: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion =>
+export const catCombo: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion =>
   sequenceMotion(
     "combo",
     [catWalk(sk), catWalk(sk), catLeap(sk), catStretch(sk), catSit(sk)],

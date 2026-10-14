@@ -1,5 +1,9 @@
-import type { IAutoMovieJointAxes, IAutoMovieRestFrame } from "@automovie/engine";
+import type {
+  IAutoMovieJointAxes,
+  IAutoMovieRestFrame,
+} from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
 type RestFrameTable = Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
 >;

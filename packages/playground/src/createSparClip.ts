@@ -1,4 +1,8 @@
-import type { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 import { SPAR_MOMENTS } from "./SPAR_MOMENTS";
 
@@ -15,19 +19,28 @@ import { SPAR_MOMENTS } from "./SPAR_MOMENTS";
  *
  * @author Samchon
  */
-export function createSparClip(skeleton: string, side: "red" | "blue"): IAutoMovieMotion {
+export function createSparClip(
+  skeleton: string,
+  side: "red" | "blue",
+): IAutoMovieMotion {
   return {
     id: "spar-" + side,
     skeleton,
     duration: SPAR_MOMENTS[SPAR_MOMENTS.length - 1]!.t,
     loop: false,
-    keyframes: SPAR_MOMENTS.map((moment: (typeof SPAR_MOMENTS)[number]): IAutoMovieKeyframe => ({
-      time: moment.t,
-      pose: { skeleton, joints: moment[side], root: moment[side === "red" ? "redRoot" : "blueRoot"] ?? upright },
-      expression: null,
-      easing: "easeInOut",
-      bezier: null,
-    })),
+    keyframes: SPAR_MOMENTS.map(
+      (moment: (typeof SPAR_MOMENTS)[number]): IAutoMovieKeyframe => ({
+        time: moment.t,
+        pose: {
+          skeleton,
+          joints: moment[side],
+          root: moment[side === "red" ? "redRoot" : "blueRoot"] ?? upright,
+        },
+        expression: null,
+        easing: "easeInOut",
+        bezier: null,
+      }),
+    ),
   };
 }
 

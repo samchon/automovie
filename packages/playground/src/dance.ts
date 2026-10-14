@@ -1,8 +1,9 @@
 import type { IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+
 import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
+import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 
 /**
  * Authored 1.4-second three-key dance loop alternating signed torso twist, lateral root sway of 0.06 metres and yaw of 14 degrees. Alternating overhead arms retain the existing 210-degree abduction. These conventional display values are not clinically admitted movement; the page's optional clamp may change playback.
@@ -17,7 +18,9 @@ import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyfr
  *
  * @author Samchon
  */
-export const dance: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => {
+export const dance: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => {
   const beat: (d: number) => IAutoMoviePose = (d: number): IAutoMoviePose =>
     pose(
       sk,

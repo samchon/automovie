@@ -1,9 +1,31 @@
 import { aimRotation } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMoviePrimitiveShape, IAutoMovieBone, IAutoMovieJointConstraint, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import type { IHorseParams } from "./IHorseParams";
-import { HORSE_ROM } from "./HORSE_ROM";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMoviePrimitiveShape,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-const mat: (id: string, r: number, g: number, b: number) => IAutoMovieModel["materials"][number] = (id: string, r: number, g: number, b: number): IAutoMovieModel["materials"][number] => ({
+import { HORSE_ROM } from "./HORSE_ROM";
+import type { IHorseParams } from "./IHorseParams";
+
+const mat: (
+  id: string,
+  r: number,
+  g: number,
+  b: number,
+) => IAutoMovieModel["materials"][number] = (
+  id: string,
+  r: number,
+  g: number,
+  b: number,
+): IAutoMovieModel["materials"][number] => ({
   id,
   name: id,
   baseColor: { r, g, b, a: 1, hex: null },
@@ -14,9 +36,16 @@ const mat: (id: string, r: number, g: number, b: number) => IAutoMovieModel["mat
   baseColorTexture: null,
 });
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
-const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransform = (
+const at: (
+  t: IAutoMovieVector3,
+  r?: IAutoMovieQuaternion,
+) => IAutoMovieTransform = (
   t: IAutoMovieVector3,
   r?: IAutoMovieQuaternion,
 ): IAutoMovieTransform => ({
@@ -25,7 +54,11 @@ const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransfor
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   rest: IAutoMovieTransform,
@@ -36,16 +69,26 @@ const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, 
   constraint: HORSE_ROM[name] ?? null,
 });
 
-const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (dir: IAutoMovieVector3): IAutoMovieQuaternion =>
-  aimRotation({ x: 0, y: 1, z: 0 }, dir);
+const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (
+  dir: IAutoMovieVector3,
+): IAutoMovieQuaternion => aimRotation({ x: 0, y: 1, z: 0 }, dir);
 
-const capsule: (radius: number, length: number) => AutoMoviePrimitiveShape = (radius: number, length: number): AutoMoviePrimitiveShape => ({
+const capsule: (radius: number, length: number) => AutoMoviePrimitiveShape = (
+  radius: number,
+  length: number,
+): AutoMoviePrimitiveShape => ({
   type: "capsule",
   radius,
   height: Math.max(0.01, length - 2 * radius),
 });
 
-const rod: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3, radius: number, material?: string) => IAutoMovieModelPart = (
+const rod: (
+  id: string,
+  boneName: AutoMovieHumanoidBone,
+  seg: IAutoMovieVector3,
+  radius: number,
+  material?: string,
+) => IAutoMovieModelPart = (
   id: string,
   boneName: AutoMovieHumanoidBone,
   seg: IAutoMovieVector3,
@@ -94,7 +137,9 @@ export const buildHorse: (p: IHorseParams) => {
   const H: number = p.backHeight;
   const t1: number = p.trunkLength * 0.5; // hips→spine and spine→chest
   const lh: number = p.legHalf;
-  const down: (len: number) => IAutoMovieVector3 = (len: number): IAutoMovieVector3 => v(0, -len, 0);
+  const down: (len: number) => IAutoMovieVector3 = (
+    len: number,
+  ): IAutoMovieVector3 => v(0, -len, 0);
   // neck rises up-and-forward from the chest; head continues that line
   const neckSeg: IAutoMovieVector3 = v(0, 0.34, 0.26);
   const headSeg: IAutoMovieVector3 = v(0, 0.12, 0.2);
@@ -131,7 +176,13 @@ export const buildHorse: (p: IHorseParams) => {
 
   const r: number = p.rodRadius;
   const tr: number = p.trunkRadius;
-  const knob: (id: string, boneName: AutoMovieHumanoidBone, radius: number, material: string, offset: IAutoMovieVector3) => IAutoMovieModelPart = (
+  const knob: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+    radius: number,
+    material: string,
+    offset: IAutoMovieVector3,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
     radius: number,
@@ -145,12 +196,22 @@ export const buildHorse: (p: IHorseParams) => {
     attachedBone: boneName,
     transform: at(offset),
   });
-  const ball: (id: string, boneName: AutoMovieHumanoidBone, radius?: number) => IAutoMovieModelPart = (
+  const ball: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+    radius?: number,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
     radius: number = r * 1.2,
   ): IAutoMovieModelPart => knob(id, boneName, radius, "hide", v(0, 0, 0));
-  const cone: (id: string, boneName: AutoMovieHumanoidBone, offset: IAutoMovieVector3, height: number, rot: IAutoMovieQuaternion) => IAutoMovieModelPart = (
+  const cone: (
+    id: string,
+    boneName: AutoMovieHumanoidBone,
+    offset: IAutoMovieVector3,
+    height: number,
+    rot: IAutoMovieQuaternion,
+  ) => IAutoMovieModelPart = (
     id: string,
     boneName: AutoMovieHumanoidBone,
     offset: IAutoMovieVector3,

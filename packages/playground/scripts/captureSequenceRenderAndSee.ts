@@ -16,12 +16,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Locator, type Page, chromium } from "playwright-core";
 import { PNG } from "pngjs";
+
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
-import { preserveCleanupFailure } from "./preserveCleanupFailure";
-import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
 import type { IAutoMoviePlaygroundSequenceMetadata } from "./IAutoMoviePlaygroundSequenceMetadata";
-import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
 import type { IAutoMoviePlaygroundSequenceRenderArtifact } from "./IAutoMoviePlaygroundSequenceRenderArtifact";
+import type { IAutoMoviePlaygroundSequenceRenderOptions } from "./IAutoMoviePlaygroundSequenceRenderOptions";
+import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceDissolvePixelCheck";
+import { preserveCleanupFailure } from "./preserveCleanupFailure";
 import { verifyPlaygroundSequenceDissolvePixels as verifyDissolvePixels } from "./verifyPlaygroundSequenceDissolvePixels.ts";
 
 interface SequenceCaptureSession {
@@ -41,7 +42,9 @@ interface SequenceCaptureSession {
  *
  * @author Samchon
  */
-export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequenceRenderOptions) => Promise<IAutoMoviePlaygroundSequenceRenderArtifact> = async (
+export const captureSequenceRenderAndSee: (
+  options: IAutoMoviePlaygroundSequenceRenderOptions,
+) => Promise<IAutoMoviePlaygroundSequenceRenderArtifact> = async (
   options: IAutoMoviePlaygroundSequenceRenderOptions,
 ): Promise<IAutoMoviePlaygroundSequenceRenderArtifact> => {
   const route: string = routeUrl(
@@ -51,10 +54,11 @@ export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequence
     options.width,
     options.height,
   );
-  const browser: Awaited<ReturnType<typeof chromium.launch>> = await chromium.launch({
-    executablePath: options.chrome,
-    headless: true,
-  });
+  const browser: Awaited<ReturnType<typeof chromium.launch>> =
+    await chromium.launch({
+      executablePath: options.chrome,
+      headless: true,
+    });
   let browserFailure: { error: unknown } | undefined;
   try {
     const page: Page = await browser.newPage({
@@ -68,7 +72,11 @@ export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequence
       const session: SequenceCaptureSession = await openSequenceCaptureSession({
         page,
         url: route,
-        writeFrame: async (file: string, bytes: Uint8Array<ArrayBufferLike>, frame: IAutoMovieSequenceRenderFrame): Promise<void> => {
+        writeFrame: async (
+          file: string,
+          bytes: Uint8Array<ArrayBufferLike>,
+          frame: IAutoMovieSequenceRenderFrame,
+        ): Promise<void> => {
           await fs.mkdir(path.dirname(file), { recursive: true });
           await fs.writeFile(file, Buffer.from(bytes));
           captured.set(frame.index, file);
@@ -89,23 +97,25 @@ export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequence
           pixelFormat: "yuv420p",
           crf: 20,
         };
-        const result: IAutoMovieSequenceRenderAndSeeResult = await renderSequenceAndSee({
-          sequence: session.metadata.sequence,
-          shots: session.metadata.shots,
-          spec,
-          frameDir: options.frameDir,
-          outputPath: options.outputPath,
-          adapters: {
-            captureFrame: session.captureFrame,
-            encode: createH264Encoder({ captured, spec }),
-          },
-        });
-        const dissolveChecks: IAutoMovieSequenceDissolvePixelCheck[] = await verifyDissolvePixels({
-          captured,
-          frames: result.frames,
-          transitions: result.plan.transitionSpans,
-          captureShot: session.captureShot,
-        });
+        const result: IAutoMovieSequenceRenderAndSeeResult =
+          await renderSequenceAndSee({
+            sequence: session.metadata.sequence,
+            shots: session.metadata.shots,
+            spec,
+            frameDir: options.frameDir,
+            outputPath: options.outputPath,
+            adapters: {
+              captureFrame: session.captureFrame,
+              encode: createH264Encoder({ captured, spec }),
+            },
+          });
+        const dissolveChecks: IAutoMovieSequenceDissolvePixelCheck[] =
+          await verifyDissolvePixels({
+            captured,
+            frames: result.frames,
+            transitions: result.plan.transitionSpans,
+            captureShot: session.captureShot,
+          });
         const artifact: IAutoMoviePlaygroundSequenceRenderArtifact = {
           ...result,
           route,
@@ -135,8 +145,10 @@ export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequence
       pageFailure = { error };
       throw error;
     } finally {
-      await preserveCleanupFailure(pageFailure, "sequence capture page", (): Promise<void> | undefined =>
-        closePage ? page.close() : undefined,
+      await preserveCleanupFailure(
+        pageFailure,
+        "sequence capture page",
+        (): Promise<void> | undefined => (closePage ? page.close() : undefined),
       );
     }
   } catch (error) {
@@ -151,7 +163,15 @@ export const captureSequenceRenderAndSee: (options: IAutoMoviePlaygroundSequence
   }
 };
 
-const openSequenceCaptureSession: (options: { page: Page; url: string; writeFrame: (path: string, bytes: Uint8Array, frame: IAutoMovieSequenceRenderFrame) => Promise<void>; }) => Promise<SequenceCaptureSession> = async (options: {
+const openSequenceCaptureSession: (options: {
+  page: Page;
+  url: string;
+  writeFrame: (
+    path: string,
+    bytes: Uint8Array,
+    frame: IAutoMovieSequenceRenderFrame,
+  ) => Promise<void>;
+}) => Promise<SequenceCaptureSession> = async (options: {
   page: Page;
   url: string;
   writeFrame: (
@@ -162,8 +182,13 @@ const openSequenceCaptureSession: (options: { page: Page; url: string; writeFram
 }): Promise<SequenceCaptureSession> => {
   await options.page.goto(options.url, { waitUntil: "load" });
   await options.page.waitForFunction((): boolean => {
-    const host: Record<string, unknown> = globalThis as unknown as Record<string, unknown>;
-    const metadata: { ready?: boolean; } | undefined = host.__automovie as { ready?: boolean } | undefined;
+    const host: Record<string, unknown> = globalThis as unknown as Record<
+      string,
+      unknown
+    >;
+    const metadata: { ready?: boolean } | undefined = host.__automovie as
+      | { ready?: boolean }
+      | undefined;
     return (
       metadata?.ready === true &&
       typeof host.__afSeekSequenceFrame === "function" &&
@@ -174,43 +199,72 @@ const openSequenceCaptureSession: (options: { page: Page; url: string; writeFram
     content: "#clips{display:none!important}",
   });
   const view: Locator = options.page.locator("#view");
-  const metadata: IAutoMoviePlaygroundSequenceMetadata = await readSequenceMetadata(options.page);
+  const metadata: IAutoMoviePlaygroundSequenceMetadata =
+    await readSequenceMetadata(options.page);
   return {
     metadata,
     view,
-    captureFrame: async (frame: IAutoMovieSequenceRenderFrame): Promise<string> => {
-      await options.page.evaluate((sample: Pick<IAutoMovieSequenceRenderFrame, "shot" | "shotTimeSeconds" | "blend">): void => {
-        const seek: (frame: Pick<IAutoMovieSequenceRenderFrame, "shot" | "shotTimeSeconds" | "blend">) => void = (
-          globalThis as unknown as {
-            __afSeekSequenceFrame: (
-              frame: Pick<
-                IAutoMovieSequenceRenderFrame,
-                "shot" | "shotTimeSeconds" | "blend"
-              >,
-            ) => void;
-          }
-        ).__afSeekSequenceFrame;
-        seek(sample);
-      }, toHostFrame(frame));
-      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({ type: "png" });
+    captureFrame: async (
+      frame: IAutoMovieSequenceRenderFrame,
+    ): Promise<string> => {
+      await options.page.evaluate(
+        (
+          sample: Pick<
+            IAutoMovieSequenceRenderFrame,
+            "shot" | "shotTimeSeconds" | "blend"
+          >,
+        ): void => {
+          const seek: (
+            frame: Pick<
+              IAutoMovieSequenceRenderFrame,
+              "shot" | "shotTimeSeconds" | "blend"
+            >,
+          ) => void = (
+            globalThis as unknown as {
+              __afSeekSequenceFrame: (
+                frame: Pick<
+                  IAutoMovieSequenceRenderFrame,
+                  "shot" | "shotTimeSeconds" | "blend"
+                >,
+              ) => void;
+            }
+          ).__afSeekSequenceFrame;
+          seek(sample);
+        },
+        toHostFrame(frame),
+      );
+      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({
+        type: "png",
+      });
       if (bytes.byteLength === 0)
         throw new Error(`captured sequence frame ${frame.index} is empty`);
       await options.writeFrame(frame.path, bytes, frame);
       return frame.path;
     },
-    captureShot: async (sample: { shot: string; shotTimeSeconds: number; }): Promise<Buffer<ArrayBufferLike>> => {
-      await options.page.evaluate((shotSample: { shot: string; shotTimeSeconds: number; }): void => {
-        const seek: (sample: { shot: string; shotTimeSeconds: number; }) => void = (
-          globalThis as unknown as {
-            __afSeekSequenceShot: (sample: {
-              shot: string;
-              shotTimeSeconds: number;
-            }) => void;
-          }
-        ).__afSeekSequenceShot;
-        seek(shotSample);
-      }, sample);
-      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({ type: "png" });
+    captureShot: async (sample: {
+      shot: string;
+      shotTimeSeconds: number;
+    }): Promise<Buffer<ArrayBufferLike>> => {
+      await options.page.evaluate(
+        (shotSample: { shot: string; shotTimeSeconds: number }): void => {
+          const seek: (sample: {
+            shot: string;
+            shotTimeSeconds: number;
+          }) => void = (
+            globalThis as unknown as {
+              __afSeekSequenceShot: (sample: {
+                shot: string;
+                shotTimeSeconds: number;
+              }) => void;
+            }
+          ).__afSeekSequenceShot;
+          seek(shotSample);
+        },
+        sample,
+      );
+      const bytes: Buffer<ArrayBufferLike> = await view.screenshot({
+        type: "png",
+      });
       if (bytes.byteLength === 0)
         throw new Error(`captured sequence probe ${sample.shot} is empty`);
       return bytes;
@@ -221,11 +275,21 @@ const openSequenceCaptureSession: (options: { page: Page; url: string; writeFram
   };
 };
 
-const readSequenceMetadata: (page: Page) => Promise<IAutoMoviePlaygroundSequenceMetadata> = async (
+const readSequenceMetadata: (
+  page: Page,
+) => Promise<IAutoMoviePlaygroundSequenceMetadata> = async (
   page: Page,
 ): Promise<IAutoMoviePlaygroundSequenceMetadata> => {
   const metadata: unknown = await page.evaluate((): unknown => {
-    const data: { ready?: boolean; duration?: number; sequence?: IAutoMovieSequence; shots?: IAutoMovieShot[]; shotIds?: string[]; } | undefined = (
+    const data:
+      | {
+          ready?: boolean;
+          duration?: number;
+          sequence?: IAutoMovieSequence;
+          shots?: IAutoMovieShot[];
+          shotIds?: string[];
+        }
+      | undefined = (
       globalThis as unknown as {
         __automovie?: {
           ready?: boolean;
@@ -250,7 +314,8 @@ const readSequenceMetadata: (page: Page) => Promise<IAutoMoviePlaygroundSequence
     throw new Error(
       "sequence render route must expose __automovie { ready, duration, sequence, shots }",
     );
-  const typed: IAutoMoviePlaygroundSequenceMetadata = metadata as IAutoMoviePlaygroundSequenceMetadata;
+  const typed: IAutoMoviePlaygroundSequenceMetadata =
+    metadata as IAutoMoviePlaygroundSequenceMetadata;
   return {
     ...typed,
     shotIds: Array.isArray(typed.shotIds)
@@ -259,7 +324,12 @@ const readSequenceMetadata: (page: Page) => Promise<IAutoMoviePlaygroundSequence
   };
 };
 
-const toHostFrame: (frame: IAutoMovieSequenceRenderFrame) => Pick<IAutoMovieSequenceRenderFrame, "shot" | "shotTimeSeconds" | "blend"> = (
+const toHostFrame: (
+  frame: IAutoMovieSequenceRenderFrame,
+) => Pick<
+  IAutoMovieSequenceRenderFrame,
+  "shot" | "shotTimeSeconds" | "blend"
+> = (
   frame: IAutoMovieSequenceRenderFrame,
 ): Pick<
   IAutoMovieSequenceRenderFrame,
@@ -270,7 +340,10 @@ const toHostFrame: (frame: IAutoMovieSequenceRenderFrame) => Pick<IAutoMovieSequ
   blend: frame.blend,
 });
 
-const createH264Encoder: (options: { captured: Map<number, string>; spec: IAutoMovieRenderSpec; }) => IAutoMovieSequenceRenderAdapters["encode"] =
+const createH264Encoder: (options: {
+  captured: Map<number, string>;
+  spec: IAutoMovieRenderSpec;
+}) => IAutoMovieSequenceRenderAdapters["encode"] =
   (options: {
     captured: Map<number, string>;
     spec: IAutoMovieRenderSpec;
@@ -290,7 +363,9 @@ const createH264Encoder: (options: { captured: Map<number, string>; spec: IAutoM
         const file: string | undefined = options.captured.get(i);
         if (file === undefined)
           throw new Error(`missing captured sequence frame ${i} before encode`);
-        const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(await fs.readFile(file));
+        const png: ReturnType<typeof PNG.sync.read> = PNG.sync.read(
+          await fs.readFile(file),
+        );
         encoder.addFrameRgba(new Uint8Array(png.data));
       }
       encoder.finalize();
@@ -312,7 +387,13 @@ const createH264Encoder: (options: { captured: Map<number, string>; spec: IAutoM
     }
   };
 
-const routeUrl: (base: string, page: string, query: string, width: number, height: number) => string = (
+const routeUrl: (
+  base: string,
+  page: string,
+  query: string,
+  width: number,
+  height: number,
+) => string = (
   base: string,
   page: string,
   query: string,

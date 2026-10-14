@@ -1,7 +1,4 @@
-import type {
-  IAutoMovieCut,
-  IAutoMovieStagedSet,
-} from "@automovie/engine";
+import type { IAutoMovieCut, IAutoMovieStagedSet } from "@automovie/engine";
 import type {
   IAutoMovieBlocking,
   IAutoMovieModel,

@@ -1,16 +1,28 @@
-import { type IAutoMovieVector3, IAutoMovieIKDriver, IAutoMovieNode } from "@automovie/interface";
 import { Matrix4, resolveFrame } from "@automovie/engine";
-
+import {
+  IAutoMovieIKDriver,
+  IAutoMovieNode,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
 // ── a core-node scene: a 3-bone arm (shoulder → elbow → wrist) + a goal ──────
-const IDENTITY: { rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
+const IDENTITY: {
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const node: (id: string, parent: string | null, x: number, y: number, z: number) => IAutoMovieNode = (
+const node: (
+  id: string,
+  parent: string | null,
+  x: number,
+  y: number,
+  z: number,
+) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   x: number,
@@ -55,11 +67,19 @@ const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(2, 4, 3);
 scene.add(sun);
 
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, 1, 0.05, 100);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  45,
+  1,
+  0.05,
+  100,
+);
 camera.position.set(1.0, 1.4, 3.4);
 camera.lookAt(0.8, 0.7, 0);
 
-const joint: (color: number, r: number) => THREE.Mesh = (color: number, r: number): THREE.Mesh =>
+const joint: (color: number, r: number) => THREE.Mesh = (
+  color: number,
+  r: number,
+): THREE.Mesh =>
   new THREE.Mesh(
     new THREE.SphereGeometry(r, 24, 16),
     new THREE.MeshStandardMaterial({ color, roughness: 0.5 }),
@@ -70,13 +90,38 @@ const dots: Record<string, THREE.Mesh> = {
   elbow: joint(0x6f9dff, 0.07),
   wrist: joint(0x9ad0ff, 0.06),
 };
-Object.values(dots).forEach((m: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>): THREE.Scene<THREE.Object3DEventMap> => scene.add(m));
+Object.values(dots).forEach(
+  (
+    m: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    >,
+  ): THREE.Scene<THREE.Object3DEventMap> => scene.add(m),
+);
 
-const goalDot: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = joint(0xff5d5d, 0.07);
+const goalDot: THREE.Mesh<
+  THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  >,
+  | THREE.Material<THREE.MaterialEventMap>
+  | THREE.Material<THREE.MaterialEventMap>[],
+  THREE.Object3DEventMap
+> = joint(0xff5d5d, 0.07);
 scene.add(goalDot);
 
-const boneMat: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color: 0xcfe0ff });
-const boneGeo: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry().setFromPoints([
+const boneMat: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({
+  color: 0xcfe0ff,
+});
+const boneGeo: THREE.BufferGeometry<
+  THREE.NormalBufferAttributes,
+  THREE.BufferGeometryEventMap
+> = new THREE.BufferGeometry().setFromPoints([
   new THREE.Vector3(),
   new THREE.Vector3(),
   new THREE.Vector3(),
@@ -99,9 +144,13 @@ app.innerHTML = `
        the red goal, recomputed every frame. No AI: just resolveFrame.</p>
   </div>
 `;
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 
-const pos: (world: Map<string, number[]>, id: string) => THREE.Vector3 = (world: Map<string, number[]>, id: string): THREE.Vector3 => {
+const pos: (world: Map<string, number[]>, id: string) => THREE.Vector3 = (
+  world: Map<string, number[]>,
+  id: string,
+): THREE.Vector3 => {
   const p: IAutoMovieVector3 = Matrix4.position(world.get(id)!);
   return new THREE.Vector3(p.x, p.y, p.z);
 };

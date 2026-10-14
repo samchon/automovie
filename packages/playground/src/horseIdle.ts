@@ -1,10 +1,23 @@
-import { Quaternion, bindProfileGaits, sequenceMotion, travelMotion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
-import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
-import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
-import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
 import { HORSE_PROFILE } from "@automovie/archetypes";
+import {
+  Quaternion,
+  bindProfileGaits,
+  sequenceMotion,
+  travelMotion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { createHorseMotionTail as tail } from "./createHorseMotionTail";
+import { createStickmanMotionJoint as j } from "./createStickmanMotionJoint";
+import { createStickmanMotionKeyframe as key } from "./createStickmanMotionKeyframe";
+import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 
 /**
  * Return a 2.4-second looping three-key idle with tail sway -1/+1/-1, neck flexion 4/8/4 degrees and head flexion -6/-10/-6 degrees. Seconds, metre translations and degree joint angles are authored demo data. The existing horse page consumes these clips in raw quadruped rig space: humanoid arm slots are front legs and little-finger slots are the tail.
@@ -19,7 +32,9 @@ import { createHorseMotionTail as tail } from "./createHorseMotionTail";
  *
  * @author Samchon
  */
-export const horseIdle: (sk: string) => IAutoMovieMotion = (sk: string): IAutoMovieMotion => ({
+export const horseIdle: (sk: string) => IAutoMovieMotion = (
+  sk: string,
+): IAutoMovieMotion => ({
   id: "idle",
   skeleton: sk,
   duration: 2.4,

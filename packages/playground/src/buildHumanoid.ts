@@ -1,4 +1,3 @@
-import type { IHumanoidParams } from "./IHumanoidParams";
 import { Quaternion } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
@@ -12,9 +11,18 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+import type { IHumanoidParams } from "./IHumanoidParams";
 
-const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransform = (
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+
+const at: (
+  t: IAutoMovieVector3,
+  r?: IAutoMovieQuaternion,
+) => IAutoMovieTransform = (
   t: IAutoMovieVector3,
   r?: IAutoMovieQuaternion,
 ): IAutoMovieTransform => ({
@@ -23,14 +31,20 @@ const at: (t: IAutoMovieVector3, r?: IAutoMovieQuaternion) => IAutoMovieTransfor
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   rest: IAutoMovieTransform,
 ): IAutoMovieBone => ({ bone: name, parent, rest, constraint: null });
 
 /** Shortest-arc rotation taking the local +Y axis onto a target direction. */
-const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (dir: IAutoMovieVector3): IAutoMovieQuaternion => {
+const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (
+  dir: IAutoMovieVector3,
+): IAutoMovieQuaternion => {
   const len: number = Math.hypot(dir.x, dir.y, dir.z);
   if (len === 0) return { x: 0, y: 0, z: 0, w: 1 };
   const n: IAutoMovieVector3 = v(dir.x / len, dir.y / len, dir.z / len);
@@ -45,7 +59,10 @@ const yToDir: (dir: IAutoMovieVector3) => IAutoMovieQuaternion = (dir: IAutoMovi
   );
 };
 
-const capsule: (radius: number, height: number) => AutoMoviePrimitiveShape = (radius: number, height: number): AutoMoviePrimitiveShape => ({
+const capsule: (radius: number, height: number) => AutoMoviePrimitiveShape = (
+  radius: number,
+  height: number,
+): AutoMoviePrimitiveShape => ({
   type: "capsule",
   radius,
   height: Math.max(0.01, height - 2 * radius),
@@ -56,7 +73,13 @@ const capsule: (radius: number, height: number) => AutoMoviePrimitiveShape = (ra
  * bone toward its child along `seg` (a local offset vector), so it rides the
  * bone and bends with articulation.
  */
-const segment: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVector3, radius: number, material: string) => IAutoMovieModelPart = (
+const segment: (
+  id: string,
+  boneName: AutoMovieHumanoidBone,
+  seg: IAutoMovieVector3,
+  radius: number,
+  material: string,
+) => IAutoMovieModelPart = (
   id: string,
   boneName: AutoMovieHumanoidBone,
   seg: IAutoMovieVector3,
@@ -74,7 +97,13 @@ const segment: (id: string, boneName: AutoMovieHumanoidBone, seg: IAutoMovieVect
   };
 };
 
-const blob: (id: string, boneName: AutoMovieHumanoidBone, shape: AutoMoviePrimitiveShape, offset: IAutoMovieVector3, material: string) => IAutoMovieModelPart = (
+const blob: (
+  id: string,
+  boneName: AutoMovieHumanoidBone,
+  shape: AutoMoviePrimitiveShape,
+  offset: IAutoMovieVector3,
+  material: string,
+) => IAutoMovieModelPart = (
   id: string,
   boneName: AutoMovieHumanoidBone,
   shape: AutoMoviePrimitiveShape,

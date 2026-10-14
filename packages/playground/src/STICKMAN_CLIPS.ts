@@ -1,16 +1,17 @@
 import type { IAutoMovieMotion } from "@automovie/interface";
-import { jumpingJack } from "./jumpingJack";
-import { wave } from "./wave";
-import { walk } from "./walk";
-import { hop } from "./hop";
-import { turn } from "./turn";
-import { run } from "./run";
-import { dance } from "./dance";
-import { kick } from "./kick";
+
 import { combo } from "./combo";
-import { stroll } from "./stroll";
-import { sprint } from "./sprint";
+import { dance } from "./dance";
+import { hop } from "./hop";
+import { jumpingJack } from "./jumpingJack";
+import { kick } from "./kick";
+import { run } from "./run";
 import { shadowbox } from "./shadowbox";
+import { sprint } from "./sprint";
+import { stroll } from "./stroll";
+import { turn } from "./turn";
+import { walk } from "./walk";
+import { wave } from "./wave";
 
 /**
  * Construct the existing twelve-name selectable motion catalogue for one compatible stick-rig identity. All clips are built eagerly, including composed and traveling routines; selecting one later does not imply the unused ones avoided construction. The catalogue supplies choreography rather than clinical or visual admission.
@@ -25,7 +26,9 @@ import { shadowbox } from "./shadowbox";
  *
  * @author Samchon
  */
-export const STICKMAN_CLIPS: (sk: string) => Record<string, IAutoMovieMotion> = (
+export const STICKMAN_CLIPS: (
+  sk: string,
+) => Record<string, IAutoMovieMotion> = (
   sk: string,
 ): Record<string, IAutoMovieMotion> => ({
   jumpingJack: jumpingJack(sk),
