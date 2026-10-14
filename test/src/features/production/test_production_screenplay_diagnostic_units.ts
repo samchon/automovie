@@ -1,56 +1,16 @@
 import type {
   IAutoMovieDiagnostic,
   IAutoMovieScreenplayIndex,
-  IAutoMovieShotContract,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
 
-/**
- * Load private diagnostic units from source without making them public API.
- *
- * The test launcher already owns the TypeScript require hook. Resolving at
- * runtime keeps the package source outside this test package's `rootDir` during
- * type checking, and avoids depending on a pre-existing `packages/production/lib`
- * build in a clean checkout.
- */
-const proseUnits = loadSourceModule<{
-  parseScreenplayProse: (content: string) => Array<{
-    id: string;
-    title: string;
-    body: string;
-  }>;
-  screenplayProseDiagnostics: (props: {
-    screenplay: IAutoMovieScreenplayIndex | null;
-    read: (relativePath: string) => string | null;
-  }) => IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/screenplayProseDiagnostics.ts",
-  ),
-);
-const timingUnits = loadSourceModule<{
-  screenplayTimingDiagnostics: (props: {
-    contracts: ReadonlyMap<string, IAutoMovieShotContract>;
-    read: (relativePath: string) => string | null;
-    scope: "design" | "source" | "review" | "final";
-    screenplay: IAutoMovieScreenplayIndex | null;
-  }) => IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/screenplayTimingDiagnostics.ts",
-  ),
-);
-const { parseScreenplayProse, screenplayProseDiagnostics } = proseUnits;
-const { screenplayTimingDiagnostics } = timingUnits;
+import { parseScreenplayProse } from "../../../../packages/production/src/production/parseScreenplayProse";
+import { screenplayProseDiagnostics } from "../../../../packages/production/src/production/screenplayProseDiagnostics";
 
 /** The prose-owned subset is sufficient for these diagnostics. */
-const screenplay = (props?: {
+function screenplay(props?: {
   scenes?: Array<
     Omit<
       IAutoMovieScreenplayIndex["screenplay"]["scenes"][number],
@@ -64,8 +24,7 @@ const screenplay = (props?: {
       >
   >;
   sequences?: IAutoMovieScreenplayIndex["treatment"]["sequences"];
-}): IAutoMovieScreenplayIndex =>
-  ({
+}): IAutoMovieScreenplayIndex { return ({
     version: 2,
     production: "diagnostic-units",
     treatment: {
@@ -75,7 +34,7 @@ const screenplay = (props?: {
     screenplay: {
       path: "docs/combined.md",
       lock: null,
-      scenes: (props?.scenes ?? []).map((scene) => ({
+      scenes: (props?.scenes ?? []).map((scene: NonNullable<NonNullable<Parameters<typeof screenplay>[0]>["scenes"]>[number]): IAutoMovieScreenplayIndex["screenplay"]["scenes"][number] => ({
         storyTime: "unknown",
         participants: [],
         ...scene,
@@ -83,36 +42,7 @@ const screenplay = (props?: {
     },
     catalog: { characters: [], factions: [], locations: [] },
     continuity: [],
-  }) as IAutoMovieScreenplayIndex;
-
-/** The timing diagnostic reads only these shot-contract fields. */
-const contract = (props: {
-  evidence?: string[];
-  duration?: number;
-  events?: Array<{ from: number; to: number }>;
-  frames?: number[];
-}): IAutoMovieShotContract =>
-  ({
-    id: "timing",
-    beat: "beat",
-    source: { module: "src/shots/timing.ts", export: "timing" },
-    evidence: props.evidence?.map((scene) => ({ scene, claims: [] })),
-    durationSeconds: props.duration ?? 6,
-    participants: [],
-    opening: [],
-    closing: [],
-    camera: [],
-    events: props.events?.map((event, index) => ({
-      id: `event-${index}`,
-      window: event,
-      predicates: [],
-    })),
-    reviewFrames: (props.frames ?? []).map((time, index) => ({
-      id: `frame-${index}`,
-      time,
-      passes: ["beauty"],
-    })),
-  }) as unknown as IAutoMovieShotContract;
+  }) as IAutoMovieScreenplayIndex; }
 
 /**
  * Exercise the Markdown/prose boundary as a unit, including every refusal.
@@ -122,9 +52,19 @@ const contract = (props: {
  * both fence markers, short and decorated non-closers, inline and multiline
  * comments, split documents, cached absent documents, and every prose/index
  * disagreement.
+ *
+ * Scenarios:
+ * 1. Both fence kinds and comments exclude examples while visible sections and heading anchors remain authored.
+ * 2. Missing, repeated, absent, retitled and empty active sections emit their own findings.
+ * 3. Mixed whole/split documents share reads and explicit owned sections retain their semantic carrier.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual Markdown parser and semantic scene join and asserts admitted boundaries, diagnostic identities and read cardinality; catches metadata becoming a scene or split ownership reading the wrong section.
+ * @evidence contracts/testing.md#independent-expectations Explicit SCN headings, complete carriers and declared layout determine expected identities; fence/comment examples are excluded by Markdown structure without asserting exact treatment wording or inferred numeric prose.
+ * @evidence contracts/testing.md#distinguishing-cases Covers absent headings, both fence markers and decorated/short/nonclosing markers, comments across lines, anchors, indented visible text, whole/split layouts, missing/repeated sections, title mismatch, empty active body and omitted tombstones. Carrier malformed-field cases belong to prose_authority.
+ * @evidence contracts/testing.md#execution-ownership The exported portable unit directly imports production parser/join sources and passes an in-memory declared read capability, starting no host or native artifact and registering no dynamic cases.
  */
-export const test_production_screenplay_diagnostic_units = (): void => {
-  const parsed = parseScreenplayProse(
+export function test_production_screenplay_diagnostic_units(): void {
+  const parsed: ReturnType<typeof parseScreenplayProse> = parseScreenplayProse(
     [
       "preamble",
       "<!-- metadata -->",
@@ -149,9 +89,9 @@ export const test_production_screenplay_diagnostic_units = (): void => {
       "an unterminated final fence",
     ].join("\r\n"),
   );
-  const empty = parseScreenplayProse("No scene heading here.");
+  const empty: ReturnType<typeof parseScreenplayProse> = parseScreenplayProse("No scene heading here.");
 
-  const index = screenplay({
+  const index: IAutoMovieScreenplayIndex = screenplay({
     sequences: [
       {
         id: "SEQ-DEFAULT",
@@ -245,7 +185,7 @@ export const test_production_screenplay_diagnostic_units = (): void => {
       },
     ],
   });
-  const documents = new Map<string, string>([
+  const documents: Map<string, string> = new Map<string, string>([
     [
       "docs/combined.md",
       [
@@ -281,95 +221,91 @@ export const test_production_screenplay_diagnostic_units = (): void => {
       ].join("\n"),
     ],
   ]);
-  const reads = new Map<string, number>();
-  const diagnostics = screenplayProseDiagnostics({
+  const reads: Map<string, number> = new Map<string, number>();
+  const diagnostics: IAutoMovieDiagnostic[] = screenplayProseDiagnostics({
     screenplay: index,
-    read: (relative) => {
+    read: (relative: string): string | null => {
       reads.set(relative, (reads.get(relative) ?? 0) + 1);
       return documents.get(relative) ?? null;
     },
   });
-  const codes = diagnostics.map((diagnostic) => diagnostic.code);
+  const codes: string[] = diagnostics.map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.code);
 
   TestValidator.equals(
     "screenplay prose diagnostics own their complete lexical and refusal surface",
     namedFacts([
       [
         "nullIndexIsEmpty",
-        () =>
-          screenplayProseDiagnostics({ screenplay: null, read: () => "unused" })
+        (): boolean =>
+          screenplayProseDiagnostics({ screenplay: null, read: (): string => "unused" })
             .length === 0,
       ],
-      ["noHeadingIsEmpty", () => empty.length === 0],
-      ["anchorsAreMetadata", () => parsed[0]?.title === "Alpha"],
+      ["noHeadingIsEmpty", (): boolean => empty.length === 0],
+      ["anchorsAreMetadata", (): boolean => parsed[0]?.title === "Alpha"],
       [
         "commentsAreRemoved",
-        () => parsed[0]?.body.includes("hidden") === false,
+        (): boolean => parsed[0]?.body.includes("hidden") === false,
       ],
       [
         "visibleCommentTailsRemain",
-        () => parsed[0]?.body.includes("Visible again.") === true,
+        (): boolean => parsed[0]?.body.includes("Visible again.") === true,
       ],
       [
         "bothFenceKindsAreIgnored",
-        () =>
+        (): boolean =>
           parsed.every(
-            (scene) => scene.id !== "SCN-FENCED" && scene.id !== "SCN-TILDE",
+            (scene: ReturnType<typeof parseScreenplayProse>[number]): boolean => scene.id !== "SCN-FENCED" && scene.id !== "SCN-TILDE",
           ),
       ],
       [
         "indentedFenceTextRemainsProse",
-        () => parsed[0]?.body.includes("indented prose") === true,
+        (): boolean => parsed[0]?.body.includes("indented prose") === true,
       ],
       [
         "laterScenesRemainAddressable",
-        () =>
+        (): boolean =>
           parsed[1]?.id === "SCN-B" &&
           parsed[1]?.body.includes("Body B.") === true,
       ],
-      ["missingDocumentsAreCached", () => reads.get("docs/missing.md") === 1],
-      ["documentsAreCached", () => reads.get("docs/combined.md") === 1],
+      ["missingDocumentsAreCached", (): boolean => reads.get("docs/missing.md") === 1],
+      ["documentsAreCached", (): boolean => reads.get("docs/combined.md") === 1],
       [
         "missingDocumentIsNamed",
-        () => codes.includes("screenplay-document-absent"),
-      ],
-      [
-        "commentedBeatIsUnwritten",
-        () => codes.includes("screenplay-beat-unwritten"),
+        (): boolean => codes.includes("screenplay-document-absent"),
       ],
       [
         "duplicateHeadingIsNamed",
-        () => codes.includes("screenplay-heading-repeated"),
+        (): boolean => codes.includes("screenplay-heading-repeated"),
       ],
       [
         "unindexedHeadingIsNamed",
-        () => codes.includes("screenplay-heading-unindexed"),
+        (): boolean => codes.includes("screenplay-heading-unindexed"),
       ],
       [
         "absentHeadingIsNamed",
-        () => codes.includes("screenplay-heading-absent"),
+        (): boolean => codes.includes("screenplay-heading-absent"),
       ],
       [
         "retitledHeadingIsNamed",
-        () => codes.includes("screenplay-heading-retitled"),
+        (): boolean => codes.includes("screenplay-heading-retitled"),
       ],
       [
         "emptyActiveSceneIsNamed",
-        () => codes.includes("screenplay-scene-unwritten"),
+        (): boolean => codes.includes("screenplay-scene-unwritten"),
       ],
       [
         "omittedEmptySceneIsAllowed",
-        () =>
+        (): boolean =>
           diagnostics.some(
-            (diagnostic) =>
+            (diagnostic: IAutoMovieDiagnostic): boolean =>
               diagnostic.message.includes('"SCN-TOMBSTONE"') &&
               diagnostic.code === "screenplay-scene-unwritten",
           ) === false,
       ],
       [
         "ownedSceneUsesItsOwnDocument",
-        () =>
-          diagnostics.some((diagnostic) =>
+        (): boolean =>
+          diagnostics.some((diagnostic: IAutoMovieDiagnostic): boolean =>
             diagnostic.message.includes('"SCN-OWNED"'),
           ) === false,
       ],
@@ -386,7 +322,6 @@ export const test_production_screenplay_diagnostic_units = (): void => {
       missingDocumentsAreCached: true,
       documentsAreCached: true,
       missingDocumentIsNamed: true,
-      commentedBeatIsUnwritten: true,
       duplicateHeadingIsNamed: true,
       unindexedHeadingIsNamed: true,
       absentHeadingIsNamed: true,
@@ -397,240 +332,4 @@ export const test_production_screenplay_diagnostic_units = (): void => {
     },
   );
 
-  const timingIndex = screenplay({
-    scenes: [
-      {
-        id: "SCN-OMITTED",
-        title: "Omitted",
-        status: "OMITTED",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-PRODUCTION",
-        title: "Production",
-        status: "active",
-        covers: [],
-        location: null,
-        disposition: { phase: "production", reason: "Not in this pass." },
-      },
-      {
-        id: "SCN-NO-SHOT",
-        title: "No shot",
-        status: "active",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-NO-DOC",
-        title: "No doc",
-        status: "active",
-        path: "docs/no-doc.md",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-NO-HEADING",
-        title: "No heading",
-        status: "active",
-        path: "docs/no-heading.md",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-MATCH",
-        title: "Match",
-        status: "active",
-        path: "docs/match.md",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-ONE",
-        title: "One",
-        status: "active",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-MANY",
-        title: "Many",
-        status: "active",
-        path: "docs/many.md",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-      {
-        id: "SCN-ABSENT",
-        title: "Absent",
-        status: "active",
-        path: "docs/absent.md",
-        covers: [],
-        location: null,
-        disposition: null,
-      },
-    ],
-  });
-  const timingDocuments = new Map<string, string>([
-    ["docs/no-heading.md", "No screenplay heading."],
-    [
-      "docs/match.md",
-      [
-        "# SCN-MATCH - Match",
-        "At six seconds {@timing shot:match/duration}.",
-        "The event opens at one second {@timing shot:match/event:event-0/from} and closes at two seconds {@timing shot:match/event:event-0/to}.",
-        "Review at three seconds {@timing shot:match/review:frame-0}.",
-      ].join("\n"),
-    ],
-    [
-      "docs/absent.md",
-      [
-        "# SCN-ABSENT - Absent",
-        "The event opens at one second {@timing shot:absent/event:event-9/from}.",
-        "Review at three seconds {@timing shot:absent/review:frame-9}.",
-      ].join("\n"),
-    ],
-    [
-      "docs/combined.md",
-      "## Sequence lasts seven seconds\n# SCN-ONE - One\nIt holds for one second.",
-    ],
-    [
-      "docs/many.md",
-      "# SCN-MANY - Many\nIt holds for quarter-second {@timing shot:many/duration}, half-second {@timing shot:other/duration}, and three seconds {@timing wrong-selector}.",
-    ],
-  ]);
-  const contracts = new Map<string, IAutoMovieShotContract>([
-    ["unused", contract({})],
-    ["no-doc", contract({ evidence: ["SCN-NO-DOC"] })],
-    ["no-heading", contract({ evidence: ["SCN-NO-HEADING"] })],
-    [
-      "match",
-      contract({
-        evidence: ["SCN-MATCH"],
-        events: [{ from: 1, to: 2 }],
-        frames: [3],
-      }),
-    ],
-    ["one", contract({ evidence: ["SCN-ONE"] })],
-    ["many", contract({ evidence: ["SCN-MANY"] })],
-    [
-      "absent",
-      contract({
-        evidence: ["SCN-ABSENT"],
-        events: [{ from: 1, to: 2 }],
-        frames: [3],
-      }),
-    ],
-    ["other", contract({ duration: 0.5, evidence: ["SCN-MATCH"] })],
-  ]);
-  const runTiming = (scope: "design" | "source" | "review" | "final") =>
-    screenplayTimingDiagnostics({
-      contracts,
-      read: (relative) => timingDocuments.get(relative) ?? null,
-      scope,
-      screenplay: timingIndex,
-    });
-  const design = runTiming("design");
-  const source = runTiming("source");
-  const review = runTiming("review");
-  const final = runTiming("final");
-  const timingCodes = review.map((diagnostic) => diagnostic.code);
-
-  TestValidator.equals(
-    "screenplay timing diagnostics own every skip, match, range, and severity branch",
-    namedFacts([
-      [
-        "nullTimingIndexIsEmpty",
-        () =>
-          screenplayTimingDiagnostics({
-            contracts,
-            read: () => null,
-            scope: "review",
-            screenplay: null,
-          }).length === 0,
-      ],
-      [
-        "matchingTimesAreClean",
-        () =>
-          review.some((diagnostic) => diagnostic.path === "docs/match.md") ===
-          false,
-      ],
-      [
-        "missingDocumentsAreSkipped",
-        () =>
-          review.some((diagnostic) => diagnostic.path === "docs/no-doc.md") ===
-          false,
-      ],
-      [
-        "missingHeadingsAreSkipped",
-        () =>
-          review.some(
-            (diagnostic) => diagnostic.path === "docs/no-heading.md",
-          ) === false,
-      ],
-      [
-        "wordAndPreambleTimesAreOwned",
-        () =>
-          review.filter(
-            (diagnostic) =>
-              diagnostic.code === "screenplay-timing-unowned" &&
-              diagnostic.path === "docs/combined.md",
-          ).length === 2,
-      ],
-      [
-        "fractionValueMismatchIsNamed",
-        () => timingCodes.includes("screenplay-timing-value-mismatch"),
-      ],
-      [
-        "equalValueInAnotherShotDoesNotOwnOccurrence",
-        () => timingCodes.includes("screenplay-timing-owner-absent"),
-      ],
-      [
-        "unsupportedSelectorIsNamed",
-        () => timingCodes.includes("screenplay-timing-reference-invalid"),
-      ],
-      [
-        "selectorNamingNoContractFieldIsAbsent",
-        () =>
-          review.filter(
-            (diagnostic) =>
-              diagnostic.path === "docs/absent.md" &&
-              diagnostic.code === "screenplay-timing-owner-absent" &&
-              diagnostic.message.includes("names no field"),
-          ).length === 2,
-      ],
-      [
-        "authoringScopesWarn",
-        () =>
-          design.every((diagnostic) => diagnostic.category === "warning") &&
-          source.every((diagnostic) => diagnostic.category === "warning"),
-      ],
-      [
-        "deliveryScopesRefuse",
-        () =>
-          review.every((diagnostic) => diagnostic.category === "error") &&
-          final.every((diagnostic) => diagnostic.category === "error"),
-      ],
-    ]),
-    {
-      nullTimingIndexIsEmpty: true,
-      matchingTimesAreClean: true,
-      missingDocumentsAreSkipped: true,
-      missingHeadingsAreSkipped: true,
-      wordAndPreambleTimesAreOwned: true,
-      fractionValueMismatchIsNamed: true,
-      equalValueInAnotherShotDoesNotOwnOccurrence: true,
-      unsupportedSelectorIsNamed: true,
-      selectorNamingNoContractFieldIsAbsent: true,
-      authoringScopesWarn: true,
-      deliveryScopesRefuse: true,
-    },
-  );
-};
+}

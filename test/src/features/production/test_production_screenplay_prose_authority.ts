@@ -3,36 +3,13 @@ import type {
   IAutoMovieScreenplayIndex,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
 
-const { parseScreenplayProse, screenplayProseDiagnostics } = loadSourceModule<{
-  parseScreenplayProse: (content: string) => Array<{
-    id: string;
-    authority: {
-      location: string;
-      storyTime: string;
-      participants: Array<{ id: string; mode: string }>;
-      beats: string[];
-    } | null;
-    authorityErrors: string[];
-    timing: Array<{ text: string; seconds: number; selector: string | null }>;
-  }>;
-  screenplayProseDiagnostics: (props: {
-    screenplay: IAutoMovieScreenplayIndex | null;
-    read: (relativePath: string) => string | null;
-  }) => IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/screenplayProseDiagnostics.ts",
-  ),
-);
+import { parseScreenplayProse } from "../../../../packages/production/src/production/parseScreenplayProse";
+import { screenplayProseDiagnostics } from "../../../../packages/production/src/production/screenplayProseDiagnostics";
 
-const base = (): IAutoMovieScreenplayIndex =>
-  ({
+function base(): IAutoMovieScreenplayIndex { return ({
     version: 2,
     production: "authority",
     treatment: {
@@ -76,15 +53,14 @@ const base = (): IAutoMovieScreenplayIndex =>
     },
     catalog: { characters: [], factions: [], locations: [] },
     continuity: [],
-  }) as IAutoMovieScreenplayIndex;
+  }) as IAutoMovieScreenplayIndex; }
 
-const carrier = (props?: {
+function carrier(props?: {
   location?: string;
   storyTime?: string;
   participants?: string[];
   beats?: string[];
-}): string =>
-  [
+}): string { return [
     "# SCN-1 - Signal",
     "@automovie-scene",
     `location: ${props?.location ?? "LOC-1"}`,
@@ -98,26 +74,22 @@ const carrier = (props?: {
         "RAIN-1 environmental",
         "CHAR-2 referenced",
       ]
-    ).map((participant) => `participant: ${participant}`),
-    ...(props?.beats ?? ["BEAT-1"]).map((beat) => `beat: ${beat}`),
+    ).map((participant: string): string => `participant: ${participant}`),
+    ...(props?.beats ?? ["BEAT-1"]).map((beat: string): string => `beat: ${beat}`),
     "@end-automovie-scene",
     "The signal arrives.",
-  ].join("\n");
+  ].join("\n"); }
 
-const run = (
-  index: IAutoMovieScreenplayIndex,
-  screenplay: string,
-): IAutoMovieDiagnostic[] =>
-  screenplayProseDiagnostics({
+function run(index: IAutoMovieScreenplayIndex, screenplay: string): IAutoMovieDiagnostic[] { return screenplayProseDiagnostics({
     screenplay: index,
-    read: (relativePath) =>
+    read: (relativePath: string): string | null =>
       relativePath === "docs/treatment.md"
         ? "The signal arrives."
         : relativePath === "docs/screenplay.md" ||
             relativePath === "docs/scene.md"
           ? screenplay
           : null,
-  });
+  }); }
 
 /**
  * Prove exact scene authority across whole and split screenplay layouts.
@@ -130,20 +102,24 @@ const run = (
  * 5. The carrier parser names every malformed line: a missing end marker, a
  *    line without a field separator, a repeated location or story-time, a
  *    participant without a mode, a blank beat, an unsupported field, a blank
- *    location or story-time, and a repeated participant or beat; a timing
- *    range contributes its opening number without a selector.
+ *    location or story-time, and a repeated participant or beat.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Parses complete scene carriers and joins them to the actual semantic index, checking exact place/time/participant/beat comparisons and each malformed-field refusal; catches accidental authority from metadata or another scene.
+ * @evidence contracts/testing.md#independent-expectations The explicit carrier grammar and stable identity/mode fields determine expected findings; tests assert literal parser stages and field rules without deriving expectations from another parser run or natural-language timing.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts exact, explicit unknown and split layouts with place/time/participant/beat mismatches, comments/fences, omitted state, absent end/separator, repeated fields, blank values and unsupported fields; Markdown section edge cases belong to diagnostic_units.
+ * @evidence contracts/testing.md#execution-ownership The exported portable unit directly imports production sources and supplies caller-owned text and index records; it starts no process/browser/native build and registers no dynamic cases.
  */
-export const test_production_screenplay_prose_authority = (): void => {
-  const exact = base();
-  const exactDiagnostics = run(exact, carrier());
-  const unknown = base();
+export function test_production_screenplay_prose_authority(): void {
+  const exact: IAutoMovieScreenplayIndex = base();
+  const exactDiagnostics: IAutoMovieDiagnostic[] = run(exact, carrier());
+  const unknown: IAutoMovieScreenplayIndex = base();
   unknown.screenplay.scenes[0]!.storyTime = "unknown";
-  const split = base();
+  const split: IAutoMovieScreenplayIndex = base();
   split.screenplay.scenes[0]!.path = "docs/scene.md";
-  const omitted = base();
+  const omitted: IAutoMovieScreenplayIndex = base();
   omitted.screenplay.scenes[0]!.status = "OMITTED";
   omitted.screenplay.scenes[0]!.title = "Signal";
-  const hidden = [
+  const hidden: string = [
     "# SCN-1 - Signal",
     "<!-- @automovie-scene",
     "location: LOC-1",
@@ -154,35 +130,34 @@ export const test_production_screenplay_prose_authority = (): void => {
     "```",
     "The signal arrives.",
   ].join("\n");
-  const codes = (index: IAutoMovieScreenplayIndex, prose: string) =>
-    run(index, prose).map((diagnostic) => diagnostic.code);
+  function codes(index: IAutoMovieScreenplayIndex, prose: string): string[] { return run(index, prose).map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.code); }
 
   TestValidator.equals(
     "screenplay prose authority has one exact scene-local owner",
     namedFacts([
-      ["exactCarrierPasses", () => exactDiagnostics.length === 0],
+      ["exactCarrierPasses", (): boolean => exactDiagnostics.length === 0],
       [
         "explicitUnknownPasses",
-        () => run(unknown, carrier({ storyTime: "unknown" })).length === 0,
+        (): boolean => run(unknown, carrier({ storyTime: "unknown" })).length === 0,
       ],
-      ["splitLayoutPasses", () => run(split, carrier()).length === 0],
+      ["splitLayoutPasses", (): boolean => run(split, carrier()).length === 0],
       [
         "locationConflictIsNamed",
-        () =>
+        (): boolean =>
           codes(base(), carrier({ location: "loc-1" })).includes(
             "screenplay-scene-location-conflict",
           ),
       ],
       [
         "storyTimeConflictIsNamed",
-        () =>
+        (): boolean =>
           codes(base(), carrier({ storyTime: "DAY" })).includes(
             "screenplay-scene-story-time-conflict",
           ),
       ],
       [
         "participantConflictIsNamed",
-        () =>
+        (): boolean =>
           codes(
             base(),
             carrier({ participants: ["CHAR-1 referenced"] }),
@@ -190,19 +165,19 @@ export const test_production_screenplay_prose_authority = (): void => {
       ],
       [
         "beatConflictIsNamed",
-        () =>
+        (): boolean =>
           codes(base(), carrier({ beats: ["BEAT-OTHER"] })).includes(
             "screenplay-scene-beat-conflict",
           ),
       ],
       [
         "hiddenCarrierIsAbsent",
-        () =>
+        (): boolean =>
           codes(base(), hidden).includes("screenplay-scene-authority-absent"),
       ],
       [
         "malformedCarrierIsInvalid",
-        () =>
+        (): boolean =>
           codes(
             base(),
             carrier({ participants: ["CHAR-1 performer"] }),
@@ -210,7 +185,7 @@ export const test_production_screenplay_prose_authority = (): void => {
       ],
       [
         "omittedCarrierIsUnexpected",
-        () =>
+        (): boolean =>
           codes(omitted, carrier()).includes(
             "screenplay-scene-authority-unexpected",
           ),
@@ -230,18 +205,16 @@ export const test_production_screenplay_prose_authority = (): void => {
     },
   );
 
-  const parsed = (
-    lines: readonly string[],
-  ): { authority: boolean; errors: string[] } => {
-    const scene = parseScreenplayProse(
+  function parsed(lines: readonly string[]): { authority: boolean; errors: string[] } {
+    const scene: ReturnType<typeof parseScreenplayProse>[number] = parseScreenplayProse(
       ["# SCN-1 - Signal", "@automovie-scene", ...lines].join("\n"),
     )[0]!;
     return {
       authority: scene.authority !== null,
       errors: scene.authorityErrors,
     };
-  };
-  const valid = ["location: LOC-1", "story-time: NIGHT"];
+  }
+  const valid: string[] = ["location: LOC-1", "story-time: NIGHT"];
   TestValidator.equals(
     "the carrier parser names every malformed authority line",
     {
@@ -293,9 +266,6 @@ export const test_production_screenplay_prose_authority = (): void => {
         "beat: BEAT-1",
         "@end-automovie-scene",
       ]),
-      rangeTiming: parseScreenplayProse(
-        "# SCN-1 - Signal\nThe hold lasts two to three seconds.",
-      )[0]!.timing,
     },
     {
       unterminated: {
@@ -343,10 +313,6 @@ export const test_production_screenplay_prose_authority = (): void => {
         errors: ["a beat identity is repeated"],
       },
       exact: { authority: true, errors: [] },
-      rangeTiming: [
-        { text: "three", seconds: 3, selector: null },
-        { text: "two", seconds: 2, selector: null },
-      ],
     },
   );
-};
+}

@@ -9,7 +9,7 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const throwsUtf8 = (bytes: Uint8Array): boolean => {
+const throwsUtf8: (bytes: Uint8Array) => boolean = (bytes: Uint8Array): boolean => {
   try {
     normalizeAutoMovieSourceIdentity({ path: "src/shot.ts", bytes });
     return false;
@@ -18,13 +18,20 @@ const throwsUtf8 = (bytes: Uint8Array): boolean => {
   }
 };
 
-/** Source identity binds strict decoding and permitted equivalence to a version. */
-export const test_production_source_identity_protocol = (): void => {
-  const lf = normalizeAutoMovieSourceIdentity({
+/**
+ * Source identity binds strict decoding and permitted equivalence to a version.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls real normalization and versioned verification, comparing raw/semantic digest relationships, exact normalized text, typed UTF-8 refusals and the ordered current/stale/migrated/unverifiable statuses.
+ * @evidence contracts/testing.md#independent-expectations Literal normalized strings, booleans and status vectors define the oracle; digests produced by the shared hash wrapper arrange identities, so this does not independently prove SHA-256 vectors.
+ * @evidence contracts/testing.md#distinguishing-cases Separates LF from leading BOM/CRLF/CR equivalence, empty and BOM-only inputs, preserved interior BOM and multibyte scalars, four malformed byte sequences, stale current/legacy identities, absent bytes and an unknown protocol.
+ * @evidence contracts/testing.md#execution-ownership The synchronous named test operates only on resident byte arrays and actual identity functions. It reads no source file and makes no claim about source behavior, textual quality or Unicode equivalence beyond the asserted BOM/EOL rule.
+ */
+export function test_production_source_identity_protocol(): void {
+  const lf: ReturnType<typeof normalizeAutoMovieSourceIdentity> = normalizeAutoMovieSourceIdentity({
     path: "src/shot.ts",
     bytes: Buffer.from("a\nb\n", "utf8"),
   });
-  const bomCrlf = normalizeAutoMovieSourceIdentity({
+  const bomCrlf: ReturnType<typeof normalizeAutoMovieSourceIdentity> = normalizeAutoMovieSourceIdentity({
     path: "src/shot.ts",
     bytes: Buffer.from("\ufeffa\r\nb\r", "utf8"),
   });
@@ -61,8 +68,8 @@ export const test_production_source_identity_protocol = (): void => {
     ],
     [true, true, true, true],
   );
-  const legacyBytes = Buffer.from("\ufeffa\r\nb\r", "utf8");
-  const legacyDigest = digestAutoMovieBytes(Buffer.from("a\nb\n", "utf8"));
+  const legacyBytes: Uint8Array = Buffer.from("\ufeffa\r\nb\r", "utf8");
+  const legacyDigest: string = digestAutoMovieBytes(Buffer.from("a\nb\n", "utf8"));
   TestValidator.equals(
     "current, stale, migrated and unverifiable source states are disjoint",
     [
@@ -118,4 +125,4 @@ export const test_production_source_identity_protocol = (): void => {
       "unverifiable",
     ],
   );
-};
+}

@@ -1,10 +1,7 @@
 import type {
-  AutoMovieContentDigest,
-  IAutoMovieRenderBundleManifest,
   IAutoMovieRepaintExecutionPolicy,
   IAutoMovieRepaintGeneratorAdoption,
   IAutoMovieRepaintGeneratorProvenance,
-  IAutoMovieRepaintReceipt,
   IAutoMovieRepaintRequestEvidence,
   IAutoMovieRepaintRuntimeIdentity,
 } from "@automovie/interface";
@@ -12,18 +9,14 @@ import {
   canonicalAutoMovieRepaintGeneratorAdoption,
   canonicalAutoMovieRepaintGeneratorProvenance,
   canonicalAutoMovieRepaintRuntimeIdentity,
-  productionRepaintActiveReceiptPath,
   productionRepaintOutputPath,
-  productionRepaintReceiptPath,
-  productionRepaintRequestFingerprint,
-  productionRepaintStructuralControls,
-  productionSourceRenderFingerprint,
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { assertRepaintGeneratorSourceIdentities } from "../internal/assertRepaintGeneratorSourceIdentities";
 
-const digest = (value: string): AutoMovieContentDigest => `sha256:${value}`;
+const digest: (value: string) => string = (value: string): string => `sha256:${value}`;
 
-const adoption = (): IAutoMovieRepaintGeneratorAdoption => ({
+const adoption: () => IAutoMovieRepaintGeneratorAdoption = (): IAutoMovieRepaintGeneratorAdoption => ({
   runtimeIdentity: {
     protocolVersion: "automovie.repaint-runtime.v1",
     provider: "reviewed-local-host",
@@ -43,7 +36,7 @@ const adoption = (): IAutoMovieRepaintGeneratorAdoption => ({
   },
 });
 
-const messageOf = (operation: () => unknown): string | null => {
+const messageOf: (operation: () => unknown) => string | null = (operation: () => unknown): string | null => {
   try {
     operation();
     return null;
@@ -59,16 +52,21 @@ const messageOf = (operation: () => unknown): string | null => {
  *
  * 1. Runtime, reviewed provenance, and their complete adoption canonicalize
  *    independently and without depending on authored key order.
- * 2. Hidden fields, credentials, malformed identities, padded text, false
- *    dates, and a consumer from another generation lane are all refused.
+ * 2. Hidden fields, credentials, malformed identities, padded required text,
+ *    and a consumer from another generation lane are all refused.
  * 3. Every generator-provenance change creates a distinct content-addressed
  *    rendition path, while an unchanged request retains the same path.
  * 4. Public repaint receipt v3 requires both reviewed provenance and the
  *    deterministic-source authority boundary.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs actual identity canonicalizers, output/request/source/address composers and structural-control selection; compares insertion-order equivalence, every authored refusing variant, path sensitivity and exact control groups, with receipt-v3 static negative assignments and JSON preservation.
+ * @evidence contracts/testing.md#independent-expectations Literal refusal-presence booleans and control inventories define the oracle; equality and single-field metamorphic path comparisons use actual composers on distinct authored inputs and do not supply independent hash vectors or validate synthetic digest spellings.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves null/array/hidden/malformed records, credential locators and foreign consumer kind, five provenance changes and each existing request/output variant, plus incomplete mask exclusion and required receipt fields; optional descriptive dates are not validated by these cases or the provenance owner.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit awaits no external work and invokes its canonical case helper in original order. The partial source manifest and synthetic identities test metadata composition only; no generator installation, license truth, resident bundle/media validation or receipt schema admission is claimed, and static negative assignments require later compilation.
  */
-export const test_production_repaint_generator_identity = (): void => {
-  const selected = adoption();
-  const reordered = {
+export function test_production_repaint_generator_identity(): void {
+  const selected: IAutoMovieRepaintGeneratorAdoption = adoption();
+  const reordered: IAutoMovieRepaintGeneratorAdoption = {
     generatorProvenance: {
       consumer: {
         reason: selected.generatorProvenance.consumer.reason,
@@ -120,7 +118,7 @@ export const test_production_repaint_generator_identity = (): void => {
     { ...selected.runtimeIdentity, version: "" },
     { ...selected.runtimeIdentity, execution: "cloud" },
   ];
-  const provenance = selected.generatorProvenance;
+  const provenance: IAutoMovieRepaintGeneratorProvenance = selected.generatorProvenance;
   const malformedProvenance: unknown[] = [
     null,
     [],
@@ -155,8 +153,8 @@ export const test_production_repaint_generator_identity = (): void => {
   TestValidator.predicate(
     "repaint runtime rejects every malformed or hidden identity field",
     malformedRuntime.every(
-      (value) =>
-        messageOf(() =>
+      (value: unknown): boolean =>
+        messageOf((): string =>
           canonicalAutoMovieRepaintRuntimeIdentity(
             value as IAutoMovieRepaintRuntimeIdentity,
           ),
@@ -166,8 +164,8 @@ export const test_production_repaint_generator_identity = (): void => {
   TestValidator.predicate(
     "repaint provenance rejects every malformed or hidden adoption field",
     malformedProvenance.every(
-      (value) =>
-        messageOf(() =>
+      (value: unknown): boolean =>
+        messageOf((): string =>
           canonicalAutoMovieRepaintGeneratorProvenance(
             value as IAutoMovieRepaintGeneratorProvenance,
           ),
@@ -177,8 +175,8 @@ export const test_production_repaint_generator_identity = (): void => {
   TestValidator.predicate(
     "repaint adoption rejects an incomplete, extended, or invalid pair",
     malformedAdoption.every(
-      (value) =>
-        messageOf(() =>
+      (value: unknown): boolean =>
+        messageOf((): string =>
           canonicalAutoMovieRepaintGeneratorAdoption(
             value as IAutoMovieRepaintGeneratorAdoption,
           ),
@@ -202,7 +200,7 @@ export const test_production_repaint_generator_identity = (): void => {
     screenplayOrBrief: "docs/screenplays/opening.md#shot",
     shot: "scripts/shots/opening.ts#opening",
   };
-  const outputRequest = {
+  const outputRequest: Parameters<typeof productionRepaintOutputPath>[0] = {
     shot: "opening",
     sourceRenderFingerprint: digest("source"),
     attemptId: "attempt-1",
@@ -228,7 +226,7 @@ export const test_production_repaint_generator_identity = (): void => {
     ],
     outputDigest: digest("output"),
   };
-  const originalPath = productionRepaintOutputPath(outputRequest);
+  const originalPath: string = productionRepaintOutputPath(outputRequest);
   const provenanceVariants: IAutoMovieRepaintGeneratorProvenance[] = [
     { ...provenance, source: `${provenance.source}/mirror` },
     { ...provenance, license: `${provenance.license}#amended` },
@@ -247,14 +245,14 @@ export const test_production_repaint_generator_identity = (): void => {
   TestValidator.predicate(
     "every generator-provenance field participates in repaint cache identity",
     provenanceVariants.every(
-      (generatorProvenance) =>
+      (generatorProvenance: IAutoMovieRepaintGeneratorProvenance): boolean =>
         productionRepaintOutputPath({
           ...outputRequest,
           generatorProvenance,
         }) !== originalPath,
     ),
   );
-  const requestVariants = [
+  const requestVariants: Parameters<typeof productionRepaintOutputPath>[0][] = [
     {
       ...outputRequest,
       adapterIdentity: canonicalAutoMovieRepaintRuntimeIdentity({
@@ -383,215 +381,9 @@ export const test_production_repaint_generator_identity = (): void => {
   TestValidator.predicate(
     "every reviewed request and output identity field changes the rendition path",
     requestVariants.every(
-      (variant) => productionRepaintOutputPath(variant) !== originalPath,
+      (variant: Parameters<typeof productionRepaintOutputPath>[0]): boolean => productionRepaintOutputPath(variant) !== originalPath,
     ),
   );
 
-  const sourceManifest = {
-    frames: [
-      {
-        index: 0,
-        path: "beauty-0.png",
-        pass: "beauty",
-        digest: digest("beauty-0"),
-      },
-      {
-        index: 0,
-        path: "depth-0.png",
-        pass: "depth",
-        digest: digest("depth-0"),
-      },
-      {
-        index: 1,
-        path: "depth-1.png",
-        pass: "depth",
-        digest: digest("depth-1"),
-      },
-      {
-        index: 0,
-        path: "mask-0.png",
-        pass: "mask",
-        digest: digest("mask-0"),
-      },
-    ],
-    semanticMasks: [
-      {
-        frame: 0,
-        pass: "mask",
-        coverage: { unresolved: [], unaddressed: 0 },
-      },
-    ],
-  } as unknown as IAutoMovieRenderBundleManifest;
-  const sourceFrames = sourceManifest.frames.map(({ path, digest }) => ({
-    path,
-    digest,
-  }));
-  const sourceFingerprint = productionSourceRenderFingerprint({
-    manifest: sourceManifest,
-    frames: sourceFrames,
-  });
-  const requestFingerprint = productionRepaintRequestFingerprint({
-    ...outputRequest,
-    compileFingerprint: digest("compile"),
-  });
-  const receiptPath = productionRepaintReceiptPath(originalPath);
-  const activePath = productionRepaintActiveReceiptPath("opening");
-  TestValidator.equals(
-    "source, structural, request, receipt, and active identities are deterministic",
-    {
-      sourceStable:
-        productionSourceRenderFingerprint({
-          manifest: sourceManifest,
-          frames: sourceFrames,
-        }) === sourceFingerprint,
-      sourceChanges:
-        productionSourceRenderFingerprint({
-          manifest: sourceManifest,
-          frames: [
-            ...sourceFrames.slice(0, -1),
-            { ...sourceFrames.at(-1)!, digest: digest("mask-revised") },
-          ],
-        }) !== sourceFingerprint,
-      controls: productionRepaintStructuralControls(sourceManifest),
-      incompleteControls: productionRepaintStructuralControls({
-        ...sourceManifest,
-        semanticMasks: sourceManifest.semanticMasks.map((semantic) => ({
-          ...semantic,
-          coverage: { unresolved: ["node:missing"], unaddressed: 0 },
-        })),
-      }),
-      requestStable:
-        productionRepaintRequestFingerprint({
-          ...outputRequest,
-          compileFingerprint: digest("compile"),
-        }) === requestFingerprint,
-      requestChanges:
-        productionRepaintRequestFingerprint({
-          ...outputRequest,
-          compileFingerprint: digest("compile-revised"),
-        }) !== requestFingerprint,
-      receiptStable: productionRepaintReceiptPath(originalPath) === receiptPath,
-      receiptChanges:
-        productionRepaintReceiptPath(`${originalPath}.other`) !== receiptPath,
-      activeStable:
-        productionRepaintActiveReceiptPath("opening") === activePath,
-      activeChanges:
-        productionRepaintActiveReceiptPath("closing") !== activePath,
-    },
-    {
-      sourceStable: true,
-      sourceChanges: true,
-      controls: [
-        {
-          pass: "depth",
-          frameDigests: [digest("depth-0"), digest("depth-1")],
-        },
-        { pass: "mask", frameDigests: [digest("mask-0")] },
-      ],
-      incompleteControls: [
-        {
-          pass: "depth",
-          frameDigests: [digest("depth-0"), digest("depth-1")],
-        },
-      ],
-      requestStable: true,
-      requestChanges: true,
-      receiptStable: true,
-      receiptChanges: true,
-      activeStable: true,
-      activeChanges: true,
-    },
-  );
-
-  const receipt: IAutoMovieRepaintReceipt = {
-    version: 3,
-    productionId: "identity-test",
-    shot: "opening",
-    compileFingerprint: digest("compile"),
-    sourceRenderFingerprint: digest("source"),
-    attemptId: "attempt-1",
-    sourceBundle: "renders/opening/source",
-    controls: [{ pass: "depth", frameDigests: [digest("depth")] }],
-    references: [
-      {
-        role: "style",
-        path: "assets/style.png",
-        digest: digest("style"),
-      },
-    ],
-    adapterIdentity: outputRequest.adapterIdentity,
-    generatorProvenance: provenance,
-    structuralAuthority: "deterministic-source-only",
-    parameters: outputRequest.parameters,
-    output: {
-      path: originalPath,
-      digest: digest("output"),
-      bytes: 1,
-      probe: {
-        kind: "video",
-        container: "mp4",
-        codec: "h264",
-        width: 16,
-        height: 16,
-        runtimeSeconds: 1,
-        frameCount: 24,
-        fps: 24,
-        frameRate: { numerator: 24, denominator: 1 },
-        brands: { major: "isom", compatible: ["isom"] },
-        coded: { width: 16, height: 16 },
-        trackDisplay: { width16_16: 1_048_576, height16_16: 1_048_576 },
-        trackMatrix: [65_536, 0, 0, 0, 65_536, 0, 0, 0, 1_073_741_824],
-        pixelAspect: { kind: "implicit-square" },
-        presentation: {
-          movieTimescale: 24,
-          mediaTimescale: 24,
-          movieDuration: 24,
-          mediaDuration: 24,
-          edits: [],
-        },
-        samples: {
-          count: 24,
-          duration: 1,
-          timescale: 24,
-          firstDts: 0,
-          lastDts: 23,
-          firstCts: 0,
-          lastCts: 23,
-        },
-        color: {
-          container: {
-            kind: "nclx",
-            primaries: 1,
-            transfer: 13,
-            matrix: 1,
-            fullRange: true,
-          },
-          resolved: { kind: "srgb", source: "container" },
-        },
-      },
-    },
-  };
-  const { generatorProvenance: omittedProvenance, ...withoutProvenance } =
-    receipt;
-  const { structuralAuthority: omittedAuthority, ...withoutAuthority } =
-    receipt;
-  void omittedProvenance;
-  void omittedAuthority;
-  // @ts-expect-error Receipt v3 requires reviewed generator provenance.
-  const missingProvenance: IAutoMovieRepaintReceipt = withoutProvenance;
-  // @ts-expect-error Receipt v3 requires the derived-output authority boundary.
-  const missingAuthority: IAutoMovieRepaintReceipt = withoutAuthority;
-  const staleVersion: IAutoMovieRepaintReceipt = {
-    ...receipt,
-    // @ts-expect-error Adding generator adoption changed the public schema.
-    version: 2,
-  };
-  void missingProvenance;
-  void missingAuthority;
-  void staleVersion;
-  TestValidator.equals(
-    "repaint receipt v3 preserves adoption and authority through JSON",
-    JSON.parse(JSON.stringify(receipt)) as IAutoMovieRepaintReceipt,
-    receipt,
-  );
-};
+  assertRepaintGeneratorSourceIdentities(outputRequest, provenance, originalPath, digest);
+}

@@ -5,8 +5,9 @@ import type {
 } from "@automovie/interface";
 import { assertProductionRenderedDeliverableFacts } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { throwsError as refused } from "../internal/predicates";
 
-const video = (): IAutoMovieProductionVideoProbe => ({
+const video: () => IAutoMovieProductionVideoProbe = (): IAutoMovieProductionVideoProbe => ({
   kind: "video",
   container: "mp4",
   codec: "h264",
@@ -49,7 +50,7 @@ const video = (): IAutoMovieProductionVideoProbe => ({
   },
 });
 
-const audio = (): IAutoMovieProductionAudioProbe => ({
+const audio: () => IAutoMovieProductionAudioProbe = (): IAutoMovieProductionAudioProbe => ({
   kind: "audio",
   container: "mp4",
   codec: "opus",
@@ -89,17 +90,13 @@ const audio = (): IAutoMovieProductionAudioProbe => ({
   },
 });
 
-const refused = (closure: () => unknown, message: string): boolean => {
-  try {
-    closure();
-    return false;
-  } catch (error) {
-    return error instanceof Error && error.message.includes(message);
-  }
-};
-
 /**
  * Validate that every render-manifest scalar comes from its kind-matched probe.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual deliverable-fact admission for six admitted media associations and mismatched runtime/frame/codec/kind rows; synchronous refusal messages expose ignored scalar tuples or wrong media association.
+ * @evidence contracts/testing.md#independent-expectations Authored one-second/24-frame H.264 and Opus probe records define the video/audio tuples, captions use the supplied current runtime, and pictures/evidence use null tuples. Complete typed metadata stands in for already-admitted parser output, without claiming this unit parses payloads, admits those records or decodes media; message matching is by fragment rather than exact whole error.
+ * @evidence contracts/testing.md#distinguishing-cases Covers feature/guide/audio/captions/preview plus sound-evidence audio, individual mismatches, invented null-only scalars and missing feature facts, including zero/unsafe scalar values; parser validity, byte integrity and physical playback belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This named discoverable portable unit owns the local acceptance/refusal matrices and invokes the production gate directly without a renderer, filesystem, codec process or dynamic test registration.
  *
  * Scenarios:
  * 1. Feature, guide, audio, caption, preview, and evidence rows accept only
@@ -107,14 +104,14 @@ const refused = (closure: () => unknown, message: string): boolean => {
  * 2. Runtime, frame count, codec, caption runtime, and kind substitutions have
  *    independent refusing twins.
  */
-export const test_production_render_manifest_media_facts = (): void => {
-  const picture = video();
+export function test_production_render_manifest_media_facts(): void {
+  const picture: IAutoMovieProductionVideoProbe = video();
   const feature: IAutoMovieProductionMediaProbe = {
     kind: "feature",
     video: picture,
     audio: audio(),
   };
-  const accepts = [
+  const accepts: Parameters<typeof assertProductionRenderedDeliverableFacts>[0][] = [
     {
       kind: "feature" as const,
       runtimeSeconds: 1,
@@ -147,7 +144,44 @@ export const test_production_render_manifest_media_facts = (): void => {
       expectedCaptionRuntimeSeconds: null,
       probe: {
         kind: "sound-evidence" as const,
-      } as IAutoMovieProductionMediaProbe,
+        evidence: {
+          version: 2,
+          plan: {
+            version: 1,
+            inputFingerprint: `sha256:${"1".repeat(64)}`,
+            fps: 24,
+            frameRate: { numerator: 24, denominator: 1 },
+            totalFrames: 24,
+            sampleRate: 48_000,
+            channels: 2,
+            events: [],
+            cues: [],
+            dialogue: [],
+          },
+          analysis: {
+            version: 1,
+            sampleRate: 48_000,
+            sampleFrames: 48_000,
+            runtimeSeconds: 1,
+            integratedLoudness: null,
+            samplePeak: 0,
+            clippingSamples: 0,
+            longestSilenceSeconds: 1,
+            eventAlignment: [],
+          },
+          tts: [],
+          audio: {
+            path: "audio.mp4",
+            mediaType: "audio/mp4",
+            bytes: 128,
+            digest: `sha256:${"2".repeat(64)}`,
+          },
+          measurement: {
+            source: "pre-encode-pcm",
+            algorithm: "automovie-production-sound-analysis-v1",
+          },
+        },
+      },
     },
     {
       kind: "captions" as const,
@@ -155,7 +189,14 @@ export const test_production_render_manifest_media_facts = (): void => {
       frameCount: null,
       codec: null,
       expectedCaptionRuntimeSeconds: 1,
-      probe: { kind: "webvtt" as const } as IAutoMovieProductionMediaProbe,
+      probe: {
+        kind: "webvtt" as const,
+        cueCount: 1,
+        firstCueSeconds: 0,
+        lastCueSeconds: 1,
+        cues: [{ id: null, text: "Hello.", startMilliseconds: 0, endMilliseconds: 1_000 }],
+        text: "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nHello.\n",
+      },
     },
     {
       kind: "preview" as const,
@@ -163,7 +204,22 @@ export const test_production_render_manifest_media_facts = (): void => {
       frameCount: null,
       codec: null,
       expectedCaptionRuntimeSeconds: null,
-      probe: { kind: "png" as const } as IAutoMovieProductionMediaProbe,
+      probe: {
+        kind: "png" as const,
+        width: 16,
+        height: 16,
+        picture: {
+          width: 16,
+          height: 16,
+          bitDepth: 8,
+          color: "rgba",
+          alpha: "straight",
+          interlace: "none",
+          colorSpace: "srgb",
+          pixelAspect: { kind: "square" },
+          orientation: "upright",
+        },
+      },
     },
   ];
   for (const value of accepts) assertProductionRenderedDeliverableFacts(value);
@@ -171,7 +227,7 @@ export const test_production_render_manifest_media_facts = (): void => {
     "kind-specific media tuples reject every scalar or association substitution",
     {
       runtime: refused(
-        () =>
+        (): void =>
           assertProductionRenderedDeliverableFacts({
             ...accepts[0]!,
             runtimeSeconds: 2,
@@ -179,7 +235,7 @@ export const test_production_render_manifest_media_facts = (): void => {
         "runtimeSeconds",
       ),
       frames: refused(
-        () =>
+        (): void =>
           assertProductionRenderedDeliverableFacts({
             ...accepts[1]!,
             frameCount: 23,
@@ -187,7 +243,7 @@ export const test_production_render_manifest_media_facts = (): void => {
         "frameCount",
       ),
       codec: refused(
-        () =>
+        (): void =>
           assertProductionRenderedDeliverableFacts({
             ...accepts[2]!,
             codec: "aac",
@@ -195,7 +251,7 @@ export const test_production_render_manifest_media_facts = (): void => {
         "codec",
       ),
       captionRuntime: refused(
-        () =>
+        (): void =>
           assertProductionRenderedDeliverableFacts({
             ...accepts[4]!,
             runtimeSeconds: 0.5,
@@ -203,7 +259,7 @@ export const test_production_render_manifest_media_facts = (): void => {
         "runtimeSeconds",
       ),
       kind: refused(
-        () =>
+        (): void =>
           assertProductionRenderedDeliverableFacts({
             ...accepts[5]!,
             probe: audio(),
@@ -224,17 +280,17 @@ export const test_production_render_manifest_media_facts = (): void => {
     row: Parameters<typeof assertProductionRenderedDeliverableFacts>[0];
     field: string;
   }> = [
-    ...[1, 0, Number.MAX_SAFE_INTEGER + 1].map((runtimeSeconds) => ({
+    ...[1, 0, Number.MAX_SAFE_INTEGER + 1].map((runtimeSeconds: number): { label: string; row: Parameters<typeof assertProductionRenderedDeliverableFacts>[0]; field: string } => ({
       label: `preview runtime ${runtimeSeconds}`,
       row: { ...accepts[5]!, runtimeSeconds },
       field: "runtimeSeconds",
     })),
-    ...[1, 0, Number.MAX_SAFE_INTEGER + 1].map((frameCount) => ({
+    ...[1, 0, Number.MAX_SAFE_INTEGER + 1].map((frameCount: number): { label: string; row: Parameters<typeof assertProductionRenderedDeliverableFacts>[0]; field: string } => ({
       label: `preview frame count ${frameCount}`,
       row: { ...accepts[5]!, frameCount },
       field: "frameCount",
     })),
-    ...["h264", ""].map((codec) => ({
+    ...["h264", ""].map((codec: string): { label: string; row: Parameters<typeof assertProductionRenderedDeliverableFacts>[0]; field: string } => ({
       label: `preview codec ${JSON.stringify(codec)}`,
       row: { ...accepts[5]!, codec },
       field: "codec",
@@ -287,8 +343,8 @@ export const test_production_render_manifest_media_facts = (): void => {
   ];
   TestValidator.predicate(
     "the complete five-kind scalar matrix fails at its exact field",
-    scalarMatrix.every(({ row, field }) =>
-      refused(() => assertProductionRenderedDeliverableFacts(row), field),
+    scalarMatrix.every(({ row, field }: { label: string; row: Parameters<typeof assertProductionRenderedDeliverableFacts>[0]; field: string }): boolean =>
+      refused((): void => assertProductionRenderedDeliverableFacts(row), field),
     ),
   );
-};
+}

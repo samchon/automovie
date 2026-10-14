@@ -13,24 +13,29 @@ import { createSemanticMaskEvidenceTestInputs } from "../internal/createSemantic
 /**
  * Absence, historical schema, foreign shot and invalid evidence retain their own classifications.
  *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real semantic-evidence classifier with not-run, historical mask/envelope, malformed coverage, foreign/blank shot and altered digest observations; the explicit status map exposes collapsed unsupported/foreign/invalid/not-run branches.
+ * @evidence contracts/testing.md#independent-expectations Authored protocol versions, expected shot and supported coverage ordering define each status; the fixture seals a valid palette through the engine digest owner, so this is classification admission rather than an independent palette-hash or pixel oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves nonblank versus blank absence reasons, historical mask and envelope independently, reversed unresolved ids, foreign versus blank shot and digest tampering; complete/incomplete runtime gaps and receipt bytes are owned by the neighboring semantic tests.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns all eight variants and calls production semantics on in-memory evidence; no capture browser, renderer, filesystem reader or dynamic case registration runs.
+ *
  * Scenarios:
  * 1. A nonblank not-run observation remains not-run while its blank-reason twin is invalid.
  * 2. Historical mask or envelope is unsupported; malformed coverage, blank shot and tampered digest are invalid, while another shot is foreign.
  */
-export const test_production_semantic_mask_classification = (): void => {
-  const { validEvidence, withCoverage } = createSemanticMaskEvidenceTestInputs();
+export function test_production_semantic_mask_classification(): void {
+  const { validEvidence, withCoverage }: ReturnType<typeof createSemanticMaskEvidenceTestInputs> = createSemanticMaskEvidenceTestInputs();
 
-  const evidence = validEvidence();
+  const evidence: ReturnType<typeof validEvidence> = validEvidence();
 
-  const observation = { status: "available", value: evidence } as const;
+  const observation: Parameters<typeof classifyAutoMovieProductionSemanticMaskEvidence>[0]["observation"] = { status: "available", value: evidence } as const;
 
-  const historicalMask = {
+  const historicalMask: IAutoMovieSemanticMask = {
       ...evidence.mask,
       version: 1,
       protocol: "automovie.semantic-mask.v1",
     } as unknown as IAutoMovieSemanticMask;
 
-  const classifications = {
+  const classifications: Record<string, ReturnType<typeof classifyAutoMovieProductionSemanticMaskEvidence>> = {
       notRun: classifyAutoMovieProductionSemanticMaskEvidence({
         observation: { status: "not-run", reason: "host lacked mask hook" },
         expectedShot: "opening",
@@ -89,7 +94,7 @@ export const test_production_semantic_mask_classification = (): void => {
   TestValidator.equals(
       "absence and each incompatible evidence class retain their own status",
       Object.fromEntries(
-        Object.entries(classifications).map(([name, result]) => [
+        Object.entries(classifications).map(([name, result]: [string, ReturnType<typeof classifyAutoMovieProductionSemanticMaskEvidence>]): [string, string] => [
           name,
           result.status,
         ]),
@@ -105,4 +110,4 @@ export const test_production_semantic_mask_classification = (): void => {
         invalid: "invalid",
       },
     );
-};
+}

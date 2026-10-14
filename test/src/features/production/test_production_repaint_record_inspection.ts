@@ -9,6 +9,11 @@ import { throwsError } from "../internal/predicates";
 /**
  * Repaint inspection preserves valid siblings and exact safe failure classes.
  *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual record inspection with admitted values, absence, classified failures, a plain Error, tampered classification/recovery and a hostile proxy; ordered retained siblings and stage/class/recovery projections expose unsafe exception publication or lost independent results.
+ * @evidence contracts/testing.md#independent-expectations Authored shot/kind/id code-unit order and documented absence/classification rules give explicit expected rows; recovery must omit the selected secret-token witness. The malformed target asserts refusal, without separately counting callback calls or proving arbitrary credential sanitization.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves two valid siblings, candidate/rendition absence, supported failure classes, unknown Error, overwritten stage/recovery, hostile prototype access and invalid constructor stage; physical reader/schema/currentness and duplicate-target side effects are outside these injected-reader cases.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns its target list and injected reader outcomes, while the real collector/classified-error owners handle them synchronously; no project I/O, browser, process or dynamic registrations run.
+ *
  * Scenarios:
  *
  * 1. Valid candidates and renditions survive failures in unrelated records.
@@ -19,8 +24,8 @@ import { throwsError } from "../internal/predicates";
  *    leaking, and a refusal constructed outside the stage and failure sets is
  *    itself refused.
  */
-export const test_production_repaint_record_inspection = (): void => {
-  const targets = [
+export function test_production_repaint_record_inspection(): void {
+  const targets: Parameters<typeof inspectAutoMovieRepaintRecords>[0]["targets"] = [
     { kind: "rendition" as const, shot: "b", recordId: "valid-b" },
     { kind: "candidate" as const, shot: "a", recordId: "missing" },
     { kind: "candidate" as const, shot: "a", recordId: "linked-missing" },
@@ -36,9 +41,9 @@ export const test_production_repaint_record_inspection = (): void => {
     { kind: "candidate" as const, shot: "a", recordId: "plain" },
     { kind: "candidate" as const, shot: "a", recordId: "tampered" },
   ];
-  const result = inspectAutoMovieRepaintRecords({
+  const result: ReturnType<typeof inspectAutoMovieRepaintRecords<string>> = inspectAutoMovieRepaintRecords({
     targets,
-    inspect: (target) => {
+    inspect: (target: Parameters<Parameters<typeof inspectAutoMovieRepaintRecords>[0]["inspect"]>[0]): string | null => {
       if (target.recordId.startsWith("valid")) return target.recordId;
       if (target.recordId === "missing") return null;
       if (target.recordId === "plain") throw new Error("secret-token");
@@ -92,12 +97,12 @@ export const test_production_repaint_record_inspection = (): void => {
   TestValidator.equals(
     "valid siblings and deterministic classified findings survive together",
     {
-      records: result.records.map(({ target, value }) => [
+      records: result.records.map(({ target, value }: typeof result.records[number]): string[] => [
         target.shot,
         target.recordId,
         value,
       ]),
-      findings: result.findings.map((finding) => ({
+      findings: result.findings.map((finding: typeof result.findings[number]): { shot: string; record: string; stage: typeof finding.stage; failure: typeof finding.failure; leaksSecret: boolean } => ({
         shot: finding.target.shot,
         record: finding.target.recordId,
         stage: finding.stage,
@@ -218,4 +223,4 @@ export const test_production_repaint_record_inspection = (): void => {
       "Repaint inspection refusal is malformed.",
     ),
   );
-};
+}

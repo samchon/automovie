@@ -3,11 +3,13 @@ import { TestValidator } from "@nestia/e2e";
 import { loadSourceModule } from "../internal/loadSourceModule";
 import { productionModule } from "./sourceStatusFixtures";
 
+/** Ordered document observations and revision dependency supplied by one unit case. */
 interface ITrace {
   documents: Array<{ path: string; content: string | null }>;
   revisionBound: boolean;
 }
 
+/** Plain three-field runtime subset consumed by the actual revision wrapper. */
 interface IClearanceRuntime {
   revision: string;
   currentRevision: string;
@@ -47,16 +49,21 @@ const { recordAutoMovieProductionClearanceRevision } = loadSourceModule<{
  *    revision or the current revision binds it, each returning the builder's
  *    value.
  * 4. Without a trace the clearance runtime is the builder's own runtime.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Loads the maintained reader/revision wrappers through the existing test require hook and checks actual returned text, ordered trace records, revision flags and untraced reference identity.
+ * @evidence contracts/testing.md#independent-expectations Literal text/null observations and revision flag records are independent expectations; wrapper outputs are not reused to construct their expected trace.
+ * @evidence contracts/testing.md#distinguishing-cases Includes repeated changed text, an absent document, ordinary sample-rate access, each revision getter and both undefined-trace identity paths; it does not assert thrown-reader behavior or accessor-bearing runtime inputs.
+ * @evidence contracts/testing.md#execution-ownership The synchronous named unit supplies resident Map-backed text and plain runtime values. It executes the real wrappers without running a builder, reading production documents or proving retained-source reuse.
  */
-export const test_production_source_gate_trace = (): void => {
-  const texts = new Map<string, string>([
+export function test_production_source_gate_trace(): void {
+  const texts: Map<string, string> = new Map<string, string>([
     ["docs/screenplays/001-harbor.md", "INT. HARBOR - NIGHT"],
   ]);
-  const read = (relativePath: string): string | null =>
+  const read: (relativePath: string) => string | null = (relativePath: string): string | null =>
     texts.get(relativePath) ?? null;
   const trace: ITrace = { documents: [], revisionBound: false };
-  const recorded = recordAutoMovieProductionDocumentRead({ trace, read });
-  const returned = [
+  const recorded: (relativePath: string) => string | null = recordAutoMovieProductionDocumentRead({ trace, read });
+  const returned: Array<string | null> = [
     recorded("docs/screenplays/001-harbor.md"),
     recorded("docs/treatment.md"),
   ];
@@ -91,9 +98,9 @@ export const test_production_source_gate_trace = (): void => {
     currentRevision: "41",
     sampleRate: 24,
   };
-  const bound = (key: keyof IClearanceRuntime) => {
+  const bound: (key: keyof IClearanceRuntime) => { value: string | number; revisionBound: boolean } = (key: keyof IClearanceRuntime): { value: string | number; revisionBound: boolean } => {
     const clearanceTrace: ITrace = { documents: [], revisionBound: false };
-    const recordedRuntime = recordAutoMovieProductionClearanceRevision({
+    const recordedRuntime: IClearanceRuntime = recordAutoMovieProductionClearanceRevision({
       trace: clearanceTrace,
       runtime,
     });
@@ -123,4 +130,4 @@ export const test_production_source_gate_trace = (): void => {
     }) === runtime,
     true,
   );
-};
+}

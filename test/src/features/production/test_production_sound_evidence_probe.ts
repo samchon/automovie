@@ -10,8 +10,13 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Preserve a complete version-2 record.
  * 2. Refuse malformed UTF-8, obsolete incomplete records and empty records.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Probes actual audio-mix JSON bytes and compares the complete admitted version-two sound record; each invalid payload must throw an Error containing its parse or schema refusal fragment.
+ * @evidence contracts/testing.md#independent-expectations The complete authored record and literal refusal fragments form the oracle. Exact scalar equality checks JSON identity preservation, not approximate acoustic measurement or independent PCM analysis.
+ * @evidence contracts/testing.md#distinguishing-cases A complete current record contrasts with a truncated UTF-8 sequence, an obsolete incomplete version-one record and an empty object, distinguishing strict decoding from schema admission.
+ * @evidence contracts/testing.md#execution-ownership This synchronous named unit uses in-memory buffers and the production probe plus transformed schema validator; it does not encode audio, inspect sibling audio bytes or establish current plan/provenance truth.
  */
-export const test_production_sound_evidence_probe = (): void => {
+export function test_production_sound_evidence_probe(): void {
   const soundEvidenceValue: IAutoMovieProductionSoundEvidence = {
     version: 2,
     plan: {
@@ -49,7 +54,7 @@ export const test_production_sound_evidence_probe = (): void => {
       algorithm: "automovie-production-sound-analysis-v1",
     },
   };
-  const soundEvidence = Buffer.from(JSON.stringify(soundEvidenceValue));
+  const soundEvidence: Uint8Array = Buffer.from(JSON.stringify(soundEvidenceValue));
   TestValidator.equals(
     "sound evidence preserves the complete current version-2 identity",
     probeProductionMedia({
@@ -64,9 +69,9 @@ export const test_production_sound_evidence_probe = (): void => {
     namedFacts([
       [
         "refusedProbeProductionMediaKind",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): ReturnType<typeof probeProductionMedia> =>
               probeProductionMedia({
                 kind: "audio-mix",
                 mediaType: "application/json",
@@ -77,9 +82,9 @@ export const test_production_sound_evidence_probe = (): void => {
       ],
       [
         "refusedProbeProductionMediaKind2",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): ReturnType<typeof probeProductionMedia> =>
               probeProductionMedia({
                 kind: "audio-mix",
                 mediaType: "application/json",
@@ -97,9 +102,9 @@ export const test_production_sound_evidence_probe = (): void => {
       ],
       [
         "refusedProbeProductionMediaKind3",
-        () =>
+        (): boolean =>
           refused(
-            () =>
+            (): ReturnType<typeof probeProductionMedia> =>
               probeProductionMedia({
                 kind: "audio-mix",
                 mediaType: "application/json",
@@ -116,4 +121,4 @@ export const test_production_sound_evidence_probe = (): void => {
     },
   );
 
-};
+}

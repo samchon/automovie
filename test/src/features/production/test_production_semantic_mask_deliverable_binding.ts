@@ -34,15 +34,20 @@ import { createSemanticMaskEvidenceTestInputs } from "../internal/createSemantic
  * 1. Native PNG and WebVTT probes retain plain-media and foreign-owner behavior alongside the actual sidecar probe.
  * 2. Every original missing, foreign frame/shot/deliverable/pass/path, stale byte and incomplete-coverage cause keeps its exact message.
  * 3. Current receipt ownership and the assert form preserve supported media and current sidecar behavior while refusing an unreceipted sidecar.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs native media probes, receipt creation and the real delivered-file classifier/assertion; compares each refusal reason, admitted receipt and scheduled ownership result.
+ * @evidence contracts/testing.md#independent-expectations Expected cause strings and booleans are literal assertions; fixture sidecar bytes and receipt are produced by the canonical APIs, so this checks their integration rather than independently proving their encoding or digest.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps plain media and current-mask positives beside missing receipt, wrong owner/media/path/frame/shot/deliverable/pass, padded bytes and incomplete coverage; PNG and captions retain their separate ordinary-media behavior.
+ * @evidence contracts/testing.md#execution-ownership The exported test executes its synchronous in-memory cases without files, renderer or subprocess. The partial plan supplies the fields consumed by ownership; it does not prove full render-plan admission or actual pixel coverage.
  */
-export const test_production_semantic_mask_deliverable_binding = (): void => {
-  const { validEvidence, withCoverage, createReceipt, bytes, digest } = createSemanticMaskEvidenceTestInputs();
+export function test_production_semantic_mask_deliverable_binding(): void {
+  const { validEvidence, withCoverage, createReceipt, bytes, digest }: ReturnType<typeof createSemanticMaskEvidenceTestInputs> = createSemanticMaskEvidenceTestInputs();
 
-  const evidence = validEvidence();
+  const evidence: ReturnType<typeof validEvidence> = validEvidence();
 
-  const sidecarBytes = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
+  const sidecarBytes: Uint8Array = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
 
-  const chunk = {
+  const chunk: IAutoMovieProductionRenderChunk = {
       slot: "mask/00000000-00000001",
       id: digest("a"),
       deliverable: "semantic-guide",
@@ -60,49 +65,49 @@ export const test_production_semantic_mask_deliverable_binding = (): void => {
       ],
     } satisfies IAutoMovieProductionRenderChunk;
 
-  const plan = {
+  const plan: IAutoMovieProductionRenderJobPlan = {
       frameFormat: { width: 16, height: 16, fps: 24 },
       chunks: [chunk],
     } as unknown as IAutoMovieProductionRenderJobPlan;
 
-  const sidecarPath =
+  const sidecarPath: string =
       "deliverables/final/0f/semantic-guide/frames/mask/frame_00000000.semantic.json";
 
-  const delivered = createReceipt({
+  const delivered: ReturnType<typeof createReceipt> = createReceipt({
       evidence,
       sidecarBytes,
       path: sidecarPath,
     });
 
-  const sidecarProbe = probeProductionMedia({
+  const sidecarProbe: ReturnType<typeof probeProductionMedia> = probeProductionMedia({
       kind: "guide-pass",
       mediaType: AUTOMOVIE_SEMANTIC_MASK_MEDIA_TYPE,
       bytes: sidecarBytes,
     });
 
-  const png = productionPng(16, 16);
+  const png: Uint8Array = productionPng(16, 16);
 
-  const pngProbe = probeProductionMedia({
+  const pngProbe: ReturnType<typeof probeProductionMedia> = probeProductionMedia({
       kind: "guide-pass",
       mediaType: "image/png",
       bytes: png,
     });
 
-  const vtt = productionWebVtt();
+  const vtt: Uint8Array = productionWebVtt();
 
-  const vttProbe = probeProductionMedia({
+  const vttProbe: ReturnType<typeof probeProductionMedia> = probeProductionMedia({
       kind: "captions",
       mediaType: "text/vtt",
       bytes: vtt,
     });
 
-  const guide = { id: "semantic-guide", kind: "guide-pass" } as const;
+  const guide: { id: string; kind: "guide-pass" } = { id: "semantic-guide", kind: "guide-pass" };
 
-  const classify = (
+  const classify: (overrides: Partial<Parameters<typeof classifyAutoMovieProductionDeliverableSemanticMask>[0]>) => ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask> = (
       overrides: Partial<
         Parameters<typeof classifyAutoMovieProductionDeliverableSemanticMask>[0]
       >,
-    ) =>
+    ): ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask> =>
       classifyAutoMovieProductionDeliverableSemanticMask({
         deliverable: guide,
         file: { path: sidecarPath, semanticMask: delivered },
@@ -112,22 +117,22 @@ export const test_production_semantic_mask_deliverable_binding = (): void => {
         ...overrides,
       });
 
-  const reasonOf = (
+  const reasonOf: (finding: ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask>) => string = (
       finding: ReturnType<
         typeof classifyAutoMovieProductionDeliverableSemanticMask
       >,
     ): string => ("reason" in finding ? finding.reason : finding.status);
 
-  const paddedBytes = bytes(
+  const paddedBytes: Uint8Array = bytes(
       `${renderAutoMovieSemanticMaskSidecar(evidence.mask)}\n`,
     );
 
-  const beautyPlan = {
+  const beautyPlan: IAutoMovieProductionRenderJobPlan = {
       ...plan,
       chunks: [{ ...chunk, kind: "feature", pass: "beauty" }],
     } as unknown as IAutoMovieProductionRenderJobPlan;
 
-  const deliverableFindings = {
+  const deliverableFindings: Record<string, ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask>> & { current: ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask> } = {
       media: classify({
         file: {
           path: "deliverables/final/0f/semantic-guide/frames/mask/frame_00000000.png",
@@ -203,7 +208,7 @@ export const test_production_semantic_mask_deliverable_binding = (): void => {
       "a delivered ledger file is classified from its receipt, bytes, and plan",
       {
         findings: Object.fromEntries(
-          Object.entries(deliverableFindings).map(([name, finding]) => [
+          Object.entries(deliverableFindings).map(([name, finding]: [string, ReturnType<typeof classifyAutoMovieProductionDeliverableSemanticMask>]): [string, string] => [
             name,
             reasonOf(finding),
           ]),
@@ -235,7 +240,7 @@ export const test_production_semantic_mask_deliverable_binding = (): void => {
             plan,
           }),
           unreceipted: throwsError(
-            () =>
+            (): void =>
               assertAutoMovieProductionDeliverableSemanticMask({
                 deliverable: guide,
                 file: { path: sidecarPath },
@@ -269,4 +274,4 @@ export const test_production_semantic_mask_deliverable_binding = (): void => {
         asserted: { media: undefined, current: undefined, unreceipted: true },
       },
     );
-};
+}

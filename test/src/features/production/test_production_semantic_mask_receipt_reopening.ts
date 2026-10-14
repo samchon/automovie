@@ -22,22 +22,27 @@ import { createSemanticMaskEvidenceTestInputs } from "../internal/createSemantic
  * Scenarios:
  * 1. Every original historical, extra-key, escaping, foreign frame/pass/shot/path and tampered byte dependency refuses.
  * 2. Changed semantic digest, unnamed count, unresolved population or foreign palette retains its original stale dependency refusal.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the real receipt verifier for every mutation and asserts an Error containing that dependency's expected refusal fragment, rather than inspecting receipt fields alone.
+ * @evidence contracts/testing.md#independent-expectations The eighteen refusal fragments are literal expectations; canonical receipt and palette builders only prepare the shared valid baseline and changed resident bytes.
+ * @evidence contracts/testing.md#distinguishing-cases Separates exact-key and version errors, unsafe path, frame/pass/shot/path ownership, canonical bytes, byte digest/count, semantic digest and ordered coverage population/content; a different valid palette must also refuse.
+ * @evidence contracts/testing.md#execution-ownership The exported synchronous test invokes every local case through the common Error predicate with resident buffers in memory. It neither reads sidecar files nor demonstrates a successful reopen in this negative-case test.
  */
-export const test_production_semantic_mask_receipt_reopening = (): void => {
-  const { validEvidence, withCoverage, seal, payload, renameKey, bytes } = createSemanticMaskEvidenceTestInputs();
+export function test_production_semantic_mask_receipt_reopening(): void {
+  const { validEvidence, withCoverage, seal, payload, renameKey, bytes }: ReturnType<typeof createSemanticMaskEvidenceTestInputs> = createSemanticMaskEvidenceTestInputs();
 
-  const evidence = validEvidence();
+  const evidence: IAutoMovieProductionSemanticMaskEvidence = validEvidence();
 
-  const sidecarBytes = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
+  const sidecarBytes: Uint8Array = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
 
-  const receipt = createAutoMovieProductionSemanticMaskReceipt({
+  const receipt: IAutoMovieProductionSemanticMaskReceipt = createAutoMovieProductionSemanticMaskReceipt({
       frame: 0,
       expectedShot: "opening",
       evidence,
       sidecar: { path: "semantic/opening.mask.json", bytes: sidecarBytes },
     });
 
-  const changedMask = seal({
+  const changedMask: ReturnType<typeof seal> = seal({
       ...payload(evidence.mask),
       entries: [
         { ...evidence.mask.entries[0]!, owner: "space:elsewhere" },
@@ -48,17 +53,17 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
   const reopenCases: Array<readonly [string, () => void, string]> = [
       [
         "extra receipt key",
-        () => reopen({ receipt: { ...receipt, extra: true } as never }),
+        (): void => reopen({ receipt: { ...receipt, extra: true } as never }),
         "receipt keys",
       ],
       [
         "renamed receipt key",
-        () => reopen({ receipt: renameKey(receipt, "shot", "take") }),
+        (): void => reopen({ receipt: renameKey(receipt, "shot", "take") }),
         "receipt keys",
       ],
       [
         "extra sidecar key",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -69,7 +74,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "extra receipt coverage key",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -80,12 +85,12 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "historical receipt",
-        () => reopen({ receipt: { ...receipt, version: 2 } as never }),
+        (): void => reopen({ receipt: { ...receipt, version: 2 } as never }),
         "receipt version 2",
       ],
       [
         "escaping receipt path",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -96,32 +101,32 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "foreign frame",
-        () => reopen({ receipt: { ...receipt, frame: 1 } }),
+        (): void => reopen({ receipt: { ...receipt, frame: 1 } }),
         "stale semantic receipt frame",
       ],
       [
         "foreign pass",
-        () => reopen({ receipt: { ...receipt, pass: "beauty" } as never }),
+        (): void => reopen({ receipt: { ...receipt, pass: "beauty" } as never }),
         "stale semantic receipt frame",
       ],
       [
         "foreign shot",
-        () => reopen({ receipt: { ...receipt, shot: "closing" } }),
+        (): void => reopen({ receipt: { ...receipt, shot: "closing" } }),
         "foreign semantic receipt",
       ],
       [
         "foreign resident path",
-        () => reopen({ residentPath: "semantic/other.mask.json" }),
+        (): void => reopen({ residentPath: "semantic/other.mask.json" }),
         "foreign semantic sidecar path",
       ],
       [
         "tampered resident bytes",
-        () => reopen({ residentBytes: bytes("{}\n") }),
+        (): void => reopen({ residentBytes: bytes("{}\n") }),
         "do not match its canonical palette",
       ],
       [
         "stale byte digest",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -135,7 +140,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "stale byte count",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -146,7 +151,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "stale semantic digest",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -157,7 +162,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "stale unnamed count",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -168,7 +173,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "stale unresolved length",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -179,7 +184,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "stale unresolved id",
-        () =>
+        (): void =>
           reopen({
             receipt: {
               ...receipt,
@@ -194,7 +199,7 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
       ],
       [
         "foreign evidence palette",
-        () => reopen({ evidence: { ...evidence, mask: changedMask } }),
+        (): void => reopen({ evidence: { ...evidence, mask: changedMask } }),
         "do not match its canonical palette",
       ],
     ];
@@ -202,12 +207,12 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
   TestValidator.equals(
       "receipt reopening refuses every stale or foreign dependency",
       Object.fromEntries(
-        reopenCases.map(([name, attempt, message]) => [
+        reopenCases.map(([name, attempt, message]: readonly [string, () => void, string]): [string, boolean] => [
           name,
           throwsError(attempt, message),
         ]),
       ),
-      Object.fromEntries(reopenCases.map(([name]) => [name, true])),
+      Object.fromEntries(reopenCases.map(([name]: readonly [string, () => void, string]): [string, boolean] => [name, true])),
     );
 
   function reopen(overrides: {
@@ -227,4 +232,4 @@ export const test_production_semantic_mask_receipt_reopening = (): void => {
         },
       });
     }
-};
+}

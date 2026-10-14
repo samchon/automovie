@@ -14,14 +14,19 @@ import { createSemanticMaskEvidenceTestInputs } from "../internal/createSemantic
 /**
  * Semantic evidence refuses malformed record keys and ordered coverage at their actual structural boundary.
  *
+ * @evidence contracts/testing.md#behavioral-verification Calls real evidence verification on extra/renamed keys, historical version, blank shot and malformed coverage; each requested Error fragment exposes a missing structural, ordering or count gate.
+ * @evidence contracts/testing.md#independent-expectations The four-key envelope, two-key coverage, nonblank sorted unique ids and nonnegative safe mesh count define authored refusal inputs; fragment matching checks the named boundary, while the palette's valid digest is constructed by its canonical owner.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all eleven malformed cases, including equal key-count renaming, blank/reversed/repeated ids and negative/fractional/unsafe counts; positive admission, stale receipts and sparse-array behavior are not proved here.
+ * @evidence contracts/testing.md#execution-ownership This named discoverable portable unit owns its local malformed table and directly calls the production verifier, without file/capture/native host or dynamic registration.
+ *
  * Scenarios:
  * 1. Extra or renamed keys, historical envelope and blank shot retain the original refusal diagnostics.
  * 2. Blank, unsorted or duplicate unresolved IDs and negative, fractional or unsafe mesh counts are refused.
  */
-export const test_production_semantic_mask_evidence_admission = (): void => {
-  const { validEvidence, withCoverage, renameKey } = createSemanticMaskEvidenceTestInputs();
+export function test_production_semantic_mask_evidence_admission(): void {
+  const { validEvidence, withCoverage, renameKey }: ReturnType<typeof createSemanticMaskEvidenceTestInputs> = createSemanticMaskEvidenceTestInputs();
 
-  const evidence = validEvidence();
+  const evidence: IAutoMovieProductionSemanticMaskEvidence = validEvidence();
 
   const malformedEvidence: Array<
       readonly [string, IAutoMovieProductionSemanticMaskEvidence, string]
@@ -91,7 +96,7 @@ export const test_production_semantic_mask_evidence_admission = (): void => {
   TestValidator.equals(
       "malformed evidence is refused at its exact structural boundary",
       Object.fromEntries(
-        malformedEvidence.map(([name, value, message]) => [
+        malformedEvidence.map(([name, value, message]: readonly [string, IAutoMovieProductionSemanticMaskEvidence, string]): [string, boolean] => [
           name,
           throwsError(
             () =>
@@ -103,6 +108,6 @@ export const test_production_semantic_mask_evidence_admission = (): void => {
           ),
         ]),
       ),
-      Object.fromEntries(malformedEvidence.map(([name]) => [name, true])),
+      Object.fromEntries(malformedEvidence.map(([name]: readonly [string, IAutoMovieProductionSemanticMaskEvidence, string]): [string, boolean] => [name, true])),
     );
-};
+}

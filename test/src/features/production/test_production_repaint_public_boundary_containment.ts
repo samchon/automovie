@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieRepaintExecutionPolicy,
   IAutoMovieRepaintReceipt,
 } from "@automovie/interface";
@@ -13,12 +12,12 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const digest = (value: string): AutoMovieContentDigest =>
+const digest: (value: string) => string = (value: string): string =>
   `sha256:${Buffer.from(value).toString("hex").padEnd(64, "0").slice(0, 64)}`;
 
-const nonError = (message: string): Error => message as unknown as Error;
+const nonError: (message: string) => string = (message: string): string => message;
 
-const selection = {
+const selection: Parameters<AutoMovieProductionRepaintService["select"]>[1] = {
   productionId: "boundary-production",
   shot: "opening",
   attemptId: "20000000-0000-4000-8000-000000000001",
@@ -28,12 +27,12 @@ const selection = {
   continuityReview: null,
 };
 
-const contextWith = (
+const contextWith: (forProduction: (productionId: string) => IAutoMovieProductionServices) => AutoMovieProductionContext = (
   forProduction: (productionId: string) => IAutoMovieProductionServices,
 ): AutoMovieProductionContext =>
   ({ forProduction }) as unknown as AutoMovieProductionContext;
 
-const diagnosticCode = (
+const diagnosticCode: (result: ReturnType<AutoMovieProductionRepaintService["select"]>) => string | undefined = (
   result: ReturnType<AutoMovieProductionRepaintService["select"]>,
 ): string | undefined => result.diagnostics[0]?.code;
 
@@ -48,23 +47,27 @@ const diagnosticCode = (
  *    repaint diagnostics, while a valid selection preserves its receipt.
  * 3. A throwing attempt observer stops successful, failed, and over-budget
  *    provider outcomes with exactly one immutable terminal attempt.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual public selection validation/containment and the real async request executor; compares exact diagnostic codes, safe identity projection, lookup count, forwarded receipt identity and terminal observer-failure records.
+ * @evidence contracts/testing.md#independent-expectations Literal code/identity/count/status records define the oracle, and receipt reference equality checks forwarding only. Existing structural context/service substitutes and a request-id-only receipt do not independently establish full context or receipt admission.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves null/extra-field/hostile/unclonable selections before lookup, Error and non-Error lookup failures, selection success versus commit/clock failure, and successful/refused/over-budget provider outcomes whose observer throws.
+ * @evidence contracts/testing.md#execution-ownership The named asynchronous test executes synchronous selection cases and awaits three actual executor runs with injected provider/clock/observer capabilities. No real production registration, durable selection or receipt schema validation occurs; structural context/receipt arrangements remain pending their declared port contract repair.
  */
-export const test_production_repaint_public_boundary_containment =
-  async (): Promise<void> => {
-    const service = new AutoMovieProductionRepaintService();
-    let lookups = 0;
-    const forbiddenContext = contextWith(() => {
+export async function test_production_repaint_public_boundary_containment(): Promise<void> {
+    const service: AutoMovieProductionRepaintService = new AutoMovieProductionRepaintService();
+    let lookups: number = 0;
+    const forbiddenContext: AutoMovieProductionContext = contextWith((): never => {
       ++lookups;
       throw new Error("selection validation performed a project lookup");
     });
-    const hostileInput = new Proxy(selection, {
-      get: (_target, key, receiver) => {
+    const hostileInput: typeof selection = new Proxy(selection, {
+      get: (_target: typeof selection, key: string | symbol, receiver: unknown): unknown => {
         if (key === "productionId") throw new Error("hostile production id");
         return Reflect.get(selection, key, receiver);
       },
     });
-    const unclonableInput = new Proxy(selection, {});
-    const invalidResults = [
+    const unclonableInput: typeof selection = new Proxy(selection, {});
+    const invalidResults: Array<ReturnType<AutoMovieProductionRepaintService["select"]>> = [
       service.select(forbiddenContext, null as never),
       service.select(forbiddenContext, { ...selection, hidden: true } as never),
       service.select(forbiddenContext, hostileInput),
@@ -74,14 +77,14 @@ export const test_production_repaint_public_boundary_containment =
       "invalid and hostile selection inputs fail before project lookup",
       {
         codes: invalidResults.map(diagnosticCode),
-        identities: invalidResults.map((result) => ({
+        identities: invalidResults.map((result: ReturnType<AutoMovieProductionRepaintService["select"]>): { productionId: string; shot: string } => ({
           productionId: result.productionId,
           shot: result.shot,
         })),
         lookups,
       },
       {
-        codes: Array.from({ length: 4 }, () => "repaint-input-invalid"),
+        codes: Array.from({ length: 4 }, (): string => "repaint-input-invalid"),
         identities: [
           { productionId: "", shot: "" },
           { productionId: "boundary-production", shot: "opening" },
@@ -92,15 +95,15 @@ export const test_production_repaint_public_boundary_containment =
       },
     );
 
-    const unregistered = [
+    const unregistered: Array<ReturnType<AutoMovieProductionRepaintService["select"]>> = [
       service.select(
-        contextWith(() => {
+        contextWith((): never => {
           throw new Error("production is not registered");
         }),
         selection,
       ),
       service.select(
-        contextWith(() => {
+        contextWith((): never => {
           throw nonError("non-error production lookup");
         }),
         selection,
@@ -108,39 +111,39 @@ export const test_production_repaint_public_boundary_containment =
     ];
     TestValidator.equals(
       "unregistered production lookups remain structured diagnostics",
-      unregistered.map((result) => ({
+      unregistered.map((result: ReturnType<AutoMovieProductionRepaintService["select"]>): { code: string | undefined; productionId: string; shot: string } => ({
         code: diagnosticCode(result),
         productionId: result.productionId,
         shot: result.shot,
       })),
-      Array.from({ length: 2 }, () => ({
+      Array.from({ length: 2 }, (): { code: string; productionId: string; shot: string } => ({
         code: "repaint-production-unregistered",
         productionId: selection.productionId,
         shot: selection.shot,
       })),
     );
 
-    const receipt = {
+    const receipt: IAutoMovieRepaintReceipt = {
       requestId: "10000000-0000-4000-8000-000000000001",
     } as unknown as IAutoMovieRepaintReceipt;
-    const selected = service.select(
+    const selected: ReturnType<AutoMovieProductionRepaintService["select"]> = service.select(
       contextWith(
-        () =>
+        (): IAutoMovieProductionServices =>
           ({
             project: {
-              selectRepaintCandidate: () => receipt,
+              selectRepaintCandidate: (): IAutoMovieRepaintReceipt => receipt,
             },
           }) as unknown as IAutoMovieProductionServices,
       ),
       selection,
     );
-    const commitFailures = [
+    const commitFailures: Array<ReturnType<AutoMovieProductionRepaintService["select"]>> = [
       service.select(
         contextWith(
-          () =>
+          (): IAutoMovieProductionServices =>
             ({
               project: {
-                selectRepaintCandidate: () => {
+                selectRepaintCandidate: (): never => {
                   throw new Error("selection commit refused");
                 },
               },
@@ -158,15 +161,15 @@ export const test_production_repaint_public_boundary_containment =
           screenplayOrBrief: "screenplays/final.md#opening",
           shot: "shots/opening.ts#shot",
         },
-        now: () => {
+        now: (): never => {
           throw new Error("selection clock unavailable");
         },
       }).select(
         contextWith(
-          () =>
+          (): IAutoMovieProductionServices =>
             ({
               project: {
-                selectRepaintCandidate: () => receipt,
+                selectRepaintCandidate: (): IAutoMovieRepaintReceipt => receipt,
               },
             }) as unknown as IAutoMovieProductionServices,
         ),
@@ -193,7 +196,7 @@ export const test_production_repaint_public_boundary_containment =
       },
     );
 
-    const adapterIdentity = canonicalAutoMovieRepaintRuntimeIdentity({
+    const adapterIdentity: string = canonicalAutoMovieRepaintRuntimeIdentity({
       protocolVersion: "automovie.repaint-runtime.v1",
       provider: "boundary-provider",
       model: "boundary-model",
@@ -206,11 +209,11 @@ export const test_production_repaint_public_boundary_containment =
         value: string;
         costUnits: number;
         availableOutput: {
-          digest: AutoMovieContentDigest;
+          digest: string;
           bytes: number;
         } | null;
       }>;
-    }) =>
+    }): ReturnType<typeof executeAutoMovieRepaintRequest<string>> =>
       executeAutoMovieRepaintRequest({
         productionId: selection.productionId,
         shot: selection.shot,
@@ -222,19 +225,19 @@ export const test_production_repaint_public_boundary_containment =
         seed: 17,
         policy: executionPolicy({ maximumCostUnits: props.maximumCostUnits }),
         runtime: {
-          now: () => new Date("2026-08-28T10:00:00.000Z"),
-          attemptId: () => "20000000-0000-4000-8000-000000000001",
-          wait: async () => undefined,
+          now: (): Date => new Date("2026-08-28T10:00:00.000Z"),
+          attemptId: (): string => "20000000-0000-4000-8000-000000000001",
+          wait: async (): Promise<void> => undefined,
         },
         execute: props.outcome,
-        onAttempt: () => {
+        onAttempt: (): never => {
           throw new Error("attempt observer unavailable");
         },
       });
-    const observed = await Promise.all([
+    const observed: Array<Awaited<ReturnType<typeof execute>>> = await Promise.all([
       execute({
         maximumCostUnits: 5,
-        outcome: async () => ({
+        outcome: async (): Promise<{ value: string; costUnits: number; availableOutput: { digest: string; bytes: number } }> => ({
           value: "accepted",
           costUnits: 1,
           availableOutput: { digest: digest("accepted"), bytes: 8 },
@@ -242,7 +245,7 @@ export const test_production_repaint_public_boundary_containment =
       }),
       execute({
         maximumCostUnits: 5,
-        outcome: async () => {
+        outcome: async (): Promise<never> => {
           throw new AutoMovieRepaintAttemptError(
             "provider-refusal",
             "provider declined the request",
@@ -252,7 +255,7 @@ export const test_production_repaint_public_boundary_containment =
       }),
       execute({
         maximumCostUnits: 0.5,
-        outcome: async () => ({
+        outcome: async (): Promise<{ value: string; costUnits: number; availableOutput: { digest: string; bytes: number } }> => ({
           value: "over-budget",
           costUnits: 1,
           availableOutput: { digest: digest("over-budget"), bytes: 9 },
@@ -261,7 +264,7 @@ export const test_production_repaint_public_boundary_containment =
     ]);
     TestValidator.equals(
       "throwing observers preserve one terminal record and never accept",
-      observed.map((result) => ({
+      observed.map((result: Awaited<ReturnType<typeof execute>>): { stop: typeof result.stop; accepted: typeof result.accepted; attempts: number; status: typeof result.attempts[number]["status"] | undefined; failure: string | null; costUnits: number | undefined } => ({
         stop: result.stop,
         accepted: result.accepted,
         attempts: result.attempts.length,
@@ -296,9 +299,9 @@ export const test_production_repaint_public_boundary_containment =
         },
       ],
     );
-  };
+  }
 
-const executionPolicy = (
+const executionPolicy: (override?: Partial<IAutoMovieRepaintExecutionPolicy>) => IAutoMovieRepaintExecutionPolicy = (
   override: Partial<IAutoMovieRepaintExecutionPolicy> = {},
 ): IAutoMovieRepaintExecutionPolicy => ({
   maximumAttempts: 1,

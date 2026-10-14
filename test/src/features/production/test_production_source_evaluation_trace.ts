@@ -24,9 +24,9 @@ const { evaluateAutoMovieProductionSource } = loadSourceModule<{
   }): ISourceStatusEvaluation;
 }>(productionModule("evaluateAutoMovieProductionSource.ts"));
 
-const ROOT = path.join(path.parse(process.cwd()).root, "workspace", "harbor");
+const ROOT: string = path.join(path.parse(process.cwd()).root, "workspace", "harbor");
 
-const outputOf = (): IAutoMovieBuildProjectOutput => ({
+const outputOf: () => IAutoMovieBuildProjectOutput = (): IAutoMovieBuildProjectOutput => ({
   success: true,
   revision: 11,
   builder: { version: "unit", inputFingerprint: textDigest("harbor input") },
@@ -82,21 +82,26 @@ const MODULE_CACHE: Readonly<Record<string, unknown>> = {
  *    answer that did not read the revision stays unbound.
  * 4. A gate exception propagates as the same error before the inventory is
  *    read.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual private source evaluator with an explicit builder result and loader cache, comparing ordered document digests, output identity, revision dependence and sorted undeclared module names; a thrown gate must propagate identically before any inventory read.
+ * @evidence contracts/testing.md#independent-expectations Expected module paths, null absence and booleans are literal; expected text digests use Node crypto through the shared fixture helper independently of the production digest wrapper.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves repeated changed documents and an absent document, declared source/render modules versus undeclared helper/config, installed/external modules, failed inventory and a gate exception, with bound and unbound revision answers.
+ * @evidence contracts/testing.md#execution-ownership The synchronous named test loads the maintained evaluator through the existing require hook and supplies resident builder/project capabilities and cache keys. It does not execute those modules or prove a live loader's closure, native builder behavior or later retention safety.
  */
-export const test_production_source_evaluation_trace = (): void => {
-  const OUTPUT = outputOf();
-  let inventoryReads = 0;
-  const projectOf = (
+export function test_production_source_evaluation_trace(): void {
+  const OUTPUT: IAutoMovieBuildProjectOutput = outputOf();
+  let inventoryReads: number = 0;
+  const projectOf: (contentInputs: () => IAutoMovieProductionContentInput[]) => { root: string; contentInputs: () => IAutoMovieProductionContentInput[] } = (
     contentInputs: () => IAutoMovieProductionContentInput[],
-  ) => ({
+  ): { root: string; contentInputs: () => IAutoMovieProductionContentInput[] } => ({
     root: ROOT,
-    contentInputs: () => {
+    contentInputs: (): IAutoMovieProductionContentInput[] => {
       inventoryReads += 1;
       return contentInputs();
     },
   });
-  const builderOf = (revisionBound: boolean) => ({
-    lintSource: () => ({
+  const builderOf: (revisionBound: boolean) => Parameters<typeof evaluateAutoMovieProductionSource>[0]["builder"] = (revisionBound: boolean): Parameters<typeof evaluateAutoMovieProductionSource>[0]["builder"] => ({
+    lintSource: (): ReturnType<Parameters<typeof evaluateAutoMovieProductionSource>[0]["builder"]["lintSource"]> => ({
       output: OUTPUT,
       documents: [
         { path: "docs/screenplays/001-harbor.md", content: "INT. HARBOR" },
@@ -106,8 +111,8 @@ export const test_production_source_evaluation_trace = (): void => {
       revisionBound,
     }),
   });
-  const evaluation = evaluateAutoMovieProductionSource({
-    project: projectOf(() => CONTENT),
+  const evaluation: ISourceStatusEvaluation = evaluateAutoMovieProductionSource({
+    project: projectOf((): IAutoMovieProductionContentInput[] => CONTENT),
     builder: builderOf(true),
     moduleCache: MODULE_CACHE,
   });
@@ -140,8 +145,8 @@ export const test_production_source_evaluation_trace = (): void => {
     ["lint.config.ts", "src/helpers/zeta.ts"],
   );
 
-  const unreadable = evaluateAutoMovieProductionSource({
-    project: projectOf(() => {
+  const unreadable: ISourceStatusEvaluation = evaluateAutoMovieProductionSource({
+    project: projectOf((): IAutoMovieProductionContentInput[] => {
       throw new Error("Declared content root escapes the project.");
     }),
     builder: builderOf(false),
@@ -164,14 +169,14 @@ export const test_production_source_evaluation_trace = (): void => {
     },
   );
 
-  const crash = new Error("shot module threw during evaluation");
-  const readsBefore = inventoryReads;
+  const crash: Error = new Error("shot module threw during evaluation");
+  const readsBefore: number = inventoryReads;
   let thrown: unknown;
   try {
     evaluateAutoMovieProductionSource({
-      project: projectOf(() => CONTENT),
+      project: projectOf((): IAutoMovieProductionContentInput[] => CONTENT),
       builder: {
-        lintSource: () => {
+        lintSource: (): never => {
           throw crash;
         },
       },
@@ -188,4 +193,4 @@ export const test_production_source_evaluation_trace = (): void => {
     },
     { sameError: true, inventoryReads: 0 },
   );
-};
+}

@@ -5,10 +5,15 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const digest = (character: string) => `sha256:${character.repeat(64)}` as const;
+const digest: (character: string) => `sha256:${string}` = (character: string): `sha256:${string}` => `sha256:${character.repeat(64)}` as const;
 
 /**
  * Sequence review is bound to the exact current active visual set.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs actual sequence-observation diagnostics against matching, replaced-selection, changed compile/baseline/artifact, failed and malformed records; explicit diagnostic arrays expose conflated schema, stale-basis, stale-member/artifact and incomplete causes.
+ * @evidence contracts/testing.md#independent-expectations Authored identity differences and completed/pass vocabulary determine expected codes; the canonical digest helper constructs internally consistent member metadata, so equality is a wiring witness rather than an independent SHA-256 vector or observed visual quality.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves mixed two-shot and singleton sets, selection/basis/artifact drift, invalid versions/digests/empty members/blank occurrence/repeated baseline delta/blank current basis and supported not-run/unsupported/fail values; playback, resident bytes and actual flicker/identity/geometry judgments are not performed.
+ * @evidence contracts/testing.md#execution-ownership This named discoverable portable unit owns all local metadata variants and directly calls production diagnostics/digest helpers without a browser, provider, filesystem artifact or dynamic registration.
  *
  * Scenarios:
  *
@@ -21,8 +26,8 @@ const digest = (character: string) => `sha256:${character.repeat(64)}` as const;
  *    non-passing status or verdict vocabulary member is admitted as incomplete
  *    rather than refused.
  */
-export const test_production_repaint_sequence_observation = (): void => {
-  const members = [
+export function test_production_repaint_sequence_observation(): void {
+  const members: [Extract<IAutoMovieRepaintSequenceObservation["members"][number], { lane: "deterministic" }>, Extract<IAutoMovieRepaintSequenceObservation["members"][number], { lane: "repainted" }>] = [
     {
       occurrence: "occurrence-1",
       shot: "a",
@@ -41,7 +46,7 @@ export const test_production_repaint_sequence_observation = (): void => {
       selectionDigest: digest("4"),
     },
   ];
-  const baseline = {
+  const baseline: IAutoMovieRepaintSequenceObservation["baseline"] = {
     address: "docs/continuity.md#baseline",
     version: "v1",
     scope: ["film"],
@@ -66,7 +71,7 @@ export const test_production_repaint_sequence_observation = (): void => {
       transitionMismatch: "pass",
     },
   };
-  const diagnose = (
+  const diagnose: (current?: Partial<{ observation: IAutoMovieRepaintSequenceObservation; compileFingerprint: typeof observation.compileFingerprint; baseline: typeof baseline; members: typeof members; artifactDigest: typeof observation.artifact.digest }>) => ReturnType<typeof autoMovieRepaintSequenceObservationDiagnostics> = (
     current: Partial<{
       observation: IAutoMovieRepaintSequenceObservation;
       compileFingerprint: typeof observation.compileFingerprint;
@@ -74,7 +79,7 @@ export const test_production_repaint_sequence_observation = (): void => {
       members: typeof members;
       artifactDigest: typeof observation.artifact.digest;
     }> = {},
-  ) =>
+  ): ReturnType<typeof autoMovieRepaintSequenceObservationDiagnostics> =>
     autoMovieRepaintSequenceObservationDiagnostics({
       observation: current.observation ?? observation,
       productionId: "film",
@@ -85,10 +90,10 @@ export const test_production_repaint_sequence_observation = (): void => {
       members: current.members ?? members,
       artifactDigest: current.artifactDigest ?? observation.artifact.digest,
     });
-  const replaced = structuredClone(members);
+  const replaced: typeof members = structuredClone(members);
   replaced[1]!.selectionId = "selection-b2";
   replaced[1]!.selectionDigest = digest("8");
-  const failed = structuredClone(observation);
+  const failed: IAutoMovieRepaintSequenceObservation = structuredClone(observation);
   failed.status = "failed";
   failed.verdicts.transitionMismatch = "fail";
   TestValidator.equals(
@@ -129,7 +134,7 @@ export const test_production_repaint_sequence_observation = (): void => {
     },
   );
 
-  const withStatus = (
+  const withStatus: (status: IAutoMovieRepaintSequenceObservation["status"], verdict: IAutoMovieRepaintSequenceObservation["verdicts"]["flicker"]) => IAutoMovieRepaintSequenceObservation = (
     status: IAutoMovieRepaintSequenceObservation["status"],
     verdict: IAutoMovieRepaintSequenceObservation["verdicts"]["flicker"],
   ): IAutoMovieRepaintSequenceObservation => ({
@@ -137,9 +142,9 @@ export const test_production_repaint_sequence_observation = (): void => {
     status,
     verdicts: { ...observation.verdicts, flicker: verdict },
   });
-  const blankOccurrence = structuredClone(members);
+  const blankOccurrence: typeof members = structuredClone(members);
   blankOccurrence[0]!.occurrence = " ";
-  const digestThrows = (task: () => unknown): boolean => {
+  const digestThrows: (task: () => unknown) => boolean = (task: () => unknown): boolean => {
     try {
       task();
       return false;
@@ -200,4 +205,4 @@ export const test_production_repaint_sequence_observation = (): void => {
       emptyMemberDigestRefused: true,
     },
   );
-};
+}

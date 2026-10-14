@@ -13,18 +13,23 @@ import { createSemanticMaskEvidenceTestInputs } from "../internal/createSemantic
 /**
  * Receipt creation refuses nonportable location, invalid frame and foreign or noncanonical evidence.
  *
+ * @evidence contracts/testing.md#behavioral-verification Calls real receipt construction through the existing concise constructor for invalid frames, seven path escapes, wrong canonical bytes and a foreign shot; Error fragments expose incorrect range, portability or correspondence admission.
+ * @evidence contracts/testing.md#independent-expectations Frames must be nonnegative safe integers, paths portable relative segments, and supplied bytes/shot match the authored palette/opening identity. Expected message fragments are literal protocol rules; valid sidecar text comes from the engine owner rather than an independent renderer.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves negative/fractional/unsafe frames, blank/backslash/rooted/drive/empty/dot/parent paths, empty-object bytes and foreign-shot evidence; positive construction, exact reopening and physical symlink confinement belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This named discoverable portable unit owns every local refusal and invokes receipt semantics on in-memory bytes; path strings are not opened and no browser/GPU/native host or dynamic registrations run.
+ *
  * Scenarios:
  * 1. Negative, fractional and unsafe frames refuse before becoming receipt identities.
  * 2. All seven original path escapes, wrong resident bytes and foreign-shot evidence retain exact diagnostics.
  */
-export const test_production_semantic_mask_receipt_admission = (): void => {
-  const { validEvidence, createReceipt, bytes } = createSemanticMaskEvidenceTestInputs();
+export function test_production_semantic_mask_receipt_admission(): void {
+  const { validEvidence, createReceipt, bytes }: ReturnType<typeof createSemanticMaskEvidenceTestInputs> = createSemanticMaskEvidenceTestInputs();
 
-  const evidence = validEvidence();
+  const evidence: ReturnType<typeof validEvidence> = validEvidence();
 
-  const sidecarBytes = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
+  const sidecarBytes: Uint8Array = bytes(renderAutoMovieSemanticMaskSidecar(evidence.mask));
 
-  const invalidPaths = [
+  const invalidPaths: readonly (readonly [string, string])[] = [
       ["blank", ""],
       ["backslash", "semantic\\mask.json"],
       ["rooted", "/semantic/mask.json"],
@@ -55,7 +60,7 @@ export const test_production_semantic_mask_receipt_admission = (): void => {
           "non-negative safe integer",
         ),
         invalidPaths: Object.fromEntries(
-          invalidPaths.map(([name, path]) => [
+          invalidPaths.map(([name, path]: readonly [string, string]): [string, boolean] => [
             name,
             throwsError(
               () => createReceipt({ evidence, sidecarBytes, path }),
@@ -82,10 +87,10 @@ export const test_production_semantic_mask_receipt_admission = (): void => {
         fractionalFrame: true,
         unsafeFrame: true,
         invalidPaths: Object.fromEntries(
-          invalidPaths.map(([name]) => [name, true]),
+          invalidPaths.map(([name]: readonly [string, string]): [string, boolean] => [name, true]),
         ),
         wrongBytes: true,
         foreignEvidence: true,
       },
     );
-};
+}

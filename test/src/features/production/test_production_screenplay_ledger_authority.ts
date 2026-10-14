@@ -3,26 +3,12 @@ import type {
   IAutoMovieScreenplayIndex,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
 
-const { screenplayLedgerDiagnostics } = loadSourceModule<{
-  screenplayLedgerDiagnostics: (props: {
-    acceptance: ReadonlyMap<string, never>;
-    contracts: ReadonlyMap<string, never>;
-    screenplay: IAutoMovieScreenplayIndex | null;
-    designRecordPath: () => string;
-  }) => IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/screenplayLedgerDiagnostics.ts",
-  ),
-);
+import { screenplayLedgerDiagnostics } from "../../../../packages/production/src/production/screenplayLedgerDiagnostics";
 
-const index = (): IAutoMovieScreenplayIndex => ({
+function index(): IAutoMovieScreenplayIndex { return ({
   version: 2,
   production: "ledger",
   treatment: {
@@ -79,15 +65,14 @@ const index = (): IAutoMovieScreenplayIndex => ({
     ],
   },
   continuity: [],
-});
+}); }
 
-const run = (screenplay: IAutoMovieScreenplayIndex): IAutoMovieDiagnostic[] =>
-  screenplayLedgerDiagnostics({
+function run(screenplay: IAutoMovieScreenplayIndex): IAutoMovieDiagnostic[] { return screenplayLedgerDiagnostics({
     acceptance: new Map<string, never>(),
     contracts: new Map<string, never>(),
     screenplay,
-    designRecordPath: () => "design.json",
-  });
+    designRecordPath: (): string => "design.json",
+  }); }
 
 /**
  * Pin index facts introduced by the screenplay authority carrier.
@@ -96,53 +81,61 @@ const run = (screenplay: IAutoMovieScreenplayIndex): IAutoMovieDiagnostic[] =>
  * 1. An explicit story-time state, unique participant and exact beat pair pass.
  * 2. Blank story time and participant identity fail independently.
  * 3. Duplicate participant pairs and blank or mismatched beat identities fail.
+ * 4. Rephrased coverage text preserves the same stable beat identity.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual index ledger gate and asserts story-time, participant and stable beat-address admission; catches missing or repeated semantic identities while permitting differently worded coverage of the same beat id.
+ * @evidence contracts/testing.md#independent-expectations Scene-local participant identity/mode pairs must be unique and coverage ids must name a declared treatment beat; exact prose spelling is not the coverage identity.
+ * @evidence contracts/testing.md#distinguishing-cases Covers valid exact joins, blank time/participant/beat values, repeated participant pairs, missing beat id and changed coverage wording. General catalog, lock and downstream proof-owner checks belong to other screenplay tests.
+ * @evidence contracts/testing.md#execution-ownership This exported portable unit directly imports the ledger owner and supplies caller-owned index/maps with a declared path callback, starting no host/native artifact and dynamically registering no cases.
  */
-export const test_production_screenplay_ledger_authority = (): void => {
-  const blankTime = structuredClone(index());
+export function test_production_screenplay_ledger_authority(): void {
+  const blankTime: IAutoMovieScreenplayIndex = structuredClone(index());
   blankTime.screenplay.scenes[0]!.storyTime = " ";
-  const blankParticipant = structuredClone(index());
+  const blankParticipant: IAutoMovieScreenplayIndex = structuredClone(index());
   blankParticipant.screenplay.scenes[0]!.participants[0]!.id = "";
-  const duplicateParticipant = structuredClone(index());
+  const duplicateParticipant: IAutoMovieScreenplayIndex = structuredClone(index());
   duplicateParticipant.screenplay.scenes[0]!.participants.push({
     id: "CHAR-1",
     mode: "on-screen",
   });
-  const blankBeat = structuredClone(index());
+  const blankBeat: IAutoMovieScreenplayIndex = structuredClone(index());
   blankBeat.screenplay.scenes[0]!.covers[0]!.id = "";
-  const mismatchedBeat = structuredClone(index());
+  const mismatchedBeat: IAutoMovieScreenplayIndex = structuredClone(index());
   mismatchedBeat.screenplay.scenes[0]!.covers[0]!.id = "BEAT-MISSING";
-  const codes = (value: IAutoMovieScreenplayIndex): string[] =>
-    run(value).map((diagnostic) => diagnostic.code);
+  const rephrased: IAutoMovieScreenplayIndex = structuredClone(index());
+  rephrased.screenplay.scenes[0]!.covers[0]!.beat = "An independently worded signal arrival.";
+  TestValidator.equals("coverage joins stable identity rather than exact prose", run(rephrased), []);
+  function codes(value: IAutoMovieScreenplayIndex): string[] { return run(value).map((diagnostic: IAutoMovieDiagnostic): string => diagnostic.code); }
 
   TestValidator.equals(
     "screenplay index authority fields are exact",
     namedFacts([
-      ["exactJoinPasses", () => run(index()).length === 0],
+      ["exactJoinPasses", (): boolean => run(index()).length === 0],
       [
         "blankStoryTimeIsNamed",
-        () => codes(blankTime).includes("screenplay-scene-story-time-absent"),
+        (): boolean => codes(blankTime).includes("screenplay-scene-story-time-absent"),
       ],
       [
         "blankParticipantIsNamed",
-        () =>
+        (): boolean =>
           codes(blankParticipant).includes(
             "screenplay-scene-participant-invalid",
           ),
       ],
       [
         "duplicateParticipantIsNamed",
-        () =>
+        (): boolean =>
           codes(duplicateParticipant).includes(
             "screenplay-scene-participant-invalid",
           ),
       ],
       [
         "blankBeatIdentityIsNamed",
-        () => codes(blankBeat).includes("screenplay-cover-unpromised"),
+        (): boolean => codes(blankBeat).includes("screenplay-cover-unpromised"),
       ],
       [
         "mismatchedBeatIdentityIsNamed",
-        () => codes(mismatchedBeat).includes("screenplay-cover-unpromised"),
+        (): boolean => codes(mismatchedBeat).includes("screenplay-cover-unpromised"),
       ],
     ]),
     {
@@ -154,4 +147,4 @@ export const test_production_screenplay_ledger_authority = (): void => {
       mismatchedBeatIdentityIsNamed: true,
     },
   );
-};
+}
