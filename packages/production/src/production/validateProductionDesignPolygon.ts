@@ -1,0 +1,69 @@
+import { validateProductionDesignTurn } from "./validateProductionDesignTurn";
+import { validateProductionDesignSegmentsIntersect } from "./validateProductionDesignSegmentsIntersect";
+
+/**
+ * Reject nonfinite or repeated XZ vertices, negligible signed area, reverse collinear bends and nonadjacent segment intersections.
+ *
+ * @evidence contracts/common.md#principled-implementation The existing 1e-9 arithmetic policies remain unchanged and are not a scale-independent exact geometric predicate.
+ * @evidence contracts/common.md#clear-and-simple-design validateProductionDesignPolygon owns this operation at its existing validation position; the graph coordinator retains diagnostic ordering and final sorting.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Retained declaration limits, identity comparisons and numerical policies decide admission; no consumer fixture, expected result or foreign-method replacement changes the decision.
+ * @evidence contracts/common.md#meaningful-documentation The account gives this operation's premises, caller ownership and admission limits alongside its dominant work.
+ * @evidence contracts/performance.md#efficient-algorithms For P vertices, area and bend passes are O(P), distinct-coordinate keys use O(P) storage and nonadjacent edge pairs cost O(P squared).
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous call owns no cross-request cache or pending work; current graph records and registry contents determine each admission.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No handle or task is acquired. Call-local storage becomes unreachable on exit; diagnostics and returned values remain with the caller for its required lifetime and grow with addressed input and findings.
+ */
+export const validateProductionDesignPolygon: (polygon: ReadonlyArray<{ x: number; z: number; }>) => boolean = (
+  polygon: ReadonlyArray<{ x: number; z: number }>,
+): boolean => {
+  if (
+    polygon.length < 3 ||
+    polygon.some(
+      (point: { x: number; z: number; }): boolean =>
+        Number.isFinite(point.x) === false ||
+        Number.isFinite(point.z) === false,
+    ) ||
+    new Set(polygon.map((point: { x: number; z: number; }): string => `${point.x}\0${point.z}`)).size !==
+      polygon.length
+  )
+    return false;
+  let twiceArea: number = 0;
+  for (let index: number = 0; index < polygon.length; ++index) {
+    const current: { x: number; z: number; } = polygon[index]!;
+    const next: { x: number; z: number; } = polygon[(index + 1) % polygon.length]!;
+    twiceArea += current.x * next.z - next.x * current.z;
+  }
+  if (Number.isFinite(twiceArea) === false || Math.abs(twiceArea) <= 1e-9)
+    return false;
+  for (let index: number = 0; index < polygon.length; ++index) {
+    const previous: { x: number; z: number; } = polygon[(index + polygon.length - 1) % polygon.length]!;
+    const current: { x: number; z: number; } = polygon[index]!;
+    const next: { x: number; z: number; } = polygon[(index + 1) % polygon.length]!;
+    const bend: number = validateProductionDesignTurn(previous, current, next);
+    const reverseDot: number =
+      (previous.x - current.x) * (next.x - current.x) +
+      (previous.z - current.z) * (next.z - current.z);
+    if (
+      Number.isFinite(bend) === false ||
+      Number.isFinite(reverseDot) === false ||
+      (Math.abs(bend) <= 1e-9 && reverseDot > 0)
+    )
+      return false;
+  }
+  for (let left: number = 0; left < polygon.length; ++left) {
+    const leftNext: number = (left + 1) % polygon.length;
+    for (let right: number = left + 1; right < polygon.length; ++right) {
+      const rightNext: number = (right + 1) % polygon.length;
+      if (left === right || leftNext === right || rightNext === left) continue;
+      if (
+        validateProductionDesignSegmentsIntersect(
+          polygon[left]!,
+          polygon[leftNext]!,
+          polygon[right]!,
+          polygon[rightNext]!,
+        )
+      )
+        return false;
+    }
+  }
+  return true;
+};
