@@ -18,7 +18,11 @@ const FOG: IAutoMovieFog = {
   color: { r: 0.25, g: 0.5, b: 0.75, a: null, hex: null },
 };
 
-const sceneOf: (fog: IAutoMovieScene["fog"]) => THREE.Scene<THREE.Object3DEventMap> = (fog: IAutoMovieScene["fog"]): THREE.Scene<THREE.Object3DEventMap> =>
+const sceneOf: (
+  fog: IAutoMovieScene["fog"],
+) => THREE.Scene<THREE.Object3DEventMap> = (
+  fog: IAutoMovieScene["fog"],
+): THREE.Scene<THREE.Object3DEventMap> =>
   buildScene(
     {
       id: "scene-1",
@@ -36,12 +40,15 @@ const sceneOf: (fog: IAutoMovieScene["fog"]) => THREE.Scene<THREE.Object3DEventM
       lights: [],
       fog,
     },
-    (): IAutoMovieModelObject => buildModel({ ...createModel(), id: "model-a" }),
+    (): IAutoMovieModelObject =>
+      buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
 
 /** JavaScript transcription of the squared-depth fog expression; this computes binary64 values rather than shader fragments. */
-const shaderTransmittance: (fog: THREE.FogExp2, depth: number) => number = (fog: THREE.FogExp2, depth: number): number =>
-  1 - (1 - Math.exp(-fog.density * fog.density * depth * depth));
+const shaderTransmittance: (fog: THREE.FogExp2, depth: number) => number = (
+  fog: THREE.FogExp2,
+  depth: number,
+): number => 1 - (1 - Math.exp(-fog.density * fog.density * depth * depth));
 
 /**
  * Scene fog constructs and clears the expected Three object, shares the engine's squared-depth prediction and restores atmosphere across guide modes.
@@ -80,8 +87,14 @@ export function test_viewer_scene_fog(): void {
       ["aBuiltFogWasReallyThere", (): boolean => carriedFogFirst],
       ["nullClearsAStandingFog", (): boolean => clearedByNull.fog === null],
       ["absenceClearsItToo", (): boolean => clearedByAbsence.fog === null],
-      ["engineUndefined", (): boolean => nclose(sceneFogTransmittance(undefined, 250), 1, 0)],
-      ["engineNull", (): boolean => nclose(sceneFogTransmittance(null, 250), 1, 0)],
+      [
+        "engineUndefined",
+        (): boolean => nclose(sceneFogTransmittance(undefined, 250), 1, 0),
+      ],
+      [
+        "engineNull",
+        (): boolean => nclose(sceneFogTransmittance(null, 250), 1, 0),
+      ],
     ]),
     {
       undeclared: true,
@@ -168,7 +181,10 @@ export function test_viewer_scene_fog(): void {
                 sceneFogTransmittance(FOG, depths[index - 1]!),
           ),
       ],
-      ["nearlyGoneFarOff", (): boolean => sceneFogTransmittance(FOG, 250) < 0.01],
+      [
+        "nearlyGoneFarOff",
+        (): boolean => sceneFogTransmittance(FOG, 250) < 0.01,
+      ],
     ]),
     { monotone: true, nearlyGoneFarOff: true },
   );
@@ -176,10 +192,16 @@ export function test_viewer_scene_fog(): void {
   // 5. structural passes suspend it; the beauty pass keeps it.
   const scene: THREE.Scene<THREE.Object3DEventMap> = sceneOf(FOG);
   const declared: THREE.Fog | THREE.FogExp2 | null = scene.fog;
-  const mask: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, "mask");
+  const mask: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "mask",
+  );
   const suspended: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   mask.restore();
-  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, "beauty");
+  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "beauty",
+  );
   const duringBeauty: THREE.Fog | THREE.FogExp2 | null = scene.fog;
   beauty.restore();
   TestValidator.equals(

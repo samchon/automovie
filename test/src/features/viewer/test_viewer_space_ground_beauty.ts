@@ -50,9 +50,14 @@ const DESIGN: IAutoMovieScene = {
 };
 
 /** The one support-patch mesh in a freshly built copy of the design. */
-const built: () => { scene: THREE.Scene; patch: THREE.Mesh; } = (): { scene: THREE.Scene; patch: THREE.Mesh } => {
-  const scene: THREE.Scene<THREE.Object3DEventMap> = buildScene(DESIGN, (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
-    buildModel({ ...createModel(), id: "model-a" }),
+const built: () => { scene: THREE.Scene; patch: THREE.Mesh } = (): {
+  scene: THREE.Scene;
+  patch: THREE.Mesh;
+} => {
+  const scene: THREE.Scene<THREE.Object3DEventMap> = buildScene(
+    DESIGN,
+    (): import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =>
+      buildModel({ ...createModel(), id: "model-a" }),
   ).scene;
   return {
     scene,
@@ -75,31 +80,54 @@ const built: () => { scene: THREE.Scene; patch: THREE.Mesh; } = (): { scene: THR
  * @evidence contracts/testing.md#execution-ownership The named portable entry owns CPU Three graphs and pass handles, restores every installed pass and makes no browser, native renderer or physical-floor observation.
  */
 export function test_viewer_space_ground_beauty(): void {
-  const direct: { scene: THREE.Scene; patch: THREE.Mesh; } = built();
-  const beautyMaterial: THREE.Material<THREE.MaterialEventMap> = direct.patch.material as THREE.Material;
-  const embeddedPatch: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = buildSpaceObject(SPACE).children[0] as THREE.Mesh;
-  const embeddedMaterial: THREE.Material<THREE.MaterialEventMap> = embeddedPatch.material as THREE.Material;
+  const direct: { scene: THREE.Scene; patch: THREE.Mesh } = built();
+  const beautyMaterial: THREE.Material<THREE.MaterialEventMap> = direct.patch
+    .material as THREE.Material;
+  const embeddedPatch: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = buildSpaceObject(SPACE).children[0] as THREE.Mesh;
+  const embeddedMaterial: THREE.Material<THREE.MaterialEventMap> =
+    embeddedPatch.material as THREE.Material;
   const modelMaterials: THREE.Material[] = [];
-  direct.scene.getObjectByName("node-a")!.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if ((object as THREE.Mesh).isMesh === true)
-      modelMaterials.push((object as THREE.Mesh).material as THREE.Material);
-  });
+  direct.scene
+    .getObjectByName("node-a")!
+    .traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+      if ((object as THREE.Mesh).isMesh === true)
+        modelMaterials.push((object as THREE.Mesh).material as THREE.Material);
+    });
   TestValidator.equals(
     "only authored geometry retains beauty color/depth write flags",
     namedFacts([
       ["the space contributed a patch", (): true => direct.patch.isMesh],
-      ["the patch writes no beauty colour", (): boolean => !beautyMaterial.colorWrite],
-      ["the patch writes no beauty depth", (): boolean => !beautyMaterial.depthWrite],
+      [
+        "the patch writes no beauty colour",
+        (): boolean => !beautyMaterial.colorWrite,
+      ],
+      [
+        "the patch writes no beauty depth",
+        (): boolean => !beautyMaterial.depthWrite,
+      ],
       [
         "a directly embedded patch writes neither",
-        (): boolean => !embeddedMaterial.colorWrite && !embeddedMaterial.depthWrite,
+        (): boolean =>
+          !embeddedMaterial.colorWrite && !embeddedMaterial.depthWrite,
       ],
-      ["the model contributed meshes", (): boolean => modelMaterials.length > 0],
+      [
+        "the model contributed meshes",
+        (): boolean => modelMaterials.length > 0,
+      ],
       [
         "authored meshes still write colour and depth",
         (): boolean =>
           modelMaterials.every(
-            (material: THREE.Material<THREE.MaterialEventMap>): boolean => material.colorWrite && material.depthWrite,
+            (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
+              material.colorWrite && material.depthWrite,
           ),
       ],
     ]),
@@ -114,7 +142,8 @@ export function test_viewer_space_ground_beauty(): void {
   );
 
   for (const mode of ["depth", "normal", "outline", "mask"] as const) {
-    const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(direct.scene, mode);
+    const handle: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+      applyRenderMode(direct.scene, mode);
     TestValidator.predicate(
       `${mode} gives the support patch a structural material`,
       direct.patch.material !== beautyMaterial,
@@ -127,7 +156,8 @@ export function test_viewer_space_ground_beauty(): void {
     );
   }
 
-  const mask: import("@automovie/interface").IAutoMovieSemanticMask = deriveAutoMovieSemanticMask({ scene: DESIGN, models: [] });
+  const mask: import("@automovie/interface").IAutoMovieSemanticMask =
+    deriveAutoMovieSemanticMask({ scene: DESIGN, models: [] });
   TestValidator.equals(
     "semantic audit resolves the support patch without beauty participation",
     auditAutoMovieSemanticMaskScene({
@@ -137,11 +167,12 @@ export function test_viewer_space_ground_beauty(): void {
     }),
     { unresolved: [], unaddressed: 0 },
   );
-  const semantic: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
-    scene: direct.scene,
-    design: DESIGN,
-    mask,
-  });
+  const semantic: import("../../../../packages/viewer/src/index").IAutoMovieSemanticMaskHandle =
+    applyAutoMovieSemanticMask({
+      scene: direct.scene,
+      design: DESIGN,
+      mask,
+    });
   TestValidator.equals(
     "direct semantic masking paints the support patch",
     {
@@ -159,7 +190,8 @@ export function test_viewer_space_ground_beauty(): void {
     direct.patch.material === beautyMaterial,
   );
 
-  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle = applyRenderMode(direct.scene, "beauty");
+  const beauty: import("../../../../packages/viewer/src/IAutoMovieRenderModeHandle").IAutoMovieRenderModeHandle =
+    applyRenderMode(direct.scene, "beauty");
   TestValidator.predicate(
     "beauty leaves the non-writing material in place",
     direct.patch.material === beautyMaterial &&

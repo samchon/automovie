@@ -12,10 +12,13 @@ import * as THREE from "three";
 
 import { namedFacts, vclose } from "../internal/predicates";
 
-const keyed: (q: IAutoMovieQuaternion) => number[] = (q: IAutoMovieQuaternion): number[] => [q.x, q.y, q.z, q.w];
+const keyed: (q: IAutoMovieQuaternion) => number[] = (
+  q: IAutoMovieQuaternion,
+): number[] => [q.x, q.y, q.z, q.w];
 
-const aboutY: (deg: number) => IAutoMovieQuaternion = (deg: number): IAutoMovieQuaternion =>
-  Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
+const aboutY: (deg: number) => IAutoMovieQuaternion = (
+  deg: number,
+): IAutoMovieQuaternion => Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, deg);
 
 const scene: IAutoMovieScene = {
   id: "scene-1",
@@ -61,13 +64,17 @@ const swing: IAutoMovieClip = {
 };
 
 /** The artifact's own direction: the light's local −Z carried by its rotation. */
-const declaredDirection: (light: IAutoMovieLight) => IAutoMovieVector3 = (light: IAutoMovieLight): IAutoMovieVector3 =>
+const declaredDirection: (light: IAutoMovieLight) => IAutoMovieVector3 = (
+  light: IAutoMovieLight,
+): IAutoMovieVector3 =>
   Quaternion.rotateVector(light.transform.rotation, { x: 0, y: 0, z: -1 });
 
 /**
  * Read the normalized world position-to-target aiming vector supplied to native lighting, without a rendered illumination observation.
  */
-const renderedDirection: (light: THREE.Light) => IAutoMovieVector3 = (light: THREE.Light): IAutoMovieVector3 => {
+const renderedDirection: (light: THREE.Light) => IAutoMovieVector3 = (
+  light: THREE.Light,
+): IAutoMovieVector3 => {
   const aimed: THREE.SpotLight = light as THREE.SpotLight;
   aimed.updateMatrixWorld(true);
   const from: THREE.Vector3 = new THREE.Vector3();
@@ -79,7 +86,9 @@ const renderedDirection: (light: THREE.Light) => IAutoMovieVector3 = (light: THR
 };
 
 /** The engine's resolved lamp at `seconds`. */
-const resolvedAt: (seconds: number) => IAutoMovieLight = (seconds: number): IAutoMovieLight =>
+const resolvedAt: (seconds: number) => IAutoMovieLight = (
+  seconds: number,
+): IAutoMovieLight =>
   resolveShotLighting({ lights: scene.lights, clips: [swing], seconds })[0]!;
 
 /**
@@ -87,14 +96,19 @@ const resolvedAt: (seconds: number) => IAutoMovieLight = (seconds: number): IAut
  *
  * The other comparisons share the Engine's resolved direction. Direct keyframe interpolation distinguishes a shared sampling error without calling that resolver a second time.
  */
-const keyedMidpointDirection: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
-  const values: number[] = swing.tracks[0]!.values;
-  const midpoint: THREE.Quaternion = new THREE.Quaternion()
-    .fromArray(values.slice(0, 4))
-    .slerp(new THREE.Quaternion().fromArray(values.slice(4, 8)), 0.5);
-  const direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1).applyQuaternion(midpoint);
-  return { x: direction.x, y: direction.y, z: direction.z };
-};
+const keyedMidpointDirection: () => IAutoMovieVector3 =
+  (): IAutoMovieVector3 => {
+    const values: number[] = swing.tracks[0]!.values;
+    const midpoint: THREE.Quaternion = new THREE.Quaternion()
+      .fromArray(values.slice(0, 4))
+      .slerp(new THREE.Quaternion().fromArray(values.slice(4, 8)), 0.5);
+    const direction: THREE.Vector3 = new THREE.Vector3(
+      0,
+      0,
+      -1,
+    ).applyQuaternion(midpoint);
+    return { x: direction.x, y: direction.y, z: direction.z };
+  };
 
 /**
  * Initial light construction and animated updates install the resolved aiming direction on actual native light objects.
@@ -123,11 +137,17 @@ export function test_viewer_light_transform_parity(): void {
   );
 
   // 2. the frame follows the declaration, at three instants.
-  const built: ReturnType<typeof buildScene> = buildScene(scene, (): undefined => undefined);
+  const built: ReturnType<typeof buildScene> = buildScene(
+    scene,
+    (): undefined => undefined,
+  );
   const lamp: THREE.Light = built.lights.get("lamp")!;
   const parityAt: (seconds: number) => boolean = (seconds: number): boolean => {
-    applyLightMotion(scene.lights, [swing], seconds, (id: string): THREE.Light | undefined =>
-      built.lights.get(id),
+    applyLightMotion(
+      scene.lights,
+      [swing],
+      seconds,
+      (id: string): THREE.Light | undefined => built.lights.get(id),
     );
     return vclose(
       renderedDirection(lamp),
@@ -145,7 +165,12 @@ export function test_viewer_light_transform_parity(): void {
   );
 
   // 3. the animated frame against arithmetic the engine took no part in.
-  applyLightMotion(scene.lights, [swing], 2, (id: string): THREE.Light | undefined => built.lights.get(id));
+  applyLightMotion(
+    scene.lights,
+    [swing],
+    2,
+    (id: string): THREE.Light | undefined => built.lights.get(id),
+  );
   TestValidator.predicate(
     "the animated lamp shines where the clip's own keys put it, interpolated independently",
     vclose(renderedDirection(lamp), keyedMidpointDirection()),

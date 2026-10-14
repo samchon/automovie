@@ -32,7 +32,8 @@ const ROOT_ONLY: IAutoMovieSkeleton = {
  */
 export function test_viewer_rig_scale_convention(): void {
   // 1. pose-root scale is dropped, its translation applies
-  const model: ReturnType<typeof createImportedModelObject> = createImportedModelObject({ object: new THREE.Group() });
+  const model: ReturnType<typeof createImportedModelObject> =
+    createImportedModelObject({ object: new THREE.Group() });
   applyPose(
     model,
     {
@@ -49,10 +50,15 @@ export function test_viewer_rig_scale_convention(): void {
   TestValidator.equals(
     "a pose-root scale is dropped while its translation applies",
     namedFacts([
-      ["modelObjectPosition", (): boolean => nclose(model.object.position.x, 1, 0)],
+      [
+        "modelObjectPosition",
+        (): boolean => nclose(model.object.position.x, 1, 0),
+      ],
       [
         "modelObjectScale",
-        (): boolean => nclose(model.object.position.x, 1, 0) && nclose(model.object.scale.x, 1, 0),
+        (): boolean =>
+          nclose(model.object.position.x, 1, 0) &&
+          nclose(model.object.scale.x, 1, 0),
       ],
     ]),
     { modelObjectPosition: true, modelObjectScale: true },
@@ -83,7 +89,11 @@ export function test_viewer_rig_scale_convention(): void {
     "a bone-rest scale is dropped while its translation applies",
     namedFacts([
       ["hipsPositionY", (): boolean => nclose(hips.position.y, 1, 0)],
-      ["hipsScaleX", (): boolean => nclose(hips.position.y, 1, 0) && nclose(hips.scale.x, 1, 0)],
+      [
+        "hipsScaleX",
+        (): boolean =>
+          nclose(hips.position.y, 1, 0) && nclose(hips.scale.x, 1, 0),
+      ],
     ]),
     { hipsPositionY: true, hipsScaleX: true },
   );

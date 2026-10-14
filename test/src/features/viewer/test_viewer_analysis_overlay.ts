@@ -45,7 +45,9 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  */
 export function test_viewer_analysis_overlay(): void {
   const context: ReturnType<typeof analysisContext> = analysisContext();
-  const request: (overrides?: Partial<IAutoMovieDaylightRequest>) => IAutoMovieDaylightRequest = (
+  const request: (
+    overrides?: Partial<IAutoMovieDaylightRequest>,
+  ) => IAutoMovieDaylightRequest = (
     overrides: Partial<IAutoMovieDaylightRequest> = {},
   ): IAutoMovieDaylightRequest => ({
     id: "hall-daylight",
@@ -71,15 +73,31 @@ export function test_viewer_analysis_overlay(): void {
     targets: [],
     ...overrides,
   });
-  const run: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({ request: request() });
-  const overlay: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
-    run,
-    metric: "workplane.total.illuminance",
+  const run: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({
+    request: request(),
   });
-  const positions: ReturnType<typeof overlay.object.geometry.getAttribute> = overlay.object.geometry.getAttribute("position");
-  const colors: ReturnType<typeof overlay.object.geometry.getAttribute> = overlay.object.geometry.getAttribute("color");
-  const sameNumbers: (actual: ArrayLike<number>, expected: readonly number[]) => boolean = (actual: ArrayLike<number>, expected: readonly number[]): boolean => actual.length === expected.length && Array.from(actual).every((value: number, index: number): boolean => nclose(value, expected[index]!));
-  const identity: Record<string, unknown> = overlay.object.userData.autoMovieAnalysis as Record<string, unknown>;
+  const overlay: ReturnType<typeof buildAnalysisOverlayObject> =
+    buildAnalysisOverlayObject({
+      run,
+      metric: "workplane.total.illuminance",
+    });
+  const positions: ReturnType<typeof overlay.object.geometry.getAttribute> =
+    overlay.object.geometry.getAttribute("position");
+  const colors: ReturnType<typeof overlay.object.geometry.getAttribute> =
+    overlay.object.geometry.getAttribute("color");
+  const sameNumbers: (
+    actual: ArrayLike<number>,
+    expected: readonly number[],
+  ) => boolean = (
+    actual: ArrayLike<number>,
+    expected: readonly number[],
+  ): boolean =>
+    actual.length === expected.length &&
+    Array.from(actual).every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!),
+    );
+  const identity: Record<string, unknown> = overlay.object.userData
+    .autoMovieAnalysis as Record<string, unknown>;
   const range: ReturnType<typeof overlay.range> = overlay.range();
   TestValidator.equals(
     "a solved study becomes one coloured point per numerical cell",
@@ -88,7 +106,14 @@ export function test_viewer_analysis_overlay(): void {
       name: overlay.object.name,
       count: overlay.count(),
       bounded: overlay.object.geometry.boundingSphere !== null,
-      userData: { run: identity.run, domain: identity.domain, metric: identity.metric, unit: identity.unit, status: identity.status, digest: identity.digest },
+      userData: {
+        run: identity.run,
+        domain: identity.domain,
+        metric: identity.metric,
+        unit: identity.unit,
+        status: identity.status,
+        digest: identity.digest,
+      },
     },
     {
       type: "Points",
@@ -105,72 +130,101 @@ export function test_viewer_analysis_overlay(): void {
       },
     },
   );
-  TestValidator.predicate("authored field positions and color endpoints are realized",
+  TestValidator.predicate(
+    "authored field positions and color endpoints are realized",
     sameNumbers(positions.array, [-0.5, 0, 0, 0.5, 0, 0]) &&
       sameNumbers(colors.array, [1, 0, 0, 0, 0, 1]) &&
-      nclose(range.min, 0) && nclose(range.max, 100) &&
-      typeof identity.min === "number" && nclose(identity.min, 0) &&
-      typeof identity.max === "number" && nclose(identity.max, 100));
+      nclose(range.min, 0) &&
+      nclose(range.max, 100) &&
+      typeof identity.min === "number" &&
+      nclose(identity.min, 0) &&
+      typeof identity.max === "number" &&
+      nclose(identity.max, 100),
+  );
   overlay.dispose();
 
-  const rampCases: Array<[number, ReturnType<typeof autoMovieAnalysisRampColor>]> = [
-    [0, { r: 0, g: 0, b: 1 }], [0.25, { r: 0, g: 0.5, b: 0.5 }],
-    [0.5, { r: 0, g: 1, b: 0 }], [0.75, { r: 0.5, g: 0.5, b: 0 }],
-    [1, { r: 1, g: 0, b: 0 }], [-2, { r: 0, g: 0, b: 1 }],
+  const rampCases: Array<
+    [number, ReturnType<typeof autoMovieAnalysisRampColor>]
+  > = [
+    [0, { r: 0, g: 0, b: 1 }],
+    [0.25, { r: 0, g: 0.5, b: 0.5 }],
+    [0.5, { r: 0, g: 1, b: 0 }],
+    [0.75, { r: 0.5, g: 0.5, b: 0 }],
+    [1, { r: 1, g: 0, b: 0 }],
+    [-2, { r: 0, g: 0, b: 1 }],
     [3, { r: 1, g: 0, b: 0 }],
   ];
   for (const [value, expected] of rampCases) {
-    const actual: ReturnType<typeof autoMovieAnalysisRampColor> = autoMovieAnalysisRampColor(value);
-    TestValidator.predicate("authored ramp stop " + value,
-      nclose(actual.r, expected.r) && nclose(actual.g, expected.g) && nclose(actual.b, expected.b));
+    const actual: ReturnType<typeof autoMovieAnalysisRampColor> =
+      autoMovieAnalysisRampColor(value);
+    TestValidator.predicate(
+      "authored ramp stop " + value,
+      nclose(actual.r, expected.r) &&
+        nclose(actual.g, expected.g) &&
+        nclose(actual.b, expected.b),
+    );
   }
 
-  const pinned: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
-    run,
-    metric: "workplane.total.illuminance",
-    domain: { min: 0, max: 200 },
-    size: 0.25,
-  });
+  const pinned: ReturnType<typeof buildAnalysisOverlayObject> =
+    buildAnalysisOverlayObject({
+      run,
+      metric: "workplane.total.illuminance",
+      domain: { min: 0, max: 200 },
+      size: 0.25,
+    });
   const flatRun: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({
     request: request({ shades: [] }),
   });
-  const flat: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
-    run: flatRun,
-    metric: "workplane.total.illuminance",
-    domain: { min: 5, max: 5 },
-  });
+  const flat: ReturnType<typeof buildAnalysisOverlayObject> =
+    buildAnalysisOverlayObject({
+      run: flatRun,
+      metric: "workplane.total.illuminance",
+      domain: { min: 5, max: 5 },
+    });
   const pinnedRange: ReturnType<typeof pinned.range> = pinned.range();
   TestValidator.predicate(
     "a pinned domain rescales the field and a flat one sits at the middle",
-    nclose(pinnedRange.min, 0) && nclose(pinnedRange.max, 200) &&
-      sameNumbers(pinned.object.geometry.getAttribute("color").array, [0, 1, 0, 0, 0, 1]) &&
+    nclose(pinnedRange.min, 0) &&
+      nclose(pinnedRange.max, 200) &&
+      sameNumbers(
+        pinned.object.geometry.getAttribute("color").array,
+        [0, 1, 0, 0, 0, 1],
+      ) &&
       nclose((pinned.object.material as THREE.PointsMaterial).size, 0.25) &&
-      sameNumbers(flat.object.geometry.getAttribute("color").array, [0, 1, 0, 0, 1, 0]),
+      sameNumbers(
+        flat.object.geometry.getAttribute("color").array,
+        [0, 1, 0, 0, 1, 0],
+      ),
   );
   pinned.dispose();
   flat.dispose();
 
   let ownedDisposed: number = 0;
   let borrowedDisposed: number = 0;
-  const defaulted: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
-    run,
-    metric: "workplane.total.illuminance",
-  });
+  const defaulted: ReturnType<typeof buildAnalysisOverlayObject> =
+    buildAnalysisOverlayObject({
+      run,
+      metric: "workplane.total.illuminance",
+    });
   (defaulted.object.material as THREE.PointsMaterial).addEventListener(
     "dispose",
     (): void => {
       ownedDisposed += 1;
     },
   );
-  const borrowed: THREE.PointsMaterial = new THREE.PointsMaterial({ size: 1, vertexColors: true });
+  const borrowed: THREE.PointsMaterial = new THREE.PointsMaterial({
+    size: 1,
+    vertexColors: true,
+  });
   borrowed.addEventListener("dispose", (): void => {
     borrowedDisposed += 1;
   });
-  const lent: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
-    run,
-    metric: "workplane.total.illuminance",
-    material: borrowed,
-  });
+  const lent: ReturnType<typeof buildAnalysisOverlayObject> =
+    buildAnalysisOverlayObject({
+      run,
+      metric: "workplane.total.illuminance",
+      material: borrowed,
+    });
   defaulted.dispose();
   lent.dispose();
   TestValidator.equals(
@@ -213,13 +267,18 @@ export function test_viewer_analysis_overlay(): void {
       targets: [],
     },
   });
-  const draw: (target: IAutoMovieAnalysisRun, metric: string, fragment: string) => boolean = (
+  const draw: (
+    target: IAutoMovieAnalysisRun,
+    metric: string,
+    fragment: string,
+  ) => boolean = (
     target: IAutoMovieAnalysisRun,
     metric: string,
     fragment: string,
   ): boolean =>
     throwsError(
-      (): ReturnType<typeof buildAnalysisOverlayObject> => buildAnalysisOverlayObject({ run: target, metric }),
+      (): ReturnType<typeof buildAnalysisOverlayObject> =>
+        buildAnalysisOverlayObject({ run: target, metric }),
       fragment,
     );
   TestValidator.equals(
@@ -236,11 +295,13 @@ export function test_viewer_analysis_overlay(): void {
       ],
       [
         "a not-run run",
-        (): boolean => draw(skipped, "space.airChangeRate", "no supply flow declared"),
+        (): boolean =>
+          draw(skipped, "space.airChangeRate", "no supply flow declared"),
       ],
       [
         "an unknown metric",
-        (): boolean => draw(run, "room.clarity", 'carries no metric "room.clarity"'),
+        (): boolean =>
+          draw(run, "room.clarity", 'carries no metric "room.clarity"'),
       ],
       [
         "a gapped metric",

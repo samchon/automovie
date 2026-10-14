@@ -1,5 +1,9 @@
 import { Quaternion, applyLightOverride } from "@automovie/engine";
-import { IAutoMovieAreaLight, IAutoMovieLight, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAreaLight,
+  IAutoMovieLight,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { applyLightState, buildLight } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -22,7 +26,9 @@ const WINDOW: IAutoMovieAreaLight = {
 };
 
 /** The direction a `three.js` light actually emits: its own local −Z. */
-const emitted: (light: THREE.Object3D) => IAutoMovieVector3 = (light: THREE.Object3D): IAutoMovieVector3 => {
+const emitted: (light: THREE.Object3D) => IAutoMovieVector3 = (
+  light: THREE.Object3D,
+): IAutoMovieVector3 => {
   light.updateMatrixWorld(true);
   const forward: THREE.Vector3 = new THREE.Vector3(0, 0, -1).applyQuaternion(
     light.getWorldQuaternion(new THREE.Quaternion()),
@@ -106,7 +112,12 @@ export function test_viewer_area_light(): void {
     { kind: true, width: true, noTarget: true },
   );
 
-  const rewritten: THREE.RectAreaLight = new THREE.RectAreaLight(0xffffff, 1, 1, 1);
+  const rewritten: THREE.RectAreaLight = new THREE.RectAreaLight(
+    0xffffff,
+    1,
+    1,
+    1,
+  );
   applyLightState(rewritten, { ...WINDOW, width: 5, height: 0.25 });
   TestValidator.predicate(
     "the one value writer owns the extent too",
@@ -118,8 +129,10 @@ export function test_viewer_area_light(): void {
   applyLightState(mismatched, WINDOW);
   TestValidator.predicate(
     "an area value written onto a punctual light touches only shared fields",
-    nclose(mismatched.intensity, 12) && nclose(mismatched.distance, 0) &&
-      !("width" in mismatched) && !("height" in mismatched),
+    nclose(mismatched.intensity, 12) &&
+      nclose(mismatched.distance, 0) &&
+      !("width" in mismatched) &&
+      !("height" in mismatched),
   );
 
   const folded: IAutoMovieLight = applyLightOverride(
@@ -128,8 +141,11 @@ export function test_viewer_area_light(): void {
   );
   TestValidator.predicate(
     "folding a shot's lighting keeps the panel and adds no falloff",
-    folded.type === "area" && nclose(folded.width, 2.4) &&
-      nclose(folded.height, 1.8) && nclose(folded.intensity, 3) &&
-      folded.castShadow === false && !("range" in folded),
+    folded.type === "area" &&
+      nclose(folded.width, 2.4) &&
+      nclose(folded.height, 1.8) &&
+      nclose(folded.intensity, 3) &&
+      folded.castShadow === false &&
+      !("range" in folded),
   );
 }

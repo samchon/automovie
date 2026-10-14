@@ -4,14 +4,16 @@ import {
   IAutoMovieStageLight,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { buildScene, type IAutoMovieModelObject } from "@automovie/viewer";
+import { type IAutoMovieModelObject, buildScene } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /** Stage a scene carrying exactly the given light placements. */
-const stagedWith: (lights: IAutoMovieStageLight[]) => IAutoMovieScene = (lights: IAutoMovieStageLight[]): IAutoMovieScene => {
+const stagedWith: (lights: IAutoMovieStageLight[]) => IAutoMovieScene = (
+  lights: IAutoMovieStageLight[],
+): IAutoMovieScene => {
   const staged: ReturnType<typeof stageScene> = stageScene(
     {
       logline: "one lit beat",
@@ -43,14 +45,21 @@ const stagedWith: (lights: IAutoMovieStageLight[]) => IAutoMovieScene = (lights:
 };
 
 /** Build the staged scene through the viewer with placeholder model objects. */
-const built: (scene: IAutoMovieScene) => THREE.Scene = (scene: IAutoMovieScene): THREE.Scene =>
-  buildScene(scene, (): IAutoMovieModelObject => ({
-    object: new THREE.Group(),
-    bones: new Map(),
-    parts: new Map(),
-  })).scene;
+const built: (scene: IAutoMovieScene) => THREE.Scene = (
+  scene: IAutoMovieScene,
+): THREE.Scene =>
+  buildScene(
+    scene,
+    (): IAutoMovieModelObject => ({
+      object: new THREE.Group(),
+      bones: new Map(),
+      parts: new Map(),
+    }),
+  ).scene;
 
-const lightsOf: (scene: THREE.Scene) => THREE.Light[] = (scene: THREE.Scene): THREE.Light[] => {
+const lightsOf: (scene: THREE.Scene) => THREE.Light[] = (
+  scene: THREE.Scene,
+): THREE.Light[] => {
   const found: THREE.Light[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if ((object as THREE.Light).isLight === true)
@@ -62,7 +71,9 @@ const lightsOf: (scene: THREE.Scene) => THREE.Light[] = (scene: THREE.Scene): TH
 /**
  * Read the native aiming input as the normalized world target-minus-position vector, rather than the light's own quaternion; no illumination is drawn.
  */
-const shineDirection: (light: THREE.DirectionalLight | THREE.SpotLight) => IAutoMovieVector3 = (
+const shineDirection: (
+  light: THREE.DirectionalLight | THREE.SpotLight,
+) => IAutoMovieVector3 = (
   light: THREE.DirectionalLight | THREE.SpotLight,
 ): IAutoMovieVector3 => {
   light.updateMatrixWorld(true);
@@ -74,7 +85,9 @@ const shineDirection: (light: THREE.DirectionalLight | THREE.SpotLight) => IAuto
   return { x: d.x, y: d.y, z: d.z };
 };
 
-const unit: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 => {
+const unit: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+  v: IAutoMovieVector3,
+): IAutoMovieVector3 => {
   const length: number = Math.hypot(v.x, v.y, v.z);
   return { x: v.x / length, y: v.y / length, z: v.z / length };
 };
@@ -109,7 +122,9 @@ export function test_viewer_light_direction(): void {
         { node: "sun", type: "directional", direction, intensity: 1 },
       ]),
     );
-    const light: THREE.DirectionalLight = lightsOf(scene)[0] as THREE.DirectionalLight;
+    const light: THREE.DirectionalLight = lightsOf(
+      scene,
+    )[0] as THREE.DirectionalLight;
     const shine: IAutoMovieVector3 = shineDirection(light);
     TestValidator.predicate(
       `a directional light shines along ${JSON.stringify(direction)}`,
@@ -122,7 +137,11 @@ export function test_viewer_light_direction(): void {
   }
 
   // 2. a spot far from the origin aims where it was told, not at (0, 0, 0)
-  const spotDirection: { x: number; y: number; z: number; } = { x: -1, y: -1, z: 0 };
+  const spotDirection: { x: number; y: number; z: number } = {
+    x: -1,
+    y: -1,
+    z: 0,
+  };
   const spotScene: THREE.Scene<THREE.Object3DEventMap> = built(
     stagedWith([
       {

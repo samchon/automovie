@@ -5,9 +5,9 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import {
+  AutoMoviePlayer,
   type IAutoMovieModelObject,
   type IAutoMovieViewerFrame,
-  AutoMoviePlayer,
   IAutoMovieViewerSnapshotRenderer,
   applyExpression,
   buildModel,
@@ -47,11 +47,21 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
 export async function test_viewer_production_asset_runtime(): Promise<void> {
   const model: IAutoMovieModel = createProductionAssetModel();
   const built: IAutoMovieModelObject = buildModel(model);
-  const skinned: THREE.SkinnedMesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>[] = collectSkinnedMeshes(built.object);
+  const skinned: THREE.SkinnedMesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = collectSkinnedMeshes(built.object);
   TestValidator.equals("one skinned mesh", skinned.length, 1);
   TestValidator.equals(
     "skinned joints",
-    skinned[0]!.skeleton.bones.map((b: THREE.Bone<THREE.Object3DEventMap>): string => b.name),
+    skinned[0]!.skeleton.bones.map(
+      (b: THREE.Bone<THREE.Object3DEventMap>): string => b.name,
+    ),
     ["hips", "leftUpperArm"],
   );
   TestValidator.equals(
@@ -65,7 +75,8 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     4,
   );
 
-  const rigid: THREE.Object3D<THREE.Object3DEventMap> | undefined = built.object.getObjectByName("rigid-with-skin");
+  const rigid: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    built.object.getObjectByName("rigid-with-skin");
   TestValidator.equals("rigid parent", rigid?.parent?.name, "leftHand");
   TestValidator.predicate(
     "missing skin bone rejects",
@@ -80,8 +91,17 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     ),
   );
 
-  const morph: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = createMorphMesh();
-  const importedBone: THREE.Object3D<THREE.Object3DEventMap> = new THREE.Object3D();
+  const morph: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = createMorphMesh();
+  const importedBone: THREE.Object3D<THREE.Object3DEventMap> =
+    new THREE.Object3D();
   const importedRoot: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   // The caller's baked π yaw must survive pose-root application (#1047).
   importedRoot.rotateY(Math.PI);
@@ -93,18 +113,25 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     bones: { hips: importedBone },
     expressionTargets: [
       {
-        setExpressionValue: (name: string, weight: number): Map<string, number> =>
-          expressionValues.set(name, weight),
+        setExpressionValue: (
+          name: string,
+          weight: number,
+        ): Map<string, number> => expressionValues.set(name, weight),
       },
     ],
-    afterAutoMovieFrame: ({ seconds, deltaSeconds }: IAutoMovieViewerFrame): number =>
-      frames.push({ seconds, deltaSeconds }),
+    afterAutoMovieFrame: ({
+      seconds,
+      deltaSeconds,
+    }: IAutoMovieViewerFrame): number => frames.push({ seconds, deltaSeconds }),
   });
   const happy: IAutoMovieExpression = expression("happy", 0.7, [
     { channel: "mouthSmileLeft", weight: 0.2 },
   ]);
   applyExpression(imported, happy);
-  TestValidator.predicate("preset morph", nclose(morph.morphTargetInfluences![0]!, 0.7, 0));
+  TestValidator.predicate(
+    "preset morph",
+    nclose(morph.morphTargetInfluences![0]!, 0.7, 0),
+  );
   TestValidator.predicate(
     "explicit channel override",
     nclose(morph.morphTargetInfluences![1]!, 0.2, 0),
@@ -117,12 +144,18 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     "non-expression morph preserved",
     nclose(morph.morphTargetInfluences![3]!, 0.4, 0),
   );
-  TestValidator.predicate("sink preset", nclose(expressionValues.get("happy") ?? Number.NaN, 0.7, 0));
+  TestValidator.predicate(
+    "sink preset",
+    nclose(expressionValues.get("happy") ?? Number.NaN, 0.7, 0),
+  );
   TestValidator.predicate(
     "sink override",
     nclose(expressionValues.get("mouthSmileLeft") ?? Number.NaN, 0.2, 0),
   );
-  TestValidator.predicate("sink reset", nclose(expressionValues.get("angry") ?? Number.NaN, 0, 0));
+  TestValidator.predicate(
+    "sink reset",
+    nclose(expressionValues.get("angry") ?? Number.NaN, 0, 0),
+  );
 
   const skeleton: IAutoMovieSkeleton = singleBoneSkeleton();
   const pose: IAutoMoviePose = {
@@ -146,8 +179,14 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
   TestValidator.equals(
     "root transform applied",
     namedFacts([
-      ["ncloseImportedObject", (): boolean => nclose(imported.object.position.x, 1.25)],
-      ["ncloseImportedObject2", (): boolean => nclose(imported.object.position.y, 0.5)],
+      [
+        "ncloseImportedObject",
+        (): boolean => nclose(imported.object.position.x, 1.25),
+      ],
+      [
+        "ncloseImportedObject2",
+        (): boolean => nclose(imported.object.position.y, 0.5),
+      ],
       [
         "ncloseImportedObject3",
         (): boolean => nclose(imported.object.position.z, -0.25),
@@ -163,13 +202,22 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
   TestValidator.equals(
     "an imported Group is wrapped, its baked transform preserved",
     namedFacts([
-      ["importedObjectImportedRoot", (): boolean => imported.object !== importedRoot],
-      ["ncloseMathAbs", (): boolean => nclose(Math.abs(importedRoot.quaternion.y), 1)],
+      [
+        "importedObjectImportedRoot",
+        (): boolean => imported.object !== importedRoot,
+      ],
+      [
+        "ncloseMathAbs",
+        (): boolean => nclose(Math.abs(importedRoot.quaternion.y), 1),
+      ],
       [
         "ncloseImportedRootQuaternion",
         (): boolean => nclose(importedRoot.quaternion.w, 0),
       ],
-      ["ncloseImportedRootPosition", (): boolean => nclose(importedRoot.position.x, 0)],
+      [
+        "ncloseImportedRootPosition",
+        (): boolean => nclose(importedRoot.position.x, 0),
+      ],
     ]),
     {
       importedObjectImportedRoot: true,
@@ -179,15 +227,34 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     },
   );
   TestValidator.equals("frame hook count", frames.length, 2);
-  TestValidator.predicate("first frame time", nclose(frames[0]!.seconds, 0.25, 0));
-  TestValidator.predicate("first frame delta", nclose(frames[0]!.deltaSeconds, 0, 0));
-  TestValidator.predicate("second frame delta", nclose(frames[1]!.deltaSeconds, 0.25, 0));
+  TestValidator.predicate(
+    "first frame time",
+    nclose(frames[0]!.seconds, 0.25, 0),
+  );
+  TestValidator.predicate(
+    "first frame delta",
+    nclose(frames[0]!.deltaSeconds, 0, 0),
+  );
+  TestValidator.predicate(
+    "second frame delta",
+    nclose(frames[1]!.deltaSeconds, 0.25, 0),
+  );
   const lastExpression: IAutoMovieExpression | null = player.lastExpression;
-  TestValidator.predicate("last expression", lastExpression !== null &&
-    lastExpression.preset === happy.preset && nclose(lastExpression.intensity, happy.intensity, 0) &&
-    lastExpression.blendshapes?.length === happy.blendshapes!.length &&
-    lastExpression.blendshapes.every((blendshape: NonNullable<IAutoMovieExpression["blendshapes"]>[number], index: number): boolean =>
-      blendshape.channel === happy.blendshapes![index]!.channel && nclose(blendshape.weight, happy.blendshapes![index]!.weight, 0)));
+  TestValidator.predicate(
+    "last expression",
+    lastExpression !== null &&
+      lastExpression.preset === happy.preset &&
+      nclose(lastExpression.intensity, happy.intensity, 0) &&
+      lastExpression.blendshapes?.length === happy.blendshapes!.length &&
+      lastExpression.blendshapes.every(
+        (
+          blendshape: NonNullable<IAutoMovieExpression["blendshapes"]>[number],
+          index: number,
+        ): boolean =>
+          blendshape.channel === happy.blendshapes![index]!.channel &&
+          nclose(blendshape.weight, happy.blendshapes![index]!.weight, 0),
+      ),
+  );
 
   // A null pose root returns the wrapper to its staged base rather than retaining the previous rooted destination (#1046).
   player.setMotion(
@@ -203,9 +270,18 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
   TestValidator.equals(
     "a null root resets to the staged base, not the last rooted pose",
     namedFacts([
-      ["ncloseImportedObject", (): boolean => nclose(imported.object.position.x, 0)],
-      ["ncloseImportedObject2", (): boolean => nclose(imported.object.position.y, 0)],
-      ["ncloseImportedObject3", (): boolean => nclose(imported.object.position.z, 0)],
+      [
+        "ncloseImportedObject",
+        (): boolean => nclose(imported.object.position.x, 0),
+      ],
+      [
+        "ncloseImportedObject2",
+        (): boolean => nclose(imported.object.position.y, 0),
+      ],
+      [
+        "ncloseImportedObject3",
+        (): boolean => nclose(imported.object.position.z, 0),
+      ],
     ]),
     {
       ncloseImportedObject: true,
@@ -224,20 +300,28 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
     domElement: {
       width: 32,
       height: 18,
-      toDataURL: (mimeType: string | undefined, quality: number | undefined): string => {
+      toDataURL: (
+        mimeType: string | undefined,
+        quality: number | undefined,
+      ): string => {
         snapshotSequence.push("encode");
         return `${mimeType}:${quality}`;
       },
     },
   };
-  const snapshot: ReturnType<typeof captureViewerSnapshot> = captureViewerSnapshot(
-    renderer,
-    new THREE.Scene(),
-    new THREE.PerspectiveCamera(),
-    { mimeType: "image/jpeg", quality: 0.8 },
-  );
+  const snapshot: ReturnType<typeof captureViewerSnapshot> =
+    captureViewerSnapshot(
+      renderer,
+      new THREE.Scene(),
+      new THREE.PerspectiveCamera(),
+      { mimeType: "image/jpeg", quality: 0.8 },
+    );
   TestValidator.equals("snapshot render count", renders, 1);
-  TestValidator.equals("snapshot draws before requesting canvas encoding", snapshotSequence, ["render", "encode"]);
+  TestValidator.equals(
+    "snapshot draws before requesting canvas encoding",
+    snapshotSequence,
+    ["render", "encode"],
+  );
   TestValidator.equals("snapshot payload", snapshot, {
     width: 32,
     height: 18,
@@ -246,7 +330,9 @@ export async function test_viewer_production_asset_runtime(): Promise<void> {
   });
 }
 
-const collectSkinnedMeshes: (root: THREE.Object3D) => THREE.SkinnedMesh[] = (root: THREE.Object3D): THREE.SkinnedMesh[] => {
+const collectSkinnedMeshes: (root: THREE.Object3D) => THREE.SkinnedMesh[] = (
+  root: THREE.Object3D,
+): THREE.SkinnedMesh[] => {
   const out: THREE.SkinnedMesh[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (object instanceof THREE.SkinnedMesh) out.push(object);
@@ -254,10 +340,16 @@ const collectSkinnedMeshes: (root: THREE.Object3D) => THREE.SkinnedMesh[] = (roo
   return out;
 };
 
-const createProductionAssetModel: (options?: { joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"]; }) => IAutoMovieModel = (options?: {
+const createProductionAssetModel: (options?: {
+  joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
+}) => IAutoMovieModel = (options?: {
   joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
 }): IAutoMovieModel => {
-  const skin: { joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"]; boneIndices: number[]; weights: number[]; } = {
+  const skin: {
+    joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
+    boneIndices: number[];
+    weights: number[];
+  } = {
     joints: options?.joints ?? ["hips", "leftUpperArm"],
     boneIndices: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
     weights: [1, 0, 0, 0, 1, 0, 0, 0, 0.25, 0.75, 0, 0],
@@ -306,12 +398,22 @@ const createProductionAssetModel: (options?: { joints: ["hips", "leftUpperArm"] 
 };
 
 const createMorphMesh: () => THREE.Mesh = (): THREE.Mesh => {
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry();
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   geometry.setAttribute(
     "position",
     new THREE.Float32BufferAttribute([0, 0, 0, 0, 1, 0, 1, 0, 0], 3),
   );
-  const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshBasicMaterial, THREE.Object3DEventMap> = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
+  const mesh: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshBasicMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
   mesh.morphTargetDictionary = {
     happy: 0,
     mouthSmileLeft: 1,
@@ -322,20 +424,25 @@ const createMorphMesh: () => THREE.Mesh = (): THREE.Mesh => {
   return mesh;
 };
 
-const expression: (preset: IAutoMovieExpression["preset"], intensity: number, blendshapes?: IAutoMovieExpression["blendshapes"]) => IAutoMovieExpression = (
+const expression: (
+  preset: IAutoMovieExpression["preset"],
+  intensity: number,
+  blendshapes?: IAutoMovieExpression["blendshapes"],
+) => IAutoMovieExpression = (
   preset: IAutoMovieExpression["preset"],
   intensity: number,
   blendshapes: IAutoMovieExpression["blendshapes"] = null,
 ): IAutoMovieExpression => ({ preset, intensity, blendshapes });
 
-const singleBoneSkeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
-  id: "runtime",
-  bones: [
-    {
-      bone: "hips",
-      parent: null,
-      rest: IDENTITY_TRANSFORM,
-      constraint: null,
-    },
-  ],
-});
+const singleBoneSkeleton: () => IAutoMovieSkeleton =
+  (): IAutoMovieSkeleton => ({
+    id: "runtime",
+    bones: [
+      {
+        bone: "hips",
+        parent: null,
+        rest: IDENTITY_TRANSFORM,
+        constraint: null,
+      },
+    ],
+  });

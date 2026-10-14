@@ -1,5 +1,12 @@
-import type { IAutoMoviePlantingArrangement, IAutoMoviePlantingBranch, IAutoMoviePlantingDomain, IAutoMoviePlantingLeaf, IAutoMoviePlantingPlacement, IAutoMoviePlantingState } from "@automovie/interface";
 import { arrangePlantingCluster, growPlanting } from "@automovie/engine";
+import type {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingLeaf,
+  IAutoMoviePlantingPlacement,
+  IAutoMoviePlantingState,
+} from "@automovie/interface";
 import { buildPlantingObject } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -7,7 +14,13 @@ import * as THREE from "three";
 import { namedFacts, nclose, qclose, vclose } from "../internal/predicates";
 import { plantingCluster, plantingRecipe } from "../internal/softFixtures";
 
-const FOLIAGE: { density: number; minLevel: number; size: { x: number; y: number; z: number; }; scaleJitter: number; rollJitter: number; } = {
+const FOLIAGE: {
+  density: number;
+  minLevel: number;
+  size: { x: number; y: number; z: number };
+  scaleJitter: number;
+  rollJitter: number;
+} = {
   density: 4,
   minLevel: 1,
   size: { x: 0.05, y: 0.125, z: 0.05 },
@@ -40,8 +53,12 @@ const FOLIAGE: { density: number; minLevel: number; size: { x: number; y: number
 export function test_viewer_planting_instances(): void {
   const domain: IAutoMoviePlantingDomain = plantingRecipe({ foliage: FOLIAGE });
   const plant: IAutoMoviePlantingState = growPlanting(domain);
-  const arrangement: IAutoMoviePlantingArrangement = arrangePlantingCluster(plantingCluster());
-  const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({ plant, arrangement });
+  const arrangement: IAutoMoviePlantingArrangement =
+    arrangePlantingCluster(plantingCluster());
+  const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+    plant,
+    arrangement,
+  });
 
   TestValidator.equals(
     "the cluster stores one branch batch and one leaf batch with the declared instance counts",
@@ -52,7 +69,8 @@ export function test_viewer_planting_instances(): void {
       branchInstances: object.branches.count,
       leafInstances: object.leaves?.count ?? -1,
       instancedMeshes: object.object.children.filter(
-        (child: THREE.Object3D<THREE.Object3DEventMap>): boolean => child instanceof THREE.InstancedMesh,
+        (child: THREE.Object3D<THREE.Object3DEventMap>): boolean =>
+          child instanceof THREE.InstancedMesh,
       ).length,
     },
     {
@@ -117,7 +135,10 @@ export function test_viewer_planting_instances(): void {
   TestValidator.equals(
     "a branch instance is the member's transform composed with the branch's",
     namedFacts([
-      ["translation", (): boolean => vclose(translation, wantTranslation, 1e-5)],
+      [
+        "translation",
+        (): boolean => vclose(translation, wantTranslation, 1e-5),
+      ],
       ["rotation", (): boolean => qclose(rotation, wantRotation, 1e-5)],
       [
         "scaleY",
@@ -142,7 +163,11 @@ export function test_viewer_planting_instances(): void {
             1e-5,
           ),
       ],
-      ["nonUniform", (): boolean => !nclose(scale.x, scale.y, 0) && !nclose(scale.y, scale.z, 0)],
+      [
+        "nonUniform",
+        (): boolean =>
+          !nclose(scale.x, scale.y, 0) && !nclose(scale.y, scale.z, 0),
+      ],
     ]),
     {
       translation: true,
@@ -235,20 +260,26 @@ export function test_viewer_planting_instances(): void {
       [
         "branches",
         (): boolean =>
-          Array.from(object.branches.instanceMatrix.array).every((value: number): boolean =>
-            Number.isFinite(value),
+          Array.from(object.branches.instanceMatrix.array).every(
+            (value: number): boolean => Number.isFinite(value),
           ),
       ],
       [
         "leaves",
         (): boolean =>
-          Array.from(object.leaves?.instanceMatrix.array ?? []).every((value: number): boolean =>
-            Number.isFinite(value),
+          Array.from(object.leaves?.instanceMatrix.array ?? []).every(
+            (value: number): boolean => Number.isFinite(value),
           ),
       ],
       ["branchBounds", (): boolean => object.branches.boundingSphere !== null],
-      ["leafBounds", (): boolean => (object.leaves?.boundingSphere ?? null) !== null],
-      ["cluster", (): boolean => object.object.userData.cluster === "atrium-bed"],
+      [
+        "leafBounds",
+        (): boolean => (object.leaves?.boundingSphere ?? null) !== null,
+      ],
+      [
+        "cluster",
+        (): boolean => object.object.userData.cluster === "atrium-bed",
+      ],
       ["stage", (): boolean => object.object.userData.stage === 1],
       ["rejected", (): boolean => object.object.userData.rejected === 0],
     ]),
@@ -265,7 +296,9 @@ export function test_viewer_planting_instances(): void {
 
   const borrowed: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   let borrowedDisposals: number = 0;
-  borrowed.addEventListener("dispose", (): void => { ++borrowedDisposals; });
+  borrowed.addEventListener("dispose", (): void => {
+    ++borrowedDisposals;
+  });
   const bare: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
     plant: growPlanting(plantingRecipe()),
     arrangement,
@@ -281,7 +314,10 @@ export function test_viewer_planting_instances(): void {
       },
     }),
   );
-  const pruned: ReturnType<typeof buildPlantingObject> = buildPlantingObject({ plant: cut, arrangement });
+  const pruned: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
+    plant: cut,
+    arrangement,
+  });
   const stub: THREE.Matrix4 = new THREE.Matrix4();
   pruned.branches.getMatrixAt(cut.branches.length - 1, stub);
   TestValidator.equals(
@@ -290,16 +326,27 @@ export function test_viewer_planting_instances(): void {
       [
         "zeroLength",
         (): boolean => {
-          const tip: IAutoMoviePlantingBranch = cut.branches[cut.branches.length - 1];
+          const tip: IAutoMoviePlantingBranch =
+            cut.branches[cut.branches.length - 1];
           return vclose(tip.start, tip.end, 0);
         },
       ],
-      ["finite", (): boolean => stub.elements.every((value: number): boolean => Number.isFinite(value))],
+      [
+        "finite",
+        (): boolean =>
+          stub.elements.every((value: number): boolean =>
+            Number.isFinite(value),
+          ),
+      ],
       [
         "collapsed",
         (): boolean => {
           // A singular matrix has no unique rotation/scale decomposition; its Y column measures the stored branch-axis extent.
-          return nclose(Math.hypot(stub.elements[4], stub.elements[5], stub.elements[6]), 0, 0);
+          return nclose(
+            Math.hypot(stub.elements[4], stub.elements[5], stub.elements[6]),
+            0,
+            0,
+          );
         },
       ],
       [
@@ -334,7 +381,12 @@ export function test_viewer_planting_instances(): void {
       ["branchCount", (): boolean => dormant.branchCount === 0],
       ["leafCount", (): boolean => dormant.leafCount === 0],
       ["hidden", (): boolean => dormant.branches.visible === false],
-      ["bounded", (): boolean => dormant.branches.boundingSphere !== null && nclose(dormant.branches.boundingSphere.radius, 0, 0)],
+      [
+        "bounded",
+        (): boolean =>
+          dormant.branches.boundingSphere !== null &&
+          nclose(dormant.branches.boundingSphere.radius, 0, 0),
+      ],
       ["noLeafBatch", (): boolean => dormant.leaves === null],
       ["oneChild", (): boolean => dormant.object.children.length === 1],
     ]),
@@ -350,8 +402,16 @@ export function test_viewer_planting_instances(): void {
   dormant.dispose();
 
   bare.dispose();
-  TestValidator.equals("planting retirement leaves its supplied material borrowed", borrowedDisposals, 0);
+  TestValidator.equals(
+    "planting retirement leaves its supplied material borrowed",
+    borrowedDisposals,
+    0,
+  );
   object.dispose();
   borrowed.dispose();
-  TestValidator.equals("the supplied material's own caller retires it once", borrowedDisposals, 1);
+  TestValidator.equals(
+    "the supplied material's own caller retires it once",
+    borrowedDisposals,
+    1,
+  );
 }

@@ -1,4 +1,7 @@
-import { AutoMovieHumanoidBone, type IAutoMovieModelPart } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieModelPart,
+} from "@automovie/interface";
 import { buildModel } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -23,7 +26,11 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership This named portable unit invokes native metadata graph construction with existing nonclinical engine fixtures. It starts no viewer, GPU or Human inspection host and all refusal/parenting cases belong to this entry.
  */
 export function test_viewer_build_model_attached_bone(): void {
-  const sword: (attachedBone: AutoMovieHumanoidBone | null) => IAutoMovieModelPart = (attachedBone: AutoMovieHumanoidBone | null): IAutoMovieModelPart => ({
+  const sword: (
+    attachedBone: AutoMovieHumanoidBone | null,
+  ) => IAutoMovieModelPart = (
+    attachedBone: AutoMovieHumanoidBone | null,
+  ): IAutoMovieModelPart => ({
     ...primitivePart("sword", {
       type: "box" as const,
       width: 0.05,
@@ -49,19 +56,29 @@ export function test_viewer_build_model_attached_bone(): void {
   // 2. negative twin: a known attachedBone rides that bone
   const model: ReturnType<typeof createModel> = createModel();
   const knownBone: AutoMovieHumanoidBone = model.skeleton!.bones[0]!.bone;
-  const built: ReturnType<typeof buildModel> = buildModel({ ...model, parts: [sword(knownBone)] });
+  const built: ReturnType<typeof buildModel> = buildModel({
+    ...model,
+    parts: [sword(knownBone)],
+  });
   const bone: THREE.Object3D = built.bones.get(knownBone)!;
   TestValidator.equals(
     "a known attachedBone parents the part under that bone",
-    bone.children.some((child: THREE.Object3D): boolean => child.name === "sword"),
+    bone.children.some(
+      (child: THREE.Object3D): boolean => child.name === "sword",
+    ),
     true,
   );
 
   // 3. a null attachedBone still parents to the model group
-  const loose: ReturnType<typeof buildModel> = buildModel({ ...createModel(), parts: [sword(null)] });
+  const loose: ReturnType<typeof buildModel> = buildModel({
+    ...createModel(),
+    parts: [sword(null)],
+  });
   TestValidator.equals(
     "an unattached part parents to the model group",
-    loose.object.children.some((child: THREE.Object3D): boolean => child.name === "sword"),
+    loose.object.children.some(
+      (child: THREE.Object3D): boolean => child.name === "sword",
+    ),
     true,
   );
 }

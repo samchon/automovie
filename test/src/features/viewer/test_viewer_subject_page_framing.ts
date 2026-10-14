@@ -33,10 +33,14 @@ import {
  * @evidence contracts/testing.md#execution-ownership The named entry reuses existing non-Human inspection records and CPU cameras/frusta without a renderer or new probe; source revision and real page/hardware behavior remain external.
  */
 export function test_viewer_subject_page_framing(): void {
-  const artifact: import("@automovie/interface").IAutoMovieSubjectArtifact = subjectInspectionArtifact();
-  const room: import("@automovie/interface").IAutoMovieSubjectDescription = describeAutoMovieSubject(artifact, "space:castle/hall");
-  const content: import("@automovie/interface").IAutoMovieSubjectBox | null = room.bounds.content;
-  const declared: import("@automovie/interface").IAutoMovieSubjectBox | null = room.bounds.declared;
+  const artifact: import("@automovie/interface").IAutoMovieSubjectArtifact =
+    subjectInspectionArtifact();
+  const room: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(artifact, "space:castle/hall");
+  const content: import("@automovie/interface").IAutoMovieSubjectBox | null =
+    room.bounds.content;
+  const declared: import("@automovie/interface").IAutoMovieSubjectBox | null =
+    room.bounds.declared;
   if (content === null || declared === null)
     throw new Error("The inspection fixture must state both room extents.");
 
@@ -48,8 +52,14 @@ export function test_viewer_subject_page_framing(): void {
     namedFacts([
       ["world space", (): boolean => room.bounds.coordinateSpace === "world"],
       ["declared holds the contents", (): boolean => holds(declared, content)],
-      ["aims apart", (): boolean => middle(declared).distanceTo(middle(content)) > 1],
-      ["contents are smaller", (): boolean => radius(content) < radius(declared) / 1.5],
+      [
+        "aims apart",
+        (): boolean => middle(declared).distanceTo(middle(content)) > 1,
+      ],
+      [
+        "contents are smaller",
+        (): boolean => radius(content) < radius(declared) / 1.5,
+      ],
     ]),
     {
       "world space": true,
@@ -83,21 +93,26 @@ export function test_viewer_subject_page_framing(): void {
   // 3. Declared-cell framing shifts the aim and reduces the subject's angular extent.
   //----
   const viewpoint: IAutoMovieViewerViewpoint = plan[3]!;
-  const fromContent: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(content, viewpoint, LENS);
-  const fromDeclared: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(declared, viewpoint, LENS);
+  const fromContent: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(content, viewpoint, LENS);
+  const fromDeclared: import("../../../../packages/viewer/src/index").IAutoMovieViewerSubjectPose =
+    frameAutoMovieViewerSubject(declared, viewpoint, LENS);
   TestValidator.equals(
     "the declared cell moves the aim off the contents and shrinks them",
     namedFacts([
       [
         "content framing aims at the contents",
         (): boolean => {
-          const distance: number = middle(content).distanceTo(vector(fromContent.target));
+          const distance: number = middle(content).distanceTo(
+            vector(fromContent.target),
+          );
           return nclose(distance, 0, 1e-9) && distance < 1e-9;
         },
       ],
       [
         "declared framing aims somewhere else",
-        (): boolean => middle(content).distanceTo(vector(fromDeclared.target)) > 1,
+        (): boolean =>
+          middle(content).distanceTo(vector(fromDeclared.target)) > 1,
       ],
       [
         "and the contents subtend a smaller angle",
@@ -117,27 +132,36 @@ export function test_viewer_subject_page_framing(): void {
   // 4. Overflowing content escapes the declared-cell frustum.
   //----
   // The historical motivating example described a 4.20 m cell and a 9.40 m tower. This existing stress input instead has its own 60 m content extent; it tests numerical frustum escape, not a reconstructed production frame.
-  const overflow: import("@automovie/interface").IAutoMovieSubjectDescription = describeAutoMovieSubject(
-    subjectInspectionArtifact({
-      models: [
-        subjectInspectionModel({
-          id: "stair-tower-model",
-          min: { x: -19, y: 0, z: -19 },
-          max: { x: 19, y: 60, z: 19 },
-        }),
-      ],
-    }),
-    "space:castle/hall",
-  );
-  const tower: import("@automovie/interface").IAutoMovieSubjectBox = overflow.bounds.content!;
-  const cell: import("@automovie/interface").IAutoMovieSubjectBox = overflow.bounds.declared!;
+  const overflow: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(
+      subjectInspectionArtifact({
+        models: [
+          subjectInspectionModel({
+            id: "stair-tower-model",
+            min: { x: -19, y: 0, z: -19 },
+            max: { x: 19, y: 60, z: 19 },
+          }),
+        ],
+      }),
+      "space:castle/hall",
+    );
+  const tower: import("@automovie/interface").IAutoMovieSubjectBox =
+    overflow.bounds.content!;
+  const cell: import("@automovie/interface").IAutoMovieSubjectBox =
+    overflow.bounds.declared!;
   TestValidator.equals(
     "the overflowing contents are the larger box and frame themselves whole",
     namedFacts([
-      ["the contents are the larger box", (): boolean => radius(tower) > radius(cell)],
+      [
+        "the contents are the larger box",
+        (): boolean => radius(tower) > radius(cell),
+      ],
       [
         "the contents frame themselves whole",
-        (): boolean => plan.every((planned: IAutoMovieViewerViewpoint): boolean => frames(tower, planned, 16 / 9)),
+        (): boolean =>
+          plan.every((planned: IAutoMovieViewerViewpoint): boolean =>
+            frames(tower, planned, 16 / 9),
+          ),
       ],
     ]),
     {
@@ -148,7 +172,9 @@ export function test_viewer_subject_page_framing(): void {
   TestValidator.equals(
     "no planned viewpoint derived from the cell holds the contents",
     plan
-      .filter((planned: IAutoMovieViewerViewpoint): boolean => framesInside(cell, tower, planned, 16 / 9))
+      .filter((planned: IAutoMovieViewerViewpoint): boolean =>
+        framesInside(cell, tower, planned, 16 / 9),
+      )
       .map((planned: IAutoMovieViewerViewpoint): string => planned.id),
     [],
   );
@@ -156,10 +182,11 @@ export function test_viewer_subject_page_framing(): void {
   //----
   // 5. An empty room keeps its declared cell for framing.
   //----
-  const bare: import("@automovie/interface").IAutoMovieSubjectDescription = describeAutoMovieSubject(
-    subjectInspectionArtifact({ models: [], nodes: [] }),
-    "space:castle/hall",
-  );
+  const bare: import("@automovie/interface").IAutoMovieSubjectDescription =
+    describeAutoMovieSubject(
+      subjectInspectionArtifact({ models: [], nodes: [] }),
+      "space:castle/hall",
+    );
   TestValidator.equals(
     "an undressed room reports no contents and keeps its declared cell",
     namedFacts([
@@ -181,21 +208,25 @@ export function test_viewer_subject_page_framing(): void {
   // 6. A downward ring's eye height depends on the subject bounds.
   //----
   // The prior motivation reported a -20 degree ring with an eye 7.5 m below ground on eight of twenty-four production viewpoints. That historical capture is not observed here: the existing grounded and lifted inputs distinguish only numerical eye height, level safety and monotonicity.
-  const grounded: import("@automovie/interface").IAutoMovieSubjectBox = describeAutoMovieSubject(artifact, "space:castle/hall")
-    .bounds.content!;
-  const lifted: import("@automovie/interface").IAutoMovieSubjectBox = describeAutoMovieSubject(
-    subjectInspectionArtifact({
-      models: [
-        subjectInspectionModel({
-          id: "roof-slate-model",
-          min: { x: -0.29, y: 11.9, z: -0.29 },
-          max: { x: 0.29, y: 11.95, z: 0.29 },
-        }),
-      ],
-    }),
-    "element:castle/roof-slate",
-  ).bounds.content!;
-  const eyeHeight: (bounds: IAutoMovieViewerSubjectBounds, elevationDeg: number) => number = (
+  const grounded: import("@automovie/interface").IAutoMovieSubjectBox =
+    describeAutoMovieSubject(artifact, "space:castle/hall").bounds.content!;
+  const lifted: import("@automovie/interface").IAutoMovieSubjectBox =
+    describeAutoMovieSubject(
+      subjectInspectionArtifact({
+        models: [
+          subjectInspectionModel({
+            id: "roof-slate-model",
+            min: { x: -0.29, y: 11.9, z: -0.29 },
+            max: { x: 0.29, y: 11.95, z: 0.29 },
+          }),
+        ],
+      }),
+      "element:castle/roof-slate",
+    ).bounds.content!;
+  const eyeHeight: (
+    bounds: IAutoMovieViewerSubjectBounds,
+    elevationDeg: number,
+  ) => number = (
     bounds: IAutoMovieViewerSubjectBounds,
     elevationDeg: number,
   ): number =>
@@ -264,26 +295,43 @@ export function test_viewer_subject_page_framing(): void {
 }
 
 /** The lens the scaffold page looks through. */
-const LENS: { fovDeg: number; aspect: number; } = { fovDeg: 35, aspect: 16 / 9 };
+const LENS: { fovDeg: number; aspect: number } = { fovDeg: 35, aspect: 16 / 9 };
 
-const vector: (value: { x: number; y: number; z: number; }) => THREE.Vector3 = (value: { x: number; y: number; z: number }): THREE.Vector3 =>
-  new THREE.Vector3(value.x, value.y, value.z);
+const vector: (value: {
+  x: number;
+  y: number;
+  z: number;
+}) => THREE.Vector3 = (value: {
+  x: number;
+  y: number;
+  z: number;
+}): THREE.Vector3 => new THREE.Vector3(value.x, value.y, value.z);
 
-const middle: (bounds: IAutoMovieViewerSubjectBounds) => THREE.Vector3 = (bounds: IAutoMovieViewerSubjectBounds): THREE.Vector3 =>
+const middle: (bounds: IAutoMovieViewerSubjectBounds) => THREE.Vector3 = (
+  bounds: IAutoMovieViewerSubjectBounds,
+): THREE.Vector3 =>
   vector(bounds.min).add(vector(bounds.max)).multiplyScalar(0.5);
 
-const radius: (bounds: IAutoMovieViewerSubjectBounds) => number = (bounds: IAutoMovieViewerSubjectBounds): number =>
-  vector(bounds.max).sub(vector(bounds.min)).length() / 2;
+const radius: (bounds: IAutoMovieViewerSubjectBounds) => number = (
+  bounds: IAutoMovieViewerSubjectBounds,
+): number => vector(bounds.max).sub(vector(bounds.min)).length() / 2;
 
-const corners: (bounds: IAutoMovieViewerSubjectBounds) => THREE.Vector3[] = (bounds: IAutoMovieViewerSubjectBounds): THREE.Vector3[] =>
+const corners: (bounds: IAutoMovieViewerSubjectBounds) => THREE.Vector3[] = (
+  bounds: IAutoMovieViewerSubjectBounds,
+): THREE.Vector3[] =>
   [bounds.min.x, bounds.max.x].flatMap((x: number): THREE.Vector3[] =>
     [bounds.min.y, bounds.max.y].flatMap((y: number): THREE.Vector3[] =>
-      [bounds.min.z, bounds.max.z].map((z: number): THREE.Vector3 => new THREE.Vector3(x, y, z)),
+      [bounds.min.z, bounds.max.z].map(
+        (z: number): THREE.Vector3 => new THREE.Vector3(x, y, z),
+      ),
     ),
   );
 
 /** Whether the outer box contains the inner one. */
-const holds: (outer: IAutoMovieViewerSubjectBounds, inner: IAutoMovieViewerSubjectBounds) => boolean = (
+const holds: (
+  outer: IAutoMovieViewerSubjectBounds,
+  inner: IAutoMovieViewerSubjectBounds,
+) => boolean = (
   outer: IAutoMovieViewerSubjectBounds,
   inner: IAutoMovieViewerSubjectBounds,
 ): boolean =>
@@ -293,7 +341,10 @@ const holds: (outer: IAutoMovieViewerSubjectBounds, inner: IAutoMovieViewerSubje
   );
 
 /** Half-angle the box's bounding sphere subtends from one eye position. */
-const subtended: (bounds: IAutoMovieViewerSubjectBounds, eye: { x: number; y: number; z: number; }) => number = (
+const subtended: (
+  bounds: IAutoMovieViewerSubjectBounds,
+  eye: { x: number; y: number; z: number },
+) => number = (
   bounds: IAutoMovieViewerSubjectBounds,
   eye: { x: number; y: number; z: number },
 ): number => Math.atan2(radius(bounds), middle(bounds).distanceTo(vector(eye)));
@@ -303,14 +354,23 @@ const subtended: (bounds: IAutoMovieViewerSubjectBounds, eye: { x: number; y: nu
  *
  * `THREE.Frustum` judges all six planes, so both side fields and the derived clip range must contain the authored corners. A near plane inside the box or a far plane short of its back fails this numerical predicate just as a side plane does.
  */
-const frames: (bounds: IAutoMovieViewerSubjectBounds, viewpoint: IAutoMovieViewerViewpoint, aspect: number) => boolean = (
+const frames: (
+  bounds: IAutoMovieViewerSubjectBounds,
+  viewpoint: IAutoMovieViewerViewpoint,
+  aspect: number,
+) => boolean = (
   bounds: IAutoMovieViewerSubjectBounds,
   viewpoint: IAutoMovieViewerViewpoint,
   aspect: number,
 ): boolean => framesInside(bounds, bounds, viewpoint, aspect);
 
 /** The same question when the eye was derived from a different box. */
-const framesInside: (framed: IAutoMovieViewerSubjectBounds, judged: IAutoMovieViewerSubjectBounds, viewpoint: IAutoMovieViewerViewpoint, aspect: number) => boolean = (
+const framesInside: (
+  framed: IAutoMovieViewerSubjectBounds,
+  judged: IAutoMovieViewerSubjectBounds,
+  viewpoint: IAutoMovieViewerViewpoint,
+  aspect: number,
+) => boolean = (
   framed: IAutoMovieViewerSubjectBounds,
   judged: IAutoMovieViewerSubjectBounds,
   viewpoint: IAutoMovieViewerViewpoint,
@@ -327,5 +387,7 @@ const framesInside: (framed: IAutoMovieViewerSubjectBounds, judged: IAutoMovieVi
       camera.matrixWorldInverse,
     ),
   );
-  return corners(judged).every((corner: THREE.Vector3): boolean => frustum.containsPoint(corner));
+  return corners(judged).every((corner: THREE.Vector3): boolean =>
+    frustum.containsPoint(corner),
+  );
 };

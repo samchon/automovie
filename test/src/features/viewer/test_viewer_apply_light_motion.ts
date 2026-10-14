@@ -34,7 +34,14 @@ const scene: IAutoMovieScene = {
 };
 
 /** A one-track light clip on the beat's three-second clock. */
-const clip: (id: string, pointer: string, valueType: "scalar" | "vec3", times: number[], values: number[], interpolation: "step" | "linear") => IAutoMovieClip = (
+const clip: (
+  id: string,
+  pointer: string,
+  valueType: "scalar" | "vec3",
+  times: number[],
+  values: number[],
+  interpolation: "step" | "linear",
+) => IAutoMovieClip = (
   id: string,
   pointer: string,
   valueType: "scalar" | "vec3",
@@ -90,12 +97,18 @@ const clip: (id: string, pointer: string, valueType: "scalar" | "vec3", times: n
  * @evidence contracts/testing.md#execution-ownership This named portable unit directly invokes scene construction and light application on Three objects using supplied ID lookup callbacks. It acquires no renderer, browser, GPU or dynamic case registry; namedFacts executes the local assertions only.
  */
 export function test_viewer_apply_light_motion(): void {
-  const built: ReturnType<typeof buildScene> = buildScene(scene, (): undefined => undefined);
+  const built: ReturnType<typeof buildScene> = buildScene(
+    scene,
+    (): undefined => undefined,
+  );
 
   // 1. published by id, still ordered by staging.
   TestValidator.equals(
     "the light index is keyed by id, and the children keep staging order",
-    [[...built.lights.keys()], built.scene.children.map((child: THREE.Object3D): string => child.type)],
+    [
+      [...built.lights.keys()],
+      built.scene.children.map((child: THREE.Object3D): string => child.type),
+    ],
     [
       ["candleGlow", "lamp"],
       ["PointLight", "SpotLight"],
@@ -103,7 +116,9 @@ export function test_viewer_apply_light_motion(): void {
   );
 
   // 2. the staged values, the baseline the animation is measured against.
-  const candle: THREE.PointLight = built.lights.get("candleGlow") as THREE.PointLight;
+  const candle: THREE.PointLight = built.lights.get(
+    "candleGlow",
+  ) as THREE.PointLight;
   const lamp: THREE.SpotLight = built.lights.get("lamp") as THREE.SpotLight;
   TestValidator.equals(
     "a staged light lands with its authored colour, intensity, range and cone",
@@ -113,7 +128,10 @@ export function test_viewer_apply_light_motion(): void {
       ["ncloseCandleColor3", (): boolean => nclose(candle.color.b, 0.5)],
       ["ncloseCandleIntensity", (): boolean => nclose(candle.intensity, 1.4)],
       ["ncloseCandleDistance", (): boolean => nclose(candle.distance, 4)],
-      ["ncloseLampAngle", (): boolean => nclose(lamp.angle, (40 * Math.PI) / 180)],
+      [
+        "ncloseLampAngle",
+        (): boolean => nclose(lamp.angle, (40 * Math.PI) / 180),
+      ],
     ]),
     {
       ncloseCandleColor: true,
@@ -164,7 +182,10 @@ export function test_viewer_apply_light_motion(): void {
       ["ncloseCandleColor", (): boolean => nclose(candle.color.r, 0.5)],
       ["ncloseCandleColor2", (): boolean => nclose(candle.color.g, 0.4)],
       ["ncloseCandleColor3", (): boolean => nclose(candle.color.b, 0.25)],
-      ["ncloseLampAngle", (): boolean => nclose(lamp.angle, (70 * Math.PI) / 180)],
+      [
+        "ncloseLampAngle",
+        (): boolean => nclose(lamp.angle, (70 * Math.PI) / 180),
+      ],
     ]),
     {
       ncloseCandleIntensity: true,
@@ -189,13 +210,17 @@ export function test_viewer_apply_light_motion(): void {
       ),
     ],
     1.6,
-    (id: string): THREE.Light | undefined => (id === "candleGlow" ? undefined : built.lights.get(id)),
+    (id: string): THREE.Light | undefined =>
+      id === "candleGlow" ? undefined : built.lights.get(id),
   );
   TestValidator.equals(
     "the unresolved light is skipped, and the un-animated one returns to staged",
     namedFacts([
       ["ncloseCandleIntensity", (): boolean => nclose(candle.intensity, 0.04)],
-      ["ncloseLampAngle", (): boolean => nclose(lamp.angle, (40 * Math.PI) / 180)],
+      [
+        "ncloseLampAngle",
+        (): boolean => nclose(lamp.angle, (40 * Math.PI) / 180),
+      ],
     ]),
     { ncloseCandleIntensity: true, ncloseLampAngle: true },
   );

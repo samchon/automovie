@@ -20,7 +20,11 @@ const WEST_WALL: IAutoMovieSectionPlane = {
   normal: { x: -1, y: 0, z: 0 },
 };
 
-const scene: () => { root: THREE.Scene; single: THREE.MeshStandardMaterial; multi: THREE.MeshStandardMaterial[]; } = (): {
+const scene: () => {
+  root: THREE.Scene;
+  single: THREE.MeshStandardMaterial;
+  multi: THREE.MeshStandardMaterial[];
+} = (): {
   root: THREE.Scene;
   single: THREE.MeshStandardMaterial;
   multi: THREE.MeshStandardMaterial[];
@@ -38,10 +42,14 @@ const scene: () => { root: THREE.Scene; single: THREE.MeshStandardMaterial; mult
   return { root, single, multi };
 };
 
-const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (root: THREE.Object3D): THREE.Material[] => {
+const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
+  root: THREE.Object3D,
+): THREE.Material[] => {
   const found: THREE.Material[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const holder: { material?: THREE.Material | THREE.Material[]; } = object as { material?: THREE.Material | THREE.Material[] };
+    const holder: { material?: THREE.Material | THREE.Material[] } = object as {
+      material?: THREE.Material | THREE.Material[];
+    };
     if (holder.material === undefined) return;
     for (const material of Array.isArray(holder.material)
       ? holder.material
@@ -74,8 +82,14 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (root: THREE.Obj
  */
 export function test_viewer_section_planes(): void {
   // 1. one plane reaches every material, and only the ones that exist
-  const first: { root: THREE.Scene; single: THREE.MeshStandardMaterial; multi: THREE.MeshStandardMaterial[]; } = scene();
-  const renderer: { localClippingEnabled: boolean; } = { localClippingEnabled: false };
+  const first: {
+    root: THREE.Scene;
+    single: THREE.MeshStandardMaterial;
+    multi: THREE.MeshStandardMaterial[];
+  } = scene();
+  const renderer: { localClippingEnabled: boolean } = {
+    localClippingEnabled: false,
+  };
   const built: THREE.Plane[] = applyAutoMovieSectionPlanes({
     renderer,
     root: first.root,
@@ -87,7 +101,9 @@ export function test_viewer_section_planes(): void {
     true,
   );
   TestValidator.equals("one declared plane builds one", built.length, 1);
-  const materials: THREE.Material<THREE.MaterialEventMap>[] = materialsOf(first.root);
+  const materials: THREE.Material<THREE.MaterialEventMap>[] = materialsOf(
+    first.root,
+  );
   TestValidator.equals(
     "every mesh material in the subtree is reached",
     materials.length,
@@ -130,7 +146,10 @@ export function test_viewer_section_planes(): void {
   // 4. Material version advances only when the plane count changes.
   TestValidator.predicate(
     "taking a section marks every material for recompile",
-    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 1),
+    materials.every(
+      (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
+        material.version === 1,
+    ),
   );
   applyAutoMovieSectionPlanes({
     renderer,
@@ -139,7 +158,10 @@ export function test_viewer_section_planes(): void {
   });
   TestValidator.predicate(
     "sliding a cut of the same count leaves material versions unchanged",
-    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 1),
+    materials.every(
+      (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
+        material.version === 1,
+    ),
   );
 
   // 5. Two planes preserve order and advance material version.
@@ -155,7 +177,10 @@ export function test_viewer_section_planes(): void {
   );
   TestValidator.predicate(
     "a changed count marks every material for recompile",
-    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.version === 2),
+    materials.every(
+      (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
+        material.version === 2,
+    ),
   );
 
   // 6. releasing the section restores the uncut scene
@@ -172,6 +197,9 @@ export function test_viewer_section_planes(): void {
   );
   TestValidator.predicate(
     "every material is back to no clipping planes",
-    materials.every((material: THREE.Material<THREE.MaterialEventMap>): boolean => material.clippingPlanes === null),
+    materials.every(
+      (material: THREE.Material<THREE.MaterialEventMap>): boolean =>
+        material.clippingPlanes === null,
+    ),
   );
 }

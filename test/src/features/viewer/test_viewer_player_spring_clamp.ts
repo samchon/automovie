@@ -1,5 +1,13 @@
-import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-import { type IAutoMovieViewerFrame, AutoMoviePlayer, createImportedModelObject } from "@automovie/viewer";
+import type {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import {
+  AutoMoviePlayer,
+  type IAutoMovieViewerFrame,
+  createImportedModelObject,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -48,7 +56,8 @@ export function test_viewer_player_spring_clamp(): void {
   const stepped: AutoMoviePlayer = new AutoMoviePlayer(
     createImportedModelObject({
       object: new THREE.Object3D(),
-      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number => record.push(pose),
+      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number =>
+        record.push(pose),
     }),
     SKELETON,
     makeMotion(
@@ -64,7 +73,9 @@ export function test_viewer_player_spring_clamp(): void {
   );
   for (let t: number = 0; t <= 3.0001; t += 1 / 30) stepped.update(t);
   const flexions: number[] = record.map(
-    (pose: IAutoMoviePose): number => pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")?.flexion ?? 0,
+    (pose: IAutoMoviePose): number =>
+      pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")
+        ?.flexion ?? 0,
   );
   const peak: number = Math.max(...flexions);
   TestValidator.equals(
@@ -81,7 +92,8 @@ export function test_viewer_player_spring_clamp(): void {
   const decaying: AutoMoviePlayer = new AutoMoviePlayer(
     createImportedModelObject({
       object: new THREE.Object3D(),
-      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number => decayRecord.push(pose),
+      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number =>
+        decayRecord.push(pose),
     }),
     SKELETON,
     makeMotion(
@@ -102,7 +114,9 @@ export function test_viewer_player_spring_clamp(): void {
   for (let t: number = 0; t <= 6.0001; t += 1 / 30) {
     decaying.update(t);
     const pose: IAutoMoviePose = decayRecord[decayRecord.length - 1]!;
-    const flexion: number | null = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")?.flexion ?? null;
+    const flexion: number | null =
+      pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")
+        ?.flexion ?? null;
     if (t > 2.51 && firstAbsent === null) firstAbsent = flexion;
     if (t > 5.9) settled = flexion;
   }
@@ -115,7 +129,10 @@ export function test_viewer_player_spring_clamp(): void {
         (): boolean => firstAbsent !== null && Math.abs(firstAbsent) > 0.5,
       ],
       ["settled", (): boolean => settled !== null],
-      ["MathAbsSettled", (): boolean => settled !== null && Math.abs(settled) < 0.5],
+      [
+        "MathAbsSettled",
+        (): boolean => settled !== null && Math.abs(settled) < 0.5,
+      ],
     ]),
     {
       firstAbsent: true,

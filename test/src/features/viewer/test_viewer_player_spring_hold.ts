@@ -1,5 +1,13 @@
-import type { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
-import { type IAutoMovieViewerFrame, AutoMoviePlayer, createImportedModelObject } from "@automovie/viewer";
+import type {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+import {
+  AutoMoviePlayer,
+  type IAutoMovieViewerFrame,
+  createImportedModelObject,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -19,8 +27,11 @@ const SKELETON: IAutoMovieSkeleton = {
   ],
 };
 
-const flexionOf: (pose: IAutoMoviePose) => number | null = (pose: IAutoMoviePose): number | null =>
-  pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")?.flexion ?? null;
+const flexionOf: (pose: IAutoMoviePose) => number | null = (
+  pose: IAutoMoviePose,
+): number | null =>
+  pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips")
+    ?.flexion ?? null;
 
 /**
  * Repeating a timestamp preserves the player's live spring angle in its final callback pose, while a genuinely fresh zero-delta joint initializes at its target. The existing imported object has no mapped bones; this observes pose output, not native articulation, hidden velocity or rendered frames.
@@ -42,7 +53,8 @@ export function test_viewer_player_spring_hold(): void {
   const decaying: AutoMoviePlayer = new AutoMoviePlayer(
     createImportedModelObject({
       object: new THREE.Object3D(),
-      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number => decayRecord.push(pose),
+      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number =>
+        decayRecord.push(pose),
     }),
     SKELETON,
     makeMotion(
@@ -65,7 +77,9 @@ export function test_viewer_player_spring_hold(): void {
   decaying.update(2.7 + 1 / 30);
   decaying.update(2.7 + 1 / 30);
   decaying.update(2.7 + 1 / 30);
-  const [frozen1, frozen2]: (number | null)[] = decayRecord.slice(-2).map(flexionOf);
+  const [frozen1, frozen2]: (number | null)[] = decayRecord
+    .slice(-2)
+    .map(flexionOf);
   TestValidator.equals(
     "repeated same-t updates hold the decayed angle without vanishing",
     namedFacts([
@@ -73,19 +87,26 @@ export function test_viewer_player_spring_hold(): void {
       ["frozen2", (): boolean => frozen2 !== null],
       [
         "frozen1Frozen2",
-        (): boolean => frozen1 !== null && frozen2 !== null && nclose(frozen1, frozen2, 0),
+        (): boolean =>
+          frozen1 !== null && frozen2 !== null && nclose(frozen1, frozen2, 0),
       ],
     ]),
     { frozen1: true, frozen2: true, frozen1Frozen2: true },
   );
   decaying.update(2.7 + 2 / 30);
-  const resumed: number | null = flexionOf(decayRecord[decayRecord.length - 1]!);
+  const resumed: number | null = flexionOf(
+    decayRecord[decayRecord.length - 1]!,
+  );
   TestValidator.equals(
     "the next advancing frame continues the decay from the held state",
     namedFacts([
       ["resumed", (): boolean => resumed !== null],
       ["resumed2", (): boolean => resumed !== null && !nclose(resumed, 0, 0)],
-      ["resumedFrozen1", (): boolean => resumed !== null && frozen1 !== null && !nclose(resumed, frozen1, 0)],
+      [
+        "resumedFrozen1",
+        (): boolean =>
+          resumed !== null && frozen1 !== null && !nclose(resumed, frozen1, 0),
+      ],
     ]),
     { resumed: true, resumed2: true, resumedFrozen1: true },
   );
@@ -95,7 +116,8 @@ export function test_viewer_player_spring_hold(): void {
   const lagging: AutoMoviePlayer = new AutoMoviePlayer(
     createImportedModelObject({
       object: new THREE.Object3D(),
-      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number => lagRecord.push(pose),
+      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number =>
+        lagRecord.push(pose),
     }),
     SKELETON,
     makeMotion(
@@ -121,7 +143,11 @@ export function test_viewer_player_spring_hold(): void {
     "a paused frame holds the lagged angle instead of popping to the target",
     namedFacts([
       ["chased", (): boolean => chased !== null],
-      ["pausedChased", (): boolean => chased !== null && paused !== null && nclose(paused, chased, 0)],
+      [
+        "pausedChased",
+        (): boolean =>
+          chased !== null && paused !== null && nclose(paused, chased, 0),
+      ],
       ["paused", (): boolean => paused !== null && !nclose(paused, 40, 0)],
     ]),
     { chased: true, pausedChased: true, paused: true },
@@ -132,7 +158,8 @@ export function test_viewer_player_spring_hold(): void {
   const fresh: AutoMoviePlayer = new AutoMoviePlayer(
     createImportedModelObject({
       object: new THREE.Object3D(),
-      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number => freshRecord.push(pose),
+      afterAutoMovieFrame: ({ pose }: IAutoMovieViewerFrame): number =>
+        freshRecord.push(pose),
     }),
     SKELETON,
     makeMotion(

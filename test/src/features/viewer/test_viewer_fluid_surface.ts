@@ -1,9 +1,14 @@
-import type { AutoMovieGuidePass, IAutoMovieFluidDomain, IAutoMovieFluidSurface, IAutoMovieFluidSurfaceBounds } from "@automovie/interface";
 import {
   fluidSurfaceGeometry,
   sampleFluidSpray,
   simulateFluidDomain,
 } from "@automovie/engine";
+import type {
+  AutoMovieGuidePass,
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidSurface,
+  IAutoMovieFluidSurfaceBounds,
+} from "@automovie/interface";
 import {
   applyRenderMode,
   buildFluidSprayObject,
@@ -13,10 +18,14 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { observeThrownValue } from "../internal/observeThrownValue";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const pool: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (overrides: Partial<IAutoMovieFluidDomain> = {}): IAutoMovieFluidDomain =>
+const pool: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
+  overrides: Partial<IAutoMovieFluidDomain> = {},
+): IAutoMovieFluidDomain =>
   flatBasin({
     columns: 4,
     rows: 4,
@@ -46,7 +55,13 @@ const pool: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomai
     },
   });
 
-const surfaceAt: (domain: IAutoMovieFluidDomain, step: number) => IAutoMovieFluidSurface = (domain: IAutoMovieFluidDomain, step: number): IAutoMovieFluidSurface =>
+const surfaceAt: (
+  domain: IAutoMovieFluidDomain,
+  step: number,
+) => IAutoMovieFluidSurface = (
+  domain: IAutoMovieFluidDomain,
+  step: number,
+): IAutoMovieFluidSurface =>
   fluidSurfaceGeometry({ domain, state: simulateFluidDomain(domain, step) });
 
 /**
@@ -71,10 +86,18 @@ const surfaceAt: (domain: IAutoMovieFluidDomain, step: number) => IAutoMovieFlui
 export function test_viewer_fluid_surface(): void {
   const domain: IAutoMovieFluidDomain = pool();
   const surface: IAutoMovieFluidSurface = surfaceAt(domain, 40);
-  const water: ReturnType<typeof buildFluidSurfaceObject> = buildFluidSurfaceObject({ surface, mode: "flowing" });
-  const plain: ReturnType<typeof buildFluidSurfaceObject> = buildFluidSurfaceObject({ surface: surfaceAt(domain, 0) });
-  const position: THREE.BufferAttribute<THREE.BufferAttributeEventMap> | THREE.InterleavedBufferAttribute = water.object.geometry.getAttribute("position");
-  const flow: THREE.BufferAttribute<THREE.BufferAttributeEventMap> | THREE.InterleavedBufferAttribute = water.object.geometry.getAttribute("aFlow");
+  const water: ReturnType<typeof buildFluidSurfaceObject> =
+    buildFluidSurfaceObject({ surface, mode: "flowing" });
+  const plain: ReturnType<typeof buildFluidSurfaceObject> =
+    buildFluidSurfaceObject({ surface: surfaceAt(domain, 0) });
+  const position:
+    | THREE.BufferAttribute<THREE.BufferAttributeEventMap>
+    | THREE.InterleavedBufferAttribute =
+    water.object.geometry.getAttribute("position");
+  const flow:
+    | THREE.BufferAttribute<THREE.BufferAttributeEventMap>
+    | THREE.InterleavedBufferAttribute =
+    water.object.geometry.getAttribute("aFlow");
 
   TestValidator.equals(
     "the stored mesh attributes preserve the observed Engine surface fields",
@@ -104,7 +127,8 @@ export function test_viewer_fluid_surface(): void {
       [
         "boundsFromEngine",
         (): boolean => {
-          const sphere: THREE.Sphere | null = water.object.geometry.boundingSphere;
+          const sphere: THREE.Sphere | null =
+            water.object.geometry.boundingSphere;
           const bounds: IAutoMovieFluidSurfaceBounds | null = surface.bounds;
           if (sphere === null || bounds === null) return false;
           const min: THREE.Vector3 = new THREE.Vector3(
@@ -147,40 +171,108 @@ export function test_viewer_fluid_surface(): void {
     },
   );
 
-  const spray: ReturnType<typeof buildFluidSprayObject> = buildFluidSprayObject({
-    sample: sampleFluidSpray({
-      domain,
-      state: simulateFluidDomain(domain, 64),
-    }),
-  });
+  const spray: ReturnType<typeof buildFluidSprayObject> = buildFluidSprayObject(
+    {
+      sample: sampleFluidSpray({
+        domain,
+        state: simulateFluidDomain(domain, 64),
+      }),
+    },
+  );
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   scene.add(water.object);
   scene.add(spray.object);
-  const original: THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[] = water.object.material;
+  const original:
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[] = water.object.material;
 
-  const passes: { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; }[] = (["depth", "normal", "mask"] as const).map((mode: AutoMovieGuidePass): { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; } => {
-    const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, mode);
-    const overridden: boolean = water.object.material !== original;
-    const sprayHidden: boolean = spray.object.visible === false;
-    handle.restore();
-    return {
-      overridden,
-      sprayHidden,
-      restored: water.object.material === original,
-      sprayShown: spray.object.visible === true,
-    };
-  });
-  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(scene, "beauty");
+  const passes: {
+    overridden: boolean;
+    sprayHidden: boolean;
+    restored: boolean;
+    sprayShown: boolean;
+  }[] = (["depth", "normal", "mask"] as const).map(
+    (
+      mode: AutoMovieGuidePass,
+    ): {
+      overridden: boolean;
+      sprayHidden: boolean;
+      restored: boolean;
+      sprayShown: boolean;
+    } => {
+      const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+        scene,
+        mode,
+      );
+      const overridden: boolean = water.object.material !== original;
+      const sprayHidden: boolean = spray.object.visible === false;
+      handle.restore();
+      return {
+        overridden,
+        sprayHidden,
+        restored: water.object.material === original,
+        sprayShown: spray.object.visible === true,
+      };
+    },
+  );
+  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "beauty",
+  );
   const untouched: boolean = water.object.material === original;
   beauty.restore();
 
   TestValidator.equals(
     "the three requested structural modes swap water materials and hide mist",
     namedFacts([
-      ["overridden", (): boolean => passes.every((pass: { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; }): boolean => pass.overridden)],
-      ["restored", (): boolean => passes.every((pass: { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; }): boolean => pass.restored)],
-      ["sprayHidden", (): boolean => passes.every((pass: { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; }): boolean => pass.sprayHidden)],
-      ["sprayShown", (): boolean => passes.every((pass: { overridden: boolean; sprayHidden: boolean; restored: boolean; sprayShown: boolean; }): boolean => pass.sprayShown)],
+      [
+        "overridden",
+        (): boolean =>
+          passes.every(
+            (pass: {
+              overridden: boolean;
+              sprayHidden: boolean;
+              restored: boolean;
+              sprayShown: boolean;
+            }): boolean => pass.overridden,
+          ),
+      ],
+      [
+        "restored",
+        (): boolean =>
+          passes.every(
+            (pass: {
+              overridden: boolean;
+              sprayHidden: boolean;
+              restored: boolean;
+              sprayShown: boolean;
+            }): boolean => pass.restored,
+          ),
+      ],
+      [
+        "sprayHidden",
+        (): boolean =>
+          passes.every(
+            (pass: {
+              overridden: boolean;
+              sprayHidden: boolean;
+              restored: boolean;
+              sprayShown: boolean;
+            }): boolean => pass.sprayHidden,
+          ),
+      ],
+      [
+        "sprayShown",
+        (): boolean =>
+          passes.every(
+            (pass: {
+              overridden: boolean;
+              sprayHidden: boolean;
+              restored: boolean;
+              sprayShown: boolean;
+            }): boolean => pass.sprayShown,
+          ),
+      ],
       ["beautyUntouched", (): boolean => untouched],
       ["sprayCount", (): boolean => spray.count() === 8],
       ["sprayName", (): boolean => spray.object.name === "water-spray"],
@@ -207,34 +299,41 @@ export function test_viewer_fluid_surface(): void {
   );
 
   water.update(surfaceAt(domain, 120));
-  const drained: IAutoMovieFluidDomain = pool({ depth: new Array(16).fill(0), sources: [] });
-  const empty: ReturnType<typeof buildFluidSurfaceObject> = buildFluidSurfaceObject({ surface: surfaceAt(drained, 0) });
-  const emptySpray: ReturnType<typeof buildFluidSprayObject> = buildFluidSprayObject({
-    sample: { step: 0, time: 0, particles: [] },
+  const drained: IAutoMovieFluidDomain = pool({
+    depth: new Array(16).fill(0),
+    sources: [],
   });
+  const empty: ReturnType<typeof buildFluidSurfaceObject> =
+    buildFluidSurfaceObject({ surface: surfaceAt(drained, 0) });
+  const emptySpray: ReturnType<typeof buildFluidSprayObject> =
+    buildFluidSprayObject({
+      sample: { step: 0, time: 0, particles: [] },
+    });
   // `IAutoMovieMesh` allows a normal-less, UV-less, non-indexed surface, so a caller that hands one over must get empty attributes rather than a throw.
-  const bare: ReturnType<typeof buildFluidSurfaceObject> = buildFluidSurfaceObject({
-    surface: {
-      domain: "hand-built",
-      step: 3,
-      mesh: {
-        positions: [0, 0, 0],
-        normals: null,
-        uvs: null,
-        indices: null,
-        skin: null,
+  const bare: ReturnType<typeof buildFluidSurfaceObject> =
+    buildFluidSurfaceObject({
+      surface: {
+        domain: "hand-built",
+        step: 3,
+        mesh: {
+          positions: [0, 0, 0],
+          normals: null,
+          uvs: null,
+          indices: null,
+          skin: null,
+        },
+        bounds: null,
+        flow: [0, 0],
       },
-      bounds: null,
-      flow: [0, 0],
-    },
-  });
+    });
   TestValidator.equals(
     "a later step replaces attributes on the same mesh and a drained pool is hidden",
     namedFacts([
       ["updatedStep", (): boolean => water.object.userData.step === 120],
       [
         "updatedGeometry",
-        (): boolean => water.object.geometry.getAttribute("position").count === 16,
+        (): boolean =>
+          water.object.geometry.getAttribute("position").count === 16,
       ],
       ["emptyHidden", (): boolean => empty.object.visible === false],
       [
@@ -253,7 +352,8 @@ export function test_viewer_fluid_surface(): void {
       ["bareHidden", (): boolean => bare.object.visible === false],
       [
         "bareEmptySphere",
-        (): boolean => nclose(bare.object.geometry.boundingSphere?.radius ?? -1, 0, 0),
+        (): boolean =>
+          nclose(bare.object.geometry.boundingSphere?.radius ?? -1, 0, 0),
       ],
       [
         "foreignUpload",
@@ -282,65 +382,92 @@ export function test_viewer_fluid_surface(): void {
 
   let ownedDisposed: number = 0;
   let borrowedDisposed: number = 0;
-  (water.object.material as THREE.Material).addEventListener("dispose", (): void => {
-    ownedDisposed += 1;
-  });
+  (water.object.material as THREE.Material).addEventListener(
+    "dispose",
+    (): void => {
+      ownedDisposed += 1;
+    },
+  );
   const borrowed: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   borrowed.addEventListener("dispose", (): void => {
     borrowedDisposed += 1;
   });
-  const guest: ReturnType<typeof buildFluidSurfaceObject> = buildFluidSurfaceObject({
-    surface: surfaceAt(domain, 0),
-    material: borrowed,
-  });
+  const guest: ReturnType<typeof buildFluidSurfaceObject> =
+    buildFluidSurfaceObject({
+      surface: surfaceAt(domain, 0),
+      material: borrowed,
+    });
   const borrowedPoints: THREE.PointsMaterial = new THREE.PointsMaterial();
   let borrowedPointsDisposed: number = 0;
   borrowedPoints.addEventListener("dispose", (): void => {
     borrowedPointsDisposed += 1;
   });
-  const guestSpray: ReturnType<typeof buildFluidSprayObject> = buildFluidSprayObject({
-    sample: sampleFluidSpray({
-      domain,
-      state: simulateFluidDomain(domain, 64),
-    }),
-    material: borrowedPoints,
-  });
-  const waterGeometryFailure: Error = new Error("Water geometry retirement listener refused.");
-  const sprayGeometryFailure: Error = new Error("Spray geometry retirement listener refused.");
-  const sprayMaterialFailure: Error = new Error("Spray material retirement listener refused.");
+  const guestSpray: ReturnType<typeof buildFluidSprayObject> =
+    buildFluidSprayObject({
+      sample: sampleFluidSpray({
+        domain,
+        state: simulateFluidDomain(domain, 64),
+      }),
+      material: borrowedPoints,
+    });
+  const waterGeometryFailure: Error = new Error(
+    "Water geometry retirement listener refused.",
+  );
+  const sprayGeometryFailure: Error = new Error(
+    "Spray geometry retirement listener refused.",
+  );
+  const sprayMaterialFailure: Error = new Error(
+    "Spray material retirement listener refused.",
+  );
   const retirementOrder: string[] = [];
   water.object.geometry.addEventListener("dispose", (): never => {
     retirementOrder.push("water geometry");
     throw waterGeometryFailure;
   });
-  (water.object.material as THREE.Material).addEventListener("dispose", (): void => {
-    retirementOrder.push("water material");
-  });
+  (water.object.material as THREE.Material).addEventListener(
+    "dispose",
+    (): void => {
+      retirementOrder.push("water material");
+    },
+  );
   spray.object.geometry.addEventListener("dispose", (): never => {
     retirementOrder.push("spray geometry");
     throw sprayGeometryFailure;
   });
-  (spray.object.material as THREE.PointsMaterial).addEventListener("dispose", (): never => {
-    retirementOrder.push("spray material");
-    throw sprayMaterialFailure;
-  });
-  const waterRetirement: ReturnType<typeof observeThrownValue> = observeThrownValue((): void => water.dispose());
+  (spray.object.material as THREE.PointsMaterial).addEventListener(
+    "dispose",
+    (): never => {
+      retirementOrder.push("spray material");
+      throw sprayMaterialFailure;
+    },
+  );
+  const waterRetirement: ReturnType<typeof observeThrownValue> =
+    observeThrownValue((): void => water.dispose());
   guest.dispose();
   guestSpray.dispose();
-  const sprayRetirement: ReturnType<typeof observeThrownValue> = observeThrownValue((): void => spray.dispose());
+  const sprayRetirement: ReturnType<typeof observeThrownValue> =
+    observeThrownValue((): void => spray.dispose());
   empty.dispose();
   emptySpray.dispose();
   plain.dispose();
   bare.dispose();
-  TestValidator.equals("geometry failure still attempts each default-owned material once in order",
-    retirementOrder, ["water geometry", "water material", "spray geometry", "spray material"]);
-  TestValidator.predicate("one retirement cause retains its actual original object",
-    waterRetirement.threw && waterRetirement.error === waterGeometryFailure);
-  TestValidator.predicate("independent spray failures retain their original order",
-    sprayRetirement.threw && sprayRetirement.error instanceof AggregateError &&
-    sprayRetirement.error.errors.length === 2 &&
-    sprayRetirement.error.errors[0] === sprayGeometryFailure &&
-    sprayRetirement.error.errors[1] === sprayMaterialFailure);
+  TestValidator.equals(
+    "geometry failure still attempts each default-owned material once in order",
+    retirementOrder,
+    ["water geometry", "water material", "spray geometry", "spray material"],
+  );
+  TestValidator.predicate(
+    "one retirement cause retains its actual original object",
+    waterRetirement.threw && waterRetirement.error === waterGeometryFailure,
+  );
+  TestValidator.predicate(
+    "independent spray failures retain their original order",
+    sprayRetirement.threw &&
+      sprayRetirement.error instanceof AggregateError &&
+      sprayRetirement.error.errors.length === 2 &&
+      sprayRetirement.error.errors[0] === sprayGeometryFailure &&
+      sprayRetirement.error.errors[1] === sprayMaterialFailure,
+  );
   TestValidator.equals(
     "disposal attempts the owned material and leaves supplied materials borrowed",
     namedFacts([

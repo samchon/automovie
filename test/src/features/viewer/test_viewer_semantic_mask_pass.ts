@@ -20,8 +20,8 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { flatBasin, waterFeature } from "../internal/fluidFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
 import { observeThrownValue } from "../internal/observeThrownValue";
+import { namedFacts, throwsError } from "../internal/predicates";
 import {
   buildingFixture,
   instanceSetFixture,
@@ -78,19 +78,26 @@ export function test_viewer_semantic_mask_pass(): void {
     plantingClusters: [plantingCluster()],
     plantingInstallations: [plantingInstallation()],
   } as unknown as IAutoMovieCompiledShotSource;
-  const mask: ReturnType<typeof deriveAutoMovieSemanticMask> = deriveAutoMovieSemanticMask(
-    autoMovieRenderSubjectOfCompiledShot({ compiled }),
-  );
+  const mask: ReturnType<typeof deriveAutoMovieSemanticMask> =
+    deriveAutoMovieSemanticMask(
+      autoMovieRenderSubjectOfCompiledShot({ compiled }),
+    );
   const colorOf: (id: string) => string = (id: string): string =>
-    mask.entries.find((entry: (typeof mask.entries)[number]) : boolean => entry.id === id)!.color;
+    mask.entries.find(
+      (entry: (typeof mask.entries)[number]): boolean => entry.id === id,
+    )!.color;
   const hex: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
     `#${(mesh.material as THREE.MeshBasicMaterial).color.getHexString().toUpperCase()}`;
 
   // A scene containing every declared drawable has one group per designed node, the instance-set group, and the three simulated drawables no node holds.
   const complete: ReturnType<typeof build> = build(design, { simulated: true });
-  const ramp: ReturnType<typeof applyRenderMode> = applyRenderMode(complete.scene, "mask");
+  const ramp: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    complete.scene,
+    "mask",
+  );
   const rampWall: string = hex(complete.meshes.get("tower/hall-wall")!);
-  const rampSemantic: ReturnType<typeof applyRenderMode>["semantic"] = ramp.semantic;
+  const rampSemantic: ReturnType<typeof applyRenderMode>["semantic"] =
+    ramp.semantic;
   ramp.restore();
   TestValidator.equals(
     "a scene with no palette keeps the index ramp and claims no identity",
@@ -105,10 +112,13 @@ export function test_viewer_semantic_mask_pass(): void {
   TestValidator.equals(
     "the attached palette is what decides which mask pass runs",
     namedFacts([
-      ["unattached", () : boolean => autoMovieSemanticMaskOf(complete.scene) === null],
+      [
+        "unattached",
+        (): boolean => autoMovieSemanticMaskOf(complete.scene) === null,
+      ],
       [
         "attached",
-        () : boolean => {
+        (): boolean => {
           attachAutoMovieSemanticMask(complete.scene, { design, mask });
           return autoMovieSemanticMaskOf(complete.scene)?.mask === mask;
         },
@@ -117,7 +127,10 @@ export function test_viewer_semantic_mask_pass(): void {
     { unattached: true, attached: true },
   );
 
-  const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(complete.scene, "mask");
+  const handle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    complete.scene,
+    "mask",
+  );
   TestValidator.equals(
     "an attached palette paints every drawable the colour its own id earned",
     {
@@ -156,20 +169,22 @@ export function test_viewer_semantic_mask_pass(): void {
     namedFacts([
       [
         "materials",
-        () : boolean =>
+        (): boolean =>
           [...complete.meshes.values()].every(
-            (mesh: THREE.Mesh) : boolean => mesh.material === complete.beauty.get(mesh),
+            (mesh: THREE.Mesh): boolean =>
+              mesh.material === complete.beauty.get(mesh),
           ),
       ],
       [
         "stray material",
-        () : boolean => complete.stray.material === complete.strayBeauty,
+        (): boolean => complete.stray.material === complete.strayBeauty,
       ],
       [
         "background",
-        () : boolean => (complete.scene.background as THREE.Color).getHex() === 0x123456,
+        (): boolean =>
+          (complete.scene.background as THREE.Color).getHex() === 0x123456,
       ],
-      ["mode", () : boolean => handle.mode === "mask"],
+      ["mode", (): boolean => handle.mode === "mask"],
     ]),
     {
       materials: true,
@@ -181,56 +196,118 @@ export function test_viewer_semantic_mask_pass(): void {
 
   const failureFog: THREE.Fog = new THREE.Fog(0x123456, 1, 10);
   const failureEnvironment: THREE.Texture = new THREE.Texture();
-  const failureGrid: THREE.LineSegments = new THREE.LineSegments(new THREE.BufferGeometry());
+  const failureGrid: THREE.LineSegments = new THREE.LineSegments(
+    new THREE.BufferGeometry(),
+  );
   complete.scene.fog = failureFog;
   complete.scene.environment = failureEnvironment;
   complete.scene.add(failureGrid);
-  const failedRestore: ReturnType<typeof applyRenderMode> = applyRenderMode(complete.scene, "mask");
+  const failedRestore: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    complete.scene,
+    "mask",
+  );
   const overrides: Set<THREE.Material> = new Set([
-    ...[...complete.meshes.values()].map((mesh: THREE.Mesh): THREE.Material => mesh.material as THREE.Material),
+    ...[...complete.meshes.values()].map(
+      (mesh: THREE.Mesh): THREE.Material => mesh.material as THREE.Material,
+    ),
     complete.stray.material as THREE.Material,
   ]);
   const attempts: Map<THREE.Material, number> = new Map();
   const firstOverride: THREE.Material = [...overrides][0]!;
   const disposalFailure: Error = new Error("semantic override disposal");
-  for (const material of overrides) material.addEventListener("dispose", (): void => {
-    attempts.set(material, (attempts.get(material) ?? 0) + 1);
-    if (material === firstOverride) throw disposalFailure;
-  });
-  const firstRestore: ReturnType<typeof observeThrownValue> = observeThrownValue(failedRestore.restore);
-  TestValidator.predicate("semantic dispose failure preserves its actual cause", firstRestore.threw && firstRestore.error === disposalFailure);
-  TestValidator.predicate("failed semantic close still restores every borrowed source",
-    [...complete.meshes.values()].every((mesh: THREE.Mesh): boolean => mesh.material === complete.beauty.get(mesh)) &&
-    complete.stray.material === complete.strayBeauty && complete.scene.fog === failureFog &&
-    complete.scene.environment === failureEnvironment && failureGrid.visible &&
-    (complete.scene.background as THREE.Color).getHex() === 0x123456);
-  TestValidator.predicate("all distinct actual overrides retire once despite a failing listener",
-    attempts.size === overrides.size && [...attempts.values()].every((count: number): boolean => count === 1));
-  const repeatedRestore: ReturnType<typeof observeThrownValue> = observeThrownValue(failedRestore.restore);
-  TestValidator.predicate("failed repeat has the same cause and no new disposal",
-    repeatedRestore.threw && repeatedRestore.error === disposalFailure && [...attempts.values()].every((count: number): boolean => count === 1));
-  const nextPass:ReturnType<typeof observeThrownValue>=observeThrownValue(():ReturnType<typeof applyRenderMode>=>applyRenderMode(complete.scene,"mask"));
-  TestValidator.predicate("same-scene reacquisition preserves failed material ownership",nextPass.threw&&nextPass.error===disposalFailure&&[...attempts.values()].every((count:number):boolean=>count===1));
-  failureEnvironment.dispose(); failureGrid.geometry.dispose(); complete.scene.remove(failureGrid);
+  for (const material of overrides)
+    material.addEventListener("dispose", (): void => {
+      attempts.set(material, (attempts.get(material) ?? 0) + 1);
+      if (material === firstOverride) throw disposalFailure;
+    });
+  const firstRestore: ReturnType<typeof observeThrownValue> =
+    observeThrownValue(failedRestore.restore);
+  TestValidator.predicate(
+    "semantic dispose failure preserves its actual cause",
+    firstRestore.threw && firstRestore.error === disposalFailure,
+  );
+  TestValidator.predicate(
+    "failed semantic close still restores every borrowed source",
+    [...complete.meshes.values()].every(
+      (mesh: THREE.Mesh): boolean =>
+        mesh.material === complete.beauty.get(mesh),
+    ) &&
+      complete.stray.material === complete.strayBeauty &&
+      complete.scene.fog === failureFog &&
+      complete.scene.environment === failureEnvironment &&
+      failureGrid.visible &&
+      (complete.scene.background as THREE.Color).getHex() === 0x123456,
+  );
+  TestValidator.predicate(
+    "all distinct actual overrides retire once despite a failing listener",
+    attempts.size === overrides.size &&
+      [...attempts.values()].every((count: number): boolean => count === 1),
+  );
+  const repeatedRestore: ReturnType<typeof observeThrownValue> =
+    observeThrownValue(failedRestore.restore);
+  TestValidator.predicate(
+    "failed repeat has the same cause and no new disposal",
+    repeatedRestore.threw &&
+      repeatedRestore.error === disposalFailure &&
+      [...attempts.values()].every((count: number): boolean => count === 1),
+  );
+  const nextPass: ReturnType<typeof observeThrownValue> = observeThrownValue(
+    (): ReturnType<typeof applyRenderMode> =>
+      applyRenderMode(complete.scene, "mask"),
+  );
+  TestValidator.predicate(
+    "same-scene reacquisition preserves failed material ownership",
+    nextPass.threw &&
+      nextPass.error === disposalFailure &&
+      [...attempts.values()].every((count: number): boolean => count === 1),
+  );
+  failureEnvironment.dispose();
+  failureGrid.geometry.dispose();
+  complete.scene.remove(failureGrid);
 
-  const setupFailure: ReturnType<typeof build> = build(design, { simulated: true });
+  const setupFailure: ReturnType<typeof build> = build(design, {
+    simulated: true,
+  });
   const setupFog: THREE.Fog = new THREE.Fog(0x123456, 1, 10);
   setupFailure.scene.fog = setupFog;
   attachAutoMovieSemanticMask(setupFailure.scene, { design, mask });
   Object.freeze([...setupFailure.meshes.values()][1]!);
-  const refusedSetup: ReturnType<typeof observeThrownValue> = observeThrownValue((): ReturnType<typeof applyRenderMode> => applyRenderMode(setupFailure.scene, "mask"));
-  TestValidator.predicate("setup keeps its original native assignment refusal before restoration refusals",
-    refusedSetup.threw && refusedSetup.error instanceof AggregateError && refusedSetup.error.errors[0] instanceof TypeError);
-  TestValidator.predicate("refused setup restores its independent neighbor and atmosphere",
-    [...setupFailure.meshes.values()].every((mesh: THREE.Mesh): boolean => mesh.material === setupFailure.beauty.get(mesh)) &&
-    setupFailure.scene.fog === setupFog && (setupFailure.scene.background as THREE.Color).getHex() === 0x123456);
-  const setupRepeat:ReturnType<typeof observeThrownValue>=observeThrownValue(():ReturnType<typeof applyRenderMode>=>applyRenderMode(setupFailure.scene,"mask"));
-  TestValidator.predicate("failed setup rollback keeps the same complete cause",setupRepeat.threw&&setupRepeat.error===refusedSetup.error);
+  const refusedSetup: ReturnType<typeof observeThrownValue> =
+    observeThrownValue(
+      (): ReturnType<typeof applyRenderMode> =>
+        applyRenderMode(setupFailure.scene, "mask"),
+    );
+  TestValidator.predicate(
+    "setup keeps its original native assignment refusal before restoration refusals",
+    refusedSetup.threw &&
+      refusedSetup.error instanceof AggregateError &&
+      refusedSetup.error.errors[0] instanceof TypeError,
+  );
+  TestValidator.predicate(
+    "refused setup restores its independent neighbor and atmosphere",
+    [...setupFailure.meshes.values()].every(
+      (mesh: THREE.Mesh): boolean =>
+        mesh.material === setupFailure.beauty.get(mesh),
+    ) &&
+      setupFailure.scene.fog === setupFog &&
+      (setupFailure.scene.background as THREE.Color).getHex() === 0x123456,
+  );
+  const setupRepeat: ReturnType<typeof observeThrownValue> = observeThrownValue(
+    (): ReturnType<typeof applyRenderMode> =>
+      applyRenderMode(setupFailure.scene, "mask"),
+  );
+  TestValidator.predicate(
+    "failed setup rollback keeps the same complete cause",
+    setupRepeat.threw && setupRepeat.error === refusedSetup.error,
+  );
 
   // The same design omits the three declared simulated drawables, so the audit reports their missing scene roots.
   const missing: ReturnType<typeof build> = build(design, { simulated: false });
   attachAutoMovieSemanticMask(missing.scene, { design, mask });
-  const missingHandle: ReturnType<typeof applyRenderMode> = applyRenderMode(missing.scene, "mask");
+  const missingHandle: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    missing.scene,
+    "mask",
+  );
   TestValidator.equals(
     "a drawable the shot declared and the scene never built is named",
     {
@@ -247,10 +324,11 @@ export function test_viewer_semantic_mask_pass(): void {
       // Neither run may name a room, an opening or an instanced slot: those claim no drawable of their own and are reached through `owner`.
       quiet: mask.entries
         .filter(
-          (entry: (typeof mask.entries)[number]) : boolean => entry.nodes.length === 0 && entry.kind !== "instance-set",
+          (entry: (typeof mask.entries)[number]): boolean =>
+            entry.nodes.length === 0 && entry.kind !== "instance-set",
         )
         .every(
-          (entry: (typeof mask.entries)[number]) : boolean =>
+          (entry: (typeof mask.entries)[number]): boolean =>
             missingHandle.semantic!.unresolved.includes(entry.id) === false,
         ),
     },
@@ -279,7 +357,10 @@ export function test_viewer_semantic_mask_pass(): void {
   );
 
   // An instanced set claims no `nodes` of its own and is joined by its entry id, so a missing batch needs its own case.
-  const setless: ReturnType<typeof build> = build(design, { simulated: true, instanceSet: false });
+  const setless: ReturnType<typeof build> = build(design, {
+    simulated: true,
+    instanceSet: false,
+  });
   TestValidator.equals(
     "an instanced batch the scene never built is named by its set id",
     auditAutoMovieSemanticMaskScene({ scene: setless.scene, design, mask }),
@@ -291,7 +372,9 @@ export function test_viewer_semantic_mask_pass(): void {
   short.background = new THREE.Color(0x123456);
   short.fog = new THREE.FogExp2(0x223344, 0.02);
   short.environment = new THREE.Texture();
-  const grid: THREE.LineSegments = new THREE.LineSegments(new THREE.BufferGeometry());
+  const grid: THREE.LineSegments = new THREE.LineSegments(
+    new THREE.BufferGeometry(),
+  );
   short.add(grid);
   attachAutoMovieSemanticMask(short, { design, mask });
   TestValidator.equals(
@@ -299,19 +382,20 @@ export function test_viewer_semantic_mask_pass(): void {
     namedFacts([
       [
         "refused",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            (): ReturnType<typeof applyRenderMode> => applyRenderMode(short, "mask"),
+            (): ReturnType<typeof applyRenderMode> =>
+              applyRenderMode(short, "mask"),
             "cannot resolve staged nodes",
           ),
       ],
-      ["fog", () : boolean => short.fog !== null],
-      ["image lighting", () : boolean => short.environment !== null],
+      ["fog", (): boolean => short.fog !== null],
+      ["image lighting", (): boolean => short.environment !== null],
       [
         "background",
-        () : boolean => (short.background as THREE.Color).getHex() === 0x123456,
+        (): boolean => (short.background as THREE.Color).getHex() === 0x123456,
       ],
-      ["grid visible", () : boolean => grid.visible],
+      ["grid visible", (): boolean => grid.visible],
     ]),
     {
       refused: true,
@@ -326,7 +410,10 @@ export function test_viewer_semantic_mask_pass(): void {
 /**
  * Assemble the scene `buildScene` and the compiled shot runtime assemble: one named group per designed node in declaration order, a named group for the compiled instance set, and one named object per simulated drawable.
  */
-const build: (design: IAutoMovieScene, props: { simulated: boolean; instanceSet?: boolean }) => {
+const build: (
+  design: IAutoMovieScene,
+  props: { simulated: boolean; instanceSet?: boolean },
+) => {
   scene: THREE.Scene;
   meshes: Map<string, THREE.Mesh>;
   beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]>;
@@ -346,8 +433,14 @@ const build: (design: IAutoMovieScene, props: { simulated: boolean; instanceSet?
   scene.background = new THREE.Color(0x123456);
   const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
   const meshes: Map<string, THREE.Mesh> = new Map<string, THREE.Mesh>();
-  const add: (name: string, parent: THREE.Object3D) => THREE.Mesh = (name: string, parent: THREE.Object3D): THREE.Mesh => {
-    const mesh: THREE.Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+  const add: (name: string, parent: THREE.Object3D) => THREE.Mesh = (
+    name: string,
+    parent: THREE.Object3D,
+  ): THREE.Mesh => {
+    const mesh: THREE.Mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial(),
+    );
     mesh.name = name;
     parent.add(mesh);
     meshes.set(name, mesh);
@@ -374,9 +467,15 @@ const build: (design: IAutoMovieScene, props: { simulated: boolean; instanceSet?
     add(autoMoviePlantingNodeName("atrium-bed"), cluster);
   }
   // A mesh no entry claims receives the reserved background material and contributes to the unaddressed graph count.
-  const stray: THREE.Mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+  const stray: THREE.Mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial(),
+  );
   scene.add(stray);
-  const beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
+  const beauty: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map<
+    THREE.Mesh,
+    THREE.Material | THREE.Material[]
+  >();
   for (const mesh of meshes.values()) beauty.set(mesh, mesh.material);
   return { scene, meshes, beauty, stray, strayBeauty: stray.material };
 };

@@ -65,20 +65,26 @@ export function test_viewer_silent_skip_guards(): void {
 
   // 2. applyPose reports the bones the model map does not carry
   const hipsOnly: THREE.Object3D<THREE.Object3DEventMap> = new THREE.Object3D();
-  const partial: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = createImportedModelObject({
-    object: new THREE.Object3D(),
-    bones: { hips: hipsOnly },
-  });
-  const pose: { skeleton: string; root: null; joints: never[]; } = { skeleton: TWO_BONES.id, root: null, joints: [] };
+  const partial: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+    createImportedModelObject({
+      object: new THREE.Object3D(),
+      bones: { hips: hipsOnly },
+    });
+  const pose: { skeleton: string; root: null; joints: never[] } = {
+    skeleton: TWO_BONES.id,
+    root: null,
+    joints: [],
+  };
   TestValidator.equals(
     "unmapped skeleton bones are reported, mapped ones are not",
     applyPose(partial, pose, TWO_BONES),
     ["head"],
   );
-  const full: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject = createImportedModelObject({
-    object: new THREE.Object3D(),
-    bones: { hips: new THREE.Object3D(), head: new THREE.Object3D() },
-  });
+  const full: import("../../../../packages/viewer/src/IAutoMovieModelObject").IAutoMovieModelObject =
+    createImportedModelObject({
+      object: new THREE.Object3D(),
+      bones: { hips: new THREE.Object3D(), head: new THREE.Object3D() },
+    });
   TestValidator.equals(
     "a complete bone map reports nothing skipped",
     applyPose(full, pose, TWO_BONES),

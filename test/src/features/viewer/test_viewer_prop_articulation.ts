@@ -21,14 +21,23 @@ import * as THREE from "three";
 
 import { namedFacts, throwsError, vclose } from "../internal/predicates";
 
-const IDENTITY: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = {
+const IDENTITY: {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
 
 /** One articulation joint, optionally driving one part of the prop's model. */
-const joint: (id: string, parent: string | null, mesh: string | null, x?: number) => IAutoMovieNode = (
+const joint: (
+  id: string,
+  parent: string | null,
+  mesh: string | null,
+  x?: number,
+) => IAutoMovieNode = (
   id: string,
   parent: string | null,
   mesh: string | null,
@@ -104,7 +113,9 @@ const gateSpec: (nodes?: IAutoMovieNode[]) => IAutoMoviePropSpec = (
 });
 
 /** The staged scene the gate stands in, at `x` metres along +X. */
-const sceneOf: (x?: number) => IAutoMovieScene = (x: number = 2): IAutoMovieScene => ({
+const sceneOf: (x?: number) => IAutoMovieScene = (
+  x: number = 2,
+): IAutoMovieScene => ({
   id: "hall",
   name: null,
   nodes: [
@@ -121,7 +132,13 @@ const sceneOf: (x?: number) => IAutoMovieScene = (x: number = 2): IAutoMovieScen
 });
 
 /** Build the scene, then its prop articulation, and hand both back. */
-const build: (spec: IAutoMoviePropSpec, scene?: IAutoMovieScene) => { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } = (
+const build: (
+  spec: IAutoMoviePropSpec,
+  scene?: IAutoMovieScene,
+) => {
+  root: THREE.Scene;
+  articulation: ReturnType<typeof buildPropArticulation>;
+} = (
   spec: IAutoMoviePropSpec,
   scene: IAutoMovieScene = sceneOf(),
 ): {
@@ -129,22 +146,42 @@ const build: (spec: IAutoMoviePropSpec, scene?: IAutoMovieScene) => { root: THRE
   articulation: ReturnType<typeof buildPropArticulation>;
 } => {
   const model: IAutoMovieModelObject = buildModel(spec.model);
-  const root: THREE.Scene<THREE.Object3DEventMap> = buildScene(scene, (): IAutoMovieModelObject => model).scene;
+  const root: THREE.Scene<THREE.Object3DEventMap> = buildScene(
+    scene,
+    (): IAutoMovieModelObject => model,
+  ).scene;
   return {
     root,
     articulation: buildPropArticulation({
       scene,
       props: [spec],
       nodeObjects: new Map(
-        scene.nodes.map((node: IAutoMovieSceneNode): [string, THREE.Object3D<THREE.Object3DEventMap>] => [node.id, root.getObjectByName(node.id)!]),
+        scene.nodes.map(
+          (
+            node: IAutoMovieSceneNode,
+          ): [string, THREE.Object3D<THREE.Object3DEventMap>] => [
+            node.id,
+            root.getObjectByName(node.id)!,
+          ],
+        ),
       ),
-      modelObjects: new Map(scene.nodes.map((node: IAutoMovieSceneNode): [string, IAutoMovieModelObject] => [node.id, model])),
+      modelObjects: new Map(
+        scene.nodes.map(
+          (node: IAutoMovieSceneNode): [string, IAutoMovieModelObject] => [
+            node.id,
+            model,
+          ],
+        ),
+      ),
     }),
   };
 };
 
 /** World position of the named object, as a plain vector. */
-const worldOf: (root: THREE.Object3D, name: string) => THREE.Vector3 = (root: THREE.Object3D, name: string): THREE.Vector3 => {
+const worldOf: (root: THREE.Object3D, name: string) => THREE.Vector3 = (
+  root: THREE.Object3D,
+  name: string,
+): THREE.Vector3 => {
   root.updateMatrixWorld(true);
   return root.getObjectByName(name)!.getWorldPosition(new THREE.Vector3());
 };
@@ -171,7 +208,13 @@ const worldOf: (root: THREE.Object3D, name: string) => THREE.Vector3 = (root: TH
 export function test_viewer_prop_articulation(): void {
   const spec: IAutoMoviePropSpec = gateSpec();
   const scene: IAutoMovieScene = sceneOf();
-  const { root, articulation }: { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } = build(spec, scene);
+  const {
+    root,
+    articulation,
+  }: {
+    root: THREE.Scene;
+    articulation: ReturnType<typeof buildPropArticulation>;
+  } = build(spec, scene);
   const hinge: string = placementChildNode("frontGate", "hinge");
   TestValidator.equals(
     "the viewer names its joints what the engine lowers them as",
@@ -197,7 +240,10 @@ export function test_viewer_prop_articulation(): void {
         "hingePlaced",
         (): boolean => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 }),
       ],
-      ["leafHeld", (): boolean => vclose(worldOf(root, "leaf"), { x: 2, y: 1, z: 0 })],
+      [
+        "leafHeld",
+        (): boolean => vclose(worldOf(root, "leaf"), { x: 2, y: 1, z: 0 }),
+      ],
     ]),
     { hingePlaced: true, leafHeld: true },
   );
@@ -222,13 +268,17 @@ export function test_viewer_prop_articulation(): void {
       },
     ],
     0,
-    (node: string): THREE.Object3D<THREE.Object3DEventMap> | undefined => articulation.joints.get(node),
+    (node: string): THREE.Object3D<THREE.Object3DEventMap> | undefined =>
+      articulation.joints.get(node),
   );
   const after: THREE.Vector3 = worldOf(root, "leaf");
   TestValidator.equals(
     "the turn carries the leaf around the pivot and leaves the pivot alone",
     namedFacts([
-      ["hingeHeld", (): boolean => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 })],
+      [
+        "hingeHeld",
+        (): boolean => vclose(worldOf(root, hinge), { x: 1.5, y: 0, z: 0 }),
+      ],
       // A quarter turn about +Y moves the half-width +X offset to −Z at the same height.
       ["leafSwung", (): boolean => vclose(after, { x: 1.5, y: 1, z: -0.5 })],
       ["leafMoved", (): boolean => before.distanceTo(after) > 0.5],
@@ -245,7 +295,10 @@ export function test_viewer_prop_articulation(): void {
   TestValidator.predicate(
     "a joint naming a part the model does not carry throws",
     throwsError(
-      (): { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } => build(gateSpec([joint("hinge", null, "sash")])),
+      (): {
+        root: THREE.Scene;
+        articulation: ReturnType<typeof buildPropArticulation>;
+      } => build(gateSpec([joint("hinge", null, "sash")])),
       'drives part "sash"',
     ),
   );
@@ -286,7 +339,10 @@ export function test_viewer_prop_articulation(): void {
   TestValidator.predicate(
     "a joint whose declared parent the prop does not carry throws",
     throwsError(
-      (): { root: THREE.Scene; articulation: ReturnType<typeof buildPropArticulation>; } => build(gateSpec([joint("cap", "ghost", null)])),
+      (): {
+        root: THREE.Scene;
+        articulation: ReturnType<typeof buildPropArticulation>;
+      } => build(gateSpec([joint("cap", "ghost", null)])),
       'declares parent "ghost"',
     ),
   );

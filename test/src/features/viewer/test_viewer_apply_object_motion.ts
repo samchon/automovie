@@ -5,7 +5,10 @@ import * as THREE from "three";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const node: (path: "translation" | "rotation" | "scale" | "weights", values: number[]) => IAutoMovieTrack = (
+const node: (
+  path: "translation" | "rotation" | "scale" | "weights",
+  values: number[],
+) => IAutoMovieTrack = (
   // The complete node-channel union preserves the scale and weights cases.
   path: "translation" | "rotation" | "scale" | "weights",
   values: number[],
@@ -17,7 +20,9 @@ const node: (path: "translation" | "rotation" | "scale" | "weights", values: num
 });
 
 /** A mesh carrying `count` morph targets, all resting at zero. */
-const morphMesh: (count: number) => THREE.Mesh = (count: number): THREE.Mesh => {
+const morphMesh: (count: number) => THREE.Mesh = (
+  count: number,
+): THREE.Mesh => {
   const mesh: THREE.Mesh = new THREE.Mesh(
     new THREE.BufferGeometry(),
     new THREE.MeshBasicMaterial(),
@@ -88,7 +93,9 @@ export function test_viewer_apply_object_motion(): void {
 
   // 1. all three TRS channels write
   const prop: THREE.Object3D = new THREE.Object3D();
-  applyObjectMotion(clip, 0.5, (n: string): THREE.Object3D | undefined => (n === "prop" ? prop : undefined));
+  applyObjectMotion(clip, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? prop : undefined,
+  );
   const halfAngle: number = Math.PI / 8; // slerp(identity, 90°@Y, 0.5) = 45° about Y
   TestValidator.equals(
     "translation, rotation, and scale all land on the object",
@@ -131,7 +138,9 @@ export function test_viewer_apply_object_motion(): void {
     ...clip,
     tracks: [node("translation", [0, 0, 0, 2, 4, 6])],
   };
-  applyObjectMotion(rigid, 1, (n: string): THREE.Object3D | undefined => (n === "prop" ? prop : undefined));
+  applyObjectMotion(rigid, 1, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? prop : undefined,
+  );
   TestValidator.equals(
     "a channel absent from the clip keeps the object's existing value",
     namedFacts([
@@ -153,7 +162,9 @@ export function test_viewer_apply_object_motion(): void {
   nested.add(buried);
   carrier.add(direct);
   carrier.add(nested);
-  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined => (n === "prop" ? carrier : undefined));
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? carrier : undefined,
+  );
   TestValidator.equals(
     "a weights track writes the sampled vector onto every morphable mesh",
     namedFacts([
@@ -184,7 +195,9 @@ export function test_viewer_apply_object_motion(): void {
 
   // 5. Boundaries: no morphable mesh, a shorter influence array, a longer one.
   const bare: THREE.Object3D = new THREE.Object3D();
-  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined => (n === "prop" ? bare : undefined));
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? bare : undefined,
+  );
   TestValidator.equals(
     "an object with no morphable mesh is skipped",
     bare.children.length,
@@ -196,7 +209,9 @@ export function test_viewer_apply_object_motion(): void {
   const mixed: THREE.Object3D = new THREE.Object3D();
   mixed.add(short);
   mixed.add(long);
-  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined => (n === "prop" ? mixed : undefined));
+  applyObjectMotion(morphs, 0.5, (n: string): THREE.Object3D | undefined =>
+    n === "prop" ? mixed : undefined,
+  );
   TestValidator.equals(
     "a shorter influence array fills as far as it goes and a longer one keeps its tail",
     namedFacts([
@@ -259,12 +274,20 @@ export function test_viewer_apply_object_motion(): void {
     ],
   };
   const authoritySink: THREE.Object3D = new THREE.Object3D();
-  applyObjectMotions([handoffA, handoffB], 0.5, (): THREE.Object3D => authoritySink);
+  applyObjectMotions(
+    [handoffA, handoffB],
+    0.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "a future handoff does not overwrite the current authority",
     nclose(authoritySink.position.x, 0.5),
   );
-  applyObjectMotions([handoffA, handoffB], 1.5, (): THREE.Object3D => authoritySink);
+  applyObjectMotions(
+    [handoffA, handoffB],
+    1.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "the later handoff takes authority after its first key",
     nclose(authoritySink.position.x, 1.5),
@@ -302,7 +325,10 @@ export function test_viewer_apply_object_motion(): void {
         "ncloseAuthoritySinkPosition",
         (): boolean => nclose(authoritySink.position.x, 1.5),
       ],
-      ["ncloseAuthoritySinkScale", (): boolean => nclose(authoritySink.scale.x, 1.75)],
+      [
+        "ncloseAuthoritySinkScale",
+        (): boolean => nclose(authoritySink.scale.x, 1.75),
+      ],
     ]),
     { ncloseAuthoritySinkPosition: true, ncloseAuthoritySinkScale: true },
   );
@@ -316,7 +342,11 @@ export function test_viewer_apply_object_motion(): void {
       },
     ],
   } satisfies IAutoMovieClip;
-  applyObjectMotions([handoffA, handoffB, tied], 1.5, (): THREE.Object3D => authoritySink);
+  applyObjectMotions(
+    [handoffA, handoffB, tied],
+    1.5,
+    (): THREE.Object3D => authoritySink,
+  );
   TestValidator.predicate(
     "equal-start duplicates choose later producer order",
     nclose(authoritySink.position.x, 15),

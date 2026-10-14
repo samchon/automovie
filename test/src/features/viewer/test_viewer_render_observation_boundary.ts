@@ -21,8 +21,15 @@ import type * as THREE from "three";
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit uses maintained Viewer/Render source and the existing local counter record without replacing an SDK instance method; it starts no browser, GPU renderer, process or native artifact.
  */
 export function test_viewer_render_observation_boundary(): void {
-  const render: { calls: number; triangles: number; } = { calls: 41, triangles: 99 };
-  const info: { autoReset: boolean; render: { calls: number; triangles: number; }; reset: () => void; } = {
+  const render: { calls: number; triangles: number } = {
+    calls: 41,
+    triangles: 99,
+  };
+  const info: {
+    autoReset: boolean;
+    render: { calls: number; triangles: number };
+    reset: () => void;
+  } = {
     autoReset: true,
     render,
     reset: (): void => {
@@ -30,14 +37,17 @@ export function test_viewer_render_observation_boundary(): void {
       render.triangles = 0;
     },
   };
-  const renderer: THREE.WebGLRenderer = { info } as unknown as THREE.WebGLRenderer;
-  const frame: { output: string; observed: IAutoMovieRenderObservation; } = observeAutoMovieRendererFrame(renderer, (): string => {
-    render.calls += 2;
-    render.triangles += 12;
-    render.calls += 1;
-    render.triangles += 2;
-    return "drawn";
-  });
+  const renderer: THREE.WebGLRenderer = {
+    info,
+  } as unknown as THREE.WebGLRenderer;
+  const frame: { output: string; observed: IAutoMovieRenderObservation } =
+    observeAutoMovieRendererFrame(renderer, (): string => {
+      render.calls += 2;
+      render.triangles += 12;
+      render.calls += 1;
+      render.triangles += 2;
+      return "drawn";
+    });
   TestValidator.equals("all passes are accumulated", frame, {
     output: "drawn",
     observed: {
@@ -81,17 +91,31 @@ export function test_viewer_render_observation_boundary(): void {
     protocol: "automovie.render-report.v1",
     tier: "boundary-test",
     status: "within",
-    findings: ["triangles", "drawCalls"].map((metric: string): { metric: "triangles" | "drawCalls"; status: "within"; measured: number; limit: number; excess: number; contributors: never[]; omittedContributors: number; omittedCost: number; recovery: null; } => ({
-      metric: metric as "triangles" | "drawCalls",
-      status: "within" as const,
-      measured: metric === "triangles" ? 14 : 3,
-      limit: 14,
-      excess: 0,
-      contributors: [],
-      omittedContributors: 0,
-      omittedCost: 0,
-      recovery: null,
-    })),
+    findings: ["triangles", "drawCalls"].map(
+      (
+        metric: string,
+      ): {
+        metric: "triangles" | "drawCalls";
+        status: "within";
+        measured: number;
+        limit: number;
+        excess: number;
+        contributors: never[];
+        omittedContributors: number;
+        omittedCost: number;
+        recovery: null;
+      } => ({
+        metric: metric as "triangles" | "drawCalls",
+        status: "within" as const,
+        measured: metric === "triangles" ? 14 : 3,
+        limit: 14,
+        excess: 0,
+        contributors: [],
+        omittedContributors: 0,
+        omittedCost: 0,
+        recovery: null,
+      }),
+    ),
     mask: "sha256:mask",
     target: {
       protocol: "automovie.render-target.v1",
