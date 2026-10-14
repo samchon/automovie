@@ -6,6 +6,7 @@ export * from "./IAutoMovieMesh";
 export * from "./IAutoMovieGeometry";
 export * from "./IAutoMovieModelPart";
 export * from "./IAutoMovieModel";
+export * from "./IAutoMovieLookAt";
 export * from "./IAutoMovieMeshDeformationField";
 export * from "./AutoMovieAffordanceKind";
 export * from "./IAutoMovieBoxShape";

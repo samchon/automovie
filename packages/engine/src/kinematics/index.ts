@@ -30,6 +30,7 @@ export * from "./normalizeJointAxes";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
+export * from "./resolveLookAt";
 export * from "./resolvePose";
 export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";

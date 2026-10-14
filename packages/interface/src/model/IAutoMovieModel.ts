@@ -6,6 +6,7 @@ import { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import { AutoMovieAssetOrigin } from "./AutoMovieAssetOrigin";
 import { IAutoMovieAffordance } from "./IAutoMovieAffordance";
 import { IAutoMovieBody } from "./IAutoMovieBody";
+import { IAutoMovieLookAt } from "./IAutoMovieLookAt";
 import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
 
 /**
@@ -21,7 +22,7 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  * @evidence contracts/common.md#principled-implementation Stable model identity joins parts, materials and an optional skeleton; validateModel checks their references and numeric domains, while imported appearances carry a compiler-sealed digest closure and authoritative bone indices rather than runtime name inference.
  * @evidence contracts/common.md#clear-and-simple-design One model groups reusable geometry and capabilities separately from scene placement; each part owns a geometry representation, origin owns provenance, and optional body, contacts and profiles add their respective semantic inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated meshes must come from reviewed generators, and imported visual bytes do not invent physics or inherit traits; the deterministic proxy and sealed asset ledger remain the owners of those distinct facts.
- * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, part, material and carried-image ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
+ * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, optional gaze through eye bones, part, material and carried-image ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
  * @author Samchon
  */
 export interface IAutoMovieModel {
@@ -131,4 +132,11 @@ export interface IAutoMovieModel {
    * Omitted means the model proves no semantic engine capability. Imported appearance does not inherit traits unless its registered deterministic proxy supplies them.
    */
   profiles?: IAutoMovieProfile[];
+
+  /**
+   * How the gaze channels of an expression turn this model's eyes.
+   *
+   * Omitted, gaze drives morph targets and expression sinks, as `"expression"` does. `"bone"` turns the skeleton's `leftEye` and `rightEye` instead, by the ranges it declares.
+   */
+  lookAt?: IAutoMovieLookAt;
 }

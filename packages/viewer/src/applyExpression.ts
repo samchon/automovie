@@ -1,3 +1,4 @@
+import { GAZE_PRESET_CHANNELS } from "@automovie/engine";
 import {
   AutoMovieArkitChannel,
   AutoMovieExpressionPreset,
@@ -91,7 +92,10 @@ const EXPRESSION_RESET_NAMES: readonly string[] = [
 ];
 
 const PRESET_CHANNELS: Partial<
-  Record<AutoMovieExpressionPreset, readonly [AutoMovieArkitChannel, number][]>
+  Record<
+    AutoMovieExpressionPreset,
+    readonly (readonly [AutoMovieArkitChannel, number])[]
+  >
 > = {
   happy: [
     ["mouthSmileLeft", 1],
@@ -146,22 +150,8 @@ const PRESET_CHANNELS: Partial<
   ],
   blinkLeft: [["eyeBlinkLeft", 1]],
   blinkRight: [["eyeBlinkRight", 1]],
-  lookUp: [
-    ["eyeLookUpLeft", 1],
-    ["eyeLookUpRight", 1],
-  ],
-  lookDown: [
-    ["eyeLookDownLeft", 1],
-    ["eyeLookDownRight", 1],
-  ],
-  lookLeft: [
-    ["eyeLookOutLeft", 1],
-    ["eyeLookInRight", 1],
-  ],
-  lookRight: [
-    ["eyeLookInLeft", 1],
-    ["eyeLookOutRight", 1],
-  ],
+  // The gaze rows are shared with the engine's eye-bone gaze.
+  ...GAZE_PRESET_CHANNELS,
 };
 
 /**
@@ -172,7 +162,7 @@ const PRESET_CHANNELS: Partial<
  * case-insensitive matching names; generated primitive models simply no-op.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Expands semantic presets through the viewer's declared ARKit factor table, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
+ * @evidence contracts/common.md#principled-implementation Expands semantic presets through the viewer's declared ARKit factor table, whose gaze rows are the engine's `GAZE_PRESET_CHANNELS` so morph and eye-bone gaze expand alike, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
  * @evidence contracts/common.md#clear-and-simple-design One channel-weight map feeds native morph influences and optional VRM-style sinks; private helpers own preset expansion, supported-channel reset and name lookup without modifying engine pose or model topology.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preset factors are explicit supported visual conventions rather than fixture-specific expected weights; no target method/global is replaced, and unsupported names remain untouched instead of inventing morph targets.
  * @evidence contracts/common.md#meaningful-documentation Documents sink/native-name paths and generated-model no-op; the implementation answer makes clamping, preset factor status, explicit override and folded-name collision limits explicit.

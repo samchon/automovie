@@ -18,6 +18,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { finiteMinimum } from "./finiteMinimum";
@@ -28,6 +29,7 @@ import { validateBody } from "./validateBody";
 import { validateColor } from "./validateColor";
 import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
+import { validateLookAt } from "./validateLookAt";
 import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
 import { validateMesh } from "./validateMesh";
@@ -39,10 +41,10 @@ import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
+ * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes), gaze, transform, body/profile/affordance and material checks in stable order.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton, transform (uniform scale under a dual-quaternion skin), body/profile/affordance and material checks in stable order.
+ * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton with declared joint-axes bases, the gaze declaration against the eye bones, transform (uniform scale under a dual-quaternion skin), body/profile/affordance and material checks in stable order.
  * @evidence contracts/common.md#clear-and-simple-design Leaf owners append to one local collector; model orchestration owns cross-reference sets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed record/list shape is a premise; scalar/reference success does not certify visual quality or repair bad geometry.
  * @evidence contracts/common.md#meaningful-documentation Empty parts, null optional metadata and exact field diagnostics are stated.
@@ -226,7 +228,13 @@ export const validateModel: (props: {
     });
     if (bone.constraint !== null)
       validateJointConstraint(bone.constraint, `${bp}.constraint`, collector);
+    if (bone.axes !== undefined)
+      for (const issue of validateJointAxesBasis(bone.axes, `${bp}.axes`))
+        collector.push("range", issue.path, issue.expected, issue.value);
   });
+
+  if (model.lookAt !== undefined)
+    validateLookAt(model.lookAt, model.skeleton, `${path}.lookAt`, collector);
 
   if (model.body !== null) validateBody(model.body, `${path}.body`, collector);
 
