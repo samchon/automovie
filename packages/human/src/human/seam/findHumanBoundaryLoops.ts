@@ -43,7 +43,9 @@ export function findHumanBoundaryLoops(indices: readonly number[]): number[][] {
   }
   const loops: number[][] = [];
   const seen: Set<number> = new Set<number>();
-  for (const start of [...next.keys()].sort((a: number, b: number): number => a - b)) {
+  for (const start of [...next.keys()].sort(
+    (a: number, b: number): number => a - b,
+  )) {
     if (seen.has(start)) continue;
     const loop: number[] = [];
     let at: number = start;

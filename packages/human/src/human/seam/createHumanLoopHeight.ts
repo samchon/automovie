@@ -17,9 +17,11 @@ export function createHumanLoopHeight(
   points: readonly IAutoMovieVector3[],
   axis: { x: number; z: number },
 ): (angle: number) => number {
-  const azimuth: ReturnType<typeof createHumanLoopAzimuth> = createHumanLoopAzimuth(points, axis);
+  const azimuth: ReturnType<typeof createHumanLoopAzimuth> =
+    createHumanLoopAzimuth(points, axis);
   return (angle: number): number => {
-    const { low, high, along }: ReturnType<typeof azimuth.bracket> = azimuth.bracket(angle);
+    const { low, high, along }: ReturnType<typeof azimuth.bracket> =
+      azimuth.bracket(angle);
     return points[low].y * (1 - along) + points[high].y * along;
   };
 }

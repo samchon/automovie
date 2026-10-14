@@ -19,7 +19,9 @@ export function mergeHumanBoundaryLoops(
   if (count < 2 || m < 2)
     throw new Error("A ribbon needs two loops of at least two vertices.");
   // the second loop walked backwards, as indices into it
-  const walk: number[] = parameters.map((_: number, k: number): number => m - 1 - k);
+  const walk: number[] = parameters.map(
+    (_: number, k: number): number => m - 1 - k,
+  );
   const along: number[] = walk.map((j: number): number => parameters[j]);
   let descents: number = 0;
   let start: number = 0;
@@ -28,9 +30,14 @@ export function mergeHumanBoundaryLoops(
       descents++;
       start = k;
     }
-  if (descents > 1 || along.some((value: number): boolean => !(value >= 0 && value <= count)))
+  if (
+    descents > 1 ||
+    along.some((value: number): boolean => !(value >= 0 && value <= count))
+  )
     throw new Error("The second loop does not run along the first in order.");
-  const order: number[] = walk.map((_: number, b: number): number => walk[(start + b) % m]);
+  const order: number[] = walk.map(
+    (_: number, b: number): number => walk[(start + b) % m],
+  );
   const position: number[] = order.map((j: number): number => parameters[j]);
   const first: number = Math.min(Math.floor(position[0]), count - 1);
   const indices: number[] = [];

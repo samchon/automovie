@@ -18,8 +18,16 @@ export function createHumanLoopParameterLookup(
     return remainder < 0 ? remainder + period : remainder;
   };
   const table: { value: number; index: number }[] = parameters
-    .map((value: number, index: number): { value: number; index: number } => ({ value: normalize(value), index }))
-    .sort((a: { value: number; index: number }, b: { value: number; index: number }): number => a.value - b.value);
+    .map((value: number, index: number): { value: number; index: number } => ({
+      value: normalize(value),
+      index,
+    }))
+    .sort(
+      (
+        a: { value: number; index: number },
+        b: { value: number; index: number },
+      ): number => a.value - b.value,
+    );
   return (value: number): { low: number; high: number; along: number } => {
     const at: number = normalize(value);
     let low: number = 0;

@@ -1,5 +1,8 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
-import type { IAutoMovieMesh, IAutoMovieMeshPhysicalSource } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
 import type { IHumanPersonClippedMesh } from "../structures/IHumanPersonClippedMesh";
@@ -27,10 +30,11 @@ export function clipHumanPersonMesh(
     throw new Error("Person clipping requires a static indexed mesh.");
   if (mesh.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(mesh);
-  const corners: ReturnType<typeof clipHumanPersonTriangles> = clipHumanPersonTriangles(
-    mesh.indices.map((v: number): number => sources[v]),
-    cut,
-  );
+  const corners: ReturnType<typeof clipHumanPersonTriangles> =
+    clipHumanPersonTriangles(
+      mesh.indices.map((v: number): number => sources[v]),
+      cut,
+    );
   const output: IAutoMovieMesh = {
     positions: [],
     normals: mesh.normals === null ? null : [],
@@ -43,9 +47,13 @@ export function clipHumanPersonMesh(
       ? {}
       : {
           physicalVertices: {
-            sources: mesh.physicalVertices.sources.map((source: IAutoMovieMeshPhysicalSource): IAutoMovieMeshPhysicalSource => ({
-              ...source,
-            })),
+            sources: mesh.physicalVertices.sources.map(
+              (
+                source: IAutoMovieMeshPhysicalSource,
+              ): IAutoMovieMeshPhysicalSource => ({
+                ...source,
+              }),
+            ),
             vertices: [],
           },
         }),
@@ -55,7 +63,10 @@ export function clipHumanPersonMesh(
   for (const corner of corners) {
     const a: number = mesh.indices[corner.a];
     const b: number = mesh.indices[corner.b];
-    const gather: (values: number[], width: number) => number[] = (values: number[], width: number): number[] =>
+    const gather: (values: number[], width: number) => number[] = (
+      values: number[],
+      width: number,
+    ): number[] =>
       Array.from(
         { length: width },
         (_: unknown, axis: number): number =>

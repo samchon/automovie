@@ -23,17 +23,20 @@ export function conformHumanPersonCollar(props: {
   body: readonly number[];
 }): number[] {
   const { seam, face, body }: typeof props = props;
-  const delta: number[][] = seam.bodyLoop.map((vertex: number, j: number): number[] => {
-    const { edge, fraction }: (typeof seam.collar.follow)[number] = seam.collar.follow[j];
-    const a: number = seam.faceLoop[edge];
-    const b: number = seam.faceLoop[(edge + 1) % seam.faceLoop.length];
-    return [0, 1, 2].map(
-      (axis: number): number =>
-        face[a * 3 + axis] * (1 - fraction) +
-        face[b * 3 + axis] * fraction -
-        body[vertex * 3 + axis],
-    );
-  });
+  const delta: number[][] = seam.bodyLoop.map(
+    (vertex: number, j: number): number[] => {
+      const { edge, fraction }: (typeof seam.collar.follow)[number] =
+        seam.collar.follow[j];
+      const a: number = seam.faceLoop[edge];
+      const b: number = seam.faceLoop[(edge + 1) % seam.faceLoop.length];
+      return [0, 1, 2].map(
+        (axis: number): number =>
+          face[a * 3 + axis] * (1 - fraction) +
+          face[b * 3 + axis] * fraction -
+          body[vertex * 3 + axis],
+      );
+    },
+  );
   const output: number[] = body.slice();
   for (const { vertex, low, high, along, weight } of seam.collar.band)
     for (let axis: number = 0; axis < 3; axis++)

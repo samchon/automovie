@@ -50,6 +50,9 @@ export function createHumanPersonCut(
         throw new Error("Person clipping exceeded finite edge arithmetic.");
       cut.intersections.push({ a, b, t });
     }
-  cut.indices = clipHumanPersonTriangles(indices, cut).map((one: ReturnType<typeof clipHumanPersonTriangles>[number]): number => one.vertex);
+  cut.indices = clipHumanPersonTriangles(indices, cut).map(
+    (one: ReturnType<typeof clipHumanPersonTriangles>[number]): number =>
+      one.vertex,
+  );
   return cut;
 }

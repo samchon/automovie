@@ -22,7 +22,10 @@ export function measureHumanHeadReach(
   for (let vertex: number = 0; vertex < distance.length; vertex++)
     if (distance[vertex] < limit) order.push(vertex);
   order.sort((a: number, b: number): number => distance[a] - distance[b]);
-  const total: number = order.reduce((sum: number, vertex: number): number => sum + headWeight(vertex), 0);
+  const total: number = order.reduce(
+    (sum: number, vertex: number): number => sum + headWeight(vertex),
+    0,
+  );
   if (!(total > 0))
     throw new Error("The skin near the collar has no head weight to fade.");
   let running: number = 0;

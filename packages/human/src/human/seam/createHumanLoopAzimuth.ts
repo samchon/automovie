@@ -25,7 +25,8 @@ export function createHumanLoopAzimuth(
   const count: number = loop.length;
   if (count < 3) throw new Error("A loop around an axis needs three vertices.");
   const wrap: (value: number) => number = (value: number): number => {
-    if (!Number.isFinite(value)) throw new Error("A loop azimuth needs a finite angle.");
+    if (!Number.isFinite(value))
+      throw new Error("A loop azimuth needs a finite angle.");
     let wrapped: number = value % (2 * Math.PI);
     if (wrapped <= -Math.PI) wrapped += 2 * Math.PI;
     if (wrapped > Math.PI) wrapped -= 2 * Math.PI;
@@ -52,11 +53,15 @@ export function createHumanLoopAzimuth(
     );
   // loop indices in increasing angle, from the smallest angle
   const walk: number[] =
-    total > 0 ? loop.map((_: IAutoMovieVector3, k: number): number => k) : loop.map((_: IAutoMovieVector3, k: number): number => count - 1 - k);
+    total > 0
+      ? loop.map((_: IAutoMovieVector3, k: number): number => k)
+      : loop.map((_: IAutoMovieVector3, k: number): number => count - 1 - k);
   let first: number = 0;
   for (let k: number = 1; k < count; k++)
     if (angle[walk[k]] < angle[walk[first]]) first = k;
-  const order: number[] = walk.map((_: number, k: number): number => walk[(first + k) % count]);
+  const order: number[] = walk.map(
+    (_: number, k: number): number => walk[(first + k) % count],
+  );
   const sorted: number[] = order.map((index: number): number => angle[index]);
   return {
     angle,

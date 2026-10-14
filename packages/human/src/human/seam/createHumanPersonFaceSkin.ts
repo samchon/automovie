@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
@@ -42,35 +45,55 @@ export function createHumanPersonFaceSkin(props: {
   weights: number[];
 } {
   const { seam, face, body, bodySkin, jawVertices }: typeof props = props;
-  const point: (positions: readonly number[], vertex: number) => IAutoMovieVector3 = (positions: readonly number[], vertex: number): IAutoMovieVector3 => ({
+  const point: (
+    positions: readonly number[],
+    vertex: number,
+  ) => IAutoMovieVector3 = (
+    positions: readonly number[],
+    vertex: number,
+  ): IAutoMovieVector3 => ({
     x: positions[vertex * 3],
     y: positions[vertex * 3 + 1],
     z: positions[vertex * 3 + 2],
   });
-  const angleOf: (p: { x: number; z: number }) => number = (p: { x: number; z: number }): number =>
-    Math.atan2(p.x - seam.axis.x, p.z - seam.axis.z);
-  const loopHeight: ReturnType<typeof createHumanLoopHeight> = createHumanLoopHeight(
-    seam.faceLoop.map((vertex: number): IAutoMovieVector3 => point(face, vertex)),
-    seam.axis,
-  );
+  const angleOf: (p: { x: number; z: number }) => number = (p: {
+    x: number;
+    z: number;
+  }): number => Math.atan2(p.x - seam.axis.x, p.z - seam.axis.z);
+  const loopHeight: ReturnType<typeof createHumanLoopHeight> =
+    createHumanLoopHeight(
+      seam.faceLoop.map(
+        (vertex: number): IAutoMovieVector3 => point(face, vertex),
+      ),
+      seam.axis,
+    );
   const reach: number = seam.collar.headReachMetres;
   const jaw: Set<number> = new Set(jawVertices);
-  const facePoints: IAutoMovieVector3[] = seam.faceLoop.map((vertex: number): IAutoMovieVector3 => point(face, vertex));
+  const facePoints: IAutoMovieVector3[] = seam.faceLoop.map(
+    (vertex: number): IAutoMovieVector3 => point(face, vertex),
+  );
   // Caller-authored seams without a cut retain their original angular lookup.
   // Generated cuts use the ordered shared face correspondence rather than
   // requiring a clipped native body contour to be a radial graph.
   const bracket: ReturnType<typeof createHumanLoopParameterLookup> =
     seam.cut === undefined
       ? createHumanLoopAzimuth(
-          seam.bodyLoop.map((vertex: number): IAutoMovieVector3 => point(body, vertex)),
+          seam.bodyLoop.map(
+            (vertex: number): IAutoMovieVector3 => point(body, vertex),
+          ),
           seam.axis,
         ).bracket
       : createHumanLoopParameterLookup(
-          seam.collar.follow.map(({ edge, fraction }: (typeof seam.collar.follow)[number]): number => edge + fraction),
+          seam.collar.follow.map(
+            ({ edge, fraction }: (typeof seam.collar.follow)[number]): number =>
+              edge + fraction,
+          ),
           seam.faceLoop.length,
         );
   const joints: AutoMovieHumanoidBone[] = ["head"];
-  const boneOf: (bone: AutoMovieHumanoidBone) => number = (bone: AutoMovieHumanoidBone): number => {
+  const boneOf: (bone: AutoMovieHumanoidBone) => number = (
+    bone: AutoMovieHumanoidBone,
+  ): number => {
     let index: number = joints.indexOf(bone);
     if (index < 0) {
       index = joints.length;
@@ -79,7 +102,9 @@ export function createHumanPersonFaceSkin(props: {
     return index;
   };
   /** The body's weights at a vertex, by bone. */
-  const bodyWeights: (vertex: number) => Map<AutoMovieHumanoidBone, number> = (vertex: number): Map<AutoMovieHumanoidBone, number> =>
+  const bodyWeights: (vertex: number) => Map<AutoMovieHumanoidBone, number> = (
+    vertex: number,
+  ): Map<AutoMovieHumanoidBone, number> =>
     humanPersonCutBoneWeights(bodySkin, vertex, seam.cut);
   const count: number = face.length / 3;
   const boneIndices: number[] = new Array<number>(count * 4).fill(0);
@@ -95,11 +120,15 @@ export function createHumanPersonFaceSkin(props: {
       continue;
     }
     const smooth: number = t * t * t * (10 - 15 * t + 6 * t * t);
-    const projected: ReturnType<typeof projectHumanLoopPoint> = projectHumanLoopPoint(facePoints, p);
+    const projected: ReturnType<typeof projectHumanLoopPoint> =
+      projectHumanLoopPoint(facePoints, p);
     const { low, high, along }: ReturnType<typeof bracket> = bracket(
       seam.cut === undefined ? angle : projected.edge + projected.fraction,
     );
-    const mixed: Map<AutoMovieHumanoidBone, number> = new Map<AutoMovieHumanoidBone, number>([["head", smooth]]);
+    const mixed: Map<AutoMovieHumanoidBone, number> = new Map<
+      AutoMovieHumanoidBone,
+      number
+    >([["head", smooth]]);
     for (const [loop, share] of [
       [low, 1 - along],
       [high, along],
@@ -107,14 +136,33 @@ export function createHumanPersonFaceSkin(props: {
       for (const [bone, weight] of bodyWeights(seam.bodyLoop[loop]))
         mixed.set(bone, (mixed.get(bone) ?? 0) + (1 - smooth) * share * weight);
     const kept: { index: number; weight: number }[] = [...mixed]
-      .sort((a: [AutoMovieHumanoidBone, number], b: [AutoMovieHumanoidBone, number]): number => b[1] - a[1])
+      .sort(
+        (
+          a: [AutoMovieHumanoidBone, number],
+          b: [AutoMovieHumanoidBone, number],
+        ): number => b[1] - a[1],
+      )
       .slice(0, 4)
-      .map(([bone, weight]: [AutoMovieHumanoidBone, number]): { index: number; weight: number } => ({ index: boneOf(bone), weight }));
-    const total: number = kept.reduce((sum: number, one: { index: number; weight: number }): number => sum + one.weight, 0);
-    kept.forEach(({ index, weight }: { index: number; weight: number }, k: number): void => {
-      boneIndices[vertex * 4 + k] = index;
-      weights[vertex * 4 + k] = weight / total;
-    });
+      .map(
+        ([bone, weight]: [AutoMovieHumanoidBone, number]): {
+          index: number;
+          weight: number;
+        } => ({ index: boneOf(bone), weight }),
+      );
+    const total: number = kept.reduce(
+      (sum: number, one: { index: number; weight: number }): number =>
+        sum + one.weight,
+      0,
+    );
+    kept.forEach(
+      (
+        { index, weight }: { index: number; weight: number },
+        k: number,
+      ): void => {
+        boneIndices[vertex * 4 + k] = index;
+        weights[vertex * 4 + k] = weight / total;
+      },
+    );
   }
   return { joints, boneIndices, weights };
 }

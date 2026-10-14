@@ -17,11 +17,12 @@ export function evaluateHumanPersonCut(
 ): number[] {
   return [
     ...positions,
-    ...cut.intersections.flatMap(({ a, b, t }: (typeof cut.intersections)[number]): number[] =>
-      [0, 1, 2].map(
-        (axis: number): number =>
-          (1 - t) * positions[a * 3 + axis] + t * positions[b * 3 + axis],
-      ),
+    ...cut.intersections.flatMap(
+      ({ a, b, t }: (typeof cut.intersections)[number]): number[] =>
+        [0, 1, 2].map(
+          (axis: number): number =>
+            (1 - t) * positions[a * 3 + axis] + t * positions[b * 3 + axis],
+        ),
     ),
   ];
 }

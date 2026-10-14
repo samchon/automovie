@@ -15,12 +15,21 @@ export function projectHumanLoopPoint(
   points: readonly IAutoMovieVector3[],
   p: IAutoMovieVector3,
 ): { edge: number; fraction: number } {
-  let best: { edge: number; fraction: number; distance: number } = { edge: 0, fraction: 0, distance: Infinity };
+  let best: { edge: number; fraction: number; distance: number } = {
+    edge: 0,
+    fraction: 0,
+    distance: Infinity,
+  };
   for (let edge: number = 0; edge < points.length; edge++) {
     const a: IAutoMovieVector3 = points[edge];
     const b: IAutoMovieVector3 = points[(edge + 1) % points.length];
-    const along: IAutoMovieVector3 = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
-    const length: number = along.x * along.x + along.y * along.y + along.z * along.z;
+    const along: IAutoMovieVector3 = {
+      x: b.x - a.x,
+      y: b.y - a.y,
+      z: b.z - a.z,
+    };
+    const length: number =
+      along.x * along.x + along.y * along.y + along.z * along.z;
     const raw: number =
       length === 0
         ? 0

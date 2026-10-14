@@ -37,10 +37,15 @@ export function clipHumanPersonTriangles(
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
 ): IClippedCorner[] {
   const edges: Map<string, { vertex: number; t: number }> = new Map(
-    cut.intersections.map(({ a, b, t }: (typeof cut.intersections)[number], index: number): [string, { vertex: number; t: number }] => [
-      `${a}/${b}`,
-      { vertex: cut.margins.length + index, t },
-    ]),
+    cut.intersections.map(
+      (
+        { a, b, t }: (typeof cut.intersections)[number],
+        index: number,
+      ): [string, { vertex: number; t: number }] => [
+        `${a}/${b}`,
+        { vertex: cut.margins.length + index, t },
+      ],
+    ),
   );
   const result: IClippedCorner[] = [];
   for (let offset: number = 0; offset < sources.length; offset += 3) {
@@ -76,7 +81,9 @@ export function clipHumanPersonTriangles(
     }
     const uniqueCorners: IClippedCorner[] = polygon.filter(
       (one: IClippedCorner, at: number): boolean =>
-        polygon.findIndex((other: IClippedCorner): boolean => other.vertex === one.vertex) === at,
+        polygon.findIndex(
+          (other: IClippedCorner): boolean => other.vertex === one.vertex,
+        ) === at,
     );
     for (let corner: number = 1; corner + 1 < uniqueCorners.length; corner++)
       result.push(

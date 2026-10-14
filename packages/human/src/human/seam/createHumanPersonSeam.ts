@@ -51,7 +51,10 @@ export function createHumanPersonSeam(props: {
   headReachMetres?: number;
 }): IAutoMovieHumanPersonSeam {
   const { face, body }: typeof props = props;
-  const point: (skin: Skin, vertex: number) => IAutoMovieVector3 = (skin: Skin, vertex: number): IAutoMovieVector3 => ({
+  const point: (skin: Skin, vertex: number) => IAutoMovieVector3 = (
+    skin: Skin,
+    vertex: number,
+  ): IAutoMovieVector3 => ({
     x: skin.positions[vertex * 3],
     y: skin.positions[vertex * 3 + 1],
     z: skin.positions[vertex * 3 + 2],
@@ -67,19 +70,33 @@ export function createHumanPersonSeam(props: {
         ".",
     );
   const faceLoop: number[] = faceLoops[0];
-  const facePoints: IAutoMovieVector3[] = faceLoop.map((vertex: number): IAutoMovieVector3 => point(face.surface, vertex));
+  const facePoints: IAutoMovieVector3[] = faceLoop.map(
+    (vertex: number): IAutoMovieVector3 => point(face.surface, vertex),
+  );
   const centre: { x: number; z: number } = {
-    x: facePoints.reduce((sum: number, p: IAutoMovieVector3): number => sum + p.x, 0) / facePoints.length,
-    z: facePoints.reduce((sum: number, p: IAutoMovieVector3): number => sum + p.z, 0) / facePoints.length,
+    x:
+      facePoints.reduce(
+        (sum: number, p: IAutoMovieVector3): number => sum + p.x,
+        0,
+      ) / facePoints.length,
+    z:
+      facePoints.reduce(
+        (sum: number, p: IAutoMovieVector3): number => sum + p.z,
+        0,
+      ) / facePoints.length,
   };
-  const around: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-    Math.hypot(p.x - centre.x, p.z - centre.z);
-  const faceHeight: ReturnType<typeof createHumanLoopHeight> = createHumanLoopHeight(facePoints, centre);
+  const around: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => Math.hypot(p.x - centre.x, p.z - centre.z);
+  const faceHeight: ReturnType<typeof createHumanLoopHeight> =
+    createHumanLoopHeight(facePoints, centre);
 
   const guard: number =
     HUMAN_PERSON_SEAM.radialGuard *
     Math.max(
-      ...bodyLoops[0].map((vertex: number): number => around(point(body.surface, vertex))),
+      ...bodyLoops[0].map((vertex: number): number =>
+        around(point(body.surface, vertex)),
+      ),
     );
   // Positive samples identify the height/radial covered interior; zero is retained.
   // Its affine extension inside each triangle is the declared approximation,
@@ -97,7 +114,10 @@ export function createHumanPersonSeam(props: {
   const covered: number[] = [...new Set(body.surface.indices)]
     .filter((vertex: number): boolean => margins[vertex] > 0)
     .sort((a: number, b: number): number => a - b);
-  const cut: ReturnType<typeof createHumanPersonCut> = createHumanPersonCut(body.surface.indices, margins);
+  const cut: ReturnType<typeof createHumanPersonCut> = createHumanPersonCut(
+    body.surface.indices,
+    margins,
+  );
   const kept: number[] = cut.indices;
   const bodySurface: Skin = {
     ...body.surface,
@@ -111,14 +131,22 @@ export function createHumanPersonSeam(props: {
         " open loops on the body skin; the seam needs exactly one.",
     );
   const bodyLoop: number[] = retained[0];
-  const bodyPoints: IAutoMovieVector3[] = bodyLoop.map((vertex: number): IAutoMovieVector3 => point(bodySurface, vertex));
-  const follow: ReturnType<typeof projectHumanLoopPoint>[] = bodyPoints.map((p: IAutoMovieVector3): ReturnType<typeof projectHumanLoopPoint> => projectHumanLoopPoint(facePoints, p));
+  const bodyPoints: IAutoMovieVector3[] = bodyLoop.map(
+    (vertex: number): IAutoMovieVector3 => point(bodySurface, vertex),
+  );
+  const follow: ReturnType<typeof projectHumanLoopPoint>[] = bodyPoints.map(
+    (p: IAutoMovieVector3): ReturnType<typeof projectHumanLoopPoint> =>
+      projectHumanLoopPoint(facePoints, p),
+  );
 
   // each retained loop vertex stands at a position along the face loop, and
   // the two loops are merged in that order
   const ribbon: number[] = mergeHumanBoundaryLoops(
     facePoints.length,
-    follow.map(({ edge, fraction }: ReturnType<typeof projectHumanLoopPoint>): number => edge + fraction),
+    follow.map(
+      ({ edge, fraction }: ReturnType<typeof projectHumanLoopPoint>): number =>
+        edge + fraction,
+    ),
   );
   // Check directed boundary compatibility of the logical ribbon; this does not certify global embedding/manifoldness.
   const faceCount: number = face.surface.positions.length / 3;
@@ -147,7 +175,9 @@ export function createHumanPersonSeam(props: {
             vertex,
             cut,
           );
-          const bone: string = [...weights].sort((a: [string, number], b: [string, number]): number => b[1] - a[1])[0][0];
+          const bone: string = [...weights].sort(
+            (a: [string, number], b: [string, number]): number => b[1] - a[1],
+          )[0][0];
           return bone === "neck" || bone === "head";
         }));
   if (!(reachMetres > 0) || !Number.isFinite(reachMetres))
@@ -173,16 +203,28 @@ export function createHumanPersonSeam(props: {
     throw new Error(
       "The seam needs a positive finite head reach, given or read from the body's skin weights.",
     );
-  const bracket: ReturnType<typeof createHumanLoopParameterLookup> = createHumanLoopParameterLookup(
-    follow.map(({ edge, fraction }: ReturnType<typeof projectHumanLoopPoint>): number => edge + fraction),
-    faceLoop.length,
+  const bracket: ReturnType<typeof createHumanLoopParameterLookup> =
+    createHumanLoopParameterLookup(
+      follow.map(
+        ({
+          edge,
+          fraction,
+        }: ReturnType<typeof projectHumanLoopPoint>): number => edge + fraction,
+      ),
+      faceLoop.length,
+    );
+  const boundaryAt: Map<number, number> = new Map(
+    bodyLoop.map((vertex: number, index: number): [number, number] => [
+      vertex,
+      index,
+    ]),
   );
-  const boundaryAt: Map<number, number> = new Map(bodyLoop.map((vertex: number, index: number): [number, number] => [vertex, index]));
   const band: IAutoMovieHumanPersonSeam["collar"]["band"] = [];
   for (let vertex: number = 0; vertex < distance.length; vertex++) {
     if (!(distance[vertex] < reachMetres)) continue;
     const p: IAutoMovieVector3 = point(bodySurface, vertex);
-    const projected: ReturnType<typeof projectHumanLoopPoint> = projectHumanLoopPoint(facePoints, p);
+    const projected: ReturnType<typeof projectHumanLoopPoint> =
+      projectHumanLoopPoint(facePoints, p);
     // Boundary sources retain their own Dirichlet displacement even when two
     // native points project to the same face sample. Interior lookup uses the
     // last tied resident; final collapsed samples belong to the stitch owner.

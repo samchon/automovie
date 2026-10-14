@@ -17,7 +17,10 @@ export function measureHumanSurfaceDistances(
   sources: readonly number[],
 ): Float64Array {
   const count: number = positions.length / 3;
-  const neighbours: number[][] = Array.from({ length: count }, (): number[] => []);
+  const neighbours: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   for (let corner: number = 0; corner < indices.length; corner += 3)
     for (let side: number = 0; side < 3; side++) {
       const a: number = indices[corner + side];
@@ -27,7 +30,10 @@ export function measureHumanSurfaceDistances(
     }
   const distance: Float64Array = new Float64Array(count).fill(Infinity);
   const heap: { vertex: number; distance: number }[] = [];
-  const push: (vertex: number, at: number) => void = (vertex: number, at: number): void => {
+  const push: (vertex: number, at: number) => void = (
+    vertex: number,
+    at: number,
+  ): void => {
     heap.push({ vertex, distance: at });
     let child: number = heap.length - 1;
     while (child > 0) {
@@ -37,7 +43,10 @@ export function measureHumanSurfaceDistances(
       child = parent;
     }
   };
-  const pop: () => { vertex: number; distance: number } = (): { vertex: number; distance: number } => {
+  const pop: () => { vertex: number; distance: number } = (): {
+    vertex: number;
+    distance: number;
+  } => {
     const top: { vertex: number; distance: number } = heap[0];
     const last: { vertex: number; distance: number } = heap.pop()!;
     if (heap.length > 0) {

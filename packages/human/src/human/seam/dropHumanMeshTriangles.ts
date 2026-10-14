@@ -1,5 +1,8 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
-import type { IAutoMovieMesh, IAutoMovieMeshPhysicalSource } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+} from "@automovie/interface";
 
 /**
  * Remove indexed triangles touching a drop-marked render vertex, compact remaining positions/normals/UVs/colours/relief in original vertex order and preserve copied physical source rows with adjusted survivor references. Unindexed input refuses. Caller supplies admitted aligned static mesh fields and a pure stable predicate; short-circuit evaluation does not call every triangle corner. The skin table is forwarded unchanged, so this is not a general skinned-table compactor.
@@ -41,7 +44,10 @@ export function dropHumanMeshTriangles(
       renumber[vertex] = survivors.length;
       survivors.push(vertex);
     }
-  const gather: (values: number[], width: number) => number[] = (values: number[], width: number): number[] => {
+  const gather: (values: number[], width: number) => number[] = (
+    values: number[],
+    width: number,
+  ): number[] => {
     const output: number[] = new Array<number>(survivors.length * width);
     survivors.forEach((vertex: number, at: number): void => {
       for (let axis: number = 0; axis < width; axis++)
@@ -64,11 +70,16 @@ export function dropHumanMeshTriangles(
       ? {}
       : {
           physicalVertices: {
-            sources: mesh.physicalVertices.sources.map((source: IAutoMovieMeshPhysicalSource): IAutoMovieMeshPhysicalSource => ({
-              ...source,
-            })),
+            sources: mesh.physicalVertices.sources.map(
+              (
+                source: IAutoMovieMeshPhysicalSource,
+              ): IAutoMovieMeshPhysicalSource => ({
+                ...source,
+              }),
+            ),
             vertices: survivors.map(
-              (vertex: number): number | null => mesh.physicalVertices!.vertices[vertex],
+              (vertex: number): number | null =>
+                mesh.physicalVertices!.vertices[vertex],
             ),
           },
         }),

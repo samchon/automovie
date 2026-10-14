@@ -25,7 +25,10 @@ export function fairHumanSeamNormals(props: {
   if (!Number.isInteger(rings) || rings < 0)
     throw new Error("The number of rings must be a nonnegative integer.");
   const count: number = normals.length / 3;
-  const neighbours: number[][] = Array.from({ length: count }, (): number[] => []);
+  const neighbours: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   for (let corner: number = 0; corner < indices.length; corner += 3)
     for (let side: number = 0; side < 3; side++) {
       const a: number = indices[corner + side];

@@ -16,10 +16,13 @@ export function measureHumanBoundaryDisplacement(
 ): number {
   let maximum: number = 0;
   for (const vertex of boundary)
-    maximum = Math.max(maximum, Math.hypot(
-      after[3 * vertex] - before[3 * vertex],
-      after[3 * vertex + 1] - before[3 * vertex + 1],
-      after[3 * vertex + 2] - before[3 * vertex + 2],
-    ));
+    maximum = Math.max(
+      maximum,
+      Math.hypot(
+        after[3 * vertex] - before[3 * vertex],
+        after[3 * vertex + 1] - before[3 * vertex + 1],
+        after[3 * vertex + 2] - before[3 * vertex + 2],
+      ),
+    );
   return maximum;
 }
