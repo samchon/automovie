@@ -1,19 +1,20 @@
-import { bounds } from "../internal/bounds";
-import { arch } from "../internal/arch";
-import { colonnade } from "../internal/colonnade";
-import { roof } from "../internal/roof";
-import { stair } from "../internal/stair";
-import { cofferedCeiling } from "../internal/cofferedCeiling";
-import { tiledFloor } from "../internal/tiledFloor";
+import { IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
 import { buildAutoMovieWall } from "../../../../packages/engine/src/geometry/buildAutoMovieWall";
 import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
-import { IAutoMovieMesh } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { arch } from "../internal/arch";
+import { bounds } from "../internal/bounds";
+import { cofferedCeiling } from "../internal/cofferedCeiling";
+import { colonnade } from "../internal/colonnade";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { roof } from "../internal/roof";
+import { stair } from "../internal/stair";
+import { tiledFloor } from "../internal/tiledFloor";
 
 /**
  * A code-only fixture builds a building's members from the kernel alone.
@@ -53,7 +54,7 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
  * @evidence contracts/testing.md#execution-ownership The named geometry entry constructs its existing code-only fixtures through the canonical arch, colonnade, roof, stair, ceiling and floor helpers and calls portable engine source and numerical observers directly. It starts no process, browser, GPU or native build and registers no additional cases.
  */
 export function test_geometry_architecture_fixture(): void {
-  const ringed: { assembly: IAutoMovieMeshAssembly; volume: number; } = arch({
+  const ringed: { assembly: IAutoMovieMeshAssembly; volume: number } = arch({
     span: 3,
     rise: 1.5,
     thickness: 0.4,
@@ -65,28 +66,29 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "an arch on piers merges its voussoirs and piers at the authored extrados",
     namedFacts([
-      ["groups", (): boolean  => ringed.assembly.groups.length === 6 + 2],
+      ["groups", (): boolean => ringed.assembly.groups.length === 6 + 2],
       [
         "ids",
-        (): boolean  =>
+        (): boolean =>
           ringed.assembly.groups.at(-1)!.id === "pier-right" &&
           ringed.assembly.groups[0]!.id === "voussoir-1",
       ],
       [
         "volume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(ringed.assembly.mesh).volume,
             ringed.volume,
             1e-12,
           ),
       ],
-      ["span", (): boolean  => nclose(archBounds[0]![1], 3 / 2 + 0.4, 1e-12)],
-      ["crown", (): boolean  => nclose(archBounds[1]![1], 2 + 1.5 + 0.4, 1e-12)],
-      ["springing", (): boolean  => nclose(archBounds[1]![0], 0, 1e-12)],
+      ["span", (): boolean => nclose(archBounds[0]![1], 3 / 2 + 0.4, 1e-12)],
+      ["crown", (): boolean => nclose(archBounds[1]![1], 2 + 1.5 + 0.4, 1e-12)],
+      ["springing", (): boolean => nclose(archBounds[1]![0], 0, 1e-12)],
       [
         "depth",
-        (): boolean  => nclose(archBounds[2]![1] - archBounds[2]![0], 0.6, 1e-12),
+        (): boolean =>
+          nclose(archBounds[2]![1] - archBounds[2]![0], 0.6, 1e-12),
       ],
     ]),
     {
@@ -100,7 +102,7 @@ export function test_geometry_architecture_fixture(): void {
     },
   );
 
-  const vault: { assembly: IAutoMovieMeshAssembly; volume: number; } = arch({
+  const vault: { assembly: IAutoMovieMeshAssembly; volume: number } = arch({
     span: 4,
     rise: 2,
     thickness: 0.3,
@@ -111,10 +113,10 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "the same builder at zero springing is a barrel vault of pure ring",
     namedFacts([
-      ["groups", (): boolean  => vault.assembly.groups.length === 8],
+      ["groups", (): boolean => vault.assembly.groups.length === 8],
       [
         "volume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(vault.assembly.mesh).volume,
             vault.volume,
@@ -123,7 +125,7 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "length",
-        (): boolean  => {
+        (): boolean => {
           const box: [number, number][] = bounds(vault.assembly.mesh);
           return nclose(box[2]![1] - box[2]![0], 8, 1e-12);
         },
@@ -144,10 +146,10 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "a column row is one revolve placed four times, of four n-gon prisms",
     namedFacts([
-      ["groups", (): boolean  => row.groups.length === 4],
+      ["groups", (): boolean => row.groups.length === 4],
       [
         "volume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(row.mesh).volume,
             4 * ngon * 4,
@@ -156,24 +158,40 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "span",
-        (): boolean  =>
+        (): boolean =>
           nclose(rowBounds[0]![1] - rowBounds[0]![0], 3 * 2.5 + 2 * 0.3, 1e-9),
       ],
-      ["height", (): boolean  => nclose(rowBounds[1]![1], 4, 1e-12)],
+      ["height", (): boolean => nclose(rowBounds[1]![1], 4, 1e-12)],
     ]),
     { groups: true, volume: true, span: true, height: true },
   );
 
-  const gable: IAutoMovieMesh = roof({ width: 6, depth: 10, height: 2.5, ridgeInset: 0 });
-  const hip: IAutoMovieMesh = roof({ width: 6, depth: 10, height: 2.5, ridgeInset: 2 });
+  const gable: IAutoMovieMesh = roof({
+    width: 6,
+    depth: 10,
+    height: 2.5,
+    ridgeInset: 0,
+  });
+  const hip: IAutoMovieMesh = roof({
+    width: 6,
+    depth: 10,
+    height: 2.5,
+    ridgeInset: 2,
+  });
   TestValidator.equals(
     "a gable and a hip roof share their eaves and differ by the prismatoid rule",
     namedFacts([
-      ["gableClosed", (): boolean  => inspectAutoMovieMeshTopology(gable).watertight],
-      ["hipClosed", (): boolean  => inspectAutoMovieMeshTopology(hip).watertight],
+      [
+        "gableClosed",
+        (): boolean => inspectAutoMovieMeshTopology(gable).watertight,
+      ],
+      [
+        "hipClosed",
+        (): boolean => inspectAutoMovieMeshTopology(hip).watertight,
+      ],
       [
         "gableVolume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(gable).volume,
             (6 * 2.5 * 10) / 2,
@@ -182,7 +200,7 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "hipVolume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(hip).volume,
             6 * 2.5 * (10 / 2 - 2 / 3),
@@ -191,7 +209,7 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "eaves",
-        (): boolean  =>
+        (): boolean =>
           equalGeometryTestValues(bounds(gable)[0], bounds(hip)[0]),
       ],
     ]),
@@ -226,17 +244,18 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "a straight flight rises over its going and a helical flight keeps its stock",
     namedFacts([
-      ["groups", (): boolean  => straight.groups.length === 2 * 5],
-      ["helicalGroups", (): boolean  => helical.groups.length === 2 * 5],
-      ["top", (): boolean  => nclose(straightBounds[1]![1], 5 * 0.18, 1e-12)],
-      ["going", (): boolean  => nclose(straightBounds[2]![1], 5 * 0.28, 1e-12)],
+      ["groups", (): boolean => straight.groups.length === 2 * 5],
+      ["helicalGroups", (): boolean => helical.groups.length === 2 * 5],
+      ["top", (): boolean => nclose(straightBounds[1]![1], 5 * 0.18, 1e-12)],
+      ["going", (): boolean => nclose(straightBounds[2]![1], 5 * 0.28, 1e-12)],
       [
         "width",
-        (): boolean  => nclose(straightBounds[0]![1] - straightBounds[0]![0], 1.1, 1e-12),
+        (): boolean =>
+          nclose(straightBounds[0]![1] - straightBounds[0]![0], 1.1, 1e-12),
       ],
       [
         "volume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(straight.mesh).volume,
             5 * stepVolume,
@@ -245,14 +264,17 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "helicalVolume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(helical.mesh).volume,
             5 * stepVolume,
             1e-12,
           ),
       ],
-      ["turns", (): boolean  => bounds(helical.mesh)[0]![1] > straightBounds[0]![1]],
+      [
+        "turns",
+        (): boolean => bounds(helical.mesh)[0]![1] > straightBounds[0]![1],
+      ],
     ]),
     {
       groups: true,
@@ -286,11 +308,11 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "a coffered ceiling and a tiled floor generate every member from their counts",
     namedFacts([
-      ["ceilingGroups", (): boolean  => ceiling.groups.length === 1 + 4 + 5],
-      ["floorGroups", (): boolean  => floor.groups.length === 3 * 5],
+      ["ceilingGroups", (): boolean => ceiling.groups.length === 1 + 4 + 5],
+      ["floorGroups", (): boolean => floor.groups.length === 3 * 5],
       [
         "floorWidth",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             floorBounds[0]![1] - floorBounds[0]![0],
             5 * 0.62 - 0.02,
@@ -299,7 +321,7 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "floorDepth",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             floorBounds[2]![1] - floorBounds[2]![0],
             3 * 0.62 - 0.02,
@@ -308,14 +330,17 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "floorVolume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(floor.mesh).volume,
             3 * 5 * 0.6 * 0.6 * 0.02,
             1e-12,
           ),
       ],
-      ["ceilingDrop", (): boolean  => nclose(bounds(ceiling.mesh)[1]![0], -0.3, 1e-12)],
+      [
+        "ceilingDrop",
+        (): boolean => nclose(bounds(ceiling.mesh)[1]![0], -0.3, 1e-12),
+      ],
     ]),
     {
       ceilingGroups: true,
@@ -349,10 +374,10 @@ export function test_geometry_architecture_fixture(): void {
   TestValidator.equals(
     "an opening wall composes with a roof and keeps its own volume",
     namedFacts([
-      ["groups", (): boolean  => walled.groups.length === 2],
+      ["groups", (): boolean => walled.groups.length === 2],
       [
         "volume",
-        (): boolean  =>
+        (): boolean =>
           nclose(
             inspectAutoMovieMeshTopology(walled.mesh).volume,
             (6 * 3 - 1 * 2.1 - 1.2 * 1) * 0.25 + (6 * 2.5 * 10) / 2,
@@ -361,7 +386,7 @@ export function test_geometry_architecture_fixture(): void {
       ],
       [
         "attributes",
-        (): boolean  => walled.mesh.normals !== null && walled.mesh.uvs === null,
+        (): boolean => walled.mesh.normals !== null && walled.mesh.uvs === null,
       ],
     ]),
     { groups: true, volume: true, attributes: true },

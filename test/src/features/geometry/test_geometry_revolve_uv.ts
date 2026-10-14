@@ -5,15 +5,15 @@ import {
   mergeAutoMovieMeshes,
   revolveAutoMovieProfile,
 } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
 import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** The uv pair the vertex at `at` carries. */
-const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number; } = (
+const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number } = (
   uvs: readonly number[],
   at: number,
 ): { u: number; v: number } => ({ u: uvs[at * 2]!, v: uvs[at * 2 + 1]! });
@@ -120,11 +120,13 @@ export function test_geometry_revolve_uv(): void {
       [
         "sameAtEverySegment",
         (): boolean =>
-          Array.from({ length: CYLINDER_SEGMENTS + 1 }, (_ring: unknown, segment: number): boolean =>
-            nclose(
-              uvAt(tube.uvs!, segment * cylinderProfile.length + 1).v,
-              CYLINDER_HEIGHT,
-            ),
+          Array.from(
+            { length: CYLINDER_SEGMENTS + 1 },
+            (_ring: unknown, segment: number): boolean =>
+              nclose(
+                uvAt(tube.uvs!, segment * cylinderProfile.length + 1).v,
+                CYLINDER_HEIGHT,
+              ),
           ).every((level: boolean): boolean => level),
       ],
     ]),
@@ -147,12 +149,17 @@ export function test_geometry_revolve_uv(): void {
       [
         "poleRing",
         (): boolean =>
-          Array.from({ length: 7 }, (_ring: unknown, segment: number): boolean =>
-            nclose(uvAt(cone.uvs!, segment * 2).u, 0),
+          Array.from(
+            { length: 7 },
+            (_ring: unknown, segment: number): boolean =>
+              nclose(uvAt(cone.uvs!, segment * 2).u, 0),
           ).every((flat: boolean): boolean => flat),
       ],
       ["rimStart", (): boolean => nclose(uvAt(cone.uvs!, 1).u, 2 * Math.PI)],
-      ["rimHalfTurn", (): boolean => nclose(uvAt(cone.uvs!, 3 * 2 + 1).u, Math.PI)],
+      [
+        "rimHalfTurn",
+        (): boolean => nclose(uvAt(cone.uvs!, 3 * 2 + 1).u, Math.PI),
+      ],
       ["rimFullTurn", (): boolean => nclose(uvAt(cone.uvs!, 6 * 2 + 1).u, 0)],
     ]),
     {

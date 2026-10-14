@@ -1,17 +1,20 @@
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { IAutoMovieVector3, type IAutoMovieMesh } from "@automovie/interface";
+import { type IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** The uv pair the vertex at `at` carries. */
-const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number; } = (
+const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number } = (
   uvs: readonly number[],
   at: number,
 ): { u: number; v: number } => ({ u: uvs[at * 2]!, v: uvs[at * 2 + 1]! });
 
 /** The uv a named corner of one built mesh received, found by position. */
-const uvOf: (mesh: { positions: number[]; uvs: number[] | null; }, point: IAutoMovieVector3) => { u: number; v: number; } = (
+const uvOf: (
+  mesh: { positions: number[]; uvs: number[] | null },
+  point: IAutoMovieVector3,
+) => { u: number; v: number } = (
   mesh: { positions: number[]; uvs: number[] | null },
   point: IAutoMovieVector3,
 ): { u: number; v: number } => {
@@ -25,7 +28,11 @@ const uvOf: (mesh: { positions: number[]; uvs: number[] | null; }, point: IAutoM
   throw new Error("the mesh carries no vertex at that point");
 };
 
-const corner: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+const corner: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({
   x,
   y,
   z,
@@ -77,18 +84,23 @@ export function test_geometry_surface_uv_continuity(): void {
     corner(4, 3, 0),
     corner(0, 3, 0),
   ];
-  const rotated: IAutoMovieMesh = buildAutoMoviePolyhedron([[...face.slice(1), face[0]!]]);
+  const rotated: IAutoMovieMesh = buildAutoMoviePolyhedron([
+    [...face.slice(1), face[0]!],
+  ]);
   const straight: IAutoMovieMesh = buildAutoMoviePolyhedron([face]);
   TestValidator.equals(
     "rotating a face's corner list leaves every coordinate where it was",
     namedFacts(
       face.map(
-        (point: IAutoMovieVector3, index: number): readonly [string, () => boolean] =>
+        (
+          point: IAutoMovieVector3,
+          index: number,
+        ): readonly [string, () => boolean] =>
           [
             `corner${index}`,
             (): boolean => {
-              const was: { u: number; v: number; } = uvOf(straight, point);
-              const is: { u: number; v: number; } = uvOf(rotated, point);
+              const was: { u: number; v: number } = uvOf(straight, point);
+              const is: { u: number; v: number } = uvOf(rotated, point);
               return nclose(was.u, is.u) && nclose(was.v, is.v);
             },
           ] as const,
@@ -108,16 +120,16 @@ export function test_geometry_surface_uv_continuity(): void {
       [
         "sharedFoot",
         (): boolean => {
-          const left: { u: number; v: number; } = uvAt(split.uvs!, 1);
-          const right: { u: number; v: number; } = uvAt(split.uvs!, 4);
+          const left: { u: number; v: number } = uvAt(split.uvs!, 1);
+          const right: { u: number; v: number } = uvAt(split.uvs!, 4);
           return nclose(left.u, right.u) && nclose(left.v, right.v);
         },
       ],
       [
         "sharedHead",
         (): boolean => {
-          const left: { u: number; v: number; } = uvAt(split.uvs!, 2);
-          const right: { u: number; v: number; } = uvAt(split.uvs!, 7);
+          const left: { u: number; v: number } = uvAt(split.uvs!, 2);
+          const right: { u: number; v: number } = uvAt(split.uvs!, 7);
           return nclose(left.u, right.u) && nclose(left.v, right.v);
         },
       ],
@@ -138,15 +150,18 @@ export function test_geometry_surface_uv_continuity(): void {
       [
         "footHeight",
         (): boolean => {
-          const front: { u: number; v: number; } = uvOf(returnCorner, corner(4, 0, 0));
+          const front: { u: number; v: number } = uvOf(
+            returnCorner,
+            corner(4, 0, 0),
+          );
           return nclose(front.v, 0);
         },
       ],
       [
         "headHeight",
         (): boolean => {
-          const front: { u: number; v: number; } = uvAt(returnCorner.uvs!, 2);
-          const side: { u: number; v: number; } = uvAt(returnCorner.uvs!, 7);
+          const front: { u: number; v: number } = uvAt(returnCorner.uvs!, 2);
+          const side: { u: number; v: number } = uvAt(returnCorner.uvs!, 7);
           return nclose(front.v, 3) && nclose(side.v, 3);
         },
       ],
@@ -154,11 +169,13 @@ export function test_geometry_surface_uv_continuity(): void {
         "levelEverywhere",
         (): boolean => {
           const uvs: number[] = returnCorner.uvs!;
-          return returnCorner.positions.every((_component: number, index: number): boolean => {
-            if (index % 3 !== 1) return true;
-            const at: number = (index - 1) / 3;
-            return nclose(uvAt(uvs, at).v, returnCorner.positions[index]!);
-          });
+          return returnCorner.positions.every(
+            (_component: number, index: number): boolean => {
+              if (index % 3 !== 1) return true;
+              const at: number = (index - 1) / 3;
+              return nclose(uvAt(uvs, at).v, returnCorner.positions[index]!);
+            },
+          );
         },
       ],
     ]),
@@ -193,7 +210,10 @@ export function test_geometry_surface_uv_continuity(): void {
       ["wallFoot", (): boolean => nclose(uvAt(skirting.uvs!, 1).v, 0)],
       ["floorSameV", (): boolean => nclose(uvAt(skirting.uvs!, 7).v, 0)],
       ["floorAdvancesV", (): boolean => nclose(uvAt(skirting.uvs!, 5).v, -2)],
-      ["wallDoesNotAdvanceV", (): boolean => nclose(uvAt(skirting.uvs!, 2).v, 3)],
+      [
+        "wallDoesNotAdvanceV",
+        (): boolean => nclose(uvAt(skirting.uvs!, 2).v, 3),
+      ],
     ]),
     {
       wallFoot: true,

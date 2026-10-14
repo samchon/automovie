@@ -1,9 +1,13 @@
-import {buildAutoMovieWall,inspectAutoMovieMeshTopology} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
-import {namedFacts,nclose,throwsError} from "../internal/predicates";
-import {isFiniteProceduralMesh as finiteMesh} from "../internal/isFiniteProceduralMesh";
+import {
+  buildAutoMovieWall,
+  inspectAutoMovieMeshTopology,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * Opening-aware walls retain exact cut volume, legal L remainders and both diagonal pinches; every opening admission row remains.
@@ -37,8 +41,14 @@ export function test_geometry_procedural_wall(): void {
     "opening-aware segmentation leaves exactly the standing wall solid",
     namedFacts([
       ["finite", (): boolean => finiteMesh(wall)],
-      ["cut", (): boolean => wall.positions.length > plainWall.positions.length],
-      ["indexed", (): boolean => wall.indices !== null && wall.indices.length > 0],
+      [
+        "cut",
+        (): boolean => wall.positions.length > plainWall.positions.length,
+      ],
+      [
+        "indexed",
+        (): boolean => wall.indices !== null && wall.indices.length > 0,
+      ],
       [
         "volume",
         (): boolean =>
@@ -126,13 +136,27 @@ export function test_geometry_procedural_wall(): void {
     { closed: true, volume: true, pinch: true, mirroredPinch: true },
   );
 
-
-  TestValidator.predicate("cut wall reproduces the same authored solid",equalGeometryTestValues(buildAutoMovieWall({width:8,height:4,depth:.3,openings:[{id:"door",x:1,y:0,width:1.5,height:2.4},{id:"window",x:4,y:1.2,width:2,height:1.4}]}),wall));
+  TestValidator.predicate(
+    "cut wall reproduces the same authored solid",
+    equalGeometryTestValues(
+      buildAutoMovieWall({
+        width: 8,
+        height: 4,
+        depth: 0.3,
+        openings: [
+          { id: "door", x: 1, y: 0, width: 1.5, height: 2.4 },
+          { id: "window", x: 4, y: 1.2, width: 2, height: 1.4 },
+        ],
+      }),
+      wall,
+    ),
+  );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "wall width",
-      (): IAutoMovieMesh => buildAutoMovieWall({ width: 0, height: 1, depth: 1, openings: [] }),
+      (): IAutoMovieMesh =>
+        buildAutoMovieWall({ width: 0, height: 1, depth: 1, openings: [] }),
       "wall width must be a finite number > 0",
     ],
     [
@@ -247,6 +271,9 @@ export function test_geometry_procedural_wall(): void {
       "wall openings remove the entire wall",
     ],
   ];
-  for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));
-
+  for (const [name, callback, message] of invalids)
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

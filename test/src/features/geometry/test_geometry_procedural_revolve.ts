@@ -1,10 +1,14 @@
-import {inspectAutoMovieMeshTopology,revolveAutoMovieProfile} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
-import {namedFacts,throwsError} from "../internal/predicates";
-import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
-import {isFiniteProceduralMesh as finiteMesh} from "../internal/isFiniteProceduralMesh";
+import {
+  inspectAutoMovieMeshTopology,
+  revolveAutoMovieProfile,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
+import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
  * Revolution retains its ring count, closed seam and reported pole degeneracy, with segment/radius/profile admission unchanged.
@@ -36,29 +40,46 @@ export function test_geometry_procedural_revolve(): void {
       ["triangles", (): boolean => revolved.indices!.length === 8 * 3 * 2 * 3],
       [
         "poles",
-        (): boolean => inspectAutoMovieMeshTopology(revolved).degenerate === 8 * 2,
+        (): boolean =>
+          inspectAutoMovieMeshTopology(revolved).degenerate === 8 * 2,
       ],
     ]),
     { finite: true, rings: true, triangles: true, poles: true },
   );
 
-
-  TestValidator.predicate("revolution is deterministic at the same authored profile",equalGeometryTestValues(revolveAutoMovieProfile({profile:[{x:0,y:-1},{x:1,y:-1},{x:1,y:1},{x:0,y:1}],segments:8}),revolved));
+  TestValidator.predicate(
+    "revolution is deterministic at the same authored profile",
+    equalGeometryTestValues(
+      revolveAutoMovieProfile({
+        profile: [
+          { x: 0, y: -1 },
+          { x: 1, y: -1 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+        segments: 8,
+      }),
+      revolved,
+    ),
+  );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "revolve points",
-      (): IAutoMovieMesh => revolveAutoMovieProfile({ profile: [{ x: 1, y: 0 }], segments: 8 }),
+      (): IAutoMovieMesh =>
+        revolveAutoMovieProfile({ profile: [{ x: 1, y: 0 }], segments: 8 }),
       "revolve profile needs at least two points",
     ],
     [
       "revolve segments",
-      (): IAutoMovieMesh => revolveAutoMovieProfile({ profile: square, segments: 2 }),
+      (): IAutoMovieMesh =>
+        revolveAutoMovieProfile({ profile: square, segments: 2 }),
       "revolve segments must be a safe integer >= 3",
     ],
     [
       "revolve fractional segments",
-      (): IAutoMovieMesh => revolveAutoMovieProfile({ profile: square, segments: 3.5 }),
+      (): IAutoMovieMesh =>
+        revolveAutoMovieProfile({ profile: square, segments: 3.5 }),
       "revolve segments must be a safe integer >= 3",
     ],
     [
@@ -86,6 +107,9 @@ export function test_geometry_procedural_revolve(): void {
       "revolve profile[0] radius must be >= 0",
     ],
   ];
-  for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));
-
+  for (const [name, callback, message] of invalids)
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

@@ -1,12 +1,14 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieMeshAssembly } from "../../../../packages/engine/src/geometry/IAutoMovieMeshAssembly";
 import { extrudeAutoMovieProfile } from "../../../../packages/engine/src/geometry/extrudeAutoMovieProfile";
 import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { mergeAutoMovieMeshParts } from "../../../../packages/engine/src/geometry/mergeAutoMovieMeshParts";
 import { transformAutoMovieMesh } from "../../../../packages/engine/src/geometry/transformAutoMovieMesh";
-import { IAutoMovieMesh } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
+
 /** One right triangle on the XY plane, facing +Z, with a known UV corner. */
 const facet: () => IAutoMovieMesh = (): IAutoMovieMesh => ({
   positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
@@ -16,12 +18,17 @@ const facet: () => IAutoMovieMesh = (): IAutoMovieMesh => ({
   skin: null,
 });
 
-const close: (values: readonly number[], expected: readonly number[]) => boolean = (
+const close: (
+  values: readonly number[],
+  expected: readonly number[],
+) => boolean = (
   values: readonly number[],
   expected: readonly number[],
 ): boolean =>
   values.length === expected.length &&
-  values.every((value: number, index: number): boolean => nclose(value, expected[index]!, 1e-12));
+  values.every((value: number, index: number): boolean =>
+    nclose(value, expected[index]!, 1e-12),
+  );
 
 /**
  * A rigid placement must carry a surface without lying about which way it
@@ -70,7 +77,10 @@ export function test_geometry_procedural_placement(): void {
         "positions",
         (): boolean => close(yawed.positions, [1, 2, 3, 1, 2, 1, 1, 2.5, 3]),
       ],
-      ["normals", (): boolean => close(yawed.normals!, [1, 0, 0, 1, 0, 0, 1, 0, 0])],
+      [
+        "normals",
+        (): boolean => close(yawed.normals!, [1, 0, 0, 1, 0, 0, 1, 0, 0]),
+      ],
       ["uvs", (): boolean => close(yawed.uvs!, [0, 0, 1, 0, 0, 1])],
       ["winding", (): boolean => JSON.stringify(yawed.indices) === "[0,1,2]"],
     ]),
@@ -80,8 +90,12 @@ export function test_geometry_procedural_placement(): void {
   const mirrored: IAutoMovieMesh = transformAutoMovieMesh(facet(), {
     scale: { x: -1, y: 1, z: 1 },
   });
-  const geometric: (mesh: IAutoMovieMesh) => readonly number[] = (mesh: IAutoMovieMesh): readonly number[] => {
-    const [a, b, c]: number[] = mesh.indices!.slice(0, 3).map((index: number): number => index * 3);
+  const geometric: (mesh: IAutoMovieMesh) => readonly number[] = (
+    mesh: IAutoMovieMesh,
+  ): readonly number[] => {
+    const [a, b, c]: number[] = mesh
+      .indices!.slice(0, 3)
+      .map((index: number): number => index * 3);
     const p: number[] = mesh.positions;
     const ab: number[] = [
       p[b!]! - p[a!]!,
@@ -106,8 +120,14 @@ export function test_geometry_procedural_placement(): void {
         "positions",
         (): boolean => close(mirrored.positions, [0, 0, 0, -1, 0, 0, 0, 1, 0]),
       ],
-      ["flipped", (): boolean => JSON.stringify(mirrored.indices) === "[0,2,1]"],
-      ["normals", (): boolean => close(mirrored.normals!, [0, 0, 1, 0, 0, 1, 0, 0, 1])],
+      [
+        "flipped",
+        (): boolean => JSON.stringify(mirrored.indices) === "[0,2,1]",
+      ],
+      [
+        "normals",
+        (): boolean => close(mirrored.normals!, [0, 0, 1, 0, 0, 1, 0, 0, 1]),
+      ],
       ["agrees", (): boolean => geometric(mirrored)[2]! > 0],
       ["unmirroredAgrees", (): boolean => geometric(yawed)[0]! > 0],
     ]),
@@ -163,7 +183,8 @@ export function test_geometry_procedural_placement(): void {
     namedFacts([
       [
         "unit",
-        (): boolean => nclose(inspectAutoMovieMeshTopology(prism).volume, 1, 1e-12),
+        (): boolean =>
+          nclose(inspectAutoMovieMeshTopology(prism).volume, 1, 1e-12),
       ],
       [
         "rotated",
@@ -225,23 +246,26 @@ export function test_geometry_procedural_placement(): void {
   ]);
   TestValidator.predicate(
     "assembly members merge in order and each owns exactly its own index range",
-    equalGeometryTestValues({
-      groups: assembly.groups,
-      indices: assembly.mesh.indices!.length,
-      normals: assembly.mesh.normals,
-      uvs: assembly.mesh.uvs,
-      placed: assembly.mesh.positions[12]!,
-    }, {
-      groups: [
-        { id: "here", start: 0, count: 3 },
-        { id: "there", start: 3, count: 3 },
-        { id: "loose", start: 6, count: 3 },
-      ],
-      indices: 9,
-      normals: null,
-      uvs: null,
-      placed: 11,
-    }),
+    equalGeometryTestValues(
+      {
+        groups: assembly.groups,
+        indices: assembly.mesh.indices!.length,
+        normals: assembly.mesh.normals,
+        uvs: assembly.mesh.uvs,
+        placed: assembly.mesh.positions[12]!,
+      },
+      {
+        groups: [
+          { id: "here", start: 0, count: 3 },
+          { id: "there", start: 3, count: 3 },
+          { id: "loose", start: 6, count: 3 },
+        ],
+        indices: 9,
+        normals: null,
+        uvs: null,
+        placed: 11,
+      },
+    ),
   );
   TestValidator.equals(
     "an empty assembly is an empty mesh with no groups",
@@ -280,7 +304,8 @@ export function test_geometry_procedural_placement(): void {
     ],
     [
       "collapsed axis",
-      (): IAutoMovieMesh => transformAutoMovieMesh(facet(), { scale: { x: 1, y: 0, z: 1 } }),
+      (): IAutoMovieMesh =>
+        transformAutoMovieMesh(facet(), { scale: { x: 1, y: 0, z: 1 } }),
       "mesh transform scale may not collapse an axis",
     ],
     [
@@ -301,7 +326,8 @@ export function test_geometry_procedural_placement(): void {
     ],
     [
       "blank part id",
-      (): IAutoMovieMeshAssembly => mergeAutoMovieMeshParts([{ id: "  ", mesh: facet() }]),
+      (): IAutoMovieMeshAssembly =>
+        mergeAutoMovieMeshParts([{ id: "  ", mesh: facet() }]),
       "mesh part id must be non-empty",
     ],
     [

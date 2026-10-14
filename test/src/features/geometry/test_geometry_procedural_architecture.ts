@@ -1,12 +1,17 @@
-import {extrudeAutoMovieProfile,inspectAutoMovieMeshTopology,tessellate} from "@automovie/engine";
-import {TestValidator} from "@nestia/e2e";
-import {namedFacts,nclose,throwsError} from "../internal/predicates";
-import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
-import {isFiniteProceduralMesh as finiteMesh} from "../internal/isFiniteProceduralMesh";
+import {
+  extrudeAutoMovieProfile,
+  inspectAutoMovieMeshTopology,
+  tessellate,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
 import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * Convex extrusion retains closed volume, convex admission and primitive compatibility. Each guard keeps its original positive neighbor and diagnostic.
@@ -21,8 +26,12 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry executes portable extrusion, tessellation and topology source with the existing square and canonical observers. No consumer installation, native build, process, browser, GPU or dynamic registration is involved.
  */
 export function test_geometry_procedural_architecture(): void {
-  const extrusion: IAutoMovieMesh = extrudeAutoMovieProfile({ profile: square, depth: 0.5 });
-  const extrusionTopology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(extrusion);
+  const extrusion: IAutoMovieMesh = extrudeAutoMovieProfile({
+    profile: square,
+    depth: 0.5,
+  });
+  const extrusionTopology: IAutoMovieMeshTopology =
+    inspectAutoMovieMeshTopology(extrusion);
   TestValidator.equals(
     "a convex profile extrudes to one closed prism of the authored volume",
     namedFacts([
@@ -32,15 +41,30 @@ export function test_geometry_procedural_architecture(): void {
       [
         "depth",
         (): boolean =>
-          nclose(Math.min(
-            ...extrusion.positions.filter((_: number, index: number): boolean => index % 3 === 2),
-          ), -0.25, 0) &&
-          nclose(Math.max(
-            ...extrusion.positions.filter((_: number, index: number): boolean => index % 3 === 2),
-          ), 0.25, 0),
+          nclose(
+            Math.min(
+              ...extrusion.positions.filter(
+                (_: number, index: number): boolean => index % 3 === 2,
+              ),
+            ),
+            -0.25,
+            0,
+          ) &&
+          nclose(
+            Math.max(
+              ...extrusion.positions.filter(
+                (_: number, index: number): boolean => index % 3 === 2,
+              ),
+            ),
+            0.25,
+            0,
+          ),
       ],
       ["watertight", (): boolean => extrusionTopology.watertight],
-      ["volume", (): boolean => nclose(extrusionTopology.volume, 2 * 2 * 0.5, 1e-12)],
+      [
+        "volume",
+        (): boolean => nclose(extrusionTopology.volume, 2 * 2 * 0.5, 1e-12),
+      ],
     ]),
     {
       finite: true,
@@ -52,8 +76,19 @@ export function test_geometry_procedural_architecture(): void {
     },
   );
 
-  TestValidator.predicate("extrusion rebuilds with exact finite numeric values and structure", equalGeometryTestValues(extrudeAutoMovieProfile({profile:square,depth:.5}), extrusion));
-  const box: ITessellation = tessellate({ type: "box", width: 2, height: 2, depth: 0.2 });
+  TestValidator.predicate(
+    "extrusion rebuilds with exact finite numeric values and structure",
+    equalGeometryTestValues(
+      extrudeAutoMovieProfile({ profile: square, depth: 0.5 }),
+      extrusion,
+    ),
+  );
+  const box: ITessellation = tessellate({
+    type: "box",
+    width: 2,
+    height: 2,
+    depth: 0.2,
+  });
   TestValidator.equals(
     "existing primitive tessellation is untouched by the procedural kernel",
     { vertices: box.positions.length, indices: box.indices.length },
@@ -78,7 +113,8 @@ export function test_geometry_procedural_architecture(): void {
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "extrusion depth",
-      (): IAutoMovieMesh => extrudeAutoMovieProfile({ profile: square, depth: 0 }),
+      (): IAutoMovieMesh =>
+        extrudeAutoMovieProfile({ profile: square, depth: 0 }),
       "extrusion depth must be a finite number > 0",
     ],
     [
@@ -129,6 +165,9 @@ export function test_geometry_procedural_architecture(): void {
       "profile must be convex and contain no interior points",
     ],
   ];
-  for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));
-
+  for (const [name, callback, message] of invalids)
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

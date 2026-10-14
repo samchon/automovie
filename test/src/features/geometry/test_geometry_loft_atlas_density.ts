@@ -1,15 +1,21 @@
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { buildAutoMoviePolyhedron } from "../../../../packages/engine/src/geometry/buildAutoMoviePolyhedron";
 import { extrudeAutoMovieRegion } from "../../../../packages/engine/src/geometry/extrudeAutoMovieRegion";
 import { loftAutoMovieSections } from "../../../../packages/engine/src/geometry/loftAutoMovieSections";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
 import { atlasDensityRange } from "../internal/atlasDensityRange";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 
 /** The largest `v` any vertex of a mesh carries. */
-const longestAlong: (mesh: IAutoMovieMesh) => number = (mesh: IAutoMovieMesh): number => {
+const longestAlong: (mesh: IAutoMovieMesh) => number = (
+  mesh: IAutoMovieMesh,
+): number => {
   let longest: number = Number.NEGATIVE_INFINITY;
   for (let at: number = 1; at < mesh.uvs!.length; at += 2)
     longest = Math.max(longest, mesh.uvs![at]!);
@@ -22,7 +28,10 @@ const longestAlong: (mesh: IAutoMovieMesh) => number = (mesh: IAutoMovieMesh): n
  * `x` runs in the plane the path turns in and `y` perpendicular to it, which is
  * the distinction the bend cases are built to separate.
  */
-const rectangle: (halfWidth: number, halfHeight: number) => { x: number; y: number; }[] = (
+const rectangle: (
+  halfWidth: number,
+  halfHeight: number,
+) => { x: number; y: number }[] = (
   halfWidth: number,
   halfHeight: number,
 ): { x: number; y: number }[] => [
@@ -33,11 +42,16 @@ const rectangle: (halfWidth: number, halfHeight: number) => { x: number; y: numb
 ];
 
 /** A square section of the given half-width. */
-const square: (half: number) => { x: number; y: number; }[] = (half: number): { x: number; y: number }[] =>
-  rectangle(half, half);
+const square: (half: number) => { x: number; y: number }[] = (
+  half: number,
+): { x: number; y: number }[] => rectangle(half, half);
 
 /** One polyhedron corner, written positionally so a face list stays readable. */
-const corner: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+const corner: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({
   x,
   y,
   z,
@@ -48,17 +62,24 @@ const quarterTurn: (radius: number, steps: number) => IAutoMovieVector3[] = (
   radius: number,
   steps: number,
 ): IAutoMovieVector3[] =>
-  Array.from({ length: steps + 1 }, (_station: unknown, at: number): IAutoMovieVector3  => {
-    const angle: number = (at / steps) * (Math.PI / 2);
-    return {
-      x: radius * Math.sin(angle),
-      y: 0,
-      z: radius - radius * Math.cos(angle),
-    };
-  });
+  Array.from(
+    { length: steps + 1 },
+    (_station: unknown, at: number): IAutoMovieVector3 => {
+      const angle: number = (at / steps) * (Math.PI / 2);
+      return {
+        x: radius * Math.sin(angle),
+        y: 0,
+        z: radius - radius * Math.cos(angle),
+      };
+    },
+  );
 
 /** One loft of a constant rectangular section around a quarter turn. */
-const bend: (radius: number, halfWidth: number, halfHeight: number) => IAutoMovieMesh = (
+const bend: (
+  radius: number,
+  halfWidth: number,
+  halfHeight: number,
+) => IAutoMovieMesh = (
   radius: number,
   halfWidth: number,
   halfHeight: number,
@@ -142,8 +163,8 @@ export function test_geometry_loft_atlas_density(): void {
   TestValidator.equals(
     "a straight run of constant section keeps every texel exactly",
     namedFacts([
-      ["leastIsOne", (): boolean  => nclose(level.least, 1, 1e-12)],
-      ["mostIsOne", (): boolean  => nclose(level.most, 1, 1e-12)],
+      ["leastIsOne", (): boolean => nclose(level.least, 1, 1e-12)],
+      ["mostIsOne", (): boolean => nclose(level.most, 1, 1e-12)],
     ]),
     { leastIsOne: true, mostIsOne: true },
   );
@@ -167,10 +188,10 @@ export function test_geometry_loft_atlas_density(): void {
   TestValidator.equals(
     "the other two frames keep area exactly, so being developed is not the cause",
     namedFacts([
-      ["regionExtrusionLeast", (): boolean  => nclose(prism.least, 1, 1e-12)],
-      ["regionExtrusionMost", (): boolean  => nclose(prism.most, 1, 1e-12)],
-      ["projectedFrameLeast", (): boolean  => nclose(faceted.least, 1, 1e-12)],
-      ["projectedFrameMost", (): boolean  => nclose(faceted.most, 1, 1e-12)],
+      ["regionExtrusionLeast", (): boolean => nclose(prism.least, 1, 1e-12)],
+      ["regionExtrusionMost", (): boolean => nclose(prism.most, 1, 1e-12)],
+      ["projectedFrameLeast", (): boolean => nclose(faceted.least, 1, 1e-12)],
+      ["projectedFrameMost", (): boolean => nclose(faceted.most, 1, 1e-12)],
     ]),
     {
       regionExtrusionLeast: true,
@@ -202,9 +223,9 @@ export function test_geometry_loft_atlas_density(): void {
   TestValidator.equals(
     "a bend stretches the outside and crowds the inside by R / (R +- d)",
     namedFacts([
-      ["outsideIsExact", (): boolean  => nclose(turn.least, 2 / 2.5, 1e-9)],
-      ["insideMatchesTheForm", (): boolean  => nclose(turn.most, 2 / 1.5, 1e-3)],
-      ["whichIsAWideRange", (): boolean  => turn.most / turn.least > 1.66],
+      ["outsideIsExact", (): boolean => nclose(turn.least, 2 / 2.5, 1e-9)],
+      ["insideMatchesTheForm", (): boolean => nclose(turn.most, 2 / 1.5, 1e-3)],
+      ["whichIsAWideRange", (): boolean => turn.most / turn.least > 1.66],
     ]),
     {
       outsideIsExact: true,
@@ -217,8 +238,8 @@ export function test_geometry_loft_atlas_density(): void {
   TestValidator.equals(
     "d / R alone decides it, so a member twenty times the size reads the same",
     namedFacts([
-      ["sameOutside", (): boolean  => nclose(larger.least, turn.least, 1e-12)],
-      ["sameInside", (): boolean  => nclose(larger.most, turn.most, 1e-12)],
+      ["sameOutside", (): boolean => nclose(larger.least, turn.least, 1e-12)],
+      ["sameInside", (): boolean => nclose(larger.most, turn.most, 1e-12)],
     ]),
     { sameOutside: true, sameInside: true },
   );
@@ -232,12 +253,21 @@ export function test_geometry_loft_atlas_density(): void {
   TestValidator.equals(
     "d is the offset into the turn, so height costs nothing and width costs all",
     namedFacts([
-      ["fourTimesTallerReadsIdentically", (): boolean  => nclose(tall.least, turn.least)],
-      ["andIdenticallyInside", (): boolean  => nclose(tall.most, turn.most)],
-      ["aTenthTheWidthOutside", (): boolean  => nclose(narrow.least, 2 / 2.05, 1e-9)],
-      ["aTenthTheWidthInside", (): boolean  => nclose(narrow.most, 2 / 1.95, 1e-3)],
-      ["twiceTheWidthOutside", (): boolean  => nclose(flat.least, 2 / 3, 1e-9)],
-      ["twiceTheWidthInside", (): boolean  => nclose(flat.most, 2 / 1, 1e-3)],
+      [
+        "fourTimesTallerReadsIdentically",
+        (): boolean => nclose(tall.least, turn.least),
+      ],
+      ["andIdenticallyInside", (): boolean => nclose(tall.most, turn.most)],
+      [
+        "aTenthTheWidthOutside",
+        (): boolean => nclose(narrow.least, 2 / 2.05, 1e-9),
+      ],
+      [
+        "aTenthTheWidthInside",
+        (): boolean => nclose(narrow.most, 2 / 1.95, 1e-3),
+      ],
+      ["twiceTheWidthOutside", (): boolean => nclose(flat.least, 2 / 3, 1e-9)],
+      ["twiceTheWidthInside", (): boolean => nclose(flat.most, 2 / 1, 1e-3)],
     ]),
     {
       fourTimesTallerReadsIdentically: true,
@@ -254,13 +284,17 @@ export function test_geometry_loft_atlas_density(): void {
     namedFacts([
       [
         "straightAlongIsThePath",
-        (): boolean  => nclose(longestAlong(straight), 4, 1e-12),
+        (): boolean => nclose(longestAlong(straight), 4, 1e-12),
       ],
       [
         "taperedCarriesTheSameSpan",
-        (): boolean  => nclose(longestAlong(taper), longestAlong(straight), 1e-12),
+        (): boolean =>
+          nclose(longestAlong(taper), longestAlong(straight), 1e-12),
       ],
-      ["yetOnlyOneOfThemKeptItsArea", (): boolean  => tapered.least < level.least],
+      [
+        "yetOnlyOneOfThemKeptItsArea",
+        (): boolean => tapered.least < level.least,
+      ],
     ]),
     {
       straightAlongIsThePath: true,
@@ -285,7 +319,10 @@ export function test_geometry_loft_atlas_density(): void {
           ["flat", flat],
         ] as ReadonlyArray<readonly [string, IAtlasDensityRange]>
       ).map(
-        ([name, measured]: readonly [string, IAtlasDensityRange]): readonly [string, () => boolean]  => [name, (): boolean  => measured.degenerate === 0] as const,
+        ([name, measured]: readonly [string, IAtlasDensityRange]): readonly [
+          string,
+          () => boolean,
+        ] => [name, (): boolean => measured.degenerate === 0] as const,
       ),
     ),
     {

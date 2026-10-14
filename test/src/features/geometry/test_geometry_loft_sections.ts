@@ -1,20 +1,27 @@
+import {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieLoftSection } from "../../../../packages/engine/src/geometry/IAutoMovieLoftSection";
+import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
 import { inspectAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/inspectAutoMovieMeshTopology";
 import { loftAutoMovieSections } from "../../../../packages/engine/src/geometry/loftAutoMovieSections";
 import { sweepAutoMovieProfile } from "../../../../packages/engine/src/geometry/sweepAutoMovieProfile";
 import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
-import { IAutoMovieMesh, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { makeProp } from "../internal/makeProp";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { throwsError } from "../internal/throwsError";
-import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
 
 /** One prop model carrying nothing but this mesh, as a model would hold it. */
-const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel =>
+const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
+  mesh: IAutoMovieMesh,
+): IAutoMovieModel =>
   makeProp([
     {
       id: "member",
@@ -26,7 +33,7 @@ const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh)
     },
   ]);
 
-const ell: { x: number; y: number; }[] = [
+const ell: { x: number; y: number }[] = [
   { x: 0, y: 0 },
   { x: 3, y: 0 },
   { x: 3, y: 1 },
@@ -35,14 +42,19 @@ const ell: { x: number; y: number; }[] = [
   { x: 0, y: 3 },
 ];
 
-const box: (half: number) => Array<{ x: number; y: number; }> = (half: number): Array<{ x: number; y: number }> => [
+const box: (half: number) => Array<{ x: number; y: number }> = (
+  half: number,
+): Array<{ x: number; y: number }> => [
   { x: -half, y: -half },
   { x: half, y: -half },
   { x: half, y: half },
   { x: -half, y: half },
 ];
 
-const constant: (outer: ReturnType<typeof box>, holes?: Array<ReturnType<typeof box>>) => IAutoMovieLoftSection[] = (
+const constant: (
+  outer: ReturnType<typeof box>,
+  holes?: Array<ReturnType<typeof box>>,
+) => IAutoMovieLoftSection[] = (
   outer: ReturnType<typeof box>,
   holes?: Array<ReturnType<typeof box>>,
 ): IAutoMovieLoftSection[] => [
@@ -50,7 +62,9 @@ const constant: (outer: ReturnType<typeof box>, holes?: Array<ReturnType<typeof 
   { at: 1, outer, holes },
 ];
 
-const straight: (length: number) => IAutoMovieVector3[] = (length: number): IAutoMovieVector3[] => [
+const straight: (length: number) => IAutoMovieVector3[] = (
+  length: number,
+): IAutoMovieVector3[] => [
   { x: 0, y: 0, z: 0 },
   { x: 0, y: 0, z: length },
 ];
@@ -63,7 +77,10 @@ const straight: (length: number) => IAutoMovieVector3[] = (length: number): IAut
  * assumption: a builder whose output no model can carry is a builder whose
  * output never reaches a frame, however watertight it measures.
  */
-const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (mesh: IAutoMovieMesh, volume: number): boolean => {
+const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (
+  mesh: IAutoMovieMesh,
+  volume: number,
+): boolean => {
   const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(mesh);
   return (
     topology.watertight &&
@@ -75,7 +92,10 @@ const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (mesh: IAutoMo
   );
 };
 
-const carries: (mesh: IAutoMovieMesh, corner: IAutoMovieVector3) => boolean = (mesh: IAutoMovieMesh, corner: IAutoMovieVector3): boolean => {
+const carries: (mesh: IAutoMovieMesh, corner: IAutoMovieVector3) => boolean = (
+  mesh: IAutoMovieMesh,
+  corner: IAutoMovieVector3,
+): boolean => {
   for (let at: number = 0; at < mesh.positions.length; at += 3)
     if (
       nclose(mesh.positions[at], corner.x, 0) &&
@@ -87,8 +107,11 @@ const carries: (mesh: IAutoMovieMesh, corner: IAutoMovieVector3) => boolean = (m
 };
 
 /** The frustum of a pyramid: `h / 3 * (A + B + sqrt(A * B))`. */
-const frustum: (near: number, far: number, height: number) => number = (near: number, far: number, height: number): number =>
-  (height / 3) * (near + far + Math.sqrt(near * far));
+const frustum: (near: number, far: number, height: number) => number = (
+  near: number,
+  far: number,
+  height: number,
+): number => (height / 3) * (near + far + Math.sqrt(near * far));
 
 /**
  * Lofting free-form sections along a path: the variable section, the taper, and
@@ -140,10 +163,16 @@ export function test_geometry_loft_sections(): void {
   TestValidator.equals(
     "a concave section and a hollow one each loft to a prism of their own area",
     namedFacts([
-      ["concave", (): boolean  => closes(carried, 5 * 2)],
-      ["concaveIndices", (): boolean  => carried.indices!.length === (4 * 2 + 6 * 2) * 3],
-      ["hollow", (): boolean  => closes(hollow, (2 * 2 - 1 * 1) * 4)],
-      ["hollowIndices", (): boolean  => hollow.indices!.length === (8 * 2 + 8 * 2) * 3],
+      ["concave", (): boolean => closes(carried, 5 * 2)],
+      [
+        "concaveIndices",
+        (): boolean => carried.indices!.length === (4 * 2 + 6 * 2) * 3,
+      ],
+      ["hollow", (): boolean => closes(hollow, (2 * 2 - 1 * 1) * 4)],
+      [
+        "hollowIndices",
+        (): boolean => hollow.indices!.length === (8 * 2 + 8 * 2) * 3,
+      ],
     ]),
     {
       concave: true,
@@ -175,10 +204,16 @@ export function test_geometry_loft_sections(): void {
   TestValidator.equals(
     "a taper and a waisted section are frusta to the last digit",
     namedFacts([
-      ["taper", (): boolean  => closes(taper, frustum(4, 1, 3))],
-      ["taperVolume", (): boolean  => nclose(frustum(4, 1, 3), 7, 1e-15)],
-      ["waisted", (): boolean  => closes(waisted, frustum(4, 1, 1) + frustum(1, 4, 1))],
-      ["waistedVolume", (): boolean  => nclose(frustum(4, 1, 1) * 2, 14 / 3, 1e-15)],
+      ["taper", (): boolean => closes(taper, frustum(4, 1, 3))],
+      ["taperVolume", (): boolean => nclose(frustum(4, 1, 3), 7, 1e-15)],
+      [
+        "waisted",
+        (): boolean => closes(waisted, frustum(4, 1, 1) + frustum(1, 4, 1)),
+      ],
+      [
+        "waistedVolume",
+        (): boolean => nclose(frustum(4, 1, 1) * 2, 14 / 3, 1e-15),
+      ],
     ]),
     {
       taper: true,
@@ -202,14 +237,24 @@ export function test_geometry_loft_sections(): void {
   TestValidator.equals(
     "a station between two declared sections carries their blend",
     namedFacts([
-      ["corner", (): boolean  => carries(blended, { x: 1.5, y: 1.5, z: 1 })],
-      ["opposite", (): boolean  => carries(blended, { x: -1.5, y: -1.5, z: 1 })],
-      ["notTheNear", (): boolean  => carries(blended, { x: 1, y: 1, z: 1 }) === false],
-      ["notTheFar", (): boolean  => carries(blended, { x: 2, y: 2, z: 1 }) === false],
-      ["volume", (): boolean  => closes(blended, frustum(4, 9, 1) + frustum(9, 16, 1))],
+      ["corner", (): boolean => carries(blended, { x: 1.5, y: 1.5, z: 1 })],
+      ["opposite", (): boolean => carries(blended, { x: -1.5, y: -1.5, z: 1 })],
+      [
+        "notTheNear",
+        (): boolean => carries(blended, { x: 1, y: 1, z: 1 }) === false,
+      ],
+      [
+        "notTheFar",
+        (): boolean => carries(blended, { x: 2, y: 2, z: 1 }) === false,
+      ],
+      [
+        "volume",
+        (): boolean => closes(blended, frustum(4, 9, 1) + frustum(9, 16, 1)),
+      ],
       [
         "oracle",
-        (): boolean  => nclose(frustum(4, 9, 1) + frustum(9, 16, 1), 56 / 3, 1e-14),
+        (): boolean =>
+          nclose(frustum(4, 9, 1) + frustum(9, 16, 1), 56 / 3, 1e-14),
       ],
     ]),
     {
@@ -222,7 +267,7 @@ export function test_geometry_loft_sections(): void {
     },
   );
 
-  const profile: { x: number; y: number; }[] = box(0.1);
+  const profile: { x: number; y: number }[] = box(0.1);
   const paths: IAutoMovieVector3[][] = [
     straight(2),
     [
@@ -239,16 +284,17 @@ export function test_geometry_loft_sections(): void {
   ];
   TestValidator.equals(
     "a loft of one repeated convex section traces the solid the sweep traces",
-    paths.map((path: IAutoMovieVector3[]): Record<string, boolean>  => {
+    paths.map((path: IAutoMovieVector3[]): Record<string, boolean> => {
       const lofted: IAutoMovieMesh = loftAutoMovieSections({
         path,
         sections: constant(profile),
       });
-      const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(lofted);
+      const topology: IAutoMovieMeshTopology =
+        inspectAutoMovieMeshTopology(lofted);
       return namedFacts([
         [
           "volume",
-          (): boolean  =>
+          (): boolean =>
             nclose(
               topology.volume,
               inspectAutoMovieMeshTopology(
@@ -257,15 +303,19 @@ export function test_geometry_loft_sections(): void {
               1e-12,
             ),
         ],
-        ["closed", (): boolean  => topology.watertight],
+        ["closed", (): boolean => topology.watertight],
         [
           "topology",
-          (): boolean  =>
+          (): boolean =>
             validateMeshTopology({ mesh: lofted, expectClosed: true }).success,
         ],
       ]);
     }),
-    paths.map((): { volume: boolean; closed: boolean; topology: boolean; }  => ({ volume: true, closed: true, topology: true })),
+    paths.map((): { volume: boolean; closed: boolean; topology: boolean } => ({
+      volume: true,
+      closed: true,
+      topology: true,
+    })),
   );
 
   TestValidator.predicate(
@@ -279,7 +329,9 @@ export function test_geometry_loft_sections(): void {
     ),
   );
 
-  const twin: (outer: Array<{ x: number; y: number; }>) => IAutoMovieLoftSection[] = (
+  const twin: (
+    outer: Array<{ x: number; y: number }>,
+  ) => IAutoMovieLoftSection[] = (
     outer: Array<{ x: number; y: number }>,
   ): IAutoMovieLoftSection[] => [
     { at: 0, outer: ell },
@@ -288,7 +340,7 @@ export function test_geometry_loft_sections(): void {
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "short path",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: [{ x: 0, y: 0, z: 0 }],
           sections: twin(ell),
@@ -297,7 +349,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "non-finite path",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: [
             { x: 0, y: 0, z: 0 },
@@ -311,7 +363,7 @@ export function test_geometry_loft_sections(): void {
       // Distinct neighbours are not enough: a path that doubles back leaves the
       // centred tangent at the fold with no direction at all.
       "path folding back on itself",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: [
             { x: 0, y: 0, z: 0 },
@@ -324,7 +376,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "repeated path point",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: [
             { x: 0, y: 0, z: 0 },
@@ -336,7 +388,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "one section",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: [{ at: 0, outer: ell }],
@@ -345,7 +397,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "non-finite station",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: [
@@ -357,7 +409,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "station not increasing",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: [
@@ -370,7 +422,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "stations not spanning",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: [
@@ -382,7 +434,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "ring count",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: [
@@ -405,7 +457,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "point count",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: twin([
@@ -418,7 +470,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "winding",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: twin([...ell].reverse()),
@@ -427,7 +479,7 @@ export function test_geometry_loft_sections(): void {
     ],
     [
       "section ring shape",
-      (): IAutoMovieMesh  =>
+      (): IAutoMovieMesh =>
         loftAutoMovieSections({
           path: straight(1),
           sections: twin([

@@ -1,14 +1,18 @@
+import { TestValidator } from "@nestia/e2e";
+
 import { IAutoMovieRegionTriangulation } from "../../../../packages/engine/src/geometry/IAutoMovieRegionTriangulation";
 import { triangulateAutoMovieRegion } from "../../../../packages/engine/src/geometry/triangulateAutoMovieRegion";
-import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
+
 interface IPlanarPoint {
   x: number;
   y: number;
 }
 
-const signedArea: (points: readonly IPlanarPoint[]) => number = (points: readonly IPlanarPoint[]): number => {
+const signedArea: (points: readonly IPlanarPoint[]) => number = (
+  points: readonly IPlanarPoint[],
+): number => {
   let total: number = 0;
   for (let index: number = 0; index < points.length; ++index) {
     const from: IPlanarPoint = points[index]!;
@@ -18,7 +22,9 @@ const signedArea: (points: readonly IPlanarPoint[]) => number = (points: readonl
   return total / 2;
 };
 
-const triangleAreas: (plan: IAutoMovieRegionTriangulation) => number[] = (plan: IAutoMovieRegionTriangulation): number[] => {
+const triangleAreas: (plan: IAutoMovieRegionTriangulation) => number[] = (
+  plan: IAutoMovieRegionTriangulation,
+): number[] => {
   const areas: number[] = [];
   for (let at: number = 0; at < plan.triangles.length; at += 3)
     areas.push(
@@ -36,22 +42,30 @@ const triangleAreas: (plan: IAutoMovieRegionTriangulation) => number[] = (plan: 
  * known area jointly detect overlaps, omissions and filled holes. Cancelling
  * internal oriented edges leaves exactly the outer boundary and hole loops.
  */
-const coversExactly: (plan: IAutoMovieRegionTriangulation, area: number) => boolean = (
+const coversExactly: (
   plan: IAutoMovieRegionTriangulation,
   area: number,
-): boolean => {
+) => boolean = (plan: IAutoMovieRegionTriangulation, area: number): boolean => {
   const areas: number[] = triangleAreas(plan);
   const boundary: Map<string, number> = new Map();
-  const edge: (from: number, to: number, sign: number) => void = (from: number, to: number, sign: number): void => {
+  const edge: (from: number, to: number, sign: number) => void = (
+    from: number,
+    to: number,
+    sign: number,
+  ): void => {
     const key: string = `${Math.min(from, to)}/${Math.max(from, to)}`;
     boundary.set(key, (boundary.get(key) ?? 0) + sign * (from < to ? 1 : -1));
   };
   for (let at: number = 0; at < plan.triangles.length; at += 3)
     for (let corner: number = 0; corner < 3; ++corner)
-      edge(plan.triangles[at + corner]!, plan.triangles[at + (corner + 1) % 3]!, 1);
+      edge(
+        plan.triangles[at + corner]!,
+        plan.triangles[at + ((corner + 1) % 3)]!,
+        1,
+      );
   for (const ring of plan.rings)
     for (let corner: number = 0; corner < ring.count; ++corner)
-      edge(ring.start + corner, ring.start + (corner + 1) % ring.count, -1);
+      edge(ring.start + corner, ring.start + ((corner + 1) % ring.count), -1);
   return (
     [...boundary.values()].every((count: number): boolean => count === 0) &&
     areas.every((one: number): boolean => one > 0) &&
@@ -64,7 +78,10 @@ const coversExactly: (plan: IAutoMovieRegionTriangulation, area: number) => bool
   );
 };
 
-const ringOf: (plan: IAutoMovieRegionTriangulation, at: number) => IPlanarPoint[] = (
+const ringOf: (
+  plan: IAutoMovieRegionTriangulation,
+  at: number,
+) => IPlanarPoint[] = (
   plan: IAutoMovieRegionTriangulation,
   at: number,
 ): IPlanarPoint[] =>
@@ -129,11 +146,16 @@ const inner: IPlanarPoint[] = [
  * @evidence contracts/testing.md#execution-ownership The discoverable geometry entry runs portable triangulation and ordinary assertion helpers directly; all cases belong to this function without host startup.
  */
 export function test_geometry_region_triangulation(): void {
-  const concave: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: ell });
+  const concave: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
+    outer: ell,
+  });
   TestValidator.equals(
     "a concave contour triangulates to exactly its own area",
     namedFacts([
-      ["triangles", (): boolean => concave.triangles.length === (ell.length - 2) * 3],
+      [
+        "triangles",
+        (): boolean => concave.triangles.length === (ell.length - 2) * 3,
+      ],
       ["rings", (): boolean => concave.rings.length === 1],
       [
         "span",
@@ -146,7 +168,10 @@ export function test_geometry_region_triangulation(): void {
     { triangles: true, rings: true, span: true, covers: true },
   );
 
-  const holed: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: square, holes: [inner] });
+  const holed: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
+    outer: square,
+    holes: [inner],
+  });
   TestValidator.equals(
     "a square holding a square hole bridges into one ring and covers the remainder",
     namedFacts([
@@ -161,8 +186,14 @@ export function test_geometry_region_triangulation(): void {
           holed.rings[1]!.start === 4 &&
           holed.rings[1]!.count === 4,
       ],
-      ["outerWinding", (): boolean => nclose(signedArea(ringOf(holed, 0)), 16, 0)],
-      ["holeWinding", (): boolean => nclose(signedArea(ringOf(holed, 1)), -4, 0)],
+      [
+        "outerWinding",
+        (): boolean => nclose(signedArea(ringOf(holed, 0)), 16, 0),
+      ],
+      [
+        "holeWinding",
+        (): boolean => nclose(signedArea(ringOf(holed, 1)), -4, 0),
+      ],
       ["covers", (): boolean => coversExactly(holed, 12)],
     ]),
     {
@@ -280,8 +311,14 @@ export function test_geometry_region_triangulation(): void {
   TestValidator.equals(
     "a region authored the other way round is canonicalized, not refused",
     namedFacts([
-      ["outerWinding", (): boolean => nclose(signedArea(ringOf(reversed, 0)), 16, 0)],
-      ["holeWinding", (): boolean => nclose(signedArea(ringOf(reversed, 1)), -4, 0)],
+      [
+        "outerWinding",
+        (): boolean => nclose(signedArea(ringOf(reversed, 0)), 16, 0),
+      ],
+      [
+        "holeWinding",
+        (): boolean => nclose(signedArea(ringOf(reversed, 1)), -4, 0),
+      ],
       ["covers", (): boolean => coversExactly(reversed, 12)],
     ]),
     { outerWinding: true, holeWinding: true, covers: true },

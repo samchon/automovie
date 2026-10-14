@@ -2,11 +2,13 @@ import { surfaceHeightAt, tessellateSurface } from "@automovie/engine";
 import { IAutoMovieSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
 import { type ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** A diamond footprint over a 3x3 lattice carrying a peak, a terrace, a bank. */
-const relief: (samples: number[]) => IAutoMovieSurface = (samples: number[]): IAutoMovieSurface => ({
+const relief: (samples: number[]) => IAutoMovieSurface = (
+  samples: number[],
+): IAutoMovieSurface => ({
   id: "relief",
   kind: "floor",
   polygon: [
@@ -28,12 +30,17 @@ const relief: (samples: number[]) => IAutoMovieSurface = (samples: number[]): IA
 });
 
 /** Every tessellated vertex, as an `(x, z, y)` triple. */
-const vertices: (positions: number[]) => Array<[number, number, number]> = (positions: number[]): Array<[number, number, number]> =>
-  Array.from({ length: positions.length / 3 }, (_: unknown, index: number): [number, number, number] => [
-    positions[index * 3]!,
-    positions[index * 3 + 2]!,
-    positions[index * 3 + 1]!,
-  ]);
+const vertices: (positions: number[]) => Array<[number, number, number]> = (
+  positions: number[],
+): Array<[number, number, number]> =>
+  Array.from(
+    { length: positions.length / 3 },
+    (_: unknown, index: number): [number, number, number] => [
+      positions[index * 3]!,
+      positions[index * 3 + 2]!,
+      positions[index * 3 + 1]!,
+    ],
+  );
 
 /**
  * The support surface a viewer draws is the one engine height queries answer.
@@ -76,15 +83,17 @@ export function test_geometry_surface_heightfield(): void {
       [
         "agrees",
         (): boolean =>
-          vertices(mesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
-            nclose(y, surfaceHeightAt(peak, x, z), 1e-12),
+          vertices(mesh.positions).every(
+            ([x, z, y]: [number, number, number]): boolean =>
+              nclose(y, surfaceHeightAt(peak, x, z), 1e-12),
           ),
       ],
       [
         "peak",
         (): boolean =>
           vertices(mesh.positions).some(
-            ([x, z, y]: [number, number, number]): boolean => nclose(x, 1, 0) && nclose(z, 1, 0) && nclose(y, 2),
+            ([x, z, y]: [number, number, number]): boolean =>
+              nclose(x, 1, 0) && nclose(z, 1, 0) && nclose(y, 2),
           ),
       ],
     ]),
@@ -96,20 +105,30 @@ export function test_geometry_surface_heightfield(): void {
   TestValidator.equals(
     "a terrace and a bank reproduce their own bilinear heights",
     namedFacts([
-      ["terrace", (): boolean => nclose(surfaceHeightAt(terraced, 0.5, 0.5), 1, 1e-12)],
-      ["bank", (): boolean => nclose(surfaceHeightAt(terraced, 1.5, 1.5), 1.5, 1e-12)],
+      [
+        "terrace",
+        (): boolean => nclose(surfaceHeightAt(terraced, 0.5, 0.5), 1, 1e-12),
+      ],
+      [
+        "bank",
+        (): boolean => nclose(surfaceHeightAt(terraced, 1.5, 1.5), 1.5, 1e-12),
+      ],
       [
         "agrees",
         (): boolean =>
-          terracedMesh.positions.length > 0 && vertices(terracedMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
-            nclose(y, surfaceHeightAt(terraced, x, z), 1e-12),
+          terracedMesh.positions.length > 0 &&
+          vertices(terracedMesh.positions).every(
+            ([x, z, y]: [number, number, number]): boolean =>
+              nclose(y, surfaceHeightAt(terraced, x, z), 1e-12),
           ),
       ],
     ]),
     { terrace: true, bank: true, agrees: true },
   );
 
-  const level: ITessellation = tessellateSurface(relief([0, 0, 0, 0, 0, 0, 0, 0, 0]))!;
+  const level: ITessellation = tessellateSurface(
+    relief([0, 0, 0, 0, 0, 0, 0, 0, 0]),
+  )!;
   TestValidator.equals(
     "relief tilts normals off vertical and a level lattice does not",
     namedFacts([
@@ -117,13 +136,15 @@ export function test_geometry_surface_heightfield(): void {
         "tilted",
         (): boolean =>
           mesh.normals.some(
-            (value: number, index: number): boolean => index % 3 !== 1 && Math.abs(value) > 1e-6,
+            (value: number, index: number): boolean =>
+              index % 3 !== 1 && Math.abs(value) > 1e-6,
           ),
       ],
       [
         "upright",
         (): boolean =>
-          level.normals.length > 0 && level.normals.every((value: number, index: number): boolean =>
+          level.normals.length > 0 &&
+          level.normals.every((value: number, index: number): boolean =>
             index % 3 === 1 ? nclose(value, 1) : nclose(value, 0),
           ),
       ],
@@ -147,7 +168,10 @@ export function test_geometry_surface_heightfield(): void {
       spacingZ: 1,
       columns: 5,
       rows: 5,
-      samples: Array.from({ length: 25 }, (_: unknown, index: number): number => index % 3),
+      samples: Array.from(
+        { length: 25 },
+        (_: unknown, index: number): number => index % 3,
+      ),
     },
   };
   const cornerMesh: ITessellation = tessellateSurface(corner)!;
@@ -157,13 +181,17 @@ export function test_geometry_surface_heightfield(): void {
       [
         "inside",
         (): boolean =>
-          cornerMesh.positions.length > 0 && vertices(cornerMesh.positions).every(([x, z]: [number, number, number]): boolean => x + z <= 4 + 1e-9),
+          cornerMesh.positions.length > 0 &&
+          vertices(cornerMesh.positions).every(
+            ([x, z]: [number, number, number]): boolean => x + z <= 4 + 1e-9,
+          ),
       ],
       [
         "agrees",
         (): boolean =>
-          vertices(cornerMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
-            nclose(y, surfaceHeightAt(corner, x, z), 1e-12),
+          vertices(cornerMesh.positions).every(
+            ([x, z, y]: [number, number, number]): boolean =>
+              nclose(y, surfaceHeightAt(corner, x, z), 1e-12),
           ),
       ],
     ]),
@@ -190,8 +218,9 @@ export function test_geometry_surface_heightfield(): void {
       [
         "plane",
         (): boolean =>
-          vertices(rampMesh.positions).every(([x, z, y]: [number, number, number]): boolean =>
-            nclose(y, 0.5 + 0.25 * x - 0.5 * z, 1e-12),
+          vertices(rampMesh.positions).every(
+            ([x, z, y]: [number, number, number]): boolean =>
+              nclose(y, 0.5 + 0.25 * x - 0.5 * z, 1e-12),
           ),
       ],
     ]),
@@ -211,7 +240,10 @@ export function test_geometry_surface_heightfield(): void {
       ["fan", (): boolean => anchored.indices.length === 6],
       [
         "anchor",
-        (): boolean => vertices(anchored.positions).every(([, , y]: [number, number, number]): boolean => nclose(y, 1.75)),
+        (): boolean =>
+          vertices(anchored.positions).every(
+            ([, , y]: [number, number, number]): boolean => nclose(y, 1.75),
+          ),
       ],
     ]),
     { fan: true, anchor: true },

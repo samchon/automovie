@@ -1,7 +1,8 @@
-import {buildAutoMovieWall,mergeAutoMovieMeshes} from "@automovie/engine";
+import { buildAutoMovieWall, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import {TestValidator} from "@nestia/e2e";
-import {namedFacts,throwsError} from "../internal/predicates";
+import { TestValidator } from "@nestia/e2e";
+
+import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
  * Rigid merge rebases indexed and nonindexed members, preserves common attributes, exposes attribute loss and rejects skinning.
@@ -16,7 +17,12 @@ import {namedFacts,throwsError} from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls portable wall and merge source with its existing triangle data and exception observer. It installs no consumer, builds no native artifact and starts no host, browser or GPU; no cases are dynamically registered.
  */
 export function test_geometry_procedural_merge(): void {
-  const plainWall: IAutoMovieMesh = buildAutoMovieWall({width:2,height:2,depth:.2,openings:[]});
+  const plainWall: IAutoMovieMesh = buildAutoMovieWall({
+    width: 2,
+    height: 2,
+    depth: 0.2,
+    openings: [],
+  });
   const nonIndexed: IAutoMovieMesh = {
     positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
     normals: null,
@@ -34,7 +40,8 @@ export function test_geometry_procedural_merge(): void {
     namedFacts([
       [
         "rebased",
-        (): boolean => merged.indices!.at(-1) === plainWall.positions.length / 3 + 2,
+        (): boolean =>
+          merged.indices!.at(-1) === plainWall.positions.length / 3 + 2,
       ],
       ["dropsNormals", (): boolean => merged.normals === null],
       ["dropsUvs", (): boolean => merged.uvs === null],
@@ -51,7 +58,6 @@ export function test_geometry_procedural_merge(): void {
       empty: true,
     },
   );
-
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
@@ -83,6 +89,9 @@ export function test_geometry_procedural_merge(): void {
       "mesh merge member[1] needs one normal per vertex",
     ],
   ];
-  for (const [name, callback, message] of invalids) TestValidator.predicate(`${name} is refused by its own diagnostic`,throwsError(callback,message));
-
+  for (const [name, callback, message] of invalids)
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

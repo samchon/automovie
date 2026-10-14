@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { atlasDensityRange } from "../internal/atlasMeasure";
 import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
+import { atlasDensityRange } from "../internal/atlasMeasure";
 import { namedFacts, nclose, violationCount } from "../internal/predicates";
 
 /**
@@ -23,7 +23,9 @@ import { namedFacts, nclose, violationCount } from "../internal/predicates";
  * a failure to zero warnings would let a refused model compare equal to a clean
  * one. `-1` keeps the two apart in the comparison below.
  */
-const warningCount: (validation: IAutoMovieValidation) => number = (validation: IAutoMovieValidation): number =>
+const warningCount: (validation: IAutoMovieValidation) => number = (
+  validation: IAutoMovieValidation,
+): number =>
   validation.success === true ? (validation.warnings ?? []).length : -1;
 
 /** A 1 m square section extruded 4 m: one atlas-bearing member at unit size. */
@@ -46,7 +48,10 @@ const member: () => IAutoMovieMesh = (): IAutoMovieMesh =>
  * say nothing. A `"normalized"` declaration over a span of 4 is refused, so the
  * same model differing only in that word is the positive control.
  */
-const declaredModel: (scale: number | null, source?: "surface-metres" | "normalized") => IAutoMovieModel = (
+const declaredModel: (
+  scale: number | null,
+  source?: "surface-metres" | "normalized",
+) => IAutoMovieModel = (
   scale: number | null,
   source: "surface-metres" | "normalized" = "surface-metres",
 ): IAutoMovieModel => {
@@ -135,7 +140,9 @@ export function test_geometry_placement_scale_atlas(): void {
         "uvBufferIsElementForElement",
         (): boolean =>
           placed.uvs!.length === built.uvs!.length &&
-          placed.uvs!.every((value: number, at: number): boolean => nclose(value, built.uvs![at], 0)),
+          placed.uvs!.every((value: number, at: number): boolean =>
+            nclose(value, built.uvs![at], 0),
+          ),
       ],
       ["andStillReadsOneMetrePerUnit", (): boolean => nclose(turned.least, 1)],
       ["onEveryTriangle", (): boolean => nclose(turned.most, 1)],
@@ -156,7 +163,11 @@ export function test_geometry_placement_scale_atlas(): void {
     namedFacts([
       [
         "uvBufferIsStillElementForElement",
-        (): boolean => enlarged.uvs!.length === built.uvs!.length && enlarged.uvs!.every((value: number, at: number): boolean => nclose(value, built.uvs![at], 0)),
+        (): boolean =>
+          enlarged.uvs!.length === built.uvs!.length &&
+          enlarged.uvs!.every((value: number, at: number): boolean =>
+            nclose(value, built.uvs![at], 0),
+          ),
       ],
       ["yetTheDensityIsOneNinth", (): boolean => nclose(grown.least, 1 / 9)],
       ["uniformlySo", (): boolean => nclose(grown.most, 1 / 9)],
@@ -174,9 +185,15 @@ export function test_geometry_placement_scale_atlas(): void {
   TestValidator.equals(
     "a non-uniform scale is not wrong by one number, so nothing corrects it",
     namedFacts([
-      ["facesAlongTheScaledAxis", (): boolean => nclose(stretched.least, 1 / 3)],
+      [
+        "facesAlongTheScaledAxis",
+        (): boolean => nclose(stretched.least, 1 / 3),
+      ],
       ["facesAcrossItAreUntouched", (): boolean => nclose(stretched.most, 1)],
-      ["soOneFactorCannotServeBoth", (): boolean => !nclose(stretched.most, stretched.least, 0)],
+      [
+        "soOneFactorCannotServeBoth",
+        (): boolean => !nclose(stretched.most, stretched.least, 0),
+      ],
     ]),
     {
       facesAlongTheScaledAxis: true,
@@ -185,8 +202,12 @@ export function test_geometry_placement_scale_atlas(): void {
     },
   );
 
-  const asBuilt: IAutoMovieValidation = validateTextureScale({ models: [declaredModel(null)] });
-  const asScaled: IAutoMovieValidation = validateTextureScale({ models: [declaredModel(3)] });
+  const asBuilt: IAutoMovieValidation = validateTextureScale({
+    models: [declaredModel(null)],
+  });
+  const asScaled: IAutoMovieValidation = validateTextureScale({
+    models: [declaredModel(3)],
+  });
   const control: IAutoMovieValidation = validateTextureScale({
     models: [declaredModel(null, "normalized")],
   });
@@ -195,7 +216,10 @@ export function test_geometry_placement_scale_atlas(): void {
     namedFacts([
       // The control first: a clean verdict below means nothing unless this
       // fixture is one the validator actually reads and can refuse.
-      ["theValidatorDoesReadThisFixture", (): boolean => violationCount(control) > 0],
+      [
+        "theValidatorDoesReadThisFixture",
+        (): boolean => violationCount(control) > 0,
+      ],
       ["theUnscaledPartIsClean", (): boolean => violationCount(asBuilt) === 0],
       ["andSoIsTheScaledOne", (): boolean => violationCount(asScaled) === 0],
       [

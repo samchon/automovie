@@ -1,10 +1,10 @@
 import { triangulateAutoMovieRegion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
 import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { type IAutoMovieRegionTriangulation } from "../../../../packages/engine/src/geometry/IAutoMovieRegionTriangulation";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * Canonical triangulation preserves the identity of every authored corner.
@@ -44,14 +44,19 @@ export function test_geometry_region_source_identities(): void {
   ];
   const rings: IAutoMovieProfilePoint[][] = [outer, triangle, rectangle];
   const original: IAutoMovieProfilePoint[][] = structuredClone(rings);
-  const canonical: IAutoMovieProfilePoint[] = [...outer, ...[...triangle].reverse(), ...rectangle];
+  const canonical: IAutoMovieProfilePoint[] = [
+    ...outer,
+    ...[...triangle].reverse(),
+    ...rectangle,
+  ];
   const normal: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
     outer,
     holes: [triangle, rectangle],
   });
   for (let mask: number = 0; mask < 8; ++mask) {
-    const input: IAutoMovieProfilePoint[][] = rings.map((ring: IAutoMovieProfilePoint[], at: number): IAutoMovieProfilePoint[] =>
-      (mask & (1 << at)) === 0 ? [...ring] : [...ring].reverse(),
+    const input: IAutoMovieProfilePoint[][] = rings.map(
+      (ring: IAutoMovieProfilePoint[], at: number): IAutoMovieProfilePoint[] =>
+        (mask & (1 << at)) === 0 ? [...ring] : [...ring].reverse(),
     );
     const plan: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
       outer: input[0],
@@ -73,7 +78,12 @@ export function test_geometry_region_source_identities(): void {
     );
     TestValidator.predicate(
       "original inputs follow their own identity",
-      equalGeometryTestValues(plan.sourceIndices.map((id: number): IAutoMovieProfilePoint => input.flat()[id]), canonical),
+      equalGeometryTestValues(
+        plan.sourceIndices.map(
+          (id: number): IAutoMovieProfilePoint => input.flat()[id],
+        ),
+        canonical,
+      ),
     );
     TestValidator.equals("unequal ring spans", plan.rings, [
       { start: 0, count: 4 },
@@ -89,11 +99,17 @@ export function test_geometry_region_source_identities(): void {
     plan.sourceIndices[0] = -1;
     plan.points[0].x = 999;
     plan.rings[0].start = 999;
-    TestValidator.predicate("caller rings retained", equalGeometryTestValues(rings, original));
+    TestValidator.predicate(
+      "caller rings retained",
+      equalGeometryTestValues(rings, original),
+    );
   }
   TestValidator.predicate(
     "fresh canonical output",
-    equalGeometryTestValues(triangulateAutoMovieRegion({ outer, holes: [triangle, rectangle] }), normal),
+    equalGeometryTestValues(
+      triangulateAutoMovieRegion({ outer, holes: [triangle, rectangle] }),
+      normal,
+    ),
   );
   TestValidator.equals(
     "omitted holes preserve identity",
@@ -105,7 +121,9 @@ export function test_geometry_region_source_identities(): void {
     triangulateAutoMovieRegion({ outer, holes: [] }).sourceIndices,
     [0, 1, 2, 3],
   );
-  const minimum: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({ outer: triangle });
+  const minimum: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({
+    outer: triangle,
+  });
   TestValidator.equals(
     "minimum triangle identities",
     minimum.sourceIndices,
@@ -118,8 +136,9 @@ export function test_geometry_region_source_identities(): void {
   );
   TestValidator.predicate(
     "short input still refuses",
-    throwsError((): IAutoMovieRegionTriangulation =>
-      triangulateAutoMovieRegion({ outer: triangle.slice(0, 2) }),
+    throwsError(
+      (): IAutoMovieRegionTriangulation =>
+        triangulateAutoMovieRegion({ outer: triangle.slice(0, 2) }),
       "needs at least three points",
     ),
   );

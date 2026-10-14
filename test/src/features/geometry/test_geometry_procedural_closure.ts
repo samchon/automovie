@@ -11,9 +11,9 @@ import {
   validateModel,
 } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { makeProp } from "../internal/fixtures";
 import {
   hasViolation,
@@ -28,7 +28,10 @@ const square: IAutoMovieProfilePoint[] = [
   { x: -0.5, y: 0.5 },
 ];
 
-const prism: IAutoMovieMesh = extrudeAutoMovieProfile({ profile: square, depth: 1 });
+const prism: IAutoMovieMesh = extrudeAutoMovieProfile({
+  profile: square,
+  depth: 1,
+});
 
 const cutWall: IAutoMovieMesh = buildAutoMovieWall({
   width: 4,
@@ -41,11 +44,16 @@ const cutWall: IAutoMovieMesh = buildAutoMovieWall({
 });
 
 /** How many violations the engine raises against a declared closure. */
-const closureViolations: (mesh: IAutoMovieMesh, closed: boolean) => number = (mesh: IAutoMovieMesh, closed: boolean): number =>
+const closureViolations: (mesh: IAutoMovieMesh, closed: boolean) => number = (
+  mesh: IAutoMovieMesh,
+  closed: boolean,
+): number =>
   violationCount(validateMeshTopology({ mesh, expectClosed: closed }));
 
 /** One prop model carrying nothing but this mesh, as a model would hold it. */
-const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel =>
+const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
+  mesh: IAutoMovieMesh,
+): IAutoMovieModel =>
   makeProp([
     {
       id: "member",
@@ -108,10 +116,12 @@ export function test_geometry_procedural_closure(): void {
     [
       "sweep",
       sweepAutoMovieProfile({
-        profile: square.map((point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
-          x: point.x * 0.2,
-          y: point.y * 0.2,
-        })),
+        profile: square.map(
+          (point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
+            x: point.x * 0.2,
+            y: point.y * 0.2,
+          }),
+        ),
         path: [
           { x: 0, y: 0, z: 0 },
           { x: 2, y: 0, z: 0 },
@@ -176,9 +186,21 @@ export function test_geometry_procedural_closure(): void {
   TestValidator.equals(
     "every builder that declares a closed solid is one by the engine's verdict",
     Object.fromEntries(
-      solids.map(([name, mesh]: readonly [string, IAutoMovieMesh]): [string, number] => [name, closureViolations(mesh, true)]),
+      solids.map(
+        ([name, mesh]: readonly [string, IAutoMovieMesh]): [string, number] => [
+          name,
+          closureViolations(mesh, true),
+        ],
+      ),
     ),
-    Object.fromEntries(solids.map(([name]: readonly [string, IAutoMovieMesh]): [string, number] => [name, 0])),
+    Object.fromEntries(
+      solids.map(
+        ([name]: readonly [string, IAutoMovieMesh]): [string, number] => [
+          name,
+          0,
+        ],
+      ),
+    ),
   );
 
   const tube: IAutoMovieMesh = revolveAutoMovieProfile({
@@ -244,7 +266,8 @@ export function test_geometry_procedural_closure(): void {
     namedFacts([
       [
         "wall",
-        (): boolean => validateModel({ model: asPart(cutWall) }).success === true,
+        (): boolean =>
+          validateModel({ model: asPart(cutWall) }).success === true,
       ],
       [
         "union",

@@ -2,14 +2,14 @@ import {
   buildAutoMovieRegionFace,
   inspectAutoMovieMeshTopology,
 } from "@automovie/engine";
+import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, throwsError } from "../internal/predicates";
-import { type IAutoMovieMesh } from "@automovie/interface";
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
+import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
  * A region face is one oriented surface, not the two coincident sides emitted
@@ -44,53 +44,68 @@ export function test_geometry_region_face(): void {
     { x: 0.5, y: 0.25 },
     { x: -0.5, y: 0.25 },
   ] as const;
-  const face: IAutoMovieMesh = buildAutoMovieRegionFace({ outer, holes: [hole] });
+  const face: IAutoMovieMesh = buildAutoMovieRegionFace({
+    outer,
+    holes: [hole],
+  });
   const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(face);
 
   TestValidator.equals(
     "one canonical positive-Z face retains metric coordinates and its opening",
     namedFacts([
       ["vertex count", (): boolean => face.positions.length === 24],
-      ["normal count", (): boolean => face.normals?.length === face.positions.length],
+      [
+        "normal count",
+        (): boolean => face.normals?.length === face.positions.length,
+      ],
       [
         "positive Z",
         (): boolean =>
-          face.normals?.every((n: number, index: number): boolean => index % 3 !== 2 || nclose(n, 1, 0)) ===
-          true,
+          face.normals?.every(
+            (n: number, index: number): boolean =>
+              index % 3 !== 2 || nclose(n, 1, 0),
+          ) === true,
       ],
       [
         "zero X/Y normals",
         (): boolean =>
-          face.normals?.every((n: number, index: number): boolean => index % 3 === 2 || nclose(n, 0, 0)) ===
-          true,
+          face.normals?.every(
+            (n: number, index: number): boolean =>
+              index % 3 === 2 || nclose(n, 0, 0),
+          ) === true,
       ],
       [
         "metric UVs",
         (): boolean =>
-          face.uvs?.length === 16 && face.uvs.every(
-            (value: number, index: number): boolean =>
-              nclose(value, face.positions[(index >> 1) * 3 + (index % 2)], 0),
+          face.uvs?.length === 16 &&
+          face.uvs.every((value: number, index: number): boolean =>
+            nclose(value, face.positions[(index >> 1) * 3 + (index % 2)], 0),
           ) === true,
       ],
       [
         "open boundary",
-        (): boolean => topology.watertight === false && topology.boundaryEdges === 8,
+        (): boolean =>
+          topology.watertight === false && topology.boundaryEdges === 8,
       ],
       ["not degenerate", (): boolean => topology.degenerate === 0],
       [
         "counter-clockwise triangles",
         (): boolean =>
-          (face.indices ?? []).every((_: number, index: number, indices: number[]): boolean => {
-            if (index % 3 !== 0) return true;
-            const a: number = indices[index]! * 3;
-            const b: number = indices[index + 1]! * 3;
-            const c: number = indices[index + 2]! * 3;
-            const abx: number = face.positions[b]! - face.positions[a]!;
-            const aby: number = face.positions[b + 1]! - face.positions[a + 1]!;
-            const acx: number = face.positions[c]! - face.positions[a]!;
-            const acy: number = face.positions[c + 1]! - face.positions[a + 1]!;
-            return abx * acy - aby * acx > 0;
-          }),
+          (face.indices ?? []).every(
+            (_: number, index: number, indices: number[]): boolean => {
+              if (index % 3 !== 0) return true;
+              const a: number = indices[index]! * 3;
+              const b: number = indices[index + 1]! * 3;
+              const c: number = indices[index + 2]! * 3;
+              const abx: number = face.positions[b]! - face.positions[a]!;
+              const aby: number =
+                face.positions[b + 1]! - face.positions[a + 1]!;
+              const acx: number = face.positions[c]! - face.positions[a]!;
+              const acy: number =
+                face.positions[c + 1]! - face.positions[a + 1]!;
+              return abx * acy - aby * acx > 0;
+            },
+          ),
       ],
       ["one side only", (): boolean => face.indices?.length === 24],
     ]),
@@ -109,11 +124,13 @@ export function test_geometry_region_face(): void {
 
   TestValidator.predicate(
     "authored winding cannot reverse the material-facing side",
-    equalGeometryTestValues(buildAutoMovieRegionFace({
-      outer: [...outer].reverse(),
-      holes: [[...hole].reverse()],
-    }),
-    face),
+    equalGeometryTestValues(
+      buildAutoMovieRegionFace({
+        outer: [...outer].reverse(),
+        holes: [[...hole].reverse()],
+      }),
+      face,
+    ),
   );
 
   TestValidator.predicate(

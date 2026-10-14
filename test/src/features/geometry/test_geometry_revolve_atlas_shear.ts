@@ -7,8 +7,8 @@ import {
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
 import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */
 interface IStretch {
@@ -26,8 +26,13 @@ interface IStretch {
  * and the resulting `2 x 2` matrix is decomposed through the eigenvalues of
  * `M^T M`. Degenerate triangles carry no frame and are reported as such.
  */
-const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (mesh: IAutoMovieMesh, triangle: number): IStretch | null => {
-  const corner: (at: number) => readonly [readonly number[], readonly number[]] = (
+const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (
+  mesh: IAutoMovieMesh,
+  triangle: number,
+): IStretch | null => {
+  const corner: (
+    at: number,
+  ) => readonly [readonly number[], readonly number[]] = (
     at: number,
   ): readonly [readonly number[], readonly number[]] => {
     const index: number = mesh.indices![triangle * 3 + at]!;
@@ -40,27 +45,43 @@ const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (
       [mesh.uvs![index * 2]!, mesh.uvs![index * 2 + 1]!],
     ];
   };
-  const [origin, atlas]: readonly [readonly number[], readonly number[]] = corner(0);
-  const [alpha, alphaUv]: readonly [readonly number[], readonly number[]] = corner(1);
-  const [beta, betaUv]: readonly [readonly number[], readonly number[]] = corner(2);
-  const first: number[] = alpha.map((value: number, axis: number): number => value - origin[axis]!);
-  const second: number[] = beta.map((value: number, axis: number): number => value - origin[axis]!);
+  const [origin, atlas]: readonly [readonly number[], readonly number[]] =
+    corner(0);
+  const [alpha, alphaUv]: readonly [readonly number[], readonly number[]] =
+    corner(1);
+  const [beta, betaUv]: readonly [readonly number[], readonly number[]] =
+    corner(2);
+  const first: number[] = alpha.map(
+    (value: number, axis: number): number => value - origin[axis]!,
+  );
+  const second: number[] = beta.map(
+    (value: number, axis: number): number => value - origin[axis]!,
+  );
   const spanA: number = Math.hypot(...first);
   if (spanA === 0) return null;
   const unit: number[] = first.map((value: number): number => value / spanA);
   const along: number = second.reduce(
-    (sum: number, value: number, axis: number): number => sum + value * unit[axis]!,
+    (sum: number, value: number, axis: number): number =>
+      sum + value * unit[axis]!,
     0,
   );
   const spanB: number = Math.hypot(
-    ...second.map((value: number, axis: number): number => value - along * unit[axis]!),
+    ...second.map(
+      (value: number, axis: number): number => value - along * unit[axis]!,
+    ),
   );
   if (spanB === 0) return null;
   // Surface edges in that basis are (spanA, 0) and (along, spanB); the atlas
   // edges are the uv differences, so M solves M * [surface] = [atlas].
-  const uvA: number[] = alphaUv.map((value: number, axis: number): number => value - atlas[axis]!);
-  const uvB: number[] = betaUv.map((value: number, axis: number): number => value - atlas[axis]!);
-  const column: (row: number) => readonly [number, number] = (row: number): readonly [number, number] => [
+  const uvA: number[] = alphaUv.map(
+    (value: number, axis: number): number => value - atlas[axis]!,
+  );
+  const uvB: number[] = betaUv.map(
+    (value: number, axis: number): number => value - atlas[axis]!,
+  );
+  const column: (row: number) => readonly [number, number] = (
+    row: number,
+  ): readonly [number, number] => [
     uvA[row]! / spanA,
     (uvB[row]! - (uvA[row]! * along) / spanA) / spanB,
   ];
@@ -79,20 +100,33 @@ const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (
 };
 
 /** The worst finite anisotropy over nondegenerate frames; NaN rejects an empty frame population or a nonfinite measurement instead of silently reporting zero. */
-const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (mesh: IAutoMovieMesh): number => {
+const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (
+  mesh: IAutoMovieMesh,
+): number => {
   let worst: number = NaN;
-  for (let triangle: number = 0; triangle * 3 < mesh.indices!.length; ++triangle) {
+  for (
+    let triangle: number = 0;
+    triangle * 3 < mesh.indices!.length;
+    ++triangle
+  ) {
     const stretch: IStretch | null = stretchOf(mesh, triangle);
     if (stretch === null) continue;
-    if (!Number.isFinite(stretch.anisotropy) || !Number.isFinite(stretch.areaScale))
+    if (
+      !Number.isFinite(stretch.anisotropy) ||
+      !Number.isFinite(stretch.areaScale)
+    )
       return NaN;
-    worst = Number.isNaN(worst) ? stretch.anisotropy : Math.max(worst, stretch.anisotropy);
+    worst = Number.isNaN(worst)
+      ? stretch.anisotropy
+      : Math.max(worst, stretch.anisotropy);
   }
   return worst;
 };
 
 /** A meridian one metre long leaning `degrees` away from the axis. */
-const leaningCone: (degrees: number) => IAutoMovieMesh = (degrees: number): IAutoMovieMesh =>
+const leaningCone: (degrees: number) => IAutoMovieMesh = (
+  degrees: number,
+): IAutoMovieMesh =>
   revolveAutoMovieProfile({
     profile: [
       { x: 1, y: 0 },
@@ -110,11 +144,16 @@ const statedWorst: (degrees: number) => number = (degrees: number): number => {
   return (Math.sqrt(k * k + 4) + k) / (Math.sqrt(k * k + 4) - k);
 };
 
-const ring: (radius: number) => IAutoMovieProfilePoint[] = (radius: number): IAutoMovieProfilePoint[] =>
-  Array.from({ length: 24 }, (_point: unknown, at: number): IAutoMovieProfilePoint => ({
-    x: radius * Math.cos((at / 24) * Math.PI * 2),
-    y: radius * Math.sin((at / 24) * Math.PI * 2),
-  }));
+const ring: (radius: number) => IAutoMovieProfilePoint[] = (
+  radius: number,
+): IAutoMovieProfilePoint[] =>
+  Array.from(
+    { length: 24 },
+    (_point: unknown, at: number): IAutoMovieProfilePoint => ({
+      x: radius * Math.cos((at / 24) * Math.PI * 2),
+      y: radius * Math.sin((at / 24) * Math.PI * 2),
+    }),
+  );
 
 /**
  * The shear a revolved metric atlas costs, and where a directional finish may go.
@@ -175,8 +214,13 @@ export function test_geometry_revolve_atlas_shear(): void {
             (): boolean => {
               const measured: number = worstAnisotropy(leaningCone(degrees));
               return (
-                nclose(measured, statedWorst(degrees), statedWorst(degrees) * 0.02) && Math.abs(measured - statedWorst(degrees)) <
-                statedWorst(degrees) * 0.02
+                nclose(
+                  measured,
+                  statedWorst(degrees),
+                  statedWorst(degrees) * 0.02,
+                ) &&
+                Math.abs(measured - statedWorst(degrees)) <
+                  statedWorst(degrees) * 0.02
               );
             },
           ] as const,
@@ -186,12 +230,17 @@ export function test_geometry_revolve_atlas_shear(): void {
   );
 
   const steep: IAutoMovieMesh = leaningCone(45);
-  const stretches: (IStretch | null)[] = Array.from({ length: steep.indices!.length / 3 }, (_triangle: unknown, at: number): IStretch | null => stretchOf(steep, at));
+  const stretches: (IStretch | null)[] = Array.from(
+    { length: steep.indices!.length / 3 },
+    (_triangle: unknown, at: number): IStretch | null => stretchOf(steep, at),
+  );
   TestValidator.predicate(
     "the distortion is pure shear: every triangle keeps its area",
-    stretches.some((stretch: IStretch | null): boolean => stretch !== null) && stretches.every(
-      (stretch: IStretch | null): boolean => stretch === null || nclose(stretch.areaScale, 1, 1e-3),
-    ),
+    stretches.some((stretch: IStretch | null): boolean => stretch !== null) &&
+      stretches.every(
+        (stretch: IStretch | null): boolean =>
+          stretch === null || nclose(stretch.areaScale, 1, 1e-3),
+      ),
   );
 
   // A 45-degree cone standing on its point, and the same cone with the top
@@ -218,14 +267,21 @@ export function test_geometry_revolve_atlas_shear(): void {
       [
         "frustumHasNoPole",
         (): boolean =>
-          Array.from({ length: frustum.positions.length / 3 }, (_vertex: unknown, at: number): number =>
-            Math.hypot(
-              frustum.positions[at * 3]!,
-              frustum.positions[at * 3 + 2]!,
-            ),
+          Array.from(
+            { length: frustum.positions.length / 3 },
+            (_vertex: unknown, at: number): number =>
+              Math.hypot(
+                frustum.positions[at * 3]!,
+                frustum.positions[at * 3 + 2]!,
+              ),
           ).every((radius: number): boolean => radius > 0),
       ],
-      ["sameWorstShear", (): boolean => nclose(withPole, without, withPole * 0.01) && Math.abs(withPole - without) < withPole * 0.01],
+      [
+        "sameWorstShear",
+        (): boolean =>
+          nclose(withPole, without, withPole * 0.01) &&
+          Math.abs(withPole - without) < withPole * 0.01,
+      ],
       ["andItIsSevere", (): boolean => without > 20],
     ]),
     { frustumHasNoPole: true, sameWorstShear: true, andItIsSevere: true },
@@ -241,7 +297,10 @@ export function test_geometry_revolve_atlas_shear(): void {
         "seamSideIsNearlyRigid",
         (): boolean => stretchOf(frustum, last)!.anisotropy < 1.2,
       ],
-      ["oppositeIsAtTheWorst", (): boolean => stretchOf(frustum, 0)!.anisotropy > 20],
+      [
+        "oppositeIsAtTheWorst",
+        (): boolean => stretchOf(frustum, 0)!.anisotropy > 20,
+      ],
     ]),
     { seamSideIsNearlyRigid: true, oppositeIsAtTheWorst: true },
   );
@@ -293,7 +352,10 @@ export function test_geometry_revolve_atlas_shear(): void {
     namedFacts([
       ["facetedSpire", (): boolean => nclose(worstAnisotropy(spire), 1, 1e-6)],
       ["flatCap", (): boolean => nclose(worstAnisotropy(cap), 1, 1e-6)],
-      ["taperedLoftSharesTheDefect", (): boolean => worstAnisotropy(taper) > 20],
+      [
+        "taperedLoftSharesTheDefect",
+        (): boolean => worstAnisotropy(taper) > 20,
+      ],
     ]),
     { facetedSpire: true, flatCap: true, taperedLoftSharesTheDefect: true },
   );

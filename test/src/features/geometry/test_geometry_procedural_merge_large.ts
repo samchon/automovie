@@ -1,6 +1,7 @@
 import { mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { nclose } from "../internal/nclose";
 
 /**
@@ -24,11 +25,14 @@ export function test_geometry_procedural_merge_large(): void {
   const vertices: number = 48_004;
   const indexCount: number = 216_000;
   const dense: IAutoMovieMesh = {
-    positions: Array.from({ length: vertices * 3 }, (_: unknown, component: number): number =>
-      component % 9 === 3 || component % 9 === 7 ? 1 : 0,
+    positions: Array.from(
+      { length: vertices * 3 },
+      (_: unknown, component: number): number =>
+        component % 9 === 3 || component % 9 === 7 ? 1 : 0,
     ),
-    indices: Array.from({ length: indexCount }, (_: unknown, index: number): number =>
-      index % (vertices - 1),
+    indices: Array.from(
+      { length: indexCount },
+      (_: unknown, index: number): number => index % (vertices - 1),
     ),
     normals: null,
     uvs: null,
@@ -48,5 +52,8 @@ export function test_geometry_procedural_merge_large(): void {
       rebased: ((indexCount - 1) % (vertices - 1)) + vertices,
     },
   );
-  TestValidator.predicate("the final authored coordinate survives", nclose(merged.positions.at(-1)!, 0, 0));
+  TestValidator.predicate(
+    "the final authored coordinate survives",
+    nclose(merged.positions.at(-1)!, 0, 0),
+  );
 }

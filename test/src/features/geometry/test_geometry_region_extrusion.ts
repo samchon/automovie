@@ -9,14 +9,16 @@ import {
 import { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
+import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { makeProp } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-import { type IAutoMovieProfilePoint } from "../../../../packages/engine/src/geometry/IAutoMovieProfilePoint";
-import { type IAutoMovieMeshTopology } from "../../../../packages/engine/src/geometry/IAutoMovieMeshTopology";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /** One prop model carrying nothing but this mesh, as a model would hold it. */
-const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (mesh: IAutoMovieMesh): IAutoMovieModel =>
+const asPart: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
+  mesh: IAutoMovieMesh,
+): IAutoMovieModel =>
   makeProp([
     {
       id: "member",
@@ -37,7 +39,9 @@ const ell: IAutoMovieProfilePoint[] = [
   { x: 0, y: 3 },
 ];
 
-const box: (half: number) => IAutoMovieProfilePoint[] = (half: number): IAutoMovieProfilePoint[] => [
+const box: (half: number) => IAutoMovieProfilePoint[] = (
+  half: number,
+): IAutoMovieProfilePoint[] => [
   { x: -half, y: -half },
   { x: half, y: -half },
   { x: half, y: half },
@@ -49,7 +53,10 @@ const box: (half: number) => IAutoMovieProfilePoint[] = (half: number): IAutoMov
  * These engine observers share weld semantics; their agreement is not an
  * independent surface or rendering oracle.
  */
-const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (mesh: IAutoMovieMesh, volume: number): boolean => {
+const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (
+  mesh: IAutoMovieMesh,
+  volume: number,
+): boolean => {
   const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(mesh);
   return (
     topology.watertight &&
@@ -68,10 +75,13 @@ const ARCH_RADIUS: number = 0.6;
 const archOpening: IAutoMovieProfilePoint[] = [
   { x: 1.4, y: 0.2 },
   { x: 2.6, y: 0.2 },
-  ...Array.from({ length: ARCH_SEGMENTS + 1 }, (_corner: unknown, step: number): IAutoMovieProfilePoint => ({
-    x: 2 + ARCH_RADIUS * Math.cos((step * Math.PI) / ARCH_SEGMENTS),
-    y: 1.5 + ARCH_RADIUS * Math.sin((step * Math.PI) / ARCH_SEGMENTS),
-  })),
+  ...Array.from(
+    { length: ARCH_SEGMENTS + 1 },
+    (_corner: unknown, step: number): IAutoMovieProfilePoint => ({
+      x: 2 + ARCH_RADIUS * Math.cos((step * Math.PI) / ARCH_SEGMENTS),
+      y: 1.5 + ARCH_RADIUS * Math.sin((step * Math.PI) / ARCH_SEGMENTS),
+    }),
+  ),
 ];
 const ARCH_AREA: number =
   1.2 * 1.3 +
@@ -125,19 +135,26 @@ const OCULUS_AREA: number =
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly calls portable extrusion/wall/triangulation/topology/model source and existing canonical fixture/observers. It installs no consumer, builds no native artifact and starts no process, browser or GPU; it owns its cases without dynamic registration.
  */
 export function test_geometry_region_extrusion(): void {
-  const prism: IAutoMovieMesh = extrudeAutoMovieRegion({ outer: ell, depth: 2 });
+  const prism: IAutoMovieMesh = extrudeAutoMovieRegion({
+    outer: ell,
+    depth: 2,
+  });
   TestValidator.equals(
     "a concave section extrudes to a closed prism the convex path still refuses",
     namedFacts([
       ["closed", (): boolean => closes(prism, 5 * 2)],
       // Six corners per cap, plus four corners for each of the six side quads.
-      ["vertices", (): boolean => prism.positions.length === (6 + 6 + 6 * 4) * 3],
+      [
+        "vertices",
+        (): boolean => prism.positions.length === (6 + 6 + 6 * 4) * 3,
+      ],
       ["indices", (): boolean => prism.indices!.length === (4 * 2 + 6 * 2) * 3],
       [
         "convexStillRefuses",
         (): boolean =>
           throwsError(
-            (): IAutoMovieMesh => extrudeAutoMovieProfile({ profile: ell, depth: 2 }),
+            (): IAutoMovieMesh =>
+              extrudeAutoMovieProfile({ profile: ell, depth: 2 }),
             "profile must be convex and contain no interior points",
           ),
       ],
@@ -152,33 +169,37 @@ export function test_geometry_region_extrusion(): void {
 
   TestValidator.predicate(
     "the +Z cap and the first side quad carry the atlas they declare",
-    equalGeometryTestValues({
-      capPositions: prism.positions.slice(0, 9),
-      capNormals: prism.normals!.slice(0, 9),
-      capUvs: prism.uvs!.slice(0, 6),
-      // The sides start after both caps: six corners each.
-      sidePositions: prism.positions.slice(36, 48),
-      sideNormal: prism.normals!.slice(36, 39),
-      sideUvs: prism.uvs!.slice(24, 32),
-    },
-    {
-      capPositions: [0, 0, 1, 3, 0, 1, 3, 1, 1],
-      capNormals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
-      capUvs: [0, 0, 3, 0, 3, 1],
-      sidePositions: [0, 0, 1, 0, 0, -1, 3, 0, -1, 3, 0, 1],
-      sideNormal: [0, -1, 0],
-      sideUvs: [0, 1, 0, -1, 3, -1, 3, 1],
-    }),
+    equalGeometryTestValues(
+      {
+        capPositions: prism.positions.slice(0, 9),
+        capNormals: prism.normals!.slice(0, 9),
+        capUvs: prism.uvs!.slice(0, 6),
+        // The sides start after both caps: six corners each.
+        sidePositions: prism.positions.slice(36, 48),
+        sideNormal: prism.normals!.slice(36, 39),
+        sideUvs: prism.uvs!.slice(24, 32),
+      },
+      {
+        capPositions: [0, 0, 1, 3, 0, 1, 3, 1, 1],
+        capNormals: [0, 0, 1, 0, 0, 1, 0, 0, 1],
+        capUvs: [0, 0, 3, 0, 3, 1],
+        sidePositions: [0, 0, 1, 0, 0, -1, 3, 0, -1, 3, 0, 1],
+        sideNormal: [0, -1, 0],
+        sideUvs: [0, 1, 0, -1, 3, -1, 3, 1],
+      },
+    ),
   );
 
   TestValidator.predicate(
     "the -Z cap mirrors V so its atlas reads from outside",
-    equalGeometryTestValues({
-      positions: prism.positions.slice(24, 27),
-      normals: prism.normals!.slice(24, 27),
-      uvs: prism.uvs!.slice(16, 18),
-    },
-    { positions: [3, 1, -1], normals: [0, 0, -1], uvs: [3, -1] }),
+    equalGeometryTestValues(
+      {
+        positions: prism.positions.slice(24, 27),
+        normals: prism.normals!.slice(24, 27),
+        uvs: prism.uvs!.slice(16, 18),
+      },
+      { positions: [3, 1, -1], normals: [0, 0, -1], uvs: [3, -1] },
+    ),
   );
 
   const panel: IAutoMovieProfilePoint[] = [
@@ -200,14 +221,17 @@ export function test_geometry_region_extrusion(): void {
       { x: 0, y: 3 },
     ],
     holes: [
-      Array.from({ length: OCULUS_SEGMENTS }, (_corner: unknown, step: number): IAutoMovieProfilePoint => ({
-        x:
-          1.5 +
-          OCULUS_RADIUS * Math.cos((2 * step * Math.PI) / OCULUS_SEGMENTS),
-        y:
-          1.5 +
-          OCULUS_RADIUS * Math.sin((2 * step * Math.PI) / OCULUS_SEGMENTS),
-      })),
+      Array.from(
+        { length: OCULUS_SEGMENTS },
+        (_corner: unknown, step: number): IAutoMovieProfilePoint => ({
+          x:
+            1.5 +
+            OCULUS_RADIUS * Math.cos((2 * step * Math.PI) / OCULUS_SEGMENTS),
+          y:
+            1.5 +
+            OCULUS_RADIUS * Math.sin((2 * step * Math.PI) / OCULUS_SEGMENTS),
+        }),
+      ),
     ],
     depth: 0.2,
   });
@@ -250,7 +274,10 @@ export function test_geometry_region_extrusion(): void {
     namedFacts([
       ["doorway", (): boolean => closes(doorway, (4 * 3 - 1 * 2.1) * 0.25)],
       ["tube", (): boolean => closes(tube, (2 * 2 - 1 * 1) * 3)],
-      ["tubeIndices", (): boolean => tube.indices!.length === (8 * 2 + 8 * 2) * 3],
+      [
+        "tubeIndices",
+        (): boolean => tube.indices!.length === (8 * 2 + 8 * 2) * 3,
+      ],
     ]),
     { doorway: true, tube: true, tubeIndices: true },
   );

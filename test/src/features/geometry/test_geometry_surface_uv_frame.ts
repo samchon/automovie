@@ -2,11 +2,11 @@ import { buildAutoMoviePolyhedron } from "@automovie/engine";
 import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** The uv pair the vertex at `at` carries. */
-const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number; } = (
+const uvAt: (uvs: readonly number[], at: number) => { u: number; v: number } = (
   uvs: readonly number[],
   at: number,
 ): { u: number; v: number } => ({ u: uvs[at * 2]!, v: uvs[at * 2 + 1]! });
@@ -37,16 +37,20 @@ const levelFace: IAutoMovieVector3[] = [
  * independent one: a second copy of the frame rule would agree with a wrong
  * rule as readily as with a right one.
  */
-const isometric: (mesh: IAutoMovieMesh) => boolean = (mesh: IAutoMovieMesh): boolean => {
+const isometric: (mesh: IAutoMovieMesh) => boolean = (
+  mesh: IAutoMovieMesh,
+): boolean => {
   const uvs: number[] = mesh.uvs!;
-  const corner: (at: number) => readonly [number, number, number] = (at: number): readonly [number, number, number] => [
+  const corner: (at: number) => readonly [number, number, number] = (
+    at: number,
+  ): readonly [number, number, number] => [
     mesh.positions[at * 3]!,
     mesh.positions[at * 3 + 1]!,
     mesh.positions[at * 3 + 2]!,
   ];
-  const origin: { u: number; v: number; } = uvAt(uvs, 0);
-  const first: { u: number; v: number; } = uvAt(uvs, 1);
-  const last: { u: number; v: number; } = uvAt(uvs, 3);
+  const origin: { u: number; v: number } = uvAt(uvs, 0);
+  const first: { u: number; v: number } = uvAt(uvs, 1);
+  const last: { u: number; v: number } = uvAt(uvs, 3);
   const firstU: number = first.u - origin.u;
   const firstV: number = first.v - origin.v;
   const lastU: number = last.u - origin.u;
@@ -111,7 +115,12 @@ export function test_geometry_surface_uv_frame(): void {
   );
 
   const moved: IAutoMovieMesh = buildAutoMoviePolyhedron([
-    uprightFace.map((corner: IAutoMovieVector3): IAutoMovieVector3 => ({ ...corner, x: corner.x + 10 })),
+    uprightFace.map(
+      (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
+        ...corner,
+        x: corner.x + 10,
+      }),
+    ),
   ]);
   TestValidator.predicate(
     "the frame is anchored on the mesh, so moving the face moves its coordinates",
@@ -134,11 +143,15 @@ export function test_geometry_surface_uv_frame(): void {
   );
 
   const floor: IAutoMovieMesh = buildAutoMoviePolyhedron([levelFace]);
-  const ceiling: IAutoMovieMesh = buildAutoMoviePolyhedron([[...levelFace].reverse()]);
+  const ceiling: IAutoMovieMesh = buildAutoMoviePolyhedron([
+    [...levelFace].reverse(),
+  ]);
   TestValidator.predicate(
     "a level face falls back to world +X as U, and its mirror flips V",
-    equalGeometryTestValues({ floor: floor.uvs, ceiling: ceiling.uvs },
-    { floor: [0, 0, 0, -2, 5, -2, 5, 0], ceiling: [5, 0, 5, 2, 0, 2, 0, 0] }),
+    equalGeometryTestValues(
+      { floor: floor.uvs, ceiling: ceiling.uvs },
+      { floor: [0, 0, 0, -2, 5, -2, 5, 0], ceiling: [5, 0, 5, 2, 0, 2, 0, 0] },
+    ),
   );
 
   // A ramp rising 1 m over 1 m along -Z, wound so its outward normal leans +Y
@@ -188,7 +201,9 @@ export function test_geometry_surface_uv_frame(): void {
     },
   );
 
-  const nearlyLevel: (slope: number) => IAutoMovieMesh = (slope: number): IAutoMovieMesh =>
+  const nearlyLevel: (slope: number) => IAutoMovieMesh = (
+    slope: number,
+  ): IAutoMovieMesh =>
     buildAutoMoviePolyhedron([
       [
         { x: 0, y: 0, z: 0 },
