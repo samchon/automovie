@@ -20,7 +20,10 @@ export function humanHeadPoint(
   head: IAutoMovieHumanHeadSkin,
   name: string,
 ): IAutoMovieVector3 {
-  const point: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(head, name);
+  const point: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(
+    head,
+    name,
+  );
   if (point.surface !== head.surface)
     throw new Error(
       `The skin landmark ${name} of ${head.id} is not on the head view skin the rules read.`,

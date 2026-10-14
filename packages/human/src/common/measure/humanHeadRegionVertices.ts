@@ -22,7 +22,10 @@ export function humanHeadRegionVertices(
   regions: readonly string[],
 ): number[] {
   return regions.flatMap((region: string): number[] => {
-    const area: ReturnType<typeof humanSkinRegion> = humanSkinRegion(head, region);
+    const area: ReturnType<typeof humanSkinRegion> = humanSkinRegion(
+      head,
+      region,
+    );
     if (area.surface !== head.surface)
       throw new Error(
         `The skin region ${region} of ${head.id} is not on the head view skin the rules read.`,

@@ -36,7 +36,11 @@ export function findHumanAlaria(
   let right: IAutoMovieVector3 | undefined;
   let left: IAutoMovieVector3 | undefined;
   for (let v: number = 0; v < p.length / 3; v++) {
-    const point: IAutoMovieVector3 = { x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] };
+    const point: IAutoMovieVector3 = {
+      x: p[v * 3],
+      y: p[v * 3 + 1],
+      z: p[v * 3 + 2],
+    };
     if (point.y > pronasale.y) continue;
     if (
       point.x < 0 &&

@@ -21,7 +21,10 @@ export function humanHeadEar(
   head: IAutoMovieHumanHeadSkin,
   name: string,
 ): IAutoMovieHumanHeadEar {
-  const region: ReturnType<typeof humanSkinRegion> = humanSkinRegion(head, name);
+  const region: ReturnType<typeof humanSkinRegion> = humanSkinRegion(
+    head,
+    name,
+  );
   if (region.surface !== head.surface)
     throw new Error(
       `The skin region ${name} of ${head.id} is not on the head view skin the rules read.`,

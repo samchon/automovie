@@ -40,7 +40,11 @@ export function findHumanFrontotemporalia(
     if (excluded.has(t)) continue;
     for (let j: number = 0; j < 3; j++) {
       const v: number = head.indices[t * 3 + j];
-      const point: IAutoMovieVector3 = { x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] };
+      const point: IAutoMovieVector3 = {
+        x: p[v * 3],
+        y: p[v * 3 + 1],
+        z: p[v * 3 + 2],
+      };
       if (point.y < glabella.y) continue;
       const k: number = Math.floor((point.y - glabella.y) / band);
       if (
@@ -57,7 +61,9 @@ export function findHumanFrontotemporalia(
         lefts[k] = point;
     }
   }
-  const breadth: (k: number) => number | undefined = (k: number): number | undefined =>
+  const breadth: (k: number) => number | undefined = (
+    k: number,
+  ): number | undefined =>
     rights[k] === undefined || lefts[k] === undefined
       ? undefined
       : lefts[k].x - rights[k].x;

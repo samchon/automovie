@@ -40,10 +40,20 @@ export function findHumanZygia(
   leftEar: string,
 ): IAutoMovieHumanHeadPair {
   const p: number[] = head.positions;
-  const ears: ReturnType<typeof humanHeadEar>[] = [humanHeadEar(head, rightEar), humanHeadEar(head, leftEar)];
-  const excluded: Set<number> = new Set([...ears[0].triangles, ...ears[1].triangles]);
+  const ears: ReturnType<typeof humanHeadEar>[] = [
+    humanHeadEar(head, rightEar),
+    humanHeadEar(head, leftEar),
+  ];
+  const excluded: Set<number> = new Set([
+    ...ears[0].triangles,
+    ...ears[1].triangles,
+  ]);
   const front: (region: string) => number = (region: string): number =>
-    Math.max(...head.skinRegions![region].vertices.map((v: number): number => p[v * 3 + 2]));
+    Math.max(
+      ...head.skinRegions![region].vertices.map(
+        (v: number): number => p[v * 3 + 2],
+      ),
+    );
   const frontRight: number = front(rightEar);
   const frontLeft: number = front(leftEar);
   let right: IAutoMovieVector3 | undefined;
@@ -53,7 +63,11 @@ export function findHumanZygia(
     if (excluded.has(t)) continue;
     for (let k: number = 0; k < 3; k++) {
       const v: number = head.indices[t * 3 + k];
-      const point: IAutoMovieVector3 = { x: p[v * 3], y: p[v * 3 + 1], z: p[v * 3 + 2] };
+      const point: IAutoMovieVector3 = {
+        x: p[v * 3],
+        y: p[v * 3 + 1],
+        z: p[v * 3 + 2],
+      };
       if (point.y < low || point.y > sellion.y) continue;
       if (
         point.x < 0 &&
