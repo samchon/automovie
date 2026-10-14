@@ -11,15 +11,12 @@ import { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  * entry's played span minus its incoming transition, so reordering or retiming
  * a shot edits one entry and never a stored downstream time.
  *
- * `cutSequence` produces it from an edit plan and refuses a blank id, an empty
- * entry list, an unknown shot, a trim outside its shot, a transition on the
- * first entry or longer than either neighbour's played span, overlapping
- * transitions inside one entry, and a non-positive frame rate.
+ * `cutSequence` admits the edit plan's ids, references, finite positive spans and rate, trim containment and transition fit, and refuses a nonfinite accumulated runtime. `sequenceTimeline` expects that admission; it still refuses empty cuts, missing referenced shots, duplicate supplied shot ids and a first-entry transition.
  *
- * @evidence contracts/common.md#principled-implementation Follows the OpenTimelineIO track model: entries are laid end to end, a transition pulls its entry forward by its duration, and `sequenceTimeline` and `playbackCursor` compute the same starts so random access and forward playback agree on every instant.
+ * @evidence contracts/common.md#principled-implementation Each entry adds its played span minus incoming overlap to the output clock. Random-access and forward playback share sample construction and the last-start-at-or-before tie rule; agreement requires an admitted timeline and nondecreasing queries for the stateful cursor.
  * @evidence contracts/common.md#clear-and-simple-design The sequence is an id, a name, one ordered entry list and a nominal rate; timing is derived on demand rather than stored, so there is no second copy of the timeline to keep consistent.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid cut is refused by `cutSequence` with a path rather than repaired by shortening a transition or clamping a trim, and `sequenceTimeline` throws on an empty list or a missing shot instead of skipping the entry.
- * @evidence contracts/common.md#meaningful-documentation States the cut and transition model, that no global time is stored and how the output clock is derived, every refusal of the producer, what a null name means, and which rate governs rendered frames.
+ * @evidence contracts/common.md#meaningful-documentation States derived timing, admission and layout responsibilities, accumulated-clock finiteness, cursor ordering premises, null names and the distinction between nominal and delivered frame rate.
  * @author Samchon
  */
 export interface IAutoMovieSequence {

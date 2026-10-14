@@ -6,11 +6,7 @@ import { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
  * plus the two lens intents the move grammar does not carry, the focus point
  * and the focal length.
  *
- * It is guide metadata only. The camera solve never reads it, the scene
- * camera's `fovY` stays the geometric truth, and depth-of-field blur is left
- * to the diffusion pass. `performShot` resolves `focus` once, at shot time
- * `0` rather than at the span's `start`, so a subject that moves records where
- * it stood at the opening.
+ * This is metadata a downstream host may consume; the camera solve never reads it and the scene camera's `fovY` remains the geometric truth. Recording focus and focal length does not itself apply depth-of-field blur. `performShot` resolves `focus` at shot time `0` rather than the span's `start`, so a moving subject records its opening position.
  *
  * @evidence contracts/common.md#principled-implementation `performShot` writes one intent per live-camera `frame` action, copying start, framing, move and focal length and resolving a focus target to a world point at shot time `0`; a coverage take writes one intent at `0` with both lens fields `null`, and the shot artifact validator bounds `start` to the shot and `focalLength` above `0`.
  * @evidence contracts/common.md#clear-and-simple-design `framing` and `move` index into `IAutoMovieCameraAction` so the recorded vocabulary is the authored one, and the lens fields are nullable members rather than optional ones so every span states whether the author chose them.

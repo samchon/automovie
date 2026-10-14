@@ -18,15 +18,13 @@ import { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSour
  *
  * @evidence contracts/common.md#principled-implementation Each producer writes the time it actually computed or scheduled (a solved landing, the authored handoff instants, a sampled detection), and `appendShotMetadataArtifact` checks a stored event against the closed kind and source unions, a finite time inside `[0, duration + 1e-9]` matching `performShot`'s own landing slack, non-blank participant ids, a finite point, and an integer action index.
  * @evidence contracts/common.md#clear-and-simple-design One flat record with four nullable participant roles serves every producer, so a consumer reads contacts, handoffs and falls through the same fields instead of one type per kind.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown participants stay `null` rather than defaulting to the actor, and an event outside the shot clock is refused rather than clamped; the remaining gap is that id uniqueness is a producer convention (ids embed kind, participants and time) that the artifact gate does not check.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown participants stay null; structural admission checks nonblank participant strings, not their existence or causal truth. It refuses times outside the clock plus its 1e-9 end allowance without clamping. Event-id uniqueness is unchecked, and formatted times or delimiter-containing participant ids can collide.
  * @evidence contracts/common.md#meaningful-documentation States the role of each participant field and what `null` means for it, who produces and who consumes the record, the clock and range of `time`, the frame of `point`, and that id uniqueness is not gated.
  * @author Samchon
  */
 export interface IAutoMovieInteractionEvent {
   /**
-   * Stable, non-blank id within the shot. Producers make it unique by embedding
-   * the kind, participants and time; the artifact gate checks only that it is
-   * non-blank.
+   * Intended event identity within the shot. Producers embed kind, participants and formatted time, which can collide; the artifact gate checks nonblank spelling without uniqueness.
    */
   id: string;
 
@@ -36,7 +34,7 @@ export interface IAutoMovieInteractionEvent {
   /** Producer that created the event. */
   source: AutoMovieInteractionEventSource;
 
-  /** Shot-local seconds, finite and within `[0, duration]` of the shot. */
+  /** Finite shot-local seconds; artifact admission accepts `[0, duration + 1e-9]`. */
   time: number;
 
   /** Initiating or affected node id, or `null` when no single node is known. */

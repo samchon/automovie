@@ -49,15 +49,12 @@ export interface IAutoMovieRenderSpec {
   codec: "h264";
 
   /**
-   * Pixel format; `yuv420p` for broad player compatibility and deterministic
-   * output.
+   * Pixel format passed to the encoder; the supported path uses `yuv420p`.
    */
   pixelFormat: "yuv420p";
 
   /**
-   * Quality factor (libx264 CRF; about 17 is visually lossless, 0 lossless).
-   * Passed to ffmpeg unchecked, so the caller keeps it within the encoder's
-   * range.
+   * libx264 CRF quality factor, passed to ffmpeg unchecked. The caller supplies a supported encoder value; this field alone does not certify perceptual quality or repeatable encoded bytes across encoder versions.
    */
   crf: number;
 }

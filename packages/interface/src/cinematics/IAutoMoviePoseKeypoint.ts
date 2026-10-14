@@ -1,22 +1,14 @@
 import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * One named humanoid joint projected to screen space: the OpenPose-style
- * keypoint automovie can emit exactly because it already knows every bone's 3D
- * world position. `x` and `y` are normalized to the delivered frame (`[0, 1]`,
- * top-left origin, after any delivery crop), so a host scales them to whatever
- * resolution it renders at.
+ * One named humanoid joint numerically projected into the delivered frame, with a top-left origin after any crop. Inside the frame, `x` and `y` lie in `[0, 1]`; a host scales them to its raster. These values use the engine's default joint axes and rest frames, so correspondence with a renderer requires matching conventions and is not observed pixel evidence.
  *
- * A joint behind the camera or outside the frame rectangle is still projected
- * and flagged `inFrame: false` instead of clamped, because a clamped off-screen
- * point reads as a false edge keypoint and corrupts pose conditioning; a
- * consumer keeps or drops it deliberately. Such a joint's `x` or `y` may lie
- * outside `[0, 1]`. A bone the skeleton lacks is omitted rather than emitted.
+ * Projection never clamps coordinates. Behind-camera and off-frame joints remain with `inFrame: false` under valid camera premises, and zero view depth can yield Infinity or NaN coordinates. Requested bones absent from resolved FK are omitted. The flag tests clip-depth and rectangle membership, not occlusion by other geometry.
  *
  * @evidence contracts/common.md#principled-implementation `resolvePoseKeypoints` resolves the pose by forward kinematics, lifts each bone by the staged node's TRS, projects it with `projectToNdc` through the camera's vertical field of view, the render aspect and the delivery crop, then maps NDC to the top-left frame by `x = (ndcX + 1) / 2` and `y = (1 - ndcY) / 2`.
  * @evidence contracts/common.md#clear-and-simple-design The record carries only the bone, two normalized coordinates and one visibility flag, so pixel scaling and confidence policy stay with the host that knows its raster.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Off-frame and behind-camera joints are reported unclamped with the flag set rather than snapped to an edge or dropped, and a missing bone is omitted rather than invented at a guessed position.
- * @evidence contracts/common.md#meaningful-documentation States the coordinate origin, direction and normalization including the crop, why off-frame points are kept unclamped, that coordinates may leave `[0, 1]`, and the exact visibility test.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Off-frame points are not snapped to edges, missing resolved bones are not invented, and zero-depth nonfinite projection is exposed rather than replaced. The membership flag makes no occlusion or observed-image claim.
+ * @evidence contracts/common.md#meaningful-documentation States delivered-frame coordinates, default-FK compatibility premises, omission, unclamped and zero-depth results, and the depth/rectangle test without an occlusion guarantee.
  * @author Samchon
  */
 export interface IAutoMoviePoseKeypoint {

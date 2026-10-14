@@ -22,9 +22,9 @@ import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
  * node channels, and `lightMotions` takes light pointers, so a pointer such as
  * a camera's field of view is refused rather than stored and ignored.
  *
- * @evidence contracts/common.md#principled-implementation `validateShotArtifact` requires non-blank ids, the shot's scene to be the given scene and its camera a scene camera, a finite positive duration, unique resolving performances, valid clips on every motion field through the shared track-shape contract `sampleClip` reads, the optional metadata through `appendShotMetadataArtifact`, and one clear clearance report for exactly the delivered cameras that declare a physical envelope.
+ * @evidence contracts/common.md#principled-implementation `validateShotArtifact` checks ids, scene/camera references, finite positive duration, unique resolving performance nodes, clip shape and optional metadata, plus one clear report for each delivered camera declaring an envelope. Motion-id existence is checked only when a registry is supplied, and carried clearance fields cannot independently establish current geometry freshness.
  * @evidence contracts/common.md#clear-and-simple-design The shot references its scene, camera and motions by id and keeps camera, object and light motion in three clip lists split by applier, while guide metadata (events, intent, coverage, clearance) rides in optional fields that no solve reads back.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A track no applier honours is refused instead of stored as a silent no-op, a blocked or stale clearance evaluation publishes no shot instead of an unclear report, and absent optional fields mean legacy data rather than being filled with defaults.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported channels are refused rather than silently stored. The performing producer refuses blocked or stale clearance evaluation; structural artifact admission inspects carried reports without rerunning that evaluation. Absent optional fields remain absent rather than receiving invented defaults.
  * @evidence contracts/common.md#meaningful-documentation States the shot clock, which channels each clip field admits and why, the absent-versus-empty meaning of every optional list, the event order, the coverage and clearance rules, and the duration's range.
  * @author Samchon
  */
@@ -103,13 +103,9 @@ export interface IAutoMovieShot {
   coverage?: IAutoMovieShotCoverage[];
 
   /**
-   * Current-revision swept-clearance reports for the hero and alternate takes
-   * whose staged cameras declared physical envelopes, one per such camera.
+   * Swept-clearance reports for hero and alternate takes declaring physical envelopes, one per such camera. The performing producer checks the runtime revision; the stored report has no revision pair for an artifact reader to re-establish freshness independently.
    *
-   * Omitted preserves legacy shots whose cameras make no clearance claim, and
-   * is refused when a delivered camera declares an envelope. A present list
-   * contains only clear reports: blocked or stale evaluation is a performance
-   * refusal and no shot artifact is published.
+   * Omission is admitted only when no delivered camera declares an envelope. A present list must carry clear reports with empty findings; blocked or stale evaluation refuses publication by the performing producer.
    */
   cameraClearance?: IAutoMovieCameraClearanceReport[];
 
