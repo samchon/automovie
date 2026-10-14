@@ -63,7 +63,9 @@ const CONTRIBUTION_KEYS: readonly (keyof IAutoMovieSubjectContribution)[] =
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This merge consumes one ordered list and does not coordinate requests; borrowing entry references preserves identity without caching a mutable contribution's result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the returned field arrays retain input entries, bounded by their total count; the caller owns those arrays and this function retains no state or handle.
  */
-export const mergeAutoMovieSubjectContributions: (contributions: readonly IAutoMovieSubjectContribution [ ]) => IAutoMovieSubjectContribution = (
+export const mergeAutoMovieSubjectContributions: (
+  contributions: readonly IAutoMovieSubjectContribution[],
+) => IAutoMovieSubjectContribution = (
   contributions: readonly IAutoMovieSubjectContribution[],
 ): IAutoMovieSubjectContribution => {
   const merged: {
@@ -73,7 +75,8 @@ export const mergeAutoMovieSubjectContributions: (contributions: readonly IAutoM
   } = {};
   for (const contribution of contributions)
     for (const key of CONTRIBUTION_KEYS) {
-      const values: IAutoMovieSubjectContribution[keyof IAutoMovieSubjectContribution] = contribution[key];
+      const values: IAutoMovieSubjectContribution[keyof IAutoMovieSubjectContribution] =
+        contribution[key];
       if (values === undefined || values.length === 0) continue;
       const bucket: (typeof merged)[keyof typeof merged] = (merged[key] ??= []);
       for (const value of values) bucket.push(value as never);

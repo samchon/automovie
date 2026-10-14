@@ -25,7 +25,14 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * @evidence contracts/performance.md#reuse-equivalent-work The canonical formula is shared across consumers; values are recomputed from current mutable cue states rather than cached by slot identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs are borrowed and the returned position is fresh; no cue, terrain, handle or task is retained beyond the call.
  */
-export const placeFormationSlot: (props: { /** Designed world-space position of this member at rest. */ position : IAutoMovieVector3 ; /** Designed world-space heading of this member at rest, in degrees. */ facingDeg : number ; /** The unit's world-space origin. */ anchor : IAutoMovieVector3 ; /** The unit's designed world-space heading in degrees. */ baseFacingDeg : number ; /** Sampled unit-level state. */ unit : IAutoMovieFormationMotionState ; /** Sampled member-level state. */ member : IAutoMovieFormationSlotState ; }) => IAutoMovieFormationSlotPlacement = (props: {
+export const placeFormationSlot: (props: {
+  /** Designed world-space position of this member at rest. */ position: IAutoMovieVector3;
+  /** Designed world-space heading of this member at rest, in degrees. */ facingDeg: number;
+  /** The unit's world-space origin. */ anchor: IAutoMovieVector3;
+  /** The unit's designed world-space heading in degrees. */ baseFacingDeg: number;
+  /** Sampled unit-level state. */ unit: IAutoMovieFormationMotionState;
+  /** Sampled member-level state. */ member: IAutoMovieFormationSlotState;
+}) => IAutoMovieFormationSlotPlacement = (props: {
   /** Designed world-space position of this member at rest. */
   position: IAutoMovieVector3;
   /** Designed world-space heading of this member at rest, in degrees. */

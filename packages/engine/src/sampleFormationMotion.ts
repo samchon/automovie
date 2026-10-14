@@ -1,7 +1,9 @@
 import { IAutoMovieFormationMotion } from "@automovie/interface";
+
 import { IAutoMovieSampledFormationMotion } from "./IAutoMovieSampledFormationMotion";
 import { lerp } from "./lerp";
 import { ease } from "./motion/ease";
+
 /**
  * Sample one formation's authored cue sequence at finite absolute seconds.
  * Matching cues sort by start and code-unit id; the first active cue wins.
@@ -19,15 +21,24 @@ import { ease } from "./motion/ease";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Current source cues are filtered and sorted per query; this owner retains no index whose validity would depend on mutable choreography.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary selection array is released on return; retained states alias authored channel/layout records, while active interpolation owns its new numeric channel records.
  */
-export const sampleFormationMotion: (motions: readonly IAutoMovieFormationMotion[], formation: string, time: number) => IAutoMovieSampledFormationMotion = (
+export const sampleFormationMotion: (
+  motions: readonly IAutoMovieFormationMotion[],
+  formation: string,
+  time: number,
+) => IAutoMovieSampledFormationMotion = (
   motions: readonly IAutoMovieFormationMotion[],
   formation: string,
   time: number,
 ): IAutoMovieSampledFormationMotion => {
   const cues: IAutoMovieFormationMotion[] = motions
-    .filter((cue: IAutoMovieFormationMotion): boolean => cue.formation === formation)
+    .filter(
+      (cue: IAutoMovieFormationMotion): boolean => cue.formation === formation,
+    )
     .sort(
-      (left: IAutoMovieFormationMotion, right: IAutoMovieFormationMotion): number =>
+      (
+        left: IAutoMovieFormationMotion,
+        right: IAutoMovieFormationMotion,
+      ): number =>
         left.start - right.start ||
         (left.id < right.id ? -1 : left.id > right.id ? 1 : 0),
     );
@@ -79,7 +90,9 @@ export const sampleFormationMotion: (motions: readonly IAutoMovieFormationMotion
           cue.layout === undefined
             ? retained.reform
             : {
-                ...(retained.reform === null ? {} : { fromLayout: retained.reform.layout }),
+                ...(retained.reform === null
+                  ? {}
+                  : { fromLayout: retained.reform.layout }),
                 layout: cue.layout,
                 progress,
               },
@@ -91,7 +104,9 @@ export const sampleFormationMotion: (motions: readonly IAutoMovieFormationMotion
         cue.layout === undefined
           ? retained.reform
           : {
-              ...(retained.reform === null ? {} : { fromLayout: retained.reform.layout }),
+              ...(retained.reform === null
+                ? {}
+                : { fromLayout: retained.reform.layout }),
               layout: cue.layout,
               progress: 1,
             },

@@ -1,14 +1,17 @@
-import { AutoMovieGeometryQuery, IAutoMovieGeometryResult } from "@automovie/interface";
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+} from "@automovie/interface";
+
 import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
+import { measureAutoMovieGeometryCamera } from "./measureAutoMovieGeometryCamera";
 import { measureAutoMovieGeometryDistance } from "./measureAutoMovieGeometryDistance";
-import { measureAutoMovieGeometryReach } from "./measureAutoMovieGeometryReach";
-import { measureAutoMovieGeometryGround } from "./measureAutoMovieGeometryGround";
-import { measureAutoMovieGeometryFormation } from "./measureAutoMovieGeometryFormation";
 import { measureAutoMovieGeometryEffect } from "./measureAutoMovieGeometryEffect";
 import { measureAutoMovieGeometryFilmTime } from "./measureAutoMovieGeometryFilmTime";
+import { measureAutoMovieGeometryFormation } from "./measureAutoMovieGeometryFormation";
+import { measureAutoMovieGeometryGround } from "./measureAutoMovieGeometryGround";
 import { measureAutoMovieGeometryPose } from "./measureAutoMovieGeometryPose";
-import { measureAutoMovieGeometryCamera } from "./measureAutoMovieGeometryCamera";
-
+import { measureAutoMovieGeometryReach } from "./measureAutoMovieGeometryReach";
 
 /**
  * Answer one geometry question from caller-established current records; unresolvable records or times throw a correction-bearing error.
@@ -21,16 +24,26 @@ import { measureAutoMovieGeometryCamera } from "./measureAutoMovieGeometryCamera
  * @evidence contracts/performance.md#reuse-equivalent-work Every call reads the supplied snapshots; no cached answer can outlive mutable design or compiled input.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned measurement values belong to the caller; the dispatcher retains no maps, handles or tasks after return or throw.
  */
-export function measureAutoMovieGeometry(props: IAutoMovieGeometryMeasurementInput): IAutoMovieGeometryResult {
+export function measureAutoMovieGeometry(
+  props: IAutoMovieGeometryMeasurementInput,
+): IAutoMovieGeometryResult {
   const request: AutoMovieGeometryQuery = props.request;
   switch (request.query) {
-    case "distance": return measureAutoMovieGeometryDistance(props, request);
-    case "reach": return measureAutoMovieGeometryReach(props, request);
-    case "ground": return measureAutoMovieGeometryGround(props, request);
-    case "formation": return measureAutoMovieGeometryFormation(props, request);
-    case "effect": return measureAutoMovieGeometryEffect(props, request);
-    case "film-time": return measureAutoMovieGeometryFilmTime(props, request);
-    case "pose": return measureAutoMovieGeometryPose(props, request);
-    case "camera": return measureAutoMovieGeometryCamera(props, request);
+    case "distance":
+      return measureAutoMovieGeometryDistance(props, request);
+    case "reach":
+      return measureAutoMovieGeometryReach(props, request);
+    case "ground":
+      return measureAutoMovieGeometryGround(props, request);
+    case "formation":
+      return measureAutoMovieGeometryFormation(props, request);
+    case "effect":
+      return measureAutoMovieGeometryEffect(props, request);
+    case "film-time":
+      return measureAutoMovieGeometryFilmTime(props, request);
+    case "pose":
+      return measureAutoMovieGeometryPose(props, request);
+    case "camera":
+      return measureAutoMovieGeometryCamera(props, request);
   }
 }

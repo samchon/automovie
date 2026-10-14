@@ -1,5 +1,7 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
+
 import { worldSurfaceContains } from "./worldSurfaceContains";
+
 /**
  * Select the first declared world surface containing an XZ point.
  *
@@ -12,8 +14,13 @@ import { worldSurfaceContains } from "./worldSurfaceContains";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned surface is borrowed from the caller's list; no list, point, watcher or host resource survives through this selector.
  * @author Samchon
  */
-export const worldGroundSurface: (surfaces: readonly IAutoMovieWorldSurface [ ], point: { x : number ; z : number }) => IAutoMovieWorldSurface | null = (
+export const worldGroundSurface: (
+  surfaces: readonly IAutoMovieWorldSurface[],
+  point: { x: number; z: number },
+) => IAutoMovieWorldSurface | null = (
   surfaces: readonly IAutoMovieWorldSurface[],
   point: { x: number; z: number },
 ): IAutoMovieWorldSurface | null =>
-  surfaces.find((surface: IAutoMovieWorldSurface): boolean => worldSurfaceContains(surface, point)) ?? null;
+  surfaces.find((surface: IAutoMovieWorldSurface): boolean =>
+    worldSurfaceContains(surface, point),
+  ) ?? null;

@@ -1,6 +1,8 @@
+import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
+
 import { IAutoMovieFormationLodInput } from "./IAutoMovieFormationLodInput";
 import { IAutoMovieFormationLodSelection } from "./IAutoMovieFormationLodSelection";
-import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
+
 /**
  * Select automatic formation LOD from distance and projected contribution.
  *
@@ -17,7 +19,9 @@ import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The renderer supplies its prior selection; this query stores no camera history or buffer allocation itself.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the result record is allocated, its tier is a caller-owned alias, and no instance buffer or camera reference survives.
  */
-export const selectFormationLod: (input: IAutoMovieFormationLodInput) => IAutoMovieFormationLodSelection = (
+export const selectFormationLod: (
+  input: IAutoMovieFormationLodInput,
+) => IAutoMovieFormationLodSelection = (
   input: IAutoMovieFormationLodInput,
 ): IAutoMovieFormationLodSelection => {
   if (input.lod.length === 0)
@@ -25,11 +29,14 @@ export const selectFormationLod: (input: IAutoMovieFormationLodInput) => IAutoMo
   const projectedPixels: number = Math.max(1, input.projectedPixels);
   const effectiveDistance: number = input.distance * (24 / projectedPixels);
   const matchedIndex: number = input.lod.findIndex(
-    (lod: IAutoMovieCompiledFormationLod): boolean => lod.maxDistance === null || effectiveDistance <= lod.maxDistance,
+    (lod: IAutoMovieCompiledFormationLod): boolean =>
+      lod.maxDistance === null || effectiveDistance <= lod.maxDistance,
   );
-  const desiredIndex: number = matchedIndex < 0 ? input.lod.length - 1 : matchedIndex;
+  const desiredIndex: number =
+    matchedIndex < 0 ? input.lod.length - 1 : matchedIndex;
   const previousIndex: number = input.lod.findIndex(
-    (lod: IAutoMovieCompiledFormationLod): boolean => lod.tier === input.previous,
+    (lod: IAutoMovieCompiledFormationLod): boolean =>
+      lod.tier === input.previous,
   );
   if (previousIndex < 0 || previousIndex === desiredIndex)
     return { lod: input.lod[desiredIndex]!, effectiveDistance };

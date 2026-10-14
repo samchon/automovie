@@ -1,4 +1,7 @@
-import { IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
+import {
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 import { closestPointOnSegmentXZ } from "./math/closestPointOnSegmentXZ";
 

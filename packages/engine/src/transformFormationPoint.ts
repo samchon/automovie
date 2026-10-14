@@ -1,4 +1,8 @@
-import { IAutoMovieFormationMotionState, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationMotionState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 /**
  * Apply one sampled formation state to a designed world-space point.
  *
@@ -11,7 +15,12 @@ import { IAutoMovieFormationMotionState, IAutoMovieVector3 } from "@automovie/in
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh vector; input point, anchor and state are not retained and no host resources are acquired.
  * @author Samchon
  */
-export const transformFormationPoint: (point: IAutoMovieVector3, anchor: IAutoMovieVector3, motion: IAutoMovieFormationMotionState, baseFacingDeg?: number) => IAutoMovieVector3 = (
+export const transformFormationPoint: (
+  point: IAutoMovieVector3,
+  anchor: IAutoMovieVector3,
+  motion: IAutoMovieFormationMotionState,
+  baseFacingDeg?: number,
+) => IAutoMovieVector3 = (
   point: IAutoMovieVector3,
   anchor: IAutoMovieVector3,
   motion: IAutoMovieFormationMotionState,
@@ -26,7 +35,8 @@ export const transformFormationPoint: (point: IAutoMovieVector3, anchor: IAutoMo
     (deltaX * baseCosine - deltaZ * baseSine) * motion.spacingScale.lateral;
   const localZ: number =
     (deltaX * baseSine + deltaZ * baseCosine) * motion.spacingScale.depth;
-  const radians: number = ((baseFacingDeg + motion.facingOffsetDeg) * Math.PI) / 180;
+  const radians: number =
+    ((baseFacingDeg + motion.facingOffsetDeg) * Math.PI) / 180;
   const cosine: number = Math.cos(radians);
   const sine: number = Math.sin(radians);
   return {

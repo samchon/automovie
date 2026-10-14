@@ -9,8 +9,8 @@ import {
 import { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
 import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReviewCurrentContext";
 import { compareCodeUnits } from "./text/compareCodeUnits";
-import { isRecord } from "./validation/isRecord";
 import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATTERN";
+import { isRecord } from "./validation/isRecord";
 
 /**
  * Fold planned subject viewpoints against current observation receipts.

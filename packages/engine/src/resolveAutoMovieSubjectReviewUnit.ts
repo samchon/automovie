@@ -1,5 +1,9 @@
-import { IAutoMovieSubjectDescription, IAutoMovieFormationSubjectReviewDescription, IAutoMovieCompiledFormation, IAutoMovieCompiledFormationHero,
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieFormationSubjectReviewDescription,
   IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectDescription,
   IAutoMovieSubjectReviewTarget,
   IAutoMovieSubjectReviewUnit,
 } from "@automovie/interface";
@@ -18,11 +22,18 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Subject semantics and code-unit ordering share canonical owners; each mutable artifact is read anew without target-id-only caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns review wrapper/member array and borrows compiled/target records; no viewer session, camera, resource handle or task is held.
  */
-export const resolveAutoMovieSubjectReviewUnit: (artifact: IAutoMovieSubjectArtifact, target: IAutoMovieSubjectReviewTarget) => IAutoMovieSubjectReviewUnit = (
+export const resolveAutoMovieSubjectReviewUnit: (
+  artifact: IAutoMovieSubjectArtifact,
+  target: IAutoMovieSubjectReviewTarget,
+) => IAutoMovieSubjectReviewUnit = (
   artifact: IAutoMovieSubjectArtifact,
   target: IAutoMovieSubjectReviewTarget,
 ): IAutoMovieSubjectReviewUnit => {
-  const description: IAutoMovieSubjectDescription | IAutoMovieFormationSubjectReviewDescription = target.subject.startsWith("formation:")
+  const description:
+    | IAutoMovieSubjectDescription
+    | IAutoMovieFormationSubjectReviewDescription = target.subject.startsWith(
+    "formation:",
+  )
     ? formationDescription(artifact, target.subject)
     : describeAutoMovieSubject(artifact, target.subject);
   return {
@@ -33,7 +44,13 @@ export const resolveAutoMovieSubjectReviewUnit: (artifact: IAutoMovieSubjectArti
     deliveryEvidenceEligible: false,
   };
 };
-const formationDescription: (artifact: IAutoMovieSubjectArtifact, subject: string) => Extract<IAutoMovieSubjectReviewUnit["description"], { kind: "formation"; }> = (
+const formationDescription: (
+  artifact: IAutoMovieSubjectArtifact,
+  subject: string,
+) => Extract<
+  IAutoMovieSubjectReviewUnit["description"],
+  { kind: "formation" }
+> = (
   artifact: IAutoMovieSubjectArtifact,
   subject: string,
 ): Extract<
@@ -41,15 +58,19 @@ const formationDescription: (artifact: IAutoMovieSubjectArtifact, subject: strin
   { kind: "formation" }
 > => {
   const id: string = subject.slice("formation:".length);
-  const formation: IAutoMovieCompiledFormation | undefined = artifact.compiled.formations.find(
-    (candidate: IAutoMovieCompiledFormation) : boolean => candidate.id === id,
-  );
+  const formation: IAutoMovieCompiledFormation | undefined =
+    artifact.compiled.formations.find(
+      (candidate: IAutoMovieCompiledFormation): boolean => candidate.id === id,
+    );
   if (formation === undefined)
     throw new Error(
       `Compiled subject "${subject}" does not exist in revision "${artifact.revision}".`,
     );
   const heroes: string[] = formation.heroes
-    .map((hero: IAutoMovieCompiledFormationHero) : string => `formation-slot:${formation.id}:${hero.slot}`)
+    .map(
+      (hero: IAutoMovieCompiledFormationHero): string =>
+        `formation-slot:${formation.id}:${hero.slot}`,
+    )
     .sort(compareAutoMovieRenderIds);
   return {
     revision: artifact.revision,

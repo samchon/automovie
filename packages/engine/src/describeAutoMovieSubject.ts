@@ -37,7 +37,13 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One address per call over a fresh describer, because the artifact is the caller's value and may change between calls; a caller describing many subjects lists the inventory instead.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The describer and its caches live only for this call and are released on return; the caller owns the returned description.
  */
-export const describeAutoMovieSubject: (artifact: IAutoMovieSubjectArtifact, subjectId: string, props?: { /** Rank of the first member to name, defaulting to the first. A whole number; a fractional or negative rank names no page that exists and is refused rather than rounded, because a caller paging by a value it computed would otherwise be told it had read everything. */ memberOffset ? : number ; }) => IAutoMovieSubjectDescription = (
+export const describeAutoMovieSubject: (
+  artifact: IAutoMovieSubjectArtifact,
+  subjectId: string,
+  props?: {
+    /** Rank of the first member to name, defaulting to the first. A whole number; a fractional or negative rank names no page that exists and is refused rather than rounded, because a caller paging by a value it computed would otherwise be told it had read everything. */ memberOffset?: number;
+  },
+) => IAutoMovieSubjectDescription = (
   artifact: IAutoMovieSubjectArtifact,
   subjectId: string,
   props?: {

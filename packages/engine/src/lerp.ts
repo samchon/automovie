@@ -1,4 +1,3 @@
-
 /**
  * Linear interpolation of one scalar, `from · (1 − progress) + to · progress`.
  *
@@ -21,5 +20,8 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Weighted scalar interpolation allocates no buffer and retains neither endpoints nor progress after returning the number.
  * @author Samchon
  */
-export const lerp: (from: number, to: number, progress: number) => number = (from: number, to: number, progress: number): number =>
-  from * (1 - progress) + to * progress;
+export const lerp: (from: number, to: number, progress: number) => number = (
+  from: number,
+  to: number,
+  progress: number,
+): number => from * (1 - progress) + to * progress;

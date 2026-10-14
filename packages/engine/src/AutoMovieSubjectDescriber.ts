@@ -451,8 +451,8 @@ export class AutoMovieSubjectDescriber {
   }
 
   private childAddresses(node: string): string[] {
-    return (this.elementChildren.get(node) ?? []).map(
-      (child: string): string => autoMovieSubjectAddress("element", child),
+    return (this.elementChildren.get(node) ?? []).map((child: string): string =>
+      autoMovieSubjectAddress("element", child),
     );
   }
 

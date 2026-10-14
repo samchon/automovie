@@ -11,5 +11,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Every producer uses the same deterministic naming function; string values need no retained cache or invalidation scheme.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned immutable string escapes; no registry, path handle or task is acquired.
  */
-export const productionRuntimeModelId: (recipe: string) => string = (recipe: string): string =>
-  `automovie:model:${recipe}`;
+export const productionRuntimeModelId: (recipe: string) => string = (
+  recipe: string,
+): string => `automovie:model:${recipe}`;

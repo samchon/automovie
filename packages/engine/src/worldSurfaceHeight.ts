@@ -1,5 +1,7 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
+
 import { surfaceHeightAt } from "./space/surfaceHeightAt";
+
 /**
  * Evaluate one world surface's height rule at XZ without testing its footprint.
  *
@@ -12,7 +14,10 @@ import { surfaceHeightAt } from "./space/surfaceHeightAt";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number escapes, and the borrowed surface/grid is not retained by this query or attached to a host task.
  * @author Samchon
  */
-export const worldSurfaceHeight: (surface: IAutoMovieWorldSurface, point: { x: number; z: number; }) => number = (
+export const worldSurfaceHeight: (
+  surface: IAutoMovieWorldSurface,
+  point: { x: number; z: number },
+) => number = (
   surface: IAutoMovieWorldSurface,
   point: { x: number; z: number },
 ): number => surfaceHeightAt(surface, point.x, point.z);

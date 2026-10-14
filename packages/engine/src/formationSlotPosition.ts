@@ -39,7 +39,11 @@ import { seededValue } from "./math/seededValue";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coordinates no work across requests itself; the anchor ground datum is reused per record inside `formationGroundRelief`, which answers that reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; each call returns a fresh vector the caller owns.
  */
-export const formationSlotPosition: (formation: IAutoMovieFormationPlacement, slot: number, reform?: IAutoMovieFormationReform | null) => IAutoMovieVector3 = (
+export const formationSlotPosition: (
+  formation: IAutoMovieFormationPlacement,
+  slot: number,
+  reform?: IAutoMovieFormationReform | null,
+) => IAutoMovieVector3 = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   reform: IAutoMovieFormationReform | null = null,
@@ -83,7 +87,11 @@ interface ILocalPoint {
   z: number;
 }
 
-const blendLocalPoints: (from: ILocalPoint, to: ILocalPoint, progress: number) => ILocalPoint = (
+const blendLocalPoints: (
+  from: ILocalPoint,
+  to: ILocalPoint,
+  progress: number,
+) => ILocalPoint = (
   from: ILocalPoint,
   to: ILocalPoint,
   progress: number,
@@ -103,7 +111,12 @@ const blendLocalPoints: (from: ILocalPoint, to: ILocalPoint, progress: number) =
  * regenerates the same crowd on every machine and every run. A layout without
  * `dressing`, or with both tolerances at zero, returns the exact point.
  */
-const dressedFormationPoint: (formation: IAutoMovieFormationPlacement, slot: number, layout: Exclude<IAutoMovieFormationLayout, { kind: "scatter"; }>, point: ILocalPoint) => ILocalPoint = (
+const dressedFormationPoint: (
+  formation: IAutoMovieFormationPlacement,
+  slot: number,
+  layout: Exclude<IAutoMovieFormationLayout, { kind: "scatter" }>,
+  point: ILocalPoint,
+) => ILocalPoint = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   layout: Exclude<IAutoMovieFormationLayout, { kind: "scatter" }>,
@@ -112,7 +125,10 @@ const dressedFormationPoint: (formation: IAutoMovieFormationPlacement, slot: num
   const dressing: { lateral: number; depth: number } | undefined =
     layout.dressing;
   if (dressing === undefined) return point;
-  const deviation: (salt: number, bound: number) => number = (salt: number, bound: number): number =>
+  const deviation: (salt: number, bound: number) => number = (
+    salt: number,
+    bound: number,
+  ): number =>
     bound === 0 ? 0 : (seededValue(formation.seed, slot, salt) * 2 - 1) * bound;
   return {
     x: point.x + deviation(0x64726573, dressing.lateral),
@@ -121,7 +137,11 @@ const dressedFormationPoint: (formation: IAutoMovieFormationPlacement, slot: num
 };
 
 /** One slot's point in the unit's own frame under the given layout. */
-const localFormationPoint: (formation: IAutoMovieFormationPlacement, slot: number, layout: IAutoMovieFormationLayout) => ILocalPoint = (
+const localFormationPoint: (
+  formation: IAutoMovieFormationPlacement,
+  slot: number,
+  layout: IAutoMovieFormationLayout,
+) => ILocalPoint = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
   layout: IAutoMovieFormationLayout,

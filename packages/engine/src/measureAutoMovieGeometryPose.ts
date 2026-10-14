@@ -1,7 +1,10 @@
-import { AutoMovieGeometryQuery, IAutoMovieGeometryResult } from "@automovie/interface";
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+} from "@automovie/interface";
+
 import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-
 
 /**
  * Summarize an actor's sampled or held pose at shot-local seconds, reporting world root position, joint count and motion-held status; lookup and time failures throw.
@@ -14,16 +17,21 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
  * @evidence contracts/performance.md#reuse-equivalent-work The actor reader computes one spatial sample for root coordinates and joint count; no snapshot-dependent summary is retained across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar summary fields escape; sampled poses and closures become collectible after completion with no resource handles.
  */
-export function measureAutoMovieGeometryPose(props: IAutoMovieGeometryMeasurementInput, request: Extract<AutoMovieGeometryQuery, { query: "pose" }>): IAutoMovieGeometryResult {
-const reader: ReturnType<typeof createAutoMovieGeometryActorReader> = createAutoMovieGeometryActorReader(props.compiled);
+export function measureAutoMovieGeometryPose(
+  props: IAutoMovieGeometryMeasurementInput,
+  request: Extract<AutoMovieGeometryQuery, { query: "pose" }>,
+): IAutoMovieGeometryResult {
+  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+    createAutoMovieGeometryActorReader(props.compiled);
 
-      const sampled: ReturnType<typeof reader.pose> = reader.pose(request.actor,
-request.shot,
-request.time);
+  const sampled: ReturnType<typeof reader.pose> = reader.pose(
+    request.actor,
+    request.shot,
+    request.time,
+  );
 
-      return {
-        kind: "measurement",
-        values: sampled,
-      };
+  return {
+    kind: "measurement",
+    values: sampled,
+  };
 }
-

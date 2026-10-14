@@ -1,4 +1,5 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
+
 /**
  * Copy a compact instance design with an authored rectangular-grid layout.
  *
@@ -11,7 +12,15 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh cloned base and layout; no member buffer, renderer, task or source watcher is retained.
  * @author Samchon
  */
-export const worldGrid: (base: Omit<IAutoMovieInstanceSetDesign, "layout">, layout: { kind: "grid"; rows: number; columns: number; spacing: { x: number; z: number; }; }) => IAutoMovieInstanceSetDesign = (
+export const worldGrid: (
+  base: Omit<IAutoMovieInstanceSetDesign, "layout">,
+  layout: {
+    kind: "grid";
+    rows: number;
+    columns: number;
+    spacing: { x: number; z: number };
+  },
+) => IAutoMovieInstanceSetDesign = (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: Extract<IAutoMovieInstanceSetDesign["layout"], { kind: "grid" }>,
 ): IAutoMovieInstanceSetDesign => ({

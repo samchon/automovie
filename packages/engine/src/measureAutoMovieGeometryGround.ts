@@ -1,7 +1,10 @@
-import { AutoMovieGeometryQuery, IAutoMovieGeometryResult } from "@automovie/interface";
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+} from "@automovie/interface";
+
 import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
-
 
 /**
  * Answer terrain height, surface id and walkability under a world XZ point in metres, including the explicit off-world result.
@@ -14,15 +17,17 @@ import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
  * @evidence contracts/performance.md#reuse-equivalent-work The helper reads the supplied current world every call, so terrain edits require no hidden cache invalidation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar sample fields are returned; no world records, handles or tasks are retained.
  */
-export function measureAutoMovieGeometryGround(props: IAutoMovieGeometryMeasurementInput, request: Extract<AutoMovieGeometryQuery, { query: "ground" }>): IAutoMovieGeometryResult {
+export function measureAutoMovieGeometryGround(
+  props: IAutoMovieGeometryMeasurementInput,
+  request: Extract<AutoMovieGeometryQuery, { query: "ground" }>,
+): IAutoMovieGeometryResult {
+  const sample: ReturnType<typeof readAutoMovieGeometryGround> =
+    readAutoMovieGeometryGround(props.design.world, request.point);
 
-      const sample: ReturnType<typeof readAutoMovieGeometryGround> = readAutoMovieGeometryGround(props.design.world, request.point);
-
-      return {
-        kind: "ground",
-        height: sample.height,
-        surface: sample.surface,
-        walkable: sample.walkable,
-      };
+  return {
+    kind: "ground",
+    height: sample.height,
+    surface: sample.surface,
+    walkable: sample.walkable,
+  };
 }
-

@@ -1,8 +1,7 @@
 import { IAutoMovieWorldDesign } from "@automovie/interface";
+
 import { worldGroundSurface } from "./worldGroundSurface";
 import { worldSurfaceHeight } from "./worldSurfaceHeight";
-
-
 
 /**
  * Read the first containing world surface at an XZ point in metres; no surface returns height zero, null surface and walkable=false.
@@ -15,11 +14,17 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * @evidence contracts/performance.md#reuse-equivalent-work No height cache is kept because terrain and surface order belong to the caller's current snapshot.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns three scalar fields and retains no terrain or resource after the call.
  */
-export const readAutoMovieGeometryGround: (world: Pick < IAutoMovieWorldDesign , "surfaces" > | null, point: { x : number ; z : number }) => { height : number ; surface : string | null ; walkable : boolean } = (
+export const readAutoMovieGeometryGround: (
+  world: Pick<IAutoMovieWorldDesign, "surfaces"> | null,
+  point: { x: number; z: number },
+) => { height: number; surface: string | null; walkable: boolean } = (
   world: Pick<IAutoMovieWorldDesign, "surfaces"> | null,
   point: { x: number; z: number },
 ): { height: number; surface: string | null; walkable: boolean } => {
-  const surface: ReturnType<typeof worldGroundSurface> = worldGroundSurface(world?.surfaces ?? [], point);
+  const surface: ReturnType<typeof worldGroundSurface> = worldGroundSurface(
+    world?.surfaces ?? [],
+    point,
+  );
   return surface === null
     ? { height: 0, surface: null, walkable: false }
     : {

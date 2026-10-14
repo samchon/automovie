@@ -1,4 +1,5 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
+
 /**
  * Copy a compact instance design with an authored along-route layout.
  *
@@ -11,7 +12,10 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns both cloned graphs in the result, while source references are not deliberately retained; no route watcher, host handle or task is acquired.
  * @author Samchon
  */
-export const worldAlongRoute: (base: Omit<IAutoMovieInstanceSetDesign, "layout">, layout: { kind: "along-route"; route: string; lateralJitter: number; }) => IAutoMovieInstanceSetDesign = (
+export const worldAlongRoute: (
+  base: Omit<IAutoMovieInstanceSetDesign, "layout">,
+  layout: { kind: "along-route"; route: string; lateralJitter: number },
+) => IAutoMovieInstanceSetDesign = (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: Extract<
     IAutoMovieInstanceSetDesign["layout"],

@@ -1,6 +1,8 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
+
 import { worldGroundSurface } from "./worldGroundSurface";
 import { worldSurfaceHeight } from "./worldSurfaceHeight";
+
 /**
  * Read the selected world terrain height, retaining null for absent support.
  *
@@ -13,10 +15,16 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar or null escapes and the borrowed surface list is not retained, with no host handle or active sampler.
  * @author Samchon
  */
-export const worldGroundHeight: (surfaces: readonly IAutoMovieWorldSurface[], point: { x: number; z: number; }) => number | null = (
+export const worldGroundHeight: (
+  surfaces: readonly IAutoMovieWorldSurface[],
+  point: { x: number; z: number },
+) => number | null = (
   surfaces: readonly IAutoMovieWorldSurface[],
   point: { x: number; z: number },
 ): number | null => {
-  const surface: IAutoMovieWorldSurface | null = worldGroundSurface(surfaces, point);
+  const surface: IAutoMovieWorldSurface | null = worldGroundSurface(
+    surfaces,
+    point,
+  );
   return surface === null ? null : worldSurfaceHeight(surface, point);
 };

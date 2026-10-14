@@ -1,13 +1,19 @@
-import { AutoMovieGeometryQuery, IAutoMovieGeometryResult, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieGeometryResult,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
+import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { reachPose } from "./kinematics/reachPose";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
 import { Vector3 } from "./math/Vector3";
 import { validatePose } from "./validation/validatePose";
-import { IAutoMovieGeometryMeasurementInput } from "./IAutoMovieGeometryMeasurementInput";
-import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-
 
 /**
  * Measure each available arm's rest-chain reach gap in model metres at shot-local seconds; report solved-pose ROM separately and refuse degenerate node scale or absent arm chains.
@@ -20,62 +26,88 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
  * @evidence contracts/performance.md#reuse-equivalent-work Both arms use the same resolved target and sampled spatial record; rest/IK results are not cached across mutable skeleton snapshots.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Resolved actor, target and solver poses are call-local; only scalar measurement fields escape, with no retained rig or external resource.
  */
-export function measureAutoMovieGeometryReach(props: IAutoMovieGeometryMeasurementInput, request: Extract<AutoMovieGeometryQuery, { query: "reach" }>): IAutoMovieGeometryResult {
-const reader: ReturnType<typeof createAutoMovieGeometryActorReader> = createAutoMovieGeometryActorReader(props.compiled);
+export function measureAutoMovieGeometryReach(
+  props: IAutoMovieGeometryMeasurementInput,
+  request: Extract<AutoMovieGeometryQuery, { query: "reach" }>,
+): IAutoMovieGeometryResult {
+  const reader: ReturnType<typeof createAutoMovieGeometryActorReader> =
+    createAutoMovieGeometryActorReader(props.compiled);
 
-      const sampledTime: number = request.time ?? 0;
+  const sampledTime: number = request.time ?? 0;
 
-      const actor: ReturnType<typeof reader.find> = reader.find(request.actor,
-request.shot);
+  const actor: ReturnType<typeof reader.find> = reader.find(
+    request.actor,
+    request.shot,
+  );
 
-      const target: IAutoMovieVector3 = reader.selector(request.target,
-props.design.world,
-{
-          shot: actor.compiled.shot.id,
-          time: sampledTime,
+  const target: IAutoMovieVector3 = reader.selector(
+    request.target,
+    props.design.world,
+    {
+      shot: actor.compiled.shot.id,
+      time: sampledTime,
+    },
+  );
+
+  const spatial: ReturnType<typeof reader.spatial> = reader.spatial(
+    actor.compiled,
+    request.actor,
+    sampledTime,
+    actor.model.skeleton,
+  );
+
+  const nodeLocal: IAutoMovieVector3 | null = toModelPoint(
+    target,
+    spatial.nodeTransform,
+  );
+  const localTarget: IAutoMovieVector3 | null =
+    nodeLocal === null || spatial.poseRoot === null
+      ? nodeLocal
+      : toModelPoint(nodeLocal, {
+          ...spatial.poseRoot,
+          scale: { x: 1, y: 1, z: 1 },
         });
 
-      const spatial: ReturnType<typeof reader.spatial> = reader.spatial(actor.compiled,
-request.actor,
-sampledTime, actor.model.skeleton);
+  if (localTarget === null)
+    throw new Error(
+      `Actor "${request.actor}" has a degenerate current scale. Correct its compiled scene transform before reach measurement.`,
+    );
 
-      const nodeLocal: IAutoMovieVector3 | null = toModelPoint(target, spatial.nodeTransform);
-      const localTarget: IAutoMovieVector3 | null = nodeLocal === null || spatial.poseRoot === null
-        ? nodeLocal
-        : toModelPoint(nodeLocal, { ...spatial.poseRoot, scale: { x: 1, y: 1, z: 1 } });
+  if (actor.model.skeleton === null)
+    throw new Error(
+      `Actor "${request.actor}" has no skeleton. Bind a rigged model before reach measurement.`,
+    );
 
-      if (localTarget === null)
-        throw new Error(
-          `Actor "${request.actor}" has a degenerate current scale. Correct its compiled scene transform before reach measurement.`,
-        );
+  const left: IArmReachMeasurement | null = measureArmReach(
+    actor.model.skeleton,
+    "left",
+    localTarget,
+  );
 
-      if (actor.model.skeleton === null)
-        throw new Error(
-          `Actor "${request.actor}" has no skeleton. Bind a rigged model before reach measurement.`,
-        );
+  const right: IArmReachMeasurement | null = measureArmReach(
+    actor.model.skeleton,
+    "right",
+    localTarget,
+  );
 
-      const left: IArmReachMeasurement | null = measureArmReach(actor.model.skeleton, "left", localTarget);
+  if (left === null && right === null)
+    throw new Error(
+      `Actor "${request.actor}" has no measurable upper-arm, lower-arm and hand chain. Correct the rig before reach measurement.`,
+    );
 
-      const right: IArmReachMeasurement | null = measureArmReach(actor.model.skeleton, "right", localTarget);
-
-      if (left === null && right === null)
-        throw new Error(
-          `Actor "${request.actor}" has no measurable upper-arm, lower-arm and hand chain. Correct the rig before reach measurement.`,
-        );
-
-      return {
-        kind: "measurement",
-        values: {
-          sampledTime,
-          reachable: Boolean(left?.reachable || right?.reachable),
-          leftMeasurable: left !== null,
-          leftGap: left?.gap ?? 0,
-          leftPoseWithinRom: left?.poseWithinRom ?? false,
-          rightMeasurable: right !== null,
-          rightGap: right?.gap ?? 0,
-          rightPoseWithinRom: right?.poseWithinRom ?? false,
-        },
-      };
+  return {
+    kind: "measurement",
+    values: {
+      sampledTime,
+      reachable: Boolean(left?.reachable || right?.reachable),
+      leftMeasurable: left !== null,
+      leftGap: left?.gap ?? 0,
+      leftPoseWithinRom: left?.poseWithinRom ?? false,
+      rightMeasurable: right !== null,
+      rightGap: right?.gap ?? 0,
+      rightPoseWithinRom: right?.poseWithinRom ?? false,
+    },
+  };
 }
 interface IArmReachMeasurement {
   /** Positive rest-chain deficit in model metres, or zero within radial reach. */
@@ -88,22 +120,35 @@ interface IArmReachMeasurement {
   poseWithinRom: boolean;
 }
 
-const measureArmReach: (skeleton: IAutoMovieSkeleton, side: "left" | "right", target: IAutoMovieVector3) => IArmReachMeasurement | null = (
+const measureArmReach: (
+  skeleton: IAutoMovieSkeleton,
+  side: "left" | "right",
+  target: IAutoMovieVector3,
+) => IArmReachMeasurement | null = (
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   target: IAutoMovieVector3,
 ): IArmReachMeasurement | null => {
-  const upperName: "leftUpperArm" | "rightUpperArm" = side === "left" ? "leftUpperArm" : "rightUpperArm";
-  const lowerName: "leftLowerArm" | "rightLowerArm" = side === "left" ? "leftLowerArm" : "rightLowerArm";
-  const handName: "leftHand" | "rightHand" = side === "left" ? "leftHand" : "rightHand";
+  const upperName: "leftUpperArm" | "rightUpperArm" =
+    side === "left" ? "leftUpperArm" : "rightUpperArm";
+  const lowerName: "leftLowerArm" | "rightLowerArm" =
+    side === "left" ? "leftLowerArm" : "rightLowerArm";
+  const handName: "leftHand" | "rightHand" =
+    side === "left" ? "leftHand" : "rightHand";
   const rest: ReturnType<typeof resolvePose> = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
     HUMANOID_JOINT_AXES,
   );
-  const upper: (typeof rest)[number] | undefined = rest.find((bone: (typeof rest)[number]): boolean => bone.bone === upperName);
-  const lower: (typeof rest)[number] | undefined = rest.find((bone: (typeof rest)[number]): boolean => bone.bone === lowerName);
-  const hand: (typeof rest)[number] | undefined = rest.find((bone: (typeof rest)[number]): boolean => bone.bone === handName);
+  const upper: (typeof rest)[number] | undefined = rest.find(
+    (bone: (typeof rest)[number]): boolean => bone.bone === upperName,
+  );
+  const lower: (typeof rest)[number] | undefined = rest.find(
+    (bone: (typeof rest)[number]): boolean => bone.bone === lowerName,
+  );
+  const hand: (typeof rest)[number] | undefined = rest.find(
+    (bone: (typeof rest)[number]): boolean => bone.bone === handName,
+  );
   if (upper === undefined || lower === undefined || hand === undefined)
     return null;
   const upperLength: number = Vector3.length(
@@ -126,7 +171,10 @@ const measureArmReach: (skeleton: IAutoMovieSkeleton, side: "left" | "right", ta
   };
 };
 
-const toModelPoint: (point: IAutoMovieVector3, transform: IAutoMovieTransform) => IAutoMovieVector3 | null = (
+const toModelPoint: (
+  point: IAutoMovieVector3,
+  transform: IAutoMovieTransform,
+) => IAutoMovieVector3 | null = (
   point: IAutoMovieVector3,
   transform: IAutoMovieTransform,
 ): IAutoMovieVector3 | null => {

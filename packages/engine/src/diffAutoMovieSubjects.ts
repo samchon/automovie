@@ -13,8 +13,8 @@ import {
 
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
-import { createAutoMovieSubjectPartIndex } from "./createAutoMovieSubjectPartIndex";
 import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "./constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
+import { createAutoMovieSubjectPartIndex } from "./createAutoMovieSubjectPartIndex";
 import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
 import { instancePrototypeChoices } from "./populationRuntime/instancePrototypeChoices";
 import { selectInstancePrototype } from "./populationRuntime/selectInstancePrototype";
@@ -56,7 +56,11 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each revision's inventory and record indexes are built once; part indexes are built only for models whose part shapes are compared, and usage only for prototype or part fanout. First duplicate parts preserve the previous find rule, and no mutable artifact cache survives across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Inventories, requested part indexes and usage tables are call-local, bounded by artifact subjects, queried parts, models and sets. The returned diff holds changed descriptions and one bounded unchanged sample; descriptions may borrow nested artifact records.
  */
-export const diffAutoMovieSubjects: (beforeArtifact: IAutoMovieSubjectArtifact, afterArtifact: IAutoMovieSubjectArtifact, tolerance?: number) => IAutoMovieSubjectDiff = (
+export const diffAutoMovieSubjects: (
+  beforeArtifact: IAutoMovieSubjectArtifact,
+  afterArtifact: IAutoMovieSubjectArtifact,
+  tolerance?: number,
+) => IAutoMovieSubjectDiff = (
   beforeArtifact: IAutoMovieSubjectArtifact,
   afterArtifact: IAutoMovieSubjectArtifact,
   tolerance: number = AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
@@ -142,7 +146,9 @@ interface IModelUsage {
   sets: string[];
 }
 
-const indexRevision: (artifact: IAutoMovieSubjectArtifact) => IRevision = (artifact: IAutoMovieSubjectArtifact): IRevision => {
+const indexRevision: (artifact: IAutoMovieSubjectArtifact) => IRevision = (
+  artifact: IAutoMovieSubjectArtifact,
+): IRevision => {
   const models: Map<string, IAutoMovieModel> = new Map();
   const records: Map<string, IAutoMovieBuildingUnit | IAutoMovieBuiltSpace> =
     new Map();
@@ -189,14 +195,19 @@ const indexRevision: (artifact: IAutoMovieSubjectArtifact) => IRevision = (artif
   };
 };
 
-const placementOf: (description: IAutoMovieSubjectDescription) => unknown = (description: IAutoMovieSubjectDescription): unknown => ({
+const placementOf: (description: IAutoMovieSubjectDescription) => unknown = (
+  description: IAutoMovieSubjectDescription,
+): unknown => ({
   transform: description.transform,
   owner: description.owner,
   space: description.space,
   prototype: description.prototype,
 });
 
-const shapeOf: (revision: IRevision, description: IAutoMovieSubjectDescription) => unknown = (
+const shapeOf: (
+  revision: IRevision,
+  description: IAutoMovieSubjectDescription,
+) => unknown = (
   revision: IRevision,
   description: IAutoMovieSubjectDescription,
 ): unknown => {
@@ -232,7 +243,12 @@ const shapeOf: (revision: IRevision, description: IAutoMovieSubjectDescription) 
   return revision.records.get(description.id);
 };
 
-const changeOf: (previous: IAutoMovieSubjectDescription | null, next: IAutoMovieSubjectDescription | null, before: IRevision, after: IRevision) => IAutoMovieSubjectChange = (
+const changeOf: (
+  previous: IAutoMovieSubjectDescription | null,
+  next: IAutoMovieSubjectDescription | null,
+  before: IRevision,
+  after: IRevision,
+) => IAutoMovieSubjectChange = (
   previous: IAutoMovieSubjectDescription | null,
   next: IAutoMovieSubjectDescription | null,
   before: IRevision,
@@ -248,7 +264,13 @@ const changeOf: (previous: IAutoMovieSubjectDescription | null, next: IAutoMovie
   };
 };
 
-const fanoutOf: (description: IAutoMovieSubjectDescription, previous: IAutoMovieSubjectDescription | null, next: IAutoMovieSubjectDescription | null, before: IRevision, after: IRevision) => IAutoMovieSubjectDiffFanout = (
+const fanoutOf: (
+  description: IAutoMovieSubjectDescription,
+  previous: IAutoMovieSubjectDescription | null,
+  next: IAutoMovieSubjectDescription | null,
+  before: IRevision,
+  after: IRevision,
+) => IAutoMovieSubjectDiffFanout = (
   description: IAutoMovieSubjectDescription,
   previous: IAutoMovieSubjectDescription | null,
   next: IAutoMovieSubjectDescription | null,
@@ -297,10 +319,14 @@ const fanoutOf: (description: IAutoMovieSubjectDescription, previous: IAutoMovie
  * Every runtime model's elements, compact members and drawing sets in one
  * revision, computed on first use by regenerating each slot's selection once.
  */
-const usageOf: (revision: IRevision) => Map < string , IModelUsage > = (revision: IRevision): Map<string, IModelUsage> => {
+const usageOf: (revision: IRevision) => Map<string, IModelUsage> = (
+  revision: IRevision,
+): Map<string, IModelUsage> => {
   if (revision.usage !== null) return revision.usage;
   const usage: Map<string, IModelUsage> = new Map();
-  const entry: (model: string) => IModelUsage = (model: string): IModelUsage => {
+  const entry: (model: string) => IModelUsage = (
+    model: string,
+  ): IModelUsage => {
     let found: IModelUsage | undefined = usage.get(model);
     if (found === undefined) {
       found = { elements: 0, instances: 0, sets: [] };
@@ -325,14 +351,19 @@ const usageOf: (revision: IRevision) => Map < string , IModelUsage > = (revision
   return usage;
 };
 
-const changedPrototypeSelections: (before: IAutoMovieCompiledInstanceSet, after: IAutoMovieCompiledInstanceSet) => number = (
+const changedPrototypeSelections: (
+  before: IAutoMovieCompiledInstanceSet,
+  after: IAutoMovieCompiledInstanceSet,
+) => number = (
   before: IAutoMovieCompiledInstanceSet,
   after: IAutoMovieCompiledInstanceSet,
 ): number => {
   let changed: number = Math.abs(before.count - after.count);
   const common: number = Math.min(before.count, after.count);
   for (let slot: number = 0; slot < common; ++slot)
-    if (selectedPrototype(before, slot).key !== selectedPrototype(after, slot).key)
+    if (
+      selectedPrototype(before, slot).key !== selectedPrototype(after, slot).key
+    )
       ++changed;
   return changed;
 };
@@ -346,7 +377,10 @@ const changedPrototypeSelections: (before: IAutoMovieCompiledInstanceSet, after:
  * prototype its table lacks is read as that missing prototype, which equals
  * only the same missing name in another revision, and draws no model.
  */
-const selectedPrototype: (set: IAutoMovieCompiledInstanceSet, slot: number) => { key : string ; model : string | null } = (
+const selectedPrototype: (
+  set: IAutoMovieCompiledInstanceSet,
+  slot: number,
+) => { key: string; model: string | null } = (
   set: IAutoMovieCompiledInstanceSet,
   slot: number,
 ): { key: string; model: string | null } => {
@@ -379,11 +413,11 @@ const selectedPrototype: (set: IAutoMovieCompiledInstanceSet, slot: number) => {
  * element by element; records compare every key either side defines, ignoring
  * keys that are `undefined` on both.
  */
-const tolerantEqual: (left: unknown, right: unknown, tolerance: number) => boolean = (
+const tolerantEqual: (
   left: unknown,
   right: unknown,
   tolerance: number,
-): boolean => {
+) => boolean = (left: unknown, right: unknown, tolerance: number): boolean => {
   if (typeof left === "number" && typeof right === "number")
     return Math.abs(left - right) <= tolerance;
   if (left === right) return true;
@@ -431,7 +465,9 @@ const tolerantEqual: (left: unknown, right: unknown, tolerance: number) => boole
   return true;
 };
 
-const isQuaternion: (value: unknown) => value is { x : number ; y : number ; z : number ; w : number } = (
+const isQuaternion: (
+  value: unknown,
+) => value is { x: number; y: number; z: number; w: number } = (
   value: unknown,
 ): value is { x: number; y: number; z: number; w: number } => {
   if (value === null || typeof value !== "object" || Array.isArray(value))

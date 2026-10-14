@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 /**
  * Turn a unit-local displacement into the frame a unit's members are placed in.
  *
@@ -25,7 +26,10 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each placement supplies its current heading and offset; this scalar operation coordinates no requests or retained formation cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only one fresh three-component displacement escapes, with neither the source offset nor a formation reference retained.
  */
-export const rotateFormationLocalOffset: (offset: IAutoMovieVector3, headingDeg: number) => IAutoMovieVector3 = (
+export const rotateFormationLocalOffset: (
+  offset: IAutoMovieVector3,
+  headingDeg: number,
+) => IAutoMovieVector3 = (
   offset: IAutoMovieVector3,
   headingDeg: number,
 ): IAutoMovieVector3 => {

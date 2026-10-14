@@ -1,6 +1,8 @@
 import { IAutoMovieModelRecipe, IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
+
 /**
  * Build a box-proxy recipe, placed node and bounds from a grounded base and size.
  *
@@ -13,7 +15,14 @@ import { productionRuntimeModelId } from "./productionRuntimeModelId";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh recipe/node/bounds records, which retain scalar strings only; no builder registry, model instance, renderer or background task is acquired.
  * @author Samchon
  */
-export const worldBlock: (input: { id: string; kind: "wall" | "building"; base: IAutoMovieVector3; size: IAutoMovieVector3; color: string; archetype?: string | undefined; }) => IAutoMovieWorldBlock = (input: {
+export const worldBlock: (input: {
+  id: string;
+  kind: "wall" | "building";
+  base: IAutoMovieVector3;
+  size: IAutoMovieVector3;
+  color: string;
+  archetype?: string | undefined;
+}) => IAutoMovieWorldBlock = (input: {
   id: string;
   kind: IAutoMovieWorldBlock["kind"];
   base: IAutoMovieVector3;
@@ -80,13 +89,19 @@ export const worldBlock: (input: { id: string; kind: "wall" | "building"; base: 
 };
 
 /** Require non-whitespace id text without rewriting its spelling or certifying displayed visibility. */
-const assertText: (value: string, field: string) => void = (value: string, field: string): void => {
+const assertText: (value: string, field: string) => void = (
+  value: string,
+  field: string,
+): void => {
   if (value.trim().length === 0)
     throw new Error(`${field} must contain non-whitespace text.`);
 };
 
 /** Refuse a nonfinite base component before grounded-box arithmetic. */
-const assertVector: (value: IAutoMovieVector3, field: string) => void = (value: IAutoMovieVector3, field: string): void => {
+const assertVector: (value: IAutoMovieVector3, field: string) => void = (
+  value: IAutoMovieVector3,
+  field: string,
+): void => {
   if ([value.x, value.y, value.z].every(Number.isFinite) === false)
     throw new Error(`${field} must be finite.`);
 };

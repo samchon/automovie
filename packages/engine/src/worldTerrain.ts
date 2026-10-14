@@ -1,4 +1,5 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
+
 /**
  * Construct a flat world surface from an authored XZ footprint and height.
  *
@@ -11,7 +12,12 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the copied footprint and fresh rule; no source callback, geometry buffer, renderer or watcher is acquired.
  * @author Samchon
  */
-export const worldTerrain: (input: { id: string; polygon: { x: number; z: number; }[]; height: number; walkable: boolean; }) => IAutoMovieWorldSurface = (input: {
+export const worldTerrain: (input: {
+  id: string;
+  polygon: { x: number; z: number }[];
+  height: number;
+  walkable: boolean;
+}) => IAutoMovieWorldSurface = (input: {
   id: string;
   polygon: IAutoMovieWorldSurface["polygon"];
   height: number;

@@ -17,14 +17,22 @@ export function createAutoMovieSubjectPartIndex(
   models: ReadonlyMap<string, IAutoMovieModel>,
 ): (modelId: string, address: string) => IAutoMovieModelPart | undefined {
   const indexes: Map<string, Map<string, IAutoMovieModelPart>> = new Map();
-  return (modelId: string, address: string): IAutoMovieModelPart | undefined => {
-    let parts: Map<string, IAutoMovieModelPart> | undefined = indexes.get(modelId);
+  return (
+    modelId: string,
+    address: string,
+  ): IAutoMovieModelPart | undefined => {
+    let parts: Map<string, IAutoMovieModelPart> | undefined =
+      indexes.get(modelId);
     if (parts === undefined) {
       const model: IAutoMovieModel | undefined = models.get(modelId);
       if (model === undefined) return undefined;
       parts = new Map();
       for (const part of model.parts) {
-        const key: string = autoMovieSubjectAddress("prototype-part", model.id, part.id);
+        const key: string = autoMovieSubjectAddress(
+          "prototype-part",
+          model.id,
+          part.id,
+        );
         if (!parts.has(key)) parts.set(key, part);
       }
       indexes.set(modelId, parts);

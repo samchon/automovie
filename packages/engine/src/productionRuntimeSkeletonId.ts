@@ -11,5 +11,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work All callers reuse the naming law; immutable equal strings require no retained cache or invalidation state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned string survives, with no skeleton, registry or resource handle retained.
  */
-export const productionRuntimeSkeletonId: (recipe: string) => string = (recipe: string): string =>
-  `automovie:skeleton:${recipe}`;
+export const productionRuntimeSkeletonId: (recipe: string) => string = (
+  recipe: string,
+): string => `automovie:skeleton:${recipe}`;

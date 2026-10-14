@@ -1,4 +1,5 @@
 import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
+
 /**
  * Copy a compact instance design with an authored disk-scatter layout.
  *
@@ -11,7 +12,10 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned cloned design, with no retained sampler cursor, source graph, process or GPU resource.
  * @author Samchon
  */
-export const worldScatter: (base: Omit<IAutoMovieInstanceSetDesign, "layout">, layout: { kind: "scatter"; radius: number; }) => IAutoMovieInstanceSetDesign = (
+export const worldScatter: (
+  base: Omit<IAutoMovieInstanceSetDesign, "layout">,
+  layout: { kind: "scatter"; radius: number },
+) => IAutoMovieInstanceSetDesign = (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,
   layout: Extract<IAutoMovieInstanceSetDesign["layout"], { kind: "scatter" }>,
 ): IAutoMovieInstanceSetDesign => ({

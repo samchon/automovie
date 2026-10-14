@@ -46,10 +46,14 @@ export const formationCadenceSegments = (
   time: number,
 ): IAutoMovieFormationCadenceSegment[] => {
   const cues: IAutoMovieFormationMotion[] = motions
-    .filter((cue: IAutoMovieFormationMotion): boolean => cue.formation === formation)
+    .filter(
+      (cue: IAutoMovieFormationMotion): boolean => cue.formation === formation,
+    )
     .sort(
-      (left: IAutoMovieFormationMotion, right: IAutoMovieFormationMotion): number =>
-        left.start - right.start,
+      (
+        left: IAutoMovieFormationMotion,
+        right: IAutoMovieFormationMotion,
+      ): number => left.start - right.start,
     );
   const end: number = Math.max(0, time);
   const segments: IAutoMovieFormationCadenceSegment[] = [];

@@ -1,6 +1,12 @@
-import { AutoMovieGeometryQuery, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationDesign, IAutoMovieProductionDesign, IAutoMovieShotContract, IAutoMovieWorldDesign } from "@automovie/interface";
-
-
+import {
+  AutoMovieGeometryQuery,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieFormationDesign,
+  IAutoMovieProductionDesign,
+  IAutoMovieShotContract,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
 
 /**
  * Borrow current design, compiled shot and optional canonical timeline records for one geometry measurement; the caller establishes that these snapshots agree.

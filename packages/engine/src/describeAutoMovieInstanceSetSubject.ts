@@ -56,7 +56,10 @@ export const describeAutoMovieInstanceSetSubject = (
   const offset: number = Math.min(memberOffset, set.count);
   const items: string[] = Array.from(
     {
-      length: Math.min(set.count - offset, AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT),
+      length: Math.min(
+        set.count - offset,
+        AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT,
+      ),
     },
     (_: unknown, index: number): string =>
       autoMovieInstanceAddress(set, offset + index),

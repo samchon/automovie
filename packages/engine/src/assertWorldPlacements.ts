@@ -47,7 +47,12 @@ const SUPPORT_TOLERANCE: number = 1e-6;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A one-shot gate over one world layout that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only per-test footprint corners and closest points and retains nothing; it returns nothing and throws on the first contradiction.
  */
-export const assertWorldPlacements: (input: { /** Static world masses, as axis-aligned world boxes. */ blocks : readonly IAutoMovieWorldBlock [ ] ; /** Terrain and floor surfaces that may support a block or hold a landmark. */ surfaces : readonly IAutoMovieWorldSurface [ ] ; /** Routes whose segments, widened by half their formation width, must clear every block. */ routes : readonly IAutoMovieWorldRoute [ ] ; /** Points of interest that must be reachable from walkable ground or a route. */ landmarks : readonly IAutoMovieWorldLandmark [ ] ; }) => void = (input: {
+export const assertWorldPlacements: (input: {
+  /** Static world masses, as axis-aligned world boxes. */ blocks: readonly IAutoMovieWorldBlock[];
+  /** Terrain and floor surfaces that may support a block or hold a landmark. */ surfaces: readonly IAutoMovieWorldSurface[];
+  /** Routes whose segments, widened by half their formation width, must clear every block. */ routes: readonly IAutoMovieWorldRoute[];
+  /** Points of interest that must be reachable from walkable ground or a route. */ landmarks: readonly IAutoMovieWorldLandmark[];
+}) => void = (input: {
   /** Static world masses, as axis-aligned world boxes. */
   blocks: readonly IAutoMovieWorldBlock[];
 
@@ -96,22 +101,27 @@ export const assertWorldPlacements: (input: { /** Static world masses, as axis-a
     );
     const byRoute: boolean = input.routes.some(
       (route: IAutoMovieWorldRoute): boolean =>
-        route.waypoints.slice(1).some(
-          (point: IAutoMovieWorldRoute["waypoints"][number], index: number): boolean => {
-            const nearest: IAutoMovieVector3 = closestPointOnSegmentXZ(
-              landmark.position,
-              route.waypoints[index]!,
-              point,
-            );
-            return (
-              Math.hypot(
-                landmark.position.x - nearest.x,
-                landmark.position.z - nearest.z,
-              ) <=
-              landmark.radius + route.allowedFormationWidth / 2
-            );
-          },
-        ),
+        route.waypoints
+          .slice(1)
+          .some(
+            (
+              point: IAutoMovieWorldRoute["waypoints"][number],
+              index: number,
+            ): boolean => {
+              const nearest: IAutoMovieVector3 = closestPointOnSegmentXZ(
+                landmark.position,
+                route.waypoints[index]!,
+                point,
+              );
+              return (
+                Math.hypot(
+                  landmark.position.x - nearest.x,
+                  landmark.position.z - nearest.z,
+                ) <=
+                landmark.radius + route.allowedFormationWidth / 2
+              );
+            },
+          ),
     );
     if (onWalkable === false && byRoute === false)
       throw new Error(
@@ -121,7 +131,10 @@ export const assertWorldPlacements: (input: { /** Static world masses, as axis-a
 };
 
 /** Whether two boxes share interior volume; touching faces do not count. */
-const overlaps: (left: IAutoMovieWorldBlock, right: IAutoMovieWorldBlock) => boolean = (
+const overlaps: (
+  left: IAutoMovieWorldBlock,
+  right: IAutoMovieWorldBlock,
+) => boolean = (
   left: IAutoMovieWorldBlock,
   right: IAutoMovieWorldBlock,
 ): boolean =>
@@ -133,7 +146,10 @@ const overlaps: (left: IAutoMovieWorldBlock, right: IAutoMovieWorldBlock) => boo
   left.bounds.max.z > right.bounds.min.z;
 
 /** Whether a surface carries a block's whole footprint at the block's base. */
-const surfaceSupportsBlock: (surface: IAutoMovieWorldSurface, block: IAutoMovieWorldBlock) => boolean = (
+const surfaceSupportsBlock: (
+  surface: IAutoMovieWorldSurface,
+  block: IAutoMovieWorldBlock,
+) => boolean = (
   surface: IAutoMovieWorldSurface,
   block: IAutoMovieWorldBlock,
 ): boolean => {
@@ -167,7 +183,13 @@ const surfaceSupportsBlock: (surface: IAutoMovieWorldSurface, block: IAutoMovieW
     )
   )
     return false;
-  const plan: (point: { x : number ; z : number }) => IAutoMoviePlanarPoint = (point: { x: number; z: number }): IAutoMoviePlanarPoint => ({
+  const plan: (point: {
+    x: number;
+    z: number;
+  }) => IAutoMoviePlanarPoint = (point: {
+    x: number;
+    z: number;
+  }): IAutoMoviePlanarPoint => ({
     x: point.x,
     y: point.z,
   });
@@ -193,7 +215,12 @@ const surfaceSupportsBlock: (surface: IAutoMovieWorldSurface, block: IAutoMovieW
  * Whether a plan segment enters a block footprint widened by `padding`, by
  * clipping the segment's parameter range against the X and Z slabs.
  */
-const segmentIntersectsBounds: (from: { x : number ; z : number }, to: { x : number ; z : number }, bounds: IAutoMovieWorldBlock [ "bounds" ], padding: number) => boolean = (
+const segmentIntersectsBounds: (
+  from: { x: number; z: number },
+  to: { x: number; z: number },
+  bounds: IAutoMovieWorldBlock["bounds"],
+  padding: number,
+) => boolean = (
   from: { x: number; z: number },
   to: { x: number; z: number },
   bounds: IAutoMovieWorldBlock["bounds"],

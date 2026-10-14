@@ -1,7 +1,12 @@
-import { IAutoMovieCompiledEffect, IAutoMovieEffectRecipe } from "@automovie/interface";
+import {
+  IAutoMovieCompiledEffect,
+  IAutoMovieEffectRecipe,
+} from "@automovie/interface";
+
 import { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
 import { IAutoMovieEffectSample } from "./IAutoMovieEffectSample";
 import { mixSeed } from "./math/mixSeed";
+
 /**
  * Sample a compiled primitive effect from its absolute fixed-step clock.
  *
@@ -20,13 +25,18 @@ import { mixSeed } from "./math/mixSeed";
  * @evidence contracts/performance.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
  */
-export const sampleCompiledEffect: (effect: IAutoMovieCompiledEffect, time: number, cameraDistance?: number) => IAutoMovieEffectSample = (
+export const sampleCompiledEffect: (
+  effect: IAutoMovieCompiledEffect,
+  time: number,
+  cameraDistance?: number,
+) => IAutoMovieEffectSample = (
   effect: IAutoMovieCompiledEffect,
   time: number,
   cameraDistance: number = 0,
 ): IAutoMovieEffectSample => {
   const step: number = effect.fixedStepSeconds;
-  const sampledTime: number = Math.floor(Math.max(0, time) / step + 1e-9) * step;
+  const sampledTime: number =
+    Math.floor(Math.max(0, time) / step + 1e-9) * step;
   if (sampledTime < effect.start || sampledTime >= effect.end)
     return { time: sampledTime, active: false, intensity: 0, particles: [] };
   const cueProgress: number =
@@ -51,10 +61,14 @@ export const sampleCompiledEffect: (effect: IAutoMovieCompiledEffect, time: numb
     ),
   );
   const candidates: number[] = [
-    ...Array.from({ length: recipe.emission.burst }, (_: unknown, index: number): number => index),
+    ...Array.from(
+      { length: recipe.emission.burst },
+      (_: unknown, index: number): number => index,
+    ),
     ...Array.from(
       { length: Math.max(0, regularSpawned - earliestRegular) },
-      (_: unknown, offset: number): number => recipe.emission.burst + earliestRegular + offset,
+      (_: unknown, offset: number): number =>
+        recipe.emission.burst + earliestRegular + offset,
     ),
   ];
   const thinned: number[] =
@@ -76,7 +90,7 @@ export const sampleCompiledEffect: (effect: IAutoMovieCompiledEffect, time: numb
     );
     if (age < 0 || age >= lifetime) continue;
     const ageRatio: number = age / lifetime;
-    const initial: { x: number; y: number; z: number; } = {
+    const initial: { x: number; y: number; z: number } = {
       x: interpolate(
         effect.bounds.min.x,
         effect.bounds.max.x,
@@ -131,15 +145,22 @@ export const sampleCompiledEffect: (effect: IAutoMovieCompiledEffect, time: numb
   return { time: sampledTime, active: true, intensity, particles };
 };
 
-const interpolate: (from: number, to: number, ratio: number) => number = (from: number, to: number, ratio: number): number =>
-  from * (1 - ratio) + to * ratio;
+const interpolate: (from: number, to: number, ratio: number) => number = (
+  from: number,
+  to: number,
+  ratio: number,
+): number => from * (1 - ratio) + to * ratio;
 
 /**
  * Preserve the compiled-effect v1 stream while the public multi-part sampler
  * serves new domains. The effect digest does not carry a sampler version, so
  * changing this fold would make identical compiled bytes replay differently.
  */
-const effectValue: (seed: number, index: number, domain: number) => number = (seed: number, index: number, domain: number): number => {
+const effectValue: (seed: number, index: number, domain: number) => number = (
+  seed: number,
+  index: number,
+  domain: number,
+): number => {
   let state: number = mixSeed(seed, domain);
   state = mixSeed(index, state);
   state = (state + 0x6d2b79f5) >>> 0;
