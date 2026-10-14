@@ -2,8 +2,13 @@
  * Shared input lifecycle for every website building. The existing viewer owns the clock and renderer; frame(elapsed seconds) reports translation only. Clicking captures the mouse for unlimited look. Focused-canvas keyboard and drag look remain usable if capture is refused. Touch pads support simultaneous movement and look. Blur, focus changes, reset, capture loss and disposal clear held inputs so neither a search field nor a restored page keeps flying.
  */
 import type * as THREE from "three";
-import { lookSpectatorCamera, moveSpectatorCamera, zoomSpectatorCamera } from "./spectatorCamera";
+
 import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
+import {
+  lookSpectatorCamera,
+  moveSpectatorCamera,
+  zoomSpectatorCamera,
+} from "./spectatorCamera";
 
 /**
  * Attach keyboard, pointer and touch flight controls to the supplied camera and canvas. Disposal retires input authority and attempts state clearing, pointer-lock exit and every listener removal independently; repeated disposal reports a saved failure without retrying effects. A late successful lock request attempts exit after disposal, but explicit pointer-capture release and transactional rollback for every pre-return attachment failure are not implemented. Native release requires browser observation.
@@ -16,7 +21,18 @@ import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
  * @evidence contracts/performance.md#reuse-equivalent-work The mount reuses one held-key set, pointer map, listeners and camera objects; every frame reads current input, and pending pointer-lock requests are suppressed until completion or native lock/error observation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Listener count grows with mounted flight buttons, held/pad state with native input identities, and pending lock duration has no timeout; disposal clears local input and attempts lock exit/listener cleanup once, retaining at most one arbitrary failure, but does not explicitly release pointer captures or guarantee native release.
  */
-export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; camera: THREE.PerspectiveCamera; target: THREE.Vector3; reset(): void; changed(): void; notice(message: string): void; }) => { frame(elapsed: number): boolean; clear(): void; dispose(): void; } = (options: {
+export const mountSpectatorControls: (options: {
+  canvas: HTMLCanvasElement;
+  camera: THREE.PerspectiveCamera;
+  target: THREE.Vector3;
+  reset(): void;
+  changed(): void;
+  notice(message: string): void;
+}) => {
+  frame(elapsed: number): boolean;
+  clear(): void;
+  dispose(): void;
+} = (options: {
   /** Focus and pointer input surface, with its native owning document/window. */
   canvas: HTMLCanvasElement;
 
@@ -44,13 +60,29 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   /** Retire input authority and attempt owned cleanup once. */
   dispose(): void;
 } => {
-  const { canvas, camera, target }: { canvas: HTMLCanvasElement; camera: THREE.PerspectiveCamera; target: THREE.Vector3; reset(): void; changed(): void; notice(message: string): void; } = options;
+  const {
+    canvas,
+    camera,
+    target,
+  }: {
+    canvas: HTMLCanvasElement;
+    camera: THREE.PerspectiveCamera;
+    target: THREE.Vector3;
+    reset(): void;
+    changed(): void;
+    notice(message: string): void;
+  } = options;
   const document: Document = canvas.ownerDocument;
   const window: Window & typeof globalThis = document.defaultView!;
   const held: Set<string> = new Set<string>();
   const pads: Map<number, string> = new Map<number, string>();
   const listeners: (() => void)[] = [];
-  const listen: <E extends Event>(node: EventTarget, type: string, handler: (event: E) => void, settings?: AddEventListenerOptions) => void = <E extends Event>(
+  const listen: <E extends Event>(
+    node: EventTarget,
+    type: string,
+    handler: (event: E) => void,
+    settings?: AddEventListenerOptions,
+  ) => void = <E extends Event>(
     node: EventTarget,
     type: string,
     handler: (event: E) => void,
@@ -60,9 +92,12 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
       if (!disposed) handler(event as E);
     };
     node.addEventListener(type, callback, settings);
-    listeners.push(() : void => node.removeEventListener(type, callback, settings));
+    listeners.push((): void =>
+      node.removeEventListener(type, callback, settings),
+    );
   };
-  const locked: () => boolean = (): boolean => document.pointerLockElement === canvas;
+  const locked: () => boolean = (): boolean =>
+    document.pointerLockElement === canvas;
   const slow: () => boolean = (): boolean =>
     held.has("ShiftLeft") ||
     held.has("ShiftRight") ||
@@ -89,10 +124,14 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   const release: () => void = (): void => {
     runWebsiteCleanup([
       clear,
-      (): void => { if (locked()) document.exitPointerLock(); },
+      (): void => {
+        if (locked()) document.exitPointerLock();
+      },
     ]);
   };
-  const isForm: (node: EventTarget | null) => boolean = (node: EventTarget | null): boolean =>
+  const isForm: (node: EventTarget | null) => boolean = (
+    node: EventTarget | null,
+  ): boolean =>
     node instanceof window.HTMLElement &&
     node.closest("input, textarea, select, button, [contenteditable]") !== null;
   const directions: Set<string> = new Set([
@@ -109,7 +148,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     "ShiftLeft",
     "ShiftRight",
   ]);
-  listen<KeyboardEvent>(window, "keydown", (event: KeyboardEvent) : void => {
+  listen<KeyboardEvent>(window, "keydown", (event: KeyboardEvent): void => {
     if (event.code === "Escape") {
       release();
       return;
@@ -136,18 +175,18 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     } else return;
     event.preventDefault();
   });
-  listen<KeyboardEvent>(window, "keyup", (event: KeyboardEvent) : void => {
+  listen<KeyboardEvent>(window, "keyup", (event: KeyboardEvent): void => {
     held.delete(event.code);
     announce();
   });
-  listen<FocusEvent>(window, "focusin", (event: FocusEvent) : void => {
+  listen<FocusEvent>(window, "focusin", (event: FocusEvent): void => {
     if (event.target !== canvas) release();
   });
   listen(window, "blur", release);
-  listen(document, "visibilitychange", () : void => {
+  listen(document, "visibilitychange", (): void => {
     if (document.hidden) release();
   });
-  listen(document, "pointerlockchange", () : void => {
+  listen(document, "pointerlockchange", (): void => {
     notice = "";
     requesting = false;
     clear();
@@ -160,7 +199,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     announce();
   };
   listen(document, "pointerlockerror", refused);
-  listen<MouseEvent>(canvas, "click", (event: MouseEvent) : void => {
+  listen<MouseEvent>(canvas, "click", (event: MouseEvent): void => {
     if (skipClick || (event as PointerEvent).pointerType === "touch") {
       skipClick = false;
       return;
@@ -171,7 +210,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     try {
       let requestCompleted: boolean = false;
       void Promise.resolve(canvas.requestPointerLock())
-        .then(() : void => {
+        .then((): void => {
           requestCompleted = true;
           requesting = false;
           if (disposed && locked()) document.exitPointerLock();
@@ -182,9 +221,13 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
             return;
           }
           if (disposed) {
-            const failure: unknown = disposalFailure.length === 0
-              ? error
-              : new AggregateError([disposalFailure[0], error], "Spectator cleanup failed.");
+            const failure: unknown =
+              disposalFailure.length === 0
+                ? error
+                : new AggregateError(
+                    [disposalFailure[0], error],
+                    "Spectator cleanup failed.",
+                  );
             disposalFailure.splice(0, disposalFailure.length, failure);
           }
           console.error("Spectator pointer-lock callback failed.", error);
@@ -197,10 +240,10 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     lookSpectatorCamera(camera, target, x, y);
     options.changed();
   };
-  listen<MouseEvent>(window, "mousemove", (event: MouseEvent) : void => {
+  listen<MouseEvent>(window, "mousemove", (event: MouseEvent): void => {
     if (locked()) look(event.movementX, event.movementY);
   });
-  listen<PointerEvent>(canvas, "pointerdown", (event: PointerEvent) : void => {
+  listen<PointerEvent>(canvas, "pointerdown", (event: PointerEvent): void => {
     if (locked() || drag !== null || event.button !== 0) return;
     event.preventDefault();
     canvas.focus();
@@ -208,7 +251,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     skipClick = event.pointerType === "touch";
     drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
   });
-  listen<PointerEvent>(canvas, "pointermove", (event: PointerEvent) : void => {
+  listen<PointerEvent>(canvas, "pointermove", (event: PointerEvent): void => {
     if (drag === null || event.pointerId !== drag.id) return;
     const x: number = event.clientX - drag.x;
     const y: number = event.clientY - drag.y;
@@ -222,7 +265,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   for (const button of document.querySelectorAll<HTMLButtonElement>(
     "[data-flight]",
   )) {
-    listen<PointerEvent>(button, "pointerdown", (event: PointerEvent) : void => {
+    listen<PointerEvent>(button, "pointerdown", (event: PointerEvent): void => {
       if (event.button !== 0) return;
       event.preventDefault();
       button.setPointerCapture(event.pointerId);
@@ -231,7 +274,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     });
   }
   for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
-    listen<PointerEvent>(window, type, (event: PointerEvent) : void => {
+    listen<PointerEvent>(window, type, (event: PointerEvent): void => {
       pads.delete(event.pointerId);
       if (drag?.id === event.pointerId) drag = null;
       announce();
@@ -240,7 +283,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   listen<WheelEvent>(
     canvas,
     "wheel",
-    (event: WheelEvent) : void => {
+    (event: WheelEvent): void => {
       event.preventDefault();
       zoomSpectatorCamera(camera, event.deltaY);
       options.changed();
@@ -250,11 +293,16 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
   for (const button of document.querySelectorAll<HTMLButtonElement>(
     "[data-flight-reset]",
   ))
-    listen(button, "click", () : void => {
+    listen(button, "click", (): void => {
       clear();
       options.reset();
     });
-  const axis: (positive: string[], negative: string[], padPositive: string, padNegative: string) => number = (
+  const axis: (
+    positive: string[],
+    negative: string[],
+    padPositive: string,
+    padNegative: string,
+  ) => number = (
     positive: string[],
     negative: string[],
     padPositive: string,
@@ -263,22 +311,25 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
     const values: string[] = [...pads.values()];
     return (
       Number(
-        positive.some((key: string) : boolean => held.has(key)) || values.includes(padPositive),
+        positive.some((key: string): boolean => held.has(key)) ||
+          values.includes(padPositive),
       ) -
       Number(
-        negative.some((key: string) : boolean => held.has(key)) || values.includes(padNegative),
+        negative.some((key: string): boolean => held.has(key)) ||
+          values.includes(padNegative),
       )
     );
   };
-  try { announce(); }
-  catch (error) {
+  try {
+    announce();
+  } catch (error) {
     disposed = true;
     runWebsiteCleanup(listeners.splice(0), [error]);
     throw error;
   }
   return {
     clear,
-    frame: (elapsed: number) : boolean => {
+    frame: (elapsed: number): boolean => {
       if (disposed) return false;
       const seconds: number = previous === null ? 0 : elapsed - previous;
       previous = elapsed;
@@ -304,7 +355,7 @@ export const mountSpectatorControls: (options: { canvas: HTMLCanvasElement; came
         slow(),
       );
     },
-    dispose: () : void => {
+    dispose: (): void => {
       if (disposed) {
         if (disposalFailure.length !== 0) throw disposalFailure[0];
         return;

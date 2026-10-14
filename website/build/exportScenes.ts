@@ -2,7 +2,6 @@
  * Rebuild the website's derived transports directly from the three native production producers before dev or build. Output lives in an ignored public directory and is regenerated every time, never used as authored model input. Gzip retains serialized mesh precision while reducing the download; textures retain production-relative names. SHA-256 covers the current native JSON and sorted immediate texture filenames/bytes for ancient/modern, with future texture bytes already inside the native payload. This digest is transport provenance rather than a source-tree or visual-equivalence proof. Copying does not remove obsolete output textures from a prior run.
  */
 import { createHash } from "node:crypto";
-import { createRequire } from "node:module";
 import type { Hash } from "node:crypto";
 import {
   cpSync,
@@ -11,16 +10,17 @@ import {
   readdirSync,
   writeFileSync,
 } from "node:fs";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 
+import type { Building, TourData } from "../src/tourData";
 import {
   type AncientSource,
   type FutureSource,
   type ModernSource,
   exportTourData,
 } from "../src/tourExport";
-import type { Building, TourData } from "../src/tourData";
 
 const require: NodeJS.Require = createRequire(import.meta.url);
 const root: string = resolve(import.meta.dirname, "../..");
@@ -34,7 +34,9 @@ for (const [building, directory] of definitions) {
   const production: string = resolve(root, "experimental", directory);
   let data: TourData;
   if (building === "ancient") {
-    const producer: { createViewerPayload(): AncientSource } = require(resolve(production, "src/viewer/payload.ts")) as {
+    const producer: { createViewerPayload(): AncientSource } = require(
+      resolve(production, "src/viewer/payload.ts"),
+    ) as {
       createViewerPayload(): AncientSource;
     };
     data = exportTourData({ building, native: producer.createViewerPayload() });
@@ -47,16 +49,18 @@ for (const [building, directory] of definitions) {
       native: producer.buildHouseScene("website"),
     });
   } else {
-    const producer: { createViewerPayload(): FutureSource } = require(resolve(production, "src/viewer/payload.ts")) as {
+    const producer: { createViewerPayload(): FutureSource } = require(
+      resolve(production, "src/viewer/payload.ts"),
+    ) as {
       createViewerPayload(): FutureSource;
     };
     data = exportTourData({ building, native: producer.createViewerPayload() });
   }
   const hash: Hash = createHash("sha256").update(JSON.stringify(data.native));
   if (building !== "future")
-    for (const file of readdirSync(
-      resolve(production, "public/textures"),
-    ).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0))
+    for (const file of readdirSync(resolve(production, "public/textures")).sort(
+      (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0),
+    ))
       hash
         .update(file)
         .update(readFileSync(resolve(production, "public/textures", file)));

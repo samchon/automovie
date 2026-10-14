@@ -5,7 +5,9 @@ import type { createTexturedManorScene } from "../../experimental/medieval-baron
 
 declare module "medieval-baron-manor/textured-scene" {
   /** The actual textured scene delivered by the native production. */
-  export type IManorScene = Awaited<ReturnType<typeof createTexturedManorScene>>;
+  export type IManorScene = Awaited<
+    ReturnType<typeof createTexturedManorScene>
+  >;
 
   /** One authored observation point from the complete native scene. */
   export type IManorView = IManorScene["views"][number];

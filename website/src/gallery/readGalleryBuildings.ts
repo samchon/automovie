@@ -33,23 +33,39 @@ export function readGalleryBuildings(document: Document): {
   /** Exterior image first, then inert-template view nodes in authored order. */
   images: HTMLImageElement[];
 }[] {
-  const required: <T extends Element>(root: ParentNode, selector: string) => T = <T extends Element>(root: ParentNode, selector: string): T =>
+  const required: <T extends Element>(
+    root: ParentNode,
+    selector: string,
+  ) => T = <T extends Element>(root: ParentNode, selector: string): T =>
     requireGalleryValue(root.querySelector<T>(selector), selector);
-  return Array.from(document.querySelectorAll<HTMLElement>(".building"), (article: HTMLElement): ReturnType<typeof readGalleryBuildings>[number] => {
-    const opener: HTMLAnchorElement = required<HTMLAnchorElement>(article, "[data-gallery]");
-    const exterior: HTMLImageElement = required<HTMLImageElement>(article, "img");
-    const template: HTMLTemplateElement = required<HTMLTemplateElement>(article, ".building-views");
-    return {
-      opener,
-      title: required<HTMLElement>(article, "h3").textContent,
-      era: required<HTMLElement>(article, ".era").textContent,
-      description: required<HTMLElement>(article, ".building-description").textContent,
-      source: required<HTMLAnchorElement>(article, ".source-link").href,
-      tour: article.querySelector<HTMLAnchorElement>(".tour-link"),
-      images: [
-        exterior,
-        ...template.content.querySelectorAll<HTMLImageElement>("img"),
-      ],
-    };
-  });
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(".building"),
+    (article: HTMLElement): ReturnType<typeof readGalleryBuildings>[number] => {
+      const opener: HTMLAnchorElement = required<HTMLAnchorElement>(
+        article,
+        "[data-gallery]",
+      );
+      const exterior: HTMLImageElement = required<HTMLImageElement>(
+        article,
+        "img",
+      );
+      const template: HTMLTemplateElement = required<HTMLTemplateElement>(
+        article,
+        ".building-views",
+      );
+      return {
+        opener,
+        title: required<HTMLElement>(article, "h3").textContent,
+        era: required<HTMLElement>(article, ".era").textContent,
+        description: required<HTMLElement>(article, ".building-description")
+          .textContent,
+        source: required<HTMLAnchorElement>(article, ".source-link").href,
+        tour: article.querySelector<HTMLAnchorElement>(".tour-link"),
+        images: [
+          exterior,
+          ...template.content.querySelectorAll<HTMLImageElement>("img"),
+        ],
+      };
+    },
+  );
 }

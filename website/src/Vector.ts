@@ -1,5 +1,3 @@
-
-
 /**
  * Cartesian world coordinates in meters for source observation poses.
  *

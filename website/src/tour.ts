@@ -10,15 +10,16 @@ import { createTempleDaylight } from "production-temple-daylight";
 import { uploadTemple } from "production-temple-scene";
 import * as THREE from "three";
 
+import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
 import { mountSpectatorControls } from "./spectatorControls";
 import { applyTourView } from "./tourCamera";
 import { buildingFromQuery, readTourData } from "./tourData";
 import { createTourFrame } from "./tourFrame";
 import { loadTourScene } from "./tourScene";
 import { mountTourUi } from "./tourUi";
-import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
 
-const canvas: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>("#view")!;
+const canvas: HTMLCanvasElement =
+  document.querySelector<HTMLCanvasElement>("#view")!;
 const loading: HTMLElement = document.querySelector<HTMLElement>("#loading")!;
 const phase: HTMLElement = document.querySelector<HTMLElement>("#phase")!;
 const status: HTMLElement = document.querySelector<HTMLElement>("#status")!;
@@ -31,7 +32,9 @@ const fail: (error: unknown) => void = (error: unknown): void => {
 };
 
 const main: () => Promise<void> = async (): Promise<void> => {
-  const building: ReturnType<typeof buildingFromQuery> = buildingFromQuery(location.search);
+  const building: ReturnType<typeof buildingFromQuery> = buildingFromQuery(
+    location.search,
+  );
   const base: string = new URL(`../buildings/${building}/`, location.href).href;
   phase.textContent = "Loading the building's 3D data";
   const response: Response = await fetch(new URL("scene.bin", base));
@@ -63,7 +66,9 @@ const main: () => Promise<void> = async (): Promise<void> => {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.shadowMap.enabled = true;
   const gl: ReturnType<typeof renderer.getContext> = renderer.getContext();
-  const debug: WEBGL_debug_renderer_info | null = gl.getExtension("WEBGL_debug_renderer_info");
+  const debug: WEBGL_debug_renderer_info | null = gl.getExtension(
+    "WEBGL_debug_renderer_info",
+  );
   console.info(
     "RENDERER",
     debug
@@ -93,73 +98,82 @@ const main: () => Promise<void> = async (): Promise<void> => {
       return;
     }
     disposed = true;
-    try { runWebsiteCleanup(cleanups.splice(0)); }
-    catch (error) {
+    try {
+      runWebsiteCleanup(cleanups.splice(0));
+    } catch (error) {
       disposalFailure.push(error);
       throw error;
     }
   };
   try {
-  const drawing: ReturnType<typeof createTourFrame> = createTourFrame({
-    canvas,
-    camera,
-    scene: loaded.scene,
-    renderer,
-    finish: (): void => gl.finish(),
-  });
-  const target: THREE.Vector3 = new THREE.Vector3();
-  const indices: Map<string, (typeof data.views)[number]> = new Map(data.views.map((view: (typeof data.views)[number]): [string, (typeof data.views)[number]] => [view.id, view]));
-  const select: (id: string) => void = (id: string): void => {
-    const view: (typeof data.views)[number] = indices.get(id)!;
-    controls.clear();
-    applyTourView(camera, target, view);
-    ui.highlight(id);
-    const url: URL = new URL(location.href);
-    url.searchParams.set("view", id);
-    history.replaceState(null, "", url);
-    drawing.invalidate();
-  };
-  const ui: ReturnType<typeof mountTourUi> = mountTourUi(document, data, {
-    collapsed: matchMedia("(max-width: 720px)").matches,
-    select,
-  });
-  cleanups.unshift(ui.dispose);
-  const controls: ReturnType<typeof mountSpectatorControls> = mountSpectatorControls({
-    canvas,
-    camera,
-    target,
-    reset: (): void => select(data.initial),
-    changed: drawing.invalidate,
-    notice: (message: string): void => {
-      status.textContent = message;
-    },
-  });
-  cleanups.splice(1, 0, controls.dispose);
-  frame = (elapsed: number): boolean => {
-    if (controls.frame(elapsed)) drawing.invalidate();
-    return drawing.frame();
-  };
-  const requested: string | null = new URLSearchParams(location.search).get("view");
-  select(requested && indices.has(requested) ? requested : data.initial);
-  document.title = `${data.title} · AutoMovie 3D`;
-  drawing.frame();
-  loading.hidden = true;
-  canvas.addEventListener("webglcontextlost", (event: Event): void => {
-    event.preventDefault();
-    try {
-      runWebsiteCleanup([dispose], [new Error("The 3D context was lost. Reload to continue.")]);
-    } catch (error) {
-      fail(error);
-    }
-  });
-  window.addEventListener(
-    "pagehide",
-    dispose,
-    { once: true },
-  );
-  window.addEventListener("pageshow", (event: PageTransitionEvent): void => {
-    if (event.persisted) location.reload();
-  });
+    const drawing: ReturnType<typeof createTourFrame> = createTourFrame({
+      canvas,
+      camera,
+      scene: loaded.scene,
+      renderer,
+      finish: (): void => gl.finish(),
+    });
+    const target: THREE.Vector3 = new THREE.Vector3();
+    const indices: Map<string, (typeof data.views)[number]> = new Map(
+      data.views.map(
+        (
+          view: (typeof data.views)[number],
+        ): [string, (typeof data.views)[number]] => [view.id, view],
+      ),
+    );
+    const select: (id: string) => void = (id: string): void => {
+      const view: (typeof data.views)[number] = indices.get(id)!;
+      controls.clear();
+      applyTourView(camera, target, view);
+      ui.highlight(id);
+      const url: URL = new URL(location.href);
+      url.searchParams.set("view", id);
+      history.replaceState(null, "", url);
+      drawing.invalidate();
+    };
+    const ui: ReturnType<typeof mountTourUi> = mountTourUi(document, data, {
+      collapsed: matchMedia("(max-width: 720px)").matches,
+      select,
+    });
+    cleanups.unshift(ui.dispose);
+    const controls: ReturnType<typeof mountSpectatorControls> =
+      mountSpectatorControls({
+        canvas,
+        camera,
+        target,
+        reset: (): void => select(data.initial),
+        changed: drawing.invalidate,
+        notice: (message: string): void => {
+          status.textContent = message;
+        },
+      });
+    cleanups.splice(1, 0, controls.dispose);
+    frame = (elapsed: number): boolean => {
+      if (controls.frame(elapsed)) drawing.invalidate();
+      return drawing.frame();
+    };
+    const requested: string | null = new URLSearchParams(location.search).get(
+      "view",
+    );
+    select(requested && indices.has(requested) ? requested : data.initial);
+    document.title = `${data.title} · AutoMovie 3D`;
+    drawing.frame();
+    loading.hidden = true;
+    canvas.addEventListener("webglcontextlost", (event: Event): void => {
+      event.preventDefault();
+      try {
+        runWebsiteCleanup(
+          [dispose],
+          [new Error("The 3D context was lost. Reload to continue.")],
+        );
+      } catch (error) {
+        fail(error);
+      }
+    });
+    window.addEventListener("pagehide", dispose, { once: true });
+    window.addEventListener("pageshow", (event: PageTransitionEvent): void => {
+      if (event.persisted) location.reload();
+    });
   } catch (error) {
     runWebsiteCleanup([dispose], [error]);
     throw error;

@@ -1,6 +1,6 @@
 import type { AncientSource } from "./AncientSource";
-import type { ModernSource } from "./ModernSource";
 import type { FutureSource } from "./FutureSource";
+import type { ModernSource } from "./ModernSource";
 
 /**
  * Building identity paired with that production's native camera transport; the exporter retains the supplied native object.

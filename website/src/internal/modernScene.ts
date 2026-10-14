@@ -3,6 +3,7 @@
  */
 import { buildScene } from "modern-suburban-house/viewer/scene";
 import type * as THREE from "three";
+
 import type { ModernPayload } from "../ModernPayload";
 
 /**
@@ -16,7 +17,10 @@ import type { ModernPayload } from "../ModernPayload";
  * @evidence contracts/performance.md#reuse-equivalent-work Caller-decoded textures and the native uploader implementation are shared; each scene construction remains an independent effect with no cross-mount cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The wrapper owns no renderer or cache; returned geometry, materials, lights and reflector targets transfer to the mounting host, while partial native construction before a throw is not reachable for wrapper cleanup.
  */
-export const modernScene: (payload: ModernPayload, textures: Map<string, THREE.Texture>) => THREE.Scene = (
+export const modernScene: (
+  payload: ModernPayload,
+  textures: Map<string, THREE.Texture>,
+) => THREE.Scene = (
   payload: ModernPayload,
   textures: Map<string, THREE.Texture>,
 ): THREE.Scene => {

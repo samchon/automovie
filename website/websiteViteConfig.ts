@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { defineConfig, type UserConfig } from "vite";
+import { type UserConfig, defineConfig } from "vite";
 
 // GitHub Pages serves the site under the repository name, and that path is
 // case-sensitive (currently `/automovie/`). A relative

@@ -3,10 +3,11 @@
  */
 import * as THREE from "three";
 import { Reflector } from "three/addons/objects/Reflector.js";
-import { type ModernPayload, modernScene } from "./modernScene";
-import type { TourData } from "./tourData";
-import { textureUrl } from "./textureUrl";
+
 import { runWebsiteCleanup } from "./internal/runWebsiteCleanup";
+import { type ModernPayload, modernScene } from "./modernScene";
+import { textureUrl } from "./textureUrl";
+import type { TourData } from "./tourData";
 
 /**
  * The native temple material fields needed to decode its authored albedo binding.
@@ -50,7 +51,33 @@ interface TempleMaterial {
  * @evidence contracts/performance.md#reuse-equivalent-work One modern texture is shared per exact native path within a scene; temple material bindings remain separate because transforms may differ, and resources discovered under multiple objects are deduplicated by object identity before release.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A load retains decoded textures and native scene resources until disposal or rollback; population/bytes and pending decode duration have no imposed cap, no cancellation is exposed, and the adapter can release only acquired or returned resources reachable through its known fields.
  */
-export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THREE.ShadowMapType; }; toneMappingExposure: number; capabilities: { getMaxAnisotropy(): number; }; }, base: string, dependencies: { load(url: string): Promise<THREE.Texture>; createTempleDaylight(): { sky: THREE.DataTexture; hemisphere: THREE.HemisphereLight; sun: THREE.DirectionalLight; }; uploadTemple(payload: unknown, textures: Map<string, THREE.Texture>): { root: THREE.Group; }; daylight(): { sky: THREE.DataTexture; environment: THREE.WebGLRenderTarget; dispose(): void; }; uploadHouse(payload: unknown): THREE.Group; }) => Promise<{ scene: THREE.Scene; dispose(): void; }> = async (
+export const loadTourScene: (
+  data: TourData,
+  renderer: {
+    shadowMap: { type: THREE.ShadowMapType };
+    toneMappingExposure: number;
+    capabilities: { getMaxAnisotropy(): number };
+  },
+  base: string,
+  dependencies: {
+    load(url: string): Promise<THREE.Texture>;
+    createTempleDaylight(): {
+      sky: THREE.DataTexture;
+      hemisphere: THREE.HemisphereLight;
+      sun: THREE.DirectionalLight;
+    };
+    uploadTemple(
+      payload: unknown,
+      textures: Map<string, THREE.Texture>,
+    ): { root: THREE.Group };
+    daylight(): {
+      sky: THREE.DataTexture;
+      environment: THREE.WebGLRenderTarget;
+      dispose(): void;
+    };
+    uploadHouse(payload: unknown): THREE.Group;
+  },
+) => Promise<{ scene: THREE.Scene; dispose(): void }> = async (
   data: TourData,
   renderer: {
     shadowMap: { type: THREE.ShadowMapType };
@@ -77,9 +104,34 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
     uploadHouse(payload: unknown): THREE.Group;
   },
 ): Promise<{ scene: THREE.Scene; dispose(): void }> => {
-  const { load, createTempleDaylight, uploadTemple, daylight, uploadHouse }: { load(url: string): Promise<THREE.Texture>; createTempleDaylight(): { sky: THREE.DataTexture; hemisphere: THREE.HemisphereLight; sun: THREE.DirectionalLight; }; uploadTemple(payload: unknown, textures: Map<string, THREE.Texture>): { root: THREE.Group; }; daylight(): { sky: THREE.DataTexture; environment: THREE.WebGLRenderTarget; dispose(): void; }; uploadHouse(payload: unknown): THREE.Group; } =
-    dependencies;
-  const textures: Map<string, THREE.Texture<unknown, THREE.TextureEventMap>> = new Map<string, THREE.Texture>();
+  const {
+    load,
+    createTempleDaylight,
+    uploadTemple,
+    daylight,
+    uploadHouse,
+  }: {
+    load(url: string): Promise<THREE.Texture>;
+    createTempleDaylight(): {
+      sky: THREE.DataTexture;
+      hemisphere: THREE.HemisphereLight;
+      sun: THREE.DirectionalLight;
+    };
+    uploadTemple(
+      payload: unknown,
+      textures: Map<string, THREE.Texture>,
+    ): { root: THREE.Group };
+    daylight(): {
+      sky: THREE.DataTexture;
+      environment: THREE.WebGLRenderTarget;
+      dispose(): void;
+    };
+    uploadHouse(payload: unknown): THREE.Group;
+  } = dependencies;
+  const textures: Map<
+    string,
+    THREE.Texture<unknown, THREE.TextureEventMap>
+  > = new Map<string, THREE.Texture>();
   const additional: (() => void)[] = [];
   let scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   let disposed: boolean = false;
@@ -91,39 +143,62 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
     }
     disposed = true;
     try {
-    const geometries: Set<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>> = new Set<THREE.BufferGeometry>();
-    const materials: Set<THREE.Material<THREE.MaterialEventMap>> = new Set<THREE.Material>();
-    const objectCleanup: (() => void)[] = [];
-    scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>) : void => {
-      if (object instanceof THREE.Mesh) {
-        if (object instanceof Reflector) {
-          const target: THREE.WebGLRenderTarget = object.getRenderTarget();
-          objectCleanup.push((): void => target.dispose());
+      const geometries: Set<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >
+      > = new Set<THREE.BufferGeometry>();
+      const materials: Set<THREE.Material<THREE.MaterialEventMap>> =
+        new Set<THREE.Material>();
+      const objectCleanup: (() => void)[] = [];
+      scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+        if (object instanceof THREE.Mesh) {
+          if (object instanceof Reflector) {
+            const target: THREE.WebGLRenderTarget = object.getRenderTarget();
+            objectCleanup.push((): void => target.dispose());
+          }
+          geometries.add(object.geometry);
+          for (const material of Array.isArray(object.material)
+            ? object.material
+            : [object.material])
+            materials.add(material);
+          if (object.customDepthMaterial)
+            materials.add(object.customDepthMaterial);
         }
-        geometries.add(object.geometry);
-        for (const material of Array.isArray(object.material)
-          ? object.material
-          : [object.material])
-          materials.add(material);
-        if (object.customDepthMaterial)
-          materials.add(object.customDepthMaterial);
+        if (object instanceof THREE.Light)
+          objectCleanup.push((): void => object.dispose());
+      });
+      for (const material of materials) {
+        const map: THREE.Texture<unknown, THREE.TextureEventMap> | null = (
+          material as THREE.MeshStandardMaterial
+        ).map;
+        if (map) textures.set(map.uuid, map);
       }
-      if (object instanceof THREE.Light)
-        objectCleanup.push((): void => object.dispose());
-    });
-    for (const material of materials) {
-      const map: THREE.Texture<unknown, THREE.TextureEventMap> | null = (material as THREE.MeshStandardMaterial).map;
-      if (map) textures.set(map.uuid, map);
-    }
-    const ownedTextures: Set<THREE.Texture> = new Set(textures.values());
-    textures.clear();
-    runWebsiteCleanup([
-      ...objectCleanup,
-      ...Array.from(geometries, (geometry: THREE.BufferGeometry): () => void => (): void => geometry.dispose()),
-      ...Array.from(materials, (material: THREE.Material): () => void => (): void => material.dispose()),
-      ...Array.from(ownedTextures, (texture: THREE.Texture): () => void => (): void => texture.dispose()),
-      ...additional.splice(0),
-    ]);
+      const ownedTextures: Set<THREE.Texture> = new Set(textures.values());
+      textures.clear();
+      runWebsiteCleanup([
+        ...objectCleanup,
+        ...Array.from(
+          geometries,
+          (geometry: THREE.BufferGeometry): (() => void) =>
+            (): void =>
+              geometry.dispose(),
+        ),
+        ...Array.from(
+          materials,
+          (material: THREE.Material): (() => void) =>
+            (): void =>
+              material.dispose(),
+        ),
+        ...Array.from(
+          ownedTextures,
+          (texture: THREE.Texture): (() => void) =>
+            (): void =>
+              texture.dispose(),
+        ),
+        ...additional.splice(0),
+      ]);
     } catch (error) {
       disposalFailure.push(error);
       throw error;
@@ -137,19 +212,36 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
         models: { materials: TempleMaterial[] }[];
       };
       const materials: Map<string, TempleMaterial> = new Map(
-        native.models.flatMap((model: { materials: TempleMaterial[]; }) : (readonly [string, TempleMaterial])[] =>
-          model.materials.map((material: TempleMaterial) : readonly [string, TempleMaterial] => [material.id, material] as const),
+        native.models.flatMap(
+          (model: {
+            materials: TempleMaterial[];
+          }): (readonly [string, TempleMaterial])[] =>
+            model.materials.map(
+              (material: TempleMaterial): readonly [string, TempleMaterial] =>
+                [material.id, material] as const,
+            ),
         ),
       );
       for (const material of materials.values()) {
-        const binding: string | { asset: string; transform?: { offset: { x: number; y: number; }; scale: { x: number; y: number; }; rotationDeg: number; }; } | null = material.baseColorTexture;
+        const binding:
+          | string
+          | {
+              asset: string;
+              transform?: {
+                offset: { x: number; y: number };
+                scale: { x: number; y: number };
+                rotationDeg: number;
+              };
+            }
+          | null = material.baseColorTexture;
         if (binding === null) continue;
-        const texture: THREE.Texture<unknown, THREE.TextureEventMap> = await load(
-          textureUrl(
-            typeof binding === "string" ? binding : binding.asset,
-            base,
-          ),
-        );
+        const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
+          await load(
+            textureUrl(
+              typeof binding === "string" ? binding : binding.asset,
+              base,
+            ),
+          );
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
@@ -169,8 +261,12 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
         textures.set(material.id, texture);
       }
       scene = new THREE.Scene();
-      const lighting: { sky: THREE.DataTexture; hemisphere: THREE.HemisphereLight; sun: THREE.DirectionalLight; } = createTempleDaylight();
-      additional.push(() : void => lighting.sky.dispose());
+      const lighting: {
+        sky: THREE.DataTexture;
+        hemisphere: THREE.HemisphereLight;
+        sun: THREE.DirectionalLight;
+      } = createTempleDaylight();
+      additional.push((): void => lighting.sky.dispose());
       scene.background = lighting.sky;
       scene.environment = lighting.sky;
       scene.environmentIntensity = 0.25;
@@ -183,13 +279,24 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
       renderer.shadowMap.type = THREE.PCFShadowMap;
     } else if (data.building === "future") {
       scene = new THREE.Scene();
-      const lighting: { sky: THREE.DataTexture; environment: THREE.WebGLRenderTarget; dispose(): void; } = daylight();
+      const lighting: {
+        sky: THREE.DataTexture;
+        environment: THREE.WebGLRenderTarget;
+        dispose(): void;
+      } = daylight();
       additional.push(lighting.dispose);
       scene.background = lighting.sky;
       scene.environment = lighting.environment.texture;
       scene.environmentIntensity = 0.8;
-      const sky: THREE.HemisphereLight = new THREE.HemisphereLight(0xe8f1ff, 0x887b65, 1.25);
-      const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffefdb, 3);
+      const sky: THREE.HemisphereLight = new THREE.HemisphereLight(
+        0xe8f1ff,
+        0x887b65,
+        1.25,
+      );
+      const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+        0xffefdb,
+        3,
+      );
       sun.position.set(-12, 18, -8);
       sun.castShadow = true;
       sun.shadow.mapSize.set(4096, 4096);
@@ -207,11 +314,14 @@ export const loadTourScene: (data: TourData, renderer: { shadowMap: { type: THRE
     } else {
       const native: ModernPayload = data.native as ModernPayload;
       for (const url of new Set(
-        native.items.flatMap((item: import("../../experimental/modern-suburban-house/src/viewer/scenePayload").IViewerSceneItem) : string[] =>
-          item.texture === undefined ? [] : [item.texture],
+        native.items.flatMap(
+          (
+            item: import("../../experimental/modern-suburban-house/src/viewer/scenePayload").IViewerSceneItem,
+          ): string[] => (item.texture === undefined ? [] : [item.texture]),
         ),
       )) {
-        const texture: THREE.Texture<unknown, THREE.TextureEventMap> = await load(textureUrl(url, base));
+        const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
+          await load(textureUrl(url, base));
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;

@@ -11,7 +11,11 @@ import type { IGalleryContent } from "./IGalleryContent";
  * @evidence contracts/performance.md#reuse-equivalent-work The projection borrows existing content and image objects rather than cloning them; current pressed states are rebuilt for the current view without retained cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned projection and pressed array survive; no image loads or listeners are acquired.
  */
-export function deriveGallerySelection(content: readonly IGalleryContent[], buildingIndex: number, viewIndex: number): {
+export function deriveGallerySelection(
+  content: readonly IGalleryContent[],
+  buildingIndex: number,
+  viewIndex: number,
+): {
   /** Current article title without nullable-text coercion. */
   title: string | null;
 
@@ -50,6 +54,9 @@ export function deriveGallerySelection(content: readonly IGalleryContent[], buil
     count: `${buildingIndex + 1} / ${content.length}`,
     image,
     caption: viewIndex === 0 ? "Exterior" : image.label,
-    pressed: building.images.map((_image: IGalleryContent["images"][number], index: number): boolean => index === viewIndex),
+    pressed: building.images.map(
+      (_image: IGalleryContent["images"][number], index: number): boolean =>
+        index === viewIndex,
+    ),
   };
 }

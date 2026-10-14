@@ -32,7 +32,9 @@ export class GalleryImageLifecycle {
    * @evidence contracts/performance.md#reuse-equivalent-work One current release is replaced after each attachment; even matching image URLs do not share listener effects.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The old release is cleared before invocation and the new returned release remains until replacement/disposal; unreturned partial effects are not reachable here.
    */
-  public replace(attach: (whenCurrent: (effect: () => void) => void) => (() => void)): void {
+  public replace(
+    attach: (whenCurrent: (effect: () => void) => void) => () => void,
+  ): void {
     const generation: number = ++this.generation;
     this.releaseCurrent();
     this.release = attach((effect: () => void): void => {
@@ -61,8 +63,9 @@ export class GalleryImageLifecycle {
     if (this.releaseFailure.length !== 0) throw this.releaseFailure[0];
     const release: () => void = this.release;
     this.release = (): void => {};
-    try { release(); }
-    catch (error) {
+    try {
+      release();
+    } catch (error) {
       this.releaseFailure.push(error);
       throw error;
     }

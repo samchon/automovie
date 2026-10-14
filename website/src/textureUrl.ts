@@ -1,5 +1,3 @@
-
-
 /**
  * Resolve native texture paths beneath the building base after stripping leading slashes. Require the textures prefix and refuse literal parent segments; the first-party producer must supply canonical path segments because percent-encoded traversal is not decoded by this guard.
  *
@@ -11,7 +9,10 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Resolution is pure per asset/base pair without retained caching; the scene loader owns any reuse of loaded textures.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No fetch or texture is acquired here; the caller owns the returned URL string.
  */
-export const textureUrl: (asset: string, base: string) => string = (asset: string, base: string): string => {
+export const textureUrl: (asset: string, base: string) => string = (
+  asset: string,
+  base: string,
+): string => {
   const relative: string = asset.replace(/^\/+/, "");
   if (!relative.startsWith("textures/") || relative.split("/").includes(".."))
     throw new Error(`Invalid production texture: ${asset}`);

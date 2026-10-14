@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import { isMesh } from "../isMesh";
+
 import { bakeEntry } from "../bakeEntry";
+import { isMesh } from "../isMesh";
 
 /**
  * Bake every supplied manor entry and report traversed mesh counts before and after. Counts describe draw-object structure rather than image equivalence or GPU memory release; each entry must satisfy bakeEntry's current-producer premises.
@@ -13,13 +14,16 @@ import { bakeEntry } from "../bakeEntry";
  * @evidence contracts/performance.md#reuse-equivalent-work The supplied map and entries are borrowed without cloning or retaining a global mesh inventory; each bake call derives current material groups.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This coordinator retains only call-local counters and borrowed entries; bakeEntry transfers merged resources but leaves original/intermediate disposal unresolved, so this wrapper does not claim a release boundary.
  */
-export const bakeManor: (objects: ReadonlyMap<string, THREE.Object3D>) => { before: number; after: number; } = (
+export const bakeManor: (objects: ReadonlyMap<string, THREE.Object3D>) => {
+  before: number;
+  after: number;
+} = (
   objects: ReadonlyMap<string, THREE.Object3D>,
 ): { before: number; after: number } => {
   const count: () => number = (): number => {
     let meshes: number = 0;
     for (const entry of objects.values())
-      entry.traverse((object: THREE.Object3D<THREE.Object3DEventMap>) : void => {
+      entry.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
         if (isMesh(object)) meshes += 1;
       });
     return meshes;

@@ -14,7 +14,16 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work A successful draw clears the dirty flag and keeps the native framebuffer for a static scene; camera or size changes invalidate that equivalence, and failed render/finish leaves redraw pending.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One callback retains its borrowed canvas, camera, scene, renderer and dirty flag; it owns no RAF or GPU acquisition, so the host must discard it and stop the mounted viewer at teardown.
  */
-export const createTourFrame: (options: { canvas: Pick<HTMLCanvasElement, "width" | "height" | "clientWidth" | "clientHeight">; camera: THREE.PerspectiveCamera; scene: THREE.Scene; renderer: Pick<THREE.WebGLRenderer, "getPixelRatio" | "setSize" | "render">; finish(): void; }) => { frame(): boolean; invalidate(): void; } = (options: {
+export const createTourFrame: (options: {
+  canvas: Pick<
+    HTMLCanvasElement,
+    "width" | "height" | "clientWidth" | "clientHeight"
+  >;
+  camera: THREE.PerspectiveCamera;
+  scene: THREE.Scene;
+  renderer: Pick<THREE.WebGLRenderer, "getPixelRatio" | "setSize" | "render">;
+  finish(): void;
+}) => { frame(): boolean; invalidate(): void } = (options: {
   /** Borrowed native CSS and framebuffer dimensions, observed every frame. */
   canvas: Pick<
     HTMLCanvasElement,
@@ -41,11 +50,28 @@ export const createTourFrame: (options: { canvas: Pick<HTMLCanvasElement, "width
 } => {
   let redraw: boolean = true;
   return {
-    invalidate: () : void => {
+    invalidate: (): void => {
       redraw = true;
     },
-    frame: () : true => {
-      const { canvas, camera, renderer, scene }: { canvas: Pick<HTMLCanvasElement, "width" | "height" | "clientWidth" | "clientHeight">; camera: THREE.PerspectiveCamera; scene: THREE.Scene; renderer: Pick<THREE.WebGLRenderer, "getPixelRatio" | "setSize" | "render">; finish(): void; } = options;
+    frame: (): true => {
+      const {
+        canvas,
+        camera,
+        renderer,
+        scene,
+      }: {
+        canvas: Pick<
+          HTMLCanvasElement,
+          "width" | "height" | "clientWidth" | "clientHeight"
+        >;
+        camera: THREE.PerspectiveCamera;
+        scene: THREE.Scene;
+        renderer: Pick<
+          THREE.WebGLRenderer,
+          "getPixelRatio" | "setSize" | "render"
+        >;
+        finish(): void;
+      } = options;
       const width: number = canvas.clientWidth;
       const height: number = canvas.clientHeight;
       if (width > 0 && height > 0) {

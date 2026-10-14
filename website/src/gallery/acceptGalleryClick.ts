@@ -10,7 +10,17 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources No event or DOM node is retained after the predicate returns.
  */
 export function acceptGalleryClick(input: {
-  button: number; ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean;
+  button: number;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
 }): boolean {
-  return input.button === 0 && !input.ctrlKey && !input.metaKey && !input.shiftKey && !input.altKey;
+  return (
+    input.button === 0 &&
+    !input.ctrlKey &&
+    !input.metaKey &&
+    !input.shiftKey &&
+    !input.altKey
+  );
 }

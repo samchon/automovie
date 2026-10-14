@@ -14,10 +14,10 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work The existing camera lens is updated in place from its current value; effects are not cached or replayed across wheel events.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No listener or GPU resource is acquired; temporary arithmetic values end with the call and the host owns the camera.
  */
-export const zoomSpectatorCamera: (camera: THREE.PerspectiveCamera, deltaY: number) => void = (
+export const zoomSpectatorCamera: (
   camera: THREE.PerspectiveCamera,
   deltaY: number,
-): void => {
+) => void = (camera: THREE.PerspectiveCamera, deltaY: number): void => {
   camera.fov = THREE.MathUtils.clamp(
     camera.fov * Math.exp(deltaY * 0.001),
     5,

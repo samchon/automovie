@@ -14,7 +14,13 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Camera and target are mutated in place from current input; no stale orientation or per-building movement cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary vectors become unreachable after the call and borrowed camera/target ownership stays with the host; no tasks or handles are acquired.
  */
-export const moveSpectatorCamera: (camera: THREE.PerspectiveCamera, target: THREE.Vector3, axes: { forward: number; right: number; up: number; }, seconds: number, slow: boolean) => boolean = (
+export const moveSpectatorCamera: (
+  camera: THREE.PerspectiveCamera,
+  target: THREE.Vector3,
+  axes: { forward: number; right: number; up: number },
+  seconds: number,
+  slow: boolean,
+) => boolean = (
   camera: THREE.PerspectiveCamera,
   target: THREE.Vector3,
   axes: { forward: number; right: number; up: number },

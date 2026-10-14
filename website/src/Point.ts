@@ -1,5 +1,3 @@
-
-
 /**
  * World position or look target in meters, in right-handed Y-up coordinates.
  *

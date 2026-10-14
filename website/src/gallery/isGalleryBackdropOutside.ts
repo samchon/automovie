@@ -11,10 +11,15 @@
  */
 export function isGalleryBackdropOutside(input: {
   dialogTarget: boolean;
-  x: number; y: number;
+  x: number;
+  y: number;
   bounds: { left: number; right: number; top: number; bottom: number };
 }): boolean {
   if (!input.dialogTarget) return false;
-  return input.x < input.bounds.left || input.x > input.bounds.right ||
-    input.y < input.bounds.top || input.y > input.bounds.bottom;
+  return (
+    input.x < input.bounds.left ||
+    input.x > input.bounds.right ||
+    input.y < input.bounds.top ||
+    input.y > input.bounds.bottom
+  );
 }

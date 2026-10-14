@@ -1,6 +1,6 @@
 import type { Building } from "./Building";
-import type { TourData } from "./internal/TourData";
 import type { TourView } from "./TourView";
+import type { TourData } from "./internal/TourData";
 
 /**
  * Check the requested production identity, nonempty view list and initial-view membership before handing a first-party transport to the browser. This is envelope admission, not deep validation of numeric camera fields, unique ids or the native payload; malformed view entries can throw during membership inspection.
@@ -13,7 +13,10 @@ import type { TourView } from "./TourView";
  * @evidence contracts/performance.md#reuse-equivalent-work Admission returns the original object without cloning or caching; each caller's current transport identity and view membership are inspected anew.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No resources are acquired; the returned object and its native bytes remain retained only by the caller.
  */
-export const readTourData: (value: unknown, building: Building) => TourData = (value: unknown, building: Building): TourData => {
+export const readTourData: (value: unknown, building: Building) => TourData = (
+  value: unknown,
+  building: Building,
+): TourData => {
   const data: TourData | null = value as TourData | null;
   if (
     data === null ||
@@ -21,7 +24,7 @@ export const readTourData: (value: unknown, building: Building) => TourData = (v
     data.building !== building ||
     !Array.isArray(data.views) ||
     data.views.length === 0 ||
-    !data.views.some((view: TourView) : boolean => view.id === data.initial)
+    !data.views.some((view: TourView): boolean => view.id === data.initial)
   )
     throw new Error(
       "The building's 3D data is incomplete. Please reload the page.",

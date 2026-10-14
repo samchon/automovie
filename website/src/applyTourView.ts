@@ -2,6 +2,7 @@
  * Applies the native author's exact world eye, target and lens when entering a room or resetting. Spectator input adopts this pose without changing geometry or the production view records.
  */
 import * as THREE from "three";
+
 import type { TourView } from "./tourData";
 
 /**
@@ -15,7 +16,11 @@ import type { TourView } from "./tourData";
  * @evidence contracts/performance.md#reuse-equivalent-work Existing camera and target objects are mutated in place; the source view remains borrowed and unchanged without a redundant camera clone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No renderer, listener or task is acquired; camera and target lifetimes remain with the mounting host.
  */
-export const applyTourView: (camera: THREE.PerspectiveCamera, target: THREE.Vector3, view: TourView) => void = (
+export const applyTourView: (
+  camera: THREE.PerspectiveCamera,
+  target: THREE.Vector3,
+  view: TourView,
+) => void = (
   camera: THREE.PerspectiveCamera,
   target: THREE.Vector3,
   view: TourView,

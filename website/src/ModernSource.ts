@@ -1,5 +1,3 @@
-
-
 /**
  * House starting camera and authored observations consumed by the exporter, with world positions in meters and vertical lens angles in degrees.
  *

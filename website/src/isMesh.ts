@@ -11,5 +11,6 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work The existing scene object is inspected without cloning or retaining a per-object classification cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No scene reference, geometry or handle is retained beyond the call.
  */
-export const isMesh: (object: THREE.Object3D) => object is THREE.Mesh = (object: THREE.Object3D): object is THREE.Mesh =>
-  (object as THREE.Mesh).isMesh === true;
+export const isMesh: (object: THREE.Object3D) => object is THREE.Mesh = (
+  object: THREE.Object3D,
+): object is THREE.Mesh => (object as THREE.Mesh).isMesh === true;

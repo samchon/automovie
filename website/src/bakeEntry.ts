@@ -3,6 +3,7 @@
 // this adapter merges supported meshes in each entry's local coordinates.
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
 import { isMesh } from "./isMesh";
 
 /**
@@ -47,8 +48,11 @@ const WHITE: THREE.Color = new THREE.Color(0xffffff);
 /**
  * Group the current manor projection by material type, referenced texture source and sampling, selected surface response, transparency and sidedness after diffuse tint moves into vertex colors. This key does not establish general shader equivalence for arbitrary custom materials or properties the manor producer does not use.
  */
-const materialKey: (material: PaintedMaterial) => string = (material: PaintedMaterial): string => {
-  const map: THREE.Texture<unknown, THREE.TextureEventMap> | null = material.map ?? null;
+const materialKey: (material: PaintedMaterial) => string = (
+  material: PaintedMaterial,
+): string => {
+  const map: THREE.Texture<unknown, THREE.TextureEventMap> | null =
+    material.map ?? null;
   return JSON.stringify([
     material.type,
     map === null
@@ -77,12 +81,19 @@ const materialKey: (material: PaintedMaterial) => string = (material: PaintedMat
 };
 
 /** A copy of one part's geometry in entry space, tinted by a vertex color. */
-const paintedGeometry: (source: THREE.BufferGeometry, matrix: THREE.Matrix4, color: THREE.Color) => THREE.BufferGeometry = (
+const paintedGeometry: (
+  source: THREE.BufferGeometry,
+  matrix: THREE.Matrix4,
+  color: THREE.Color,
+) => THREE.BufferGeometry = (
   source: THREE.BufferGeometry,
   matrix: THREE.Matrix4,
   color: THREE.Color,
 ): THREE.BufferGeometry => {
-  const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = new THREE.BufferGeometry();
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   geometry.setAttribute("position", source.getAttribute("position").clone());
   if (source.hasAttribute("normal"))
     geometry.setAttribute("normal", source.getAttribute("normal").clone());
@@ -93,15 +104,32 @@ const paintedGeometry: (source: THREE.BufferGeometry, matrix: THREE.Matrix4, col
   if (!geometry.hasAttribute("normal")) geometry.computeVertexNormals();
   const count: number = geometry.getAttribute("position").count;
   const colors: Float32Array<ArrayBuffer> = new Float32Array(count * 3);
-  for (let index: number = 0; index < count; ++index) color.toArray(colors, index * 3);
+  for (let index: number = 0; index < count; ++index)
+    color.toArray(colors, index * 3);
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   return geometry;
 };
 
 /** Give every geometry of a group the same attribute set and index state. */
-const unifyAttributes: (geometries: THREE.BufferGeometry[]) => void = (geometries: THREE.BufferGeometry[]): void => {
-  const textured: boolean = geometries.some((geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>) : boolean => geometry.hasAttribute("uv"));
-  const indexed: boolean = geometries.every((geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>) : boolean => geometry.index !== null);
+const unifyAttributes: (geometries: THREE.BufferGeometry[]) => void = (
+  geometries: THREE.BufferGeometry[],
+): void => {
+  const textured: boolean = geometries.some(
+    (
+      geometry: THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+    ): boolean => geometry.hasAttribute("uv"),
+  );
+  const indexed: boolean = geometries.every(
+    (
+      geometry: THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+    ): boolean => geometry.index !== null,
+  );
   for (const [position, geometry] of geometries.entries()) {
     if (textured && !geometry.hasAttribute("uv"))
       geometry.setAttribute(
@@ -117,11 +145,15 @@ const unifyAttributes: (geometries: THREE.BufferGeometry[]) => void = (geometrie
 };
 
 /** Read Three's trusted instancing capability before expanding its live slots. */
-const isInstanced: (object: THREE.Object3D) => object is THREE.InstancedMesh = (object: THREE.Object3D): object is THREE.InstancedMesh =>
+const isInstanced: (object: THREE.Object3D) => object is THREE.InstancedMesh = (
+  object: THREE.Object3D,
+): object is THREE.InstancedMesh =>
   (object as THREE.InstancedMesh).isInstancedMesh === true;
 
 /** Admit one shader; multi-material geometry remains in the original entry. */
-const singleMaterial: (material: THREE.Material | THREE.Material[]) => PaintedMaterial | null = (
+const singleMaterial: (
+  material: THREE.Material | THREE.Material[],
+) => PaintedMaterial | null = (
   material: THREE.Material | THREE.Material[],
 ): PaintedMaterial | null =>
   Array.isArray(material)
@@ -145,14 +177,19 @@ const singleMaterial: (material: THREE.Material | THREE.Material[]) => PaintedMa
  * @evidence contracts/performance.md#reuse-equivalent-work Texture sources and selected sampler/material fields form a per-entry merge key after diffuse tint moves to vertex colors; this equivalence is scoped to current producer fields and is rebuilt for each invocation without cross-entry caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Merged geometry and cloned materials transfer to the entry, but detached original geometry/materials and temporary copied or nonindexed fragments are not explicitly disposed; population and bytes grow with expanded source geometry without an imposed bound, and later scene traversal cannot discover detached originals.
  */
-export const bakeEntry: (entry: THREE.Object3D) => void = (entry: THREE.Object3D): void => {
+export const bakeEntry: (entry: THREE.Object3D) => void = (
+  entry: THREE.Object3D,
+): void => {
   entry.updateMatrixWorld(true);
   const toEntry: THREE.Matrix4 = entry.matrixWorld.clone().invert();
   const groups: Map<string, IBakeGroup> = new Map<string, IBakeGroup>();
   const consumed: THREE.Mesh[] = [];
   const instanceMatrix: THREE.Matrix4 = new THREE.Matrix4();
   const instanceColor: THREE.Color = new THREE.Color();
-  const admit: (material: PaintedMaterial, geometry: THREE.BufferGeometry) => void = (
+  const admit: (
+    material: PaintedMaterial,
+    geometry: THREE.BufferGeometry,
+  ) => void = (
     material: PaintedMaterial,
     geometry: THREE.BufferGeometry,
   ): void => {
@@ -164,11 +201,14 @@ export const bakeEntry: (entry: THREE.Object3D) => void = (entry: THREE.Object3D
     }
     group.geometries.push(geometry);
   };
-  entry.traverse((object: THREE.Object3D<THREE.Object3DEventMap>) : void => {
+  entry.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (!isMesh(object) || object === entry) return;
     const material: PaintedMaterial | null = singleMaterial(object.material);
     if (material === null) return;
-    const geometry: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> = object.geometry;
+    const geometry: THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    > = object.geometry;
     if (
       geometry.morphAttributes.position !== undefined ||
       Object.keys(geometry.morphAttributes).length !== 0 ||
@@ -202,13 +242,23 @@ export const bakeEntry: (entry: THREE.Object3D) => void = (entry: THREE.Object3D
   for (const mesh of consumed) mesh.removeFromParent();
   for (const [key, group] of groups) {
     unifyAttributes(group.geometries);
-    const merged: THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap> | null = mergeGeometries(group.geometries, false);
+    const merged: THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    > | null = mergeGeometries(group.geometries, false);
     if (merged === null)
       throw new Error(`Manor entry "${entry.name}" could not merge ${key}.`);
     const material: PaintedMaterial = group.material.clone() as PaintedMaterial;
     material.color?.copy(WHITE);
     material.vertexColors = true;
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, PaintedMaterial, THREE.Object3DEventMap> = new THREE.Mesh(merged, material);
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      PaintedMaterial,
+      THREE.Object3DEventMap
+    > = new THREE.Mesh(merged, material);
     mesh.name = `${entry.name}:baked`;
     mesh.castShadow = true;
     mesh.receiveShadow = true;

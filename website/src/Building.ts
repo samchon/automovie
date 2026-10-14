@@ -1,5 +1,3 @@
-
-
 /**
  * The three compressed-tour production identities. The manor has its own live source route and does not use this transport discriminator.
  *

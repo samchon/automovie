@@ -17,8 +17,11 @@ export function runWebsiteCleanup(
 ): void {
   const failures: unknown[] = [...priorFailures];
   for (const callback of callbacks) {
-    try { callback(); }
-    catch (error) { failures.push(error); }
+    try {
+      callback();
+    } catch (error) {
+      failures.push(error);
+    }
   }
   if (failures.length === 1) throw failures[0];
   if (failures.length > 1)

@@ -11,7 +11,9 @@ import type { Building } from "./Building";
  * @evidence contracts/performance.md#reuse-equivalent-work The current query is parsed once per call; no retained result can outlive a changed browser address.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary query parser becomes unreachable on return or throw; no event listener or task is acquired.
  */
-export const buildingFromQuery: (query: string) => Building = (query: string): Building => {
+export const buildingFromQuery: (query: string) => Building = (
+  query: string,
+): Building => {
   const building: string | null = new URLSearchParams(query).get("building");
   if (building !== "ancient" && building !== "modern" && building !== "future")
     throw new Error(

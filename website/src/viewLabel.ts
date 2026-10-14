@@ -1,5 +1,3 @@
-
-
 /**
  * Replace separator runs with spaces and uppercase ASCII word starts for navigation display; the source id remains unchanged and this is not locale-aware title casing.
  *
@@ -12,4 +10,6 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned strings survive the call; no handles or background work are acquired.
  */
 export const viewLabel: (id: string) => string = (id: string): string =>
-  id.replace(/[-_.]+/g, " ").replace(/\b\w/g, (letter: string) : string => letter.toUpperCase());
+  id
+    .replace(/[-_.]+/g, " ")
+    .replace(/\b\w/g, (letter: string): string => letter.toUpperCase());

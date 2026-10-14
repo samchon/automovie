@@ -16,10 +16,14 @@ export async function runWebsiteAsyncCleanup(
   priorFailures: readonly unknown[] = [],
 ): Promise<void> {
   const settled: PromiseSettledResult<undefined>[] = await Promise.allSettled(
-    callbacks.map(async (callback: (() => void) | (() => Promise<void>)): Promise<undefined> => {
-      await callback();
-      return undefined;
-    }),
+    callbacks.map(
+      async (
+        callback: (() => void) | (() => Promise<void>),
+      ): Promise<undefined> => {
+        await callback();
+        return undefined;
+      },
+    ),
   );
   const failures: unknown[] = [...priorFailures];
   for (const result of settled)

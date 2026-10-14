@@ -1,8 +1,8 @@
+import { runWebsiteCleanup } from "../internal/runWebsiteCleanup";
 import type { IGalleryHost } from "./IGalleryHost";
 import { acceptGalleryClick } from "./acceptGalleryClick";
 import { galleryKeyDirection } from "./galleryKeyDirection";
 import { isGalleryBackdropOutside } from "./isGalleryBackdropOutside";
-import { runWebsiteCleanup } from "../internal/runWebsiteCleanup";
 
 /**
  * Own building/view selection and close admission independently of native DOM effects. Each building change resets its view; arrows wrap in that building. A close notification observes the current open state before unlocking, so an older delayed event cannot release a newer opening; the original opener remains the focus owner.
@@ -60,8 +60,14 @@ export class GalleryController<Opener> {
    * @evidence contracts/performance.md#reuse-equivalent-work Existing host and view counts are reused while each activation performs its own modal effects.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The latest admitted opener is retained for focus restoration; native modal and listener ownership remain with the host until close or dispose.
    */
-  public open(index: number, opener: Opener, click: Parameters<typeof acceptGalleryClick>[0], intercept: () => void): boolean {
-    if (this.disposed || !this.host.supportsModal || !acceptGalleryClick(click)) return false;
+  public open(
+    index: number,
+    opener: Opener,
+    click: Parameters<typeof acceptGalleryClick>[0],
+    intercept: () => void,
+  ): boolean {
+    if (this.disposed || !this.host.supportsModal || !acceptGalleryClick(click))
+      return false;
     intercept();
     this.opener = opener;
     this.selectBuilding(index);
@@ -83,7 +89,9 @@ export class GalleryController<Opener> {
    */
   public moveBuilding(direction: -1 | 1): void {
     if (this.disposed) return;
-    this.selectBuilding((this.building + this.views.length + direction) % this.views.length);
+    this.selectBuilding(
+      (this.building + this.views.length + direction) % this.views.length,
+    );
   }
 
   /**
@@ -114,7 +122,10 @@ export class GalleryController<Opener> {
    * @evidence contracts/performance.md#reuse-equivalent-work Existing current indices/counts are reused; event interception is performed independently for each admitted key.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Key input and intercept callback are not retained after the call.
    */
-  public key(input: Parameters<typeof galleryKeyDirection>[0], intercept: () => void): boolean {
+  public key(
+    input: Parameters<typeof galleryKeyDirection>[0],
+    intercept: () => void,
+  ): boolean {
     if (this.disposed) return false;
     const direction: -1 | 0 | 1 = galleryKeyDirection(input);
     if (direction === 0) return false;
@@ -176,7 +187,9 @@ export class GalleryController<Opener> {
     const opener: Opener | null = this.opener;
     runWebsiteCleanup([
       (): void => this.host.setLocked(false),
-      (): void => { if (opener !== null) this.host.focus(opener); },
+      (): void => {
+        if (opener !== null) this.host.focus(opener);
+      },
     ]);
   }
 
@@ -204,7 +217,9 @@ export class GalleryController<Opener> {
       runWebsiteCleanup([
         (): void => this.host.closeModal(),
         (): void => this.host.setLocked(false),
-        (): void => { if (opener !== null) this.host.focus(opener); },
+        (): void => {
+          if (opener !== null) this.host.focus(opener);
+        },
         (): void => this.host.disposeContents(),
       ]);
     } catch (error) {

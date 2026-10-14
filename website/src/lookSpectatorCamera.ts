@@ -14,7 +14,12 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#reuse-equivalent-work Every input reads the camera's current quaternion so a newly selected authored view is adopted immediately without stale orientation state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary Euler/vector objects are call-local; the host retains camera and target and no native capture handle is acquired here.
  */
-export const lookSpectatorCamera: (camera: THREE.PerspectiveCamera, target: THREE.Vector3, movementX: number, movementY: number) => void = (
+export const lookSpectatorCamera: (
+  camera: THREE.PerspectiveCamera,
+  target: THREE.Vector3,
+  movementX: number,
+  movementY: number,
+) => void = (
   camera: THREE.PerspectiveCamera,
   target: THREE.Vector3,
   movementX: number,
