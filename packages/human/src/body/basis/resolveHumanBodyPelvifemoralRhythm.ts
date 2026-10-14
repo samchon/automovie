@@ -7,7 +7,10 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IHumanBodyPelvifemoralResult } from "./IHumanBodyPelvifemoralResult";
 import { evaluateHumanBodyRhythmCurve } from "./evaluateHumanBodyRhythmCurve";
 
-const LEGS: readonly ["leftUpperLeg", "rightUpperLeg"] = ["leftUpperLeg", "rightUpperLeg"];
+const LEGS: readonly ["leftUpperLeg", "rightUpperLeg"] = [
+  "leftUpperLeg",
+  "rightUpperLeg",
+];
 
 /**
  * Apply a basis's declared pelvifemoral rhythm to a coupled clinical pose.
@@ -28,16 +31,24 @@ export function resolveHumanBodyPelvifemoralRhythm(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "pelvifemoral">,
   joints: readonly IAutoMovieJointPose[],
 ): IHumanBodyPelvifemoralResult {
-  const result: IAutoMovieJointPose[] = joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }));
+  const result: IAutoMovieJointPose[] = joints.map(
+    (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+  );
   const rhythm: typeof basis.pelvifemoral = basis.pelvifemoral;
   if (rhythm === undefined) return { joints: result, contributions: [] };
   const neutral: Map<AutoMovieHumanoidBone, number> = new Map(
-    basis.joints.map((joint: typeof basis.joints[number]): [AutoMovieHumanoidBone, number] => [joint.bone, joint.neutral.flexion]),
+    basis.joints.map(
+      (
+        joint: (typeof basis.joints)[number],
+      ): [AutoMovieHumanoidBone, number] => [joint.bone, joint.neutral.flexion],
+    ),
   );
-  const flexion: (bone: AutoMovieHumanoidBone) => number = (bone: AutoMovieHumanoidBone): number =>
+  const flexion: (bone: AutoMovieHumanoidBone) => number = (
+    bone: AutoMovieHumanoidBone,
+  ): number =>
     // every chain bone is a declared joint (admission), so the rest exists
-    (result.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone)?.flexion ??
-      neutral.get(bone)) as number;
+    (result.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone)
+      ?.flexion ?? neutral.get(bone)) as number;
   const tilt: number = evaluateHumanBodyRhythmCurve(
     rhythm.curve,
     Math.max(...LEGS.map(flexion)),
@@ -46,8 +57,13 @@ export function resolveHumanBodyPelvifemoralRhythm(
   const contributions: ReturnType<
     typeof resolveHumanBodyPelvifemoralRhythm
   >["contributions"] = [];
-  const add: (bone: AutoMovieHumanoidBone, degrees: number) => void = (bone: AutoMovieHumanoidBone, degrees: number): void => {
-    const index: number = result.findIndex((joint: IAutoMovieJointPose): boolean => joint.bone === bone);
+  const add: (bone: AutoMovieHumanoidBone, degrees: number) => void = (
+    bone: AutoMovieHumanoidBone,
+    degrees: number,
+  ): void => {
+    const index: number = result.findIndex(
+      (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
+    );
     const next: IAutoMovieJointPose = {
       bone,
       flexion: flexion(bone) + degrees,

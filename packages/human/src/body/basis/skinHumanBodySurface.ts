@@ -43,9 +43,13 @@ export function skinHumanBodySurface(
   /** The surface's toe ray split; used only when the rays carry transforms. */
   toeSplit?: IAutoMovieHumanBodyToeSplit,
 ): number[] {
-  const aligned: Map<string, IHumanBodyDualQuaternion> = new Map<string, IHumanBodyDualQuaternion>();
+  const aligned: Map<string, IHumanBodyDualQuaternion> = new Map<
+    string,
+    IHumanBodyDualQuaternion
+  >();
   for (const joint of joints) {
-    const transform: IAutoMovieHumanBodyBoneTransform | undefined = transforms.get(joint.bone);
+    const transform: IAutoMovieHumanBodyBoneTransform | undefined =
+      transforms.get(joint.bone);
     if (transform === undefined)
       throw new Error(
         "Body skin names a joint without transforms: " + joint.bone,
@@ -64,73 +68,88 @@ export function skinHumanBodySurface(
     );
     const parent: IHumanBodyDualQuaternion | undefined =
       joint.parent === null ? undefined : aligned.get(joint.parent);
-    const sign: number = parent !== undefined && dot(parent.real, real) < 0 ? -1 : 1;
+    const sign: number =
+      parent !== undefined && dot(parent.real, real) < 0 ? -1 : 1;
     aligned.set(joint.bone, {
       real: scale(real, sign),
       dual: scale(dual, sign),
     });
   }
-  const bones: IHumanBodyDualQuaternion[] = skin.joints.map((bone: string): IHumanBodyDualQuaternion => {
-    const found: IHumanBodyDualQuaternion | undefined = aligned.get(bone);
-    if (found === undefined)
-      throw new Error("Body skin names a joint without transforms: " + bone);
-    return found;
-  });
+  const bones: IHumanBodyDualQuaternion[] = skin.joints.map(
+    (bone: string): IHumanBodyDualQuaternion => {
+      const found: IHumanBodyDualQuaternion | undefined = aligned.get(bone);
+      if (found === undefined)
+        throw new Error("Body skin names a joint without transforms: " + bone);
+      return found;
+    },
+  );
   // A bone that spreads its twist: its rotation relative to its parent,
   // split into a swing and a twist about its rest axis (head to its one
   // child's head), each vertex taking the twist in proportion to where it
   // lies along that axis.
-  const spread: (IHumanBodyTwistSpread | null)[] = skin.joints.map((bone: string): IHumanBodyTwistSpread | null => {
-    const joint: typeof joints[number] | undefined = joints.find((one: typeof joints[number]): boolean => one.bone === bone);
-    if (joint?.distributeTwist !== true) return null;
-    const child: typeof joints[number] = joints.find((one: typeof joints[number]): boolean => one.parent === bone)!;
-    const own: IAutoMovieHumanBodyBoneTransform = transforms.get(bone)!;
-    const head: IAutoMovieVector3 = own.rest.position;
-    const along: IAutoMovieVector3 = Vector3.subtract(
-      transforms.get(child.bone)!.rest.position,
-      head,
-    );
-    const length: number = Vector3.length(along);
-    const axis: IAutoMovieVector3 = Vector3.scale(along, 1 / length);
-    const delta: (b: string) => IAutoMovieQuaternion = (b: string): IAutoMovieQuaternion => {
-      const t: IAutoMovieHumanBodyBoneTransform = transforms.get(b)!;
-      return Quaternion.multiply(
-        t.posed.rotation,
-        Quaternion.inverse(t.rest.rotation),
+  const spread: (IHumanBodyTwistSpread | null)[] = skin.joints.map(
+    (bone: string): IHumanBodyTwistSpread | null => {
+      const joint: (typeof joints)[number] | undefined = joints.find(
+        (one: (typeof joints)[number]): boolean => one.bone === bone,
       );
-    };
-    const parentDelta: IAutoMovieQuaternion =
-      joint.parent === null ? Quaternion.identity() : delta(joint.parent);
-    const local: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(parentDelta),
-      delta(bone),
-    );
-    const projected: number = local.x * axis.x + local.y * axis.y + local.z * axis.z;
-    const twistSize: number = Math.hypot(local.w, projected);
-    const twist: IAutoMovieQuaternion =
-      twistSize < 1e-12
-        ? Quaternion.identity()
-        : {
-            x: (projected * axis.x) / twistSize,
-            y: (projected * axis.y) / twistSize,
-            z: (projected * axis.z) / twistSize,
-            w: local.w / twistSize,
-          };
-    return {
-      head,
-      posedHead: own.posed.position,
-      axis,
-      length,
-      base: Quaternion.multiply(
-        parentDelta,
-        Quaternion.multiply(local, Quaternion.inverse(twist)),
-      ),
-      twist,
-      reference: aligned.get(bone)!.real,
-    };
-  });
+      if (joint?.distributeTwist !== true) return null;
+      const child: (typeof joints)[number] = joints.find(
+        (one: (typeof joints)[number]): boolean => one.parent === bone,
+      )!;
+      const own: IAutoMovieHumanBodyBoneTransform = transforms.get(bone)!;
+      const head: IAutoMovieVector3 = own.rest.position;
+      const along: IAutoMovieVector3 = Vector3.subtract(
+        transforms.get(child.bone)!.rest.position,
+        head,
+      );
+      const length: number = Vector3.length(along);
+      const axis: IAutoMovieVector3 = Vector3.scale(along, 1 / length);
+      const delta: (b: string) => IAutoMovieQuaternion = (
+        b: string,
+      ): IAutoMovieQuaternion => {
+        const t: IAutoMovieHumanBodyBoneTransform = transforms.get(b)!;
+        return Quaternion.multiply(
+          t.posed.rotation,
+          Quaternion.inverse(t.rest.rotation),
+        );
+      };
+      const parentDelta: IAutoMovieQuaternion =
+        joint.parent === null ? Quaternion.identity() : delta(joint.parent);
+      const local: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.inverse(parentDelta),
+        delta(bone),
+      );
+      const projected: number =
+        local.x * axis.x + local.y * axis.y + local.z * axis.z;
+      const twistSize: number = Math.hypot(local.w, projected);
+      const twist: IAutoMovieQuaternion =
+        twistSize < 1e-12
+          ? Quaternion.identity()
+          : {
+              x: (projected * axis.x) / twistSize,
+              y: (projected * axis.y) / twistSize,
+              z: (projected * axis.z) / twistSize,
+              w: local.w / twistSize,
+            };
+      return {
+        head,
+        posedHead: own.posed.position,
+        axis,
+        length,
+        base: Quaternion.multiply(
+          parentDelta,
+          Quaternion.multiply(local, Quaternion.inverse(twist)),
+        ),
+        twist,
+        reference: aligned.get(bone)!.real,
+      };
+    },
+  );
   /** The dual quaternion a spread bone gives the vertex at `p`. */
-  const spreadAt: (one: IHumanBodyTwistSpread, p: IAutoMovieVector3) => IHumanBodyDualQuaternion = (
+  const spreadAt: (
+    one: IHumanBodyTwistSpread,
+    p: IAutoMovieVector3,
+  ) => IHumanBodyDualQuaternion = (
     one: IHumanBodyTwistSpread,
     p: IAutoMovieVector3,
   ): IHumanBodyDualQuaternion => {
@@ -141,7 +160,10 @@ export function skinHumanBodySurface(
         Vector3.dot(Vector3.subtract(p, one.head), one.axis) / one.length,
       ),
     );
-    const real: IAutoMovieQuaternion = Quaternion.multiply(one.base, power(one.twist, fraction));
+    const real: IAutoMovieQuaternion = Quaternion.multiply(
+      one.base,
+      power(one.twist, fraction),
+    );
     const translation: IAutoMovieVector3 = Vector3.subtract(
       one.posedHead,
       Quaternion.rotateVector(real, one.head),
@@ -162,7 +184,8 @@ export function skinHumanBodySurface(
     !toeSplit.bones.every((bone: string): boolean => transforms.has(bone))
       ? null
       : toeSplit.bones.map((bone: string): IHumanBodyDualQuaternion => {
-          const transform: IAutoMovieHumanBodyBoneTransform = transforms.get(bone)!;
+          const transform: IAutoMovieHumanBodyBoneTransform =
+            transforms.get(bone)!;
           const real: IAutoMovieQuaternion = Quaternion.multiply(
             transform.posed.rotation,
             Quaternion.inverse(transform.rest.rotation),
@@ -178,14 +201,14 @@ export function skinHumanBodySurface(
           const toes: IHumanBodyDualQuaternion | undefined = aligned.get(
             bone.startsWith("left") ? "leftToes" : "rightToes",
           );
-          const sign: number = toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
+          const sign: number =
+            toes !== undefined && dot(toes.real, real) < 0 ? -1 : 1;
           return { real: scale(real, sign), dual: scale(dual, sign) };
         });
   const rowOf: Map<number, number> = new Map<number, number>(
-    (rays === null ? [] : toeSplit!.vertices).map((vertex: number, row: number): [number, number] => [
-      vertex,
-      row,
-    ]),
+    (rays === null ? [] : toeSplit!.vertices).map(
+      (vertex: number, row: number): [number, number] => [vertex, row],
+    ),
   );
   const output: number[] = new Array<number>(positions.length);
   for (let v: number = 0; v < positions.length / 3; v++) {
@@ -207,7 +230,8 @@ export function skinHumanBodySurface(
         let first: boolean = true;
         let total: number = 0;
         for (let j: number = 0; j < 4; j++) {
-          const toes: typeof skin.joints[number] = skin.joints[skin.boneIndices[v * 4 + j]];
+          const toes: (typeof skin.joints)[number] =
+            skin.joints[skin.boneIndices[v * 4 + j]];
           if (
             skin.weights[v * 4 + j] === 0 ||
             (toes !== "leftToes" && toes !== "rightToes")
@@ -222,7 +246,8 @@ export function skinHumanBodySurface(
             r < toeSplit!.offsets[row + 1];
             r++
           ) {
-            const ray: IHumanBodyDualQuaternion = rays![toeSplit!.bonesIndex[r]];
+            const ray: IHumanBodyDualQuaternion =
+              rays![toeSplit!.bonesIndex[r]];
             accumulate(real, ray.real, total * toeSplit!.shares[r]);
             accumulate(dual, ray.dual, total * toeSplit!.shares[r]);
           }
@@ -245,13 +270,24 @@ export function skinHumanBodySurface(
     }
     const size: number = Math.hypot(real.x, real.y, real.z, real.w);
     if (!(size > 0) || !Number.isFinite(size))
-      throw new Error("Body dual-quaternion skin blend needs a finite nonzero real part at vertex " + v + ".");
+      throw new Error(
+        "Body dual-quaternion skin blend needs a finite nonzero real part at vertex " +
+          v +
+          ".",
+      );
     const normalizationScale: number = 1 / size;
     if (!Number.isFinite(normalizationScale))
-      throw new Error("Body dual-quaternion skin blend normalization is not representable at vertex " + v + ".");
+      throw new Error(
+        "Body dual-quaternion skin blend normalization is not representable at vertex " +
+          v +
+          ".",
+      );
     const rotation: IAutoMovieQuaternion = scale(real, normalizationScale);
     const translation: IAutoMovieQuaternion = scale(
-      Quaternion.multiply(scale(dual, normalizationScale), Quaternion.inverse(rotation)),
+      Quaternion.multiply(
+        scale(dual, normalizationScale),
+        Quaternion.inverse(rotation),
+      ),
       2,
     );
     const moved: IAutoMovieVector3 = Vector3.add(
@@ -273,7 +309,10 @@ export function skinHumanBodySurface(
 }
 
 /** A unit quaternion raised to `t` along its shortest arc. */
-const power: (q: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion, t: number): IAutoMovieQuaternion => {
+const power: (q: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (
+  q: IAutoMovieQuaternion,
+  t: number,
+): IAutoMovieQuaternion => {
   const sign: number = q.w < 0 ? -1 : 1;
   const angle: number = Math.acos(Math.min(1, sign * q.w));
   const sine: number = Math.sin(angle);
@@ -282,17 +321,26 @@ const power: (q: IAutoMovieQuaternion, t: number) => IAutoMovieQuaternion = (q: 
   return { x: q.x * k, y: q.y * k, z: q.z * k, w: Math.cos(t * angle) };
 };
 
-const dot: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion) => number = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number =>
-  a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+const dot: (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion) => number = (
+  a: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
+): number => a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
-const scale: (q: IAutoMovieQuaternion, s: number) => IAutoMovieQuaternion = (q: IAutoMovieQuaternion, s: number): IAutoMovieQuaternion => ({
+const scale: (q: IAutoMovieQuaternion, s: number) => IAutoMovieQuaternion = (
+  q: IAutoMovieQuaternion,
+  s: number,
+): IAutoMovieQuaternion => ({
   x: q.x * s,
   y: q.y * s,
   z: q.z * s,
   w: q.w * s,
 });
 
-const accumulate: (sum: IAutoMovieQuaternion, q: IAutoMovieQuaternion, s: number) => void = (
+const accumulate: (
+  sum: IAutoMovieQuaternion,
+  q: IAutoMovieQuaternion,
+  s: number,
+) => void = (
   sum: IAutoMovieQuaternion,
   q: IAutoMovieQuaternion,
   s: number,

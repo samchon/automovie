@@ -38,13 +38,31 @@ export function resolveHumanBodyShoulders(
   >,
   baseline: readonly IAutoMovieResolvedBone[],
 ): IAutoMovieResolvedBone[] {
-  const result: IAutoMovieResolvedBone[] = baseline.map((bone: IAutoMovieResolvedBone): IAutoMovieResolvedBone => ({ ...bone }));
-  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(result.map((bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone.bone, bone]));
-  const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> = new Map(
-    basis.joints.map((joint: typeof basis.joints[number]): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [joint.bone, joint.parent]),
+  const result: IAutoMovieResolvedBone[] = baseline.map(
+    (bone: IAutoMovieResolvedBone): IAutoMovieResolvedBone => ({ ...bone }),
   );
+  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+    result.map(
+      (
+        bone: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [bone.bone, bone],
+    ),
+  );
+  const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
+    new Map(
+      basis.joints.map(
+        (
+          joint: (typeof basis.joints)[number],
+        ): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [
+          joint.bone,
+          joint.parent,
+        ],
+      ),
+    );
   const thorax: IAutoMovieResolvedBone | undefined = byBone.get("upperChest");
-  const thoraxRest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } | undefined = rest.get("upperChest");
+  const thoraxRest:
+    | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+    | undefined = rest.get("upperChest");
   for (const joint of basis.joints) {
     if (joint.shoulder === undefined) continue;
     if (joint.bone !== "leftUpperArm" && joint.bone !== "rightUpperArm")
@@ -52,18 +70,25 @@ export function resolveHumanBodyShoulders(
     if (thorax === undefined || thoraxRest === undefined)
       throw new Error("Thorax-relative shoulder needs an upperChest frame.");
     const arm: IAutoMovieResolvedBone | undefined = byBone.get(joint.bone);
-    const armRest: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } | undefined = rest.get(joint.bone);
+    const armRest:
+      | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      | undefined = rest.get(joint.bone);
     if (arm === undefined || armRest === undefined)
       throw new Error("Thorax-relative shoulder needs a resolved arm frame.");
     const restDirection: IAutoMovieVector3 = Quaternion.rotateVector(
       armRest.rotation,
       Vector3.create(0, 1, 0),
     );
-    const aPose: IAutoMovieHumanBodyShoulderPose = humanBodyShoulderPoseFromDirection({
-      bone: joint.bone,
-      direction: restDirection,
-    });
-    const target: IAutoMovieHumanBodyShoulderPose = shoulders.find((pose: IAutoMovieHumanBodyShoulderPose): boolean => pose.bone === joint.bone) ?? aPose;
+    const aPose: IAutoMovieHumanBodyShoulderPose =
+      humanBodyShoulderPoseFromDirection({
+        bone: joint.bone,
+        direction: restDirection,
+      });
+    const target: IAutoMovieHumanBodyShoulderPose =
+      shoulders.find(
+        (pose: IAutoMovieHumanBodyShoulderPose): boolean =>
+          pose.bone === joint.bone,
+      ) ?? aPose;
     const relative: IAutoMovieQuaternion = Quaternion.multiply(
       humanBodyShoulderTtRotation(target),
       Quaternion.inverse(humanBodyShoulderTtRotation(aPose)),
@@ -98,7 +123,9 @@ export function resolveHumanBodyShoulders(
         Quaternion.multiply(delta, bone.worldRotation),
       );
       if (bone.bone === joint.bone) {
-        const girdle: IAutoMovieResolvedBone | undefined = byBone.get(joint.parent!);
+        const girdle: IAutoMovieResolvedBone | undefined = byBone.get(
+          joint.parent!,
+        );
         if (girdle === undefined)
           throw new Error("Thorax-relative shoulder needs a girdle parent.");
         bone.localRotation = Quaternion.normalize(

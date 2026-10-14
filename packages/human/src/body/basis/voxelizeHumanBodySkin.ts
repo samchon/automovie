@@ -24,23 +24,38 @@ export function voxelizeHumanBodySkin(
   props: IHumanBodySkinVoxelInput,
 ): IAutoMovieHumanBodySkinVoxels {
   const { skin, points, pad, cell }: IHumanBodySkinVoxelInput = props;
-  if (points.length === 0 || points.length % 3 !== 0 ||
-      !points.every(Number.isFinite) || !Number.isFinite(pad) || pad < 0 ||
-      !Number.isFinite(cell) || !(cell > 0))
-    throw new Error("Garment voxel sampling needs finite complete points, nonnegative padding and a positive finite cell length.");
-  const queries: ReturnType<typeof createAutoMovieSignedMeshQuery>[] = skin.map((surface: IHumanBodySkinVoxelInput["skin"][number]): ReturnType<typeof createAutoMovieSignedMeshQuery> =>
-    createAutoMovieSignedMeshQuery(
-      {
-        positions: [...surface.positions],
-        indices: [...surface.indices],
-        normals: null,
-        uvs: null,
-        skin: null,
-      },
-      { boundary: "open" },
-    ),
+  if (
+    points.length === 0 ||
+    points.length % 3 !== 0 ||
+    !points.every(Number.isFinite) ||
+    !Number.isFinite(pad) ||
+    pad < 0 ||
+    !Number.isFinite(cell) ||
+    !(cell > 0)
+  )
+    throw new Error(
+      "Garment voxel sampling needs finite complete points, nonnegative padding and a positive finite cell length.",
+    );
+  const queries: ReturnType<typeof createAutoMovieSignedMeshQuery>[] = skin.map(
+    (
+      surface: IHumanBodySkinVoxelInput["skin"][number],
+    ): ReturnType<typeof createAutoMovieSignedMeshQuery> =>
+      createAutoMovieSignedMeshQuery(
+        {
+          positions: [...surface.positions],
+          indices: [...surface.indices],
+          normals: null,
+          uvs: null,
+          skin: null,
+        },
+        { boundary: "open" },
+      ),
   );
-  const nearest: (at: readonly number[]) => ReturnType<(typeof queries)[number]> | undefined = (at: readonly number[]): ReturnType<(typeof queries)[number]> | undefined => {
+  const nearest: (
+    at: readonly number[],
+  ) => ReturnType<(typeof queries)[number]> | undefined = (
+    at: readonly number[],
+  ): ReturnType<(typeof queries)[number]> | undefined => {
     let best: ReturnType<(typeof queries)[number]> | undefined;
     for (const query of queries) {
       const hit: ReturnType<typeof query> = query(at);
@@ -63,10 +78,16 @@ export function voxelizeHumanBodySkin(
   const dimensions: [number, number, number] = [size[0], size[1], size[2]];
   const [nx, ny, nz]: [number, number, number] = dimensions;
   const total: number = nx * ny * nz;
-  if (!origin.every(Number.isFinite) ||
-      !dimensions.every((value: number): boolean => Number.isSafeInteger(value) && value > 0) ||
-      !Number.isSafeInteger(total))
-    throw new Error("Garment voxel grid dimensions exceed representable finite indexing.");
+  if (
+    !origin.every(Number.isFinite) ||
+    !dimensions.every(
+      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+    ) ||
+    !Number.isSafeInteger(total)
+  )
+    throw new Error(
+      "Garment voxel grid dimensions exceed representable finite indexing.",
+    );
   if (total > MOST_VOXELS)
     throw new Error("The garment is too large to close its creases: " + total);
 
@@ -114,7 +135,9 @@ export function voxelizeHumanBodySkin(
         ),
       );
       if (!Number.isSafeInteger(steps))
-        throw new Error("Garment triangle sampling exceeds representable step indexing.");
+        throw new Error(
+          "Garment triangle sampling exceeds representable step indexing.",
+        );
       for (let i: number = 0; i <= steps; i++)
         for (let j: number = 0; j <= steps - i; j++) {
           const wi: number = i / steps;
@@ -148,16 +171,21 @@ export function voxelizeHumanBodySkin(
     occupied[cells[s]] = 1;
     ++start[cells[s] + 1];
   }
-  for (let voxel: number = 0; voxel < total; voxel++) start[voxel + 1] += start[voxel];
+  for (let voxel: number = 0; voxel < total; voxel++)
+    start[voxel + 1] += start[voxel];
   const order: Int32Array = new Int32Array(taken);
   const fill: Int32Array = start.slice(0, total);
   for (let s: number = 0; s < taken; s++) order[fill[cells[s]]++] = s;
-  const field: ReturnType<typeof measureHumanBodyDistanceField> = measureHumanBodyDistanceField({
-    dimensions,
-    sites: occupied,
-    nearest: true,
-  });
-  const distance: IHumanBodySkinVoxelDistance = { squared: field.squared, source: field.source! };
+  const field: ReturnType<typeof measureHumanBodyDistanceField> =
+    measureHumanBodyDistanceField({
+      dimensions,
+      sites: occupied,
+      nearest: true,
+    });
+  const distance: IHumanBodySkinVoxelDistance = {
+    squared: field.squared,
+    source: field.source!,
+  };
 
   const centre: (voxel: number) => number[] = (voxel: number): number[] => [
     origin[0] + (voxel % nx) * cell,
@@ -167,7 +195,10 @@ export function voxelizeHumanBodySkin(
   // the sample nearest to `at` among those of `voxel` and its neighbours, or
   // -1 where they hold none; a neighbour past the grid's edge clamps onto the
   // voxel itself
-  const sampleNear: (voxel: number, at: readonly number[]) => number = (voxel: number, at: readonly number[]): number => {
+  const sampleNear: (voxel: number, at: readonly number[]) => number = (
+    voxel: number,
+    at: readonly number[],
+  ): number => {
     const i: number = voxel % nx;
     const j: number = Math.floor(voxel / nx) % ny;
     const k: number = Math.floor(voxel / (nx * ny));
@@ -181,7 +212,11 @@ export function voxelizeHumanBodySkin(
             nx *
               (Math.min(ny - 1, Math.max(0, j + dj)) +
                 ny * Math.min(nz - 1, Math.max(0, k + dk)));
-          for (let s: number = start[neighbour]; s < start[neighbour + 1]; s++) {
+          for (
+            let s: number = start[neighbour];
+            s < start[neighbour + 1];
+            s++
+          ) {
             const base: number = order[s] * 3;
             const gap: number =
               (positions[base] - at[0]) ** 2 +
@@ -215,7 +250,8 @@ export function voxelizeHumanBodySkin(
         ? at.slice()
         : [positions[s * 3], positions[s * 3 + 1], positions[s * 3 + 2]];
     },
-    clearance: (at: readonly number[]): number => nearest(at)?.distance ?? Infinity,
+    clearance: (at: readonly number[]): number =>
+      nearest(at)?.distance ?? Infinity,
     centres: (rho: number): Uint8Array => {
       const clear: number = ((rho - cell) / cell) ** 2;
       const shell: number = ((rho + 2 * cell) / cell) ** 2;

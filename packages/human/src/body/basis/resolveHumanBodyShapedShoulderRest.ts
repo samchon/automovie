@@ -26,8 +26,12 @@ export function resolveHumanBodyShapedShoulderRest(
   IAutoMovieHumanBodyShoulderPose["bone"],
   IAutoMovieHumanBodyShoulderPose
 > {
-  const { rest }: ReturnType<typeof resolveHumanBodySkeleton> = resolveHumanBodySkeleton(basis, landmarks);
-  const result: Map<IAutoMovieHumanBodyShoulderPose["bone"], IAutoMovieHumanBodyShoulderPose> = new Map<
+  const { rest }: ReturnType<typeof resolveHumanBodySkeleton> =
+    resolveHumanBodySkeleton(basis, landmarks);
+  const result: Map<
+    IAutoMovieHumanBodyShoulderPose["bone"],
+    IAutoMovieHumanBodyShoulderPose
+  > = new Map<
     IAutoMovieHumanBodyShoulderPose["bone"],
     IAutoMovieHumanBodyShoulderPose
   >();

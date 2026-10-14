@@ -21,7 +21,8 @@ export function resolveHumanBodyNeutralAssemblyPose(
   input: IHumanBodyBuildPoseInput,
   rig: IAutoMovieHumanBodySkeletonRig,
 ): IHumanBodyBuildPose {
-  const assembly: IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"] = input.basis.anatomicalAssembly;
+  const assembly: IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"] =
+    input.basis.anatomicalAssembly;
   if (assembly?.mode !== "neutral-only")
     throw new Error(
       "Held-source neutral replay requires its explicit source mode.",
@@ -34,7 +35,11 @@ export function resolveHumanBodyNeutralAssemblyPose(
     );
   if (
     assembly.rig.nodes.some(
-      (node: NonNullable<IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"]>["rig"]["nodes"][number]): boolean =>
+      (
+        node: NonNullable<
+          IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"]
+        >["rig"]["nodes"][number],
+      ): boolean =>
         node.joint.kind !== "fixed" ||
         node.projections.length !== 0 ||
         (node.toeProjections?.length ?? 0) !== 0,
@@ -45,26 +50,36 @@ export function resolveHumanBodyNeutralAssemblyPose(
     throw new Error(
       "Neutral-only sources require actual held rest frames without motion or skin projection annotations.",
     );
-  const anatomicalRig: ReturnType<typeof resolveHumanBodySourceRig> = resolveHumanBodySourceRig({
-    rig: assembly.rig,
-    pose: [],
-    shoulders: [],
-    goals: [],
-  });
+  const anatomicalRig: ReturnType<typeof resolveHumanBodySourceRig> =
+    resolveHumanBodySourceRig({
+      rig: assembly.rig,
+      pose: [],
+      shoulders: [],
+      goals: [],
+    });
   return {
     skeleton: rig.skeleton,
     transforms: new Map(
-      [...rig.rest].map(([bone, rest]: Parameters<typeof rig.rest.set>): Parameters<IHumanBodyBuildPose["transforms"]["set"]> => [bone, { rest, posed: rest }]),
+      [...rig.rest].map(
+        ([bone, rest]: Parameters<typeof rig.rest.set>): Parameters<
+          IHumanBodyBuildPose["transforms"]["set"]
+        > => [bone, { rest, posed: rest }],
+      ),
     ),
-    clinical: input.basis.joints.map((joint: typeof input.basis.joints[number]): IHumanBodyBuildPose["clinical"][number] => {
-      const frame: NonNullable<typeof rig.frames[typeof joint.bone]> = rig.frames[joint.bone]!;
-      return {
-        bone: joint.bone,
-        flexion: frame.flexion!.neutral,
-        abduction: frame.abduction?.neutral ?? null,
-        twist: frame.twist?.neutral ?? null,
-      };
-    }),
+    clinical: input.basis.joints.map(
+      (
+        joint: (typeof input.basis.joints)[number],
+      ): IHumanBodyBuildPose["clinical"][number] => {
+        const frame: NonNullable<(typeof rig.frames)[typeof joint.bone]> =
+          rig.frames[joint.bone]!;
+        return {
+          bone: joint.bone,
+          flexion: frame.flexion!.neutral,
+          abduction: frame.abduction?.neutral ?? null,
+          twist: frame.twist?.neutral ?? null,
+        };
+      },
+    ),
     rig,
     anatomicalRig,
   };

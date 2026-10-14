@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HUMAN_BODY_TOE_RANGE } from "../constants/HUMAN_BODY_TOE_RANGE";
 import type { AutoMovieHumanBodyToeBone } from "../structures/rig/AutoMovieHumanBodyToeBone";
@@ -27,26 +30,30 @@ export function resolveHumanBodyToeRays(
   input: IHumanBodyToeRayInput,
 ): Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform> {
   const { basis, landmarks, transforms }: IHumanBodyToeRayInput = input;
-  const rays: NonNullable<IHumanBodyToeRayInput["basis"]["toeRays"]> = basis.toeRays ?? [];
+  const rays: NonNullable<IHumanBodyToeRayInput["basis"]["toeRays"]> =
+    basis.toeRays ?? [];
   const poses: NonNullable<IHumanBodyToeRayInput["toes"]> = input.toes ?? [];
-  const result: Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform> = new Map<
+  const result: Map<
     AutoMovieHumanBodyToeBone,
     IAutoMovieHumanBodyBoneTransform
-  >();
+  > = new Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform>();
   if (poses.length > 0 && rays.length === 0)
     throw new Error(
       "Body toe ray poses need a basis that declares toe rays: " +
-        poses.map((one: typeof poses[number]): string => one.bone).join(", "),
+        poses.map((one: (typeof poses)[number]): string => one.bone).join(", "),
     );
   const seen: Set<string> = new Set<string>();
   for (const pose of poses) {
-    const ray: typeof rays[number] | undefined = rays.find((one: typeof rays[number]): boolean => one.bone === pose.bone);
+    const ray: (typeof rays)[number] | undefined = rays.find(
+      (one: (typeof rays)[number]): boolean => one.bone === pose.bone,
+    );
     if (ray === undefined || seen.has(pose.bone))
       throw new Error(
         "Body toe pose names an undeclared or repeated phalanx: " + pose.bone,
       );
     seen.add(pose.bone);
-    const proximal: boolean = ray.parent === "leftToes" || ray.parent === "rightToes";
+    const proximal: boolean =
+      ray.parent === "leftToes" || ray.parent === "rightToes";
     const flexion: readonly [number, number] = proximal
       ? HUMAN_BODY_TOE_RANGE.proximal.flexion
       : HUMAN_BODY_TOE_RANGE.interphalangeal.flexion;
@@ -59,7 +66,8 @@ export function resolveHumanBodyToeRays(
         `Body toe flexion of ${pose.bone} is outside ${flexion[0]} to ${flexion[1]} degrees: ${pose.flexion}`,
       );
     if (pose.abduction !== undefined) {
-      const splay: readonly [number, number] = HUMAN_BODY_TOE_RANGE.proximal.abduction;
+      const splay: readonly [number, number] =
+        HUMAN_BODY_TOE_RANGE.proximal.abduction;
       if (!proximal)
         throw new Error(
           "Body toe splay exists only at a proximal phalanx: " + pose.bone,
@@ -99,23 +107,36 @@ export function resolveHumanBodyToeRays(
       ),
     );
     const direction: IAutoMovieVector3 = Vector3.subtract(tail, head);
-    const bend: IAutoMovieVector3 = Vector3.cross(Vector3.create(0, 1, 0), direction);
+    const bend: IAutoMovieVector3 = Vector3.cross(
+      Vector3.create(0, 1, 0),
+      direction,
+    );
     const directionLength: number = Vector3.length(direction);
     const bendLength: number = Vector3.length(bend);
-    if (!Number.isFinite(directionLength) || !Number.isFinite(bendLength) ||
-        directionLength < 1e-9 || bendLength < 1e-9)
+    if (
+      !Number.isFinite(directionLength) ||
+      !Number.isFinite(bendLength) ||
+      directionLength < 1e-9 ||
+      bendLength < 1e-9
+    )
       throw new Error(
         "Body toe ray needs a non-vertical phalanx axis: " + ray.bone,
       );
-    const pose: typeof poses[number] | undefined = poses.find((one: typeof poses[number]): boolean => one.bone === ray.bone);
+    const pose: (typeof poses)[number] | undefined = poses.find(
+      (one: (typeof poses)[number]): boolean => one.bone === ray.bone,
+    );
     const flexAxis: IAutoMovieVector3 = Vector3.normalize(bend);
-    const splayAxis: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(direction, flexAxis));
+    const splayAxis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(direction, flexAxis),
+    );
     const lateral: number = ray.bone.startsWith("left") ? 1 : -1;
     const local: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.fromAxisAngle(splayAxis, lateral * (pose?.abduction ?? 0)),
       Quaternion.fromAxisAngle(flexAxis, pose?.flexion ?? 0),
     );
-    const delta: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(carry, local));
+    const delta: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(carry, local),
+    );
     result.set(ray.bone, {
       rest: { position: head, rotation: parent.rest.rotation },
       posed: {

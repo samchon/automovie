@@ -29,7 +29,8 @@ export function resolveHumanBodySourceReferenceGoals(
 ): IAutoMovieHumanBodyBasisDocument {
   const { basis, document, rig }: IHumanBodySourceReferenceGoalContext = input;
   if ((document.thighGoals ?? []).length === 0) return document;
-  const goals: NonNullable<IAutoMovieHumanBodyBasisDocument["thighGoals"]> = document.thighGoals!;
+  const goals: NonNullable<IAutoMovieHumanBodyBasisDocument["thighGoals"]> =
+    document.thighGoals!;
   const violations: ReturnType<typeof validatePose>["items"] = validatePose({
     pose: { skeleton: rig.skeleton.id, root: null, joints: goals },
     skeleton: rig.skeleton,
@@ -39,53 +40,79 @@ export function resolveHumanBodySourceReferenceGoals(
       "Body source-reference goal exceeds its source authoring envelope: " +
         JSON.stringify(violations),
     );
-  const bones: Map<IHumanBodySourceReferenceGoalContext["baseline"][number]["bone"], IHumanBodySourceReferenceGoalContext["baseline"][number]> = new Map(input.baseline.map((bone: IHumanBodySourceReferenceGoalContext["baseline"][number]): [typeof bone.bone, typeof bone] => [bone.bone, bone]));
-  const converted: IAutoMovieJointPose[] = goals.map((goal: typeof goals[number]): IAutoMovieJointPose => {
-    const contract: IHumanBodySourceReferenceGoalContext["basis"]["joints"][number]["sourceReferenceGoal"] = basis.joints.find(
-      (joint: typeof basis.joints[number]): boolean => joint.bone === goal.bone,
-    )?.sourceReferenceGoal;
-    if (contract === undefined)
-      throw new Error(
-        "Body source-reference goal needs an explicit declaration in this exact basis revision: " +
-          goal.bone,
-      );
-    const reference: IHumanBodySourceReferenceGoalContext["baseline"][number] = bones.get(contract.reference)!;
-    const thighRest: NonNullable<ReturnType<typeof rig.rest.get>> = rig.rest.get(goal.bone)!;
-    const referenceRest: NonNullable<ReturnType<typeof rig.rest.get>> = rig.rest.get(contract.reference)!;
-    const travel: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-      reference.worldRotation,
-      Quaternion.inverse(referenceRest.rotation),
-    );
-    const target: ReturnType<typeof Quaternion.normalize> = Quaternion.normalize(
-      Quaternion.multiply(
-        travel,
+  const bones: Map<
+    IHumanBodySourceReferenceGoalContext["baseline"][number]["bone"],
+    IHumanBodySourceReferenceGoalContext["baseline"][number]
+  > = new Map(
+    input.baseline.map(
+      (
+        bone: IHumanBodySourceReferenceGoalContext["baseline"][number],
+      ): [typeof bone.bone, typeof bone] => [bone.bone, bone],
+    ),
+  );
+  const converted: IAutoMovieJointPose[] = goals.map(
+    (goal: (typeof goals)[number]): IAutoMovieJointPose => {
+      const contract: IHumanBodySourceReferenceGoalContext["basis"]["joints"][number]["sourceReferenceGoal"] =
+        basis.joints.find(
+          (joint: (typeof basis.joints)[number]): boolean =>
+            joint.bone === goal.bone,
+        )?.sourceReferenceGoal;
+      if (contract === undefined)
+        throw new Error(
+          "Body source-reference goal needs an explicit declaration in this exact basis revision: " +
+            goal.bone,
+        );
+      const reference: IHumanBodySourceReferenceGoalContext["baseline"][number] =
+        bones.get(contract.reference)!;
+      const thighRest: NonNullable<ReturnType<typeof rig.rest.get>> =
+        rig.rest.get(goal.bone)!;
+      const referenceRest: NonNullable<ReturnType<typeof rig.rest.get>> =
+        rig.rest.get(contract.reference)!;
+      const travel: ReturnType<typeof Quaternion.multiply> =
         Quaternion.multiply(
-          thighRest.rotation,
-          jointToQuaternion(goal, rig.axes[goal.bone], rig.frames[goal.bone]),
+          reference.worldRotation,
+          Quaternion.inverse(referenceRest.rotation),
+        );
+      const target: ReturnType<typeof Quaternion.normalize> =
+        Quaternion.normalize(
+          Quaternion.multiply(
+            travel,
+            Quaternion.multiply(
+              thighRest.rotation,
+              jointToQuaternion(
+                goal,
+                rig.axes[goal.bone],
+                rig.frames[goal.bone],
+              ),
+            ),
+          ),
+        );
+      const sourceJoint: (typeof rig.skeleton.bones)[number] =
+        rig.skeleton.bones.find(
+          (bone: (typeof rig.skeleton.bones)[number]): boolean =>
+            bone.bone === goal.bone,
+        )!;
+      const parent: IHumanBodySourceReferenceGoalContext["baseline"][number] =
+        bones.get(sourceJoint.parent!)!;
+      const local: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
+        Quaternion.inverse(parent.worldRotation),
+        target,
+      );
+      const articulation: ReturnType<typeof Quaternion.multiply> =
+        Quaternion.multiply(
+          Quaternion.inverse(sourceJoint.rest.rotation),
+          local,
+        );
+      return {
+        bone: goal.bone,
+        ...decomposeJointRotation(
+          articulation,
+          rig.axes[goal.bone],
+          rig.frames[goal.bone],
         ),
-      ),
-    );
-    const sourceJoint: typeof rig.skeleton.bones[number] = rig.skeleton.bones.find(
-      (bone: typeof rig.skeleton.bones[number]): boolean => bone.bone === goal.bone,
-    )!;
-    const parent: IHumanBodySourceReferenceGoalContext["baseline"][number] = bones.get(sourceJoint.parent!)!;
-    const local: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-      Quaternion.inverse(parent.worldRotation),
-      target,
-    );
-    const articulation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-      Quaternion.inverse(sourceJoint.rest.rotation),
-      local,
-    );
-    return {
-      bone: goal.bone,
-      ...decomposeJointRotation(
-        articulation,
-        rig.axes[goal.bone],
-        rig.frames[goal.bone],
-      ),
-    };
-  });
+      };
+    },
+  );
   return {
     ...document,
     thighGoals: undefined,
