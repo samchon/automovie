@@ -7,12 +7,9 @@ import { AUTOMOVIE_CAPTURE_RUNTIME_IDENTITY_PROTOCOL } from "./AUTOMOVIE_CAPTURE
 /**
  * Admit the declared capture identity and encode its canonical metadata.
  *
- * Capture/publication producers call this before binding the identity to frame
- * receipts. The host supplies package/executable byte observations; this
- * validator checks their shape and closure consistency rather than rereading
- * installed files or proving that the reported graphics path produced pixels.
+ * Capture/publication producers call this before binding the identity to frame receipts. The host supplies package/executable byte observations; this validator checks their shape and closure consistency rather than rereading installed files or proving that the reported graphics path produced pixels.
  *
- * @evidence contracts/common.md#principled-implementation Exact schema validation is followed by protocol, nonblank metadata, package closure/order/uniqueness, browser provenance and numeric/digest guards; recomputed canonical closure SHA-256 binds the supplied package/support ledger.
+ * @evidence contracts/common.md#principled-implementation The protocol guard precedes exact schema validation, then nonblank metadata, package closure/order/uniqueness, browser provenance and numeric/digest guards; recomputed canonical closure SHA-256 binds the supplied package/support ledger.
  * @evidence contracts/common.md#clear-and-simple-design Owns structured identity admission shared by capture and render publication, with parsing/canonical-text equality in parseAutoMovieCaptureRuntimeIdentity and actual byte observation in the capture host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The six required package names and browser-source distinctions are the shipped runtime protocol; system channels remain explicitly unsealed. Supplied file digests are not treated as independent proof that this function observed those files.
  * @evidence contracts/common.md#meaningful-documentation States caller roles, exact admission, metadata versus observed bytes and unsealed system browser limitations; invalid identities throw before a canonical string is returned.

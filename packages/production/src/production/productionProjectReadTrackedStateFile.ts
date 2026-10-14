@@ -16,7 +16,7 @@ import { productionProjectAssertIncarnation } from "./productionProjectAssertInc
  * @evidence contracts/common.md#meaningful-documentation States null versus resident refusal and the repeated incarnation checks; the returned bytes are not independently schema-validated or a publication-currentness verdict.
  * @evidence contracts/performance.md#efficient-algorithms Work includes two incarnation admissions, root/path observations and the B-byte guarded read with directory-depth checks; the repeated admission is preserved rather than elided as a claimed speedup.
  * @evidence contracts/performance.md#reuse-equivalent-work Captured generations are reused only as comparison bases; each invocation observes fresh resident bytes and no receipt/claim ID is treated as proof of byte equivalence.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owned reader closes primary and recheck descriptors on success/failure; returned bytes transfer to the caller and this operation retains no file buffer, lock or task.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The owned reader attempts primary and recheck descriptor cleanup on success/failure and propagates close failures without claiming host release; returned bytes transfer to the caller and this operation retains no file buffer, lock or task.
  */
 export function productionProjectReadTrackedStateFile(state: AutoMovieProductionProjectState, relativePath: string): Uint8Array | null {
     productionProjectAssertIncarnation(state);
