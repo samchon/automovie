@@ -3,13 +3,27 @@ import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "./predicates";
 
-/** Existing malformed PBR binding/lobe cases in their original assertion order. */
-export const assertViewerPbrDeclarationRefusals = (
+/**
+ * Run the PBR unit's existing malformed binding/lobe cases in their original order.
+ *
+ * The named PBR scenario supplies its actual validateModel call, and this helper checks rejection kind and authored path for every malformed binding/sampler/physical combination.
+ * Closed texture roles, first-UV support, finite sampler/transform values and the supported alpha/physical ranges define literal refusal paths; hasViolation reads actual diagnostics rather than a repository manifest or source pattern.
+ * Preserves blank/non-record bindings, unsupported UV/color/sampler/coordinate choices, nonfinite transforms and physical/alpha contradictions; the caller separately retains valid one-away and legacy twins.
+ */
+export const assertViewerPbrDeclarationRefusals: (
+  validateMaterial: (
+    patch: Record<string, unknown>,
+  ) => ReturnType<typeof validateModel>,
+) => void = (
   validateMaterial: (
     patch: Record<string, unknown>,
   ) => ReturnType<typeof validateModel>,
 ): void => {
-  const materialRefusedAt = (
+  const materialRefusedAt: (
+    patch: Record<string, unknown>,
+    kind: "type" | "range",
+    path: string,
+  ) => boolean = (
     patch: Record<string, unknown>,
     kind: "type" | "range",
     path: string,
@@ -19,7 +33,7 @@ export const assertViewerPbrDeclarationRefusals = (
     namedFacts([
       [
         "blankLegacy",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { baseColorTexture: " " },
             "type",
@@ -28,7 +42,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "bindingType",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { baseColorTexture: [] },
             "type",
@@ -37,7 +51,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "asset",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               baseColorTexture: { asset: " ", texCoord: 0, colorSpace: "srgb" },
@@ -48,7 +62,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "uvSet",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               baseColorTexture: {
@@ -63,7 +77,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "baseColorSpace",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               baseColorTexture: {
@@ -78,7 +92,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "linearColorSpace",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -93,7 +107,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "transformType",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -109,7 +123,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "offsetType",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -129,7 +143,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "offsetAxis",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -149,7 +163,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "scaleZero",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -169,7 +183,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "rotation",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -189,7 +203,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "samplerType",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -205,7 +219,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "wrapS",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -226,7 +240,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "wrapT",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -247,7 +261,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "minFilter",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -268,7 +282,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "magFilter",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             {
               normalTexture: {
@@ -288,13 +302,29 @@ export const assertViewerPbrDeclarationRefusals = (
           ),
       ],
       [
+        "coordinateSource",
+        (): boolean =>
+          materialRefusedAt(
+            {
+              baseColorTexture: {
+                asset: "base.png",
+                texCoord: 0,
+                colorSpace: "srgb",
+                coordinateSource: "metres",
+              },
+            },
+            "type",
+            ".baseColorTexture.coordinateSource",
+          ),
+      ],
+      [
         "normalFinite",
-        () =>
+        (): boolean =>
           materialRefusedAt({ normalScale: Infinity }, "range", ".normalScale"),
       ],
       [
         "occlusion",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { occlusionStrength: 2 },
             "range",
@@ -303,28 +333,33 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "transmission",
-        () => materialRefusedAt({ transmission: -1 }, "range", ".transmission"),
+        (): boolean =>
+          materialRefusedAt({ transmission: -1 }, "range", ".transmission"),
       ],
-      ["ior", () => materialRefusedAt({ ior: 0.99 }, "range", ".ior")],
+      ["ior", (): boolean => materialRefusedAt({ ior: 0.99 }, "range", ".ior")],
       [
         "thickness",
-        () => materialRefusedAt({ thickness: -1 }, "range", ".thickness"),
+        (): boolean =>
+          materialRefusedAt({ thickness: -1 }, "range", ".thickness"),
       ],
       [
         "clearcoat",
-        () => materialRefusedAt({ clearcoat: 2 }, "range", ".clearcoat"),
+        (): boolean =>
+          materialRefusedAt({ clearcoat: 2 }, "range", ".clearcoat"),
       ],
       [
         "doubleSided",
-        () => materialRefusedAt({ doubleSided: "yes" }, "type", ".doubleSided"),
+        (): boolean =>
+          materialRefusedAt({ doubleSided: "yes" }, "type", ".doubleSided"),
       ],
       [
         "alphaMode",
-        () => materialRefusedAt({ alphaMode: "hash" }, "type", ".alphaMode"),
+        (): boolean =>
+          materialRefusedAt({ alphaMode: "hash" }, "type", ".alphaMode"),
       ],
       [
         "alphaCutoffRange",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { alphaMode: "mask", alphaCutoff: 2 },
             "range",
@@ -333,7 +368,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "alphaCutoffMode",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { alphaMode: "blend", alphaCutoff: 0.5 },
             "type",
@@ -342,7 +377,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "opaqueOpacity",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { alphaMode: "opaque", opacity: 0.5 },
             "type",
@@ -351,7 +386,7 @@ export const assertViewerPbrDeclarationRefusals = (
       ],
       [
         "transmissionCoverage",
-        () =>
+        (): boolean =>
           materialRefusedAt(
             { alphaMode: "blend", transmission: 0.5 },
             "type",
@@ -376,6 +411,7 @@ export const assertViewerPbrDeclarationRefusals = (
       wrapT: true,
       minFilter: true,
       magFilter: true,
+      coordinateSource: true,
       normalFinite: true,
       occlusion: true,
       transmission: true,

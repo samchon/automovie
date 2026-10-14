@@ -1,4 +1,5 @@
 import {
+  IAutoMovieActionSynthesizer,
   IAutoMovieActorContext,
   compilePerformance,
   makeActorSynthesizer,
@@ -6,6 +7,9 @@ import {
 import {
   IAutoMovieActionCall,
   IAutoMovieGait,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -19,7 +23,11 @@ const WALK: IAutoMovieGait = {
   limbs: [{ bone: "leftUpperLeg", phase: 0, duty: 0.5, amplitude: 25 }],
 };
 
-const actorAt = (
+const actorAt: (
+  skeleton: string,
+  position: IAutoMovieVector3,
+  facingDeg: number,
+) => IAutoMovieActorContext = (
   skeleton: string,
   position: IAutoMovieVector3,
   facingDeg: number,
@@ -33,36 +41,55 @@ const actorAt = (
   restPose: makePose([joint("spine", { flexion: 0 })]),
 });
 
-const bonesOf = (motion: {
-  keyframes: { pose: { joints: { bone: string }[] } }[];
-}): Set<string> =>
-  new Set(motion.keyframes.flatMap((k) => k.pose.joints.map((j) => j.bone)));
+const bonesOf: (motion: IAutoMovieMotion) => Set<string> = (
+  motion: IAutoMovieMotion,
+): Set<string> =>
+  new Set<string>(
+    motion.keyframes.flatMap((k: IAutoMovieKeyframe): string[] =>
+      k.pose.joints.map((j: IAutoMovieJointPose): string => j.bone),
+    ),
+  );
 
-const hasExpression = (motion: {
-  keyframes: { expression: unknown }[];
-}): boolean => motion.keyframes.some((k) => k.expression !== null);
+const hasExpression: (motion: IAutoMovieMotion) => boolean = (
+  motion: IAutoMovieMotion,
+): boolean =>
+  motion.keyframes.some(
+    (k: IAutoMovieKeyframe): boolean => k.expression !== null,
+  );
 
 /**
- * End-to-end acceptance: a two-actor beat compiles through the **whole**
- * executable core, the reference synthesizer (gait travel, look-at, emote) and
- * the region-layering builder, into one performance clip per actor.
+ * Observe a two-actor beat through the actual actor synthesizer and performance compiler: hero receives locomote/lookAt/emote actions, while guard receives lookAt/emote. This is portable composition of core semantics, not whole-engine or rendered-scene acceptance.
  *
- * The beat: HERO walks over to GUARD while looking at her and smiling; GUARD
- * stands her ground, glaring back and scowling. So HERO layers three disjoint
- * regions (legs travel + head look + face) over a 5 m walk, and GUARD layers
- * two (head + face). This exercises multi-actor fan-out, per-region
- * concurrency, gait travel, and aim (composed, not in isolation).
+ * Scenarios:
+ *
+ * 1. The five original actions produce exactly guard and hero performance entries.
+ * 2. Hero's union of authored keyframe bones contains leftUpperLeg/head, at least one keyframe has an expression and the performance duration is 5.
+ * 3. Guard's union contains head without leftUpperLeg and at least one keyframe has an expression.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Compiles the original multi-actor action list with makeActorSynthesizer and checks actor entries, bone-channel presence, expression presence and hero duration. Dropping an actor, locomotion channel, gaze channel or every expression breaks these outputs.
+ * @evidence contracts/testing.md#independent-expectations Literal actor ids, bone membership and duration 5 come from the authored beat, one-metre-per-second context and five-second gaze/face spans, with unchanged nclose tolerance. Bone sets union all keyframes and expression checks use some, so they do not prove simultaneous channel activity, exact presets/intensities, travel distance, held root position or gaze angles; duration alone cannot isolate locomotion timing from the other five-second actions.
+ * @evidence contracts/testing.md#distinguishing-cases Retains hero's three actions versus guard's two, different skeleton identities/positions/facings and no guard locomotion, preserving all five actions and values. Single-verb geometry, overlap admission, per-frame continuity and final-shot rendering are covered elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns synthesizer construction, compilePerformance and output assertions; local readers only inspect returned keyframes. It registers no cases dynamically and starts no browser, GPU or native artifact.
  */
-export const test_perform_scene = (): void => {
-  const contexts = new Map<string, IAutoMovieActorContext>([
+export function test_perform_scene(): void {
+  const contexts: Map<string, IAutoMovieActorContext> = new Map<
+    string,
+    IAutoMovieActorContext
+  >([
     ["hero", actorAt("hero-rig", { x: 0, y: 0, z: 0 }, 0)],
     ["guard", actorAt("guard-rig", { x: 0, y: 0, z: 5 }, 180)],
   ]);
-  const nodes = new Map<string, IAutoMovieVector3>([
+  const nodes: Map<string, IAutoMovieVector3> = new Map<
+    string,
+    IAutoMovieVector3
+  >([
     ["hero", { x: 0, y: 0, z: 0 }],
     ["guard", { x: 0, y: 0, z: 5 }],
   ]);
-  const synth = makeActorSynthesizer(contexts, nodes);
+  const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    contexts,
+    nodes,
+  );
 
   const actions: IAutoMovieActionCall[] = [
     {
@@ -105,21 +132,28 @@ export const test_perform_scene = (): void => {
     },
   ];
 
-  const perf = compilePerformance(actions, synth).performances;
+  const perf: ReturnType<typeof compilePerformance>["performances"] =
+    compilePerformance(actions, synth).performances;
 
   TestValidator.equals(
     "both actors are performed",
-    Object.keys(perf).sort((a, b) => a.localeCompare(b)),
+    Object.keys(perf).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     ["guard", "hero"],
   );
 
-  // HERO: legs (gait) + head (look-at) layered, with the smile carried
-  const heroBones = bonesOf(perf.hero!);
+  // Hero has leg/head content somewhere in the compiled keyframes and at least
+  // one expression; the following readers do not compare simultaneous samples.
+  const heroBones: Set<string> = bonesOf(perf.hero!);
   TestValidator.equals(
-    "hero layers the walking legs and the turned head at once",
+    "hero performance contains walking-leg and head channels",
     namedFacts([
-      ["heroBonesHasLeftUpperLeg", () => heroBones.has("leftUpperLeg")],
-      ["heroBonesHasHead", () => heroBones.has("head")],
+      [
+        "heroBonesHasLeftUpperLeg",
+        (): boolean => heroBones.has("leftUpperLeg"),
+      ],
+      ["heroBonesHasHead", (): boolean => heroBones.has("head")],
     ]),
     { heroBonesHasLeftUpperLeg: true, heroBonesHasHead: true },
   );
@@ -128,13 +162,16 @@ export const test_perform_scene = (): void => {
     hasExpression(perf.hero!),
   );
   TestValidator.predicate(
-    "hero's walk carried it the full ~5 m (≈5 one-second cycles)",
+    "hero performance spans five seconds",
     nclose(perf.hero!.duration, 5),
   );
 
-  // GUARD: stands and glares, a turned head + a scowl, no travel
-  const guardBones = bonesOf(perf.guard!);
-  TestValidator.predicate("guard turns her head", guardBones.has("head"));
+  // Guard has head content and an expression, without the walking leg channel.
+  const guardBones: Set<string> = bonesOf(perf.guard!);
+  TestValidator.predicate(
+    "guard performance contains a head channel",
+    guardBones.has("head"),
+  );
   TestValidator.predicate(
     "guard does not walk (no leg drive)",
     !guardBones.has("leftUpperLeg"),
@@ -143,4 +180,4 @@ export const test_perform_scene = (): void => {
     "guard carries an expression",
     hasExpression(perf.guard!),
   );
-};
+}

@@ -8,8 +8,11 @@ import { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
 /**
  * Parser-derived metadata for one renderer-owned output file.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `IAutoMovieProductionMediaProbe` as the portable data boundary for the diagnostics derived result finding requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `IAutoMovieProductionMediaProbe` for the validation derived result finding system contract.
+ * @evidence contracts/common.md#principled-implementation Format-specific readers decode PNG, strict UTF-8 WebVTT and MP4 tracks from resident bytes; production admits sound-evidence and self-verifying semantic-mask JSON through its structured ingress before delivery validation compares the facts.
+ * @evidence contracts/common.md#clear-and-simple-design The kind union exposes the exact fact set for each media class and composes existing audio and video probe contracts for a feature containing both tracks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Declared filename or media type alone supplies no facts; malformed bytes, wrong track populations, unequal feature runtimes and invalid sidecar identity refuse rather than being repaired into a probe.
+ * @evidence contracts/common.md#meaningful-documentation Defines each parsed media kind, pixel and second units, ordered caption text and cues, complete track facts and byte-grounded JSON sidecar records.
+ * @author Samchon
  */
 export type IAutoMovieProductionMediaProbe =
   | {

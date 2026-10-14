@@ -1,52 +1,49 @@
-import { IAutoMovieEditPlan, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieEditEntry,
+  IAutoMovieEditPlan,
+  IAutoMovieSequenceEntry,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieCut } from "./IAutoMovieCut";
 
 /**
- * The ASSEMBLE consumer: fold the editor's cut-list into an
- * {@link IAutoMovieSequence} over the shots the pipeline actually built. The
- * gates are editorial physics: every entry must name a built shot, a trim must
- * select a positive span that lies inside its shot, a transition must not
- * outlast the incoming shot's played span, and the film must play at a positive
- * frame rate. Pacing and continuity stay prose. They have no cheap
- * deterministic verifier, so the schema carries the rationale instead.
+ * A built shot with the index it was first supplied at.
  *
- * `runtime` sums each entry's played span (its trim's duration, else the whole
- * shot); transitions overlap the previous entry's tail, so each transition
- * subtracts its duration from the straight sum.
- *
- * @evidence requirements/editorial/tracks-stacks-and-composition.md#editorial-sequential-tracks Validates shot references, trims, and transitions before folding the ordered edit entries into one explicit runtime.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-time-ranges Keeps every played picture entry as a positive source start-and-duration span and refuses a trim that falls outside its referenced shot.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-time-transforms Preserves the supported unit-rate affine subset: an optional source trim followed by ordered film placement, with no claim to scale, reverse, hold, or nested transforms.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-frame-grid Validates one finite positive film `fps` and carries it onto the assembled sequence; it does not claim that authored edit times lie on integer frames.
- * @evidence requirements/editorial/rational-time-and-ranges.md#editorial-time-refusal Rejects non-finite rate, non-positive or overflowing trim spans, invalid shot durations, and impossible transition durations without dropping the bad entry into a partial success.
- * @evidence requirements/editorial/clips-source-ranges-and-handles.md#editorial-clip-refusal Rejects a trim with a non-finite, non-positive, or source-overflowing range and reports its exact edit-entry path.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-story-film-order Uses the authored edit-entry order as film presentation order while retaining each referenced shot identity, without rewriting the shots' source order.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-source-preservation Builds sequence entries from shot references plus trim and transition metadata and leaves the performed source shots unchanged.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-authored-cut Copies the approved entry order, trims, and picture transitions into the sequence without optimizing pacing or film grammar.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-duration-closure Closes picture runtime by summing whole or trimmed shot spans and subtracting validated transition overlaps; it makes no sound, marker, effect, or tail-duration claim.
- * @evidence requirements/editorial/scope-and-identity.md#editorial-missing-refusal Refuses an empty edit plan or an entry whose performed shot is absent instead of treating input order, filenames, or prior output as a finished timeline.
- * @evidence requirements/editorial/tracks-stacks-and-composition.md#editorial-composition-refusal Refuses duplicate source-shot identity, an empty primary picture sequence, missing references, invalid picture spans, and unsupported adjacent transition overlap before marking the sequential cut successful.
- * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-timing Treats each transition duration as an incoming overlap, subtracting it once from picture runtime only after both adjacent played spans can contain it.
- * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-boundary-samples Preserves a validated positive overlap on the incoming sequence entry, fixing its picture boundary against the previous and current played spans without claiming a blend-curve sampler.
- * @evidence requirements/editorial/transitions-and-overlaps.md#editorial-transition-refusal Rejects a first-entry, non-finite, non-positive, overlong, or mutually overlapping adjacent transition rather than silently replacing it with a hard cut.
- * @evidence requirements/editorial/validation.md#editorial-structural-validation Emits located violations for duplicate shot ids, missing references, invalid durations and trims, empty picture composition, and incompatible transition spans before returning failure.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-track-composition cutSequence realizes ordered output-track composition: The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built. The gates are editorial physics: every entry must name a built shot, a trim must select a positive span that lies inside its shot, a transition must not outlast the incoming shot's played span, and the film must play at a positive frame rate. Pacing and continuity stay prose. They have no cheap deterministic verifier, so the schema carries the rationale instead. `runtime` sums each entry's played span (its trim's duration, else the whole shot); transitions overlap the previous entry's tail, so each transition subtracts its duration from the straight sum.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-rational-timeline Validates positive source spans and film rate, preserves the unit-rate trim-plus-offset transform, and rejects invalid temporal inputs without asserting integer-frame membership.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-clip-boundaries Validates the supported picture trim against its source-shot duration before carrying the boundary into the cut.
- * @evidence specifications/editorial-render-and-delivery/editorial-version-conform-and-validation.md#spec-editorial-film-identity Preserves authored shot references and edit order and derives picture-plus-transition closure without claiming sound or full conform closure.
- * @evidence specifications/editorial-render-and-delivery/rational-timeline-and-composition.md#spec-editorial-transition-overlap Validates each incoming picture overlap against both adjacent played spans and retains its duration for downstream boundary evaluation.
- * @evidence specifications/editorial-render-and-delivery/editorial-version-conform-and-validation.md#spec-editorial-validation-recovery Returns stable located structural violations instead of publishing an invalid sequential picture composition as a successful cut.
+ * @author Samchon
  */
-export const cutSequence = (
+interface IBuiltShot {
+  /** The first shot supplied under the id. */
+  shot: IAutoMovieShot;
+
+  /** Its index in `shots`, for duplicate and duration reports. */
+  index: number;
+}
+
+/**
+ * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
+ *
+ * The gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity stay prose, because they have no deterministic verifier.
+ *
+ * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
+ *
+ * @evidence contracts/common.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
+ * @evidence contracts/common.md#clear-and-simple-design Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
+ * @evidence contracts/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
+ */
+export function cutSequence(
   assemble: IAutoMovieEditPlan,
   shots: IAutoMovieShot[],
-): IAutoMovieCut => {
-  const out = new ViolationCollector();
-  const byId = new Map<string, { shot: IAutoMovieShot; index: number }>();
-  shots.forEach((shot, index) => {
-    const existing = byId.get(shot.id);
+): IAutoMovieCut {
+  const out: ViolationCollector = new ViolationCollector();
+  const byId: Map<string, IBuiltShot> = new Map();
+  shots.forEach((shot: IAutoMovieShot, index: number): void => {
+    const existing: IBuiltShot | undefined = byId.get(shot.id);
     if (existing !== undefined) {
       out.push(
         "type",
@@ -59,14 +56,10 @@ export const cutSequence = (
     byId.set(shot.id, { shot, index });
   });
 
-  const validateNonEmptyId = (
-    id: string,
-    path: string,
-    label: string,
-  ): void => {
+  function validateNonEmptyId(id: string, path: string, label: string): void {
     if (id.trim().length === 0)
       out.push("type", path, `${label} must be a non-empty id`, id);
-  };
+  }
 
   validateNonEmptyId(assemble.sequence.id, "$input.sequence.id", "sequence id");
 
@@ -84,13 +77,21 @@ export const cutSequence = (
       "a film must contain at least one shot",
       assemble.entries,
     );
+  for (let index: number = 0; index < assemble.entries.length; index++)
+    if (assemble.entries[index] === undefined)
+      out.push(
+        "type",
+        `$input.entries[${index}]`,
+        "every edit entry must name one built shot; an entry is absent",
+        undefined,
+      );
 
-  let runtime = 0;
+  let runtime: number = 0;
   let previousPlayed: number | null = null;
-  let previousIncomingTransition = 0;
-  assemble.entries.forEach((entry, i) => {
+  let previousIncomingTransition: number = 0;
+  assemble.entries.forEach((entry: IAutoMovieEditEntry, i: number): void => {
     validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
-    const found = byId.get(entry.shot);
+    const found: IBuiltShot | undefined = byId.get(entry.shot);
     if (found === undefined) {
       out.push(
         "type",
@@ -102,8 +103,9 @@ export const cutSequence = (
       previousIncomingTransition = 0;
       return;
     }
-    const { shot, index: shotIndex } = found;
-    const validShotDuration =
+    const shot: IAutoMovieShot = found.shot;
+    const shotIndex: number = found.index;
+    const validShotDuration: boolean =
       Number.isFinite(shot.duration) && shot.duration > 0;
     if (!validShotDuration)
       out.push(
@@ -112,11 +114,12 @@ export const cutSequence = (
         `referenced shot "${shot.id}" duration must be a finite number > 0 seconds, but was ${shot.duration}`,
         shot.duration,
       );
-    let played = shot.duration;
-    let validPlayedSpan = validShotDuration;
-    let incomingTransition = 0;
+    let played: number = shot.duration;
+    let validPlayedSpan: boolean = validShotDuration;
+    let incomingTransition: number = 0;
     if (entry.trim !== null) {
-      const { start, duration } = entry.trim;
+      const start: number = entry.trim.start;
+      const duration: number = entry.trim.duration;
       if (!Number.isFinite(duration) || !(duration > 0)) {
         validPlayedSpan = false;
         out.push(
@@ -207,6 +210,13 @@ export const cutSequence = (
     previousIncomingTransition = validPlayedSpan ? incomingTransition : 0;
   });
 
+  if (out.items.length === 0 && !Number.isFinite(runtime))
+    out.push(
+      "range",
+      "$input.entries",
+      "the assembled runtime must be finite seconds",
+      runtime,
+    );
   if (out.items.length > 0) return { success: false, violations: out.items };
 
   return {
@@ -214,13 +224,15 @@ export const cutSequence = (
     sequence: {
       id: assemble.sequence.id,
       name: assemble.sequence.name,
-      shots: assemble.entries.map((entry) => ({
-        shot: entry.shot,
-        trim: entry.trim,
-        transition: entry.transition,
-      })),
+      shots: assemble.entries.map(
+        (entry: IAutoMovieEditEntry): IAutoMovieSequenceEntry => ({
+          shot: entry.shot,
+          trim: entry.trim,
+          transition: entry.transition,
+        }),
+      ),
       fps: assemble.fps,
     },
     runtime,
   };
-};
+}

@@ -5,40 +5,32 @@ import type { IServeHumanViewerDataProps } from "./IServeHumanViewerDataProps.js
 import { streamHumanViewerVerifiedFile } from "./streamHumanViewerVerifiedFile.js";
 
 /**
- * Answer `/basis/person/head` and `/basis/person/body` with the published
- * one-skin person generation views, or an input's split candidate views with
- * `?candidate=<name>@<digest>`. Candidate names resolve only to the matching
- * `<name>.head.json.gz` or `<name>.body.json.gz` in the selected input directory.
- * A request names the digest prefix its
- * document was keyed with (`?digest=<hex>`): without one it is refused with
- * 400, a replaced view with 409, so no build runs on views its key does not
- * name. A missing view is 404; the catalogue already lists the standard
- * people and body states as rejected by name until both exist. Returns
- * whether the path was one of the two views.
+ * Serve published Person head/body views or an input's matching plain-named split candidate. The selected request must name its digest prefix: missing/malformed identity is 400, current-prefix mismatch 409 and missing file 404. A prefix collision can accept changed view bytes. Catalogue pairing and Person numerical admission remain separate owners; return false outside these two routes.
  *
- * The availability and byte check concern the selected local digest-named view. Workflow dependency substitution remains with the caller.
+ * Current SHA-256 is compared using the requested 12-to-64-hex prefix. A collision can accept changed view bytes; this local availability check is not a complete frame receipt, and workflow dependency substitution remains caller-owned.
  *
- * @evidence contracts/common.md#principled-implementation Serves only the view bytes the requesting document's key names.
- * @evidence contracts/common.md#clear-and-simple-design One route owns both views; verification is the shared streamer's.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects only the explicitly published or named split view and checks its requested digest, without fabricating a missing companion or falling back to a different generation.
- * @evidence contracts/common.md#meaningful-documentation States the 400, 404 and 409 answers.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Serves only the view bytes the requesting document's key names.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis One route owns both views; verification is the shared streamer's.
- *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-dependency-identity-availability Reports an absent selected generation view separately from changed bytes and sends only the bytes checked against its requested digest identity.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-dependency-availability-loss Reports an absent selected generation view separately from changed bytes and sends only the bytes checked against its requested digest identity.
+ * @evidence contracts/common.md#principled-implementation Selects one named head/body published or candidate view and requires its digest prefix, then delegates current digest-prefix comparison and streaming of those same read bytes to the verified-file owner.
+ * @evidence contracts/common.md#clear-and-simple-design Specific paired-view paths and candidate naming stay separate from the general basis route, preserving the selected view's authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, ambiguous or malformed view selection refuses and unavailable generation views do not fall back to unrelated face/body files.
+ * @evidence contracts/common.md#meaningful-documentation Documentation identifies split candidate names, digest requirements, byte-change refusal and the limit of local availability proof.
+ * @evidence contracts/performance.md#efficient-algorithms View/path checks are fixed adapter work while delegated digest/stream processing is linear in the compressed selected view bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The caller's document key supplies expected view bytes; current file contents are checked before each response rather than trusting a previous generation name.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The route borrows inventory and response and retains no view-byte cache; owned file readers are acquired and retired by verified streaming.
  */
 export function serveHumanViewerGenerationView(
   props: IServeHumanViewerDataProps,
 ): boolean {
-  const { url, response } = props;
+  const {
+    url,
+    response,
+  }: Pick<IServeHumanViewerDataProps, "url" | "response"> = props;
   if (
     url.pathname !== "/basis/person/head" &&
     url.pathname !== "/basis/person/body"
   )
     return false;
-  const view = url.pathname.endsWith("head") ? "head" : "body";
-  const candidate = url.searchParams.get("candidate");
+  const view: "head" | "body" = url.pathname.endsWith("head") ? "head" : "body";
+  const candidate: string | null = url.searchParams.get("candidate");
   if (
     candidate !== null &&
     (!/^[A-Za-z0-9._-]+@[0-9a-f]{12,64}$/.test(candidate) ||
@@ -51,14 +43,20 @@ export function serveHumanViewerGenerationView(
     });
     return true;
   }
-  const [name, candidateDigest] = (candidate ?? "").split("@");
-  const file =
+  const [name, candidateDigest]: (string | undefined)[] = (
+    candidate ?? ""
+  ).split("@");
+  const file: string =
     candidate === null
       ? props.generationFiles[view]
       : path.join(props.inputsDirectory, name + "." + view + ".json.gz");
-  const digest =
+  const digest: string | null | undefined =
     candidate === null ? url.searchParams.get("digest") : candidateDigest;
-  if (digest === null || !/^[0-9a-f]{12,64}$/.test(digest)) {
+  if (
+    digest === null ||
+    digest === undefined ||
+    !/^[0-9a-f]{12,64}$/.test(digest)
+  ) {
     response.statusCode = 400;
     props.json({
       error: `The ${view} view request must name the digest its document was built for (?digest=<hex>)`,

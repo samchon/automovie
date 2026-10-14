@@ -1,64 +1,32 @@
 import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
 
 /**
- * One plain-text caption cue from which renderers may derive WebVTT.
+ * Authored plain-text caption cue intended for compilation onto the film clock.
  *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `IAutoMovieCaptionCue` as the portable data boundary for the delivery caption readability profile requirement.
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-text-language Preserves authored line presentation through measurement and selectable delivery.
- * @evidence requirements/delivery-and-accessibility/localization-and-language-versions.md#delivery-language-selection Carries one retained RFC 5646 display form with case-insensitive identity.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `IAutoMovieCaptionCue` for the spec delivery caption readability profile system contract.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-localization Applies one language identity across cue validation, lookup, and serialization.
+ * @evidence contracts/common.md#principled-implementation Authored text and language accompany a half-open film-global interval; this retained cue DTO records timing intent without converting it to frames or validating boundaries, while render consumes compiled timeline captions separately.
+ * @evidence contracts/common.md#clear-and-simple-design Text, language, optional speaker and exact boundaries describe the authored cue, while readability thresholds and segmentation runtime live on separate production profiles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Language and timing are explicit fields with no inferred values; plain strings and film-time records do not enforce nonblank text, language syntax or positive duration, and no maintained film-assembly consumer admits this authored DTO.
+ * @evidence contracts/common.md#meaningful-documentation Gives retained CR/LF presentation, nonblank text, RFC 5646 language spelling, optional speaker and inclusive-start/exclusive-end film timing.
+ * @author Samchon
  */
 export interface IAutoMovieCaptionCue {
-  /**
-   * Stable cue id.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `id` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `id` for the spec delivery caption readability profile system contract.
-   */
+  /** Stable cue id. */
   id: string;
 
   /**
-   * Non-blank plain text whose authored CR, LF, and CRLF line presentation is
-   * preserved canonically by readability and selectable delivery.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `text` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-text-language Keeps legal tab and authored line boundaries while prohibited controls are handled explicitly.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `text` for the spec delivery caption readability profile system contract.
+   * Non-blank plain text whose authored CR, LF, and CRLF line presentation is preserved canonically by readability and selectable delivery.
    */
   text: string;
 
-  /**
-   * RFC 5646 well-formed language tag in retained display form.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `language` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence requirements/delivery-and-accessibility/localization-and-language-versions.md#delivery-language-selection Keeps case-insensitive language identity separate from authored display spelling.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `language` for the spec delivery caption readability profile system contract.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-localization Uses RFC 5646 syntax without registry canonicalization or inference.
-   */
+  /** RFC 5646 well-formed language tag in retained display form. */
   language: string;
 
-  /**
-   * Optional speaker id.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `speaker` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `speaker` for the spec delivery caption readability profile system contract.
-   */
+  /** Optional speaker id. */
   speaker?: string;
 
-  /**
-   * Film-global inclusive start.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `start` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `start` for the spec delivery caption readability profile system contract.
-   */
+  /** Film-global inclusive start. */
   start: AutoMovieFilmTime;
 
-  /**
-   * Film-global exclusive end.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Exposes `end` as the portable data boundary for the delivery caption readability profile requirement.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Types `end` for the spec delivery caption readability profile system contract.
-   */
+  /** Film-global exclusive end. */
   end: AutoMovieFilmTime;
 }

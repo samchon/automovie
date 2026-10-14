@@ -7,17 +7,21 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { IAutoMovieAcousticPartition } from "./IAutoMovieAcousticPartition";
 import { IAutoMovieAcousticReceiver } from "./IAutoMovieAcousticReceiver";
 import { IAutoMovieAcousticRequest } from "./IAutoMovieAcousticRequest";
+import { IAutoMovieAcousticSource } from "./IAutoMovieAcousticSource";
+import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
+import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { AUTOMOVIE_SABINE_CONSTANT } from "./constants/AUTOMOVIE_SABINE_CONSTANT";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/** Distances shorter than this are the same point. */
-const EPSILON = 1e-12;
+/** Distances this short or shorter are the same point. */
+const EPSILON: number = 1e-12;
 
 /**
  * Solve one room for reverberation, equipment noise and partition performance.
@@ -45,31 +49,58 @@ const EPSILON = 1e-12;
  * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
  * which is the arithmetic of the model rather than a property of the room.
  *
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-analysis-boundary `analyzeAutoMovieAcoustics` computes only reverberation, diffuse steady level, and composite transmission loss while returning explicit gaps for unsupported acoustic claims.
- * @evidence specifications/interior-space/lighting-acoustics-and-environment.md#interior-space-acoustic-boundary-scenario The solver validates the scenario, evaluates its three closed forms, records receiver samples, and seals the deterministic acoustic run.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-absorption-reverberation `analyzeAutoMovieAcoustics` combines declared surface area and absorption with room volume to compute the supported Sabine reverberation time and room constant, while reporting unavailable inputs as gaps.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-acoustic-zones-scenarios `analyzeAutoMovieAcoustics` seals one logical-space subject and revision with its declared surfaces, partitions, sources, receivers, targets, and bounded omissions as a reproducible scenario.
- * @evidence requirements/interior/acoustics-and-sound-boundaries.md#interior-sound-transmission `analyzeAutoMovieAcoustics` converts each declared partition reduction index to linear transmittance, combines it by area, and returns composite decibels or an explicit unbounded gap.
- * @evidence requirements/interior/materials-and-physical-properties.md#interior-material-analysis-boundary `analyzeAutoMovieAcoustics` solves only the declared closed-form acoustic metrics and leaves unsupported or unavailable material-dependent claims as explicit gaps and statuses.
- * @evidence specifications/interior-space/materials-style-and-art.md#interior-space-material-facts-analysis-boundary The acoustic solver consumes only supported declared physical facts and does not turn missing material behavior into a successful estimate.
+ * A receiver whose energy underflows to zero or overflows to infinity in
+ * double precision has no level, so the level metrics gap with a reason naming
+ * which bound was crossed.
+ *
+ * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}), on a
+ * receiver within `1e-12` m of a source, and when the sealed run would fail
+ * validation; otherwise the run is always `solved`, with one sound-pressure
+ * sample per receiver when a level exists.
+ *
+ * @evidence contracts/common.md#principled-implementation Evaluates Sabine reverberation, the room constant with a direct-plus-diffuse receiver level, and tau-weighted composite transmission loss in closed form; each diffuse-field result assumes a diffuse field, so the zero- and full-absorption extremes become gaps, and a negative sound reduction index, which would let a partition transmit more energy than reaches it, is refused.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the solve and the metric list with private helpers for the per-receiver direct field and the request check; the receiver level is split as the direct term per receiver plus one shared diffuse term, the same sum regrouped so the room-wide part is computed once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The named 0.161 coefficient selects the Sabine model; the 1e-12-metre coincidence floor is the engine's numerical policy around the inverse-square singularity. Infinite receiver levels become explicit underflow/overflow gaps, while other nonfinite arithmetic can still throw through metric admission; no room, source or receiver id is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states the three closed forms, the unsupported speech index and why, the diffuse-field gaps and why Sabine's anechoic answer is withheld, the energy-range gaps, every throwing condition and when samples exist.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is O(R·S) for R receivers (at most 4096) and S sources, paid once: each source's power `10^(Lw/10)` is computed once instead of per receiver, and the receiver-source distance pass both refuses coincidence and accumulates the direct field; other work is linear in surfaces, partitions and metrics times targets.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within one study the absorption area and room constant serve the reverberation, room-constant and level metrics, the summed source power serves every receiver's diffuse term, and the receiver levels serve the mean, the maximum and the samples; nothing is shared across studies.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays of S powers and R direct terms and levels, bounded by the receiver limit and the declared sources, and keeps none of them after returning the sealed run, which owns its samples.
  * @author Samchon
  */
-export const analyzeAutoMovieAcoustics = (props: {
+export const analyzeAutoMovieAcoustics: (props: {
+  request: IAutoMovieAcousticRequest;
+}) => IAutoMovieAnalysisRun = (props: {
+  /** Study to solve; validated in full before any arithmetic. */
   request: IAutoMovieAcousticRequest;
 }): IAutoMovieAnalysisRun => {
-  const request = props.request;
+  const request: IAutoMovieAcousticRequest = props.request;
   validateAcousticRequest(request);
+  const powers: number[] = request.sources.map(
+    (source: IAutoMovieAcousticSource): number =>
+      Math.pow(10, source.soundPower / 10),
+  );
+  // Computed for every receiver even when no level will be reported, because
+  // the same pass refuses a receiver standing on a source.
+  const direct: number[] = request.receivers.map(
+    (receiver: IAutoMovieAcousticReceiver): number =>
+      directField(request.sources, powers, receiver),
+  );
   const warnings: IAutoMovieAnalysisWarning[] = [];
-  const area = request.surfaces.reduce((sum, surface) => sum + surface.area, 0);
-  const absorption = request.surfaces.reduce(
-    (sum, surface) => sum + surface.area * surface.absorption,
+  const area: number = request.surfaces.reduce(
+    (sum: number, surface: IAutoMovieAcousticSurface): number =>
+      sum + surface.area,
     0,
   );
-  const meanAbsorption = absorption / area;
+  const absorption: number = request.surfaces.reduce(
+    (sum: number, surface: IAutoMovieAcousticSurface): number =>
+      sum + surface.area * surface.absorption,
+    0,
+  );
+  const meanAbsorption: number = absorption / area;
   // A room that absorbs nothing and a room that absorbs everything both leave
   // the diffuse field without a value: one is unbounded, the other does not
   // exist. Either way the honest answer is a gap and not a number.
-  const roomConstant =
+  const roomConstant: number | null =
     absorption === 0 || meanAbsorption === 1
       ? null
       : absorption / (1 - meanAbsorption);
@@ -85,14 +116,19 @@ export const analyzeAutoMovieAcoustics = (props: {
     remedy:
       "declare the absorption of at least one surface, or read the room as perfectly reflective by intent",
   };
+  const noDiffuseField: IAutoMovieAnalysisMetricGap =
+    absorption === 0 ? liveRoom : deadRoom;
 
-  const levels =
-    roomConstant === null || request.sources.length === 0
+  const diffuse: number | null =
+    roomConstant === null
       ? null
-      : request.receivers.map((receiver) => ({
-          receiver,
-          level: receiverLevel(request, receiver, roomConstant),
-        }));
+      : (powers.reduce((sum: number, power: number): number => sum + power, 0) *
+          4) /
+        roomConstant;
+  const levels: number[] | null =
+    diffuse === null || request.sources.length === 0
+      ? null
+      : direct.map((field: number): number => 10 * Math.log10(field + diffuse));
   const noField: IAutoMovieAnalysisMetricGap =
     request.sources.length === 0
       ? {
@@ -101,9 +137,7 @@ export const analyzeAutoMovieAcoustics = (props: {
           remedy:
             "declare the sound power of the plant serving this space, or stop requesting an equipment noise metric",
         }
-      : absorption === 0
-        ? liveRoom
-        : deadRoom;
+      : noDiffuseField;
   const noReceiver: IAutoMovieAnalysisMetricGap = {
     reason:
       "the room declares no receiver, so no sound pressure level was evaluated anywhere",
@@ -112,40 +146,61 @@ export const analyzeAutoMovieAcoustics = (props: {
   // A decibel is a ratio, and the ratio of nothing has no logarithm. A source
   // whose declared power underflows to zero energy leaves a receiver with no
   // level at all, which is a gap and not the very large negative number the
-  // arithmetic would otherwise hand back.
-  const inaudible =
-    levels !== null && levels.some((entry) => !Number.isFinite(entry.level));
-  const energies =
-    levels === null || levels.length === 0 || inaudible ? null : levels;
+  // arithmetic would otherwise hand back; a power that overflows is the same
+  // fault at the other end of the range.
+  const silent: boolean =
+    levels !== null &&
+    levels.some((level: number): boolean => level === -Infinity);
+  const deafening: boolean =
+    levels !== null &&
+    levels.some((level: number): boolean => level === Infinity);
+  const audible: number[] | null =
+    levels === null || levels.length === 0 || silent || deafening
+      ? null
+      : levels;
   const levelGap: IAutoMovieAnalysisMetricGap | undefined =
     levels === null
       ? noField
       : levels.length === 0
         ? noReceiver
-        : inaudible
+        : silent
           ? {
               reason:
                 "a receiver reads no acoustic energy at all, so its sound pressure level is not a number; every declared source is silent to the limits of double precision",
               remedy:
                 "declare the sound power the plant serving this space actually radiates",
             }
-          : undefined;
+          : deafening
+            ? {
+                reason:
+                  "a receiver's acoustic energy exceeds the range of double precision, so its sound pressure level is not a number",
+                remedy:
+                  "declare the sound power the plant serving this space actually radiates",
+              }
+            : undefined;
 
-  const transmissionArea = request.partitions.reduce(
-    (sum, partition) => sum + partition.area,
+  const transmissionArea: number = request.partitions.reduce(
+    (sum: number, partition: IAutoMovieAcousticPartition): number =>
+      sum + partition.area,
     0,
   );
-  const transmittance =
+  const transmittance: number | null =
     request.partitions.length === 0
       ? null
       : request.partitions.reduce(
-          (sum, partition) =>
+          (sum: number, partition: IAutoMovieAcousticPartition): number =>
             sum +
             partition.area * Math.pow(10, -partition.transmissionLoss / 10),
           0,
         ) / transmissionArea;
 
-  const metric = (entry: {
+  const metric: (entry: {
+    key: string;
+    unit: string;
+    value: number | null;
+    gap?: IAutoMovieAnalysisMetricGap;
+    status?: "unsupported" | "not-run";
+  }) => IAutoMovieAnalysisMetric = (entry: {
     key: string;
     unit: string;
     value: number | null;
@@ -179,46 +234,34 @@ export const analyzeAutoMovieAcoustics = (props: {
         roomConstant === null
           ? null
           : (AUTOMOVIE_SABINE_CONSTANT * request.volume) / absorption,
-      gap:
-        roomConstant === null
-          ? absorption === 0
-            ? liveRoom
-            : deadRoom
-          : undefined,
+      gap: roomConstant === null ? noDiffuseField : undefined,
     }),
     metric({
       key: "room.constant",
       unit: "m2",
       value: roomConstant,
-      gap:
-        roomConstant === null
-          ? absorption === 0
-            ? liveRoom
-            : deadRoom
-          : undefined,
+      gap: roomConstant === null ? noDiffuseField : undefined,
     }),
     metric({
       key: "room.soundPressureLevel",
       unit: "dB",
       value:
-        energies === null
+        audible === null
           ? null
           : 10 *
             Math.log10(
-              energies.reduce(
-                (sum, entry) => sum + Math.pow(10, entry.level / 10),
+              audible.reduce(
+                (sum: number, level: number): number =>
+                  sum + Math.pow(10, level / 10),
                 0,
-              ) / energies.length,
+              ) / audible.length,
             ),
       gap: levelGap,
     }),
     metric({
       key: "room.soundPressureLevel.max",
       unit: "dB",
-      value:
-        energies === null
-          ? null
-          : Math.max(...energies.map((entry) => entry.level)),
+      value: audible === null ? null : Math.max(...audible),
       gap: levelGap,
     }),
     metric({
@@ -260,18 +303,23 @@ export const analyzeAutoMovieAcoustics = (props: {
   ];
   warnAutoMovieAnalysisTargetKeys({
     targets: request.targets,
-    keys: metrics.map((entry) => entry.key),
+    keys: metrics.map((entry: IAutoMovieAnalysisMetric): string => entry.key),
     warnings,
   });
   const samples: IAutoMovieAnalysisSample[] =
-    energies === null
+    audible === null
       ? []
-      : energies.map((entry) => ({
-          id: entry.receiver.id,
-          key: "room.soundPressureLevel",
-          position: entry.receiver.position,
-          value: entry.level,
-        }));
+      : request.receivers.map(
+          (
+            receiver: IAutoMovieAcousticReceiver,
+            index: number,
+          ): IAutoMovieAnalysisSample => ({
+            id: receiver.id,
+            key: "room.soundPressureLevel",
+            position: receiver.position,
+            value: audible[index]!,
+          }),
+        );
 
   return sealAutoMovieAnalysisRun({
     id: request.id,
@@ -289,26 +337,44 @@ export const analyzeAutoMovieAcoustics = (props: {
   });
 };
 
-/** Direct plus diffuse sound pressure level at one receiver. */
-const receiverLevel = (
-  request: IAutoMovieAcousticRequest,
+/**
+ * Sum precomputed source power times directivity over 4*pi*r^2 at one receiver, refusing distances at or below 1e-12 metres. Typed admitted positions and matching source/power order are premises; intermediate overflow or underflow is not repaired.
+ *
+ * One source scan reuses the study's powers and retains only a scalar accumulator; the caller owns the borrowed lists and handles nonfinite derived levels.
+ */
+const directField: (
+  sources: readonly IAutoMovieAcousticSource[],
+  powers: readonly number[],
   receiver: IAutoMovieAcousticReceiver,
-  roomConstant: number,
+) => number = (
+  sources: readonly IAutoMovieAcousticSource[],
+  powers: readonly number[],
+  receiver: IAutoMovieAcousticReceiver,
 ): number => {
-  let energy = 0;
-  for (const source of request.sources) {
-    const distance = Vector3.length(
+  let energy: number = 0;
+  sources.forEach((source: IAutoMovieAcousticSource, index: number): void => {
+    const distance: number = Vector3.length(
       Vector3.subtract(receiver.position, source.position),
     );
+    if (distance <= EPSILON)
+      throw new Error(
+        `acoustic receiver "${receiver.id}" sits on source "${source.id}", where the inverse square law has no value`,
+      );
     energy +=
-      Math.pow(10, source.soundPower / 10) *
-      (source.directivity / (4 * Math.PI * distance * distance) +
-        4 / roomConstant);
-  }
-  return 10 * Math.log10(energy);
+      (powers[index]! * source.directivity) /
+      (4 * Math.PI * distance * distance);
+  });
+  return energy;
 };
 
-const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
+/**
+ * Check headers, positive volume/surface areas, absorption fractions, nonnegative transmission loss, finite source fields and receiver positions; per-list ids are unique and receiver count is capped. Throws the first defect without modifying inputs; nested typed shape is assumed and derived energy is unchecked.
+ *
+ * Linear member/target scans use per-list id sets, released on return or throw; no validation result persists across studies.
+ */
+const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
+  request: IAutoMovieAcousticRequest,
+): void => {
   for (const [label, value] of [
     ["id", request.id],
     ["subject", request.subject],
@@ -322,7 +388,7 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
     );
   if (request.surfaces.length === 0)
     throw new Error("an acoustic study needs at least one absorbing surface");
-  const surfaces = new Set<string>();
+  const surfaces: Set<string> = new Set<string>();
   for (const surface of request.surfaces) {
     if (surface.id.trim().length === 0)
       throw new Error("every acoustic surface must carry a non-blank id");
@@ -342,7 +408,7 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
         `acoustic surface "${surface.id}" absorption must be a fraction within [0, 1], but was ${surface.absorption}`,
       );
   }
-  const partitions = new Set<string>();
+  const partitions: Set<string> = new Set<string>();
   for (const partition of request.partitions) {
     if (partition.id.trim().length === 0)
       throw new Error("every acoustic partition must carry a non-blank id");
@@ -357,8 +423,12 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
       throw new Error(
         `acoustic partition "${partition.id}" transmission loss must be finite, but was ${partition.transmissionLoss}`,
       );
+    if (partition.transmissionLoss < 0)
+      throw new Error(
+        `acoustic partition "${partition.id}" transmission loss must be at or above zero, because a partition cannot transmit more energy than reaches it, but was ${partition.transmissionLoss}`,
+      );
   }
-  const sources = new Set<string>();
+  const sources: Set<string> = new Set<string>();
   for (const source of request.sources) {
     if (source.id.trim().length === 0)
       throw new Error("every acoustic source must carry a non-blank id");
@@ -383,7 +453,7 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
     throw new Error(
       `an acoustic study carries one sample per receiver and may not exceed ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}, but had ${request.receivers.length}`,
     );
-  const receivers = new Set<string>();
+  const receivers: Set<string> = new Set<string>();
   for (const receiver of request.receivers) {
     if (receiver.id.trim().length === 0)
       throw new Error("every acoustic receiver must carry a non-blank id");
@@ -395,46 +465,49 @@ const validateAcousticRequest = (request: IAutoMovieAcousticRequest): void => {
         throw new Error(
           `acoustic receiver "${receiver.id}" position ${axis} must be finite, but was ${receiver.position[axis]}`,
         );
-    for (const source of request.sources)
-      if (
-        Vector3.length(Vector3.subtract(receiver.position, source.position)) <=
-        EPSILON
-      )
-        throw new Error(
-          `acoustic receiver "${receiver.id}" sits on source "${source.id}", where the inverse square law has no value`,
-        );
   }
   assertAutoMovieAnalysisTargets(request.targets);
 };
 
-/** The canonical settings text one acoustic study is digested against. */
-const acousticSettings = (request: IAutoMovieAcousticRequest): string =>
+/**
+ * Serialize the study's physical fields and projected targets in fixed list/field order, omitting run header identity. Position records are borrowed into the serialization, so extra fields or custom serialization hooks on them can affect text; this is not arbitrary-object canonicalization.
+ *
+ * Linear encoded-entry/text work creates temporary mapped records and one returned string, with no cache or retained request after hashing.
+ */
+const acousticSettings: (request: IAutoMovieAcousticRequest) => string = (
+  request: IAutoMovieAcousticRequest,
+): string =>
   JSON.stringify({
     volume: request.volume,
-    surfaces: request.surfaces.map((surface) => ({
-      id: surface.id,
-      area: surface.area,
-      absorption: surface.absorption,
-    })),
-    partitions: request.partitions.map((partition) => ({
-      id: partition.id,
-      area: partition.area,
-      transmissionLoss: partition.transmissionLoss,
-    })),
-    sources: request.sources.map((source) => ({
-      id: source.id,
-      position: source.position,
-      soundPower: source.soundPower,
-      directivity: source.directivity,
-    })),
-    receivers: request.receivers.map((receiver) => ({
-      id: receiver.id,
-      position: receiver.position,
-    })),
-    targets: request.targets.map((target) => ({
-      key: target.key,
-      unit: target.unit,
-      value: target.value,
-      comparison: target.comparison,
-    })),
+    surfaces: request.surfaces.map(
+      (surface: IAutoMovieAcousticSurface): IAutoMovieAcousticSurface => ({
+        id: surface.id,
+        area: surface.area,
+        absorption: surface.absorption,
+      }),
+    ),
+    partitions: request.partitions.map(
+      (
+        partition: IAutoMovieAcousticPartition,
+      ): IAutoMovieAcousticPartition => ({
+        id: partition.id,
+        area: partition.area,
+        transmissionLoss: partition.transmissionLoss,
+      }),
+    ),
+    sources: request.sources.map(
+      (source: IAutoMovieAcousticSource): IAutoMovieAcousticSource => ({
+        id: source.id,
+        position: source.position,
+        soundPower: source.soundPower,
+        directivity: source.directivity,
+      }),
+    ),
+    receivers: request.receivers.map(
+      (receiver: IAutoMovieAcousticReceiver): IAutoMovieAcousticReceiver => ({
+        id: receiver.id,
+        position: receiver.position,
+      }),
+    ),
+    targets: autoMovieAnalysisSettingsTargets(request.targets),
   });

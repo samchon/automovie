@@ -1,7 +1,10 @@
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-/** Largest cross product or distance a free-form planar ring may call zero. */
-const REGION_EPSILON = 1e-12;
+import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
+import { planarCross } from "./planarCross";
+import { planarSegmentsMeet } from "./planarSegmentsMeet";
+import { pointInPlanarRing } from "./pointInPlanarRing";
+import { signedArea } from "./signedArea";
 
 /**
  * Return the first deterministic hygiene failure in one planar region, or
@@ -12,8 +15,27 @@ const REGION_EPSILON = 1e-12;
  * must agree on whether their shared input has an interior. A caller that can
  * report a gap may retain the message; a constructor can throw it verbatim.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Detects non-finite, degenerate, self-crossing, and invalid nested planar regions before use.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Implements one shared numeric and topology validation boundary for planar consumers.
+ * Each ring is checked in declaration order, outer ring first, for at least
+ * three points, finite coordinates, no point repeated beside itself, a
+ * nonzero area, no spike doubling back along its own edge, and no crossing
+ * between non-neighbouring edges. Then every ring pair is checked for any
+ * shared point, and finally every hole must lie inside the outer ring and
+ * outside every other hole. Zero means within the absolute `PLANAR_EPSILON`
+ * (1e-12) of square metres or metres. Messages name rings as `<label> outer
+ * ring` and `<label> hole[i]`, with `label` defaulting to `polygon`.
+ *
+ * @param props.outer Outer ring in any winding, the last point joined back to the first.
+ * @param props.holes Rings removed from the region; omitted means none.
+ * @param props.label Name the messages give the region.
+ * @returns The first failure message, or `null` for an admissible region.
+ *
+ * @evidence contracts/common.md#principled-implementation Ring hygiene by shoelace area, orientation determinants and pairwise closed-segment contact, then hole placement by the even-odd rule on one hole vertex, which decides the whole hole because rings were already proven not to touch; the area check precedes the turn and crossing checks so an area-free ring keeps its established diagnostic.
+ * @evidence contracts/common.md#clear-and-simple-design One validator returning a message shared by `canonicalRegion`, polygon triangulation, footprint convex pieces and portrait skin reservation, so they agree on admission while each decides whether to throw or skip; segment contact, ring containment, area and orientation come from the geometry kernel's shared helpers rather than private copies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is repaired, reordered or dropped to make a ring pass, and no caller or label changes a check; the order of checks only decides which of several failures is reported first.
+ * @evidence contracts/common.md#meaningful-documentation States the return contract and why it is a message, every check in order with its tolerance and unit, the ring naming in messages, and each parameter's default.
+ * @evidence contracts/performance.md#efficient-algorithms For N points over all rings, per-ring checks are linear, self-crossing is quadratic in each ring and ring contact quadratic across ring pairs, so the worst case is O(N^2) with no allocation inside the pair loops; inputs are authored profiles, footprints and skin loops of tens to hundreds of points, where a sweep-line intersection test would cost more than it saves, and the early return stops at the first failure.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure validation of the rings passed in; callers validate each region once, and portrait skin reservation calls it per candidate loop because each loop differs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one array of ring labels and one of rings per call and releases both on return; the caller's rings are only read.
  * @author Samchon
  */
 export const autoMoviePlanarRegionFailure = (props: {
@@ -21,25 +43,32 @@ export const autoMoviePlanarRegionFailure = (props: {
   holes?: ReadonlyArray<readonly IAutoMoviePlanarPoint[]>;
   label?: string;
 }): string | null => {
-  const label = props.label ?? "polygon";
-  const holes = props.holes ?? [];
-  const labels = [
+  const label: string = props.label ?? "polygon";
+  const holes: ReadonlyArray<readonly IAutoMoviePlanarPoint[]> =
+    props.holes ?? [];
+  const labels: string[] = [
     `${label} outer ring`,
-    ...holes.map((_hole, index) => `${label} hole[${index}]`),
+    ...holes.map(
+      (_hole: readonly IAutoMoviePlanarPoint[], index: number): string =>
+        `${label} hole[${index}]`,
+    ),
   ];
-  const loops = [props.outer, ...holes];
-  for (let index = 0; index < loops.length; ++index) {
-    const failure = ringFailure(loops[index]!, labels[index]!);
+  const loops: ReadonlyArray<readonly IAutoMoviePlanarPoint[]> = [
+    props.outer,
+    ...holes,
+  ];
+  for (let index: number = 0; index < loops.length; ++index) {
+    const failure: string | null = ringFailure(loops[index]!, labels[index]!);
     if (failure !== null) return failure;
   }
-  for (let left = 0; left + 1 < loops.length; ++left)
-    for (let right = left + 1; right < loops.length; ++right) {
-      const one = loops[left]!;
-      const other = loops[right]!;
-      for (let a = 0; a < one.length; ++a)
-        for (let b = 0; b < other.length; ++b)
+  for (let left: number = 0; left + 1 < loops.length; ++left)
+    for (let right: number = left + 1; right < loops.length; ++right) {
+      const one: readonly IAutoMoviePlanarPoint[] = loops[left]!;
+      const other: readonly IAutoMoviePlanarPoint[] = loops[right]!;
+      for (let a: number = 0; a < one.length; ++a)
+        for (let b: number = 0; b < other.length; ++b)
           if (
-            segmentsMeet(
+            planarSegmentsMeet(
               one[a]!,
               one[(a + 1) % one.length]!,
               other[b]!,
@@ -48,12 +77,12 @@ export const autoMoviePlanarRegionFailure = (props: {
           )
             return `${labels[left]} and ${labels[right]} touch or cross at edge ${a} and edge ${b}`;
     }
-  for (let hole = 1; hole < loops.length; ++hole) {
-    const probe = loops[hole]![0]!;
-    if (pointInRing(probe, loops[0]!) === false)
+  for (let hole: number = 1; hole < loops.length; ++hole) {
+    const probe: IAutoMoviePlanarPoint = loops[hole]![0]!;
+    if (pointInPlanarRing(probe, loops[0]!) === false)
       return `${labels[hole]} must lie inside ${labels[0]}`;
-    for (let other = 1; other < loops.length; ++other)
-      if (other !== hole && pointInRing(probe, loops[other]!))
+    for (let other: number = 1; other < loops.length; ++other)
+      if (other !== hole && pointInPlanarRing(probe, loops[other]!))
         return `${labels[hole]} must lie outside ${labels[other]}`;
   }
   return null;
@@ -65,29 +94,29 @@ const ringFailure = (
   label: string,
 ): string | null => {
   if (ring.length < 3) return `${label} needs at least three points`;
-  for (let index = 0; index < ring.length; ++index) {
-    const point = ring[index]!;
+  for (let index: number = 0; index < ring.length; ++index) {
+    const point: IAutoMoviePlanarPoint = ring[index]!;
     if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
       return `${label}[${index}] must be finite`;
   }
-  const size = ring.length;
-  for (let index = 0; index < size; ++index) {
-    const point = ring[index]!;
-    const next = ring[(index + 1) % size]!;
-    if (Math.hypot(next.x - point.x, next.y - point.y) <= REGION_EPSILON)
+  const size: number = ring.length;
+  for (let index: number = 0; index < size; ++index) {
+    const point: IAutoMoviePlanarPoint = ring[index]!;
+    const next: IAutoMoviePlanarPoint = ring[(index + 1) % size]!;
+    if (Math.hypot(next.x - point.x, next.y - point.y) <= PLANAR_EPSILON)
       return `${label}[${index}] repeats the point beside it`;
   }
   // Preserve the established procedural diagnostic order: an area-free ring
   // is rejected before topology is classified. A nonzero-area self-crossing
   // ring still reaches the explicit crossing diagnosis below.
-  if (Math.abs(signedArea(ring)) <= REGION_EPSILON)
+  if (Math.abs(signedArea(ring)) <= PLANAR_EPSILON)
     return `${label} encloses no area`;
-  for (let index = 0; index < size; ++index) {
-    const previous = ring[(index + size - 1) % size]!;
-    const point = ring[index]!;
-    const next = ring[(index + 1) % size]!;
+  for (let index: number = 0; index < size; ++index) {
+    const previous: IAutoMoviePlanarPoint = ring[(index + size - 1) % size]!;
+    const point: IAutoMoviePlanarPoint = ring[index]!;
+    const next: IAutoMoviePlanarPoint = ring[(index + 1) % size]!;
     if (
-      Math.abs(cross(previous, point, next)) <= REGION_EPSILON &&
+      Math.abs(planarCross(previous, point, next)) <= PLANAR_EPSILON &&
       (point.x - previous.x) * (next.x - point.x) +
         (point.y - previous.y) * (next.y - point.y) <
         0
@@ -102,11 +131,11 @@ const ringCrossingFailure = (
   ring: readonly IAutoMoviePlanarPoint[],
   label: string,
 ): string | null => {
-  for (let left = 0; left < ring.length; ++left)
-    for (let right = left + 1; right < ring.length; ++right)
+  for (let left: number = 0; left < ring.length; ++left)
+    for (let right: number = left + 1; right < ring.length; ++right)
       if (
         neighbouringEdges(ring.length, left, right) === false &&
-        segmentsMeet(
+        planarSegmentsMeet(
           ring[left]!,
           ring[(left + 1) % ring.length]!,
           ring[right]!,
@@ -123,83 +152,3 @@ const neighbouringEdges = (
   left: number,
   right: number,
 ): boolean => (left + 1) % size === right || (right + 1) % size === left;
-
-/** Signed shoelace area. */
-const signedArea = (points: readonly IAutoMoviePlanarPoint[]): number => {
-  let total = 0;
-  for (let index = 0; index < points.length; ++index) {
-    const from = points[index]!;
-    const to = points[(index + 1) % points.length]!;
-    total += from.x * to.y - to.x * from.y;
-  }
-  return total / 2;
-};
-
-/** Twice the signed area of `origin -> from -> to`. */
-const cross = (
-  origin: IAutoMoviePlanarPoint,
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-): number =>
-  (from.x - origin.x) * (to.y - origin.y) -
-  (from.y - origin.y) * (to.x - origin.x);
-
-/** Do two closed segments share any point? */
-const segmentsMeet = (
-  fromA: IAutoMoviePlanarPoint,
-  toA: IAutoMoviePlanarPoint,
-  fromB: IAutoMoviePlanarPoint,
-  toB: IAutoMoviePlanarPoint,
-): boolean => {
-  if (
-    straddles(cross(fromB, toB, fromA), cross(fromB, toB, toA)) &&
-    straddles(cross(fromA, toA, fromB), cross(fromA, toA, toB))
-  )
-    return true;
-  const contacts: ReadonlyArray<
-    readonly [
-      IAutoMoviePlanarPoint,
-      IAutoMoviePlanarPoint,
-      IAutoMoviePlanarPoint,
-    ]
-  > = [
-    [fromB, toB, fromA],
-    [fromB, toB, toA],
-    [fromA, toA, fromB],
-    [fromA, toA, toB],
-  ];
-  return contacts.some(([from, to, point]) => {
-    if (Math.abs(cross(from, to, point)) > REGION_EPSILON) return false;
-    const spanX = to.x - from.x;
-    const spanY = to.y - from.y;
-    const along =
-      ((point.x - from.x) * spanX + (point.y - from.y) * spanY) /
-      (spanX * spanX + spanY * spanY);
-    return along >= -REGION_EPSILON && along <= 1 + REGION_EPSILON;
-  });
-};
-
-/** Are two points on strictly opposite sides of one line? */
-const straddles = (left: number, right: number): boolean =>
-  Math.abs(left) > REGION_EPSILON &&
-  Math.abs(right) > REGION_EPSILON &&
-  left * right < 0;
-
-/** Even-odd ray cast along +X; validation keeps the probe off-ring. */
-const pointInRing = (
-  point: IAutoMoviePlanarPoint,
-  ring: readonly IAutoMoviePlanarPoint[],
-): boolean => {
-  let inside = false;
-  for (let index = 0; index < ring.length; ++index) {
-    const from = ring[index]!;
-    const to = ring[(index + 1) % ring.length]!;
-    if (
-      from.y > point.y !== to.y > point.y &&
-      point.x <
-        from.x + ((point.y - from.y) / (to.y - from.y)) * (to.x - from.x)
-    )
-      inside = !inside;
-  }
-  return inside;
-};

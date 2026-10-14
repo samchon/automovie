@@ -1,23 +1,16 @@
 /**
- * Sphere.
+ * Sphere centred at the model part's local origin.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMovieSphereShape` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMovieSphereShape` for the asset spec geometry inputs system contract.
+ * @evidence contracts/common.md#principled-implementation One positive finite radius determines the rotationally symmetric sphere; model validation checks that radius and tessellation samples latitude and longitude at the declared distance from the origin.
+ * @evidence contracts/common.md#clear-and-simple-design Radius is the sole dimension because axis-specific extents would describe an ellipsoid; the part transform owns scaling and world placement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject name chooses sphere size or resolution; the tessellator's fixed polygonal approximation is shared by geometric consumers and viewers.
+ * @evidence contracts/common.md#meaningful-documentation Gives the local centre and finite positive metre radius, avoiding ambiguity between radius and diameter.
+ * @author Samchon
  */
 export interface IAutoMovieSphereShape {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `type` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
-   */
+  /** Discriminator. */
   type: "sphere";
 
-  /**
-   * Radius, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `radius` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `radius` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive radius, metres. */
   radius: number;
 }

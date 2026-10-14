@@ -1,123 +1,108 @@
 import {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieConnectorLanding,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieConnectorGeometry } from "./IAutoMovieConnectorGeometry";
+import { IAutoMovieConnectorLandingAt } from "./IAutoMovieConnectorLandingAt";
+import { IAutoMovieConnectorStation } from "./IAutoMovieConnectorStation";
+import { requireBuiltConnector } from "./requireBuiltConnector";
 
 /**
  * Measure one connector's traversal shape: climb, run, length, slope, stations.
  *
- * A station's facing is answered as authored or as `null`, never as a heading
- * this function invented. A connector that declared no orientation has no
- * orientation, and saying so is what keeps a later analysis from reading a
- * derived guess as a design decision.
+ * A station's facing is answered as authored or as `null`, never as a heading this function invented. A connector that declared no orientation has no orientation, and saying so is what keeps a later analysis from reading a derived guess as a design decision.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtConnectorGeometry` measures one connector's traversal shape: climb, run, length, slope, stations. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtConnectorGeometry` measures a connector route's climb, run, length, slope, and stations inside its building boundary.
- * @evidence requirements/interior/connections-and-circulation.md#interior-horizontal-vertical-routes `builtConnectorGeometry` resolves the connector endpoint path into one three-dimensional route with climb, horizontal run, length, slope, and ordered stations.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-connector-route-topology `builtConnectorGeometry` computes the geometric route that connects the declared spaces through horizontal and vertical travel.
- * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-circulation `builtConnectorGeometry` derives the exterior connector's endpoint route, landings, rise, horizontal run, length, slope, width, and headroom as its measurable circulation contribution.
- * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-exterior-circulation-input-output `builtConnectorGeometry` produces the validated route geometry and section facts for an exterior circulation connector without claiming guard, port, or code compliance.
- * @evidence requirements/building-exterior/external-circulation-and-attached-elements.md#building-external-multi-building-connection `builtConnectorGeometry` preserves a connector whose resolved endpoint spaces belong to different building roots and refuses unresolved, self-linked, or malformed route state.
- * @evidence specifications/building-envelope/exterior-spaces-circulation-and-optics.md#building-envelope-multibuilding-connector-failures `builtConnectorGeometry` materializes the declared cross-building route after endpoint, route, section, and operation validation without claiming transform-revision authority.
+ * Run is the horizontal (`x`, `z`) length of the route polyline and rise its signed `y` change between the end points, both in metres; length is the 3D polyline length. Stations and landings are placed by arc-length fraction, so a landing on an unevenly spaced route stands where its author put it, exactly as a connector section is placed. Throws when the connector does not exist or its route has fewer than two points or zero length.
+ *
+ * @evidence contracts/common.md#principled-implementation Accumulates segment lengths into a cumulative arc-length table in one pass, so stations take `cumulative / total` and a landing fraction is located by linear interpolation inside the segment whose cumulative span brackets it; slope is `atan2(|rise|, run)`, the route-average gradient.
+ * @evidence contracts/common.md#clear-and-simple-design Builds the arc-length table once and reads the length, the station fractions and the landing points from it, with connector lookup shared through `requireBuiltConnector`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no connector kind; a missing orientation is reported as `null` rather than derived, and an unmeasurable route is refused rather than given a zero slope.
+ * @evidence contracts/common.md#meaningful-documentation States the null-orientation rule and why, how run, rise and length are measured and their units, that stations and landings are placed by arc length, and both throws.
+ * @evidence contracts/performance.md#efficient-algorithms O(C + R + LR) worst-case time for C connectors, R route points and L landings: connector lookup, the cumulative table and station mapping, then a fresh forward route scan per landing. No bound on landing count or measured advantage over binary search is assumed.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measures one connector per call over the caller's mutable record and caches nothing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The arc-length table is dropped on return; the caller owns the geometry, whose stations reference the record's own route points and orientations.
  */
-export const builtConnectorGeometry = (
+export const builtConnectorGeometry: (
+  environment: IAutoMovieBuiltEnvironment,
+  connectorId: string,
+) => IAutoMovieConnectorGeometry = (
   environment: IAutoMovieBuiltEnvironment,
   connectorId: string,
 ): IAutoMovieConnectorGeometry => {
-  const connector = requireConnector(environment, connectorId);
-  const cumulative = cumulativeRouteLengths(connector.route);
-  const total = cumulative[cumulative.length - 1]!;
-  if (connector.route.length < 2 || total === 0)
+  const connector: IAutoMovieBuiltConnector = requireBuiltConnector(
+    environment,
+    connectorId,
+  );
+  const route: readonly IAutoMovieVector3[] = connector.route;
+  const cumulative: number[] = [0];
+  let run: number = 0;
+  for (let index: number = 0; index + 1 < route.length; ++index) {
+    const delta: IAutoMovieVector3 = Vector3.subtract(
+      route[index + 1]!,
+      route[index]!,
+    );
+    run += Math.hypot(delta.x, delta.z);
+    cumulative.push(cumulative[index]! + Vector3.length(delta));
+  }
+  const total: number = cumulative[cumulative.length - 1]!;
+  if (route.length < 2 || total === 0)
     throw new Error(
       `connector "${connectorId}" of built environment "${environment.id}" has no measurable route`,
     );
+  const rise: number = route[route.length - 1]!.y - route[0]!.y;
   return {
-    ...routeMetrics(connector.route),
-    stations: connector.route.map((position, index) => ({
-      position,
-      rotation: connector.orientations?.[index] ?? null,
-      at: cumulative[index]! / total,
-    })),
-    landings: (connector.landings ?? []).map((landing) => ({
-      space: landing.space,
-      at: landing.at,
-      position: routePointAt(connector.route, cumulative, total, landing.at),
-    })),
+    rise,
+    run,
+    length: total,
+    slope: Math.atan2(Math.abs(rise), run),
+    stations: route.map(
+      (
+        position: IAutoMovieVector3,
+        index: number,
+      ): IAutoMovieConnectorStation => ({
+        position,
+        rotation: connector.orientations?.[index] ?? null,
+        at: cumulative[index]! / total,
+      }),
+    ),
+    landings: (connector.landings ?? []).map(
+      (landing: IAutoMovieConnectorLanding): IAutoMovieConnectorLandingAt => ({
+        space: landing.space,
+        at: landing.at,
+        position: routePointAt(route, cumulative, landing.at * total),
+      }),
+    ),
   };
 };
 
-const requireConnector = (
-  environment: IAutoMovieBuiltEnvironment,
-  connectorId: string,
-): IAutoMovieBuiltConnector => {
-  const connector = environment.connectors.find(
-    (candidate) => candidate.id === connectorId,
-  );
-  if (connector === undefined)
-    throw new Error(
-      `built environment "${environment.id}" has no connector "${connectorId}"`,
-    );
-  return connector;
-};
-
-/** Cumulative 3D arc length at each route station, starting at zero. */
-const cumulativeRouteLengths = (
-  route: readonly IAutoMovieVector3[],
-): number[] => {
-  const lengths = [0];
-  for (let index = 0; index + 1 < route.length; ++index)
-    lengths.push(
-      lengths[index]! +
-        Vector3.length(Vector3.subtract(route[index + 1]!, route[index]!)),
-    );
-  return lengths;
-};
-
 /**
- * The point one arc-length fraction reaches along a route polyline.
+ * The point an arc length reaches along a route polyline.
  *
- * Measuring by arc length rather than by point index is what keeps a landing on
- * an unevenly spaced route where its author put it, exactly as a connector
- * section is placed. Only {@link builtConnectorGeometry} calls this, and it has
- * already refused a route with no measurable length, so the segment the
- * fraction falls in always exists.
+ * The caller has already refused a route with no measurable length, so the segment the length falls in always exists; a length past the end is extrapolated along the last segment.
  */
-const routePointAt = (
+const routePointAt: (
   route: readonly IAutoMovieVector3[],
   cumulative: readonly number[],
-  total: number,
-  at: number,
+  target: number,
+) => IAutoMovieVector3 = (
+  route: readonly IAutoMovieVector3[],
+  cumulative: readonly number[],
+  target: number,
 ): IAutoMovieVector3 => {
-  const target = at * total;
-  let index = 0;
+  let index: number = 0;
   while (index + 2 < route.length && cumulative[index + 1]! < target)
     index += 1;
-  const span = cumulative[index + 1]! - cumulative[index]!;
-  const ratio = span <= 0 ? 0 : (target - cumulative[index]!) / span;
-  const from = route[index]!;
-  const to = route[index + 1]!;
+  const span: number = cumulative[index + 1]! - cumulative[index]!;
+  const ratio: number = span <= 0 ? 0 : (target - cumulative[index]!) / span;
+  const from: IAutoMovieVector3 = route[index]!;
+  const to: IAutoMovieVector3 = route[index + 1]!;
   return {
     x: from.x + (to.x - from.x) * ratio,
     y: from.y + (to.y - from.y) * ratio,
     z: from.z + (to.z - from.z) * ratio,
   };
-};
-
-/** Climb, horizontal run, 3D length, and slope of one route polyline. */
-const routeMetrics = (
-  route: readonly IAutoMovieVector3[],
-): { rise: number; run: number; length: number; slope: number } => {
-  let run = 0;
-  let length = 0;
-  for (let index = 0; index + 1 < route.length; ++index) {
-    const delta = Vector3.subtract(route[index + 1]!, route[index]!);
-    run += Math.hypot(delta.x, delta.z);
-    length += Vector3.length(delta);
-  }
-  const rise = route[route.length - 1]!.y - route[0]!.y;
-  return { rise, run, length, slope: Math.atan2(Math.abs(rise), run) };
 };

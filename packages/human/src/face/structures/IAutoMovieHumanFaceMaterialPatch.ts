@@ -6,6 +6,14 @@ import type { IAutoMovieHumanFaceAttachmentPoint } from "./IAutoMovieHumanFaceAt
  * Current host corners supply geometry under deformation; this record adds no
  * personal vertex control or clinical tissue boundary measurement.
  *
+ * @evidence contracts/common.md#principled-implementation Source-native clipped cells use original host-facet seats and shared material identities; evaluateHumanFaceMaterialPatch interpolates actual live corners and retains oriented cells, boundary cycles and connector endpoints.
+ * @evidence contracts/common.md#clear-and-simple-design One generation/surface owns point coefficients, cell topology and anatomical support witnesses; authoredConvention explicitly qualifies the source region.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The evaluator checks generation, resident layouts, coefficients, native claims, finite positions and endpoint incidence; a material patch is not observed histology, a personal vertex edit or a clinical tissue-boundary measurement.
+ * @evidence contracts/common.md#meaningful-documentation Native versus material-cut points, holes, ordered plica and actual posterior-margin endpoints preserve source meanings under deformation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no clipping or performed interpolation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared point identity is source provenance, not a query cache implemented here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Point/index/cycle arrays remain caller-owned; no skin host or query is acquired by the interface.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceMaterialPatch {

@@ -1,4 +1,5 @@
 import {
+  AutoMovieSoftAnalysisStatus,
   IAutoMoviePlantingCluster,
   IAutoMoviePlantingDomain,
   IAutoMoviePlantingInstallation,
@@ -11,29 +12,33 @@ import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
-/**
- * Lower one bound installation to everything a renderer needs, beside an honest
- * account of what was derived.
+/** Join one typed installation, cluster and recipe into a derived plant, arrangement and explicit analysis. Invalid records or mismatched ids return not-run with null geometry; derivation cap/numeric failures may propagate. This public lowering API currently has test-only runtime reach.
  *
- * One structure is grown and every member instances it, which is what makes a
- * bed of forty ferns forty transforms rather than forty trees. A recipe that
- * does not validate, a cluster that does not validate, a cluster paired with a
- * recipe it does not cite, and an installation paired with a cluster it does
- * not place each produce `not-run` with a reason and no geometry at all: a
- * plant nobody could derive must never arrive looking like a plant somebody
- * did.
+ * @evidence contracts/common.md#principled-implementation Canonical recipe/cluster admission precedes id pairing, then one grow operation and seeded spacing arrangement produce the supplied recipe-local tree and cluster placements. Installation visibility or exact final rendered clearance is not computed here.
+ * @evidence contracts/common.md#clear-and-simple-design Analysis and pairing stay with this join, while growth and arrangement own their independent declared inputs and outputs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid pairings cannot acquire another record's geometry under a plausible status; counted arrangement rejections remain visible rather than duplicated or squeezed into an authored region.
+ * @evidence contracts/common.md#meaningful-documentation States pairing, not-run geometry, derivation failures and unwired rendering host.
+ * @evidence contracts/performance.md#efficient-algorithms Validation plus one B-branch/L-leaf derivation and N-member/A-attempt arrangement are charged together; no per-member tree is grown, but actual spacing bucket occupancy determines arrangement comparison work.
+ * @evidence contracts/performance.md#reuse-equivalent-work One derived plant serves all returned member placements; recipe, cluster and installation mutation do not have a retained cross-call result cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh tree/placement arrays transfer with the analysis; admission failure returns no geometry and no renderer/native task is acquired.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Lowers a valid recipe and cluster into prototype structure and member placement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Produces the renderer boundary while preserving not-run outcomes.
  * @author Samchon
  */
-export const lowerPlantingInstallation = (props: {
+export const lowerPlantingInstallation: (props: {
+  installation: IAutoMoviePlantingInstallation;
+  cluster: IAutoMoviePlantingCluster;
+  domain: IAutoMoviePlantingDomain;
+}) => IAutoMoviePlantingFrame = (props: {
   installation: IAutoMoviePlantingInstallation;
   cluster: IAutoMoviePlantingCluster;
   domain: IAutoMoviePlantingDomain;
 }): IAutoMoviePlantingFrame => {
-  const { installation, cluster, domain } = props;
-  const analysis = (
+  const { installation, cluster, domain }: typeof props = props;
+  /** Create one recipe-attributed planting derivation status without retaining a partial tree. */
+  const analysis: (
+    status: AutoMovieSoftAnalysisStatus,
+    reason: string | null,
+  ) => IAutoMovieSoftAnalysis = (
     status: IAutoMovieSoftAnalysis["status"],
     reason: string | null,
   ): IAutoMovieSoftAnalysis => ({

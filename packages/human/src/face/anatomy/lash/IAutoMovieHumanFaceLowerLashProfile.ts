@@ -1,17 +1,15 @@
 /**
- * A curved lower lash rooted on the current lower lid margin, in a frame that
- * mirrors the upper profile's about the head's horizontal plane.
+ * A curved lower lash rooted on the current lower lid margin, in a frame that mirrors the upper profile's about the head's horizontal plane.
  *
- * Length is the maximum centreline arc length. `elevation` is the initial
- * tangent's angle from anterior +Z towards inferior -Y, and positive `curl`
- * turns the strand away from the eye, downwards. With these mirrored angles
- * the same numbers describe a lower row shaped like the upper row reflected
- * through the horizontal plane. One record shapes every lower lash of one eye.
- * The bounds are those of `humanFaceLowerLashParameters`, a convention that
- * mirrors the upper envelope because no calibrated lower 3D root-frame
- * envelope is held. The right-lid caliper and image-angle study of Kikuchi
- * et al. 2015 (DOI 10.15761/GOD.1000123) does not register this frame, so these
- * bounds are not a measured population range.
+ * Length is the maximum centreline arc length. `elevation` is the initial tangent's angle from anterior +Z towards inferior -Y, and positive `curl` turns the strand away from the eye, downwards. With these mirrored angles the same numbers describe a lower row shaped like the upper row reflected through the horizontal plane. One record shapes every lower lash of one eye. The bounds are those of `humanFaceLowerLashParameters`, a convention that mirrors the upper envelope because no calibrated lower 3D root-frame envelope is held. The right-lid caliper and image-angle study of Kikuchi et al. 2015 (DOI 10.15761/GOD.1000123) does not register this frame, so these bounds are not a measured population range.
+ *
+ * @evidence contracts/common.md#principled-implementation Seven authored shaft traits mirror the upper row's angular convention about the head horizontal plane.
+ * @evidence contracts/common.md#clear-and-simple-design One profile shapes one eye's lower row while count remains an independent population field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Mirrored bounds are conventional because no calibrated lower 3D root-frame envelope is held; admission is not biological plausibility.
+ * @evidence contracts/common.md#meaningful-documentation Members state millimetres, signed inferior curl/elevation degrees and dimensionless taper/variation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Profile validation and actual shaft meshing execute in their lower-row consumers.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The lower parameter table centralizes bounds shared by admission and editable descriptors.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller owns this scalar record, which holds no geometry, texture or query handles.
  *
  * @author Samchon
  */

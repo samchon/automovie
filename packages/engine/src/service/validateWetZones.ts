@@ -2,10 +2,13 @@ import {
   AutoMovieWetGrade,
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
   IAutoMovieServiceNetwork,
   IAutoMovieServiceNode,
+  IAutoMovieServicePort,
   IAutoMovieServiceSystem,
   IAutoMovieValidation,
+  IAutoMovieWetZone,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -16,7 +19,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * The numbers are ordinal only: they say a shower is wetter than a lobby, which
  * is the entire question a threshold answers, and nothing about litres.
  */
-const GRADE_ORDER = new Map<string, number>([
+const GRADE_ORDER: Map<string, number> = new Map<string, number>([
   ["dry", 0],
   ["damp", 1],
   ["wet", 2],
@@ -27,7 +30,7 @@ const GRADE_ORDER = new Map<string, number>([
 const TANKED: readonly AutoMovieWetGrade[] = ["wet", "immersed"];
 
 /** Media a floor drain is allowed to discharge into. */
-const WASTE_MEDIUM = "waste-water";
+const WASTE_MEDIUM: string = "waste-water";
 
 /**
  * Validate the wet and waterproofed regions a network declares.
@@ -46,47 +49,74 @@ const WASTE_MEDIUM = "waste-water";
  * a wet region is covered everywhere water can reach, that every handover to a
  * drier region is declared, that the floor actually falls, and that it falls to
  * a drain that really discharges waste.
+ * Slope and membrane upturn are declared scalars; this gate does not measure
+ * an actual floor gradient or infer waterproof construction from mesh geometry.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `validateWetZones` verifies that each wet space is fully tanked, hands over explicitly, falls toward its drains, and uses drains that discharge waste water.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `validateWetZones` resolves zone boundaries and drain nodes against the built environment and reports incomplete coverage, invalid falls, and incompatible discharge ports.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-waterproof-assembly `validateWetZones` checks that the wet-zone boundary is covered and that every service penetration declares the waterproof seal required by the assembly.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-waterproofing-finding `validateWetZones` locates uncovered boundaries, missing or invalid drains, non-falling slopes, undeclared dry thresholds, and unsealed sleeves instead of accepting incomplete waterproofing.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-dry-transition `validateWetZones` enforces the declared wet-to-dry grade ordering and boundary threshold at every resolved transition.
- * @evidence requirements/interior/wet-areas-and-waterproofing.md#interior-wet-slope-drainage `validateWetZones` requires a positive authored fall and a compatible resolved waste drain for each wet area.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-wet-zone-waterproofing `validateWetZones` enforces the supported boundary, threshold, fall, drain, and penetration-seal subset of the wet-zone waterproofing contract.
+ * @evidence contracts/common.md#principled-implementation Grade ordering determines full membrane and drier-space threshold obligations, while resolved drainage outlet media establish a declared discharge path; finite positive slope is a declaration check rather than a geometric gradient solve.
+ * @evidence contracts/common.md#clear-and-simple-design Production environment validation joins service and architecture names here, and ViolationCollector carries independent errors without rewriting the authored zones.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts One space keeps its first grade while duplicate zones are reported; no room-name waterproofing policy or fabricated drain makes a missing obligation pass.
+ * @evidence contracts/common.md#meaningful-documentation Describes membrane, threshold and drain obligations and the limit that slope/upturn data do not prove actual constructed geometry.
+ * @evidence contracts/performance.md#efficient-algorithms Lookup maps are built once; each zone scans enclosing boundaries and its citations/drains, giving worst-case O(Z B plus P) work with linear network/environment maps and diagnostic output.
+ * @evidence contracts/performance.md#reuse-equivalent-work Boundary, node, system and first-grade lookups serve every zone check in one call; no previous build's mutable declaration results are cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Collector and lookup maps are call-local; returned validation owns its findings while source geometry and service records remain unchanged and unretained by this gate.
+ *
  * @author Samchon
  */
-export const validateWetZones = (props: {
+export const validateWetZones: (props: {
+  network: IAutoMovieServiceNetwork;
+  environment: IAutoMovieBuiltEnvironment;
+}) => IAutoMovieValidation = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
 }): IAutoMovieValidation => {
-  const { network, environment } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const { network, environment }: typeof props = props;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
-  const spaceIds = new Set(environment.spaces.map((space) => space.id));
-  const boundaries = new Map(
-    environment.boundaries.map((boundary) => [boundary.id, boundary]),
+  const spaceIds: Set<string> = new Set(
+    environment.spaces.map((space: IAutoMovieBuiltSpace): string => space.id),
   );
-  const nodes = new Map(network.nodes.map((node) => [node.id, node]));
-  const systems = new Map(
-    network.systems.map((system) => [system.id, system] as const),
+  const boundaries: Map<string, IAutoMovieBuiltBoundary> = new Map(
+    environment.boundaries.map(
+      (
+        boundary: IAutoMovieBuiltBoundary,
+      ): [string, IAutoMovieBuiltBoundary] => [boundary.id, boundary],
+    ),
+  );
+  const nodes: Map<string, IAutoMovieServiceNode> = new Map(
+    network.nodes.map(
+      (node: IAutoMovieServiceNode): [string, IAutoMovieServiceNode] => [
+        node.id,
+        node,
+      ],
+    ),
+  );
+  const systems: Map<string, IAutoMovieServiceSystem> = new Map(
+    network.systems.map(
+      (
+        system: IAutoMovieServiceSystem,
+      ): readonly [string, IAutoMovieServiceSystem] =>
+        [system.id, system] as const,
+    ),
   );
 
   // One space, one grade. A second zone over the same room would make "is the
   // far side of this wall drier" have two answers, so the first declaration
   // wins here and the contradiction is reported on the space that carries it.
-  const gradeOf = new Map<string, AutoMovieWetGrade>();
-  const zoneOf = new Map<string, string>();
+  const gradeOf: Map<string, AutoMovieWetGrade> = new Map<
+    string,
+    AutoMovieWetGrade
+  >();
+  const zoneOf: Map<string, string> = new Map<string, string>();
   for (const zone of network.zones)
     if (!zoneOf.has(zone.space)) {
       zoneOf.set(zone.space, zone.id);
       if (GRADE_ORDER.has(zone.grade)) gradeOf.set(zone.space, zone.grade);
     }
 
-  const seen = new Set<string>();
-  network.zones.forEach((zone, index) => {
-    const path = `${root}.zones[${index}]`;
+  const seen: Set<string> = new Set<string>();
+  network.zones.forEach((zone: IAutoMovieWetZone, index: number): void => {
+    const path: string = `${root}.zones[${index}]`;
     if (zone.id.trim().length === 0)
       out.push("type", `${path}.id`, "wet zone id must be non-empty", zone.id);
     else if (seen.has(zone.id))
@@ -98,7 +128,7 @@ export const validateWetZones = (props: {
       );
     seen.add(zone.id);
 
-    const order = GRADE_ORDER.get(zone.grade);
+    const order: number | undefined = GRADE_ORDER.get(zone.grade);
     if (order === undefined)
       out.push(
         "type",
@@ -141,10 +171,11 @@ export const validateWetZones = (props: {
         zone.space,
       );
 
-    const bounding = environment.boundaries.filter((boundary) =>
-      boundary.spaces.includes(zone.space),
+    const bounding: IAutoMovieBuiltBoundary[] = environment.boundaries.filter(
+      (boundary: IAutoMovieBuiltBoundary): boolean =>
+        boundary.spaces.includes(zone.space),
     );
-    const membrane = citedBoundaries({
+    const membrane: Set<string> = citedBoundaries({
       cited: zone.membrane,
       zoneSpace: zone.space,
       boundaries,
@@ -152,7 +183,7 @@ export const validateWetZones = (props: {
       label: "membrane boundary",
       out,
     });
-    const thresholds = citedBoundaries({
+    const thresholds: Set<string> = citedBoundaries({
       cited: zone.thresholds,
       zoneSpace: zone.space,
       boundaries,
@@ -161,7 +192,7 @@ export const validateWetZones = (props: {
       out,
     });
 
-    const tanked = TANKED.includes(zone.grade);
+    const tanked: boolean = TANKED.includes(zone.grade);
     if (tanked)
       for (const boundary of bounding)
         if (!membrane.has(boundary.id))
@@ -179,8 +210,12 @@ export const validateWetZones = (props: {
       // regions can be one, and the far side is read off whichever of the two
       // is not this zone's own space.
       if (boundary.spaces.length !== 2) continue;
-      for (const other of boundary.spaces.filter((id) => id !== zone.space)) {
-        const otherOrder = GRADE_ORDER.get(gradeOf.get(other) ?? "dry")!;
+      for (const other of boundary.spaces.filter(
+        (id: string): boolean => id !== zone.space,
+      )) {
+        const otherOrder: number = GRADE_ORDER.get(
+          gradeOf.get(other) ?? "dry",
+        )!;
         if (otherOrder >= (order ?? 0)) continue;
         if (thresholds.has(boundary.id)) continue;
         out.push(
@@ -192,10 +227,10 @@ export const validateWetZones = (props: {
       }
     }
 
-    const drains = new Set<string>();
-    zone.drains.forEach((id, at) => {
-      const drainPath = `${path}.drains[${at}]`;
-      const node = nodes.get(id);
+    const drains: Set<string> = new Set<string>();
+    zone.drains.forEach((id: string, at: number): void => {
+      const drainPath: string = `${path}.drains[${at}]`;
+      const node: IAutoMovieServiceNode | undefined = nodes.get(id);
       if (node === undefined) {
         out.push(
           "type",
@@ -250,12 +285,17 @@ export const validateWetZones = (props: {
 };
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
-const wastePortsOf = (
+const wastePortsOf: (
+  node: IAutoMovieServiceNode,
+  systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
+) => IAutoMovieServicePort[] = (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
 ): IAutoMovieServiceNode["ports"] =>
-  node.ports.filter((port) => {
-    const system = systems.get(port.system);
+  node.ports.filter((port: IAutoMovieServicePort): boolean => {
+    const system: IAutoMovieServiceSystem | undefined = systems.get(
+      port.system,
+    );
     return (
       port.direction === "out" &&
       system !== undefined &&
@@ -265,7 +305,14 @@ const wastePortsOf = (
   });
 
 /** Resolve cited boundary ids, reporting unknown, duplicated and foreign ones. */
-const citedBoundaries = (props: {
+const citedBoundaries: (props: {
+  cited: readonly string[];
+  zoneSpace: string;
+  boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
+  path: string;
+  label: string;
+  out: ViolationCollector;
+}) => Set<string> = (props: {
   cited: readonly string[];
   zoneSpace: string;
   boundaries: ReadonlyMap<string, IAutoMovieBuiltBoundary>;
@@ -273,10 +320,11 @@ const citedBoundaries = (props: {
   label: string;
   out: ViolationCollector;
 }): Set<string> => {
-  const resolved = new Set<string>();
-  props.cited.forEach((id, at) => {
-    const where = `${props.path}[${at}]`;
-    const boundary = props.boundaries.get(id);
+  const resolved: Set<string> = new Set<string>();
+  props.cited.forEach((id: string, at: number): void => {
+    const where: string = `${props.path}[${at}]`;
+    const boundary: IAutoMovieBuiltBoundary | undefined =
+      props.boundaries.get(id);
     if (boundary === undefined) {
       props.out.push(
         "type",

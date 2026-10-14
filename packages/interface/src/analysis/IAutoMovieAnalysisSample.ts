@@ -3,44 +3,28 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One value of one metric at one place, for a field overlay.
  *
- * A sample may only carry a key some metric of the same run actually measured.
- * A heatmap of a metric that produced no value would be a picture of a
- * computation nobody ran, which is the exact confusion this contract exists to
- * make impossible.
+ * A sample may only carry a key that some metric of the same run measured, so
+ * no heatmap can be drawn for a metric that produced no value.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `IAutoMovieAnalysisSample` as the portable data boundary for the diagnostics failed not run requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `IAutoMovieAnalysisSample` for the validation failed not run states system contract.
+ * A run carries at most the engine's `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` (4096)
+ * samples; a larger field is refused, never truncated.
+ *
+ * @evidence contracts/common.md#principled-implementation A point sample keyed to a metric; `validateAutoMovieAnalysisRun` collects the keys of metrics with a value and refuses a sample naming any other key, a repeated id, a non-finite coordinate or value, and a sample count past the bound.
+ * @evidence contracts/common.md#clear-and-simple-design Position and value only, with the unit inherited from the named metric, so the unit is stated once per field instead of once per sample.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An oversized field is refused rather than thinned, so the overlay never shows a coarser study than the one that ran.
+ * @evidence contracts/common.md#meaningful-documentation States the measured-key rule, the sample bound and its refusal behavior, the id scope, the position unit, and which unit the value is in.
+ * @author Samchon
  */
 export interface IAutoMovieAnalysisSample {
-  /**
-   * Stable sample identity within the run.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `id` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `id` for the validation failed not run states system contract.
-   */
+  /** Non-blank stable sample identity, unique within the run. */
   id: string;
 
-  /**
-   * Metric key this sample is a field of.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `key` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `key` for the validation failed not run states system contract.
-   */
+  /** Metric key this sample is a field of. */
   key: string;
 
-  /**
-   * World position in metres.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `position` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `position` for the validation failed not run states system contract.
-   */
+  /** World position in metres; every component finite. */
   position: IAutoMovieVector3;
 
-  /**
-   * Finite value at {@link position}, in the metric's unit.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-failed-not-run Exposes `value` as the portable data boundary for the diagnostics failed not run requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-failed-not-run-states Types `value` for the validation failed not run states system contract.
-   */
+  /** Finite value at {@link position}, in the metric's unit. */
   value: number;
 }

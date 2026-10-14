@@ -3,36 +3,36 @@ import { IAutoMovieCameraIntent } from "@automovie/interface";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 
 /**
- * Classify a subject's measured fraction of the frame.
+ * The framing a subject's measured frame occupancy reads as: the framing whose {@link FRAMING_HEIGHT_FRACTION} is nearest, by ratio, to how many subject sizes the frame spans.
  *
- * The fraction is of the frame's own height for a subject the frame holds
- * vertically, and of its width for one whose width is what placed the camera:
- * {@link FRAMING_HEIGHT_FRACTION} is applied to both axes by the framing solve,
- * so the axis that fills the most of its own side is the one that states the
- * size delivered.
+ * `frameOccupancy` is the subject's share of the frame, in (0, ∞): its height over the frame's height for a subject the frame holds vertically, or its width over the frame's width for one whose width placed the camera. The framing solve applies {@link FRAMING_HEIGHT_FRACTION} to both axes, so the axis that fills more of its own side states the size delivered, and `measureGrammarShotSize` passes the larger of the two. Nearness is measured on a log scale, so `close` at 0.28 and `medium` at 0.62 are separated where their ratio is even; an exact tie keeps the framing listed first, wider before closer. Throws when the occupancy is not finite and positive.
  *
- * @evidence requirements/editorial/continuity-and-film-grammar.md#editorial-spatial-grammar classifyGrammarShotSize supplies deterministic spatial-grammar analysis: Classify a subject's measured fraction of the frame, of its height or of its width, whichever the subject fills more.
- * @evidence specifications/editorial-render-and-delivery/editorial-audiovisual-continuity.md#spec-editorial-continuity-grammar classifyGrammarShotSize realizes deterministic continuity-grammar analysis: Classify a subject's measured fraction of the frame. The fraction is of the frame's own height for a subject the frame holds vertically, and of its width for one whose width is what placed the camera: the framing fractions are applied to both axes by the framing solve, so the axis that fills the most of its own side is the one that states the size delivered.
+ * @evidence contracts/common.md#principled-implementation Compares `|log(1/occupancy) − log(fraction)|` across the four framings, because framings are a geometric scale of visible subject multiples and the boundary between two neighbours is their geometric mean; the domain check keeps the logarithm defined.
+ * @evidence contracts/common.md#clear-and-simple-design Classification only, separate from `measureGrammarShotSize`, which owns projection and axis choice, and reading the same fraction table the framing solve places cameras with, so a requested size and a measured size share one scale.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No framing is favoured beyond the stated first-listed tie rule, and no occupancy is clamped into range; a non-positive or non-finite one throws.
+ * @evidence contracts/common.md#meaningful-documentation States the meaning and domain of the occupancy, which axis it comes from and why, the log-scale nearness with its effect on the boundaries, the tie rule, and the throw.
+ * @evidence contracts/performance.md#efficient-algorithms Constant time, one pass over the four-entry framing table.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure classification of one number that coordinates nothing across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; it returns one union member.
  */
-export const classifyGrammarShotSize = (
+export function classifyGrammarShotSize(
   frameOccupancy: number,
-): IAutoMovieCameraIntent["framing"] => {
-  positive(frameOccupancy, "frameOccupancy");
-  const visibleHeightMultiple = 1 / frameOccupancy;
-  return (
-    Object.entries(FRAMING_HEIGHT_FRACTION) as [
-      IAutoMovieCameraIntent["framing"],
-      number,
-    ][]
-  ).reduce((best, candidate) =>
-    Math.abs(Math.log(visibleHeightMultiple / candidate[1])) <
-    Math.abs(Math.log(visibleHeightMultiple / best[1]))
-      ? candidate
-      : best,
-  )[0];
-};
-
-const positive = (value: number, path: string): void => {
-  if (Number.isFinite(value) === false || value <= 0)
-    throw new Error(`${path} must be finite and positive.`);
-};
+): IAutoMovieCameraIntent["framing"] {
+  if (Number.isFinite(frameOccupancy) === false || frameOccupancy <= 0)
+    throw new Error("frameOccupancy must be finite and positive.");
+  const logVisibleSubjects: number = -Math.log(frameOccupancy);
+  const distance: (fraction: number) => number = (fraction: number): number =>
+    Math.abs(logVisibleSubjects - Math.log(fraction));
+  let best: IAutoMovieCameraIntent["framing"] | null = null;
+  let bestDistance: number = Infinity;
+  for (const framing of Object.keys(
+    FRAMING_HEIGHT_FRACTION,
+  ) as IAutoMovieCameraIntent["framing"][]) {
+    const candidate: number = distance(FRAMING_HEIGHT_FRACTION[framing]);
+    if (candidate < bestDistance) {
+      best = framing;
+      bestDistance = candidate;
+    }
+  }
+  return best!;
+}

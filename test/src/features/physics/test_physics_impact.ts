@@ -1,12 +1,19 @@
 import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const v = (x: number, y: number, z: number) => ({ x, y, z });
-const N = v(0, 0, 1); // contact normal, a → b (b sits ahead on +z)
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
+const N: IAutoMovieVector3 = v(0, 0, 1); // contact normal, a → b (b sits ahead on +z)
 
-const body = (over: Partial<IAutoMovieImpactBody>): IAutoMovieImpactBody => ({
+const body: (over: Partial<IAutoMovieImpactBody>) => IAutoMovieImpactBody = (
+  over: Partial<IAutoMovieImpactBody>,
+): IAutoMovieImpactBody => ({
   mass: 1,
   velocity: v(0, 0, 0),
   restitution: 0.2,
@@ -31,10 +38,15 @@ const body = (over: Partial<IAutoMovieImpactBody>): IAutoMovieImpactBody => ({
  *    velocities unchanged.
  * 5. Deflect (final): a slow, non-bouncy, non-penetrable hit → `deflect` with an
  *    inelastic impulse.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves bounce, embed, through and separating/closing deflection, asserting family, closing speed and momentum transfer; wrong material selection or restitution/transfer behavior fails.
+ * @evidence contracts/testing.md#independent-expectations Equal-mass restitution arithmetic gives bounce speeds 0.95/9.05 and inelastic speed 2; authored material policy and physical speed bounds distinguish embed/through. These bounded checks do not establish exact penetration physics or every threshold equality.
+ * @evidence contracts/testing.md#distinguishing-cases Covers hard bounce, soft embed, faster very-soft through, the existing moderately-fast embed twin, separating no-impulse and closing inelastic deflection; invalid fields belong to the dedicated admission units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls resolveImpact with authored bodies and owns every assertion directly, without a collision host or dynamically registered cases.
  */
-export const test_physics_impact = (): void => {
+export function test_physics_impact(): void {
   // 1. bounce
-  const bnc = resolveImpact(
+  const bnc: ReturnType<typeof resolveImpact> = resolveImpact(
     body({ mass: 1, velocity: v(0, 0, 10), restitution: 0.9, hardness: 0.9 }),
     body({ mass: 1, restitution: 0.9, hardness: 0.9 }),
     N,
@@ -51,7 +63,7 @@ export const test_physics_impact = (): void => {
   );
 
   // 2. embed
-  const emb = resolveImpact(
+  const emb: ReturnType<typeof resolveImpact> = resolveImpact(
     body({
       mass: 0.08,
       velocity: v(0, 0, 40),
@@ -65,22 +77,28 @@ export const test_physics_impact = (): void => {
   TestValidator.equals(
     "arrow ~stops (no rebound)",
     namedFacts([
-      ["embVelocityAZ", () => emb.velocityA.z >= 0],
-      ["embVelocityAZ2", () => emb.velocityA.z >= 0 && emb.velocityA.z < 1],
+      ["embVelocityAZ", (): boolean => emb.velocityA.z >= 0],
+      [
+        "embVelocityAZ2",
+        (): boolean => emb.velocityA.z >= 0 && emb.velocityA.z < 1,
+      ],
     ]),
     { embVelocityAZ: true, embVelocityAZ2: true },
   );
   TestValidator.equals(
     "heavy target barely moves",
     namedFacts([
-      ["embVelocityBZ", () => emb.velocityB.z > 0],
-      ["embVelocityBZ2", () => emb.velocityB.z > 0 && emb.velocityB.z < 0.3],
+      ["embVelocityBZ", (): boolean => emb.velocityB.z > 0],
+      [
+        "embVelocityBZ2",
+        (): boolean => emb.velocityB.z > 0 && emb.velocityB.z < 0.3,
+      ],
     ]),
     { embVelocityBZ: true, embVelocityBZ2: true },
   );
 
   // 3. through
-  const thr = resolveImpact(
+  const thr: ReturnType<typeof resolveImpact> = resolveImpact(
     body({
       mass: 0.08,
       velocity: v(0, 0, 40),
@@ -98,7 +116,7 @@ export const test_physics_impact = (): void => {
 
   // 3b. very soft but only moderately fast → embed (not through): the body is
   // penetrable enough, but the speed is below the pass-through threshold
-  const emb2 = resolveImpact(
+  const emb2: ReturnType<typeof resolveImpact> = resolveImpact(
     body({
       mass: 0.08,
       velocity: v(0, 0, 10),
@@ -111,24 +129,24 @@ export const test_physics_impact = (): void => {
   TestValidator.equals("soft but moderate speed → embed", emb2.kind, "embed");
 
   // 4. deflect: already separating
-  const sep = resolveImpact(body({ velocity: v(0, 0, -5) }), body({}), N);
+  const sep: ReturnType<typeof resolveImpact> = resolveImpact(
+    body({ velocity: v(0, 0, -5) }),
+    body({}),
+    N,
+  );
   TestValidator.equals("separating → deflect", sep.kind, "deflect");
   TestValidator.predicate("no impulse", nclose(sep.impulse.z, 0));
   TestValidator.predicate("velocity unchanged", nclose(sep.velocityA.z, -5));
 
   // 5. deflect: slow, non-bouncy, non-penetrable (final else, inelastic impulse)
-  const dfl = resolveImpact(
+  const dfl: ReturnType<typeof resolveImpact> = resolveImpact(
     body({ mass: 1, velocity: v(0, 0, 4), restitution: 0.2, hardness: 0.3 }),
     body({ mass: 1, restitution: 0.2, hardness: 0.3, penetrability: 0.2 }),
     N,
   );
   TestValidator.equals("slow scuff → deflect", dfl.kind, "deflect");
-  TestValidator.equals(
+  TestValidator.predicate(
     "inelastic: both end at ~2 m/s",
-    namedFacts([
-      ["ncloseDflVelocityA", () => nclose(dfl.velocityA.z, 2)],
-      ["ncloseDflVelocityB", () => nclose(dfl.velocityB.z, 2)],
-    ]),
-    { ncloseDflVelocityA: true, ncloseDflVelocityB: true },
+    nclose(dfl.velocityA.z, 2) && nclose(dfl.velocityB.z, 2),
   );
-};
+}

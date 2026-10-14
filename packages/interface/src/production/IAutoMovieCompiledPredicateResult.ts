@@ -1,33 +1,21 @@
 import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 
 /**
- * One scalar predicate and the value measured by the builder.
+ * One authoritative scalar predicate beside its measured value and result. An unresolved operand records null and fails rather than becoming a zero measurement.
  *
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `IAutoMovieCompiledPredicateResult` as the portable data boundary for the diagnostics derived result finding requirement.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `IAutoMovieCompiledPredicateResult` for the validation derived result finding system contract.
+ * @evidence contracts/common.md#principled-implementation Engine evaluateShotPredicate measures position, Euclidean distance or joint angle at the sample instant and compares it with the authored operator/tolerance. Null represents an unresolved operand, nonfinite measurement or any caught measurement exception and cannot pass; expected-value admission remains a caller premise.
+ * @evidence contracts/common.md#clear-and-simple-design Predicate, actual and passed preserve the obligation, observation and decision separately, allowing state and event realization lists to share the same grading representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing rigs, bones or selectors do not become zero-valued measurements, and authored expected values are never copied into actual to manufacture realization.
+ * @evidence contracts/common.md#meaningful-documentation Identifies predicate authority, sampled scalar ownership, null unresolved semantics and the resulting failed comparison.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledPredicateResult {
-  /**
-   * Exact authoritative predicate.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `predicate` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `predicate` for the validation derived result finding system contract.
-   */
+  /** Exact authoritative predicate. */
   predicate: IAutoMovieShotPredicate;
 
-  /**
-   * Actual sampled value, or null when the operand could not be resolved.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `actual` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `actual` for the validation derived result finding system contract.
-   */
+  /** Actual sampled value, or null when the operand could not be resolved. */
   actual: number | null;
 
-  /**
-   * Whether the authoritative comparison passed.
-   *
-   * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-derived-result-finding Exposes `passed` as the portable data boundary for the diagnostics derived result finding requirement.
-   * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-derived-result-finding Types `passed` for the validation derived result finding system contract.
-   */
+  /** Whether the authoritative comparison passed. */
   passed: boolean;
 }

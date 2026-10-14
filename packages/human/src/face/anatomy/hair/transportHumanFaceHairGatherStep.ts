@@ -1,23 +1,27 @@
 import { Vector3 } from "@automovie/engine";
+import type { IHumanFaceHairRetraction as ImportedIHumanFaceHairRetraction } from "@automovie/human";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceHairGatherTransport } from "./IHumanFaceHairGatherTransport";
 import type { IHumanFaceHairGatherTransportState } from "./IHumanFaceHairGatherTransportState";
 
 /**
- * Transport a pre-tie candidate without changing its requested direction blend.
- * The first-free actual offset supplies the datum. Limited requested normal
- * intent advances it by actual chord metric; strength relaxes only the offset
- * residual. A plane therefore preserves authored normal motion at every strength.
- * Ordinary/zero-strength and tied tail callers keep their existing path.
- * All positions, offsets and travel are current head metres. No caller mutates.
- * The existing floor remains mandatory; concave/ambiguous retraction refuses.
+ * Transport a pre-tie candidate without changing its requested direction blend. The first-free actual offset supplies the datum. Limited requested normal intent advances it by actual chord metric; strength relaxes only the offset residual. A plane therefore preserves authored normal motion at every strength. Ordinary/zero-strength and tied tail callers keep their existing path. All positions, offsets and travel are current head metres. No caller mutates. The existing floor remains mandatory; concave/ambiguous retraction refuses.
+ *
+ * @evidence contracts/common.md#principled-implementation Derived first-free offset and requested normal intent transport a pre-tie candidate through offset retraction.
+ * @evidence contracts/common.md#clear-and-simple-design The gather strength relaxes offset residual while the existing field blend and actual chord metric remain authoritative.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid strength/offset/budget or ambiguous retraction refuses, and the original free-clearance floor is preserved.
+ * @evidence contracts/common.md#meaningful-documentation Input positions and offset/travel use current head metres; zero strength preserves its direct candidate branch.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed scalar/vector solving delegates dominant cost to up to several bounded offset retractions and samples.
+ * @evidence contracts/performance.md#reuse-equivalent-work The existing lock contact and remaining budget are reused rather than a separate gather collider.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Output point/offset are caller-owned and no previous transport path is retained; only the supplied budget mutates.
  */
 export function transportHumanFaceHairGatherStep(
   props: IHumanFaceHairGatherTransportState,
 ): IHumanFaceHairGatherTransport {
   if (
     ![props.point, props.direction, props.normal].every(
-      (p) =>
+      (p: ImportedIAutoMovieVector3): boolean =>
         p !== undefined && p !== null && [p.x, p.y, p.z].every(Number.isFinite),
     )
   )
@@ -45,11 +49,11 @@ export function transportHumanFaceHairGatherStep(
     throw new Error(
       "Gather transport requires admitted strength, travel and derived free offset.",
     );
-  const raw = Vector3.add(
+  const raw: ImportedIAutoMovieVector3 = Vector3.add(
     props.point,
     Vector3.scale(props.direction, props.parameter),
   );
-  const intent = Vector3.dot(props.direction, props.normal);
+  const intent: number = Vector3.dot(props.direction, props.normal);
   if (props.strength === 0)
     return {
       point: raw,
@@ -60,23 +64,27 @@ export function transportHumanFaceHairGatherStep(
       ),
       normalIntent: intent,
     };
-  const retracted = props.contact.retract(raw, props.offset, props.budget);
-  const v = Vector3.subtract(
+  const retracted: ImportedIHumanFaceHairRetraction = props.contact.retract(
+    raw,
+    props.offset,
+    props.budget,
+  );
+  const v: ImportedIAutoMovieVector3 = Vector3.subtract(
     Vector3.add(
       raw,
       Vector3.scale(Vector3.subtract(retracted.point, raw), props.strength),
     ),
     props.point,
   );
-  const b = props.strength * intent;
-  const a = 1 - b * b,
-    linear = b * Vector3.dot(v, retracted.normal),
-    constant = Vector3.dot(v, v);
+  const b: number = props.strength * intent;
+  const a: number = 1 - b * b,
+    linear: number = b * Vector3.dot(v, retracted.normal),
+    constant: number = Vector3.dot(v, v);
   let metric: number;
   if (a === 0 && constant === 0) metric = props.parameter;
   else if (a === 0 && linear < 0) metric = -constant / (2 * linear);
   else if (a > 0) {
-    const root = Math.sqrt(linear * linear + a * constant);
+    const root: number = Math.sqrt(linear * linear + a * constant);
     metric = linear < 0 ? constant / (root - linear) : (linear + root) / a;
   } else
     throw new Error(
@@ -84,11 +92,11 @@ export function transportHumanFaceHairGatherStep(
     );
   // Each real root is nonnegative. Nonfinite scalar arithmetic produces a
   // nonfinite candidate, which the existing closed-query owner refuses below.
-  let point = Vector3.add(
+  let point: ImportedIAutoMovieVector3 = Vector3.add(
     props.point,
     Vector3.add(v, Vector3.scale(retracted.normal, b * metric)),
   );
-  const offset = Math.max(
+  const offset: number = Math.max(
     props.contact.clearance - props.contact.epsilon,
     props.offset + intent * metric,
   );

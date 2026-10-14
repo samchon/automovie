@@ -3,28 +3,34 @@ import { IAutoMovieCompiledShotSource } from "@automovie/interface";
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
+import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
 
 /**
  * Read a compiled shot as a render subject.
  *
- * One conversion is the point: every evidence path reading its subject here
- * would measure the same artifact. The test suite is currently the only caller,
- * so that is a property of the signature and not of the pipeline. It becomes a
- * property of the pipeline when the inventory path and the capture path both
- * take their subject from this call instead of assembling one each.
+ * The canonical compiled-shot adapter uses this field projection and derives
+ * the artifact's simulated drawable rows. Other callers must supply those rows
+ * explicitly; omitted supplemental arrays become empty. Texture upload and
+ * residency facts come from the capture host, rather than the compiled artifact.
  *
- * Simulated drawables and texture dimensions are not carried by the compiled
- * shot yet and are supplied by the caller, which is why they are separate
- * arguments rather than silently defaulted to empty inside a report that would
- * then read as complete.
- *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Combines staged nodes, models, instances, simulated drawables, and texture facts into the inventory's measurement boundary.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Prevents mask and budget preflight from assembling different drawable closures for the same compiled shot.
+ * @evidence contracts/common.md#principled-implementation Project ordinary compiled scene/models/environments/populations/effects into one render subject and attach caller-supplied simulation/texture facts; absent supplemental arrays become empty under this lower-level adapter's explicit contract.
+ * @evidence contracts/common.md#clear-and-simple-design This shared projection is consumed by autoMovieRenderSubjectOfCompiledShot, which derives simulated rows; callers needing complete artifact coverage use that canonical conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty supplemental arrays are a caller responsibility rather than proof that a compiled artifact has no domains; this adapter does not synthesize missing texture bytes or branch geometry costs.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify borrowed compiled records, optional supplemental facts and omitted-residency fresh-context meaning, correcting the obsolete claim that this has only test callers.
+ * @evidence contracts/performance.md#efficient-algorithms The adapter creates one fixed-field record and borrows arrays, so work/storage is O(1) apart from newly allocated empty defaults; expensive derivation belongs to the canonical caller.
+ * @evidence contracts/performance.md#reuse-equivalent-work Canonical compiled conversion shares this field projection; result references intentionally track input arrays, so caching would not create an immutable subject snapshot.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned subject owns its wrapper and defaults while input arrays remain caller-owned; no domain solver, texture handle or task is retained.
  */
-export const autoMovieRenderSubjectOfShot = (props: {
+export const autoMovieRenderSubjectOfShot: (props: {
+  compiled: IAutoMovieCompiledShotSource;
+  waterBodies?: readonly IAutoMovieRenderWaterBody[];
+  softBodies?: readonly IAutoMovieRenderSoftPanel[];
+  plantings?: readonly IAutoMovieRenderPlanting[];
+  textures?: readonly IAutoMovieRenderTextureSource[];
+  textureResidency?: IAutoMovieRenderTextureResidency;
+}) => IAutoMovieRenderSubject = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
   /** Declared water bodies, if the production has any. */

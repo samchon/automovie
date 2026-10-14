@@ -1,2 +1,7 @@
-/** Refractive index of keratin (Marschner et al. 2003; pbrt-v3's default). */
-export const HUMAN_HAIR_SHADOW_KERATIN_INDEX = 1.55;
+/**
+ * Conventional dielectric index used by this display model's normal-incidence
+ * surface-reflection approximation. It is not a site/population measurement
+ * or wavelength-dependent optical table. One fixed scalar feeds the Fresnel
+ * owner and retains no native resource.
+ */
+export const HUMAN_HAIR_SHADOW_KERATIN_INDEX: number = 1.55;

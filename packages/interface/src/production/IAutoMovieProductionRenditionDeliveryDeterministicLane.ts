@@ -1,28 +1,20 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-
 /**
  * The deterministic renderer lane of one delivered occurrence.
  *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Makes the deterministic lane explicit rather than inferred from absent repaint data.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Refuses receipt-based lane inference for deterministic pixels.
+ * @evidence contracts/common.md#principled-implementation The deterministic discriminant pairs a declared source digest with null receipt and selection digests, expressing absence of repaint lineage without reading a render plan.
+ * @evidence contracts/common.md#clear-and-simple-design This lane arm contributes only deterministic identity to the shared occurrence record, making repaint-only provenance structurally unavailable.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null lineage fields exclude repaint receipts structurally; the plain source string neither validates digest syntax nor proves correspondence to a current compile, and no maintained delivery validator consumes this DTO.
+ * @evidence contracts/common.md#meaningful-documentation Defines deterministic source selection and the required absence of repaint receipt and active-selection provenance.
+ * @author Samchon
  */
 export interface IAutoMovieProductionRenditionDeliveryDeterministicLane {
-  /**
-   * Deterministic renderer source, unaffected by resident repaint data.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Makes the lane explicit.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Refuses receipt-based inference.
-   */
+  /** Deterministic renderer source, unaffected by resident repaint data. */
   lane: "deterministic";
 
   /** Current deterministic feature source digest. */
-  sourceDigest: AutoMovieContentDigest;
+  sourceDigest: string;
 
-  /**
-   * No repaint lineage belongs to this lane.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-publication-gate Records that no selected repaint lineage exists for deterministic pixels.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Seals the absence of a candidate receipt in final conform.
-   */
+  /** No repaint lineage belongs to this lane. */
   receiptDigest: null;
 
   /** No active selection belongs to this lane. */

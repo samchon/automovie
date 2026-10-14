@@ -1,10 +1,18 @@
-import { performShot, stageScene } from "@automovie/engine";
 import {
   IAutoMovieBlockingCoverage,
   IAutoMovieCameraIntent,
+  IAutoMovieClip,
+  IAutoMovieShotCoverage,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -15,6 +23,7 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import {
   hasViolation,
+  nclose,
   qclose,
   vclose,
   violationCount,
@@ -28,47 +37,53 @@ type ICoverage = IAutoMovieBlockingCoverage;
  * `medium` shows 0.62 × 1.2 m = 0.744 m, and `tan(45°) = 1` makes the framed
  * distance 0.744 / 2 = 0.372 m along the staged bearing.
  */
-const staged = (() => {
-  const result = stageScene(
-    makeScriptWrite(),
-    makeStagingWrite({
-      cameras: [
-        {
-          node: "cam-main",
-          position: { x: 2, y: 0.864, z: 0 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-alt",
-          position: { x: 0, y: 0.864, z: -2 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-wide",
-          position: { x: -2, y: 0.864, z: 0 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 90,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(
+      makeScriptWrite(),
+      makeStagingWrite({
+        cameras: [
+          {
+            node: "cam-main",
+            position: { x: 2, y: 0.864, z: 0 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-alt",
+            position: { x: 0, y: 0.864, z: -2 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-wide",
+            position: { x: -2, y: 0.864, z: 0 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 90,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+      }),
+    );
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
 
 /** One valid coverage intent: cam-alt holds a medium static on knightA. */
-const coverage = (over: Partial<ICoverage> = {}): ICoverage => ({
+const coverage: (
+  over?: Partial<IAutoMovieBlockingCoverage>,
+) => IAutoMovieBlockingCoverage = (
+  over: Partial<ICoverage> = {},
+): ICoverage => ({
   camera: "cam-alt",
   framing: "medium",
   move: "static",
@@ -77,13 +92,15 @@ const coverage = (over: Partial<ICoverage> = {}): ICoverage => ({
 });
 
 /** Perform the beat-1 duel fixture under a blocking carrying `list`. */
-const perform = (list?: ICoverage[]) =>
+const perform: (
+  list?: IAutoMovieBlockingCoverage[] | undefined,
+) => IAutoMoviePerformedShot = (list?: ICoverage[]): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     blocking:
       list === undefined
         ? makeBlockingWrite()
@@ -91,52 +108,34 @@ const perform = (list?: ICoverage[]) =>
   });
 
 /** The first translation key of a compiled camera clip. */
-const firstKey = (values: readonly number[], k = 0) => ({
+const firstKey: (
+  values: readonly number[],
+  k?: number,
+) => { x: number; y: number; z: number } = (
+  values: readonly number[],
+  k: number = 0,
+): { x: number; y: number; z: number } => ({
   x: values[k * 3]!,
   y: values[k * 3 + 1]!,
   z: values[k * 3 + 2]!,
 });
 
 /**
- * The production bridge of #1187's multi-camera half: `performShot` compiles
- * the blocking's `coverage` intents into alternate takes on `shot.coverage`
- * while the hero take keeps its singular `camera`/`cameraMotion` and its one
- * live `frame` election. A coverage camera never enters the election; it plays
- * its own intent across the whole beat from its own staged bearing, so a render
- * host can cut to the angle at any instant.
- *
- * The staged cameras sit at the aim height with `fovY = 90°`, so every expected
- * key is hand arithmetic: subject height 1.2 m (the fixture rig's measured rest
- * height), `medium` aim 0.72 × 1.2 = 0.864 m, framed distance (0.62 × 1.2) / 2
- * / tan(45°) = 0.372 m along the bearing from the aim point to the staged
- * camera.
+ * Coverage compiles alternate cameras without changing the singular hero take.
  *
  * Scenarios:
+ * 1. Check one static alternate, its channels/intent and hand-derived framed pose.
+ * 2. Preserve blocking order and push-in endpoints for two alternates.
+ * 3. Keep omitted/empty/unblocked coverage empty with an unchanged hero, and refuse invalid camera/framing/move/subject inputs while accepting point targets.
  *
- * 1. One coverage intent (cam-alt, medium static on knightA) → one take naming
- *    cam-alt, its clip id `cam:beat-1:cam-alt`, both tracks on cam-alt, a
- *    single key at (0, 0.864, −0.372) rotated 180° about +Y (looking back down
- *    +Z), and one intent record `{ start: 0, medium, static, focus null, lens
- *    null }`. The hero take is untouched: camera `cam-main`, keyed at (0.372,
- *    0.864, 0).
- * 2. Two coverage intents on distinct cameras compile two takes in blocking order,
- *    and a `push-in` alternate dollies 1.25× → 0.8× of the framed distance
- *    (first key x = −0.465, last key x = −0.2976): the alternate rides the same
- *    move grammar, not a static-only shortcut.
- * 3. Boundaries: an omitted `coverage`, an explicit `[]`, and an omitted
- *    `blocking` all assemble the shot with `coverage: []` (one camera), and the
- *    hero clip stays byte-identical to the covered run (coverage never
- *    re-enters the hero solve).
- * 4. Gates at `$blocking.coverage[i]`: an unstaged camera, an empty camera id, the
- *    elected live camera itself, and a repeat all violate `.camera`; a forged
- *    framing/move violates `.framing`/`.move`; an unstaged node subject
- *    violates `.on`.
- * 5. Negative twins: two distinct staged cameras and a point-target coverage each
- *    fire nothing, so no gate over-matches a legitimate angle.
+ * @evidence contracts/testing.md#behavioral-verification Runs performShot and reads alternate identities, channels, pose, intents and located coverage faults, catching rival-camera election, wrong staged bearing or missing input gates. Hero equality is replay invariance, not a repository arrangement check.
+ * @evidence contracts/testing.md#independent-expectations The fixture rig height 1.2, medium factors .72/.62 and 90-degree field of view determine aim .864 and framed distance .372; push-in endpoints are 1.25 and .8 times that distance. Expected poses use numerical closeness; comparison of repeated hero output checks coverage independence rather than an independent hero-solve oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves static and moving alternates, ordered cameras, omitted/empty/no blocking, unknown/blank/live/repeated camera, invalid framing/move and unknown subject, with distinct-camera and point-target neighbours.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns portable numerical camera cases and directly calls source with existing authored data, opening no renderer, browser or GPU; it proves compiled camera values rather than a visible cut.
  */
-export const test_film_perform_shot_coverage = (): void => {
+export function test_film_perform_shot_coverage(): void {
   // 1. one coverage intent becomes one alternate take beside an untouched hero.
-  const single = perform([coverage()]);
+  const single: IAutoMoviePerformedShot = perform([coverage()]);
   TestValidator.equals("covered beat performs", single.success, true);
   if (single.success !== true) return;
   TestValidator.equals(
@@ -145,7 +144,7 @@ export const test_film_perform_shot_coverage = (): void => {
     "cam-main",
   );
   TestValidator.equals("one alternate take", single.shot.coverage!.length, 1);
-  const take = single.shot.coverage![0]!;
+  const take: IAutoMovieShotCoverage = single.shot.coverage![0]!;
   TestValidator.equals(
     "the take names its staged camera",
     take.camera,
@@ -158,15 +157,15 @@ export const test_film_perform_shot_coverage = (): void => {
   );
   TestValidator.equals(
     "both tracks drive the covering camera",
-    take.cameraMotion!.tracks.map((t) =>
+    take.cameraMotion!.tracks.map((t: IAutoMovieTrack): string =>
       t.channel.kind === "node" ? t.channel.node : "",
     ),
     ["cam-alt", "cam-alt"],
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a static alternate keys once",
-    take.cameraMotion!.tracks[0]!.times,
-    [0],
+    take.cameraMotion!.tracks[0]!.times.length === 1 &&
+      nclose(take.cameraMotion!.tracks[0]!.times[0]!, 0),
   );
   TestValidator.predicate(
     "the alternate frames from its own staged bearing",
@@ -197,10 +196,9 @@ export const test_film_perform_shot_coverage = (): void => {
       focalLength: null,
     },
   ];
-  TestValidator.equals(
+  TestValidator.predicate(
     "the take carries its own intent",
-    take.cameraIntent,
-    expectedIntent,
+    filmEffectValuesClose(take.cameraIntent, expectedIntent),
   );
   TestValidator.predicate(
     "the hero take still frames from +X",
@@ -212,7 +210,7 @@ export const test_film_perform_shot_coverage = (): void => {
   );
 
   // 2. several angles, and an alternate that moves.
-  const several = perform([
+  const several: IAutoMoviePerformedShot = perform([
     coverage(),
     coverage({ camera: "cam-wide", move: "push-in" }),
   ]);
@@ -220,10 +218,12 @@ export const test_film_perform_shot_coverage = (): void => {
   if (several.success !== true) return;
   TestValidator.equals(
     "takes ride in blocking order",
-    several.shot.coverage!.map((entry) => entry.camera),
+    several.shot.coverage!.map(
+      (entry: IAutoMovieShotCoverage): string => entry.camera,
+    ),
     ["cam-alt", "cam-wide"],
   );
-  const dolly = several.shot.coverage![1]!.cameraMotion!;
+  const dolly: IAutoMovieClip = several.shot.coverage![1]!.cameraMotion!;
   TestValidator.equals(
     "a push-in alternate keys the dolly",
     dolly.tracks[0]!.times.length,
@@ -247,62 +247,74 @@ export const test_film_perform_shot_coverage = (): void => {
   );
 
   // 3. boundaries: the single-camera beat, in all three shapes.
-  const omitted = perform();
-  const emptyList = perform([]);
-  const unblocked = performShot({
+  const omitted: IAutoMoviePerformedShot = perform();
+  const emptyList: IAutoMoviePerformedShot = perform([]);
+  const unblocked: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.predicate(
     "a single-camera beat assembles an empty coverage list",
     [omitted, emptyList, unblocked].every(
-      (result) =>
+      (result: IAutoMoviePerformedShot): boolean =>
         result.success === true &&
         Array.isArray(result.shot.coverage) &&
         result.shot.coverage.length === 0,
     ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "coverage never re-enters the hero solve",
-    JSON.stringify(omitted.success === true ? omitted.shot.cameraMotion : null),
-    JSON.stringify(single.shot.cameraMotion),
+    filmEffectValuesClose(
+      omitted.success === true ? omitted.shot.cameraMotion : null,
+      single.shot.cameraMotion,
+    ),
   );
 
   // 4. gates.
-  const ghost = perform([coverage({ camera: "cam-ghost" })]);
+  const ghost: IAutoMoviePerformedShot = perform([
+    coverage({ camera: "cam-ghost" }),
+  ]);
   TestValidator.predicate(
     "an unstaged coverage camera is a type violation",
     hasViolation(ghost, "type", "$blocking.coverage[0].camera"),
   );
-  const blank = perform([coverage({ camera: "" })]);
+  const blank: IAutoMoviePerformedShot = perform([coverage({ camera: "" })]);
   TestValidator.predicate(
     "an empty coverage camera id is a type violation",
     hasViolation(blank, "type", "$blocking.coverage[0].camera"),
   );
-  const hero = perform([coverage({ camera: "cam-main" })]);
+  const hero: IAutoMoviePerformedShot = perform([
+    coverage({ camera: "cam-main" }),
+  ]);
   TestValidator.predicate(
     "covering with the live camera is a type violation",
     hasViolation(hero, "type", "$blocking.coverage[0].camera"),
   );
-  const repeated = perform([coverage(), coverage()]);
+  const repeated: IAutoMoviePerformedShot = perform([coverage(), coverage()]);
   TestValidator.predicate(
     "a repeated coverage camera is a type violation at the later entry",
     hasViolation(repeated, "type", "$blocking.coverage[1].camera"),
   );
-  const badFraming = perform([coverage({ framing: "dutch" as never })]);
+  const badFraming: IAutoMoviePerformedShot = perform([
+    coverage({ framing: "dutch" as never }),
+  ]);
   TestValidator.predicate(
     "a forged coverage framing is a type violation",
     hasViolation(badFraming, "type", "$blocking.coverage[0].framing"),
   );
-  const badMove = perform([coverage({ move: "dolly" as never })]);
+  const badMove: IAutoMoviePerformedShot = perform([
+    coverage({ move: "dolly" as never }),
+  ]);
   TestValidator.predicate(
     "a forged coverage move is a type violation",
     hasViolation(badMove, "type", "$blocking.coverage[0].move"),
   );
-  const stranger = perform([coverage({ on: { kind: "node", node: "ghost" } })]);
+  const stranger: IAutoMoviePerformedShot = perform([
+    coverage({ on: { kind: "node", node: "ghost" } }),
+  ]);
   TestValidator.predicate(
     "an unresolvable coverage subject is a type violation",
     hasViolation(stranger, "type", "$blocking.coverage[0].on"),
@@ -314,7 +326,7 @@ export const test_film_perform_shot_coverage = (): void => {
     violationCount(several),
     0,
   );
-  const point = perform([
+  const point: IAutoMoviePerformedShot = perform([
     coverage({ on: { kind: "point", point: { x: 0, y: 0, z: 0.7 } } }),
   ]);
   TestValidator.equals(
@@ -322,4 +334,4 @@ export const test_film_perform_shot_coverage = (): void => {
     violationCount(point),
     0,
   );
-};
+}

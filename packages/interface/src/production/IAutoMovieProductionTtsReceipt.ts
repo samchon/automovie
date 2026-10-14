@@ -1,70 +1,39 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
 import { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
 import { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
 
 /**
- * Content-addressed receipt for one locally synthesized Kokoro line.
+ * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; the schema retains generation claims without a repository synthesis writer or receipt-byte validator.
  *
- * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `IAutoMovieProductionTtsReceipt` as the portable data boundary for the sound event synchronization requirement.
- * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `IAutoMovieProductionTtsReceipt` for the sound event sync and boundary continuity system contract.
+ * @evidence contracts/common.md#principled-implementation The receipt describes line, immutable Kokoro revision, inference/cache identity, native PCM digest and sample clock, runtime assets and derived mouth timing; the enclosing sound-evidence DTO retains supplied receipts without comparing their population or verifying bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Groups generator provenance, exact source generation and timing beside optional actor join, separating synthesized-byte identity from later mix and encoded audio identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The fixed model and revision describe this supported receipt format rather than a provider-neutral runtime; source, license and terms date are optional descriptive metadata, and there is currently no repository writer proving synthesis or rights review from this record alone.
+ * @evidence contracts/common.md#meaningful-documentation Defines schema epoch, cache and model identity, provenance limits, generation instant, native PCM units and digest, runtime closure, phoneme/viseme clocks and legacy join omission.
+ * @author Samchon
  */
 export interface IAutoMovieProductionTtsReceipt {
-  /**
-   * Receipt schema.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `version` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `version` for the sound event sync and boundary continuity system contract.
-   */
+  /** Receipt schema. */
   version: 6;
 
-  /**
-   * Exact dialogue line id.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `line` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `line` for the sound event sync and boundary continuity system contract.
-   */
+  /** Exact dialogue line id. */
   line: string;
 
-  /**
-   * Content address over text, voice, model, and inference arguments.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `cacheKey` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `cacheKey` for the sound event sync and boundary continuity system contract.
-   */
-  cacheKey: AutoMovieContentDigest;
+  /** Content address over text, voice, model, and inference arguments. */
+  cacheKey: string;
 
-  /**
-   * Local Kokoro model identity.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `model` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `model` for the sound event sync and boundary continuity system contract.
-   */
+  /** Local Kokoro model identity. */
   model: "onnx-community/Kokoro-82M-v1.0-ONNX";
 
-  /**
-   * Immutable Hugging Face model revision.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `modelRevision` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `modelRevision` for the sound event sync and boundary continuity system contract.
-   */
+  /** Immutable Hugging Face model revision. */
   modelRevision: "1939ad2a8e416c0acfeecc08a694d14ef25f2231";
 
-  /**
-   * Kokoro voice identity.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `voice` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `voice` for the sound event sync and boundary continuity system contract.
-   */
+  /** Kokoro voice identity. */
   voice: string;
 
   /**
    * Generator cost basis and consumer retained with the generated bytes.
    *
    * The record accompanies the exact runtime and synthesized line.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Carries the generator adoption facts with the exact synthesized line rather than leaving them outside the synchronized receipt.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Keeps the adopted generator context on the portable line receipt consumed across the sound-picture join.
    */
   generatorProvenance: {
     /** Optional descriptive source location. */
@@ -90,86 +59,41 @@ export interface IAutoMovieProductionTtsReceipt {
   };
 
   /**
-   * UTC instant captured immediately before the generator call that produced
-   * this receipt's immutable PCM.
-   *
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#external-result-provider-neutrality Retains the immutable generation instant with the adopted audio result.
+   * UTC instant captured immediately before the generator call that produced this receipt's immutable PCM.
    */
   generatedAt: string;
 
-  /**
-   * Model-native PCM clock before deterministic resampling.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `sourceSampleRate` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `sourceSampleRate` for the sound event sync and boundary continuity system contract.
-   */
+  /** Model-native PCM clock before deterministic resampling. */
   sourceSampleRate: number;
 
-  /**
-   * Exact cached mono source sample count.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `sourceSamples` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `sourceSamples` for the sound event sync and boundary continuity system contract.
-   */
+  /** Exact cached mono source sample count. */
   sourceSamples: number;
 
-  /**
-   * Digest of cached little-endian Float32 PCM bytes.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `pcmDigest` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `pcmDigest` for the sound event sync and boundary continuity system contract.
-   */
-  pcmDigest: AutoMovieContentDigest;
+  /** Digest of cached little-endian Float32 PCM bytes. */
+  pcmDigest: string;
 
-  /**
-   * Kokoro phoneme stream joined in synthesis order.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `phonemes` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `phonemes` for the sound event sync and boundary continuity system contract.
-   */
+  /** Kokoro phoneme stream joined in synthesis order. */
   phonemes: string;
 
-  /**
-   * Phoneme chunks on the exact model-native PCM clock.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `phonemeChunks` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `phonemeChunks` for the sound event sync and boundary continuity system contract.
-   */
+  /** Phoneme chunks on the exact model-native PCM clock. */
   phonemeChunks: IAutoMovieProductionPhonemeChunk[];
 
-  /**
-   * Adapter, native backend, model-cache, and bundled-voice byte identity.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `runtimeAssets` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `runtimeAssets` for the sound event sync and boundary continuity system contract.
-   */
+  /** Adapter, native backend, model-cache, and bundled-voice byte identity. */
   runtimeAssets: Array<{
     /** Stable package or revision-cache-relative asset name. */
     path: string;
 
     /** Digest of the exact bytes consumed by synthesis. */
-    digest: AutoMovieContentDigest;
+    digest: string;
   }>;
 
-  /**
-   * Mouth targets derived from the same chunk sample clock.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `visemes` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `visemes` for the sound event sync and boundary continuity system contract.
-   */
+  /** Mouth targets derived from the same chunk sample clock. */
   visemes: IAutoMovieProductionViseme[];
 
   /**
    * Join from final-byte viseme timing to the authored speaking actor.
    *
-   * Optional only for legacy receipts. New receipts record an available or
-   * not-run outcome rather than silently dropping mouth motion.
-   *
-   * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-final-bytes-authority Binds mouth timing to the same final bytes as audible dialogue.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Carries the deterministic actor join consumed before frame capture.
-   *
-   * @evidence requirements/sound/editing-synchronization-and-continuity.md#sound-event-synchronization Exposes `lipSync` as the portable data boundary for the sound event synchronization requirement.
-   * @evidence specifications/simulation-effects-and-sound/mix-stems-loudness-and-av-join.md#sound-event-sync-and-boundary-continuity Types `lipSync` for the sound event sync and boundary continuity system contract.
+   * The supported receipt contract requests an available or not-run outcome for new receipts; older receipts may omit it. No current execution reader enforces this field or applies mouth motion, and this repository has no synthesis writer.
    */
   lipSync?: IAutoMovieProductionLipSyncJoin;
 }

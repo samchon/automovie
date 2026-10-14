@@ -1,9 +1,9 @@
 /**
- * 서로 내부가 겹치지 않는 직교 바닥 구획의 경계면을 직접 구성한다.
- * 입력 끝선/높이에서만 나눈 비균일 격자로 정확한 면 접합을 구하고 내부
- * 접면을 출력하지 않는다. 일정 해상도 샘플링이나 입력 mesh 변경은 없다.
- * 면은 볼록 사각형, world m, 바깥쪽 winding이다. engine이 normals/UV를
- * 만들 수 있도록 모든 끝점과 물리 구획/공간의 원래 ID를 보존한다.
+ * Builds the boundary faces of orthogonal floor compartments whose interiors do not overlap.
+ * A non-uniform grid split only at input end lines and heights gives exact face joints, and
+ * interior contact faces are not emitted. There is no fixed-resolution sampling or input mesh change.
+ * Faces are convex quads in world m with outward winding. Every end point and the original IDs of
+ * the physical compartments and spaces are kept so the engine can build normals and UVs.
  */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { FloorInput, FloorSlab } from "./floor-input";
@@ -23,26 +23,26 @@ interface Occupant {
 }
 
 /**
- * 모든 방을 함께 읽어 서로 맞닿은 바닥 사이의 내부 면도 제거한다.
- * 양의 체적 중첩, 빈 입력, 중복 ID, 비유한 값, 뒤집힌 범위는 거부한다.
- * 결과의 닫힘/비다양체 여부는 후속 engine topology 계측 대상이다.
+ * Reads all rooms together so the interior faces between touching floors are removed too.
+ * Positive volume overlap, empty input, duplicate IDs, non-finite values and reversed ranges are refused.
+ * Whether the result is closed or non-manifold is measured later by the engine topology census.
  */
 export const floorBoundaryFaces = (inputs: readonly FloorInput[]): FloorBoundaryFace[] => {
   const solids = inputs.flatMap((floor) => floor.slabs.map((slab) => ({ floor, slab })));
-  if (solids.length === 0) throw new Error("floor: 바닥 실체 입력이 없습니다.");
+  if (solids.length === 0) throw new Error("floor: there is no floor solid input.");
   const spaces = new Set<string>();
   for (const floor of inputs) {
     if (spaces.has(floor.space) || floor.slabs.length === 0) {
-      throw new Error(`${floor.space}/floor: 중복 소유자 또는 빈 바닥입니다.`);
+      throw new Error(`${floor.space}/floor: duplicate owner or empty floor.`);
     }
     spaces.add(floor.space);
     const ids = new Set<string>();
     for (const slab of floor.slabs) {
-      if (ids.has(slab.id)) throw new Error(`${floor.space}/floor: 중복 구획 ${slab.id}`);
+      if (ids.has(slab.id)) throw new Error(`${floor.space}/floor: duplicate compartment ${slab.id}`);
       ids.add(slab.id);
       if (![slab.west, slab.east, slab.north, slab.south, slab.bottom, slab.floor].every(Number.isFinite) ||
           slab.west >= slab.east || slab.north >= slab.south || slab.bottom >= slab.floor) {
-        throw new Error(`${floor.space}/floor/${slab.id}: 유한한 양의 실체 범위가 필요합니다.`);
+        throw new Error(`${floor.space}/floor/${slab.id}: a finite positive solid range is required.`);
       }
     }
   }
@@ -61,7 +61,7 @@ export const floorBoundaryFaces = (inputs: readonly FloorInput[]): FloorBoundary
           cy > slab.bottom && cy < slab.floor,
         );
         if (matches.length > 1) {
-          throw new Error(`floor: ${matches.map(({ floor, slab }) => `${floor.space}/${slab.id}`).join(", ")} 체적 중첩`);
+          throw new Error(`floor: ${matches.map(({ floor, slab }) => `${floor.space}/${slab.id}`).join(", ")} overlap in volume`);
         }
         if (matches[0] !== undefined) occupied.set(key(x, y, z), matches[0]);
       }
@@ -70,7 +70,7 @@ export const floorBoundaryFaces = (inputs: readonly FloorInput[]): FloorBoundary
   const faces: FloorBoundaryFace[] = [];
   for (const [address, owner] of occupied) {
     const [x, y, z] = address.split(",").map(Number);
-    if (x === undefined || y === undefined || z === undefined) throw new Error("floor: 격자 주소 오류");
+    if (x === undefined || y === undefined || z === undefined) throw new Error("floor: grid address error");
     const x0 = xs[x]!, x1 = xs[x + 1]!;
     const y0 = ys[y]!, y1 = ys[y + 1]!;
     const z0 = zs[z]!, z1 = zs[z + 1]!;
@@ -99,12 +99,12 @@ export const floorBoundaryFaces = (inputs: readonly FloorInput[]): FloorBoundary
   return faces;
 };
 
-/** 입력 좌표를 이동하지 않는다. 부동소수점 잔여 크기의 실체는 거부한다. */
+/** Does not move input coordinates. A solid of floating-point residual size is refused. */
 const orderedCoordinates = (values: number[]): number[] => {
   const sorted = [...new Set(values)].sort((a, b) => a - b);
   for (let i = 1; i < sorted.length; ++i) {
     if (sorted[i]! - sorted[i - 1]! < 1e-9) {
-      throw new Error("floor: 수치 한계보다 가까운 서로 다른 끝선입니다.");
+      throw new Error("floor: distinct end lines closer than the numeric limit.");
     }
   }
   return sorted;

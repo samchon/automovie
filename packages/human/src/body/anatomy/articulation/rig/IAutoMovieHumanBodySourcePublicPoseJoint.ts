@@ -8,7 +8,18 @@ import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/I
 import type { IAutoMovieHumanBodySourceJointAxis } from "./IAutoMovieHumanBodySourceJointAxis";
 import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
 
-/** Existing public clinical-coordinate conversion evaluated inside the single anatomical graph. */
+/**
+ * Existing public clinical-coordinate conversion evaluated inside the single anatomical graph.
+ *
+ * @evidence contracts/common.md#principled-implementation Existing clinical axes and shaped rest-frame signs convert public goals inside the anatomical graph, with an optional same-node conversion reference.
+ * @evidence contracts/common.md#clear-and-simple-design The record exposes supported public axes and a paired local-frame/local-axis alternative to keep source pivots distinct from clinical conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit unsupported axes refuse even at zero; alternate internal coordinates cannot silently coexist with a public goal authority.
+ * @evidence contracts/common.md#meaningful-documentation Members document twist order, clinical neutral, reference use, required alternative pairing and simultaneous-authority refusal.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The public-pose joint schema supplies clinical conversion inputs without evaluating jointToQuaternion.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Alternative source axes describe separate authority rather than cached work interchangeable with clinical goals.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The public-pose record retains no clinical solver, derived quaternion array or cancellable work.
+ * @author Samchon
+ */
 export interface IAutoMovieHumanBodySourcePublicPoseJoint {
   /** Uses the existing public clinical conversion rather than authored intrinsic source axes. */
   kind: "public-pose";

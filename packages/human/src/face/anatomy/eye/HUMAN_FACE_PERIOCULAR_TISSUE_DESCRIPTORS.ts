@@ -1,14 +1,20 @@
 import type { IAutoMovieHumanFacePeriocularScalarDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularScalarDescriptor";
 import type { IAutoMovieHumanFacePeriocularTissueDescriptor } from "../../structures/IAutoMovieHumanFacePeriocularTissueDescriptor";
 
-const SURVE =
+const SURVE: string =
   "Surve et al. 2018, Indian J Ophthalmol 66(3):383 (PMC5859591): 50 MHz ultrasound biomicroscopy, vertical scan through the corneal centre, primary gaze, 19 healthy Indian subjects, upper lid";
-const HWANG =
+const HWANG: string =
   "Hwang, Kim and Hwang 2006, J Craniofac Surg 17(1):54-56 (PMID16432408), abstract read; reported in the read Hwang 2013 review (PMC3713284): left upper eyelids of 10 fresh Korean cadavers (9 male, 1 female), trichrome sections measured microscopically, skin near the ciliary margin 320 +/- 49 micrometres";
-const LOWER =
+const LOWER: string =
   " No read source measures the lower lid; the upper-lid value is reused as an authored extension.";
 
-const scalar = (
+const scalar: (
+  defaultMm: number,
+  minimumMm: number,
+  maximumMm: number,
+  kind: IAutoMovieHumanFacePeriocularScalarDescriptor["kind"],
+  ground: string,
+) => IAutoMovieHumanFacePeriocularScalarDescriptor = (
   defaultMm: number,
   minimumMm: number,
   maximumMm: number,
@@ -56,85 +62,90 @@ const scalar = (
  * constructed lid cannot hold is refused by the lid frame with its shortfall.
  */
 export const HUMAN_FACE_PERIOCULAR_TISSUE_DESCRIPTORS: IAutoMovieHumanFacePeriocularTissueDescriptor[] =
-  (["upper", "lower"] as const).flatMap((lid) => {
-    const note = lid === "upper" ? "" : LOWER;
-    const authored = lid === "upper" ? undefined : "authored";
-    return [
-      {
-        tissue: `${lid}Orbicularis` as const,
-        inwardOffset: scalar(
-          0.32,
-          0.17,
-          0.47,
-          "authored",
-          HWANG +
-            "; using that skin thickness as whole-strip muscle depth without the connective layer is authored, not a measured muscle offset." +
-            note,
-        ),
-        thickness: scalar(
-          0.336,
-          0.09,
-          0.585,
-          authored ?? "measured",
-          SURVE + ", orbicularis oculi 0.336 +/- 0.083 mm." + note,
-        ),
-      },
-      {
-        tissue: `${lid}TarsalBody` as const,
-        inwardOffset: scalar(
-          0.656,
-          0.26,
-          1.055,
-          "authored",
-          "Authored cross-site sum: skin 0.32 mm (Hwang 2013) plus orbicularis 0.336 mm (Surve et al. 2018); the quantities were not measured together." +
-            note,
-        ),
-        thickness: scalar(
-          0.907,
-          0.613,
-          1.201,
-          authored ?? "measured",
-          SURVE + ", tarsus 0.907 +/- 0.098 mm." + note,
-        ),
-      },
-      {
-        tissue: `${lid}SeptalSupport` as const,
-        inwardOffset: scalar(
-          0.656,
-          0.26,
-          1.055,
-          "authored",
-          "Authored placement at the tarsal body's outer-face depth, behind the orbicularis." +
-            note,
-        ),
-        thickness: scalar(
-          0.3,
-          0.1,
-          1,
-          "authored",
-          "Authored; no read source measures the orbital septum's thickness.",
-        ),
-      },
-      {
-        tissue: `${lid}Conjunctiva` as const,
-        inwardOffset: scalar(
-          1.563,
-          0.87,
-          2.26,
-          "authored",
-          "Authored cross-site sum of skin 0.32 mm, orbicularis 0.336 mm and tarsus 0.907 mm; no same-site depth was measured." +
-            note,
-        ),
-        thickness: scalar(
-          0.049,
-          0.01,
-          0.2,
-          "authored",
-          "Authored arithmetic remainder of 1.612 mm after measurements at different sites (" +
-            SURVE +
-            "); conjunctival thickness remains unknown." +
-            note,
-        ),
-      },
-    ];
-  });
+  (["upper", "lower"] as const).flatMap(
+    (
+      lid: "upper" | "lower",
+    ): IAutoMovieHumanFacePeriocularTissueDescriptor[] => {
+      const note: string = lid === "upper" ? "" : LOWER;
+      const authored: "authored" | undefined =
+        lid === "upper" ? undefined : "authored";
+      return [
+        {
+          tissue: `${lid}Orbicularis` as const,
+          inwardOffset: scalar(
+            0.32,
+            0.17,
+            0.47,
+            "authored",
+            HWANG +
+              "; using that skin thickness as whole-strip muscle depth without the connective layer is authored, not a measured muscle offset." +
+              note,
+          ),
+          thickness: scalar(
+            0.336,
+            0.09,
+            0.585,
+            authored ?? "measured",
+            SURVE + ", orbicularis oculi 0.336 +/- 0.083 mm." + note,
+          ),
+        },
+        {
+          tissue: `${lid}TarsalBody` as const,
+          inwardOffset: scalar(
+            0.656,
+            0.26,
+            1.055,
+            "authored",
+            "Authored cross-site sum: skin 0.32 mm (Hwang 2013) plus orbicularis 0.336 mm (Surve et al. 2018); the quantities were not measured together." +
+              note,
+          ),
+          thickness: scalar(
+            0.907,
+            0.613,
+            1.201,
+            authored ?? "measured",
+            SURVE + ", tarsus 0.907 +/- 0.098 mm." + note,
+          ),
+        },
+        {
+          tissue: `${lid}SeptalSupport` as const,
+          inwardOffset: scalar(
+            0.656,
+            0.26,
+            1.055,
+            "authored",
+            "Authored placement at the tarsal body's outer-face depth, behind the orbicularis." +
+              note,
+          ),
+          thickness: scalar(
+            0.3,
+            0.1,
+            1,
+            "authored",
+            "Authored; no read source measures the orbital septum's thickness.",
+          ),
+        },
+        {
+          tissue: `${lid}Conjunctiva` as const,
+          inwardOffset: scalar(
+            1.563,
+            0.87,
+            2.26,
+            "authored",
+            "Authored cross-site sum of skin 0.32 mm, orbicularis 0.336 mm and tarsus 0.907 mm; no same-site depth was measured." +
+              note,
+          ),
+          thickness: scalar(
+            0.049,
+            0.01,
+            0.2,
+            "authored",
+            "Authored arithmetic remainder of 1.612 mm after measurements at different sites (" +
+              SURVE +
+              "); conjunctival thickness remains unknown." +
+              note,
+          ),
+        },
+      ];
+    },
+  );

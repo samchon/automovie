@@ -1,21 +1,20 @@
 import type { IAutoMovieHumanBodySourceRig } from "../articulation/rig/IAutoMovieHumanBodySourceRig";
 import type { IAutoMovieHumanBodyExteriorBinding } from "../binding/IAutoMovieHumanBodyExteriorBinding";
-import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
 import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "./IAutoMovieHumanBodyNativeSubcutaneousSource";
+import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
 
 /**
  * One registered anatomical source graph and its coarse tissue geometry.
  *
- * The publisher binds this source generation to one actual body basis and exact
- * supported neutral shape. Every surface uses that graph's common rest frame.
- * Parts remain independently named, and acquired/authored geometry does not
- * change the clinical independently-validated resolution report. The source
- * assembly is consumed by the actual body builder and carried into person and
- * static export; it is not a personal document's mesh cache.
- * A neutral-only assembly is usable before public motion projection exists:
- * its real held source frames/sites and the native unperformed skin share the
- * canonical frame, without asserting anatomical skin/joint registration.
+ * The publisher binds this source generation to one actual body basis and exact supported neutral shape. Every surface uses that graph's common rest frame. Parts remain independently named, and acquired/authored geometry does not change the clinical independently-validated resolution report. The source assembly is consumed by the actual body builder and carried into person and static export; it is not a personal document's mesh cache. A neutral-only assembly is usable before public motion projection exists: its real held source frames/sites and the native unperformed skin share the canonical frame, without asserting anatomical skin/joint registration.
  *
+ * @evidence contracts/common.md#principled-implementation One source generation binds named tissue boundaries and graph frames to an exact basis/shape; optional exterior registration admits departures through the same skin displacement owner.
+ * @evidence contracts/common.md#clear-and-simple-design Assembly metadata keeps source rig, parts, shape registration and optional native subcutaneous calculation under one generation authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Acquired or authored geometry is not a clinical-resolution certificate; neutral-only mode preserves held source frames and refuses requested performance.
+ * @evidence contracts/common.md#meaningful-documentation Members state exact-shape omission rules, generation/basis identity, neutral exterior binding, native-part exclusivity and reproducible registration limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The assembly interface specifies source registration data without choosing tissue deformation or shape-solve algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A generation/basis record supplies dependencies while runtime builders decide whether completed source work is equivalent.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Source graph and part arrays remain publisher-owned data; this interface starts no asset loads or retained evaluation tasks.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyAnatomicalAssembly {
@@ -29,10 +28,13 @@ export interface IAutoMovieHumanBodyAnatomicalAssembly {
 
   /** Immutable source generation shared by geometry, sites and the anatomical rig. */
   generation: string;
+
   /** Exact body basis revision to which this rest source is registered. */
   basis: string;
+
   /** Exact source shape; omitted channel weights mean zero. */
   shape: Readonly<Record<string, number>>;
+
   /**
    * Present when the parts follow the skin as the body is shaped away from
    * the registered shape. The registered shape must then be the basis's
@@ -40,8 +42,10 @@ export interface IAutoMovieHumanBodyAnatomicalAssembly {
    * Omission keeps the exact-shape rule: any other shape refuses.
    */
   exteriorBinding?: IAutoMovieHumanBodyExteriorBinding;
+
   /** Registered parent graph in common metres; its generation must match this assembly. */
   rig: IAutoMovieHumanBodySourceRig;
+
   /** Actual acquired/authored boundary members, retaining each closed id/tissue pair. */
   parts: readonly IAutoMovieHumanBodySourcePart[];
 

@@ -1,10 +1,22 @@
-import type { IAutoMovieMesh } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart as IAutoMovieModelPartImported,
+  IAutoMovieTransform as IAutoMovieTransformImported,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type {
+  IAutoMovieHumanFaceBasisRegion as IAutoMovieHumanFaceBasisRegionImported,
+  IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported,
+  IAutoMovieHumanFaceContactCollider as IAutoMovieHumanFaceContactColliderImported,
+  IHumanFaceOralAssembly as IHumanFaceOralAssemblyImported,
+} from "../../index";
 import { readHumanFaceOpticalExterior } from "../anatomy/eye/readHumanFaceOpticalExterior";
 import { readHumanFaceSkinRegionRelations } from "../anatomy/skin/readHumanFaceSkinRegionRelations";
+import type { IAutoMovieHumanFacePeriocularCage as IAutoMovieHumanFacePeriocularCageImported } from "../structures/IAutoMovieHumanFacePeriocularCage";
 import type { IHumanFaceAssemblyCensusInput } from "./IHumanFaceAssemblyCensusInput";
 import type { IHumanFaceClearanceRequest } from "./IHumanFaceClearanceRequest";
+import type { IHumanFaceDynamicCollider as IHumanFaceDynamicColliderImported } from "./IHumanFaceDynamicCollider";
 import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
 
 /**
@@ -12,10 +24,10 @@ import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
  * admission condition yet decides.
  *
  * Every reading is report-only (`judged: false`): it states where a part lies
- * relative to a neighbour and refuses nothing, because the bound for each of
- * these relations belongs to an owner that does not exist yet. The readings
- * exist so those owners can be designed from measured geometry. They are taken
- * on the performed positions the model emits.
+ * relative to a neighbour without applying an acceptance envelope to these
+ * aggregate relations. Existing component-specific admissions remain separate;
+ * measured aggregate geometry can inform future envelope decisions. Readings
+ * use the performed positions the model emits.
  *
  * Relations read, in order:
  *
@@ -36,14 +48,41 @@ import { measureHumanFaceClearance } from "./measureHumanFaceClearance";
  *    vertex order, so parts whose index order differs between sides compare.
  *
  * A point population such as a cage row is read as vertices only.
+ * Default crossing counts retain at most one transverse witness per subject
+ * triangle; they are not a census of every intersecting face pair. Source
+ * surfaces and emitted parts share model metres, with each emitted part's
+ * actual TRS passed to the clearance owner. Missing registrations omit that
+ * relation. Report-only does not imply that measurement cannot throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Registered performed source surfaces, actual optical exteriors and emitted parts identify the relations in model metres; part TRS and mirrored right-twin TRS reach the shared signed/crossing owner. These are judged-false observations because no acceptance envelope is supplied here, not manufactured clearance successes.
+ * @evidence contracts/common.md#clear-and-simple-design One local adapter fixes assembly owner/state/tolerance while four relation populations and the skin-region owner keep distinct geometry responsibilities; identity names choose twins without vertex-order assumptions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Hair and cage rows explicitly skip triangle crossings for their registered vertex-only population; brows have a separate owner. Missing sources/twins omit a relation, open-sheet unknown sides stay unknown, and report-only cannot prove whole-face validity.
+ * @evidence contracts/common.md#meaningful-documentation Prose identifies relation order, optional omissions, performed frame/TRS, report-only semantics and default per-subject-triangle witnesses instead of claiming every face pair is enumerated.
+ * @evidence contracts/performance.md#efficient-algorithms Population enumeration scans surfaces/regions/parts and creates source-position copies; each selected relation pays its actual mesh publication, spatial hierarchy, vertex queries and candidate crossing work. Candidate pairs can be quadratic even though retained witnesses are bounded by subject triangles.
+ * @evidence contracts/performance.md#reuse-equivalent-work The skin view, region-id set and twin map serve this census; the shared clearance owner's immutable mesh/TRS query cache may reuse equivalent exteriors. New relation readings remain request-specific observations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned array retains one record per selected relation with scalar summaries; population maps and source copies are local, while the shared query cache has its own weak-mesh lifetime. No viewer or GPU resource exists here.
  */
 export function readHumanFaceAssemblyClearances(
   input: IHumanFaceAssemblyCensusInput,
 ): IAutoMovieHumanConstructionClearanceReading[] {
-  const { basis, pose, model } = input;
-  const tolerance = basis.contact?.toleranceMetres ?? 0;
+  const { basis, pose, model }: IHumanFaceAssemblyCensusInput = input;
+  const tolerance: number = basis.contact?.toleranceMetres ?? 0;
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
-  const read = (
+  const read: (
+    request: Pick<
+      IHumanFaceClearanceRequest,
+      | "subject"
+      | "against"
+      | "mesh"
+      | "meshTransform"
+      | "exterior"
+      | "exteriorTransform"
+      | "boundary"
+      | "vertices"
+      | "crossingIndices"
+      | "reachMetres"
+    >,
+  ) => void = (
     request: Pick<
       IHumanFaceClearanceRequest,
       | "subject"
@@ -68,9 +107,15 @@ export function readHumanFaceAssemblyClearances(
       }),
     );
   };
-  const surfaceMesh = (id: string): IAutoMovieMesh | undefined => {
-    const surface = basis.surfaces.find((candidate) => candidate.id === id);
-    const points = pose.positions.get(id);
+  const surfaceMesh: (id: string) => IAutoMovieMesh | undefined = (
+    id: string,
+  ): IAutoMovieMesh | undefined => {
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported | undefined =
+      basis.surfaces.find(
+        (candidate: IAutoMovieHumanFaceBasisSurfaceImported): boolean =>
+          candidate.id === id,
+      );
+    const points: readonly number[] | undefined = pose.positions.get(id);
     return surface === undefined || points === undefined
       ? undefined
       : {
@@ -81,14 +126,15 @@ export function readHumanFaceAssemblyClearances(
           skin: null,
         };
   };
-  const skinId =
+  const skinId: string | undefined =
     basis.periocular?.left.margins.surface ?? basis.contact?.lips.surface;
-  const skin = skinId === undefined ? undefined : surfaceMesh(skinId);
+  const skin: IAutoMovieMesh | undefined =
+    skinId === undefined ? undefined : surfaceMesh(skinId);
 
   // 1. Lid skin against the optical exteriors.
   if (skin !== undefined && skinId !== undefined)
     for (const side of ["left", "right"] as const) {
-      const exterior = readHumanFaceOpticalExterior(
+      const exterior: IAutoMovieMesh | undefined = readHumanFaceOpticalExterior(
         basis,
         pose.positions,
         pose.optics,
@@ -103,7 +149,8 @@ export function readHumanFaceAssemblyClearances(
         exterior,
         boundary: "closed",
       });
-      const cage = basis.periocular?.[side].cage;
+      const cage: IAutoMovieHumanFacePeriocularCageImported | undefined =
+        basis.periocular?.[side].cage;
       if (cage === undefined || cage.surface !== skinId) continue;
       for (const station of cage.stations)
         read({
@@ -118,14 +165,17 @@ export function readHumanFaceAssemblyClearances(
     }
 
   // 2. Generated parts against the skin sheet.
-  const regions = new Set(
-    basis.surfaces.flatMap((surface) =>
-      surface.regions.map((region) => region.id),
+  const regions: Set<string> = new Set(
+    basis.surfaces.flatMap(
+      (surface: IAutoMovieHumanFaceBasisSurfaceImported): string[] =>
+        surface.regions.map(
+          (region: IAutoMovieHumanFaceBasisRegionImported): string => region.id,
+        ),
     ),
   );
   // Brow shafts are read per side by their own owner.
-  const generated = model.parts.filter(
-    (part) =>
+  const generated: IAutoMovieModelPartImported[] = model.parts.filter(
+    (part: IAutoMovieModelPartImported): boolean =>
       part.geometry.type === "mesh" &&
       !regions.has(part.id) &&
       !part.id.startsWith("brows:"),
@@ -147,41 +197,51 @@ export function readHumanFaceAssemblyClearances(
     }
 
   // 3. Soft surfaces and lining against the generated oral colliders.
-  const oral = pose.oral;
+  const oral: IHumanFaceOralAssemblyImported | undefined = pose.oral;
   if (oral !== undefined) {
     // The source contact owner states how far its dental sheets tell their
     // sides apart; the generated colliders replace those sheets one for one.
-    const reachMetres = basis.contact?.colliders.find(
-      (collider) => collider.surface === oral.dentalSurface,
+    const reachMetres: number | undefined = basis.contact?.colliders.find(
+      (collider: IAutoMovieHumanFaceContactColliderImported): boolean =>
+        collider.surface === oral.dentalSurface,
     )?.reachMetres;
-    (oral.colliders ?? []).forEach((collider, at) => {
-      for (const soft of basis.contact?.soft ?? []) {
-        const mesh = surfaceMesh(soft.surface);
-        if (mesh === undefined) continue;
-        read({
-          subject: soft.surface,
-          against: "oral-collider:" + at,
-          mesh,
-          exterior: collider.posed,
-          boundary: "open",
-          ...(reachMetres === undefined ? {} : { reachMetres }),
-        });
-      }
-    });
+    (oral.colliders ?? []).forEach(
+      (collider: IHumanFaceDynamicColliderImported, at: number): void => {
+        for (const soft of basis.contact?.soft ?? []) {
+          const mesh: IAutoMovieMesh | undefined = surfaceMesh(soft.surface);
+          if (mesh === undefined) continue;
+          read({
+            subject: soft.surface,
+            against: "oral-collider:" + at,
+            mesh,
+            exterior: collider.posed,
+            boundary: "open",
+            ...(reachMetres === undefined ? {} : { reachMetres }),
+          });
+        }
+      },
+    );
   }
 
   // 4. Left parts against their mirrored right twins.
-  const twins = new Map(generated.map((part) => [part.id, part]));
+  const twins: Map<string, IAutoMovieModelPartImported> = new Map(
+    generated.map(
+      (
+        part: IAutoMovieModelPartImported,
+      ): [string, IAutoMovieModelPartImported] => [part.id, part],
+    ),
+  );
   for (const part of generated) {
     if (part.geometry.type !== "mesh") continue;
-    const twinId = part.id.includes(":left:")
+    const twinId: string | undefined = part.id.includes(":left:")
       ? part.id.replace(":left:", ":right:")
       : part.id.includes(":left-")
         ? part.id.replace(":left-", ":right-")
         : undefined;
-    const twin = twinId === undefined ? undefined : twins.get(twinId);
+    const twin: IAutoMovieModelPartImported | undefined =
+      twinId === undefined ? undefined : twins.get(twinId);
     if (twin === undefined || twin.geometry.type !== "mesh") continue;
-    const transform = twin.transform ?? {
+    const transform: IAutoMovieTransformImported = twin.transform ?? {
       translation: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
       scale: { x: 1, y: 1, z: 1 },

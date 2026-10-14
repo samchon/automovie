@@ -1,23 +1,16 @@
 /**
- * Hard caps a planting recipe promises to stay inside.
+ * Explicit branch and leaf population caps for one planting recipe.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IAutoMoviePlantingLimits` as the portable data boundary for the interior soft anchor host requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingLimits` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation Domain validation compares complete unpruned full-growth worst-case populations with admitted integer caps, and growth throws if actual emission exceeds those declared limits.
+ * @evidence contracts/common.md#clear-and-simple-design Separate branch and leaf bounds preserve a bare recipe's valid zero-leaf budget without merging unlike renderer batches.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Caps are affordability obligations rather than measured emitted counts and are not used to silently truncate a derived structure.
+ * @evidence contracts/common.md#meaningful-documentation Defines positive branch cap and non-negative leaf cap with hard refusal semantics.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingLimits {
-  /**
-   * Branch segments this recipe may emit; a positive integer.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `maxBranches` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `maxBranches` for the interior space soft furnishing planting system contract.
-   */
+  /** Branch segments this recipe may emit; a positive integer. */
   maxBranches: number;
 
-  /**
-   * Leaf occurrences this recipe may emit; a non-negative integer.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `maxLeaves` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `maxLeaves` for the interior space soft furnishing planting system contract.
-   */
+  /** Leaf occurrences this recipe may emit; a non-negative integer. */
   maxLeaves: number;
 }

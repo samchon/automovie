@@ -1,23 +1,16 @@
 /**
- * Explicit narrative-shot omission disposition.
+ * Auditable disposition for one current shot intentionally excluded from the film. The same shot cannot also appear in the video track or be omitted twice.
  *
- * @evidence requirements/agent-authoring/partial-work.md#agent-declared-omission Exposes `IAutoMovieFilmOmission` as the portable data boundary for the agent declared omission requirement.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-omission-failure Types `IAutoMovieFilmOmission` for the spec authoring partial omission failure system contract.
+ * @evidence contracts/common.md#principled-implementation Shot identity and a nonblank rationale record an intended exclusion in a supplied timeline. Engine edit fingerprinting includes these rows, but the retired production assembler no longer proves complete used-or-omitted shot accounting.
+ * @evidence contracts/common.md#clear-and-simple-design Two fields capture the omitted owner and reason without creating dummy zero-duration video placements or duplicating the unused shot's contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Known shot identity, unique omission and exclusion from video remain host premises. The record computes no zero-duration substitute and its presence alone does not establish narrative accounting.
+ * @evidence contracts/common.md#meaningful-documentation Gives current-shot ownership, intentional absence, nonblank audit reason and mutual exclusion with both video placement and repeated omission.
+ * @author Samchon
  */
 export interface IAutoMovieFilmOmission {
-  /**
-   * Current shot contract intentionally absent from the edit.
-   *
-   * @evidence requirements/agent-authoring/partial-work.md#agent-declared-omission Exposes `shot` as the portable data boundary for the agent declared omission requirement.
-   * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-omission-failure Types `shot` for the spec authoring partial omission failure system contract.
-   */
+  /** Current shot contract intentionally absent from the edit. */
   shot: string;
 
-  /**
-   * Auditable non-blank reason.
-   *
-   * @evidence requirements/agent-authoring/partial-work.md#agent-declared-omission Exposes `reason` as the portable data boundary for the agent declared omission requirement.
-   * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-omission-failure Types `reason` for the spec authoring partial omission failure system contract.
-   */
+  /** Auditable non-blank reason. */
   reason: string;
 }

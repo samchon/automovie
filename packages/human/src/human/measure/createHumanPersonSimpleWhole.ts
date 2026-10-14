@@ -6,18 +6,17 @@ import { humanPersonBodyReach } from "./humanPersonBodyReach";
 import { readHumanPersonRest } from "./readHumanPersonRest";
 
 /**
- * The simple tier's whole-person readings for one person: stature and closed
- * volume at rest (`readHumanPersonRest`) of the person with its own face
- * subtree and the given body shape.
+ * Supply paired-person stature and signed closed-surface volume readings for the body simple tier. Each trial substitutes body shape; the source-rest evaluator clears explicit body pose/shoulders/anatomicalMotion/toes/thighGoals and face expression while preserving shape-dependent shoulder rest and omitting later contact/closure production. The last JSON-stringified shape shares one reading across stature/volume requests. Borrowed person and compiled context must stay unchanged for this shape-only key to remain valid.
  *
- * The body editor's simple tier solves body channels; the person's face
- * stays as the caller's document states it, and aliased macros follow the
- * body shape through the generation's drivers. The last shape read is
- * cached, since the simple tier asks stature and volume of one trial body.
- * The paired evaluator's solve-only body reach accompanies the reader, so
- * its inverse samples only weights supported by both endpoint owners.
- * That reach is derived lazily: a valid held shape can still be projected
- * when the generation's coupled support has no independent axis form.
+ * Independent solve reach is derived on first access and cached; held-shape forward projection can therefore work before an unsupported coupled reach is requested. This is the source endpoint envelope, not a clinical admissibility or global inverse-solvability certificate.
+ *
+ * @evidence contracts/common.md#principled-implementation Trial body shape is evaluated with this person's actual face/drivers and the existing rest geometry reader, while paired endpoint support constrains the solver separately.
+ * @evidence contracts/common.md#clear-and-simple-design Two scalar accessors share one read closure and the lazy reach accessor delegates its envelope to the paired source owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No body-only volume substitutes for paired geometry; cached readings require unchanged borrowed context and do not establish neutral anatomy, clinical accuracy or rendered appearance.
+ * @evidence contracts/common.md#meaningful-documentation Prose identifies retained controls, key-order-sensitive JSON caching, lazy reach refusal and source-only solve qualification.
+ * @evidence contracts/performance.md#efficient-algorithms Each shape key costs its serialized entry count, a miss pays paired evaluation and surface measurement, and lazy reach scans actual source channels/drivers once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Stature and volume of the last identical JSON shape share one paired read; repeated reach access shares the successful derived basis.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One last key/reading and one optional reach basis are retained beside borrowed context; replacement drops the previous reading and no asset fetch or worker is owned.
  */
 export function createHumanPersonSimpleWhole(
   compiled: IAutoMovieHumanPersonCompiledGeneration,
@@ -26,10 +25,12 @@ export function createHumanPersonSimpleWhole(
   let lastKey: string | undefined;
   let last: IAutoMovieHumanPersonRestReading | undefined;
   let bodyReach: IAutoMovieHumanBodySimpleWhole["bodyReach"];
-  const read = (
+  const read: (
+    shape: Readonly<Record<string, number>>,
+  ) => IAutoMovieHumanPersonRestReading = (
     shape: Readonly<Record<string, number>>,
   ): IAutoMovieHumanPersonRestReading => {
-    const key = JSON.stringify(shape);
+    const key: string = JSON.stringify(shape);
     if (key !== lastKey || last === undefined) {
       last = readHumanPersonRest(compiled, {
         ...person,
@@ -40,10 +41,12 @@ export function createHumanPersonSimpleWhole(
     return last;
   };
   return {
-    get bodyReach() {
+    get bodyReach(): IAutoMovieHumanBodySimpleWhole["bodyReach"] {
       return (bodyReach ??= humanPersonBodyReach(compiled.generation).basis);
     },
-    stature: (shape) => read(shape).statureMetres,
-    volume: (shape) => read(shape).volumeCubicMetres,
+    stature: (shape: Readonly<Record<string, number>>): number =>
+      read(shape).statureMetres,
+    volume: (shape: Readonly<Record<string, number>>): number =>
+      read(shape).volumeCubicMetres,
   };
 }

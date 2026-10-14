@@ -1,28 +1,25 @@
-import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
-/**
- * The absolute step one shot second snaps down to, or `null` when that second
- * is not a real number.
+/** Convert finite shot seconds to a nonnegative absolute step, or null for nonfinite time. A fixed 1e-9 step-space allowance handles near-boundary floating rounding; the caller admits positive finite clock spacing and checks the step budget.
  *
- * The snap is what makes playback frame-rate independent: captures at 24 and 30
- * fps read the same integrated state whenever they land inside the same step,
- * instead of each integrating a different number of times. A second before the
- * clock starts snaps to `0`, since a panel has no history earlier than its own
- * rest configuration.
+ * @evidence contracts/common.md#principled-implementation Finite seconds are floored after negative time is clamped to zero and the declared allowance is added. Very large finite time/very small spacing can yield an unrepresentable step; null distinguishes nonfinite time only.
+ * @evidence contracts/common.md#clear-and-simple-design Sampling and furnishing lowering share this quantizer while separately choosing throwing or reported budget refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The boundary allowance is the existing fixed-clock policy; it is not an adaptive timestep or an invented history before rest.
+ * @evidence contracts/common.md#meaningful-documentation States units, allowance, null meaning and the separate budget/clock premise.
+ * @evidence contracts/performance.md#efficient-algorithms A finite check, clamp, division and floor take constant time and space.
+ * @evidence contracts/performance.md#reuse-equivalent-work One quantizer serves both callers; no table of seconds or prior-frame cursor is needed for an absolute calculation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only number or null transfers; no input record, clock handle or playback state is retained.
  *
- * Stated apart from {@link sampleSoftBody} so a caller that must report rather
- * than throw — a lowering answering for a whole shot — can ask which step a
- * second wants before asking whether the declared budget reaches it.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-solver-state Maps shot time to the soft solver's absolute fixed-step state.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Selects the exact transition boundary without advancing hidden state.
  * @author Samchon
  */
-export const softBodyStepAt = (
+export const softBodyStepAt: (
+  domain: IAutoMovieSoftBodyDomain,
+  time: number,
+) => number | null = (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
 ): number | null => {
   if (!Number.isFinite(time)) return null;
-  const clamped = time > 0 ? time : 0;
+  const clamped: number = time > 0 ? time : 0;
   return Math.floor(clamped / domain.solver.fixedStepSeconds + 1e-9);
 };

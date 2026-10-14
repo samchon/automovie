@@ -10,6 +10,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * must have a pin; one pin defines a constant displacement around the cycle.
  * Pins elsewhere are permitted and do not constrain this boundary.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation One source-owned simple native cycle and canonical sample aliases accompany exact metre displacement pins.
+ * @evidence contracts/common.md#clear-and-simple-design The publisher owns incidence/order and createHumanFaceLidBoundaryPins owns arc-length interpolation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts At least one resident pin is required; pins elsewhere do not invent a replacement boundary.
+ * @evidence contracts/common.md#meaningful-documentation Fields state head-local metre frame, ordered nonrepeated cycle and immutable caller inputs.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IHumanFaceLidBoundaryPinsInput is an erased source contract; its concrete producing/consuming operations own algorithms and actual population scans.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IHumanFaceLidBoundaryPinsInput declares correspondence and ownership only; its concrete owner decides copied state and reuse equivalence.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IHumanFaceLidBoundaryPinsInput itself acquires no buffer, handle or task; concrete builders/readers own referenced array and callback lifetimes.
+ *
  * @author Samchon
  */
 export interface IHumanFaceLidBoundaryPinsInput {

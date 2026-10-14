@@ -1,31 +1,21 @@
 /**
- * A **timing anchor**: a key moment pinned on the beat's local timeline. A
- * sparse list of these is the coarse temporal skeleton (in-betweening's stage
- * one) the performance stage aligns its verbs to, so the dense action timing
- * follows a committed structure instead of being invented per-verb. Anchors are
- * also where **causality** is fixed: the "looses the arrow" anchor must precede
- * the "is struck" anchor, and the performance stage honours that order.
+ * One authored moment on an actor's beat-local timeline.
  *
- * @evidence requirements/story/dialogue-language-and-silence.md#story-dialogue-timing-intent Exposes `IAutoMovieTimingAnchor` as the portable data boundary for the story dialogue timing intent requirement.
- * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-utterance-timing-action Types `IAutoMovieTimingAnchor` for the narrative intent utterance timing action system contract.
+ * `blockBeat` requires finite times inside the beat in nondecreasing list order; simultaneous anchors are allowed. `performShot` requires an action by that actor to cover every anchor instant. The cue is explanatory prose: the gate checks temporal coverage, without interpreting the described action.
+ *
+ * @evidence contracts/common.md#principled-implementation Blocking validates the closed beat interval and nondecreasing list order. Performance coverage checks an authored non-frame actor action's unrepeated span with 1e-9-second endpoint slack, resolving auto to shot end; it does not inspect synthesized motion or establish that the cue's described event occurred.
+ * @evidence contracts/common.md#clear-and-simple-design Two fields separate the machine-checked instant from its authored meaning; duration and actor identity belong to the enclosing blocking plan rather than being copied into every anchor.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The cue does not trigger phrase-specific synthesis; a temporally uncovered anchor is refused instead of silently moved, and equal times follow the same nondecreasing-order rule.
+ * @evidence contracts/common.md#meaningful-documentation States beat-local seconds, finite bounds, simultaneous-anchor semantics, action coverage and the limit that cue meaning is not checked against the action.
+ *
  * @author Samchon
  */
 export interface IAutoMovieTimingAnchor {
-  /**
-   * Seconds into the beat this moment lands.
-   *
-   * @evidence requirements/story/dialogue-language-and-silence.md#story-dialogue-timing-intent Exposes `t` as the portable data boundary for the story dialogue timing intent requirement.
-   * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-utterance-timing-action Types `t` for the narrative intent utterance timing action system contract.
-   */
+  /** Finite seconds into the beat, within `[0, duration]`. */
   t: number;
 
   /**
-   * What happens at this instant, in a few words ("twists back in the saddle",
-   * "looses the arrow", "the fist connects", "weight lands on the front
-   * foot").
-   *
-   * @evidence requirements/story/dialogue-language-and-silence.md#story-dialogue-timing-intent Exposes `cue` as the portable data boundary for the story dialogue timing intent requirement.
-   * @evidence specifications/narrative-and-intent/dialogue-language-theme-and-meaning.md#narrative-intent-utterance-timing-action Types `cue` for the narrative intent utterance timing action system contract.
+   * What happens at this instant, in a few words ("twists back in the saddle", "looses the arrow", "the fist connects", "weight lands on the front foot").
    */
   cue: string;
 }

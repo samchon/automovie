@@ -1,34 +1,22 @@
 import type { IHumanViewerAdmission } from "./IHumanViewerAdmission.js";
 
 /**
- * An admission state recorded for one document at the cache key it was
- * asked for; a different key makes it outdated.
+ * An admission state recorded for one document at the cache key it was asked for; a different key makes it outdated.
  *
- * @evidence contracts/common.md#principled-implementation A record applies only to the exact key it was made for.
- * @evidence contracts/common.md#meaningful-documentation Names both members.
- *
- * @evidence contracts/common.md#clear-and-simple-design The admission envelope is paired with the exact cache key under which its owner answered.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A verdict for another basis or builder source is not reused merely because the document id stayed the same.
- *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity A record applies only to the exact key it was made for.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation A verdict for another basis or builder source is not reused merely because the document id stayed the same.
+ * @evidence contracts/common.md#principled-implementation Pairs one stored admission/verdict or waiting reason with the numerical key under which its document was judged/requested.
+ * @evidence contracts/common.md#clear-and-simple-design Lets admission maps keep document-id lookup separate from exact key equivalence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed key makes the record outdated even when the document id persists; old replies cannot authorize the new document.
+ * @evidence contracts/common.md#meaningful-documentation Documents the key's original-request identity and the difference between actual verdict and pending reason.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no lookup; owning maps provide expected constant-time id access/key comparisons.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equal id plus numerical key permits kept-state reuse; label or reason equality alone cannot establish source/basis/document equivalence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Verdict/waiting maps retain encountered ids without a count cap or removed-id pruning; the record carries no numerical task or model handle.
  *
  * @author Samchon
  */
 export interface IHumanViewerKeyedAdmission {
-  /**
-   * The cache key the document had when it was asked.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Binds a stored verdict or waiting cause to the exact document/basis/producer cache identity.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Binds a stored verdict or waiting cause to the exact document/basis/producer cache identity.
-   */
+  /** The cache key the document had when it was asked. */
   key: string;
 
-  /**
-   * The owner's verdict, or the pending state with why it waits.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Keeps the owner's actual judgement separate from key equality and transport availability.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Keeps the owner's actual judgement separate from key equality and transport availability.
-   */
+  /** The owner's verdict, or the pending state with why it waits. */
   admission: IHumanViewerAdmission;
 }

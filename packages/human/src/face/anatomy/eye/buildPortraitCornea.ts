@@ -28,6 +28,14 @@ import { IPortraitCornea } from "./structures/IPortraitCornea";
  * globe radius below the curvature radius, a rim lift not above the thickness,
  * an extent not in (0, radius], fewer than three columns, a non-integral ring
  * count and a support height that is not finite all throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Corneal-minus-globe sag over the declared aperture modifies one support, then axial back offset and rim faces close the same shell.
+ * @evidence contracts/common.md#clear-and-simple-design Input admission, polar shell construction and actual-incidence normal computation are one owner; downstream metric publication converts millimetres once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid curvature/thickness/extent/support refuses; axial backing is an authored construction rather than a second physiological curvature fit.
+ * @evidence contracts/common.md#meaningful-documentation The prose states units, sag law, clipping meaning, exact lattice counts and invalid input behavior.
+ * @evidence contracts/performance.md#efficient-algorithms C angular extents and R radial intervals require O(CR) coordinates/faces and actual-incidence normal work, with no independent upper sampling cap here.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each front point is reused for its back offset and ring wall; globe/corneal rim sag scalars are computed once.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned mesh arrays own the shell; input extents/support remain borrowed and no cache, task or resource is retained.
  */
 export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   if (
@@ -47,7 +55,8 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
     input.rimLift <= input.thickness ||
     input.extents.length < 3 ||
     input.extents.some(
-      (value) => !Number.isFinite(value) || value <= 0 || value > input.radius,
+      (value: number): boolean =>
+        !Number.isFinite(value) || value <= 0 || value > input.radius,
     ) ||
     !Number.isInteger(input.radialSamples) ||
     input.radialSamples < 1
@@ -55,19 +64,26 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
     throw new Error(
       "Corneal dimensions need a finite aperture, valid curvatures and a positive closed-shell thickness.",
     );
-  const columns = input.extents.length,
+  const columns: number = input.extents.length,
     positions: number[] = [],
     indices: number[] = [];
-  const cornealRim = Math.sqrt(input.curvature ** 2 - input.radius ** 2);
-  const globeRim = Math.sqrt(input.globeRadius ** 2 - input.radius ** 2);
-  const point = (radius: number, angle: number): void => {
-    const x = input.center.x + radius * Math.cos(angle),
-      y = input.center.y - radius * Math.sin(angle);
-    const sag =
+  const cornealRim: number = Math.sqrt(
+    input.curvature ** 2 - input.radius ** 2,
+  );
+  const globeRim: number = Math.sqrt(
+    input.globeRadius ** 2 - input.radius ** 2,
+  );
+  const point: (radius: number, angle: number) => void = (
+    radius: number,
+    angle: number,
+  ): void => {
+    const x: number = input.center.x + radius * Math.cos(angle),
+      y: number = input.center.y - radius * Math.sin(angle);
+    const sag: number =
       Math.sqrt(input.curvature ** 2 - radius ** 2) -
       cornealRim -
       (Math.sqrt(input.globeRadius ** 2 - radius ** 2) - globeRim);
-    const z = input.surface(x, y) + input.rimLift + sag;
+    const z: number = input.surface(x, y) + input.rimLift + sag;
     if (!Number.isFinite(z))
       throw new Error(
         "The corneal support surface must provide a finite height.",
@@ -75,39 +91,40 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
     positions.push(x, y, z);
   };
   point(0, 0);
-  for (let row = 1; row <= input.radialSamples; row++)
-    for (let column = 0; column < columns; column++)
+  for (let row: number = 1; row <= input.radialSamples; row++)
+    for (let column: number = 0; column < columns; column++)
       point(
         (input.extents[column] * row) / input.radialSamples,
         (2 * Math.PI * column) / columns,
       );
-  for (let column = 0; column < columns; column++)
+  for (let column: number = 0; column < columns; column++)
     indices.push(0, 1 + ((column + 1) % columns), 1 + column);
-  for (let row = 0; row < input.radialSamples - 1; row++)
-    for (let column = 0; column < columns; column++) {
-      const a = 1 + row * columns + column,
-        b = 1 + row * columns + ((column + 1) % columns),
-        c = a + columns,
-        d = b + columns;
+  for (let row: number = 0; row < input.radialSamples - 1; row++)
+    for (let column: number = 0; column < columns; column++) {
+      const a: number = 1 + row * columns + column,
+        b: number = 1 + row * columns + ((column + 1) % columns),
+        c: number = a + columns,
+        d: number = b + columns;
       indices.push(a, b, c, b, d, c);
     }
-  const frontCount = positions.length / 3,
-    frontFaces = indices.length;
-  for (let i = 0; i < frontCount; i++)
+  const frontCount: number = positions.length / 3,
+    frontFaces: number = indices.length;
+  for (let i: number = 0; i < frontCount; i++)
     positions.push(
       positions[3 * i],
       positions[3 * i + 1],
       positions[3 * i + 2] - input.thickness,
     );
-  for (let i = 0; i < frontFaces; i += 3)
+  for (let i: number = 0; i < frontFaces; i += 3)
     indices.push(
       indices[i] + frontCount,
       indices[i + 2] + frontCount,
       indices[i + 1] + frontCount,
     );
-  for (let column = 0; column < columns; column++) {
-    const a = 1 + (input.radialSamples - 1) * columns + column,
-      b = 1 + (input.radialSamples - 1) * columns + ((column + 1) % columns);
+  for (let column: number = 0; column < columns; column++) {
+    const a: number = 1 + (input.radialSamples - 1) * columns + column,
+      b: number =
+        1 + (input.radialSamples - 1) * columns + ((column + 1) % columns);
     indices.push(a, b, a + frontCount, b, b + frontCount, a + frontCount);
   }
   return {

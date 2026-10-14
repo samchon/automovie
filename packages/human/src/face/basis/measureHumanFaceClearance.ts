@@ -1,4 +1,6 @@
 import {
+  type IAutoMovieMeshCrossing as IAutoMovieMeshCrossingImported,
+  type IAutoMovieSignedMeshQueryHit as IAutoMovieSignedMeshQueryHitImported,
   createAutoMovieSignedMeshQuery,
   measureAutoMovieMeshCrossings,
   triangleIndicesOf,
@@ -10,7 +12,8 @@ import type { IAutoMovieHumanConstructionClearanceReading } from "../../common/s
 import type { IHumanFaceClearanceReference } from "./IHumanFaceClearanceReference";
 import type { IHumanFaceClearanceRequest } from "./IHumanFaceClearanceRequest";
 
-const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
+const references: WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference> =
+  new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
 
 /**
  * Read one subject against one reference surface and report the whole result.
@@ -36,6 +39,10 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * refused; its numbers are an observation for the owner of that boundary.
  * A caller may classify each strict transverse point as intended insertion.
  * Excluding one point leaves every other edge and triangle witness in scope.
+ * The crossing count is the number of subject triangles with a retained
+ * transverse witness, at most one per subject triangle; it is not a count of
+ * every crossing face pair. The engine prefers transverse over coplanar
+ * witnesses, and this reader then omits coplanar-only records.
  *
  * An open reference is an oriented sheet. Its sign means something only near
  * it: a point beyond its rim or farther than its local feature size reads an
@@ -49,11 +56,19 @@ const references = new WeakMap<IAutoMovieMesh, IHumanFaceClearanceReference>();
  * their declared TRS; it is not global-coordinate Float32 rounding. The reference is
  * the tessellated surface, so a reading against a curved exterior also carries
  * that surface's chord error, which this instrument does not know.
+ *
+ * @evidence contracts/common.md#principled-implementation Shared local-Float32/TRS reconstruction, signed nearest-feature queries and noncoplanar triangle-crossing witnesses measure the actual publication frames. Current admissions provide immutable reference meshes and qualified open-sheet reach; rim sign is unknown, distant vertices are unreached, and tessellation chord error remains outside this instrument.
+ * @evidence contracts/common.md#clear-and-simple-design One full reading serves judged admissions and report-only census with the same geometry instruments. Reference compilation is shared by mesh identity/TRS/boundary, while each subject and its intended insertion classification remain request-specific.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every selected vertex is read, unknown rim signs and unavailable instruments refuse judged relations, and intended insertion removes only the classified transverse point. Report-only relations keep their numbers without acquiring an accepted physical verdict; no scalar minimum replaces face crossings.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives metre/tolerance signs, local Float32 uncertainty, TRS order, complete counts/extrema, open-sheet reach, optional crossing behavior and curved-reference limitations.
+ * @evidence contracts/performance.md#efficient-algorithms Reference BVH construction and queries retain their engine costs: nearest searches can visit all T reference triangles and crossings can test all subject/reference candidate pairs with candidate sorting. For V selected vertices this includes O(VT) worst-case query work and O(V log V) quantile sorting; default crossing collection stops after one transverse witness per subject triangle, while vertex counts remain complete.
+ * @evidence contracts/performance.md#reuse-equivalent-work A WeakMap shares the immutable reference's rounded/TRS mesh and per-boundary compiled queries; changed serialized TRS replaces that entry. Subjects, selection, reach and insertion rules are read anew, and mutating a reference mesh under its identity violates the documented premise.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Weak reference keys allow unused meshes to be collected; each live reference holds one current placed mesh and its closed/open query variants. Per-call distances follow selected vertices and retained crossing records are bounded by subject triangles, with candidate/hierarchy storage also following source faces; returned witnesses/counts belong to the caller.
  */
 export function measureHumanFaceClearance(
   request: IHumanFaceClearanceRequest,
 ): IAutoMovieHumanConstructionClearanceReading {
-  const tolerance = request.toleranceMetres;
+  const tolerance: number = request.toleranceMetres;
   const reading: IAutoMovieHumanConstructionClearanceReading = {
     owner: request.owner,
     state: request.state,
@@ -77,37 +92,59 @@ export function measureHumanFaceClearance(
     crossings: null,
     unavailable: null,
   };
-  const precise = (mesh: IAutoMovieMesh, transform?: IAutoMovieTransform | null): IAutoMovieMesh => {
-    const placed = readHumanLocalMeshWorld(mesh, transform);
+  const precise: (
+    mesh: IAutoMovieMesh,
+    transform?: IAutoMovieTransform | null,
+  ) => IAutoMovieMesh = (
+    mesh: IAutoMovieMesh,
+    transform?: IAutoMovieTransform | null,
+  ): IAutoMovieMesh => {
+    const placed: IAutoMovieMesh = readHumanLocalMeshWorld(mesh, transform);
     return { ...placed, indices: triangleIndicesOf(placed, "Face clearance") };
   };
   try {
     if (!Number.isFinite(tolerance) || tolerance < 0)
       throw new Error("clearance needs a finite nonnegative tolerance");
-    const subject = precise(request.mesh, request.meshTransform);
+    const subject: IAutoMovieMesh = precise(
+      request.mesh,
+      request.meshTransform,
+    );
     // One construction reads many subjects against the same few references,
     // so the rounded reference and its compiled query are kept per mesh
     // object. A reference mesh is never modified after it is first read.
-    let compiled = references.get(request.exterior);
-    const transform = JSON.stringify(request.exteriorTransform ?? null);
+    let compiled: IHumanFaceClearanceReference | undefined = references.get(
+      request.exterior,
+    );
+    const transform: string = JSON.stringify(request.exteriorTransform ?? null);
     if (compiled === undefined || compiled.transform !== transform) {
-      compiled = { mesh: precise(request.exterior, request.exteriorTransform), transform, queries: new Map() };
+      compiled = {
+        mesh: precise(request.exterior, request.exteriorTransform),
+        transform,
+        queries: new Map(),
+      };
       references.set(request.exterior, compiled);
     }
-    const exterior = compiled.mesh;
-    let query = compiled.queries.get(request.boundary);
+    const exterior: IAutoMovieMesh = compiled.mesh;
+    let query:
+      | ((point: readonly number[]) => IAutoMovieSignedMeshQueryHitImported)
+      | undefined = compiled.queries.get(request.boundary);
     if (query === undefined) {
       query = createAutoMovieSignedMeshQuery(exterior, {
         boundary: request.boundary,
       });
       compiled.queries.set(request.boundary, query);
     }
-    const selected = request.vertices ?? [...new Set(subject.indices ?? [])];
+    const selected: readonly number[] = request.vertices ?? [
+      ...new Set(subject.indices ?? []),
+    ];
     if (request.reachMetres !== undefined) reading.unreachedVertices = 0;
     const distances: number[] = [];
     for (const vertex of selected) {
-      const point = subject.positions.slice(3 * vertex, 3 * vertex + 3);
-      const hit = query(point);
+      const point: number[] = subject.positions.slice(
+        3 * vertex,
+        3 * vertex + 3,
+      );
+      const hit: IAutoMovieSignedMeshQueryHitImported = query(point);
       reading.vertices++;
       if (hit.boundary) {
         reading.boundaryVertices++;
@@ -120,7 +157,7 @@ export function measureHumanFaceClearance(
         reading.unreachedVertices = (reading.unreachedVertices ?? 0) + 1;
         continue;
       }
-      const signed = hit.signedDistance;
+      const signed: number = hit.signedDistance;
       distances.push(signed);
       if (signed < -tolerance) reading.insideVertices++;
       if (signed > tolerance) reading.outsideVertices++;
@@ -142,8 +179,8 @@ export function measureHumanFaceClearance(
       }
     }
     if (distances.length > 0) {
-      distances.sort((a, b) => a - b);
-      const rank = (fraction: number): number =>
+      distances.sort((a: number, b: number): number => a - b);
+      const rank: (fraction: number) => number = (fraction: number): number =>
         distances[
           Math.min(
             distances.length - 1,
@@ -154,21 +191,26 @@ export function measureHumanFaceClearance(
       reading.percentile95SignedMetres = rank(0.95);
     }
     if (request.crossingIndices !== null) {
-      const faces =
+      const faces: IAutoMovieMesh =
         request.crossingIndices === undefined
           ? subject
           : { ...subject, indices: [...request.crossingIndices] };
-      const hits =
+      const hits: IAutoMovieMeshCrossingImported[] =
         (faces.indices ?? []).length === 0
           ? []
           : measureAutoMovieMeshCrossings(faces, exterior, {
               acceptTransversePoint: request.acceptTransversePoint,
-            }).filter((hit) => !hit.coplanar);
+            }).filter(
+              (hit: IAutoMovieMeshCrossingImported): boolean => !hit.coplanar,
+            );
       reading.crossings = hits.length;
-      const corners = (mesh: IAutoMovieMesh, triangle: number): number[] =>
+      const corners: (mesh: IAutoMovieMesh, triangle: number) => number[] = (
+        mesh: IAutoMovieMesh,
+        triangle: number,
+      ): number[] =>
         (mesh.indices ?? [])
           .slice(3 * triangle, 3 * triangle + 3)
-          .flatMap((vertex) =>
+          .flatMap((vertex: number): number[] =>
             mesh.positions.slice(3 * vertex, 3 * vertex + 3),
           );
       reading.crossingWitness =

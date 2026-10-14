@@ -1,12 +1,14 @@
 /**
- * src/geometry/face-culling.ts `cullCoincidentVerticalFaces`: 맞닿은 볼록 조각의 공통 수직 면 제거.
- * fixture: 같은 크기로 맞닿은 두 상자(볼록), 높이가 다른 두 상자(노출 띠가 남는 경우),
- * 길이 방향으로 어긋난 두 상자(구멍 없는 부분 겹침), 세 상자 L자(오목 합집합),
- * 얇은 상자(1mm), 수치 한계 근처(4µm·20µm 떨어진 평면), culling 없이 이은 경우(비다양체),
- * 결정성. 열린 경계와 구멍은 이 연산의 입력이 아니다(닫힌 볼록 조각의 면을 받는다).
- * production의 수직 면은 모두 prism 옆면 순서 [a아래, a위, b위, b아래]로 들어온다(prismFaces,
- * splitVerticalFace). 다른 순서(아랫변부터 도는 사각형)로 들어온 면의 남은 조각도 원래
- * 법선을 유지하는지 일반 순서 시험 두 개가 본다.
+ * src/geometry/face-culling.ts cullCoincidentVerticalFaces removes common vertical faces of touching convex pieces.
+ * Fixtures: equal touching boxes (convex), different-height boxes (remaining
+ * exposed band), length-offset boxes (partial overlap without a hole), three
+ * boxes in an L (concave union), thin boxes (1mm), near-limit planes separated
+ * by 4µm or 20µm, joining without culling (non-manifold), and determinism.
+ * Open boundaries and holes are not inputs; the operation takes faces of closed convex pieces.
+ * Every production vertical face uses prism side-face order
+ * [a-bottom, a-top, b-top, b-bottom] (prismFaces and splitVerticalFace).
+ * Two general-order tests check whether remaining pieces preserve the original
+ * normal when faces arrive in another order, traversing a quadrilateral from its bottom edge.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -15,11 +17,11 @@ import { rectanglePolygon } from "../../geometry/planar-domain";
 import { levelPlane, prismFaces } from "../../geometry/prism";
 import { accountFaces, assertClosed, boxFaces } from "./fixtures";
 
-/** production과 같은 prism 옆면 순서의 상자. */
+/** Box using the production's prism side-face order. */
 const box = (west: number, east: number, top: number, north = 0, south = 1, bottom = 0) =>
   prismFaces(rectanglePolygon({ west, east, north, south }), levelPlane(bottom), levelPlane(top))
     .map((face) => ({ surface: "surface.test.box", corners: face.corners }));
-/** 아랫변부터 도는 순서의 상자(일반 입력). */
+/** Box traversing from the bottom edge, as a general input. */
 const bottomFirstBox = (west: number, east: number, top: number, north = 0, south = 1) =>
   boxFaces({ west, east, bottom: 0, top, north, south });
 

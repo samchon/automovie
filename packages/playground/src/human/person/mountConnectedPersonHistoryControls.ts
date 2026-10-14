@@ -5,16 +5,16 @@ import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonSession } from "./IConnectedPersonSession";
 
 /**
- * Bind the person's history and discard commands to one current intent.
- * The history owner publishes synchronously; these outer command handlers
- * refresh its settled state and then await real resource retirement. A
- * cleanup refusal reports the existing displayed pair instead of undoing a
- * successful history commit. A stale command has no authority over status.
+ * Bind the person's history and discard commands to one current intent. The history owner publishes synchronously; handlers refresh settled state and then await retirement. A retirement failure reports the displayed pair without undoing an earlier history commit. Stale commands cannot update status.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Restores the complete person's accepted history and leaves its actual displayed pair in place when resource cleanup fails.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Keeps retirement awaits outside the synchronous history publication and respects current-intent authority.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Runs undo, redo, reset and draft discard over the same complete person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Uses the original history operations and reports only the current command's result.
+ * @evidence contracts/common.md#principled-implementation The panel reserves a ticket before each asynchronous history command and checks that ticket before changing session/status; actual history publication remains the editor's responsibility.
+ * @evidence contracts/common.md#clear-and-simple-design Four existing buttons delegate undo/redo/reset/restore to one history owner and use the same refresh and retirement seams as ordinary edits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither stale completion nor retirement failure is treated as permission to rewind a successful publication; absent history and absent discard drafts return without manufacturing a result.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes synchronous publication, awaited retirement and current-intent status authority.
+ * @evidence contracts/performance.md#efficient-algorithms Binding four controls is constant work; each command's document/frame construction and retirement cost belongs to the invoked history and viewport owners.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work History commands are ordered effects and cannot share a completion merely because their documents match; this adapter keeps no numerical cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Four handlers retain the panel callbacks until its DOM is discarded. This adapter has no close or active-command cap: repeated clicks can leave multiple pending commands, whose stale status is guarded and whose actual work/retirement belongs to the editor and viewport.
+ *
  * @author Samchon
  */
 export function mountConnectedPersonHistoryControls<
@@ -24,9 +24,11 @@ export function mountConnectedPersonHistoryControls<
   app: HTMLElement;
 
   /** Current accepted history, absent until an accepted construction arrives. */
-  history: () => ReturnType<
-    typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
-  > | undefined;
+  history: () =>
+    | ReturnType<
+        typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+      >
+    | undefined;
 
   /** Displayed draft and status owner shared with the ordinary editing transaction. */
   session: IConnectedPersonSession<Model>;
@@ -48,19 +50,25 @@ export function mountConnectedPersonHistoryControls<
 
   /** Complete requested retirement after synchronous history publication. */
   settleRetirements: () => Promise<void>;
-}) {
-  const button = (id: string) =>
-    props.app.querySelector<HTMLButtonElement>("#" + id)!;
+}): void {
+  const button: (id: string) => HTMLButtonElement = (
+    id: string,
+  ): HTMLButtonElement => props.app.querySelector<HTMLButtonElement>("#" + id)!;
   for (const action of ["undo", "redo", "reset"] as const)
-    button("person-" + action).onclick = async () => {
-      const history = props.history();
+    button("person-" + action).onclick = async (): Promise<void> => {
+      const history:
+        | ReturnType<
+            typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+          >
+        | undefined = props.history();
       if (history === undefined) return;
-      const ticket = props.withdraw();
+      const ticket: number = props.withdraw();
       props.busy("Restoring the selected person…");
       try {
-        const success = await history[action]();
+        const success: boolean = await history[action]();
         if (props.isCurrent(ticket)) {
-          const restored = history.snapshot();
+          const restored: ReturnType<typeof history.snapshot> =
+            history.snapshot();
           if (!success) {
             if (restored.error !== null) props.session.refuse(restored.error);
             else props.session.rest();
@@ -72,15 +80,21 @@ export function mountConnectedPersonHistoryControls<
         if (props.isCurrent(ticket)) props.refuse(error);
       }
     };
-  button("person-discard").onclick = async () => {
-    const history = props.history();
-    if (history === undefined || props.session.snapshot().draft === null) return;
-    const ticket = props.withdraw();
+  button("person-discard").onclick = async (): Promise<void> => {
+    const history:
+      | ReturnType<
+          typeof createHumanFaceEditor<Model, IAutoMovieHumanPersonDocument>
+        >
+      | undefined = props.history();
+    if (history === undefined || props.session.snapshot().draft === null)
+      return;
+    const ticket: number = props.withdraw();
     props.busy("Returning to the accepted person…");
     try {
-      const success = await history.restore();
+      const success: boolean = await history.restore();
       if (props.isCurrent(ticket)) {
-        const restored = history.snapshot();
+        const restored: ReturnType<typeof history.snapshot> =
+          history.snapshot();
         if (!success) {
           if (restored.error !== null) props.session.refuse(restored.error);
           else props.session.rest();

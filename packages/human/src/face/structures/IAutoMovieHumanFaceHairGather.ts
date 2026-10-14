@@ -5,6 +5,14 @@
  * not measured follicle anatomy; no clinical protocol or population fit is
  * asserted. The existing contact owner supplies the current attachment.
  *
+ * @evidence contracts/common.md#principled-implementation expandHumanFaceHairGather converts angular/mm traits into the shared scalp-attached tie and head-axis free tail; the gathered integrator follows current-domain metric gradients rather than a private chord through the head.
+ * @evidence contracts/common.md#clear-and-simple-design One tie ray, neighbourhood strength and tail direction describe the two stages; optional spread radius/reach must be supplied together.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The expander refuses an incomplete spread pair and layer admission checks numerical bounds; attachment and turning/contact rejection remain actual consumers, not a promise that every tie can be reached.
+ * @evidence contracts/common.md#meaningful-documentation Superior/anterior-to-left angle conventions, mm lengths and head-frame tail axes distinguish authored styling from coordinates or follicle measurements.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The trait schema implements no ray hit, graph propagation or curve integration.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work It specifies one shared tie but does not cache current-scalp queries.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No triangle graph, guide buffer or renderer state is retained by this record.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHairGather {

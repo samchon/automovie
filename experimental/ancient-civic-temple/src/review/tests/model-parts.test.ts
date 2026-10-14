@@ -1,8 +1,9 @@
 /**
- * src/geometry/model-parts.ts `surfaceModel`: 면 목록을 표면 ID별 part로 묶는다.
- * fixture: 여러 표면의 닫힌 상자(part 순서·재료 null·항등 변환), 한 표면이 여러 조각인 경우,
- * 빈 입력(거부), 오목 면(engine 거부에 model/표면 주소를 붙임), 결정성.
- * part 하나는 열린 면 집합일 수 있고 닫힘은 model 전체의 결산(mesh-ledger)이 잰다.
+ * src/geometry/model-parts.ts surfaceModel groups faces into parts by surface ID.
+ * Fixtures: a closed box with several surfaces (part order, null materials and
+ * identity transforms), one surface in several pieces, empty input (refused),
+ * a concave face (model/surface address added to the engine refusal), and determinism.
+ * One part may be an open face set; mesh-ledger measures closure over the complete model.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -22,7 +23,7 @@ void test("parts are grouped per surface in sorted order, unbound, and the whole
 });
 
 void test("refusals carry the model and surface address", () => {
-  assert.throws(() => surfaceModel("model.empty", "e", []), /model.empty: 면이 없는/);
+  assert.throws(() => surfaceModel("model.empty", "e", []), /model.empty: model without faces/);
   const concave = [v(0, 0, 0), v(2, 0, 0), v(2, 0, 1), v(1, 0, 1), v(1, 0, 2), v(0, 0, 2)];
   assert.throws(() => surfaceModel("model.bad", "b", [{ surface: "surface.bad.floor", corners: concave }]), /model.bad\/surface.bad.floor/);
 });

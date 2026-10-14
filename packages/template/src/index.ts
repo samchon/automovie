@@ -3,22 +3,31 @@ export * from "./IAutoMovieScaffoldSourceEntry";
 export * from "./renderScaffold";
 export * from "./renderScaffoldEntries";
 export * from "./scaffoldAssetDirectory";
-export * from "./authoringReachability/index";
-export * from "./renderAutoMovieLanguageContracts";
-export {
-  AUTO_MOVIE_PRODUCTION_LANGUAGES,
-  type AutoMovieProductionLanguage,
-  isAutoMovieProductionLanguage,
-} from "@automovie/evidence";
-export * from "./productionMaintenance";
 export * from "./renderTemplate";
+export * from "./IAutoMovieCatalogVersionProps";
 export * from "./resolveAutoMovieCatalogVersion";
-export { publishNativeScaffoldFile } from "./nativeScaffoldPublication";
-export * from "./scaffoldFileSnapshot";
-export * from "./scaffoldPublication";
-export * from "./templateVersions";
-export * from "./instructionRoutes";
+export * from "./publishNativeScaffoldFile";
+export * from "./IScaffoldParentPublicationRequest";
+export * from "./IScaffoldPhysicalDirectory";
+export * from "./ensureScaffoldBaseDirectory";
+export * from "./assertScaffoldPhysicalDirectory";
+export * from "./ensureScaffoldFileDirectory";
+export * from "./writeScaffoldFile";
+export * from "./IScaffoldPublicationEntry";
+export * from "./IScaffoldCompletedFilePublicationOutcome";
+export * from "./IScaffoldRefusedFilePublicationOutcome";
+export * from "./IScaffoldPartialFilePublicationOutcome";
+export * from "./ScaffoldFilePublicationOutcome";
+export * from "./IScaffoldCompletedPublication";
+export * from "./IScaffoldPublicationFailure";
+export * from "./IScaffoldPublicationReceipt";
+export * from "./planScaffoldPublication";
+export * from "./publishScaffoldCandidate";
+export * from "./AUTOMOVIE_TEMPLATE_VERSIONS";
+export * from "./IScaffoldPublicationOptions";
+export * from "./ScaffoldPublicationError";
 export * from "./writeFiles";
+export * from "./publishFiles";
 export * from "./IAutoMovieWorkspacePackageVersions";
 export * from "./IAutoMovieTemplateDependencyVersionsProps";
 export * from "./resolveAutoMovieTemplateDependencyVersions";

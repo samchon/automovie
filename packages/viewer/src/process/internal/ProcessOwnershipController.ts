@@ -4,22 +4,19 @@ import { requireProcessId } from "./requireProcessId.ts";
 import { selectProcessOwnershipTree } from "./selectProcessOwnershipTree.ts";
 
 /**
- * Own capture authority and explicit stop admission for one host. The host
- * supplies actual OS facts/effects; this controller owns the mutable child
- * capture map, original child lifecycle checks and identity decisions. The
- * public ProcessOwnership facade composes it with the Node host. Typed host
- * results can exercise these decisions without simulating a kernel, replacing
- * a ChildProcess method or introducing a special public test mode.
+ * Own capture authority and explicit stop admission for one host. The host supplies actual OS facts/effects; this controller owns the mutable child capture map, original child lifecycle checks and identity decisions. The public ProcessOwnership facade composes it with the Node host. Typed host results can exercise these decisions without simulating a kernel, replacing a ChildProcess method or introducing a special public test mode.
  *
- * @evidence contracts/common.md#principled-implementation The constructor retains one actual host for its lifetime; original child objects retain captured creation stamps, and current host facts admit an explicit stop of those same allocations.
- * @evidence contracts/common.md#clear-and-simple-design One lifetime host supplies discovery and termination effects while one capture map owns child authority and stop admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Composition accepts its own effect port without changing OS globals or observed child methods; age and executable names cannot grant stop authority.
- * @evidence contracts/common.md#meaningful-documentation States lifetime host composition, capture-key ownership, failure propagation and explicit identity admission before effects.
- * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Keeps one session's lifetime host and captured original-child authority distinct from discovery and native termination effects.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform The public facade supplies the actual Node host once; the retained controller uses it for creation discovery, ancestry admission and explicit termination.
+ * @evidence contracts/common.md#principled-implementation Combines weak original-child capture with current native identity and creation-ordered Windows tree admission for explicit owned stop requests.
+ * @evidence contracts/common.md#clear-and-simple-design Mutable capture state is separate from native effects and pure decoders/tree selection; the constructor borrows one fixed host.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or observed-ended children acquire no stamp, same-pid replacement objects have no capture and supplied host facts are not independent native lifecycle proof.
+ * @evidence contracts/common.md#meaningful-documentation Class/method prose distinguishes capture, discovery, caller ownership, platform admission and native race/precision limits.
+ * @evidence contracts/performance.md#efficient-algorithms Weak lookups are expected constant work, native queries dominate capture/read and Windows stop uses snapshot/tree/handle processing with its declared process dimensions.
+ * @evidence contracts/performance.md#reuse-equivalent-work A successful original-object stamp is shared without recapture; every stop still checks current allocation and no cached discovery grants new permission.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Weak child keys avoid a global strong child population, the host reference lasts with the controller and concrete host operations own/retire transient handles.
  */
 export class ProcessOwnershipController {
-  private readonly children = new WeakMap<IProcessChildObservation, string>();
+  private readonly children: WeakMap<IProcessChildObservation, string> =
+    new WeakMap();
   private readonly host: IProcessOwnershipHost;
 
   /**
@@ -32,53 +29,62 @@ export class ProcessOwnershipController {
   }
 
   /**
-   * Capture once per original child object. Absence or failure cannot invent a
-   * creation identity, and later discovery cannot replace an existing stamp.
+   * Capture once per original child object. Absence or failure cannot invent a creation identity, and later discovery cannot replace an existing stamp.
    *
-   * @evidence contracts/common.md#principled-implementation Captures the first actual host identity under the original child-object key.
-   * @evidence contracts/common.md#clear-and-simple-design One WeakMap owns capture authority without mutating the child object.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not synthesize absent identities or adopt a newer allocation during re-capture.
-   * @evidence contracts/common.md#meaningful-documentation States one-time capture and absence/failure effects.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Retains the original spawned allocation instead of adopting a reused PID.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Stores actual host creation identity under the original child observation.
+   * @evidence contracts/common.md#principled-implementation Checks original-object capture and missing/observed-ended lifecycle before reading and storing a non-null current birth stamp.
+   * @evidence contracts/common.md#clear-and-simple-design One weak map owns successful capture; absent or failed discovery leaves the object unstamped for the caller to observe or retry capture.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A later successful discovery cannot replace an existing stamp, and this observed-property/native-query sequence is not an atomic birth receipt under all OS races.
+   * @evidence contracts/common.md#meaningful-documentation Documentation identifies first successful stamp, no invented identity and refusal of ended original objects before host effects.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed weak/lifecycle checks precede at most one native discovery for an unstamped live child.
+   * @evidence contracts/performance.md#reuse-equivalent-work Repeated capture of a stamped object shares its existing expected identity rather than querying a possibly reused pid again.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a weak child key and stamp value are retained; actual child ownership stays with its caller and the native query's temporary resources stay with the host.
    */
   public own(child: IProcessChildObservation): void {
-    if (this.children.has(child) || child.pid === undefined) return;
-    const createdAt = this.read(child.pid);
+    if (
+      this.children.has(child) ||
+      child.pid === undefined ||
+      child.exitCode !== null ||
+      child.signalCode !== null
+    )
+      return;
+    const createdAt: string | null = this.read(child.pid);
     if (createdAt !== null) this.children.set(child, createdAt);
   }
 
   /**
-   * An actual observed exit needs no signal. A live child without capture
-   * authority refuses before discovery, while a captured child delegates its
-   * recorded stamp to the platform identity admission.
+   * An actual observed exit needs no signal. A live child without capture authority refuses before discovery, while a captured child delegates its recorded stamp to the platform identity admission.
    *
-   * @evidence contracts/common.md#principled-implementation Uses original exit/signal observations and captured birth identity before a stop request.
-   * @evidence contracts/common.md#clear-and-simple-design Child-lifecycle admission delegates the shared platform decision to stop.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never signals an ended child through a possibly reused integer PID or grants unstamped authority.
-   * @evidence contracts/common.md#meaningful-documentation Defines ended, uncreated and unstamped live-child outcomes.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Leaves ended or unowned child observations outside termination effects.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Admits only an original live child with retained creation authority.
+   * @evidence contracts/common.md#principled-implementation Treats an observed exit or absent pid as ended, otherwise requires that exact object's captured stamp before requesting current platform stop admission.
+   * @evidence contracts/common.md#clear-and-simple-design Original-child lifecycle selection is one method and recorded-identity native stop is delegated to the common stop path.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Another object with the same pid cannot borrow authority and a live unstamped object refuses before any host discovery/signal.
+   * @evidence contracts/common.md#meaningful-documentation The comment explains ended no-op, missing capture refusal and original recorded stamp use.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed lifecycle/map checks precede the native current-identity or Windows snapshot/tree costs.
+   * @evidence contracts/performance.md#reuse-equivalent-work The original captured stamp is reused only as expected identity; the current OS allocation must still match before effects.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The original observation is borrowed and no new strong child record or persistent process handle is added.
    */
   public stopChild(child: IProcessChildObservation): void {
-    if (child.exitCode !== null || child.signalCode !== null || child.pid === undefined)
+    if (
+      child.exitCode !== null ||
+      child.signalCode !== null ||
+      child.pid === undefined
+    )
       return;
-    const createdAt = this.children.get(child);
+    const createdAt: string | undefined = this.children.get(child);
     if (createdAt === undefined)
       throw new Error("The child has no captured process creation identity");
     this.stop(child.pid, createdAt);
   }
 
   /**
-   * Refuse a malformed selector before discovery. The host's actual stamp,
-   * absent null or original operational failure remains the result.
+   * Refuse a malformed selector before discovery. The host's actual stamp, absent null or original operational failure remains the result.
    *
-   * @evidence contracts/common.md#principled-implementation Admits the positive safe-integer PID before consuming actual host discovery.
-   * @evidence contracts/common.md#clear-and-simple-design Shared selector admission precedes the single discovery effect.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not turn discovery failure into a guessed identity.
-   * @evidence contracts/common.md#meaningful-documentation States admission timing and unchanged host outcomes.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Supplies actual allocation observations only for admitted process selectors.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Owns selector admission before native creation discovery.
+   * @evidence contracts/common.md#principled-implementation Validates a positive integral pid through the shared selector owner before invoking actual host birth discovery.
+   * @evidence contracts/common.md#clear-and-simple-design Selector admission and host IO remain separate operations so malformed selectors cannot reach native effects.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Null absence and original host failure remain distinct, and returned discovery does not confer caller ownership.
+   * @evidence contracts/common.md#meaningful-documentation Documentation identifies pre-discovery selector refusal and unchanged native result semantics.
+   * @evidence contracts/performance.md#efficient-algorithms Pid validation is fixed work followed by the concrete platform's current identity query.
+   * @evidence contracts/performance.md#reuse-equivalent-work No controller discovery memo substitutes an older birth for this read; weak capture storage is a separate expected-identity operation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The method retains no result or handle after return and the host owns temporary discovery transport resources.
    */
   public read(pid: number): string | null {
     requireProcessId(pid);
@@ -86,27 +92,34 @@ export class ProcessOwnershipController {
   }
 
   /**
-   * Admit a Windows handle set or one POSIX signal from current creation facts.
-   * No age or probe result is an input. Native host failures propagate, and a
-   * POSIX check/signal remains separate effects with its documented native race.
+   * Admit a Windows handle set or one POSIX signal from current creation facts. No age or probe result is an input. Native host failures propagate, and a POSIX check/signal remains separate effects with its documented native race.
    *
-   * @evidence contracts/common.md#principled-implementation Admits a complete creation-ordered Windows set or an exact current POSIX root stamp before requesting native effects.
-   * @evidence contracts/common.md#clear-and-simple-design One stop decision consumes fresh observations and shares ancestry admission with the public tree API.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Has no age, name or silence input and propagates identity or host failures without unchecked recursive termination.
-   * @evidence contracts/common.md#meaningful-documentation States the host-effect order and retained POSIX check/signal race.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Refuses mismatched allocation authority before a platform termination request.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Owns creation admission while the native host owns actual handle or signal effects.
+   * @evidence contracts/common.md#principled-implementation Requires admitted pid and nonempty expected identity, then checks a current Windows tree/complete handle set or current POSIX root identity before signalling.
+   * @evidence contracts/common.md#clear-and-simple-design One platform branch joins shared selector/tree logic with supplied native effects without moving capture state into the host.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent root needs no termination, a reused allocation refuses, no age/fixture branch grants authority and POSIX check/signal remains non-atomic.
+   * @evidence contracts/common.md#meaningful-documentation The method documents creation-based admission, explicit caller ownership and different native stop guarantees.
+   * @evidence contracts/performance.md#efficient-algorithms Windows work scales with snapshot/admitted target populations while POSIX uses one current discovery and one root signal.
+   * @evidence contracts/performance.md#reuse-equivalent-work Fresh allocation facts govern each requested effect; no earlier successful stop or snapshot result is cached as authority.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The controller retains only temporary value records during stop; the host owns all pinned handles, disposal and native termination uncertainty.
    */
   public stop(pid: number, createdAt: string): void {
     requireProcessId(pid);
     if (!createdAt) throw new Error("A process creation identity is required");
     if (this.host.windows) {
-      const snapshot = this.host.snapshot();
-      if (!snapshot.some((entry) => entry.pid === pid)) return;
-      this.host.terminateWindows(selectProcessOwnershipTree(snapshot, { pid, createdAt }));
+      const snapshot: ReturnType<IProcessOwnershipHost["snapshot"]> =
+        this.host.snapshot();
+      if (
+        !snapshot.some(
+          (entry: (typeof snapshot)[number]): boolean => entry.pid === pid,
+        )
+      )
+        return;
+      this.host.terminateWindows(
+        selectProcessOwnershipTree(snapshot, { pid, createdAt }),
+      );
       return;
     }
-    const current = this.read(pid);
+    const current: string | null = this.read(pid);
     if (current === null) return;
     if (current !== createdAt)
       throw new Error("The owned process has exited or its PID was reused");

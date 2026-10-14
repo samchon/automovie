@@ -1,23 +1,22 @@
 import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
- * One binding between a named surface target of the numerical body request
- * and the source instrument and shape channel that answer it.
+ * One binding between a named surface target of the numerical body request and the source instrument and shape channel that answer it.
  *
- * The rule is read from `HUMAN_BODY_MEASUREMENTS` by its key, oriented to
- * `side` when one is given, so the instrument has one owner and no mirrored
- * copy. The channel is the private source response the exterior generator
- * inverts for this target; it is not an editable sculpt control. The
- * protocol sentence states how the source-rest instrument departs from the
- * cited survey definition, because a source convention is not a registered
- * standing acquisition.
+ * The rule is read from `HUMAN_BODY_MEASUREMENTS` by its key, oriented to `side` when one is given, so the instrument has one owner and no mirrored copy. The channel is the private source response the exterior generator inverts for this target; it is not an editable sculpt control. The protocol sentence states how the source-rest instrument departs from the cited survey definition, because a source convention is not a registered standing acquisition.
  *
+ * @evidence contracts/common.md#principled-implementation An authored path-to-rule/channel mapping binds a named surface quantity to its source instrument, optional side and declared protocol departure.
+ * @evidence contracts/common.md#clear-and-simple-design Instrument geometry stays in HUMAN_BODY_MEASUREMENTS while this table row owns request correspondence and private inverse-channel identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A source channel is not a public sculpt parameter and source-rest protocol cannot stand in for a registered standing acquisition.
+ * @evidence contracts/common.md#meaningful-documentation Members define anatomy-relative request paths, instrument keys, side omission, private channels and protocol differences.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Binding metadata runs no channel inversion or mirrored instrument evaluation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Rule keys establish a shared instrument owner without storing evaluated body measurements.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Binding rows retain only metadata and own no shaped mesh, instrument closure or numerical solve.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyExteriorTarget {
   /**
-   * Detailed request path below `targets`, such as
-   * `surface.leftLowerLimb.foot.length`.
+   * Detailed path within the anatomy request, such as `surface.leftLowerLimb.foot.length`.
    */
   readonly path: string;
 

@@ -3,28 +3,20 @@ import type { IHumanViewerWarmFailure } from "./IHumanViewerWarmFailure.js";
 /**
  * The latest warm failure with when and on which revision it happened.
  *
- * @evidence contracts/common.md#principled-implementation The latest warm failure keeps its original document/reason plus failure time and pass revision.
- * @evidence contracts/common.md#clear-and-simple-design Extending the existing failure record adds chronology without duplicating failure identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Resetting a pass's counters does not erase the independently retained latest failure.
- * @evidence contracts/common.md#meaningful-documentation Documents ISO failure time and the source revision associated with the preserved error.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review The latest warm failure keeps its original document/reason plus failure time and pass revision.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Extending the existing failure record adds chronology without duplicating failure identity.
+ * @evidence contracts/common.md#principled-implementation Extending a document warm failure with ISO time and source revision preserves which pass produced the latest refusal.
+ * @evidence contracts/common.md#clear-and-simple-design The latest-failure record reuses id/reason members and adds only provenance needed across warm-pass counter resets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A new pass does not erase the prior cause by manufacturing a clean history or a successful replacement frame.
+ * @evidence contracts/common.md#meaningful-documentation Members document the ISO failure time and the source revision warmed by the failed pass.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This provenance extension performs no chronological selection or capture operation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Latest-failure retention is a diagnostic history slot rather than result reuse or a thumbnail cache key.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The warming owner keeps only one latest failure across pass resets; this record retains no image or GPU task.
+ *
  * @author Samchon
  */
 export interface IHumanViewerWarmLastFailure extends IHumanViewerWarmFailure {
-  /**
-   * ISO time of the failure.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review ISO time of the failure. The latest warm failure keeps its original document/reason plus failure time and pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review ISO time of the failure. Extending the existing failure record adds chronology without duplicating failure identity.
-   */
+  /** ISO time of the failure. */
   at: string;
 
-  /**
-   * The source revision the pass warmed.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale The source revision the pass warmed. The latest warm failure keeps its original document/reason plus failure time and pass revision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The source revision the pass warmed. Extending the existing failure record adds chronology without duplicating failure identity.
-   */
+  /** The source revision the pass warmed. */
   revision: string;
 }

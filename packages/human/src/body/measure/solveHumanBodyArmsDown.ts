@@ -4,34 +4,19 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
 import { stepHumanBodyArmsDown } from "./stepHumanBodyArmsDown";
 
 /**
- * Lower both arms to the side of the body it is asked of, as far as that
- * body's own skin lets them hang.
+ * Synchronously consume the current body's stepped lateral arms-down search.
  *
- * Where a relaxed arm comes to rest depends on the body: the width of the
- * chest, belly and hips, the bulk of the arm, sex and mass. A fixed
- * elevation drives a heavy body's forearms through its flanks and leaves a
- * slender one's arms short of its sides, so the preset is solved on the
- * document's own evaluated surface rather than typed. Each arm hangs in the
- * lateral plane (TT plane 0) with no axial rotation and a straight elbow,
- * and its total elevation is read in one-degree steps from 0 (hanging straight
- * down) toward the measured A-pose rest elevation: the first elevation at
- * which no segment of that arm's chain (the upper arm and everything below
- * it) crosses a non-arm segment or itself more than at rest. Contact between
- * the two arms is assessed after both goals are chosen. The body's existing
- * contact at the arms' rest goals is not charged to the preset. Both
- * arms are read in one body at each degree, so a contact island cannot be
- * skipped by a monotone-search assumption. An arm already clear holds its
- * first-safe goal while the other continues. Cross-arm pairs are checked in
- * the final combined body, which refuses any new contact.
+ * stepHumanBodyArmsDown owns the actual skin partition, whole-degree candidate builds, per-pair crossing-count reference and final cross-arm check. Its lateral plane-zero/axial-zero goals use neutral elevations as the search endpoint; the reference need not equal a basis's complete native neutral pose. The result is a sampled geometric preset rather than a physiological resting-force solve or certification of a clear continuous path.
  *
- * The result is ordinary document data: the document's own pose with each
- * lower arm's flexion set to 0 and each upper arm's TT goal replaced; shape,
- * materials and every other joint are untouched. The caller applies it as
- * one edit. A document the builder refuses at a sampled goal, such as a
- * girdle or elbow past its clinical range, refuses here with the
- * builder's reason; nothing is clamped. Cost grows with the larger first-safe
- * whole-degree elevation, with one shared build per degree. The editor runs
- * it off the page one step at a time (`stepHumanBodyArmsDown`).
+ * Returned document rows replace each lower-arm row with flexion zero and unspecified abduction/twist, and replace both TT goals; other rows and document fields remain unchanged. Builder/combined-count failures propagate without clamping. This convenience consumes all generator steps synchronously, so responsive hosts retain the stepped entry and hand back their thread between builds. Equal reference counts do not prove that crossing witnesses stayed unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation The existing stepped owner evaluates actual candidate skin and reference crossing counts, and this wrapper consumes it to its final ordinary pose/shoulder document result.
+ * @evidence contracts/common.md#clear-and-simple-design One synchronous convenience shares all search semantics with the worker's cancellable stepped path without duplicating contact or pose logic.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Builder failures and increased combined counts propagate; sampled count acceptance cannot certify clinical rest, witness identity or continuous collision-free motion.
+ * @evidence contracts/common.md#meaningful-documentation The prose specifies preset/reference conventions, replaced rows, unchanged other fields and synchronous versus host-stepped execution.
+ * @evidence contracts/performance.md#efficient-algorithms Wrapper work is constant per yielded step, while the shared owner pays each actual body build, partition and relevant mesh crossing queries.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same generator owns both synchronous and responsive operations, retaining its basis partition and reference state instead of recreating them per step.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The generator expires after synchronous completion or thrown failure; document rows escape without retaining candidate geometry, timers or external tasks.
  */
 export function solveHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,
@@ -40,9 +25,13 @@ export function solveHumanBodyArmsDown(
   ) => IAutoMovieHumanBodyBuild,
   document: IAutoMovieHumanBodyBasisDocument,
 ): Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders"> {
-  const steps = stepHumanBodyArmsDown(basis, build, document);
+  const steps: ReturnType<typeof stepHumanBodyArmsDown> = stepHumanBodyArmsDown(
+    basis,
+    build,
+    document,
+  );
   for (;;) {
-    const next = steps.next();
+    const next: ReturnType<typeof steps.next> = steps.next();
     if (next.done === true) return next.value;
   }
 }

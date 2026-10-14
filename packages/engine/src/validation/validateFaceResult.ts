@@ -3,11 +3,17 @@ import { IAutoMovieFace, IAutoMovieValidation } from "@automovie/interface";
 import { validateFace } from "./validateFace";
 
 /**
- * Convenience wrapper returning a finished {@link IAutoMovieValidation}.
+ * Expose validateFace through a canonical success/failure validation result.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateFaceResult` exposes all located proxy-face trait faults under the default face input root.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateFaceResult` wraps the collector's unchanged member paths and severity into the canonical validation result.
+ * @evidence contracts/common.md#principled-implementation Expose validateFace through a canonical success/failure validation result.
+ * @evidence contracts/common.md#clear-and-simple-design Face admission stays with validateFace and result construction with the collector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The wrapper adds no anatomical acceptance exception or corrective geometry.
+ * @evidence contracts/common.md#meaningful-documentation The result reports metadata faults, not visual face quality.
+ * @evidence contracts/performance.md#efficient-algorithms Face-field checks plus V-row partitioning determine time/storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Existing face rules are reused directly for every current input.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The report owns arrays/rows and the wrapper retains no face object or host task.
  */
-export const validateFaceResult = (
+export const validateFaceResult: (
   face: IAutoMovieFace,
-): IAutoMovieValidation => validateFace({ face }).toValidation();
+) => IAutoMovieValidation = (face: IAutoMovieFace): IAutoMovieValidation =>
+  validateFace({ face }).toValidation();

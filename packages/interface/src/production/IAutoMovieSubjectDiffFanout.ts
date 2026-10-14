@@ -1,41 +1,28 @@
 import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
- * Aggregate consequence of one structural subject change.
+ * Aggregate geometry usage and prototype-selection consequence of one structural subject change.
  *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Reports prototype consequences without emitting one record per use.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Types bounded element, set, instance, and prototype-selection fan-out.
+ * @evidence contracts/common.md#principled-implementation Structural diff counts scene elements and compact slots drawing a changed prototype or part from the revision retaining it, and compares per-slot selected prototype/model identity for a changed common set.
+ * @evidence contracts/common.md#clear-and-simple-design Counts and a bounded set-id summary expose broad consequences without materializing one change object for every compact member.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Usage is derived from compiled recipe and selection rules rather than multiplying a changed prototype by every set indiscriminately; absent explicit prototype choices remain distinct identities.
+ * @evidence contracts/common.md#meaningful-documentation Defines affected scene elements, compact slots and bounded set identities, and selection differences including added or removed slots.
+ * @author Samchon
  */
 export interface IAutoMovieSubjectDiffFanout {
   /**
    * Number of scene elements whose geometry references the changed prototype.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Quantifies prototype use by placed elements without duplicate change entries.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the aggregate referencing-element count.
    */
   elements: number;
 
   /**
    * Number of compact instance slots whose geometry references the prototype.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Quantifies repeated prototype use without member-sized output.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the aggregate referencing-instance count.
    */
   instances: number;
 
-  /**
-   * Bounded identities of compact sets represented by {@link instances}.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Keeps affected instance sets addressable while bounding output.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the deterministic set-id summary.
-   */
+  /** Bounded identities of compact sets represented by {@link instances}. */
   instanceSets: IAutoMovieSubjectMemberSummary;
 
-  /**
-   * Number of slots whose selected prototype differs between set revisions.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Summarizes instance prototype changes without per-slot diff records.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Counts changed common selections plus added or removed slots.
-   */
+  /** Slots whose selected prototype/model differs between set revisions, including added or removed slots. */
   prototypeChanges: number;
 }

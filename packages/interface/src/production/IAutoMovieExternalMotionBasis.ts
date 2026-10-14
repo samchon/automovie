@@ -3,48 +3,25 @@ import { IAutoMovieExternalMotionBasisNode } from "./IAutoMovieExternalMotionBas
 /**
  * Canonical byte-grounded coordinate and hierarchy basis for external motion.
  *
- * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Requires units, axes, handedness, hierarchy, and rest basis to be inspected before selection.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Types the normalized source basis sealed into the adoption receipt.
+ * @evidence contracts/common.md#principled-implementation A versioned metre, right-handed, Y-up record declares inspected hierarchy and rest transforms independently of semantic bone labels. Current-byte inspection and truthful ordering are host premises; the retired production inventory no longer verifies these declarations automatically.
+ * @evidence contracts/common.md#clear-and-simple-design Coordinate convention lives once around a stable source-index node list, avoiding per-node unit flags or duplicated source-name mappings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored bone labels cannot replace the inspected source hierarchy or local rest basis, and ingestion does not treat a matching filename as proof of coordinate compatibility.
+ * @evidence contracts/common.md#meaningful-documentation Gives the basis protocol, metre units, handedness, vertical axis and stable inspected node ordering that adoption must preserve.
  * @author Samchon
  */
 export interface IAutoMovieExternalMotionBasis {
-  /**
-   * Versioned canonical basis profile.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Makes basis interpretation explicit and versioned.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Identifies the deterministic normalization protocol used by the receipt.
-   */
+  /** Versioned canonical basis profile. */
   profile: "gltf-motion-basis-v1";
 
-  /**
-   * Canonical length unit of normalized translations.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Declares the source motion unit instead of inferring scale downstream.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals meter normalization into the source basis.
-   */
+  /** Canonical length unit of normalized translations. */
   lengthUnit: "meter";
 
-  /**
-   * Canonical coordinate handedness.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Declares coordinate handedness before mapping or retargeting.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals right-handed interpretation into the source basis.
-   */
+  /** Canonical coordinate handedness. */
   handedness: "right-handed";
 
-  /**
-   * Canonical vertical axis.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Declares the source up axis before channel interpretation.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Seals Y-up normalization into the source basis.
-   */
+  /** Canonical vertical axis. */
   upAxis: "Y-up";
 
-  /**
-   * Inspected nodes in stable source index order.
-   *
-   * @evidence requirements/motion/external-motion-inputs.md#motion-external-source-basis Exposes the complete source hierarchy and local rest basis.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-external-adoption-receipt Carries byte-grounded nodes into compatibility, mapping, and result receipts.
-   */
+  /** Inspected nodes in stable source index order. */
   nodes: IAutoMovieExternalMotionBasisNode[];
 }

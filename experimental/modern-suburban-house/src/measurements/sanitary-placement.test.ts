@@ -1,37 +1,46 @@
-/** Fixed sanitary bodies stay within their source-owned room reservations. */
+/**
+ * Test actual sanitary producers, authored face finishes and house fit-out placement.
+ * The node:test oracle is ten selected instances and containment of every source
+ * mesh vertex in its named reservation after the current yaw plus translation,
+ * with 1e-7 tolerance. Finish IDs must resolve for the finite prototype sample.
+ * This assumes the current unit-scale yaw placements; it checks neither arbitrary
+ * transforms, other fittings, continuous clearance, collisions nor GPU appearance.
+ * Fixtures are synchronous memory values; producer/assertion failures reach the
+ * runner and no renderer, browser or persistent native resource is acquired.
+ */
 import assert from "node:assert/strict";
 import test from "node:test";
 import {createRequire} from "node:module";
 import {buildingModelFinish} from "../materials/model-bindings";
-import {SanitaryFittings} from "../models/furnishings/sanitary-fittings";
-const require=createRequire(import.meta.url);
-const {buildHouse}=require("../spaces/house.ts") as typeof import("../spaces/house");
-const {ArchitecturalFitout}=require("../instances/architectural-fitout.ts") as typeof import("../instances/architectural-fitout");
+import {SanitaryFittings} from "../models/furnishings/SanitaryFittings";
+const require: NodeJS.Require=createRequire(import.meta.url);
+const {buildHouse}: typeof import("../spaces/house")=require("../spaces/house.ts") as typeof import("../spaces/house");
+const {ArchitecturalFitout}: typeof import("../instances/ArchitecturalFitout")=require("../instances/ArchitecturalFitout.ts") as typeof import("../instances/ArchitecturalFitout");
 
-void test("all sanitary prototype faces resolve to one authored finish",()=>{
-  const f=new SanitaryFittings();
+void test("all sanitary prototype faces resolve to one authored finish",(): void =>{
+  const f: SanitaryFittings=new SanitaryFittings();
   for(const built of [f.toilet(),f.mirror(.60),f.mirror(.70),f.mirror(.85),f.towelBar(.25,.40),f.towelBar(.50,.30),f.towelBar(.75,.40),f.curtainRail()])
     for(const face of Object.values(built.faceByPart))assert.ok(buildingModelFinish(built.model.id,face).material.id);
 });
 
-void test("three toilets, mirrors and towel bars plus the rail fit their world reservations",()=>{
-  const house=buildHouse(),built=new ArchitecturalFitout().build(house);
-  const prototypes=new Map(built.prototypes.map(p=>[p.model.id,p.model]));
-  const reservations=new Map(house.spaces.flatMap(s=>s.reservations??[]).map(z=>[z.id,z]));
-  const selected=built.instances.filter(i=>/-(toilet|mirror|towel)$|curtain-rail$/.test(i.id));
+void test("three toilets, mirrors and towel bars plus the rail fit their world reservations",(): void =>{
+  const house: import("../spaces/house").IHouse=buildHouse(),built: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; }=new ArchitecturalFitout().build(house);
+  const prototypes: Map<string, import("@automovie/interface").IAutoMovieModel>=new Map(built.prototypes.map((p: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }): [string, import("@automovie/interface").IAutoMovieModel] =>[p.model.id,p.model]));
+  const reservations: Map<string, import("../spaces/rooms/reservations").IRoomReservation>=new Map(house.spaces.flatMap((s: import("../spaces/rooms/shared").IRoomSpace): readonly import("../spaces/rooms/reservations").IRoomReservation[] =>s.reservations??[]).map((z: import("../spaces/rooms/reservations").IRoomReservation): [string, import("../spaces/rooms/reservations").IRoomReservation] =>[z.id,z]));
+  const selected: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]=built.instances.filter((i: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }): boolean =>/-(toilet|mirror|towel)$|curtain-rail$/.test(i.id));
   assert.equal(selected.length,10);
   for(const instance of selected){
-    const model=prototypes.get(instance.modelId)!,zone=reservations.get(instance.id)!;
+    const model: import("@automovie/interface").IAutoMovieModel=prototypes.get(instance.modelId)!,zone: import("../spaces/rooms/reservations").IRoomReservation=reservations.get(instance.id)!;
     assert.ok(model&&zone);
-    const q=instance.transform.rotation!,t=instance.transform.translation!;
-    const yaw=2*Math.atan2(q.y,q.w),sin=Math.sin(yaw),cos=Math.cos(yaw);
+    const q: import("@automovie/interface").IAutoMovieQuaternion=instance.transform.rotation!,t: import("@automovie/interface").IAutoMovieVector3=instance.transform.translation!;
+    const yaw: number=2*Math.atan2(q.y,q.w),sin: number=Math.sin(yaw),cos: number=Math.cos(yaw);
     for(const part of model.parts){
-      assert.equal(part.geometry.type,"mesh");if(part.geometry.type!=="mesh")throw Error(part.id);
-      const p=part.geometry.mesh.positions;
-      for(let k=0;k<p.length;k+=3){
-        const world=[t.x+cos*p[k]!+sin*p[k+2]!,t.y+p[k+1]!,t.z-sin*p[k]!+cos*p[k+2]!];
+      assert.equal(part.geometry.type,"mesh");if(part.geometry.type!=="mesh")throw new Error(part.id);
+      const p: number[]=part.geometry.mesh.positions;
+      for(let k: number=0;k<p.length;k+=3){
+        const world: number[]=[t.x+cos*p[k]!+sin*p[k+2]!,t.y+p[k+1]!,t.z-sin*p[k]!+cos*p[k+2]!];
         for(const [j,axis] of (["x","y","z"] as const).entries()){
-          const range=zone[axis]!;
+          const range: readonly [number, number]=zone[axis]!;
           assert.ok(world[j]!>=range[0]-1e-7&&world[j]!<=range[1]+1e-7,`${instance.id}/${part.id} ${axis}=${world[j]} outside ${range}`);
         }
       }

@@ -1,4 +1,4 @@
-/** Geometry measurements for the four exterior prototypes in docs/models/15-outdoor.md. */
+/** Geometry measurements for the four exterior prototypes */
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { strict as assert } from "node:assert";
 import { createRequire } from "node:module";

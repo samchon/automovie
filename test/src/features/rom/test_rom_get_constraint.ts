@@ -3,29 +3,28 @@ import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `getConstraint` resolves the _effective_ range of motion for a bone by
- * layering three sources in priority order. This is what lets a stylized or
- * non-human rig loosen the anatomical defaults per bone while still falling
- * back to them everywhere else.
+ * Resolve a bone's effective constraint by override, default entry and null precedence, so rigs can change the fallback policy per bone.
  *
  * Scenarios:
  *
  * 1. A per-bone skeleton override wins outright over the default table.
- * 2. With no override, the default humanoid table entry is returned (the elbow's
- *    own entry, checked by identity).
- * 3. A bone with neither an override nor a table entry (the hips) resolves to
- *    null, unconstrained.
+ * 2. With no override, the default elbow entry is returned by identity.
+ * 3. The hips bone has neither an override nor a table entry and resolves to null.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the effective-constraint lookup with an override, a defaulted elbow and an unconstrained hips bone, catching inverted precedence or a fabricated fallback.
+ * @evidence contracts/testing.md#independent-expectations Override precedence and null absence follow the lookup contract; default fallback is judged by borrowed record identity rather than copied table numbers. These cases establish policy, not anatomical validity.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts supplied override, null override with a known entry and null override without an entry; interval and frame admission are owned by the model and rest-frame tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns these three portable calls; no skeleton construction, native artifact, process or viewer participates.
  */
-export const test_rom_get_constraint = (): void => {
+export function test_rom_get_constraint(): void {
   const override: IAutoMovieJointConstraint = {
     flexion: { min: -200, max: 200 },
     abduction: null,
     twist: null,
   };
-  TestValidator.equals(
+  TestValidator.predicate(
     "override wins",
-    getConstraint("leftLowerArm", override),
-    override,
+    getConstraint("leftLowerArm", override) === override,
   );
   TestValidator.predicate(
     "table fallback",
@@ -36,4 +35,4 @@ export const test_rom_get_constraint = (): void => {
     getConstraint("hips", null),
     null,
   );
-};
+}

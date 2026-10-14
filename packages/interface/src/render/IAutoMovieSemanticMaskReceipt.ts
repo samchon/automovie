@@ -1,17 +1,19 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieSemanticMaskCoverage } from "./IAutoMovieSemanticMaskCoverage";
 
 /**
- * Resident semantic dependency of one mask image.
+ * Exact resident semantic sidecar dependency of one shot mask image.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieSemanticMaskReceipt` as the portable data boundary for content-addressed semantic evidence.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieSemanticMaskReceipt` for reopening a semantic render product.
+ * @evidence contracts/common.md#principled-implementation Mask publication binds frame, shot and mask pass to exact UTF-8 sidecar bytes and canonical semantic payload digest while preserving observed runtime coverage; readback reopens both byte and semantic identities.
+ * @evidence contracts/common.md#clear-and-simple-design One dependency record connects the image's flat colors to its canonical palette and coverage without embedding the entire palette in every frame manifest.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A PNG digest alone cannot prove semantic addressing, and coverage gaps remain present rather than normalized away; foreign shot/frame and changed sidecar bytes refuse. The receipt seals supplied palette/coverage and canonical sidecar bytes, while actual image-to-palette correspondence, filesystem confinement and current plan membership require their capture, resident-reader and plan owners.
+ * @evidence contracts/common.md#meaningful-documentation Defines frame/pass/shot identity, owner-relative sidecar path, exact byte digest and size, payload digest and unmodified coverage.
+ * @author Samchon
  */
 export interface IAutoMovieSemanticMaskReceipt {
   /** Receipt record schema. */
   version: 1;
 
-  /** Frame identity inside the owning bundle or chunk. */
+  /** Non-negative safe integer frame identity inside the owning bundle or chunk. */
   frame: number;
 
   /** Structural product this record accompanies. */
@@ -26,14 +28,14 @@ export interface IAutoMovieSemanticMaskReceipt {
     path: string;
 
     /** Digest of the exact resident UTF-8 bytes. */
-    digest: AutoMovieContentDigest;
+    digest: string;
 
     /** Positive resident byte count. */
     bytes: number;
   };
 
   /** Digest of the canonical semantic payload inside the sidecar. */
-  semanticDigest: AutoMovieContentDigest;
+  semanticDigest: string;
 
   /** Runtime coverage preserved without normalizing gaps away. */
   coverage: IAutoMovieSemanticMaskCoverage;

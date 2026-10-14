@@ -8,6 +8,7 @@ import type { IAutoMovieShotBuildContext } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /** A leaf subject that contributes exactly what it was built with. */
 class Leaf extends AutoMovieSubject<{ id: string }> {
@@ -59,21 +60,29 @@ class Bannered extends Plain {
   }
 }
 
-const actor = (node: string) => ({
+const actor: (
+  node: string,
+) => NonNullable<IAutoMovieSubjectContribution["actors"]>[number] = (
+  node: string,
+): NonNullable<IAutoMovieSubjectContribution["actors"]>[number] => ({
   node,
   model: node,
   speed: 1,
   eyeHeight: 1.6,
 });
 
-const landmark = (id: string) => ({
+const landmark: (
+  id: string,
+) => NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] = (
+  id: string,
+): NonNullable<IAutoMovieSubjectContribution["landmarks"]>[number] => ({
   id,
   position: { x: 0, y: 0, z: 0 },
   radius: 1,
   meaning: `the ${id}`,
 });
 
-const context = {} as IAutoMovieShotBuildContext;
+const context: IAutoMovieShotBuildContext = {} as IAutoMovieShotBuildContext;
 
 /**
  * A subject contributes its own part of a shot, and a group is its members.
@@ -90,8 +99,8 @@ const context = {} as IAutoMovieShotBuildContext;
  *
  * Scenarios:
  *
- * 1. Merging carries every contribution key, concatenating in the order given, so
- *    a group listing its members in a stable order merges to stable bytes.
+ * 1. Merging carries the exercised contribution keys, concatenating in the order given, so
+ *    a group listing its members in a stable order retains that record order.
  * 2. An absent key stays absent and an empty array contributes nothing, so a
  *    subject that fills one field does not litter the merge with empties.
  * 3. Two subjects claiming one identity both survive the merge, because silently
@@ -105,35 +114,42 @@ const context = {} as IAutoMovieShotBuildContext;
  * 7. A population reaches the record as one compact entry however large its count,
  *    since composing is not where ten thousand members become ten thousand
  *    nodes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls contribution merging and actual subject-group composition, observing selected field concatenation/order, omitted empty fields, duplicate preservation, nested groups, additive overrides and compact populations; dropped members, deduplication or population expansion fails.
+ * @evidence contracts/testing.md#independent-expectations Authored leaf records and explicit expected field lists determine ordinary merge/group results, while the nested-versus-flat case is a consistency check backed by those literal cases. Partial id-only sentinels exercise reference concatenation without proving complete model/clip admission; numeric leaves retain exact expectations through zero-tolerance nclose in the existing structural predicate.
+ * @evidence contracts/testing.md#distinguishing-cases Covers ordered heterogeneous fields, absent/empty fields, duplicate ids, ordinary/empty/nested groups, additive group output, design ids and a 10000-member population kept as one entry; unexercised contribution fields, membership cycles and downstream uniqueness admission are outside this unit.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_world_subject_contribution entry owns direct merge/composite calls through small authored subclasses that return resident records; no shot compiler, production asset, renderer, browser or dynamic scenario registration runs.
  */
-export const test_world_subject_contribution = (): void => {
-  TestValidator.equals(
-    "merging concatenates every key in the order given",
-    mergeAutoMovieSubjectContributions([
+export function test_world_subject_contribution(): void {
+  TestValidator.predicate(
+    "merging concatenates the exercised keys in the order given",
+    test12ValuesClose(
+      mergeAutoMovieSubjectContributions([
+        {
+          models: [{ id: "model" }] as never,
+          set: [{ node: "set" }] as never,
+          actors: [actor("a")],
+          landmarks: [landmark("one")],
+        },
+        {
+          spaces: [{ id: "space" }] as never,
+          actors: [actor("b")],
+          surfaces: [],
+        },
+        {
+          builtEnvironments: [{ id: "building" }] as never,
+          landmarks: [landmark("two")],
+        },
+      ]),
       {
         models: [{ id: "model" }] as never,
         set: [{ node: "set" }] as never,
-        actors: [actor("a")],
-        landmarks: [landmark("one")],
-      },
-      {
         spaces: [{ id: "space" }] as never,
-        actors: [actor("b")],
-        surfaces: [],
-      },
-      {
         builtEnvironments: [{ id: "building" }] as never,
-        landmarks: [landmark("two")],
+        actors: [actor("a"), actor("b")],
+        landmarks: [landmark("one"), landmark("two")],
       },
-    ]),
-    {
-      models: [{ id: "model" }] as never,
-      set: [{ node: "set" }] as never,
-      spaces: [{ id: "space" }] as never,
-      builtEnvironments: [{ id: "building" }] as never,
-      actors: [actor("a"), actor("b")],
-      landmarks: [landmark("one"), landmark("two")],
-    },
+    ),
   );
 
   TestValidator.equals(
@@ -142,27 +158,28 @@ export const test_world_subject_contribution = (): void => {
     {},
   );
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "two subjects claiming one identity both survive",
-    mergeAutoMovieSubjectContributions([
-      { landmarks: [landmark("same")] },
-      { landmarks: [landmark("same")] },
-    ]),
-    { landmarks: [landmark("same"), landmark("same")] },
+    test12ValuesClose(
+      mergeAutoMovieSubjectContributions([
+        { landmarks: [landmark("same")] },
+        { landmarks: [landmark("same")] },
+      ]),
+      { landmarks: [landmark("same"), landmark("same")] },
+    ),
   );
 
-  const left = new Leaf("left", { actors: [actor("left")] });
-  const right = new Leaf("right", {
+  const left: Leaf = new Leaf("left", { actors: [actor("left")] });
+  const right: Leaf = new Leaf("right", {
     clips: [{ id: "right-clip" }] as never,
   });
-  const squadron = new Plain("squadron", [left, right]);
-  TestValidator.equals(
+  const squadron: Plain = new Plain("squadron", [left, right]);
+  TestValidator.predicate(
     "a group renders the merge of its members",
-    squadron.render(context),
-    {
+    test12ValuesClose(squadron.render(context), {
       actors: [actor("left")],
       clips: [{ id: "right-clip" }] as never,
-    },
+    }),
   );
 
   TestValidator.equals(
@@ -171,29 +188,28 @@ export const test_world_subject_contribution = (): void => {
     {},
   );
 
-  const regiment = new (class extends AutoMovieSubjectGroup<
-    { id: string },
-    Plain
-  > {
-    public readonly id = "regiment";
-    public members(): readonly Plain[] {
-      return [squadron, new Plain("second", [new Leaf("far", {})])];
-    }
-    public design(): { id: string } {
-      return { id: this.id };
-    }
-  })();
-  TestValidator.equals(
+  const regiment: AutoMovieSubjectGroup<{ id: string }, Plain> =
+    new (class extends AutoMovieSubjectGroup<{ id: string }, Plain> {
+      public readonly id: string = "regiment";
+      public members(): readonly Plain[] {
+        return [squadron, new Plain("second", [new Leaf("far", {})])];
+      }
+      public design(): { id: string } {
+        return { id: this.id };
+      }
+    })();
+  TestValidator.predicate(
     "a group of groups equals the merge of its leaves",
-    regiment.render(context),
-    squadron.render(context),
+    test12ValuesClose(regiment.render(context), squadron.render(context)),
   );
 
-  const bannered = new Bannered("bannered", [left]);
-  TestValidator.equals(
+  const bannered: Bannered = new Bannered("bannered", [left]);
+  TestValidator.predicate(
     "a group that adds its own keeps what its members said",
-    bannered.render(context),
-    { actors: [actor("left")], landmarks: [landmark("banner")] },
+    test12ValuesClose(bannered.render(context), {
+      actors: [actor("left")],
+      landmarks: [landmark("banner")],
+    }),
   );
 
   // A population is one compact record whatever its count, and composing it
@@ -201,7 +217,7 @@ export const test_world_subject_contribution = (): void => {
   // count, layout, anchor, facing and seed, so a merge that turned ten thousand
   // into ten thousand entries would put the nodes back that the whole compact
   // representation exists to avoid.
-  const forest = new Leaf("forest", {
+  const forest: Leaf = new Leaf("forest", {
     instanceSets: [
       {
         id: "forest",
@@ -217,7 +233,9 @@ export const test_world_subject_contribution = (): void => {
   TestValidator.equals(
     "a population reaches the record as one compact entry, not ten thousand",
     (new Plain("wood", [forest]).render(context).instanceSets ?? []).map(
-      (set) => ({ id: set.id, count: set.count }),
+      (
+        set: NonNullable<IAutoMovieSubjectContribution["instanceSets"]>[number],
+      ): { id: string; count: number } => ({ id: set.id, count: set.count }),
     ),
     [{ id: "forest", count: 10_000 }],
   );
@@ -225,10 +243,10 @@ export const test_world_subject_contribution = (): void => {
   TestValidator.equals(
     "a subject and a group each answer with their own record",
     namedFacts([
-      ["leaf", () => left.design().id === "left"],
-      ["group", () => squadron.design().id === "squadron"],
-      ["nested", () => regiment.design().id === "regiment"],
+      ["leaf", (): boolean => left.design().id === "left"],
+      ["group", (): boolean => squadron.design().id === "squadron"],
+      ["nested", (): boolean => regiment.design().id === "regiment"],
     ]),
     { leaf: true, group: true, nested: true },
   );
-};
+}

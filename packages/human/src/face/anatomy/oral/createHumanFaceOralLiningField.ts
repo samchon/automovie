@@ -1,3 +1,5 @@
+import type { IHumanFaceOralToothStation as ImportedIHumanFaceOralToothStation } from "@automovie/human";
+
 import type { IHumanFaceOralArchFrame } from "./IHumanFaceOralArchFrame";
 import type { IHumanFaceOralLiningDimensions } from "./IHumanFaceOralLiningDimensions";
 import type { IHumanFaceOralLiningField } from "./IHumanFaceOralLiningField";
@@ -7,76 +9,59 @@ import { measureHumanFaceOralRingDistance } from "./measureHumanFaceOralRingDist
 /**
  * Define one arch's lining as a height over its arch plane.
  *
- * At a plane point `p` the lining's apical coordinate is
- * `cervical(p) + rise(p)`:
+ * At a plane point `p` the lining's apical coordinate is `cervical(p) + rise(p)`:
  *
- * - `cervical(p)` is the local cervical height: over every cervical ring edge
- *   of the arch, the height of the edge at its point nearest `p`, averaged
- *   with inverse-square-distance weights. On a ring it equals the ring's own
- *   height at that point, along edges as well as at vertices, so the lining
- *   starts from each tooth's actual ring and not from a mean plane.
- *   A ring is scalloped and tilted, and that relief belongs to the gingival
- *   margin only. Over one wall clearance from the rings the reference fades
- *   linearly into the arch height, the same weighted mean taken over the
- *   station centres, so the fornix and the vault follow the arch and not
- *   each tooth's ring.
- * - `rise(p)` is zero on a cervical ring and positive elsewhere. On the
- *   facial side it climbs linearly to the collar height at the wall
- *   clearance, the vestibular fornix. On the lingual side it follows a
- *   half ellipse that leaves the ring vertically and reaches the vault at
- *   the arch's vault span: the palatal vault on the maxilla, the floor of
- *   the mouth on the mandible. The two are blended across the arch curve
- *   over one collar thickness on either side, so the lining is continuous
- *   between neighbouring teeth.
+ * - `cervical(p)` is the local cervical height: over every cervical ring edge of the arch, the height of the edge at its point nearest `p`, averaged with inverse-square-distance weights. On a ring it equals the ring's own height at that point, along edges as well as at vertices, so the lining starts from each tooth's actual ring and not from a mean plane. A ring is scalloped and tilted, and that relief belongs to the gingival margin only. Over one wall clearance from the rings the reference fades linearly into the arch height, the same weighted mean taken over the station centres, so the fornix and the vault follow the arch and not each tooth's ring. - `rise(p)` is zero on a cervical ring and positive elsewhere. On the facial side it climbs linearly to the collar height at the wall clearance, the vestibular fornix. On the lingual side it follows a half ellipse that leaves the ring vertically and reaches the vault at the arch's vault span: the palatal vault on the maxilla, the floor of the mouth on the mandible. The two are blended across the arch curve over one collar thickness on either side, so the lining is continuous between neighbouring teeth.
  *
- * The side is decided by the arch curve, the polyline through the station
- * centres, continued by unbounded posterior half-rays at both terminal
- * stations. No finite closing edge bounds the query domain. The boundary
- * owner reads odd horizontal-ray parity and distance to that same open arch.
- * A point on its lingual side therefore lets the lining keep its vault
- * height along the posterior edge between the terminal crowns and the
- * posterior opening stays open.
+ * The side is decided by the arch curve, the polyline through the station centres, continued by unbounded posterior half-rays at both terminal stations. No finite closing edge bounds the query domain. The boundary owner reads odd horizontal-ray parity and distance to that same open arch. A point on its lingual side therefore lets the lining keep its vault height along the posterior edge between the terminal crowns and the posterior opening stays open.
  *
- * A crown lies on the occlusal side of its ring and the rise is nowhere
- * negative, so this surface is apical of the local ring everywhere. It can
- * still meet a crown where a ring is tilted enough that the crown surface
- * passes apical of a neighbouring ring vertex; the oral admission reads that
- * relation on the emitted geometry.
+ * The rise is nonnegative relative to the blended cervical/arch reference. That reference can lie below an individual ring's height away from its boundary, so the field does not establish that every sample is apical of every nearby crown. The oral admission reads crown contact on the emitted geometry.
  *
- * The half ellipse and the linear collar are authored profiles. No read
- * source gives the coronal or sagittal section of the palate, the gingival
- * contour or the sublingual sulcus as a curve.
+ * The half ellipse and the linear collar are authored profiles. No read source gives the coronal or sagittal section of the palate, the gingival contour or the sublingual sulcus as a curve.
+ *
+ * @evidence contracts/common.md#principled-implementation Local cervical edge heights and authored apical rise create one continuous numerical arch-plane lining profile.
+ * @evidence contracts/common.md#clear-and-simple-design Open posterior terminal rays own side and distance instead of a hidden finite closing wall.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Half-ellipse vault and linear collar are authored profiles, and neighbouring tilted crowns can still intersect emitted lining until separate admission.
+ * @evidence contracts/common.md#meaningful-documentation Resolved metre dimensions govern all field outputs; cervical geometry remains source-derived rather than averaged to one plane.
+ * @evidence contracts/performance.md#efficient-algorithms Each height evaluation scans ring edges and station centres, currently evaluating cervical height twice; distance/side readers also scan the retained arch.
+ * @evidence contracts/performance.md#reuse-equivalent-work The resolved frame/dimensions are reused across samples, but repeated same-point heights are not memoized.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure borrows stable frame/ring arrays and dimensions and retains no sampled field or mesh cache.
  */
 export function createHumanFaceOralLiningField(
   frame: IHumanFaceOralArchFrame,
   dimensions: IHumanFaceOralLiningDimensions,
 ): IHumanFaceOralLiningField {
-  const stations = frame.stations;
-  const distance = (u: number, v: number): number =>
-    measureHumanFaceOralRingDistance(stations, u, v);
-  const cervical = (u: number, v: number): number => {
-    let weights = 0;
-    let sum = 0;
+  const stations: ImportedIHumanFaceOralToothStation[] = frame.stations;
+  const distance: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => measureHumanFaceOralRingDistance(stations, u, v);
+  const cervical: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
+    let weights: number = 0;
+    let sum: number = 0;
     for (const station of stations) {
-      const ring = station.cervical;
-      const count = ring.length / 3;
-      for (let k = 0; k < count; k++) {
-        const next = (k + 1) % count;
-        const ax = ring[3 * k];
-        const ay = ring[3 * k + 1];
-        const dx = ring[3 * next] - ax;
-        const dy = ring[3 * next + 1] - ay;
-        const length = dx * dx + dy * dy;
-        const t =
+      const ring: number[] = station.cervical;
+      const count: number = ring.length / 3;
+      for (let k: number = 0; k < count; k++) {
+        const next: number = (k + 1) % count;
+        const ax: number = ring[3 * k];
+        const ay: number = ring[3 * k + 1];
+        const dx: number = ring[3 * next] - ax;
+        const dy: number = ring[3 * next + 1] - ay;
+        const length: number = dx * dx + dy * dy;
+        const t: number =
           length === 0
             ? 0
             : Math.min(
                 1,
                 Math.max(0, ((u - ax) * dx + (v - ay) * dy) / length),
               );
-        const height =
+        const height: number =
           ring[3 * k + 2] + t * (ring[3 * next + 2] - ring[3 * k + 2]);
-        const squared = (u - ax - t * dx) ** 2 + (v - ay - t * dy) ** 2;
+        const squared: number = (u - ax - t * dx) ** 2 + (v - ay - t * dy) ** 2;
         if (squared === 0) return height;
         weights += 1 / squared;
         sum += height / squared;
@@ -84,11 +69,14 @@ export function createHumanFaceOralLiningField(
     }
     return sum / weights;
   };
-  const archHeight = (u: number, v: number): number => {
-    let weights = 0;
-    let sum = 0;
+  const archHeight: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
+    let weights: number = 0;
+    let sum: number = 0;
     for (const station of stations) {
-      const squared =
+      const squared: number =
         (u - station.centre[0]) ** 2 + (v - station.centre[1]) ** 2;
       if (squared === 0) return station.centre[2];
       weights += 1 / squared;
@@ -96,18 +84,25 @@ export function createHumanFaceOralLiningField(
     }
     return sum / weights;
   };
-  const lingualDepth = (u: number, v: number): number => {
+  const lingualDepth: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
     return measureHumanFaceOralArchDepth(stations, u, v);
   };
-  const apical = (u: number, v: number): number => {
-    const d = distance(u, v);
-    const facial =
+  const apical: (u: number, v: number) => number = (
+    u: number,
+    v: number,
+  ): number => {
+    const d: number = distance(u, v);
+    const facial: number =
       dimensions.collarHeightMetres *
       Math.min(1, d / dimensions.wallClearanceMetres);
-    const reach =
+    const reach: number =
       1 - Math.min(d, frame.vaultSpanMetres) / frame.vaultSpanMetres;
-    const lingual = dimensions.vaultMetres * Math.sqrt(1 - reach * reach);
-    const t = Math.min(
+    const lingual: number =
+      dimensions.vaultMetres * Math.sqrt(1 - reach * reach);
+    const t: number = Math.min(
       1,
       Math.max(
         0,
@@ -115,10 +110,10 @@ export function createHumanFaceOralLiningField(
           (2 * dimensions.collarThicknessMetres),
       ),
     );
-    const blend = t * t * (3 - 2 * t);
+    const blend: number = t * t * (3 - 2 * t);
     // The scallop of the rings fades into the arch's own height by the fornix.
-    const fade = Math.min(1, d / dimensions.wallClearanceMetres);
-    const reference =
+    const fade: number = Math.min(1, d / dimensions.wallClearanceMetres);
+    const reference: number =
       cervical(u, v) + (archHeight(u, v) - cervical(u, v)) * fade;
     return reference + facial + (lingual - facial) * blend;
   };

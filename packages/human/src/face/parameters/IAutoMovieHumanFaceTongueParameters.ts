@@ -14,17 +14,28 @@
  * relabelled universal length, width and thickness sliders.
  * Together they still do not determine a surface or permit direct section sculpting.
  *
+ * @evidence contracts/common.md#principled-implementation Whole segmented volume, tip-to-vallecula distance and a specific posterior-base coronal section retain separate imaging protocols; current tongue rules keep the observations without a common-basis inverse.
+ * @evidence contracts/common.md#clear-and-simple-design The posterior section owns its width/height together while whole-volume and longitudinal distance remain separate named quantities; performed advance belongs to performance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A frontal portrait cannot reveal internal dimensions, the sampled section is not the whole tongue's maximum extent, and three imaging quantities determine no free surface or section sculpt.
+ * @evidence contracts/common.md#meaningful-documentation The comment supplies distinct posterior boundaries, posture/cohort and acquisition limitations; fields give cubic centimetres or millimetres and section direction.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This record executes no MRI segmentation or tongue geometry solve.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The imaging shape defines no repeated acquisition coordinator or inverse cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no images or muscular mesh handles; observations are owned by the containing document.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceTongueParameters {
   /** Whole segmented tongue volume in cubic centimetres from MRI. */
   volumeCm3?: number;
+
   /** Tip to vallecula straight distance on sagittal CT/MRI, in mm. */
   tipToValleculaLengthMm?: number;
+
   /** Posterior-base coronal MRI at the start of the base, neck extended. */
   posteriorBaseCoronal?: {
     /** Left-to-right cross-section extent in mm, not whole-tongue breadth. */
     widthMm?: number;
+
     /** Superior-to-inferior cross-section extent in mm, not whole-tongue thickness. */
     heightMm?: number;
   };

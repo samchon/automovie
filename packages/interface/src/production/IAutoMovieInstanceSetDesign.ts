@@ -6,79 +6,37 @@ import { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
 /**
  * A compact non-formation crowd, vegetation, prop, or debris set.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieInstanceSetDesign` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieInstanceSetDesign` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Count, layout, anchor, heading and seed regenerate stable slots; positive weighted prototypes and bounded variation determine each member without serializing a full scene node per slot.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps general instance placement separate from formation capabilities, hero promotion and motion channels; optional prototypes extend the default recipe with explicit weighted choices.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Recipe references, count limits, seed and layout capacity are authoring premises, not checks performed by this type or the compact compiler. Building populations receive the narrower validateBuiltPopulation check; world compilation regenerates slots and rejects missing routes and nonfinite sampled positions but does not replace the retired whole-design gate.
+ * @evidence contracts/common.md#meaningful-documentation Defines the count limit, seed range, layout and recipe roles, world-meter anchor and degree heading; route placement uses its route snapshot rather than the anchor's XZ position.
+ * @author Samchon
  */
 export interface IAutoMovieInstanceSetDesign {
-  /**
-   * Stable id unique within the world.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Stable id unique within the world. */
   id: string;
 
-  /**
-   * Existing model recipe rendered by every member.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `modelRecipe` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `modelRecipe` for the narrative intent story design ownership system contract.
-   */
+  /** Existing base recipe; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
   modelRecipe: string;
 
-  /**
-   * Optional weighted prototype table; `modelRecipe` remains the default.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `prototypes` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `prototypes` for the narrative intent story design ownership system contract.
-   */
+  /** Optional weighted prototype table; `modelRecipe` remains the default. */
   prototypes?: IAutoMovieInstancePrototypeDesign[];
 
-  /**
-   * Integer slot count from one through 100,000.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `count` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `count` for the narrative intent story design ownership system contract.
-   */
+  /** Integer slot count from one through 100,000. */
   count: number;
 
-  /**
-   * Compact deterministic placement law.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `layout` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `layout` for the narrative intent story design ownership system contract.
-   */
+  /** Compact deterministic placement law. */
   layout: IAutoMovieInstanceSetLayout;
 
-  /**
-   * World-space origin for grid and scatter layouts.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `anchor` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `anchor` for the narrative intent story design ownership system contract.
-   */
+  /** World-space meter origin for grid, scatter, lattice and explicit layouts; route layout uses only its height. */
   anchor: IAutoMovieVector3;
 
-  /**
-   * Finite base heading in degrees.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `facingDeg` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `facingDeg` for the narrative intent story design ownership system contract.
-   */
+  /** Finite base heading in degrees. */
   facingDeg: number;
 
-  /**
-   * Full non-negative safe-integer seed.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `seed` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `seed` for the narrative intent story design ownership system contract.
-   */
+  /** Full non-negative safe-integer seed. */
   seed: number;
 
-  /**
-   * Seed-derived per-slot differences.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `variation` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `variation` for the narrative intent story design ownership system contract.
-   */
+  /** Seed-derived per-slot differences. */
   variation: IAutoMovieInstanceVariation;
 }

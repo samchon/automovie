@@ -1,20 +1,22 @@
-import { AutoMovieContentDigest } from "@automovie/interface";
 import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
 
-
 /**
- * One render job's budget evidence over every shot it draws.
+ * One caller-supplied tier's budget evidence over its supplied shot assessments. The record itself proves neither complete shot coverage nor actual rendering or publication.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence` exposes that responsibility through the package-independent system contract.
+ * @evidence contracts/common.md#principled-implementation A versioned tier envelope sorts shot assessments, names declared tiers and orders over, not-run, incomplete and within outcomes, with empty populations reported not-run.
+ * @evidence contracts/common.md#clear-and-simple-design The document is the stable publication unit for job-level budget evidence and delegates measurements to its shot assessments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared tier remains explicitly unbudgeted, and no assessment population is treated as a successful measurement when empty.
+ * @evidence contracts/common.md#meaningful-documentation Members state protocol identity, severity order, tier ordering, empty-population behavior and verdict-based digest scope.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The versioned budget publication shape declares data and chooses no runtime algorithm; its producer documents construction cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The tier verdict publication identity describes an identity boundary and performs no request coordination or result caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased publication envelope opens no renderer; autoMovieRenderBudgetEvidence shares assessment references into sorted output whose lifetime belongs to the evidence caller.
+ *
  * @author Samchon
  */
 export interface IAutoMovieRenderBudgetEvidence {
   /**
    * Evidence format.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.version` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.version` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   version: 1;
@@ -22,8 +24,6 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * Versioned evidence protocol.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.protocol` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.protocol` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   protocol: "automovie.render-budget-evidence.v1";
@@ -31,8 +31,6 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * Quality tier the job targeted.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.tier` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.tier` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   tier: string;
@@ -44,8 +42,6 @@ export interface IAutoMovieRenderBudgetEvidence {
    * is what tells a mistyped tier apart from a production that deliberately
    * declares none.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.declaredTiers` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.declaredTiers` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   declaredTiers: string[];
@@ -53,8 +49,6 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * Whether a budget was found for {@link tier}.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.budgeted` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.budgeted` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   budgeted: boolean;
@@ -62,17 +56,12 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * The worst outcome any shot produced.
    *
-   * `over` beats `not-run`, which beats `incomplete`, which beats `within`. A
-   * job refuses on `over` and reports the other two as what they are, because
-   * an unmeasured cost has not been cleared and saying otherwise is the exact
-   * false capability claim this evidence exists to prevent.
+   * `over` beats `not-run`, which beats `incomplete`, which beats `within`. This aggregate states the supplied outcomes; autoMovieRenderBudgetRefusal returns text for over-limit and required-texture gaps, but no current job consumer automatically enforces it.
    *
    * A document over no shots at all is `not-run`, never `within`: nothing was
    * measured, and a verdict over an empty set is the cheapest way a report ends
    * up clearing a production it never read.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.status` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.status` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   status: IAutoMovieRenderBudgetAssessment["status"];
@@ -80,18 +69,14 @@ export interface IAutoMovieRenderBudgetEvidence {
   /**
    * One assessment per shot, ascending by shot id.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.shots` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.shots` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   shots: IAutoMovieRenderBudgetAssessment[];
 
   /**
-   * Digest over the protocol, the tier, and every shot's own verdict.
+   * Digest over protocol, tier, declared tiers, aggregate status and ordered shot id/status/report-digest/target-digest tuples; full report and target values are represented only by their supplied digests.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetEvidence.digest` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetEvidence.digest` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
-  digest: AutoMovieContentDigest;
+  digest: string;
 }

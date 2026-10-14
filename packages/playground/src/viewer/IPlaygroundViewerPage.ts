@@ -1,76 +1,81 @@
 import type { IPlaygroundViewerApplication } from "./IPlaygroundViewerApplication";
 
 /**
- * The same-origin product bridge a normal application supplies to its host.
- * Actual completion and transfer are separate from source freshness and PNG IO.
- * The host captures application input and the producer-controlled viewport
- * before candidate restoration. Playback suspension stays with the original
- * viewport control, document transactions stay with the registered application,
- * and the page implementation owns listeners and completed-display resources.
- * Failed candidate admission preserves the prior completed page.
+ * Same-origin page bridge between an existing application/frame producer and the resident source host. Application input and viewport capture/clock suspension retain their original owners; source freshness, actual hardware completion and saving are separate operations. Candidate failure leaves the host's prior completed page available.
  *
- * @evidence contracts/common.md#principled-implementation Exposes actual owned state and failures without ready counters.
- * @evidence contracts/common.md#clear-and-simple-design One page boundary joins application state with its retained host.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no SDK replacement or elapsed-time restart to recover a page.
- * @evidence contracts/common.md#meaningful-documentation Names transfer, freeze, failure and explicit navigation responsibilities.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Transfers the registered application's actual input and supported viewport through their original owners while the completed prior page remains retained.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Keeps application input and the producer-controlled viewport distinct from disk-source freshness and bitmap publication during candidate admission.
+ * @evidence contracts/common.md#principled-implementation Existing transaction and completed-frame seams supply transfer facts, while parent source replacement owns final publication authority instead of inferring readiness from module loading.
+ * @evidence contracts/common.md#clear-and-simple-design Register/capture/freeze/fail/navigate expose the existing owner boundaries without implementing another editor, clock or source selection transaction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown input/view components remain absent, unsupported clock suspension is a no-op and failed candidates do not retire the retained prior page.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes transfer owners, hardware completion, source admission and failure retention.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface selects no capture, frame observation, source refresh or publication algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work It promises no cache or equivalence across source/input/frame identities.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Concrete page/host implementations own listeners, callbacks and completed-display resources; the interface itself allocates none.
+ *
  * @author Samchon
  */
 export interface IPlaygroundViewerPage {
   /**
-   * Register the original typed application loader and state owner.
-   * Initial application rejection is reported through the page's failure path.
+   * Register the original application input owner; initial rejection enters the page failure path.
    *
-   * @evidence contracts/common.md#principled-implementation Admission awaits the registered application's actual readiness and uses that owner's capture and validated restoration capabilities.
-   * @evidence contracts/common.md#clear-and-simple-design Registration joins the existing application to one page bridge without copying its document transaction into the host.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The application supplies its real promise and loader; registration cannot manufacture readiness or replay widget actions.
-   * @evidence contracts/common.md#meaningful-documentation States application ownership, readiness refusal and the registration role before candidate initialization.
+   * @evidence contracts/common.md#principled-implementation The application's actual readiness and restore callbacks provide the transaction boundary for candidate transfer.
+   * @evidence contracts/common.md#clear-and-simple-design One registration joins an existing application to its page rather than recreating its document parser/evaluator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Initial rejection remains failure and does not synthesize a ready displayed document.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies original state ownership and initial failure routing.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Registration type implements no readiness or restoration algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Registration is an owner handoff, not numerical result reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Concrete bridge retention/disposal of callbacks belongs to its implementation.
    */
   register: (application: IPlaygroundViewerApplication) => void;
 
   /**
-   * Capture the original application's displayed input and supported viewport.
-   * Each component remains absent when its original owner exposes no value.
+   * Capture actual application input and supported viewport; either can remain absent when its original owner exposes no value.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates application and viewport capture to their actual independent owners instead of reconstructing either from visible controls.
-   * @evidence contracts/common.md#clear-and-simple-design One transfer envelope preserves the separation between authored input and producer-controlled camera/playback state.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported state remains absent rather than a guessed camera or expected document, and capture does not certify source bytes or PNG publication.
-   * @evidence contracts/common.md#meaningful-documentation Names both transfer components, their ownership and absent-capability meaning.
+   * @evidence contracts/common.md#principled-implementation Owner-supplied state defines transfer, avoiding reconstruction from guesses about page controls.
+   * @evidence contracts/common.md#clear-and-simple-design One combined snapshot names separate application and viewport components without merging their authority.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing state is not substituted with fabricated defaults or accepted-history facts.
+   * @evidence contracts/common.md#meaningful-documentation The member states actual displayed provenance and component absence.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Snapshot copying/serialization is implementation-defined.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No prior snapshot cache or equality contract is declared here.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned transfer data and owner references remain caller/bridge-owned.
    */
   capture: () => unknown;
 
   /**
-   * Preserve an owned playback clock; document transactions retain their owner.
-   * Return the producer's release operation, or a no-op when it supplies none.
+   * Suspend an owned playback clock and return its release callback, or a no-op when the producer exposes none. Document transaction authority is unchanged.
    *
-   * @evidence contracts/common.md#principled-implementation Suspension and resumption use the original completed-frame producer's clock capability, preserving its playback authority during transfer.
-   * @evidence contracts/common.md#clear-and-simple-design One scoped release callback returns control to that producer while application transactions remain separate.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unsupported freeze capability does not acquire clock control through a foreign timer patch or impose an elapsed stop.
-   * @evidence contracts/common.md#meaningful-documentation States owned clock scope, returned resumption responsibility and the no-op fallback when no freeze capability exists.
+   * @evidence contracts/common.md#principled-implementation The actual viewport clock supplies freeze/release semantics rather than the bridge replacing animation globals.
+   * @evidence contracts/common.md#clear-and-simple-design A returned release callback keeps suspension ownership explicit for the retaining host.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported suspension does not claim a frozen document transaction or fabricate a producer clock.
+   * @evidence contracts/common.md#meaningful-documentation The member explains producer release ownership and no-op absence.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The type selects no timer/animation suspension implementation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Freeze/release effects have no declared cache or merge policy.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller must invoke the actual release callback; concrete viewport/host owners manage suspended resources.
    */
   freeze: () => () => void;
 
   /**
-   * Actual entry/runtime failure before a candidate can supply a completed view.
-   * Terminal failure rejects pending frame admission and reports its cause to
-   * the same-origin parent; it does not retire the parent's prior good page.
+   * Report terminal entry/runtime failure to the same-origin parent and reject pending frame admission, preserving the parent's prior good page.
    *
-   * @evidence contracts/common.md#principled-implementation An actual failure withdraws candidate readiness and rejects its pending completion before the host can publish that page.
-   * @evidence contracts/common.md#clear-and-simple-design One terminal failure path carries entry, application and native-frame causes to the existing parent admission owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure cannot be replaced by a fabricated successful frame or an age-based retry, and this page does not destroy the prior committed parent state.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes candidate terminal refusal, pending-frame rejection and preservation of the host's earlier completed page.
+   * @evidence contracts/common.md#principled-implementation A real failure cause prevents candidate admission and reaches the same parent that owns source replacement.
+   * @evidence contracts/common.md#clear-and-simple-design One failure seam joins entry and runtime causes without granting the candidate control over the prior display.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure is not translated into readiness or a successful saved frame.
+   * @evidence contracts/common.md#meaningful-documentation The member states terminal refusal, pending admission rejection and prior-page retention.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Failure formatting/routing is implementation-owned.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Error notification declares no cached successful result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Concrete page implementation owns waiter cleanup; the prior host display remains host-owned.
    */
   fail: (cause: unknown) => void;
 
   /**
-   * Request a same-origin product source selection without retiring the live editor.
-   * The parent owns destination admission and replacement after restoration.
+   * Request product source navigation; the parent checks the same-origin destination and owns admission/replacement after restoration.
    *
-   * @evidence contracts/common.md#principled-implementation Sends the requested product address through the owned page token to the same-origin parent, which admits the destination and prepares a candidate.
-   * @evidence contracts/common.md#clear-and-simple-design One navigation request reuses the retained host's selection and publication sequence instead of adding an independent page-reload path.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested address does not imply successful restoration or permit retiring the live editor before a completed replacement is admitted.
-   * @evidence contracts/common.md#meaningful-documentation Names request versus admission responsibility and the retained-page lifetime while the parent selects another source.
+   * @evidence contracts/common.md#principled-implementation Source selection is forwarded to the retaining host rather than directly replacing its live editor before destination admission.
+   * @evidence contracts/common.md#clear-and-simple-design One address handoff leaves navigation eligibility and candidate restoration with the parent owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Requested navigation alone does not certify destination content or retire the current page.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies parent validation and replacement ownership.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The declaration performs no URL validation/fetch/restore algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Navigation is an authored effect with no declared cached destination result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Candidate and prior page lifetimes belong to the host rather than this callback signature.
    */
   navigate: (address: string) => void;
 }

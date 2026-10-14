@@ -1,63 +1,33 @@
 /**
- * Renderer configuration that changes what a frame costs.
+ * Admitted raster, shadow and beauty-color configuration that changes render cost and target identity.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderTargetSettings` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderTargetSettings` for the spec render artifact lifecycle system contract.
+ * @evidence contracts/common.md#principled-implementation Target sealing validates positive safe-integer raster dimensions, finite positive pixel ratio and exposure and consistent shadow enable/filter state; inventory prices the same normalized renderer shadow policy. Boolean and tone-mapping union admission belongs to the typed caller.
+ * @evidence contracts/common.md#clear-and-simple-design A compact configuration record isolates frame-affecting settings from renderer identity and exact asset bytes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Shadows false requires none rather than a contradictory filter, and unsupported host shadow aliases are normalized by the shared policy rather than counted under a different render path.
+ * @evidence contracts/common.md#meaningful-documentation Defines pixel units, positive ratios/exposure, shadow master switch and filter family and beauty tone mapping.
+ * @author Samchon
  */
 export interface IAutoMovieRenderTargetSettings {
-  /**
-   * Drawing-buffer width in pixels, a positive integer.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `width` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `width` for the spec render artifact lifecycle system contract.
-   */
+  /** Drawing-buffer width in pixels, a positive safe integer. */
   width: number;
 
-  /**
-   * Drawing-buffer height in pixels, a positive integer.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `height` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `height` for the spec render artifact lifecycle system contract.
-   */
+  /** Drawing-buffer height in pixels, a positive safe integer. */
   height: number;
 
   /**
    * Device pixel ratio applied to the drawing buffer, finite and above zero.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `pixelRatio` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `pixelRatio` for the spec render artifact lifecycle system contract.
    */
   pixelRatio: number;
 
-  /**
-   * Whether shadow maps are rendered at all.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `shadows` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `shadows` for the spec render artifact lifecycle system contract.
-   */
+  /** Whether shadow maps are rendered at all. */
   shadows: boolean;
 
-  /**
-   * Deterministic shadow-filter family, or `none` when shadows are off.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `shadowType` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `shadowType` for the spec render artifact lifecycle system contract.
-   */
+  /** Deterministic shadow-filter family, or `none` when shadows are off. */
   shadowType: "none" | "pcf" | "pcfSoft" | "vsm";
 
-  /**
-   * Beauty-pass tone-mapping curve.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `toneMapping` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `toneMapping` for the spec render artifact lifecycle system contract.
-   */
+  /** Beauty-pass tone-mapping curve. */
   toneMapping: "none" | "acesFilmic";
 
-  /**
-   * Renderer exposure multiplier, finite and above zero.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `exposure` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `exposure` for the spec render artifact lifecycle system contract.
-   */
+  /** Renderer exposure multiplier, finite and above zero. */
   exposure: number;
 }

@@ -4,104 +4,94 @@ import type { IHumanViewerWorkerHeap } from "./IHumanViewerWorkerHeap.js";
 /**
  * What the resident trim reads and acts through.
  *
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#principled-implementation Measured page and worker heaps plus per-domain transient samples supply the byte quantities used for resident release.
- * @evidence contracts/common.md#clear-and-simple-design Limit, lower target and measured reserve seeds belong to one trim policy; actual eviction remains with the page.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the page's non-displayed resident can be evicted through the supplied operation; reserve growth is learned from capture samples.
- *
- * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Measured page and worker heaps plus per-domain transient samples supply the byte quantities used for resident release.
- * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Only the page's non-displayed resident can be evicted through the supplied operation; reserve growth is learned from capture samples.
+ * @evidence contracts/common.md#principled-implementation Heap trimming sums page/worker usedSize, applies per-domain transient headroom and awaits eviction of unused page residents.
+ * @evidence contracts/common.md#clear-and-simple-design Separates byte limit/target, actual isolate readings and capture-window feedback without owning numerical workers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Heap/array accounting are distinct and neither proves process memory or future allocation fit; insufficient headroom remains best effort and capture can continue.
+ * @evidence contracts/common.md#meaningful-documentation Identifies byte units, shown-resident protection, observed peaks and seed estimates; target below limit is checked but finite/nonnegative values remain caller premises.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The bindings perform no trim; each sum visits worker readings, and eviction rereads page heap for each actually released resident.
+ * @evidence contracts/performance.md#reuse-equivalent-work Three domain estimates reuse their largest observed transient; heap readings refresh before decisions instead of reusing a prior fit as admission.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Trim retains three headroom numbers and one decision, borrowing worker runtimes; page eviction settles under its cache owner and physical collection is not guaranteed.
  *
  * @author Samchon
  */
 export interface ICreateHumanViewerResidentTrimProps {
   /**
    * Bytes of JS heap the renderer's isolates together may use before page residents are released.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Carries the configured combined page/worker heap-byte limit consumed by the measured trim policy.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Carries the configured combined page/worker heap-byte limit consumed by the measured trim policy.
    */
   limit: number;
 
   /**
-   * Bytes a trim releases down to, below `limit`, so the next captures find room without collecting again.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Carries the lower byte target that avoids repeated full collection while retaining the displayed resident.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Carries the lower byte target that avoids repeated full collection while retaining the displayed resident.
+   * Requested byte target below `limit`; trim can finish above it when no unused resident remains, and later capture capacity is not guaranteed.
    */
   target: number;
 
   /**
-   * Read the page isolate's heap, after a full collection when `collect` is set.
+   * Read the page isolate's heap after its collection request settles when `collect` is set; this does not guarantee every garbage object was released.
    *
-   * @evidence contracts/common.md#principled-implementation The current page isolate supplies its own heap accounting, optionally after collection.
-   * @evidence contracts/common.md#clear-and-simple-design Page CDP access remains with the reader rather than the trim policy.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed reading is not replaced with an estimated per-model byte count.
-   * @evidence contracts/common.md#meaningful-documentation Collect requests garbage collection first; the returned heap values are bytes.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting The current page isolate supplies its own heap accounting, optionally after collection.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Collect requests garbage collection first; the returned heap values are bytes.
+   * @evidence contracts/common.md#principled-implementation Reads actual page-isolate used heap, asking its existing collector first when collect is true.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps the page CDP/heap reader with the browser owner and exposes its measured usage to trim decisions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A collection request is not proof all garbage or GPU/process bytes were released; usedSize is one isolate reading.
+   * @evidence contracts/common.md#meaningful-documentation collect selects collection before observation; returned byte quantities remain separate from resident typed-array accounting.
+   * @evidence contracts/performance.md#efficient-algorithms One browser heap query occurs per sum and after each successful eviction; total calls grow with actual evicted residents.
+   * @evidence contracts/performance.md#reuse-equivalent-work Page pressure is reread after effects because previous usage cannot prove current room; the host reuses only its reader/connection.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The browser owner retains CDP/page handles; the trim operation owns the returned task until settlement and does not close the page.
    */
   page: (collect: boolean) => Promise<IHumanViewerHeapUsage>;
 
   /**
-   * Read every worker isolate's heap, after a full collection when `collect` is set.
+   * Read observed worker isolates' heaps after their collection requests settle when `collect` is set; this does not establish complete process memory.
    *
-   * @evidence contracts/common.md#principled-implementation Each dedicated worker isolate reports its own heap rather than inheriting page accounting.
-   * @evidence contracts/common.md#clear-and-simple-design The heap reader owns worker discovery and sessions; trim only consumes the readings.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing worker reads cannot be fabricated from document population or encoded cache size.
-   * @evidence contracts/common.md#meaningful-documentation Collect requests full collection before each worker's byte reading.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Each dedicated worker isolate reports its own heap rather than inheriting page accounting.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Collect requests full collection before each worker's byte reading.
+   * @evidence contracts/common.md#principled-implementation Reads heap usage for each currently observed worker isolate, optionally requesting collection before its reading.
+   * @evidence contracts/common.md#clear-and-simple-design Leaves worker discovery and instrumentation with the browser heap owner while trim only sums returned usedSize.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Worker usage is counted without terminating workers; the array cannot certify complete process/GPU memory or future fit.
+   * @evidence contracts/common.md#meaningful-documentation collect requests existing per-worker collection and the result lists actual worker identity/readings rather than domain headroom estimates.
+   * @evidence contracts/performance.md#efficient-algorithms Discovery/query and returned array scale with worker count; each heap sum reduces that array once.
+   * @evidence contracts/performance.md#reuse-equivalent-work The reader may reuse its instrumentation, but usage is refreshed for each required sum and cannot be cached as permanent capacity.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Worker lifetimes remain their numerical owners'; only transient reading records are borrowed, and this callback retires no worker.
    */
   workers: (collect: boolean) => Promise<IHumanViewerWorkerHeap[]>;
 
   /**
    * Ask the page to release its least recently used resident other than the one on screen; false when none is left.
    *
-   * @evidence contracts/common.md#principled-implementation The page releases its least-recently-used resident other than the displayed one.
-   * @evidence contracts/common.md#clear-and-simple-design The cache owns selection and disposal; the trim policy requests one release at a time.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The active display is excluded and elapsed display age is not a release condition.
-   * @evidence contracts/common.md#meaningful-documentation False means no non-displayed resident remains available to release.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting The page releases its least-recently-used resident other than the displayed one.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting False means no non-displayed resident remains available to release.
+   * @evidence contracts/common.md#principled-implementation Asks the page resident cache to release its oldest evictable resident while preserving the shown resident.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps candidate order and native resource release with the cache owner instead of guessing unused meshes from heap totals.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Logical eviction alone is not physical release; rejection must propagate and false means no releasable resident remains.
+   * @evidence contracts/common.md#meaningful-documentation The promise settles the cache's actual retirement attempt; trim stops on false even if the byte target is still exceeded.
+   * @evidence contracts/performance.md#efficient-algorithms Cache selection/retirement cost follows its resident population and resources; trim invokes it only while measured pressure exceeds its bound.
+   * @evidence contracts/performance.md#reuse-equivalent-work Eviction effects are not skipped for equal heap readings; each successful release is followed by a fresh page heap observation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The cache retains failed retirement causes/resources; the shown resident remains live and the trim callback owns no second disposer.
    */
   evict: () => Promise<boolean>;
 
   /**
    * Start a window of page heap samples taken during one capture.
    *
-   * @evidence contracts/common.md#principled-implementation The heap gauge starts a capture's sample window before that capture builds.
-   * @evidence contracts/common.md#clear-and-simple-design Window accounting remains with the page's existing gauge.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A reserve is not learned from unrelated samples taken before the marked capture.
-   * @evidence contracts/common.md#meaningful-documentation The call establishes the beginning of the capture's transient measurement window.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting The heap gauge starts a capture's sample window before that capture builds.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting The call establishes the beginning of the capture's transient measurement window.
+   * @evidence contracts/common.md#principled-implementation Starts the existing page-heap sampling window after pre-capture room handling has selected its starting page reading.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps observed capture peaks in the heap gauge while domain learning compares them with the trim owner's starting value.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Marking is not a numerical build or planned-memory denominator; missing later samples remain null rather than an invented peak.
+   * @evidence contracts/common.md#meaningful-documentation Called once per known-domain capture preparation after any required collection/eviction, before its actual page work.
+   * @evidence contracts/performance.md#efficient-algorithms Resetting the gauge window is fixed state work; subsequent observation cost follows actual heap samples.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same gauge is reused but a new mark invalidates the prior capture window; peaks cannot be shared across unrelated captures.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The gauge owns its active window until the next mark; this callback starts no timer or numerical task by contract.
    */
   mark: () => void;
 
   /**
    * The largest page heap sample since `mark`, or null when none arrived.
    *
-   * @evidence contracts/common.md#principled-implementation The gauge returns the largest measured page sample since the capture window opened.
-   * @evidence contracts/common.md#clear-and-simple-design One nullable peak feeds reserve learning without exposing sample storage.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent samples remain null rather than a zero-byte peak presented as observed.
-   * @evidence contracts/common.md#meaningful-documentation The value is page heap bytes; null means the window received no sample.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting The gauge returns the largest measured page sample since the capture window opened.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting The value is page heap bytes; null means the window received no sample.
+   * @evidence contracts/common.md#principled-implementation Reads the largest observed page-heap sample since the last mark for measured domain transient learning.
+   * @evidence contracts/common.md#clear-and-simple-design Exposes an optional scalar peak rather than copying a full sample history into the trim service.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Null means no observation arrived; measured peak is not complete memory, prediction certainty or a guaranteed worst-case bound.
+   * @evidence contracts/common.md#meaningful-documentation Peak bytes are compared against pre-capture page usedSize; only larger observed deltas raise that domain's retained estimate.
+   * @evidence contracts/performance.md#efficient-algorithms Reading an aggregated peak is constant state access; maintaining it belongs to the heap gauge's actual sample processing.
+   * @evidence contracts/performance.md#reuse-equivalent-work The gauge reuses aggregation within the current marked window; a new mark changes identity and the previous peak is not current evidence.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The trim owner retains only three learned numbers; the gauge owns sample storage and this callback returns no native handle.
    */
   windowPeak: () => number | null;
 
   /**
-   * The transient page heap each document domain was measured to need above its starting heap while it builds and draws.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Provides initial per-domain transient byte reserves that the trim owner subsequently increases from actual capture samples.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Provides initial per-domain transient byte reserves that the trim owner subsequently increases from actual capture samples.
+   * Initial transient page-heap estimates by domain, in bytes. Current host configuration uses a recorded person observation and zero for unobserved face/body domains; subsequent captures retain larger sampled increases.
    */
   seeds: Record<"face" | "body" | "person", number>;
 }

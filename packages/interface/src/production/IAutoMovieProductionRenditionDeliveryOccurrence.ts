@@ -1,40 +1,22 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-
 /**
- * The lane-independent identity of one exact delivered occurrence.
+ * The lane-independent identity of one exact delivered film occurrence.
  *
- * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Preserves one explicit occurrence and its source provenance.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Types the exact final-conform occurrence join.
+ * @evidence contracts/common.md#principled-implementation Occurrence identity and shot distinguish repeated uses of the same shot, while a render-relative immutable source path and byte digest identify the exact visual input consumed at that timeline position.
+ * @evidence contracts/common.md#clear-and-simple-design Shared occurrence and file identity compose with either deterministic or repainted lane metadata, avoiding duplication of timeline membership across both arms.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Separate occurrence and shot fields can distinguish repeated shots, but strings do not enforce unique membership, safe relative paths or byte equality; those intended invariants have no maintained delivery runtime consumer here.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable occurrence identity, compiled shot reference, render-root-relative source path and exact visual byte digest.
+ * @author Samchon
  */
 export interface IAutoMovieProductionRenditionDeliveryOccurrence {
-  /**
-   * Stable timeline occurrence identity.
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Keeps repeated shot labels distinct.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Supplies the exact final-conform join key.
-   */
+  /** Stable timeline occurrence identity. */
   occurrence: string;
 
-  /**
-   * Exact compiled shot id.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Identifies the shot behind this exact occurrence.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Binds delivery provenance to its compiled shot.
-   */
+  /** Exact compiled shot id. */
   shot: string;
 
-  /**
-   * Render-root-relative immutable visual source.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Keeps the chosen lane source explicit.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Names the exact source consumed by final conform.
-   */
+  /** Render-root-relative immutable visual source. */
   path: string;
 
-  /**
-   * Exact current visual source digest.
-   *
-   * @evidence requirements/repaint/sequence-continuity-and-publication.md#repaint-mixed-delivery Prevents a lane source from changing after review.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-failure-publication Seals the conformed source bytes.
-   */
-  digest: AutoMovieContentDigest;
+  /** Exact current visual source digest. */
+  digest: string;
 }

@@ -1,6 +1,16 @@
-import { cutSequence, performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMovieScript,
+  IAutoMovieSequenceEntry,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieCut } from "../../../../packages/engine/src/film/IAutoMovieCut";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { cutSequence } from "../../../../packages/engine/src/film/cutSequence";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -11,24 +21,21 @@ import { createSkeleton } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
 /**
- * The workflow spine, end to end: one script's stage payloads flow through
- * every film-pipeline rung (stage the world, perform each beat into a shot, cut
- * the shots into a sequence) with every gate passing on the way. This is the
- * scenario the LLM harness will drive for real; here the stage payloads are
- * authored fixtures, which is exactly the point: the pipeline is deterministic
- * below the model.
+ * Stage one script, perform two beats and cut the returned shots, checking
+ * successful admission, scene linkage, cut ordering and a three-second runtime.
  *
  * Scenarios:
+ * 1. Stage the shared duel and perform both authored beats.
+ * 2. Preserve the shared scene join in both returned shots.
+ * 3. Cut the whole first shot and trimmed second shot with the authored overlap, preserving order and runtime.
  *
- * 1. A two-beat duel script stages into `scene-duel`, and each beat performs into
- *    its own shot (`shot:beat-1` with both knights moving, `shot:beat-2` with
- *    the champion celebrating): both ROM-validated against the stick skeleton.
- * 2. The cut plays beat-1 whole (2 s) then dissolves 0.5 s into a 1.5 s trim of
- *    beat-2 → a 24 fps sequence with runtime 2 + 1.5 − 0.5 = 3 s, every shot
- *    reference resolving to a built shot.
+ * @evidence contracts/testing.md#behavioral-verification Stages one script, performs its two beats and cuts the actual shots, checking successful admission, scene linkage, cut ordering and a three-second runtime. This catches a lost beat/scene join or incorrect assembled overlap length without claiming every refusal branch is exercised.
+ * @evidence contracts/testing.md#independent-expectations The authored two-second shot plus 1.5-second trim minus 0.5-second dissolve gives three seconds; authored beat and scene references determine the joins independently.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the duel and celebration, whole first shot, trimmed second shot and overlap; this positive unit spine owns no LLM interaction, host render or malformed-stage coverage.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_e2e unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_pipeline_e2e = (): void => {
-  const script = makeScriptWrite({
+export function test_film_pipeline_e2e(): void {
+  const script: IAutoMovieScript = makeScriptWrite({
     beats: [
       {
         id: "beat-1",
@@ -45,18 +52,18 @@ export const test_film_pipeline_e2e = (): void => {
     ],
   });
 
-  const staged = stageScene(script, makeStagingWrite());
+  const staged: IAutoMovieStagedSet = stageScene(script, makeStagingWrite());
   TestValidator.equals("staging", staged.success, true);
   if (staged.success !== true) return;
 
-  const charge = performShot({
+  const charge: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
-  const aftermath = performShot({
+  const aftermath: IAutoMoviePerformedShot = performShot({
     script,
     staged,
     performance: makePerformanceWrite({
@@ -74,7 +81,7 @@ export const test_film_pipeline_e2e = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals("charge performed", charge.success, true);
   TestValidator.equals("aftermath performed", aftermath.success, true);
@@ -85,7 +92,7 @@ export const test_film_pipeline_e2e = (): void => {
     [staged.scene.id, staged.scene.id],
   );
 
-  const cut = cutSequence(
+  const cut: IAutoMovieCut = cutSequence(
     {
       sequence: { id: "seq-duel", name: "duel at dawn" },
       fps: 24,
@@ -106,8 +113,8 @@ export const test_film_pipeline_e2e = (): void => {
   if (cut.success !== true) return;
   TestValidator.equals(
     "cut order",
-    cut.sequence.shots.map((s) => s.shot),
+    cut.sequence.shots.map((s: IAutoMovieSequenceEntry): string => s.shot),
     ["shot:beat-1", "shot:beat-2"],
   );
   TestValidator.predicate("runtime 3 s", nclose(cut.runtime, 3));
-};
+}

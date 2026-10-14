@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
-import { namedFacts } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 
 const ROOT_ONLY: IAutoMovieSkeleton = {
   id: "root-only",
@@ -18,22 +18,22 @@ const ROOT_ONLY: IAutoMovieSkeleton = {
 };
 
 /**
- * The rig scale convention (#1052, decision 309): the engine's FK composes
- * rotation and translation ONLY: `resolvePose` ignores bone-rest and pose-root
- * scale, and `motionToClip` pins the same ("rest scale ignored on both sides"),
- * so the render must ignore them too. The viewer used to apply both, making
- * every descendant diverge from what ground contact, collision, and framing
- * validated. Scene-node transforms and object-motion scale channels stay
- * first-class (#1049); this convention is about RIG bones and pose roots only.
+ * Rig bone rests and pose roots ignore their declared scale under the translation/rotation convention. These two existing cases observe the X scale component plus pose-root X and bone-rest Y translation; all-axis/rotation behavior, ordinary node scale, collision and rendered framing are not independently asserted here.
  *
  * Scenarios:
  *
  * 1. A pose root with scale 2 moves the model root but leaves its scale at 1.
  * 2. A bone rest with scale 2 places the bone but leaves its scale at 1.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds a generated rig and wraps an imported Group, applies a pose and reads actual root/bone transform fields; catches applying authored rig scales while allowing their translations.
+ * @evidence contracts/testing.md#independent-expectations The rig convention excludes rest and pose-root scale, so authored scale two must leave the observed X scale at one while the selected literal translations remain one; finite scalar predicates compare those fields without a second pose solver or a complete all-axis oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts ignored pose-root scale and ignored bone-rest scale with retained translation in each path; object-motion and scene-node scale remain obligations of their separate tests.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Viewer entries and observes CPU-side Three transforms without rendering, a browser, process or new Human model; its existing generic fixture supplies the generated rig.
  */
-export const test_viewer_rig_scale_convention = (): void => {
+export function test_viewer_rig_scale_convention(): void {
   // 1. pose-root scale is dropped, its translation applies
-  const model = createImportedModelObject({ object: new THREE.Group() });
+  const model: ReturnType<typeof createImportedModelObject> =
+    createImportedModelObject({ object: new THREE.Group() });
   applyPose(
     model,
     {
@@ -50,17 +50,22 @@ export const test_viewer_rig_scale_convention = (): void => {
   TestValidator.equals(
     "a pose-root scale is dropped while its translation applies",
     namedFacts([
-      ["modelObjectPosition", () => model.object.position.x === 1],
+      [
+        "modelObjectPosition",
+        (): boolean => nclose(model.object.position.x, 1, 0),
+      ],
       [
         "modelObjectScale",
-        () => model.object.position.x === 1 && model.object.scale.x === 1,
+        (): boolean =>
+          nclose(model.object.position.x, 1, 0) &&
+          nclose(model.object.scale.x, 1, 0),
       ],
     ]),
     { modelObjectPosition: true, modelObjectScale: true },
   );
 
   // 2. bone-rest scale is dropped, its translation applies
-  const built = buildModel({
+  const built: ReturnType<typeof buildModel> = buildModel({
     ...createModel(),
     id: "scaled-rest",
     skeleton: {
@@ -79,13 +84,17 @@ export const test_viewer_rig_scale_convention = (): void => {
       ],
     },
   });
-  const hips = built.bones.get("hips")!;
+  const hips: THREE.Object3D = built.bones.get("hips")!;
   TestValidator.equals(
     "a bone-rest scale is dropped while its translation applies",
     namedFacts([
-      ["hipsPositionY", () => hips.position.y === 1],
-      ["hipsScaleX", () => hips.position.y === 1 && hips.scale.x === 1],
+      ["hipsPositionY", (): boolean => nclose(hips.position.y, 1, 0)],
+      [
+        "hipsScaleX",
+        (): boolean =>
+          nclose(hips.position.y, 1, 0) && nclose(hips.scale.x, 1, 0),
+      ],
     ]),
     { hipsPositionY: true, hipsScaleX: true },
   );
-};
+}

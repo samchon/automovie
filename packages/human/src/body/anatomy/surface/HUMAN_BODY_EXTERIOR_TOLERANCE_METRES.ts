@@ -4,4 +4,4 @@
  *
  * @author Samchon
  */
-export const HUMAN_BODY_EXTERIOR_TOLERANCE_METRES = 0.00005;
+export const HUMAN_BODY_EXTERIOR_TOLERANCE_METRES: number = 0.00005;

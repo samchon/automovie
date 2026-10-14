@@ -1,8 +1,11 @@
 /**
- * Geometry result intentionally remains compact and query-specific.
+ * Compact result of measuring the current compiled geometry through a production query.
  *
- * @evidence requirements/agent-authoring/partial-work.md#agent-partial-result-control Exposes `IAutoMovieGeometryResult` as the portable data boundary for the agent partial result control requirement.
- * @evidence specifications/authoring-and-authority/partial-targets-and-atomic-results.md#spec-authoring-partial-result-checkpoint Types `IAutoMovieGeometryResult` for the spec authoring partial result checkpoint system contract.
+ * @evidence contracts/common.md#principled-implementation A discriminated union separates Euclidean distance, terrain sample and query-specific scalar summaries; engine query adapters derive values from the supplied current compiled records and refuse unresolved selectors.
+ * @evidence contracts/common.md#clear-and-simple-design Dedicated distance and ground fields expose their fixed units, while the measurement map carries heterogeneous named metrics for reach, formation, camera, effect, pose and film-time queries.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No containing ground surface yields the explicit zero-height, null-surface, non-walkable result; unresolved actors or landmarks throw rather than being returned as successful zero distances.
+ * @evidence contracts/common.md#meaningful-documentation Defines result kinds, meter units, terrain absence and the query-dependent metric map whose individual units belong to the requested query.
+ * @author Samchon
  */
 export type IAutoMovieGeometryResult =
   | {
@@ -16,7 +19,7 @@ export type IAutoMovieGeometryResult =
       /** Ground sample. */
       kind: "ground";
 
-      /** Surface height in meters. */
+      /** Surface height in world meters; zero when no surface contains the point. */
       height: number;
 
       /** Matching surface id, or null. */
@@ -29,6 +32,6 @@ export type IAutoMovieGeometryResult =
       /** Generic current-compile measurement. */
       kind: "measurement";
 
-      /** Machine-readable metric names and scalar or text values. */
+      /** Query-specific named metrics; each metric's units and meaning belong to that query. */
       values: Record<string, number | string | boolean>;
     };

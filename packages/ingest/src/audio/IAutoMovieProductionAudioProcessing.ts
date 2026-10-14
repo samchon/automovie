@@ -1,37 +1,25 @@
 /**
- * Deterministic conversion from declared WAVE layout/clock to mixer input.
+ * The deterministic conversion `decodeProductionAudioAsset` applied to turn a WAVE source into mono mixer input, recorded so a render plan can check it against the source format it claims.
  *
- * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Records the ordered downmix and resample recipe that produced the mixer samples from the source bytes.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Names the exact transform the derived mono buffer carries relative to its parent source.
- * @evidence requirements/evidence-and-provenance/generation-transformation-and-derivation.md#provenance-transformation-record Records the resampling and downmix rules, coefficients and output identity as the transformation record of the derived buffer.
+ * @evidence contracts/common.md#principled-implementation Stage kind, downmix coefficients and requested output rate let the render identity validator compare declared processing with source channels and rate; the record does not prove sample contents or specify a general resampling algorithm independently of the decoder.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record names the stage combination and its parameters; the render package's wave identity validator reads these four fields and nothing else.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Literal channel and stage vocabulary constrain names, but independent fields and numeric arrays do not enforce stage/rate/matrix correlation; the decoder produces those relations and the render wave-identity validator checks them.
+ * @evidence contracts/common.md#meaningful-documentation The comments give the stage order, the output channel and rate meaning, and the row-by-column orientation and only values of the downmix matrix.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; the conversion it describes runs in `decodeProductionAudioAsset`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The lineage record is written once per decode and read by plan validation, with no computation of its own to reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; decoder-produced records carry one matrix row of one or two numbers, while the structural array type itself imposes no size bound or resource lifetime.
+ * @author Samchon
  */
 export interface IAutoMovieProductionAudioProcessing {
-  /**
-   * Exact conversion stages applied in source order.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Names which of channel conversion and resampling ran, in order.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Identifies the transform kind of the derived source.
-   */
+  /** Stages applied, in source order: `copy` for mono at the target rate, `downmix` for stereo at the target rate, `resample` for mono at another rate, and `downmix-resample` for stereo at another rate. */
   kind: "copy" | "downmix" | "resample" | "downmix-resample";
-  /**
-   * Mixer-facing mono channel count.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure States the channel count the conversion produced.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Records the output layout of the derived source.
-   */
+
+  /** Mixer-facing channel count; the decoder always folds to mono. */
   outputChannels: 1;
-  /**
-   * Mixer-facing sample clock after conversion.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure States the clock the resample stage produced.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Records the output sample rate of the derived source.
-   */
+
+  /** Output rate in samples per second, the rate the caller requested. */
   outputSampleRate: number;
-  /**
-   * Output-by-input downmix coefficients.
-   *
-   * @evidence requirements/sound/sources-and-external-assets.md#sound-derived-source-closure Records the exact channel-conversion weights instead of an unstated average.
-   * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#sound-decode-and-derived-source-closure Makes the downmix transform reproducible from the record alone.
-   */
+
+  /** Downmix coefficients with one row per output channel and one column per source channel: `[[1]]` for mono and `[[0.5, 0.5]]` for stereo. */
   matrix: readonly (readonly number[])[];
 }

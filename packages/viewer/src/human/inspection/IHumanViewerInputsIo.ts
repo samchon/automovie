@@ -1,17 +1,13 @@
 /**
- * Document and candidate-basis bytes supplied to the viewer's input reader.
+ * Host-owned directory names, document bytes and optional version stamps supplied to the numerical input reader. Candidate-sidecar facts are read by their separate asynchronous owner; photographs are outside this port.
  *
- * The host owns directory access; the reader only enumerates names and reads
- * their bytes, so document admission and cache authority can be tested with
- * in-memory inputs without filesystem or photograph access.
- *
- * @evidence contracts/common.md#principled-implementation Keeps disk effects with the host and supplies only the input bytes admission and hashing consume.
- * @evidence contracts/common.md#clear-and-simple-design Two operations express enumeration and byte access without a filesystem implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A caller supplies the real inputs rather than a reader-specific fixture or alternate admission path.
- * @evidence contracts/common.md#meaningful-documentation States the host/reader boundary and why the byte port is separate.
- *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies actual enumerated input bytes and optional version stamps to the same document admission and cache-key reader.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Filesystem access remains with its provider, and malformed inputs retain the ordinary owner's refusal rather than a separate fixture path.
+ * @evidence contracts/common.md#principled-implementation The host provides complete directory names, actual document bytes and optional version stamps to the generic numerical-input projection.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps filesystem access outside parsing/basis-key logic while candidate sidecar facts have their separate asynchronous owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The current metadata stamp can miss preserved-time/size edits; absent stamps disable file memo reuse rather than inventing byte equivalence.
+ * @evidence contracts/common.md#meaningful-documentation Names are admitted by the reader, byte failures propagate into named refusals and no photograph access belongs to this IO port.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The bindings perform no read; directory enumeration scales with names and changed documents are parsed/hashed by their input owner.
+ * @evidence contracts/performance.md#reuse-equivalent-work Memo reuse requires the supplied stamp plus sidecars/bases/generation/source signature; equal names alone do not authorize reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns directory/file access; buffers live through parsing/memo publication and the port retains no native descriptors itself.
  *
  * @author Samchon
  */
@@ -19,39 +15,39 @@ export interface IHumanViewerInputsIo {
   /**
    * Names present in the input directory; the reader validates accepted names.
    *
-   * @evidence contracts/common.md#principled-implementation The host supplies actual input-directory names before reader validation.
-   * @evidence contracts/common.md#clear-and-simple-design Enumeration is one borrowed operation rather than a filesystem owned by catalogue reading.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader receives actual input names and applies the same name rules to all documents.
-   * @evidence contracts/common.md#meaningful-documentation The result lists present names; acceptance remains the reader's separate decision.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies actual input-directory names before reader validation.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The result lists present names; acceptance remains the reader's separate decision.
+   * @evidence contracts/common.md#principled-implementation Returns the complete current input-directory name inventory used for supported-name selection and removed-file memo pruning.
+   * @evidence contracts/common.md#clear-and-simple-design Separates directory observation from per-file numerical parsing and sidecar interpretation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A selected-document read still needs all names for pruning; returning only selected files would retain removed memo entries incorrectly.
+   * @evidence contracts/common.md#meaningful-documentation The reader sorts supported JSON names and validates stems; this callback supplies names without asserting document schema.
+   * @evidence contracts/performance.md#efficient-algorithms Enumeration and the returned array scale with directory membership; sorting supported names is O(n log n) in the consumer.
+   * @evidence contracts/performance.md#reuse-equivalent-work Names are reread on each projection because membership can change independently of source digests or document selection.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns directory access and the temporary name array; no watcher or file handle transfers through this method.
    */
   names(): string[];
 
   /**
-   * Bytes of one enumerated document or candidate-basis file.
+   * Bytes of one enumerated document file; the separate sidecar provider supplies candidate-basis facts.
    *
-   * @evidence contracts/common.md#principled-implementation The host supplies bytes of the enumerated document or candidate-basis resource.
-   * @evidence contracts/common.md#clear-and-simple-design The reader consumes a Buffer without owning disk access.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The real bytes reach admission and hashing without a fixture-only alternate path.
-   * @evidence contracts/common.md#meaningful-documentation The argument names an enumerated file and failure propagates instead of returning invented content.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure The host supplies bytes of the enumerated document or candidate-basis resource.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The argument names an enumerated file and failure propagates instead of returning invented content.
+   * @evidence contracts/common.md#principled-implementation Returns the enumerated file's actual bytes for JSON parsing and document identity projection.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps file acquisition at the host boundary while the reader owns supported-name and basis/document rules.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/unreadable bytes become named refusal; the buffer is not assumed admitted JSON and no reference photograph is read.
+   * @evidence contracts/common.md#meaningful-documentation name is a directory entry validated by the consumer; errors remain original causes for that file rather than an empty invented document.
+   * @evidence contracts/performance.md#efficient-algorithms IO and parsing scale with file bytes, with full buffers retained during parse and later offered parameter projection.
+   * @evidence contracts/performance.md#reuse-equivalent-work Changed signatures invoke a fresh read; equal provider stamps permit reuse only under their disclosed metadata limitations.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The host closes its underlying read capability; the returned buffer belongs to the current projection and no descriptor is retained by this signature.
    */
   read(name: string): Buffer;
 
   /**
    * The file's version stamp (modification time and size); without it no result is reused.
    *
-   * @evidence contracts/common.md#principled-implementation An optional version witness lets the reader reuse a file result only while its input stays unchanged.
-   * @evidence contracts/common.md#clear-and-simple-design Change detection remains with the input provider.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Without a stamp, a cached read cannot claim unchanged bytes from filename equality alone.
-   * @evidence contracts/common.md#meaningful-documentation The stamp describes modification time and size; omission disables result reuse.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure An optional version witness lets the reader reuse a file result only while its input stays unchanged.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The stamp describes modification time and size; omission disables result reuse.
+   * @evidence contracts/common.md#principled-implementation Optionally supplies the provider's per-file version identity for memo selection, currently modification time and size at the filesystem host.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps metadata policy outside input parsing and requires explicit provider availability before any result reuse.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal metadata can miss byte rewrites preserving size/time; omission disables reuse rather than treating an empty signature as content authority.
+   * @evidence contracts/common.md#meaningful-documentation The string participates with sidecar facts and shared basis/generation/source identity; it is not a content hash or atomic snapshot.
+   * @evidence contracts/performance.md#efficient-algorithms A metadata observation precedes memo lookup and avoids full parse/hash only under an unchanged complete signature.
+   * @evidence contracts/performance.md#reuse-equivalent-work Changed stamps invalidate the memo; same-stamp changes remain an acknowledged provider limit, and admission is always reapplied separately.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a string and retains no stream; current filename memo populations are pruned against complete names by the reader.
    */
   stamp?(name: string): string;
 }

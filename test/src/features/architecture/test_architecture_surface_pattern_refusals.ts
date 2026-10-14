@@ -1,46 +1,45 @@
 import {
   type IAutoMovieSurfacePattern,
+  type IAutoMovieSurfacePatternResult,
   generateAutoMovieSurfacePattern,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  pattern,
-  rectangle,
-  stackBond,
-  zone,
-} from "../internal/patternFixtures";
+import { assertPatternGeneratedModuleRefusals } from "../internal/assertPatternGeneratedModuleRefusals";
+import { pattern, rectangle, zone } from "../internal/patternFixtures";
 import { namedFacts, throwsError } from "../internal/predicates";
 
-const refuses = (
+const refuses: (
+  overrides: Partial<IAutoMovieSurfacePattern>,
+  message: string | readonly string[],
+) => boolean = (
   overrides: Partial<IAutoMovieSurfacePattern>,
   message: string | readonly string[],
 ): boolean =>
   throwsError(
-    () => generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
+    (): IAutoMovieSurfacePatternResult =>
+      generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
     message,
   );
 
 /**
- * Every input a pattern run refuses, each beside the value one step away that
- * it accepts.
+ * Representative invalid pattern declarations and their scalar/overlap
+ * boundary controls are refused through the public pattern run.
  *
- * A pattern that quietly repairs its declaration produces a take-off nobody can
- * trust: a self-overlapping region double-counts area, a module that reaches
- * further than declared vanishes at the region's edge instead of being laid,
- * and two zones that overlap cover the same square metre twice. Every one of
- * those is refused with a message naming the declaration that caused it.
+ * Invalid scalars and identities, non-convex corner sets, overlapping zones or
+ * exclusions, and modules exceeding declared reach must fail with the named
+ * cause instead of yielding a silently adjusted take-off.
  *
  * Scenarios:
  *
  * 1. Envelope scalars are refused one at a time: blank id, no zones, negative
- *    joint, negative tolerance, negative adjacency, a minimum piece outside
+ *    joint, nonfinite joint tolerance, negative adjacency, a minimum piece outside
  *    `(0, 1]`, a negative grain tolerance, a seed that is not a non-negative
  *    safe integer, and a variant count below one.
  * 2. Zone identity and lattice are refused: a blank id, a duplicate id, a
  *    non-finite origin, a non-positive period, and a non-positive reach.
  * 3. Regions are refused: a non-finite corner, three collinear points that enclose
- *    no area, and a polygon with a reflex corner or an interior point.
+ *    no area, and a polygon with a reflex corner.
  * 4. Two zones covering the same area are refused, and two zones sharing only an
  *    edge are not.
  * 5. Exclusions are refused: a blank id, a duplicate id, a non-convex polygon, and
@@ -50,20 +49,28 @@ const refuses = (
  *    and a module reaching further from its cell origin than the zone
  *    declared.
  * 7. A lattice larger than the cell limit is refused before it is walked.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls generateAutoMovieSurfacePattern on malformed scalar, zone, polygon, exclusion, generated-candidate, reach, and lattice declarations, requiring specific Error fragments and checking admitted scalar/touching controls.
+ * @evidence contracts/testing.md#independent-expectations Authored invalid fields determine the named refusal causes; a two-by-one metre region with half-metre square modules independently yields eight surviving placements. Explicit overlapping versus edge-touching rectangles distinguish positive shared area from contact, and the existing generated-candidate helper overrides authored inputs rather than laid output.
+ * @evidence contracts/testing.md#distinguishing-cases Individual scalar failures share one otherwise valid pattern, while boundary scalars and touching zones/exclusions remain accepted. Blank/duplicate ids, nonfinite coordinates, collinear/reflex outlines, seven candidate-field overrides, reach overflow, and an oversized lattice require their own located messages.
+ * @evidence contracts/testing.md#execution-ownership Uses synchronous local pattern records and authored generator callbacks through the product seam, with existing Error and named-fact predicates; no renderer, resources, clocks, global replacement, or separate test host is involved. The cell-cap case observes its refusal message without profiling enumeration or memory use.
  */
-export const test_architecture_surface_pattern_refusals = (): void => {
+export function test_architecture_surface_pattern_refusals(): void {
   TestValidator.equals(
     "envelope scalars are refused one at a time",
     namedFacts([
-      ["id", () => refuses({ id: " " }, "pattern id must be non-empty")],
+      [
+        "id",
+        (): boolean => refuses({ id: " " }, "pattern id must be non-empty"),
+      ],
       [
         "zones",
-        () =>
+        (): boolean =>
           refuses({ zones: [] }, "a surface pattern needs at least one zone"),
       ],
       [
         "joint",
-        () =>
+        (): boolean =>
           refuses(
             { joint: -1e-9 },
             "pattern joint must be a finite number >= 0",
@@ -71,7 +78,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "tolerance",
-        () =>
+        (): boolean =>
           refuses(
             { jointTolerance: Number.NaN },
             "pattern joint tolerance must be a finite number >= 0",
@@ -79,7 +86,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "adjacency",
-        () =>
+        (): boolean =>
           refuses(
             { adjacency: -1 },
             "pattern adjacency must be a finite number >= 0",
@@ -87,7 +94,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "minimumZero",
-        () =>
+        (): boolean =>
           refuses(
             { minimumPiece: 0 },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -95,7 +102,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "minimumAbove",
-        () =>
+        (): boolean =>
           refuses(
             { minimumPiece: 1 + 1e-9 },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -103,7 +110,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "minimumNonFinite",
-        () =>
+        (): boolean =>
           refuses(
             { minimumPiece: Number.NaN },
             "pattern minimum piece must be a finite number in (0, 1]",
@@ -111,7 +118,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "grain",
-        () =>
+        (): boolean =>
           refuses(
             { grainToleranceDeg: -1e-9 },
             "pattern grain tolerance must be a finite number >= 0",
@@ -119,16 +126,17 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "seedNegative",
-        () => refuses({ seed: -1 }, "pattern seed must be a safe integer >= 0"),
+        (): boolean =>
+          refuses({ seed: -1 }, "pattern seed must be a safe integer >= 0"),
       ],
       [
         "seedFractional",
-        () =>
+        (): boolean =>
           refuses({ seed: 1.5 }, "pattern seed must be a safe integer >= 0"),
       ],
       [
         "variantsZero",
-        () =>
+        (): boolean =>
           refuses(
             { variants: 0 },
             "pattern variants must be a safe integer >= 1",
@@ -136,7 +144,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "variantsFractional",
-        () =>
+        (): boolean =>
           refuses(
             { variants: 2.5 },
             "pattern variants must be a safe integer >= 1",
@@ -144,7 +152,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "boundaryValues",
-        () =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               joint: 0,
@@ -181,7 +189,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     namedFacts([
       [
         "blankId",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ id: "  " })] },
             "pattern zone[0] id must be non-empty",
@@ -189,7 +197,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "duplicateId",
-        () =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -202,7 +210,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "origin",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ origin: { u: Number.NaN, v: 0 } })] },
             'pattern zone "field" origin must be finite',
@@ -210,7 +218,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "periodU",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ period: { u: 0, v: 0.5 } })] },
             'pattern zone "field" period u must be a finite number > 0',
@@ -218,7 +226,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "periodV",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ period: { u: 0.5, v: -1 } })] },
             'pattern zone "field" period v must be a finite number > 0',
@@ -226,7 +234,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "reachU",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ reach: { u: 0, v: 0.5 } })] },
             'pattern zone "field" reach u must be a finite number > 0',
@@ -234,7 +242,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "reachV",
-        () =>
+        (): boolean =>
           refuses(
             { zones: [zone({ reach: { u: 0.5, v: Number.NaN } })] },
             'pattern zone "field" reach v must be a finite number > 0',
@@ -257,7 +265,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     namedFacts([
       [
         "nonFinite",
-        () =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -275,7 +283,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "collinear",
-        () =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -293,7 +301,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "reflex",
-        () =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -320,7 +328,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     namedFacts([
       [
         "overlapping",
-        () =>
+        (): boolean =>
           refuses(
             {
               zones: [
@@ -337,7 +345,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "touching",
-        () =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               zones: [
@@ -360,7 +368,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     namedFacts([
       [
         "blankId",
-        () =>
+        (): boolean =>
           refuses(
             {
               exclusions: [{ id: "", polygon: rectangle(0.1, 0.1, 0.2, 0.2) }],
@@ -370,7 +378,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "duplicateId",
-        () =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -383,7 +391,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "nonConvex",
-        () =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -404,7 +412,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "overlapping",
-        () =>
+        (): boolean =>
           refuses(
             {
               exclusions: [
@@ -417,7 +425,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
       ],
       [
         "touching",
-        () =>
+        (): boolean =>
           generateAutoMovieSurfacePattern({
             pattern: pattern({
               exclusions: [
@@ -437,194 +445,7 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     },
   );
 
-  TestValidator.equals(
-    "a generated module must be identified, finite, sized, and within reach",
-    namedFacts([
-      [
-        "blankId",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ origin }) => [
-                    {
-                      id: " ",
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0.5, v: 0.5 },
-                      rotationDeg: 0,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            'pattern zone "field" module id must be non-empty',
-          ),
-      ],
-      [
-        "duplicateId",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ origin }) => [
-                    {
-                      id: "same",
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0.5, v: 0.5 },
-                      rotationDeg: 0,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            'pattern zone "field" module id "same" must be unique',
-          ),
-      ],
-      [
-        "centre",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ column, row }) => [
-                    {
-                      id: `t-${column}-${row}`,
-                      center: { u: Number.NaN, v: 0 },
-                      size: { u: 0.5, v: 0.5 },
-                      rotationDeg: 0,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            "center must be finite",
-          ),
-      ],
-      [
-        "sizeU",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ column, row, origin }) => [
-                    {
-                      id: `t-${column}-${row}`,
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0, v: 0.5 },
-                      rotationDeg: 0,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            "size u must be a finite number > 0",
-          ),
-      ],
-      [
-        "sizeV",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ column, row, origin }) => [
-                    {
-                      id: `t-${column}-${row}`,
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0.5, v: -0.5 },
-                      rotationDeg: 0,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            "size v must be a finite number > 0",
-          ),
-      ],
-      [
-        "rotation",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ column, row, origin }) => [
-                    {
-                      id: `t-${column}-${row}`,
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0.5, v: 0.5 },
-                      rotationDeg: Number.NaN,
-                      grainDeg: 0,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            "rotation and grain must be finite",
-          ),
-      ],
-      [
-        "grain",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  generate: ({ column, row, origin }) => [
-                    {
-                      id: `t-${column}-${row}`,
-                      center: { u: origin.u + 0.25, v: origin.v + 0.25 },
-                      size: { u: 0.5, v: 0.5 },
-                      rotationDeg: 0,
-                      grainDeg: Number.POSITIVE_INFINITY,
-                      mirror: false,
-                    },
-                  ],
-                }),
-              ],
-            },
-            "rotation and grain must be finite",
-          ),
-      ],
-      [
-        "reach",
-        () =>
-          refuses(
-            {
-              zones: [
-                zone({ generate: stackBond(0.5), reach: { u: 0.4, v: 0.5 } }),
-              ],
-            },
-            "reaches beyond the declared reach of its cell origin",
-          ),
-      ],
-    ]),
-    {
-      blankId: true,
-      duplicateId: true,
-      centre: true,
-      sizeU: true,
-      sizeV: true,
-      rotation: true,
-      grain: true,
-      reach: true,
-    },
-  );
+  assertPatternGeneratedModuleRefusals(refuses);
 
   TestValidator.equals(
     "a lattice above the cell limit is refused before it is walked",
@@ -642,4 +463,4 @@ export const test_architecture_surface_pattern_refusals = (): void => {
     ),
     true,
   );
-};
+}

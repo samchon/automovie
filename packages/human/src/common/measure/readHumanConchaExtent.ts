@@ -27,6 +27,14 @@ import { humanHeadRegionVertices } from "./humanHeadRegionVertices";
  * frame-partitioned source region remains that region's sampled extent; it
  * does not establish that its boundary equals a clinical conchal boundary,
  * nor does either extent determine conchal depth or internal relief.
+ *
+ * @evidence contracts/common.md#principled-implementation Normalize the registered auricle attachment line and its perpendicular anterior projection, then report the concha sample extents along both axes. Missing/nonresident regions and degenerate directions refuse; sparse registration does not establish a clinical bowl boundary or depth.
+ * @evidence contracts/common.md#clear-and-simple-design The shared region reader owns membership admission while this instrument owns attachment-relative projection and two scalar extents.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The perpendicular choice is a declared source convention, with no study-average dimensions, expected bowl shape or fixture vertices substituted.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives metre units, attachment/perpendicular semantics, direction refusals and the distinction between sampled extent and clinical conchal detail.
+ * @evidence contracts/performance.md#efficient-algorithms For R concha memberships, validation and two projections cost O(R) time and O(R) gathered indices; frame vectors/candidate bounds use constant additional space.
+ * @evidence contracts/performance.md#reuse-equivalent-work Attachment and transverse unit directions are computed once for all samples, and canonical region admission is reused instead of a second lookup policy.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Gathered vertices and fixed-size frame arrays remain local, and two scalar extents transfer to the caller without retaining skin arrays, handles or tasks.
  */
 export function readHumanConchaExtent(
   head: IAutoMovieHumanHeadSkin,
@@ -34,32 +42,34 @@ export function readHumanConchaExtent(
   otobasionSuperius: IAutoMovieVector3,
   otobasionInferius: IAutoMovieVector3,
 ): IAutoMovieHumanConchaExtent {
-  const line = [
+  const line: number[] = [
     otobasionSuperius.x - otobasionInferius.x,
     otobasionSuperius.y - otobasionInferius.y,
     otobasionSuperius.z - otobasionInferius.z,
   ];
-  const l = Math.hypot(...line);
+  const l: number = Math.hypot(...line);
   if (!Number.isFinite(l) || l === 0)
     throw new Error(
       `The auricle attachment line of ${head.id} has no finite direction.`,
     );
-  const u = line.map((c) => c / l);
-  const w0 = [-u[2] * u[0], -u[2] * u[1], 1 - u[2] * u[2]];
-  const m = Math.hypot(...w0);
+  const u: number[] = line.map((c: number): number => c / l);
+  const w0: number[] = [-u[2] * u[0], -u[2] * u[1], 1 - u[2] * u[2]];
+  const m: number = Math.hypot(...w0);
   if (!Number.isFinite(m) || m === 0)
     throw new Error(
       `The auricle attachment line of ${head.id} has no perpendicular anterior direction.`,
     );
-  const w = w0.map((c) => c / m);
-  const p = head.positions;
-  let uLow = Infinity;
-  let uHigh = -Infinity;
-  let wLow = Infinity;
-  let wHigh = -Infinity;
+  const w: number[] = w0.map((c: number): number => c / m);
+  const p: number[] = head.positions;
+  let uLow: number = Infinity;
+  let uHigh: number = -Infinity;
+  let wLow: number = Infinity;
+  let wHigh: number = -Infinity;
   for (const v of humanHeadRegionVertices(head, concha)) {
-    const a = p[v * 3] * u[0] + p[v * 3 + 1] * u[1] + p[v * 3 + 2] * u[2];
-    const b = p[v * 3] * w[0] + p[v * 3 + 1] * w[1] + p[v * 3 + 2] * w[2];
+    const a: number =
+      p[v * 3] * u[0] + p[v * 3 + 1] * u[1] + p[v * 3 + 2] * u[2];
+    const b: number =
+      p[v * 3] * w[0] + p[v * 3 + 1] * w[1] + p[v * 3 + 2] * w[2];
     uLow = Math.min(uLow, a);
     uHigh = Math.max(uHigh, a);
     wLow = Math.min(wLow, b);

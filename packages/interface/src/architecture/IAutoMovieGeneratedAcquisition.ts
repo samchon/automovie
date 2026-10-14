@@ -1,94 +1,57 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
-
 /**
- * Generation identity of bytes that no external source ever served.
+ * Authored acquisition identity of bytes returned by a generator.
  *
- * An image-generation result has no acquisition URL, so recording one would be
- * a fabrication. It has instead a provider, a model, the exact instruction that
- * produced it, the references it was conditioned on, and the digest of the
- * bytes that came back. Sampling is usually irreproducible, and this record
- * states that as a fact rather than repairing it with an invented seed.
+ * This record names provider, model, instruction, conditioned references and returned-byte digest rather than a source URL. It does not establish whether a provider served those bytes externally. Reproducibility is an authored assertion; metadata admission checks seed consistency without executing the provider or proving replay.
  *
- * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `IAutoMovieGeneratedAcquisition` as the portable data boundary for the external source acquisition failure requirement.
- * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `IAutoMovieGeneratedAcquisition` for the interchange acquisition failure envelope system contract.
+ * Asset admission runs validateGeneratedAcquisition and hashes a published prompt as exact UTF-8 against promptDigest. Without processing steps, outputDigest must equal the current asset digest. A transformed asset retains the acquisition record, but its current bytes cannot prove the original output.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateGeneratedAcquisition` requires a non-blank provider and model, a null or non-blank request and prompt, lowercase `sha256:` digests, non-blank input paths, an output digest equal to the current bytes when given, and a safe-integer seed, then ties the seed to `reproducible`.
+ * @evidence contracts/common.md#clear-and-simple-design The record holds only facts a generator returns or a caller sends, with the prompt text optional beside its always-present digest, so a private prompt is still identified without being published.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No URL or seed is invented for sampled output; production asset admission validates generation metadata and the published prompt hash, comparing generator output with current bytes only when no processing changed those bytes.
+ * @evidence contracts/common.md#meaningful-documentation Defines recorded generator identity, nullable prompt and request, reference order, safe-integer seed consistency without replay proof, UTF-8 prompt hashing and the processed-byte identity limitation.
+ * @author Samchon
  */
 export interface IAutoMovieGeneratedAcquisition {
-  /**
-   * Service or tool identity that produced the bytes.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `provider` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `provider` for the interchange acquisition failure envelope system contract.
-   */
+  /** Non-blank service or tool identity that produced the bytes. */
   provider: string;
 
   /**
-   * Exact model identity, including a version when it changes output.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `model` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `model` for the interchange acquisition failure envelope system contract.
+   * Non-blank exact model identity, including a version when it changes output.
    */
   model: string;
 
   /**
-   * Provider-side request identity, or null when the provider issues none.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `request` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `request` for the interchange acquisition failure envelope system contract.
+   * Non-blank provider-side request identity, or null when the provider issues none.
    */
   request: string | null;
 
   /**
-   * Verbatim instruction, or null when only its digest may be published.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `prompt` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `prompt` for the interchange acquisition failure envelope system contract.
+   * Non-blank verbatim instruction, or null when only its digest may be published.
    */
   prompt: string | null;
 
-  /**
-   * SHA-256 of the exact instruction bytes, always recorded.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `promptDigest` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `promptDigest` for the interchange acquisition failure envelope system contract.
-   */
-  promptDigest: AutoMovieContentDigest;
+  /** SHA-256 of the exact instruction bytes, always recorded. */
+  promptDigest: string;
 
   /**
-   * Manifest asset paths this request was conditioned on, in request order.
-   * Empty for a text-only request.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `inputs` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `inputs` for the interchange acquisition failure envelope system contract.
+   * Manifest asset paths this request was conditioned on, in request order. Empty for a text-only request. Each must be non-blank; none is resolved against the manifest.
    */
   inputs: string[];
 
-  /**
-   * SHA-256 of the exact bytes the generator returned.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `outputDigest` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `outputDigest` for the interchange acquisition failure envelope system contract.
-   */
-  outputDigest: AutoMovieContentDigest;
+  /** SHA-256 of the exact bytes the generator returned. */
+  outputDigest: string;
 
   /**
-   * Whether replaying provider, model, prompt and inputs reproduces
-   * {@link outputDigest}. `false` is the honest answer for sampled image
-   * generation and is never repaired by inventing a replay handle.
+   * Authored assertion that replaying the declared generation basis reproduces {@link outputDigest}; the validator performs no replay and does not independently verify this assertion.
    *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `reproducible` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `reproducible` for the interchange acquisition failure envelope system contract.
+   * `true` requires a recorded {@link seed}; `false` with a seed produces a consistency warning. Seed presence alone establishes no repeat-output guarantee.
    */
   reproducible: boolean;
 
   /**
    * Provider-reported seed, or null when the provider exposes none.
    *
-   * A recorded seed is a whole number small enough to survive being written
-   * down: a fractional, non-finite, or beyond-2^53 value is not the number the
-   * provider used, so replaying it would reproduce nothing.
-   *
-   * @evidence requirements/external-inputs/source-selection-and-provider-neutrality.md#external-source-acquisition-failure Exposes `seed` as the portable data boundary for the external source acquisition failure requirement.
-   * @evidence specifications/interchange-and-adoption/intake-authority-and-routing.md#interchange-acquisition-failure-envelope Types `seed` for the interchange acquisition failure envelope system contract.
+   * Number.isSafeInteger admits integer values from -(2^53 - 1) through 2^53 - 1. Fractional, non-finite and out-of-range values refuse; admission establishes numeric representability rather than provider origin or repeat-output proof.
    */
   seed: number | null;
 }

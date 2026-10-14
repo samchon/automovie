@@ -3,128 +3,134 @@ import type { IHumanViewerWatchedSource } from "./IHumanViewerWatchedSource.js";
 /**
  * What source watching needs from the host.
  *
- * @evidence contracts/common.md#principled-implementation Source watching refreshes authority and reports moved revisions through separate host callbacks.
- * @evidence contracts/common.md#clear-and-simple-design The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reached-source notification and optional scheduling describe actual edits rather than timer-based viewer cancellation.
- * @evidence contracts/common.md#meaningful-documentation Defines watcher registration, input rescan, publication, updating state and cancellable batch scheduling.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Source watching refreshes authority and reports moved revisions through separate host callbacks.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
+ * @evidence contracts/common.md#principled-implementation Source watching separates input rescans from reached-source revision batches and supplies exact listener withdrawal plus cancellable scheduling.
+ * @evidence contracts/common.md#clear-and-simple-design The source owner supplies paths/digests and the host supplies publication reactions; subscription code owns coalescing rather than filesystem or catalogue internals.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reached edits dirty candidate proof immediately, while only completed digest movement publishes a browser revision notification.
+ * @evidence contracts/common.md#meaningful-documentation Members identify input versus source effects, immediate reached notification, the default 100 ms coalescing timer and exact-listener cleanup.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The host-capability table chooses no event Set, timer or import-graph traversal implementation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Coalescing shares repeated path invalidations in one pending batch; source-owner digest comparisons decide actual domain movement.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources watch lends one exact-listener remover and schedule lends one timer canceler; the subscription invokes both on close while the caller owns the watcher itself.
+ *
  * @author Samchon
  */
 export interface ISubscribeHumanViewerSourcesProps {
-  /**
-   * The source owner.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The source owner. Source watching refreshes authority and reports moved revisions through separate host callbacks.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The source owner. The host retains watcher, catalogue and notification effects while the subscription owns edit batching.
-   */
+  /** The source owner. */
   source: IHumanViewerWatchedSource;
 
   /**
-   * Adds paths to the watcher.
+   * Add source, input and publication paths to the caller-owned watcher.
    *
-   * @evidence contracts/common.md#principled-implementation Watcher expansion registers the actual source/input paths selected by the source owner.
-   * @evidence contracts/common.md#clear-and-simple-design The host retains the watcher instance while the subscription supplies paths.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adding paths cannot assign imported-source authority to unrelated files.
-   * @evidence contracts/common.md#meaningful-documentation Defines the path-array registration operation.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Watcher expansion registers the actual source/input paths selected by the source owner.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains the watcher instance while the subscription supplies paths.
+   * @evidence contracts/common.md#principled-implementation Source and publication paths are registered before listening for edits so later file creation can refresh its authority.
+   * @evidence contracts/common.md#clear-and-simple-design Path registration remains a borrowed watcher operation rather than constructing another filesystem watcher.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual source-owner paths are watched, including generation directories whose view files may not yet exist.
+   * @evidence contracts/common.md#meaningful-documentation The member defines adding source/input/publication paths to the caller's watcher.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This registration capability chooses no native watch backend or path-indexing algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Registration is an owned watch effect; equal path text alone does not permit sharing independent watcher lifetimes.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the watcher and its path registrations; the subscription owns only its attached event listener.
    */
   add: (files: string[]) => void;
 
   /**
-   * Subscribes to watcher events.
+   * Subscribe to watcher events and return removal of exactly this listener.
    *
-   * @evidence contracts/common.md#principled-implementation Watcher subscription delivers the event and input path to the edit-ordering owner.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns event delivery while the subscription owns admitted batch processing.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Events do not directly replace loaded browser modules or bypass source hashing.
-   * @evidence contracts/common.md#meaningful-documentation Documents watcher registration and the event/path callback.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Watcher subscription delivers the event and input path to the edit-ordering owner.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns event delivery while the subscription owns admitted batch processing.
+   * @evidence contracts/common.md#principled-implementation One listener observes filesystem event/path pairs, and the returned operation removes that exact observer from the existing watcher.
+   * @evidence contracts/common.md#clear-and-simple-design Listener acquisition and withdrawal share one callback boundary without exposing foreign event-emitter internals.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsubscription must not clear another consumer's listeners or patch the watcher methods.
+   * @evidence contracts/common.md#meaningful-documentation The member explicitly documents exact-listener removal as the subscription's return value.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The event-subscription signature selects no watcher dispatch or listener-list representation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each listener owns distinct publication effects; matching source paths do not make independent subscriptions interchangeable.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The subscription owns the returned remover and invokes it at close, while the host retains the underlying watcher handle.
    */
-  watch: (changed: (event: string, input: string) => void) => void;
+  watch: (changed: (event: string, input: string) => void) => () => void;
 
   /**
-   * Rereads the catalogue after an input or generation view change.
+   * Reread the catalogue after an input, generation-view or example change.
    *
-   * @evidence contracts/common.md#principled-implementation Input notification rereads catalogue authority after an input or generation-view edit.
-   * @evidence contracts/common.md#clear-and-simple-design The catalogue owner retains rescanning while the watcher only requests it.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rescanning input data does not falsely claim loaded browser code changed.
-   * @evidence contracts/common.md#meaningful-documentation Names the input catalogue rescan operation.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Input notification rereads catalogue authority after an input or generation-view edit.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The catalogue owner retains rescanning while the watcher only requests it.
+   * @evidence contracts/common.md#principled-implementation Input-only edits refresh document discovery and admission without replacing unrelated loaded numerical source modules.
+   * @evidence contracts/common.md#clear-and-simple-design Catalogue rereading is a host reaction separate from import-graph digest recomputation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Changed sidecars and examples are not ignored merely because their files are outside executed source graphs.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies input, generation-view and example changes that trigger rereading.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This rescan notification selects no document enumeration or parsing strategy.
+   * @evidence contracts/performance.md#reuse-equivalent-work Catalogue owners reuse unchanged file facts while reapplying updated admission; this callback does not fabricate a new source revision.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input refresh owns no new watcher handle; catalogue and admission owners retain any started tasks.
    */
   inputs: () => void;
 
   /**
-   * Publishes a source edit that moved revisions.
+   * Publish the changed paths and domains whose completed revision digests moved.
    *
-   * @evidence contracts/common.md#principled-implementation Publication reports changed files beside the domains their computed revisions moved.
-   * @evidence contracts/common.md#clear-and-simple-design The revision owner computes movement and the host owns source notification effects.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A file event without digest movement is not fabricated into a changed-domain result.
-   * @evidence contracts/common.md#meaningful-documentation Defines changed-file and moved-domain publication inputs.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Publication reports changed files beside the domains their computed revisions moved.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The revision owner computes movement and the host owns source notification effects.
+   * @evidence contracts/common.md#principled-implementation Publication follows completed domain-digest comparisons rather than announcing all watched edits as source authority changes.
+   * @evidence contracts/common.md#clear-and-simple-design The host receives paths and moved domains while the revision owner retains graph computation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unchanged digest is not reported as movement solely to force a desired cache invalidation.
+   * @evidence contracts/common.md#meaningful-documentation The member documents changed-path provenance and actually moved completed domains.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This publication capability chooses no dependency scan or digest comparison implementation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Publishing movement is a host effect distinct from memoized source text or completed numerical results.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Publication lends path/domain arrays without transferring worker or source-subscription ownership.
    */
   publish: (files: string[], moved: string[]) => void;
 
   /**
-   * Reports whether an edit batch is being processed.
+   * Report whether source edits are pending or computing, so candidate labels cannot claim settled authority early.
    *
-   * @evidence contracts/common.md#principled-implementation Updating state reflects whether admitted edit batches are pending or computing.
-   * @evidence contracts/common.md#clear-and-simple-design The host retains status storage while the subscription determines its transitions.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A pending update is not replaced with a timer-based viewer failure verdict.
-   * @evidence contracts/common.md#meaningful-documentation Documents the boolean edit-processing status callback.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Updating state reflects whether admitted edit batches are pending or computing.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host retains status storage while the subscription determines its transitions.
+   * @evidence contracts/common.md#principled-implementation Updating remains true across a pending timer and overlapping computations until no source batch remains outstanding.
+   * @evidence contracts/common.md#clear-and-simple-design One boolean reaction communicates batching readiness to the generation-window owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidate source proof cannot treat queued but uncomputed edits as settled current code.
+   * @evidence contracts/common.md#meaningful-documentation The member states pending/computing semantics and its candidate-label authority effect.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This state-notification signature chooses no batch-counter or timer algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source-updating status is current mutable state rather than a reusable completed digest.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reporting a boolean acquires no source window or worker task; those owners hold their own lifetimes.
    */
   updating: (value: boolean) => void;
 
   /**
-   * Tells the browser the browser revision moved.
+   * Notify the browser after its completed source-domain revision moved.
    *
-   * @evidence contracts/common.md#principled-implementation Browser notification follows an actually moved browser-domain revision.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns browser candidate/display publication independently of the watcher.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A numerical-only edit does not automatically claim the browser generation moved.
-   * @evidence contracts/common.md#meaningful-documentation Defines the browser-source revision notification.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Browser notification follows an actually moved browser-domain revision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns browser candidate/display publication independently of the watcher.
+   * @evidence contracts/common.md#principled-implementation The browser receives invalidation only when the completed browser-domain digest appears among moved domains.
+   * @evidence contracts/common.md#clear-and-simple-design Browser notification is separate from generic source publication because numerical-only domain movement has different consumers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unchanged browser graph does not trigger a fabricated browser-authority movement.
+   * @evidence contracts/common.md#meaningful-documentation The comment specifies notification after actual browser-domain revision movement.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This browser notification chooses no transport or candidate-reload algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A notification changes browser generation preparation and is not a shared digest-computation result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Browser transport and candidate lifetimes stay host-owned; this callback acquires no page or subscription.
    */
   browser: () => void;
 
   /**
-   * Reports a failure while processing edits.
+   * Report the original failure while processing watched edits.
    *
-   * @evidence contracts/common.md#principled-implementation Edit-processing failure is forwarded with its original unknown error value.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns error reporting while the subscription preserves failure propagation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed digest or catalogue work is not silently converted into a successful publication.
-   * @evidence contracts/common.md#meaningful-documentation Documents the error-value callback for source edit processing.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Edit-processing failure is forwarded with its original unknown error value.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host owns error reporting while the subscription preserves failure propagation.
+   * @evidence contracts/common.md#principled-implementation Edit-processing exceptions reach the host error channel without replacing their original cause value.
+   * @evidence contracts/common.md#clear-and-simple-design The subscription reports failures while the host decides status/log representation and source recovery.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed digest computation is not published as successful source movement or silently retried under another authority.
+   * @evidence contracts/common.md#meaningful-documentation The member identifies original edit-processing failure reporting.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The error reaction chooses no exception classification or recovery strategy.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Failure reporting is an observation of one edit attempt rather than an equivalent successful cached computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the failure is lent to the host; pending computation ownership remains with the revision service.
    */
   error: (error: unknown) => void;
 
   /**
    * Told, at once, of every edit to a file some build reads or a published basis.
    *
-   * @evidence contracts/common.md#principled-implementation The optional reached notification reports an admitted source or published-basis edit immediately.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns its reaction while the subscription decides actual reachability.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreached filesystem events cannot trigger this actual-input notification.
-   * @evidence contracts/common.md#meaningful-documentation Defines the optional notification for a file read by a build or basis owner.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The optional reached notification reports an admitted source or published-basis edit immediately.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns its reaction while the subscription decides actual reachability.
+   * @evidence contracts/common.md#principled-implementation Reached-edit notification dirties open candidate windows immediately, before the delayed digest batch can prove its new revision.
+   * @evidence contracts/common.md#clear-and-simple-design Immediate proof invalidation is separate from coalesced completed-digest publication.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A candidate cannot remain proven under source edits merely because the coalescing timer has not fired.
+   * @evidence contracts/common.md#meaningful-documentation The comment defines immediate notification for build-reached source or published-basis edits.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The optional notification selects no candidate-window traversal or dependency reach implementation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every reached edit may invalidate an open observation window; a prior notification is not proof that later edits are covered.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Candidate windows remain generation-owner resources; this callback transfers no holds or connections.
    */
   reached?: () => void;
 
   /**
-   * Schedules the batch; defaults to a 100 ms timer.
+   * Schedule one pending batch and return its cancellation operation; the default coalescing delay is 100 ms.
    *
-   * @evidence contracts/common.md#principled-implementation Batch scheduling returns cancellation for a pending batch callback.
-   * @evidence contracts/common.md#clear-and-simple-design The scheduling host owns timing while the subscription owns which edit batch is pending.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The scheduler coalesces source edits and supplies no viewer-age shutdown or display-restart rule.
-   * @evidence contracts/common.md#meaningful-documentation Documents optional cancellable batching and the existing default delay.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Batch scheduling returns cancellation for a pending batch callback.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The scheduling host owns timing while the subscription owns which edit batch is pending.
+   * @evidence contracts/common.md#principled-implementation A cancellable delayed callback coalesces nearby file events while preserving actual revision computation after dispatch.
+   * @evidence contracts/common.md#clear-and-simple-design Scheduling is a borrowed host capability with one cancellation result; the subscription retains only its latest pending callback.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The timer is an event-coalescing interval, not a timeout that certifies compilation or rendering success.
+   * @evidence contracts/common.md#meaningful-documentation The member specifies cancellation ownership and the concrete default 100 ms batching delay.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The scheduler signature selects no timer backend or event-loop implementation.
+   * @evidence contracts/performance.md#reuse-equivalent-work New reached edits cancel the previous pending callback and reuse the shared path Set before one batch dispatch.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The subscription owns the returned canceler, replaces it on rescheduling and invokes it at close; dispatched work belongs to the revision owner.
    */
   schedule?: (run: () => void) => () => void;
 }

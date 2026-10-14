@@ -5,41 +5,27 @@ import {
 } from "@automovie/interface";
 
 /**
- * One frame of a bound water feature: the state, its surface, and its spray.
+ * One bound-water-feature frame returned by lowerWaterFeature: solved state, drawable surface and decorative spray, all produced from one state in that call. This structural interface does not enforce matching steps on caller-constructed records; child numerical/admission limits still apply.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Carries the exact solved state and its declared feature identity.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Exposes one coherent frame of the independent fluid domain.
+ * @evidence contracts/common.md#principled-implementation lowerWaterFeature passes one solved state into both child producers, which copy its step. That producer establishes the shared instant; the interface alone cannot reject manually mismatched records or certify finite child outputs.
+ * @evidence contracts/common.md#clear-and-simple-design Groups state, surface, spray and the owning feature id for one lowering result; it introduces no runtime wrapper or second solver state.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record has no runtime substitutions or fixture-dependent fields; producer-derived members retain the approximations and numerical gaps of the solver, surface and spray.
+ * @evidence contracts/common.md#meaningful-documentation Identifies the producer and member ownership, shared-state derivation and structural/numerical limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the derivation costs are answered on `lowerWaterFeature`'s callees.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface coordinates no runtime reuse; lowerWaterFeature shares its one state within a call and caches no frames.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Declares no resource lifetime operation; a produced frame transfers fresh state/surface/spray arrays to its caller, bounded per admitted domain but not across caller-retained frames.
+ * @author Samchon
  */
 export interface IAutoMovieWaterFeatureFrame {
-  /**
-   * Identity of the feature the frame belongs to.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Preserves which authored water feature owns the computed frame.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Keeps the feature-to-domain result join addressable.
-   */
+  /** Id of the `IAutoMovieWaterFeature` the frame belongs to. */
   feature: string;
 
-  /**
-   * The conserved fluid state the frame projects.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Records the computed state derived from the declared initial conditions.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Carries the independent domain state used by both surface and spray.
-   */
+  /** The solved fluid state, step 0 for a `static` feature. */
   state: IAutoMovieFluidState;
 
-  /**
-   * Free-surface geometry derived from that state.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Exposes the visible flow surface without inventing another solve.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Projects the independent domain into feature geometry.
-   */
+  /** Free-surface geometry derived from `state`. */
   surface: IAutoMovieFluidSurface;
 
-  /**
-   * Bounded decorative spray sampled at the same step.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-flow-spray Carries the declared spray population at the surface's step.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Keeps spray and surface on one coherent fluid-domain frame.
-   */
+  /** Bounded decorative spray sampled from `state` at the requested camera distance. */
   spray: IAutoMovieFluidSpraySample;
 }

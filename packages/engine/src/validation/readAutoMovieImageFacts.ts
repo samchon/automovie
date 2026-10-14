@@ -1,30 +1,20 @@
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 
 /**
- * What an image asset's own bytes say it is and how big it is.
+ * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.
  *
- * Container headers rather than a decoder: the gate needs the media type and
- * the two edge lengths, and paying a full decode for a 4k HDR to learn its
- * width would make compiling a building slower than rendering one. Every reader
- * here refuses on the first byte that contradicts the format instead of
- * guessing, because the whole point is to catch a `.png` that is really
- * something else.
- *
- * `null` means "these bytes are not one of the image containers automovie
- * samples", which is a finding, not an error to swallow: the caller reports it
- * against the material or scene that bound them.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation `readAutoMovieImageFacts` derives media type, width, and height from image bytes rather than a claimed filename.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures `readAutoMovieImageFacts` leaves unsupported or malformed containers unresolved so resource closure validation can reject the exact asset use.
- * @evidence requirements/external-inputs/media-families-and-declared-facts.md#external-media-image-video `readAutoMovieImageFacts` inspects PNG, JPEG, WebP, and Radiance headers to return the byte-proven image container and raster dimensions; video and richer color or timing facts remain outside this reader.
- * @evidence specifications/interchange-and-adoption/media-inspection-boundaries.md#interchange-image-video-inspection The bounded header inspection implements the Engine's image-format and extent subset and returns no fact for malformed or unsupported bytes.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-content-facts `readAutoMovieImageFacts` derives its observed format and dimensions from signatures and format headers rather than trusting a path suffix or manifest claim.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-declared-observed-comparison The reader supplies the independent byte-observed facts consumed by the declaration comparison; it does not itself manage quarantine or response metadata.
- * @evidence requirements/asset-authoring/external-assets.md#asset-bounded-decoder `readAutoMovieImageFacts` performs bounded header inspection for four supported image containers and returns no fact for truncated, malformed, or unsupported bytes instead of fully decoding them.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-resource-closure The reader contributes the bounded byte-signature and raster-extent inspection used to close supported image resources without claiming archive or network acquisition.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.
+ * @evidence contracts/common.md#clear-and-simple-design Small header readers avoid full pixel decoding for texture-ledger metadata.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A recognized header does not certify checksums, complete payloads or decodability; malformed bytes outside the inspected prefix can remain undetected.
+ * @evidence contracts/common.md#meaningful-documentation Nullable input and null refusal are explicit, and positive dimensions are admitted by validateTextureAssets.
+ * @evidence contracts/performance.md#efficient-algorithms JPEG marker scanning and bounded HDR text dominate; PNG/WebP fixed prefixes take constant work, without decoded-pixel allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work One probe result may be cached by the production closure per asset identity, outside this pure reader.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a small facts record escapes; no byte buffer, decoder, file or host task is retained.
  */
-export const readAutoMovieImageFacts = (
+export const readAutoMovieImageFacts: (
+  bytes: Uint8Array | null | undefined,
+) => IAutoMovieTextureImageFacts | null = (
   bytes: Uint8Array | null | undefined,
 ): IAutoMovieTextureImageFacts | null => {
   if (bytes === null || bytes === undefined) return null;
@@ -32,11 +22,35 @@ export const readAutoMovieImageFacts = (
 };
 
 /** `\x89PNG\r\n\x1a\n`, then a 25-byte IHDR whose first two fields are the size. */
-const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+const PNG_SIGNATURE: number[] = [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+];
 
-const readPng = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+/**
+ * Read width/height from the24-byte PNG signature/IHDR prefix.
+ *
+ * Fixed offsets isolate this container's dimension extraction.
+ *
+ * Chunk length, CRC and pixel payload are not checked, so header facts do not prove a complete PNG.
+ *
+ * The minimum prefix and media/dimension return versus null are explicit.
+ *
+ * Eight signature comparisons and fixed field reads take constant work.
+ *
+ * Shared ascii/beUint32 helpers decode header bytes without a pixel decoder.
+ *
+ * Only scalar facts escape; the source buffer remains borrowed.
+ */
+const readPng: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 24) return null;
-  if (PNG_SIGNATURE.some((byte, index) => bytes[index] !== byte)) return null;
+  if (
+    PNG_SIGNATURE.some(
+      (byte: number, index: number): boolean => bytes[index] !== byte,
+    )
+  )
+    return null;
   if (ascii(bytes, 12, 4) !== "IHDR") return null;
   return {
     mediaType: "image/png",
@@ -57,14 +71,31 @@ const SOF_MARKERS: ReadonlySet<number> = new Set([
   0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
 ]);
 
-const readJpeg = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+/**
+ * Walk JPEG marker segments to the first admitted SOF marker and extract dimensions.
+ *
+ * Marker lengths advance one cursor; DRI state governs standalone restart-marker admission.
+ *
+ * SOF extraction only requires dimension bytes, not a complete valid frame segment or decodable scan payload.
+ *
+ * Unsupported/truncated marker walks return null and recognized SOF returns header facts.
+ *
+ * Inspected bytes/marker segments drive linear scanning with constant working state.
+ *
+ * SOF_MARKERS and endian readers are shared; no byte-identity cache is retained.
+ *
+ * Only a facts row escapes; no decoded pixel or source buffer is retained.
+ */
+const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
-  let cursor = 2;
-  let restartInterval = 0;
+  let cursor: number = 2;
+  let restartInterval: number = 0;
   while (cursor + 1 < bytes.length) {
     if (bytes[cursor] !== 0xff) return null;
     // A marker may be preceded by any number of 0xFF fill bytes.
-    let marker = bytes[cursor + 1]!;
+    let marker: number = bytes[cursor + 1]!;
     while (marker === 0xff) {
       cursor += 1;
       if (cursor + 1 >= bytes.length) return null;
@@ -78,7 +109,7 @@ const readJpeg = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
     }
     if (marker === 0x01 || marker === 0xd8) continue;
     if (cursor + 1 >= bytes.length) return null;
-    const length = beUint16(bytes, cursor);
+    const length: number = beUint16(bytes, cursor);
     if (length < 2) return null;
     if (marker === 0xdd) {
       if (length !== 4 || cursor + length > bytes.length) return null;
@@ -98,18 +129,27 @@ const readJpeg = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
 };
 
 /**
- * RIFF/WEBP, in its three body forms.
+ * Read RIFF/WEBP first-chunk dimensions from VP8, VP8L or VP8X prefixes.
  *
- * `VP8 ` is the lossy bitstream (14-bit dimensions after the keyframe start
- * code), `VP8L` the lossless one (two packed 14-bit fields, stored one less
- * than the true size), and `VP8X` the extended header an animated or
- * alpha-carrying file leads with (two 24-bit canvas fields, also one less).
+ * Each closed header variant owns its fixed offsets and packed bit widths.
+ *
+ * RIFF/chunk lengths and complete image payloads are not validated.
+ *
+ * The three supported prefix forms return media/dimensions or null.
+ *
+ * Fixed bounded prefixes require constant reads and a small facts allocation.
+ *
+ * ascii and little-endian owners are shared across variants.
+ *
+ * No decoder/byte buffer is retained after returning scalar facts.
  */
-const readWebp = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
+const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
   if (bytes.length < 30) return null;
   if (ascii(bytes, 0, 4) !== "RIFF" || ascii(bytes, 8, 4) !== "WEBP")
     return null;
-  const chunk = ascii(bytes, 12, 4);
+  const chunk: string = ascii(bytes, 12, 4);
   if (chunk === "VP8 ") {
     if (bytes[23] !== 0x9d || bytes[24] !== 0x01 || bytes[25] !== 0x2a)
       return null;
@@ -121,7 +161,7 @@ const readWebp = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
   }
   if (chunk === "VP8L") {
     if (bytes[20] !== 0x2f) return null;
-    const packed =
+    const packed: number =
       bytes[21]! | (bytes[22]! << 8) | (bytes[23]! << 16) | (bytes[24]! << 24);
     return {
       mediaType: "image/webp",
@@ -139,24 +179,34 @@ const readWebp = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
 };
 
 /**
- * Radiance RGBE, the HDR container an environment map arrives in.
+ * Inspect the capped ASCII header for the accepted Radiance signature and -Y/+X resolution line.
  *
- * The header is ASCII lines terminated by an empty one, followed by a single
- * resolution line. Only the standard `-Y rows +X columns` orientation is
- * accepted: the other seven flip or transpose the scanline order, and an
- * environment sampled with its rows reversed is a lighting bug that would show
- * up as an inexplicably mirrored reflection rather than as a load failure.
+ * A bounded header regex avoids scanning or decoding radiance pixels.
+ *
+ * Only the supported axis spelling is recognized, and FORMAT/pixel payload completeness is not certified.
+ *
+ * Null means no accepted dimension header, not proof of an invalid complete container.
+ *
+ * At most512 bytes are converted/searched, with bounded temporary text.
+ *
+ * ascii provides the shared byte-to-header conversion; current bytes are probed anew.
+ *
+ * Only width/height facts escape; temporary header text releases without a decoder.
  */
-const readHdr = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
-  const head = ascii(bytes, 0, Math.min(bytes.length, 512));
+const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
+  bytes: Uint8Array,
+): IAutoMovieTextureImageFacts | null => {
+  const head: string = ascii(bytes, 0, Math.min(bytes.length, 512));
   if (!head.startsWith("#?RADIANCE\n") && !head.startsWith("#?RGBE\n"))
     return null;
-  const lines = head.split("\n");
-  const blank = lines.indexOf("", 1);
+  const lines: string[] = head.split("\n");
+  const blank: number = lines.indexOf("", 1);
   if (blank < 0) return null;
-  const resolution = lines[blank + 1];
+  const resolution: string = lines[blank + 1];
   if (resolution === undefined) return null;
-  const parsed = /^-Y (\d+) \+X (\d+)$/.exec(resolution);
+  const parsed: RegExpExecArray | null = /^-Y (\d+) \+X (\d+)$/.exec(
+    resolution,
+  );
   if (parsed === null) return null;
   return {
     mediaType: "image/vnd.radiance",
@@ -165,20 +215,108 @@ const readHdr = (bytes: Uint8Array): IAutoMovieTextureImageFacts | null => {
   };
 };
 
-const ascii = (bytes: Uint8Array, offset: number, length: number): string =>
-  String.fromCharCode(...bytes.subarray(offset, offset + length));
+/**
+ * Convert a bounded byte range to character codes for container header comparison.
+ *
+ * A local loop avoids whole-buffer decoding for short magic/size headers.
+ *
+ * Offsets/counts are caller-owned admitted prefix bounds, not a generic file parser.
+ *
+ * It returns fresh text from the requested byte interval.
+ *
+ * Requested count drives linear character construction/storage.
+ *
+ * PNG/WebP/HDR readers reuse the same header conversion.
+ *
+ * Only the returned string survives; source bytes remain borrowed.
+ */
+const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (
+  bytes: Uint8Array,
+  offset: number,
+  length: number,
+): string => String.fromCharCode(...bytes.subarray(offset, offset + length));
 
-const beUint32 = (bytes: Uint8Array, offset: number): number =>
+/**
+ * Combine four big-endian bytes into an unsigned numeric header field.
+ *
+ * Byte-order arithmetic is shared by PNG dimension reads.
+ *
+ * The caller must establish four available bytes; missing input is not repaired.
+ *
+ * Offset identifies the first byte and output represents an unsigned32-bit quantity.
+ *
+ * Four reads and fixed arithmetic take constant work.
+ *
+ * PNG width/height share this decoder without retaining offsets/results.
+ *
+ * Only a scalar returns, with no buffer or parser state retained.
+ */
+const beUint32: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number =>
   bytes[offset]! * 0x1000000 +
   (bytes[offset + 1]! << 16) +
   (bytes[offset + 2]! << 8) +
   bytes[offset + 3]!;
 
-const beUint16 = (bytes: Uint8Array, offset: number): number =>
-  (bytes[offset]! << 8) | bytes[offset + 1]!;
+/**
+ * Combine two big-endian bytes for JPEG lengths and dimensions.
+ *
+ * One endian owner serves marker traversal and SOF extraction.
+ *
+ * Callers establish the two-byte bounds before reading.
+ *
+ * The offset and unsigned16-bit result semantics are stated.
+ *
+ * Two reads and fixed arithmetic take constant work.
+ *
+ * JPEG segment/dimension reads share this operation.
+ *
+ * The borrowed buffer is not retained and only a scalar escapes.
+ */
+const beUint16: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number => (bytes[offset]! << 8) | bytes[offset + 1]!;
 
-const leUint16 = (bytes: Uint8Array, offset: number): number =>
-  bytes[offset]! | (bytes[offset + 1]! << 8);
+/**
+ * Combine two little-endian bytes for WebP dimension fields.
+ *
+ * The endian rule is separate from variant bit masks.
+ *
+ * The caller admits available bytes before this unchecked reader.
+ *
+ * The offset and unsigned16-bit result are explicit.
+ *
+ * Two reads and fixed arithmetic take constant work.
+ *
+ * The lossy prefix uses the same operation for both dimensions.
+ *
+ * Only the numeric result escapes; no buffer state remains.
+ */
+const leUint16: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number => bytes[offset]! | (bytes[offset + 1]! << 8);
 
-const leUint24 = (bytes: Uint8Array, offset: number): number =>
+/**
+ * Combine three little-endian bytes for extended WebP canvas fields.
+ *
+ * One fixed-width reader supports both canvas edges.
+ *
+ * Available prefix bytes are a caller premise rather than silently padded input.
+ *
+ * The result is an unsigned24-bit header quantity before the caller adds one.
+ *
+ * Three reads take constant work without collection allocation.
+ *
+ * Extended WebP width/height share this byte-order operation.
+ *
+ * Only a scalar escapes and source bytes remain borrowed.
+ */
+const leUint24: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number =>
   bytes[offset]! | (bytes[offset + 1]! << 8) | (bytes[offset + 2]! << 16);

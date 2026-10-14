@@ -13,6 +13,14 @@ import type { IAutoMovieHumanFaceHairlineAngles } from "./IAutoMovieHumanFaceHai
  * Explicit choices intentionally replace their named trait. Values are authored
  * styling targets with no clinical acquisition protocol or population fit.
  *
+ * @evidence contracts/common.md#principled-implementation expandHumanFaceHairTraits clones the numerical hairstyle and edits only the named existing layer, converting supplied degree/mm traits once while leaving omitted values exact.
+ * @evidence contracts/common.md#clear-and-simple-design Omission preserves a field; null removes only fall, part or gather; supplied finish replaces the whole appearance record rather than partially guessing missing channels.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown layers refuse even empty edits and the resulting full numerical hairstyle is admitted; no approximate reverse conversion, personal resource key or physiological target is fabricated.
+ * @evidence contracts/common.md#meaningful-documentation Per-member omission/removal conventions explain sparse edits, especially preserved guide policy, root envelopes and local parting bias.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface does not clone documents or expand traits.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Exact retention is consumer behavior; the record itself implements no memoization.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Optional caller data acquires no evaluated hair or renderer resource.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHairTraits {

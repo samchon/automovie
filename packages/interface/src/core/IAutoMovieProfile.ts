@@ -1,99 +1,49 @@
 import { IAutoMovieGait } from "../motion/IAutoMovieGait";
 import { IAutoMovieChannelLimit } from "./IAutoMovieChannelLimit";
 import { IAutoMovieDriver } from "./IAutoMovieDriver";
-import { IAutoMovieProfileControl } from "./IAutoMovieProfileControl";
 import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 
 /**
- * A profile (= USD applied schema): a declarative capability layered onto a
- * subtree of the node graph that gives it a domain semantics: a named set of
- * controls, the standard drivers that resolve them, and the constraints that
- * bound them. The humanoid profile is the first instance (a bone-name → control
- * map plus anatomical ROM, eye look-at, finger curl); a door profile is a
- * one-DOF hinge; a costume profile is a cloth/spring rig.
+ * A profile (a USD applied schema): a declarative capability layered onto a subtree of the node graph, contributing drivers, channel limits, typed traits and gaits.
  *
- * Profiles are **data, not code**: a new rig kind (or a community mod: a new
- * preset, hair pack, ethnicity) ships as a profile descriptor, registered at
- * runtime, never a release. This is the mechanism that keeps automovie additive
- * and mod-friendly, and the reason the model is expressed as interfaces rather
- * than classes. Adding a control with a default is a non-breaking change (old
- * data still resolves), so profiles version only on removals/type changes.
+ * A model or model recipe lists profile data, and an application pairs a profile with IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations contribute only the behavior their existing consumers implement.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `IAutoMovieProfile` as the portable data boundary for actor rig controls and their driver dependencies.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `IAutoMovieProfile` as the open profile that owns semantic controls, limits, and driver graphs.
+ * Node references inside limits and drivers are semantic keys: bindProfile reads an own boneMap entry, prepends the placement prefix and refuses missing entries or blank mapped node ids. Pointer channels pass through unchanged. Bound-limit findings carry the profile id; traits declare capability metadata without performing an action.
+ *
+ * @evidence contracts/common.md#principled-implementation bindProfile maps cited node references and refuses gaps; bindProfileGaits synthesizes each uniquely named gait for the target skeleton. validateProfileCapabilities requires nonblank profile ids and names, unique ids among a model's profiles and at most one trait of each kind; display names need not be unique.
+ * @evidence contracts/common.md#clear-and-simple-design One record groups everything a capability contributes so a single binding applies it, with each member typed by the pass that owns it; the `gaits` field is the one `core` to `motion` reference, kept because moving gaits into `core` would pull skeleton and easing types after it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Profiles are matched by id and capabilities by typed trait, never by model or profile name; only executable drivers, admitted limits, capability traits and synthesized gaits are carried, without an unread control-default channel.
+ * @evidence contracts/common.md#meaningful-documentation States profile ownership, semantic mapping and binding failures, insertion versus dependency execution order, limit precedence, capability metadata admission and gait-name uniqueness.
  * @author Samchon
  */
 export interface IAutoMovieProfile {
   /**
-   * Stable id.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `id` as the portable data boundary for the actor rig control drivers requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `id` for the performance rig ROM control driver graph system contract.
+   * Id a binding's `profile` must equal; non-blank and unique among one model's profiles, and attached to every violation of a bound limit.
    */
   id: string;
 
-  /**
-   * Profile name (e.g. `"humanoid"`, `"hinge"`).
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `name` as the portable data boundary for the actor rig control drivers requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `name` for the performance rig ROM control driver graph system contract.
-   */
+  /** Non-blank profile name, such as `"humanoid"` or `"hinge"`. */
   name: string;
 
   /**
-   * The named controls this profile exposes.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `controls` as the portable data boundary for the actor rig control drivers requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `controls` for the performance rig ROM control driver graph system contract.
-   */
-  controls: IAutoMovieProfileControl[];
-
-  /**
-   * Standard drivers that resolve the controls (eye look-at, finger curl,
-   * springs).
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `drivers` as the portable data boundary for the actor rig control drivers requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `drivers` for the performance rig ROM control driver graph system contract.
+   * Drivers contributed with semantic node keys. Bound descriptors precede direct descriptors in the frame's input list; channel-space dependency sorting may reorder execution, while world drivers preserve their combined list order.
    */
   drivers: IAutoMovieDriver[];
 
   /**
-   * Standard value constraints (the profile's default ROM / limits).
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Exposes `limits` as the portable data boundary for the actor rig control drivers requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `limits` for the performance rig ROM control driver graph system contract.
+   * Value limits the profile contributes (its default range of motion), with node channels written as semantic keys. Bound limits clamp before the caller's own limits, so a caller's limit has the final word.
    */
   limits: IAutoMovieChannelLimit[];
 
   /**
-   * Typed semantic capabilities this profile proves.
+   * Typed semantic capabilities this profile declares, at most one of each kind; omitted is an empty list.
    *
-   * Omitted is equivalent to an empty list. An engine verb must find the
-   * matching trait here; model names and free-form capability labels never
-   * grant permission. Locomotion remains the existing `gaits` capability and is
-   * not duplicated as a second trait marker.
-   *
-   * @evidence requirements/agent-authoring/capability-discovery.md#agent-capability-gap-discovery Exposes `traits` as the typed distinction between implemented capabilities and unavailable gaps.
-   * @evidence specifications/authoring-and-authority/capability-and-content-boundary.md#spec-authoring-capability-state Types `traits` as explicit capability state rather than inferred content.
+   * `validateProfileCapabilities` and the production design lint validate them; declaring a trait alone performs no action. Model names and free-form labels are never a substitute. Locomotion is the gaits field, not a trait.
    */
   traits?: IAutoMovieProfileTrait[];
 
   /**
-   * The characteristic gaits this profile's body performs
-   * ({@link IAutoMovieGait}): a horse profile's walk/trot/canter/gallop, a
-   * humanoid's walk/run. The engine binds them onto a concrete skeleton to
-   * synthesise locomotion, so the same abstract "move" resolves to each body's
-   * own gait. Omitted/empty for a profile that does not locomote (a door, a
-   * prop).
-   *
-   * This field is core's one upward reference (`core → motion`), kept
-   * deliberately: a gait names humanoid bones and easing curves, so moving it
-   * into core would drag `core → skeleton` and a second `core → motion` edge
-   * along, replacing one documented type-only reference on an optional field
-   * with two worse ones. The dependency is acyclic and confined to this field.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Exposes `gaits` as the declared gait table owned by the profile.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Types `gaits` as open profile data for deterministic procedural locomotion.
+   * The characteristic gaits this profile's body performs, such as a horse's walk, trot, canter and gallop. `bindProfileGaits` synthesises each one into a clip for a concrete skeleton, so one gait set drives many bodies, and throws on a repeated gait name. Omitted or empty for a profile that does not locomote, such as a door.
    */
   gaits?: IAutoMovieGait[];
 }

@@ -1,64 +1,36 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 
 /**
- * One view an asset review must be able to see before it can complete.
+ * One asset-review view descriptor with an optional captured-frame path.
  *
- * The set is declared by the review contract rather than by the caller, so a
- * turntable request cannot under-cover the asset by choosing convenient angles.
+ * The former review-view factory and turntable-capture producer have been removed; this record itself creates or verifies no image.
  *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `IAutoMovieAssetTurntableView` as the portable data boundary for the host evidence one asset review view carries.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the per-view host evidence result the tool boundary returns.
+ * @evidence contracts/common.md#principled-implementation Stable view id, degree angles, pose and pass describe one intended view. The nullable path preserves the retained turntable result contract without claiming an active captured-row producer.
+ * @evidence contracts/common.md#clear-and-simple-design View descriptors and optional image paths remain separate from full receipt and byte provenance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A path or descriptor population is not visual approval or verified pixels; this type performs no view selection, compiled-rig lookup or refusal recovery.
+ * @evidence contracts/common.md#meaningful-documentation Defines view identity, degree units, pose, pass and nullable path, and states that the former producers are absent.
  * @author Samchon
  */
 export interface IAutoMovieAssetTurntableView {
-  /**
-   * Stable view id the asset review inventories, such as `turntable-front`.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Names which required view this host evidence answers for.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the view identity the evidence output carries.
-   */
+  /** Stable view id the asset review inventories, such as `turntable-front`. */
   id: string;
 
-  /**
-   * Turntable azimuth in degrees.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence States the azimuth the host actually opened this view from.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the azimuth the evidence output carries.
-   */
+  /** Turntable azimuth in degrees. */
   angleDeg: number;
 
-  /**
-   * Camera elevation in degrees.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence States the elevation the host actually opened this view from.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the elevation the evidence output carries.
-   */
+  /** Camera elevation in degrees. */
   elevationDeg: number;
 
-  /**
-   * Rig pose the view was opened in.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence States which rig pose this host evidence shows.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the pose the evidence output carries.
-   */
+  /** Rig pose the view was opened in. */
   pose: "rest" | "rom-extremes";
 
-  /**
-   * Render pass the view was captured in.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence States which render pass this host evidence shows.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the pass the evidence output carries.
-   */
+  /** Render pass the view was captured in. */
   pass: AutoMovieGuidePass;
 
   /**
-   * Project-relative PNG path, or null when this view was refused.
+   * Intended project-relative PNG path, or null when no captured frame is supplied.
    *
-   * A null path is not a gap the caller may fill by choosing another angle. The
-   * diagnostic naming this view states what to correct.
-   *
-   * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Points at the verified host pixels, or states that this view produced none.
-   * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types the committed evidence path the tool boundary returns.
+   * Neither a nonnull path nor a null value carries an independent byte, receipt or diagnostic verification.
    */
   frame: string | null;
 }

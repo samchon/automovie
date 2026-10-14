@@ -1,5 +1,5 @@
 import { measureAutoMovieGeometry } from "@automovie/engine";
-import {
+import type {
   AutoMovieGeometryQuery,
   IAutoMovieCompiledShotSource,
   IAutoMovieFilmTimeline,
@@ -10,15 +10,18 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel } from "../internal/fixtures";
+import { createModel } from "../internal/createModel";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /** A 200 by 100 frame: aspect two, 24 frames per second, no crop. */
 const production: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
   frameFormat: { width: 200, height: 100, fps: 24, colorSpace: "srgb" },
 };
-
-const root = (id: string, z: number, x = 0): IAutoMovieSceneNode => ({
+const root: (id: string, z: number, x?: number) => IAutoMovieSceneNode = (
+  id: string,
+  z: number,
+  x: number = 0,
+): IAutoMovieSceneNode => ({
   id,
   model: "prop",
   transform: {
@@ -29,13 +32,14 @@ const root = (id: string, z: number, x = 0): IAutoMovieSceneNode => ({
   motion: null,
   pose: null,
 });
-
 /**
  * A camera at the origin looking down -Z with a 90 degree vertical field of
  * view, so a root `depth` metres ahead maps `x` to `x / (2 * depth)` across the
  * frame and `y` to `y / depth` up it.
  */
-const look = (cameraId = "cam"): IAutoMovieCompiledShotSource => ({
+const look: (cameraId?: string) => IAutoMovieCompiledShotSource = (
+  cameraId: string = "cam",
+): IAutoMovieCompiledShotSource => ({
   eventSamples: [],
   scene: {
     id: "look-scene",
@@ -90,7 +94,7 @@ const contract: Pick<IAutoMovieShotContract, "participants" | "camera"> = {
   },
 };
 
-const segment = (
+function segment(
   props: Pick<
     IAutoMovieFilmTimelineSegment,
     | "shot"
@@ -100,24 +104,28 @@ const segment = (
     | "transitionIn"
     | "transitionOut"
   >,
-): IAutoMovieFilmTimelineSegment => ({
-  ...props,
-  sourceOutFrame: props.sourceInFrame + props.endFrame - props.startFrame,
-  headHandleFrames: 0,
-  tailHandleFrames: 0,
-});
+): IAutoMovieFilmTimelineSegment {
+  return {
+    ...props,
+    sourceOutFrame: props.sourceInFrame + props.endFrame - props.startFrame,
+    headHandleFrames: 0,
+    tailHandleFrames: 0,
+  };
+}
 
 /** Shot a plays frames 0 to 24; shot b dissolves in over a's last six frames. */
-const timeline = (
+function timeline(
   segments: IAutoMovieFilmTimelineSegment[],
-): Pick<IAutoMovieFilmTimeline, "id" | "fps" | "totalFrames" | "segments"> => ({
-  id: "film",
-  fps: 24,
-  totalFrames: 48,
-  segments,
-});
+): Pick<IAutoMovieFilmTimeline, "id" | "fps" | "totalFrames" | "segments"> {
+  return {
+    id: "film",
+    fps: 24,
+    totalFrames: 48,
+    segments,
+  };
+}
 
-const OPENING = segment({
+const OPENING: IAutoMovieFilmTimelineSegment = segment({
   shot: "a",
   sourceInFrame: 0,
   startFrame: 0,
@@ -125,7 +133,7 @@ const OPENING = segment({
   transitionIn: { kind: "cut" },
   transitionOut: { kind: "dissolve", durationFrames: 6 },
 });
-const CLOSING = segment({
+const CLOSING: IAutoMovieFilmTimelineSegment = segment({
   shot: "b",
   sourceInFrame: 12,
   startFrame: 18,
@@ -134,7 +142,7 @@ const CLOSING = segment({
   transitionOut: { kind: "cut" },
 });
 
-const measure = (props: {
+function measure(props: {
   request: AutoMovieGeometryQuery;
   compiled?: ReadonlyMap<string, IAutoMovieCompiledShotSource>;
   contracts?: ReadonlyMap<
@@ -146,31 +154,36 @@ const measure = (props: {
     IAutoMovieFilmTimeline,
     "id" | "fps" | "totalFrames" | "segments"
   > | null;
-}) => {
-  const result = measureAutoMovieGeometry({
-    request: props.request,
-    design: {
-      production:
-        props.production === undefined ? production : props.production,
-      world: null,
-      formations: new Map(),
-      shots: props.contracts ?? new Map([["look", contract]]),
-    },
-    compiled: props.compiled ?? new Map([["look", look()]]),
-    timeline:
-      props.timeline === undefined
-        ? timeline([OPENING, CLOSING])
-        : props.timeline,
-  });
+}): Record<string, number | string | boolean> {
+  const result: ReturnType<typeof measureAutoMovieGeometry> =
+    measureAutoMovieGeometry({
+      request: props.request,
+      design: {
+        production:
+          props.production === undefined ? production : props.production,
+        world: null,
+        formations: new Map(),
+        shots: props.contracts ?? new Map([["look", contract]]),
+      },
+      compiled: props.compiled ?? new Map([["look", look()]]),
+      timeline:
+        props.timeline === undefined
+          ? timeline([OPENING, CLOSING])
+          : props.timeline,
+    });
   if (result.kind !== "measurement")
     throw new Error("a measurement was expected");
   return result.values;
-};
+}
 
-const camera = (
+const camera: (
   subjects: string[],
-  time = 1,
-  shot = "look",
+  time?: number,
+  shot?: string,
+) => AutoMovieGeometryQuery = (
+  subjects: string[],
+  time: number = 1,
+  shot: string = "look",
 ): AutoMovieGeometryQuery => ({
   query: "camera",
   shot,
@@ -178,7 +191,9 @@ const camera = (
   subjects,
 });
 
-const at = (
+const at: (
+  value: { frame: number } | { seconds: number },
+) => AutoMovieGeometryQuery = (
   value: { frame: number } | { seconds: number },
 ): AutoMovieGeometryQuery => ({
   query: "film-time",
@@ -211,47 +226,56 @@ const at = (
  *    last, too large to be an exact frame, or not finite is refused; a frame no
  *    segment covers is refused; and a film-time query without a timeline is
  *    refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual geometry dispatcher over authored compiled roots/camera and timeline segments, observing projection counts/margins, explicit unmeasured occlusion, latest overlap ownership and correction-bearing query refusals.
+ * @evidence contracts/testing.md#independent-expectations A 90-degree vertical pinhole lens, aspect two and literal root positions determine the projection oracle; literal half-open segment intervals and source offsets determine film/source frames independently of the query. Existing tolerances cover derived projection/seconds, while directly carried floating fields retain zero-tolerance comparisons.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts front/wide/behind/far/absent roots and an entirely missing population, invalid shot/contract/time/subjects/camera/frame-format inputs, overlap/interior/final frames and off-grid/negative/unsafe/nonfinite/gap/no-timeline failures. Root projection proves neither body visibility nor rendered occlusion.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local compiled records/maps and query callbacks through the existing model fixture; it opens no filesystem, render host, browser or GPU and assumes caller-established current records rather than proving a native compile.
  */
-export const test_engine_geometry_query_camera_film_time = (): void => {
-  const framed = measure({
+export function test_engine_geometry_query_camera_film_time(): void {
+  const framed: ReturnType<typeof measure> = measure({
     request: camera(["front", "wide", "behind", "distant", "absent"]),
   });
-  const nothing = measure({ request: camera(["absent"]) });
+  const nothing: ReturnType<typeof measure> = measure({
+    request: camera(["absent"]),
+  });
   TestValidator.equals(
     "a camera query counts projected subject roots by hand geometry",
     namedFacts([
       [
         "requested",
-        () => framed.requestedSubjects === 5 && framed.missingSubjects === 1,
+        (): boolean =>
+          framed.requestedSubjects === 5 && framed.missingSubjects === 1,
       ],
-      ["resolved", () => framed.resolvedSubjectRootPoints === 4],
+      ["resolved", (): boolean => framed.resolvedSubjectRootPoints === 4],
       [
         "inDepth",
-        () =>
+        (): boolean =>
           framed.inDepthRangeRootPoints === 2 &&
           framed.clippedOrBehindRootPoints === 2,
       ],
       [
         "inFrame",
-        () =>
+        (): boolean =>
           framed.inFrameRootPoints === 1 && framed.outsideFrameRootPoints === 1,
       ],
       [
         "margin",
-        () => nclose(framed.minimumRootPointMargin as number, -0.5, 1e-12),
+        (): boolean =>
+          nclose(framed.minimumRootPointMargin as number, -0.5, 1e-12),
       ],
       [
         "occlusion",
-        () =>
-          framed.maxAllowedOcclusionRatio === 0.25 &&
+        (): boolean =>
+          nclose(framed.maxAllowedOcclusionRatio as number, 0.25, 0) &&
           framed.occlusionMeasured === false,
       ],
-      ["time", () => framed.sampledTime === 1],
+      ["time", (): boolean => nclose(framed.sampledTime as number, 1, 0)],
       [
         "noRoots",
-        () =>
+        (): boolean =>
           nothing.resolvedSubjectRootPoints === 0 &&
-          nothing.minimumRootPointMargin === -1,
+          nclose(nothing.minimumRootPointMargin as number, -1, 0),
       ],
     ]),
     {
@@ -271,57 +295,62 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
     namedFacts([
       [
         "absentShot",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front"], 1, "gone") }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], 1, "gone") }),
             'Shot "gone" is not current compiled output',
           ),
       ],
       [
         "absentContract",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front"]), contracts: new Map() }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"]), contracts: new Map() }),
             'Shot "look" is not current compiled output',
           ),
       ],
       [
         "late",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front"], 5) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], 5) }),
             'Camera sample time 5 is outside shot "look" duration 0..4',
           ),
       ],
       [
         "early",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front"], -1) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], -1) }),
             "Camera sample time -1 is outside",
           ),
       ],
       [
         "empty",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera([]) }),
+            (): ReturnType<typeof measure> => measure({ request: camera([]) }),
             "non-empty list of unique compiled scene-node ids",
           ),
       ],
       [
         "repeated",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front", "front"]) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front", "front"]) }),
             "non-empty list of unique compiled scene-node ids",
           ),
       ],
       [
         "absentCamera",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof measure> =>
               measure({
                 request: camera(["front"]),
                 compiled: new Map([["look", look("gone")]]),
@@ -331,9 +360,10 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
       ],
       [
         "noProduction",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: camera(["front"]), production: null }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"]), production: null }),
             "requires current production frame format",
           ),
       ],
@@ -350,49 +380,55 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
     },
   );
 
-  const dissolve = measure({ request: at({ frame: 20 }) });
-  const halfSecond = measure({ request: at({ seconds: 0.5 }) });
-  const last = measure({ request: at({ frame: 47 }) });
+  const dissolve: ReturnType<typeof measure> = measure({
+    request: at({ frame: 20 }),
+  });
+  const halfSecond: ReturnType<typeof measure> = measure({
+    request: at({ seconds: 0.5 }),
+  });
+  const last: ReturnType<typeof measure> = measure({
+    request: at({ frame: 47 }),
+  });
   TestValidator.equals(
     "a film time resolves to the segment that owns its frame",
     namedFacts([
       [
         "dissolveShot",
-        () =>
+        (): boolean =>
           dissolve.shot === "b" &&
           dissolve.globalFrame === 20 &&
           dissolve.film === "film",
       ],
       [
         "dissolveSource",
-        () =>
+        (): boolean =>
           dissolve.sourceFrame === 14 &&
           nclose(dissolve.shotTime as number, 14 / 24, 1e-12),
       ],
       [
         "dissolveTime",
-        () => nclose(dissolve.globalTime as number, 20 / 24, 1e-12),
+        (): boolean => nclose(dissolve.globalTime as number, 20 / 24, 1e-12),
       ],
       [
         "dissolveTransitions",
-        () =>
+        (): boolean =>
           dissolve.transitionIn === "dissolve" &&
           dissolve.transitionOut === "cut",
       ],
       [
         "halfSecond",
-        () =>
+        (): boolean =>
           halfSecond.shot === "a" &&
           halfSecond.globalFrame === 12 &&
           halfSecond.sourceFrame === 12,
       ],
       [
         "halfSecondTransitions",
-        () =>
+        (): boolean =>
           halfSecond.transitionIn === "cut" &&
           halfSecond.transitionOut === "dissolve",
       ],
-      ["last", () => last.shot === "b" && last.sourceFrame === 41],
+      ["last", (): boolean => last.shot === "b" && last.sourceFrame === 41],
     ]),
     {
       dissolveShot: true,
@@ -405,65 +441,70 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
     },
   );
 
-  const unresolved =
+  const unresolved: string =
     "Film-global time does not resolve to one current frame in 0..47";
   TestValidator.equals(
     "a film time that names no current frame is refused",
     namedFacts([
       [
         "offGrid",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ frame: 1.5 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 1.5 }) }),
             unresolved,
           ),
       ],
       [
         "offGridSeconds",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ seconds: 1 / 48 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ seconds: 1 / 48 }) }),
             unresolved,
           ),
       ],
       [
         "beforeFirst",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ frame: -1 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: -1 }) }),
             unresolved,
           ),
       ],
       [
         "pastLast",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ frame: 48 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 48 }) }),
             unresolved,
           ),
       ],
       [
         "notExact",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ frame: 2 ** 60 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 2 ** 60 }) }),
             unresolved,
           ),
       ],
       [
         "notFinite",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof measure> =>
               measure({ request: at({ seconds: Number.POSITIVE_INFINITY }) }),
             unresolved,
           ),
       ],
       [
         "uncovered",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof measure> =>
               measure({
                 request: at({ frame: 30 }),
                 timeline: timeline([OPENING]),
@@ -473,9 +514,10 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
       ],
       [
         "noTimeline",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure({ request: at({ frame: 0 }), timeline: null }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 0 }), timeline: null }),
             "Film-time measurement requires the canonical film timeline of the current compile",
           ),
       ],
@@ -491,4 +533,4 @@ export const test_engine_geometry_query_camera_film_time = (): void => {
       noTimeline: true,
     },
   );
-};
+}

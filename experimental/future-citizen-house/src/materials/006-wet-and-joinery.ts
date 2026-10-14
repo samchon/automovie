@@ -1,4 +1,4 @@
-/** Native finish recipes owned by docs/materials/006-wet-and-joinery.md.
+/** Native finish recipes
  * The shared constructor supplies only the documented renderer defaults. */
 import type { IAutoMovieMaterial } from "@automovie/interface";
 import { materialFinish } from "./001-binding-and-scale";

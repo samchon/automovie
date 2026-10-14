@@ -12,42 +12,42 @@
  * always produce the same segments, so a re-render is byte-identical and a seek
  * is exact.
  *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Carries each gait, duration, traveled distance, and turn contribution used to reproduce member cadence at an arbitrary seek.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Makes cadence a complete interval result rather than playback-cursor state.
+ * @evidence contracts/common.md#principled-implementation Cadence is the integral of covered ground over `[0, time]`, so the interval is cut at cue boundaries and each piece records seconds, eased distance and turn, which a consumer sums to get the cycle phase exactly at any seek time.
+ * @evidence contracts/common.md#clear-and-simple-design Four fields, each a quantity a cycle consumer adds up; resolving the gait to a figure model stays with the viewer, which knows the runtime models of each LOD tier.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing accumulates between frames, so no frame-to-frame drift is corrected afterwards; a gap carries the previous gait as a stated rule rather than a guess for a missing cue.
+ * @evidence contracts/common.md#meaningful-documentation States the gait's source and its null before the first cue, the gap gait rule, the seconds, the x-z plane and meter unit of distance, and that the turn is unsigned radians.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Plain record; producing the list costs one sort of the unit's cues and one pass over them in `formationCadenceSegments`, answered there.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each segment list is rebuilt from the cue list and the time; the type has no identity that would let one list stand for another time.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four scalars; a list holds at most two segments per cue started before the time plus one trailing gap, and its caller owns it.
  * @author Samchon
  */
 export interface IAutoMovieFormationCadenceSegment {
   /**
    * Gait the cue owning this interval calls for, or null before the first cue.
    *
-   * This is the cue's own request ({@link IAutoMovieFormationMotion.gait}, or
+   * This is the cue's own request (`IAutoMovieFormationMotion.gait`, or
    * its `action` label when the cue named no gait), not a resolved figure gait.
    * Which figure can perform it is a question about a runtime model, and a unit
-   * can hold several of them at once across its LOD tiers.
-   *
-   * @evidence requirements/formations/budgets-and-validation.md#formation-motion-validation Retains the gait or action requested by the cue so runtime capability validation can test it against the selected model.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-geometry-layout-motion-validation Exposes the exact motion label whose support must agree between validation and gait baking.
+   * can hold several of them at once across its LOD tiers. A gap after a cue
+   * keeps that cue's gait.
    */
   gait: string | null;
+
   /**
-   * Seconds this interval lasts; a zero-length interval is never emitted.
-   *
-   * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Preserves the exact bounded film-time contribution of each cadence interval.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Makes cadence integration independent of frame traversal and seek order.
+   * Seconds this interval lasts; a zero-length gap is never emitted, and with
+   * non-overlapping cues no cue interval is zero-length either.
    */
   seconds: number;
+
   /**
-   * Ground meters the unit's own origin covers over this interval.
-   *
-   * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Records the eased planar travel that advances every member's shared gait phase.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Gives all cadence consumers the same ground-distance operand for direct seeks.
+   * Ground meters the unit's own origin covers over this interval, measured in
+   * the horizontal x-z plane; zero for a gap between cues.
    */
   distance: number;
+
   /**
-   * Radians the unit turns about its own origin over this interval.
-   *
-   * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Separates deterministic pivot rotation from unit translation so member-radius travel can be composed exactly.
-   * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Retains the turn contribution needed to reproduce cadence for differently placed members.
+   * Unsigned radians the unit turns about its own origin over this interval;
+   * the turn direction is not kept.
    */
   turn: number;
 }

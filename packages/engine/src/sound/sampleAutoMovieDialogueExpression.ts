@@ -1,17 +1,26 @@
-import type { IAutoMovieExpression } from "@automovie/interface";
+import { IAutoMovieExpression } from "@automovie/interface";
 
 import { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
+import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 
 /**
- * Sample authored emotion and derived mouth state without either replacing the
- * other. Frames outside the line and explicit receipt gaps are `neutral` at
- * zero intensity; sampling never depends on a previous cursor.
+ * Sample one joined emission-clock mouth range beside the unchanged authored expression.
  *
- * @evidence requirements/sound/dialogue-voice-and-visemes.md#sound-dialogue-seek-equivalence Makes arbitrary seek equal sequential sampling.
- * @evidence specifications/simulation-effects-and-sound/sound-sources-events-dialogue-and-foley.md#dialogue-lipsync-join-and-seek Composes the mouth layer at the requested emission frame.
+ * @evidence contracts/common.md#principled-implementation A nonnegative safe frame selects the first half-open containing range; active closed visemes map to intensity one, while rest/outside maps to neutral intensity zero under the joined ordering premise.
+ * @evidence contracts/common.md#clear-and-simple-design The sampler returns separate authored/mouth layers without merging expression fields or changing the actor; timeline construction belongs to the join owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored emotion is borrowed unchanged, and no interpolated mouth strength, actor guess or audible-arrival shift is introduced; repository actor application remains unwired.
+ * @evidence contracts/common.md#meaningful-documentation Documents nonnegative film frames, arbitrary seek, borrowed authored identity and fresh mouth/result ownership; hand-built malformed timelines are not revalidated here.
+ * @evidence contracts/performance.md#efficient-algorithms R ranges require O(R) worst-case linear search and constant fresh output storage; the first matching range short-circuits traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Prepared ranges are reused across independent frame queries, and no previous cursor or cached pose can alter a backward seek.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
+ * @author Samchon
  */
-export const sampleAutoMovieDialogueExpression = (props: {
+export const sampleAutoMovieDialogueExpression: (props: {
+  timeline: IAutoMovieDialogueVisemeTimeline;
+  frame: number;
+  authored: IAutoMovieExpression | null;
+}) => IAutoMovieDialogueExpressionLayers = (props: {
   /** Compiled actor mouth timeline. */
   timeline: IAutoMovieDialogueVisemeTimeline;
   /** Film-global frame to sample. */
@@ -21,9 +30,11 @@ export const sampleAutoMovieDialogueExpression = (props: {
 }): IAutoMovieDialogueExpressionLayers => {
   if (!Number.isSafeInteger(props.frame) || props.frame < 0)
     throw new Error("dialogue expression frame must be a non-negative integer");
-  const viseme = props.timeline.ranges.find(
-    (range) => props.frame >= range.startFrame && props.frame < range.endFrame,
-  )?.viseme;
+  const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined =
+    props.timeline.ranges.find(
+      (range: IAutoMovieDialogueMouthRange): boolean =>
+        props.frame >= range.startFrame && props.frame < range.endFrame,
+    )?.viseme;
   return {
     authored: props.authored,
     mouth:

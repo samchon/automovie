@@ -9,12 +9,16 @@
  */
 import type {
   AutoMovieRenderMetric,
+  IAutoMovieCompiledInstancePrototype,
   IAutoMovieModel,
   IAutoMovieRenderModelCost,
   IAutoMovieRenderOwnerCost,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSpace,
 } from "@automovie/interface";
 
 import { tessellateSurface } from "../geometry/tessellateSurface";
+import type { ITessellation } from "./../geometry/ITessellation";
 import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import type { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
@@ -24,10 +28,16 @@ import { measure } from "./measure";
 
 /**
  * Account for staged and compact populations before simulation and frame passes.
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Measures the declared geometry and resource population for conservative render admission.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps the measured cost and explicit unmeasured gaps in the one-frame preflight inventory.
+ *
+ * @evidence contracts/common.md#principled-implementation Count staged/ground geometry and compact populations using cached canonical model costs; every instance prototype tier contributes to resident model closure and each per-frame dimension takes its maximum, without assuming LOD cost decreases with distance.
+ * @evidence contracts/common.md#clear-and-simple-design This phase owns population multipliers and appends semantic own rows, leaving simulation and frame passes to later inventory phases; promoted heroes are ordinary nodes and anonymous formation slots are counted separately.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing representations/models refuse and camera culling never reduces a preflight bound; independent maxima are conservative dimensions, not a claim that one tier realizes all maxima simultaneously. Prototype buffer totals do not certify full native clone/instance-stream residency.
+ * @evidence contracts/common.md#meaningful-documentation Props identify shared request caches/sets/row appender and cumulative outputs; docs distinguish ground tessellation, resident tier closure and compact versus expanded populations.
+ * @evidence contracts/performance.md#efficient-algorithms Work scales with staged nodes, ground tessellation and all prototype/tier citations, with cached first-model tessellation cost; output/cache storage is proportional to models and owner rows rather than per-slot objects.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each canonical model is measured once per request and reused across nodes/tier citations; drawn/flattened sets share complete resource closure with subsequent material/geometry phases.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The orchestrator owns mutable caches/sets/rows through the request; only scalar cumulative counts return and no renderer geometry handle or population expansion is retained.
  */
-export const measureRenderPopulation = (props: {
+export const measureRenderPopulation: (props: {
   subject: IAutoMovieRenderSubject;
   nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
   model: (id: string, cited: string) => IAutoMovieModel;
@@ -42,6 +52,38 @@ export const measureRenderPopulation = (props: {
     kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
   ) => void;
 }) => {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  space: IAutoMovieSpace | null;
+  groundBytes: number;
+  instanceSlots: number;
+  instanceChunks: number;
+  simulatedNodes: number;
+} = (props: {
+  subject: IAutoMovieRenderSubject;
+  nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
+  model: (id: string, cited: string) => IAutoMovieModel;
+  costs: Map<string, IAutoMovieRenderModelCost>;
+  drawnModels: Set<string>;
+  flattenedModels: Set<string>;
+  add: (
+    owner: string,
+    source: string,
+    metric: AutoMovieRenderMetric,
+    cost: number,
+    kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+  ) => void;
+}): {
+  triangles: number;
+  vertices: number;
+  drawCalls: number;
+  space: IAutoMovieSpace | null;
+  groundBytes: number;
+  instanceSlots: number;
+  instanceChunks: number;
+  simulatedNodes: number;
+} => {
   const {
     subject,
     nodeIndex,
@@ -50,24 +92,43 @@ export const measureRenderPopulation = (props: {
     drawnModels,
     flattenedModels,
     add,
+  }: {
+    subject: IAutoMovieRenderSubject;
+    nodeIndex: ReturnType<typeof autoMovieSemanticMaskNodeIndex>;
+    model: (id: string, cited: string) => IAutoMovieModel;
+    costs: Map<string, IAutoMovieRenderModelCost>;
+    drawnModels: Set<string>;
+    flattenedModels: Set<string>;
+    add: (
+      owner: string,
+      source: string,
+      metric: AutoMovieRenderMetric,
+      cost: number,
+      kind?: NonNullable<IAutoMovieRenderOwnerCost["kind"]>,
+    ) => void;
   } = props;
   // --- ordinary scene nodes -------------------------------------------------
-  let triangles = 0;
-  let vertices = 0;
-  let drawCalls = 0;
+  let triangles: number = 0;
+  let vertices: number = 0;
+  let drawCalls: number = 0;
   for (const node of subject.scene.nodes) {
-    const cost = measure(model(node.model, `scene node "${node.id}"`), costs);
+    const cost: IAutoMovieRenderModelCost = measure(
+      model(node.model, `scene node "${node.id}"`),
+      costs,
+    );
     drawnModels.add(cost.model);
     triangles += cost.triangles;
     vertices += cost.vertices;
     drawCalls += cost.parts;
-    const entry = nodeIndex.get(node.id);
-    const owner = entry === undefined ? `node:${node.id}` : entry.id;
+    const entry: IAutoMovieSemanticMaskEntry | undefined = nodeIndex.get(
+      node.id,
+    );
+    const owner: string = entry === undefined ? `node:${node.id}` : entry.id;
     // A staged prop is edited in the scene; a lowered building element is
     // edited in the building that produced it. Keying off the entry's KIND and
     // not merely its presence is what keeps a prop from being reported at a
     // building path nobody can open.
-    const source =
+    const source: string =
       entry?.kind === "element"
         ? `builtEnvironments[].elements["${node.id}"]`
         : `scene.nodes["${node.id}"]`;
@@ -78,8 +139,8 @@ export const measureRenderPopulation = (props: {
   }
 
   // --- the standable ground -------------------------------------------------
-  const space = subject.scene.space ?? null;
-  let groundBytes = 0;
+  const space: IAutoMovieSpace | null = subject.scene.space ?? null;
+  let groundBytes: number = 0;
   if (space !== null) {
     // Measured through the SAME tessellator the viewer draws the ground with,
     // so the ground is counted exactly rather than left out. Leaving it out was
@@ -87,12 +148,12 @@ export const measureRenderPopulation = (props: {
     // excludes the floor is a budget that clears a scene it never measured.
     // A footprint enclosing no area tessellates to nothing and the viewer draws
     // no mesh for it, so it costs nothing here either.
-    const owner = `node:${space.id}`;
-    let groundTriangles = 0;
-    let groundVertices = 0;
-    let groundDraws = 0;
+    const owner: string = `node:${space.id}`;
+    let groundTriangles: number = 0;
+    let groundVertices: number = 0;
+    let groundDraws: number = 0;
     for (const surface of space.surfaces) {
-      const mesh = tessellateSurface(surface);
+      const mesh: ITessellation | null = tessellateSurface(surface);
       if (mesh === null) continue;
       ++groundDraws;
       groundTriangles += mesh.indices.length / 3;
@@ -113,46 +174,48 @@ export const measureRenderPopulation = (props: {
   }
 
   // --- instanced sets -------------------------------------------------------
-  let instanceSlots = 0;
-  let instanceChunks = 0;
+  let instanceSlots: number = 0;
+  let instanceChunks: number = 0;
   for (const instanceSet of subject.instanceSets ?? []) {
-    const prototypes = instanceSet.prototypes ?? [
-      {
-        id: "default",
-        modelRecipe: instanceSet.modelRecipe,
-        weight: 1,
-        lod: instanceSet.lod,
-        projectionRadius: instanceSet.projectionRadius,
-      },
-    ];
-    let worstTriangles = 0;
-    let worstVertices = 0;
-    let partsPerChunk = 0;
+    const prototypes: IAutoMovieCompiledInstancePrototype[] =
+      instanceSet.prototypes ?? [
+        {
+          id: "default",
+          modelRecipe: instanceSet.modelRecipe,
+          weight: 1,
+          lod: instanceSet.lod,
+          projectionRadius: instanceSet.projectionRadius,
+        },
+      ];
+    let worstTriangles: number = 0;
+    let worstVertices: number = 0;
+    let partsPerChunk: number = 0;
     for (const prototype of prototypes) {
-      // Near-to-far order: the first tier is the most expensive representation
-      // any slot of this prototype can select.
-      const finest = prototype.lod[0];
-      if (finest === undefined)
+      if (prototype.lod.length === 0)
         throw new Error(
           `render inventory cannot measure instance set "${instanceSet.id}": prototype "${prototype.id}" declares no level of detail`,
         );
-      const cost = measure(
-        model(
-          finest.model,
-          `instance set "${instanceSet.id}" prototype "${prototype.id}"`,
-        ),
-        costs,
-        finest.tier,
-      );
-      drawnModels.add(cost.model);
-      flattenedModels.add(cost.model);
-      worstTriangles = Math.max(worstTriangles, cost.triangles);
-      worstVertices = Math.max(worstVertices, cost.vertices);
-      partsPerChunk += cost.parts;
+      let prototypeParts: number = 0;
+      for (const lod of prototype.lod) {
+        const cost: IAutoMovieRenderModelCost = measure(
+          model(
+            lod.model,
+            `instance set "${instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`,
+          ),
+          costs,
+          lod.tier,
+        );
+        drawnModels.add(cost.model);
+        flattenedModels.add(cost.model);
+        worstTriangles = Math.max(worstTriangles, cost.triangles);
+        worstVertices = Math.max(worstVertices, cost.vertices);
+        prototypeParts = Math.max(prototypeParts, cost.parts);
+      }
+      partsPerChunk += prototypeParts;
     }
-    const owner = `instance-set:${instanceSet.id}`;
-    const source = `world.instanceSets["${instanceSet.id}"]`;
-    const setDraws = instanceSet.chunks.length * partsPerChunk;
+    const owner: string = `instance-set:${instanceSet.id}`;
+    const source: string = `world.instanceSets["${instanceSet.id}"]`;
+    const setDraws: number = instanceSet.chunks.length * partsPerChunk;
     instanceSlots += instanceSet.count;
     instanceChunks += instanceSet.chunks.length;
     triangles += instanceSet.count * worstTriangles;
@@ -166,7 +229,7 @@ export const measureRenderPopulation = (props: {
     add(owner, source, "instanceSets", 1);
   }
 
-  let simulatedNodes = 0;
+  let simulatedNodes: number = 0;
 
   // --- compact formations --------------------------------------------------
   // Promoted heroes are ordinary scene nodes above. Every other member is one
@@ -175,15 +238,15 @@ export const measureRenderPopulation = (props: {
   // select only one tier, which makes its draw bound the largest part count,
   // not the sum of every mutually-exclusive representation.
   for (const formation of subject.formations ?? []) {
-    let worstTriangles = 0;
-    let worstVertices = 0;
-    let worstParts = 0;
+    let worstTriangles: number = 0;
+    let worstVertices: number = 0;
+    let worstParts: number = 0;
     if (formation.lod.length === 0)
       throw new Error(
         `render inventory cannot measure formation "${formation.id}": it declares no level of detail`,
       );
     for (const lod of formation.lod) {
-      const cost = measure(
+      const cost: IAutoMovieRenderModelCost = measure(
         model(lod.model, `formation "${formation.id}" LOD "${lod.tier}"`),
         costs,
         lod.tier,
@@ -194,11 +257,12 @@ export const measureRenderPopulation = (props: {
       worstVertices = Math.max(worstVertices, cost.vertices);
       worstParts = Math.max(worstParts, cost.parts);
     }
-    const owner = `formation:${formation.id}`;
-    const source = `formations["${formation.id}"]`;
-    const formationTriangles = formation.anonymousCount * worstTriangles;
-    const formationVertices = formation.anonymousCount * worstVertices;
-    const formationDraws = formation.chunks.length * worstParts;
+    const owner: string = `formation:${formation.id}`;
+    const source: string = `formations["${formation.id}"]`;
+    const formationTriangles: number =
+      formation.anonymousCount * worstTriangles;
+    const formationVertices: number = formation.anonymousCount * worstVertices;
+    const formationDraws: number = formation.chunks.length * worstParts;
     triangles += formationTriangles;
     vertices += formationVertices;
     drawCalls += formationDraws;

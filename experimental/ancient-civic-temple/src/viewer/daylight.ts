@@ -81,7 +81,7 @@ export function createTemplePresentation(canvas: HTMLCanvasElement) {
   const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
   const rendererName = debugInfo
     ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
-    : "unverified: WEBGL_debug_renderer_info 없음";
+    : "unverified: WEBGL_debug_renderer_info unavailable";
   const scene = new THREE.Scene();
   const { sky, hemisphere, sun } = createTempleDaylight();
   scene.background = sky;

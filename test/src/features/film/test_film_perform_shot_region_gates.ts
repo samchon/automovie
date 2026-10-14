@@ -1,14 +1,17 @@
 import {
-  IAutoMovieActionSynthesizer,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
-import {
   IAutoMovieActionCall,
   IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -33,7 +36,9 @@ const locomote: IAutoMovieActionCall = {
   to: { kind: "point", point: { x: 0, y: 0, z: 0.25 } },
 };
 
-const lookAt = (start: number): IAutoMovieActionCall => ({
+const lookAt: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "lookAt",
   actor: "knightA",
   start,
@@ -41,7 +46,9 @@ const lookAt = (start: number): IAutoMovieActionCall => ({
   to: { kind: "node", node: "knightB" },
 });
 
-const emote = (start: number): IAutoMovieActionCall => ({
+const emote: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "emote",
   actor: "knightA",
   start,
@@ -50,7 +57,9 @@ const emote = (start: number): IAutoMovieActionCall => ({
   intensity: 0.5,
 });
 
-const fullBody = (start: number): IAutoMovieActionCall => ({
+const fullBody: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "gesture",
   kind: "jump",
   region: "fullBody",
@@ -70,19 +79,30 @@ const frame: IAutoMovieCameraAction = {
 };
 
 /**
- * Overlap gates compare synthesized channels after region masking. Broad
- * `fullBody`/partial and same-region labels are not conflicts by themselves;
- * sharing a root, exact bone, or expression is. Synthesis is cached across the
- * gate and authoritative compile so this inspection does not run user content
- * twice.
+ * Performs overlapping synthesized channel content and checks shared arm/head/root/expression refusal, adjacent/disjoint admission and exactly two callback invocations for the cached pair.
+ *
+ * Scenarios:
+ * 1. Refuse overlapping arm content and admit adjacent placements.
+ * 2. Refuse three overlapping head actions at the later action's field.
+ * 3. Refuse shared root and expression content with channel-specific guidance.
+ * 4. Admit disjoint head/face actions and require exactly two synthesis calls.
+ * 5. Admit fullBody with disjoint face/head content and refuse its shared-head twin.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Performs overlapping synthesized channel content and checks shared arm/head/root/expression refusal, adjacent/disjoint admission and exactly two callback invocations for the cached pair.
+ * @evidence contracts/testing.md#independent-expectations Authored clip channels, not broad region labels, define conflicts; half-open adjacent spans do not overlap, and one synthesis per action/actor requires the counted two actions to invoke the callback twice.
+ * @evidence contracts/testing.md#distinguishing-cases Covers shared-channel overlap and adjacency, repeated head comparisons, root/expression conflicts, partial regions, broad disjoint masks and shared-head twin; the callback count specifically observes the counted disjoint pair.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_region_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_region_gates = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_region_gates(): void {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
   // Both clips carry the same arm but return it to rest at their boundary, so
   // overlap is the only fault under test; adjacent placement remains smooth.
-  const armSynth: IAutoMovieActionSynthesizer = () =>
+  const armSynth: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     makeMotion(
       [
         keyframe(0, makePose([joint("leftUpperArm", { flexion: 0 })])),
@@ -91,7 +111,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       ],
       1,
     );
-  const overlapping = performShot({
+  const overlapping: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -99,7 +119,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: armSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "overlapping actions sharing an arm fail",
@@ -109,10 +129,10 @@ export const test_film_perform_shot_region_gates = (): void => {
   TestValidator.equals(
     "shared-arm overlap is reported on the later action start",
     namedFacts([
-      ["refused", () => overlapping.success === false],
+      ["refused", (): boolean => overlapping.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           overlapping.success === false &&
           hasViolation(overlapping, "range", "$input.draft[1].start"),
       ],
@@ -120,7 +140,7 @@ export const test_film_perform_shot_region_gates = (): void => {
     { refused: true, violated: true },
   );
 
-  const adjacent = performShot({
+  const adjacent: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -128,7 +148,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: armSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "adjacent shared-arm actions pass",
@@ -136,7 +156,7 @@ export const test_film_perform_shot_region_gates = (): void => {
     true,
   );
 
-  const headSynth: IAutoMovieActionSynthesizer = () =>
+  const headSynth: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     makeMotion(
       [
         keyframe(0, makePose([joint("head", { flexion: 0 })])),
@@ -144,17 +164,17 @@ export const test_film_perform_shot_region_gates = (): void => {
       ],
       1,
     );
-  const sameRegion = performShot({
+  const sameRegion: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
-      // Three overlaps make the first action participate in two comparisons,
-      // proving content inspection reuses its carried-channel cache.
+      // Three overlaps exercise repeated comparisons of the first action;
+      // this case observes refusal, while the counted pair below owns reuse.
       draft: [lookAt(0), lookAt(0.25), lookAt(0.5), frame],
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: headSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "overlapping same-region actions fail",
@@ -164,10 +184,10 @@ export const test_film_perform_shot_region_gates = (): void => {
   TestValidator.equals(
     "same-region overlap is reported on the later action start",
     namedFacts([
-      ["refused", () => sameRegion.success === false],
+      ["refused", (): boolean => sameRegion.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           sameRegion.success === false &&
           hasViolation(sameRegion, "range", "$input.draft[1].start"),
       ],
@@ -175,7 +195,7 @@ export const test_film_perform_shot_region_gates = (): void => {
     { refused: true, violated: true },
   );
 
-  const rootSynth: IAutoMovieActionSynthesizer = () =>
+  const rootSynth: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     makeMotion(
       [
         keyframe(
@@ -197,7 +217,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       ],
       1,
     );
-  const sharedRoot = performShot({
+  const sharedRoot: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -205,18 +225,18 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: rootSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "two overlapping root motions conflict on root",
     namedFacts([
-      ["refused", () => sharedRoot.success === false],
+      ["refused", (): boolean => sharedRoot.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           sharedRoot.success === false &&
           sharedRoot.violations.some(
-            (violation) =>
+            (violation: IAutoMovieConstraintViolation): boolean =>
               violation.path === "$input.draft[1].start" &&
               violation.expected.includes("root"),
           ),
@@ -225,7 +245,7 @@ export const test_film_perform_shot_region_gates = (): void => {
     { refused: true, violated: true },
   );
 
-  const expressionSynth: IAutoMovieActionSynthesizer = () =>
+  const expressionSynth: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     makeMotion(
       [
         keyframe(0, makePose([]), "linear", {
@@ -241,7 +261,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       ],
       1,
     );
-  const sharedExpression = performShot({
+  const sharedExpression: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -249,18 +269,18 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: expressionSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "two overlapping face clips conflict on expression",
     namedFacts([
-      ["refused", () => sharedExpression.success === false],
+      ["refused", (): boolean => sharedExpression.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           sharedExpression.success === false &&
           sharedExpression.violations.some(
-            (violation) =>
+            (violation: IAutoMovieConstraintViolation): boolean =>
               violation.path === "$input.draft[1].start" &&
               violation.expected.includes("expression"),
           ),
@@ -269,12 +289,15 @@ export const test_film_perform_shot_region_gates = (): void => {
     { refused: true, violated: true },
   );
 
-  let synthesisCalls = 0;
-  const countedSynth: IAutoMovieActionSynthesizer = (action, actor) => {
+  let synthesisCalls: number = 0;
+  const countedSynth: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+    actor: string,
+  ): IAutoMovieMotion | null => {
     ++synthesisCalls;
     return validSynthesizer(action, actor);
   };
-  const layeredPartials = performShot({
+  const layeredPartials: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -282,7 +305,7 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: countedSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "overlapping disjoint partial regions pass",
@@ -298,7 +321,7 @@ export const test_film_perform_shot_region_gates = (): void => {
   // The fixture's fullBody clip authors an arm only, so a head action is truly
   // disjoint despite the broad mask. A fullBody clip that actually authors the
   // head conflicts, as the headSynth twin proves.
-  const smileWhileJumping = performShot({
+  const smileWhileJumping: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -306,14 +329,14 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "an emote overlapping a fullBody gesture passes",
     smileWhileJumping.success,
     true,
   );
-  const lookWhileJumping = performShot({
+  const lookWhileJumping: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -321,13 +344,13 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.predicate(
     "a content-disjoint head action may overlap a fullBody mask",
     lookWhileJumping.success === true,
   );
-  const sharedHead = performShot({
+  const sharedHead: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -335,19 +358,19 @@ export const test_film_perform_shot_region_gates = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: headSynth,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "a fullBody clip and head action sharing head still gate",
     namedFacts([
-      ["refused", () => sharedHead.success === false],
+      ["refused", (): boolean => sharedHead.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           sharedHead.success === false &&
           hasViolation(sharedHead, "range", "$input.draft[1].start"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

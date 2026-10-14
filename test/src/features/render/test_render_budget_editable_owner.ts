@@ -1,37 +1,33 @@
-import {
-  IAutoMovieRenderSubject,
-  deriveAutoMovieSemanticMask,
-  evaluateAutoMovieRenderBudget,
-  measureAutoMovieRenderInventory,
-  sealAutoMovieRenderTarget,
-} from "@automovie/engine";
-import {
-  AutoMovieRenderMetric,
-  IAutoMovieModel,
-  IAutoMovieRenderBudget,
-  IAutoMovieRenderInventory,
+import type { IAutoMovieRenderSubject } from "@automovie/engine";
+import type {
   IAutoMovieRenderReport,
-  IAutoMovieRenderTarget,
   IAutoMovieScene,
-  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
-import {
-  BOX_TRIANGLES,
-  boxModel,
-  instanceSetFixture,
-  modelsFixture,
-} from "../internal/renderFixtures";
+import { renderBudgetEditableOwnerFixtures } from "../internal/renderBudgetEditableOwnerFixtures";
+import { BOX_TRIANGLES, instanceSetFixture } from "../internal/renderFixtures";
+
+const {
+  pose,
+  models,
+  staged,
+  staging,
+  report,
+  shape,
+}: Pick<
+  typeof renderBudgetEditableOwnerFixtures,
+  "pose" | "models" | "staged" | "staging" | "report" | "shape"
+> = renderBudgetEditableOwnerFixtures;
 
 /**
  * An over-limit refusal names somewhere the production can actually be edited.
  *
  * A frame pass draws the opaque geometry again, so its cost is the sum of every
  * drawable that preceded it. Ranked among the owners it therefore wins the two
- * metrics a pass multiplies in every production with more than one drawable,
- * ties in a production with one, and for the outline guide pass it wins under a
+ * metrics a pass multiplies in these positive two-drawable cases,
+ * ties in the one-drawable case, and for the outline guide pass it wins under a
  * name no production declares and no author can open: the refusal read "edited
  * at render.pass.outline". The peak itself is not in dispute. The spec wants
  * frame-pass work inside the conservative one-frame bound, so the accounting
@@ -59,26 +55,31 @@ import {
  *    the light's own cost, still name the light.
  * 6. Regression: the resident metrics no pass multiplies, `instanceSlots` and
  *    `fluidCells`, rank exactly as before and carry no pass clause.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures actual inventories and evaluates budget findings for unlit/lit pairs, a one-drawable tie, shadow/light costs and resident instance/fluid counts. Exact verdict/accounting/owner/source/recovery projections require editable owners to rank while frame-pass work remains measured and disclosed separately.
+ * @evidence contracts/testing.md#independent-expectations Hand arithmetic uses twelve triangles per box, three versus one model parts, a 3-by-2 water grid's four triangles and one additional opaque submission. Literal limits, owner/source identities and complete recovery text distinguish a wrong ranking from changed accounting; tested recovery substrings are product diagnostic contract, not authored-prose grading.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves six numbered groups: unequal unlit geometry, full accounting, nonshadowing light, one-drawable equality, shadow caster versus its own light/map costs and unchanged resident instanceSlots/fluidCells ranking. Other metrics, partial masks, resource bounds and target admission have adjacent render-budget units; these cases assert over-limit behavior rather than all within-limit admission.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_editable_owner owns six portable synchronous groups through its original factories/observation helpers in one canonical internal module. Each report keeps original fresh factory results, inventory-before-evaluation order and target premises; no renderer, browser, GPU, native output or filesystem is opened.
  */
-export const test_render_budget_editable_owner = (): void => {
+export function test_render_budget_editable_owner(): void {
   // A three-part hall and a one-part stool, so the two drawables differ and the
   // ranking has something to choose between.
-  const HALL_TRIANGLES = 3 * BOX_TRIANGLES;
-  const HALL_DRAWS = 3;
-  const STOOL_TRIANGLES = BOX_TRIANGLES;
-  const STOOL_DRAWS = 1;
+  const HALL_TRIANGLES: number = 3 * BOX_TRIANGLES;
+  const HALL_DRAWS: number = 3;
+  const STOOL_TRIANGLES: number = BOX_TRIANGLES;
+  const STOOL_DRAWS: number = 1;
   // A 3 x 2 basin: two quads, two triangles each, submitted as one surface.
-  const WATER_TRIANGLES = 4;
+  const WATER_TRIANGLES: number = 4;
   // The outline guide pass, or one shadow map's depth pass, is one further
   // complete submission of every opaque draw.
-  const PASSES = 2;
+  const PASSES: number = 2;
 
-  const pair = report({
+  const pair: IAutoMovieRenderReport["findings"][number] = report({
     subject: staging({ nodes: [staged("hall"), staged("stool")], lights: [] }),
     metric: "triangles",
     limit: 50,
   });
-  const pairDraws = report({
+  const pairDraws: IAutoMovieRenderReport["findings"][number] = report({
     subject: staging({ nodes: [staged("hall"), staged("stool")], lights: [] }),
     metric: "drawCalls",
     limit: 5,
@@ -135,7 +136,7 @@ export const test_render_budget_editable_owner = (): void => {
   // leaves the outline pass as the frame-wide peak, and `IAutoMovieRenderBudget`
   // declares no passes, so an author told to edit `render.pass.outline` has
   // nowhere to go.
-  const shadowless = report({
+  const shadowless: IAutoMovieRenderReport["findings"][number] = report({
     subject: staging({
       nodes: [staged("hall"), staged("stool")],
       lights: [
@@ -174,7 +175,7 @@ export const test_render_budget_editable_owner = (): void => {
   // The boundary the old ranking decided on an identifier: with one drawable
   // the pass costs exactly what that drawable costs, and `render-pass:outline`
   // sorts before `water-body:pool`, so the tie went to the pass.
-  const single = report({
+  const single: IAutoMovieRenderReport["findings"][number] = report({
     subject: {
       scene: staging({ nodes: [], lights: [] }).scene,
       models: models(),
@@ -217,22 +218,35 @@ export const test_render_budget_editable_owner = (): void => {
     },
   );
 
-  const sun = (): IAutoMovieScene["lights"][number] => ({
-    id: "sun",
-    type: "directional",
-    transform: pose(),
-    color: { r: 1, g: 1, b: 1, a: 1, hex: null },
-    intensity: 1,
-    castShadow: true,
-    shadow: { mapSize: 512, bias: 0, normalBias: 0, near: 0.1, far: 20 },
-  });
-  const lit = staging({
+  const sun: () => IAutoMovieScene["lights"][number] =
+    (): IAutoMovieScene["lights"][number] => ({
+      id: "sun",
+      type: "directional",
+      transform: pose(),
+      color: { r: 1, g: 1, b: 1, a: 1, hex: null },
+      intensity: 1,
+      castShadow: true,
+      shadow: { mapSize: 512, bias: 0, normalBias: 0, near: 0.1, far: 20 },
+    });
+  const lit: IAutoMovieRenderSubject = staging({
     nodes: [staged("hall"), staged("stool")],
     lights: [sun()],
   });
-  const caster = report({ subject: lit, metric: "triangles", limit: 50 });
-  const maps = report({ subject: lit, metric: "shadowMaps", limit: 0 });
-  const sources = report({ subject: lit, metric: "lights", limit: 0 });
+  const caster: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "triangles",
+    limit: 50,
+  });
+  const maps: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "shadowMaps",
+    limit: 0,
+  });
+  const sources: IAutoMovieRenderReport["findings"][number] = report({
+    subject: lit,
+    metric: "lights",
+    limit: 0,
+  });
   TestValidator.equals(
     "a shadow caster is stated as a pass, and still ranked for its own cost",
     {
@@ -298,22 +312,25 @@ export const test_render_budget_editable_owner = (): void => {
   // Regression. A resident cost is allocated once and reused by every pass, so
   // no pass row competes with the drawable that owns it and these two rankings
   // were never wrong. They must not move.
-  const resident = (): IAutoMovieRenderSubject => ({
-    scene: staging({ nodes: [], lights: [] }).scene,
-    models: models(),
-    instanceSets: [instanceSetFixture({ id: "windows", count: 12, chunks: 3 })],
-    waterBodies: [
-      {
-        id: "pool",
-        owner: null,
-        nodes: [],
-        domain: null,
-        cells: 4096,
-        particles: 0,
-        material: null,
-      },
-    ],
-  });
+  const resident: () => IAutoMovieRenderSubject =
+    (): IAutoMovieRenderSubject => ({
+      scene: staging({ nodes: [], lights: [] }).scene,
+      models: models(),
+      instanceSets: [
+        instanceSetFixture({ id: "windows", count: 12, chunks: 3 }),
+      ],
+      waterBodies: [
+        {
+          id: "pool",
+          owner: null,
+          nodes: [],
+          domain: null,
+          cells: 4096,
+          particles: 0,
+          material: null,
+        },
+      ],
+    });
   TestValidator.equals(
     "the metrics no pass multiplies rank exactly as before",
     {
@@ -355,136 +372,4 @@ export const test_render_budget_editable_owner = (): void => {
       },
     },
   );
-};
-
-/** The identity placement every node and light in this scenario uses. */
-const pose = (): IAutoMovieTransform => ({
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-});
-
-/** A three-part hall beside the one-part models the shared fixture declares. */
-const models = (): IAutoMovieModel[] => [
-  ...modelsFixture(),
-  boxModel({ id: "hall-model", parts: 3 }),
-];
-
-/** One staged node whose model is its own id plus `-model`. */
-const staged = (id: "hall" | "stool"): IAutoMovieScene["nodes"][number] => ({
-  id,
-  model: id === "hall" ? "hall-model" : "prop-model",
-  transform: pose(),
-  motion: null,
-  pose: null,
-});
-
-/** One subject staging the given nodes under the given lights. */
-const staging = (props: {
-  nodes: IAutoMovieScene["nodes"];
-  lights: IAutoMovieScene["lights"];
-}): IAutoMovieRenderSubject => ({
-  scene: {
-    id: "budget-scene",
-    name: null,
-    nodes: props.nodes,
-    cameras: [],
-    lights: props.lights,
-  },
-  models: models(),
-});
-
-/** A budget generous everywhere but the one metric a case is testing. */
-const budget = (
-  metric: AutoMovieRenderMetric,
-  limit: number,
-): IAutoMovieRenderBudget => ({
-  version: 1,
-  tier: "review",
-  limits: {
-    triangles: 1_000_000,
-    vertices: 1_000_000,
-    drawCalls: 1_000_000,
-    materials: 1_000_000,
-    textures: 1_000_000,
-    textureBytes: 1_000_000,
-    geometryBytes: 1_000_000,
-    lights: 1_000_000,
-    shadowMaps: 1_000_000,
-    nodes: 1_000_000,
-    instanceSets: 1_000_000,
-    instanceSlots: 1_000_000,
-    instanceChunks: 1_000_000,
-    fluidCells: 1_000_000,
-    fluidParticles: 1_000_000,
-    [metric]: limit,
-  },
-});
-
-/** The one sealed target every case in this scenario measures against. */
-const target = (): IAutoMovieRenderTarget =>
-  sealAutoMovieRenderTarget({
-    renderer: { api: "webgl2", vendor: "test", device: "swiftshader" },
-    settings: {
-      width: 640,
-      height: 360,
-      pixelRatio: 1,
-      shadows: true,
-      shadowType: "pcfSoft",
-      toneMapping: "acesFilmic",
-      exposure: 1,
-    },
-    assets: [],
-  });
-
-/** Measure one subject and read back the finding of one metric. */
-const report = (props: {
-  subject: IAutoMovieRenderSubject;
-  metric: AutoMovieRenderMetric;
-  limit: number;
-}): IAutoMovieRenderReport["findings"][number] => {
-  const inventory: IAutoMovieRenderInventory = measureAutoMovieRenderInventory({
-    subject: props.subject,
-    mask: deriveAutoMovieSemanticMask(props.subject),
-  });
-  return evaluateAutoMovieRenderBudget({
-    inventory,
-    budget: budget(props.metric, props.limit),
-    mask: {
-      version: 2,
-      protocol: "automovie.semantic-mask.v2",
-      background: "#000000",
-      entries: [],
-      unaddressed: [],
-      digest: `sha256:${"0".repeat(64)}`,
-    },
-    target: target(),
-  }).findings.find((finding) => finding.metric === props.metric)!;
-};
-
-/**
- * What a refusal has to state: the verdict, the arithmetic, the owner it sends
- * an author to, and that the owner it sends them to is not a frame pass.
- */
-const shape = (
-  finding: IAutoMovieRenderReport["findings"][number],
-): Record<string, unknown> => ({
-  status: finding.status,
-  measured: finding.measured,
-  excess: finding.excess,
-  owner: finding.contributors[0]?.owner,
-  source: finding.contributors[0]?.source,
-  cost: finding.contributors[0]?.cost,
-  omittedContributors: finding.omittedContributors,
-  omittedCost: finding.omittedCost,
-  accounted:
-    finding.contributors.reduce((sum, entry) => sum + entry.cost, 0) +
-    finding.omittedCost,
-  namesTheOwner: (finding.recovery ?? "").includes(
-    `the largest owner is "${finding.contributors[0]?.owner ?? "!"}"`,
-  ),
-  namesThePass: (finding.recovery ?? "").includes("is frame passes redrawing"),
-  sendsNobodyToAPass: finding.contributors.every(
-    (entry) => !entry.owner.startsWith("render-pass:"),
-  ),
-});
+}

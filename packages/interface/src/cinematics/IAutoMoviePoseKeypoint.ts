@@ -1,51 +1,29 @@
 import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * One named humanoid joint projected to screen space (#1168): the exact
- * OpenPose-style keypoint automovie can emit because it already knows every
- * bone's exact 3D world position. `x`/`y` are normalized to the frame (`[0,
- * 1]`, top-left origin), resolution-independent so a host scales them to
- * whatever it renders at.
+ * One named humanoid joint numerically projected into the delivered frame, with a top-left origin after any crop. Inside the frame, `x` and `y` lie in `[0, 1]`; a host scales them to its raster. These values use the engine's default joint axes and rest frames, so correspondence with a renderer requires matching conventions and is not observed pixel evidence.
  *
- * A joint behind the camera or outside the frame rectangle is still projected
- * (never silently clamped: a clamped off-screen point reads as a false edge
- * keypoint and corrupts ControlNet conditioning) but flagged `inFrame: false`,
- * so a consumer keeps it or drops it deliberately.
+ * Projection never clamps coordinates. Behind-camera and off-frame joints remain with `inFrame: false` under valid camera premises, and zero view depth can yield Infinity or NaN coordinates. Requested bones absent from resolved FK are omitted. The flag tests clip-depth and rectangle membership, not occlusion by other geometry.
  *
- * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `IAutoMoviePoseKeypoint` as the portable data boundary for the camera path time sampling requirement.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `IAutoMoviePoseKeypoint` for the clv camera path direct sampling system contract.
+ * @evidence contracts/common.md#principled-implementation `resolvePoseKeypoints` resolves the pose by forward kinematics, lifts each bone by the staged node's TRS, projects it with `projectToNdc` through the camera's vertical field of view, the render aspect and the delivery crop, then maps NDC to the top-left frame by `x = (ndcX + 1) / 2` and `y = (1 - ndcY) / 2`.
+ * @evidence contracts/common.md#clear-and-simple-design The record carries only the bone, two normalized coordinates and one visibility flag, so pixel scaling and confidence policy stay with the host that knows its raster.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Off-frame points are not snapped to edges, missing resolved bones are not invented, and zero-depth nonfinite projection is exposed rather than replaced. The membership flag makes no occlusion or observed-image claim.
+ * @evidence contracts/common.md#meaningful-documentation States delivered-frame coordinates, default-FK compatibility premises, omission, unclamped and zero-depth results, and the depth/rectangle test without an occlusion guarantee.
  * @author Samchon
  */
 export interface IAutoMoviePoseKeypoint {
-  /**
-   * The named humanoid bone this keypoint locates.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `bone` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `bone` for the clv camera path direct sampling system contract.
-   */
+  /** The named humanoid bone this keypoint locates. */
   bone: AutoMovieHumanoidBone;
 
-  /**
-   * Normalized horizontal position, `0` = left frame edge, `1` = right.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `x` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `x` for the clv camera path direct sampling system contract.
-   */
+  /** Normalized horizontal position, `0` at the left edge, `1` at the right. */
   x: number;
 
-  /**
-   * Normalized vertical position, `0` = top frame edge, `1` = bottom.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `y` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `y` for the clv camera path direct sampling system contract.
-   */
+  /** Normalized vertical position, `0` at the top edge, `1` at the bottom. */
   y: number;
 
   /**
-   * Whether the joint is in front of the camera AND within the frame rectangle.
-   *
-   * @evidence requirements/camera/position-and-movement.md#camera-path-time-sampling Exposes `inFrame` as the portable data boundary for the camera path time sampling requirement.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-direct-sampling Types `inFrame` for the clv camera path direct sampling system contract.
+   * Whether the joint's view depth lies within the camera's near and far clip
+   * distances and its projection lies within the frame rectangle.
    */
   inFrame: boolean;
 }

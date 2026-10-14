@@ -6,39 +6,32 @@
  * reading was chosen and why it beat the recorded alternatives; the observation
  * itself is left exactly as it was read.
  *
- * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-observation-conditions Exposes `IAutoMovieDesignEvidence` as the portable data boundary for the evidence observation conditions requirement.
- * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `IAutoMovieDesignEvidence` for the evp observation record contract system contract.
+ * A citation may name an unsettled or withheld candidate. Explicit Engine validateDesignEvidence checks subject/rationale text, cited documents/candidates and duplicate triples; declaring the citation does not invoke that validator.
+ *
+ * @evidence contracts/common.md#principled-implementation validateDesignEvidence unions candidate ids by document id, checks cited membership and detects repeats with JSON-array subject/document/candidate keys. A missing document skips candidate count/membership/duplicate checks after subject/rationale checks; callers must establish unique consistent document identities because production merging is retired. The validator neither validates the whole reference nor verifies rationale truth or subject ownership.
+ * @evidence contracts/common.md#clear-and-simple-design The citation lives on the design side and names document and candidates by id, so observation records stay unchanged and one design element can cite several documents through several citations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsettled and withheld candidates are citable by design rather than filtered, and the subject is only checked for being non-blank, a gap the member states instead of claiming resolution.
+ * @evidence contracts/common.md#meaningful-documentation States citation direction, explicit Engine validation, unsettled-candidate allowance, unresolved subject ownership and the rationale's intended explanation.
+ * @author Samchon
  */
 export interface IAutoMovieDesignEvidence {
   /**
    * Normalized design element, space, or boundary id this citation justifies.
    *
-   * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-observation-conditions Exposes `subject` as the portable data boundary for the evidence observation conditions requirement.
-   * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `subject` for the evp observation record contract system contract.
+   * Only checked for being non-blank; no gate resolves it against the ids the
+   * compiled buildings publish.
    */
   subject: string;
 
-  /**
-   * Design-reference document id.
-   *
-   * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-observation-conditions Exposes `document` as the portable data boundary for the evidence observation conditions requirement.
-   * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `document` for the evp observation record contract system contract.
-   */
+  /** Design-reference document id; it must resolve. */
   document: string;
 
   /**
-   * Candidate ids cited as the basis of the authored decision; at least one.
-   *
-   * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-observation-conditions Exposes `candidates` as the portable data boundary for the evidence observation conditions requirement.
-   * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `candidates` for the evp observation record contract system contract.
+   * Candidate ids cited as the basis of the authored decision; at least one,
+   * each a candidate of {@link document}.
    */
   candidates: string[];
 
-  /**
-   * Why the author chose this reading over the recorded alternatives.
-   *
-   * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-observation-conditions Exposes `rationale` as the portable data boundary for the evidence observation conditions requirement.
-   * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-observation-record-contract Types `rationale` for the evp observation record contract system contract.
-   */
+  /** Non-blank reason the author chose this reading over the alternatives. */
   rationale: string;
 }

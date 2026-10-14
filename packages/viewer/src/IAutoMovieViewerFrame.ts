@@ -6,40 +6,26 @@ import type {
 /**
  * The deterministic state an {@link AutoMoviePlayer} just wrote this frame.
  *
- * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Carries the state sampled at one exact playback boundary.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps time, pose, and expression on the same motion-clock sample.
+ * @evidence contracts/common.md#principled-implementation Pairs absolute clip time and nonnegative update delta with the actual pose after optional clamping/springs and the expression sampled on the same clock.
+ * @evidence contracts/common.md#clear-and-simple-design One frame value lets imported-runtime callbacks observe applied state without resampling motion or inspecting mutable bone objects.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The callback receives applied pose rather than an unclamped target, and a backward timestamp does not become a negative runtime delta.
+ * @evidence contracts/common.md#meaningful-documentation Documents seconds, nonnegative delta, post-clamp/secondary pose and nullable synchronized expression.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This frame value does not choose sampling, integration or application algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every player update publishes its current frame; this shape coordinates no result reuse across different times or clip effects.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The frame contains numerical pose/expression records and acquires no render loop, skeleton object or native allocation.
+ *
  * @author Samchon
  */
 export interface IAutoMovieViewerFrame {
-  /**
-   * Absolute clip time, in seconds.
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Records the exact absolute playback boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Expresses that boundary on the shared motion clock.
-   */
+  /** Absolute clip time, in seconds. */
   seconds: number;
 
-  /**
-   * Non-negative time since the previous player update, in seconds.
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Records the non-negative interval from the prior playback boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps that interval on the same motion-clock sample.
-   */
+  /** Non-negative time since the previous player update, in seconds. */
   deltaSeconds: number;
 
-  /**
-   * Pose applied to the model after clamping and secondary motion.
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Carries the pose resolved for this exact playback boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps the pose on the frame's shared motion-clock sample.
-   */
+  /** Pose applied to the model after clamping and secondary motion. */
   pose: IAutoMoviePose;
 
-  /**
-   * Expression sampled for the same frame, or `null`.
-   *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Carries the expression resolved for this exact playback boundary.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps the expression on the frame's shared motion-clock sample.
-   */
+  /** Expression sampled for the same frame, or `null`. */
   expression: IAutoMovieExpression | null;
 }

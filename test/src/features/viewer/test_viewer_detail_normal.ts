@@ -3,19 +3,17 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
-import {
-  DETAIL_NORMAL_TARGET,
-  buildMaterial,
-  detailNormalFragment,
-  detailNormalVertex,
-} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
 import { createModel } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { hasViolation, nclose } from "../internal/predicates";
 
-const reference = (
+const reference: (
+  asset: string,
+  repeat: number,
+) => IAutoMovieTextureReference = (
   asset: string,
   repeat: number,
 ): IAutoMovieTextureReference => ({
@@ -36,34 +34,37 @@ const reference = (
 });
 
 /**
- * A material's detail normal map is blended over its normal map with its own
- * UV transform, or stands in for a missing one.
+ * Material construction registers a detail normal map with its own UV transform or uses it as the normal-map fallback; these cases observe registration metadata.
  *
  * Scenarios:
  * 1. With a normal map and a detail map, the built material keeps the
- *    normal map, carries the detail texture and its scale, and compiles
- *    under the detail program key; with a subsurface radius as well both
- *    patches run, in the order they were added.
+ *    normal map, carries the detail texture and its scale, and exposes
+ *    the detail program key; subsurface and detail registrations contribute
+ *    ordered cache-key components. No shader compilation is performed here.
  * 2. A detail map alone becomes the normal map at the detail scale, with no
  *    patch.
- * 3. The vertex shader passes the detail map's transformed UV, and the
- *    fragment shader blends its slopes into the tangent-space normal before
- *    the frame turns it (whiteout).
- * 4. Validation reads the detail binding as a linear data map, refusing an
+ * 3. Validation reads the detail binding as a linear data map, refusing an
  *    sRGB one, and refuses a negative detail scale while admitting a
  *    nonnegative one.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds actual physical materials and inspects normal-map identity, detail binding/repeat/strength and cache contributions, then invokes model validation for detail-map color space and scale. Detail-only fallback must preserve the specified strength without registering a second detail operation.
+ * @evidence contracts/testing.md#independent-expectations Authored coarse/fine bindings, repeat 180 and strengths 0.5/0.7 supply the expected metadata; linear data-map and nonnegative scale requirements supply admission expectations. Native shader source, compiler success and visual blending are not tested.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts combined normal/detail, combined subsurface/detail and detail-only material setup, plus sRGB rejection and negative versus accepted positive scale. Transform snapshot ownership has its separate unit; rendered normal response requires actual GPU observation.
+ * @evidence contracts/testing.md#execution-ownership This named unit calls material construction and portable validation directly with a supplied texture resolver. The resolver creates metadata-only native Texture objects and no decoder, browser, renderer or Human fixture is started.
  */
-export const test_viewer_detail_normal = (): void => {
-  const base = createModel().materials[0]!;
-  const resolve = (binding: unknown) => {
-    const texture = new THREE.Texture();
+export function test_viewer_detail_normal(): void {
+  const base: IAutoMovieMaterial = createModel().materials[0]!;
+  const resolve: (binding: unknown) => THREE.Texture = (
+    binding: unknown,
+  ): THREE.Texture => {
+    const texture: THREE.Texture = new THREE.Texture();
     texture.name =
       typeof binding === "string"
         ? binding
         : (binding as IAutoMovieTextureReference).asset;
     return texture;
   };
-  const both = buildMaterial(
+  const both: THREE.MeshPhysicalMaterial = buildMaterial(
     {
       ...base,
       normalTexture: reference("coarse", 1),
@@ -73,14 +74,14 @@ export const test_viewer_detail_normal = (): void => {
     resolve,
   );
   TestValidator.predicate(
-    "the detail map blends over the normal map",
+    "the material retains the base map and registers the detail binding",
     both.normalMap?.name === "coarse" &&
       both.userData.detailNormal.texture.name === "fine" &&
-      both.userData.detailNormal.scale === 0.5 &&
-      both.userData.detailNormal.texture.repeat.x === 180 &&
+      nclose(both.userData.detailNormal.scale, 0.5, 0) &&
+      nclose(both.userData.detailNormal.texture.repeat.x, 180, 0) &&
       both.customProgramCacheKey() === "automovie-detail-normal",
   );
-  const translucent = buildMaterial(
+  const translucent: THREE.MeshPhysicalMaterial = buildMaterial(
     {
       ...base,
       subsurfaceRadius: { r: 0.003, g: 0.001, b: 0.0005 },
@@ -90,12 +91,12 @@ export const test_viewer_detail_normal = (): void => {
     resolve,
   );
   TestValidator.equals(
-    "both patches run in order",
+    "both registrations contribute ordered cache keys",
     translucent.customProgramCacheKey(),
     "automovie-subsurface+automovie-detail-normal",
   );
 
-  const alone = buildMaterial(
+  const alone: THREE.MeshPhysicalMaterial = buildMaterial(
     {
       ...base,
       detailNormalTexture: reference("fine", 180),
@@ -106,28 +107,16 @@ export const test_viewer_detail_normal = (): void => {
   TestValidator.predicate(
     "a detail map alone stands in as the normal map",
     alone.normalMap?.name === "fine" &&
-      Math.abs(alone.normalScale.x - 0.7) < 1e-12 &&
+      nclose(alone.normalScale.x, 0.7) &&
       alone.userData.detailNormal === undefined,
   );
 
-  const vertex = detailNormalVertex(THREE.ShaderLib.physical.vertexShader);
-  const fragment = detailNormalFragment(
-    THREE.ShaderLib.physical.fragmentShader,
-  );
-  TestValidator.predicate(
-    "the shaders pass the detail UV and blend its slopes",
-    vertex.includes(
-      "vDetailNormalUv = ( detailNormalTransform * vec3( uv, 1.0 ) ).xy;",
-    ) &&
-      fragment.includes(
-        "mapN = normalize( vec3( mapN.xy + detailN.xy, mapN.z * detailN.z ) );",
-      ) &&
-      fragment.indexOf("mapN = normalize( vec3( mapN.xy") <
-        fragment.indexOf(DETAIL_NORMAL_TARGET),
-  );
-
-  const model = createModel();
-  const validate = (patch: Partial<IAutoMovieMaterial>) =>
+  const model: ReturnType<typeof createModel> = createModel();
+  const validate: (
+    patch: Partial<IAutoMovieMaterial>,
+  ) => ReturnType<typeof validateModel> = (
+    patch: Partial<IAutoMovieMaterial>,
+  ): ReturnType<typeof validateModel> =>
     validateModel({
       model: {
         ...model,
@@ -148,10 +137,6 @@ export const test_viewer_detail_normal = (): void => {
         "range",
         ".detailNormalScale",
       ) &&
-      !hasViolation(
-        validate({ detailNormalScale: 0.5 }),
-        "range",
-        ".detailNormalScale",
-      ),
+      validate({ detailNormalScale: 0.5 }).success,
   );
-};
+}

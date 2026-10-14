@@ -1,6 +1,9 @@
 import {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftAnchorPose,
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftCollider,
+  IAutoMovieSoftNamedState,
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,33 +16,32 @@ import { SOFT_MAX_PARTICLES } from "./constants/SOFT_MAX_PARTICLES";
 import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
 import { SOFT_MAX_STEPS } from "./constants/SOFT_MAX_STEPS";
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
+import { validateSoftIdentity as identity } from "./validateSoftIdentity";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
+import { validateSoftRestCoincidence as coincident } from "./validateSoftRestCoincidence";
+import { validateSoftVector as vector } from "./validateSoftVector";
 
 /**
- * Validate a soft-body domain's lattice, budgets, stability, anchors, states
- * and colliders.
+ * Validate typed soft-body fields, structural rest edges, reference joins and the authored travel heuristic.
  *
- * The point of the pass is that a domain which survives it can be integrated
- * without the solver second-guessing its own input: the arrays are the right
- * length, no mass is zero, no two rest particles are coincident so every
- * constraint has a direction, no particle starts buried inside a collider, no
- * two anchors fight over the same particle, every named state names anchors
- * that exist, and the step actually honours the travel condition. A domain that
- * fails is refused with the path of every offending field, never quietly
- * clamped — a clamped panel is a panel whose author was told nothing and whose
- * frames changed anyway.
- *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Refuses ambiguous static-plus-moving anchor inputs before the solver samples a boundary.
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Validates the shared actor-bound capsule without inventing unresolved world geometry.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Keeps static and evaluated moving anchor inputs structurally distinct.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Validates body-capsule identity and radius before pose-time resolution.
+ * @evidence contracts/common.md#principled-implementation Finite scalar and safe-integer rules enforce lattice/array budgets and anchor/state/collider references. Structural right/down rest edges are checked for squared zero length, and an authored dt*referenceSpeed/shortest-edge ratio above one is refused, including arithmetic overflow.
+ * @evidence contracts/common.md#clear-and-simple-design The domain owns admission separately from integration; shared primitive validators keep identical diagnostics while body-capsule world resolution remains with the moving-boundary consumer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Travel admission is a declared heuristic rather than stability or continuous-collision proof. Structural-edge checks do not certify all particle pairs or shear/bend directions, and direct-square magnitudes retain extreme-input limits.
+ * @evidence contracts/common.md#meaningful-documentation States typed-record admission, fixed budgets, static rest embedding, moving-capsule deferral and unproved solver properties; malformed array/container shapes can still throw.
+ * @evidence contracts/performance.md#efficient-algorithms For P rest particles, A anchors, R state poses and K colliders, validation scans arrays/structural edges and reference sets, while static embedding is O(P*K); local sets and findings grow with those supplied populations, even when an over-budget input is reported.
+ * @evidence contracts/performance.md#reuse-equivalent-work One shortest structural-edge scan supplies the travel measure, and canonical primitive admission helpers replace duplicate rules; mutable rest arrays and references are rescanned rather than cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and reference sets belong to the call; returned findings can retain authored offending values, while no integrated states, actor poses or host resources are retained.
  * @author Samchon
  */
-export const validateSoftBodyDomain = (props: {
+export const validateSoftBodyDomain: (props: {
+  domain: IAutoMovieSoftBodyDomain;
+}) => IAutoMovieValidation = (props: {
   domain: IAutoMovieSoftBodyDomain;
 }): IAutoMovieValidation => {
-  const { domain } = props;
-  const out = new ViolationCollector();
-  const root = "$input";
+  const { domain }: typeof props = props;
+  const out: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
 
   if (domain.id.trim().length === 0)
     out.push("type", `${root}.id`, "soft body id must be non-empty", domain.id);
@@ -58,8 +60,8 @@ export const validateSoftBodyDomain = (props: {
       domain.units,
     );
 
-  const columns = domain.lattice.columns;
-  const rows = domain.lattice.rows;
+  const columns: number = domain.lattice.columns;
+  const rows: number = domain.lattice.rows;
   integer(
     out,
     `${root}.lattice.columns`,
@@ -69,7 +71,7 @@ export const validateSoftBodyDomain = (props: {
     Infinity,
   );
   integer(out, `${root}.lattice.rows`, "lattice rows", rows, 1, Infinity);
-  const count = columns * rows;
+  const count: number = columns * rows;
   // Finite rather than a safe integer: a lattice whose particle count has run
   // past the exactly representable integers is the largest lattice anyone can
   // declare, and requiring exactness here let precisely those through the cap
@@ -156,7 +158,7 @@ export const validateSoftBodyDomain = (props: {
 
   length(out, `${root}.rest`, "rest", domain.rest.length, count * 3);
   length(out, `${root}.mass`, "mass", domain.mass.length, count);
-  domain.rest.forEach((value, index) =>
+  domain.rest.forEach((value: number, index: number): void =>
     numeric(
       out,
       `${root}.rest[${index}]`,
@@ -167,7 +169,7 @@ export const validateSoftBodyDomain = (props: {
       Infinity,
     ),
   );
-  domain.mass.forEach((value, index) =>
+  domain.mass.forEach((value: number, index: number): void =>
     numeric(
       out,
       `${root}.mass[${index}]`,
@@ -184,23 +186,23 @@ export const validateSoftBodyDomain = (props: {
   // keeps a mis-generated rest mesh from reading as a panel that simply will
   // not hold together.
   if (domain.rest.length === count * 3)
-    for (let row = 0; row < rows; ++row)
-      for (let column = 0; column < columns; ++column) {
-        const particle = row * columns + column;
+    for (let row: number = 0; row < rows; ++row)
+      for (let column: number = 0; column < columns; ++column) {
+        const particle: number = row * columns + column;
         if (column + 1 < columns)
           coincident(out, root, domain, particle, particle + 1);
         if (row + 1 < rows)
           coincident(out, root, domain, particle, particle + columns);
       }
 
-  const travel = softBodyTravelNumber(domain);
-  if (Number.isFinite(travel) && travel > 1)
+  const travel: number = softBodyTravelNumber(domain);
+  if (travel > 1)
     out.push(
       "range",
       `${root}.solver.fixedStepSeconds`,
       `a position-based step may not travel further than the shortest constraint: dt·referenceSpeed/shortestRestLength <= 1, but the travel number is ${travel}`,
       domain.solver.fixedStepSeconds,
-      travel - 1,
+      Number.isFinite(travel) ? travel - 1 : undefined,
     );
 
   bounded(
@@ -210,55 +212,57 @@ export const validateSoftBodyDomain = (props: {
     domain.anchors.length,
     SOFT_MAX_ANCHORS,
   );
-  const anchorIds = new Set<string>();
-  const anchoredParticles = new Set<number>();
-  domain.anchors.forEach((anchor, index) => {
-    const path = `${root}.anchors[${index}]`;
-    identity(out, path, "anchor", anchor.id, anchorIds);
-    integer(
-      out,
-      `${path}.particle`,
-      "anchor particle",
-      anchor.particle,
-      0,
-      count - 1,
-    );
-    if (anchoredParticles.has(anchor.particle))
-      out.push(
-        "type",
+  const anchorIds: Set<string> = new Set<string>();
+  const anchoredParticles: Set<number> = new Set<number>();
+  domain.anchors.forEach(
+    (anchor: IAutoMovieSoftAnchor, index: number): void => {
+      const path: string = `${root}.anchors[${index}]`;
+      identity(out, path, "anchor", anchor.id, anchorIds);
+      integer(
+        out,
         `${path}.particle`,
-        `particle ${anchor.particle} is already held by another anchor`,
+        "anchor particle",
         anchor.particle,
+        0,
+        count - 1,
       );
-    anchoredParticles.add(anchor.particle);
-    if (anchor.position !== null)
-      vector(out, `${path}.position`, anchor.position);
-    if (anchor.binding !== undefined) {
-      if (anchor.position !== null)
+      if (anchoredParticles.has(anchor.particle))
         out.push(
           "type",
-          `${path}.position`,
-          "a moving anchor must leave its static world position null",
-          anchor.position,
+          `${path}.particle`,
+          `particle ${anchor.particle} is already held by another anchor`,
+          anchor.particle,
         );
-      if (anchor.binding.kind === "node") {
-        if (anchor.binding.node.trim().length === 0)
+      anchoredParticles.add(anchor.particle);
+      if (anchor.position !== null)
+        vector(out, `${path}.position`, anchor.position);
+      if (anchor.binding !== undefined) {
+        if (anchor.position !== null)
           out.push(
             "type",
-            `${path}.binding.node`,
-            "moving anchor node identity must be non-empty",
-            anchor.binding.node,
+            `${path}.position`,
+            "a moving anchor must leave its static world position null",
+            anchor.position,
           );
-      } else if (anchor.binding.actor.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.binding.actor`,
-          "moving anchor actor identity must be non-empty",
-          anchor.binding.actor,
-        );
-      vector(out, `${path}.binding.offset`, anchor.binding.offset);
-    }
-  });
+        if (anchor.binding.kind === "node") {
+          if (anchor.binding.node.trim().length === 0)
+            out.push(
+              "type",
+              `${path}.binding.node`,
+              "moving anchor node identity must be non-empty",
+              anchor.binding.node,
+            );
+        } else if (anchor.binding.actor.trim().length === 0)
+          out.push(
+            "type",
+            `${path}.binding.actor`,
+            "moving anchor actor identity must be non-empty",
+            anchor.binding.actor,
+          );
+        vector(out, `${path}.binding.offset`, anchor.binding.offset);
+      }
+    },
+  );
 
   bounded(
     out,
@@ -267,31 +271,35 @@ export const validateSoftBodyDomain = (props: {
     domain.states.length,
     SOFT_MAX_STATES,
   );
-  const stateIds = new Set<string>();
-  domain.states.forEach((state, index) => {
-    const path = `${root}.states[${index}]`;
-    identity(out, path, "named state", state.id, stateIds);
-    const posed = new Set<string>();
-    state.anchors.forEach((pose, at) => {
-      const posePath = `${path}.anchors[${at}]`;
-      if (!anchorIds.has(pose.anchor))
-        out.push(
-          "type",
-          `${posePath}.anchor`,
-          `named state cites anchor "${pose.anchor}", which the domain does not declare`,
-          pose.anchor,
-        );
-      else if (posed.has(pose.anchor))
-        out.push(
-          "type",
-          `${posePath}.anchor`,
-          `named state poses anchor "${pose.anchor}" twice`,
-          pose.anchor,
-        );
-      posed.add(pose.anchor);
-      vector(out, `${posePath}.position`, pose.position);
-    });
-  });
+  const stateIds: Set<string> = new Set<string>();
+  domain.states.forEach(
+    (state: IAutoMovieSoftNamedState, index: number): void => {
+      const path: string = `${root}.states[${index}]`;
+      identity(out, path, "named state", state.id, stateIds);
+      const posed: Set<string> = new Set<string>();
+      state.anchors.forEach(
+        (pose: IAutoMovieSoftAnchorPose, at: number): void => {
+          const posePath: string = `${path}.anchors[${at}]`;
+          if (!anchorIds.has(pose.anchor))
+            out.push(
+              "type",
+              `${posePath}.anchor`,
+              `named state cites anchor "${pose.anchor}", which the domain does not declare`,
+              pose.anchor,
+            );
+          else if (posed.has(pose.anchor))
+            out.push(
+              "type",
+              `${posePath}.anchor`,
+              `named state poses anchor "${pose.anchor}" twice`,
+              pose.anchor,
+            );
+          posed.add(pose.anchor);
+          vector(out, `${posePath}.position`, pose.position);
+        },
+      );
+    },
+  );
 
   bounded(
     out,
@@ -300,97 +308,101 @@ export const validateSoftBodyDomain = (props: {
     domain.colliders.length,
     SOFT_MAX_COLLIDERS,
   );
-  const colliderIds = new Set<string>();
-  domain.colliders.forEach((collider, index) => {
-    const path = `${root}.colliders[${index}]`;
-    identity(out, path, "collider", collider.id, colliderIds);
-    if (collider.kind === "plane") {
-      vector(out, `${path}.normal`, collider.normal);
-      if (magnitude(collider.normal) === 0)
-        out.push(
-          "type",
-          `${path}.normal`,
-          "collider plane normal must be a non-zero vector",
-          collider.normal,
+  const colliderIds: Set<string> = new Set<string>();
+  domain.colliders.forEach(
+    (collider: IAutoMovieSoftCollider, index: number): void => {
+      const path: string = `${root}.colliders[${index}]`;
+      identity(out, path, "collider", collider.id, colliderIds);
+      if (collider.kind === "plane") {
+        vector(out, `${path}.normal`, collider.normal);
+        if (magnitude(collider.normal) === 0)
+          out.push(
+            "type",
+            `${path}.normal`,
+            "collider plane normal must be a non-zero vector",
+            collider.normal,
+          );
+        numeric(
+          out,
+          `${path}.offset`,
+          "collider plane offset",
+          collider.offset,
+          -Infinity,
+          false,
+          Infinity,
         );
-      numeric(
-        out,
-        `${path}.offset`,
-        "collider plane offset",
-        collider.offset,
-        -Infinity,
-        false,
-        Infinity,
-      );
-    } else if (collider.kind === "sphere") {
-      vector(out, `${path}.center`, collider.center);
-      numeric(
-        out,
-        `${path}.radius`,
-        "collider radius",
-        collider.radius,
-        0,
-        true,
-        Infinity,
-      );
-    } else if (collider.kind === "box") {
-      vector(out, `${path}.min`, collider.min);
-      vector(out, `${path}.max`, collider.max);
-      for (const axis of ["x", "y", "z"] as const)
-        if (collider.max[axis] <= collider.min[axis])
+      } else if (collider.kind === "sphere") {
+        vector(out, `${path}.center`, collider.center);
+        numeric(
+          out,
+          `${path}.radius`,
+          "collider radius",
+          collider.radius,
+          0,
+          true,
+          Infinity,
+        );
+      } else if (collider.kind === "box") {
+        vector(out, `${path}.min`, collider.min);
+        vector(out, `${path}.max`, collider.max);
+        for (const axis of ["x", "y", "z"] as const)
+          if (collider.max[axis] <= collider.min[axis])
+            out.push(
+              "range",
+              `${path}.max.${axis}`,
+              `collider box max ${axis} must be strictly above its min (${collider.min[axis]})`,
+              collider.max[axis],
+            );
+      } else {
+        if (collider.actor.trim().length === 0)
+          out.push(
+            "type",
+            `${path}.actor`,
+            "body-capsule actor identity must be non-empty",
+            collider.actor,
+          );
+        if (collider.capsule.from === collider.capsule.to)
           out.push(
             "range",
-            `${path}.max.${axis}`,
-            `collider box max ${axis} must be strictly above its min (${collider.min[axis]})`,
-            collider.max[axis],
+            `${path}.capsule.to`,
+            "body-capsule endpoints must name two distinct bones",
+            collider.capsule.to,
           );
-    } else {
-      if (collider.actor.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.actor`,
-          "body-capsule actor identity must be non-empty",
-          collider.actor,
+        numeric(
+          out,
+          `${path}.capsule.radius`,
+          "body-capsule radius",
+          collider.capsule.radius,
+          0,
+          true,
+          Infinity,
         );
-      if (collider.capsule.from === collider.capsule.to)
-        out.push(
-          "range",
-          `${path}.capsule.to`,
-          "body-capsule endpoints must name two distinct bones",
-          collider.capsule.to,
-        );
-      numeric(
-        out,
-        `${path}.capsule.radius`,
-        "body-capsule radius",
-        collider.capsule.radius,
-        0,
-        true,
-        Infinity,
-      );
-    }
-  });
+      }
+    },
+  );
 
   // A panel that starts inside furniture is a panel whose first step teleports.
   if (domain.rest.length === count * 3)
-    domain.colliders.forEach((collider, index) => {
-      for (let particle = 0; particle < count; ++particle)
-        if (
-          embedded(collider, {
-            x: domain.rest[particle * 3],
-            y: domain.rest[particle * 3 + 1],
-            z: domain.rest[particle * 3 + 2],
-          })
-        ) {
-          out.push(
-            "type",
-            `${root}.colliders[${index}]`,
-            `rest particle ${particle} starts inside collider "${collider.id}"`,
-            particle,
-          );
-          return;
-        }
-    });
+    domain.colliders.forEach(
+      (collider: IAutoMovieSoftCollider, index: number): void => {
+        for (let particle: number = 0; particle < count; ++particle)
+          if (
+            embedded(collider, {
+              x: domain.rest[particle * 3],
+              y: domain.rest[particle * 3 + 1],
+              z: domain.rest[particle * 3 + 2],
+            })
+          ) {
+            out.push(
+              "type",
+              `${root}.colliders[${index}]`,
+              `rest particle ${particle} starts inside collider "${collider.id}"`,
+              particle,
+            );
+            return;
+          }
+      },
+    );
 
   if (domain.wind !== null) {
     vector(out, `${root}.wind.direction`, domain.wind.direction);
@@ -434,12 +446,15 @@ export const validateSoftBodyDomain = (props: {
 };
 
 /** Whether a point lies strictly inside one collider. */
-const embedded = (
+const embedded: (
+  collider: IAutoMovieSoftCollider,
+  point: IAutoMovieVector3,
+) => boolean = (
   collider: IAutoMovieSoftCollider,
   point: IAutoMovieVector3,
 ): boolean => {
   if (collider.kind === "plane") {
-    const length = magnitude(collider.normal);
+    const length: number = magnitude(collider.normal);
     if (length === 0) return false;
     return (
       (collider.normal.x * point.x +
@@ -450,9 +465,9 @@ const embedded = (
     );
   }
   if (collider.kind === "sphere") {
-    const dx = point.x - collider.center.x;
-    const dy = point.y - collider.center.y;
-    const dz = point.z - collider.center.z;
+    const dx: number = point.x - collider.center.x;
+    const dy: number = point.y - collider.center.y;
+    const dz: number = point.z - collider.center.z;
     return Math.sqrt(dx * dx + dy * dy + dz * dz) < collider.radius;
   }
   // A body capsule is actor-local until the primary pose is evaluated. Treating
@@ -470,90 +485,19 @@ const embedded = (
 };
 
 /** Euclidean length of one authored vector. */
-const magnitude = (vector: IAutoMovieVector3): number =>
+const magnitude: (vector: IAutoMovieVector3) => number = (
+  vector: IAutoMovieVector3,
+): number =>
   Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
 
-/** Refuse a structural rest edge whose two particles sit on the same point. */
-const coincident = (
-  out: ViolationCollector,
-  root: string,
-  domain: IAutoMovieSoftBodyDomain,
-  a: number,
-  b: number,
-): void => {
-  const dx = domain.rest[b * 3] - domain.rest[a * 3];
-  const dy = domain.rest[b * 3 + 1] - domain.rest[a * 3 + 1];
-  const dz = domain.rest[b * 3 + 2] - domain.rest[a * 3 + 2];
-  if (dx * dx + dy * dy + dz * dz !== 0) return;
-  out.push(
-    "type",
-    `${root}.rest[${a * 3}]`,
-    `rest particles ${a} and ${b} are coincident, so the constraint between them has no direction`,
-    [a, b],
-  );
-};
-
-/** Every component of an authored vector must be a real number. */
-const vector = (
-  out: ViolationCollector,
-  path: string,
-  value: IAutoMovieVector3,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    numeric(
-      out,
-      `${path}.${axis}`,
-      `${axis} component`,
-      value[axis],
-      -Infinity,
-      false,
-      Infinity,
-    );
-};
-
-/** A finite scalar inside `[min, max]`, or `(min, max]` when `exclusive`. */
-const numeric = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  exclusive: boolean,
-  max: number,
-): void => {
-  if (
-    !Number.isFinite(value) ||
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
-    out.push(
-      "range",
-      path,
-      `${label} must be finite within ${exclusive ? "(" : "["}${min}, ${max}]`,
-      value,
-    );
-};
-
-/** A safe integer inside `[min, max]`. */
-const integer = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  value: number,
-  min: number,
-  max: number,
-): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
-    out.push(
-      "type",
-      path,
-      `${label} must be an integer within [${min}, ${max}]`,
-      value,
-    );
-};
-
 /** A particle-indexed array whose length must equal the lattice's own. */
-const length = (
+const length: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  expected: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -570,7 +514,13 @@ const length = (
 };
 
 /** A declared collection that must stay inside its budget. */
-const bounded = (
+const bounded: (
+  out: ViolationCollector,
+  path: string,
+  label: string,
+  actual: number,
+  budget: number,
+) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -585,19 +535,4 @@ const bounded = (
       actual,
       actual - budget,
     );
-};
-
-/** A non-empty id that has not already been used by a sibling. */
-const identity = (
-  out: ViolationCollector,
-  path: string,
-  label: string,
-  id: string,
-  seen: Set<string>,
-): void => {
-  if (id.trim().length === 0)
-    out.push("type", `${path}.id`, `${label} id must be non-empty`, id);
-  else if (seen.has(id))
-    out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
-  seen.add(id);
 };

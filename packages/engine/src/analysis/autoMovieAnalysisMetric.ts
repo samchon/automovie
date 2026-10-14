@@ -5,6 +5,8 @@ import {
   IAutoMovieAnalysisWarning,
 } from "@automovie/interface";
 
+import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
+
 /**
  * Build one metric, resolving whatever target the production declared for it.
  *
@@ -17,34 +19,59 @@ import {
  *
  * A metric with no value must say why. Passing a value and a gap together, or
  * neither, throws: those are the two shapes that let an absent measurement
- * masquerade as a result.
+ * masquerade as a result. A non-finite value also throws. A metric with no
+ * value never carries a target, whatever was declared for its key.
  *
- * @evidence requirements/diagnostics/collection-fail-fast-and-determinism.md#diagnostics-completeness-determinism `autoMovieAnalysisMetric` keeps absent measurements explicit and refuses contradictory value-gap combinations.
- * @evidence specifications/validation-and-diagnostics/collection-order-and-termination.md#validation-result-completeness-determinism The builder resolves a same-unit target, derives its verdict, reports unit mismatches, and requires one reason for every missing value.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-unsupported-state `autoMovieAnalysisMetric` records an unavailable solver capability as `unsupported` with a required gap reason instead of fabricating a measured value.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-unsupported-state The metric builder preserves `unsupported` as an explicit no-value outcome with its own reason and remedy.
- * @evidence requirements/diagnostics/input-and-result-classification.md#diagnostics-classification-independence `autoMovieAnalysisMetric` keeps measurement availability, threshold verdict, and warning severity in separate fields rather than collapsing them into one status.
- * @evidence specifications/validation-and-diagnostics/classification-and-causality.md#validation-classification-orthogonality The metric record independently represents solver availability, target comparison, and declaration warnings for the same check.
- * @evidence requirements/evidence-and-provenance/observations-claims-and-human-judgments.md#evidence-automated-finding-boundary `autoMovieAnalysisMetric` labels a solver-produced value or explicit gap as an automated metric result, never as a human approval.
- * @evidence specifications/evidence-and-provenance/observations-claims-and-human-judgments.md#evp-automated-finding-result The metric builder records value, unit, target verdict, or non-execution reason as machine output without manufacturing a judgment record.
+ * Units are compared as exact strings with no conversion, so `lx` and `lux` are
+ * different units. The first target with the metric's key decides; duplicate
+ * keys are refused earlier by `assertAutoMovieAnalysisTargets`.
+ *
+ * @evidence contracts/common.md#principled-implementation Encodes the metric shape rules directly: a null value requires a gap and defaults to `not-run`, a value must be finite and gap-free, and a same-key target in the same unit decides `meets` or `misses` through `autoMovieAnalysisTargetMet`, the predicate the run validator re-derives verdicts with.
+ * @evidence contracts/common.md#clear-and-simple-design One builder shared by every analyzer owns target resolution, so each solver states only key, unit, value and gap; the verdict expression lives in `autoMovieAnalysisTargetMet` because the validator needs the same rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A unit-mismatched target is dropped with a `target-unit-mismatch` warning instead of being compared or converted, and no metric key, unit or analyzer is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states the unit-mismatch outcome and why, the three throwing shapes, that a valueless metric carries no target, exact-string unit comparison, and which target decides; each property states its role, the `not-run` default and when a gap is required.
+ * @evidence contracts/performance.md#efficient-algorithms One linear `find` over the T declared targets per metric, so resolving a run of M metrics costs O(M·T); a key index would cost a map per study for runs that resolve at most eleven metrics (the daylight run) against a handful of targets.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call resolves one metric of one run against that study's own targets; there is no completed or in-flight result another call could reuse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a new metric record and appends at most one warning to the caller-owned array, retaining nothing itself.
+ * @author Samchon
  */
-export const autoMovieAnalysisMetric = (props: {
-  /** Open metric key. */
+export const autoMovieAnalysisMetric: (props: {
   key: string;
-  /** Unit the value is produced in. */
   unit: string;
+  value: number | null;
+  targets: readonly IAutoMovieAnalysisTarget[];
+  warnings: IAutoMovieAnalysisWarning[];
+  gap?: IAutoMovieAnalysisMetricGap;
+  status?: "unsupported" | "not-run";
+}) => IAutoMovieAnalysisMetric = (props: {
+  /** Open metric key, such as `workplane.total.illuminance`. */
+  key: string;
+
+  /** Unit the value is produced in, compared exactly with a target's unit. */
+  unit: string;
+
   /** Finite measured value, or `null` when the solver produced none. */
   value: number | null;
-  /** Targets the production declared, already checked. */
+
+  /** Targets the production declared, already checked for shape and uniqueness. */
   targets: readonly IAutoMovieAnalysisTarget[];
-  /** Sink the resolver appends unit-mismatch warnings to. */
+
+  /** Caller-owned sink the resolver appends a unit-mismatch warning to. */
   warnings: IAutoMovieAnalysisWarning[];
-  /** Required when `value` is null. */
+
+  /** Why no value exists; required exactly when `value` is null. */
   gap?: IAutoMovieAnalysisMetricGap;
-  /** Which kind of nothing; defaults to `not-run`. */
+
+  /**
+   * Which kind of absence a null value is: `unsupported` when the solver cannot
+   * compute it at all, `not-run` (the default) when this study lacked an input.
+   */
   status?: "unsupported" | "not-run";
 }): IAutoMovieAnalysisMetric => {
-  const { key, unit, value, gap } = props;
+  const key: string = props.key;
+  const unit: string = props.unit;
+  const value: number | null = props.value;
+  const gap: IAutoMovieAnalysisMetricGap | undefined = props.gap;
   if (value === null) {
     if (gap === undefined)
       throw new Error(
@@ -68,7 +95,9 @@ export const autoMovieAnalysisMetric = (props: {
     throw new Error(
       `analysis metric "${key}" must be a finite value, but was ${value}`,
     );
-  const target = props.targets.find((entry) => entry.key === key);
+  const target: IAutoMovieAnalysisTarget | undefined = props.targets.find(
+    (entry: IAutoMovieAnalysisTarget): boolean => entry.key === key,
+  );
   if (target === undefined)
     return {
       key,
@@ -101,16 +130,9 @@ export const autoMovieAnalysisMetric = (props: {
     value,
     target: target.value,
     comparison: target.comparison,
-    status: satisfied(value, target.value, target.comparison)
+    status: autoMovieAnalysisTargetMet(value, target.value, target.comparison)
       ? "meets"
       : "misses",
     gap: null,
   };
 };
-
-/** Whether a value satisfies a target in the declared direction. */
-const satisfied = (
-  value: number,
-  target: number,
-  comparison: IAutoMovieAnalysisTarget["comparison"],
-): boolean => (comparison === "at-least" ? value >= target : value <= target);

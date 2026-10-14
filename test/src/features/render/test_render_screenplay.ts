@@ -1,105 +1,27 @@
-import { IAutoMovieScript, IAutoMovieScriptNode } from "@automovie/interface";
-import { renderScreenplay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-export const screenplayBeat = (id: string, name: string) => ({
-  id,
-  name,
-  summary: `${name} summary`,
-  durationHint: 2,
-});
-
-export const screenplayNode = (
-  partial: Omit<IAutoMovieScriptNode, "temporal" | "interactsWith">,
-): IAutoMovieScriptNode =>
-  ({ temporal: null, interactsWith: [], ...partial }) as IAutoMovieScriptNode;
-
-/** Intent → act → scene → group → two beats, exercising every payload branch. */
-export const TREE_SCRIPT: IAutoMovieScript = {
-  logline: "flat logline (ignored when a tree exists)",
-  theme: "flat theme",
-  cast: [],
-  beats: [
-    screenplayBeat("duel", "The duel"),
-    screenplayBeat("aftermath", "The aftermath"),
-  ],
-  tree: [
-    screenplayNode({
-      id: "root",
-      parent: null,
-      kind: "intent",
-      payload: { logline: "A knight faces his rival.", theme: "honor" },
-    }),
-    screenplayNode({
-      id: "act1",
-      parent: "root",
-      kind: "act",
-      payload: { purpose: "the rivalry breaks" },
-    }),
-    screenplayNode({
-      id: "scene1",
-      parent: "act1",
-      kind: "scene",
-      payload: {
-        interiorExterior: "EXT",
-        location: "castle courtyard",
-        timeOfDay: "dawn",
-        description: "Mist over the flagstones.",
-      },
-    }),
-    screenplayNode({
-      id: "grp",
-      parent: "scene1",
-      kind: "group",
-      payload: { rationale: "the exchange" },
-    }),
-    screenplayNode({
-      id: "b1",
-      parent: "grp",
-      kind: "beat",
-      payload: {
-        beat: "duel",
-        direction: "A lunges; B parries.",
-        dialogue: [
-          { speaker: "knightA", text: "Yield!", anchor: 1.5 },
-          { speaker: "knightB", text: "Never.", anchor: null },
-        ],
-        caption: "two knights clash at dawn",
-      },
-    }),
-    screenplayNode({
-      id: "b2",
-      parent: "scene1",
-      kind: "beat",
-      payload: {
-        beat: "aftermath",
-        direction: "Dust settles.",
-        dialogue: [],
-        caption: null,
-      },
-    }),
-  ],
-};
+import { renderScreenplay } from "../../../../packages/render/src/screenplay/renderScreenplay";
+import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
 
 /**
- * The screenplay document: the tree renders depth-first with the documented
- * plain-text convention (slug, direction, indented dialogue with anchors,
- * bracketed captions), and the same script yields the same bytes.
+ * The screenplay document: the tree renders depth-first with the documented plain-text convention (slug, direction, indented dialogue with anchors, bracketed captions), and the same script yields the same bytes.
  *
  * Scenarios:
  *
- * 1. The five-kind tree renders in refinement order: intent header, act rule,
- *    upper-cased slug + description, group rationale, both beats with their
- *    flat names.
- * 2. Dialogue renders as the indented SPEAKER-over-text convention; an anchored
- *    line carries `[t=1.5s]`, an unanchored one does not.
+ * 1. The five-kind tree renders in refinement order: intent header, act rule, upper-cased slug + description, group rationale, both beats with their flat names.
+ * 2. Dialogue renders as the indented SPEAKER-over-text convention; an anchored line carries `[t=1.5s]`, an unanchored one does not.
  * 3. A present caption renders bracketed; the caption-less beat renders none.
  * 4. Determinism: rendering twice yields byte-identical text.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Serializes the real five-kind script tree and checks ordered text fragments, dialogue indentation/anchors, caption count and repeat output, detecting lost payload branches or reordered text.
+ * @evidence contracts/testing.md#independent-expectations The original authored tree and documented plain-text convention determine literal fragments and their order; repeat serialization is an in-process consistency check rather than a historical text snapshot or cross-host proof.
+ * @evidence contracts/testing.md#distinguishing-cases Intent, act, scene, group and two beat payloads, anchored/unanchored dialogue and present/absent captions preserve the original cases; treeless and refusal paths belong to the fallback companion.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_screenplay owns its cases. Portable string serialization; shared canonical input leaves are borrowed and no document writer, production host or renderer is started.
  */
-export const test_render_screenplay = (): void => {
-  const text = renderScreenplay(TREE_SCRIPT);
+export function test_render_screenplay(): void {
+  const text: string = renderScreenplay(TREE_SCRIPT);
 
-  const order = [
+  const order: string[] = [
     "LOGLINE: A knight faces his rival.",
     "THEME: honor",
     "ACT, the rivalry breaks",
@@ -116,9 +38,9 @@ export const test_render_screenplay = (): void => {
     "BEAT, The aftermath",
     "Dust settles.",
   ];
-  let cursor = -1;
+  let cursor: number = -1;
   for (const fragment of order) {
-    const at = text.indexOf(fragment);
+    const at: number = text.indexOf(fragment);
     TestValidator.predicate(`renders "${fragment}" in order`, at > cursor);
     cursor = at;
   }
@@ -133,4 +55,4 @@ export const test_render_screenplay = (): void => {
     renderScreenplay(TREE_SCRIPT),
     text,
   );
-};
+}

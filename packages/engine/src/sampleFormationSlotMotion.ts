@@ -4,8 +4,8 @@ import {
 } from "@automovie/interface";
 
 import { IDENTITY_FORMATION_SLOT_STATE } from "./constants/IDENTITY_FORMATION_SLOT_STATE";
-import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";
+import { ease } from "./motion/ease";
 
 /**
  * Sample what one named member of a unit is doing differently at one time.
@@ -23,32 +23,49 @@ import { lerp } from "./lerp";
  * `from` is present and whose `to` is not takes its member out of the shot at
  * the cue's end, and one absent at both ends takes it out at the cue's start.
  *
- * Cost is the number of cues that name this slot, which is why the channel is
- * sparse: a crowd of a hundred thousand pays for the three exceptions it has.
+ * Selection scans all supplied cues and their slot lists before sorting matches
+ * by start and code-unit id. Identity and retained states alias module/input
+ * records; consumers must treat returned states as read-only.
  *
- * @evidence requirements/formations/heroes-variation-and-state.md#formation-group-state Resolves one slot's sparse presence, offset, and facing exception without expanding the formation into per-member tracks.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-member-exception-command-event Retains the latest member exception and interpolates its active cue on the same shot-local clock as group motion.
+ * @evidence contracts/common.md#principled-implementation A deterministic start/id cue walk eases numeric offset and heading while present stays discrete until cue end, preserving authored removal and recovery states between cues.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry measurement, placement validation and viewer exceptions share the slot state while formation-wide motion stays in its own sampler.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No half-present state is invented; the discrete boundary rule and first-active precedence apply to every named slot without member-specific defaults.
+ * @evidence contracts/common.md#meaningful-documentation States presence boundaries, exact target retention, full cue/slot-list selection cost and shared identity/input ownership.
+ * @evidence contracts/performance.md#efficient-algorithms M supplied cues and L slot entries inspected by includes require O(M+L) selection, followed by O(C log C) sorting and O(C) walking C matches, plus compared id-string lengths; temporary storage is O(C).
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A different slot or source chronology changes the selected cues, and no cross-query exception index is retained here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Active numeric records are new, but identity and retained states alias shared records; the selection array is temporary and no actor object is retained.
  */
-export const sampleFormationSlotMotion = (
+export const sampleFormationSlotMotion: (
+  motions: readonly IAutoMovieFormationSlotMotion[],
+  formation: string,
+  slot: number,
+  time: number,
+) => IAutoMovieFormationSlotState = (
   motions: readonly IAutoMovieFormationSlotMotion[],
   formation: string,
   slot: number,
   time: number,
 ): IAutoMovieFormationSlotState => {
-  const cues = motions
-    .filter((cue) => cue.formation === formation && cue.slots.includes(slot))
+  const cues: IAutoMovieFormationSlotMotion[] = motions
+    .filter(
+      (cue: IAutoMovieFormationSlotMotion): boolean =>
+        cue.formation === formation && cue.slots.includes(slot),
+    )
     .sort(
-      (left, right) =>
+      (
+        left: IAutoMovieFormationSlotMotion,
+        right: IAutoMovieFormationSlotMotion,
+      ): number =>
         left.start - right.start ||
         (left.id < right.id ? -1 : left.id > right.id ? 1 : 0),
     );
   if (cues.length === 0 || time < cues[0]!.start)
     return IDENTITY_FORMATION_SLOT_STATE;
-  let retained = cues[0]!.from;
+  let retained: IAutoMovieFormationSlotState = cues[0]!.from;
   for (const cue of cues) {
     if (time < cue.start) return retained;
     if (time < cue.end) {
-      const progress = easingProgress(
+      const progress: number = ease(
         cue.easing,
         Math.max(0, Math.min(1, (time - cue.start) / (cue.end - cue.start))),
       );

@@ -1,5 +1,7 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
@@ -9,6 +11,10 @@ import {
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
+import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
+import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
+import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
@@ -18,51 +24,59 @@ import { jointRomOvershoot } from "./jointRomOvershoot";
 import { resolvePose } from "./resolvePose";
 
 /** A joint whose three clinical angles are all known numbers. */
-interface IAutoMovieClinicalJoint {
+interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
   bone: AutoMovieHumanoidBone;
-  flexion: number;
-  abduction: number;
-  twist: number;
 }
 
 /**
- * Analytic two-bone IK for an arm: the {@link IAutoMoviePose} (upper-arm +
- * forearm articulation) that brings the `side` hand onto `target`, in the
- * skeleton's own model space. This is the harness `reach` verb made concrete:
- * the model says "put your right hand on the lever" and the engine solves the
- * shoulder and elbow that land it there, deterministically, no solver
- * iteration.
+ * The arm pose, upper arm and forearm articulation, that brings the `side`
+ * hand onto `target` in the skeleton's model space: the harness `reach` verb
+ * made concrete, solved in closed form with no iteration.
  *
- * It reads the arm's segment lengths and rest directions from the skeleton's
- * rest FK, then solves the chain with {@link hingedArmArticulation}: the elbow
- * turns only about its own flexion axis (so its abduction and twist are zero by
- * construction, which is exactly what an elbow's immobile axes require), and
- * the shoulder spends the chain's exact swivel freedom on staying inside the
- * rig's declared range of motion. An unreachable target extends the arm fully
- * toward it (the hand stops on the reachable shell) rather than failing.
+ * Segment offsets and the shoulder's rest frame come from the skeleton's rest
+ * pose, and {@link hingedArmArticulation} solves the chain: the elbow turns
+ * only about its own flexion axis, so its abduction and twist are zero as an
+ * elbow's immobile axes require, and the shoulder spends the chain's exact
+ * swivel freedom on staying inside the rig's declared range of motion. An
+ * unreachable target extends the arm fully toward it, so the hand stops on the
+ * reachable shell instead of failing. A target no legal pose reaches still
+ * returns the least-overshoot pose, which the shot's ROM gate then reports.
  *
- * **The angles come out CLINICAL.** {@link IAutoMovieJointPose} defines itself
- * as semantic clinical angles precisely so a generated angle can be checked
- * against the ROM table by a direct per-axis comparison, which is what
- * {@link validatePose} does. The clinical axes and the rest frame are two halves
- * of ONE convention, so this function owns both: it applies
- * {@link HUMANOID_JOINT_AXES} unconditionally, and therefore defaults
- * `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Leaving the frame to
- * the caller made `getReach` (which passed it) and `perform`'s arm verbs (which
- * usually did not) answer the same rig in two different spaces, and the
- * rest-relative one was then judged against the clinical table off by the
- * shoulder's whole 90-degree rest abduction (#1346). Pass an explicit table for
- * a rig with its own rest convention, or `{}` for raw rig-space angles.
+ * The angles are clinical, so `validatePose` can compare them with the ROM
+ * table directly. The clinical axes and the rest frame are two halves of one
+ * convention: this function always applies {@link HUMANOID_JOINT_AXES} and so
+ * defaults `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Pass a
+ * table for a rig with its own rest convention, or `{}` for raw rest-relative
+ * angles.
  *
- * Returns `null` if the arm bones are missing, the chain is geometrically
- * degenerate, or the rig's elbow cannot bend the arm at all under these axes
- * ({@link armChainFault}): a rig that cannot reach.
+ * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
+ * from runtime calls), when the upper arm, lower arm or hand is missing, when
+ * they are not one parent chain (lower arm under upper arm, hand under lower
+ * arm), when the chain is not reachable from a root, when the chain is
+ * geometrically degenerate, or when {@link armChainFault} finds an elbow that
+ * cannot bend the arm.
  *
- * @evidence requirements/motion/constraints-and-inverse-kinematics.md#motion-constraint-reachability Solves an arm only within the reachable set of its declared chain.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Produces a bounded clinical arm pose for the reach target.
+ * @param skeleton Rig whose arm is solved; read, never modified.
+ * @param side Which arm reaches.
+ * @param target Point the hand lands on, in the skeleton's model space.
+ * @param restFrames Per-bone rest frames for the clinical lift; defaults to
+ *   `HUMANOID_REST_FRAME`.
+ *
+ * @evidence contracts/common.md#principled-implementation Reads the arm's rest offsets under the premise that the three bones form one parent chain, which it checks before solving, so each offset is in its parent's frame as the hinge solve requires; candidates are scored through the same clinical decomposition and `jointRomOvershoot` the result is reported and gated with, so the solver cannot pick a pose by a kinder rule than `validatePose` applies.
+ * @evidence contracts/common.md#clear-and-simple-design Owns the humanoid arm convention, bone names, axes, rest frames and ROM lookup, while `hingedArmArticulation` owns the geometry and `armChainFault` the rig diagnosis shared with the perform-shot gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; an impossible reach returns its least-overshoot pose for the gate to report rather than a clamped one, and every refusal is a structural or geometric fact about the rig.
+ * @evidence contracts/common.md#meaningful-documentation States the clinical output and why, the axis and rest-frame pairing with its default, the unreachable and illegal-target behavior, every `null` case including the parent-chain requirement, and each parameter's frame.
+ * @evidence contracts/performance.md#efficient-algorithms Three linear bone lookups and one rest-pose forward-kinematics pass, linear in the bone count, then the hinge solve's at most 720 candidates, each two decompositions and two ROM scorings; the candidate sweep dominates and is constant per call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rig, side and target; per-frame callers pass a different target each time, so no result is shared across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the rest-pose bones and candidate scores are local to the call, and the caller owns the returned pose.
  * @author Samchon
  */
-export const reachPose = (
+export const reachPose: (
+  skeleton: IAutoMovieSkeleton,
+  side: "left" | "right",
+  target: IAutoMovieVector3,
+  restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+) => IAutoMoviePose | null = (
   skeleton: IAutoMovieSkeleton,
   side: "left" | "right",
   target: IAutoMovieVector3,
@@ -72,40 +86,61 @@ export const reachPose = (
 ): IAutoMoviePose | null => {
   if (side !== "left" && side !== "right") return null;
 
-  const upperName = side === "left" ? "leftUpperArm" : "rightUpperArm";
-  const lowerName = side === "left" ? "leftLowerArm" : "rightLowerArm";
-  const handName = side === "left" ? "leftHand" : "rightHand";
-
-  const rest = resolvePose(
-    { skeleton: skeleton.id, root: null, joints: [] },
-    skeleton,
-    HUMANOID_JOINT_AXES,
-  );
-  const upper = rest.find((b) => b.bone === upperName);
-  const lower = rest.find((b) => b.bone === lowerName);
-  const hand = rest.find((b) => b.bone === handName);
-  if (upper === undefined || lower === undefined || hand === undefined)
+  const upperName: AutoMovieHumanoidBone =
+    side === "left" ? "leftUpperArm" : "rightUpperArm";
+  const lowerName: AutoMovieHumanoidBone =
+    side === "left" ? "leftLowerArm" : "rightLowerArm";
+  const handName: AutoMovieHumanoidBone =
+    side === "left" ? "leftHand" : "rightHand";
+  const declared: (
+    name: AutoMovieHumanoidBone,
+  ) => IAutoMovieBone | undefined = (
+    name: AutoMovieHumanoidBone,
+  ): IAutoMovieBone | undefined =>
+    skeleton.bones.find((bone: IAutoMovieBone): boolean => bone.bone === name);
+  const upperBone: IAutoMovieBone | undefined = declared(upperName);
+  const lowerBone: IAutoMovieBone | undefined = declared(lowerName);
+  const handBone: IAutoMovieBone | undefined = declared(handName);
+  // The solve rotates the hand's rest offset in the lower arm's frame and the
+  // lower arm's offset in the upper arm's frame, so they must be one chain.
+  if (
+    upperBone === undefined ||
+    lowerBone === undefined ||
+    handBone === undefined ||
+    lowerBone.parent !== upperName ||
+    handBone.parent !== lowerName
+  )
     return null;
 
   // A rig whose elbow flexion is a roll has no reach shell to solve against.
   // Refused HERE, at the point of use, never at authoring time: the humanoid
   // bone enum is the only vocabulary the surface has, so a retargeted
-  // quadruped's front legs legitimately ride the arm chains (#1346).
+  // quadruped's front legs legitimately ride the arm chains.
   if (armChainFault(skeleton, side) !== null) return null;
 
-  // The FK walk above already reached all three bones, so they are declared.
-  const byBone = new Map(skeleton.bones.map((b) => [b.bone, b]));
-  const upperBone = byBone.get(upperName)!;
-  const lowerBone = byBone.get(lowerName)!;
-  const handBone = byBone.get(handName)!;
+  const upper: IAutoMovieResolvedBone | undefined = resolvePose(
+    { skeleton: skeleton.id, root: null, joints: [] },
+    skeleton,
+    HUMANOID_JOINT_AXES,
+  ).find((bone: IAutoMovieResolvedBone): boolean => bone.bone === upperName);
+  if (upper === undefined) return null;
 
   // Every arm bone is present in the humanoid axis table by construction.
-  const upperAxes = HUMANOID_JOINT_AXES[upperName]!;
-  const lowerAxes = HUMANOID_JOINT_AXES[lowerName]!;
-  const upperConstraint = getConstraint(upperName, upperBone.constraint);
-  const lowerConstraint = getConstraint(lowerName, lowerBone.constraint);
+  const upperAxes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[upperName]!;
+  const lowerAxes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[lowerName]!;
+  const upperConstraint: IAutoMovieJointConstraint | null = getConstraint(
+    upperName,
+    upperBone.constraint,
+  );
+  const lowerConstraint: IAutoMovieJointConstraint | null = getConstraint(
+    lowerName,
+    lowerBone.constraint,
+  );
 
-  const jointsOf = (
+  const jointsOf: (
+    upperDelta: IAutoMovieQuaternion,
+    lowerDelta: IAutoMovieQuaternion,
+  ) => [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] = (
     upperDelta: IAutoMovieQuaternion,
     lowerDelta: IAutoMovieQuaternion,
   ): [IAutoMovieClinicalJoint, IAutoMovieClinicalJoint] => [
@@ -125,28 +160,34 @@ export const reachPose = (
     },
   ];
 
-  const articulation = hingedArmArticulation({
-    upper,
-    midOffset: lowerBone.rest.translation,
-    midRest: lowerBone.rest.rotation,
-    endOffset: handBone.rest.translation,
-    hinge: lowerAxes.flexion,
-    target,
-    // Scored through the same clinical decomposition the result is reported
-    // in, so the candidate the solver picks is the candidate `validatePose`
-    // will grade. A solver that graded itself by a kinder rule than its gate
-    // would just relocate the disagreement this issue is about.
-    score: (upperDelta, lowerDelta) => {
-      const [upperJoint, lowerJoint] = jointsOf(upperDelta, lowerDelta);
-      return {
-        overshoot:
-          jointRomOvershoot(upperJoint, upperConstraint) +
-          jointRomOvershoot(lowerJoint, lowerConstraint),
-        deviation:
-          clinicalDeviation(upperJoint) + clinicalDeviation(lowerJoint),
-      };
-    },
-  });
+  const articulation: IAutoMovieHingedArticulation | null =
+    hingedArmArticulation({
+      upper,
+      midOffset: lowerBone.rest.translation,
+      midRest: lowerBone.rest.rotation,
+      endOffset: handBone.rest.translation,
+      hinge: lowerAxes.flexion,
+      target,
+      // Scored through the same clinical decomposition the result is reported
+      // in, so the candidate the solver picks is the candidate `validatePose`
+      // will grade.
+      score: (
+        upperDelta: IAutoMovieQuaternion,
+        lowerDelta: IAutoMovieQuaternion,
+      ): { overshoot: number; deviation: number } => {
+        const [upperJoint, lowerJoint]: [
+          IAutoMovieClinicalJoint,
+          IAutoMovieClinicalJoint,
+        ] = jointsOf(upperDelta, lowerDelta);
+        return {
+          overshoot:
+            jointRomOvershoot(upperJoint, upperConstraint) +
+            jointRomOvershoot(lowerJoint, lowerConstraint),
+          deviation:
+            clinicalDeviation(upperJoint) + clinicalDeviation(lowerJoint),
+        };
+      },
+    });
   if (articulation === null) return null;
 
   return {

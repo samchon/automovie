@@ -1,70 +1,37 @@
-import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
 import { IAutoMovieDrawingGap } from "./IAutoMovieDrawingGap";
 import { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
 
 /**
- * Every quantity the design can currently answer for, and every one it cannot.
+ * The current seven measured quantity subjects and their declared gaps.
  *
- * Quantities come from geometry, not from a bill somebody typed: an area is the
- * area of an authored footprint and a length is the length of an authored
- * route, so a change to the design is a change to the quantity with nothing in
- * between to fall out of date.
+ * Quantities are recomputed from authored footprints, volumes, voids, routes and counts on each call; edits outside those measurements need not change a quantity. measureAutoMovieQuantities throws for an invalid environment or a contributor bound that is not a positive safe integer.
  *
- * What the design cannot answer is stated as a gap rather than omitted or
- * defaulted to zero. Material take-off, layer thickness and pattern cut waste
- * all need declarations the design does not carry yet; a report that silently
- * left them out would read as a building that needs no material.
+ * Known omitted measurements are stated as gaps. Material take-off and pattern cut waste need separate records this measurement is not handed; an unmeasurable cell or void-less opening is omitted from its numeric tally and counted in a gap. A zero total alone therefore does not prove the corresponding physical quantity is absent.
  *
- * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `IAutoMovieQuantityReport` as the portable data boundary for the building exterior schedules quantities requirement.
- * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `IAutoMovieQuantityReport` for the building envelope deliverable quantity invariant system contract.
+ * @evidence contracts/common.md#principled-implementation The producer sums footprint areas net of holes, shell/cell formulas, arc-corrected void areas and route lengths, plus element/opening/model-reference counts. Overlapping support patches and cells are added rather than unioned; fixed subject coverage does not establish complete authored geometry. Canonical JSON hashing identifies produced metadata without a source/execution-authenticity guarantee.
+ * @evidence contracts/common.md#clear-and-simple-design The report holds one finding per subject plus the gap list and identity fields; units, bounds and approximations stay on the findings that own them, and gaps reuse the drawing's gap record so one reader handles all three derivations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every subject is present, including zero totals when no owner contributes; known unavailable inputs and unsupported work use named gaps. The fixed gap list is not an exhaustive discovery of every quantity, modelling defect or numerical failure, and canonical encoding can refuse non-finite computed output.
+ * @evidence contracts/common.md#meaningful-documentation States where quantities come from, the refusals, and why unmeasurable quantities are gaps; members give the fixed subject order and completeness, the gap order, and the digest's coverage.
  * @author Samchon
  */
 export interface IAutoMovieQuantityReport {
-  /**
-   * Report format.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `version` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `version` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Report format. */
   version: 1;
 
-  /**
-   * Versioned quantity protocol.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `protocol` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `protocol` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Versioned quantity protocol. */
   protocol: "automovie.quantity.v1";
 
-  /**
-   * Built environment this report was derived from.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `environment` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `environment` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Built environment this report was derived from. */
   environment: string;
 
   /**
-   * One finding per subject, in the fixed subject order.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `findings` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `findings` for the building envelope deliverable quantity invariant system contract.
+   * Exactly one finding per {@link AutoMovieQuantitySubject}, in the fixed subject order, so a quantity the design has none of is a zero total rather than a missing finding.
    */
   findings: IAutoMovieQuantityFinding[];
 
-  /**
-   * Derivations this report could not perform, in canonical order.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `gaps` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `gaps` for the building envelope deliverable quantity invariant system contract.
-   */
+  /** Quantities this report could not measure, sorted by gap subject. */
   gaps: IAutoMovieDrawingGap[];
 
-  /**
-   * Digest over the whole record.
-   *
-   * @evidence requirements/building-exterior/deliverables.md#building-exterior-schedules-quantities Exposes `digest` as the portable data boundary for the building exterior schedules quantities requirement.
-   * @evidence specifications/building-envelope/phases-deliverables-and-validation.md#building-envelope-deliverable-quantity-invariant Types `digest` for the building envelope deliverable quantity invariant system contract.
-   */
-  digest: AutoMovieContentDigest;
+  /** SHA-256 digest over the canonical JSON of every other field. */
+  digest: string;
 }

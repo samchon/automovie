@@ -2,45 +2,61 @@ import { IAutoMovieInteractionEvent } from "@automovie/interface";
 
 import { eventTimeKey } from "./eventTimeKey";
 
+/** The four handoff kinds in emission order, each with the end it fires at. */
+const HANDOFF_KINDS: ReadonlyArray<
+  readonly [IAutoMovieInteractionEvent["kind"], "start" | "end"]
+> = [
+  ["grab", "start"],
+  ["attach", "start"],
+  ["detach", "end"],
+  ["release", "end"],
+];
+
 /**
- * The four scripted-cue events an `attachTo` handoff emits: the child is
- * grabbed and attached at `start`, then detached and released at `end`. One
- * place for the shared envelope (source, actor/target/object, null point and
- * reaction) the coupling rides, kept in its own module so the mapped-literal
- * construction stays clear of {@link performShot}'s hot body.
+ * The four scripted-cue events one `attachTo` handoff emits: the child is grabbed and attached at `start`, then detached and released at `end`.
  *
- * @evidence requirements/staging/events-and-timing.md#staging-event-observation handoffEvents exposes grab and attach at the authored start, then detach and release at the authored end, on one deterministic event envelope.
- * @evidence requirements/staging/interactions-and-choreography.md#staging-choreography-phases Materializes the handoff's grab and attach phase at `start` and its detach and release phase at `end`, with the child-parent coupling as the observable consequence.
- * @evidence requirements/motion/timing-and-semantic-events.md#motion-event-identity-payload Builds each handoff occurrence from a stable kind/subject/target/time identity and preserves its scripted source, action payload, instant, and observable coupling consequence.
- * @evidence requirements/actors/performance-and-story-binding.md#actor-performance-events-contacts Connects the actor's grab, attach, detach, and release contacts to exact shot-local event instants.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-event-boundary-sampling-output handoffEvents emits the four coupling boundary records in authored clock order with stable source and participant identity.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-interaction-choreography-role Emits distinct attach and release boundary phases with stable participants and the coupling state change they cause.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Emits ordered grab, attach, detach, and release records with stable occurrence ids at their exact authored instants.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Realizes the coupling performance as addressed contact events rather than leaving the prop-state change implicit.
+ * Every event names the child as both `actor` and `object` and the parent as `target`, carries no contact point or reaction, and records `actionIndex`, the authored action's index, so a reader can trace it back. Its id is `<kind>:<child>:<parent>:<time>` with the time written by {@link eventTimeKey}. Repeated participant pairs in one formatted time bin collide, and participant ids containing colons can make the delimiter join ambiguous; this constructor does not enforce uniqueness. Times are shot-local seconds. {@link coupleObjects} calls this once per handoff it bakes; a staged mount emits no events at all.
+ *
+ * @param child Coupled child node id.
+ * @param parent Parent node id whose bone carries the child.
+ * @param start Shot-local second the child is grabbed and attached.
+ * @param end Shot-local second the child is detached and released.
+ * @param actionIndex Index of the authored `attachTo` action.
+ * @returns Four new events in grab, attach, detach, release order.
+ *
+ * @evidence contracts/common.md#principled-implementation A fixed table maps the four kinds to start or end; ids concatenate kind, participants and the shared time formatter, preserving the documented rounding and delimiter collision limits.
+ * @evidence contracts/common.md#clear-and-simple-design Separated from `coupleObjects` so the coupling baker states what it bakes while the event envelope, its id format and its order live in one place.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every handoff gets the same four events with the same envelope; nothing depends on which child, parent or bone is involved.
+ * @evidence contracts/common.md#meaningful-documentation States the four kinds and instants, participant roles, null point and reaction, id format and collision limits, shot-local unit, caller and absence of mount events.
+ * @evidence contracts/performance.md#efficient-algorithms Constant time: four events built from a four-entry table.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure constructor of one handoff's events that coordinates no work across calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the four returned events.
  */
-export const handoffEvents = (
+export function handoffEvents(
   child: string,
   parent: string,
   start: number,
   end: number,
   actionIndex: number,
-): IAutoMovieInteractionEvent[] =>
-  (
-    [
-      ["grab", start],
-      ["attach", start],
-      ["detach", end],
-      ["release", end],
-    ] as const
-  ).map(([kind, time]) => ({
-    id: `${kind}:${child}:${parent}:${eventTimeKey(time)}`,
-    kind,
-    source: "scriptedCue",
-    time,
-    actor: child,
-    target: parent,
-    object: child,
-    point: null,
-    actionIndex,
-    reaction: null,
-  }));
+): IAutoMovieInteractionEvent[] {
+  return HANDOFF_KINDS.map(
+    ([kind, at]: readonly [
+      IAutoMovieInteractionEvent["kind"],
+      "start" | "end",
+    ]): IAutoMovieInteractionEvent => {
+      const time: number = at === "start" ? start : end;
+      return {
+        id: `${kind}:${child}:${parent}:${eventTimeKey(time)}`,
+        kind,
+        source: "scriptedCue",
+        time,
+        actor: child,
+        target: parent,
+        object: child,
+        point: null,
+        actionIndex,
+        reaction: null,
+      };
+    },
+  );
+}

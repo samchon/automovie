@@ -1,21 +1,13 @@
 import { linearColorToSrgbHex, srgbHexToLinearColor } from "@automovie/engine";
+import type { IAutoMovieColor } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * The repository's sRGB transfer pair is answerable to IEC 61966-2-1, not to
- * whatever a renderer happens to emit.
- *
- * Authored palette colors arrive as `#RRGGBB` swatches while materials consume
- * linear triples, and until this pair existed the builder crossed that
- * boundary by dividing the digits by 255 and calling the result linear. That is
- * a transcription rather than a conversion and lands roughly 2.3x too bright
- * at midtones. Every expectation below is computed by hand from the standard's
- * own piecewise curve, so a future edit that quietly adopts three.js's
- * pre-divided decode constants fails here instead of being blessed by a
- * snapshot of its own output. The two agree to about `1e-11`, which is why the
- * decode assertions are held to `1e-15`.
+ * sRGB decoding and quantized encoding follow the declared piecewise transfer
+ * curves, with independently calculated channel values and refusal boundaries.
  *
  * Scenarios:
  *
@@ -33,31 +25,38 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. The encode's piecewise split is exercised the same way: linear `0.001`
  *    takes the `* 12.92` segment while `0.5` takes the power segment, and the
  *    values straddling the `0.0031308` breakpoint land on one byte.
- * 5. All 256 channel values round-trip exactly through decode and encode, so a
- *    `hex` label derived from a triple can be decoded back to that triple.
- * 6. The decoded `hex` is re-derived from the decoded triple rather than copied,
- *    which normalizes a mixed-case swatch and makes the label unable to
- *    disagree with the numbers beside it. Alpha is `1`, a six-digit swatch
- *    being opaque.
+ * 5. All 256 grayscale channel values round-trip exactly through decode and encode;
+ *    arbitrary linear triples remain subject to eight-bit quantization.
+ * 6. A mixed-case swatch returns its lowercase label and alpha `1`; these
+ *    observations do not distinguish re-encoding from lowercasing the input.
  * 7. Components outside `[0, 1]` clamp to the gamut ends because eight bits
  *    cannot state light the display cannot emit.
  * 8. A malformed swatch is refused rather than decoded: a missing `#`, five
  *    digits, eight digits, a non-hexadecimal digit, and the empty string.
  * 9. A non-finite component is refused rather than clamped, so `NaN` can never
  *    be rounded into a string that reads like a swatch.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual sRGB decode/encode and asserts channel values, opaque alpha, normalized labels, quantized bytes, gamut clipping and named refusals. Treating display bytes as linear channels, choosing the wrong transfer branch or encoding nonfinite data fails these assertions.
+ * @evidence contracts/testing.md#independent-expectations The declared sRGB thresholds 0.04045/0.0031308, divisor 12.92, offset .055 and exponent 2.4 determine the literal/formula expectations and rounded output bytes. Grayscale roundtrip parity alone can share an inverse-pair defect, so independent midtone and branch values constrain it; this unit observes numbers rather than displayed color.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves black/white, slate/midgrey, bytes immediately below/above decode split, both encode branches and split adjacency, all 256 grayscale bytes, mixed-case labels, opaque alpha, finite out-of-gamut channels, five malformed swatches and all three nonfinite values. Arbitrary linear RGB cannot round-trip losslessly through eight-bit labels.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns every transfer case and invokes portable color source with local arithmetic observers, without installing a consumer, compiling a native artifact, starting a process/browser/GPU or dynamically registering tests.
  */
-export const test_math_srgb_linear_transfer = (): void => {
-  const black = srgbHexToLinearColor("#000000");
-  const white = srgbHexToLinearColor("#ffffff");
-  TestValidator.equals(
+export function test_math_srgb_linear_transfer(): void {
+  const black: IAutoMovieColor = srgbHexToLinearColor("#000000");
+  const white: IAutoMovieColor = srgbHexToLinearColor("#ffffff");
+  TestValidator.predicate(
     "black decodes to the linear origin",
-    { r: black.r, g: black.g, b: black.b },
-    { r: 0, g: 0, b: 0 },
+    equalGeometryTestValues(
+      { r: black.r, g: black.g, b: black.b },
+      { r: 0, g: 0, b: 0 },
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "white decodes to exact unity",
-    { r: white.r, g: white.g, b: white.b },
-    { r: 1, g: 1, b: 1 },
+    equalGeometryTestValues(
+      { r: white.r, g: white.g, b: white.b },
+      { r: 1, g: 1, b: 1 },
+    ),
   );
   TestValidator.equals(
     "the gamut ends re-encode to themselves",
@@ -66,7 +65,7 @@ export const test_math_srgb_linear_transfer = (): void => {
   );
 
   // ((0x7d / 255 + 0.055) / 1.055) ** 2.4 and its two siblings, by hand.
-  const slate = srgbHexToLinearColor("#7d828c");
+  const slate: IAutoMovieColor = srgbHexToLinearColor("#7d828c");
   TestValidator.predicate(
     "the roof swatch decodes to the standard's linear triple",
     nclose(slate.r, 0.20507874, 1e-8) &&
@@ -102,7 +101,9 @@ export const test_math_srgb_linear_transfer = (): void => {
     nclose(0.04045 / 12.92, Math.pow((0.04045 + 0.055) / 1.055, 2.4), 1e-8),
   );
 
-  const grey = (component: number) => ({
+  const grey: (component: number) => Pick<IAutoMovieColor, "r" | "g" | "b"> = (
+    component: number,
+  ): Pick<IAutoMovieColor, "r" | "g" | "b"> => ({
     r: component,
     g: component,
     b: component,
@@ -124,25 +125,30 @@ export const test_math_srgb_linear_transfer = (): void => {
     ["#0a0a0a", "#0a0a0a"],
   );
 
-  const digits = "0123456789abcdef";
-  const byte = (value: number): string =>
+  const digits: string = "0123456789abcdef";
+  const byte: (value: number) => string = (value: number): string =>
     `${digits[value >> 4]}${digits[value & 0xf]}`;
   TestValidator.equals(
     "every channel value round-trips exactly",
-    Array.from({ length: 256 }, (_, value) => byte(value)).filter((pair) => {
-      const swatch = `#${pair}${pair}${pair}`;
+    Array.from({ length: 256 }, (_: unknown, value: number): string =>
+      byte(value),
+    ).filter((pair: string): boolean => {
+      const swatch: string = `#${pair}${pair}${pair}`;
       return linearColorToSrgbHex(srgbHexToLinearColor(swatch)) !== swatch;
     }),
     [],
   );
 
-  const mixed = srgbHexToLinearColor("#7D828C");
+  const mixed: IAutoMovieColor = srgbHexToLinearColor("#7D828C");
   TestValidator.equals(
     "the label is re-derived from the triple and normalized",
     mixed.hex,
     "#7d828c",
   );
-  TestValidator.equals("a six-digit swatch is opaque", mixed.a, 1);
+  TestValidator.predicate(
+    "a six-digit swatch is opaque",
+    typeof mixed.a === "number" && nclose(mixed.a, 1, 0),
+  );
 
   TestValidator.equals(
     "components outside the gamut clamp to its ends",
@@ -153,9 +159,9 @@ export const test_math_srgb_linear_transfer = (): void => {
   TestValidator.equals(
     "a malformed swatch is refused rather than decoded",
     ["7d828c", "#7d828", "#7d828cff", "#gg0000", ""].filter(
-      (swatch) =>
+      (swatch: string): boolean =>
         throwsError(
-          () => srgbHexToLinearColor(swatch),
+          (): IAutoMovieColor => srgbHexToLinearColor(swatch),
           ["is not one opaque six-digit #RRGGBB swatch"],
         ) === false,
     ),
@@ -164,12 +170,12 @@ export const test_math_srgb_linear_transfer = (): void => {
   TestValidator.equals(
     "a non-finite component is refused rather than clamped",
     [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY].filter(
-      (component) =>
+      (component: number): boolean =>
         throwsError(
-          () => linearColorToSrgbHex(grey(component)),
+          (): string => linearColorToSrgbHex(grey(component)),
           ["is not a finite number"],
         ) === false,
     ),
     [],
   );
-};
+}

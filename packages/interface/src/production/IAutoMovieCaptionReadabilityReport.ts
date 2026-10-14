@@ -4,25 +4,17 @@ import { IAutoMovieCaptionReadabilityOutcome } from "./IAutoMovieCaptionReadabil
 /**
  * Readability report kept outside the byte-stable compiled edit.
  *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Reports metrics without modifying legacy caption output when no profile exists.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-measurement Joins each actual identity and measurement to its evaluated or not-run outcome.
+ * @evidence contracts/common.md#principled-implementation Render emits version-two reports by mapping the supplied caption track in its existing order, pairing each measurement with the selected profile verdict or explicit not-run outcome; canonical ordering is a caller premise rather than a sorting operation here.
+ * @evidence contracts/common.md#clear-and-simple-design One ordered cue list pairs measurement and outcome without modifying the byte-stable edit; runtime-dependent readability therefore remains independent of deterministic edit serialization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A report does not replace absent evaluations with successful cues or drop their measured facts, and runtime segmentation changes cannot silently mutate the compiled edit identity.
+ * @evidence contracts/common.md#meaningful-documentation States the report's separation from the compiled edit, schema version, canonical cue ordering and measurement-versus-profile-outcome pairing.
  * @author Samchon
  */
 export interface IAutoMovieCaptionReadabilityReport {
-  /**
-   * Caption-readability report schema.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Versions the measurement and outcome record.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Makes report interpretation explicit.
-   */
+  /** Caption-readability report schema. */
   version: 2;
 
-  /**
-   * Cue reports in canonical film and cue order.
-   *
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-caption-readability-profile Reports every measured cue in deterministic order.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-readability-profile Joins measurements and outcomes without modifying the edit.
-   */
+  /** Cue reports in canonical film and cue order. */
   cues: Array<{
     /** Effective cue measurements. */
     measurement: IAutoMovieCaptionReadabilityMeasurement;

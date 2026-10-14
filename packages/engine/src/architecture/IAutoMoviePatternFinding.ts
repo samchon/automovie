@@ -1,48 +1,49 @@
 /**
  * One structured defect or unsupported case a pattern run reports.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `IAutoMoviePatternFinding` represents one structured defect or unsupported case a pattern run reports. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `IAutoMoviePatternFinding` structures one structured defect or unsupported case a pattern run reports for the system that resolves the declared physical-module pattern deterministically.
+ * The unit of `measured` and the meaning of `limit` follow `kind`:
+ *
+ * - `sliver`: one occurrence; surviving coverage fraction against the
+ *   pattern's `minimumPiece`.
+ * - `unsupported-piece`: one occurrence; square metres an exclusion punched
+ *   out, against zero.
+ * - `module-overlap`: two occurrences; their negative separation in metres,
+ *   against zero.
+ * - `joint-deviation`: two occurrences; their gap in metres against the
+ *   nominal joint, reported when the difference exceeds `jointTolerance`.
+ * - `grain-break`: two occurrences; grain deviation in degrees, read modulo
+ *   180, against `grainToleranceDeg`.
+ *
+ * Per-occurrence findings come first in placement order, then pair findings
+ * ordered by their first occurrence and then their partner.
+ *
+ * @evidence contracts/common.md#principled-implementation Each kind fixes the unit of `measured` and the meaning of `limit`, so a finding is a typed measurement against a declared threshold rather than free text.
+ * @evidence contracts/common.md#clear-and-simple-design One shape for single and pair findings, with `occurrences` holding one or two ids, keeps the list uniform for a reader that groups by kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Quality defects are reported, not thrown or silently corrected, and the thresholds come from the pattern declaration rather than fixture constants.
+ * @evidence contracts/common.md#meaningful-documentation States the unit and limit per kind, the occurrence count per kind, the order of the list, and that `detail` is actionable text.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; findings come from one pass over placements and a bucketed neighbour scan, answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced per run and not shared across runs, since every threshold is part of the pattern.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and two numbers in fresh arrays owned by the run result.
+ * @author Samchon
  */
 export interface IAutoMoviePatternFinding {
-  /**
-   * What the run measured and found wanting.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-refusal `kind` records what the run measured and found wanting for `IAutoMoviePatternFinding`. This ensures invalid module layouts produce explicit findings instead of silent distortion or omission.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `kind` tells the engine what the run measured and found wanting for `IAutoMoviePatternFinding` as it resolves the declared physical-module pattern deterministically.
-   */
+  /** What the run measured and found wanting. */
   kind:
     | "sliver"
     | "unsupported-piece"
     | "module-overlap"
     | "joint-deviation"
     | "grain-break";
-  /**
-   * Occurrence ids involved, in ascending placement order.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `occurrences` records `IAutoMoviePatternFinding`'s occurrence ids involved, in ascending placement order. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `occurrences` supplies `IAutoMoviePatternFinding`'s occurrence ids involved, in ascending placement order when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** One occurrence id, or two for a pair, in ascending placement order. */
   occurrences: string[];
-  /**
-   * The measured quantity, in the finding's own unit.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `measured` records `IAutoMoviePatternFinding`'s measured quantity, in the finding's own unit. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `measured` supplies `IAutoMoviePatternFinding`'s measured quantity, in the finding's own unit when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** The measured quantity, in the unit `kind` implies. */
   measured: number;
-  /**
-   * The limit the measurement failed against.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `limit` records `IAutoMoviePatternFinding`'s limit the measurement failed against. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `limit` supplies `IAutoMoviePatternFinding`'s limit the measurement failed against when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** The declared value the measurement was judged against, by `kind`. */
   limit: number;
-  /**
-   * A statement an author or an agent can act on.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `detail` records `IAutoMoviePatternFinding`'s statement an author or an agent can act on. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `detail` supplies `IAutoMoviePatternFinding`'s statement an author or an agent can act on when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** A statement an author or an agent can act on. */
   detail: string;
 }

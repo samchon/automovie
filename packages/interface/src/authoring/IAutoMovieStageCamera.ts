@@ -7,75 +7,44 @@ import { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMovieCam
 /**
  * One camera available to the registered shot.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieStageCamera` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieStageCamera` for the spec authoring authority compatibility system contract.
+ * `stageScene` lowers it to a scene camera whose level-horizon look basis aims local -Z at the resolved `lookAt` point, using world +Z as the reference near a vertical aim. That is the opening framing; the first `frame` action elects the live camera and authors its move from there.
+ *
+ * @evidence contracts/common.md#principled-implementation `stageScene` requires finite position, field of view in `(0, 180)` degrees, finite `0 < near < far`, valid depth precision and clearance, and a placed-node or finite-point look target at least `1e-9` m away. lookRotation builds the level-horizon basis rather than a shortest-arc aim; representable target subtraction and normalization remain premises because lowering has no separate rotation-result gate.
+ * @evidence contracts/common.md#clear-and-simple-design The record states the lens, clip range, precision demand and opening aim in the stage's own vocabulary; the resolved rotation and lowered envelope belong to the scene camera, so the author never writes a quaternion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A camera aimed at its own position is refused rather than given an arbitrary rotation, and a node `lookAt` resolves to the target's placement point with no per-kind height offset.
+ * @evidence contracts/common.md#meaningful-documentation States the id's role, the world frame and units, how `lookAt` resolves and what may be named, the strict field-of-view and clip bounds, and what an omitted clearance means.
+ * @author Samchon
  */
 export interface IAutoMovieStageCamera {
-  /**
-   * Unique scene camera identity used by {@code frame} actions.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `node` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `node` for the spec authoring authority compatibility system contract.
-   */
+  /** Non-blank unique scene camera identity that `frame` actions name. */
   node: string;
 
-  /**
-   * Initial camera position in world meters.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `position` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `position` for the spec authoring authority compatibility system contract.
-   */
+  /** Finite initial camera position in world metres. */
   position: IAutoMovieVector3;
 
   /**
-   * Initial live subject; stage validation requires it to resolve.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `lookAt` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `lookAt` for the spec authoring authority compatibility system contract.
+   * Opening aim: a placed actor, set piece or camera, which resolves to its placement position, or a finite world point. It must not coincide with {@link position}; later aim comes from `frame` actions.
    */
   lookAt: IAutoMovieNodeTarget | IAutoMoviePointTarget;
 
-  /**
-   * Vertical field of view in degrees, strictly between zero and 180.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `fovDeg` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `fovDeg` for the spec authoring authority compatibility system contract.
-   */
+  /** Vertical field of view in degrees, strictly between `0` and `180`. */
   fovDeg: number;
 
-  /**
-   * Positive near clip distance in camera-space metres.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Exposes the authored near boundary instead of accepting a stage-owned constant.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the near operand lowered without substitution into clipping and precision evaluation.
-   */
+  /** Finite positive near clip distance in camera-space metres. */
   near: number;
 
-  /**
-   * Far clip distance in camera-space metres, strictly greater than `near`.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Exposes the authored far boundary instead of accepting a stage-owned constant.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the far operand lowered without substitution into clipping and precision evaluation.
-   */
+  /** Finite far clip distance in camera-space metres, greater than `near`. */
   far: number;
 
   /**
-   * Minimum standard depth capability and maximum adjacent step in metres.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clipping-range Makes precision acceptance an authored numeric boundary rather than an inferred renderer default.
-   * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-clipping-clearance-evaluation Types the precision constraint lowered onto the resolved camera and evaluated against current required bounds.
+   * Minimum standard depth-buffer bits and greatest adjacent depth step in metres, copied onto the scene camera.
    */
   depthPrecision: IAutoMovieCameraDepthPrecisionConstraint;
 
   /**
    * Camera-local physical body and optional parent-rig clearance envelopes.
    *
-   * Omit only when this authored camera makes no physical-clearance claim.
-   * Stage validation refuses malformed centres and non-positive radii before
-   * lowering the same envelope onto the resolved scene camera.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-clearance Exposes the authored camera and rig bodies whose scene penetration must be refused.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Types the physical input lowered into swept-path evaluation.
+   * Omit only when this authored camera makes no physical-clearance claim. Stage validation refuses malformed centres and non-positive radii before lowering the same envelope onto the resolved scene camera.
    */
   clearance?: IAutoMovieCameraClearanceEnvelope;
 }

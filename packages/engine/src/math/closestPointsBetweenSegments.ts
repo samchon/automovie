@@ -1,6 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
+import { IAutoMovieClosestSegmentPoints } from "./IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "./Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 
@@ -31,45 +31,60 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * orientation on a nonunique minimum; it does not change the separation.
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Returns paired contact witnesses and their shared separation without an absolute scale-dependent parallel cutoff.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Minimises the bounded contact-feature quadratic and measures the separation of the same owned witnesses used for a contact normal.
+ *
+ * @evidence contracts/common.md#principled-implementation Four boundary minima and a clipped stationary-line residual minimum cover the constrained segment quadratic; local scaling avoids determinant cancellation, while unrepresentable nonzero spans and witness distances refuse.
+ * @evidence contracts/common.md#clear-and-simple-design One owner supplies both separation and contact witnesses to distance and collision consumers, including deterministic parameter ties.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No absolute parallel epsilon replaces interior minima; only exact zero coefficients select degeneracies.
+ * @evidence contracts/common.md#meaningful-documentation Documents metres, fresh witnesses, the stationary-line construction, finite-arithmetic refusals, tie ordering and noncertified binary64 precision.
+ * @evidence contracts/performance.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate use constant-dimensional arithmetic and bounded storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once; changed endpoints require a new query.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
  * @author Samchon
  */
-export const closestPointsBetweenSegments = (
+export const closestPointsBetweenSegments: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+  d: IAutoMovieVector3,
+) => IAutoMovieClosestSegmentPoints = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
   c: IAutoMovieVector3,
   d: IAutoMovieVector3,
 ): IAutoMovieClosestSegmentPoints => {
-  const rawU = Vector3.subtract(b, a);
-  const rawV = Vector3.subtract(d, c);
-  const rawR = Vector3.subtract(a, c);
-  const values = [a, b, c, d, rawU, rawV, rawR].flatMap((p) => [p.x, p.y, p.z]);
+  const rawU: IAutoMovieVector3 = Vector3.subtract(b, a);
+  const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
+  const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
+  const values: number[] = [a, b, c, d, rawU, rawV, rawR].flatMap(
+    (p: IAutoMovieVector3): number[] => [p.x, p.y, p.z],
+  );
   if (!values.every(Number.isFinite))
     throw new Error(
       "Segment proximity requires finite coordinates and differences.",
     );
-  const scale = Math.max(
-    ...[rawU, rawV, rawR].flatMap((p) => [
+  const scale: number = Math.max(
+    ...[rawU, rawV, rawR].flatMap((p: IAutoMovieVector3): number[] => [
       Math.abs(p.x),
       Math.abs(p.y),
       Math.abs(p.z),
     ]),
   );
   if (scale === 0) return { pointA: { ...a }, pointB: { ...c }, distance: 0 };
-  const scaled = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+  const scaled: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 => ({
     x: p.x / scale,
     y: p.y / scale,
     z: p.z / scale,
   });
-  const u = scaled(rawU),
-    v = scaled(rawV),
-    r = scaled(rawR);
-  const A = Vector3.dot(u, u),
-    B = Vector3.dot(u, v),
-    E = Vector3.dot(v, v);
-  const C = Vector3.dot(u, r),
-    F = Vector3.dot(v, r);
+  const u: IAutoMovieVector3 = scaled(rawU),
+    v: IAutoMovieVector3 = scaled(rawV),
+    r: IAutoMovieVector3 = scaled(rawR);
+  const A: number = Vector3.dot(u, u),
+    B: number = Vector3.dot(u, v),
+    E: number = Vector3.dot(v, v);
+  const C: number = Vector3.dot(u, r),
+    F: number = Vector3.dot(v, r);
   if (
     (A === 0 && Math.hypot(rawU.x, rawU.y, rawU.z) > 0) ||
     (E === 0 && Math.hypot(rawV.x, rawV.y, rawV.z) > 0)
@@ -77,15 +92,18 @@ export const closestPointsBetweenSegments = (
     throw new Error(
       "Segment proximity cannot represent a nonzero scaled span.",
     );
-  let s = 0,
-    t = 0,
-    best = Math.hypot(r.x, r.y, r.z);
-  const offer = (alongA: number, alongB: number): void => {
-    const residual = Vector3.subtract(
+  let s: number = 0,
+    t: number = 0,
+    best: number = Math.hypot(r.x, r.y, r.z);
+  const offer: (alongA: number, alongB: number) => void = (
+    alongA: number,
+    alongB: number,
+  ): void => {
+    const residual: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(r, Vector3.scale(u, alongA)),
       Vector3.scale(v, alongB),
     );
-    const distance = Math.hypot(residual.x, residual.y, residual.z);
+    const distance: number = Math.hypot(residual.x, residual.y, residual.z);
     if (
       distance < best ||
       (distance === best && (alongA < s || (alongA === s && alongB < t)))
@@ -110,29 +128,29 @@ export const closestPointsBetweenSegments = (
         clampAutoMovieUnitInterval(F / E),
       );
     else {
-      const first = C / B,
-        last = (C + A) / B;
-      const low = Math.max(0, Math.min(first, last));
-      const high = Math.min(1, Math.max(first, last));
+      const first: number = C / B,
+        last: number = (C + A) / B;
+      const low: number = Math.max(0, Math.min(first, last));
+      const high: number = Math.min(1, Math.max(first, last));
       if (low <= high) {
-        const s0 = clampAutoMovieUnitInterval((B * low - C) / A);
-        const s1 = clampAutoMovieUnitInterval((B * high - C) / A);
-        const residual = Vector3.subtract(
+        const s0: number = clampAutoMovieUnitInterval((B * low - C) / A);
+        const s1: number = clampAutoMovieUnitInterval((B * high - C) / A);
+        const residual: IAutoMovieVector3 = Vector3.subtract(
           Vector3.add(r, Vector3.scale(u, s0)),
           Vector3.scale(v, low),
         );
-        const delta = Vector3.subtract(
+        const delta: IAutoMovieVector3 = Vector3.subtract(
           Vector3.scale(u, s1 - s0),
           Vector3.scale(v, high - low),
         );
-        const length = Math.hypot(delta.x, delta.y, delta.z);
+        const length: number = Math.hypot(delta.x, delta.y, delta.z);
         if (length > 0) {
-          const unit = {
+          const unit: IAutoMovieVector3 = {
             x: delta.x / length,
             y: delta.y / length,
             z: delta.z / length,
           };
-          const fraction = clampAutoMovieUnitInterval(
+          const fraction: number = clampAutoMovieUnitInterval(
             -Vector3.dot(residual, unit) / length,
           );
           offer(s0 + fraction * (s1 - s0), low + fraction * (high - low));
@@ -140,10 +158,10 @@ export const closestPointsBetweenSegments = (
       }
     }
   }
-  const pointA = Vector3.add(a, Vector3.scale(rawU, s));
-  const pointB = Vector3.add(c, Vector3.scale(rawV, t));
-  const difference = Vector3.subtract(pointA, pointB);
-  const distance = Math.hypot(difference.x, difference.y, difference.z);
+  const pointA: IAutoMovieVector3 = Vector3.add(a, Vector3.scale(rawU, s));
+  const pointB: IAutoMovieVector3 = Vector3.add(c, Vector3.scale(rawV, t));
+  const difference: IAutoMovieVector3 = Vector3.subtract(pointA, pointB);
+  const distance: number = Math.hypot(difference.x, difference.y, difference.z);
   if (!Number.isFinite(distance))
     throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };

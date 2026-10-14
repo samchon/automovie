@@ -1,43 +1,47 @@
 import { HUMAN_SKIN_FINISH } from "../../common/skin/HUMAN_SKIN_FINISH";
 
 /**
- * The conventions by which a face basis and a body basis are joined at the
- * neck. Every length the seam uses is measured from the two bases; what is
- * fixed here are the names of the materials and the thresholds of the
- * measurements, each stated with what it means, so a change is one edit with
- * one meaning.
+ * Legacy neck-join material and sampled rig conventions. Seam reaches derive
+ * from the supplied source geometry and weights unless explicitly overridden
+ * in metres. These constants neither measure physiology nor certify final
+ * geometry or current rendered appearance.
  *
  * - `skinMaterial` is the material id both bases give their skin. The seam
  *   finds each anatomy's skin surface as the surface that draws it.
- * - `neckShare` is the fraction of the skin around the collar that the neck
- *   and head bones must still carry for the skin to count as neck. The seam's
- *   reach is the geodesic distance from the retained collar within which the
- *   body's own skin weights say the neck (or head) is the dominant bone for at
- *   least this share of the vertices, that is, the extent of the neck as the
- *   body's rig defines it (`measureHumanNeckReach`). Half means the neck
- *   carries the majority of the skin inside the reach.
- * - `headShare` is the fraction of the head bone's weight, over the neck's own
- *   skin below the collar, that defines how far the head's influence extends
- *   (`measureHumanHeadReach`). The face's neck skin above the collar takes
- *   that long to rise from the body's weights at the collar to the head's
- *   alone, so the twist a turned head asks of the neck is spread over the
- *   length the body spreads it over.
- * - `jawShare` is the weight above which the face's mandible attachment
- *   counts as carrying a vertex: a vertex the jaw carries more than half is
- *   the mandible's skin and follows the head whole, whatever its height above
- *   the neck's cut, because the chin does not slide under the collar.
+ * - `neckShare` is the cumulative vertex-count threshold for source samples
+ *   whose dominant bone is neck or head. Sorted triangle-edge graph distances
+ *   return the first sample where that share falls below 0.5, or the last
+ *   reachable sample if it never does (`measureHumanNeckReach`). This is a
+ *   tessellation-dependent rig convention, not measured anatomical extent.
+ * - `headShare` selects the first sorted graph distance containing 0.95 of
+ *   sampled head-weight mass strictly inside the neck reach. Uniform source
+ *   vertex sampling is not surface-area weighting. The resulting metre reach
+ *   is used as the face height interval for collar-to-head weight blending
+ *   (`measureHumanHeadReach`, `createHumanPersonFaceSkin`).
+ * - `jawShare` selects face mandible-attachment rows strictly above 0.5 for
+ *   head-only skin weights regardless of height above the cut. This rig
+ *   convention leaves any position-dependent head twist with the skin owner
+ *   and supplies no independent chin/contact guarantee.
  * - `fairRings` is how many edge rings on each side of the seam the shading
- *   normals are blended over (five, about a centimetre and a half at the
- *   skins' sampling), so the step between the face's slope and the body's
- *   becomes a gradient (`fairHumanSeamNormals`). It changes shading only.
+ *   normals are blended over (five; their metre extent depends on sampling),
+ *   using the existing ring-weighted Jacobi sweeps (`fairHumanSeamNormals`).
+ *   It changes shading only.
  * - `radialGuard` bounds, as a multiple of the body loop's greatest distance
  *   from the neck axis, which vertices the covered band may take: only skin
- *   close to the neck can lie in the band both anatomies describe, so an arm
- *   raised beside the head is never mistaken for neck.
+ *   close to the neck can pass this radial part of the sampled overlap test.
+ *   A raised arm inside that radius can still pass; this guard is neither
+ *   anatomical classification nor a collision guarantee.
  *
  * @author Samchon
  */
-export const HUMAN_PERSON_SEAM = {
+export const HUMAN_PERSON_SEAM: {
+  readonly skinMaterial: typeof HUMAN_SKIN_FINISH.material;
+  readonly neckShare: 0.5;
+  readonly headShare: 0.95;
+  readonly jawShare: 0.5;
+  readonly fairRings: 5;
+  readonly radialGuard: 1.5;
+} = {
   skinMaterial: HUMAN_SKIN_FINISH.material,
   neckShare: 0.5,
   headShare: 0.95,

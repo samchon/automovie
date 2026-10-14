@@ -1,9 +1,16 @@
 /**
  * Compiler-owned skeleton identity for one rigged project model recipe.
  *
- * @evidence requirements/actors/scope-and-identity.md#actor-identity-representation-lifetime Keeps a runtime rig representation replaceable without changing the owning production actor identity.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-story-performance-state Names the selected skeleton binding independently of the story and production actor identities.
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Prefix the unchanged recipe id with automovie:skeleton: so a rigged production recipe addresses its compiler-owned skeleton without conflating it with the model namespace.
+ * @evidence contracts/common.md#clear-and-simple-design One naming function shares the exact namespace between production materialization and runtime profile binding.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The namespace is explicit product policy; punctuation is preserved and no recipe or fixture receives a special alias.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies compiler ownership and recipe identity; the result is an identifier rather than a filesystem path.
+ * @evidence contracts/performance.md#efficient-algorithms One concatenation takes O(L) time and output bytes for an L-character recipe id, without inventory lookup.
+ * @evidence contracts/performance.md#reuse-equivalent-work All callers reuse the naming law; immutable equal strings require no retained cache or invalidation state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned string survives, with no skeleton, registry or resource handle retained.
  */
-export const productionRuntimeSkeletonId = (recipe: string): string =>
-  `automovie:skeleton:${recipe}`;
+export const productionRuntimeSkeletonId: (recipe: string) => string = (
+  recipe: string,
+): string => `automovie:skeleton:${recipe}`;

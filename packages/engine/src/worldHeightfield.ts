@@ -1,26 +1,27 @@
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 
 /**
- * Build one heightfield terrain surface by sampling a height function.
+ * Bake a supplied height callback into a row-major terrain lattice.
  *
- * The relief a production wants is almost always a rule — a slope that eases
- * off, a terrace, a bank falling to a river — and transcribing that rule into a
- * flat array by hand is where a hill acquires a step nobody meant. The function
- * is evaluated once per lattice point, in row-major order, and only its results
- * are kept: the compiled design carries numbers, so nothing at render time
- * depends on the function still existing or still answering the same way.
- *
- * That makes determinism the caller's to keep for exactly one thing: `height`
- * must be a pure function of the point it is given. A sampler that reads a
- * clock, a counter or unseeded randomness bakes one machine's terrain into the
- * design, which is the one way this can produce different frames elsewhere.
- *
- * @evidence requirements/map/terrain-and-landforms.md#map-elevation-slope Samples an authored elevation rule on a declared XZ lattice and stores the resulting terrain heights.
- * @evidence requirements/map/terrain-and-landforms.md#map-terrain-resolution-uncertainty `worldHeightfield` makes sample origin, spacing, row and column counts, and every finite height explicit so callers can retain the terrain's actual resolution.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-elevation-slope-surface-input Fixes footprint, origin, spacing, sample order, and finite elevations in the emitted heightfield record.
- * @evidence specifications/world-and-site/terrain-ground-and-geology.md#world-site-terrain-resolution-gap The heightfield record exposes the finite lattice resolution rather than presenting unsampled terrain as continuous measured detail.
+ * @evidence contracts/common.md#principled-implementation Each row/column coordinate is evaluated once, finite returned heights become stored samples, and downstream surfaceHeightAt owns bilinear edge-clamped reading. A pure callback is a determinism premise not enforced by this constructor.
+ * @evidence contracts/common.md#clear-and-simple-design The design retains sampled numbers and a copied footprint instead of a live callback, so later rendering depends on the baked generation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Blank id, nonfinite origin/nonpositive spacing, non-safe dimensions below two and nonfinite callback results throw. Derived coordinate overflow and an allocatable total sample population remain unchecked prerequisites; callback effects/errors propagate.
+ * @evidence contracts/common.md#meaningful-documentation Documents world metre origin/pitch, row-major +X/+Z order, finite sample admission, caller-owned purity and the absence of a lattice population budget.
+ * @evidence contracts/performance.md#efficient-algorithms C columns and R rows require C*R callback evaluations/storage plus footprint cloning; callback cost is additional and individually safe dimensions do not bound their product or memory use.
+ * @evidence contracts/performance.md#reuse-equivalent-work Every lattice point is sampled once and the result serves future queries; effectful callbacks are not memoized or retried and changed terrain needs a new bake.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh sample buffer, rule and copied polygon; the callback and input footprint are not retained after success or failure, with no background sampler.
+ * @author Samchon
  */
-export const worldHeightfield = (input: {
+export const worldHeightfield: (input: {
+  id: string;
+  polygon: { x: number; z: number }[];
+  origin: { x: number; z: number };
+  spacing: { x: number; z: number };
+  columns: number;
+  rows: number;
+  height: (point: { x: number; z: number }) => number;
+  walkable: boolean;
+}) => IAutoMovieWorldSurface = (input: {
   id: string;
   polygon: IAutoMovieWorldSurface["polygon"];
   /** World XZ of sample column and row zero. */
@@ -57,9 +58,9 @@ export const worldHeightfield = (input: {
       `World heightfield "${input.id}" requires at least two sample columns and rows.`,
     );
   const samples: number[] = [];
-  for (let row = 0; row < input.rows; ++row)
-    for (let column = 0; column < input.columns; ++column) {
-      const height = input.height({
+  for (let row: number = 0; row < input.rows; ++row)
+    for (let column: number = 0; column < input.columns; ++column) {
+      const height: number = input.height({
         x: input.origin.x + column * input.spacing.x,
         z: input.origin.z + row * input.spacing.z,
       });
@@ -86,7 +87,11 @@ export const worldHeightfield = (input: {
   };
 };
 
-const assertText = (value: string, field: string): void => {
+/** Require non-whitespace terrain identity while preserving its authored spelling. */
+const assertText: (value: string, field: string) => void = (
+  value: string,
+  field: string,
+): void => {
   if (value.trim().length === 0)
     throw new Error(`${field} must contain non-whitespace text.`);
 };

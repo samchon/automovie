@@ -3,100 +3,67 @@ import { AutoMovieTextureCoordinateSource } from "./AutoMovieTextureCoordinateSo
 /**
  * One renderer-resolved texture and its deterministic sampling intent.
  *
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `IAutoMovieTextureReference` as the portable data boundary for the asset texture coordinates scale requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `IAutoMovieTextureReference` for the asset spec material texture relations system contract.
+ * @evidence contracts/common.md#principled-implementation Asset identity, decoding colour space and UV sampling are declared independently; `validateTextureBinding` requires UV0 and the slot's colour space, finite transforms with nonzero scales, and supported wrap and filter literals.
+ * @evidence contracts/common.md#clear-and-simple-design Transform and sampler each group one optional sampling concern next to the asset citation; physical UV units are a separate optional declaration consumed by texture-scale validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No image dimensions or asset name imply UV units; omitting coordinateSource makes no scale claim, and requesting another UV set is refused because this mesh representation carries only UV0.
+ * @evidence contracts/common.md#meaningful-documentation Describes asset ownership, decoding, UV0 and the packed-atlas exclusion with reopening conditions, coordinate-source omission, physical repeat formulas, and origin-based transform units.
+ * @author Samchon
  */
 export interface IAutoMovieTextureReference {
-  /**
-   * Project asset id.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `asset` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `asset` for the asset spec material texture relations system contract.
-   */
+  /** Project asset id. */
   asset: string;
 
   /**
-   * UV set index. Generated automovie meshes that emit texture coordinates
-   * provide set zero and no other.
+   * UV set index. Generated automovie meshes that emit texture coordinates provide set zero and no other.
    *
-   * A second set would be a packed atlas: the promise that a named `[0, 1]`
-   * island of one image belongs to one named part of one surface. That is a
-   * decided exclusion rather than pending work. Packing islands is a layout
-   * decision no authoring agent can state in natural language, the layout only
-   * becomes useful once it leaves the engine as an artifact an image model can
-   * paint into, which is the scene export the product does not have, and
-   * painted-to-fit artwork is finished-look work the repaint lane owns rather
-   * than blocking-pass work. It reopens when an authoring agent can drive a
-   * packing rule and the product has somewhere for the layout to go.
+   * The supported mesh representation carries UV0 only; a second coordinate set is not inherently a packed atlas. Packed-atlas authoring and multiple UV sets remain excluded by this contract. Reopening requires an authorable layout rule and a supported artifact/consumer path for that layout, rather than selecting an unavailable channel here.
    *
-   * A set index above zero therefore addresses geometry this repository did not
-   * generate: an ingested mesh that arrived carrying its own extra set.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `texCoord` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `texCoord` for the asset spec material texture relations system contract.
+   * The current runtime admits only zero, including imported appearances.
    */
   texCoord: number;
 
   /**
-   * What one unit of the addressed UV set means. Omission preserves legacy raw
-   * UV sampling without making a new claim about the set's unit or extent.
+   * What one unit of the addressed UV set means. Omission preserves legacy raw UV sampling without making a new claim about the set's unit or extent.
    *
-   * Declare `"surface-metres"` for an atlas-bearing procedural surface, which
-   * is what the geometry kernel emits and what most generated members carry;
-   * omitting the field there leaves the unit unstated rather than defaulted.
-   * Declare `"normalized"` for a lattice surface, a module prototype, or an
-   * imported set whose selected UV layout is known to span `[0, 1]`. Declare
-   * `"source-uv"` when an imported set keeps its arbitrary authored layout;
-   * importing a mesh does not normalize that layout by itself.
-   * `transform.scale` is read against whichever source this names, and the
-   * three cannot be told apart from the material record without it.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Declares the coordinate system this binding's real scale is expressed in, so the same input places the same way.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Supplies the coordinate set the binding record must state beside its transform and real scale.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-coordinate-convention Carries the declared vocabulary the convention's three coordinate sources are named in, which is what makes the unit a binding states readable from the record alone.
+   * Declare `"surface-metres"` for an atlas-bearing procedural surface, which is what the geometry kernel emits and what most generated members carry; omitting the field there leaves the unit unstated rather than defaulted. Declare `"normalized"` for a lattice surface, a module prototype, or an imported set whose selected UV layout is known to span `[0, 1]`. Declare `"source-uv"` when an imported set keeps its arbitrary authored layout; importing a mesh does not normalize that layout by itself. `transform.scale` is read against whichever source this names, and the three cannot be told apart from the material record without it.
    */
   coordinateSource?: AutoMovieTextureCoordinateSource;
 
-  /**
-   * How stored texels must be decoded before shading.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `colorSpace` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `colorSpace` for the asset spec material texture relations system contract.
-   */
+  /** How stored texels must be decoded before shading. */
   colorSpace: "srgb" | "linear";
 
   /**
    * Optional UV transform applied around the origin, in texture turns.
    *
-   * `scale` is turns of the image per unit of the addressed coordinate source,
-   * so it is `1 / tile` against `"surface-metres"` and `extent / tile` against
-   * `"normalized"`. A `"source-uv"` set has no general physical-scale formula;
-   * read its source layout or adoption receipt. Read {@link coordinateSource}
-   * before authoring it.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `transform` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `transform` for the asset spec material texture relations system contract.
+   * `scale` is turns of the image per unit of the addressed coordinate source, so it is `1 / tile` against `"surface-metres"` and `extent / tile` against `"normalized"`. A `"source-uv"` set has no general physical-scale formula; read its source layout or adoption receipt. Read {@link coordinateSource} before authoring it.
    */
   transform?: {
+    /** Finite image-turn offset applied after rotation and scale. */
     offset: { x: number; y: number };
+
+    /** Finite nonzero image turns per coordinate unit; negative mirrors. */
     scale: { x: number; y: number };
+
+    /** Finite counterclockwise rotation in degrees about the UV origin. */
     rotationDeg: number;
   };
 
-  /**
-   * Optional texture filtering and wrap policy.
-   *
-   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale Exposes `sampler` as the portable data boundary for the asset texture coordinates scale requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `sampler` for the asset spec material texture relations system contract.
-   */
+  /** Optional texture filtering and wrap policy. */
   sampler?: {
+    /** Addressing beyond the horizontal unit interval. */
     wrapS: "clamp" | "repeat" | "mirror";
+
+    /** Addressing beyond the vertical unit interval. */
     wrapT: "clamp" | "repeat" | "mirror";
+
+    /** Filtering when the image occupies fewer pixels than its source. */
     minFilter:
       | "nearest"
       | "linear"
       | "nearestMipmapLinear"
       | "linearMipmapLinear";
+
+    /** Filtering when source texels are enlarged. */
     magFilter: "nearest" | "linear";
   };
 }

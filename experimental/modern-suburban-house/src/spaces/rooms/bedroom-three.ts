@@ -1,7 +1,7 @@
 /**
  * `bedroom-three`: the upper-storey front-right child bedroom (blue-grey bedding).
  *
- * Design owner: `docs/spaces/rooms/bedroom-three.md#bedroom-three-plan`.
+ *
  * Finished inner outline (X, Z): (-0.50, -0.25), (5.50, -0.25), (5.50, -4.56),
  * (3.22, -4.56), (3.22, -2.51), (1.72, -2.51), (1.72, -3.26), (-0.50, -3.26).
  * 07 assigns this owner the door run of its partition to the arrival,
@@ -24,10 +24,6 @@ import {
 import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
- * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-three-door interval remains with bedroom-three while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-three-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan places hall-bedroom-three-door on the arrival/bedroom wall at Z=[-4.46, -3.51], Y=[3.06, 5.26]; this export passes that Z span to the cut.
  */
 export const DOOR_HALL_BEDROOM_THREE_DOOR = door(
   "hall-bedroom-three-door",
@@ -53,7 +49,7 @@ const BEDROOM_THREE: IRoomSpace = {
     { x: -0.5, z: -3.26 },
   ],
   floor: PALETTE.carpet,
-  // bedroom-three.md#bedroom-three-furniture-use; heights above the upper floor (+3.06).
+  // ; heights above the upper floor (+3.06).
   reservations: [
     { id: "bedroom-three-front-curtain", kind: "fixture", x: [FRONT_WINDOWS.bedroomThree.from - 0.1, FRONT_WINDOWS.bedroomThree.to + 0.1], z: [MAIN.inner.z[1] - 0.12, MAIN.inner.z[1]], y: [FLOOR + 0.1, FRONT_WINDOWS.bedroomThree.top + 0.12] },
     { id: "bedroom-three-bed", kind: "furniture", x: [-0.25, 0.9], z: [-3.1, -0.95], y: [FLOOR, FLOOR + 0.95] },
@@ -70,14 +66,6 @@ const BEDROOM_THREE: IRoomSpace = {
 };
 
 /** Emit the bedroom floor and its door partition to the arrival. */
-/**
- * @evidence spaces/rooms/bedroom-three.md This builder forms the blue-grey bedroom's notched upper-front outline.
- * @evidence spaces/rooms/bedroom-three.md#bedroom-three-plan Eight corners preserve the linen inset and right-rear arrival floor, with its hall door in one assigned partition run.
- * @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Bed, desk, closet, chair use, and two passage bands stay within the irregular room record.
- * @evidence principles/core/source-units.md#source-scope-preservation Its hall wall ends at the assigned T corner; it does not fill the notch or author furniture meshes.
- * @evidence principles/core/source-units.md#source-substantive-completion The room, carpet/ceiling, under-door floor share, and door-cut partition return as concrete parts.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan gives the inward linen inset and one hall-bedroom-three-door; this builder keeps its eight-corner stepped outline instead of filling its rectangular hull.
- */
 export const buildBedroomThree = (): IRoomBuild => ({
   space: BEDROOM_THREE,
   parts: [

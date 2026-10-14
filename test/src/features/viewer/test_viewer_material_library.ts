@@ -1,10 +1,10 @@
-import {
-  AutoMovieTextureCache,
-  buildAutoMovieMaterialLibrary,
-} from "@automovie/viewer";
+import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { AutoMovieTextureCache } from "../../../../packages/viewer/src/AutoMovieTextureCache";
+import type { IAutoMovieMaterialLibrary } from "../../../../packages/viewer/src/IAutoMovieMaterialLibrary";
+import { buildAutoMovieMaterialLibrary } from "../../../../packages/viewer/src/buildAutoMovieMaterialLibrary";
 import { throwsError } from "../internal/predicates";
 import { boxModel, material } from "../internal/renderFixtures";
 
@@ -13,53 +13,62 @@ import { boxModel, material } from "../internal/renderFixtures";
  *
  * Scenarios:
  *
- * 1. Null selects a builder's own default, while blank, absent, conflicting,
- *    and unrequested ids are refused rather than rendered with a fallback.
- * 2. Repeated requests for one flat material build one shared object without
- *    requiring a texture cache, and library disposal releases it exactly once.
- * 3. A textured material requires the shot cache, decodes once, and separates
- *    ownership: the library disposes the material while the cache later
- *    disposes its binding-private texture and decoded source.
+ * 1. Null selects a builder's own default, while blank, absent, conflicting, and unrequested ids are refused rather than rendered with a fallback.
+ * 2. Repeated requests for one flat material build one shared object without requiring a texture cache, and library disposal releases it exactly once.
+ * 3. A textured material requires the shot cache, decodes once, and separates ownership: the library disposes the material while the cache later disposes its binding-private texture and decoded source.
+ * 4. A throwing first material listener cannot skip another material's release; repeated disposal preserves the same failure without another attempt.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls buildAutoMovieMaterialLibrary and AutoMovieTextureCache through their real material/event seams, asserting resolution refusals, shared requested identity, independent cache ownership and complete failure-preserving material retirement.
+ * @evidence contracts/testing.md#independent-expectations Requested ids and null-default semantics determine resolution expectations; public dispose events independently count one attempt per owned material while texture events prove cache ownership, and the injected listener Error reference must survive repeated disposal unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Covers null, blank, missing, conflicting and unrequested ids; duplicate requests, textured versus flat materials, repeated successful disposal and a first-listener failure with a healthy later material. Texture-cache tests own decoder races and detached Source history.
+ * @evidence contracts/testing.md#execution-ownership This discovered unit function uses in-memory Three material/texture objects and portable Promise/event semantics without loading a browser, GPU, worker or external process; all cases are registered directly in this function.
  */
-export const test_viewer_material_library = async (): Promise<void> => {
-  const stone = material("stone");
-  const flatModel = boxModel({ id: "flat-model", materials: [stone] });
-  const defaults = await buildAutoMovieMaterialLibrary({
-    models: [flatModel],
-    materialIds: [null],
+export async function test_viewer_material_library(): Promise<void> {
+  const stone: IAutoMovieMaterial = material("stone");
+  const flatModel: IAutoMovieModel = boxModel({
+    id: "flat-model",
+    materials: [stone],
   });
+  const defaults: IAutoMovieMaterialLibrary =
+    await buildAutoMovieMaterialLibrary({
+      models: [flatModel],
+      materialIds: [null],
+    });
   TestValidator.equals(
     "null selects the renderer default and unrequested ids are refused",
     [
       defaults.resolve(null),
-      throwsError(() => defaults.resolve("stone"), "was not requested"),
+      throwsError(
+        (): THREE.Material | undefined => defaults.resolve("stone"),
+        "was not requested",
+      ),
     ],
     [undefined, true],
   );
   defaults.dispose();
 
-  const blank = await buildAutoMovieMaterialLibrary({
+  const blank: string | null = await buildAutoMovieMaterialLibrary({
     models: [flatModel],
     materialIds: ["  "],
   })
-    .then(() => null)
-    .catch((error: unknown) => (error as Error).message);
-  const absent = await buildAutoMovieMaterialLibrary({
+    .then((): null => null)
+    .catch((error: unknown): string => (error as Error).message);
+  const absent: string | null = await buildAutoMovieMaterialLibrary({
     models: [flatModel],
     materialIds: ["fabric"],
   })
-    .then(() => null)
-    .catch((error: unknown) => (error as Error).message);
-  const conflictingModel = boxModel({
+    .then((): null => null)
+    .catch((error: unknown): string => (error as Error).message);
+  const conflictingModel: IAutoMovieModel = boxModel({
     id: "conflicting-model",
     materials: [{ ...stone, roughness: 0.25 }],
   });
-  const conflicting = await buildAutoMovieMaterialLibrary({
+  const conflicting: string | null = await buildAutoMovieMaterialLibrary({
     models: [conflictingModel, flatModel],
     materialIds: ["stone"],
   })
-    .then(() => null)
-    .catch((error: unknown) => (error as Error).message);
+    .then((): null => null)
+    .catch((error: unknown): string => (error as Error).message);
   TestValidator.equals(
     "invalid cross-model identities retain the resolver's explicit refusal",
     [
@@ -72,13 +81,15 @@ export const test_viewer_material_library = async (): Promise<void> => {
     [true, true, true],
   );
 
-  const flat = await buildAutoMovieMaterialLibrary({
+  const flat: IAutoMovieMaterialLibrary = await buildAutoMovieMaterialLibrary({
     models: [flatModel],
     materialIds: ["stone", "stone"],
   });
-  const first = flat.resolve("stone")!;
-  let flatDisposals = 0;
-  first.addEventListener("dispose", () => ++flatDisposals);
+  const first: THREE.Material = flat.resolve("stone")!;
+  let flatDisposals: number = 0;
+  first.addEventListener("dispose", (): void => {
+    ++flatDisposals;
+  });
   TestValidator.predicate(
     "one requested id is one shared runtime material",
     first === flat.resolve("stone"),
@@ -89,48 +100,65 @@ export const test_viewer_material_library = async (): Promise<void> => {
     "library materials are released once and cannot be borrowed afterwards",
     [
       flatDisposals,
-      throwsError(() => flat.resolve("stone"), "already been disposed"),
-      throwsError(() => flat.resolve(null), "already been disposed"),
+      throwsError(
+        (): THREE.Material | undefined => flat.resolve("stone"),
+        "already been disposed",
+      ),
+      throwsError(
+        (): THREE.Material | undefined => flat.resolve(null),
+        "already been disposed",
+      ),
     ],
     [1, true, true],
   );
 
-  const TILE = "textures/water.png";
+  const TILE: string = "textures/water.png";
   const decoded: string[] = [];
-  let sourceDisposals = 0;
-  const cache = new AutoMovieTextureCache(async (asset) => {
-    decoded.push(asset);
-    const texture = new THREE.Texture();
-    texture.name = asset;
-    texture.addEventListener("dispose", () => ++sourceDisposals);
-    return texture;
-  });
-  const water = {
+  let sourceDisposals: number = 0;
+  const cache: AutoMovieTextureCache = new AutoMovieTextureCache(
+    async (asset: string): Promise<THREE.Texture> => {
+      decoded.push(asset);
+      const texture: THREE.Texture = new THREE.Texture();
+      texture.name = asset;
+      texture.addEventListener("dispose", (): void => {
+        ++sourceDisposals;
+      });
+      return texture;
+    },
+  );
+  const water: IAutoMovieMaterial = {
     ...material("water"),
     baseColorTexture: TILE,
     transmission: 0.8,
     thickness: 0.1,
   };
-  const texturedModel = boxModel({
+  const texturedModel: IAutoMovieModel = boxModel({
     id: "textured-model",
     materials: [water],
   });
-  const missingCache = await buildAutoMovieMaterialLibrary({
+  const missingCache: string | null = await buildAutoMovieMaterialLibrary({
     models: [texturedModel],
     materialIds: ["water"],
   })
-    .then(() => null)
-    .catch((error: unknown) => (error as Error).message);
-  const textured = await buildAutoMovieMaterialLibrary({
-    models: [texturedModel],
-    materialIds: ["water", "water"],
-    textures: cache,
+    .then((): null => null)
+    .catch((error: unknown): string => (error as Error).message);
+  const textured: IAutoMovieMaterialLibrary =
+    await buildAutoMovieMaterialLibrary({
+      models: [texturedModel],
+      materialIds: ["water", "water"],
+      textures: cache,
+    });
+  const built: THREE.MeshPhysicalMaterial = textured.resolve(
+    "water",
+  ) as THREE.MeshPhysicalMaterial;
+  let materialDisposals: number = 0;
+  let cloneDisposals: number = 0;
+  built.addEventListener("dispose", (): void => {
+    ++materialDisposals;
   });
-  const built = textured.resolve("water") as THREE.MeshPhysicalMaterial;
-  let materialDisposals = 0;
-  let cloneDisposals = 0;
-  built.addEventListener("dispose", () => ++materialDisposals);
-  built.map!.addEventListener("dispose", () => ++cloneDisposals);
+  built.map!.addEventListener("dispose", (): void => {
+    ++cloneDisposals;
+  });
   textured.dispose();
   textured.dispose();
   TestValidator.equals(
@@ -161,4 +189,48 @@ export const test_viewer_material_library = async (): Promise<void> => {
     [cache.size, cloneDisposals, sourceDisposals],
     [0, 1, 1],
   );
-};
+
+  const fragile: IAutoMovieMaterialLibrary =
+    await buildAutoMovieMaterialLibrary({
+      models: [
+        boxModel({
+          id: "retirement-model",
+          materials: [material("first"), material("later")],
+        }),
+      ],
+      materialIds: ["first", "later"],
+    });
+  const failure: Error = new Error(
+    "First material retirement listener refused.",
+  );
+  let attemptedFirst: number = 0;
+  let attemptedLater: number = 0;
+  fragile.resolve("first")!.addEventListener("dispose", (): never => {
+    ++attemptedFirst;
+    throw failure;
+  });
+  fragile.resolve("later")!.addEventListener("dispose", (): void => {
+    ++attemptedLater;
+  });
+  let firstFailure: unknown;
+  let repeatedFailure: unknown;
+  try {
+    fragile.dispose();
+  } catch (error) {
+    firstFailure = error;
+  }
+  try {
+    fragile.dispose();
+  } catch (error) {
+    repeatedFailure = error;
+  }
+  TestValidator.predicate(
+    "failed retirement preserves the original failure for every caller",
+    firstFailure === failure && repeatedFailure === failure,
+  );
+  TestValidator.equals(
+    "a failing first material cannot skip a later release or cause retries",
+    [attemptedFirst, attemptedLater],
+    [1, 1],
+  );
+}

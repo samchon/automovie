@@ -1,9 +1,8 @@
 import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
 
 /**
- * Selected source connected basis: whole-head, cheek, mandibular and neck axes.
- * These are authored displacement endpoints from the CC0 source assets, pinned
- * at the upstream source .
+ * Selected connected basis: whole-head, cheek, mandibular and neck axes.
+ * These are authored displacement endpoints of that basis.
  * The global age, ancestry and dimorphism axes are source-morph coordinates,
  * not a person's measured age, ancestry, sex or a biological prediction.
  * The jaw node also owns performance channels that drive the coupled rigid

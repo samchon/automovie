@@ -1,4 +1,3 @@
-import { resolveFrame } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
@@ -10,7 +9,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { type IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 const IDENTITY: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
@@ -18,7 +20,7 @@ const IDENTITY: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const node = (id: string): IAutoMovieNode => ({
+const node: (id: string) => IAutoMovieNode = (id: string): IAutoMovieNode => ({
   id,
   name: null,
   parent: null,
@@ -30,37 +32,39 @@ const node = (id: string): IAutoMovieNode => ({
   skin: null,
 });
 
-const nodeChannel = (
+const nodeChannel: (
+  id: string,
+  path: "translation" | "rotation" | "scale" | "weights",
+) => IAutoMovieChannel = (
   id: string,
   path: "translation" | "rotation" | "scale" | "weights",
 ): IAutoMovieChannel => ({ kind: "node", node: id, path });
 
-const track = (
+const track: (
+  channel: IAutoMovieChannel,
+  times: number[],
+  values: number[],
+) => IAutoMovieTrack = (
   channel: IAutoMovieChannel,
   times: number[],
   values: number[],
 ): IAutoMovieTrack => ({ channel, times, values, interpolation: "linear" });
 
-const tx = (m: number[]): number => m[12]!;
+const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
 
 /**
- * The per-frame resolver end to end: SAMPLE → CONSTRAIN → COMPOSE, plus the
- * weights side-channel and the rest-pose (null clip) path.
+ * Resolve a frame through sampling, constraints and composition, including morph weights and a null-clip rest pose.
  *
- * The scene has five nodes (one animating translation+rotation, one rotation
- * only, one scale only, one morph weights, and one static), exercising every
- * combination of present/absent TRS channels when folding samples into
- * overrides (in particular a rotation-only node, where the translation channel
- * is absent so the rotation channel is the one that triggers the override).
+ * Five nodes exercise translation/rotation, rotation-only, scale-only, morph and static paths. Assertions check world X translation, one scale coefficient and morph values; they do not establish every world coefficient or channel combination.
  *
  * Scenarios:
  *
- * 1. A null clip resolves the rest pose: every node sits at its rest transform, no
- *    weights and no violations are produced.
+ * 1. A null clip keeps the translation+rotation node's world x at rest, and no
+ *    weights or violations are produced.
  * 2. With the clip, the translation+rotation node animates (translation and
  *    rotation channels present, scale absent → kept from rest), the scale node
- *    animates scale only (translation/rotation absent → kept from rest), and
- *    the static node (no channels) keeps its rest transform entirely.
+ *    animates scale only, and rotation-only/static nodes keep their world x at
+ *    rest. Full rotation and rest-scale preservation are not checked here.
  * 3. A channel limit on the translation channel clamps the sampled overshoot
  *    (x=100 → 50) and reports exactly one violation tagged with that channel;
  *    the clamped value flows through to the composed world matrix.
@@ -68,9 +72,14 @@ const tx = (m: number[]): number => m[12]!;
  *    clamp), producing no violation.
  * 5. The morph-weights channel populates the weights map for that node only; the
  *    static and TRS nodes never appear in it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame and observes clamped world translation, scale/rest fallback, morph output and original overshoot diagnostics; missing sampled nodes and non-scalar driven outputs must reject.
+ * @evidence contracts/testing.md#independent-expectations Authored endpoint x=100 exceeds max50, so projection yields world x=50 while reporting actual100; the scale and singleton-weight endpoints are literal input values, independent of resolver output.
+ * @evidence contracts/testing.md#distinguishing-cases Null/animated clips, sampled/unsampled limits, present/absent TRS and morph channels, a missing node and scalar-pointer/non-scalar-node outputs cover this frame-folding boundary; driver dependency and spring histories are tested separately.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame entry directly executes portable synchronous sample/constrain/compose semantics and observes output maps, without a renderer, native asset or foreign replacement.
  */
-export const test_resolve_frame = (): void => {
-  const nodes = [
+export function test_resolve_frame(): void {
+  const nodes: IAutoMovieNode[] = [
     node("trs"),
     node("rot"),
     node("scl"),
@@ -105,7 +114,12 @@ export const test_resolve_frame = (): void => {
   ];
 
   // 1. null clip → rest pose
-  const rest = resolveFrame({ nodes, clip: null, limits, seconds: 1 });
+  const rest: IAutoMovieResolveOutput = resolveFrame({
+    nodes,
+    clip: null,
+    limits,
+    seconds: 1,
+  });
   TestValidator.predicate(
     "null clip leaves node at rest",
     nclose(tx(rest.world.get("trs")!), 0),
@@ -114,7 +128,12 @@ export const test_resolve_frame = (): void => {
   TestValidator.equals("null clip: no violations", rest.violations.length, 0);
 
   // 2-5. resolve the animated frame
-  const out = resolveFrame({ nodes, clip, limits, seconds: 1 });
+  const out: IAutoMovieResolveOutput = resolveFrame({
+    nodes,
+    clip,
+    limits,
+    seconds: 1,
+  });
 
   // 3. translation clamped to 50 and surfaced as one violation
   TestValidator.predicate(
@@ -123,16 +142,34 @@ export const test_resolve_frame = (): void => {
   );
   TestValidator.equals(
     "one violation, tagged with the channel",
-    out.violations,
+    out.violations.map(
+      (
+        entry: (typeof out.violations)[number],
+      ): { channel: string; component: number; bound: "min" | "max" } => ({
+        channel: entry.channel,
+        component: entry.component,
+        bound: entry.bound,
+      }),
+    ),
     [
       {
         channel: "node:trs:translation",
         component: 0,
         bound: "max",
-        limit: 50,
-        actual: 100,
       },
     ],
+  );
+  TestValidator.predicate(
+    "violation preserves limit and original overshoot",
+    nclose(out.violations[0]!.limit, 50, 0) &&
+      nclose(out.violations[0]!.actual, 100, 0),
+  );
+  TestValidator.equals(
+    "violation has only the expected output fields",
+    Object.keys(out.violations[0]!).sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    ),
+    ["actual", "bound", "channel", "component", "limit"],
   );
 
   // 2. scale-only node animates scale, keeps rest translation/rotation
@@ -152,7 +189,11 @@ export const test_resolve_frame = (): void => {
   );
 
   // 5. weights map carries the morph node only
-  TestValidator.equals("morph weights captured", out.weights.get("morph"), [1]);
+  TestValidator.predicate(
+    "morph weights captured",
+    out.weights.get("morph")?.length === 1 &&
+      nclose(out.weights.get("morph")![0]!, 1, 0),
+  );
   TestValidator.equals(
     "trs node not in weights",
     out.weights.has("trs"),
@@ -173,7 +214,8 @@ export const test_resolve_frame = (): void => {
   TestValidator.predicate(
     "clip channel rejects missing resolve node",
     throwsError(
-      () => resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
+      (): IAutoMovieResolveOutput =>
+        resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
       ['sampled channel "node:ghost:translation"', 'missing node "ghost"'],
     ),
   );
@@ -192,7 +234,7 @@ export const test_resolve_frame = (): void => {
   TestValidator.predicate(
     "driver output rejects a node channel as non-scalar",
     throwsError(
-      () =>
+      (): IAutoMovieResolveOutput =>
         resolveFrame({
           nodes,
           clip: null,
@@ -208,7 +250,7 @@ export const test_resolve_frame = (): void => {
     ...ghostOutput,
     output: { kind: "pointer", pointer: "/scratch", valueType: "scalar" },
   };
-  const pointerOut = resolveFrame({
+  const pointerOut: IAutoMovieResolveOutput = resolveFrame({
     nodes,
     clip: null,
     limits: [],
@@ -220,4 +262,4 @@ export const test_resolve_frame = (): void => {
     pointerOut.violations.length,
     0,
   );
-};
+}

@@ -6,6 +6,7 @@ import {
 import {
   IAutoMovieActionCall,
   IAutoMovieGait,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -13,6 +14,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { joint, makePose } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /** One second per cycle, so the natural sizing is countable by hand. */
 const WALK: IAutoMovieGait = {
@@ -38,19 +40,25 @@ const HERO: IAutoMovieActorContext = {
 /** Three metres straight ahead: three whole cycles, 3.0 s of natural walk. */
 const EXIT: IAutoMovieVector3 = { x: 0, y: 0, z: 3 };
 
-const NODES = new Map<string, IAutoMovieVector3>([
+const NODES: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["hero", { x: 0, y: 0, z: 0 }],
   ["exit", EXIT],
 ]);
 
-const synth = makeActorSynthesizer(
+const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
   new Map<string, IAutoMovieActorContext>([["hero", HERO]]),
   NODES,
 );
 
-const walkTo = (
+const walkTo: (
   duration: number | "auto",
-  start = 0,
+  start?: number,
+) => IAutoMovieActionCall = (
+  duration: number | "auto",
+  start: number = 0,
 ): IAutoMovieActionCall => ({
   verb: "locomote",
   actor: "hero",
@@ -60,7 +68,9 @@ const walkTo = (
   duration,
 });
 
-const stepInPlace = (duration: number | "auto"): IAutoMovieActionCall => ({
+const stepInPlace: (duration: number | "auto") => IAutoMovieActionCall = (
+  duration: number | "auto",
+): IAutoMovieActionCall => ({
   verb: "locomote",
   actor: "hero",
   gait: "walk",
@@ -71,27 +81,20 @@ const stepInPlace = (duration: number | "auto"): IAutoMovieActionCall => ({
 });
 
 /** Where the travelling root ends up, in the actor's model space. */
-const arrival = (motion: IAutoMovieMotion): number => {
-  const last = motion.keyframes[motion.keyframes.length - 1]!;
+const arrival: (motion: IAutoMovieMotion) => number = (
+  motion: IAutoMovieMotion,
+): number => {
+  const last: IAutoMovieKeyframe =
+    motion.keyframes[motion.keyframes.length - 1]!;
   return last.pose.root!.translation.z;
 };
 
 /**
- * An explicit `duration` on a `locomote` is the action's span, not advice.
+ * Observe explicit locomotion duration controlling synthesized and compiled seconds without changing the authored destination. The unit inspects root endpoints and gait-cycle periods; no rendered cadence or previous-beat resumption runs here.
  *
- * The engine sized every walk from distance and the actor's speed and discarded
- * the number the author wrote: a walk declared 7.5 s compiled to 3.0 s with no
- * violation, no warning, and nothing in the guide corpus saying it would
- * (#1366). That is the substitute-in-silence shape #1349 refused for channels,
- * moved from content to timing, and `duration` is the one declared quantity
- * `performShot` already treats as authoritative everywhere else: its `spanOf`
- * gates action overlap and covers blocking anchors with exactly this number, so
- * the compiled clip and the gates were reading two different timelines.
+ * The existing regression declares 7.5 seconds for a naturally three-second walk and places it at 2.5 seconds. Its expected final performance end is 10 rather than a natural-span substitution of 5.5; whole-shot overlap/anchor gates are outside this unit.
  *
- * The geometry is countable by hand: a 1 s gait cycle at 1 m/s covers one metre
- * per stride, and the destination is three metres straight ahead, so the
- * engine's own sizing is three whole cycles and 3.0 s. Every expectation below
- * is that arithmetic, never a value read back from the synthesiser.
+ * The local one-second gait at 1 m/s and three-metre destination independently give three natural cycles. Explicit time scaling changes the observed cycle period; the natural-duration full-motion twin is a metamorphic preservation check, not an independent synthesis oracle.
  *
  * Scenarios:
  *
@@ -111,38 +114,45 @@ const arrival = (motion: IAutoMovieMotion): number => {
  * 6. The step-in-place arms take the span too: a relative target (no resolvable
  *    point) and a destination the actor already stands on both honour an
  *    explicit duration, and both keep the single natural cycle under `"auto"`.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Synthesizes long/auto/quick/natural-duration walks, compiles the offset long walk and observes final span, destination Z and cycle periods; relative and already-there targets must also honor explicit versus auto duration.
+ * @evidence contracts/testing.md#independent-expectations Three metres at 1 m/s gives natural duration 3, scaling to 7.5 gives period 2.5 and scaling to 1.5 gives period 0.5. Literal destinations, 2.5+7.5=10 and in-place periods independently bound outputs. Existing test12ValuesClose keeps exact plain-field/finite numeric equivalence for the natural-duration twin with eps0 and no prototype/NaN/signed-zero claim.
+ * @evidence contracts/testing.md#distinguishing-cases Retains longer/shorter/equal/auto spans, nonzero action start, root destination and period metadata, relative targets and already-there points. Invalid duration admission, rendered cadence and actual subsequent-beat phase resumption have separate owners.
+ * @evidence contracts/testing.md#execution-ownership Module fixtures construct the existing reference callback once; this named synchronous body owns every actual synthesis and compile invocation. Local action/arrival readers register no extra cases and start no viewer, process or native artifact.
  */
-export const test_perform_locomote_declared_duration = (): void => {
+export function test_perform_locomote_declared_duration(): void {
   // 1. the reproduction.
-  const declared = synth(walkTo(7.5, 2.5), "hero")!;
+  const declared: IAutoMovieMotion = synth(walkTo(7.5, 2.5), "hero")!;
   TestValidator.predicate(
     "an explicit duration is the clip's span",
     nclose(declared.duration, 7.5),
   );
-  const compiled = compilePerformance([walkTo(7.5, 2.5)], synth).performances
-    .hero!;
+  const compiled: IAutoMovieMotion = compilePerformance(
+    [walkTo(7.5, 2.5)],
+    synth,
+  ).performances.hero!;
   TestValidator.predicate(
     "the compiled performance ends at start + the declared duration",
     nclose(compiled.duration, 10),
   );
 
   // 2. same path, same arrival, different cadence.
-  const auto = synth(walkTo("auto"), "hero")!;
+  const auto: IAutoMovieMotion = synth(walkTo("auto"), "hero")!;
   TestValidator.equals(
     "fitting the span does not move where the walk arrives",
     namedFacts([
-      ["ncloseArrivalDeclared", () => nclose(arrival(declared), 3)],
-      ["ncloseArrivalAuto", () => nclose(arrival(auto), 3)],
+      ["ncloseArrivalDeclared", (): boolean => nclose(arrival(declared), 3)],
+      ["ncloseArrivalAuto", (): boolean => nclose(arrival(auto), 3)],
     ]),
     { ncloseArrivalDeclared: true, ncloseArrivalAuto: true },
   );
   TestValidator.equals(
     "the gait cycle scales with the clip, so the stride phase stays honest",
     namedFacts([
-      ["ncloseAutoGaitCycle", () => nclose(auto.gaitCycle!.period, 1)],
+      ["ncloseAutoGaitCycle", (): boolean => nclose(auto.gaitCycle!.period, 1)],
       [
         "ncloseDeclaredGaitCycle",
-        () => nclose(declared.gaitCycle!.period, 2.5),
+        (): boolean => nclose(declared.gaitCycle!.period, 2.5),
       ],
     ]),
     { ncloseAutoGaitCycle: true, ncloseDeclaredGaitCycle: true },
@@ -155,13 +165,16 @@ export const test_perform_locomote_declared_duration = (): void => {
   );
 
   // 4. the other direction: a span shorter than the natural one.
-  const quick = synth(walkTo(1.5), "hero")!;
+  const quick: IAutoMovieMotion = synth(walkTo(1.5), "hero")!;
   TestValidator.equals(
     "a shorter declared span compresses the same walk",
     namedFacts([
-      ["ncloseQuickDuration", () => nclose(quick.duration, 1.5)],
-      ["ncloseArrivalQuick", () => nclose(arrival(quick), 3)],
-      ["ncloseQuickGaitCycle", () => nclose(quick.gaitCycle!.period, 0.5)],
+      ["ncloseQuickDuration", (): boolean => nclose(quick.duration, 1.5)],
+      ["ncloseArrivalQuick", (): boolean => nclose(arrival(quick), 3)],
+      [
+        "ncloseQuickGaitCycle",
+        (): boolean => nclose(quick.gaitCycle!.period, 0.5),
+      ],
     ]),
     {
       ncloseQuickDuration: true,
@@ -171,21 +184,20 @@ export const test_perform_locomote_declared_duration = (): void => {
   );
 
   // 5. the boundary: declaring exactly the natural duration changes nothing.
-  TestValidator.equals(
+  TestValidator.predicate(
     "declaring the natural duration is a no-op",
-    synth(walkTo(3), "hero"),
-    auto,
+    test12ValuesClose(synth(walkTo(3), "hero"), auto),
   );
 
   // 6. the step-in-place arms honour the span as well.
-  const stepping = synth(stepInPlace(4), "hero")!;
+  const stepping: IAutoMovieMotion = synth(stepInPlace(4), "hero")!;
   TestValidator.equals(
     "a relative target steps in place for the declared span",
     namedFacts([
-      ["ncloseSteppingDuration", () => nclose(stepping.duration, 4)],
+      ["ncloseSteppingDuration", (): boolean => nclose(stepping.duration, 4)],
       [
         "ncloseSynthStepInPlace",
-        () => nclose(synth(stepInPlace("auto"), "hero")!.duration, 1),
+        (): boolean => nclose(synth(stepInPlace("auto"), "hero")!.duration, 1),
       ],
     ]),
     { ncloseSteppingDuration: true, ncloseSynthStepInPlace: true },
@@ -203,11 +215,11 @@ export const test_perform_locomote_declared_duration = (): void => {
     namedFacts([
       [
         "ncloseSynthStandingStill",
-        () => nclose(synth(standingStill, "hero")!.duration, 4),
+        (): boolean => nclose(synth(standingStill, "hero")!.duration, 4),
       ],
       [
         "ncloseSynthStandingStill2",
-        () =>
+        (): boolean =>
           nclose(
             synth({ ...standingStill, duration: "auto" }, "hero")!.duration,
             1,
@@ -216,4 +228,4 @@ export const test_perform_locomote_declared_duration = (): void => {
     ]),
     { ncloseSynthStandingStill: true, ncloseSynthStandingStill2: true },
   );
-};
+}

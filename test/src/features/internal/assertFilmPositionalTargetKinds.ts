@@ -1,13 +1,17 @@
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
 import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTargetAssertionsInput";
 import { namedFacts } from "./predicates";
 
-/** Run the existing placed, grouped, malformed and camera target admission assertions. */
+/**
+ * Run the positional-target unit's existing actor/set, all-missing/mixed/empty group, malformed/relative target, absent point-gesture aim and camera-as-actor comparisons. Authored ids and field paths define the expected refusals independently; the injected performers/diagnostic observers preserve those comparisons without adding admission logic. The discoverable positional unit owns these portable cases and its positive neighbors, while launch-specific recoil admission belongs to launch_camera.
+ */
 export function assertFilmPositionalTargetKinds(
   input: IFilmPositionalTargetAssertionsInput,
 ): void {
-  const { perform, says, silentAt } = input;
+  const { perform, says, silentAt }: IFilmPositionalTargetAssertionsInput =
+    input;
   // 3. the counter-cases one property away: a valid node target of either
   // placed flavour is not over-rejected.
   TestValidator.equals(
@@ -38,7 +42,7 @@ export function assertFilmPositionalTargetKinds(
   );
 
   // 4. groups: every unplaced member is named; an empty one says so.
-  const unplacedGroup = perform([
+  const unplacedGroup: IAutoMoviePerformedShot = perform([
     {
       verb: "lookAt",
       actor: "knightA",
@@ -51,23 +55,34 @@ export function assertFilmPositionalTargetKinds(
     "an all-unplaced group names every member",
     says(
       unplacedGroup,
-      "$input.draft[0].to",
-      "none of its group members are placed",
+      "$input.draft[0].to.nodes[0]",
+      "must name a staged placement",
       '"ghost"',
-      '"wraith"',
-    ),
+    ) &&
+      says(
+        unplacedGroup,
+        "$input.draft[0].to.nodes[1]",
+        '"wraith"',
+        "must name a staged placement",
+      ),
   );
   TestValidator.predicate(
-    "a group mixing a placed member with an unplaced one still resolves",
-    perform([
-      {
-        verb: "lookAt",
-        actor: "knightA",
-        start: 0,
-        duration: 1,
-        to: { kind: "group", nodes: ["knightB", "ghost"] },
-      },
-    ]).success === true,
+    "a mixed group refuses the missing member instead of changing its centroid",
+    says(
+      perform([
+        {
+          verb: "lookAt",
+          actor: "knightA",
+          start: 0,
+          duration: 1,
+          to: { kind: "group", nodes: ["knightB", "ghost"] },
+        },
+      ]),
+      "$input.draft[0].to.nodes[1]",
+      '"ghost"',
+      "must name a staged placement",
+      "centroid",
+    ),
   );
   TestValidator.predicate(
     "an empty group says it names no members",
@@ -190,7 +205,7 @@ export function assertFilmPositionalTargetKinds(
 
   // 7. a camera is a place to point at, never a performer: the actor rule the
   // wider target table must not have loosened.
-  const cameraActor = perform([
+  const cameraActor: IAutoMoviePerformedShot = perform([
     {
       verb: "gesture",
       actor: "cam-main",
@@ -204,9 +219,10 @@ export function assertFilmPositionalTargetKinds(
     namedFacts([
       [
         "refused",
-        () => says(cameraActor, "$input.draft[0].actor", "is a camera"),
+        (): boolean =>
+          says(cameraActor, "$input.draft[0].actor", "is a camera"),
       ],
-      ["violated", () => silentAt(cameraActor, "$input.draft[0].at")],
+      ["violated", (): boolean => silentAt(cameraActor, "$input.draft[0].at")],
     ]),
     { refused: true, violated: true },
   );

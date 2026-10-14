@@ -3,14 +3,17 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 
-const finiteVector = (v: IAutoMovieVector3): boolean => {
+const finiteVector: (v: IAutoMovieVector3) => boolean = (
+  v: IAutoMovieVector3,
+): boolean => {
   if (!Number.isFinite(v.x)) return false;
   if (!Number.isFinite(v.y)) return false;
   return Number.isFinite(v.z);
 };
 
-const validArc = (arc: string): arc is "direct" | "high" =>
-  arc === "direct" || arc === "high";
+const validArc: (arc: string) => arc is "direct" | "high" = (
+  arc: string,
+): arc is "direct" | "high" => arc === "direct" || arc === "high";
 
 /**
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
@@ -29,11 +32,23 @@ const validArc = (arc: string): arc is "direct" | "high" =>
  * - 2h·s²))) / (g·d)`; a purely vertical target is handled on its own (no
  *   horizontal direction to aim along).
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Solves the supported analytic arc without introducing a hidden rigid-body simulation.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Implements the inverse launch solve of the analytic trajectory tier.
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Resolve displacement into axes relative to constant gravity and solve the fixed-speed ballistic quadratic; direct/high selects the lower/higher arc. Near-zero gravity and vertical displacement have dedicated analytic degeneracy branches; binary64 overflow/cancellation remain limits.
+ * @evidence contracts/common.md#clear-and-simple-design One solver returns velocity and hit time; projectileAt owns subsequent state evaluation and moving-target iteration remains separate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The 1e-9 degeneracy threshold is shared numeric policy, not a target-specific answer; unreachable, coincident or invalid requests return null without inventing a launch.
+ * @evidence contracts/common.md#meaningful-documentation Docs give metre positions, speed, acceleration, arc choice, positive time and null failure semantics; no promise of exact floating-point landing is made.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of projections, discriminants and roots gives O(1) time and constant temporary storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work solveMovingLaunch reuses this analytic solver per candidate time; no result is cached across mutable target or gravity inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A fresh solution transfers to the caller; null and failure retain no iteration history, native handle or task.
  */
-export const solveBallisticLaunch = (
+export const solveBallisticLaunch: (
+  origin: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  speed: number,
+  gravity?: IAutoMovieVector3,
+  arc?: "direct" | "high",
+) => IAutoMovieBallisticSolution | null = (
   origin: IAutoMovieVector3,
   target: IAutoMovieVector3,
   speed: number,
@@ -47,12 +62,12 @@ export const solveBallisticLaunch = (
   if (!finiteVector(gravity)) return null;
   if (!validArc(arc)) return null;
 
-  const delta = Vector3.subtract(target, origin);
-  const g = Vector3.length(gravity);
+  const delta: IAutoMovieVector3 = Vector3.subtract(target, origin);
+  const g: number = Vector3.length(gravity);
 
   // No gravity: a straight shot down the sightline.
   if (g < 1e-9) {
-    const range = Vector3.length(delta);
+    const range: number = Vector3.length(delta);
     if (range < 1e-9 || speed <= 0) return null;
     return {
       velocity: Vector3.scale(Vector3.normalize(delta), speed),
@@ -60,11 +75,14 @@ export const solveBallisticLaunch = (
     };
   }
 
-  const up = Vector3.scale(gravity, -1 / g); // unit "up" (against gravity)
-  const h = Vector3.dot(delta, up); // signed height along up
-  const horizontal = Vector3.subtract(delta, Vector3.scale(up, h));
-  const d = Vector3.length(horizontal);
-  const s2 = speed * speed;
+  const up: IAutoMovieVector3 = Vector3.scale(gravity, -1 / g); // unit "up" (against gravity)
+  const h: number = Vector3.dot(delta, up); // signed height along up
+  const horizontal: IAutoMovieVector3 = Vector3.subtract(
+    delta,
+    Vector3.scale(up, h),
+  );
+  const d: number = Vector3.length(horizontal);
+  const s2: number = speed * speed;
 
   // Purely vertical target: fire straight up/down; solve when it reaches h.
   if (d < 1e-9) {
@@ -78,9 +96,9 @@ export const solveBallisticLaunch = (
     // sweep over both muzzle signs self-selects the feasible flights.
     let best: IAutoMovieBallisticSolution | null = null;
     for (const v of [speed, -speed]) {
-      const disc = v * v - 2 * g * h;
+      const disc: number = v * v - 2 * g * h;
       if (disc < 0) continue;
-      const root = Math.sqrt(disc);
+      const root: number = Math.sqrt(disc);
       for (const t of [(v - root) / g, (v + root) / g]) {
         if (t <= 1e-9) continue;
         if (
@@ -94,15 +112,15 @@ export const solveBallisticLaunch = (
   }
 
   // Range equation for the launch angle θ above the horizontal.
-  const disc = s2 * s2 - g * (g * d * d + 2 * h * s2);
+  const disc: number = s2 * s2 - g * (g * d * d + 2 * h * s2);
   if (disc < 0) return null; // out of range at this speed
-  const root = Math.sqrt(disc);
-  const tanTheta = (s2 + (arc === "high" ? root : -root)) / (g * d);
-  const cosTheta = 1 / Math.sqrt(1 + tanTheta * tanTheta);
-  const sinTheta = tanTheta * cosTheta;
+  const root: number = Math.sqrt(disc);
+  const tanTheta: number = (s2 + (arc === "high" ? root : -root)) / (g * d);
+  const cosTheta: number = 1 / Math.sqrt(1 + tanTheta * tanTheta);
+  const sinTheta: number = tanTheta * cosTheta;
 
-  const horizontalDir = Vector3.scale(horizontal, 1 / d);
-  const velocity = Vector3.add(
+  const horizontalDir: IAutoMovieVector3 = Vector3.scale(horizontal, 1 / d);
+  const velocity: IAutoMovieVector3 = Vector3.add(
     Vector3.scale(horizontalDir, speed * cosTheta),
     Vector3.scale(up, speed * sinTheta),
   );

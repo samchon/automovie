@@ -1,106 +1,40 @@
 import {
   IAutoMovieDesignComparison,
-  IAutoMovieDesignDifference,
   IAutoMovieDesignLineage,
-  IAutoMovieDesignVariant,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
-import { validateDesignLineage } from "./validateDesignLineage";
+import { compareDesignVariants } from "./compareDesignVariants";
+import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
  * Compare two alternatives on the revision they share.
  *
- * Every difference names one subject id both schemes carry, which is the proof
- * that comparing alternatives did not fork the building. Alternatives on
- * different base revisions are refused rather than compared, because the
- * differences would then mix the two schemes with everything the revision
- * changed underneath them.
+ * Every difference names one subject id both schemes carry, which is the proof that comparing alternatives did not fork the building. Alternatives on different base revisions are refused rather than compared, because the differences would then mix the two schemes with everything the revision changed underneath them.
  *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-change-impact `designLineageCompare` compares two alternatives on the revision they share. This ensures revision changes expose every affected design consumer.
- * @evidence specifications/narrative-and-intent/budgets-continuity-and-deliverables.md#narrative-intent-design-change-impact-comparison `designLineageCompare` compares two alternatives only after confirming they share a base revision.
- * @evidence requirements/interior/existing-conditions-phases-and-alternatives.md#interior-design-alternatives `designLineageCompare` refuses variants from different base revisions and reports their stable per-subject, per-aspect differences without replacing either candidate.
- * @evidence specifications/interior-space/construction-phases-and-alternatives.md#interior-space-phase-alternative-graph The comparison implements the common-base explicit-change-set subset of the interior alternative graph.
+ * A difference whose `left` or `right` is null means that alternative leaves the aspect at the base revision. Differences are ordered by subject and then aspect in UTF-16 code-unit order, and `common` lists, in the same order, every lineage subject neither alternative changes. The lineage is validated first, and an invalid lineage, an unknown variant id, or two variants on different base revisions throws an `Error`.
+ *
+ * @param lineage Lineage holding both alternatives.
+ * @param left Id of the variant reported on the `left` side.
+ * @param right Id of the variant reported on the `right` side.
+ * @returns The shared revision, both ids, the untouched subjects, and every differing (subject, aspect) pair.
+ *
+ * @evidence contracts/common.md#principled-implementation Validates the lineage with `requireValidDesignLineage` and then answers with `compareDesignVariants`, whose keyed change comparison relies on unique change keys and resolvable variants, the two facts this call's validation establishes.
+ * @evidence contracts/common.md#clear-and-simple-design The public entry is the validation guard plus one delegation, so the pair comparison and the per-decision comparison share a single body.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no lineage or variant; an invalid lineage is refused rather than compared on whatever resolves.
+ * @evidence contracts/common.md#meaningful-documentation States the shared-subject guarantee, why different revisions are refused, the null-side meaning, both orders, what `common` lists, and every thrown refusal.
+ * @evidence contracts/performance.md#efficient-algorithms Pays full lineage validation, including lifecycle reachability and decision-by-artifact fairness scans, followed by the full `compareDesignVariants` cost: variant lookups, change-key folds, subject scans and result sorts. Validation and comparison are not described by difference count alone.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one pair per call from the caller's mutable record; a caller comparing every option of a decision uses `designLineageDecisionComparisons`, which validates once.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned comparison.
  */
-export const designLineageCompare = (
+export const designLineageCompare: (
+  lineage: IAutoMovieDesignLineage,
+  left: string,
+  right: string,
+) => IAutoMovieDesignComparison = (
   lineage: IAutoMovieDesignLineage,
   left: string,
   right: string,
 ): IAutoMovieDesignComparison => {
-  requireValidLineage(lineage);
-  const first = requireVariant(lineage, left);
-  const second = requireVariant(lineage, right);
-  if (first.base !== second.base)
-    throw new Error(
-      `design lineage "${lineage.id}" cannot compare variant "${left}" of revision "${first.base}" with variant "${right}" of revision "${second.base}"`,
-    );
-  const leftValues = new Map(
-    first.changes.map(
-      (change) => [record(change.subject, change.aspect), change] as const,
-    ),
-  );
-  const rightValues = new Map(
-    second.changes.map(
-      (change) => [record(change.subject, change.aspect), change] as const,
-    ),
-  );
-  const differences: IAutoMovieDesignDifference[] = [];
-  for (const key of new Set([...leftValues.keys(), ...rightValues.keys()])) {
-    const leftChange = leftValues.get(key);
-    const rightChange = rightValues.get(key);
-    const leftValue = leftChange === undefined ? null : leftChange.value;
-    const rightValue = rightChange === undefined ? null : rightChange.value;
-    if (leftValue === rightValue) continue;
-    const sample = (leftChange ?? rightChange)!;
-    differences.push({
-      subject: sample.subject,
-      aspect: sample.aspect,
-      left: leftValue,
-      right: rightValue,
-    });
-  }
-  differences.sort(
-    (a, b) =>
-      compareCodeUnits(a.subject, b.subject) ||
-      compareCodeUnits(a.aspect, b.aspect),
-  );
-  const touched = new Set(
-    [...first.changes, ...second.changes].map((change) => change.subject),
-  );
-  return {
-    revision: first.base,
-    left,
-    right,
-    common: lineage.subjects
-      .map((subject) => subject.id)
-      .filter((id) => !touched.has(id))
-      .sort(compareCodeUnits),
-    differences,
-  };
+  requireValidDesignLineage(lineage);
+  return compareDesignVariants(lineage, left, right);
 };
-
-const requireValidLineage = (lineage: IAutoMovieDesignLineage): void => {
-  const validated = validateDesignLineage({ lineage });
-  if (validated.success === false) {
-    const first = validated.violations[0]!;
-    throw new Error(
-      `design lineage "${lineage.id}" is invalid at ${first.path}: ${first.expected}`,
-    );
-  }
-};
-
-const requireVariant = (
-  lineage: IAutoMovieDesignLineage,
-  variant: string,
-): IAutoMovieDesignVariant => {
-  const found = lineage.variants.find((entry) => entry.id === variant);
-  if (found === undefined)
-    throw new Error(
-      `design lineage "${lineage.id}" has no design variant "${variant}"`,
-    );
-  return found;
-};
-
-/** Length-prefix every field so no authored text can forge a separator. */
-const record = (...fields: readonly string[]): string =>
-  fields.map((field) => `${field.length}:${field}`).join("|");

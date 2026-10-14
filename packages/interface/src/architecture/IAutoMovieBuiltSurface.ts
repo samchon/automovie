@@ -3,23 +3,24 @@ import { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
 /**
  * A support surface and the logical space in which it can be used.
  *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `IAutoMovieBuiltSurface` as the portable data boundary for the interior surface substance product requirement.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `IAutoMovieBuiltSurface` for the interior space surface assembly region system contract.
+ * Lowering hands the surface to the scene space generated for its logical
+ * space, and its `surface.id` is the id that
+ * {@link IAutoMovieBuiltEnvironment.walkable} lists and a `surface` support
+ * locator cites.
+ *
+ * @evidence contracts/common.md#principled-implementation Reuses the scene's own surface record, footprint and height rule, so a building support patch is evaluated by the same footprint and height functions a staged scene uses; validation runs the scene space validator over every building surface together with `walkable`.
+ * @evidence contracts/common.md#clear-and-simple-design A pair of the owning logical space id and the unchanged scene surface, the same space-beside-thing shape `IAutoMovieBuiltPopulation` uses, with no building-specific surface fields.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Lowering filters `walkable` per generated scene space by the surfaces that space owns rather than copying the whole list into each, and an unresolved space id is a validation error instead of a fallback space.
+ * @evidence contracts/common.md#meaningful-documentation States where lowering puts the surface, which ids `walkable` and a support locator cite, and that the space id must resolve.
+ * @author Samchon
  */
 export interface IAutoMovieBuiltSurface {
-  /**
-   * Logical space containing the support patch.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `space` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `space` for the interior space surface assembly region system contract.
-   */
+  /** Logical space containing the support patch; it must resolve. */
   space: string;
 
   /**
-   * Existing deterministic support/height representation.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-substance-product Exposes `surface` as the portable data boundary for the interior surface substance product requirement.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region Types `surface` for the interior space surface assembly region system contract.
+   * The scene support patch itself, footprint and height rule, validated and
+   * lowered unchanged; its `id` is unique among the environment's surfaces.
    */
   surface: IAutoMovieSurface;
 }

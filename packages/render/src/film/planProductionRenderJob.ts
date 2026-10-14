@@ -1,4 +1,6 @@
 import {
+  AutoMovieFilmEffectRuntimeError,
+  type IAutoMovieProductionRenderFrame,
   autoMovieRenderDigest,
   canonicalizeAutoMovieJson,
   compareCodeUnits,
@@ -6,15 +8,16 @@ import {
   productionFilmEffectEditFingerprint,
   productionFrameBoundaryToGridTick,
   resolveProductionFrameRate,
-  sampleProductionFilmEffects,
   sampleProductionRenderFrame,
+  verifyProductionFilmEffectPopulation,
 } from "@automovie/engine";
 import type {
-  AutoMovieContentDigest,
   AutoMovieGuidePass,
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
+  IAutoMovieProductionDeliverable,
   IAutoMovieProductionDesign,
+  IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
 import { canonicalProductionWebVtt } from "../caption/canonicalProductionWebVtt";
@@ -29,28 +32,90 @@ import { normalizeRenderTier } from "./normalizeRenderTier";
 import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat";
 import { validDigest } from "./validDigest";
 
+/** A deliverable that renders moving images, the only kind with chunks. */
+type IMovingDeliverable = IAutoMovieProductionDeliverable & {
+  kind: "feature" | "guide-pass";
+};
+
+/** One output-frame range shared by every moving deliverable's chunk. */
+interface IRange {
+  frameStart: number;
+  frameEndExclusive: number;
+  frames: IAutoMovieProductionRenderFrame[];
+  sources: Array<{ shot: string; digest: string }>;
+}
+
 /**
- * Build content-addressed chunks from the builder-owned film edit.
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Converts each cue declared source duration onto the asset own sample clock and refuses an asset whose sample count or duration disagrees, so a planned cue source boundary is an exact sample count rather than a rounded second. The delivered priming, tail and presentation boundary is verified by the Opus profile assertion against the encoded bytes.
- * @evidence requirements/rendering/chunks-resume-and-recovery.md#rendering-chunk-partition Partitions the exact frame schedule into non-overlapping content-addressed chunks whose identity does not depend on chunk size or worker count.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-boundary-convention Reads the compiled edit's start-inclusive, end-exclusive frame ranges with exact integer arithmetic rather than rounding a duration by frame rate.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-schedule-refusal Refuses an invalid rate, an empty range or an unrepresentable frame count before any chunk is scheduled.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-timecode-sync Carries the exact rational picture rate and the stream timebases as separate plan fields and never recomputes a duration from a decimal rate.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-frame-number-time Maps every output frame number of a tier to exactly one full-rate timeline frame and one exact time, so a proxy numbering has no duplicate, gap or off-by-one.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-subrange-stability Slices every chunk from one global frame schedule, so a chunk or a retry carries exactly the frames a full render would.
- * @evidence requirements/rendering/frame-schedules-and-sampling.md#rendering-state-sampling Declares the one timeline frame per output frame at which capture resolves every shot layer and film effect.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-frame-schedule Generates the ordered frame set from the exact rational clock and slices chunks from it, so subrange and full execution share each global frame's state.
+ * Plan the content-addressed render chunks and publication tracks of one
+ * production edit at one tier.
+ *
+ * The tier, which defaults to final, decimates the timeline by `frameStep` and
+ * projects the raster; output frames are partitioned into ranges of at most
+ * `chunkFrames`, and every feature and guide-pass deliverable gets one chunk
+ * per range, in declaration order. A feature renders `beauty`; a guide-pass
+ * deliverable renders its declared `pass`, or, for a legacy record without
+ * one, the single pass in `guidePasses`, which defaults to `pose`. Each chunk
+ * id digests the edit, effect digests, tier, frame formats, range, pass,
+ * runtime identity and the source digest of every shot the range shows.
+ *
+ * Throws when `chunkFrames` is not a positive safe integer; a runtime,
+ * compile or source digest is malformed or missing; the tier is inadmissible
+ * or its raster is odd; the timeline's id, frame rate or runtime differs from
+ * the production's, or its length is not a multiple of `frameStep`; the effect
+ * runtimes are not exactly the timeline's current population for this
+ * production, as an `AutoMovieFilmEffectRuntimeError`; an audio asset is
+ * invalid or a cue's asset is missing or holds another sample count; or a
+ * guide pass is unknown or not single. The inputs are not changed.
+ *
+ * Current maintained callers are planner tests. This function does not execute a render, authenticate supplied runtime or source digests, or establish stored-plan currentness for an application scheduler.
+ *
+ * @evidence contracts/common.md#principled-implementation Chunk ids hash canonical JSON of the declared edit, effects, tier, formats, range, pass, runtime identity and range source digests. Engine population and production-owner checks admit effect runtimes, and exact rational frame-to-tick rounding checks cue source lengths against asset samples. Supplied identity records remain caller claims; hashing them does not authenticate renderer bytes or prove equal pixels.
+ * @evidence contracts/common.md#clear-and-simple-design Admission rules live in their helpers (`normalizeRenderTier`, `normalizeAudioAssets`, `assertSingleGuidePass`, `validDigest`) and the engine (`verifyProductionFilmEffectPopulation`, `sampleProductionRenderFrame`); this function orders them, builds each range once, and joins ranges with deliverables. The range walk repeats `planChunkedSequenceRender`'s arithmetic on purpose, because there the range index orders reassembly and here it is one field of a content-addressed slot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The `pose` default is the interface's documented legacy rule for a guide deliverable without a pass, the protocol and version literals are schema identities, and every refusal throws rather than skipping a deliverable, cue or shot.
+ * @evidence contracts/common.md#meaningful-documentation The doc states the tier default and decimation, the range partition and chunk order, which pass each deliverable renders including the legacy default, what a chunk id digests, every refusal with the effect error type, and that inputs are left unchanged.
+ * @evidence contracts/performance.md#efficient-algorithms For F tier output frames and S ordered segments, engine sampling costs O(F log(S+1)) plus rate reduction per frame. Range construction visits their at-most-two layers, sorts each range's distinct shot ids and shares ranges across D moving deliverables. Audio asset sorting/copying, effect verification/cloning, caption sorting/serialization and each chunk's canonical JSON/hash work depend on their complete populations and byte lengths; large runtime identities are serialized again per chunk.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each range's frame array and sorted source identities are built once and shared across the moving deliverables of this call. There is no cross-call cache or maintained scheduler consuming these ids to reuse completed encodes; any such effect reuse would require a host's currentness and byte checks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources All F samples are allocated even with no moving deliverable, then become collectable if no range retains them. With moving deliverables the result shares F frame records through D times ceil(F/chunkFrames) chunk records and retains copied audio/effect tracks, asset identities and caption text. Input arrays and output populations have no quota here; local indexes and digest strings become collectable after completion or refusal, with no acquired host handle or task.
  */
-export const planProductionRenderJob = (props: {
+export const planProductionRenderJob: (props: {
   timeline: IAutoMovieFilmTimeline;
   effects: readonly IAutoMovieCompiledFilmEffect[];
   production: IAutoMovieProductionDesign;
   runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
-  sourceFingerprints: Readonly<Record<string, AutoMovieContentDigest>>;
+  sourceFingerprints: Readonly<Record<string, string>>;
   audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
   chunkFrames: number;
   guidePasses?: readonly Exclude<AutoMovieGuidePass, "beauty">[];
-  /** Explicit proxy/final policy; omitted is the exact final tier. */
+  tier?: IAutoMovieProductionRenderTier;
+}) => IAutoMovieProductionRenderJobPlan = (props: {
+  /** The builder-owned film edit. */
+  timeline: IAutoMovieFilmTimeline;
+
+  /** The compiled film-global effect runtimes for that edit. */
+  effects: readonly IAutoMovieCompiledFilmEffect[];
+
+  /** The production design the edit was compiled for. */
+  production: IAutoMovieProductionDesign;
+
+  /** Capture and encoder identity every chunk renders under. */
+  runtimeIdentity: IAutoMovieProductionRenderRuntimeIdentity;
+
+  /** SHA-256 source digest of every shot the edit shows, by shot id. */
+  sourceFingerprints: Readonly<Record<string, string>>;
+
+  /** Identity of every audio asset the edit's cues reference. */
+  audioAssets: readonly IAutoMovieProductionAudioAssetIdentity[];
+
+  /** Maximum output frames per chunk; a positive safe integer. */
+  chunkFrames: number;
+
+  /**
+   * The one pass of a legacy guide deliverable that declares none; omitted is
+   * `pose`.
+   */
+  guidePasses?: readonly Exclude<AutoMovieGuidePass, "beauty">[];
+
+  /** Proxy or final tier; omitted is the exact final tier. */
   tier?: IAutoMovieProductionRenderTier;
 }): IAutoMovieProductionRenderJobPlan => {
   if (
@@ -71,22 +136,23 @@ export const planProductionRenderJob = (props: {
     throw new Error(
       "Render runtime dialogueRuntimeIdentity must be null or one current SHA-256 content identity.",
     );
-  const tier = normalizeRenderTier(props.tier);
-  const frameFormat = resolveProductionRenderTierFrameFormat(
-    props.production.frameFormat,
-    tier,
-  );
-  const outputRate = resolveProductionFrameRate(frameFormat);
+  const tier: IAutoMovieProductionRenderTier = normalizeRenderTier(props.tier);
+  const frameFormat: IAutoMovieProductionDesign["frameFormat"] =
+    resolveProductionRenderTierFrameFormat(props.production.frameFormat, tier);
+  const outputRate: IAutoMovieProductionFrameRate =
+    resolveProductionFrameRate(frameFormat);
   if (frameFormat.width % 2 !== 0 || frameFormat.height % 2 !== 0)
     throw new Error(
       "The production H.264 render adapter requires even width and height.",
     );
-  const timelineRate = resolveProductionFrameRate(props.timeline);
-  const productionRate = resolveProductionFrameRate(
-    props.production.frameFormat,
-  );
+  const timelineRate: IAutoMovieProductionFrameRate =
+    resolveProductionFrameRate(props.timeline);
+  const productionRate: IAutoMovieProductionFrameRate =
+    resolveProductionFrameRate(props.production.frameFormat);
   if (
+    props.production.id.trim().length === 0 ||
     props.timeline.id !== props.production.id ||
+    validDigest(props.timeline.inputFingerprint) === false ||
     equalProductionFrameRates(timelineRate, productionRate) === false ||
     props.production.targetRuntimeSeconds !==
       (props.timeline.totalFrames * productionRate.denominator) /
@@ -99,49 +165,61 @@ export const planProductionRenderJob = (props: {
     throw new Error(
       `Render tier "${tier.kind}" frameStep ${tier.frameStep} does not divide the ${props.timeline.totalFrames}-frame edit. Choose a divisor so proxy and final have the same exact runtime.`,
     );
-  const audioAssets = normalizeAudioAssets(props.audioAssets);
+  const audioAssets: IAutoMovieProductionAudioAssetIdentity[] =
+    normalizeAudioAssets(props.audioAssets);
+  const assetsByPath: Map<string, IAutoMovieProductionAudioAssetIdentity> =
+    new Map(
+      audioAssets.map(
+        (
+          asset: IAutoMovieProductionAudioAssetIdentity,
+        ): [string, IAutoMovieProductionAudioAssetIdentity] => [
+          asset.path,
+          asset,
+        ],
+      ),
+    );
   for (const cue of props.timeline.tracks.audio) {
-    const asset = audioAssets.find((candidate) => candidate.path === cue.asset);
-    // `sourceDurationFrames` is the cue's claim about the complete asset, so it
-    // is checked where the asset's own clock is known: the declared frame count
-    // must land on exactly the sample count the asset carries at its source
-    // rate. The trim inside that duration is the mix's own refusal.
-    const expectedSamples =
-      asset === undefined
-        ? null
-        : productionFrameBoundaryToGridTick({
-            frame: cue.sourceDurationFrames,
-            frameRate: timelineRate,
-            ticksPerSecond: asset.sampleRate,
-            rounding: "nearest",
-          });
+    // `sourceDurationFrames` is the cue's claim about the complete asset, so
+    // it must land on exactly the asset's sample count at the asset's own rate;
+    // the trim inside that duration is the mix's own refusal.
+    const asset: IAutoMovieProductionAudioAssetIdentity | undefined =
+      assetsByPath.get(cue.asset);
     if (
       asset === undefined ||
-      asset.sourceFrames !== expectedSamples ||
-      asset.durationSeconds !== asset.sourceFrames / asset.sampleRate
+      asset.sourceFrames !==
+        productionFrameBoundaryToGridTick({
+          frame: cue.sourceDurationFrames,
+          frameRate: timelineRate,
+          ticksPerSecond: asset.sampleRate,
+          rounding: "nearest",
+        })
     )
       throw new Error(
         `Audio cue "${cue.id}" lacks one digest-, format-, and duration-verified source asset.`,
       );
   }
-  const legacyGuidePasses = assertSingleGuidePass(
-    props.guidePasses ?? ["pose"],
+  const legacyGuidePass: Exclude<AutoMovieGuidePass, "beauty"> =
+    assertSingleGuidePass(props.guidePasses ?? ["pose"]);
+  const editFingerprint: string = productionFilmEffectEditFingerprint(
+    props.timeline,
   );
-  const editFingerprint = productionFilmEffectEditFingerprint(props.timeline);
-  sampleProductionFilmEffects({
-    identity: {
-      production: props.production.id,
-      film: props.timeline.id,
-      compileFingerprint: props.timeline.inputFingerprint,
-      editFingerprint,
-    },
-    effects: props.effects.map((effect) => structuredClone(effect)),
-    timelineFrame: 0,
+  verifyProductionFilmEffectPopulation({
+    timeline: props.timeline,
+    effects: props.effects,
   });
-  const frames = Array.from(
+  for (const effect of props.effects)
+    if (effect.production !== props.production.id)
+      throw new AutoMovieFilmEffectRuntimeError(
+        "film-effect-runtime-stale",
+        `Film effect runtime "${effect.effect.id}" belongs to production "${effect.production}", not "${props.production.id}".`,
+      );
+  const effectDigests: string[] = props.effects.map(
+    (effect: IAutoMovieCompiledFilmEffect): string => effect.digest,
+  );
+  const frames: IAutoMovieProductionRenderFrame[] = Array.from(
     { length: props.timeline.totalFrames / tier.frameStep },
-    (_, outputFrame) => {
-      const timelineFrame = outputFrame * tier.frameStep;
+    (_: unknown, outputFrame: number): IAutoMovieProductionRenderFrame => {
+      const timelineFrame: number = outputFrame * tier.frameStep;
       return {
         ...sampleProductionRenderFrame(props.timeline, timelineFrame),
         globalFrame: outputFrame,
@@ -151,83 +229,50 @@ export const planProductionRenderJob = (props: {
       };
     },
   );
+  const moving: IMovingDeliverable[] = props.production.deliverables.filter(
+    (
+      deliverable: IAutoMovieProductionDeliverable,
+    ): deliverable is IMovingDeliverable =>
+      deliverable.kind === "feature" || deliverable.kind === "guide-pass",
+  );
+  const ranges: IRange[] = moving.length === 0 ? [] : partition(frames, props);
   const chunks: IAutoMovieProductionRenderChunk[] = [];
-  for (const deliverable of props.production.deliverables) {
-    // Only the two moving-image kinds carry chunks. Narrowing here rather than
-    // resolving an empty pass list keeps the chunk's own `kind` exact, so a
-    // caption or audio deliverable cannot reach a video parser probe.
-    if (deliverable.kind !== "feature" && deliverable.kind !== "guide-pass")
-      continue;
-    const passes: readonly AutoMovieGuidePass[] =
+  for (const deliverable of moving) {
+    const pass: AutoMovieGuidePass =
       deliverable.kind === "feature"
-        ? ["beauty"]
-        : assertSingleGuidePass(
-            deliverable.pass === undefined
-              ? legacyGuidePasses
-              : [deliverable.pass],
-          );
-    // The same arithmetic as `planChunkedSequenceRender`, deliberately not
-    // shared with it. Both walk `k * chunkFrames` to
-    // `min(start + chunkFrames, total)` and agree on every count and size tried,
-    // but `index` means different things. There it is the ordinal the concat
-    // reassembly walks, so the count is needed up front to fix a label width;
-    // here it restarts for each deliverable and pass because it is one field of
-    // a content-addressed slot. The admission rules differ as well: that planner
-    // accepts any positive integer, this one only a positive safe integer. A
-    // shared primitive would have to carry both contracts to save three lines.
-    for (const pass of passes)
-      for (
-        let frameStart = 0, index = 0;
-        frameStart < frames.length;
-        frameStart += props.chunkFrames, ++index
-      ) {
-        const frameEndExclusive = Math.min(
-          frameStart + props.chunkFrames,
-          frames.length,
-        );
-        const range = frames.slice(frameStart, frameEndExclusive);
-        const sources = [
-          ...new Set(
-            range.flatMap((frame) => frame.layers.map((layer) => layer.shot)),
-          ),
-        ]
-          .sort(compareCodeUnits)
-          .map((shot) => {
-            const digest = props.sourceFingerprints[shot];
-            if (digest === undefined || validDigest(digest) === false)
-              throw new Error(
-                `Render range references shot "${shot}" without one current builder-owned source fingerprint.`,
-              );
-            return { shot, digest };
-          });
-        const slot = `${props.production.id}:${tier.kind}:${deliverable.id}:${pass}:${index}`;
-        const identity = {
-          protocol: "automovie.production-render-chunk.v4",
-          production: props.production.id,
-          tier,
-          deliverable: deliverable.id,
-          kind: deliverable.kind,
-          editFingerprint,
-          effects: props.effects.map((effect) => effect.digest),
-          sourceFrameFormat: props.production.frameFormat,
-          frameFormat,
-          frameStart,
-          frameEndExclusive,
-          pass,
-          runtimeIdentity: props.runtimeIdentity,
-          sources,
-        };
-        chunks.push({
-          slot,
-          id: autoMovieRenderDigest(canonicalizeAutoMovieJson(identity)),
-          deliverable: deliverable.id,
-          kind: deliverable.kind,
-          pass,
-          frameStart,
-          frameEndExclusive,
-          frames: range,
-        });
-      }
+        ? "beauty"
+        : deliverable.pass === undefined
+          ? legacyGuidePass
+          : assertSingleGuidePass([deliverable.pass]);
+    ranges.forEach((range: IRange, index: number): void => {
+      chunks.push({
+        slot: `${props.production.id}:${tier.kind}:${deliverable.id}:${pass}:${index}`,
+        id: autoMovieRenderDigest(
+          canonicalizeAutoMovieJson({
+            protocol: "automovie.production-render-chunk.v4",
+            production: props.production.id,
+            tier,
+            deliverable: deliverable.id,
+            kind: deliverable.kind,
+            editFingerprint,
+            effects: effectDigests,
+            sourceFrameFormat: props.production.frameFormat,
+            frameFormat,
+            frameStart: range.frameStart,
+            frameEndExclusive: range.frameEndExclusive,
+            pass,
+            runtimeIdentity: props.runtimeIdentity,
+            sources: range.sources,
+          }),
+        ),
+        deliverable: deliverable.id,
+        kind: deliverable.kind,
+        pass,
+        frameStart: range.frameStart,
+        frameEndExclusive: range.frameEndExclusive,
+        frames: range.frames,
+      });
+    });
   }
   return {
     version: 4,
@@ -245,7 +290,64 @@ export const planProductionRenderJob = (props: {
       captions: canonicalProductionWebVtt(props.timeline),
       audio: structuredClone(props.timeline.tracks.audio),
       audioAssets,
-      effects: props.effects.map((effect) => structuredClone(effect)),
+      effects: props.effects.map(
+        (effect: IAutoMovieCompiledFilmEffect): IAutoMovieCompiledFilmEffect =>
+          structuredClone(effect),
+      ),
     },
   };
+};
+
+/**
+ * Split the output frames into consecutive ranges of at most `chunkFrames` and
+ * attach the code-unit-sorted source digest of every shot each range shows,
+ * throwing for a shot without a valid digest.
+ */
+const partition: (
+  frames: IAutoMovieProductionRenderFrame[],
+  props: {
+    chunkFrames: number;
+    sourceFingerprints: Readonly<Record<string, string>>;
+  },
+) => IRange[] = (
+  frames: IAutoMovieProductionRenderFrame[],
+  props: {
+    chunkFrames: number;
+    sourceFingerprints: Readonly<Record<string, string>>;
+  },
+): IRange[] => {
+  const ranges: IRange[] = [];
+  for (
+    let frameStart: number = 0;
+    frameStart < frames.length;
+    frameStart += props.chunkFrames
+  ) {
+    const frameEndExclusive: number = Math.min(
+      frameStart + props.chunkFrames,
+      frames.length,
+    );
+    const range: IAutoMovieProductionRenderFrame[] = frames.slice(
+      frameStart,
+      frameEndExclusive,
+    );
+    const shots: Set<string> = new Set();
+    for (const frame of range)
+      for (const layer of frame.layers) shots.add(layer.shot);
+    ranges.push({
+      frameStart,
+      frameEndExclusive,
+      frames: range,
+      sources: [...shots]
+        .sort(compareCodeUnits)
+        .map((shot: string): { shot: string; digest: string } => {
+          const digest: string | undefined = props.sourceFingerprints[shot];
+          if (digest === undefined || validDigest(digest) === false)
+            throw new Error(
+              `Render range references shot "${shot}" without one current builder-owned source fingerprint.`,
+            );
+          return { shot, digest };
+        }),
+    });
+  }
+  return ranges;
 };

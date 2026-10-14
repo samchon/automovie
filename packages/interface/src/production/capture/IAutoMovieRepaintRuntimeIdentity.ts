@@ -1,47 +1,25 @@
 /**
- * Structured identity of the host repaint implementation.
+ * Declared provider, model, version and execution boundary of an intended repaint implementation.
  *
- * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IAutoMovieRepaintRuntimeIdentity` as the portable data boundary for the repaint reference roles requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IAutoMovieRepaintRuntimeIdentity` for the asset spec repaint controls references system contract.
+ * @evidence contracts/common.md#principled-implementation A literal protocol and closed execution union constrain the declared identity shape; provider, model and version are plain strings without nonblank validation or canonicalization.
+ * @evidence contracts/common.md#clear-and-simple-design Five explicit identity fields distinguish implementation revisions without embedding credentials or provider invocation arguments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record names a declared implementation but does not hash a remote deployment, promise deterministic output or compare a reported adapter identity; no retained execution host enforces that comparison.
+ * @evidence contracts/common.md#meaningful-documentation Defines protocol, provider/model/version and local, API or explicit other execution authority.
+ * @author Samchon
  */
 export interface IAutoMovieRepaintRuntimeIdentity {
-  /**
-   * Identity protocol.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `protocolVersion` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `protocolVersion` for the asset spec repaint controls references system contract.
-   */
+  /** Identity protocol. */
   protocolVersion: "automovie.repaint-runtime.v1";
 
-  /**
-   * Adapter/provider family.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `provider` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `provider` for the asset spec repaint controls references system contract.
-   */
+  /** Adapter/provider family. */
   provider: string;
 
-  /**
-   * Exact model id.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `model` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `model` for the asset spec repaint controls references system contract.
-   */
+  /** Exact model id. */
   model: string;
 
-  /**
-   * Exact model or deployment version.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `version` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `version` for the asset spec repaint controls references system contract.
-   */
+  /** Exact model or deployment version. */
   version: string;
 
-  /**
-   * Local, API, or another explicit execution boundary.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `execution` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `execution` for the asset spec repaint controls references system contract.
-   */
+  /** Local, API, or another explicit execution boundary. */
   execution: "local" | "api" | "other";
 }

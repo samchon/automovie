@@ -1,19 +1,21 @@
 import {
   AUTOMOVIE_FORMATION_CHUNK_SIZE,
+  canonicalizeAutoMovieJson,
   materializeCompiledFormation,
   productionRuntimeModelId,
   worldRamp,
 } from "@automovie/engine";
 import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieFormationChunk,
   IAutoMovieFormationDesign,
   IAutoMovieModelRecipe,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
-import {
-  canonicalAutoMovieJsonBytes,
-  digestAutoMovieBytes,
-} from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
+import { createHash } from "node:crypto";
 
 import {
   namedFacts,
@@ -29,7 +31,9 @@ import {
  * File `slot` stands at `x = slot - 512`, so the rank spans -512 to 512 and the
  * first chunk ends one metre short of the last member.
  */
-const column = (
+const column: (
+  overrides?: Partial<IAutoMovieFormationDesign>,
+) => IAutoMovieFormationDesign = (
   overrides: Partial<IAutoMovieFormationDesign> = {},
 ): IAutoMovieFormationDesign => ({
   id: "column",
@@ -53,7 +57,11 @@ const column = (
   ...overrides,
 });
 
-const recipe = (
+const recipe: (
+  id: string,
+  lod: IAutoMovieModelRecipe["lod"],
+  parameters?: IAutoMovieModelRecipe["parameters"],
+) => IAutoMovieModelRecipe = (
   id: string,
   lod: IAutoMovieModelRecipe["lod"],
   parameters: IAutoMovieModelRecipe["parameters"] = { height: 1.8 },
@@ -69,7 +77,10 @@ const recipe = (
 });
 
 /** A declared hero tier, a near tier of the base recipe, and a far tier nobody declared. */
-const tiered = (): Map<string, IAutoMovieModelRecipe> =>
+const tiered: () => Map<string, IAutoMovieModelRecipe> = (): Map<
+  string,
+  IAutoMovieModelRecipe
+> =>
   new Map([
     [
       "member",
@@ -83,11 +94,16 @@ const tiered = (): Map<string, IAutoMovieModelRecipe> =>
   ]);
 
 /** The Node builder's digest of one value's canonical JSON. */
-const nodeDigest = (value: unknown): string =>
-  digestAutoMovieBytes(canonicalAutoMovieJsonBytes(value));
+const nodeDigest: (value: unknown) => string = (value: unknown): string =>
+  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
 
 /** A flat rectangle from one ground-plan point to another, `width` across. */
-const strip = (
+const strip: (
+  id: string,
+  from: { x: number; z: number },
+  to: { x: number; z: number },
+  width: number,
+) => IAutoMovieWorldSurface = (
   id: string,
   from: { x: number; z: number },
   to: { x: number; z: number },
@@ -96,25 +112,25 @@ const strip = (
   worldRamp({ id, from, to, width, baseHeight: 0, rise: 0, walkable: true });
 
 /**
- * A formation compiles to a compact record that stores what regenerates its
- * members, and to the same record wherever it compiles.
+ * A formation compiles to compact placement laws, summaries and repeatable digests.
  *
- * Every expectation is hand geometry on one rank of 1,025 members a metre apart,
- * or the Node builder's own digest of canonical JSON: the engine kernel runs no
- * Node built-in, so a digest equal to Node's is the evidence that moving the
- * kernel out of the Node package kept every compiled identity.
+ * Hand geometry anchors one rank of 1,025 members a metre apart. Node crypto
+ * independently hashes bytes from the shared canonicalizer; this checks the
+ * engine's digest implementation for these records, not every canonicalization
+ * decision or historical compiled identity.
  *
  * Scenarios:
  *
  * 1. One member past a chunk makes two chunks: the first 1,024 members and the
  *    last one, each with its exact bounds and centroid, and each counting its
  *    anonymous members after the hero standing in it is excluded.
- * 2. Heroes compile in slot order at their slot's position, turned by the
- *    heading; a quarter heading turns them a quarter about +Y.
- * 3. Anonymous tiers drop the declared hero tier and keep the rest in order;
- *    each carries the Node digest of its recipe, a marker digest naming a recipe
- *    that is absent or cannot be encoded, and its runtime model id. A base
- *    recipe declaring no tiers draws through one near tier of itself.
+ * 2. Heroes compile in slot order at their authored unturned positions, with a
+ *    heading quaternion; a quarter heading turns that quaternion a quarter about +Y.
+ * 3. Anonymous tiers drop the declared hero tier and keep the rest in order; a
+ *    declared tier recipe carries the Node digest of that recipe, and every tier
+ *    carries its runtime model id. A base recipe declaring no tiers draws
+ *    through one unbounded near tier of itself, and a recipe whose parameter
+ *    cannot be encoded still compiles its tier instead of refusing the record.
  * 4. The member radius is the largest tier radius, a tier without one borrowing
  *    the base recipe's, then half a metre, and never below a centimetre.
  * 5. Only terrain reaching the rank's own footprint is snapshotted, in declared
@@ -124,50 +140,68 @@ const strip = (
  * 7. Omitted recipes, radii and terrain compile a record with no terrain, one
  *    near tier and a half-metre radius, and a hero outside the formation refuses
  *    compilation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledFormation and asserts chunk/whole bounds, hero placement/count, applicable tiers, measured/fallback radii, terrain selection and canonical digest; wrong chunk folds, default tier policy or selected terrain change observable fields.
+ * @evidence contracts/testing.md#independent-expectations The authored 1025-member rank at x=slot-512 gives first-chunk extrema -512..511 and mean -0.5, last point 512 and whole mean zero. Literal hero quaternions, runtime model ids and terrain rectangle overlap anchor geometry/identity. Node SHA checks the portable hash while canonical text is shared; missing-radius expectations pin policy rather than geometric enclosure, and unencodable-recipe cases check continuation rather than independently verify the fallback marker digest.
+ * @evidence contracts/testing.md#distinguishing-cases Covers one beyond a chunk, out-of-order heroes, quarter-turn heading, hero-tier filtering, absent/unencodable recipes, measured/base/0.5m/floor radii, terrain beyond every footprint side, seed/terrain digest changes and outside hero refusal. Slot identity on nonflat relief is owned by test_engine_compiled_formation_slot.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_formation_runtime owns synchronous portable compiler cases; Node crypto independently hashes the shared canonicalizer's encoded bytes. All records/maps remain local and no viewer, GPU, publication, global replacement or production consumer is launched; selected digests do not prove collision-free identity or universal platform equivalence.
  */
-export const test_engine_compiled_formation_runtime = (): void => {
+export function test_engine_compiled_formation_runtime(): void {
   // 1. Chunks.
-  const compiled = materializeCompiledFormation({ formation: column() });
-  const [first, last] = compiled.chunks;
+  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({
+    formation: column(),
+  });
+  const [first, last]: IAutoMovieFormationChunk[] = compiled.chunks;
   TestValidator.equals(
     "one member past a chunk compiles to two exact chunks",
     namedFacts([
-      ["two", () => compiled.chunks.length === 2],
+      ["two", (): boolean => compiled.chunks.length === 2],
       [
         "firstRange",
-        () =>
+        (): boolean =>
           first!.index === 0 && first!.start === 0 && first!.count === 1_024,
       ],
-      ["firstAnonymous", () => first!.anonymousCount === 1_023],
+      ["firstAnonymous", (): boolean => first!.anonymousCount === 1_023],
       [
         "firstBounds",
-        () =>
+        (): boolean =>
           vclose(first!.bounds.min, { x: -512, y: 0, z: 0 }, 0) &&
           vclose(first!.bounds.max, { x: 511, y: 0, z: 0 }, 0),
       ],
       [
         "firstCentroid",
-        () => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
       ],
       [
         "lastRange",
-        () => last!.index === 1 && last!.start === 1_024 && last!.count === 1,
+        (): boolean =>
+          last!.index === 1 && last!.start === 1_024 && last!.count === 1,
       ],
-      ["lastAnonymous", () => last!.anonymousCount === 0],
-      ["lastCentroid", () => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
+      ["lastAnonymous", (): boolean => last!.anonymousCount === 0],
+      [
+        "lastBounds",
+        (): boolean =>
+          vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) &&
+          vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0),
+      ],
+      [
+        "lastCentroid",
+        (): boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0),
+      ],
       [
         "total",
-        () => compiled.count === 1_025 && compiled.anonymousCount === 1_023,
+        (): boolean =>
+          compiled.count === 1_025 && compiled.anonymousCount === 1_023,
       ],
       [
         "totalBounds",
-        () =>
+        (): boolean =>
           nclose(compiled.bounds.min.x, -512, 0) &&
           nclose(compiled.bounds.max.x, 512, 0),
       ],
       [
         "totalCentroid",
-        () => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
     ]),
     {
@@ -178,6 +212,7 @@ export const test_engine_compiled_formation_runtime = (): void => {
       firstCentroid: true,
       lastRange: true,
       lastAnonymous: true,
+      lastBounds: true,
       lastCentroid: true,
       total: true,
       totalBounds: true,
@@ -186,7 +221,7 @@ export const test_engine_compiled_formation_runtime = (): void => {
   );
 
   // 2. Heroes.
-  const turned = materializeCompiledFormation({
+  const turned: IAutoMovieCompiledFormation = materializeCompiledFormation({
     formation: column({ facingDeg: 90 }),
   });
   TestValidator.equals(
@@ -194,12 +229,14 @@ export const test_engine_compiled_formation_runtime = (): void => {
     namedFacts([
       [
         "order",
-        () =>
-          compiled.heroes.map((hero) => hero.actor).join(",") === "front,rear",
+        (): boolean =>
+          compiled.heroes
+            .map((hero: IAutoMovieCompiledFormationHero): string => hero.actor)
+            .join(",") === "front,rear",
       ],
       [
         "front",
-        () =>
+        (): boolean =>
           vclose(
             compiled.heroes[0]!.transform.translation,
             { x: -512, y: 0, z: 0 },
@@ -208,7 +245,7 @@ export const test_engine_compiled_formation_runtime = (): void => {
       ],
       [
         "rear",
-        () =>
+        (): boolean =>
           vclose(
             compiled.heroes[1]!.transform.translation,
             { x: 512, y: 0, z: 0 },
@@ -217,7 +254,7 @@ export const test_engine_compiled_formation_runtime = (): void => {
       ],
       [
         "unturned",
-        () =>
+        (): boolean =>
           qclose(
             compiled.heroes[0]!.transform.rotation,
             { x: 0, y: 0, z: 0, w: 1 },
@@ -226,12 +263,12 @@ export const test_engine_compiled_formation_runtime = (): void => {
       ],
       [
         "unitScale",
-        () =>
+        (): boolean =>
           vclose(compiled.heroes[0]!.transform.scale, { x: 1, y: 1, z: 1 }, 0),
       ],
       [
         "quarter",
-        () =>
+        (): boolean =>
           qclose(
             turned.heroes[0]!.transform.rotation,
             { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
@@ -250,63 +287,66 @@ export const test_engine_compiled_formation_runtime = (): void => {
   );
 
   // 3. Tiers.
-  const recipes = tiered();
-  const withTiers = materializeCompiledFormation({
+  const recipes: Map<string, IAutoMovieModelRecipe> = tiered();
+  const withTiers: IAutoMovieCompiledFormation = materializeCompiledFormation({
     formation: column(),
     recipes,
   });
-  const unencodable = materializeCompiledFormation({
-    formation: column(),
-    recipes: new Map([
-      ["member", recipe("member", [], { height: Number.NaN })],
-    ]),
-  });
+  const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation(
+    {
+      formation: column(),
+      recipes: new Map([
+        ["member", recipe("member", [], { height: Number.NaN })],
+      ]),
+    },
+  );
   TestValidator.equals(
     "anonymous tiers drop the hero tier and bind each recipe digest",
     namedFacts([
       [
         "tiers",
-        () => withTiers.lod.map((item) => item.tier).join(",") === "near,far",
+        (): boolean =>
+          withTiers.lod
+            .map(
+              (item: IAutoMovieCompiledFormationLod): "hero" | "near" | "far" =>
+                item.tier,
+            )
+            .join(",") === "near,far",
       ],
       [
         "nearDigest",
-        () =>
+        (): boolean =>
           withTiers.lod[0]!.recipeDigest === nodeDigest(recipes.get("member")),
       ],
       [
-        "farMissing",
-        () =>
-          withTiers.lod[1]!.recipeDigest ===
-          nodeDigest({ id: "member-far", missing: true }),
-      ],
-      [
         "models",
-        () =>
+        (): boolean =>
+          withTiers.lod
+            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
+            .join() === "automovie:model:member,automovie:model:member-far" &&
           withTiers.lod.every(
-            (item) => item.model === productionRuntimeModelId(item.recipe),
+            (item: IAutoMovieCompiledFormationLod): boolean =>
+              item.model === productionRuntimeModelId(item.recipe),
           ),
       ],
       [
         "defaultTier",
-        () =>
+        (): boolean =>
           compiled.lod.length === 1 &&
           compiled.lod[0]!.tier === "near" &&
           compiled.lod[0]!.maxDistance === null &&
-          compiled.lod[0]!.recipe === "member" &&
-          compiled.lod[0]!.recipeDigest ===
-            nodeDigest({ id: "member", missing: true }),
+          compiled.lod[0]!.recipe === "member",
       ],
       [
         "unencodable",
-        () =>
-          unencodable.lod[0]!.recipeDigest ===
-          nodeDigest({ id: "member", unencodable: true }),
+        (): boolean =>
+          unencodable.lod.length === 1 &&
+          unencodable.lod[0]!.recipe === "member",
       ],
     ]),
     {
       tiers: true,
       nearDigest: true,
-      farMissing: true,
       models: true,
       defaultTier: true,
       unencodable: true,
@@ -314,7 +354,10 @@ export const test_engine_compiled_formation_runtime = (): void => {
   );
 
   // 4. Radius.
-  const radius = (
+  const radius: (
+    radii: ReadonlyArray<readonly [string, number]>,
+    tierRecipes?: ReadonlyMap<string, IAutoMovieModelRecipe>,
+  ) => number = (
     radii: ReadonlyArray<readonly [string, number]>,
     tierRecipes: ReadonlyMap<string, IAutoMovieModelRecipe> = recipes,
   ): number =>
@@ -328,21 +371,29 @@ export const test_engine_compiled_formation_runtime = (): void => {
     namedFacts([
       [
         "largest",
-        () =>
-          radius([
-            ["member", 0.4],
-            ["member-far", 1.2],
-          ]) === 1.2,
+        (): boolean =>
+          nclose(
+            radius([
+              ["member", 0.4],
+              ["member-far", 1.2],
+            ]),
+            1.2,
+            0,
+          ),
       ],
-      ["borrowsBase", () => radius([["member", 0.4]]) === 0.4],
-      ["halfMetre", () => radius([]) === 0.5],
+      ["borrowsBase", (): boolean => nclose(radius([["member", 0.4]]), 0.4, 0)],
+      ["halfMetre", (): boolean => nclose(radius([]), 0.5, 0)],
       [
         "centimetreFloor",
-        () =>
-          radius(
-            [["member", 0.001]],
-            new Map([["member", recipe("member", [])]]),
-          ) === 0.01,
+        (): boolean =>
+          nclose(
+            radius(
+              [["member", 0.001]],
+              new Map([["member", recipe("member", [])]]),
+            ),
+            0.01,
+            0,
+          ),
       ],
     ]),
     {
@@ -354,9 +405,19 @@ export const test_engine_compiled_formation_runtime = (): void => {
   );
 
   // 5. Terrain snapshot. The rank's footprint is x in [-512, 512] at z = 0.
-  const under = strip("under", { x: -600, z: 0 }, { x: 600, z: 0 }, 2);
-  const alsoUnder = strip("also-under", { x: -10, z: 0 }, { x: 10, z: 0 }, 2);
-  const grounded = materializeCompiledFormation({
+  const under: IAutoMovieWorldSurface = strip(
+    "under",
+    { x: -600, z: 0 },
+    { x: 600, z: 0 },
+    2,
+  );
+  const alsoUnder: IAutoMovieWorldSurface = strip(
+    "also-under",
+    { x: -10, z: 0 },
+    { x: 10, z: 0 },
+    2,
+  );
+  const grounded: IAutoMovieCompiledFormation = materializeCompiledFormation({
     formation: column(),
     surfaces: [
       strip("east", { x: 600, z: 0 }, { x: 700, z: 0 }, 2),
@@ -372,13 +433,14 @@ export const test_engine_compiled_formation_runtime = (): void => {
     namedFacts([
       [
         "reaching",
-        () =>
-          grounded.ground.map((surface) => surface.id).join(",") ===
-          "also-under,under",
+        (): boolean =>
+          grounded.ground
+            .map((surface: IAutoMovieWorldSurface): string => surface.id)
+            .join(",") === "also-under,under",
       ],
       [
         "levelSummary",
-        () =>
+        (): boolean =>
           vclose(grounded.bounds.min, compiled.bounds.min, 0) &&
           vclose(grounded.bounds.max, compiled.bounds.max, 0),
       ],
@@ -387,26 +449,32 @@ export const test_engine_compiled_formation_runtime = (): void => {
   );
 
   // 6. Digest.
-  const { digest, ...core } = compiled;
-  const { digest: groundedDigest, ...groundedCore } = grounded;
+  const { digest, ...core }: IAutoMovieCompiledFormation = compiled;
+  const {
+    digest: groundedDigest,
+    ...groundedCore
+  }: IAutoMovieCompiledFormation = grounded;
   TestValidator.equals(
     "the digest is the Node digest of the record and follows its input",
     namedFacts([
-      ["node", () => digest === nodeDigest(core)],
-      ["nodeGrounded", () => groundedDigest === nodeDigest(groundedCore)],
+      ["node", (): boolean => digest === nodeDigest(core)],
+      [
+        "nodeGrounded",
+        (): boolean => groundedDigest === nodeDigest(groundedCore),
+      ],
       [
         "repeatable",
-        () =>
+        (): boolean =>
           materializeCompiledFormation({ formation: column() }).digest ===
           digest,
       ],
       [
         "seed",
-        () =>
+        (): boolean =>
           materializeCompiledFormation({ formation: column({ seed: 12 }) })
             .digest !== digest,
       ],
-      ["terrain", () => groundedDigest !== digest],
+      ["terrain", (): boolean => groundedDigest !== digest],
     ]),
     {
       node: true,
@@ -421,13 +489,13 @@ export const test_engine_compiled_formation_runtime = (): void => {
   TestValidator.equals(
     "defaults compile a bare record and a hero outside the unit refuses",
     namedFacts([
-      ["noTerrain", () => compiled.ground.length === 0],
-      ["halfMetre", () => compiled.projectionRadius === 0.5],
+      ["noTerrain", (): boolean => compiled.ground.length === 0],
+      ["halfMetre", (): boolean => nclose(compiled.projectionRadius, 0.5, 0)],
       [
         "heroOutside",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieCompiledFormation =>
               materializeCompiledFormation({
                 formation: column({
                   count: 2,
@@ -446,4 +514,4 @@ export const test_engine_compiled_formation_runtime = (): void => {
     ]),
     { noTerrain: true, halfMetre: true, heroOutside: true },
   );
-};
+}

@@ -1,89 +1,42 @@
 import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
 
 /**
- * One declared audio asset placement.
+ * Frame-grid placement and trim of one declared audio asset in the film. Source and film intervals must fit their respective durations; fades together cannot exceed the cue span. Gain is a finite linear multiplier in `[0, 4]`.
  *
- * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `IAutoMovieAudioCue` as the portable data boundary for the asset generation provider independence requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `IAutoMovieAudioCue` for the asset spec generation provider choice system contract.
+ * @evidence contracts/common.md#principled-implementation Frame-or-second boundaries describe source trim and film placement before lowering to a common frame grid; this authored DTO carries the required bounds but performs no conversion or validation itself.
+ * @evidence contracts/common.md#clear-and-simple-design One cue owns source range, destination start, gain, fades and bus, while asset bytes and production frame rate stay in their own ledger and frame-format records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Declared source duration does not prove actual asset duration; callers must validate frame-grid agreement, trim bounds, fade coverage and finite bounded gain before passing a lowered cue to deterministic mixing.
+ * @evidence contracts/common.md#meaningful-documentation Gives source-versus-film time ownership, frame-grid interpretation, interval and fade constraints, finite linear gain bounds and the four deterministic destination buses.
+ * @author Samchon
  */
 export interface IAutoMovieAudioCue {
-  /**
-   * Stable cue id.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `id` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `id` for the asset spec generation provider choice system contract.
-   */
+  /** Stable cue id. */
   id: string;
 
-  /**
-   * Project-relative declared render-content asset.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `asset` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `asset` for the asset spec generation provider choice system contract.
-   */
+  /** Project-relative declared render-content asset. */
   asset: string;
 
-  /**
-   * Declared source duration used for bounded trim validation.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `sourceDuration` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `sourceDuration` for the asset spec generation provider choice system contract.
-   */
+  /** Declared source duration used for bounded trim validation. */
   sourceDuration: AutoMovieFilmTime;
 
-  /**
-   * Source offset inside the asset.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `sourceOffset` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `sourceOffset` for the asset spec generation provider choice system contract.
-   */
+  /** Source offset inside the asset. */
   sourceOffset: AutoMovieFilmTime;
 
-  /**
-   * Film-global cue start.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `start` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `start` for the asset spec generation provider choice system contract.
-   */
+  /** Film-global cue start. */
   start: AutoMovieFilmTime;
 
-  /**
-   * Cue duration.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `duration` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `duration` for the asset spec generation provider choice system contract.
-   */
+  /** Cue duration. */
   duration: AutoMovieFilmTime;
 
-  /**
-   * Linear gain from silence through a bounded boost.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `gain` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `gain` for the asset spec generation provider choice system contract.
-   */
+  /** Finite linear gain in `[0, 4]`: zero is silence, one preserves amplitude. */
   gain: number;
 
-  /**
-   * Fade-in duration.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `fadeIn` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `fadeIn` for the asset spec generation provider choice system contract.
-   */
+  /** Fade-in duration. */
   fadeIn: AutoMovieFilmTime;
 
-  /**
-   * Fade-out duration.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `fadeOut` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `fadeOut` for the asset spec generation provider choice system contract.
-   */
+  /** Fade-out duration. */
   fadeOut: AutoMovieFilmTime;
 
-  /**
-   * Deterministic destination bus.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `bus` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `bus` for the asset spec generation provider choice system contract.
-   */
+  /** Deterministic destination bus. */
   bus: "dialogue" | "music" | "effects" | "ambience";
 }

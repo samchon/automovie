@@ -6,23 +6,21 @@ import {
 import { IAutoMovieSkeletonTopology, reachableBoneNames } from "../kinematics";
 
 /**
- * The bones a skeleton's forward kinematics can actually reach, a thin alias
- * over {@link reachableBoneNames}, kept as the name a physics validator reads.
- * It is the exact set {@link "../kinematics".resolvePose}'s walk visits, so it
- * can never disagree with which bones a sampled pose resolves.
+ * Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.
  *
- * A validator gates a bone against this set BEFORE reading its resolved world
- * position: a bone can be **declared** in `skeleton.bones` yet be **detached**
- * (its parent chain never reaches a null-parent root), in which case the
- * declared-set membership check passes but `resolvePose` omits it, and reading
- * the missing lookup would crash. Gating on reachability reports the malformed
- * rig as a violation instead.
- *
- * @evidence requirements/actors/validation.md#actor-input-binding-validation `fkReachableBones` identifies the rig bones whose parent chains actually participate in forward-kinematics binding.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure `fkReachableBones` reuses the resolver's traversal set so detached bone references cannot masquerade as valid hierarchy members.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.
+ * @evidence contracts/common.md#clear-and-simple-design The alias keeps FK reachability with the kinematics owner rather than a second validator traversal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Declared but detached bones stay absent; a supplied topology must match the current skeleton.
+ * @evidence contracts/common.md#meaningful-documentation The returned set is caller-owned and means reachability rather than numerical transform validity.
+ * @evidence contracts/performance.md#efficient-algorithms Copying the reachable set is O(B); omitted topology additionally pays its graph-index construction.
+ * @evidence contracts/performance.md#reuse-equivalent-work Physics validators reuse one topology for reachability and pose sampling.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the caller-owned set escapes; the alias retains no skeleton or host state.
  */
-export const fkReachableBones = (
+export const fkReachableBones: (
+  skeleton: IAutoMovieSkeleton,
+  topology?: IAutoMovieSkeletonTopology,
+) => Set<AutoMovieHumanoidBone> = (
   skeleton: IAutoMovieSkeleton,
   topology?: IAutoMovieSkeletonTopology,
 ): Set<AutoMovieHumanoidBone> => reachableBoneNames(skeleton, topology);

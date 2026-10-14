@@ -6,8 +6,11 @@
  * `not-run`; both carry a reason and no candidates, so an absent reading is
  * never mistaken for a clean sheet.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-unsupported-incomplete Exposes `IAutoMovieDesignAnalysisOutcome` as the portable data boundary for the production design reference unsupported incomplete requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-authority-replacement Types `IAutoMovieDesignAnalysisOutcome` for the narrative intent reference authority replacement system contract.
+ * @evidence contracts/common.md#principled-implementation The typed union separates observed candidates from unsupported/not-run reasons. Engine domain validation checks known status, nonempty resolving unique observed claims and nonblank non-observed reasons, but does not inspect extra runtime properties on a non-observed object or prove that the declared execution status is true. Arbitrary nested container shapes remain caller-admitted.
+ * @evidence contracts/common.md#clear-and-simple-design Three variants avoid optional payloads; domain admission refuses an empty observed list even though string[] can express one. Non-observed attempts go to skipped by status; an observed attempt's candidates still pass their separate ordered promotion gates, so observed does not itself imply promoted geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The three status literals are the contract's discriminants, and `promoteDesignObservations` copies a non-observed reason verbatim into `skipped` instead of rewording or dropping it.
+ * @evidence contracts/common.md#meaningful-documentation States which variant carries readings, how unsupported differs from not-run, that candidates come from the analysed frame only and are named once, and that reasons are non-blank.
+ * @author Samchon
  */
 export type IAutoMovieDesignAnalysisOutcome =
   | {
@@ -15,7 +18,8 @@ export type IAutoMovieDesignAnalysisOutcome =
       status: "observed";
 
       /**
-       * Candidate ids this analysis produced; at least one, each named once.
+       * Candidate ids this analysis produced; at least one, each resolving in
+       * the document and named once.
        *
        * An analysis reads one frame, so every candidate here is built from
        * marks on that same frame. Correlating two sheets is the authored

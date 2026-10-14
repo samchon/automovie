@@ -1,10 +1,16 @@
 import {
+  type IAutoMovieDrawingFeatureResolution,
   deriveAutoMovieDrawing,
   resolveAutoMovieDrawingFeature,
 } from "@automovie/engine";
 import {
+  type IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawing,
+  type IAutoMovieDrawingDimension,
   IAutoMovieDrawingFeature,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieDrawingPoint,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,6 +20,10 @@ import {
   drawingView,
 } from "../internal/drawingFixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { test02DrawingAnnotationIdentity } from "../internal/test02DrawingAnnotationIdentity";
+import { test02DrawingAnnotationOrder } from "../internal/test02DrawingAnnotationOrder";
+import { test02DrawingAnnotationStaleness } from "../internal/test02DrawingAnnotationStaleness";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * A dimension follows the wall it is pinned to, or says out loud that it no
@@ -25,39 +35,48 @@ import { namedFacts, nclose, vclose } from "../internal/predicates";
  * arithmetic over the engine's own box tessellation rather than numbers read
  * back out of the resolver.
  *
- * The two outcomes below are the whole contract. A target re-resolves against
- * changed geometry, so moving a wall moves its dimension and changes its
- * number; and a target whose feature count changed is stale, so replacing a
- * wall with a differently shaped one is reported rather than silently relocated
- * onto whichever feature inherited the index. A number that still looks right
- * is the only wrong answer.
+ * Targets re-resolve against the supplied geometry: translating the wall moves
+ * its note while preserving the length between two wall corners. A target
+ * authored with count nine is stale against the existing eight-corner wall;
+ * this checks a count mismatch without replacing the model's topology.
  *
  * Scenarios:
  *
- * 1. Vertex, edge, face, axis and centroid each resolve to the exact world
- *    position the fixture's dimensions imply.
- * 2. Moving the wall re-resolves every target to its new place and changes the
- *    dimension's value; the drawing's digest changes with it.
+ * 1. Vertex, edge, axis and centroid resolve to selected world positions;
+ *    the face probe checks count and absent direction, not its centroid.
+ * 2. Moving the wall re-resolves selected targets to their new places and changes the
+ *    note position while preserving its measured length; the digest changes.
  * 3. A target authored against a different feature count is stale even though its
  *    index is still in range, and the reason names both counts.
  * 4. An index out of range, a fractional index, a bad axis index, a non-zero
- *    centroid index and a mismatched axis or centroid count are each stale at
- *    their own message.
+ *    centroid index and mismatched axis or centroid counts are stale, with
+ *    selected cause-specific reasons and current counts.
  * 5. A missing element, an element with no model, a runtime model the design does
  *    not carry, a missing part and a part with no geometry are each stale
  *    rather than resolved to something nearby.
  * 6. A dimension measures the page distance or the true 3D distance, and says
  *    which; a stale end makes the whole dimension stale with the failing end's
  *    reason, from either side.
- * 7. Canonical order is numeric, so a part reordered in the model does not move a
- *    note, and an axis collapsed by its own scale has no direction.
+ * 7. Reordering model parts preserves four selected corner positions and
+ *    welded feature counts; collapsed-axis refusal is covered in 3..5.
  * 8. A sheet carrying a resolved note declares that it sized the note's anchor and
- *    not the lettering; a sheet whose every note is stale declares nothing,
+ *    not the lettering; a sheet whose every note is stale owes no text-extent gap,
  *    because it set no text at all.
+ * 9. The digest tells apart two drawings that differ only in where a dimension
+ *    stands, or only in where an id ends and its note's text begins.
+ * 10. A view declaring one dimension id or one note id twice is refused by name,
+ *     while one id shared between a dimension and a note is allowed.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves the existing wall's feature families, derives dimensions/notes before and after translation, observes stale counts/indices/references, propagates stale ends, compares selected reordered-part corners and welded sliver counts, and checks note-extent gaps, selected digest distinctions and duplicate-id admission. Original scenarios 3..5, 7 and 9/10 run through their named internal helpers in the same sequence.
+ * @evidence contracts/testing.md#independent-expectations The 6-by-3-by-0.2 authored box gives eight corners, eighteen tessellated edges, twelve triangles, selected endpoints and centre (3,1.5,0.1); translation adds 0.5 on x while a six-metre span stays six. The sloped plan distance is hypot(6,0.2); literal stale reasons, counts and null records supply independent guards. Reordered-part parity compares two product results and is limited to four selected corners.
+ * @evidence contracts/testing.md#distinguishing-cases Correct versus mismatched feature counts, fractional/negative/out-of-range indices, model-free axes versus model-free vertices, external/empty/missing parts and collapsed scale distinguish resolution branches. Page versus world requests, left/right missing ends, resolved versus stale notes, part order, welded degenerate edges, equal lengths at different page heights and separator-bearing text distinguish artifact behavior; no count-preserving topology replacement is tested.
+ * @evidence contracts/testing.md#execution-ownership Uses existing local model declarations and synchronous public feature/drawing APIs without a renderer, filesystem output, clocks, global replacement or an alternate driver. Selected face count/null direction is not a face-position oracle; selected corner parity does not establish all-feature stability. Distinct observed digests do not prove collision impossibility or coverage of every payload field; both stale-end cases use the same missing-element cause. The diagonal checks page distance without a paired world-distance assertion for that diagonal.
  */
-export const test_drawing_annotation_resolution = (): void => {
-  const environment = drawingEnvironment();
-  const feature = (
+export function test_drawing_annotation_resolution(): void {
+  const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
+  const feature: (
+    overrides: Partial<IAutoMovieDrawingFeature>,
+  ) => IAutoMovieDrawingFeature = (
     overrides: Partial<IAutoMovieDrawingFeature>,
   ): IAutoMovieDrawingFeature => ({
     element: "north-wall",
@@ -67,10 +86,14 @@ export const test_drawing_annotation_resolution = (): void => {
     count: null,
     ...overrides,
   });
-  const resolve = (
+  const resolve: (
+    overrides: Partial<IAutoMovieDrawingFeature>,
+    where?: IAutoMovieBuiltEnvironment,
+  ) => IAutoMovieDrawingFeatureResolution = (
     overrides: Partial<IAutoMovieDrawingFeature>,
     where: IAutoMovieBuiltEnvironment = environment,
-  ) => resolveAutoMovieDrawingFeature(where, feature(overrides));
+  ): IAutoMovieDrawingFeatureResolution =>
+    resolveAutoMovieDrawingFeature(where, feature(overrides));
 
   // 1. Every family resolves where the fixture puts it.
   TestValidator.equals(
@@ -78,8 +101,11 @@ export const test_drawing_annotation_resolution = (): void => {
     namedFacts([
       [
         "the wall has 8 welded corners and the first is its origin corner",
-        () => {
-          const corner = resolve({ kind: "vertex", index: 0 });
+        (): boolean => {
+          const corner: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "vertex",
+            index: 0,
+          });
           return (
             corner.count === 8 &&
             corner.status === "resolved" &&
@@ -90,7 +116,7 @@ export const test_drawing_annotation_resolution = (): void => {
       ],
       [
         "the last corner is the far top corner of the same box",
-        () =>
+        (): boolean =>
           vclose(resolve({ kind: "vertex", index: 7 }).point!, {
             x: 6,
             y: 3,
@@ -99,8 +125,11 @@ export const test_drawing_annotation_resolution = (): void => {
       ],
       [
         "the wall has 18 welded edges and the first runs through its thickness",
-        () => {
-          const edge = resolve({ kind: "edge", index: 0 });
+        (): boolean => {
+          const edge: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "edge",
+            index: 0,
+          });
           return (
             edge.count === 18 &&
             vclose(edge.point!, { x: 0, y: 0, z: 0.1 }) &&
@@ -109,16 +138,22 @@ export const test_drawing_annotation_resolution = (): void => {
         },
       ],
       [
-        "the wall has 12 triangles and a face resolves to one's centre",
-        () => {
-          const face = resolve({ kind: "face", index: 0 });
+        "the wall face probe reports twelve triangles and no direction",
+        (): boolean => {
+          const face: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "face",
+            index: 0,
+          });
           return face.count === 12 && face.direction === null;
         },
       ],
       [
         "the centroid of a box is the centre of the box",
-        () => {
-          const centre = resolve({ kind: "centroid", index: 0 });
+        (): boolean => {
+          const centre: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "centroid",
+            index: 0,
+          });
           return (
             centre.count === 1 &&
             vclose(centre.point!, { x: 3, y: 1.5, z: 0.1 })
@@ -127,25 +162,36 @@ export const test_drawing_annotation_resolution = (): void => {
       ],
       [
         "each local axis resolves to the element's own origin and direction",
-        () =>
+        (): boolean =>
           (
             [
               [0, { x: 1, y: 0, z: 0 }],
               [1, { x: 0, y: 1, z: 0 }],
               [2, { x: 0, y: 0, z: 1 }],
             ] as const
-          ).every(([index, direction]) => {
-            const axis = resolve({ kind: "axis", index });
-            return (
-              axis.count === 3 &&
-              vclose(axis.point!, { x: 3, y: 1.5, z: 0.1 }) &&
-              vclose(axis.direction!, direction)
-            );
-          }),
+          ).every(
+            ([index, direction]:
+              | readonly [0, { readonly x: 1; readonly y: 0; readonly z: 0 }]
+              | readonly [1, { readonly x: 0; readonly y: 1; readonly z: 0 }]
+              | readonly [
+                  2,
+                  { readonly x: 0; readonly y: 0; readonly z: 1 },
+                ]): boolean => {
+              const axis: IAutoMovieDrawingFeatureResolution = resolve({
+                kind: "axis",
+                index,
+              });
+              return (
+                axis.count === 3 &&
+                vclose(axis.point!, { x: 3, y: 1.5, z: 0.1 }) &&
+                vclose(axis.direction!, direction)
+              );
+            },
+          ),
       ],
       [
         "a named part resolves the same geometry as the whole element",
-        () =>
+        (): boolean =>
           vclose(
             resolve({ kind: "vertex", index: 7, part: "wall-body" }).point!,
             { x: 6, y: 3, z: 0.2 },
@@ -156,7 +202,7 @@ export const test_drawing_annotation_resolution = (): void => {
       "the wall has 8 welded corners and the first is its origin corner": true,
       "the last corner is the far top corner of the same box": true,
       "the wall has 18 welded edges and the first runs through its thickness": true,
-      "the wall has 12 triangles and a face resolves to one's centre": true,
+      "the wall face probe reports twelve triangles and no direction": true,
       "the centroid of a box is the centre of the box": true,
       "each local axis resolves to the element's own origin and direction": true,
       "a named part resolves the same geometry as the whole element": true,
@@ -164,7 +210,7 @@ export const test_drawing_annotation_resolution = (): void => {
   );
 
   // 2. A moved wall moves its own notes.
-  const moved = movedWall(environment);
+  const moved: IAutoMovieBuiltEnvironment = movedWall(environment);
   TestValidator.predicate(
     "a moved wall carries its pinned corner with it",
     vclose(resolve({ kind: "vertex", index: 7 }, moved).point!, {
@@ -174,10 +220,13 @@ export const test_drawing_annotation_resolution = (): void => {
     }),
   );
 
-  const dimensioned = (
+  const dimensioned: (
     where: IAutoMovieBuiltEnvironment,
     measure: "page" | "world",
-  ) =>
+  ) => IAutoMovieDrawing = (
+    where: IAutoMovieBuiltEnvironment,
+    measure: "page" | "world",
+  ): IAutoMovieDrawing =>
     deriveAutoMovieDrawing({
       environment: where,
       view: drawingView({
@@ -199,37 +248,44 @@ export const test_drawing_annotation_resolution = (): void => {
         ],
       }),
     });
-  const before = dimensioned(environment, "world");
-  const after = dimensioned(moved, "world");
-  TestValidator.equals(
+  const before: IAutoMovieDrawing = dimensioned(environment, "world");
+  const after: IAutoMovieDrawing = dimensioned(moved, "world");
+  TestValidator.predicate(
     "a dimension between two corners is the wall's own 6 m length",
-    [before.dimensions[0]!.status, before.dimensions[0]!.value],
-    ["resolved", 6],
+    test12ValuesClose(
+      [before.dimensions[0]!.status, before.dimensions[0]!.value],
+      ["resolved", 6],
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "the note resolves onto the page at the wall's own centre",
-    [before.annotations[0]!.status, before.annotations[0]!.at],
-    ["resolved", { x: 3, y: -0.1 }],
+    test12ValuesClose(
+      [before.annotations[0]!.status, before.annotations[0]!.at],
+      ["resolved", { x: 3, y: -0.1 }],
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a moved wall keeps its length and moves its note and its digest",
-    [
-      after.dimensions[0]!.value,
-      after.annotations[0]!.at,
-      after.digest === before.digest,
-    ],
-    [6, { x: 3.5, y: -0.1 }, false],
+    test12ValuesClose(
+      [
+        after.dimensions[0]!.value,
+        after.annotations[0]!.at,
+        after.digest === before.digest,
+      ],
+      [6, { x: 3.5, y: -0.1 }, false],
+    ),
   );
   TestValidator.equals(
     "a page dimension measures the drawing and a world dimension measures the building",
     namedFacts([
       [
         "level",
-        () => nclose(dimensioned(environment, "page").dimensions[0]!.value!, 6),
+        (): boolean =>
+          nclose(dimensioned(environment, "page").dimensions[0]!.value!, 6),
       ],
       [
         "sloped",
-        () =>
+        (): boolean =>
           nclose(
             deriveAutoMovieDrawing({
               environment,
@@ -252,140 +308,11 @@ export const test_drawing_annotation_resolution = (): void => {
     { level: true, sloped: true },
   );
 
-  // 3-5. Staleness.
-  TestValidator.equals(
-    "every way a target can stop addressing the design is reported, not guessed",
-    namedFacts([
-      [
-        "a target authored against another count is stale though its index fits",
-        () => {
-          const stale = resolve({ kind: "vertex", index: 0, count: 9 });
-          return (
-            stale.status === "stale" &&
-            stale.count === 8 &&
-            stale.point === null &&
-            stale.reason ===
-              'element "north-wall" now has 8 vertex features, but the target was authored against 9'
-          );
-        },
-      ],
-      [
-        "an index past the end is stale and says how many there are",
-        () =>
-          resolve({ kind: "vertex", index: 8 }).reason ===
-          'element "north-wall" vertex index 8 is outside its 8 vertex features',
-      ],
-      [
-        "a fractional index is stale rather than truncated",
-        () => resolve({ kind: "edge", index: 1.5 }).status === "stale",
-      ],
-      [
-        "a negative index is stale",
-        () => resolve({ kind: "face", index: -1 }).status === "stale",
-      ],
-      [
-        "an axis index outside 0..2, or between them, is stale",
-        () =>
-          resolve({ kind: "axis", index: 3 }).reason ===
-            'element "north-wall" axis index must be 0, 1 or 2, but was 3' &&
-          resolve({ kind: "axis", index: -1 }).status === "stale" &&
-          // A fractional axis names no axis; without an integral guard this
-          // would select none of the three and be reported as a collapsed
-          // scale, which is a true message about the wrong thing.
-          resolve({ kind: "axis", index: 1.5 }).reason ===
-            'element "north-wall" axis index must be 0, 1 or 2, but was 1.5',
-      ],
-      [
-        "an axis count that is not three is stale and reports the three",
-        () => {
-          const stale = resolve({ kind: "axis", index: 0, count: 2 });
-          return stale.status === "stale" && stale.count === 3;
-        },
-      ],
-      [
-        "a centroid index other than zero is stale",
-        () =>
-          resolve({ kind: "centroid", index: 1 }).reason ===
-          'element "north-wall" centroid index must be 0, but was 1',
-      ],
-      [
-        "a centroid count other than one is stale and reports the one",
-        () => {
-          const stale = resolve({ kind: "centroid", index: 0, count: 2 });
-          return stale.status === "stale" && stale.count === 1;
-        },
-      ],
-      [
-        "a missing element is stale and names the environment",
-        () =>
-          resolve({ element: "no-such-wall" }).reason ===
-          'built environment "atelier" has no element "no-such-wall"',
-      ],
-      [
-        "an element with no model carries no vertex",
-        () =>
-          resolve({ element: "shell", kind: "vertex" }).reason ===
-          'element "shell" has no model, so it carries no "vertex" feature',
-      ],
-      [
-        "an element with no model still has axes, because a transform has axes",
-        () =>
-          resolve({ element: "shell", kind: "axis", index: 1 }).status ===
-          "resolved",
-      ],
-      [
-        "a runtime model the design does not carry is stale",
-        () =>
-          resolve({ element: "floor-slab" }, externalModel(environment))
-            .reason ===
-          'element "floor-slab" cites runtime model "slab", whose geometry this design does not carry',
-      ],
-      [
-        "a part the model does not have is stale",
-        () =>
-          resolve({ part: "no-such-part" }).reason ===
-          'model "wall" has no part "no-such-part"',
-      ],
-      [
-        "a part with no drawn geometry has no centroid",
-        () =>
-          resolve(
-            { element: "floor-slab", kind: "centroid", index: 0 },
-            emptyGeometry(environment),
-          ).reason ===
-          'element "floor-slab" has no geometry, so it has no centroid',
-      ],
-      [
-        "an axis a zero scale collapsed has no direction to point along",
-        () =>
-          resolve(
-            { element: "north-wall", kind: "axis", index: 0 },
-            collapsedWall(environment),
-          ).reason ===
-          'element "north-wall" axis 0 is collapsed by its own scale, so it has no direction',
-      ],
-    ]),
-    {
-      "a target authored against another count is stale though its index fits": true,
-      "an index past the end is stale and says how many there are": true,
-      "a fractional index is stale rather than truncated": true,
-      "a negative index is stale": true,
-      "an axis index outside 0..2, or between them, is stale": true,
-      "an axis count that is not three is stale and reports the three": true,
-      "a centroid index other than zero is stale": true,
-      "a centroid count other than one is stale and reports the one": true,
-      "a missing element is stale and names the environment": true,
-      "an element with no model carries no vertex": true,
-      "an element with no model still has axes, because a transform has axes": true,
-      "a runtime model the design does not carry is stale": true,
-      "a part the model does not have is stale": true,
-      "a part with no drawn geometry has no centroid": true,
-      "an axis a zero scale collapsed has no direction to point along": true,
-    },
-  );
+  // 3-5. Existing stale-target cases retain their original order.
+  test02DrawingAnnotationStaleness(environment, resolve);
 
   // 6. A stale end makes the dimension stale, from either side.
-  const broken = deriveAutoMovieDrawing({
+  const broken: IAutoMovieDrawing = deriveAutoMovieDrawing({
     environment,
     view: drawingView({
       id: "broken",
@@ -414,14 +341,18 @@ export const test_drawing_annotation_resolution = (): void => {
   });
   TestValidator.equals(
     "a stale end at either side makes the whole dimension stale with its reason",
-    broken.dimensions.map((dimension) => [
-      dimension.id,
-      dimension.status,
-      dimension.from,
-      dimension.to,
-      dimension.value,
-      dimension.reason,
-    ]),
+    broken.dimensions.map(
+      (
+        dimension: IAutoMovieDrawingDimension,
+      ): (string | number | IAutoMovieDrawingPoint | null)[] => [
+        dimension.id,
+        dimension.status,
+        dimension.from,
+        dimension.to,
+        dimension.value,
+        dimension.reason,
+      ],
+    ),
     [
       [
         "left-end-gone",
@@ -455,181 +386,42 @@ export const test_drawing_annotation_resolution = (): void => {
     ],
   );
 
-  // 7. Canonical order is a property of the geometry, not of the file.
-  const forward = twoPartWall(environment, false);
-  const reversed = twoPartWall(environment, true);
-  TestValidator.equals(
-    "reordering a model's parts leaves every pinned corner exactly where it was",
-    [3, 7, 11, 15].map(
-      (index) => resolve({ kind: "vertex", index }, reversed).point,
-    ),
-    [3, 7, 11, 15].map(
-      (index) => resolve({ kind: "vertex", index }, forward).point,
-    ),
-  );
-  TestValidator.equals(
-    "two disjoint parts contribute their corners once each",
-    resolve({ kind: "vertex", index: 0 }, reversed).count,
-    16,
-  );
-  TestValidator.equals(
-    "an edge whose two ends weld onto one corner is not an edge",
-    // The sliver's first two corners round onto the same point, so the ring
-    // has three corners and only two edges between them: a zero-length edge is
-    // not a feature a note could be pinned to.
-    [
-      resolve(
-        { element: "floor-slab", kind: "vertex" },
-        sliverSlab(environment),
-      ).count,
-      resolve({ element: "floor-slab", kind: "edge" }, sliverSlab(environment))
-        .count,
-    ],
-    [2, 1],
-  );
+  // 7. Existing part-order and welded-edge cases retain their original inputs.
+  test02DrawingAnnotationOrder(environment, resolve);
 
   // 8. What the sheet sized, and what it could not.
   TestValidator.equals(
     "a sheet with a note says it sized the anchor and not the lettering",
     [
-      before.gaps.find((gap) => gap.subject === "note-text-extent")?.status,
+      before.gaps.find(
+        (gap: IAutoMovieDrawingGap): boolean =>
+          gap.subject === "note-text-extent",
+      )?.status,
       // Every note on this one is stale, so no text was set and there is no
       // unmeasured run of glyphs to declare.
-      broken.gaps.some((gap) => gap.subject === "note-text-extent"),
+      broken.gaps.some(
+        (gap: IAutoMovieDrawingGap): boolean =>
+          gap.subject === "note-text-extent",
+      ),
     ],
     ["unsupported", false],
   );
-};
 
-/** The same design with the slab replaced by one welded-corner sliver triangle. */
-const sliverSlab = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvironment => ({
-  ...environment,
-  models: environment.models.map((model) =>
-    model.id === "slab"
-      ? {
-          ...model,
-          parts: [
-            {
-              ...model.parts[0]!,
-              geometry: {
-                type: "mesh" as const,
-                mesh: {
-                  positions: [0, 0, 0, 1e-7, 0, 0, 0, 0, 1],
-                  normals: null,
-                  uvs: null,
-                  indices: [0, 1, 2],
-                  skin: null,
-                },
-              },
-            },
-          ],
-        }
-      : model,
-  ),
-});
+  // 9-10. Existing digest and duplicate-id cases run after note-extent checks.
+  test02DrawingAnnotationIdentity(environment, feature);
+}
 
 /** The same design with the wall moved half a metre along the plan. */
-const movedWall = (
+const movedWall: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  elements: environment.elements.map((element) =>
-    element.id === "north-wall"
-      ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
-      : element,
+  elements: environment.elements.map(
+    (element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
+      element.id === "north-wall"
+        ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
+        : element,
   ),
 });
-
-/** The same design with the wall flattened along its own local X. */
-const collapsedWall = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvironment => ({
-  ...environment,
-  elements: environment.elements.map((element) =>
-    element.id === "north-wall"
-      ? {
-          ...element,
-          transform: {
-            ...element.transform,
-            scale: { x: 0, y: 1, z: 1 },
-          },
-        }
-      : element,
-  ),
-});
-
-/** The same design with the slab's geometry owned by the builder. */
-const externalModel = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvironment => ({
-  ...environment,
-  models: environment.models.filter((model) => model.id !== "slab"),
-  modelReferences: ["slab"],
-});
-
-/** The same design with the slab's model carrying vertices and no triangle. */
-const emptyGeometry = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvironment => ({
-  ...environment,
-  models: environment.models.map((model) =>
-    model.id === "slab"
-      ? {
-          ...model,
-          parts: [
-            {
-              ...model.parts[0]!,
-              geometry: {
-                type: "mesh" as const,
-                mesh: {
-                  positions: [0, 0, 0, 1, 0, 0, 0, 0, 1],
-                  normals: null,
-                  uvs: null,
-                  indices: [],
-                  skin: null,
-                },
-              },
-            },
-          ],
-        }
-      : model,
-  ),
-});
-
-/**
- * The wall and a pilaster beside it, as two model parts in either order.
- *
- * `reversed` writes the same two parts the other way round. Nothing about the
- * building changed, only the order the model file happens to list its parts in,
- * and a canonical feature order must not care: if it did, editing a model would
- * renumber every note on every sheet that cites it.
- */
-const twoPartWall = (
-  environment: IAutoMovieBuiltEnvironment,
-  reversed: boolean,
-): IAutoMovieBuiltEnvironment => {
-  const body = environment.models.find((model) => model.id === "wall")!
-    .parts[0]!;
-  const parts = [
-    body,
-    {
-      ...body,
-      id: "wall-pilaster",
-      geometry: {
-        type: "primitive" as const,
-        shape: { type: "box" as const, width: 0.4, height: 3, depth: 0.4 },
-      },
-      transform: drawingPlace(3.2, 0, 0),
-    },
-  ];
-  return {
-    ...environment,
-    models: environment.models.map((model) =>
-      model.id === "wall"
-        ? { ...model, parts: reversed ? [...parts].reverse() : parts }
-        : model,
-    ),
-  };
-};

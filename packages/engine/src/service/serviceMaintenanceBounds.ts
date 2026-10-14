@@ -6,14 +6,21 @@ import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
  * The authored box is node-local so that moving the equipment moves the space
  * it is opened in; a world box authored beside a world position would let the
  * two drift apart with no way to tell which one was meant.
+ * No rotation or scale is applied; the source node has only world position.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `serviceMaintenanceBounds` locates the world-space keep-out volume that must remain open around serviceable equipment.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `serviceMaintenanceBounds` translates a node-local maintenance box by the node position and returns `null` when none was declared.
- * @evidence requirements/interior/construction-maintenance-and-safety.md#interior-maintenance-access `serviceMaintenanceBounds` materializes the declared equipment-maintenance clearance as an exact world-space access envelope.
- * @evidence specifications/interior-space/construction-phases-and-alternatives.md#interior-space-installation-maintenance-safety The world maintenance box supplies the measurable access envelope consumed by obstruction and safety checks.
+ * @evidence contracts/common.md#principled-implementation Translating both corners of the node-local access box by node.position preserves its metre extents and carries maintenance space with equipment movement.
+ * @evidence contracts/common.md#clear-and-simple-design Validation and obstruction queries share this local-to-world access conversion while node configuration owns its extents.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null remains no declared access volume; no equipment-kind default or invented clearance is substituted.
+ * @evidence contracts/common.md#meaningful-documentation States local versus world coordinates, null absence and translation-only composition without implicit rotation or scaling.
+ * @evidence contracts/performance.md#efficient-algorithms Six corner additions and two new corner records require constant time and storage for any node.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work An envelope depends on current node position and local bounds; no prior equipment-placement result is cached.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A present envelope owns new min/max coordinates and retains neither source box nor node record.
+ *
  * @author Samchon
  */
-export const serviceMaintenanceBounds = (
+export const serviceMaintenanceBounds: (
+  node: IAutoMovieServiceNode,
+) => IAutoMoviePropBox | null = (
   node: IAutoMovieServiceNode,
 ): IAutoMoviePropBox | null =>
   node.maintenance === null

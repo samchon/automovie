@@ -1,47 +1,30 @@
 /**
  * What the compile process writes: the transformed files and graph, or the error.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the success and failure members.
- *
- * @evidence contracts/common.md#principled-implementation Success carries transformed source and watched input paths; an error represents failure without claiming produced files.
- * @evidence contracts/common.md#clear-and-simple-design Optional result fields describe the existing compiler process output without a second build graph schema.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A compile error is preserved as its own outcome instead of substituting stale transformed text.
- *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Success carries transformed source and watched input paths; an error represents failure without claiming produced files.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest A compile error is preserved as its own outcome instead of substituting stale transformed text.
+ * @evidence contracts/common.md#principled-implementation Carries compile-human.ts JSON success files/watch/normalized inputs or its captured compiler error for runHumanViewerCompile.
+ * @evidence contracts/common.md#clear-and-simple-design Optional success fields and error let the native child publish one result file even after a compiler refusal.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Exit zero can accompany an error payload; the parent rejects missing files rather than treating successful output publication as a successful compile.
+ * @evidence contracts/common.md#meaningful-documentation Documents absolute forward-slash file/watch paths and platform-aware comparison inputs; optional fields are not a discriminated runtime schema.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The shape performs no parse; child JSON encoding and parent read/parse scale with total transformed source bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each run uses its own UUID output; generation-level sharing remains with createHumanViewerCompilation rather than equal result shape.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Output buffers/file maps live through decoding and generation ownership; the process owner removes both final and temporary publication files.
  *
  * @author Samchon
  */
 export interface IHumanViewerCompileOutput {
-  /**
-   * Transformed TypeScript by absolute, forward-slash path, on success.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Carries actually transformed source text only when the compiler produced a successful output.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Carries actually transformed source text only when the compiler produced a successful output.
-   */
+  /** Transformed TypeScript by absolute, forward-slash path, on success. */
   files?: Record<string, string>;
 
   /**
-   * Every file the compile depends on, as absolute paths to watch, on success.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Enumerates absolute actual compiler dependencies that subsequent source observation must watch.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Enumerates absolute actual compiler dependencies that subsequent source observation must watch.
+   * Reported absolute watch paths on success; without compiler graph metadata, these need not cover every dependency.
    */
   watch?: string[];
 
   /**
-   * `watch` normalized for comparison (forward slashes, lower case), on success.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps a normalized comparison view of the same watched inputs without replacing original source lookup paths.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps a normalized comparison view of the same watched inputs without replacing original source lookup paths.
+   * `watch` normalized for comparison: forward slashes, lower case on Windows and preserved case on POSIX, on success.
    */
   inputs?: string[];
 
-  /**
-   * The compiler's failure, when no files were produced.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Preserves the original compile failure instead of returning stale transformed modules as new success.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Preserves the original compile failure instead of returning stale transformed modules as new success.
-   */
+  /** The compiler's failure, when no files were produced. */
   error?: string;
 }

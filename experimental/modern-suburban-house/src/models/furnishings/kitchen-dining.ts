@@ -1,4 +1,4 @@
-/** Fixed kitchen cabinet and sink-island prototypes from docs/models/10-kitchen-dining.md. */
+/** Fixed kitchen cabinet and sink-island prototypes */
 import { FittingParts, type FittingBuilt } from "./geometry";
 
 const lengths = new Set([3.35,1.30,0.30]);

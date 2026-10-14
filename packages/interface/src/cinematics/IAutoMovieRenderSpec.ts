@@ -3,81 +3,58 @@ import { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
 /**
  * Render parameters for turning a shot or sequence into frames and video. Kept
  * separate from the shot so the same shot renders at a draft 12 fps or a final
- * 30/60 fps without editing the content.
+ * 30 or 60 fps without editing the content.
  *
- * The pipeline: `N = round(duration × frameFormat.fps)` frames, sampled at `t =
+ * The pipeline: `N = round(duration * frameFormat.fps)` frames, sampled at `t =
  * i / frameFormat.fps` (rational, not accumulated, for determinism), each
- * rendered headless to an sRGB image, then encoded (`ffmpeg -framerate fps -r
- * fps -c:v libx264 -pix_fmt yuv420p`). `toneMapping` is `none` for the
- * stylized/toon path and `acesFilmic` for the photoreal path; `pixelFormat` is
- * pinned for player compatibility and reproducibility.
+ * rendered headless to an sRGB image, then encoded by `ffmpeg -framerate fps
+ * -c:v libx264 -pix_fmt yuv420p -crf crf -r fps -s widthxheight -movflags
+ * +faststart`. The encoder never tone maps; the curve is a renderer setting
+ * applied before capture.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderSpec` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderSpec` for the spec render artifact lifecycle system contract.
+ * @evidence contracts/common.md#principled-implementation `frameTimes` computes each sample as `i / fps` rather than by accumulation so no rounding drift builds up, `ffmpegArgs` passes the codec, pixel format, CRF, rate and size verbatim, and `autoMovieRenderTargetSettingsOfShot` resolves the curve as the scene environment's `toneMapping` when present, else this spec's.
+ * @evidence contracts/common.md#clear-and-simple-design The spec holds only delivery choices (target, clock and raster, curve default, encoder settings) and never content, and `codec` and `pixelFormat` are single-member unions because one encoder path exists and a wider option would promise output nothing produces.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Structural passes bypass tone mapping as a rule rather than per scene, and the curve is never forced onto a scene that declares its own; the remaining gap is that `crf` reaches the encoder unchecked, which its documentation states.
+ * @evidence contracts/common.md#meaningful-documentation States the frame count and sample formula, the exact encoder arguments, which layer owns the tone curve and when this default applies, that structural passes ignore it, and that the caller must keep the CRF in range.
  * @author Samchon
  */
 export interface IAutoMovieRenderSpec {
-  /**
-   * Id of the shot or sequence to render.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `target` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `target` for the spec render artifact lifecycle system contract.
-   */
+  /** Id of the shot or sequence to render. */
   target: string;
 
   /**
-   * Shared output clock and pixel geometry. Pass this same object to caption
-   * and pose-keypoint planning so every companion is sampled against the render
-   * it describes.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `frameFormat` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `frameFormat` for the spec render artifact lifecycle system contract.
+   * Shared output clock and pixel geometry. Take the caption and pose-keypoint
+   * plans' `fps`, aspect and crop from this same object so every companion is
+   * sampled against the render it describes.
    */
   frameFormat: IAutoMovieRenderFrameFormat;
 
   /**
-   * Tone mapping applied before sRGB encode. `none` for toon, `acesFilmic` for
-   * photoreal.
+   * Tone mapping applied before the sRGB encode: `none` for the stylized toon
+   * path, `acesFilmic` for the photoreal path.
    *
-   * This is the DELIVERY default, and a scene overrides it. `IAutoMovieScene`'s
-   * optional `environment` owns the photographic response of the scene it
-   * belongs to (its image lighting, its exposure, its curve), and one render
-   * spec covers a whole sequence of scenes, so a spec-level curve forced onto
-   * every shot would flatten a night interior and a noon exterior into one
-   * response. A scene that declares no environment keeps this value, which is
-   * exactly what every pre-environment production is: unchanged.
+   * This is the delivery default, and a scene overrides it. A scene's optional
+   * `environment` owns the photographic response of that scene (its image
+   * lighting, exposure and curve), and one render spec covers a whole sequence
+   * of scenes, so a spec-level curve forced onto every shot would flatten a
+   * night interior and a noon exterior into one response. A scene that
+   * declares no environment keeps this value.
    *
    * Structural passes (depth, normal, mask, outline) ignore both. Their pixels
-   * are geometric facts, so tone mapping and exposure are bypassed there rather
-   * than negotiated.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `toneMapping` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `toneMapping` for the spec render artifact lifecycle system contract.
+   * are geometric facts, so tone mapping and exposure are bypassed there.
    */
   toneMapping: "none" | "acesFilmic";
 
-  /**
-   * Video codec.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `codec` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `codec` for the spec render artifact lifecycle system contract.
-   */
+  /** Video codec; `h264` through libx264 is the only encoder path. */
   codec: "h264";
 
   /**
-   * Pixel format; `yuv420p` for broad player compatibility and deterministic
-   * output.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `pixelFormat` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `pixelFormat` for the spec render artifact lifecycle system contract.
+   * Pixel format passed to the encoder; the supported path uses `yuv420p`.
    */
   pixelFormat: "yuv420p";
 
   /**
-   * Quality factor (libx264 CRF; ~17 visually lossless, 0 lossless).
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `crf` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `crf` for the spec render artifact lifecycle system contract.
+   * libx264 CRF quality factor, passed to ffmpeg unchecked. The caller supplies a supported encoder value; this field alone does not certify perceptual quality or repeatable encoded bytes across encoder versions.
    */
   crf: number;
 }

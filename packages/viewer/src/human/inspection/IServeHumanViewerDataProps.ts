@@ -7,164 +7,126 @@ import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles.
 /**
  * One request and the host state the data routes read or publish.
  *
- * @evidence contracts/common.md#principled-implementation Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
- * @evidence contracts/common.md#clear-and-simple-design The host owns mutable publication and admission operations while the route owns response handling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Token-based code freshness and per-document settlement remain explicit rather than inferred from a successful response.
- * @evidence contracts/common.md#meaningful-documentation Documents request paths, storage/reference boundaries, catalogue publication and targeted versus complete input settlement.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns mutable publication and admission operations while the route owns response handling.
+ * @evidence contracts/common.md#principled-implementation Data routes receive request-scoped catalogue authority plus distinct published basis, generation-view, reference and mutable-storage locations.
+ * @evidence contracts/common.md#clear-and-simple-design Dispatch composes specialized data owners while host callbacks retain catalogue publication, selected admission and source-generation proof.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference photographs remain display-only inputs and selected descriptors cannot bypass their numerical owner's admission.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish mutable storage from existing photographs, request-scoped inventory, document-only settlement and current-code token checks.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The data-route binding selects no sidecar scanning, file streaming or catalogue rebuilding algorithm.
+ * @evidence contracts/performance.md#reuse-equivalent-work Host callbacks reuse stamped metadata and matching-key admissions; currentCode additionally checks the candidate token against live source authority.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Routes borrow the HTTP request/response and source metadata; stream, admission and generation owners retain their own resources until actual settlement.
+ *
  * @author Samchon
  */
 export interface IServeHumanViewerDataProps {
-  /**
-   * Parsed request URL.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Parsed request URL. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Parsed request URL. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Parsed request URL. */
   url: URL;
 
-  /**
-   * The request.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure The request. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The request. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** The request. */
   request: IncomingMessage;
 
-  /**
-   * Its response.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Its response. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Its response. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Its response. */
   response: ServerResponse;
 
-  /**
-   * Resolved mutable viewer storage directory.
-   *
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-process-isolation Resolved mutable viewer storage directory. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-headless-platform Resolved mutable viewer storage directory. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Resolved mutable viewer storage directory. */
   storage: string;
 
   /**
    * Existing local input photographs, read independently of mutable storage.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-provenance Existing local input photographs, read independently of mutable storage. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance Existing local input photographs, read independently of mutable storage. The host owns mutable publication and admission operations while the route owns response handling.
    */
   referenceDirectory: string;
 
   /**
    * Application-owned observation camera pose file, independent of numerical basis inputs.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Application-owned observation camera pose file, independent of numerical basis inputs. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Application-owned observation camera pose file, independent of numerical basis inputs. The host owns mutable publication and admission operations while the route owns response handling.
    */
   cameraPosesFile: string;
 
-  /**
-   * Published basis files.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Published basis files. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Published basis files. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Published basis files. */
   basisFiles: IHumanViewerBasisFiles;
 
-  /**
-   * Published person generation views.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Published person generation views. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Published person generation views. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Published person generation views. */
   generationFiles: IHumanViewerGenerationFiles;
 
-  /**
-   * Directory of hand-written inputs.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Directory of hand-written inputs. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Directory of hand-written inputs. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Directory of hand-written inputs. */
   inputsDirectory: string;
 
-  /**
-   * Catalogue the request is answered against.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Catalogue the request is answered against. Data routes distinguish selected storage, read-only photographs, published source paths and the catalogue used for each request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Catalogue the request is answered against. The host owns mutable publication and admission operations while the route owns response handling.
-   */
+  /** Catalogue the request is answered against. */
   inventory: IHumanViewerCatalogue;
 
   /**
-   * Publishes a rescanned catalogue to the host.
+   * Publish a rescanned catalogue to the host.
    *
-   * @evidence contracts/common.md#principled-implementation Catalogue publication supplies the fully rescanned inventory to the host.
-   * @evidence contracts/common.md#clear-and-simple-design The route requests publication while mutable server catalogue ownership stays with the host.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Publication does not fabricate admission verdicts for entries that remain pending.
-   * @evidence contracts/common.md#meaningful-documentation Names the replacement catalogue passed to the publication owner.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Catalogue publication supplies the fully rescanned inventory to the host.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The route requests publication while mutable server catalogue ownership stays with the host.
+   * @evidence contracts/common.md#principled-implementation Publication replaces host catalogue authority with the completed rescan result rather than mutating a request's prior snapshot.
+   * @evidence contracts/common.md#clear-and-simple-design The data route returns discovery work through the host's existing publication operation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the actual rescan result is published; refusal and pending records remain part of its catalogue.
+   * @evidence contracts/common.md#meaningful-documentation The member states that the host receives the rescanned catalogue.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The publication signature chooses no rescan, diff or source-hash algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Catalogue publication has observable host effects and is not interchangeable merely because two catalogue objects compare equal.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The host owns the published catalogue slot; this callback transfers no admitted resident or stream handle.
    */
   publish: (inventory: IHumanViewerCatalogue) => void;
 
   /**
-   * Answers with a JSON value.
+   * Encode a data-route result as JSON and end this HTTP response.
    *
-   * @evidence contracts/common.md#principled-implementation Data-route JSON output sends the response value selected for this request.
-   * @evidence contracts/common.md#clear-and-simple-design Serialization stays with the HTTP host rather than the data-state record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Response transmission cannot turn pending catalogue data into admitted output.
-   * @evidence contracts/common.md#meaningful-documentation Defines the data route's JSON response callback.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Data-route JSON output sends the response value selected for this request.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Serialization stays with the HTTP host rather than the data-state record.
+   * @evidence contracts/common.md#principled-implementation Data results are serialized through the server's response writer using the route's actual returned value.
+   * @evidence contracts/common.md#clear-and-simple-design One borrowed writer keeps HTTP serialization outside individual catalogue and basis route implementations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Metadata and refusal values remain intact rather than being replaced with canned successful data answers.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies JSON encoding and completion of this data response.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This data writer declaration does not select JSON traversal or network buffering strategies.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each data response is a separate transport effect even when its serialized metadata matches another request.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The HTTP owner retains response-write state; the borrowed JSON callback acquires no stream itself.
    */
   json: (value: unknown) => void;
 
   /**
    * Asks waiting admissions again, then re-reads the catalogue until every sidecar read and page admission it started has finished, and resolves with that catalogue.
    *
-   * @evidence contracts/common.md#principled-implementation Complete settlement repeats pending admissions and catalogue reads until work it started has finished.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns sidecar acquisition and admission ordering behind one asynchronous operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Settling input work does not certify an unread or rejected document as successful.
-   * @evidence contracts/common.md#meaningful-documentation Documents complete input settlement and its resulting catalogue.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Complete settlement repeats pending admissions and catalogue reads until work it started has finished.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host owns sidecar acquisition and admission ordering behind one asynchronous operation.
+   * @evidence contracts/common.md#principled-implementation Repeated catalogue reads stop only when the sidecar/admission owners report no outstanding work initiated by discovery.
+   * @evidence contracts/common.md#clear-and-simple-design The host owns the discovery/settlement loop while the rescan route awaits its completed catalogue.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Pending tasks are not marked complete merely after one asynchronous pass or an arbitrary delay.
+   * @evidence contracts/common.md#meaningful-documentation The comment specifies renewed admissions, repeated reads and the all-started-work completion condition.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The catalogue-settlement capability chooses no task-joining or reread-loop implementation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Rereads reuse unchanged file facts and entry parsing while reapplying owner admission as pending work completes.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Background owners retain sidecar/admission tasks until settlement; this wait borrows their completion and returns the resulting catalogue.
    */
   settleInputs: () => Promise<IHumanViewerCatalogue>;
 
   /**
-   * Read just the requested descriptor, starting only its domain admission.
+   * Select the requested descriptor for domain admission. Owning JSON is still parsed in full, and projection can inspect other array members or source-group inputs before selecting that descriptor or refusing the read.
    *
-   * @evidence contracts/common.md#principled-implementation Descriptor reading starts only the requested document's own domain admission.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns selected-input resolution while the route supplies the document address.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reading one descriptor does not eagerly start every unrelated catalogue document.
-   * @evidence contracts/common.md#meaningful-documentation Defines the targeted descriptor read and returned catalogue.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Descriptor reading starts only the requested document's own domain admission.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The host owns selected-input resolution while the route supplies the document address.
+   * @evidence contracts/common.md#principled-implementation Selection narrows the requested numerical admission; source readers still parse the owning JSON and project their supported input population before filtering or refusal.
+   * @evidence contracts/common.md#clear-and-simple-design The data route borrows selection-aware catalogue reading while file parsing and input projection remain with their existing owners.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A selected descriptor still receives pending or refused owner outcomes; selection is not an admission bypass.
+   * @evidence contracts/common.md#meaningful-documentation The member distinguishes selected admission from whole-file parsing and projection, including refusal before a matching array entry is reached.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This selected-read signature defines no filename indexing or per-domain parser algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Selected reads may reuse matching stamped file results and document-key admission while leaving unrelated input work untouched.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The catalogue controller owns any started domain work; the route receives metadata without taking numerical session ownership.
    */
   readDocument: (doc: string) => IHumanViewerCatalogue;
 
   /**
    * Await only the requested document's own sidecars and admission.
    *
-   * @evidence contracts/common.md#principled-implementation Document settlement awaits only the selected document's sidecars and admission.
-   * @evidence contracts/common.md#clear-and-simple-design The host retains the document-specific asynchronous admission lifecycle.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A requested document cannot acquire another input's generation authority through global settlement.
-   * @evidence contracts/common.md#meaningful-documentation Documents targeted sidecar/admission completion and its catalogue result.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Document settlement awaits only the selected document's sidecars and admission.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor The host retains the document-specific asynchronous admission lifecycle.
+   * @evidence contracts/common.md#principled-implementation Document settlement waits for the selected input's actual sidecar facts and owner verdict before returning its catalogue state.
+   * @evidence contracts/common.md#clear-and-simple-design Selected readiness is one host operation distinct from the full-input rescan settlement loop.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unrelated pending documents are not required to settle, and the requested document is not silently accepted while its own work runs.
+   * @evidence contracts/common.md#meaningful-documentation The comment names the document-specific sidecar and admission wait boundary.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This per-document wait contract specifies no task lookup or Promise scheduling strategy.
+   * @evidence contracts/performance.md#reuse-equivalent-work The host shares matching in-flight facts/verdicts for the selected authority and does not restart unchanged work solely for another read.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Selected task owners hold their work until actual completion; the waiting data route owns no independent worker handle.
    */
   settleDocument: (doc: string) => Promise<IHumanViewerCatalogue>;
 
   /**
    * Whether the frame with this generation token runs the current revision's code.
    *
-   * @evidence contracts/common.md#principled-implementation Code freshness checks whether the supplied generation token belongs to the current source revision.
-   * @evidence contracts/common.md#clear-and-simple-design The host owns token-to-revision authority while the route asks the freshness question.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A loaded old frame is not relabelled current from HTTP readiness or image appearance.
-   * @evidence contracts/common.md#meaningful-documentation Defines the nullable token input and current-code predicate.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Code freshness checks whether the supplied generation token belongs to the current source revision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The host owns token-to-revision authority while the route asks the freshness question.
+   * @evidence contracts/common.md#principled-implementation Candidate code authority is checked from its generation token's proven source label against the current revision.
+   * @evidence contracts/common.md#clear-and-simple-design The route asks the generation/source owner for proof instead of inferring it from request-supplied revision text.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing, unknown or unproven tokens cannot certify current code merely by naming a desired source revision.
+   * @evidence contracts/common.md#meaningful-documentation The member distinguishes candidate-token code proof from current revision intent.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This predicate selects no source-witness or window-labeling algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Proof remains valid only while the token's observed label matches current authority; source invalidation changes the comparison result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The predicate borrows generation proof without opening a new source hold or retaining its response connection.
    */
   currentCode: (token: string | null) => boolean;
 }

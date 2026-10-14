@@ -1,5 +1,8 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieConstraintViolation,
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieProfileBinding,
   IAutoMovieSkeleton,
@@ -19,51 +22,46 @@ import { IAutoMovieHumanoidRetargetProps } from "./IAutoMovieHumanoidRetargetPro
 import { IAutoMovieHumanoidRetargetResult } from "./IAutoMovieHumanoidRetargetResult";
 import { IAutoMovieHumanoidRigCharacterization } from "./IAutoMovieHumanoidRigCharacterization";
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
+import { validateRetargetContacts } from "./validateRetargetContacts";
 
-const EPSILON = 1e-6;
+const EPSILON: number = 1e-6;
 
 /**
- * Retarget a humanoid clip from one normalized skeleton onto another.
+ * Retarget an admitted clinical clip from one normalized rig to another, scaling root translation by positive explicit scale or target/source rest height and preserving root rotation. Source, rig/mapping and enabled static-contact failures return null motion/characterization with located validation; target-ROM failure also returns null. Dynamic ground callback failures propagate, and contact residual warnings may accompany a successful motion.
  *
- * The clip's joint angles remain **clinical**. Retargeting changes the skeleton
- * id, scales root translation by target/source rest height, validates the
- * result against the target skeleton's ROM policy, and returns the target
- * `jointAxes`/`restFrames` that convert those clinical values into target
- * rig-space during FK or viewer playback.
- *
- * A verbatim angle copy is exact only for a **proportional** target. When the
- * rigs differ in proportion, {@link preserveRetargetContacts} re-pins each
- * contacting limb onto the source contact mapped through the same `rootScale`,
- * so a planted foot lands where the performance put it instead of sliding. The
- * pass runs by default, corrects the clip at its authored keyframe times, and
- * reports a residual it could not reach under the target's ROM as a `warning`,
- * the returned `validation` still succeeds.
- *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-proportion Derives target root travel from the characterized rig ratio.
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-refusal Rejects a source clip whose clock, pose, expression, or source-rig ROM is already invalid before target conversion.
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-motion-retargeting Validates explicit source and target semantic mappings, rig bases, root scale, ROM, and contact compatibility before returning target motion.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Gates target clip production on source-rig validation before scaling, contact re-solving, and target validation.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-retarget-compatibility Returns the mapped basis and structural verdict that characterize the accepted source-to-target rig conversion.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Validates source motion before relabeling, checks required bones, bindings and clinical basis/rest frames, derives height from root-reachable unscaled FK, copies clinical angles/root translation and optionally maps source contacts through the same rootScale before target motion admission.
+ * @evidence contracts/common.md#clear-and-simple-design The retarget gate owns characterization and validation-envelope transfer; static contact policy, clinical basis admission and contact correction have separate existing owners instead of being repeated in consumers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No malformed source motion is laundered through wider target ROM, no missing required mapping is guessed, and nonproportional contact limits remain warnings under target rig constraints rather than modified ROM tables.
+ * @evidence contracts/common.md#meaningful-documentation States clinical-angle identity, scale source, retained facing, null refusal envelope, target validation, optional warnings and dynamic callback exception boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Source/target validation and rest FK scale with keyframes/joints/bones; required-bone collection uses a set and deterministic code-unit sort, characterization is linear in rig bones, and optional contact correction owns its bounded frame/chain solves.
+ * @evidence contracts/performance.md#reuse-equivalent-work Resolved clinical tables are shared by characterization and both FK/IK sides; rest spans feed height scaling and default source floor once, and no retarget cache assumes mutable rig/clip equivalence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned clip and characterization maps, which share admitted nested joint/rotation/scale/table records where unchanged; collector and temporary sets/FK maps are call-local with no handles or background tasks.
  */
-export const retargetHumanoidMotion = (
+export const retargetHumanoidMotion: (
+  props: IAutoMovieHumanoidRetargetProps,
+) => IAutoMovieHumanoidRetargetResult = (
   props: IAutoMovieHumanoidRetargetProps,
 ): IAutoMovieHumanoidRetargetResult => {
-  const collector = new ViolationCollector();
-  const requiredBones = collectRequiredBones(props);
+  const collector: ViolationCollector = new ViolationCollector();
+  const requiredBones: AutoMovieHumanoidBone[] = collectRequiredBones(props);
 
-  const sourceValidation = validateMotion({
+  const sourceValidation: ReturnType<typeof validateMotion> = validateMotion({
     motion: props.motion,
     skeleton: props.source,
   });
-  const sourceFindings = sourceValidation.success
-    ? (sourceValidation.warnings ?? [])
-    : sourceValidation.violations;
+  const sourceFindings: IAutoMovieConstraintViolation[] =
+    sourceValidation.success
+      ? (sourceValidation.warnings ?? [])
+      : sourceValidation.violations;
   collector.items.push(
-    ...sourceFindings.map((violation) => ({
-      ...violation,
-      path: violation.path.replace("$input", "$input.motion"),
-    })),
+    ...sourceFindings.map(
+      (
+        violation: IAutoMovieConstraintViolation,
+      ): IAutoMovieConstraintViolation => ({
+        ...violation,
+        path: violation.path.replace("$input", "$input.motion"),
+      }),
+    ),
   );
 
   validateSkeleton("source", props.source, requiredBones, collector);
@@ -100,11 +98,16 @@ export const retargetHumanoidMotion = (
     props.targetRestFrames ?? HUMANOID_REST_FRAME,
     collector,
   );
+  validateRetargetContacts(props.contacts, props.motion.duration, collector);
 
-  const sourceSpan = restVerticalSpan(props.source);
-  const targetSpan = restVerticalSpan(props.target);
-  const sourceHeight = sourceSpan.height;
-  const targetHeight = targetSpan.height;
+  const sourceSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
+    props.source,
+  );
+  const targetSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
+    props.target,
+  );
+  const sourceHeight: number = sourceSpan.height;
+  const targetHeight: number = targetSpan.height;
   if (!(sourceHeight > EPSILON))
     collector.push(
       "range",
@@ -120,7 +123,7 @@ export const retargetHumanoidMotion = (
       targetHeight,
     );
 
-  const rootScale =
+  const rootScale: number =
     props.rootScale ??
     (sourceHeight > EPSILON ? targetHeight / sourceHeight : 0);
   if (!Number.isFinite(rootScale) || !(rootScale > 0))
@@ -140,34 +143,42 @@ export const retargetHumanoidMotion = (
 
   // Resolved once: the characterization, the contact pass's source FK, and the
   // contact pass's target FK must all read the clip through the same tables.
-  const sourceJointAxes = props.sourceJointAxes ?? HUMANOID_JOINT_AXES;
-  const sourceRestFrames = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
-  const targetJointAxes = props.targetJointAxes ?? HUMANOID_JOINT_AXES;
-  const targetRestFrames = props.targetRestFrames ?? HUMANOID_REST_FRAME;
+  const sourceJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = props.sourceJointAxes ?? HUMANOID_JOINT_AXES;
+  const sourceRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = props.sourceRestFrames ?? HUMANOID_REST_FRAME;
+  const targetJointAxes: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  > = props.targetJointAxes ?? HUMANOID_JOINT_AXES;
+  const targetRestFrames: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
+  > = props.targetRestFrames ?? HUMANOID_REST_FRAME;
 
-  const source = characterizeRig({
+  const source: IAutoMovieHumanoidRigCharacterization = characterizeRig({
     skeleton: props.source,
     binding: props.sourceBinding,
     height: sourceHeight,
     jointAxes: sourceJointAxes,
     restFrames: sourceRestFrames,
   });
-  const target = characterizeRig({
+  const target: IAutoMovieHumanoidRigCharacterization = characterizeRig({
     skeleton: props.target,
     binding: props.targetBinding,
     height: targetHeight,
     jointAxes: targetJointAxes,
     restFrames: targetRestFrames,
   });
-  const scaled = retargetMotion(
+  const scaled: IAutoMovieMotion = retargetMotion(
     props.motion,
     props.target.id,
     rootScale,
     props.id,
   );
 
-  const contactsEnabled = props.contacts?.enabled ?? true;
-  const motion = contactsEnabled
+  const contactsEnabled: boolean = props.contacts?.enabled ?? true;
+  const motion: IAutoMovieMotion = contactsEnabled
     ? preserveRetargetContacts({
         source: props.source,
         target: props.target,
@@ -184,7 +195,10 @@ export const retargetHumanoidMotion = (
       })
     : scaled;
 
-  const targetValidation = validateMotion({ motion, skeleton: props.target });
+  const targetValidation: ReturnType<typeof validateMotion> = validateMotion({
+    motion,
+    skeleton: props.target,
+  });
   if (!targetValidation.success) {
     collector.items.push(...targetValidation.violations);
     return {
@@ -211,27 +225,34 @@ export const retargetHumanoidMotion = (
   };
 };
 
-const collectRequiredBones = (
+const collectRequiredBones: (
+  props: IAutoMovieHumanoidRetargetProps,
+) => AutoMovieHumanoidBone[] = (
   props: IAutoMovieHumanoidRetargetProps,
 ): AutoMovieHumanoidBone[] => {
-  const bones = new Set<AutoMovieHumanoidBone>(["hips"]);
+  const bones: Set<AutoMovieHumanoidBone> = new Set(["hips"]);
   for (const kf of props.motion.keyframes)
     for (const joint of kf.pose.joints) bones.add(joint.bone);
   for (const bone of props.requiredBones ?? []) bones.add(bone);
   return [...bones].sort(compareCodeUnits);
 };
 
-const validateSkeleton = (
+const validateSkeleton: (
+  label: string,
+  skeleton: IAutoMovieSkeleton,
+  requiredBones: readonly AutoMovieHumanoidBone[],
+  collector: ViolationCollector,
+) => void = (
   label: string,
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
   collector: ViolationCollector,
 ): void => {
-  const path = `$input.${label}`;
-  const byBone = new Map<AutoMovieHumanoidBone, number>();
+  const path: string = `$input.${label}`;
+  const byBone: Map<AutoMovieHumanoidBone, number> = new Map();
 
-  skeleton.bones.forEach((bone, i) => {
-    const bonePath = `${path}.bones[${i}]`;
+  skeleton.bones.forEach((bone: IAutoMovieBone, i: number): void => {
+    const bonePath: string = `${path}.bones[${i}]`;
     if (byBone.has(bone.bone))
       collector.push(
         "type",
@@ -267,7 +288,12 @@ const validateSkeleton = (
       );
 };
 
-const validateBinding = (
+const validateBinding: (
+  label: "sourceBinding" | "targetBinding",
+  binding: IAutoMovieProfileBinding | undefined,
+  requiredBones: readonly AutoMovieHumanoidBone[],
+  collector: ViolationCollector,
+) => void = (
   label: "sourceBinding" | "targetBinding",
   binding: IAutoMovieProfileBinding | undefined,
   requiredBones: readonly AutoMovieHumanoidBone[],
@@ -275,7 +301,7 @@ const validateBinding = (
 ): void => {
   if (binding === undefined) return;
   for (const bone of requiredBones) {
-    const mapped = binding.boneMap[bone];
+    const mapped: string | undefined = binding.boneMap[bone];
     if (mapped === undefined || mapped.trim().length === 0)
       collector.push(
         "type",
@@ -286,7 +312,11 @@ const validateBinding = (
   }
 };
 
-const validateAxes = (
+const validateAxes: (
+  label: "sourceJointAxes" | "targetJointAxes",
+  axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
+  collector: ViolationCollector,
+) => void = (
   label: "sourceJointAxes" | "targetJointAxes",
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   collector: ViolationCollector,
@@ -302,7 +332,11 @@ const validateAxes = (
       collector.push("range", issue.path, issue.expected, issue.value);
 };
 
-const validateRestFrames = (
+const validateRestFrames: (
+  label: "sourceRestFrames" | "targetRestFrames",
+  frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
+  collector: ViolationCollector,
+) => void = (
   label: "sourceRestFrames" | "targetRestFrames",
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   collector: ViolationCollector,
@@ -312,7 +346,7 @@ const validateRestFrames = (
     IAutoMovieRestFrame,
   ][])
     for (const axis of ["flexion", "abduction", "twist"] as const) {
-      const axisFrame = frame[axis];
+      const axisFrame: IAutoMovieRestFrame[typeof axis] = frame[axis];
       if (axisFrame === undefined) continue;
       if (axisFrame.sign !== 1 && axisFrame.sign !== -1)
         collector.push(
@@ -337,16 +371,17 @@ const validateRestFrames = (
  * pass judges stance against, so a rig authored with its feet above the origin
  * is still detected as standing on something.
  */
-const restVerticalSpan = (
-  skeleton: IAutoMovieSkeleton,
-): { floor: number; height: number } => {
-  const resolved = resolvePose(
+const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => {
+  floor: number;
+  height: number;
+} = (skeleton: IAutoMovieSkeleton): { floor: number; height: number } => {
+  const resolved: ReturnType<typeof resolvePose> = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
   );
   if (resolved.length === 0) return { floor: 0, height: 0 };
-  let minY = Infinity;
-  let maxY = -Infinity;
+  let minY: number = Infinity;
+  let maxY: number = -Infinity;
   for (const bone of resolved) {
     minY = Math.min(minY, bone.worldPosition.y);
     maxY = Math.max(maxY, bone.worldPosition.y);
@@ -354,14 +389,25 @@ const restVerticalSpan = (
   return { floor: minY, height: maxY - minY };
 };
 
-const characterizeRig = (props: {
+const characterizeRig: (props: {
+  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  binding: IAutoMovieProfileBinding | undefined;
+  height: number;
+  jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
+  restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+}) => IAutoMovieHumanoidRigCharacterization = (props: {
+  /** Rig whose unchanged topology and ROM constrain correction. */
   skeleton: IAutoMovieSkeleton;
   binding: IAutoMovieProfileBinding | undefined;
   height: number;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }): IAutoMovieHumanoidRigCharacterization => {
-  const slots = new Set(props.skeleton.bones.map((bone) => bone.bone));
+  const slots: Set<AutoMovieHumanoidBone> = new Set(
+    props.skeleton.bones.map(
+      (bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone,
+    ),
+  );
   const boneMap: Partial<Record<AutoMovieHumanoidBone, string>> = {};
   const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     {};
@@ -386,7 +432,12 @@ const characterizeRig = (props: {
   };
 };
 
-const retargetMotion = (
+const retargetMotion: (
+  motion: IAutoMovieMotion,
+  targetSkeleton: string,
+  rootScale: number,
+  id: string | undefined,
+) => IAutoMovieMotion = (
   motion: IAutoMovieMotion,
   targetSkeleton: string,
   rootScale: number,
@@ -395,22 +446,24 @@ const retargetMotion = (
   ...motion,
   id: id ?? `${motion.id}:to:${targetSkeleton}`,
   skeleton: targetSkeleton,
-  keyframes: motion.keyframes.map((kf) => ({
-    ...kf,
-    pose: {
-      ...kf.pose,
-      skeleton: targetSkeleton,
-      root:
-        kf.pose.root === null
-          ? null
-          : {
-              ...kf.pose.root,
-              translation: {
-                x: kf.pose.root.translation.x * rootScale,
-                y: kf.pose.root.translation.y * rootScale,
-                z: kf.pose.root.translation.z * rootScale,
+  keyframes: motion.keyframes.map(
+    (kf: IAutoMovieKeyframe): IAutoMovieKeyframe => ({
+      ...kf,
+      pose: {
+        ...kf.pose,
+        skeleton: targetSkeleton,
+        root:
+          kf.pose.root === null
+            ? null
+            : {
+                ...kf.pose.root,
+                translation: {
+                  x: kf.pose.root.translation.x * rootScale,
+                  y: kf.pose.root.translation.y * rootScale,
+                  z: kf.pose.root.translation.z * rootScale,
+                },
               },
-            },
-    },
-  })),
+      },
+    }),
+  ),
 });

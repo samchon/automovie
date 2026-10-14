@@ -1,8 +1,12 @@
-import { builtSpaceObservationStations } from "@automovie/engine";
+import {
+  type IAutoMovieSpaceObservationStation,
+  builtSpaceObservationStations,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
   IAutoMovieBuiltSpace,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,29 +20,20 @@ import { namedFacts, vclose } from "../internal/predicates";
 /**
  * Where an interior station stands is settled against the room, not assumed.
  *
- * A room's own extent is the obvious place to lay stations out from, and it is
- * wrong for every room that is not a box: a bounding box has corners in the
- * notch of an L, a centre outside a wedge, and a reading height that leaves a
- * space narrowing upward. Each of those is a camera photographing a wall from
- * the wrong side while its receipt claims a room, which is exactly the failure
- * the derivation exists to make impossible.
+ * Extent centres, reading-height positions and corners can lie outside non-box spaces. These cases distinguish a missing extent, a shell whose centre is outside, a height fallback and a convex-cell anchor fallback.
  *
- * So the anchor is proved: the box centre when the space contains it, otherwise
- * a point taken from one of the space's own convex cells, and the reading height
- * only when the space still contains the eye there. What cannot be proved is
- * reported unplaced rather than guessed, because a station that vanished would
- * shrink the denominator precisely where the topology is hardest.
+ * Stations that cannot acquire a valid eye/target retain identity with a null pose. The point-volume case separates centre direction from coincident corner/target refusal; faceless and distant thresholds retain membership without a pose.
  *
  * Scenarios:
  *
- * 1. A space whose cells close no volume keeps its eight stations and places
- *    none, because there is no extent to lay them out in.
+ * 1. A space whose cells close no volume keeps eight interior stations and one
+ *    threshold, placing none because there is no extent to lay them out in.
  * 2. A shelled space whose bounding-box centre falls outside its own solid
  *    places none either, since a shell carries no cell to take a point from.
- * 3. A space narrowing upward keeps the box centre when the reading height
+ * 3. A space narrowing toward its floor keeps the box centre when the reading height
  *    would leave it, instead of standing the camera in the wall.
- * 4. A two-cell space whose box centre falls in its own notch takes its anchor
- *    from the first cell that closes a volume.
+ * 4. A space with two bounded cells after an unbounded cell takes its anchor
+ *    from the first bounded cell when the box centre falls in its notch.
  * 5. A space whose stated volume is a single point places its centre stations,
  *    which look one millimetre outward, and leaves its corner stations unaimed,
  *    because a corner and the centre are the same point there.
@@ -48,8 +43,13 @@ import { namedFacts, vclose } from "../internal/predicates";
  * 7. An opening in a space with no extent at all keeps its threshold station
  *    without the opening ever being placed, because there is no anchor to walk
  *    toward.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual station derivation on unbounded cells, a tetrahedral shell, a wedge, a notched cell union, a point volume and unreachable thresholds, observing retained counts, null poses and hand-authored anchor/target coordinates. It catches unplaced stations disappearing or bounding-box assumptions placing an invalid eye.
+ * @evidence contracts/testing.md#independent-expectations The unit tetrahedron excludes its box centre because x + y + z = 1.5 exceeds one; x <= y excludes the wedge eye at x=2,y=1.6 while admitting its centre at y=2. The notch's first bounded cell has centre (2, 1.5, 0.5). Coincident point-volume corners cannot aim at themselves, while the declared one-millimetre probe fixes the positive-X centre target; these are analytic inputs rather than saved station output.
+ * @evidence contracts/testing.md#distinguishing-cases Retains extent absence, shell fallback absence, reading-height fallback, skipping an unbounded cell before the first bounded cell, zero-volume coincident corners, missing/distant boundary faces and a threshold without an anchor. The companion station test owns the ordinary box, ordering, semantic empty space and unknown-id refusal; these cases do not prove rendered visibility.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable test_architecture_space_station_placement entry owns all local cases and invokes portable geometry with authored fixture records; it registers no dynamic case, installs no consumer, builds no artifact and starts no process, browser or GPU.
  */
-export const test_architecture_space_station_placement = (): void => {
+export function test_architecture_space_station_placement(): void {
   TestValidator.equals(
     "a space that closes no volume keeps its stations and places none",
     unplaced(
@@ -85,8 +85,8 @@ export const test_architecture_space_station_placement = (): void => {
     "an anchor is taken from the room rather than from its box",
     namedFacts([
       [
-        "a space narrowing upward keeps its box centre",
-        () =>
+        "a space narrowing toward its floor keeps its box centre",
+        (): boolean =>
           vclose(
             builtSpaceObservationStations(room(wedge()), "hall")[0]!.pose!
               .position,
@@ -95,7 +95,7 @@ export const test_architecture_space_station_placement = (): void => {
       ],
       [
         "a space whose box centre is in its own notch uses its first cell",
-        () =>
+        (): boolean =>
           vclose(
             builtSpaceObservationStations(room(notched()), "hall")[0]!.pose!
               .position,
@@ -104,81 +104,134 @@ export const test_architecture_space_station_placement = (): void => {
       ],
     ]),
     {
-      "a space narrowing upward keeps its box centre": true,
+      "a space narrowing toward its floor keeps its box centre": true,
       "a space whose box centre is in its own notch uses its first cell": true,
     },
   );
 
-  const point = builtSpaceObservationStations(room(pointVolume()), "hall");
+  const point: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(room(pointVolume()), "hall");
+  TestValidator.equals(
+    "a point volume retains four centres and four corners",
+    [
+      point.length,
+      point.filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "center",
+      ).length,
+      point.filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "corner",
+      ).length,
+    ],
+    [8, 4, 4],
+  );
 
   TestValidator.equals(
     "a point-sized volume looks outward from itself and never at itself",
     namedFacts([
       [
-        "its centre stations look one millimetre along each axis",
-        () =>
+        "its centre stations have poses and the positive-X target is one millimetre away",
+        (): boolean =>
           point
-            .filter((station) => station.role === "center")
-            .every((station) => station.pose !== null) &&
-          vclose(point[1]!.pose!.target, { x: 0.001, y: 0, z: 0 }),
+            .filter(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.role === "center",
+            )
+            .every(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.pose !== null,
+            ) && vclose(point[1]!.pose!.target, { x: 0.001, y: 0, z: 0 }),
       ],
       [
         "and its corner stations have nothing to aim at",
-        () =>
+        (): boolean =>
           point
-            .filter((station) => station.role === "corner")
-            .every((station) => station.pose === null),
+            .filter(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.role === "corner",
+            )
+            .every(
+              (station: IAutoMovieSpaceObservationStation): boolean =>
+                station.pose === null,
+            ),
       ],
     ]),
     {
-      "its centre stations look one millimetre along each axis": true,
+      "its centre stations have poses and the positive-X target is one millimetre away": true,
       "and its corner stations have nothing to aim at": true,
     },
   );
 
-  const faceless = builtSpaceObservationStations(withFacelessOpening(), "hall");
+  const faceless: IAutoMovieSpaceObservationStation[] =
+    builtSpaceObservationStations(withFacelessOpening(), "hall");
 
   TestValidator.equals(
     "an unreachable opening keeps its threshold station, unplaced",
     faceless
-      .filter((station) => station.role === "threshold")
-      .map((station) => [station.id, station.pose]),
+      .filter(
+        (station: IAutoMovieSpaceObservationStation): boolean =>
+          station.role === "threshold",
+      )
+      .map(
+        (
+          station: IAutoMovieSpaceObservationStation,
+        ): (
+          | string
+          | {
+              position: IAutoMovieVector3;
+              direction: IAutoMovieVector3;
+              target: IAutoMovieVector3;
+            }
+          | null
+        )[] => [station.id, station.pose],
+      ),
     [
       ["threshold-distant-gap", null],
       ["threshold-gap", null],
     ],
   );
-};
+}
 
 /** One located separation on the north side of the four-by-six hall. */
-const locatedWall = (): IAutoMovieBuiltEnvironment["boundaries"][number] => ({
-  id: "located",
-  kind: "wall",
-  spaces: ["hall"],
-  elements: [],
-  face: {
-    origin: { x: 0, y: 0, z: 6 },
-    rotation: FACE_ROTATION.keepZ,
-    outline: [
-      { x: 0, y: 0 },
-      { x: 4, y: 0 },
-      { x: 4, y: 3 },
-      { x: 0, y: 3 },
-    ],
-    thickness: 0.2,
-  },
-});
+const locatedWall: () => IAutoMovieBuiltEnvironment["boundaries"][number] =
+  (): IAutoMovieBuiltEnvironment["boundaries"][number] => ({
+    id: "located",
+    kind: "wall",
+    spaces: ["hall"],
+    elements: [],
+    face: {
+      origin: { x: 0, y: 0, z: 6 },
+      rotation: FACE_ROTATION.keepZ,
+      outline: [
+        { x: 0, y: 0 },
+        { x: 4, y: 0 },
+        { x: 4, y: 3 },
+        { x: 0, y: 3 },
+      ],
+      thickness: 0.2,
+    },
+  });
 
 /** How many stations came back and how many of them found a place to stand. */
-const unplaced = (
+const unplaced: (stations: ReadonlyArray<{ pose: unknown }>) => {
+  count: number;
+  placed: number;
+} = (
   stations: ReadonlyArray<{ pose: unknown }>,
 ): { count: number; placed: number } => ({
   count: stations.length,
-  placed: stations.filter((station) => station.pose !== null).length,
+  placed: stations.filter(
+    (station: { pose: unknown }): boolean => station.pose !== null,
+  ).length,
 });
 
 /** One building unit wrapped around one hand-written logical space. */
-const room = (
+const room: (
+  space: IAutoMovieBuiltSpace,
+  openings?: IAutoMovieBuiltOpening[],
+  boundaries?: IAutoMovieBuiltEnvironment["boundaries"],
+) => IAutoMovieBuiltEnvironment = (
   space: IAutoMovieBuiltSpace,
   openings: IAutoMovieBuiltOpening[] = [],
   boundaries: IAutoMovieBuiltEnvironment["boundaries"] = [],
@@ -213,7 +266,7 @@ const room = (
  * Its bounding box is the unit cube, whose centre sums to `1.5` against a
  * closing plane at `1`, so the box centre is outside the solid.
  */
-const tetrahedron = (): IAutoMovieBuiltSpace => ({
+const tetrahedron: () => IAutoMovieBuiltSpace = (): IAutoMovieBuiltSpace => ({
   id: "hall",
   kind: "room",
   parent: null,
@@ -231,12 +284,12 @@ const tetrahedron = (): IAutoMovieBuiltSpace => ({
 });
 
 /**
- * A room whose section narrows upward, cut by the half-space `x <= y`.
+ * A room whose section narrows toward its floor, cut by `x <= y`.
  *
  * Its box centre lies exactly on that cut and is inside; the reading height one
  * point six metres up is not, so the anchor stays the centre.
  */
-const wedge = (): IAutoMovieBuiltSpace => ({
+const wedge: () => IAutoMovieBuiltSpace = (): IAutoMovieBuiltSpace => ({
   id: "hall",
   kind: "room",
   parent: null,
@@ -257,7 +310,7 @@ const wedge = (): IAutoMovieBuiltSpace => ({
  * The long arm runs four metres in x and one in z; the short arm one metre in x
  * and three more in z. The box centre at `(2, ·, 2)` is in neither.
  */
-const notched = (): IAutoMovieBuiltSpace => ({
+const notched: () => IAutoMovieBuiltSpace = (): IAutoMovieBuiltSpace => ({
   id: "hall",
   kind: "room",
   parent: null,
@@ -271,7 +324,7 @@ const notched = (): IAutoMovieBuiltSpace => ({
 });
 
 /** A stated volume that is one point, closed by six planes through the origin. */
-const pointVolume = (): IAutoMovieBuiltSpace => ({
+const pointVolume: () => IAutoMovieBuiltSpace = (): IAutoMovieBuiltSpace => ({
   id: "hall",
   kind: "room",
   parent: null,
@@ -286,37 +339,40 @@ const pointVolume = (): IAutoMovieBuiltSpace => ({
  * mouth is real and every step of the ladder toward the room's centre is still
  * outside the room.
  */
-const withFacelessOpening = (): IAutoMovieBuiltEnvironment =>
-  room(
-    {
-      id: "hall",
-      kind: "room",
-      parent: null,
-      cells: [boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 })],
-    },
-    [
-      { id: "gap", kind: "passage", boundary: "logical", fill: null },
-      { id: "distant-gap", kind: "passage", boundary: "distant", fill: null },
-    ],
-    [
-      { id: "logical", kind: "threshold", spaces: ["hall"], elements: [] },
-      locatedWall(),
+const withFacelessOpening: () => IAutoMovieBuiltEnvironment =
+  (): IAutoMovieBuiltEnvironment =>
+    room(
       {
-        id: "distant",
-        kind: "wall",
-        spaces: ["hall"],
-        elements: [],
-        face: {
-          origin: { x: 50, y: 0, z: 0 },
-          rotation: FACE_ROTATION.keepZ,
-          outline: [
-            { x: 0, y: 0 },
-            { x: 4, y: 0 },
-            { x: 4, y: 3 },
-            { x: 0, y: 3 },
-          ],
-          thickness: 0.2,
-        },
+        id: "hall",
+        kind: "room",
+        parent: null,
+        cells: [
+          boxCell("hall-cell", { x: 0, y: 0, z: 0 }, { x: 4, y: 3, z: 6 }),
+        ],
       },
-    ],
-  );
+      [
+        { id: "gap", kind: "passage", boundary: "logical", fill: null },
+        { id: "distant-gap", kind: "passage", boundary: "distant", fill: null },
+      ],
+      [
+        { id: "logical", kind: "threshold", spaces: ["hall"], elements: [] },
+        locatedWall(),
+        {
+          id: "distant",
+          kind: "wall",
+          spaces: ["hall"],
+          elements: [],
+          face: {
+            origin: { x: 50, y: 0, z: 0 },
+            rotation: FACE_ROTATION.keepZ,
+            outline: [
+              { x: 0, y: 0 },
+              { x: 4, y: 0 },
+              { x: 4, y: 3 },
+              { x: 0, y: 3 },
+            ],
+            thickness: 0.2,
+          },
+        },
+      ],
+    );

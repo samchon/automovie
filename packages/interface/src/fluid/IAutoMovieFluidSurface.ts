@@ -4,61 +4,37 @@ import { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
 /**
  * The derived free-surface geometry of one fluid state.
  *
- * The engine owns this derivation so the renderer stays a projection: the mesh
- * a viewer uploads and the depth field the solver produced are one statement,
- * not two that can disagree.
+ * fluidSurfaceGeometry derives positions, normals, UVs, flow and drawn bounds from the supplied domain/state and refuses a mismatched domain id. The viewer copies numeric attributes into Float32 buffers rather than deriving another surface; upload therefore preserves the authored projection path, not binary64 values or pixel equality.
  *
- * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `IAutoMovieFluidSurface` as the portable data boundary for the effects fluid surface flow tier requirement.
- * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `IAutoMovieFluidSurface` for the fluid surface and flow tier system contract.
+ * @evidence contracts/common.md#principled-implementation fluidSurfaceGeometry places one vertex per cell at origin.y + bed + depth, derives finite-difference normals and triangulates only quads with four wet, nonsolid cells. The supplied state must match the admitted domain's array layout; a matching id alone does not validate those arrays, and extreme derived sums, slopes or normal arithmetic have no separate finite-result gate.
+ * @evidence contracts/common.md#clear-and-simple-design The surface reuses the shared `IAutoMovieMesh` shape and adds only the domain, the step, the drawn extent and the per-vertex flow, which are the facts a viewer needs beyond plain geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry vertices retain cell-index correspondence, while bounds reads only emitted triangle indices. Float32 upload is a numerical projection rather than exact-value or visual proof, and the stock viewer material does not consume flow for ripples.
+ * @evidence contracts/common.md#meaningful-documentation Identifies the derivation and mismatch refusal, admitted-array and arithmetic limits, Float32 viewer projection, indexed drawn bounds, vertex/triangle/normal/UV conventions and unconsumed flow metadata.
+ * @author Samchon
  */
 export interface IAutoMovieFluidSurface {
-  /**
-   * Identity of the domain the surface was derived from.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `domain` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `domain` for the fluid surface and flow tier system contract.
-   */
+  /** Id of the domain the surface was derived from. */
   domain: string;
 
-  /**
-   * Absolute step the surface was derived at.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `step` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `step` for the fluid surface and flow tier system contract.
-   */
+  /** Absolute step the surface was derived at. */
   step: number;
 
   /**
-   * Triangulated free surface in world space. Vertices sit at cell centres, one
-   * per cell including dry ones, so vertex order is the row-major cell order;
-   * only quads whose four corner cells are wet and non-solid are triangulated,
-   * which is what makes a dry basin draw nothing.
+   * Triangulated free surface in world metres. One vertex per cell, including dry cells, follows row-major order; only quads whose four corners are wet and nonsolid produce triangles, so a dry basin emits no drawn quad.
    *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `mesh` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `mesh` for the fluid surface and flow tier system contract.
+   * Normals use central differences, one-sided at edges, with no slope contribution from a single-cell axis. UVs span [0, 1] and stay zero on a single-cell axis, triangles wind counter-clockwise from above and skin is null; finite-result admission for extreme derived arithmetic remains outside this derivation.
    */
   mesh: IAutoMovieMesh;
 
   /**
-   * World extent of the drawn surface, or `null` when no quad was emitted at
-   * all — a drained basin, or a lattice too small to hold one.
+   * World extent of the numerical vertices referenced by drawn triangles, or null when no quad is emitted, including dry or too-small lattices. It is not a separately measured Float32/GPU bound.
    *
-   * One nullable box rather than a nullable minimum beside a nullable maximum:
-   * the two can only ever be absent together, and a pair that must agree is a
-   * pair that can be made to disagree.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `bounds` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `bounds` for the fluid surface and flow tier system contract.
+   * One nullable box keeps minimum and maximum absent together.
    */
   bounds: IAutoMovieFluidSurfaceBounds | null;
 
   /**
-   * Per-vertex horizontal flow velocity `[x, z, ...]` in m/s, aligned to the
-   * mesh vertices: the cell-centred average of the four surrounding faces. A
-   * renderer scrolls ripples along it; it never re-derives it.
-   *
-   * @evidence requirements/effects-and-simulation/fluids-and-water.md#effects-fluid-surface-flow-tier Exposes `flow` as the portable data boundary for the effects fluid surface flow tier requirement.
-   * @evidence specifications/simulation-effects-and-sound/fluids-water-and-world-coupling.md#fluid-surface-and-flow-tier Types `flow` for the fluid surface and flow tier system contract.
+   * Per-vertex horizontal velocity [x, z, ...] in m/s, averaging the two faces around each cell on each axis. The viewer copies it into the Float32 aFlow attribute for a supplied shader; no maintained stock material uses it to scroll ripples.
    */
   flow: number[];
 }

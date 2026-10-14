@@ -5,7 +5,6 @@
  * so stored face assets and future face-editor revival work keep a stable
  * schema surface.
  */
-export * from "./AutoMovieFaceWeight";
 export * from "./AutoMovieFaceParameterName";
 export * from "./AutoMovieHeadParameterName";
 export * from "./IAutoMovieHead";

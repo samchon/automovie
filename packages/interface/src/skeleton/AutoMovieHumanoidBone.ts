@@ -1,29 +1,18 @@
 /**
- * The closed set of humanoid bones, mirroring the **VRM 1.0** humanoid bone
- * specification (55 bones).
+ * Closed 55-name vocabulary matching the VRM 1.0 humanoid specification.
  *
- * This enum is the backbone of automovie's "named scalar" strategy. Because
- * every bone an LLM can address is a fixed identifier from this union, a
- * hallucinated or mistyped bone name is structurally impossible; the model
- * picks from a menu, it does not invent. The names map 1:1 onto `VRMHumanoid`
- * so a validated pose retargets cleanly onto _any_ VRM avatar (the whole point
- * of a normalized humanoid rig).
+ * Typed authoring and runtime admission use these semantic names. A valid name does not guarantee membership in a particular rig or compatibility of its rest basis; retargeting must check both.
  *
- * Required vs optional bones: VRM marks ~16 as required (hips, spine, chest,
- * head, the four limb chains). Fingers, eyes, jaw, `upperChest`, `neck`,
- * `toes`, and `shoulder` are optional: an imported rig may omit them, in which
- * case a pose simply never references them.
+ * VRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest, fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may be absent from an imported rig.
  *
- * The finger bones (30 of the 55) are the dimensional tail: a full-hand pose is
- * where direct LLM emission gets brittle. automovie handles hands as a
- * separate, optional articulation stage rather than asking for all 55 bones at
- * once.
+ * Thirty names address fingers; a pose can author only the joints its target rig declares.
  *
- * Reference: VRM 1.0 humanoid specification
- * (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md).
+ * Reference: VRM 1.0 humanoid specification (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md).
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-humanoid-mapping Exposes `AutoMovieHumanoidBone` as the portable data boundary for the actor humanoid mapping requirement.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-semantic-joint-mapping Types `AutoMovieHumanoidBone` for the performance rig semantic joint mapping system contract.
+ * @evidence contracts/common.md#principled-implementation The closed 55-slot vocabulary follows VRM 1.0 humanoid names so normalized poses and ingest mappings share semantic bone identity; actual rig membership and rest-basis compatibility still require runtime admission.
+ * @evidence contracts/common.md#clear-and-simple-design One named bone union serves pose, ROM, attachment and ingest contracts instead of free strings or duplicated per-avatar names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A valid bone name does not imply that every avatar declares it or that copying angles alone retargets arbitrary rest bases; absent optional bones and differing target constraints remain explicit conversion concerns.
+ * @evidence contracts/common.md#meaningful-documentation Defines semantic names, VRM specification reference, 15 required slots versus optional chest and articulation population and runtime membership limits.
  * @author Samchon
  */
 export type AutoMovieHumanoidBone =
@@ -34,7 +23,7 @@ export type AutoMovieHumanoidBone =
   /** Lower spine. */
   | "spine"
 
-  /** Mid spine / ribcage. */
+  /** Mid spine / ribcage, optional in VRM 1.0. */
   | "chest"
 
   /** Upper ribcage (optional). */

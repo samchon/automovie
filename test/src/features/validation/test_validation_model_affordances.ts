@@ -1,14 +1,19 @@
 import { validateModel } from "@automovie/engine";
-import { IAutoMovieAffordance, IAutoMovieModel } from "@automovie/interface";
+import {
+  IAutoMovieAffordance,
+  IAutoMovieModel,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const IDENTITY = { x: 0, y: 0, z: 0, w: 1 };
-const UNIT = { x: 1, y: 1, z: 1 };
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-const SQUARE = [
+const SQUARE: IAutoMovieVector3[] = [
   { x: -0.5, y: 0, z: -0.5 },
   { x: 0.5, y: 0, z: -0.5 },
   { x: 0.5, y: 0, z: 0.5 },
@@ -37,7 +42,9 @@ const HANDLE: IAutoMovieAffordance = {
   extent: null,
 };
 
-const withAffordances = (
+const withAffordances: (
+  affordances: IAutoMovieAffordance[] | null | undefined,
+) => IAutoMovieModel = (
   affordances: IAutoMovieAffordance[] | null | undefined,
 ): IAutoMovieModel =>
   affordances === undefined ? createModel() : { ...createModel(), affordances };
@@ -51,7 +58,7 @@ const withAffordances = (
  *
  * Scenarios:
  *
- * 1. A model without the field (byte-compat) and one with `affordances: null` both
+ * 1. A model without the field and one with `affordances: null` both
  *    succeed; a valid stack-top + handle pair succeeds.
  * 2. A duplicate affordance id is a `type` violation on the second entry.
  * 3. An empty id is a `type` violation.
@@ -62,8 +69,13 @@ const withAffordances = (
  * 8. A handle carrying an extent is a `type` violation (point-like).
  * 9. A non-finite frame scalar is a `range` violation via the shared transform
  *    check.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateModel with omitted, null and populated affordances and requires accepted controls or located type/range findings, catching lost optional-state compatibility, duplicate IDs, invalid support extents and nonfinite frame scalars.
+ * @evidence contracts/testing.md#independent-expectations Literal IDs and diagnostic addresses follow authored ownership; the square spans XZ area, two points and a collinear triple cannot define a support face, and NaN/Infinity are nonfinite. Success checks admission only and does not establish byte identity or geometric display quality.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves omitted/null/valid stack-top-plus-handle controls and all eight malformed variations, including duplicate/blank IDs, absent/short/collinear/nonfinite extents, a point-like handle with an extent and an invalid frame. Broader transform and mesh admission have separate entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named unit uses the existing model fixture and local affordance records to exercise portable engine validation without building a figure, launching a host or loading assets.
  */
-export const test_validation_model_affordances = (): void => {
+export function test_validation_model_affordances(): void {
   TestValidator.equals(
     "model without the field succeeds",
     validateModel({ model: withAffordances(undefined) }).success,
@@ -179,4 +191,4 @@ export const test_validation_model_affordances = (): void => {
       ".affordances[0].frame.translation.y",
     ),
   );
-};
+}

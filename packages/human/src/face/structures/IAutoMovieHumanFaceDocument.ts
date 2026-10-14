@@ -1,20 +1,28 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { AutoMovieHumanFaceEditableEyeOverride } from "../AutoMovieHumanFaceEditableEyeOverride";
-import { AutoMovieHumanFaceEditableOverride } from "../AutoMovieHumanFaceEditableOverride";
-import { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
+import type { AutoMovieHumanFaceEditableEyeOverride } from "../AutoMovieHumanFaceEditableEyeOverride";
+import type { AutoMovieHumanFaceEditableOverride } from "../AutoMovieHumanFaceEditableOverride";
+import type { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
 import type { IPortraitCheekShape } from "../anatomy/cheek/IPortraitCheekShape";
 import type { IPortraitEarShape } from "../anatomy/ear/IPortraitEarShape";
 import type { IPortraitComponentHost } from "../surface/structures/IPortraitComponentHost";
-import { IAutoMovieHumanFaceBindings } from "./IAutoMovieHumanFaceBindings";
-import { IAutoMovieHumanFaceControls } from "./IAutoMovieHumanFaceControls";
-import { IAutoMovieHumanFaceExpression } from "./IAutoMovieHumanFaceExpression";
-import { IAutoMovieHumanFaceRecipe } from "./IAutoMovieHumanFaceRecipe";
+import type { IAutoMovieHumanFaceBindings } from "./IAutoMovieHumanFaceBindings";
+import type { IAutoMovieHumanFaceControls } from "./IAutoMovieHumanFaceControls";
+import type { IAutoMovieHumanFaceExpression } from "./IAutoMovieHumanFaceExpression";
+import type { IAutoMovieHumanFaceRecipe } from "./IAutoMovieHumanFaceRecipe";
 
 /**
  * A replayable procedural face, with observed basis, author-owned shape,
  * explicit side overrides and expression. Photographs and measurement tools
  * are provenance only and never executable replay dependencies.
+ *
+ * @evidence contracts/common.md#principled-implementation A revisioned 478-sample millimetre source host/recipe/bindings records observed expression separately from current performance; resolution applies intermediate then detail then side edits while direct/parsed replay retains immutable source-geometry boundaries.
+ * @evidence contracts/common.md#clear-and-simple-design Basis, scalar controls/detail, explicit side profiles, material palette and passive provenance own separate concerns without runtime photograph fitting or embedded named-person defaults.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Monocular depth is inferred rather than hidden-tissue measurement, nonempty detail geometry cannot replace source arrays, and provenance does not select/fetch a subject or certify likeness.
+ * @evidence contracts/common.md#meaningful-documentation Members state topology/frame, ordering, neutral/current-versus-observed meaning, sparse/remove-array semantics, anatomical signs and passive source/license unknowns.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This schema executes no source admission, profile merge or facial build.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Saved source identity supplies review/replay inputs but defines no fit, merge or geometry cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The document caller owns basis/profile arrays and references; this type opens no photograph stream, model task or renderer.
  *
  * @author Samchon
  */
@@ -63,10 +71,12 @@ export interface IAutoMovieHumanFaceDocument {
   > & {
     /** Eye shape is scalar; iris RGB remains independent appearance. */
     eye?: AutoMovieHumanFaceEditableEyeOverride;
+
     /** Numerical legacy layer edits preserve each source card guide. */
     hairLayers?: AutoMovieHumanFaceOverride<
       IAutoMovieHumanFaceRecipe["hairLayers"]
     >;
+
     /** Reflectance fields change no geometric surface. */
     skinColour?: AutoMovieHumanFaceOverride<
       IAutoMovieHumanFaceRecipe["skinColour"]
@@ -77,15 +87,25 @@ export interface IAutoMovieHumanFaceDocument {
   asymmetry?: {
     /** Anatomical right side (-X). */
     right?: {
+      /** Right eye's scalar identity and independent iris appearance. */
       eye?: AutoMovieHumanFaceEditableEyeOverride;
+
+      /** Right cheek detail over the common cheek profile. */
       cheek?: AutoMovieHumanFaceEditableOverride<IPortraitCheekShape>;
+
+      /** Right ear detail over the common ear profile. */
       ear?: AutoMovieHumanFaceEditableOverride<IPortraitEarShape>;
     };
 
     /** Anatomical left side (+X). */
     left?: {
+      /** Left eye's scalar identity and independent iris appearance. */
       eye?: AutoMovieHumanFaceEditableEyeOverride;
+
+      /** Left cheek detail over the common cheek profile. */
       cheek?: AutoMovieHumanFaceEditableOverride<IPortraitCheekShape>;
+
+      /** Left ear detail over the common ear profile. */
       ear?: AutoMovieHumanFaceEditableOverride<IPortraitEarShape>;
     };
   };

@@ -3,46 +3,32 @@ import type { IHumanCaptureCamera } from "@automovie/viewer/human/common/observa
 /**
  * The photograph a document is compared with, and how to place the camera like it.
  *
- * @evidence contracts/common.md#principled-implementation A local photograph reference carries its optional acquisition camera and unit-image landmarks independently of a model document.
- * @evidence contracts/common.md#clear-and-simple-design Only supported local folders, a plain image name, camera and marker observations are transported.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The reference describes an existing image and does not fit subject geometry or manufacture acquisition metadata.
- * @evidence contracts/common.md#meaningful-documentation The camera can be absent and landmarks empty; paths remain plain names inside the selected reference folder.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach A local photograph reference carries its optional acquisition camera and unit-image landmarks independently of a model document.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach The reference describes an existing image and does not fit subject geometry or manufacture acquisition metadata.
+ * @evidence contracts/common.md#principled-implementation Describes an existing local photograph selected by manifest/stem plus optional admitted camera and recorded unit-image landmarks.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps reference metadata and photo presentation outside numerical document/basis/model cache authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Photographs supply visible comparison rather than hidden-tissue measurements; plain supported names must exist and landmarks are not fully validated anatomy.
+ * @evidence contracts/common.md#meaningful-documentation Documents closed local folder choices, plain image basename and null camera/empty marker absence, with camera metres/degrees defined by its owner type.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The descriptor reads no image bytes; metadata selection scans directory/manifest facts and actual decode/layout belong to display/capture owners.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reference metadata/bytes can change independently of numerical source, so current display metadata is reread rather than assumed equivalent by model key.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The page owns decoded image/DOM lifetime; this descriptor borrows marker arrays and retains strings/camera facts without acquiring a worker or image stream.
  *
  * @author Samchon
  */
 export interface IHumanViewerReference {
   /**
    * Folder and file name of the photograph, always a plain name inside the reference folder.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Restricts reference lookup to the supported local root or Body photograph folder.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Restricts reference lookup to the supported local root or Body photograph folder.
    */
   folder: "" | "body";
 
-  /**
-   * Plain image file name inside the selected local reference folder.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Names the original plain local photograph file without importing its path into numerical cache identity.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Names the original plain local photograph file without importing its path into numerical cache identity.
-   */
+  /** Plain image file name inside the selected local reference folder. */
   file: string;
 
   /**
    * The camera the photograph was taken from, or null when none was recorded.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Keeps actual optional acquisition-camera metadata, with null instead of an inferred photo viewpoint.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Keeps actual optional acquisition-camera metadata, with null instead of an inferred photo viewpoint.
    */
   camera: IHumanCaptureCamera | null;
 
   /**
    * Observed landmarks in unit image coordinates, empty when none were recorded.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Retains observed unit-image landmark coordinates independently of the generated anatomical model.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Retains observed unit-image landmark coordinates independently of the generated anatomical model.
    */
   landmarks: { x: number; y: number; group: string }[];
 }

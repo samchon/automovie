@@ -1,4 +1,12 @@
 import { validateServiceNetwork } from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConstraintViolation,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePort,
+  IAutoMovieServiceSegment,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -14,9 +22,10 @@ import {
   withSegment,
 } from "../internal/serviceFixtures";
 
-const environment = serviceEnvironment();
-const refuse = (network = serviceNetwork()) =>
-  validateServiceNetwork({ network, environment });
+const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
+const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
+  network: IAutoMovieServiceNetwork = serviceNetwork(),
+): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /**
  * What a run is allowed to be: two real ports on its own system, joined the way
@@ -52,37 +61,52 @@ const refuse = (network = serviceNetwork()) =>
  * 8. Repeated and non-finite route points are refused where they stand.
  * 9. A run's own radius and section must be finite and positive.
  * 10. An endpoint that drifts off its fitting is refused with the gap in metres.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Validates networks with authored run/port mutations and reads actual finding kinds, paths, selected counts and measured overshoot; catches missing endpoint/system/direction checks, dropped route defects and a gap reported at the wrong authored address.
+ * @evidence contracts/testing.md#independent-expectations Closed service relationships require distinct resolved same-system endpoints and compatible directions/sections; literal 0.001 square-metre section difference and 0.25 metre endpoint gap come from the supplied records. These assertions do not independently solve continuous run clearance or discipline performance.
+ * @evidence contracts/testing.md#distinguishing-cases Covers unknown systems/ports, self and foreign-system joins, reversed and bidirectional ports, null versus mismatched section, empty/single/repeated/nonfinite routes, zero radius and nonfinite section with valid fixture twins; counts are asserted only in the cases that explicitly pin them, and sleeve/maintenance rules belong to adjacent units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous portable unit calls maintained Engine validation through the existing service fixture and declares every mutation locally, without a browser, renderer, process, native artifact or dynamically registered cases.
  */
-export const test_service_run_defects = (): void => {
-  const clean = serviceNetwork();
+export function test_service_run_defects(): void {
+  const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
-  const foreignSystem = refuse(
-    withSegment(clean, "cold-run", (run) => ({ ...run, system: "steam" })),
+  const foreignSystem: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        system: "steam",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run on an unknown system takes its ports down with it",
     namedFacts([
       [
         "system",
-        () => hasViolation(foreignSystem, "type", "$input.segments[0].system"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].system"),
       ],
       [
         "from",
-        () => hasViolation(foreignSystem, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].from"),
       ],
       [
         "to",
-        () => hasViolation(foreignSystem, "type", "$input.segments[0].to"),
+        (): boolean =>
+          hasViolation(foreignSystem, "type", "$input.segments[0].to"),
       ],
       [
         "valveOrphaned",
-        () => hasViolation(foreignSystem, "type", "$input.nodes[8]"),
+        (): boolean => hasViolation(foreignSystem, "type", "$input.nodes[8]"),
       ],
       [
         "basinOrphaned",
-        () => hasViolation(foreignSystem, "type", "$input.nodes[9]"),
+        (): boolean => hasViolation(foreignSystem, "type", "$input.nodes[9]"),
       ],
-      ["exactly", () => violationCount(foreignSystem) === 5],
+      ["exactly", (): boolean => violationCount(foreignSystem) === 5],
     ]),
     {
       system: true,
@@ -94,116 +118,166 @@ export const test_service_run_defects = (): void => {
     },
   );
 
-  const ghostPorts = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      from: "ghost",
-      to: "phantom",
-    })),
+  const ghostPorts: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        from: "ghost",
+        to: "phantom",
+      }),
+    ),
   );
   TestValidator.equals(
     "ports that do not resolve are refused, and their fittings become stubs",
     namedFacts([
       [
         "from",
-        () => hasViolation(ghostPorts, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.segments[0].from"),
       ],
-      ["to", () => hasViolation(ghostPorts, "type", "$input.segments[0].to")],
+      [
+        "to",
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.segments[0].to"),
+      ],
       [
         "emitterStub",
-        () => hasViolation(ghostPorts, "type", "$input.nodes[0].ports[0]"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.nodes[0].ports[0]"),
       ],
       [
         "consumerStub",
-        () => hasViolation(ghostPorts, "type", "$input.nodes[8].ports[0]"),
+        (): boolean =>
+          hasViolation(ghostPorts, "type", "$input.nodes[8].ports[0]"),
       ],
     ]),
     { from: true, to: true, emitterStub: true, consumerStub: true },
   );
 
-  const loop = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      to: "cold-main-out",
-    })),
+  const loop: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        to: "cold-main-out",
+      }),
+    ),
   );
-  const foreignPort = refuse(
-    withSegment(clean, "cold-branch", (run) => ({ ...run, to: "basin-hot" })),
+  const foreignPort: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-branch",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        to: "basin-hot",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run joins two different ports of its own system",
     namedFacts([
-      ["loop", () => hasViolation(loop, "type", "$input.segments[0].to")],
+      [
+        "loop",
+        (): boolean => hasViolation(loop, "type", "$input.segments[0].to"),
+      ],
       [
         "foreign",
-        () => hasViolation(foreignPort, "type", "$input.segments[1].to"),
+        (): boolean =>
+          hasViolation(foreignPort, "type", "$input.segments[1].to"),
       ],
     ]),
     { loop: true, foreign: true },
   );
 
-  const reversedEmitter = refuse(
-    withPort(clean, "cold-main-out", (entry) => ({
-      ...entry,
-      direction: "in",
-    })),
+  const reversedEmitter: IAutoMovieValidation = refuse(
+    withPort(
+      clean,
+      "cold-main-out",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "in",
+      }),
+    ),
   );
-  const reversedConsumer = refuse(
-    withPort(clean, "bath-valve-in", (entry) => ({
-      ...entry,
-      direction: "out",
-    })),
+  const reversedConsumer: IAutoMovieValidation = refuse(
+    withPort(
+      clean,
+      "bath-valve-in",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "out",
+      }),
+    ),
   );
-  const ringTap = refuse(
-    withPort(clean, "bath-valve-in", (entry) => ({
-      ...entry,
-      direction: "bidirectional",
-    })),
+  const ringTap: IAutoMovieValidation = refuse(
+    withPort(
+      clean,
+      "bath-valve-in",
+      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+        ...entry,
+        direction: "bidirectional",
+      }),
+    ),
   );
   TestValidator.equals(
     "a run leaves an emitter and arrives at a consumer, and a ring tap is both",
     namedFacts([
       [
         "emitter",
-        () => hasViolation(reversedEmitter, "type", "$input.segments[0].from"),
+        (): boolean =>
+          hasViolation(reversedEmitter, "type", "$input.segments[0].from"),
       ],
       [
         "rootToo",
-        () => hasViolation(reversedEmitter, "type", "$input.systems[0].root"),
+        (): boolean =>
+          hasViolation(reversedEmitter, "type", "$input.systems[0].root"),
       ],
       [
         "consumer",
-        () =>
+        (): boolean =>
           hasViolation(reversedConsumer, "type", "$input.segments[0].to") &&
           violationCount(reversedConsumer) === 1,
       ],
-      ["bidirectional", () => ringTap.success === true],
+      ["bidirectional", (): boolean => ringTap.success === true],
     ]),
     { emitter: true, rootToo: true, consumer: true, bidirectional: true },
   );
 
-  const section = refuse(
-    withSegment(clean, "cold-run", (run) => ({ ...run, section: 0.003 })),
+  const section: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        section: 0.003,
+      }),
+    ),
   );
   TestValidator.equals(
     "a run's section answers to every port that states one",
     namedFacts([
       [
         "refused",
-        () => hasViolation(section, "range", "$input.segments[0].section"),
+        (): boolean =>
+          hasViolation(section, "range", "$input.segments[0].section"),
       ],
-      ["bothEnds", () => violationCount(section) === 2],
+      ["bothEnds", (): boolean => violationCount(section) === 2],
       [
         "difference",
-        () =>
+        (): boolean =>
           section.success === false &&
-          section.violations.every((item) =>
-            nclose(item.overshoot ?? -1, 0.001, 1e-12),
+          section.violations.every(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.001, 1e-12),
           ),
       ],
       [
         "sectionlessPortImposesNothing",
-        () => clean.nodes[9]!.ports[3]!.section === null && refuse().success,
+        (): boolean =>
+          clean.nodes[9]!.ports[3]!.section === null && refuse().success,
       ],
     ]),
     {
@@ -214,33 +288,46 @@ export const test_service_run_defects = (): void => {
     },
   );
 
-  const empty = refuse(
-    withSegment(clean, "cold-run", (run) => ({ ...run, route: [] })),
+  const empty: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [],
+      }),
+    ),
   );
-  const single = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      route: [{ x: 8, y: 2.5, z: 1 }],
-    })),
+  const single: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [{ x: 8, y: 2.5, z: 1 }],
+      }),
+    ),
   );
   TestValidator.equals(
     "a route needs two points before it can be a line at all",
     namedFacts([
       [
         "empty",
-        () =>
+        (): boolean =>
           hasViolation(empty, "range", "$input.segments[0].route") &&
           violationCount(empty) === 1,
       ],
       [
         "singleLength",
-        () => hasViolation(single, "range", "$input.segments[0].route"),
+        (): boolean =>
+          hasViolation(single, "range", "$input.segments[0].route"),
       ],
       [
         "singleGap",
-        () => hasViolation(single, "range", "$input.segments[0].route[0]"),
+        (): boolean =>
+          hasViolation(single, "range", "$input.segments[0].route[0]"),
       ],
-      ["singleExactly", () => violationCount(single) === 2],
+      ["singleExactly", (): boolean => violationCount(single) === 2],
     ]),
     {
       empty: true,
@@ -250,38 +337,46 @@ export const test_service_run_defects = (): void => {
     },
   );
 
-  const repeated = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: 8, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1 },
-      ],
-    })),
+  const repeated: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: 8, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1 },
+        ],
+      }),
+    ),
   );
-  const infinite = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: Number.NaN, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1 },
-      ],
-    })),
+  const infinite: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: Number.NaN, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1 },
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "repeated and non-finite route points are refused where they stand",
     namedFacts([
       [
         "repeated",
-        () =>
+        (): boolean =>
           hasViolation(repeated, "range", "$input.segments[0].route[1]") &&
           violationCount(repeated) === 1,
       ],
       [
         "nonFinite",
-        () =>
+        (): boolean =>
           hasViolation(infinite, "range", "$input.segments[0].route[1].x") &&
           violationCount(infinite) === 1,
       ],
@@ -289,46 +384,58 @@ export const test_service_run_defects = (): void => {
     { repeated: true, nonFinite: true },
   );
 
-  const shapeless = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      radius: 0,
-      section: Number.NaN,
-    })),
+  const shapeless: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        radius: 0,
+        section: Number.NaN,
+      }),
+    ),
   );
-  const drifted = refuse(
-    withSegment(clean, "cold-run", (run) => ({
-      ...run,
-      route: [
-        { x: 8, y: 2.5, z: 1 },
-        { x: 3.5, y: 2.5, z: 1.25 },
-      ],
-    })),
+  const drifted: IAutoMovieValidation = refuse(
+    withSegment(
+      clean,
+      "cold-run",
+      (run: IAutoMovieServiceSegment): IAutoMovieServiceSegment => ({
+        ...run,
+        route: [
+          { x: 8, y: 2.5, z: 1 },
+          { x: 3.5, y: 2.5, z: 1.25 },
+        ],
+      }),
+    ),
   );
   TestValidator.equals(
     "a run states a real radius and section, and ends where it says it does",
     namedFacts([
       [
         "radius",
-        () => hasViolation(shapeless, "range", "$input.segments[0].radius"),
+        (): boolean =>
+          hasViolation(shapeless, "range", "$input.segments[0].radius"),
       ],
       [
         "section",
-        () => hasViolation(shapeless, "range", "$input.segments[0].section"),
+        (): boolean =>
+          hasViolation(shapeless, "range", "$input.segments[0].section"),
       ],
       [
         "gap",
-        () => hasViolation(drifted, "range", "$input.segments[0].route[1]"),
+        (): boolean =>
+          hasViolation(drifted, "range", "$input.segments[0].route[1]"),
       ],
       [
         "gapMeasured",
-        () =>
+        (): boolean =>
           drifted.success === false &&
-          drifted.violations.some((item) =>
-            nclose(item.overshoot ?? -1, 0.25, 1e-12),
+          drifted.violations.some(
+            (item: IAutoMovieConstraintViolation): boolean =>
+              nclose(item.overshoot ?? -1, 0.25, 1e-12),
           ),
       ],
     ]),
     { radius: true, section: true, gap: true, gapMeasured: true },
   );
-};
+}

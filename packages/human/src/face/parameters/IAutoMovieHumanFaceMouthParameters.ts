@@ -26,37 +26,59 @@
  * angle is in degrees. None is a free vermilion curve or an independent
  * tissue-section control point.
  *
+ * @evidence contracts/common.md#principled-implementation Named apposed-lip distances, head-frame vertical projections, signed sagittal esthetic-line distances and the bow angle retain different acquisition quantities. The mouth observation rule compares registered measurements while unavailable landmarks/protocols remain named gaps, without direct observation-to-vertex lowering.
+ * @evidence contracts/common.md#clear-and-simple-design This record owns external neutral soft-tissue measurements; dental occlusion and posed interlabial/commissure motion have separate parameter owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No free vermilion curve, independent tissue-section point, open-mouth stomion proxy or universal cohort norm substitutes for the stated acquisition.
+ * @evidence contracts/common.md#meaningful-documentation Fields state landmark pairs, side, projection/distance signs and millimetres/degrees, with closed-lip and protocol-specific population limitations in the comment.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface selects no lip interpolation, landmark measurement or target solve algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The neutral mouth record owns no request cache or repeated measurement coordination.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration retains no lip mesh, acquisition image or solve task; the document owns its optional observed values.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceMouthParameters {
   /** Right-to-left cheilion, labial fissure width in mm. */
   fissureWidthMm?: number;
+
   /** Left crista philtri to left cheilion, straight 3D distance in mm. */
   leftCristaPhiltriToCheilionMm?: number;
+
   /** Right crista philtri to right cheilion, straight 3D distance in mm. */
   rightCristaPhiltriToCheilionMm?: number;
+
   /** Right-to-left crista philtri, philtrum width in mm. */
   philtrumWidthMm?: number;
+
   /** Subnasale to labiale superius, philtrum length in mm. */
   philtrumLengthMm?: number;
+
   /** Subnasale to stomion, entire upper-lip height in mm. */
   upperLipHeightMm?: number;
+
   /** Stomion to sublabiale, entire lower-lip height in mm. */
   lowerLipHeightMm?: number;
+
   /** Labiale superius to stomion, upper vermilion height in mm. */
   upperVermilionHeightMm?: number;
+
   /** Right crista philtri–labiale superius–left crista philtri 3D angle, degrees. */
   cupidBowCentralAngleDegrees?: number;
+
   /** Left crista-philtri peak vertically above its fissure crossing, mm. */
   leftCupidBowPeakHeightMm?: number;
+
   /** Right crista-philtri peak vertically above its fissure crossing, mm. */
   rightCupidBowPeakHeightMm?: number;
+
   /** Stomion to labiale inferius, lower vermilion height in mm. */
   lowerVermilionHeightMm?: number;
+
   /** Labiale inferius to sublabiale, lower cutaneous lip in mm. */
   lowerCutaneousLipHeightMm?: number;
+
   /** Labiale superius anterior to the pronasale-pogonion line, signed mm. */
   upperLipToEstheticLineMm?: number;
+
   /** Labiale inferius anterior to the same esthetic line, signed mm. */
   lowerLipToEstheticLineMm?: number;
 }

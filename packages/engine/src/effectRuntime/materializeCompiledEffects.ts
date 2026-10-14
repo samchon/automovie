@@ -1,8 +1,10 @@
 import {
   IAutoMovieCompiledEffect,
+  IAutoMovieEffectRecipe,
   IAutoMovieShotContract,
-  IAutoMovieShotSourceOutput,
+  IAutoMovieShotEffectCue,
   IAutoMovieWorldDesign,
+  IAutoMovieWorldEffectZone,
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
@@ -12,24 +14,23 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 /**
  * Materialize effect cues into builder-owned deterministic streams.
  *
- * A shot contract owns shot-local cues and a production and film pair owns
- * film-global cues; each owner derives a domain-separated stream seed from its
- * identity, the cue, and the recipe and zone it activates. A cue whose zone or
- * recipe is absent materializes nothing, because the owner's validator reports
- * that refusal. Cues are ordered by code unit and each stream carries the
- * SHA-256 of its canonical JSON, computed without a Node built-in and equal to
- * the Node builder digest of the same stream.
+ * A shot contract owns shot-local cues and a production and film pair owns film-global cues; each owner derives a domain-separated stream seed from its identity, the cue, and the recipe and zone it activates. The shot protocol `automovie.effect-stream.v1` hashes the shot id with the recipe and zone seeds, and the film protocol `automovie.film-effect-seed.v1` hashes the owner pair with the whole recipe and zone records. The seed is the first 13 hex digits of that SHA-256, a 52-bit safe integer. Domain tags distinguish the serialized inputs; truncation still permits different inputs to share a seed.
  *
- * @evidence requirements/effects-and-simulation/particles-and-emission.md#effects-deterministic-spawn Derives every stream seed from its stable owner, cue, recipe and zone identity rather than from run order.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-sound-story-lifecycle-identity Folds the owning shot or production and film, the cue and its bound event into each stream's identity.
- * @evidence specifications/simulation-effects-and-sound/particles-fire-and-atmosphere.md#deterministic-particle-spawn-interval Fixes the instance seed from which every spawn draw of the stream is derived.
+ * A cue whose zone or recipe is absent materializes nothing, because the owner's validator reports that refusal. Streams are ordered by code-unit cue id, every stream steps at the caller's `fixedStepSeconds`, and each carries the SHA-256 of its canonical JSON, computed without a Node built-in and equal to the Node builder digest of the same stream. Bounds, recipe and intensity are deep copies, so editing a stream never edits the world or the cue.
+ *
+ * @evidence contracts/common.md#principled-implementation Seeds come from SHA-256 over canonical JSON v2 of a protocol-tagged owner record, so distinct owner fields and protocols have unambiguous serialized inputs; retaining 13 hexadecimal digits gives an exact 52-bit integer but permits output collisions. The full stream digest hashes every field except itself, matching validateProductionFilmEffectRuntime's recomputation.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the stream record for both owners, which differ only in the seed protocol chosen by the `contract` or `seedOwner` branch of the argument union; zone and recipe lookups are two maps built once per call.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The world and the step are required inputs, so no frame rate or empty-world answer is assumed for a caller that omits them, and a cue with a missing zone or recipe is skipped only because its owner's validator already refuses it with a named code.
+ * @evidence contracts/common.md#meaningful-documentation States both owners and their seed protocols, how the seed is cut from the digest, the drop rule for unresolved cues and who reports it, the output order, the step source, digest equivalence with the Node builder, and that emitted records do not alias the inputs.
+ * @evidence contracts/performance.md#efficient-algorithms For C cues over R recipes and Z zones, maps cost O(R + Z) and cue sorting costs O(C log C). Each cue's canonicalizations traverse its owner and stream records and sort object keys with sum(K log K) work before two linear SHA-256 byte passes; the cue sort preserves the caller's order by copying its array.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call materializes one owner's cues from scratch; the film writer calls it once for all of its cues, and no stream is cached across builds because the world, owner and step are all inputs of the digest.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The two lookup maps live only for the call. Returned streams own copied bounds, recipes and intensities, so retained storage grows with all nested copied records and text, including repeated recipes across cues; the caller owns their release.
  */
-export const materializeCompiledEffects = (
+export function materializeCompiledEffects(
   props: {
-    world?: IAutoMovieWorldDesign;
-    fps?: number;
-    fixedStepSeconds?: number;
-    cues: NonNullable<IAutoMovieShotSourceOutput["effectCues"]>;
+    world: IAutoMovieWorldDesign;
+    fixedStepSeconds: number;
+    cues: readonly IAutoMovieShotEffectCue[];
   } & (
     | { contract: IAutoMovieShotContract; seedOwner?: never }
     | {
@@ -37,24 +38,38 @@ export const materializeCompiledEffects = (
         seedOwner: { production: string; film: string };
       }
   ),
-): IAutoMovieCompiledEffect[] => {
-  if (props.world === undefined) return [];
-  const recipes = new Map(
-    props.world.effectRecipes.map((recipe) => [recipe.id, recipe]),
+): IAutoMovieCompiledEffect[] {
+  const recipes: Map<string, IAutoMovieEffectRecipe> = new Map(
+    props.world.effectRecipes.map(
+      (recipe: IAutoMovieEffectRecipe): [string, IAutoMovieEffectRecipe] => [
+        recipe.id,
+        recipe,
+      ],
+    ),
   );
-  const zones = new Map(props.world.effectZones.map((zone) => [zone.id, zone]));
+  const zones: Map<string, IAutoMovieWorldEffectZone> = new Map(
+    props.world.effectZones.map(
+      (
+        zone: IAutoMovieWorldEffectZone,
+      ): [string, IAutoMovieWorldEffectZone] => [zone.id, zone],
+    ),
+  );
   return [...props.cues]
-    .sort((left, right) => compareCodeUnits(left.id, right.id))
-    .flatMap((cue): IAutoMovieCompiledEffect[] => {
-      const zone = zones.get(cue.zone);
-      const recipe = zone === undefined ? undefined : recipes.get(zone.recipe);
+    .sort(
+      (left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
+        compareCodeUnits(left.id, right.id),
+    )
+    .flatMap((cue: IAutoMovieShotEffectCue): IAutoMovieCompiledEffect[] => {
+      const zone: IAutoMovieWorldEffectZone | undefined = zones.get(cue.zone);
+      const recipe: IAutoMovieEffectRecipe | undefined =
+        zone === undefined ? undefined : recipes.get(zone.recipe);
       if (zone === undefined || recipe === undefined) return [];
-      const seedDigest = autoMovieRenderDigest(
+      const seedDigest: string = autoMovieRenderDigest(
         canonicalizeAutoMovieJson(
           props.seedOwner === undefined
             ? {
                 protocol: "automovie.effect-stream.v1",
-                shot: props.contract!.id,
+                shot: props.contract.id,
                 cue: cue.id,
                 recipeSeed: recipe.seed,
                 zoneSeed: zone.seed,
@@ -68,8 +83,8 @@ export const materializeCompiledEffects = (
               },
         ),
       );
-      const core = {
-        version: 1 as const,
+      const core: Omit<IAutoMovieCompiledEffect, "digest"> = {
+        version: 1,
         id: cue.id,
         zone: zone.id,
         kind: recipe.kind,
@@ -80,7 +95,7 @@ export const materializeCompiledEffects = (
         end: cue.end,
         intensity: structuredClone(cue.intensity),
         ...(cue.event === undefined ? {} : { event: cue.event }),
-        fixedStepSeconds: props.fixedStepSeconds ?? 1 / (props.fps ?? 24),
+        fixedStepSeconds: props.fixedStepSeconds,
       };
       return [
         {
@@ -89,4 +104,4 @@ export const materializeCompiledEffects = (
         },
       ];
     });
-};
+}

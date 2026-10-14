@@ -10,11 +10,15 @@ import type { IAutoMovieHumanBodySkeletonRig } from "../structures/rig/IAutoMovi
 /**
  * Inputs of `resolveHumanBodyBuildPose`.
  *
- * The document's coupled joint rows and shaped landmarks drive one pose
- * resolution over the compiled basis. A source capability whose anchors do
- * not depend on the pose may pass the already prepared rig; otherwise the
- * resolver builds it from the landmarks. Every input is read only.
+ * The document's coupled joint rows and shaped landmarks drive one pose resolution over the compiled basis. A source capability whose anchors do not depend on the pose may pass the already prepared rig; otherwise the resolver builds it from the landmarks. Every input is read only.
  *
+ * @evidence contracts/common.md#principled-implementation Admitted document, coupled rows and shaped landmarks provide one pose's dependencies; an optional already prepared rig is valid only for pose-independent source anchors.
+ * @evidence contracts/common.md#clear-and-simple-design One internal input separates borrowed source/document context from pose output and names the pre-pelvis preparation phase explicitly.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Prepared rigs cannot stand in for changed pose-dependent anchors and pre-pelvis preparation cannot masquerade as final performance.
+ * @evidence contracts/common.md#meaningful-documentation Members explain compiled-basis ownership, admitted rows, meter landmarks, prepared-rig premise and phase omission.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Pose input typing performs no landmark-dependent rest-rig construction or joint solve.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The optional rig describes permissible reuse; resolveHumanBodyBuildPose owns actual equivalence and evaluation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Borrowed pose inputs acquire no transform-map lifetime or anatomical FK resource.
  * @author Samchon
  */
 export interface IHumanBodyBuildPoseInput {

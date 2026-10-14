@@ -1,6 +1,8 @@
 import { blendPoses } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -8,24 +10,29 @@ import { TestValidator } from "@nestia/e2e";
 import { joint, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const rootAt = (x: number): IAutoMovieTransform => ({
+const rootAt: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const axis = (
+const axis: (
+  pose: IAutoMoviePose,
+  bone: AutoMovieHumanoidBone,
+  which: "flexion" | "abduction" | "twist",
+) => number | null = (
   pose: ReturnType<typeof makePose>,
   bone: AutoMovieHumanoidBone,
   which: "flexion" | "abduction" | "twist",
-): number | null => pose.joints.find((j) => j.bone === bone)![which];
+): number | null =>
+  pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)![
+    which
+  ];
 
 /**
- * `blendPoses`: weighted additive composition of pose layers, per bone per
- * axis, normalized by the weight of the layers that actually set each axis. A
- * `null` axis contributes nothing; a lone layer at weight 1 reproduces its own
- * value, which makes the blend a drop-in for the disjoint-region layering the
- * last-wins `mergePoses` did.
+ * Observe per-axis weighted means, sparse null semantics, joint population/order and root selection in blendPoses. These authored scalar fixtures do not establish equivalence to every historical mergePoses case or byte serialization.
  *
  * Scenarios:
  *
@@ -36,15 +43,20 @@ const axis = (
  * 3. A null axis in one layer does not dilute the other: each axis is the weighted
  *    mean of only the layers that set it, and an axis no layer sets is null.
  * 4. Disjoint layers combine their joints (order = first appearance) and the root
- *    comes from the rooted layer, byte-identical to the old union.
+ *    comes from the rooted layer at the checked X value.
  * 5. An `ownsRoot` layer's root wins even when a later layer is also rooted.
  * 6. With no owning layer the root is the last non-null one (a null-root first
  *    layer does not clear it).
  * 7. An empty layer list is rejected.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls blending for identity, equal/biased means, disjoint axes/joints and root-authority twins, then observes scalar/null results, first bone/count/skeleton and root X; an empty list must refuse.
+ * @evidence contracts/testing.md#independent-expectations Authored 20/60 values average to 40 or (3*20+60)/4=30, while per-axis missing values must not dilute 20/40. Literal root X values 5/2/7, first bone and skeleton identity are independent expectations; existing tolerances remain and full root object identity is not asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Retains single versus equal/biased layers, unset axes, disjoint joints, an explicit owner before a later rooted layer and null-first/no-owner fallback, plus empty input. Multiple root owners, bad weights and ROM admission belong to other boundaries.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct blend calls with existing fixture constructors. Private root/axis readers register no extra cases and start no viewer, process or native artifact.
  */
-export const test_perform_blend_poses = (): void => {
+export function test_perform_blend_poses(): void {
   // 1. identity at weight 1
-  const identity = blendPoses([
+  const identity: IAutoMoviePose = blendPoses([
     {
       pose: makePose([joint("leftUpperArm", { flexion: 30, abduction: 45 })]),
       weight: 1,
@@ -65,7 +77,7 @@ export const test_perform_blend_poses = (): void => {
   );
 
   // 2. equal average, then a weighted (3:1) mean
-  const mean = blendPoses([
+  const mean: IAutoMoviePose = blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 1 },
     { pose: makePose([joint("leftUpperArm", { flexion: 60 })]), weight: 1 },
   ]);
@@ -73,7 +85,7 @@ export const test_perform_blend_poses = (): void => {
     "50/50 averages to 40",
     nclose(axis(mean, "leftUpperArm", "flexion")!, 40),
   );
-  const biased = blendPoses([
+  const biased: IAutoMoviePose = blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 3 },
     { pose: makePose([joint("leftUpperArm", { flexion: 60 })]), weight: 1 },
   ]);
@@ -83,7 +95,7 @@ export const test_perform_blend_poses = (): void => {
   );
 
   // 3. a null axis does not dilute the other
-  const noDilute = blendPoses([
+  const noDilute: IAutoMoviePose = blendPoses([
     { pose: makePose([joint("leftUpperArm", { flexion: 20 })]), weight: 1 },
     { pose: makePose([joint("leftUpperArm", { abduction: 40 })]), weight: 1 },
   ]);
@@ -102,7 +114,7 @@ export const test_perform_blend_poses = (): void => {
   );
 
   // 4. disjoint union + root from the rooted layer
-  const disjoint = blendPoses([
+  const disjoint: IAutoMoviePose = blendPoses([
     {
       pose: makePose([joint("leftUpperLeg", { flexion: 20 })], rootAt(5)),
       weight: 1,
@@ -126,10 +138,11 @@ export const test_perform_blend_poses = (): void => {
   TestValidator.equals(
     "root from the rooted layer",
     namedFacts([
-      ["disjointRoot", () => disjoint.root !== null],
+      ["disjointRoot", (): boolean => disjoint.root !== null],
       [
         "ncloseDisjointRoot",
-        () => disjoint.root !== null && nclose(disjoint.root.translation.x, 5),
+        (): boolean =>
+          disjoint.root !== null && nclose(disjoint.root.translation.x, 5),
       ],
     ]),
     { disjointRoot: true, ncloseDisjointRoot: true },
@@ -141,34 +154,36 @@ export const test_perform_blend_poses = (): void => {
   );
 
   // 5. ownsRoot wins over a later rooted layer
-  const owned = blendPoses([
+  const owned: IAutoMoviePose = blendPoses([
     { pose: makePose([joint("hips")], rootAt(2)), weight: 1, ownsRoot: true },
     { pose: makePose([joint("chest")], rootAt(9)), weight: 1 },
   ]);
   TestValidator.equals(
     "owning layer's root wins",
     namedFacts([
-      ["ownedRoot", () => owned.root !== null],
+      ["ownedRoot", (): boolean => owned.root !== null],
       [
         "ncloseOwnedRoot",
-        () => owned.root !== null && nclose(owned.root.translation.x, 2),
+        (): boolean =>
+          owned.root !== null && nclose(owned.root.translation.x, 2),
       ],
     ]),
     { ownedRoot: true, ncloseOwnedRoot: true },
   );
 
   // 6. no owning layer → last non-null root (null-first does not clear it)
-  const lastRoot = blendPoses([
+  const lastRoot: IAutoMoviePose = blendPoses([
     { pose: makePose([joint("hips")]), weight: 1 },
     { pose: makePose([joint("chest")], rootAt(7)), weight: 1 },
   ]);
   TestValidator.equals(
     "last non-null root wins",
     namedFacts([
-      ["lastRootRoot", () => lastRoot.root !== null],
+      ["lastRootRoot", (): boolean => lastRoot.root !== null],
       [
         "ncloseLastRootRoot",
-        () => lastRoot.root !== null && nclose(lastRoot.root.translation.x, 7),
+        (): boolean =>
+          lastRoot.root !== null && nclose(lastRoot.root.translation.x, 7),
       ],
     ]),
     { lastRootRoot: true, ncloseLastRootRoot: true },
@@ -177,6 +192,9 @@ export const test_perform_blend_poses = (): void => {
   // 7. empty rejected
   TestValidator.predicate(
     "empty layer list rejected",
-    throwsError(() => blendPoses([]), "blend poses must not be empty"),
+    throwsError(
+      (): IAutoMoviePose => blendPoses([]),
+      "blend poses must not be empty",
+    ),
   );
-};
+}

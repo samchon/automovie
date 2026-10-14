@@ -4,19 +4,8 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import type { IHumanBodyCappedSurface as CappedSurface } from "./IHumanBodyCappedSurface";
 import { humanBodySurfaceBoundary } from "./humanBodySurfaceBoundary";
-
-interface CappedSurface {
-  closed: IAutoMovieMesh;
-  volume: number;
-  signedVolume: number;
-  assertValid(): void;
-  assertGeometry(): void;
-  overlaps(other: CappedSurface): boolean;
-  interiorPoint(): number[];
-  /** Solid-angle containment in this oriented capped metre surface. */
-  contains(point: number[]): boolean;
-}
 
 /**
  * Close each oriented boundary loop with its own centroid fan. Positions are
@@ -25,10 +14,10 @@ interface CappedSurface {
  * fan, and admission must check that fan for degeneracy and crossings before
  * its volume is used as mass. The closed mesh supplies the tetrahedron sum
  * and the solid-angle interior probe. Separation uses surface crossings plus
- * containment; coplanar witnesses are clipped to their actual overlap area.
+ * containment; coplanar witnesses are clipped to their projected overlap area.
  * At an exact contact, rotated coordinates can produce a floating point
  * straddle or sliver even though no volume is shared. Distances within
- * 1e-12 of the model diagonal and areas within 1e-12 of its square count as
+ * 1e-12 of the model diagonal and projected areas within 1e-12 of its square count as
  * contact at that numerical boundary. No UV or material seam is introduced.
  *
  * `assertGeometry` runs for every trial body of a mass inversion, so it
@@ -36,44 +25,55 @@ interface CappedSurface {
  * over a compact mesh of only the triangles and vertices involved: the
  * crossing test scans its whole buffer on admission, and the body's tens of
  * thousands of untouched vertices were most of its cost.
+ *
+ * @evidence contracts/common.md#principled-implementation Each oriented opening is closed by a reverse-wound centroid fan and its signed tetrahedron sum measures cubic metres; closed-manifold and cap-crossing admission are explicit later assertions, so construction alone does not establish an admissible solid.
+ * @evidence contracts/common.md#clear-and-simple-design One resident capped mesh supplies volume, containment and separation; compact cap candidates reduce crossing work while topology and triangle predicates stay with the engine owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical contact uses the documented diagonal-scaled distance and area boundary, not consumer or anatomy exceptions; degenerate, crossed and disconnected surfaces refuse through the explicit assertions.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies metre coordinates, winding, faceted nonplanar caps, numerical contact and deferred admission; the returned contract documents borrowed input lifetime and owned output buffers.
+ * @evidence contracts/performance.md#efficient-algorithms Construction copies V vertices and F faces and visits B loop vertices, costing O(V+F+B); assertion, containment and pairwise overlap invoke additional topology and crossing scans documented by the returned operations.
+ * @evidence contracts/performance.md#reuse-equivalent-work The capped positions, indices and volume are shared by methods for this exact candidate; a new shape needs a new solid and compact cap meshes are rebuilt when geometry assertions run.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned object owns copied mesh buffers and captures source indices for later admission; its lifetime bounds that O(V+F+B) storage, with no cross-call cache, handles or asynchronous tasks.
  */
 export function humanBodyCappedSurface(
   positions: number[],
   indices: number[],
   loops: number[][] = humanBodySurfaceBoundary(indices, true),
 ): CappedSurface {
-  const closedPositions = positions.slice();
-  const closedIndices = indices.slice();
+  const closedPositions: number[] = positions.slice();
+  const closedIndices: number[] = indices.slice();
   const capIndices: number[] = [];
   for (const loop of loops) {
-    const centroid = [0, 0, 0];
+    const centroid: number[] = [0, 0, 0];
     for (const vertex of loop)
-      for (let axis = 0; axis < 3; axis++)
+      for (let axis: number = 0; axis < 3; axis++)
         centroid[axis] += positions[vertex * 3 + axis] / loop.length;
-    const centre = closedPositions.length / 3;
+    const centre: number = closedPositions.length / 3;
     closedPositions.push(...centroid);
-    for (let i = 0; i < loop.length; i++)
+    for (let i: number = 0; i < loop.length; i++)
       capIndices.push(loop[(i + 1) % loop.length], loop[i], centre);
   }
   closedIndices.push(...capIndices);
-  const mesh = (triangles: number[]): IAutoMovieMesh => ({
+  const mesh: (triangles: number[]) => IAutoMovieMesh = (
+    triangles: number[],
+  ): IAutoMovieMesh => ({
     positions: closedPositions,
     indices: triangles,
     normals: null,
     uvs: null,
     skin: null,
   });
-  const closed = mesh(closedIndices);
-  const at = (v: number): number[] => closedPositions.slice(v * 3, v * 3 + 3);
-  let signedVolume = 0;
+  const closed: IAutoMovieMesh = mesh(closedIndices);
+  const at: (v: number) => number[] = (v: number): number[] =>
+    closedPositions.slice(v * 3, v * 3 + 3);
+  let signedVolume: number = 0;
   // The oriented tetrahedron sum V = Σ a · (b × c) / 6. Read each corner
   // from the resident arrays: inverse mass projection repeats this exact
   // sum for every candidate shape, while allocating three corner arrays and
   // a cross-product array per triangle adds no geometry information.
-  for (let i = 0; i < closedIndices.length; i += 3) {
-    const a = closedIndices[i] * 3;
-    const b = closedIndices[i + 1] * 3;
-    const c = closedIndices[i + 2] * 3;
+  for (let i: number = 0; i < closedIndices.length; i += 3) {
+    const a: number = closedIndices[i] * 3;
+    const b: number = closedIndices[i + 1] * 3;
+    const c: number = closedIndices[i + 2] * 3;
     signedVolume +=
       (closedPositions[a] *
         (closedPositions[b + 1] * closedPositions[c + 2] -
@@ -86,21 +86,25 @@ export function humanBodyCappedSurface(
             closedPositions[b + 1] * closedPositions[c])) /
       6;
   }
-  const volume = Math.abs(signedVolume);
-  const interiorPoint = (): number[] => {
-    const size = diagonal(closedPositions);
-    const epsilon = size * 1e-7;
-    for (let i = 0; i < closedIndices.length; i += 3) {
-      const a = at(closedIndices[i]);
-      const b = at(closedIndices[i + 1]);
-      const c = at(closedIndices[i + 2]);
-      const normal = cross(subtract(b, a), subtract(c, a));
-      const length = Math.hypot(...normal);
+  const volume: number = Math.abs(signedVolume);
+  const interiorPoint: () => number[] = (): number[] => {
+    const size: number = diagonal(closedPositions);
+    const epsilon: number = size * 1e-7;
+    for (let i: number = 0; i < closedIndices.length; i += 3) {
+      const a: number[] = at(closedIndices[i]);
+      const b: number[] = at(closedIndices[i + 1]);
+      const c: number[] = at(closedIndices[i + 2]);
+      const normal: number[] = cross(subtract(b, a), subtract(c, a));
+      const length: number = Math.hypot(...normal);
       if (length === 0) continue;
-      const centre = a.map((value, axis) => (value + b[axis] + c[axis]) / 3);
+      const centre: number[] = a.map(
+        (value: number, axis: number): number =>
+          (value + b[axis] + c[axis]) / 3,
+      );
       for (const sign of [-1, 1]) {
-        const candidate = centre.map(
-          (value, axis) => value + (sign * epsilon * normal[axis]) / length,
+        const candidate: number[] = centre.map(
+          (value: number, axis: number): number =>
+            value + (sign * epsilon * normal[axis]) / length,
         );
         if (inside(closed, candidate)) return candidate;
       }
@@ -112,19 +116,19 @@ export function humanBodyCappedSurface(
     volume,
     signedVolume,
     interiorPoint,
-    contains: (point) => inside(closed, point),
+    contains: (point: number[]): boolean => inside(closed, point),
     assertGeometry(): void {
       if (!Number.isFinite(volume) || volume === 0)
         throw new Error("A capped body surface needs positive volume.");
-      for (let i = 0; i < capIndices.length; i += 3) {
-        const a = at(capIndices[i]);
-        const b = at(capIndices[i + 1]);
-        const c = at(capIndices[i + 2]);
+      for (let i: number = 0; i < capIndices.length; i += 3) {
+        const a: number[] = at(capIndices[i]);
+        const b: number[] = at(capIndices[i + 1]);
+        const c: number[] = at(capIndices[i + 2]);
         if (Math.hypot(...cross(subtract(b, a), subtract(c, a))) === 0)
           throw new Error("A body boundary cap cannot have zero-area faces.");
       }
       if (capIndices.length === 0) return;
-      const capMesh = compactMesh(closedPositions, capIndices);
+      const capMesh: IAutoMovieMesh = compactMesh(closedPositions, capIndices);
       if (
         measureAutoMovieMeshCrossings(
           capMesh,
@@ -146,9 +150,9 @@ export function humanBodyCappedSurface(
         throw new Error("A body surface must be connected across its edges.");
       interiorPoint();
     },
-    overlaps(other): boolean {
+    overlaps(other: CappedSurface): boolean {
       if (!boundsOverlap(closedPositions, other.closed.positions)) return false;
-      const size = Math.max(
+      const size: number = Math.max(
         diagonal(closedPositions),
         diagonal(other.closed.positions),
       );
@@ -169,8 +173,8 @@ export function humanBodyCappedSurface(
             return true;
           continue;
         }
-        const normal = triangleNormal(closed, crossing.triangle);
-        const opposite = triangleNormal(other.closed, crossing.other);
+        const normal: number[] = triangleNormal(closed, crossing.triangle);
+        const opposite: number[] = triangleNormal(other.closed, crossing.other);
         if (
           dot(normal, opposite) * signedVolume * other.signedVolume > 0 &&
           coplanarOverlapArea(
@@ -192,7 +196,7 @@ export function humanBodyCappedSurface(
 }
 
 function subtract(a: number[], b: number[]): number[] {
-  return a.map((value, axis) => value - b[axis]);
+  return a.map((value: number, axis: number): number => value - b[axis]);
 }
 
 function dot(a: number[], b: number[]): number {
@@ -208,14 +212,16 @@ function cross(a: number[], b: number[]): number[] {
 }
 
 function diagonal(positions: number[]): number {
-  const { low, high } = bounds(positions);
-  return Math.hypot(...low.map((value, axis) => high[axis] - value));
+  const { low, high }: { low: number[]; high: number[] } = bounds(positions);
+  return Math.hypot(
+    ...low.map((value: number, axis: number): number => high[axis] - value),
+  );
 }
 
 function boundsOverlap(first: number[], second: number[]): boolean {
-  const a = bounds(first);
-  const b = bounds(second);
-  for (let axis = 0; axis < 3; axis++) {
+  const a: ReturnType<typeof bounds> = bounds(first);
+  const b: ReturnType<typeof bounds> = bounds(second);
+  for (let axis: number = 0; axis < 3; axis++) {
     if (a.high[axis] <= b.low[axis] || b.high[axis] <= a.low[axis])
       return false;
   }
@@ -223,10 +229,10 @@ function boundsOverlap(first: number[], second: number[]): boolean {
 }
 
 function bounds(positions: number[]): { low: number[]; high: number[] } {
-  const low = [Infinity, Infinity, Infinity];
-  const high = [-Infinity, -Infinity, -Infinity];
-  for (let i = 0; i < positions.length; i += 3)
-    for (let axis = 0; axis < 3; axis++) {
+  const low: number[] = [Infinity, Infinity, Infinity];
+  const high: number[] = [-Infinity, -Infinity, -Infinity];
+  for (let i: number = 0; i < positions.length; i += 3)
+    for (let axis: number = 0; axis < 3; axis++) {
       low[axis] = Math.min(low[axis], positions[i + axis]);
       high[axis] = Math.max(high[axis], positions[i + axis]);
     }
@@ -234,14 +240,16 @@ function bounds(positions: number[]): { low: number[]; high: number[] } {
 }
 
 function triangleNormal(mesh: IAutoMovieMesh, triangle: number): number[] {
-  const [a, b, c] = trianglePoints(mesh, triangle);
+  const [a, b, c]: number[][] = trianglePoints(mesh, triangle);
   return cross(subtract(b, a), subtract(c, a));
 }
 
 function trianglePoints(mesh: IAutoMovieMesh, triangle: number): number[][] {
   return mesh
     .indices!.slice(triangle * 3, triangle * 3 + 3)
-    .map((vertex) => mesh.positions.slice(vertex * 3, vertex * 3 + 3));
+    .map((vertex: number): number[] =>
+      mesh.positions.slice(vertex * 3, vertex * 3 + 3),
+    );
 }
 
 function transverseInteriorCrossing(
@@ -251,16 +259,20 @@ function transverseInteriorCrossing(
   secondTriangle: number,
   margin: number,
 ): boolean {
-  const a = trianglePoints(first, firstTriangle);
-  const b = trianglePoints(second, secondTriangle);
-  const straddles = (here: number[][], there: number[][]): boolean => {
-    const normal = cross(
+  const a: number[][] = trianglePoints(first, firstTriangle);
+  const b: number[][] = trianglePoints(second, secondTriangle);
+  const straddles: (here: number[][], there: number[][]) => boolean = (
+    here: number[][],
+    there: number[][],
+  ): boolean => {
+    const normal: number[] = cross(
       subtract(here[1], here[0]),
       subtract(here[2], here[0]),
     );
-    const length = Math.hypot(...normal);
-    const distances = there.map(
-      (point) => dot(subtract(point, here[0]), normal) / length,
+    const length: number = Math.hypot(...normal);
+    const distances: number[] = there.map(
+      (point: number[]): number =>
+        dot(subtract(point, here[0]), normal) / length,
     );
     return Math.min(...distances) < -margin && Math.max(...distances) > margin;
   };
@@ -273,42 +285,52 @@ function coplanarOverlapArea(
   second: IAutoMovieMesh,
   secondTriangle: number,
 ): number {
-  const a = trianglePoints(first, firstTriangle);
-  const b = trianglePoints(second, secondTriangle);
-  const normal = triangleNormal(first, firstTriangle);
-  const drop = [0, 1, 2].reduce((best, axis) =>
+  const a: number[][] = trianglePoints(first, firstTriangle);
+  const b: number[][] = trianglePoints(second, secondTriangle);
+  const normal: number[] = triangleNormal(first, firstTriangle);
+  const drop: number = [0, 1, 2].reduce((best: number, axis: number): number =>
     Math.abs(normal[axis]) > Math.abs(normal[best]) ? axis : best,
   );
-  const project = (points: number[][]): number[][] =>
-    points.map((point) => point.filter((_, axis) => axis !== drop));
-  const clip = project(b);
-  let polygon = project(a);
-  const side = (p: number[], q: number[], r: number[]): number =>
-    (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
-  const orientation = Math.sign(side(clip[0], clip[1], clip[2]));
-  for (let i = 0; i < 3; i++) {
-    const from = clip[i];
-    const to = clip[(i + 1) % 3];
-    const input = polygon;
+  const project: (points: number[][]) => number[][] = (
+    points: number[][],
+  ): number[][] =>
+    points.map((point: number[]): number[] =>
+      point.filter((_: number, axis: number): boolean => axis !== drop),
+    );
+  const clip: number[][] = project(b);
+  let polygon: number[][] = project(a);
+  const side: (p: number[], q: number[], r: number[]) => number = (
+    p: number[],
+    q: number[],
+    r: number[],
+  ): number => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const orientation: number = Math.sign(side(clip[0], clip[1], clip[2]));
+  for (let i: number = 0; i < 3; i++) {
+    const from: number[] = clip[i];
+    const to: number[] = clip[(i + 1) % 3];
+    const input: number[][] = polygon;
     polygon = [];
-    for (let j = 0; j < input.length; j++) {
-      const current = input[j];
-      const next = input[(j + 1) % input.length];
-      const here = side(from, to, current) * orientation;
-      const there = side(from, to, next) * orientation;
+    for (let j: number = 0; j < input.length; j++) {
+      const current: number[] = input[j];
+      const next: number[] = input[(j + 1) % input.length];
+      const here: number = side(from, to, current) * orientation;
+      const there: number = side(from, to, next) * orientation;
       if (here >= 0) polygon.push(current);
       if ((here < 0 && there > 0) || (here > 0 && there < 0)) {
-        const fraction = here / (here - there);
+        const fraction: number = here / (here - there);
         polygon.push(
-          current.map((value, axis) => value + fraction * (next[axis] - value)),
+          current.map(
+            (value: number, axis: number): number =>
+              value + fraction * (next[axis] - value),
+          ),
         );
       }
     }
   }
-  let twiceArea = 0;
-  for (let i = 0; i < polygon.length; i++) {
-    const p = polygon[i];
-    const q = polygon[(i + 1) % polygon.length];
+  let twiceArea: number = 0;
+  for (let i: number = 0; i < polygon.length; i++) {
+    const p: number[] = polygon[i];
+    const q: number[] = polygon[(i + 1) % polygon.length];
     twiceArea += p[0] * q[1] - p[1] * q[0];
   }
   return Math.abs(twiceArea) / 2;
@@ -325,10 +347,10 @@ function coplanarOverlapArea(
  * numbers, so renumbering leaves every decision as it was.
  */
 function compactMesh(positions: number[], triangles: number[]): IAutoMovieMesh {
-  const renumbered = new Map<number, number>();
+  const renumbered: Map<number, number> = new Map<number, number>();
   const compact: number[] = [];
-  const indices = triangles.map((vertex) => {
-    let index = renumbered.get(vertex);
+  const indices: number[] = triangles.map((vertex: number): number => {
+    let index: number | undefined = renumbered.get(vertex);
     if (index === undefined) {
       index = renumbered.size;
       renumbered.set(vertex, index);
@@ -352,24 +374,24 @@ function nearCapTriangles(
   source: number[],
   caps: number[],
 ): number[] {
-  const low = [Infinity, Infinity, Infinity];
-  const high = [-Infinity, -Infinity, -Infinity];
+  const low: number[] = [Infinity, Infinity, Infinity];
+  const high: number[] = [-Infinity, -Infinity, -Infinity];
   for (const vertex of caps)
-    for (let axis = 0; axis < 3; axis++) {
-      const value = positions[vertex * 3 + axis];
+    for (let axis: number = 0; axis < 3; axis++) {
+      const value: number = positions[vertex * 3 + axis];
       low[axis] = Math.min(low[axis], value);
       high[axis] = Math.max(high[axis], value);
     }
   const nearby: number[] = [];
-  for (let i = 0; i < source.length; i += 3) {
-    const a = source[i];
-    const b = source[i + 1];
-    const c = source[i + 2];
-    let overlaps = true;
-    for (let axis = 0; axis < 3; axis++) {
-      const x = positions[a * 3 + axis];
-      const y = positions[b * 3 + axis];
-      const z = positions[c * 3 + axis];
+  for (let i: number = 0; i < source.length; i += 3) {
+    const a: number = source[i];
+    const b: number = source[i + 1];
+    const c: number = source[i + 2];
+    let overlaps: boolean = true;
+    for (let axis: number = 0; axis < 3; axis++) {
+      const x: number = positions[a * 3 + axis];
+      const y: number = positions[b * 3 + axis];
+      const z: number = positions[c * 3 + axis];
       if (Math.max(x, y, z) < low[axis] || Math.min(x, y, z) > high[axis]) {
         overlaps = false;
         break;
@@ -381,16 +403,18 @@ function nearCapTriangles(
 }
 
 function inside(mesh: IAutoMovieMesh, point: number[]): boolean {
-  let angle = 0;
-  const indices = mesh.indices!;
-  for (let i = 0; i < indices.length; i += 3) {
-    const [a, b, c] = indices
+  let angle: number = 0;
+  const indices: number[] = mesh.indices!;
+  for (let i: number = 0; i < indices.length; i += 3) {
+    const [a, b, c]: number[][] = indices
       .slice(i, i + 3)
-      .map((vertex) =>
+      .map((vertex: number): number[] =>
         subtract(mesh.positions.slice(vertex * 3, vertex * 3 + 3), point),
       );
-    const lengths = [a, b, c].map((vector) => Math.hypot(...vector));
-    const denominator =
+    const lengths: number[] = [a, b, c].map((vector: number[]): number =>
+      Math.hypot(...vector),
+    );
+    const denominator: number =
       lengths[0] * lengths[1] * lengths[2] +
       dot(a, b) * lengths[2] +
       dot(b, c) * lengths[0] +
@@ -401,25 +425,28 @@ function inside(mesh: IAutoMovieMesh, point: number[]): boolean {
 }
 
 function connected(indices: number[]): boolean {
-  const edges = new Map<string, number[]>();
-  const count = indices.length / 3;
-  for (let t = 0; t < count; t++)
-    for (let k = 0; k < 3; k++) {
-      const a = indices[t * 3 + k];
-      const b = indices[t * 3 + ((k + 1) % 3)];
-      const key = Math.min(a, b) + "/" + Math.max(a, b);
-      const pair = edges.get(key);
+  const edges: Map<string, number[]> = new Map<string, number[]>();
+  const count: number = indices.length / 3;
+  for (let t: number = 0; t < count; t++)
+    for (let k: number = 0; k < 3; k++) {
+      const a: number = indices[t * 3 + k];
+      const b: number = indices[t * 3 + ((k + 1) % 3)];
+      const key: string = Math.min(a, b) + "/" + Math.max(a, b);
+      const pair: number[] | undefined = edges.get(key);
       if (pair === undefined) edges.set(key, [t]);
       else pair.push(t);
     }
-  const neighbours = Array.from({ length: count }, () => [] as number[]);
+  const neighbours: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   for (const triangles of edges.values())
     if (triangles.length === 2) {
       neighbours[triangles[0]].push(triangles[1]);
       neighbours[triangles[1]].push(triangles[0]);
     }
-  const visited = new Set([0]);
-  const pending = [0];
+  const visited: Set<number> = new Set([0]);
+  const pending: number[] = [0];
   while (pending.length > 0)
     for (const next of neighbours[pending.pop()!])
       if (!visited.has(next)) {

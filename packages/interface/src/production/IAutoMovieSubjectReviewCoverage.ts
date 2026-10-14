@@ -1,12 +1,10 @@
 /**
  * Result of comparing required subject viewpoints with current observations.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-coverage Separates planned, observed and missing subject-view coverage.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Distinguishes current, stale, partial, not-run and indeterminate evidence states.
- * @evidence requirements/review/subject-inspection.md#review-subject-time-noninterchange Reports foreign evidence without counting it toward subject coverage.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-coverage Types the explicit numerator, denominator, omissions and duplicate accounting of one subject review.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Carries stale viewpoint identities separately from current coverage.
- * @evidence specifications/review-and-acceptance/target-scope-and-context.md#review-system-context-unavailable Represents missing, stale, partial, not-run, and indeterminate subject context without converting it into a passing observation.
+ * @evidence contracts/common.md#principled-implementation Coverage classifies subject-view receipts by viewpoint and supplied revision, compile, plan and capture-runtime identity strings, then projects observed, missing and stale ids in plan order; it does not derive those identities from the nested runtime or artifact bytes.
+ * @evidence contracts/common.md#clear-and-simple-design Separate planned, observed, stale, unplanned and foreign populations expose why coverage is incomplete, while one state ladder summarizes the result without hiding duplicates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty plans are indeterminate rather than reviewed; frame evidence, malformed records and other subjects are foreign, and stale or unplanned views cannot discharge required current viewpoints.
+ * @evidence contracts/common.md#meaningful-documentation Defines the state and each population's current-versus-stale meaning, plan order, foreign count and redundant current records.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewCoverage {
@@ -16,13 +14,13 @@ export interface IAutoMovieSubjectReviewCoverage {
   /** Required viewpoint ids in declared plan order. */
   planned: string[];
 
-  /** Required viewpoint ids covered at the current subject revision. */
+  /** Required viewpoint ids covered by the current revision, compile, plan and runtime identities. */
   observed: string[];
 
   /** Required viewpoint ids with no current observation. */
   missing: string[];
 
-  /** Required viewpoint ids observed only at another revision. */
+  /** Required viewpoint ids observed only with a different revision, compile, plan or runtime identity. */
   stale: string[];
 
   /** Extra current observations for a viewpoint outside the plan. */

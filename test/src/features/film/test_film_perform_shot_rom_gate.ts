@@ -1,6 +1,14 @@
-import { performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -16,23 +24,24 @@ import {
 import { namedFacts } from "../internal/predicates";
 
 /**
- * Pins the ROM gate on the far side of the compile: even a referentially
- * perfect action list fails when the synthesised clip bends a joint past its
- * anatomical range, and the violation's path is remapped from `$input` onto
- * `$compiled["<node>"]` so the blame lands on the offending actor's clip, not
- * the LLM's own JSON.
+ * Performs an elbow clip with 200-degree flexion and checks a ROM refusal remapped to the compiled knight clip with positive overshoot.
  *
  * Scenarios:
+ * 1. Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.
  *
- * 1. The synthesizer returns an elbow clip peaking at 200° flexion (max 150°) →
- *    failure with a `rom` violation whose path starts with
- *    `$compiled["knightA"]` and carries a positive overshoot.
+ * @evidence contracts/testing.md#behavioral-verification Performs an elbow clip with 200-degree flexion and checks a ROM refusal remapped to the compiled knight clip with positive overshoot.
+ * @evidence contracts/testing.md#independent-expectations The elbow's supported 150-degree flexion limit makes 200 excessive; the expected compiled path and positive excess are independent of the validator's emitted numerical magnitude.
+ * @evidence contracts/testing.md#distinguishing-cases Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_rom_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_rom_gate = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_rom_gate(): void {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -47,7 +56,7 @@ export const test_film_perform_shot_rom_gate = (): void => {
       ],
       revise: { review: "unchanged.", final: null },
     }),
-    synthesize: () =>
+    synthesize: (): IAutoMovieMotion =>
       makeMotion(
         [
           keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
@@ -55,19 +64,19 @@ export const test_film_perform_shot_rom_gate = (): void => {
         ],
         1,
       ),
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals("fails", performed.success, false);
   TestValidator.equals(
     "rom violation remapped onto the compiled clip",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           performed.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.kind === "rom" &&
               v.path.startsWith('$compiled["knightA"]') &&
               (v.overshoot ?? 0) > 0,
@@ -76,4 +85,4 @@ export const test_film_perform_shot_rom_gate = (): void => {
     ]),
     { refused: true, violated: true },
   );
-};
+}

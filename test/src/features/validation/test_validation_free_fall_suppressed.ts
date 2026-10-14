@@ -1,5 +1,5 @@
 import { detectFreeFall } from "@automovie/engine";
-import { IAutoMovieBody } from "@automovie/interface";
+import { IAutoMovieBody, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { validationHasNoWarnings } from "../internal/predicates";
@@ -10,23 +10,25 @@ const BODY: IAutoMovieBody = {
   friction: 0.5,
   restitution: 0.5,
 };
-const COM = { x: 0, y: 5, z: 0 };
+const COM: IAutoMovieVector3 = { x: 0, y: 5, z: 0 };
 
 /**
- * The gravity expectation is suppressed by anything that would hold a body up
- * or that the author opts out of: an unheld body is a fall candidate only when
- * none of these apply.
+ * Declared body, attachment, active fall and physics intent have distinct effects on gravity advice and the returned fall event.
  *
  * Scenarios:
  *
  * 1. A `body: null` object (no declared physics) never falls.
  * 2. An attached / driven body does not fall (something holds it).
  * 3. A body already on a falling trajectory is not re-warned.
- * 4. A `physicsIntent` marker (defies-gravity) suppresses the warning and the
- *    suggested arc, while the fall event still surfaces for downstream.
+ * 4. A defies-gravity intent suppresses the warning and proposed arc while retaining one fall event.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual detection for bodyless, attached, already-falling and intent-marked inputs; checks clean validation for each and the explicitly selected event/trajectory results, catching advice that ignores these policy boundaries.
+ * @evidence contracts/testing.md#independent-expectations The declared detector contract excludes bodyless, attached and actively falling candidates; physics intent suppresses advice but preserves its candidate event. Expected absence/presence and count are literal policy facts rather than implementation snapshots.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps all four suppression reasons distinct; unsupported ordinary proposals and malformed configuration are separate entries. The attached/already-falling cases do not assert every returned field.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns local numerical inputs and returned reports without a physics process, renderer, asset pipeline or native artifact.
  */
-export const test_validation_free_fall_suppressed = (): void => {
-  const noBody = detectFreeFall({
+export function test_validation_free_fall_suppressed(): void {
+  const noBody: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "ghost",
     body: null,
     centerOfMass: COM,
@@ -40,7 +42,7 @@ export const test_validation_free_fall_suppressed = (): void => {
   );
   TestValidator.equals("null body has no event", noBody.events.length, 0);
 
-  const attached = detectFreeFall({
+  const attached: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "sword",
     body: BODY,
     centerOfMass: COM,
@@ -54,7 +56,7 @@ export const test_validation_free_fall_suppressed = (): void => {
   );
   TestValidator.equals("attached body has no arc", attached.trajectory, null);
 
-  const falling = detectFreeFall({
+  const falling: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "crate",
     body: BODY,
     centerOfMass: COM,
@@ -67,7 +69,7 @@ export const test_validation_free_fall_suppressed = (): void => {
     validationHasNoWarnings("active free fall", falling.validation),
   );
 
-  const levitating = detectFreeFall({
+  const levitating: ReturnType<typeof detectFreeFall> = detectFreeFall({
     node: "orb",
     body: BODY,
     centerOfMass: COM,
@@ -90,4 +92,4 @@ export const test_validation_free_fall_suppressed = (): void => {
     levitating.trajectory,
     null,
   );
-};
+}

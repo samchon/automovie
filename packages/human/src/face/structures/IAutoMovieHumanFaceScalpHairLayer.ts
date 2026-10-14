@@ -12,6 +12,14 @@ import type { IAutoMovieHumanFaceHairlineAngles } from "./IAutoMovieHumanFaceHai
  * basis owns licensed source geometry and chart origin. This numerical record
  * cannot supply private roots, guide curves, tie vertices or surface patches.
  *
+ * @evidence contracts/common.md#principled-implementation expandHumanFaceScalpHair converts named mm/degree traits once into the existing metre/radian layer with exact requested identity/count/seed, shared growth domain and independent finish.
+ * @evidence contracts/common.md#clear-and-simple-design Named cut/mask/comb/part/gather/curl traits separate authored style from accuracy controls, root population and procedural optical finish.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical layer admission still checks ranges, wavelength/step relationships and integration budgets; count/seed/clearance are rendering or authored constraints rather than measured follicles, mechanics or collision certification.
+ * @evidence contracts/common.md#meaningful-documentation Every unit, closed axis choice and omitted-field convention is explicit without exposing root coordinates or a personal guide path.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This layer record executes no conversion, root selection or curve integration.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Seeded identity is input to the sampling owner, not a cache implemented here.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller fields create no guide buffers, ribbons or generated textures.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceScalpHairLayer {

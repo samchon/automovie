@@ -1,11 +1,17 @@
-import {
-  builtConnectorGeometry,
-  builtConnectorSectionAt,
-  lowerBuiltEnvironment,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieQuaternion,
+  IAutoMovieStageSetPiece,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMovieConnectorGeometry } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorGeometry";
+import type { IAutoMovieConnectorSectionAt } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorSectionAt";
+import type { IAutoMovieConnectorStation } from "../../../../packages/engine/src/architecture/IAutoMovieConnectorStation";
+import { builtConnectorGeometry } from "../../../../packages/engine/src/architecture/builtConnectorGeometry";
+import { builtConnectorSectionAt } from "../../../../packages/engine/src/architecture/builtConnectorSectionAt";
+import { lowerBuiltEnvironment } from "../../../../packages/engine/src/architecture/lowerBuiltEnvironment";
+import { validateBuiltEnvironment } from "../../../../packages/engine/src/architecture/validateBuiltEnvironment";
 import { BUILT_CONNECTOR_TEST_HELIX_RADIUS as HELIX_RADIUS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RADIUS";
 import { BUILT_CONNECTOR_TEST_HELIX_RISE as HELIX_RISE } from "../internal/BUILT_CONNECTOR_TEST_HELIX_RISE";
 import { BUILT_CONNECTOR_TEST_HELIX_TURNS as HELIX_TURNS } from "../internal/BUILT_CONNECTOR_TEST_HELIX_TURNS";
@@ -24,60 +30,54 @@ import {
 } from "../internal/predicates";
 
 /**
- * A connector is a measurable shape, not a labelled edge between two rooms.
- * This pins that a spiral stair is expressible at all, that a varying section
- * is read where the route actually is, that a stated slope and a stated step
- * must agree with the route they are declared on, and that the constant and the
- * varying spelling of a section are mutually exclusive rather than merged.
- * Whether a person can climb any of it is deliberately never asked.
+ * Validate connector geometry, measure routes and interpolate declared sections while preserving scalar-record lowering.
  *
  * Scenarios:
+ * 1. A graph holding a spiral stair, a varying-section corridor, a ramp, a straight flight, an escalator, and a moving walk validates as a whole.
+ * 2. The spiral's authored facings change by quarter turns and return after four stations, while plan coordinates repeat and Y rises; every facing is a unit quaternion within the existing tolerance.
+ * 3. Route metrics match hand arithmetic within the existing tolerance: a 4 m plan run climbing 3 m is 5 m long at `atan2(3, 4)`, and the equally spaced corridor's middle station is at 0.5.
+ * 4. The queried constant section values agree; varying-section queries interpolate and match the selected stations within the existing tolerance.
+ * 5. A connector with no orientation answers `null` facings rather than inventing a heading from the route.
+ * 6. Both queries refuse an unknown connector; section queries refuse invalid fractions and absent sections, while geometry refuses empty or stationary routes.
+ * 7. Twenty-three malformed connectors are each refused at their own path, including both spellings at once and neither spelling.
+ * 8. Lowering the scalar-section record retains the existing staged node-id list.
  *
- * 1. A graph holding a spiral stair, a varying-section corridor, a ramp, a
- *    straight flight, an escalator, and a moving walk validates as a whole.
- * 2. A spiral stair's treads are told apart by facing alone: consecutive stations
- *    sit a quarter turn apart while their plan positions repeat every fourth
- *    station, and every facing survives as a unit quaternion.
- * 3. Route metrics come out as hand arithmetic: a 4 m plan run climbing 3 m is 5 m
- *    long at `atan2(3, 4)`, and the station parameters are arc-length fractions
- *    rather than index fractions.
- * 4. A constant section answers the same pair everywhere; a varying one
- *    interpolates between its stations and reproduces each station exactly.
- * 5. A connector with no orientation answers `null` facings rather than inventing
- *    a heading from the route.
- * 6. Every query refuses an unknown connector, an out-of-range parameter, a route
- *    with nothing to measure, and a connector with no section at all.
- * 7. Twenty-three malformed connectors are each refused at their own path,
- *    including both spellings at once and neither spelling.
- * 8. The pre-geometry scalar record lowers exactly as before.
+ * @evidence contracts/testing.md#behavioral-verification Calls validateBuiltEnvironment, builtConnectorGeometry, builtConnectorSectionAt and lowerBuiltEnvironment, inspecting route metrics, selected station positions/facings, section dimensions, refusal paths and the staged scalar-section node id. Incorrect route length, lost authored orientation, wrong interpolation or silently admitted conflicting section spellings contradict these observations.
+ * @evidence contracts/testing.md#independent-expectations A local 3-4-5 flight fixes rise/run/length/slope, and literal corridor widths 3/1.5/3 with heights 2.6/2.2/2.6 give quarter width 2.25 and height 2.4 under the original predicates. Helix coordinate equations supply position expectations; expected quarter-turn quaternions share the fixture yaw helper, so they are not an independent quaternion-construction oracle. The equally spaced corridor's 0.5 station does not distinguish arc-length from index parametrization.
+ * @evidence contracts/testing.md#distinguishing-cases Six admitted families, constant/varying sections, absent facings, unknown ids, nonfinite/out-of-range queries, empty/stationary routes, absent sections and the existing 23 located mutation cases retain their original inputs and strength. Lowering checks the scalar-section node id rather than a full output snapshot; no arbitrary uneven-route parametrization, landing geometry, personal traversability or rendered appearance is certified here.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_connector imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_architecture_built_connector = (): void => {
-  const source = levels();
+export function test_architecture_built_connector(): void {
+  const source: IAutoMovieBuiltEnvironment = levels();
   TestValidator.equals(
     "a graph of six connector families validates",
     validateBuiltEnvironment({ environment: source }).success,
     true,
   );
 
-  const spiral = builtConnectorGeometry(source, "spiral");
+  const spiral: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+    source,
+    "spiral",
+  );
   TestValidator.predicate(
     "a spiral stair's treads are told apart by facing alone",
-    (() => {
-      const first = spiral.stations[0]!;
-      const quarter = spiral.stations[1]!;
-      const full = spiral.stations[4]!;
+    ((): boolean => {
+      const first: IAutoMovieConnectorStation = spiral.stations[0]!;
+      const quarter: IAutoMovieConnectorStation = spiral.stations[1]!;
+      const full: IAutoMovieConnectorStation = spiral.stations[4]!;
       return (
-        // The plan position repeats after four quarter turns, so position alone
-        // cannot distinguish the bottom tread from the top one.
+        // Plan coordinates repeat after four quarter turns; Y still distinguishes these stations.
         nclose(first.position.x, full.position.x) &&
         nclose(first.position.z, full.position.z) &&
         nclose(full.position.y, HELIX_TURNS * HELIX_RISE) &&
-        // The facing does distinguish them, and it is a real quaternion.
-        spiral.stations.every((station) => qunit(station.rotation!)) &&
+        // Consecutive facings differ and remain unit rotations.
+        spiral.stations.every((station: IAutoMovieConnectorStation): boolean =>
+          qunit(station.rotation!),
+        ) &&
         spiral.stations
           .slice(1)
           .every(
-            (station, index) =>
+            (station: IAutoMovieConnectorStation, index: number): boolean =>
               !qclose(station.rotation!, spiral.stations[index]!.rotation!),
           ) &&
         qclose(first.rotation!, NO_ROTATION) &&
@@ -88,16 +88,19 @@ export const test_architecture_built_connector = (): void => {
     })(),
   );
 
-  const flight = builtConnectorGeometry(source, "flight");
+  const flight: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+    source,
+    "flight",
+  );
   TestValidator.equals(
     "route metrics are the route's own arithmetic",
     namedFacts([
-      ["rise", () => nclose(flight.rise, 3)],
-      ["run", () => nclose(flight.run, 4)],
-      ["length", () => nclose(flight.length, 5)],
-      ["slope", () => nclose(flight.slope, Math.atan2(3, 4))],
-      ["firstStation", () => nclose(flight.stations[0]!.at, 0)],
-      ["lastStation", () => nclose(flight.stations[1]!.at, 1)],
+      ["rise", (): boolean => nclose(flight.rise, 3)],
+      ["run", (): boolean => nclose(flight.run, 4)],
+      ["length", (): boolean => nclose(flight.length, 5)],
+      ["slope", (): boolean => nclose(flight.slope, Math.atan2(3, 4))],
+      ["firstStation", (): boolean => nclose(flight.stations[0]!.at, 0)],
+      ["lastStation", (): boolean => nclose(flight.stations[1]!.at, 1)],
     ]),
     {
       rise: true,
@@ -110,8 +113,11 @@ export const test_architecture_built_connector = (): void => {
   );
   TestValidator.predicate(
     "station parameters are arc length, not index",
-    (() => {
-      const corridor = builtConnectorGeometry(source, "corridor");
+    ((): boolean => {
+      const corridor: IAutoMovieConnectorGeometry = builtConnectorGeometry(
+        source,
+        "corridor",
+      );
       return (
         nclose(corridor.stations[1]!.at, 0.5) &&
         nclose(corridor.length, 16) &&
@@ -123,7 +129,8 @@ export const test_architecture_built_connector = (): void => {
   TestValidator.equals(
     "a connector that declared no facing answers with none",
     builtConnectorGeometry(source, "corridor").stations.map(
-      (station) => station.rotation,
+      (station: IAutoMovieConnectorStation): IAutoMovieQuaternion | null =>
+        station.rotation,
     ),
     [null, null, null],
   );
@@ -138,10 +145,22 @@ export const test_architecture_built_connector = (): void => {
 
   TestValidator.predicate(
     "a constant section answers the same pair everywhere",
-    (() => {
-      const start = builtConnectorSectionAt(source, "flight", 0);
-      const middle = builtConnectorSectionAt(source, "flight", 0.5);
-      const end = builtConnectorSectionAt(source, "flight", 1);
+    ((): boolean => {
+      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        0,
+      );
+      const middle: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        0.5,
+      );
+      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "flight",
+        1,
+      );
       return (
         nclose(start.width, 1.4) &&
         nclose(middle.width, 1.4) &&
@@ -152,11 +171,27 @@ export const test_architecture_built_connector = (): void => {
   );
   TestValidator.predicate(
     "a varying section interpolates between its own stations",
-    (() => {
-      const start = builtConnectorSectionAt(source, "corridor", 0);
-      const quarter = builtConnectorSectionAt(source, "corridor", 0.25);
-      const waist = builtConnectorSectionAt(source, "corridor", 0.5);
-      const end = builtConnectorSectionAt(source, "corridor", 1);
+    ((): boolean => {
+      const start: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0,
+      );
+      const quarter: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0.25,
+      );
+      const waist: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        0.5,
+      );
+      const end: IAutoMovieConnectorSectionAt = builtConnectorSectionAt(
+        source,
+        "corridor",
+        1,
+      );
       return (
         nclose(start.width, 3) &&
         nclose(quarter.width, 2.25) &&
@@ -170,32 +205,44 @@ export const test_architecture_built_connector = (): void => {
 
   TestValidator.predicate(
     "an unknown connector refuses geometry",
-    throwsError(() => builtConnectorGeometry(source, "missing")),
+    throwsError(
+      (): IAutoMovieConnectorGeometry =>
+        builtConnectorGeometry(source, "missing"),
+    ),
   );
   TestValidator.predicate(
     "an unknown connector refuses a section",
-    throwsError(() => builtConnectorSectionAt(source, "missing", 0)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "missing", 0),
+    ),
   );
   TestValidator.predicate(
     "a parameter outside the route is refused",
-    throwsError(() => builtConnectorSectionAt(source, "flight", 1.5)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "flight", 1.5),
+    ),
   );
   TestValidator.predicate(
     "a non-finite parameter is refused",
-    throwsError(() => builtConnectorSectionAt(source, "flight", Number.NaN)),
+    throwsError(
+      (): IAutoMovieConnectorSectionAt =>
+        builtConnectorSectionAt(source, "flight", Number.NaN),
+    ),
   );
   TestValidator.predicate(
     "an empty route has nothing to measure",
-    throwsError(() => {
-      const value = levels();
+    throwsError((): void => {
+      const value: IAutoMovieBuiltEnvironment = levels();
       value.connectors[0]!.route = [];
       builtConnectorGeometry(value, "spiral");
     }),
   );
   TestValidator.predicate(
     "a route that never moves has nothing to measure",
-    throwsError(() => {
-      const value = levels();
+    throwsError((): void => {
+      const value: IAutoMovieBuiltEnvironment = levels();
       value.connectors[0]!.route = [
         { x: 1, y: 1, z: 1 },
         { x: 1, y: 1, z: 1 },
@@ -205,8 +252,8 @@ export const test_architecture_built_connector = (): void => {
   );
   TestValidator.predicate(
     "a connector with no section at all is refused",
-    throwsError(() => {
-      const value = levels();
+    throwsError((): void => {
+      const value: IAutoMovieBuiltEnvironment = levels();
       delete value.connectors[3]!.width;
       delete value.connectors[3]!.clearHeight;
       builtConnectorSectionAt(value, "flight", 0);
@@ -215,13 +262,15 @@ export const test_architecture_built_connector = (): void => {
   assertBuiltConnectorTestRefusals();
   TestValidator.equals(
     "the untouched level graph produces no violation path at all",
-    refusalPaths(() => {}),
+    refusalPaths((): void => {}),
     [],
   );
 
   TestValidator.equals(
     "the scalar-section record lowers to the same staged set as before",
-    lowerBuiltEnvironment(source).set?.map((piece) => piece.node),
+    lowerBuiltEnvironment(source).set?.map(
+      (piece: IAutoMovieStageSetPiece): string => piece.node,
+    ),
     ["levels/stair-flight"],
   );
-};
+}

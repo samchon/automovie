@@ -1,4 +1,3 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   IAutoMovieTransform,
@@ -6,12 +5,22 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError, vclose } from "../internal/predicates";
+import { Matrix4 } from "../../../../packages/engine/src/math/Matrix4";
+import { createSpringState } from "../../../../packages/engine/src/resolve/createSpringState";
+import { stepSpring } from "../../../../packages/engine/src/resolve/stepSpring";
+import { throwsError } from "../internal/throwsError";
+import { vclose } from "../internal/vclose";
 
-const W = (p: IAutoMovieVector3): number[] =>
+const W: (p: IAutoMovieVector3) => number[] = (
+  p: IAutoMovieVector3,
+): number[] =>
   Matrix4.compose(p, { x: 0, y: 0, z: 0, w: 1 }, { x: 1, y: 1, z: 1 });
 
-const trs = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -29,23 +38,24 @@ const still: IAutoMovieSpringDriver = {
   center: null,
 };
 
-const local = new Map<string, IAutoMovieTransform>([["j1", trs(1, 0, 0)]]);
+const local: Map<string, IAutoMovieTransform> = new Map<
+  string,
+  IAutoMovieTransform
+>([["j1", trs(1, 0, 0)]]);
 
-const world = (): Map<string, number[]> =>
+const world: () => Map<string, number[]> = (): Map<string, number[]> =>
   new Map([
     ["root", W({ x: 0, y: 0, z: 0 })],
     ["j1", W({ x: 1, y: 0, z: 0 })],
   ]);
 
-const at = (w: Map<string, number[]>, id: string): IAutoMovieVector3 =>
-  Matrix4.position(w.get(id)!);
+const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
+  w: Map<string, number[]>,
+  id: string,
+): IAutoMovieVector3 => Matrix4.position(w.get(id)!);
 
 /**
- * `stepSpring`'s sphere colliders complete the VRM SpringBone semantics the
- * validated `hitRadius` always declared: after the length constraint each joint
- * is pushed out of every penetrated sphere to its surface plus `hitRadius`, in
- * array order, with a deterministic upward fallback when the joint sits exactly
- * on a center.
+ * After the length constraint, spring sphere collisions push each joint to sphere radius plus hitRadius in array order, using an upward fallback at a coincident center.
  *
  * Scenarios:
  *
@@ -58,10 +68,15 @@ const at = (w: Map<string, number[]>, id: string): IAutoMovieVector3 =>
  * 4. Colliders apply in array order: a second sphere sees the first push's result.
  * 5. Non-positive and non-finite collider radii and a non-finite center reject
  *    before the integrator reads transforms.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Steps actual force-free springs against authored spheres and checks pushout, unchanged nonpenetration, center-coincident upward fallback, sequential ordering and malformed collider refusals.
+ * @evidence contracts/testing.md#independent-expectations Inflated radius is sphere radius plus hitRadius0.05, yielding1.25 or0.35 offsets; a second center at the first pushout produces the next0.25 upward displacement. These literal geometries independently fix the expected coordinates.
+ * @evidence contracts/testing.md#distinguishing-cases Penetrating/nonpenetrating/center-coincident and ordered two-sphere neighbors accompany zero/negative/NaN radius and nonfinite center cases; collision projection may stretch the earlier length constraint and is not a general nonpenetration/convergence proof.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_spring_collision entry directly runs portable synchronous numeric spring/collider semantics on existing scene-node fixtures, without simulating new Human geometry or observing GPU contact.
  */
-export const test_resolve_spring_collision = (): void => {
+export function test_resolve_spring_collision(): void {
   // 1. push-out: sphere at the parent, min distance 1.2 + 0.05
-  const w1 = world();
+  const w1: Map<string, number[]> = world();
   stepSpring(still, w1, createSpringState(), 1 / 60, local, [
     { center: { x: 0, y: 0, z: 0 }, radius: 1.2 },
   ]);
@@ -71,7 +86,7 @@ export const test_resolve_spring_collision = (): void => {
   );
 
   // 2. negative twin: sphere too small to touch
-  const w2 = world();
+  const w2: Map<string, number[]> = world();
   stepSpring(still, w2, createSpringState(), 1 / 60, local, [
     { center: { x: 0, y: 0, z: 0 }, radius: 0.5 },
   ]);
@@ -81,7 +96,7 @@ export const test_resolve_spring_collision = (): void => {
   );
 
   // 3. joint exactly on the center → deterministic +Y fallback
-  const w3 = world();
+  const w3: Map<string, number[]> = world();
   stepSpring(still, w3, createSpringState(), 1 / 60, local, [
     { center: { x: 1, y: 0, z: 0 }, radius: 0.3 },
   ]);
@@ -91,7 +106,7 @@ export const test_resolve_spring_collision = (): void => {
   );
 
   // 4. array order: the second sphere sees the first push's result
-  const w4 = world();
+  const w4: Map<string, number[]> = world();
   stepSpring(still, w4, createSpringState(), 1 / 60, local, [
     { center: { x: 1, y: 0, z: 0 }, radius: 0.3 },
     { center: { x: 1, y: 0.35, z: 0 }, radius: 0.2 },
@@ -102,7 +117,11 @@ export const test_resolve_spring_collision = (): void => {
   );
 
   // 5. guards
-  const invalid = (
+  const invalid: (
+    title: string,
+    collider: { center: IAutoMovieVector3; radius: number },
+    expected: string | string[],
+  ) => void = (
     title: string,
     collider: { center: IAutoMovieVector3; radius: number },
     expected: string | string[],
@@ -110,7 +129,7 @@ export const test_resolve_spring_collision = (): void => {
     TestValidator.predicate(
       title,
       throwsError(
-        () =>
+        (): void =>
           stepSpring(still, world(), createSpringState(), 1 / 60, local, [
             collider,
           ]),
@@ -137,4 +156,4 @@ export const test_resolve_spring_collision = (): void => {
     { center: { x: Number.NaN, y: 0, z: 0 }, radius: 1 },
     ["colliders[0].center.x", "finite", "NaN"],
   );
-};
+}

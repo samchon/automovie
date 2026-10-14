@@ -1,63 +1,92 @@
+import { createViewerDiskSource } from "@automovie/viewer/inspection/createViewerDiskSource";
+import { readViewerMaintainedSourceFiles } from "@automovie/viewer/inspection/readViewerMaintainedSourceFiles";
 import fs from "node:fs";
 import path from "node:path";
 
-import { createViewerDiskSource } from "@automovie/viewer/inspection/createViewerDiskSource";
-import { readViewerMaintainedSourceFiles } from "@automovie/viewer/inspection/readViewerMaintainedSourceFiles";
 import { readPlaygroundViewerPublishedSource } from "./readPlaygroundViewerPublishedSource.js";
 
 /**
- * Bind the normal Playground to its own source, emitted modules and served
- * application inputs. The root names the checkout used to resolve those paths;
- * the returned receipt and watcher paths belong to this source witness.
- * This receipt belongs to this application, independently
- * of the resident Human inspection server. Package source and compiler output
- * are both retained because linked imports and workers consume different lanes.
- * Maintained source membership follows Git's tracked and untracked files outside
- * ignored runtime output. Emitted modules, assets and public files have separate
- * ordinary filesystem roots; ignoring SDK caches does not omit those inputs.
- * Human's publication lock is an explicit watched input. A pending or retained
- * lock refuses new source admission without replacing the last displayed model.
+ * Bind the normal Playground's source witness to this checkout's maintained source, package outputs/assets, public files, HTML entries and configuration. Maintained membership follows tracked/untracked Git files outside ignored output; emitted/data roots are separately walked. Source edits do not prove linked emitted output was rebuilt.
  *
- * Dependency manifests and the lockfile identify installed versions. This is
- * a declared application disk scope, not a certificate of every SDK file or
- * every transformed browser response. GPU acceptance records those separately.
+ * Human's publication lock is an explicit watched input and refuses new candidates while the host retains its current page. Manifests/lockfile identify declared dependencies, not every installed SDK file. External caller-owned source-URL payloads and transformed browser responses lie outside this disk scope; hardware frame acceptance is separate and this receipt proves no model health.
  *
- * @evidence contracts/common.md#principled-implementation Declared maintained source, emitted modules, data, configuration and version manifests remain separate witnessed inputs; the actual publication lock gates their adoption.
- * @evidence contracts/common.md#clear-and-simple-design One application binding reuses the disk witness and maintained-file reader while keeping source membership and ordinary runtime-output roots explicit.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved publication refuses new candidates without expiring a lock by age or borrowing another host's source authority.
- * @evidence contracts/common.md#meaningful-documentation Names the checkout roots, missing/emitted membership, watcher ownership and limits of SDK/transformed-response coverage.
- * @evidence requirements/product/prototype-quality.md#product-authored-variation-determinism Identifies the declared source, emitted modules and application inputs that carry this Playground's authored choices for repeatable replay.
- * @evidence specifications/authoring-and-authority/prototype-determinism-and-fidelity.md#spec-authoring-deterministic-input-identity Contributes the application disk-input component of deterministic identity, including dependency version manifests, without certifying every installed SDK byte or transformed browser response.
+ * @evidence contracts/common.md#principled-implementation Canonical maintained-file discovery and disk byte/membership reading cover the actual declared source/output/data lanes, while the existing publication guard excludes supported Human publication transactions.
+ * @evidence contracts/common.md#clear-and-simple-design One witness supplies current/refresh/watched paths to the retained host; producer lock ownership, Vite watching and completed-page admission remain separate owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Git ignores do not hide separately declared emitted/data roots, source freshness does not certify rebuilt output and outside-scope SDK/network/transformed response bytes remain unclaimed.
+ * @evidence contracts/common.md#meaningful-documentation The comment names membership provenance, declared lanes, publication exclusion and the limits of checkout-disk certification.
+ * @evidence contracts/performance.md#efficient-algorithms Each actual refresh includes Git maintained-membership discovery, HTML/directory traversal, sorted file paths and reading/hashing B bytes across F inputs, retaining the disk owner's O(F log F+B) cost plus discovery/IO. Startup also enumerates explicit watcher paths; no mtime shortcut is used.
+ * @evidence contracts/performance.md#reuse-equivalent-work The source owner retains one latest receipt, current reads reuse it outside lock invalidation and a witnessed released lock requests fresh membership/bytes. Stable revision does not avoid refresh byte reads or merge distinct publication effects.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This owner retains one receipt and declared paths without source history, open file handles or its own watcher/task. File count/bytes are uncapped; the host owns actual watcher/event streams and external input URL lifetime remains caller-owned.
+ *
+ * @author Samchon
  */
-export function createPlaygroundViewerSource(root: string) {
-  const playground = path.join(root, "packages/playground");
-  const packages = ["human", "engine", "interface", "viewer", "archetypes", "render"];
-  const lockInput = "packages/human/.human-build.lock";
-  const publicationLock = path.join(root, lockInput);
-  const sourceRoots = [path.join(playground, "src"), ...packages.map((name) => path.join(root, "packages", name, "src"))];
-  const source = createViewerDiskSource({
-    root,
-    directories: [
-      path.join(playground, "public"),
-      ...packages.flatMap((name) => ["lib", "assets"].map((lane) => path.join(root, "packages", name, lane))),
-    ],
-    files: () => [...readViewerMaintainedSourceFiles(root, sourceRoots), ...[
-      "pnpm-lock.yaml", "pnpm-workspace.yaml", "config/tsconfig.json",
-      lockInput,
-      "packages/playground/package.json", "packages/playground/tsconfig.json",
-      "packages/playground/lint.config.ts", "packages/playground/vite.config.ts",
-      ...packages.flatMap((name) => ["package.json", "tsconfig.json"].map((file) => `packages/${name}/${file}`)),
-      ...fs.readdirSync(playground).filter((name) => name.endsWith(".html")).map((name) => `packages/playground/${name}`),
-    ].map((file) => path.resolve(root, file))],
-  });
+export function createPlaygroundViewerSource(
+  root: string,
+): ReturnType<typeof createViewerDiskSource> {
+  const playground: string = path.join(root, "packages/playground");
+  const packages: readonly string[] = [
+    "human",
+    "engine",
+    "interface",
+    "viewer",
+    "archetypes",
+    "render",
+  ];
+  const lockInput: string = "packages/human/.human-build.lock";
+  const publicationLock: string = path.join(root, lockInput);
+  const sourceRoots: string[] = [
+    path.join(playground, "src"),
+    ...packages.map((name: string): string =>
+      path.join(root, "packages", name, "src"),
+    ),
+  ];
+  const source: ReturnType<typeof createViewerDiskSource> =
+    createViewerDiskSource({
+      root,
+      directories: [
+        path.join(playground, "public"),
+        ...packages.flatMap((name: string): string[] =>
+          ["lib", "assets"].map((lane: string): string =>
+            path.join(root, "packages", name, lane),
+          ),
+        ),
+      ],
+      files: (): string[] => [
+        ...readViewerMaintainedSourceFiles(root, sourceRoots),
+        ...[
+          "pnpm-lock.yaml",
+          "pnpm-workspace.yaml",
+          "config/tsconfig.json",
+          lockInput,
+          "packages/playground/package.json",
+          "packages/playground/tsconfig.json",
+          "packages/playground/lint.config.ts",
+          "packages/playground/vite.config.ts",
+          ...packages.flatMap((name: string): string[] =>
+            ["package.json", "tsconfig.json"].map(
+              (file: string): string => `packages/${name}/${file}`,
+            ),
+          ),
+          ...fs
+            .readdirSync(playground)
+            .filter((name: string): boolean => name.endsWith(".html"))
+            .map((name: string): string => `packages/playground/${name}`),
+        ].map((file: string): string => path.resolve(root, file)),
+      ],
+    });
   // Watching roots admits new members; the source owner rereads membership
   // before publishing their bytes, rather than watching only today's list.
   return {
     ...source,
-    current: () => readPlaygroundViewerPublishedSource({
-      current: source.current, locked: () => fs.existsSync(publicationLock),
-      refresh: () => { source.refresh(); }, lockInput,
-    }),
+    current: (): ReturnType<typeof source.current> =>
+      readPlaygroundViewerPublishedSource({
+        current: source.current,
+        locked: (): boolean => fs.existsSync(publicationLock),
+        refresh: (): void => {
+          source.refresh();
+        },
+        lockInput,
+      }),
     watched: [...source.watched, ...sourceRoots],
   };
 }

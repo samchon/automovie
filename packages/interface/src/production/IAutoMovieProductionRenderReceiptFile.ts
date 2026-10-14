@@ -4,23 +4,16 @@ import { IAutoMovieProductionMediaProbe } from "./IAutoMovieProductionMediaProbe
 /**
  * One file record independently derived by the renderer-owned receipt gate.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Records the exact byte population needed to refuse incomplete delivery.
- * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Supplies independently verified file facts for reuse.
+ * @evidence contracts/common.md#principled-implementation Combines inherited path and exact byte identity with the exclusively owning deliverable and format-specific facts parsed from the same supplied bytes during terminal publication.
+ * @evidence contracts/common.md#clear-and-simple-design Reuses the deliverable-file contract and adds only ownership and observed media facts, allowing final validation to compare a claim and its independently derived receipt row.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A file path cannot be claimed by multiple deliverables and parser facts cannot be copied from manifest scalar claims; duplicate ownership and malformed bytes refuse.
+ * @evidence contracts/common.md#meaningful-documentation Defines exclusive deliverable identity and parser-derived facts while inherited documentation supplies relative path, digest, size and sidecar meaning.
+ * @author Samchon
  */
 export interface IAutoMovieProductionRenderReceiptFile extends IAutoMovieProductionDeliverableFile {
-  /**
-   * Deliverable that exclusively owns this path.
-   *
-   * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Preserves ownership of each delivered byte.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Joins each receipt row to its deliverable.
-   */
+  /** Deliverable that exclusively owns this path. */
   deliverable: string;
 
-  /**
-   * Parser-derived media facts.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Requires parser-derived facts, not mere path existence.
-   * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Supplies facts used to admit verified reuse.
-   */
+  /** Parser-derived media facts. */
   probe: IAutoMovieProductionMediaProbe;
 }

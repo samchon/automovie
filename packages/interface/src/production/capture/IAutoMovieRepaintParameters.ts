@@ -1,47 +1,25 @@
 /**
- * Stable, serializable diffusion controls stored in the receipt.
+ * Exact serializable generation controls retained by the immutable repaint request and receipt.
  *
- * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IAutoMovieRepaintParameters` as the portable data boundary for the repaint reference roles requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IAutoMovieRepaintParameters` for the asset spec repaint controls references system contract.
+ * @evidence contracts/common.md#principled-implementation Explicit prompt, seed and strength fields describe generation controls, with a scalar map for adapter parameters. Nonblank text, safe-integer seed and finite unit-interval strength remain documented obligations without runtime validation in this type.
+ * @evidence contracts/common.md#clear-and-simple-design Core prompt, seed and preservation controls remain explicit while an optional scalar map carries adapter-defined values rather than executable configuration; string values are not credential-screened here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Seed does not promise identical external output; the retained record performs no dispatch, retry or immutable request preservation.
+ * @evidence contracts/common.md#meaningful-documentation Defines prompt presence, optional negative prompt, safe seed, strength range and adapter-defined scalar controls with reproducibility limits.
+ * @author Samchon
  */
 export interface IAutoMovieRepaintParameters {
-  /**
-   * Non-blank positive prompt.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `prompt` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `prompt` for the asset spec repaint controls references system contract.
-   */
+  /** Non-blank positive prompt. */
   prompt: string;
 
-  /**
-   * Optional negative prompt.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `negativePrompt` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `negativePrompt` for the asset spec repaint controls references system contract.
-   */
+  /** Optional negative prompt. */
   negativePrompt?: string;
 
-  /**
-   * Explicit deterministic request seed.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `seed` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `seed` for the asset spec repaint controls references system contract.
-   */
+  /** Explicit safe-integer request seed; identical output across provider calls is not guaranteed. */
   seed: number;
 
-  /**
-   * Finite structural-preservation strength in [0, 1].
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `strength` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `strength` for the asset spec repaint controls references system contract.
-   */
+  /** Finite structural-preservation strength in [0, 1]. */
   strength: number;
 
-  /**
-   * Additional adapter-defined scalar controls.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `controls` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `controls` for the asset spec repaint controls references system contract.
-   */
+  /** Additional adapter-defined scalar controls. */
   controls?: Record<string, string | number | boolean>;
 }

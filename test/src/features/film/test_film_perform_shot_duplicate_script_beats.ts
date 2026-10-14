@@ -1,6 +1,10 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { IAutoMovieScript, IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -11,20 +15,25 @@ import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- * Performance emits shot ids, camera clip ids, and review/slate keys from the
- * script beat id. Duplicate script beat ids make that shot identity ambiguous
- * even when the action list itself is coherent.
+ * Stages a valid duel and performs against two script beats sharing beat-1; failure and the second beat's id path detect ambiguous shot identity.
  *
- * Scenario: the script contains two `beat-1` entries while the performance
- * otherwise targets a valid staged beat; performance fails at the duplicate
- * script beat source path.
+ * Scenarios:
+ * 1. Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Stages a valid duel and performs against two script beats sharing beat-1; failure and the second beat's id path detect ambiguous shot identity.
+ * @evidence contracts/testing.md#independent-expectations The authored duplicate id must be refused at $script.beats[1].id; this checks identity admission, not downstream rendered output.
+ * @evidence contracts/testing.md#distinguishing-cases Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_duplicate_script_beats unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_duplicate_script_beats = (): void => {
-  const baseScript = makeScriptWrite();
-  const staged = stageScene(baseScript, makeStagingWrite());
+export function test_film_perform_shot_duplicate_script_beats(): void {
+  const baseScript: IAutoMovieScript = makeScriptWrite();
+  const staged: IAutoMovieStagedSet = stageScene(
+    baseScript,
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite({
       beats: [
         baseScript.beats[0]!,
@@ -38,7 +47,7 @@ export const test_film_perform_shot_duplicate_script_beats = (): void => {
     staged,
     performance: makePerformanceWrite(),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
 
   TestValidator.equals(
@@ -49,14 +58,14 @@ export const test_film_perform_shot_duplicate_script_beats = (): void => {
   TestValidator.equals(
     "duplicate script beat id violation",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$script.beats[1].id"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

@@ -42,7 +42,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF: IAutoMovieHumanBodySimpleSha
       "deltoidDefinitionRight",
       "scapularDefinition",
     ].map(
-      (channel): Term => ({
+      (channel: string): Term => ({
         channel,
         gain: 1,
         curves: [

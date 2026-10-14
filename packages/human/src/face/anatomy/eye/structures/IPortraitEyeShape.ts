@@ -1,14 +1,23 @@
-import { IPortraitEyebrowProfile } from "../../brow/IPortraitEyebrowProfile";
-import { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
-import { IPortraitAegyoSalShape } from "./IPortraitAegyoSalShape";
-import { IPortraitIrisPigment } from "./IPortraitIrisPigment";
-import { IPortraitLowerLidProfile } from "./IPortraitLowerLidProfile";
-import { IPortraitOcularTissueShape } from "./IPortraitOcularTissueShape";
-import { IPortraitUpperLidProfile } from "./IPortraitUpperLidProfile";
+import type { IPortraitEyebrowProfile } from "../../brow/IPortraitEyebrowProfile";
+import type { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
+import type { IPortraitAegyoSalShape } from "./IPortraitAegyoSalShape";
+import type { IPortraitIrisPigment } from "./IPortraitIrisPigment";
+import type { IPortraitLowerLidProfile } from "./IPortraitLowerLidProfile";
+import type { IPortraitOcularTissueShape } from "./IPortraitOcularTissueShape";
+import type { IPortraitUpperLidProfile } from "./IPortraitUpperLidProfile";
 
 /**
  * Numerical eye shape independent of its host socket. Lengths are millimetres;
  * width/opening multipliers deform the fitted aperture, not an isolated eyeball.
+ *
+ *
+ * @evidence contracts/common.md#principled-implementation Independent metric authoring controls separate shaped aperture, optical identity, tissue profiles and tessellation.
+ * @evidence contracts/common.md#clear-and-simple-design resolvePortraitEyeInputs owns compatibility/copied consumed profiles while fit/contact/finish own host feasibility.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional modes are explicit current contracts; no positive dimension or local scalar check implies acquired anatomy or complete clearance.
+ * @evidence contracts/common.md#meaningful-documentation Fields give millimetres, optional fallback meanings, gaze-independent identity, sampling roles and physical inspection limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IPortraitEyeShape is an erased geometry/source contract; its concrete producer or reader owns actual algorithms and population traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IPortraitEyeShape declares correspondence only; its concrete owner decides geometry copies, shared readings and invalidation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IPortraitEyeShape acquires no runtime buffer, handle or task; concrete builders/readers own referenced arrays and optional callback retention.
  *
  * @author Samchon
  */
@@ -177,9 +186,16 @@ export interface IPortraitEyeShape {
 
   /** Tessellation controls, separate from the anatomical shape. */
   sampling: {
+    /** Angular globe/visible-sheet count; resident globe admission bounds it separately. */
     eyeColumns: number;
+
+    /** Latitude/visible-sheet count, independent of optical dimensions. */
     eyeRows: number;
+
+    /** Angular iris/corneal column count, at least three on admitted profiles. */
     irisColumns: number;
+
+    /** Positive integral radial iris/corneal interval count. */
     irisRows: number;
   };
 }

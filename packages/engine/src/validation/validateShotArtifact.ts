@@ -20,25 +20,23 @@ import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
- * The shot artifact's structural contract, owned by the engine that produces
- * it.
+ * Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
  *
- * It used to live only beside the commit gate, so `performShot` could emit
- * a shot no consumer would accept and report success: the same failure recurred
- * five times (#1224, #1308, #1314, #1316, #1318), each fixed by teaching the
- * producer one more field. The rules now have a single home, on the side that
- * both the producer and every consumer can reach (#1320).
- *
- * What stays with the host: whether a slice is committable, whether a resident
- * registry supplies the referenced clips, and how a project addresses its
- * files. Those are questions about a deployment, not about the artifact.
- *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `validateShotArtifact` reports every malformed shot id, reference, performance, motion, event, intent, and coverage member at its artifact path.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `validateShotArtifact` preserves shot-root identity, nested collection positions, observed values, and expected structural contracts across the complete commit gate.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
+ * @evidence contracts/common.md#clear-and-simple-design Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
+ * @evidence contracts/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Performance/clip/node/camera/coverage populations drive scans, maps and track-buffer validation; channel serialization also contributes.
+ * @evidence contracts/performance.md#reuse-equivalent-work Request-local id sets and light-kind map share scene lookup work across shot fields.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; borrowed artifacts/registries remain caller-owned and no playback host is started.
  */
 
-export const validateShotArtifact = (
+export const validateShotArtifact: (
+  shot: IAutoMovieShot,
+  scene: IAutoMovieScene,
+  motionIds: ReadonlySet<string> | null,
+) => IAutoMovieValidation = (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
   /**
@@ -54,7 +52,7 @@ export const validateShotArtifact = (
   validateNonEmptyId(shot.id, "$input.id", "shot id", violations);
   validateNonEmptyId(shot.scene, "$input.scene", "shot scene", violations);
   validateNonEmptyId(shot.camera, "$input.camera", "shot camera", violations);
-  const sceneId = isRecord(scene) ? scene.id : undefined;
+  const sceneId: string | undefined = isRecord(scene) ? scene.id : undefined;
   if (shot.scene !== sceneId)
     pushViolation(
       violations,
@@ -63,11 +61,14 @@ export const validateShotArtifact = (
       `shot scene "${shot.scene}" must match scene "${sceneId}"`,
       shot.scene,
     );
-  const sceneCameras = asArray(isRecord(scene) ? scene.cameras : undefined);
+  const sceneCameras: unknown[] = asArray(
+    isRecord(scene) ? scene.cameras : undefined,
+  );
   if (
     typeof shot.camera === "string" &&
     !sceneCameras.some(
-      (camera) => isRecord(camera) && camera.id === shot.camera,
+      (camera: unknown): boolean =>
+        isRecord(camera) && camera.id === shot.camera,
     )
   )
     pushViolation(
@@ -87,17 +88,21 @@ export const validateShotArtifact = (
     false,
   );
 
-  const nodeIds = new Set(
+  const nodeIds: Set<string> = new Set(
     asArray(isRecord(scene) ? scene.nodes : undefined)
       .filter(isRecord)
-      .map((node) => node.id)
-      .filter((id): id is string => typeof id === "string"),
+      .map((node: Record<string, unknown>): unknown => node.id)
+      .filter((id: unknown): id is string => typeof id === "string"),
   );
+  const performances: unknown[] = asArray(shot.performances);
   validateUniqueBy(
-    asArray(shot.performances).map((performance, index) => ({
-      id: isRecord(performance) ? performance.node : undefined,
-      path: `$input.performances[${index}].node`,
-    })),
+    Array.from(
+      performances,
+      (performance: unknown, index: number): { id: unknown; path: string } => ({
+        id: isRecord(performance) ? performance.node : undefined,
+        path: `$input.performances[${index}].node`,
+      }),
+    ),
     "shot performance node",
     violations,
   );
@@ -107,12 +112,13 @@ export const validateShotArtifact = (
     "shot performances",
     violations,
   );
-  asArray(shot.performances).forEach((performance, i) => {
-    const path = `$input.performances[${i}]`;
+  for (let i: number = 0; i < performances.length; ++i) {
+    const performance: unknown = performances[i];
+    const path: string = `$input.performances[${i}]`;
     if (
       !validateObjectArtifact(performance, path, "shot performance", violations)
     )
-      return;
+      continue;
     validateNonEmptyId(
       performance.node,
       `${path}.node`,
@@ -155,7 +161,7 @@ export const validateShotArtifact = (
           performance.motion,
         );
     }
-  });
+  }
 
   if (shot.cameraMotion === undefined)
     pushViolation(
@@ -173,9 +179,9 @@ export const validateShotArtifact = (
     "object motion clip id",
     violations,
   );
-  asArray(shot.objectMotions).forEach((clip, i) => {
+  for (const [i, clip] of asArray(shot.objectMotions).entries()) {
     validateClipArtifact(clip, `$input.objectMotions[${i}]`, violations);
-  });
+  }
   appendLightMotionsArtifact(
     shot.lightMotions,
     "$input.lightMotions",
@@ -189,28 +195,30 @@ export const validateShotArtifact = (
     new Set(
       sceneCameras
         .filter(isRecord)
-        .map((camera) => camera.id)
-        .filter((id): id is string => typeof id === "string"),
+        .map((camera: Record<string, unknown>): unknown => camera.id)
+        .filter((id: unknown): id is string => typeof id === "string"),
     ),
     violations,
   );
-  const deliveredCameras = new Set([
+  const deliveredCameras: Set<string> = new Set([
     ...(typeof shot.camera === "string" ? [shot.camera] : []),
     ...asArray(shot.coverage)
       .filter(isRecord)
-      .map((take) => take.camera)
-      .filter((camera): camera is string => typeof camera === "string"),
+      .map((take: Record<string, unknown>): unknown => take.camera)
+      .filter(
+        (camera: unknown): camera is string => typeof camera === "string",
+      ),
   ]);
-  const clearanceCameras = new Set(
+  const clearanceCameras: Set<string> = new Set(
     sceneCameras
       .filter(isRecord)
       .filter(
-        (camera) =>
+        (camera: Record<string, unknown>): boolean =>
           typeof camera.id === "string" &&
           deliveredCameras.has(camera.id) &&
           camera.clearance !== undefined,
       )
-      .map((camera) => camera.id as string),
+      .map((camera: Record<string, unknown>): string => camera.id as string),
   );
   if (clearanceCameras.size > 0 && shot.cameraClearance === undefined)
     pushViolation(
@@ -220,11 +228,13 @@ export const validateShotArtifact = (
       "every delivered camera with a physical envelope must carry one accepted clearance report",
       shot.cameraClearance,
     );
-  const reportedCameras = new Set(
+  const reportedCameras: Set<string> = new Set(
     asArray(shot.cameraClearance)
       .filter(isRecord)
-      .map((report) => report.camera)
-      .filter((camera): camera is string => typeof camera === "string"),
+      .map((report: Record<string, unknown>): unknown => report.camera)
+      .filter(
+        (camera: unknown): camera is string => typeof camera === "string",
+      ),
   );
   for (const camera of clearanceCameras)
     if (!reportedCameras.has(camera))
@@ -249,17 +259,24 @@ export const validateShotArtifact = (
 };
 
 /**
- * The scene's light id → `type` index, keyed by the only thing a pointer can
- * name.
+ * Index shallow scene light records having string ids by their authored kind.
  *
- * A light is addressable exactly when it is an object with a string id and a
- * `type`, which is what a `Map.get` miss states in one read: an entry left out
- * and an entry stored with no kind both answer `undefined`, and neither can be
- * the target of a track. Such a scene is malformed either way, and
- * `validateSceneArtifact` is the gate that says so.
+ * The light channel gate receives only the cross-reference index it needs.
+ *
+ * Nonrecords/non-string ids are omitted; duplicate ids use last map assignment and scene admission owns uniqueness.
+ *
+ * Missing/undefined kind is indistinguishable from absence to the downstream gate.
+ *
+ * L lights cost O(L) traversal and O(U) map storage plus id hashing.
+ *
+ * One map serves all shot light track gates.
+ *
+ * The caller owns the map and borrowed kind values, with no staged renderer light acquired.
  */
-const stagedLightKinds = (scene: unknown): ReadonlyMap<string, unknown> => {
-  const index = new Map<string, unknown>();
+const stagedLightKinds: (scene: unknown) => ReadonlyMap<string, unknown> = (
+  scene: unknown,
+): ReadonlyMap<string, unknown> => {
+  const index: Map<string, unknown> = new Map<string, unknown>();
   for (const light of asArray(isRecord(scene) ? scene.lights : undefined))
     if (isRecord(light) && typeof light.id === "string")
       index.set(light.id, light.type);

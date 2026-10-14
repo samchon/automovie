@@ -10,8 +10,6 @@ Start at the first authoritative disagreement among authored decisions, typed so
 4. Trace the same cause through every affected consumer and boundary case.
 5. Correct the earliest owner, rerun its consumers, and repeat the affected observations.
 
-Do not widen a tolerance, add a cast, swallow a refusal, or change several unrelated inputs to make a symptom disappear. A source viewer reports current compilation errors; a previous frame is not evidence that the new source works.
-
 ## Geometry and motion
 
 Inspect coordinate basis, transform chains, local and world space, bounds, placement, pose, reach, contact, event time, and camera projection through the owning engine queries. Test the exact failing state and its neighbors. A broad bounding box is not triangle collision, and a compressed population sample is not every member.

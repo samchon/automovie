@@ -1,5 +1,5 @@
-export { run } from "./bin";
-export * from "./commandArguments";
-export * from "./contractMaintenanceFileSystem";
-export * from "./scaffoldNextSteps";
-export * from "./readAutoMovieMaintenanceMarkdownPaths";
+export * from "./AutoMovieCommand";
+export * from "./readAutoMovieCommandArguments";
+export * from "./deriveAutoMovieProjectName";
+export * from "./run";
+export * from "./renderAutoMovieScaffoldNextSteps";

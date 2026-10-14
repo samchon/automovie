@@ -1,67 +1,62 @@
 /**
- * What a mesh's triangle topology actually is, measured rather than assumed.
+ * What a mesh's triangle topology actually is, measured by
+ * `inspectAutoMovieMeshTopology` rather than assumed.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Reports the actual topology of authored mesh geometry.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Makes operation output topology explicit and inspectable.
+ * Corners are identified by position welded on the `MESH_WELD_GRID` nanometre
+ * grid, or, when the mesh declares physical vertices, by that physical
+ * identity for edge incidence. This is a measurement, not a verdict:
+ * `validateMeshTopology` judges the same surface and adds winding consistency
+ * and an `expectClosed` declaration.
+ *
+ * @evidence contracts/common.md#principled-implementation Edge counts come from an undirected edge map over welded or physical corner identities, so a seam split for UVs still counts as one edge, and volume is the divergence-theorem sum of signed tetrahedra against the origin, exact for any closed consistently wound polyhedron.
+ * @evidence contracts/common.md#clear-and-simple-design Plain counts plus the degenerate ordinals and the volume, the facts a builder, the human part census and the portrait mesh placement read, while pass or fail stays with `validateMeshTopology`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate triangles are listed and left out of the edge map rather than repaired, and an empty or fully degenerate mesh reports not watertight instead of passing vacuously.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, how corners are identified with and without physical vertices, which attribute buffers the non-finite count covers, which triangles each count excludes, the watertight condition including the empty case, and the volume's unit and sign.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the single pass over triangles and attributes that fills it is answered on `inspectAutoMovieMeshTopology`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measured fresh per call because the mesh may change between calls; the record is never cached by its producer.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns scalars and one ordinal array whose length is the degenerate triangle count, at most the triangle count; nothing references the measured mesh.
+ * @author Samchon
  */
 export interface IAutoMovieMeshTopology {
-  /**
-   * Triangle count, including degenerate ones.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Counts the faces present in the measured topology.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports the complete triangle population of an operation result.
-   */
+  /** Triangle count, including degenerate ones. */
   triangles: number;
+
   /**
-   * Triangles whose welded corners are not three distinct points.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Identifies faces that collapse after positional welding.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Exposes the degenerate output population for validation.
+   * Triangles whose three welded corners are not three distinct grid points;
+   * they are excluded from every edge count.
    */
   degenerate: number;
+
   /**
-   * Zero-based triangle ordinals skipped by the same positional-weld rule.
+   * Zero-based ordinals of the degenerate triangles, in ascending order.
    * A count cannot establish whether a later conversion lost a different face
    * while recovering an earlier redundant one; these identities preserve that
    * correspondence without reconstructing the weld calculation in a consumer.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Identifies each face already redundant under positional welding so downstream conversion can distinguish it from newly lost geometry.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Reports exact degenerate source-face identities for validation of the corresponding final output faces.
    */
   degenerateTriangles: number[];
+
   /**
-   * Position, normal, or uv components that are not finite numbers.
-   *
-   * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Measures numeric failures in mesh buffers.
-   * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Reports non-finite geometry components as structural evidence.
+   * Components of the position, normal, UV, colour and relief-weight buffers
+   * that are not finite numbers.
    */
   nonFinite: number;
-  /**
-   * Welded edges used by exactly one triangle: the open boundary.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Measures the open boundary of the authored surface.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports edges left with only one incident face.
-   */
+
+  /** Edges of non-degenerate triangles used by exactly one triangle. */
   boundaryEdges: number;
-  /**
-   * Welded edges used by three or more triangles.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Measures topology that cannot represent a manifold surface.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports edges with conflicting face incidence.
-   */
+
+  /** Edges of non-degenerate triangles used by three or more triangles. */
   nonManifoldEdges: number;
+
   /**
-   * True when every welded edge is shared by exactly two triangles.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology States whether the mesh forms a closed two-manifold.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Summarizes the closed-edge invariant of the result.
+   * True when at least one edge exists and every edge is shared by exactly two
+   * triangles; winding consistency is not checked here.
    */
   watertight: boolean;
+
   /**
-   * Divergence-theorem signed volume; exact for a closed polyhedron.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Measures the orientation and enclosed volume of a closed mesh.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Exposes the signed-volume invariant of the operation output.
+   * Signed enclosed volume in cubic metres by the divergence theorem over all
+   * triangles, positive for outward counter-clockwise winding; exact only for a
+   * closed, consistently wound surface.
    */
   volume: number;
 }

@@ -1,19 +1,4 @@
-/**
- * The house producer: every spaces owner's parts in one deterministic list.
- *
- * Responsibility: call each source owner once, in a fixed order, and refuse a
- * duplicate part id instead of silently keeping one. The list is the single
- * producer the viewer server (and later measurements and delivery) consume, so
- * they all see the same geometry. It has no inputs: every coordinate comes from
- * the owners, which read the reviewed `docs/spaces` values.
- *
- * Scope of this pass: mass, envelope with real opening voids, floors,
- * ceilings, the eight roof faces and the porch roof, room outlines and
- * partitions, the stair, the porch and the site paving and fence. Furniture,
- * fixtures, cabinets, lighting, planting, door and window leaves, frames and
- * textures belong to later model, instance, material and system branches and
- * are not emitted.
- */
+
 import { buildGroundFloor } from "./floors/ground";
 import { EXTERIOR_WALL_BOTTOM, GARAGE } from "./building";
 import { buildInterstorey, buildUpperCeiling } from "./floors/upper";
@@ -68,61 +53,22 @@ import { buildSite } from "./site";
 import { checkReservations } from "./rooms/reservations";
 import { type IRoomSpace, type IStorageSpace } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
-import type { IHousePart } from "./solid-records";
+import type { IHousePart } from "../types/IHousePart";
 import { buildStair } from "./stair";
 
 /** The house as the viewer, measurements and delivery consume it. */
-/**
- * @evidence spaces/04-observations.md IHouse groups the emitted solids and logical places consumed by environment construction and inspection.
- * @evidence principles/core/source-units.md#source-scope-preservation The record references authored parts, rooms, storage, and site zones without creating furniture or material assets.
- * @evidence principles/core/source-units.md#source-substantive-completion Its four required arrays give consumers typed access to geometry and spatial identity in one build result.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Engine-render-handoff consumes visible part meshes and room records, site-access-interface names exterior standing zones, and entry-coat-storage/upper-linen-storage assign the two closed storage volumes; these builders supply the four arrays.
- */
 export interface IHouse {
   /** Every emitted solid, in fixed owner order. */
-  /**
-   * @evidence spaces/04-observations.md `parts` is the ordered set of solids that observation and environment assembly inspect.
-   * @evidence principles/core/source-units.md#source-scope-preservation Each entry remains an IHousePart of its source owner, not a replacement mesh authored here.
-   * @evidence principles/core/source-units.md#source-substantive-completion A required array exposes all emitted geometry to viewer and topology assembly.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Engine-render-handoff requires model-bearing elements for visible walls, floors, and roofs; parts collects the solids emitted by those surface owners.
-   */
   parts: IHousePart[];
   /** The fifteen room space records, in fixed owner order. */
-  /**
-   * @evidence spaces/04-observations.md `spaces` exposes each authored room record for later spatial queries.
-   * @evidence principles/core/source-units.md#source-scope-preservation This array carries the room owners' records unchanged; it does not infer adjacency from mesh overlap.
-   * @evidence principles/core/source-units.md#source-substantive-completion A required IRoomSpace list supports deterministic room and reservation checks.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation derives centre, corner, and threshold questions from built rooms; spaces keeps the room owners' records for that census.
-   */
   spaces: IRoomSpace[];
   /** Storage volumes with the room that owns each, in fixed owner order. */
-  /**
-   * @evidence spaces/04-observations.md `storages` retains each closed storage volume with its owning room.
-   * @evidence principles/core/source-units.md#source-scope-preservation Its room link preserves closet ownership without turning storage into a circulation node.
-   * @evidence principles/core/source-units.md#source-substantive-completion The typed pair gives environment construction a stable parent for every storage cell.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage puts the shallow coat volume beneath the upper flight and upper-linen-storage puts the linen volume in the hall; storages pairs each with its owning room.
-   */
   storages: { room: IRoomSpace; storage: IStorageSpace }[];
   /** Exterior zones of the porch and site, in fixed owner order. */
-  /**
-   * @evidence spaces/04-observations.md `zones` supplies the named exterior standing places to the spatial record.
-   * @evidence principles/core/source-units.md#source-scope-preservation It carries porch and site zones from their owners rather than inventing a parcel or street space.
-   * @evidence principles/core/source-units.md#source-substantive-completion A required IExteriorZone array lets environment assembly create bounded exterior cells.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface places paving zones under the ground storey and room-route-network places front-porch there; zones carries outputs from both the site and porch owners.
-   */
   zones: IExteriorZone[];
 }
 
 /** Build the whole house; throws on a duplicate part or space id. */
-/**
- * @evidence spaces/04-observations.md buildHouse is the deterministic producer of parts, rooms, storage, and exterior zones for inspection.
- * @evidence spaces/04-observations.md#spatial-observation-derivation The fixed owner call order makes one stable source population for later topology and observation checks.
- * @evidence principles/core/source-units.md#source-scope-preservation It calls actual value imports for each builder once, leaving object fills and external ground to other branches.
- * @evidence principles/core/source-units.md#source-substantive-completion It assembles four arrays, checks reservations, and throws on duplicate part or space ids before return.
- * @evidence obligations/design/space-sources.md#space-source-design-ownership Each emitted room, surface and zone comes from a value-imported reviewed owner; this assembler adds no new place, boundary or dimension.
- * @evidence obligations/design/space-sources.md#space-source-stable-identities Ordered builder calls and duplicate-id refusal preserve stable part, room, storage, and zone identities.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface places the main house, garage, porch, and exterior zones in one site, while room-route-network names the room nodes; buildHouse collects those owner outputs without adding a space identity.
- */
 export const buildHouse = (): IHouse => {
   const rooms = [
     buildEntry(),

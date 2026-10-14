@@ -4,53 +4,31 @@ import {
 } from "@automovie/interface";
 
 /**
- * What one action's clip lost to its region mask, for the caller that must
- * report it (#1349). The mask is correct and deliberate, but it used to be
- * SILENT: a quadruped gait driving the front legs (the arm chains) under an
- * explicitly lower-body quadruped gait can lose its front-leg arm chains and
- * still come back successful with zero violations. The builder holds both
- * facts (what the synthesizer authored, what the region admits) at the moment
- * it drops one, so it is the only place that can state the difference.
+ * One action/actor's authored channels removed by its selected body-region mask. Bones are unique in code-unit order; root and expression flags aggregate loss across all keyframes. A record exists only if any channel was removed.
  *
- * Emitted only when something was actually dropped; a clip entirely inside its
- * region produces no record at all.
- *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Records exactly which authored channels an explicit region mask removed.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Carries the loss receipt required when mask composition discards content.
+ * @evidence contracts/common.md#principled-implementation compilePerformance records losses while filtering the same keyframes it assembles, so the diagnostic describes actual discarded content rather than a second approximation.
+ * @evidence contracts/common.md#clear-and-simple-design Action index, actor, region and channel-specific losses let performShot locate a failure without duplicating the source clip.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The report does not assert that a masked clip is otherwise valid, and it never compensates for discarded content by synthesizing replacement motion.
+ * @evidence contracts/common.md#meaningful-documentation Members explain original action indices, deterministic bone ordering and aggregate Boolean loss meaning.
+ * @evidence contracts/performance.md#efficient-algorithms The type performs no scan; mask production visits authored joints and sorts only distinct discarded bone names.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same filtering pass produces the masked motion and this loss record, avoiding a later content comparison.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the small diagnostic record and bone array; it keeps ids rather than whole source clips and acquires no external resource.
  * @author Samchon
  */
 export interface IAutoMovieMaskedContent {
-  /**
-   * Index into the action list {@link compilePerformance} was given.
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Identifies the authored action whose mask caused this loss.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Keeps each mask-loss receipt tied to its composition input.
-   */
+  /** Index into the action list {@link compilePerformance} was given. */
   action: number;
 
-  /**
-   * The actor whose clip lost the content (an action may fan to several).
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Names the actor whose layer mask removed authored channels.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Preserves actor ownership on the composition-loss record.
-   */
+  /** The actor whose clip lost the content (an action may fan to several). */
   actor: string;
 
-  /**
-   * The region whose bone set masked it: the action's own, or its default.
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Reports the precise named mask responsible for the loss.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Carries the resolved region-mask identity through composition diagnostics.
-   */
+  /** The region whose bone set masked it: the action's own, or its default. */
   region: AutoMovieBodyRegion;
 
   /**
    * The bones the region excludes, sorted by {@link compareCodeUnits} and
    * deduplicated across keyframes. Empty when only the root or the expression
    * was dropped.
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Enumerates the bone channels that fell outside the selected layer owner.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Makes bone-channel loss observable after mask composition.
    */
   bones: AutoMovieHumanoidBone[];
 
@@ -58,17 +36,9 @@ export interface IAutoMovieMaskedContent {
    * Whether a keyframe's root displacement was dropped, which happens when a
    * non-locomotion region layers beside another (only the root-bearing region
    * strides).
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Reports when root authority caused a non-owning layer's displacement to be removed.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Exposes the root-channel consequence of composition ownership.
    */
   root: boolean;
 
-  /**
-   * Whether a keyframe's expression was dropped (every region but `face`).
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Reports when the face owner excludes an expression from another region.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Exposes expression-channel loss caused by disjoint layer ownership.
-   */
+  /** Whether a keyframe's expression was dropped (every region but `face`). */
   expression: boolean;
 }

@@ -3,56 +3,36 @@ import {
   IAutoMovieBuiltEnvironment,
 } from "@automovie/interface";
 
+import { requireBuiltSpace } from "./requireBuiltSpace";
+
 /**
  * Return every boundary that encloses or separates a logical space.
  *
- * {@link builtEnvironmentAdjacentSpaces} already walks these records, and keeps
- * only the far-side space ids. That answers which rooms are next to this one and
- * discards what stands between them — the boundary's identity, its `kind`, and
- * the elements realizing it — so the one record able to state "this room's
- * ceiling is that slab" had no reader. The same pairing
- * {@link builtEnvironmentSpaceConnectors} makes for traversal is the pairing
- * enclosure was missing: adjacency answers which spaces are joined, this answers
- * with what.
+ * {@link builtEnvironmentAdjacentSpaces} keeps only the far-side space ids, which answers which rooms are next to this one and discards what stands between them: the boundary's identity, its `kind`, and the elements realizing it. This answers with what, as {@link builtEnvironmentSpaceConnectors} does for traversal. A slab between two storeys belongs to neither room alone, so a room whose ceiling is owned by its storey reads like a room with no ceiling unless its enclosure can be asked directly.
  *
- * That absence is not theoretical. On two authored buildings every floor slab
- * was assigned to a storey rather than to the rooms it covers, which is what the
- * record asks for — a slab between two storeys belongs to neither room alone,
- * and {@link IAutoMovieBuiltPopulation.space} states that a room's contents are
- * what stands in it and not what covers it. Every rule involved behaved as
- * designed, and a reviewer still could not ask either building what enclosed a
- * room, so a room whose ceiling was owned elsewhere on purpose read exactly like
- * a room with no ceiling at all.
+ * Matched exactly rather than through containment, the rule adjacency and connector lookup follow: asking a storey returns the storey's own enclosure and not every partition standing inside its rooms. Boundaries are handed back whole, because `kind` distinguishes a ceiling from a wall and `elements` says whether anything visible realizes it; a boundary with an empty `elements` is a separation the design declares and nothing builds.
  *
- * Matched exactly rather than through containment, which is the rule
- * {@link builtEnvironmentAdjacentSpaces} and {@link builtEnvironmentSpaceConnectors}
- * already follow: asking a storey returns the storey's own enclosure and not
- * every partition standing inside its rooms. Boundaries are handed back whole,
- * because `kind` is the part that distinguishes a ceiling from a wall and
- * `elements` is the part that says whether anything visible realizes it — a
- * boundary with an empty `elements` is a separation the design declares and
- * nothing builds, and reducing these to ids would hide both facts.
+ * The returned boundaries are the record's own objects in record order, not copies. Throws for an undeclared space id.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtEnvironmentSpaceBoundaries` returns every boundary enclosing or separating a logical space, so the authored enclosure of a room stays reviewable rather than being reachable only as an anonymous adjacency.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtEnvironmentSpaceBoundaries` collects the boundaries a logical space is named on within one building-interior boundary, preserving each boundary's kind and realizing elements.
+ * @evidence contracts/common.md#principled-implementation A filter over the record's boundaries on exact membership of the space id in each boundary's `spaces`, which preserves record order and object identity.
+ * @evidence contracts/common.md#clear-and-simple-design Returns the record objects whole instead of a projection, so `kind` and `elements` reach the caller without a second lookup, and refuses ids through the shared `requireBuiltSpace`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no space or boundary kind; a storey-owned slab is not reassigned to the rooms below it, and a boundary nothing builds is returned as declared.
+ * @evidence contracts/common.md#meaningful-documentation States what the answer adds over adjacency, exact matching rather than containment, why boundaries come back whole, what an empty `elements` means, record order, that the objects are not copies, and the throw.
+ * @evidence contracts/performance.md#efficient-algorithms O(S + B + T) for the space lookup, B boundary records and T summed side entries, including empty side lists; no persistent index avoids the scan.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Returns references into the caller's boundary list rather than a cached copy, so a later edit to the record is seen by the next call; no work is shared between calls.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array, which references the record's own boundaries and is owned by the caller.
  * @author Samchon
  */
-export const builtEnvironmentSpaceBoundaries = (
+export const builtEnvironmentSpaceBoundaries: (
+  environment: IAutoMovieBuiltEnvironment,
+  spaceId: string,
+) => IAutoMovieBuiltBoundary[] = (
   environment: IAutoMovieBuiltEnvironment,
   spaceId: string,
 ): IAutoMovieBuiltBoundary[] => {
-  requireSpace(environment, spaceId);
-  return environment.boundaries.filter((boundary) =>
-    boundary.spaces.includes(spaceId),
+  requireBuiltSpace(environment, spaceId);
+  return environment.boundaries.filter(
+    (boundary: IAutoMovieBuiltBoundary): boolean =>
+      boundary.spaces.includes(spaceId),
   );
-};
-
-const requireSpace = (
-  environment: IAutoMovieBuiltEnvironment,
-  spaceId: string,
-): void => {
-  if (!environment.spaces.some((space) => space.id === spaceId))
-    throw new Error(
-      `built environment "${environment.id}" has no logical space "${spaceId}"`,
-    );
 };

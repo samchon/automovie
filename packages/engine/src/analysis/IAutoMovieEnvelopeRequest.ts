@@ -10,71 +10,56 @@ import { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
 /**
  * Everything one envelope study is configured with.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `IAutoMovieEnvelopeRequest` binds one revision's indoor and outdoor conditions to explicit assemblies, bridges, and performance targets.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The request closes the input network used to produce paired thermal and moisture runs from the same envelope state.
+ * `analyzeAutoMovieEnvelope` throws on a blank id, subject or revision, an
+ * invalid context, an undeclared instant, a non-finite indoor temperature, an
+ * indoor humidity outside `[0, 1]`, no assembly or more than
+ * `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, a malformed assembly, layer or bridge, or a
+ * malformed target. A null instant, or one without an outdoor air temperature,
+ * yields two `not-run` runs.
+ *
+ * @evidence contracts/common.md#principled-implementation Supplies the boundary conditions of the steady-state network (indoor air and humidity, one outdoor air temperature from a declared instant) and the network itself, so heat flow and interior-surface condensation are both closed forms over it.
+ * @evidence contracts/common.md#clear-and-simple-design One request feeds both the thermal and the moisture run, so the two runs share one validated input and one settings digest instead of two requests that could drift apart.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No exterior temperature is assumed: a null instant or one without an outdoor temperature produces `not-run` runs naming the missing input.
+ * @evidence contracts/common.md#meaningful-documentation The documentation lists every refused input and the `not-run` case, and each property states its role, bounds, and how the runs and targets use it.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; solving it is linear in assemblies, layers and bridges, a cost the analyzer states.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the analyzer solves it once per call, and both runs read that one solution.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller; the analyzer keeps nothing derived from it after returning the two runs.
+ * @author Samchon
  */
 export interface IAutoMovieEnvelopeRequest {
-  /**
-   * Stable study identity; each produced run suffixes its own domain.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment The envelope request `id` identifies the shared study from which its thermal and moisture runs are derived.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract This base key is deterministically suffixed by domain so paired environmental outcomes stay related but distinct.
-   */
+  /** Stable study identity; the runs are `<id>.thermal` and `<id>.moisture`. */
   id: string;
-  /**
-   * Logical space the envelope encloses.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `subject` names the logical interior whose enclosure load and condensation evidence are reported.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The label is preserved across both domain runs so their resolved outcomes remain attributable to one space.
-   */
+
+  /** Logical space the envelope encloses; non-blank. */
   subject: string;
-  /**
-   * Design revision being read.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `inputRevision` records the exact design state whose envelope capacity was calculated.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The revision enters both sealed records so a later rollup can reject superseded environmental evidence.
-   */
+
+  /** Design revision being read; non-blank. */
   inputRevision: string;
-  /**
-   * Read-only external world.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `context` supplies the validated external temperature state used as the envelope's outdoor boundary.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The read-only environment is resolved by instant and contributes no undeclared climate assumptions to the load network.
-   */
+
+  /** Read-only external world, validated in full on every study. */
   context: IAutoMovieEnvironmentContext;
+
   /**
-   * Instant supplying the exterior boundary condition, or null.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `instant` selects the declared exterior condition, while null leaves the unavailable boundary explicit.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The nullable key controls context lookup and makes both domain runs `not-run` when no outside temperature is resolved.
+   * Instant of {@link context} supplying the exterior air temperature, or null
+   * when none is studied.
    */
   instant: string | null;
-  /**
-   * Indoor air.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `indoor` contributes the explicitly authored temperature and humidity against which the enclosure is tested.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract This condition feeds both the thermal gradient and the dew-point comparison in the resolved scenario.
-   */
+
+  /** Indoor air the interior films face. */
   indoor: IAutoMovieIndoorCondition;
+
   /**
-   * Envelope build-ups; at least one.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `assemblies` enumerate every planar envelope path included in fabric loss and surface-risk results.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The nonempty collection is validated, solved individually, sampled spatially, and summed into environmental capacity metrics.
+   * Envelope build-ups; at least one, at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`,
+   * ids unique.
    */
   assemblies: readonly IAutoMovieEnvelopeAssembly[];
-  /**
-   * Linear thermal bridges.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment `bridges` list the authored linear losses added outside the planar assembly calculation.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Each bridge is resolved to an assembly and contributes `psi * length * deltaT` to the total heat load.
-   */
+
+  /** Linear thermal bridges; may be empty, ids unique. */
   bridges: readonly IAutoMovieEnvelopeBridge[];
+
   /**
-   * Targets the production declares for this study.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-capacity-environment Envelope `targets` declare the thermal and moisture thresholds the authored design is expected to meet.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract The shared target list is validated once and resolved against metrics in each of the two domain runs.
+   * Targets the production declares for this study, matched against the union
+   * of both runs' metric keys.
    */
   targets: readonly IAutoMovieAnalysisTarget[];
 }

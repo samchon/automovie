@@ -18,41 +18,65 @@
  * long axes (https://pubmed.ncbi.nlm.nih.gov/12725444/). These are basal-view
  * dimensions, not front-view width or independent free nostril contours.
  *
+ * @evidence contracts/common.md#principled-implementation Named straight 3D nasal distances, landmark angles and calibrated basal-view projected areas/axes remain distinct observations. The nasal observation rule compares registered nose measurements and leaves missing correspondence/protocols unresolved rather than directly changing vertices.
+ * @evidence contracts/common.md#clear-and-simple-design One external-nose record groups acquisition quantities while landmark instrumentation and the numerical nose geometry retain their own owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nasal protrusion is not a world-Z offset, and basal-view nostril axes/areas do not become front-view widths or free contours; no study population is a universal admission range.
+ * @evidence contracts/common.md#meaningful-documentation Members identify each landmark pair, anatomical side, basal projection and millimetres/square millimetres/degrees, with ambiguous curvature correspondence explicitly protocol-bound.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface performs no nasal landmark search, silhouette fit or nostril-area computation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no repeated geometry evaluation or source-correspondence cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No nasal surface, view image or measurement task is acquired by this type; optional observed scalars belong to the document.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceNoseParameters {
   /** Nasion to subnasale, nasal height in mm. */
   heightMm?: number;
+
   /** Nasion to pronasale, nasal bridge length in mm. */
   bridgeLengthMm?: number;
+
   /** Subnasale to pronasale, 3DFN nasal protrusion distance in mm. */
   protrusionMm?: number;
+
   /** Right-to-left alare, nasal breadth in mm. */
   alarWidthMm?: number;
+
   /** Right-to-left subalare, nasal-base breadth in mm. */
   subalarWidthMm?: number;
+
   /** Basal-view transverse columella breadth in mm. */
   columellaWidthMm?: number;
+
   /** Left alar curvature to pronasale in mm. */
   leftAlaLengthMm?: number;
+
   /** Right alar curvature to pronasale in mm. */
   rightAlaLengthMm?: number;
+
   /** Glabella-nasion-pronasale nasofrontal angle, degrees. */
   nasofrontalAngleDegrees?: number;
+
   /** Columellar high point-subnasale-labiale superius angle, degrees. */
   columellarLabialAngleDegrees?: number;
+
   /** Left nostril opening area in mm² from a calibrated nasal-base view. */
   leftNostrilAreaMm2?: number;
+
   /** Right nostril opening area in mm² from the same calibrated view. */
   rightNostrilAreaMm2?: number;
+
   /** Left basal nostril's longer measured axis, projected length in mm. */
   leftNostrilLongAxisMm?: number;
+
   /** Left basal nostril's shorter measured axis, projected length in mm. */
   leftNostrilShortAxisMm?: number;
+
   /** Right basal nostril's longer measured axis, projected length in mm. */
   rightNostrilLongAxisMm?: number;
+
   /** Right basal nostril's shorter measured axis, projected length in mm. */
   rightNostrilShortAxisMm?: number;
+
   /** Basal-view angle between both oriented nostril long axes, degrees; preserve the source protocol. */
   nostrilLongAxesAngleDegrees?: number;
 }

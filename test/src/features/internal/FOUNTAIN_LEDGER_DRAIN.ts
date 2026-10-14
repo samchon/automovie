@@ -10,4 +10,3 @@ export const FOUNTAIN_LEDGER_DRAIN: IAutoMovieFluidDrain = {
   start: 0,
   end: null,
 };
-

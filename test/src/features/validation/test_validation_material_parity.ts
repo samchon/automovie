@@ -20,12 +20,18 @@ import { namedFacts } from "../internal/predicates";
  *    identity published after this list was written.
  * 3. Extensions about geometry, compression, lighting or the container are not
  *    this gate's business and are left alone.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual material-extension classifier and unsupported-name selector, requiring admitted names to disappear and unsupported material/texture names to remain once in stable order; unrelated extension categories remain outside this advisory inventory.
+ * @evidence contracts/testing.md#independent-expectations The four declared supported material identities and authored underscore-separated category names determine the literal accepted and unsupported populations independently of selector output. This tests admission metadata rather than rendering fidelity or codec support.
+ * @evidence contracts/testing.md#distinguishing-cases Covers empty and supported-only inventories, mixed categories, duplicate unsupported names, plural/singular and case-folded segments, a vendor material name and an unrelated substring; image decoding and actual GPU appearance belong to their owning surfaces.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit invokes portable engine classification over local string arrays without an asset loader, filesystem, process, browser or GPU host.
  */
-export const test_validation_material_parity = (): void => {
+export function test_validation_material_parity(): void {
   TestValidator.equals(
     "the supported set is exactly what the material type can restate",
-    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort((left, right) =>
-      left < right ? -1 : left > right ? 1 : 0,
+    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(
+      (left: string, right: string): number =>
+        left < right ? -1 : left > right ? 1 : 0,
     ),
     [
       "KHR_materials_clearcoat",
@@ -81,29 +87,41 @@ export const test_validation_material_parity = (): void => {
   TestValidator.equals(
     "the material/texture question is decided by the identity's own segments",
     namedFacts([
-      ["material", () => isAutoMovieMaterialExtension("KHR_materials_sheen")],
+      [
+        "material",
+        (): boolean => isAutoMovieMaterialExtension("KHR_materials_sheen"),
+      ],
       [
         "singularMaterial",
-        () => isAutoMovieMaterialExtension("ADOBE_material_thin_glass"),
+        (): boolean =>
+          isAutoMovieMaterialExtension("ADOBE_material_thin_glass"),
       ],
-      ["texture", () => isAutoMovieMaterialExtension("KHR_texture_transform")],
-      ["textures", () => isAutoMovieMaterialExtension("EXT_textures_webp")],
+      [
+        "texture",
+        (): boolean => isAutoMovieMaterialExtension("KHR_texture_transform"),
+      ],
+      [
+        "textures",
+        (): boolean => isAutoMovieMaterialExtension("EXT_textures_webp"),
+      ],
       [
         "caseFolded",
-        () => isAutoMovieMaterialExtension("VENDOR_Materials_future"),
+        (): boolean => isAutoMovieMaterialExtension("VENDOR_Materials_future"),
       ],
       [
         "notGeometry",
-        () =>
+        (): boolean =>
           isAutoMovieMaterialExtension("KHR_draco_mesh_compression") === false,
       ],
       [
         "notLighting",
-        () => isAutoMovieMaterialExtension("KHR_lights_punctual") === false,
+        (): boolean =>
+          isAutoMovieMaterialExtension("KHR_lights_punctual") === false,
       ],
       [
         "notSubstring",
-        () => isAutoMovieMaterialExtension("KHR_immaterialism") === false,
+        (): boolean =>
+          isAutoMovieMaterialExtension("KHR_immaterialism") === false,
       ],
     ]),
     {
@@ -117,4 +135,4 @@ export const test_validation_material_parity = (): void => {
       notSubstring: true,
     },
   );
-};
+}

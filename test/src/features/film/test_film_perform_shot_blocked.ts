@@ -1,6 +1,26 @@
-import { performShot, stageScene } from "@automovie/engine";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieAttachAction,
+  IAutoMovieBlocking,
+  IAutoMovieConstraintViolation,
+  IAutoMovieEmoteAction,
+  IAutoMovieEnactAction,
+  IAutoMovieGestureAction,
+  IAutoMovieHoldAction,
+  IAutoMovieLaunchAction,
+  IAutoMovieLocomoteAction,
+  IAutoMovieLookAtAction,
+  IAutoMoviePerformance,
+  IAutoMovieReachAction,
+  IAutoMovieReactAction,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -11,48 +31,44 @@ import {
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const run = (
+const run: (
+  blocking: IAutoMovieBlocking,
+  performance?: IAutoMoviePerformance,
+) => IAutoMoviePerformedShot = (
   blocking: ReturnType<typeof makeBlockingWrite>,
-  performance = makePerformanceWrite(),
-) =>
+  performance: IAutoMoviePerformance = makePerformanceWrite(),
+): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
-    staged: (() => {
-      const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+    staged: ((): IAutoMovieStagedSet.ISuccess => {
+      const staged: IAutoMovieStagedSet = stageScene(
+        makeScriptWrite(),
+        makeStagingWrite(),
+      );
       if (staged.success !== true) throw new Error("staging must succeed");
       return staged;
     })(),
     performance,
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     blocking,
   });
 
 /**
- * Pins the intent→realization gates that arm when a validated blocking rides
- * along with the performance: matching beat and duration, anchors covered by
- * their actor's actions, and the camera intent honoured by the lead frame.
+ * A performed shot must realize its blocking beat, timing anchors and camera intent.
  *
  * Scenarios:
+ * 1. Accept aligned anchors, including an auto-duration actor.
+ * 2. Refuse beat/duration mismatch, a late uncovered knightB cue and wrong framing/move.
+ * 3. Refuse unauthored follow intent and malformed action actor.
  *
- * 1. The duel blocking against the duel performance (strike anchor t = 1 inside
- *    the gesture's [1, 2] span; medium static frame) → success. An
- *    "auto"-duration action also covers a late anchor (knightB watched through
- *    the whole beat).
- * 2. Blocking for another beat → `type` on `$input.beat`.
- * 3. Blocking fixed at 3 s against a 2-second performance → `range` on
- *    `$input.duration`.
- * 4. An anchor at t = 0.2 for knightA: before any of knightA's actions (locomote
- *    starts at 0 but... it does cover 0.2; use knightB at t = 1.9 with no
- *    knightB action past the unison locomote's [0, 1] span) → `range` naming
- *    the dropped cue.
- * 5. Blocking asks close/push-in; the performance frames medium/static → `type` on
- *    the lead frame's `framing` and `move`.
- * 6. Blocking asks a follow camera; the performance authors no frame at all →
- *    `type` (a locked-off camera cannot follow).
+ * @evidence contracts/testing.md#behavioral-verification Calls performShot with supplied blocking and checks accepted alignment or located/named coherence findings, catching a dropped timing cue or camera intent despite valid individual stage data.
+ * @evidence contracts/testing.md#independent-expectations Authored action spans determine whether anchor 1.9 is covered; identical beat/duration and first-frame framing/move are the blocking contract. Expected paths and flinch cue come from the inputs, not compiled output.
+ * @evidence contracts/testing.md#distinguishing-cases Pairs aligned numeric/auto spans with mismatched beat, duration, uncovered late anchor, framing/move and missing frame; malformed actor remains refused before coverage iteration. Exact tolerance edges and overlapping content belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable unit owns portable blocking/performance comparisons over existing fixtures and direct source, with no director host, browser or GPU.
  */
-export const test_film_perform_shot_blocked = (): void => {
-  const aligned = run(
+export function test_film_perform_shot_blocked(): void {
+  const aligned: IAutoMoviePerformedShot = run(
     makeBlockingWrite({
       actors: [
         {
@@ -83,14 +99,16 @@ export const test_film_perform_shot_blocked = (): void => {
   );
   TestValidator.equals("aligned blocking passes", aligned.success, true);
 
-  const wrongBeat = run(makeBlockingWrite({ beat: "beat-99" }));
+  const wrongBeat: IAutoMoviePerformedShot = run(
+    makeBlockingWrite({ beat: "beat-99" }),
+  );
   TestValidator.equals(
     "beat mismatch rejected",
     namedFacts([
-      ["refused", () => wrongBeat.success === false],
+      ["refused", (): boolean => wrongBeat.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           wrongBeat.success === false &&
           hasViolation(wrongBeat, "type", "$input.beat"),
       ],
@@ -98,14 +116,16 @@ export const test_film_perform_shot_blocked = (): void => {
     { refused: true, violated: true },
   );
 
-  const wrongDuration = run(makeBlockingWrite({ duration: 3 }));
+  const wrongDuration: IAutoMoviePerformedShot = run(
+    makeBlockingWrite({ duration: 3 }),
+  );
   TestValidator.equals(
     "duration mismatch rejected",
     namedFacts([
-      ["refused", () => wrongDuration.success === false],
+      ["refused", (): boolean => wrongDuration.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           wrongDuration.success === false &&
           hasViolation(wrongDuration, "range", "$input.duration"),
       ],
@@ -113,7 +133,7 @@ export const test_film_perform_shot_blocked = (): void => {
     { refused: true, violated: true },
   );
 
-  const dropped = run(
+  const dropped: IAutoMoviePerformedShot = run(
     makeBlockingWrite({
       actors: [
         {
@@ -127,13 +147,13 @@ export const test_film_perform_shot_blocked = (): void => {
   TestValidator.equals(
     "uncovered anchor rejected with its cue",
     namedFacts([
-      ["refused", () => dropped.success === false],
+      ["refused", (): boolean => dropped.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           dropped.success === false &&
           dropped.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.kind === "range" && String(v.expected).includes("the flinch"),
           ),
       ],
@@ -141,7 +161,7 @@ export const test_film_perform_shot_blocked = (): void => {
     { refused: true, violated: true },
   );
 
-  const wrongCamera = run(
+  const wrongCamera: IAutoMoviePerformedShot = run(
     makeBlockingWrite({
       camera: {
         framing: "close",
@@ -153,16 +173,16 @@ export const test_film_perform_shot_blocked = (): void => {
   TestValidator.equals(
     "camera intent mismatch rejected on framing and move",
     namedFacts([
-      ["wrongCameraSuccess", () => wrongCamera.success === false],
+      ["wrongCameraSuccess", (): boolean => wrongCamera.success === false],
       [
         "hasViolationWrongCameraType",
-        () =>
+        (): boolean =>
           wrongCamera.success === false &&
           hasViolation(wrongCamera, "type", "$input.draft[2].framing"),
       ],
       [
         "hasViolationWrongCameraType2",
-        () =>
+        (): boolean =>
           wrongCamera.success === false &&
           hasViolation(wrongCamera, "type", "$input.draft[2].move"),
       ],
@@ -174,7 +194,7 @@ export const test_film_perform_shot_blocked = (): void => {
     },
   );
 
-  const unframed = run(
+  const unframed: IAutoMoviePerformedShot = run(
     makeBlockingWrite({
       camera: {
         framing: "medium",
@@ -183,27 +203,42 @@ export const test_film_perform_shot_blocked = (): void => {
       },
     }),
     makePerformanceWrite({
-      draft: makePerformanceWrite().draft.filter((a) => a.verb !== "frame"),
+      draft: makePerformanceWrite().draft.filter(
+        (
+          a: IAutoMovieActionCall,
+        ): a is
+          | IAutoMovieLocomoteAction
+          | IAutoMovieGestureAction
+          | IAutoMovieReachAction
+          | IAutoMovieLookAtAction
+          | IAutoMovieAttachAction
+          | IAutoMovieLaunchAction
+          | IAutoMovieReactAction
+          | IAutoMovieEmoteAction
+          | IAutoMovieHoldAction
+          | IAutoMovieEnactAction => a.verb !== "frame",
+      ),
       revise: { review: "unchanged.", final: null },
     }),
   );
   TestValidator.equals(
     "unauthored camera move rejected",
     namedFacts([
-      ["refused", () => unframed.success === false],
+      ["refused", (): boolean => unframed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           unframed.success === false &&
-          unframed.violations.some((v) =>
-            String(v.expected).includes('asks for a "follow" camera'),
+          unframed.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              String(v.expected).includes('asks for a "follow" camera'),
           ),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const malformedActor = run(
+  const malformedActor: IAutoMoviePerformedShot = run(
     makeBlockingWrite(),
     makePerformanceWrite({
       draft: [
@@ -222,14 +257,14 @@ export const test_film_perform_shot_blocked = (): void => {
   TestValidator.equals(
     "blocked malformed actor rejected",
     namedFacts([
-      ["refused", () => malformedActor.success === false],
+      ["refused", (): boolean => malformedActor.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           malformedActor.success === false &&
           hasViolation(malformedActor, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

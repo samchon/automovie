@@ -39,18 +39,15 @@
     ]
   },
   "include": [
-    "lint.config.ts",
     "src"
   ],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "viewer": "ttsx -P package.json src/viewer/server.cts",
-    "self-check": "tsx src/review/self-check.cts",
+    "viewer": "ttsx -P package.json src/viewer/server.ts",
+    "self-check": "tsx src/review/self-check.ts",
     "test": "tsx --test src/review/tests/*.test.ts",
-    "audit": "tsx src/review/audit-all.cts",
-    "evidence": "evidence --config lint.config.ts && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "audit": "tsx src/review/audit-all.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -59,12 +56,10 @@
     "@automovie/human": "workspace:^",
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
-    "@automovie/production": "workspace:^",
     "@automovie/render": "workspace:^",
     "three": "catalog:three"
   },
   "devDependencies": {
-    "@automovie/evidence": "workspace:^",
     "@automovie/template": "workspace:^",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "^22.19.17",
@@ -72,8 +67,6 @@
     "ttsc": "catalog:samchon",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon",
     "vite": "catalog:vite"
   }
 }

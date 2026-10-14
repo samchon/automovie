@@ -1,15 +1,27 @@
-import { forgeProp, placementChildNode, sceneToNodes } from "@automovie/engine";
-import { IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieNode,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+import { placementChildNode } from "../../../../packages/engine/src/resolve/placementChildNode";
+import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { hasViolation, namedFacts } from "../internal/predicates";
-import { createDoorPropSpec } from "./test_film_forge_prop";
 
-/** The door spec with `mutate` applied to its articulation node list. */
-const withNodes = (
+/**
+ * Apply an authored mutation to a fresh door's articulation node list.
+ *
+ * The owning test chooses node indexes and panel/sash identities independently
+ * of forge output. The copied list retains the fixture's original order.
+ */
+function withNodes(
   mutate: (nodes: IAutoMovieNode[]) => IAutoMovieNode[],
-): IAutoMoviePropSpec => {
-  const spec = createDoorPropSpec();
+): IAutoMoviePropSpec {
+  const spec: IAutoMoviePropSpec = createDoorPropSpec();
   return {
     ...spec,
     articulation: {
@@ -17,13 +29,22 @@ const withNodes = (
       nodes: mutate([...spec.articulation!.nodes]),
     },
   };
-};
+}
 
-/** Give the joint at `index` the mesh `part`. */
-const drives = (index: number, part: string): IAutoMoviePropSpec =>
-  withNodes((nodes) =>
-    nodes.map((node, i) => (i === index ? { ...node, mesh: part } : node)),
+/**
+ * Give one authored joint index the requested mesh reference.
+ *
+ * Index one is the fixture hinge; panel is declared and sash is absent. The
+ * owning test asserts admission and lowering of the resulting authored inputs.
+ */
+function drives(index: number, part: string): IAutoMoviePropSpec {
+  return withNodes((nodes: IAutoMovieNode[]): IAutoMovieNode[] =>
+    nodes.map(
+      (node: IAutoMovieNode, i: number): IAutoMovieNode =>
+        i === index ? { ...node, mesh: part } : node,
+    ),
   );
+}
 
 /**
  * A prop joint may name the part it drives, and `forgeProp` holds that name to
@@ -42,20 +63,25 @@ const drives = (index: number, part: string): IAutoMoviePropSpec =>
  *    id of that joint is the placement child `sceneToNodes` writes.
  * 2. A joint naming a part the model does not declare is a `type` violation at
  *    that joint's own `mesh` path, and no other joint is blamed.
- * 3. Two joints claiming one part violate at the SECOND claim, naming the first; a
+ * 3. Two joints claiming one part violate at the second claim, naming the first; a
  *    part rides one frame.
  * 4. Every joint leaving `mesh` null still forges, which is the contract every
  *    prop authored before the reference existed was written against.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Forges joint-to-part references and observes sceneToNodes output; accepted panel identity, missing-part paths and second-claim diagnostics catch invisible or multiply-owned articulated parts.
+ * @evidence contracts/testing.md#independent-expectations The authored model contains exactly one panel part; one joint may claim it, an absent sash cannot be claimed and a second claim must name the first. Expected placement/hinge identity follows the placement child naming contract, with no sampled render or geometry oracle implied.
+ * @evidence contracts/testing.md#distinguishing-cases Covers valid ownership, unknown mesh, duplicate ownership and the adjacent all-null legacy joint case; exact one-error counting checks that an unrelated joint is not blamed. Numeric travel, binding and hierarchy defects belong to the other forge tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test owns four in-memory forge/lowering cases and reaches portable engine source without a process, browser or asset installation.
  */
-export const test_film_forge_prop_articulation_mesh = (): void => {
-  const driven = drives(1, "panel");
-  const forged = forgeProp(driven);
+export function test_film_forge_prop_articulation_mesh(): void {
+  const driven: IAutoMoviePropSpec = drives(1, "panel");
+  const forged: IAutoMovieForgedProp = forgeProp(driven);
   TestValidator.equals(
     "a hinge driving a declared part forges",
     forged.success,
     true,
   );
-  const lowered = sceneToNodes({
+  const lowered: IAutoMovieNode[] = sceneToNodes({
     scene: {
       id: "hall",
       name: null,
@@ -80,12 +106,12 @@ export const test_film_forge_prop_articulation_mesh = (): void => {
   TestValidator.equals(
     "the driving joint lowers under the placement, carrying its part",
     lowered
-      .filter((node) => node.mesh !== null)
-      .map((node) => [node.id, node.mesh]),
+      .filter((node: IAutoMovieNode): boolean => node.mesh !== null)
+      .map((node: IAutoMovieNode): (string | null)[] => [node.id, node.mesh]),
     [[placementChildNode("frontDoor", "hinge"), "panel"]],
   );
 
-  const unknown = forgeProp(drives(1, "sash"));
+  const unknown: IAutoMovieForgedProp = forgeProp(drives(1, "sash"));
   TestValidator.predicate(
     "a joint driving a part the model does not declare violates",
     hasViolation(unknown, "type", "$input.articulation.nodes[1].mesh"),
@@ -93,17 +119,19 @@ export const test_film_forge_prop_articulation_mesh = (): void => {
   TestValidator.equals(
     "only the joint that named it is blamed",
     unknown.success === false
-      ? unknown.violations.filter((violation) =>
-          violation.path.endsWith(".mesh"),
+      ? unknown.violations.filter(
+          (violation: IAutoMovieConstraintViolation): boolean =>
+            violation.path.endsWith(".mesh"),
         ).length
       : 0,
     1,
   );
 
-  const twice = forgeProp(
-    withNodes((nodes) =>
-      nodes.map((node, i) =>
-        i === 1 || i === 2 ? { ...node, mesh: "panel" } : node,
+  const twice: IAutoMovieForgedProp = forgeProp(
+    withNodes((nodes: IAutoMovieNode[]): IAutoMovieNode[] =>
+      nodes.map(
+        (node: IAutoMovieNode, i: number): IAutoMovieNode =>
+          i === 1 || i === 2 ? { ...node, mesh: "panel" } : node,
       ),
     ),
   );
@@ -114,13 +142,14 @@ export const test_film_forge_prop_articulation_mesh = (): void => {
   TestValidator.equals(
     "the refusal names the joint that claimed it first",
     namedFacts([
-      ["refused", () => twice.success === false],
+      ["refused", (): boolean => twice.success === false],
       [
         "namesFirstClaim",
-        () =>
+        (): boolean =>
           twice.success === false &&
-          twice.violations.some((violation) =>
-            violation.expected.includes("$input.articulation.nodes[1]"),
+          twice.violations.some(
+            (violation: IAutoMovieConstraintViolation): boolean =>
+              violation.expected.includes("$input.articulation.nodes[1]"),
           ),
       ],
     ]),
@@ -132,4 +161,4 @@ export const test_film_forge_prop_articulation_mesh = (): void => {
     forgeProp(createDoorPropSpec()).success,
     true,
   );
-};
+}

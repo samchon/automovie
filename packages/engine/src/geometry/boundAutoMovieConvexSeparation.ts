@@ -1,14 +1,16 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IAutoMovieClosestSegmentPoints } from "../math/IAutoMovieClosestSegmentPoints";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 
 /**
- * A conservative separation of the convex hulls of nonempty finite XYZ vertex runs.
- * Points, closed segments, filled triangles and convex cells are measured,
- * including degenerate hulls. Coordinates are represented binary64 metres; vectors and arrays
- * remain caller-owned and the scalar result owns no mutable snapshot.
+ * A conservative separation of the convex hulls of nonempty finite XYZ vertex
+ * runs. Points, closed segments, filled triangles and convex cells are
+ * measured, including degenerate hulls. Coordinates are represented binary64
+ * metres; vectors and arrays remain caller-owned and the scalar result owns no
+ * mutable snapshot.
  *
  * For any nonzero stored direction d, every convex combination has a projection
  * between its vertices' extrema. A positive projection gap divided by |d| is
@@ -17,27 +19,35 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
  * adjacent binary64 numbers. The direction's norm uses an upper enclosure.
  * No fixed spatial tolerance or approximate closest distance can create PASS.
  * Input coordinates and differences must admit finite enclosing arithmetic;
- * overflow refuses instead of returning an unqualified separation.
+ * overflow throws instead of returning an unqualified separation, as do an
+ * empty run, a non-finite coordinate and a negative or NaN `sufficient`.
  *
- * Candidate directions are all vertex-triple normals, the origin displacement, and
- * closest edge-pair witness displacements from the shared segment kernel.
- * Approximate witnesses only choose directions: even a poor direction retains
- * the projection proof. Zero means touching, intersecting, or unresolved; it
- * does not assert an intersection. This is neither signed side classification
- * nor a complete contact-manifold query. In particular a triangle containing
- * an allowed attachment point still receives zero when another part crosses.
+ * Candidate directions are every vertex-triple normal, `b`'s first, then the
+ * displacement between the two first vertices, then the closest-point
+ * displacement of every vertex pair of `a` against every vertex pair of `b`,
+ * taken from the shared segment kernel. Approximate witnesses only choose
+ * directions: even a poor direction retains the projection proof. Zero means
+ * touching, intersecting, or unresolved; it does not assert an intersection.
+ * This is neither signed side classification nor a complete contact-manifold
+ * query. In particular a triangle containing an allowed attachment point still
+ * receives zero when another part crosses.
  *
- * `sufficient` stops once a direction already proves that nonnegative requested
- * separation. The returned bound can then be weaker than another direction's;
- * omitted/infinite sufficient examines all directions. This cost control changes
- * no admission: callers accept only lowerBound >= their requested separation.
- * `spend` is an optional caller-owned work counter, invoked before each axis
- * normal triple, projection axis and edge-pair calculation; the resident mesh query always supplies its budget.
- * Triple and pair enumeration costs grow with the convex input vertex count.
- * The resident mesh separation query consumes this owner for whole features.
+ * `sufficient` stops once a direction already proves that nonnegative
+ * requested separation. The returned bound can then be weaker than another
+ * direction's; omitted or infinite `sufficient` examines all directions. This
+ * cost control changes no admission: callers accept only a bound at least
+ * their requested separation. `spend` is an optional caller-owned work
+ * counter, invoked before each normal triple, each projection axis and each
+ * pair calculation; the resident mesh separation query always supplies its
+ * budget and passes its resident triangle as `b`.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Bounds separation of complete resident convex features without replacing their interiors by sampled corners.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves point, segment and triangle coordinates and qualifies their separation through outward-enclosed support projections.
+ * @evidence contracts/common.md#principled-implementation The separating-axis bound by Cauchy-Schwarz over outward-rounded projection intervals, owned by `boundAutoMovieProjectionSeparation`; candidate axes are face normals of vertex triples, scaled by their largest coordinate difference so the cross product cannot overflow needlessly, plus closest-pair displacements, and since any nonzero axis gives a valid bound, the rounding of a proposal never weakens the proof.
+ * @evidence contracts/common.md#clear-and-simple-design This function only proposes directions and keeps the best bound; projection arithmetic lives in `boundAutoMovieProjectionSeparation` and closest pairs in `closestPointsBetweenSegments`, so the separation query, attachment contact and this bound share one enclosure owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance, sampled distance or nearest corner turns a touch into a pass, and the resident triangle's normal is tried first only because it is the cheapest likely proof, which changes cost and never the admitted answer.
+ * @evidence contracts/common.md#meaningful-documentation States the admitted hulls, the units and ownership, why the bound is sound, every refusal, the candidate order, what zero does not mean, the early-stop contract of `sufficient`, and what `spend` is charged for.
+ * @evidence contracts/performance.md#efficient-algorithms For vertex counts n and m, triples cost C(n,3) + C(m,3) directions and pairs C(n,2) times C(m,2) closest-point solves, each followed by an O(n + m) projection, so the worst case is quartic in the larger run; features are three-vertex fans or short shaft rings, the resident run is one triangle whose single normal usually proves the target first, and `spend` lets the caller cap the total.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two runs; the separation query reuses its compiled triangles across calls, and verdict reuse belongs to the ribbon fit.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates only short-lived direction vectors and closest-point records per candidate and keeps one running scalar; nothing outlives the call, which returns a number.
  * @author Samchon
  */
 export function boundAutoMovieConvexSeparation(
@@ -49,16 +59,14 @@ export function boundAutoMovieConvexSeparation(
   if (
     a.length < 1 ||
     b.length < 1 ||
-    ![...a, ...b].every(
-      (p) =>
-        p !== undefined && p !== null && [p.x, p.y, p.z].every(Number.isFinite),
-    ) ||
+    !isFiniteRun(a) ||
+    !isFiniteRun(b) ||
     !(sufficient >= 0)
   )
     throw new Error(
       "Convex separation requires nonempty finite vertex runs and a nonnegative target.",
     );
-  let best = 0;
+  let best: number = 0;
   const offer = (raw: IAutoMovieVector3): boolean => {
     spend?.();
     best = Math.max(best, boundAutoMovieProjectionSeparation(a, b, raw));
@@ -69,52 +77,90 @@ export function boundAutoMovieConvexSeparation(
   // Resident queries pass their triangle as b; its one face normal is the
   // inexpensive direction most likely to prove a nearby exterior patch.
   for (const vertices of [b, a])
-    for (let i = 0; i < vertices.length - 2; i++)
-      for (let j = i + 1; j < vertices.length - 1; j++)
-        for (let k = j + 1; k < vertices.length; k++) {
+    for (let i: number = 0; i < vertices.length - 2; i++)
+      for (let j: number = i + 1; j < vertices.length - 1; j++)
+        for (let k: number = j + 1; k < vertices.length; k++) {
           spend?.();
-          const u = Vector3.subtract(vertices[j], vertices[i]);
-          const v = Vector3.subtract(vertices[k], vertices[i]);
-          const scale = Math.max(
-            ...[u, v].flatMap((p) => [
-              Math.abs(p.x),
-              Math.abs(p.y),
-              Math.abs(p.z),
-            ]),
+          const u: IAutoMovieVector3 = Vector3.subtract(
+            vertices[j]!,
+            vertices[i]!,
+          );
+          const v: IAutoMovieVector3 = Vector3.subtract(
+            vertices[k]!,
+            vertices[i]!,
+          );
+          const scale: number = Math.max(
+            Math.abs(u.x),
+            Math.abs(u.y),
+            Math.abs(u.z),
+            Math.abs(v.x),
+            Math.abs(v.y),
+            Math.abs(v.z),
           );
           if (!Number.isFinite(scale))
             throw new Error(
               "Convex separation requires finite face differences.",
             );
-          const scaled = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-            x: p.x / scale,
-            y: p.y / scale,
-            z: p.z / scale,
-          });
-          if (scale > 0 && offer(Vector3.cross(scaled(u), scaled(v))))
+          if (
+            scale > 0 &&
+            offer(Vector3.cross(divideVector(u, scale), divideVector(v, scale)))
+          )
             return best;
         }
-  if (offer(Vector3.subtract(a[0], b[0]))) return best;
-  const edges = (
-    vertices: readonly IAutoMovieVector3[],
-  ): IAutoMovieVector3[][] => {
-    const result: IAutoMovieVector3[][] = [];
-    if (vertices.length === 1) return [[vertices[0], vertices[0]]];
-    for (let i = 0; i < vertices.length - 1; i++)
-      for (let j = i + 1; j < vertices.length; j++)
-        result.push([vertices[i], vertices[j]]);
-    return result;
-  };
-  for (const first of edges(a))
-    for (const second of edges(b)) {
+  if (offer(Vector3.subtract(a[0]!, b[0]!))) return best;
+  const aPairs: [number, number][] = vertexPairs(a.length);
+  const bPairs: [number, number][] = vertexPairs(b.length);
+  for (const [p, q] of aPairs)
+    for (const [r, s] of bPairs) {
       spend?.();
-      const hit = closestPointsBetweenSegments(
-        first[0],
-        first[1],
-        second[0],
-        second[1],
+      const hit: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
+        a[p]!,
+        a[q]!,
+        b[r]!,
+        b[s]!,
       );
       if (offer(Vector3.subtract(hit.pointA, hit.pointB))) return best;
     }
   return best;
 }
+
+/**
+ * Whether every slot of a run, holes included, holds a vertex with three
+ * finite coordinates.
+ */
+const isFiniteRun = (run: readonly IAutoMovieVector3[]): boolean => {
+  for (let index: number = 0; index < run.length; index++) {
+    const point: IAutoMovieVector3 | undefined | null = run[index];
+    if (
+      point === undefined ||
+      point === null ||
+      !Number.isFinite(point.x) ||
+      !Number.isFinite(point.y) ||
+      !Number.isFinite(point.z)
+    )
+      return false;
+  }
+  return true;
+};
+
+/** A vector divided componentwise by a positive scalar. */
+const divideVector = (
+  vector: IAutoMovieVector3,
+  scale: number,
+): IAutoMovieVector3 => ({
+  x: vector.x / scale,
+  y: vector.y / scale,
+  z: vector.z / scale,
+});
+
+/**
+ * Every vertex pair `(i, j)` with `i < j` of a run of `count` vertices, in
+ * nested-loop order; a one-vertex run is its own zero-length pair `(0, 0)`.
+ */
+const vertexPairs = (count: number): [number, number][] => {
+  if (count === 1) return [[0, 0]];
+  const pairs: [number, number][] = [];
+  for (let i: number = 0; i < count - 1; i++)
+    for (let j: number = i + 1; j < count; j++) pairs.push([i, j]);
+  return pairs;
+};

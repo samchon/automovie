@@ -1,4 +1,4 @@
-/** Fixed fireplace insert and mantel from docs/models/11-living.md. */
+/** Fixed fireplace insert and mantel */
 import { FittingParts, type FittingBuilt, type FittingPoint } from "./geometry";
 
 type XY = readonly [number,number];

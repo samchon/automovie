@@ -13,7 +13,9 @@ import {
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const endActor = (node: string): IAutoMovieBeatEndActorState => ({
+const endActor: (node: string) => IAutoMovieBeatEndActorState = (
+  node: string,
+): IAutoMovieBeatEndActorState => ({
   node,
   transform: IDENTITY_TRANSFORM,
   facing: { x: 0, y: 0, z: 1 },
@@ -26,7 +28,9 @@ const endActor = (node: string): IAutoMovieBeatEndActorState => ({
   mount: null,
 });
 
-const endState = (nodes: string[]): IAutoMovieBeatEndState => ({
+const endState: (nodes: string[]) => IAutoMovieBeatEndState = (
+  nodes: string[],
+): IAutoMovieBeatEndState => ({
   beat: "beat-0",
   shot: "shot:beat-0",
   actors: nodes.map(endActor),
@@ -49,13 +53,21 @@ const endState = (nodes: string[]): IAutoMovieBeatEndState => ({
  *    `$previous.actors[i].node`.
  * 4. The same actor carried twice → duplication violation.
  * 5. An empty carried node id → non-empty-id violation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls blockBeat with valid, omitted, unplaced, duplicate and blank prior actor states, checking successful state identity or null and located type refusals, catching lost continuity ownership or an invalid carried actor admitted to a staged beat.
+ * @evidence contracts/testing.md#independent-expectations The existing stage places knightA and knightB only, so ghost and a blank id are invalid and two knightA entries collide. A valid previous state must be returned by its supplied object identity, while omission means null; no product snapshot generates these expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the five numbered cases: complete valid pair, absent previous state, one unplaced actor, repeated actor and whitespace identity; pose and velocity derivation are owned by resolveBeatEnd tests rather than this referential gate.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_previous entry owns every literal prior state and direct portable blocking call after one existing staging prerequisite, with no installation, native artifact, process or rendering host.
  */
-export const test_film_block_beat_previous = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_block_beat_previous(): void {
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const previous = endState(["knightA", "knightB"]);
-  const resumed = blockBeat(
+  const previous: IAutoMovieBeatEndState = endState(["knightA", "knightB"]);
+  const resumed: ReturnType<typeof blockBeat> = blockBeat(
     makeScriptWrite(),
     staged,
     makeBlockingWrite(),
@@ -63,14 +75,21 @@ export const test_film_block_beat_previous = (): void => {
   );
   TestValidator.equals("valid prior state passes", resumed.success, true);
   if (resumed.success === true)
-    TestValidator.equals("prior state surfaced", resumed.previous, previous);
+    TestValidator.predicate(
+      "prior state surfaced by identity",
+      resumed.previous === previous,
+    );
 
-  const first = blockBeat(makeScriptWrite(), staged, makeBlockingWrite());
+  const first: ReturnType<typeof blockBeat> = blockBeat(
+    makeScriptWrite(),
+    staged,
+    makeBlockingWrite(),
+  );
   TestValidator.equals("first beat passes", first.success, true);
   if (first.success === true)
     TestValidator.equals("first beat has no prior state", first.previous, null);
 
-  const ghost = blockBeat(
+  const ghost: ReturnType<typeof blockBeat> = blockBeat(
     makeScriptWrite(),
     staged,
     makeBlockingWrite(),
@@ -82,7 +101,7 @@ export const test_film_block_beat_previous = (): void => {
     hasViolation(ghost, "type", "$previous.actors[1].node"),
   );
 
-  const doubled = blockBeat(
+  const doubled: ReturnType<typeof blockBeat> = blockBeat(
     makeScriptWrite(),
     staged,
     makeBlockingWrite(),
@@ -98,7 +117,7 @@ export const test_film_block_beat_previous = (): void => {
     hasViolation(doubled, "type", "$previous.actors[1].node"),
   );
 
-  const unnamed = blockBeat(
+  const unnamed: ReturnType<typeof blockBeat> = blockBeat(
     makeScriptWrite(),
     staged,
     makeBlockingWrite(),
@@ -109,4 +128,4 @@ export const test_film_block_beat_previous = (): void => {
     "violation on the empty carried node id",
     hasViolation(unnamed, "type", "$previous.actors[0].node"),
   );
-};
+}

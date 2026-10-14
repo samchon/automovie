@@ -2,9 +2,18 @@ import {
   IAutoMovieRetargetHandContact,
   retargetHumanoidMotion,
 } from "@automovie/engine";
+import type {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { validationHasNoWarnings, vclose } from "../internal/predicates";
+import {
+  nclose,
+  validationHasNoWarnings,
+  vclose,
+} from "../internal/predicates";
 import {
   keyframeWorld,
   mapped,
@@ -12,6 +21,7 @@ import {
   rootShiftClip,
   withoutBones,
 } from "../internal/retargetRigs";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 const LEFT_ARM: Omit<IAutoMovieRetargetHandContact, "start" | "end"> = {
   hand: "leftHand",
@@ -20,24 +30,15 @@ const LEFT_ARM: Omit<IAutoMovieRetargetHandContact, "start" | "end"> = {
 };
 
 /**
- * A hand contact is preserved only where the caller declares it, because a hand
- * has no ground to be judged against.
+ * Observe caller-declared hand contact at existing key times, against undeclared and between-key windows. Ground inference is limited to the default feet; hand pins require explicit chain/window data in this API.
  *
- * A foot's contact is inferable: it is the effector sitting on the ground
- * plane. A hand resting on a table, braced on a wall, or gripping a partner is
- * geometrically indistinguishable from a hand in the air, so inferring one
- * would be a guess. The retarget therefore pins a hand only across a declared
- * window, and leaves every other frame's arm exactly as authored.
+ * The pass applies inclusive hand windows to authored key times rather than inserting a continuous contact clock. No table, wall or partner geometry is inspected by these numeric cases.
  *
- * The target rig differs from the source only in arm length (1.3x), so the leg
- * contacts stay proportional and every observed change is the arm's.
+ * The unchanged target scales arm offsets by 1.3 while retaining the leg/torso offsets. Its root scale remains one, isolating the authored arm-contact comparison.
  *
  * Scenarios:
  *
- * 1. Without a declaration, the 1.3x arm carries its angles verbatim and the left
- *    hand misses the mapped source contact by the full rest-length difference:
- *    0.2177, the hand-derived distance between (0.923, 1.645, 0) and (0.71,
- *    1.6, 0).
+ * 1. Without a declaration, the left hand matches authored target rest position (0.923,1.645,0) and fails the source-position componentwise vclose tolerance 0.2; exact Euclidean miss is not asserted.
  * 2. Declaring the left-arm chain over the whole clip pins the hand back onto the
  *    mapped source contact within 0.005, on both keyframes, with no
  *    plausibility warning.
@@ -46,20 +47,31 @@ const LEFT_ARM: Omit<IAutoMovieRetargetHandContact, "start" | "end"> = {
  *    inclusive tests against real keyframe times, not a hint.
  * 4. A declaration naming bones the target rig does not have is skipped rather
  *    than half-solved, and the retarget still succeeds.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the undeclared longer-arm hand position and miss, declares a full-clip left-hand window and checks achieved contacts at both keys without warnings, compares a between-key window to undeclared output, and observes successful omission of an absent right-arm chain.
+ * @evidence contracts/testing.md#independent-expectations Authored offsets give the literal target rest hand (0.923,1.645,0) and root scale 1; mapped source FK defines the existing pin target. The 0.2 negative-twin and 5e-3 contact tolerances are preserved. Shared FK is a consumer, and exact plain-record equality through test12ValuesClose eps0 bounds the between-key twin without asserting prototype/NaN/signed-zero identity.
+ * @evidence contracts/testing.md#distinguishing-cases Retains undeclared versus full [0,1] versus empty-at-keys [0.4,0.6] windows, both existing keys and an absent declared right-arm chain. Window validation, grounded feet and continuous interpolation are separate concerns.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all four retarget calls and fixture FK observations. Existing rig/comparison helpers register no extra cases and start no viewer, process or native artifact.
  */
-export const test_motion_retarget_contact_hands = (): void => {
-  const source = proportionedRig("hand-source");
-  const target = proportionedRig("long-arm-target", { arm: 1.3 });
-  const motion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+export function test_motion_retarget_contact_hands(): void {
+  const source: IAutoMovieSkeleton = proportionedRig("hand-source");
+  const target: IAutoMovieSkeleton = proportionedRig("long-arm-target", {
+    arm: 1.3,
+  });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
+  });
 
   // 1. undeclared: the arm keeps its angles and the hand lands elsewhere.
-  const undeclared = retargetHumanoidMotion({ motion, source, target });
+  const undeclared: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
   if (undeclared.motion === null || undeclared.characterization === null)
     throw new Error("undeclared hand retarget unexpectedly failed");
-  TestValidator.equals(
+  TestValidator.predicate(
     "an arm-only proportion change leaves the root scale at one",
-    undeclared.characterization.rootScale,
-    1,
+    nclose(undeclared.characterization.rootScale, 1, 0),
   );
   TestValidator.predicate(
     "the longer forearm puts the hand at its own rest position",
@@ -79,12 +91,13 @@ export const test_motion_retarget_contact_hands = (): void => {
   );
 
   // 2. declared over the whole clip: the hand holds the mapped contact.
-  const declared = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { hands: [{ ...LEFT_ARM, start: 0, end: 1 }] },
-  });
+  const declared: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { hands: [{ ...LEFT_ARM, start: 0, end: 1 }] },
+    });
   TestValidator.equals("declared hand retarget succeeds", declared.validation, {
     success: true,
   });
@@ -104,41 +117,42 @@ export const test_motion_retarget_contact_hands = (): void => {
   );
 
   // 3. a window between the keyframes pins nothing.
-  const between = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { hands: [{ ...LEFT_ARM, start: 0.4, end: 0.6 }] },
-  });
+  const between: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { hands: [{ ...LEFT_ARM, start: 0.4, end: 0.6 }] },
+    });
   if (between.motion === null) throw new Error("windowed retarget failed");
-  TestValidator.equals(
+  TestValidator.predicate(
     "a window covering no keyframe leaves the clip untouched",
-    between.motion,
-    undeclared.motion,
+    test12ValuesClose(between.motion, undeclared.motion),
   );
 
   // 4. a declaration the target rig cannot resolve is skipped.
-  const armless = withoutBones(target, [
+  const armless: IAutoMovieSkeleton = withoutBones(target, [
     "rightUpperArm",
     "rightLowerArm",
     "rightHand",
   ]);
-  const skipped = retargetHumanoidMotion({
-    motion,
-    source,
-    target: armless,
-    contacts: {
-      hands: [
-        {
-          hand: "rightHand",
-          upper: "rightUpperArm",
-          lower: "rightLowerArm",
-          start: 0,
-          end: 1,
-        },
-      ],
-    },
-  });
+  const skipped: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target: armless,
+      contacts: {
+        hands: [
+          {
+            hand: "rightHand",
+            upper: "rightUpperArm",
+            lower: "rightLowerArm",
+            start: 0,
+            end: 1,
+          },
+        ],
+      },
+    });
   TestValidator.equals(
     "a declaration naming absent bones still succeeds",
     skipped.validation,
@@ -147,7 +161,9 @@ export const test_motion_retarget_contact_hands = (): void => {
   if (skipped.motion === null) throw new Error("skipped retarget failed");
   TestValidator.equals(
     "the unresolvable chain contributes no correction",
-    skipped.motion.keyframes.map((kf) => kf.pose.joints.length),
+    skipped.motion.keyframes.map(
+      (kf: IAutoMovieKeyframe): number => kf.pose.joints.length,
+    ),
     [0, 0],
   );
-};
+}

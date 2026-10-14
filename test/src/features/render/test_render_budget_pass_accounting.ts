@@ -1,10 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { BOX_TRIANGLES } from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * A pass-only public inventory retains its cost without inventing an editable resource.
@@ -12,15 +13,22 @@ import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRende
  * Scenarios:
  *
  * 1. The outline pass is omitted from ranked contributors but remains in the complete overrun and recovery.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Evaluates a public inventory whose only triangle attribution is an outline pass, requiring over status, no editable contributors, one omitted contributor with its complete cost and recovery naming the pass without an invented edit destination.
+ * @evidence contracts/testing.md#independent-expectations The authored single pass costs BOX_TRIANGLES against a zero limit, so all cost exceeds the limit while none belongs to an editable scene resource. Literal count/status/recovery fragments distinguish accounting from actionable owner ranking.
+ * @evidence contracts/testing.md#distinguishing-cases Retains pass-only overrun, omitted contributor count/cost, missing editable-owner explanation and prohibition on false edit instructions. Mixed editable/pass populations and ranked truncation belong to overrun-owner and contributor-bound tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_pass_accounting owns synchronous portable report evaluation through the shared fixture seam; the outline pass is accounting data and no graphical pass or native host executes.
  */
-export const test_render_budget_pass_accounting = (): void => {
-  const target = renderBudgetTargetFixture();
-  const subject = renderBudgetSubjectFixture;
-  const budget = renderReportBudgetFixture();
+export function test_render_budget_pass_accounting(): void {
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
+  const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
-  const inventory = measure(subject());
+  const inventory: ReturnType<typeof measure> = measure(subject());
 
-  const passOnly = report(
+  const passOnly: ReturnType<typeof report>["findings"][number] = report(
     {
       ...inventory,
       totals: { ...inventory.totals, triangles: BOX_TRIANGLES },
@@ -37,7 +45,10 @@ export const test_render_budget_pass_accounting = (): void => {
     },
     { ...budget, limits: { ...budget.limits, triangles: 0 } },
     target,
-  ).findings.find((finding) => finding.metric === "triangles")!;
+  ).findings.find(
+    (finding: ReturnType<typeof report>["findings"][number]): boolean =>
+      finding.metric === "triangles",
+  )!;
 
   TestValidator.equals(
     "a pass-only boundary has accounting but no false edit destination",
@@ -64,4 +75,4 @@ export const test_render_budget_pass_accounting = (): void => {
       inventsEdit: false,
     },
   );
-};
+}

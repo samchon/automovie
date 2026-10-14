@@ -10,4 +10,4 @@ addEventListener("error", (event) => {
   parent.postMessage({ type: "human:error", error: "The viewport could not start: " +
     (event.message || (event.target && event.target.src) || "a module did not load") }, location.origin);
 }, true);
-</script><script type="module" src="/human-runtime/page.mts"></script></body></html>
+</script><script type="module" src="/human-runtime/page.ts"></script></body></html>

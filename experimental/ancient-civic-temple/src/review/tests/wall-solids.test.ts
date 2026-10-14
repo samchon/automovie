@@ -1,9 +1,12 @@
 /**
- * src/geometry/wall-solids.ts: 벽 host의 기둥 분해·면 분류·높이 윤곽 clip.
- * fixture: 평평한 윗면의 곧은 벽(볼록), 바닥까지 열린 문 void(관통 구멍), 창 void(벽 안 구멍),
- * 경사 지붕 하부를 따르는 윗면, 대각 맞댐 끝(사다리꼴 평면), 얇은 벽(1cm), 거부(구간 없음,
- * 지붕 덮임 부족, void 위 지붕 하부 부족), 윤곽 clip의 볼록·박공·경계 높이, 결정성.
- * 결과는 culling 뒤 T 접합 해소 기준으로 닫힌 실체여야 한다. 열린 경계는 정의역 밖이다.
+ * src/geometry/wall-solids.ts: wall-host column decomposition, face classification
+ * and height-outline clipping. Fixtures: straight flat-top walls (convex), door
+ * voids open to the floor (through holes), window voids (holes within walls),
+ * tops following sloping roof undersides, diagonal butt ends (trapezoidal plans),
+ * thin walls (1cm), refusals (missing intervals, insufficient roof coverage or
+ * roof undersides below voids), convex, gable and boundary-height outline clipping,
+ * and determinism. After culling and T-junction resolution the result must be
+ * closed; open boundaries are outside the domain.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -65,14 +68,14 @@ void test("mitred (trapezoid) plan end and a thin 1 cm wall stay closed", () => 
 });
 
 void test("refusals: uncovered length, roof not covering the column, void top above the roof underside", () => {
-  assert.throws(() => wallColumns(wall({ segments: [{ from: 0, to: 2, low: "i", high: "o", top: { kind: "flat", height: 3, surface: "s" } }] }), []), /구간이 없습니다/);
+  assert.throws(() => wallColumns(wall({ segments: [{ from: 0, to: 2, low: "i", high: "o", top: { kind: "flat", height: 3, surface: "s" } }] }), []), /no top or owner interval/);
   const roofSegment = [{ from: 0, to: 4, low: "i", high: "o", top: { kind: "roof" as const, tier: "wing" as const } }];
   const half: RoofPatch[] = [{
     id: "r", owner: "roof", surface: "s", tier: "wing", polygon: rectanglePolygon({ west: -1, east: 2, north: -1, south: 1 }),
     height: { x: 0, z: 0, constant: 3 }, thickness: 0.2,
   }];
-  assert.throws(() => wallColumns(wall({ segments: roofSegment }), half), /덮임/);
-  assert.throws(() => wallColumns(wall({ voids: [{ id: "tall", from: 1, to: 2, bottom: 0, top: 3.2 }] }), []), /낮습니다/);
+  assert.throws(() => wallColumns(wall({ segments: roofSegment }), half), /coverage/);
+  assert.throws(() => wallColumns(wall({ voids: [{ id: "tall", from: 1, to: 2, bottom: 0, top: 3.2 }] }), []), /is lower/);
 });
 
 void test("clipOutlineAtHeight: rectangle and gable outlines, and a height outside the outline", () => {
@@ -83,7 +86,7 @@ void test("clipOutlineAtHeight: rectangle and gable outlines, and a height outsi
   const gable = [{ x: 0, y: 0 }, { x: 4, y: 0 }, { x: 4, y: 3 }, { x: 2, y: 5 }, { x: 0, y: 3 }];
   near(area(clipOutlineAtHeight(gable, 3, "below")) + area(clipOutlineAtHeight(gable, 3, "above")), area(gable));
   near(area(clipOutlineAtHeight(gable, 4, "above")), 1);
-  assert.throws(() => clipOutlineAtHeight(rectangle, 6, "above"), /남지 않습니다/);
+  assert.throws(() => clipOutlineAtHeight(rectangle, 6, "above"), /no outline remains/);
   assert.equal(clipOutlineAtHeight(rectangle, 5, "below").length, 4, "clip on the top edge keeps the outline");
 });
 
@@ -113,7 +116,7 @@ void test("sloped split handles a concave host, a thin band, edge contact and ab
   const thin = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 0.001 }, { x: 0, y: 0.001 }];
   assert.equal(clipOutlineAtLine(thin, 0, 0.0005, "above").length, 4);
   assert.equal(clipOutlineAtLine(thin, 0, 0.001, "below").length, 4);
-  assert.throws(() => clipOutlineAtLine(thin, 0, 0.002, "above"), /남지 않습니다/);
-  assert.throws(() => clipOutlineAtLine(thin.slice(0, 2), 0, 0.001, "below"), /닫힌 유한/);
-  assert.throws(() => clipOutlineAtLine(thin, Number.NaN, 0.001, "below"), /닫힌 유한/);
+  assert.throws(() => clipOutlineAtLine(thin, 0, 0.002, "above"), /no outline remains/);
+  assert.throws(() => clipOutlineAtLine(thin.slice(0, 2), 0, 0.001, "below"), /closed finite/);
+  assert.throws(() => clipOutlineAtLine(thin, Number.NaN, 0.001, "below"), /closed finite/);
 });

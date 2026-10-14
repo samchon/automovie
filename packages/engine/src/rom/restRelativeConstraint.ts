@@ -6,10 +6,10 @@ import {
 import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 
-const assertAxisFrame = (
+const assertAxisFrame: (
   label: string,
   frame: IAutoMovieAxisFrame | undefined,
-): void => {
+) => void = (label: string, frame: IAutoMovieAxisFrame | undefined): void => {
   if (frame === undefined) return;
   if (frame.sign !== 1 && frame.sign !== -1)
     throw new Error(`${label} sign must be 1 or -1, but was ${frame.sign}`);
@@ -19,7 +19,11 @@ const assertAxisFrame = (
     );
 };
 
-const shift = (
+const shift: (
+  axis: keyof IAutoMovieRestFrame,
+  range: IAutoMovieAngleRange | null,
+  frame: IAutoMovieAxisFrame | undefined,
+) => IAutoMovieAngleRange | null = (
   axis: keyof IAutoMovieRestFrame,
   range: IAutoMovieAngleRange | null,
   frame: IAutoMovieAxisFrame | undefined,
@@ -28,32 +32,26 @@ const shift = (
   if (range === null) return null;
   if (frame === undefined) return range;
   // r = (clinical − neutral) / sign; a sign of −1 flips the interval, so sort.
-  const a = (range.min - frame.neutral) / frame.sign;
-  const b = (range.max - frame.neutral) / frame.sign;
+  const a: number = (range.min - frame.neutral) / frame.sign;
+  const b: number = (range.max - frame.neutral) / frame.sign;
   return { min: Math.min(a, b), max: Math.max(a, b) };
 };
 
 /**
- * Re-express a clinical {@link IAutoMovieJointConstraint} in a rig's
- * rest-relative pose space using its {@link IAutoMovieRestFrame}, so ROM
- * validation/clamping and the ROM overlay line up with how the rig actually
- * articulates, the reconciliation a physics joint does implicitly by defining
- * its limits in the joint's own reference frame.
+ * Convert clinical degree interval endpoints by (clinical - neutral) / sign and reorder mirrored bounds. Null axes remain immobile and absent frames retain range identity. swingDeg is carried as the existing rest-deviation policy; arbitrary neutral shifts do not prove clinical swing-metric invariance.
  *
- * The `swingDeg` cone half-angle carries through unchanged: it caps the
- * _combined_ swing away from rest (`2·acos(cos(flexion/2)·cos(abduction/2))`
- * over the pose angles the rig articulates), so it is a deviation magnitude the
- * rest frame's `sign`/`neutral` shift (which relocates each axis's origin, not
- * the scale of a deviation) leaves invariant. Dropping it here silenced the
- * ball-joint cone on exactly the bones that carry a rest frame (the shoulders),
- * since `validateJointRom`/`clampJointRom` gate the cone on `swingDeg !=
- * null`.
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Re-expresses clinical range limits in the joint's actual rest-relative frame.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Expresses effective ROM in the same rig basis used by articulation.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Invert sign/neutral on clinical interval endpoints and reorder mirrored bounds, retaining swingDeg as the existing rest-relative deviation-cap policy.
+ * @evidence contracts/common.md#clear-and-simple-design Interval conversion shares scalar frame meaning while preserving null axes and absent-frame range identity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid frame sign/neutral throws; unchanged swingDeg does not prove clinical two-axis metric invariance under arbitrary neutral shifts.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify degrees, endpoint ordering, null/undefined semantics and the cone policy without universal invariance claims.
+ * @evidence contracts/performance.md#efficient-algorithms Three fixed axis conversions allocate at most three intervals plus one constraint wrapper.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unchanged ranges/frames remain borrowed; changed bounds or rest convention requires new conversion.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns wrapper/new intervals and borrows unchanged clinical ranges; no registry, handle or task survives.
  */
-export const restRelativeConstraint = (
+export const restRelativeConstraint: (
+  clinical: IAutoMovieJointConstraint,
+  frame: IAutoMovieRestFrame,
+) => IAutoMovieJointConstraint = (
   clinical: IAutoMovieJointConstraint,
   frame: IAutoMovieRestFrame,
 ): IAutoMovieJointConstraint => ({

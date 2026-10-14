@@ -1,11 +1,27 @@
-import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render/node";
-import { NodeIO } from "@gltf-transform/core";
+import {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  Accessor,
+  Document,
+  GLTF,
+  Material,
+  NodeIO,
+  Primitive,
+  TypedArray,
+} from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
 import { nclose, vclose } from "../internal/predicates";
 
-const material = (
+const material: (
+  id: string,
+  opacity: number,
+  a: number | null,
+) => IAutoMovieMaterial = (
   id: string,
   opacity: number,
   a: number | null,
@@ -20,7 +36,9 @@ const material = (
   baseColorTexture: null,
 });
 
-const model = (over: Partial<IAutoMovieModel>): IAutoMovieModel => ({
+const model: (over: Partial<IAutoMovieModel>) => IAutoMovieModel = (
+  over: Partial<IAutoMovieModel>,
+): IAutoMovieModel => ({
   id: "fidelity",
   name: null,
   origin: "generated",
@@ -33,27 +51,23 @@ const model = (over: Partial<IAutoMovieModel>): IAutoMovieModel => ({
 });
 
 /**
- * Export fidelity against the LIVE viewer (#1088): what the viewer renders is
- * what the `.glb` must say.
+ * Static GLB material and normal conversion at the represented export fields; no live-viewer appearance is observed.
  *
  * Scenarios:
  *
- * 1. Opacity folds into the exported alpha: the viewer renders `material.opacity`
- *    and ignores `baseColor.a`, so `{opacity: 0.5, a: null}` (50% transparent
- *    live) must not export fully opaque. Exported alpha = `(a ?? 1) × opacity`;
- *    an authored `a` multiplies in; a fully opaque material stays alpha 1
- *    (negative twin).
- * 2. A mesh with `normals: null` and indices exports SMOOTH vertex normals, the
- *    same area-weighted accumulation the viewer's `computeVertexNormals`
- *    performs: a flat indexed quad exports (0,0,1) at every referenced vertex,
- *    and an unreferenced vertex keeps the zero normal (no NaN from the
- *    degenerate normalize).
- * 3. Negative twin: a non-indexed soup still omits NORMAL; glTF's mandated flat
- *    shading equals what the viewer computes for a soup.
+ * 1. Opacity folds into the exported alpha: the export multiplies authored alpha and `material.opacity`, so `{opacity: 0.5, a: null}` (declared half opacity) must not export fully opaque. Exported alpha = `(a ?? 1) × opacity`; an authored `a` multiplies in; a fully opaque material stays alpha 1 (negative twin).
+ * 2. A mesh with `normals: null` and indices exports smooth vertex normals, observed on the authored planar case: a flat indexed quad exports (0,0,1) at every referenced vertex, and an unreferenced vertex keeps the zero normal (no NaN from the degenerate normalize).
+ * 3. Negative twin: a non-indexed soup still omits NORMAL; the assertion checks the absent attribute and does not compare the resulting shading.
+ * 4. Alpha mode, cutoff and sidedness follow the represented export contract: an authored `mask` exports MASK with its cutoff, or 0.5 when omitted, an authored `opaque` stays OPAQUE below full opacity, the legacy derivation still gives BLEND below full opacity, and `doubleSided: true` exports a double-sided material while the default stays single-sided.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Parses exported material alpha, cutoff and sidedness and indexed smooth normals, detecting omitted opacity or incorrect normal generation without claiming full viewer equivalence.
+ * @evidence contracts/testing.md#independent-expectations Alpha follows the export contract (a or 1) times opacity; the current viewer uses opacity alone, so the authored-alpha case pins an acknowledged difference. A planar indexed quad independently has +Z normals and an unreferenced vertex has zero normal; NodeIO shares the export SDK, and no rendered pixels are compared.
+ * @evidence contracts/testing.md#distinguishing-cases Null and authored alpha, opaque and masked defaults, sidedness, indexed flat geometry, an unreferenced vertex and unindexed soup distinguish the represented fields. Textures, skin, curved normal weighting and visual appearance are outside these assertions.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_export_viewer_fidelity owns its cases. Portable SDK byte parsing and numeric assertions, despite the historical fidelity name; no viewer, browser or GPU is started.
  */
-export const test_render_export_viewer_fidelity = async (): Promise<void> => {
+export async function test_render_export_viewer_fidelity(): Promise<void> {
   // 1. opacity folds into the one alpha glTF has
-  const glb = await exportModelToGLB(
+  const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(
     model({
       materials: [
         material("ghost", 0.5, null),
@@ -62,12 +76,15 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
       ],
     }),
   );
-  const doc = await new NodeIO().readBinary(glb);
-  const alphas = new Map(
+  const doc: Document = await new NodeIO().readBinary(glb);
+  const alphas: Map<string, number> = new Map(
     doc
       .getRoot()
       .listMaterials()
-      .map((m) => [m.getName(), m.getBaseColorFactor()[3]]),
+      .map((m: Material): [string, number] => [
+        m.getName(),
+        m.getBaseColorFactor()[3],
+      ]),
   );
   TestValidator.predicate(
     "a null-alpha translucent material exports its opacity",
@@ -83,7 +100,7 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
   );
 
   // 2. indexed mesh without authored normals exports smooth vertex normals
-  const smooth = await exportModelToGLB(
+  const smooth: Uint8Array<ArrayBufferLike> = await exportModelToGLB(
     model({
       parts: [
         {
@@ -107,19 +124,26 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
       ],
     }),
   );
-  const smoothDoc = await new NodeIO().readBinary(smooth);
-  const prim = smoothDoc.getRoot().listMeshes()[0]!.listPrimitives()[0]!;
-  const normals = prim.getAttribute("NORMAL");
+  const smoothDoc: Document = await new NodeIO().readBinary(smooth);
+  const prim: Primitive = smoothDoc
+    .getRoot()
+    .listMeshes()[0]!
+    .listPrimitives()[0]!;
+  const normals: Accessor | null = prim.getAttribute("NORMAL");
   if (normals === null) throw new Error("indexed mesh must export NORMAL");
-  const array = normals.getArray()!;
-  const normalAt = (v: number) => ({
+  const array: TypedArray = normals.getArray()!;
+  const normalAt: (v: number) => IAutoMovieVector3 = (
+    v: number,
+  ): IAutoMovieVector3 => ({
     x: array[v * 3]!,
     y: array[v * 3 + 1]!,
     z: array[v * 3 + 2]!,
   });
   TestValidator.predicate(
     "every referenced vertex carries the smooth +Z normal",
-    [0, 1, 2, 3].every((v) => vclose(normalAt(v), { x: 0, y: 0, z: 1 })),
+    [0, 1, 2, 3].every((v: number): boolean =>
+      vclose(normalAt(v), { x: 0, y: 0, z: 1 }),
+    ),
   );
   TestValidator.predicate(
     "an unreferenced vertex keeps the zero normal, never NaN",
@@ -127,7 +151,7 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
   );
 
   // 3. negative twin: a non-indexed soup still omits NORMAL
-  const soup = await exportModelToGLB(
+  const soup: Uint8Array<ArrayBufferLike> = await exportModelToGLB(
     model({
       parts: [
         {
@@ -150,7 +174,7 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
       ],
     }),
   );
-  const soupDoc = await new NodeIO().readBinary(soup);
+  const soupDoc: Document = await new NodeIO().readBinary(soup);
   TestValidator.equals(
     "a non-indexed soup omits NORMAL (glTF flat = viewer flat)",
     soupDoc
@@ -160,4 +184,60 @@ export const test_render_export_viewer_fidelity = async (): Promise<void> => {
       .getAttribute("NORMAL"),
     null,
   );
-};
+
+  // 4. Observe exported alpha mode, cutoff and sidedness fields.
+  const surfaces: Document = await new NodeIO().readBinary(
+    await exportModelToGLB(
+      model({
+        materials: [
+          {
+            ...material("cutout", 1, null),
+            alphaMode: "mask",
+            alphaCutoff: 0.3,
+          },
+          { ...material("defaultCutout", 1, null), alphaMode: "mask" },
+          { ...material("forcedOpaque", 0.5, null), alphaMode: "opaque" },
+          material("legacyBlend", 0.5, null),
+          { ...material("twoSided", 1, null), doubleSided: true },
+          material("oneSided", 1, null),
+        ],
+      }),
+    ),
+  );
+  const exported: Map<string, Material> = new Map(
+    surfaces
+      .getRoot()
+      .listMaterials()
+      .map((m: Material): [string, Material] => [m.getName(), m]),
+  );
+  TestValidator.equals(
+    "alpha mode and sidedness match the viewer's material rule",
+    Object.fromEntries(
+      [...exported].map(
+        ([name, m]: [string, Material]): [
+          string,
+          { alphaMode: GLTF.MaterialAlphaMode; doubleSided: boolean },
+        ] => [
+          name,
+          { alphaMode: m.getAlphaMode(), doubleSided: m.getDoubleSided() },
+        ],
+      ),
+    ),
+    {
+      cutout: { alphaMode: "MASK", doubleSided: false },
+      defaultCutout: { alphaMode: "MASK", doubleSided: false },
+      forcedOpaque: { alphaMode: "OPAQUE", doubleSided: false },
+      legacyBlend: { alphaMode: "BLEND", doubleSided: false },
+      twoSided: { alphaMode: "OPAQUE", doubleSided: true },
+      oneSided: { alphaMode: "OPAQUE", doubleSided: false },
+    },
+  );
+  TestValidator.predicate(
+    "an authored mask cutoff is exported",
+    nclose(exported.get("cutout")!.getAlphaCutoff(), 0.3),
+  );
+  TestValidator.predicate(
+    "an omitted mask cutoff exports the viewer's 0.5",
+    nclose(exported.get("defaultCutout")!.getAlphaCutoff(), 0.5),
+  );
+}

@@ -18,7 +18,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-/** A line 100 m across and 20 m deep, its members half a meter wide. */
+/** A line 100 m across and 20 m deep, with a half-metre member radius. */
 const UNIT: IAutoMovieCompiledFormation = {
   version: 1,
   id: "line",
@@ -54,7 +54,7 @@ const UNIT: IAutoMovieCompiledFormation = {
  * supplied extent would raise the box to 1.7 or leave it flat, and either shows
  * up as a different number rather than as the same one.
  */
-const MEMBER = { min: 0.2, max: 2.4 };
+const MEMBER: { min: number; max: number } = { min: 0.2, max: 2.4 };
 
 /** The unit marches 500 m to its right over the first second. */
 const MARCH: IAutoMovieFormationMotion[] = [
@@ -78,7 +78,10 @@ const MARCH: IAutoMovieFormationMotion[] = [
   },
 ];
 
-const boxAt = (
+const boxAt: (
+  seconds: number,
+  motions?: IAutoMovieFormationMotion[],
+) => ReturnType<typeof formationSubjectBox> = (
   seconds: number,
   motions: IAutoMovieFormationMotion[] = [],
 ): ReturnType<typeof formationSubjectBox> =>
@@ -89,19 +92,25 @@ const boxAt = (
     seconds,
   });
 
-const HALF_Y = Math.tan((40 * Math.PI) / 360);
-const ASPECT = 16 / 9;
+const HALF_Y: number = Math.tan((40 * Math.PI) / 360);
+const ASPECT: number = 16 / 9;
 
 /** A camera at `position`, looking down world −Z (glTF identity). */
-const lens = (position: IAutoMovieVector3): IAutoMovieResolvedCamera => ({
+const lens: (position: IAutoMovieVector3) => IAutoMovieResolvedCamera = (
+  position: IAutoMovieVector3,
+): IAutoMovieResolvedCamera => ({
   position,
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 });
 
-const sees = (
+const sees: (
+  camera: IAutoMovieResolvedCamera,
+  box: ReturnType<typeof formationSubjectBox>,
+  far?: number,
+) => boolean = (
   camera: IAutoMovieResolvedCamera,
   box: { min: IAutoMovieVector3; max: IAutoMovieVector3 },
-  far = 200,
+  far: number = 200,
 ): boolean =>
   intersectsPerspectiveFrustumBox({
     camera,
@@ -114,7 +123,10 @@ const sees = (
   });
 
 /** The old check: a 1.7 m segment standing at the unit's centroid. */
-const seesCentroid = (camera: IAutoMovieResolvedCamera, far = 200): boolean =>
+const seesCentroid: (
+  camera: IAutoMovieResolvedCamera,
+  far?: number,
+) => boolean = (camera: IAutoMovieResolvedCamera, far: number = 200): boolean =>
   intersectsPerspectiveFrustumSegment({
     camera,
     from: UNIT.centroid,
@@ -158,8 +170,7 @@ const seesCentroid = (camera: IAutoMovieResolvedCamera, far = 200): boolean =>
  *    its centroid — 45 m off the lens axis — reports it absent. That gap IS the
  *    defect.
  * 4. A camera standing inside the line, seeing nothing but members, reads it too:
- *    no box edge enters so short a frustum, and only clipping the frustum's own
- *    edges against the box finds the overlap.
+ *    the short frustum intersects the box while the centroid segment does not.
  * 5. A camera pointed away from the unit still reads nothing, so widening the test
  *    did not make a formation unconditionally present.
  * 6. A cue moves the box: the unit that marched 500 m to its right is no longer
@@ -167,43 +178,68 @@ const seesCentroid = (camera: IAutoMovieResolvedCamera, far = 200): boolean =>
  *    under the cue playing at that instant.
  * 7. A group's box is the union of what its members occupy, so a node standing
  *    behind the line widens the same subject.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls formationSubjectBox, formationMemberExtent, framedBoxOf, unionSubjectBoxes, and the box/segment frustum predicates to observe a padded moving formation and its sampled readability without expanding its members.
+ * @evidence contracts/testing.md#independent-expectations The explicit slot bounds, half-metre radius, supplied 0.2..2.4 member span, 500 metre translation, and scout position determine the expected corners and horizontal diagonal. Fixed camera placements independently distinguish flank, interior, and away-facing intersections; missing-model height is checked against the public fallback contract.
+ * @evidence contracts/testing.md#distinguishing-cases A nonzero floor and nondefault height expose ignored member extents; flank and interior views distinguish a box from the centroid segment, the away-facing case prevents unconditional visibility, and the marched box must leave the rest camera's frustum.
+ * @evidence contracts/testing.md#execution-ownership Uses local compiled-formation and camera records with synchronous mathematical helpers; no formation compilation, real renderer, filesystem, clock, or dependency replacement is involved. The checks establish intersection, not complete enclosure or rendered pixels.
  */
-export const test_film_camera_formation_subject_extent = (): void => {
-  const rest = boxAt(0);
+export function test_film_camera_formation_subject_extent(): void {
+  const rest: ReturnType<typeof formationSubjectBox> = boxAt(0);
   TestValidator.equals(
     "the box is the unit's transformed bounds, padded and raised",
     namedFacts([
       // The unit's bounds are level at `y` of 0, so every vertical number below
       // is the member's own extent and nothing else could have supplied it.
-      ["min", () => vclose(rest.min, { x: -50.5, y: MEMBER.min, z: -0.5 })],
-      ["max", () => vclose(rest.max, { x: 50.5, y: MEMBER.max, z: 20.5 })],
+      [
+        "min",
+        (): boolean => vclose(rest.min, { x: -50.5, y: MEMBER.min, z: -0.5 }),
+      ],
+      [
+        "max",
+        (): boolean => vclose(rest.max, { x: 50.5, y: MEMBER.max, z: 20.5 }),
+      ],
       [
         "base",
-        () => vclose(framedBoxOf(rest).base, { x: 0, y: MEMBER.min, z: 10 }),
+        (): boolean =>
+          vclose(framedBoxOf(rest).base, { x: 0, y: MEMBER.min, z: 10 }),
       ],
       [
         "height",
-        () => nclose(framedBoxOf(rest).height, MEMBER.max - MEMBER.min),
+        (): boolean =>
+          nclose(framedBoxOf(rest).height, MEMBER.max - MEMBER.min),
       ],
       [
         "radius",
-        () => nclose(framedBoxOf(rest).radius, Math.hypot(101, 21) / 2),
+        (): boolean =>
+          nclose(framedBoxOf(rest).radius, Math.hypot(101, 21) / 2),
       ],
     ]),
     { min: true, max: true, base: true, height: true, radius: true },
   );
 
+  const fallback: ReturnType<typeof formationMemberExtent> =
+    formationMemberExtent(UNIT, []);
   TestValidator.equals(
     "an unsupplied member model takes the documented stand-in height",
-    formationMemberExtent(UNIT, []),
-    { min: 0, max: DEFAULT_SUBJECT_HEIGHT },
+    {
+      keys: Object.keys(fallback).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      min: nclose(fallback.min, 0),
+      max: nclose(fallback.max, DEFAULT_SUBJECT_HEIGHT),
+    },
+    { keys: ["max", "min"], min: true, max: true },
   );
 
   TestValidator.equals(
     "the frame that holds a flank reads the unit the centroid cannot",
     namedFacts([
-      ["theUnitReads", () => sees(lens({ x: 45, y: 1, z: 30 }), rest)],
-      ["theCentroidDoesNot", () => seesCentroid(lens({ x: 45, y: 1, z: 30 }))],
+      ["theUnitReads", (): boolean => sees(lens({ x: 45, y: 1, z: 30 }), rest)],
+      [
+        "theCentroidDoesNot",
+        (): boolean => seesCentroid(lens({ x: 45, y: 1, z: 30 })),
+      ],
     ]),
     { theUnitReads: true, theCentroidDoesNot: false },
   );
@@ -211,10 +247,13 @@ export const test_film_camera_formation_subject_extent = (): void => {
   TestValidator.equals(
     "a camera standing inside the unit reads it",
     namedFacts([
-      ["theUnitReads", () => sees(lens({ x: 0, y: 0.85, z: 10 }), rest, 5)],
+      [
+        "theUnitReads",
+        (): boolean => sees(lens({ x: 0, y: 0.85, z: 10 }), rest, 5),
+      ],
       [
         "theCentroidDoesNot",
-        () => seesCentroid(lens({ x: 0, y: 0.85, z: 10 }), 5),
+        (): boolean => seesCentroid(lens({ x: 0, y: 0.85, z: 10 }), 5),
       ],
     ]),
     { theUnitReads: true, theCentroidDoesNot: false },
@@ -225,14 +264,17 @@ export const test_film_camera_formation_subject_extent = (): void => {
     sees(lens({ x: 0, y: 1, z: -100 }), rest) === false,
   );
 
-  const marched = boxAt(1, MARCH);
+  const marched: ReturnType<typeof formationSubjectBox> = boxAt(1, MARCH);
   TestValidator.equals(
     "a cue moves the box the camera is graded against",
     namedFacts([
-      ["marched", () => nclose(marched.min.x, rest.min.x + 500)],
-      ["heldItsDepth", () => nclose(marched.max.z, rest.max.z)],
-      ["atRestItReads", () => sees(lens({ x: 0, y: 1, z: 60 }), rest)],
-      ["marchedItDoesNot", () => sees(lens({ x: 0, y: 1, z: 60 }), marched)],
+      ["marched", (): boolean => nclose(marched.min.x, rest.min.x + 500)],
+      ["heldItsDepth", (): boolean => nclose(marched.max.z, rest.max.z)],
+      ["atRestItReads", (): boolean => sees(lens({ x: 0, y: 1, z: 60 }), rest)],
+      [
+        "marchedItDoesNot",
+        (): boolean => sees(lens({ x: 0, y: 1, z: 60 }), marched),
+      ],
     ]),
     {
       marched: true,
@@ -242,19 +284,20 @@ export const test_film_camera_formation_subject_extent = (): void => {
     },
   );
 
-  const withScout = unionSubjectBoxes([
+  const withScout: ReturnType<typeof unionSubjectBoxes> = unionSubjectBoxes([
     rest,
     pointSubjectBox({ x: 0, y: 0, z: -30 }, MEMBER),
   ]);
   TestValidator.equals(
     "a group's box is the union of what its members occupy",
     namedFacts([
-      ["union", () => withScout !== null],
-      ["reachedTheScout", () => nclose(withScout!.min.z, -30)],
-      ["keptTheLine", () => nclose(withScout!.max.x, 50.5)],
+      ["union", (): boolean => withScout !== null],
+      ["reachedTheScout", (): boolean => nclose(withScout!.min.z, -30)],
+      ["keptTheLine", (): boolean => nclose(withScout!.max.x, 50.5)],
       [
         "widerThanTheLineAlone",
-        () => framedBoxOf(withScout!).radius > framedBoxOf(rest).radius,
+        (): boolean =>
+          framedBoxOf(withScout!).radius > framedBoxOf(rest).radius,
       ],
     ]),
     {
@@ -264,4 +307,4 @@ export const test_film_camera_formation_subject_extent = (): void => {
       widerThanTheLineAlone: true,
     },
   );
-};
+}

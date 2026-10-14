@@ -1,35 +1,21 @@
 /**
  * One building unit and the roots of its visible and logical hierarchies.
  *
- * The element root is also the unit's coordinate root, so one unit is moved,
- * turned, or tilted as a whole by its own root transform without touching the
- * others.
+ * The element root places its visible descendant hierarchy. Logical cells/shells, boundary face frames, connector routes, support surfaces and population anchors are separately authored in world space and are not transformed by this root; relocating a coherent unit requires updating those records too. Each root belongs to one unit and every element/logical space must descend from a declared unit root.
  *
- * @evidence requirements/building-exterior/coordinates-and-shared-boundaries.md#building-coordinate-transform-chain Exposes `IAutoMovieBuildingUnit` as the portable data boundary for the building coordinate transform chain requirement.
- * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `IAutoMovieBuildingUnit` for the building envelope coordinate input output system contract.
+ * @evidence contracts/common.md#principled-implementation Two root ids name a unit's visible and logical trees; `validateBuiltEnvironment` requires each root to resolve with a null parent, refuses a root claimed by two units, and reports any element or space whose topmost ancestor is no unit root.
+ * @evidence contracts/common.md#clear-and-simple-design An identity and two root ids express visible/logical ownership without duplicating either hierarchy. Only the element tree inherits its root transform; the logical root is ownership, not a coordinate transform over world-space geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No unit is implied: a work with zero units is refused, and an unattributed element or space is reported rather than assigned to a default unit.
+ * @evidence contracts/common.md#meaningful-documentation States that the element root is the coordinate root, the exclusive ownership of roots, the total coverage of the work, and the no-parent rule on each root.
+ * @author Samchon
  */
 export interface IAutoMovieBuildingUnit {
-  /**
-   * Stable building identity within the work.
-   *
-   * @evidence requirements/building-exterior/coordinates-and-shared-boundaries.md#building-coordinate-transform-chain Exposes `id` as the portable data boundary for the building coordinate transform chain requirement.
-   * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `id` for the building envelope coordinate input output system contract.
-   */
+  /** Stable building identity within the work. */
   id: string;
 
-  /**
-   * Root visible element. It must have no element parent.
-   *
-   * @evidence requirements/building-exterior/coordinates-and-shared-boundaries.md#building-coordinate-transform-chain Exposes `element` as the portable data boundary for the building coordinate transform chain requirement.
-   * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `element` for the building envelope coordinate input output system contract.
-   */
+  /** Root visible element. It must have no element parent. */
   element: string;
 
-  /**
-   * Root logical space. It must have no logical-space parent.
-   *
-   * @evidence requirements/building-exterior/coordinates-and-shared-boundaries.md#building-coordinate-transform-chain Exposes `space` as the portable data boundary for the building coordinate transform chain requirement.
-   * @evidence specifications/building-envelope/identity-scope-and-coordinates.md#building-envelope-coordinate-input-output Types `space` for the building envelope coordinate input output system contract.
-   */
+  /** Root logical space. It must have no logical-space parent. */
   space: string;
 }

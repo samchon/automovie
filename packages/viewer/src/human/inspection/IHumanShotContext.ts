@@ -1,104 +1,53 @@
 /**
- * What every `human-shot` step reads: the request, the viewer port and the
- * paths of this checkout's records and outputs.
+ * What every `human-shot` step reads: the request, the viewer port and the paths of this checkout's records and outputs.
  *
- * @evidence contracts/common.md#clear-and-simple-design One context carries the entry's resolved inputs to each step.
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#principled-implementation Resolved origin, port and per-process record paths identify the viewer each CLI step reads or controls.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Storage and process-record locations come from the selected checkout and instance, not a hardcoded viewer PID.
- *
- * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Resolved origin, port and per-process record paths identify the viewer each CLI step reads or controls.
- * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Storage and process-record locations come from the selected checkout and instance, not a hardcoded viewer PID.
+ * @evidence contracts/common.md#principled-implementation The human-shot client carries parsed request fields and resolved checkout/storage/loopback paths to its existing control and capture steps.
+ * @evidence contracts/common.md#clear-and-simple-design One context keeps port, ownership record and append-only launch log coherent across probe, start, stop and capture operations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unanswered port does not authorize killing or launching over it; probeMs only bounds one health request, not numerical or GPU work.
+ * @evidence contracts/common.md#meaningful-documentation Names mutable storage, record/log paths, output default and health timeout milliseconds; process ownership still requires creation-stamp checks.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no IO; individual client steps own network probes, process queries and capture byte writes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The command shares resolved path/port configuration across its steps while each health probe reads current listener authority.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The client owns this request context; strings retain no native process/browser handles, and capture output bytes belong to the write operation.
  *
  * @author Samchon
  */
 export interface IHumanShotContext {
-  /**
-   * The viewer script directory.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Locates the maintained viewer command and server entry rather than relying on a session-specific working directory.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Locates the maintained viewer command and server entry rather than relying on a session-specific working directory.
-   */
+  /** The viewer script directory. */
   directory: string;
 
-  /**
-   * Repository root.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Keeps resolved checkout ownership with the command's instance and source paths.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Keeps resolved checkout ownership with the command's instance and source paths.
-   */
+  /** Repository root. */
   root: string;
 
   /**
    * Resolved mutable directory where records, logs, inputs and captures live.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Identifies mutable runtime records and captures separately from immutable Human numerical assets.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Identifies mutable runtime records and captures separately from immutable Human numerical assets.
    */
   storage: string;
 
-  /**
-   * `http://127.0.0.1:<port>` of the viewer.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Connects command observations to the selected local viewer instead of another listener's service.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Connects command observations to the selected local viewer instead of another listener's service.
-   */
+  /** `http://127.0.0.1:<port>` of the viewer. */
   origin: string;
 
-  /**
-   * The viewer port.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Binds control and status requests to the instance-specific public port.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Binds control and status requests to the instance-specific public port.
-   */
+  /** The viewer port. */
   port: number;
 
-  /**
-   * This port's process record file.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Selects this port's process-ownership record for checked status and explicit stop.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Selects this port's process-ownership record for checked status and explicit stop.
-   */
+  /** This port's process record file. */
   record: string;
 
-  /**
-   * This port's server output log, appended by a starting client.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Keeps startup diagnostics in the selected instance's output log rather than another viewer's files.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Keeps startup diagnostics in the selected instance's output log rather than another viewer's files.
-   */
+  /** This port's server output log, appended by a starting client. */
   logFile: string;
 
   /**
    * How long one `/health` probe waits before it counts as unanswered, in milliseconds.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Bounds one health observation in milliseconds without treating an unanswered connection as an absent owner.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Bounds one health observation in milliseconds without treating an unanswered connection as an absent owner.
    */
   probeMs: number;
 
   /**
    * The command (`ensure`, `status`, `stop`, `watch`, `render`, `sheet`, `compare`, `warm`).
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Carries the elected command so later steps perform only the requested viewer operation.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Carries the elected command so later steps perform only the requested viewer operation.
    */
   command: string;
 
-  /**
-   * The display query of a capture command.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Carries the actual capture display selection instead of substituting a default document silently.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Carries the actual capture display selection instead of substituting a default document silently.
-   */
+  /** The display query of a capture command. */
   query: string;
 
-  /**
-   * The capture output file, or null for the default under `captures/`.
-   *
-   * @evidence requirements/operations-and-recovery/concurrent-runs-and-locking.md#operations-lock-scope-owner Distinguishes an explicit capture output from the nullable default under the selected storage.
-   * @evidence specifications/execution-and-recovery/concurrent-ownership-and-locking.md#execution-claim-scope-owner Distinguishes an explicit capture output from the nullable default under the selected storage.
-   */
+  /** The capture output file, or null for the default under `captures/`. */
   output: string | null;
 }

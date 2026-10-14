@@ -3,49 +3,27 @@ import { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
 import { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";
 
 /**
- * One subject entry in a structural diff category.
+ * One stable subject entry in a structural diff category with aggregate affected usage.
  *
- * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Gives added, removed, moved, and reshaped categories stable subject records.
- * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the before/after pair and aggregate consequence of one change.
+ * @evidence contracts/common.md#principled-implementation Stable subject identity pairs before and after descriptions; addition has only after, removal only before, and common placement or shape changes retain both alongside independently derived fanout counts.
+ * @evidence contracts/common.md#clear-and-simple-design One change record serves all structural categories while the containing diff defines the category, avoiding a dense per-instance change array for prototype consequences.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A common subject can appear in both moved and reshaped categories when both responsibilities changed; null is reserved for absence rather than failed measurement disguised as deletion.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable id and kind, addition/removal null semantics and aggregate placement/selection consequences.
+ * @author Samchon
  */
 export interface IAutoMovieSubjectChange {
-  /**
-   * Stable subject id shared with the non-null description.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Identifies the changed compiled subject.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Uses stable id as the comparison key.
-   */
+  /** Stable subject id shared with the non-null description. */
   id: string;
 
-  /**
-   * Structural kind of the changed subject.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Keeps each change interpretable by subject role.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Carries the common role discriminator.
-   */
+  /** Structural kind of the changed subject. */
   kind: AutoMovieSubjectKind;
 
-  /**
-   * Subject before the change, or null for an addition.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Makes the prior compiled state inspectable.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the nullable prior state.
-   */
+  /** Subject before the change, or null for an addition. */
   before: IAutoMovieSubjectDescription | null;
 
-  /**
-   * Subject after the change, or null for a removal.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-structural-change Makes the next compiled state inspectable.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-structural-diff Types the nullable next state.
-   */
+  /** Subject after the change, or null for a removal. */
   after: IAutoMovieSubjectDescription | null;
 
-  /**
-   * Aggregate placements and selections affected by this record.
-   *
-   * @evidence requirements/review/subject-description-and-structural-change.md#review-subject-diff-tolerance-fanout Prevents prototype changes from expanding into per-use records.
-   * @evidence specifications/review-and-acceptance/subject-description-and-structural-diff.md#review-system-subject-diff-tolerance-fanout Carries the bounded consequence summary.
-   */
+  /** Aggregate placements and selections affected by this record. */
   fanout: IAutoMovieSubjectDiffFanout;
 }

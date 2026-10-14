@@ -3,110 +3,63 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import { IAutoMovieModelLodRecipe } from "./IAutoMovieModelLodRecipe";
 
 /**
- * A bounded primitive model recipe compiled into deterministic model data.
+ * A bounded registered-archetype recipe compiled into deterministic model data, with an optional adopted external appearance.
  *
- * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `IAutoMovieModelRecipe` as the portable data boundary for the production design story boundary requirement.
- * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `IAutoMovieModelRecipe` for the narrative intent story design ownership system contract.
+ * @evidence contracts/common.md#principled-implementation Engine population compilation reads LOD references and hashes the complete canonical recipe, while worldBlock can author a primitive box recipe. Archetype definitions own parameter/build semantics, but the production recipe validator and materializer are retired; no surviving whole-recipe gate establishes palette, asset, capability or socket admission automatically.
+ * @evidence contracts/common.md#clear-and-simple-design Recipe data owns reusable construction and semantic declarations, while archetype implementations own parameter meaning and source authors own actual motion and scene attachment instances.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry membership, supported parameters/capabilities, one valid palette entry and asset/socket consistency are host premises. Population compilation hashes missing/unencodable references as explicit markers instead of constructing or admitting missing geometry; external appearance metadata confers no collision or rig semantics.
+ * @evidence contracts/common.md#meaningful-documentation Defines portable identity, archetype ownership, adopted asset selection, palette encoding, LOD ordering, attachment limits and optional declarative profiles.
+ * @author Samchon
  */
 export interface IAutoMovieModelRecipe {
-  /**
-   * Non-blank stable recipe id, unique under portable case folding.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `id` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `id` for the narrative intent story design ownership system contract.
-   */
+  /** Non-blank stable recipe id, unique under portable case folding. */
   id: string;
 
-  /**
-   * Production role.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `role` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `role` for the narrative intent story design ownership system contract.
-   */
+  /** Production role. */
   role: "performer" | "mount" | "prop" | "set";
 
   /**
    * Non-blank id of the registered archetype that builds this recipe.
    *
-   * The builder resolves this identifier against the archetype catalogue the
-   * production registers and refuses a recipe naming nothing registered. It is
-   * opaque here on purpose: which archetypes exist is a decision of that
-   * catalogue, not of this contract.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `archetype` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `archetype` for the narrative intent story design ownership system contract.
+   * A host resolves this opaque identifier against its registered archetype definitions. This contract and the Engine population compiler do not perform registry lookup or instantiate its geometry.
    */
   archetype: string;
 
   /**
-   * Registered external appearance asset, or omitted for builder-generated
-   * primitive geometry. The active production asset ledger must carry one
-   * matching `model-recipe` use for this exact recipe id.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `asset` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `asset` for the narrative intent story design ownership system contract.
+   * Registered external appearance asset, or omitted for builder-generated primitive geometry. The active production asset ledger must carry one matching `model-recipe` use for this exact recipe id.
    */
   asset?: string;
 
   /**
    * Exact archetype-specific parameter map.
    *
-   * The registered archetype owns this contract: which keys are required, which
-   * are accepted at all, and the value kind and range of each. Read
-   * `MODEL_RECIPE`, then the definition itself; an unsupported key is refused
-   * rather than stored.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `parameters` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `parameters` for the narrative intent story design ownership system contract.
+   * The registered archetype owns required/accepted keys and each value kind/range. Hosts must read its parameter schema and plan before calling build; the retired production gate no longer refuses unsupported keys automatically.
    */
   parameters: Record<string, number | string | boolean>;
 
   /**
-   * Exactly one named six-digit `#RRGGBB` material color in the foundation
-   * builder. Multiple semantic part materials remain unsupported and are
-   * refused instead of silently discarded.
+   * Intended foundation palette of one named six-digit `#RRGGBB` color. The production materializer that enforced cardinality is retired; hosts own color admission and material construction.
    *
-   * The value is an sRGB swatch, and the builder decodes it with
-   * `srgbHexToLinearColor` on its way into the material's linear `baseColor`.
-   * The same swatch written here and in `IAutoMovieInstanceVariation.palette`
-   * therefore renders one color, which is the whole reason both go through one
-   * decode.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `palette` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `palette` for the narrative intent story design ownership system contract.
+   * The value is an sRGB swatch. A host constructing linear material baseColor must decode it with `srgbHexToLinearColor`, matching instance variation palette decoding; storing this recipe alone performs no conversion.
    */
   palette: Record<string, string>;
 
   /**
-   * Non-empty unique tiers ordered `hero`, `near`, `far`, with increasing
-   * positive distances and an optional unbounded tier only at the end.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `lod` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `lod` for the narrative intent story design ownership system contract.
+   * Non-empty unique tiers ordered `hero`, `near`, `far`, with increasing positive distances and an optional unbounded tier only at the end.
    */
   lod: IAutoMovieModelLodRecipe[];
 
   /**
    * Semantic abilities visible to source and review, unique within the recipe.
    *
-   * The registered archetype decides which labels are meaningful and the
-   * builder refuses any other; declaring one it does implement still leaves
-   * source to author the motion that earns it.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `capabilities` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `capabilities` for the narrative intent story design ownership system contract.
+   * The registered archetype decides which labels are meaningful. No surviving recipe gate checks membership here; source still authors the motion and hosts own capability admission.
    */
   capabilities: string[];
 
   /**
    * Unique semantic bone sockets.
    *
-   * A bone is accepted only when the registered archetype's builder actually
-   * materializes it, so an archetype without a builder-owned skeleton accepts
-   * none. The materializer does not create attached scene nodes automatically.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `attachments` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `attachments` for the narrative intent story design ownership system contract.
+   * The intended socket must exist in the host-built skeleton; a skeletonless archetype provides none. This recipe field performs no bone admission or attached-node creation after production materializer retirement.
    */
   attachments: Array<{
     /** Non-blank attachment id, unique within the recipe. */
@@ -117,12 +70,7 @@ export interface IAutoMovieModelRecipe {
   }>;
 
   /**
-   * Declarative capability profiles copied onto the builder-owned runtime
-   * model. Omitted means that trait-gated engine verbs such as mounting are
-   * unavailable.
-   *
-   * @evidence requirements/production-design/scope-and-source-of-truth.md#production-design-story-boundary Exposes `profiles` as the portable data boundary for the production design story boundary requirement.
-   * @evidence specifications/narrative-and-intent/design-authority-and-visual-language.md#narrative-intent-story-design-ownership Types `profiles` for the narrative intent story design ownership system contract.
+   * Declarative capability profiles intended for an explicitly constructed runtime model. This recipe field no longer has an automatic production copying host; engine verbs inspect the runtime model's actual profiles.
    */
   profiles?: IAutoMovieProfile[];
 }

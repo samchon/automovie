@@ -1,58 +1,32 @@
 import { AutoMovieDiagnosticCode } from "./AutoMovieDiagnosticCode";
 
 /**
- * A stable production diagnostic returned by builder and lint.
+ * Stable production finding with a machine identity and an owned correction.
  *
- * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `IAutoMovieDiagnostic` as the portable data boundary for the asset generation provider independence requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `IAutoMovieDiagnostic` for the asset spec generation provider choice system contract.
+ * @evidence contracts/common.md#principled-implementation Closed code, severity and pipeline phase classify a finding while target and optional file locate it. Engine validators return these rows and compileDefinedShot translates realization findings into its failed result; arbitrary hosts must decide how returned errors block their operation.
+ * @evidence contracts/common.md#clear-and-simple-design Machine classification and human correction prose occupy separate fields, allowing clients to group findings without parsing messages or losing the exact author action.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An unchanged retry cannot substitute for the stated correction, and a null file explicitly denotes a finding with no single file owner rather than inventing a misleading path.
+ * @evidence contracts/common.md#meaningful-documentation Gives typed code ownership, intended blocking category, correction phase, stable target, optional project-relative location and actionable cause-plus-correction message semantics.
+ * @author Samchon
  */
 export interface IAutoMovieDiagnostic {
-  /**
-   * Machine-readable diagnostic code from the shipped closed catalog.
-   *
-   * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-code-catalog-reference Restricts actual delivery to one enumerable code set.
-   * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-code-catalog-reference Uses the same key union the exhaustive catalog maps.
-   */
+  /** Machine-readable diagnostic code from the shipped closed catalog. */
   code: AutoMovieDiagnosticCode;
 
-  /**
-   * Whether the diagnostic blocks the current operation.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `category` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `category` for the asset spec generation provider choice system contract.
-   */
+  /** Whether the diagnostic blocks the current operation. */
   category: "error" | "warning";
 
-  /**
-   * Pipeline phase that owns the correction.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `phase` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `phase` for the asset spec generation provider choice system contract.
-   */
+  /** Pipeline phase that owns the correction. */
   phase: "project" | "design" | "source" | "compile" | "review" | "render";
 
-  /**
-   * Stable target identity.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `target` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `target` for the asset spec generation provider choice system contract.
-   */
+  /** Stable target identity. */
   target: string;
 
-  /**
-   * Project-relative file or null when no one file owns it.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `path` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `path` for the asset spec generation provider choice system contract.
-   */
+  /** Project-relative file or null when no one file owns it. */
   path: string | null;
 
   /**
-   * Human-readable cause followed by the concrete correction owned by this
-   * phase. Do not discard it and retry unchanged.
-   *
-   * @evidence requirements/asset-authoring/generated-assets.md#asset-generation-provider-independence Exposes `message` as the portable data boundary for the asset generation provider independence requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-generation-provider-choice Types `message` for the asset spec generation provider choice system contract.
+   * Human-readable cause followed by the concrete correction owned by this phase. Do not discard it and retry unchanged.
    */
   message: string;
 }

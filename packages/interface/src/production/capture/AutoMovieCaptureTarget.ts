@@ -1,10 +1,13 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 
 /**
- * One builder-registry target accepted by the evidence capture tool.
+ * Retained registry shot-frame or compiled asset-view address for the removed legacy capture tool.
  *
- * @evidence requirements/agent-authoring/knowledge-boundary.md#agent-host-evidence Exposes `AutoMovieCaptureTarget` as the portable data boundary for the agent host evidence requirement.
- * @evidence specifications/authoring-and-authority/knowledge-evidence-and-tool-boundary.md#spec-authoring-host-evidence-output Types `AutoMovieCaptureTarget` for the spec authoring host evidence output system contract.
+ * @evidence contracts/common.md#principled-implementation The union describes namespace, registry target and shot-local time or asset view parameters. Its current references are the retained Frame/Receipt contracts and barrel; no maintained product caller consumes this target shape.
+ * @evidence contracts/common.md#clear-and-simple-design Shot and asset arms carry only their own temporal or camera operands, with common optional render pass and explicit namespace rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Intended registry membership and diagnostic-only part views remain authored contract obligations; this erased shape supplies no current lookup, capture, refusal or review-coverage gate.
+ * @evidence contracts/common.md#meaningful-documentation Defines current target identity, production default behavior, time and angle units, default elevation and pose and diagnostic part framing.
+ * @author Samchon
  */
 export type AutoMovieCaptureTarget =
   | {
@@ -45,10 +48,7 @@ export type AutoMovieCaptureTarget =
       /**
        * Compiled part id to frame instead of the whole model.
        *
-       * The turntable fits that one part, which is how a mullion, a hinge, or a
-       * hand is inspected without exporting a model for it. A part view is a
-       * diagnostic look and never discharges a required asset review view,
-       * because what that review judges is the whole silhouette.
+       * The turntable fits that one part, which is how a mullion, a hinge, or a hand is inspected without exporting a model for it. A part view is a diagnostic look and never discharges a required asset review view, because what that review judges is the whole silhouette.
        */
       part?: string;
 

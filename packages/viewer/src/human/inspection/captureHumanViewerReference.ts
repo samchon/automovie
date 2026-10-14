@@ -2,15 +2,15 @@ import type { IHumanViewerReferenceContext } from "./IHumanViewerReferenceContex
 import { composeHumanViewerReference } from "./composeHumanViewerReference.js";
 
 /**
- * Compose the rendered canvas with its reference photograph into one PNG data
- * URL, the same picture the page shows. The page keeps the photograph as a DOM
- * layer, so the canvas alone lacks it. `create` supplies the scratch surface so
- * a test can stand in for a canvas; the photograph is read and never stored.
+ * Compose the rendered canvas with its reference photograph into one PNG data URL, the same picture the page shows. The page keeps the photograph as a DOM layer, so the canvas alone lacks it. The caller creates the output surface; the photograph is borrowed for composition and never persisted here.
  *
- * @evidence contracts/common.md#principled-implementation Delegates geometry to the layout and drawing to the painter, so the capture equals the display composition.
- * @evidence contracts/common.md#clear-and-simple-design One function joins layout, surface and encoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document or photograph is special-cased and no bytes persist.
- * @evidence contracts/common.md#meaningful-documentation States why composition is needed and who owns the surface.
+ * @evidence contracts/common.md#principled-implementation The shared reference compositor combines the actual render and decoded photograph using the same layout as display saving, then the output surface encodes PNG bytes.
+ * @evidence contracts/common.md#clear-and-simple-design This synchronous capture adapter adds only PNG data-URL encoding to composeHumanViewerReference, keeping layer and landmark drawing in their shared owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Caller-supplied images and observed landmarks are composed directly without a subject-specific expected picture or photograph persistence path.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains why canvas-only readback misses the DOM photograph and identifies borrowed input versus caller-created output ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Layout and landmark processing follow marker count, while canvas drawing and PNG encoding follow output pixel area; one output surface avoids an additional image-byte intermediate.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work On-screen source pixels and photograph state are mutable, so surface identity alone does not authorize sharing a previous composition.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's factory supplies one temporary composition surface; the adapter returns its encoded string and retains no photograph, canvas or file handle.
  */
 export function captureHumanViewerReference(props: {
   composition: {
@@ -29,6 +29,7 @@ export function captureHumanViewerReference(props: {
     toDataURL: (type: string) => string;
   };
 }): string {
-  const out = composeHumanViewerReference(props);
+  const out: ReturnType<typeof props.create> =
+    composeHumanViewerReference(props);
   return out.toDataURL("image/png");
 }

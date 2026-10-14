@@ -1,60 +1,51 @@
 import { createConnectedFaceViewport } from "@automovie/viewer/human/face/createConnectedFaceViewport";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import type * as THREE from "three";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IBuildHumanViewerFaceResidentProps } from "./IBuildHumanViewerFaceResidentProps.js";
 import type { IHumanViewerResident } from "./IHumanViewerResident.js";
 import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentBytes.js";
 
 /**
- * Build and publish a face through the product face viewport. Only the group
- * is kept: holding the built model would keep a second copy of every
- * numerical array alive for as long as the resident. A refused build releases
- * its controls and numerical connection, including any optional cache job
- * staged before GPU preparation. Publication keeps its synchronous scene commit,
- * then awaits the stage's actual retirement completion. Final release attempts
- * stage, connection and controls independently and preserves every cause; cached
- * texture wrappers remain with the stage rather than a second group disposer.
+ * Build and publish a face through the product face viewport. The resident retains the stage/group and actual construction readings without adding a separate whole-projection cache. A refused build releases its controls and numerical connection, including any optional cache job staged before GPU preparation. Publication keeps its synchronous scene commit, then awaits the stage's actual retirement completion. Final release attempts stage and controls independently and preserves every cause; stage closure owns its numerical connection and cached texture wrappers remain with the stage rather than a second group disposer.
  *
- * @evidence contracts/common.md#principled-implementation The resident counts the arrays it actually keeps.
- * @evidence contracts/common.md#meaningful-documentation States what is kept and why.
- * @evidence contracts/common.md#clear-and-simple-design The resident keeps the published group and the viewport's connection, with one cleanup path for failed build and later eviction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Numerical work and GPU publication use the maintained face viewport; no subject-specific fallback model or external method replacement is introduced.
- * @evidence requirements/rendering/scene-lowering-and-runtime-state.md#rendering-runtime-lifecycle Awaits the original viewport's publication retirement and independently attempts owned stage, numerical connection and controls after failed construction or final eviction.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-state-isolation Preserves the primary construction cause beside ordered cleanup failures and leaves cached texture disposal with the stage's resource owner.
+ * @evidence contracts/common.md#principled-implementation Face preview or construction runs through the owner viewport, publishes its prepared frame and forwards actual admission and periocular mapping readings unchanged.
+ * @evidence contracts/common.md#clear-and-simple-design The adapter packages the resident group/stage, counted witness arrays and joined stage/host teardown, leaving lazy numerical connection acquisition with the stage.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Drawing success does not fabricate admission, and cached texture wrappers stay with their stage owner rather than being disposed again through the group.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines retained state, synchronous publication followed by settlement, stage-owned connection and independently retired controls.
+ * @evidence contracts/performance.md#efficient-algorithms Work includes numerical face construction and GPU preparation plus one group/witness-array accounting pass; the adapter adds references and counts without copying typed geometry arrays.
+ * @evidence contracts/performance.md#reuse-equivalent-work Resident release shares its original completion/failures, while numerical cache and source/basis equivalence remain with the worker and resident-cache owners.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Stage close owns the lazily acquired connection and the host closes controls; original build and independent cleanup causes are preserved without a second port terminator.
  */
 export async function buildHumanViewerFaceResident(
   props: IBuildHumanViewerFaceResidentProps,
 ): Promise<
   IHumanViewerResident<ReturnType<typeof createConnectedFaceViewport>>
 > {
-  let port:
-    | ReturnType<IBuildHumanViewerFaceResidentProps["worker"]>
-    | undefined;
-  let stage: ReturnType<typeof createConnectedFaceViewport> | undefined;
-  const release = createAutoMovieResourceRetirement([
-    () => stage?.close(),
-    () => port?.terminate(),
-    () => props.host.release(),
+  type Stage = ReturnType<typeof createConnectedFaceViewport>;
+  type Model = Awaited<ReturnType<Stage["build"]>>;
+  type Construction = Awaited<ReturnType<Stage["construct"]>>;
+  let stage: Stage | undefined;
+  const release: () => Promise<void> = createAutoMovieResourceRetirement([
+    (): Promise<void> | undefined => stage?.close(),
+    (): Promise<void> => props.host.release(),
   ]);
   try {
     stage = createConnectedFaceViewport({
       ...props.host.props,
-      worker: () => {
-        port = props.worker();
-        return port;
-      },
+      worker: props.worker,
     });
-    const construction =
+    const construction: Construction | undefined =
       props.operation === "construct"
         ? await stage.construct(props.document, props.ao)
         : undefined;
-    const model =
+    const model: Model =
       construction === undefined
         ? await stage.build(props.document, false, props.ao)
         : construction.model;
     stage.publish(model);
     await stage.settleRetirements();
-    const group = model.frame.resident.group;
+    const group: THREE.Group = model.frame.resident.group;
     return {
       stage,
       admission: construction?.admission,
@@ -64,12 +55,16 @@ export async function buildHumanViewerFaceResident(
       release,
       bytes: measureHumanViewerResidentBytes(
         group,
-        model.frame.witnesses.flatMap((witness) => [
-          witness.positions,
-          witness.normals,
-          witness.indices,
-          witness.uvs,
-        ]),
+        model.frame.witnesses.flatMap(
+          (
+            witness: Model["frame"]["witnesses"][number],
+          ): (ArrayLike<number | null> | null | undefined)[] => [
+            witness.positions,
+            witness.normals,
+            witness.indices,
+            witness.uvs,
+          ],
+        ),
       ),
     };
   } catch (error) {

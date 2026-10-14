@@ -4,12 +4,13 @@ import type { IAutoMovieCapsuleProxy } from "../validation/IAutoMovieCapsuleProx
 /**
  * One volume the panel is kept out of.
  *
- * Colliders are stated in world space beside the rest mesh rather than pulled
- * from the building graph, so the same rug drapes over the same step whether or
- * not a building owns the frame. A binding may of course place both.
+ * Static colliders are stated in world space beside the rest mesh rather than pulled from the building graph. The body-capsule arm instead names actor-local bone endpoints that the wearable resolver places from supplied world poses.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Exposes `IAutoMovieSoftCollider` as the portable data boundary for the effects soft colliders requirement.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Types `IAutoMovieSoftCollider` for the soft collider and solver transition system contract.
+ * @evidence contracts/common.md#principled-implementation simulateSoftBody projects predicted particles out of static half-spaces, spheres and boxes; boundary-aware wearable evaluation resolves actor capsules before capsule projection.
+ * @evidence contracts/common.md#clear-and-simple-design The union distinguishes authored static geometry from actor-local moving capsule references without importing building geometry into the solver.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each unanchored particle visits static colliders in authored order, then resolved moving capsules in boundary order; this is not one interleaved union order. There is no friction or continuous sweep, and a later projection can leave an earlier collider unsatisfied.
+ * @evidence contracts/common.md#meaningful-documentation Each arm states its frame and geometry parameters; body capsules require evaluated actor boundaries rather than static solver inference.
+ * @author Samchon
  */
 export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.IPlane
@@ -18,163 +19,94 @@ export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.IBodyCapsule;
 export namespace IAutoMovieSoftCollider {
   /**
-   * A half-space: the floor, a wall, a table top extended to infinity.
+   * Half-space with an allowed outward side.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IPlane` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IPlane` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation The solver normalizes the nonzero normal, tests signed distance against offset and translates penetrating particles along that normal to the boundary.
+   * @evidence contracts/common.md#clear-and-simple-design Normal and offset describe one infinite plane without a mesh or redundant point representation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The plane is infinite and frictionless; its projection does not pretend to model a finite tabletop edge.
+   * @evidence contracts/common.md#meaningful-documentation The inequality identifies the allowed side, normalization convention and world-space metre offset.
+   * @author Samchon
    */
   export interface IPlane {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "plane";
 
-    /**
-     * Stable collider identity within the domain.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `id` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-     */
+    /** Stable collider identity within the domain. */
     id: string;
 
-    /**
-     * Outward normal of the allowed side; non-zero and need not be unit.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `normal` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `normal` for the interior space soft furnishing planting system contract.
-     */
+    /** Outward normal of the allowed side; non-zero and need not be unit. */
     normal: IAutoMovieVector3;
 
-    /**
-     * Particles are kept where `dot(normalize(normal), p) >= offset`.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `offset` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `offset` for the interior space soft furnishing planting system contract.
-     */
+    /** Particles are kept where `dot(normalize(normal), p) >= offset`. */
     offset: number;
   }
 
   /**
-   * A ball: a cushion's stuffing, a finial, a bolster.
+   * Static spherical exclusion volume.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `ISphere` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `ISphere` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation Sphere projection compares a direct-square Euclidean centre distance with the radius and moves an interior particle radially to the boundary; an exact-centre point moves along positive world Y because its radial direction is undefined.
+   * @evidence contracts/common.md#clear-and-simple-design Centre and radius are sufficient for the sphere contact calculation; id preserves the authored collider identity.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-centre tie-break is a geometric degeneracy rule, not a fixture path; discrete projection does not detect passage through the ball between steps.
+   * @evidence contracts/common.md#meaningful-documentation Fields state world centre, positive metre radius and domain-local identity.
+   * @author Samchon
    */
   export interface ISphere {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "sphere";
 
-    /**
-     * Stable collider identity within the domain.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `id` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-     */
+    /** Stable collider identity within the domain. */
     id: string;
 
-    /**
-     * World centre.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `center` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `center` for the interior space soft furnishing planting system contract.
-     */
+    /** World centre. */
     center: IAutoMovieVector3;
 
-    /**
-     * Strictly positive radius in metres.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `radius` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `radius` for the interior space soft furnishing planting system contract.
-     */
+    /** Strictly positive radius in metres. */
     radius: number;
   }
 
   /**
-   * An axis-aligned world box: a sill, a shelf, a sofa arm, a crate.
+   * Static axis-aligned world exclusion box.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IBox` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IBox` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation An interior particle is projected through its nearest face, comparing distances to all six authored bounds; equal opposing distances choose the maximum side deterministically.
+   * @evidence contracts/common.md#clear-and-simple-design Two corners express the supported unrotated box, leaving oriented geometry outside this arm.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Mid-plane ties can break mirror symmetry and ordered collider projections need not satisfy every overlapping box; no relaxation certificate is claimed.
+   * @evidence contracts/common.md#meaningful-documentation Members identify world coordinates and strictly ordered corners, while the evidence states the tie and discrete-contact limits.
+   * @author Samchon
    */
   export interface IBox {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "box";
 
-    /**
-     * Stable collider identity within the domain.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `id` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `id` for the interior space soft furnishing planting system contract.
-     */
+    /** Stable collider identity within the domain. */
     id: string;
 
-    /**
-     * Minimum corner.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `min` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `min` for the interior space soft furnishing planting system contract.
-     */
+    /** Minimum corner. */
     min: IAutoMovieVector3;
 
-    /**
-     * Maximum corner, strictly greater on every axis.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `max` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `max` for the interior space soft furnishing planting system contract.
-     */
+    /** Maximum corner, strictly greater on every axis. */
     max: IAutoMovieVector3;
   }
 
   /**
    * Shared capsule following one actor's evaluated humanoid pose.
    *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Reuses the body capsule representation for soft contact.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Resolves moving capsule geometry before ordered collision projection.
+   * @evidence contracts/common.md#principled-implementation The wearable boundary sampler transforms the shared actor-local capsule using the evaluated pose at each fixed-step boundary; the solver projects against the resulting segment and radius.
+   * @evidence contracts/common.md#clear-and-simple-design This arm references an actor and the existing capsule proxy instead of maintaining a second body-collision shape schema.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts simulateSoftBody refuses body capsules without resolved moving boundaries; an actor name is not replaced by a static origin capsule.
+   * @evidence contracts/common.md#meaningful-documentation Fields separate domain collider identity, actor participant identity and the actor-local capsule from the resolved world contact shape.
    * @author Samchon
    */
   export interface IBodyCapsule {
-    /**
-     * Body-following capsule discriminator.
-     *
-     * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Distinguishes a moving body proxy from static world primitives.
-     * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Selects evaluated-pose capsule resolution.
-     */
+    /** Body-following capsule discriminator. */
     kind: "body-capsule";
 
-    /**
-     * Stable collider identity within the domain.
-     *
-     * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Gives the shared collider a traceable identity.
-     * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Preserves deterministic collider ordering.
-     */
+    /** Stable collider identity within the domain. */
     id: string;
 
-    /**
-     * Stable actor participant whose pose places the capsule.
-     *
-     * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Refuses a missing body target instead of inventing an origin collider.
-     * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Joins the shared proxy to one evaluated actor pose.
-     */
+    /** Stable actor participant whose pose places the capsule. */
     actor: string;
 
-    /**
-     * Actor-local capsule shared with body validation and contact systems.
-     *
-     * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Uses one representation across body and soft collision.
-     * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Supplies the bounded segment and radius for projection.
-     */
+    /** Actor-local capsule shared with body validation and contact systems. */
     capsule: IAutoMovieCapsuleProxy;
   }
 }

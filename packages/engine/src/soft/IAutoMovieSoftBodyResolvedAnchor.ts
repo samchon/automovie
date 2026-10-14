@@ -1,24 +1,21 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * One hard anchor target resolved on the soft solver's fixed step.
+ * One hard target in a complete softBodyBoundarySample, resolved at an absolute step.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Samples moving anchors on the same deterministic clock as cloth.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Carries an already resolved anchor boundary into one step.
+ * @evidence contracts/common.md#principled-implementation A row-major particle index and metre world target state one Dirichlet position boundary, separate from node/bone bindings the wearable resolver already evaluated.
+ * @evidence contracts/common.md#clear-and-simple-design The cloth solver receives resolved geometry rather than depending on actor or scene-node sampling machinery.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing target is not represented by an origin default; complete boundary admission refuses absent or repeated authored moving anchors.
+ * @evidence contracts/common.md#meaningful-documentation Names the complete-boundary context, absolute sampling and particle/world-position coordinate meanings.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This target row performs no frame resolution or integration; those costs belong to wearable resolution and the solver.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One target belongs to one step, and reuse of immutable resolved storage is the supplying sampler's responsibility.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The supplying boundary owns the position reference and particle scalar; this row acquires no rig, animation cursor or host task.
+ * @author Samchon
  */
 export interface IAutoMovieSoftBodyResolvedAnchor {
-  /**
-   * Anchored row-major particle index.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Keeps the authored cloth attachment identity.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Identifies the hard boundary particle.
-   */
+  /** Anchored row-major particle index. */
   particle: number;
-  /**
-   * World-space target sampled for this step.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Derives cloth motion from the resolved primary motion.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Supplies the selected moving boundary without inventing it.
-   */
+
+  /** World-space target sampled for this step. */
   position: IAutoMovieVector3;
 }

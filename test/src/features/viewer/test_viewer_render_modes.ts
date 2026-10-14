@@ -2,6 +2,7 @@ import {
   DEPTH_NORMALIZATION_RANGE,
   EDGE_SHELL_NAME,
   EDGE_WIDTH,
+  type IAutoMovieModelObject,
   POSE_OVERLAY_NAME,
   applyRenderMode,
   buildModel,
@@ -12,10 +13,12 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const buildTwoNodeScene = () => {
-  const objects = new Map([
+const buildTwoNodeScene: () => ReturnType<typeof buildScene> = (): ReturnType<
+  typeof buildScene
+> => {
+  const objects: Map<string, IAutoMovieModelObject> = new Map([
     ["model-a", buildModel({ ...createModel(), id: "model-a" })],
     ["model-b", buildModel({ ...createModel(), id: "model-b" })],
   ]);
@@ -42,13 +45,15 @@ const buildTwoNodeScene = () => {
       cameras: [],
       lights: [],
     },
-    (id) => objects.get(id),
+    (id: string): IAutoMovieModelObject | undefined => objects.get(id),
   );
 };
 
-const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
+const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
+  root: THREE.Object3D,
+): THREE.Mesh[] => {
   const meshes: THREE.Mesh[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if ((object as THREE.Mesh).isMesh === true)
       meshes.push(object as THREE.Mesh);
   });
@@ -56,33 +61,30 @@ const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
 };
 
 /**
- * Guide-pass render modes are reversible scene overrides applied at snapshot
- * time: the deterministic engine result is never mutated, only its projection:
- * `restore()` puts every touched material, visibility flag, background, and
- * overlay back exactly as it was, so the same built scene captures pass after
- * pass.
+ * Guide modes temporarily override native scene materials, visibility, background and overlays, then restore their borrowed state. The assertions read CPU-side scene state and generated shader programs, without capturing pixels or compiling GLSL.
  *
  * Scenarios:
  *
  * 1. `beauty` is a no-op: materials keep their exact instances.
- * 2. `depth` swaps every mesh to the normalized-metric depth shader (#1167): grays
- *    linear over a scene-stable range decoupled from camera near/far (default
- *    20 m, overridable), on a black (far) background; restore returns the
- *    original instances and background.
+ * 2. Depth installs the normalized-metric depth program with a default or supplied range and black background; restore returns the original materials and background.
  * 3. `normal` swaps to `MeshNormalMaterial` (the surface-normal hint, #1166).
- * 4. `outline` is a REAL edge pass (#1166): black fills plus one inverted-hull
- *    back-face shell per mesh (metric edge width, default overridable, skinning
- *    chunks compiled in) on a black background; restore removes the shells and
- *    returns everything.
- * 5. `mask` gives each top-level scene node a distinct deterministic flat color on
- *    a black background; restore returns materials and background.
- * 6. `pose` hides meshes and adds one line per bone→child-bone connection in a
- *    named overlay; restore removes the overlay and unhides.
+ * 4. Outline installs black fills and back-face shells with the selected edge width and skinning program chunks; restore removes them. Program text is observed, not native shader compilation.
+ * 5. Mask assigns deterministic flat node colors on black and restores materials and background.
+ * 6. Pose hides meshes and adds bone-to-child lines in a named overlay; restore removes it and unhides the meshes.
  * 7. An unknown mode is a caller bug and throws.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies each actual guide mode to a generic built scene and an InstancedMesh, reading temporary materials, generated shader fields, overlays and restored state; catches omitted instancing/skinning support and overrides left on borrowed sources.
+ * @evidence contracts/testing.md#independent-expectations Supported mode classes, authored depth/edge values, original object identities and the fixture's 22 bone edges define expectations. The public mask palette is a delegation reference, while shader strings and CPU fields do not establish observed guide pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Covers beauty, default/custom depth and edge width, normal, per-node mask distinction, pose hide/overlay/restoration and unknown-mode refusal; failure retirement and scene atmosphere have separate units.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Viewer source and existing generic fixtures with real CPU-side Three graph/material objects, restores every temporary pass and starts no renderer, browser or process.
  */
-export const test_viewer_render_modes = (): void => {
-  const { scene } = buildTwoNodeScene();
-  const instances = new THREE.InstancedMesh(
+export function test_viewer_render_modes(): void {
+  const { scene }: ReturnType<typeof buildScene> = buildTwoNodeScene();
+  const instances: THREE.InstancedMesh<
+    THREE.BoxGeometry,
+    THREE.MeshBasicMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshBasicMaterial(),
     2,
@@ -90,47 +92,117 @@ export const test_viewer_render_modes = (): void => {
   instances.setMatrixAt(0, new THREE.Matrix4().makeTranslation(-2, 0, 0));
   instances.setMatrixAt(1, new THREE.Matrix4().makeTranslation(2, 0, 0));
   scene.add(instances);
-  const meshes = meshesOf(scene);
-  const originals = meshes.map((mesh) => mesh.material);
+  const meshes: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = meshesOf(scene);
+  const originals: (
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[]
+  )[] = meshes.map(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ):
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[] => mesh.material,
+  );
 
-  const beauty = applyRenderMode(scene, "beauty");
+  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "beauty",
+  );
   TestValidator.predicate(
     "beauty leaves material instances untouched",
-    meshes.every((mesh, i) => mesh.material === originals[i]),
+    meshes.every(
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+        i: number,
+      ): boolean => mesh.material === originals[i],
+    ),
   );
   beauty.restore();
 
-  const backgroundBefore = scene.background;
-  const depth = applyRenderMode(scene, "depth");
+  const backgroundBefore:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
+  const depth: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "depth",
+  );
   TestValidator.predicate(
     "depth swaps every mesh to the normalized-metric shader",
     meshes.every(
-      (mesh) =>
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean =>
         mesh.material instanceof THREE.ShaderMaterial &&
-        mesh.material.uniforms.depthRange!.value ===
-          DEPTH_NORMALIZATION_RANGE &&
+        nclose(
+          mesh.material.uniforms.depthRange!.value as number,
+          DEPTH_NORMALIZATION_RANGE,
+          0,
+        ) &&
         mesh.material.fragmentShader.includes("vViewZ / depthRange") &&
         mesh.material.vertexShader.includes("instanceMatrix"),
     ),
   );
   TestValidator.predicate(
-    "depth deforms skinned meshes (skinning chunks compiled in)",
+    "the generated depth program includes its skinning chunk",
     meshes.every(
-      (mesh) =>
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean =>
         mesh.material instanceof THREE.ShaderMaterial &&
         mesh.material.vertexShader.includes("skinning_vertex"),
     ),
   );
   TestValidator.equals(
-    "depth renders over a black (far) background",
+    "depth installs a black background",
     namedFacts([
       [
         "sceneBackgroundInstanceof",
-        () => scene.background instanceof THREE.Color,
+        (): boolean => scene.background instanceof THREE.Color,
       ],
       [
         "sceneBackgroundGetHex",
-        () =>
+        (): boolean =>
           scene.background instanceof THREE.Color &&
           scene.background.getHex() === 0x000000,
       ],
@@ -140,7 +212,20 @@ export const test_viewer_render_modes = (): void => {
   depth.restore();
   TestValidator.predicate(
     "depth restore returns the original instances",
-    meshes.every((mesh, i) => mesh.material === originals[i]),
+    meshes.every(
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+        i: number,
+      ): boolean => mesh.material === originals[i],
+    ),
   );
   TestValidator.equals(
     "depth restore returns the background",
@@ -148,35 +233,100 @@ export const test_viewer_render_modes = (): void => {
     backgroundBefore,
   );
 
-  const customRange = applyRenderMode(scene, "depth", { depthRange: 8 });
+  const customRange: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "depth",
+    { depthRange: 8 },
+  );
   TestValidator.predicate(
     "an explicit depthRange overrides the default",
     meshes.every(
-      (mesh) =>
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean =>
         mesh.material instanceof THREE.ShaderMaterial &&
-        mesh.material.uniforms.depthRange!.value === 8,
+        nclose(mesh.material.uniforms.depthRange!.value as number, 8, 0),
     ),
   );
   customRange.restore();
 
-  const normal = applyRenderMode(scene, "normal");
+  const normal: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "normal",
+  );
   TestValidator.predicate(
     "normal swaps to the surface-normal material",
-    meshes.every((mesh) => mesh.material instanceof THREE.MeshNormalMaterial),
+    meshes.every(
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean => mesh.material instanceof THREE.MeshNormalMaterial,
+    ),
   );
   normal.restore();
 
-  const outlineBackground = scene.background;
-  const outline = applyRenderMode(scene, "outline");
+  const outlineBackground:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
+  const outline: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "outline",
+  );
   TestValidator.predicate(
     "outline fills every mesh black",
     meshes.every(
-      (mesh) =>
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean =>
         mesh.material instanceof THREE.MeshBasicMaterial &&
         mesh.material.color.getHex() === 0x000000,
     ),
   );
-  const shells = meshesOf(scene).filter((m) => m.name === EDGE_SHELL_NAME);
+  const shells: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = meshesOf(scene).filter(
+    (
+      m: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): boolean => m.name === EDGE_SHELL_NAME,
+  );
   TestValidator.equals(
     "outline adds one inverted-hull shell per mesh",
     shells.length,
@@ -185,24 +335,38 @@ export const test_viewer_render_modes = (): void => {
   TestValidator.predicate(
     "shells push outward by the metric edge width, back-face, skinned-aware",
     shells.every(
-      (shell) =>
+      (
+        shell: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean =>
         shell.material instanceof THREE.ShaderMaterial &&
         shell.material.side === THREE.BackSide &&
-        shell.material.uniforms.edgeWidth!.value === EDGE_WIDTH &&
+        nclose(
+          shell.material.uniforms.edgeWidth!.value as number,
+          EDGE_WIDTH,
+          0,
+        ) &&
         shell.material.vertexShader.includes("skinning_vertex") &&
         shell.material.vertexShader.includes("instanceMatrix"),
     ),
   );
   TestValidator.equals(
-    "outline renders over a black background",
+    "outline installs a black background",
     namedFacts([
       [
         "sceneBackgroundInstanceof",
-        () => scene.background instanceof THREE.Color,
+        (): boolean => scene.background instanceof THREE.Color,
       ],
       [
         "sceneBackgroundGetHex",
-        () =>
+        (): boolean =>
           scene.background instanceof THREE.Color &&
           scene.background.getHex() === 0x000000,
       ],
@@ -215,15 +379,42 @@ export const test_viewer_render_modes = (): void => {
     namedFacts([
       [
         "meshesOfSceneM",
-        () => meshesOf(scene).every((m) => m.name !== EDGE_SHELL_NAME),
+        (): boolean =>
+          meshesOf(scene).every(
+            (
+              m: THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              >,
+            ): boolean => m.name !== EDGE_SHELL_NAME,
+          ),
       ],
       [
         "meshesMeshI",
-        () => meshes.every((mesh, i) => mesh.material === originals[i]),
+        (): boolean =>
+          meshes.every(
+            (
+              mesh: THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              >,
+              i: number,
+            ): boolean => mesh.material === originals[i],
+          ),
       ],
       [
         "sceneBackgroundOutlineBackground",
-        () => scene.background === outlineBackground,
+        (): boolean => scene.background === outlineBackground,
       ],
     ]),
     {
@@ -233,28 +424,71 @@ export const test_viewer_render_modes = (): void => {
     },
   );
 
-  const wideEdge = applyRenderMode(scene, "outline", { edgeWidth: 0.05 });
+  const wideEdge: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "outline",
+    { edgeWidth: 0.05 },
+  );
   TestValidator.predicate(
     "an explicit edgeWidth overrides the default",
     meshesOf(scene)
-      .filter((m) => m.name === EDGE_SHELL_NAME)
+      .filter(
+        (
+          m: THREE.Mesh<
+            THREE.BufferGeometry<
+              THREE.NormalBufferAttributes,
+              THREE.BufferGeometryEventMap
+            >,
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[],
+            THREE.Object3DEventMap
+          >,
+        ): boolean => m.name === EDGE_SHELL_NAME,
+      )
       .every(
-        (shell) =>
+        (
+          shell: THREE.Mesh<
+            THREE.BufferGeometry<
+              THREE.NormalBufferAttributes,
+              THREE.BufferGeometryEventMap
+            >,
+            | THREE.Material<THREE.MaterialEventMap>
+            | THREE.Material<THREE.MaterialEventMap>[],
+            THREE.Object3DEventMap
+          >,
+        ): boolean =>
           shell.material instanceof THREE.ShaderMaterial &&
-          shell.material.uniforms.edgeWidth!.value === 0.05,
+          nclose(shell.material.uniforms.edgeWidth!.value as number, 0.05, 0),
       ),
   );
   wideEdge.restore();
 
-  const background = scene.background;
-  const mask = applyRenderMode(scene, "mask");
-  const maskMaterials = meshes.map(
-    (mesh) => mesh.material as THREE.MeshBasicMaterial,
+  const background:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
+  const mask: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "mask",
+  );
+  const maskMaterials: THREE.MeshBasicMaterial[] = meshes.map(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): THREE.MeshBasicMaterial => mesh.material as THREE.MeshBasicMaterial,
   );
   TestValidator.predicate(
     "mask uses flat unlit materials",
     maskMaterials.every(
-      (material) => material instanceof THREE.MeshBasicMaterial,
+      (material: THREE.MeshBasicMaterial): boolean =>
+        material instanceof THREE.MeshBasicMaterial,
     ),
   );
   TestValidator.predicate(
@@ -277,19 +511,52 @@ export const test_viewer_render_modes = (): void => {
     namedFacts([
       [
         "meshesEveryMesh",
-        () => meshes.every((mesh, i) => mesh.material === originals[i]),
+        (): boolean =>
+          meshes.every(
+            (
+              mesh: THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              >,
+              i: number,
+            ): boolean => mesh.material === originals[i],
+          ),
       ],
-      ["sceneBackgroundBackground", () => scene.background === background],
+      [
+        "sceneBackgroundBackground",
+        (): boolean => scene.background === background,
+      ],
     ]),
     { meshesEveryMesh: true, sceneBackgroundBackground: true },
   );
 
-  const pose = applyRenderMode(scene, "pose");
+  const pose: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "pose",
+  );
   TestValidator.predicate(
     "pose hides every mesh",
-    meshes.every((mesh) => mesh.visible === false),
+    meshes.every(
+      (
+        mesh: THREE.Mesh<
+          THREE.BufferGeometry<
+            THREE.NormalBufferAttributes,
+            THREE.BufferGeometryEventMap
+          >,
+          | THREE.Material<THREE.MaterialEventMap>
+          | THREE.Material<THREE.MaterialEventMap>[],
+          THREE.Object3DEventMap
+        >,
+      ): boolean => mesh.visible === false,
+    ),
   );
-  const overlay = scene.getObjectByName(POSE_OVERLAY_NAME);
+  const overlay: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    scene.getObjectByName(POSE_OVERLAY_NAME);
   if (overlay === undefined) throw new Error("pose overlay must exist");
   TestValidator.equals(
     "one line per bone with a bone parent, per node",
@@ -302,9 +569,25 @@ export const test_viewer_render_modes = (): void => {
     namedFacts([
       [
         "sceneGetObjectByNamePOSE_OVERLAY_NAME",
-        () => scene.getObjectByName(POSE_OVERLAY_NAME) === undefined,
+        (): boolean => scene.getObjectByName(POSE_OVERLAY_NAME) === undefined,
       ],
-      ["meshesEveryMesh", () => meshes.every((mesh) => mesh.visible === true)],
+      [
+        "meshesEveryMesh",
+        (): boolean =>
+          meshes.every(
+            (
+              mesh: THREE.Mesh<
+                THREE.BufferGeometry<
+                  THREE.NormalBufferAttributes,
+                  THREE.BufferGeometryEventMap
+                >,
+                | THREE.Material<THREE.MaterialEventMap>
+                | THREE.Material<THREE.MaterialEventMap>[],
+                THREE.Object3DEventMap
+              >,
+            ): boolean => mesh.visible === true,
+          ),
+      ],
     ]),
     { sceneGetObjectByNamePOSE_OVERLAY_NAME: true, meshesEveryMesh: true },
   );
@@ -312,8 +595,9 @@ export const test_viewer_render_modes = (): void => {
   TestValidator.predicate(
     "unknown mode throws",
     throwsError(
-      () => applyRenderMode(scene, "sketch" as never),
+      (): ReturnType<typeof applyRenderMode> =>
+        applyRenderMode(scene, "sketch" as never),
       'unknown render mode "sketch"',
     ),
   );
-};
+}

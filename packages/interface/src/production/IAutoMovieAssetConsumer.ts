@@ -2,10 +2,13 @@ import { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionCons
 import { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 
 /**
- * One typed consumer that can own an asset use in a production graph.
+ * Typed production consumer address for one asset-ledger use. Actual consumers decide which address kinds they admit.
  *
- * @evidence requirements/asset-authoring/external-assets.md#asset-semantic-enrichment Exposes `IAutoMovieAssetConsumer` as the portable data boundary for the asset semantic enrichment requirement.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links Types `IAutoMovieAssetConsumer` for the asset spec element consumer links system contract.
+ * @evidence contracts/common.md#principled-implementation Engine texture closure resolves material-texture model ids and scene-environment shot ids, allowing shared images and checking reverse bindings. Other arms retain authoring addresses without a surviving production graph resolver or exclusive-use gate; this union alone establishes no consumer existence.
+ * @evidence contracts/common.md#clear-and-simple-design The union reuses motion resource and adoption consumer records and otherwise pairs one kind with its natural identity; texture and design-reference comments explain why ownership belongs to a model or observation document.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts One shared texture need not invent per-slot uses, and a reference image's ledger use never turns it into built geometry. Engine texture closure reports absent/stale image consumers explicitly; other kinds require their host's own resolution rather than inheriting that guarantee.
+ * @evidence contracts/common.md#meaningful-documentation Names every supported consumer and the exact identity it addresses, including hero-resource ownership, model-scoped texture use and observation-document design-reference use.
+ * @author Samchon
  */
 export type IAutoMovieAssetConsumer =
   | {
@@ -47,11 +50,7 @@ export type IAutoMovieAssetConsumer =
       /**
        * Image bound by one compiled material's PBR texture slots.
        *
-       * The consumer is the MODEL, not the material or the slot: one image
-       * routinely serves several slots of several materials of one model (an
-       * ORM map is occlusion, roughness and metalness at once), and a ledger
-       * keyed per slot would demand one entry per use of the same bytes for the
-       * same reason.
+       * The model owns this consumer address: one image can serve several slots of several model materials (an ORM map carries occlusion, roughness and metalness), without requiring a ledger entry for every slot using the same bytes.
        */
       kind: "material-texture";
 
@@ -69,11 +68,7 @@ export type IAutoMovieAssetConsumer =
       /**
        * Observed plan, section, elevation, detail, or generated design study.
        *
-       * The consumer is the observation DOCUMENT, not the building it informs:
-       * one sheet is routinely read by several buildings, and the reading — not
-       * the building — is what the bytes justify. Registering the use never
-       * converts the image into design; it only authorizes an observation
-       * document to cite these exact bytes as evidence.
+       * The observation document owns this byte use; several buildings may cite readings from one sheet. Registration permits the document to cite exact image bytes and does not convert those bytes into built geometry.
        */
       kind: "design-reference";
 

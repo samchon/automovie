@@ -1,104 +1,42 @@
 /**
- * Acquired version ranges for the workspace libraries the generated harness installs.
+ * Version ranges of the AutoMovie workspace packages, keyed by package directory name, as the scaffold's `{{version:<key>}}` tokens receive them.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Keeps every workspace dependency range in the scaffold's explicit input.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Distinguishes supplied library ranges from external catalog entries.
+ * The build reads each `packages/<key>/package.json` and supplies `^` plus its `version`; {@link resolveAutoMovieTemplateDependencyVersions} copies every value unchanged into the generated version table. Each value is an npm range that a generated project's `package.json` writes as the package's dependency.
+ *
+ * @evidence contracts/common.md#principled-implementation The build anchors each caret range at the package's own version; npm semver keeps the leftmost nonzero component fixed, so a current 0.1.x package admits later 0.1.x patches rather than 0.2.0. The resolver copies caller-supplied ranges without interpreting or validating semver.
+ * @evidence contracts/common.md#clear-and-simple-design One required field per workspace package makes a missing package a type error at the build script instead of a missing token at render time; reading the manifests stays in the build script.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record holds every workspace package uniformly, with no field defaulted or special-cased for one package.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the keys, where each value comes from, its form, and where it ends up; the members name the published package each range belongs to.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record of nine strings chooses no algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is read once to build one version table and coordinates no work.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds nine strings and no handle.
  * @author Samchon
  */
 export interface IAutoMovieWorkspacePackageVersions {
-  /**
-   * Version range for the archetypes package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the archetypes input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes archetypes an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/archetypes`. */
   archetypes: string;
 
-  /**
-   * Version range for the cli package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the cli input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes cli an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `automovie`, the command-line package. */
   cli: string;
 
-  /**
-   * Version range for the engine package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the engine input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes engine an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/engine`. */
   engine: string;
 
-  /**
-   * Version range for the evidence package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the evidence input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes evidence an explicit dependency-resolution input instead of host state.
-   */
-  evidence: string;
-
-  /**
-   * Version range for the human package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the human input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes human an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/human`. */
   human: string;
 
-  /**
-   * Version range for the ingest package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the ingest input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes ingest an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/ingest`. */
   ingest: string;
 
-  /**
-   * Version range for the interface package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the interface input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes interface an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/interface`. */
   interface: string;
 
-  /**
-   * Version range for the mcp package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the mcp input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes mcp an explicit dependency-resolution input instead of host state.
-   */
-  mcp: string;
-
-  /**
-   * Version range for the production package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the production input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes production an explicit dependency-resolution input instead of host state.
-   */
-  production: string;
-
-  /**
-   * Version range for the render package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the render input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes render an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/render`. */
   render: string;
 
-  /**
-   * Version range for the template package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the template input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes template an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/template`. */
   template: string;
 
-  /**
-   * Version range for the viewer package.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-portable-authoring Carries the viewer input used to install the portable authoring dependencies.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-input Makes viewer an explicit dependency-resolution input instead of host state.
-   */
+  /** Range of `@automovie/viewer`. */
   viewer: string;
 }

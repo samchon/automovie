@@ -1,31 +1,19 @@
 /**
- * Cylinder aligned to local Y.
+ * Closed cylinder along local Y, with its midpoint at the local origin.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMovieCylinderShape` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMovieCylinderShape` for the asset spec geometry inputs system contract.
+ * @evidence contracts/common.md#principled-implementation Equal-radius end disks separated by the positive axial height define a closed cylinder; tessellation places those disks at plus and minus half height and validation admits only finite positive dimensions.
+ * @evidence contracts/common.md#clear-and-simple-design One shared radius and one height encode the circular solid; tapering belongs to the cone arm and placement belongs to the enclosing part.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The same circular side and closed-end construction applies to every cylinder, with no named prop changing its radius or cap policy.
+ * @evidence contracts/common.md#meaningful-documentation Gives closure, midpoint origin, local Y alignment and finite positive metre radius and full height rather than a half-height parameter.
+ * @author Samchon
  */
 export interface IAutoMovieCylinderShape {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `type` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
-   */
+  /** Discriminator. */
   type: "cylinder";
 
-  /**
-   * Radius, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `radius` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `radius` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive radius of both ends, metres. */
   radius: number;
 
-  /**
-   * Height along local Y, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `height` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `height` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive full height along local Y, metres. */
   height: number;
 }

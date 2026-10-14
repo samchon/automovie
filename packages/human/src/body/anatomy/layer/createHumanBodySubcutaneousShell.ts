@@ -6,54 +6,47 @@ import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
 /**
  * Build the subcutaneous layer as the closed shell between two skin offsets.
  *
- * The shell's outer sheet is the dermal face with the skin's own triangles,
- * and its inner sheet is the fascial face with those triangles reversed, so
- * the solid between them is oriented outward on both sides. Where the skin
- * is open (the collar where the body meets the head), each open edge gets a
- * two-triangle strip joining the sheets, which closes the shell along the
- * actual rim, planar or not. The layer therefore has the skin's resolution,
- * its outer side is the dermis by definition, and its thickness varies
- * continuously with the field; it has no lattice and no staircase.
+ * The shell's outer sheet is the dermal face with the skin's own triangles, and its inner sheet is the fascial face with those triangles reversed, so the solid between them is oriented outward on both sides. Where the skin is open (the collar where the body meets the head), each open edge gets a two-triangle strip joining the sheets, which closes the shell along the actual rim, planar or not. The layer therefore has the skin's resolution, its outer side is the dermis by definition, and its thickness varies continuously with the field; it has no lattice and no staircase.
  *
- * The primitive count is fixed by the skin: twice its vertices, twice its
- * triangles and two triangles per open edge. The shell is a boundary surface
- * of a material region. It is not a tetrahedral solid, and where the
- * surfaces report offset orientation failures, the shell retains them for
- * inspection. A normal-ray ratio refusal alone does not prove a crossing.
- * Missing positive reach stays unknown. This builder establishes only the
- * manifold edge incidence needed for its strips, not global embedding.
- * Shading normals are recomputed on the actual emitted triangles: varying
- * thickness changes a sheet's tangent planes, so skin normals cannot be
- * carried unchanged to its offsets or rim strips.
+ * The primitive count is fixed by the skin: twice its vertices, twice its triangles and two triangles per open edge. The shell is a boundary surface of a material region. It is not a tetrahedral solid, and where the surfaces report offset orientation failures, the shell retains them for inspection. A normal-ray ratio refusal alone does not prove a crossing. Missing positive reach stays unknown. This builder establishes only the manifold edge incidence needed for its strips, not global embedding. Shading normals are recomputed on the actual emitted triangles: varying thickness changes a sheet's tangent planes, so skin normals cannot be carried unchanged to its offsets or rim strips.
+ *
+ * @evidence contracts/common.md#principled-implementation Dermal triangles and reversed fascial triangles share native correspondence; each single-use oriented edge receives two connecting triangles, with paired edge incidence admitted before strips.
+ * @evidence contracts/common.md#clear-and-simple-design One shell owner derives topology from actual sheets/rims and recomputes normals on emitted geometry.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No planar repair cap, guessed part triangle count or thickness correction substitutes for the source boundary; offset failures remain inspectable without embedding certification.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives vertex/triangle/rim counts, outward orientation, non-tetrahedral status and geometric-normal necessity.
+ * @evidence contracts/performance.md#efficient-algorithms For V sheet vertices and T triangles, edge maps and emitted topology cost O(V+T) time/storage, plus area-weighted normal scanning; primitive counts follow actual skin resolution.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both faces reuse the native triangle addressing and one edge-incidence walk supplies actual rim strips.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Edge maps and provisional triangles are local; the returned mesh owns positions/normals/indices and inputs stay unchanged on refusal.
  */
 export function createHumanBodySubcutaneousShell(
   surfaces: IHumanBodyLayerSurfaces,
   indices: readonly number[],
 ): IAutoMovieMesh {
-  const count = surfaces.dermis.length / 3;
+  const count: number = surfaces.dermis.length / 3;
   if (
     count === 0 ||
     surfaces.dermis.length % 3 !== 0 ||
     surfaces.fascia.length !== surfaces.dermis.length ||
     indices.length === 0 ||
     indices.length % 3 !== 0 ||
-    ![surfaces.dermis, surfaces.fascia].every((values) =>
+    ![surfaces.dermis, surfaces.fascia].every((values: number[]): boolean =>
       values.every(Number.isFinite),
     ) ||
     indices.some(
-      (index) => !Number.isSafeInteger(index) || index < 0 || index >= count,
+      (index: number): boolean =>
+        !Number.isSafeInteger(index) || index < 0 || index >= count,
     )
   )
     throw new Error(
       "The layer shell needs complete finite corresponding sheets and native indices.",
     );
-  const positions = [...surfaces.dermis, ...surfaces.fascia];
+  const positions: number[] = [...surfaces.dermis, ...surfaces.fascia];
   const triangles: number[] = [];
   // An edge used once, in the direction its one triangle runs it, is a rim.
-  const rim = new Map<string, number[]>();
-  const incidence = new Map<string, number>();
-  for (let at = 0; at < indices.length; at += 3) {
-    const [a, b, c] = [indices[at], indices[at + 1], indices[at + 2]];
+  const rim: Map<string, number[]> = new Map<string, number[]>();
+  const incidence: Map<string, number> = new Map<string, number>();
+  for (let at: number = 0; at < indices.length; at += 3) {
+    const [a, b, c]: number[] = [indices[at], indices[at + 1], indices[at + 2]];
     if (a === b || b === c || c === a)
       throw new Error(
         "The layer shell needs three distinct native corners per triangle.",
@@ -64,14 +57,14 @@ export function createHumanBodySubcutaneousShell(
       [b, c],
       [c, a],
     ]) {
-      const key = Math.min(from, to) + ":" + Math.max(from, to);
-      const uses = (incidence.get(key) ?? 0) + 1;
+      const key: string = Math.min(from, to) + ":" + Math.max(from, to);
+      const uses: number = (incidence.get(key) ?? 0) + 1;
       incidence.set(key, uses);
       if (uses > 2 || rim.has(from + ":" + to))
         throw new Error(
           "The layer shell requires manifold oppositely oriented edge incidence.",
         );
-      const opposite = to + ":" + from;
+      const opposite: string = to + ":" + from;
       if (rim.has(opposite)) rim.delete(opposite);
       else rim.set(from + ":" + to, [from, to]);
     }

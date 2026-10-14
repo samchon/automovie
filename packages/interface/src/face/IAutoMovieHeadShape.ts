@@ -1,82 +1,43 @@
-import { AutoMovieFaceWeight } from "./AutoMovieFaceWeight";
-
 /**
- * Cranium and overall head proportion: the frame the features sit in.
+ * Cranium and overall head proportion of an {@link IAutoMovieHead}: the frame
+ * the features sit in. Signed weights in `[-2, 2]`, with omission leaving the
+ * template unchanged.
  *
- * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `IAutoMovieHeadShape` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `IAutoMovieHeadShape` as a coarse proxy parameter under the representation-fidelity ceiling.
+ * `flattenHead` renames `width`, `length`, `oval` and `round` to `faceWidth`,
+ * `faceLength`, `faceOval` and `headRound`, and the forehead, temple and
+ * occiput fields to same-stem names.
+ *
+ * @evidence contracts/common.md#principled-implementation `HEAD_PARAMETERS.shape` in `flattenHead` renames the nine leaves one-to-one, the four outline leaves gaining a `face` or `head` prefix and the five skull leaves keeping their names.
+ * @evidence contracts/common.md#clear-and-simple-design The outline controls and the skull-surface controls share one group because both set the frame the features sit in, and none is sided.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `oval` and `round` stay independent targets rather than one axis with a hidden midpoint, and every leaf is copied unchanged for the template to blend.
+ * @evidence contracts/common.md#meaningful-documentation States the group's role, the range and neutral meaning, and all nine morph names; members give each sign's direction.
  * @author Samchon
  */
 export interface IAutoMovieHeadShape {
-  /**
-   * Lateral width of the whole face: `+` wider, `-` narrower.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `width` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `width` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  width?: AutoMovieFaceWeight;
+  /** Lateral width of the whole face: `+` wider, `-` narrower. */
+  width?: number;
 
-  /**
-   * Vertical stretch about the eye line: `+` longer, `-` shorter/rounder.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `length` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `length` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  length?: AutoMovieFaceWeight;
+  /** Vertical stretch about the eye line: `+` longer, `-` shorter and rounder. */
+  length?: number;
 
-  /**
-   * Toward an oval outline (`+`) vs a squarer one (`-`).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `oval` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `oval` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  oval?: AutoMovieFaceWeight;
+  /** Outline: `+` toward an oval, `-` toward a squarer shape. */
+  oval?: number;
 
-  /**
-   * Toward a round outline (`+`) vs a rectangular one (`-`).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `round` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `round` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  round?: AutoMovieFaceWeight;
+  /** Outline: `+` toward a round shape, `-` toward a rectangular one. */
+  round?: number;
 
-  /**
-   * Forehead front slope: `+` forward/upright, `-` receding.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `foreheadSlope` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadSlope` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  foreheadSlope?: AutoMovieFaceWeight;
+  /** Forehead slope: `+` forward and upright, `-` receding. */
+  foreheadSlope?: number;
 
-  /**
-   * Forehead vertical height: `+` taller (childlike), `-` shorter.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `foreheadHeight` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadHeight` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  foreheadHeight?: AutoMovieFaceWeight;
+  /** Forehead height: `+` taller, `-` shorter. */
+  foreheadHeight?: number;
 
-  /**
-   * Forehead/cranial bossing (Nubian curvature).
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `foreheadBulge` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `foreheadBulge` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  foreheadBulge?: AutoMovieFaceWeight;
+  /** Forehead bossing: `+` more rounded bulge, `-` flatter. */
+  foreheadBulge?: number;
 
-  /**
-   * Temple width at the side of the forehead.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `templeWidth` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `templeWidth` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  templeWidth?: AutoMovieFaceWeight;
+  /** Temple width at the side of the forehead: `+` wider, `-` narrower. */
+  templeWidth?: number;
 
-  /**
-   * Occiput (back-of-skull) depth: `+` more projection in profile.
-   *
-   * @evidence requirements/actors/representation-tiers-and-fidelity-boundary.md#actor-direct-authoring-ceiling Keeps `occiputDepth` inside the bounded direct-authoring proxy surface instead of claiming realistic likeness.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-representation-fidelity-boundary Types `occiputDepth` as a coarse proxy parameter under the representation-fidelity ceiling.
-   */
-  occiputDepth?: AutoMovieFaceWeight;
+  /** Back-of-skull depth: `+` more projection in profile, `-` flatter. */
+  occiputDepth?: number;
 }

@@ -36,20 +36,6 @@ const placed = (
     },
   },
 });
-
-/**
- * @evidence instances/building.md The building scene joins one reviewed space envelope with its independent fixed architectural members.
- * @evidence instances/building.md#columns-beams The court datum yields 14 colonnade columns, two porch columns, four ring beams, and one porch entablature with stable role and coordinate IDs.
- * @evidence instances/building.md#openings Eight passage records place matching frames and opened leaves; clerestory records supply window frame width, sill, and host thickness.
- * @evidence instances/building.md#roof-members The authored roof patches locate repeated tile modules, while sanctuary and low-ceiling rooms locate trusses and joists.
- * @evidence instances/building.md#fountain-review One fountain sits on the courtyard floor at its plan centre, and model IDs and placement values are checked before return.
- * @evidence principles/core/source-units.md#source-scope-preservation The builder combines only authored building prototypes with existing roof, passage and room datums; it does not generate mesh shapes or alter the space envelope.
- * @evidence principles/core/source-units.md#source-substantive-completion The returned environment includes the complete independent building member set and refuses duplicate IDs, missing prototypes and non-finite locations.
- * @evidenceExclude upstream/design/instance-sources.md#design-revision-from-instance-source-work The four building placement H2s already specify the repeat origins, spacing, variant selection, roof contact and review sites consumed here.
- * @evidence obligations/design/instance-sources.md#instance-source-design-ownership Each generated member is a column, beam, opening, roof, timber, or fountain choice of the four authored building H2s.
- * @evidence obligations/design/instance-sources.md#instance-source-stable-membership Equal immutable plan, opening, roof and model inputs traverse fixed loops to produce stable member IDs and transforms.
- * @evidence obligations/design/instance-sources.md#instance-source-invalid-placement Duplicate IDs, unknown prototypes and non-finite translations throw with a member ID before the scene is returned.
- */
 export const createTempleBuildingScene = (): IAutoMovieBuiltEnvironment => {
   const built = createTempleBuildingEnvelope();
   const columns = new TempleColumns();

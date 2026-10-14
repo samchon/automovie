@@ -1,8 +1,15 @@
 /**
  * The resolved dimensions of one arch's lining, in metres.
  *
- * They are the caller's `oral` values where given and the oral lining
- * owner's named defaults otherwise. Every length is positive and finite.
+ * They are the caller's `oral` values where given and the oral lining owner's named defaults otherwise. Every length is positive and finite.
+ *
+ * @evidence contracts/common.md#principled-implementation Five positive resolved lengths select one arch's authored collar, clearance, vault and outline reach.
+ * @evidence contracts/common.md#clear-and-simple-design Document millimetres or named defaults lower to one metre record used by field and assembly.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generic adult defaults are authored extensions, not clinical normal ranges or the current person's acquired anatomy.
+ * @evidence contracts/common.md#meaningful-documentation Posterior reach expands the outline without terminating the field's unbounded terminal rays.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Conversion and positivity admission execute in resolveHumanFaceOralLiningDimensions.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One resolved dimension record is reused throughout the arch construction.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns these scalars until its field/assembly completes; this schema allocates no buffers or handles.
  *
  * @author Samchon
  */

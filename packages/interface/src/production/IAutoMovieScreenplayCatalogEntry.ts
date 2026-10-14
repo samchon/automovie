@@ -3,44 +3,26 @@ import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 /**
  * One discovered character, faction, or location grounded in scene evidence.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `IAutoMovieScreenplayCatalogEntry` as the portable data boundary for the story screenplay index prose requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMovieScreenplayCatalogEntry` for the narrative intent scene prose index system contract.
+ * @evidence contracts/common.md#principled-implementation String identity, scene citations and closed binding kinds represent an authored catalog entry; the arrays may be empty and referenced identities are not resolved by this type.
+ * @evidence contracts/common.md#clear-and-simple-design Separates story identity from reusable shared design, allowing different productions to bind the same design differently without making model convenience the screenplay's ontology.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts All entries share one binding union without section-specific exceptions; matching a binding kind to its catalog section and checking target existence remain consumer obligations.
+ * @evidence contracts/common.md#meaningful-documentation Defines stable id, canonical name, scene evidence and production-scoped design joins with section-specific families.
+ * @author Samchon
  */
 export interface IAutoMovieScreenplayCatalogEntry {
-  /**
-   * Stable catalog identity consumed by downstream design.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `id` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `id` for the narrative intent scene prose index system contract.
-   */
+  /** Stable catalog identity consumed by downstream design. */
   id: string;
 
-  /**
-   * Human-readable canonical name.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `name` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `name` for the narrative intent scene prose index system contract.
-   */
+  /** Human-readable canonical name. */
   name: string;
 
-  /**
-   * At least one authored scene proving this subject exists in the film.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `evidence` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `evidence` for the narrative intent scene prose index system contract.
-   */
+  /** At least one authored scene proving this subject exists in the film. */
   evidence: IAutoMovieSceneEvidence[];
 
   /**
    * Production-scoped joins to shared downstream design.
    *
-   * Character entries bind model recipes, faction entries bind formations, and
-   * location entries bind world landmarks. Keeping these joins in the
-   * screenplay index lets two productions cast the same shared design
-   * differently.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-screenplay-index-prose Exposes `bindings` as the portable data boundary for the story screenplay index prose requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `bindings` for the narrative intent scene prose index system contract.
+   * Character entries bind model recipes, faction entries bind formations, and location entries bind world landmarks. Keeping these joins in the screenplay index lets two productions cast the same shared design differently.
    */
   bindings: Array<{
     /** Downstream design family allowed by this catalog section. */

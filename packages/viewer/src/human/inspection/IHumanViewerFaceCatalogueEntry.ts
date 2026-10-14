@@ -3,34 +3,22 @@ import type { IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 
 /**
- * A face catalogue entry as the page reads it: the wire entry with its
- * document typed. The page passes it to its domain owner, which admits it.
+ * A face catalogue entry as the page reads it: the wire entry with its document typed. The page passes it to its domain owner, which admits it.
  *
- * @evidence contracts/common.md#principled-implementation The domain discriminant pairs the document with its own runtime.
- * @evidence contracts/common.md#meaningful-documentation Names the narrowed members.
- *
- * @evidence contracts/common.md#clear-and-simple-design The shared wire catalogue is narrowed only at face domain and its Human face document type.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The face discriminator identifies the existing Face runtime without creating a second admission schema.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The domain discriminant pairs the document with its own runtime.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The face discriminator identifies the existing Face runtime without creating a second admission schema.
+ * @evidence contracts/common.md#principled-implementation Narrows the shared server catalogue entry to face domain and its canonical Human face basis document type for page dispatch.
+ * @evidence contracts/common.md#clear-and-simple-design Extends common id/key/basis authority rather than copying the face numerical schema into Viewer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The typed projection does not admit JSON; the actual face owner still validates/builds it and can refuse.
+ * @evidence contracts/common.md#meaningful-documentation Documents the face discriminator and document type while retaining base entry units, token and cache authority meanings.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The interface erases; source parse/hash and face numerical/GPU preparation remain in their consuming owners.
+ * @evidence contracts/performance.md#reuse-equivalent-work Face cache equivalence includes actual document, basis and face builder source, not just face type or displayed id.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The page borrows catalogue/document state until replacement; this subtype owns no numerical transport or resident population.
  *
  * @author Samchon
  */
 export interface IHumanViewerFaceCatalogueEntry extends IHumanViewerCatalogueEntry {
-  /**
-   * Always `face`.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Pairs the narrowed face document with the existing Face owner rather than a inferred name-based builder.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Pairs the narrowed face document with the existing Face owner rather than a inferred name-based builder.
-   */
+  /** Always `face`. */
   domain: "face";
 
-  /**
-   * The face document.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Retains the original Human Face document for owner admission and deterministic replay.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains the original Human Face document for owner admission and deterministic replay.
-   */
+  /** The face document. */
   document: IAutoMovieHumanFaceBasisDocument;
 }

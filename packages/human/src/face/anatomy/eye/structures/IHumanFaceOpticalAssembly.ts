@@ -9,6 +9,15 @@ import type { IHumanFaceOcularSurfacePair } from "./IHumanFaceOcularSurfacePair"
  * One generated eye's shared exterior, displayed surfaces and resident owner.
  * Geometry is read by both contact and the face model; finishes are downstream.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation One source-registered eye keeps generation, replaced native vertices, displayed sheets, both colliders and both analytic/deviation readings together.
+ * @evidence contracts/common.md#clear-and-simple-design The assembly producer owns geometry/registration and the finish/contact readers consume those actual shared surfaces.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Side is explicit rather than inferred from coordinate sign; deviation does not certify clinical anatomy or hull inscription.
+ * @evidence contracts/common.md#meaningful-documentation Fields state source identity, state correspondence, actual centre and separate geometric representations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IHumanFaceOpticalAssembly is an erased geometry/source contract; its concrete producer or reader owns actual algorithms and population traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IHumanFaceOpticalAssembly declares correspondence only; its concrete owner decides geometry copies, shared readings and invalidation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IHumanFaceOpticalAssembly acquires no runtime buffer, handle or task; concrete builders/readers own referenced arrays and optional callback retention.
+ *
  * @author Samchon
  */
 export interface IHumanFaceOpticalAssembly {

@@ -87,10 +87,6 @@ const onSegment = (p: IAutoMovieVector3, [a, b]: Edge): boolean => {
 };
 
 /** Only a coincident weather edge belonging to another roof plane stays open.
- * @evidence spaces/roof/00-junctions.md This classification follows the roof parts' shared ridge and valley coordinates.
- * @evidence principles/core/source-units.md#source-scope-preservation The rule selects closure of authored edges without changing roof mass.
- * @evidence principles/core/source-units.md#source-substantive-completion A free step or chimney edge receives a thickness face, while paired weather edges remain open.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges fixes coincident ridge and valley segments, and main-front-roof forbids internal closing faces while closing free thickness; roofFreeEdge tests that supplied distinction.
  */
 export const roofFreeEdge = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
   !shared.some((edge) => onSegment(a, edge) && onSegment(b, edge));

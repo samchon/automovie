@@ -23,6 +23,14 @@ import { triangleAreaVector } from "./triangleAreaVector";
  * direction is always compared within the input local frame. Every refused
  * face is retained, with the original first refusal wording. An optional
  * origin describes translation back to source space for diagnostics only.
+ *
+ * @evidence contracts/common.md#principled-implementation Float32 attributes/Uint32 incidence remain finite/aligned, each nonredundant reference face retains direction, and NORMAL length stays within one Float32 epsilon. Original engine redundancy identifies faces rather than aggregate counts.
+ * @evidence contracts/common.md#clear-and-simple-design The shared preview/glTF boundary reuses engine redundancy, orientation admission and actual normal diagnostics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No photograph, subject, absolute area threshold or renderer verdict exempts loss; optional origin is diagnostic only and every refused face remains recorded.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives local/reference frames, incidence matching, quantized area/direction checks and full refusal diagnostics.
+ * @evidence contracts/performance.md#efficient-algorithms For V vertices, T faces and F refusals, conversion/scans/checks cost O(V+T+F) plus welding; normal failures add their incident-reader work and diagnostics occupy O(F).
+ * @evidence contracts/performance.md#reuse-equivalent-work Reference redundancy is computed once and each before/after vector serves admission and diagnostics; mutable mesh/reference policy has no shared conversion cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Admitted typed buffers transfer; sets, copied failures and JSON expire on return/refusal with input-sized lifetime, no native handles/tasks.
  */
 export function float32MeshBuffers(
   mesh: IAutoMovieMesh,
@@ -30,12 +38,14 @@ export function float32MeshBuffers(
   reference: IAutoMovieMesh = mesh,
   origin?: IAutoMovieVector3,
 ): IHumanFloat32MeshBuffers {
-  const degenerate = new Set(weldedDegenerateTriangles(reference));
+  const degenerate: Set<number> = new Set(weldedDegenerateTriangles(reference));
   if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
     throw new Error("Model normal buffers must align with resident positions.");
-  const positions = new Float32Array(mesh.positions);
-  const normals = mesh.normals === null ? null : new Float32Array(mesh.normals);
-  const uvs = mesh.uvs === null ? null : new Float32Array(mesh.uvs);
+  const positions: Float32Array<ArrayBuffer> = new Float32Array(mesh.positions);
+  const normals: Float32Array<ArrayBuffer> | null =
+    mesh.normals === null ? null : new Float32Array(mesh.normals);
+  const uvs: Float32Array<ArrayBuffer> | null =
+    mesh.uvs === null ? null : new Float32Array(mesh.uvs);
   if (
     uvs !== null &&
     (uvs.length !== (positions.length / 3) * 2 || !uvs.every(Number.isFinite))
@@ -43,16 +53,29 @@ export function float32MeshBuffers(
     throw new Error(
       "Model UV0 must remain complete and finite at Float32 precision.",
     );
-  const indices = new Uint32Array(
+  const indices: Uint32Array<ArrayBuffer> = new Uint32Array(
     mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i),
+      Array.from(
+        { length: mesh.positions.length / 3 },
+        (_value: unknown, i: number): number => i,
+      ),
   );
-  const referenceIndices = reference.indices ??
-    Array.from({ length: reference.positions.length / 3 }, (_v, i) => i);
-  if (reference.positions.length !== mesh.positions.length ||
+  const referenceIndices: number[] =
+    reference.indices ??
+    Array.from(
+      { length: reference.positions.length / 3 },
+      (_value: unknown, i: number): number => i,
+    );
+  if (
+    reference.positions.length !== mesh.positions.length ||
     referenceIndices.length !== indices.length ||
-    referenceIndices.some((vertex, at) => vertex !== indices[at]))
-    throw new Error("A Float32 redundancy reference must preserve original vertex and triangle incidence.");
+    referenceIndices.some(
+      (vertex: number, at: number): boolean => vertex !== indices[at],
+    )
+  )
+    throw new Error(
+      "A Float32 redundancy reference must preserve original vertex and triangle incidence.",
+    );
   if (
     !positions.every(Number.isFinite) ||
     (normals !== null && !normals.every(Number.isFinite))
@@ -61,11 +84,11 @@ export function float32MeshBuffers(
       "Model Float32 buffers must contain only finite components.",
     );
   if (normals !== null)
-    for (let offset = 0; offset < normals.length; offset += 3) {
+    for (let offset: number = 0; offset < normals.length; offset += 3) {
       // glTF NORMAL is a unit direction, including redundant-pole vertices.
       // One Float32 epsilon permits component rounding of an authored unit
       // vector; neither topology redundancy nor finite zero supplies direction.
-      const length = Math.hypot(
+      const length: number = Math.hypot(
         normals[offset],
         normals[offset + 1],
         normals[offset + 2],
@@ -80,63 +103,91 @@ export function float32MeshBuffers(
     }
   const failures: IHumanFloat32MeshRefusal[] = [];
   let firstError: string | undefined;
-  for (let face = 0; face < indices.length; face += 3) {
+  for (let face: number = 0; face < indices.length; face += 3) {
     if (degenerate.has(face / 3)) continue;
-    const before = triangleAreaVector(mesh.positions, indices, face);
-    const after = triangleAreaVector(positions, indices, face);
+    const before: IAutoMovieVector3 = triangleAreaVector(
+      mesh.positions,
+      indices,
+      face,
+    );
+    const after: IAutoMovieVector3 = triangleAreaVector(
+      positions,
+      indices,
+      face,
+    );
     try {
       assertDirection(before, after, face / 3, "Float32 conversion");
     } catch (error) {
-      const corners = Array.from(indices.slice(face, face + 3));
+      const corners: number[] = Array.from(indices.slice(face, face + 3));
       firstError ??= error instanceof Error ? error.message : String(error);
-      const shift = origin === undefined ? [0, 0, 0] : [origin.x, origin.y, origin.z];
-      const edgeLengthsMetres = corners.map((vertex, at) => {
-        const next = corners[(at + 1) % 3];
-        return Math.hypot(...[0, 1, 2].map((axis) =>
-          mesh.positions[3 * next + axis] - mesh.positions[3 * vertex + axis],
-        ));
-      });
-      const beforeLength = Math.hypot(before.x, before.y, before.z);
-      const afterLength = Math.hypot(after.x, after.y, after.z);
-      const longest = Math.max(...edgeLengthsMetres);
-      const altitude = beforeLength / longest;
-      const aspect = longest / altitude;
-      const agreement = (before.x * after.x + before.y * after.y + before.z * after.z) /
+      const shift: number[] =
+        origin === undefined ? [0, 0, 0] : [origin.x, origin.y, origin.z];
+      const edgeLengthsMetres: number[] = corners.map(
+        (vertex: number, at: number): number => {
+          const next: number = corners[(at + 1) % 3];
+          return Math.hypot(
+            ...[0, 1, 2].map(
+              (axis: number): number =>
+                mesh.positions[3 * next + axis] -
+                mesh.positions[3 * vertex + axis],
+            ),
+          );
+        },
+      );
+      const beforeLength: number = Math.hypot(before.x, before.y, before.z);
+      const afterLength: number = Math.hypot(after.x, after.y, after.z);
+      const longest: number = Math.max(...edgeLengthsMetres);
+      const altitude: number = beforeLength / longest;
+      const aspect: number = longest / altitude;
+      const agreement: number =
+        (before.x * after.x + before.y * after.y + before.z * after.z) /
         (beforeLength * afterLength);
       failures.push({
-            face: face / 3,
-            corners,
-            before,
-            after,
-            edgeLengthsMetres,
-            minimumAltitudeMetres: Number.isFinite(altitude) ? altitude : null,
-            longestEdgeOverMinimumAltitude: Number.isFinite(aspect) ? aspect : null,
-            orientationAgreement: Number.isFinite(agreement) ? agreement : null,
-            positions: corners.map((vertex) =>
-              mesh.positions.slice(3 * vertex, 3 * vertex + 3),
-            ),
-            float32: corners.map((vertex) =>
-              Array.from(positions.slice(3 * vertex, 3 * vertex + 3)),
-            ),
-            sourcePositions: corners.map((vertex) =>
-              reference.positions.slice(3 * vertex, 3 * vertex + 3),
-            ),
-            origin: origin ?? null,
-            translatedFloat32: origin === undefined ? null : corners.map((vertex) =>
-              Array.from(positions.slice(3 * vertex, 3 * vertex + 3))
-                .map((value, axis) => value + shift[axis]),
-            ),
-            physical: corners.map((vertex) => {
-              const alias = mesh.physicalVertices?.vertices[vertex];
-              return alias === undefined || alias === null
-                ? null
-                : (mesh.physicalVertices!.sources[alias] ?? null);
-            }),
-          });
+        face: face / 3,
+        corners,
+        before,
+        after,
+        edgeLengthsMetres,
+        minimumAltitudeMetres: Number.isFinite(altitude) ? altitude : null,
+        longestEdgeOverMinimumAltitude: Number.isFinite(aspect) ? aspect : null,
+        orientationAgreement: Number.isFinite(agreement) ? agreement : null,
+        positions: corners.map((vertex: number): number[] =>
+          mesh.positions.slice(3 * vertex, 3 * vertex + 3),
+        ),
+        float32: corners.map((vertex: number): number[] =>
+          Array.from(positions.slice(3 * vertex, 3 * vertex + 3)),
+        ),
+        sourcePositions: corners.map((vertex: number): number[] =>
+          reference.positions.slice(3 * vertex, 3 * vertex + 3),
+        ),
+        origin: origin ?? null,
+        translatedFloat32:
+          origin === undefined
+            ? null
+            : corners.map((vertex: number): number[] =>
+                Array.from(positions.slice(3 * vertex, 3 * vertex + 3)).map(
+                  (value: number, axis: number): number => value + shift[axis],
+                ),
+              ),
+        physical: corners.map(
+          (vertex: number): IHumanFloat32MeshRefusal["physical"][number] => {
+            const alias: number | null | undefined =
+              mesh.physicalVertices?.vertices[vertex];
+            return alias === undefined || alias === null
+              ? null
+              : (mesh.physicalVertices!.sources[alias] ?? null);
+          },
+        ),
+      });
     }
   }
   if (firstError !== undefined)
-    throw new Error(firstError + " mesh:" + identity + " " +
-      JSON.stringify({ ...failures[0], failures }));
+    throw new Error(
+      firstError +
+        " mesh:" +
+        identity +
+        " " +
+        JSON.stringify({ ...failures[0], failures }),
+    );
   return { positions, normals, uvs, indices };
 }

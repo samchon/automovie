@@ -1,57 +1,7 @@
 # medieval-baron-manor
 
-This is a coding-agent-first AutoMovie production repository. Author production facts, construction and final screenplay documents, source, assets, and delivery indexes as ordinary tracked files. Production execution consumes typed source directly.
+An authored AutoMovie production used by the public website.
 
-## Authoring routes
+Source and command entry points live under src. Static viewer files live under public. Preserve committed textures and assets alongside their source consumers.
 
-`AGENTS.md` is the shared coding-agent entry point. It routes contract lookup through the [contract skill](.agents/skills/contract/SKILL.md), production work through [production lifecycle](.agents/skills/production-lifecycle/SKILL.md), graph changes through [evidence graph](.agents/skills/evidence-graph/SKILL.md), implementation through [source authoring](.agents/skills/source-authoring/SKILL.md), and observation or completion through [review verification](.agents/skills/review-verification/SKILL.md). Read the current production selection and claims from `src/lint.config.ts` and their actual owners from `docs`; the entry point is not a generated facts inventory.
-
-Use [Production kinds](.agents/skills/production-lifecycle/production-kinds.md) before selecting `kind` in `src/lint.config.ts`. Use [Production documents](docs/README.md) for physical document ownership, [Contract targets](.agents/skills/evidence-graph/contract-targets.md) for shared and language target forms, [Production-specific contract](.agents/skills/evidence-graph/work-specific.md) for local discovery results, and [Evidence staging](.agents/skills/evidence-graph/staging.md) before changing a branch stage or evidence annotation. Those routes own their semantics; this README only makes them reachable.
-
-## Static-document updates
-
-Scaffold installation is one-way. After creation, `AGENTS.md`, `CLAUDE.md`, `.agents/skills`, contracts, READMEs, configuration, and source are project-owned tracked files. The coding agent maintains them through ordinary reviewed edits and commits; package upgrades do not regenerate or overwrite them. Adopt an upstream instruction or contract change only as an explicit project change, preserving authored content and reconciling its affected callers, claims, and reviews.
-
-Use ordinary coding-agent tools for authoring. Scaffold creation does not register an MCP client or write client configuration.
-
-## First run
-
-This committed production is a member of the AutoMovie pnpm workspace. Run installation and source lint from the workspace root:
-
-```bash
-pnpm install
-pnpm --filter medieval-baron-manor lint
-```
-
-The current production selection and evidence stages live in `src/lint.config.ts`. `src/spaces/manor.ts` returns the environment directly from the authored geometry, instances, and world transforms; it reads no generated JSON. The public website consumes the same model and texture source. Run `pnpm --filter @automovie/website dev` from the workspace root to inspect it.
-
-The `./textured-scene` export resolves to [the TypeScript texture and scene adapter](src/instances/manor-textured.ts). [The geometry owner](src/models/manor.ts), [roof](src/models/buildManorRoof.ts), and [presentation](src/models/buildManorPresentation.ts) retain the authored construction, observations and articulation. The website's normal Vite build produces the browser JavaScript; it does not serve these TypeScript files directly.
-
-[The instance inventory](src/instances/manor-inventory.ts) uses the browser-safe public engine materializer for the same explicit placements, seed and prototype radii. Its runtime digests describe the current compiled fields. This mesh inventory declares no design model recipes, so the kernel records that absence rather than inventing a recipe digest. The actual mesh prototypes remain supplied to the GPU consumer. Source lint and actual browser observation qualify the typed delivery separately from the production's design and visual reviews.
-
-## Canonical command routes
-
-Use the commands declared in `package.json`:
-
-| Command | Purpose |
-| --- | --- |
-| `npm run lint` | Check the complete TypeScript program and active authored evidence. |
-| `npm run format` | Format source with the configured compiler formatter. |
-
-The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
-
-The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
-
-## Visual work
-
-When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
-
-## Ownership
-
-- All source code belongs under `src`, including command entry points, viewer code, configuration modules, review declarations, and any test source. Source location does not make tooling a production design owner; the typed evidence declaration selects the authored populations.
-- `public` holds HTML and static assets. Keep executable code in imported `src` modules rather than inline HTML scripts or asset directories.
-- `docs` holds authored decisions, contracts, and review observations. Git holds change history. Neither is replaced by a generated state ledger.
-- `package.json` is the only project JSON file. Keep package and compiler settings there; do not create another JSON configuration, design store, registry, migration journal, receipt, or cache file in the project.
-- Execute production and measurement functions over typed values. Images, media, and reader-facing documents are outputs; serialized project state is not an authoring product.
-
-Run the applicable [Author process Self-Review](.agents/skills/review-verification/self-review.md) before handing off a completed authoring, evidence, review, or stage-transition boundary.
+Use the commands declared in package.json for source checks and viewing. The website consumes the production's source directly.

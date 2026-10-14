@@ -1,19 +1,27 @@
-import { IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieSemanticMask } from "@automovie/interface";
-
+import {
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 
 /**
- * One shot's measured cost, checked against the budget the job targets.
+ * One caller-supplied shot's measured inventory and explicit budget assessment, without proving an actual draw or automatic render-job gate.
  *
- * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment` carries the conservative measurement basis and deterministic budget decision.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment` exposes that responsibility through the package-independent system contract.
+ * @evidence contracts/common.md#principled-implementation A shot assessment distinguishes not-run from a report's incomplete status and uses nullable inventory, mask and target fields when no renderer was identified.
+ * @evidence contracts/common.md#clear-and-simple-design This record keeps measurement, attribution and sealed target together for one compiled shot's budget decision.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent graphics identity is represented by not-run and a reason, not a fabricated renderer or empty passing report.
+ * @evidence contracts/common.md#meaningful-documentation Members explain nullable state, the not-run versus incomplete distinction and how semantic owners resolve through the mask.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The per-shot assessment schema declares data and chooses no runtime algorithm; its producer documents construction cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The attributed measurement data describes an identity boundary and performs no request coordination or result caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased assessment type acquires no GPU; assessAutoMovieRenderBudget returns report/inventory/mask/target values whose lifetime belongs to the preflight caller.
+ *
  * @author Samchon
  */
 export interface IAutoMovieRenderBudgetAssessment {
   /**
    * Compiled shot the measurement belongs to.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.shot` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.shot` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   shot: string;
@@ -21,12 +29,8 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The verdict, including the two that are not a pass.
    *
-   * `not-run` is this record's own: the report's `incomplete` says an analysis
-   * had no input, and `not-run` says no report exists at all because the job
-   * never learned what it draws with.
+   * `not-run` is this record's own: no report exists because no renderer identity was supplied. A report's `incomplete` retains its measured findings while one or more analyses have unresolved inputs or bounds; neither state is clearance.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.status` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.status` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   status: IAutoMovieRenderReport["status"] | "not-run";
@@ -34,8 +38,6 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * Why no report exists, or `null` when one does.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.reason` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.reason` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   reason: string | null;
@@ -43,8 +45,6 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The bounded verdict, or `null` when the assessment did not run.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.report` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.report` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   report: IAutoMovieRenderReport | null;
@@ -52,8 +52,6 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The measured cost, or `null` when the assessment did not run.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.inventory` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.inventory` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   inventory: IAutoMovieRenderInventory | null;
@@ -61,8 +59,6 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The palette the report's owners resolve in, or `null` as above.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.mask` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.mask` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   mask: IAutoMovieSemanticMask | null;
@@ -70,8 +66,6 @@ export interface IAutoMovieRenderBudgetAssessment {
   /**
    * The sealed target, or `null` when the renderer was never identified.
    *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision `IAutoMovieRenderBudgetAssessment.target` carries the conservative measurement basis and deterministic budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight `IAutoMovieRenderBudgetAssessment.target` exposes that responsibility through the package-independent system contract.
    * @author Samchon
    */
   target: IAutoMovieRenderTarget | null;

@@ -6,7 +6,7 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 import {
   GRAPHICS_FIXTURE,
   RENDER_BUDGET_ASSETS,
@@ -21,10 +21,10 @@ import { sceneFixture } from "../internal/renderFixtures";
  *
  * The target is the whole reason a report can go stale instead of silently
  * lying: change the shadow filter, the pixel ratio or the tone curve and the
- * same design costs something else. So the settings have to be the ones the
- * viewer will actually apply, and a host that never told the job what it draws
- * with has to produce `not-run` rather than a verdict attributed to a
- * fabricated GPU.
+ * same design costs something else. This test checks the mapper's declared
+ * policy; applying it to a real host is a separate responsibility. A host that
+ * never told the job what it draws with produces `not-run` rather than a
+ * verdict attributed to a fabricated GPU.
  *
  * Scenarios:
  *
@@ -45,8 +45,13 @@ import { sceneFixture } from "../internal/renderFixtures";
  * 7. A shot the preflight cannot measure is refused by its own id, with the
  *    engine's account of the contradiction preserved: none of those refusals
  *    knows which shot it was reading.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual renderer/settings mapping, target sealing and budget preflight; asserts graphics identity spelling, absent/unknown distinction, staged/default/shadowless settings, no-probe refusal payload, delivery-sensitive target identity and a missing-model error naming its shot and cause.
+ * @evidence contracts/testing.md#independent-expectations Authored graphics fields map renderer to device, blank fields mean unknown and missing probes mean null. Literal environment exposure 1.5/shadow policy and neutral absent-environment exposure one/no shadows supply expectations; the latter assumes a neutral host and does not prove an arbitrary viewer resets previous state. Repeated versus changed delivery is an identity-preservation oracle, not a GPU measurement.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all seven groups including null/undefined/blank probes, present/absent environment, disabled VSM normalized to none, unprobed early return, repeat/changed tone curve and absent-model contextual refusal. Budget thresholds, texture residency and aggregate tier evidence belong to other preflight tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_preflight_target owns portable synchronous mappings and preflight over injected graphics facts. It queries no live graphics device, starts no browser/renderer and proves no actual capture settings or pixels.
  */
-export const test_render_budget_preflight_target = (): void => {
+export function test_render_budget_preflight_target(): void {
   TestValidator.equals(
     "a capture probe becomes the renderer identity a target is sealed to",
     autoMovieRenderTargetRendererOfGraphics(GRAPHICS_FIXTURE),
@@ -74,10 +79,13 @@ export const test_render_budget_preflight_target = (): void => {
     },
   );
 
-  const settings = (props: {
+  const settings: (props: {
     environment?: ReturnType<typeof sceneEnvironmentFixture>;
     delivery: "none" | "acesFilmic";
-  }) =>
+  }) => ReturnType<typeof autoMovieRenderTargetSettingsOfShot> = (props: {
+    environment?: ReturnType<typeof sceneEnvironmentFixture>;
+    delivery: "none" | "acesFilmic";
+  }): ReturnType<typeof autoMovieRenderTargetSettingsOfShot> =>
     autoMovieRenderTargetSettingsOfShot({
       compiled: compiledShotFixture({
         scene: { ...sceneFixture(), environment: props.environment },
@@ -87,14 +95,26 @@ export const test_render_budget_preflight_target = (): void => {
       pixelRatio: 1,
       delivery: props.delivery,
     });
+  const stagedSettings: ReturnType<typeof settings> = settings({
+    environment: sceneEnvironmentFixture(),
+    delivery: "none",
+  });
+  const bareSettings: ReturnType<typeof settings> = settings({
+    delivery: "acesFilmic",
+  });
+  TestValidator.predicate(
+    "environment/default exposure and pixel ratio match authored policy",
+    (): boolean =>
+      nclose(stagedSettings.exposure, 1.5, 1e-12) &&
+      nclose(bareSettings.exposure, 1, 1e-12) &&
+      nclose(stagedSettings.pixelRatio, 1, 1e-12) &&
+      nclose(bareSettings.pixelRatio, 1, 1e-12),
+  );
   TestValidator.equals(
     "the scene's environment outranks the delivery, and its absence does not",
     {
-      staged: settings({
-        environment: sceneEnvironmentFixture(),
-        delivery: "none",
-      }),
-      bare: settings({ delivery: "acesFilmic" }),
+      staged: { ...stagedSettings, exposure: 1.5, pixelRatio: 1 },
+      bare: { ...bareSettings, exposure: 1, pixelRatio: 1 },
     },
     {
       staged: {
@@ -118,7 +138,7 @@ export const test_render_budget_preflight_target = (): void => {
     },
   );
 
-  const shadowless = settings({
+  const shadowless: ReturnType<typeof settings> = settings({
     environment: sceneEnvironmentFixture({
       shadows: { enabled: false, type: "vsm" },
     }),
@@ -142,14 +162,15 @@ export const test_render_budget_preflight_target = (): void => {
     },
   );
 
-  const unprobed = assessAutoMovieRenderBudget({
-    compiled: compiledShotFixture(),
-    shot: "opening",
-    budget: null,
-    renderer: null,
-    settings: settings({ delivery: "none" }),
-    assets: RENDER_BUDGET_ASSETS,
-  });
+  const unprobed: ReturnType<typeof assessAutoMovieRenderBudget> =
+    assessAutoMovieRenderBudget({
+      compiled: compiledShotFixture(),
+      shot: "opening",
+      budget: null,
+      renderer: null,
+      settings: settings({ delivery: "none" }),
+      assets: RENDER_BUDGET_ASSETS,
+    });
   TestValidator.equals(
     "a job that never learned its renderer reports `not-run`, not a verdict",
     {
@@ -172,7 +193,11 @@ export const test_render_budget_preflight_target = (): void => {
     },
   );
 
-  const under = (delivery: "none" | "acesFilmic") =>
+  const under: (
+    delivery: "none" | "acesFilmic",
+  ) => ReturnType<typeof assessAutoMovieRenderBudget> = (
+    delivery: "none" | "acesFilmic",
+  ): ReturnType<typeof assessAutoMovieRenderBudget> =>
     assessAutoMovieRenderBudget({
       compiled: compiledShotFixture(),
       shot: "opening",
@@ -181,9 +206,9 @@ export const test_render_budget_preflight_target = (): void => {
       settings: settings({ delivery }),
       assets: RENDER_BUDGET_ASSETS,
     });
-  const plain = under("none");
-  const repeated = under("none");
-  const filmic = under("acesFilmic");
+  const plain: ReturnType<typeof under> = under("none");
+  const repeated: ReturnType<typeof under> = under("none");
+  const filmic: ReturnType<typeof under> = under("acesFilmic");
   TestValidator.equals(
     "two deliveries of one shot fingerprint differently",
     {
@@ -197,7 +222,7 @@ export const test_render_budget_preflight_target = (): void => {
   TestValidator.predicate(
     "a shot the preflight cannot measure is refused by shot id and by cause",
     throwsError(
-      () =>
+      (): ReturnType<typeof assessAutoMovieRenderBudget> =>
         assessAutoMovieRenderBudget({
           compiled: compiledShotFixture({
             scene: {
@@ -229,4 +254,4 @@ export const test_render_budget_preflight_target = (): void => {
       ],
     ),
   );
-};
+}

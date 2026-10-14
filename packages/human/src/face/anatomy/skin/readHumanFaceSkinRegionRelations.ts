@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
+import type { IAutoMovieHumanFaceBasisSurface as IAutoMovieHumanFaceBasisSurfaceImported } from "../../../index";
 import type { IHumanFaceAssemblyCensusInput } from "../../basis/IHumanFaceAssemblyCensusInput";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
 
@@ -31,35 +32,58 @@ import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance
  * source, and the numbers exist so an owner can state one. An area without a
  * triangle of its own, or one that leaves no remainder, produces a reading
  * marked unavailable instead of being skipped.
+ * A missing source surface or performed position buffer is currently skipped;
+ * callers must separately admit the complete basis/pose population. Open-sheet
+ * signs have only local geometric meaning, and this report states no reach bound.
+ *
+ * @evidence contracts/common.md#principled-implementation Named native vertex sets partition performed skin into complete inside and outside triangles, omitting mixed attachment-ring faces; the shared signed-distance/crossing reader reports geometry with judged false rather than an anatomical refusal.
+ * @evidence contracts/common.md#clear-and-simple-design Region partitioning belongs here while publication precision, native queries and crossing census remain measureHumanFaceClearance responsibilities; assembly-census appends these region readings to its actual model reports.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty partitions emit unavailable observations, but missing source/pose buffers are currently skipped and require separate caller admission. No read source supplies anatomical limits or open-sheet reach, so report-only signs cannot certify validity.
+ * @evidence contracts/common.md#meaningful-documentation The prose explains native region identity, mixed-face exclusion, rim-side uncertainty, report-only meaning, empty-partition handling and missing-buffer/local-sign limitations.
+ * @evidence contracts/performance.md#efficient-algorithms For A named areas the reader scans each area's T source triangles and copies V positions for both query meshes; shared clearance cost includes selected-vertex nearest traversal, distance sorting and triangle crossing census. This reports complete subsets rather than stopping at the first negative point.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within an area, membership Set lookups reuse its native vertex set; newly constructed outside meshes differ between areas, so this reader introduces no cross-area query cache that could mistake different partitions as equivalent.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary subsets/mesh copies are area-local and shared clearance retains references only through its weak-key owner; returned reading records belong to the census caller and no strong global region/task population is added here.
  */
 export function readHumanFaceSkinRegionRelations(
   input: IHumanFaceAssemblyCensusInput,
 ): IAutoMovieHumanConstructionClearanceReading[] {
-  const { basis, pose } = input;
-  const tolerance = basis.contact?.toleranceMetres ?? 0;
+  const { basis, pose }: IHumanFaceAssemblyCensusInput = input;
+  const tolerance: number = basis.contact?.toleranceMetres ?? 0;
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const [name, area] of Object.entries(basis.skinRegions ?? {})) {
-    const surface = basis.surfaces[area.surface];
-    const points =
+    const surface: IAutoMovieHumanFaceBasisSurfaceImported =
+      basis.surfaces[area.surface];
+    const points: readonly number[] | undefined =
       surface === undefined ? undefined : pose.positions.get(surface.id);
     if (surface === undefined || points === undefined) continue;
-    const members = new Set(area.vertices);
+    const members: Set<number> = new Set(area.vertices);
     const inside: number[] = [],
       outside: number[] = [];
-    for (let at = 0; at < surface.indices.length; at += 3) {
-      const corners = surface.indices.slice(at, at + 3);
-      const count = corners.filter((vertex) => members.has(vertex)).length;
+    for (let at: number = 0; at < surface.indices.length; at += 3) {
+      const corners: number[] = surface.indices.slice(at, at + 3);
+      const count: number = corners.filter((vertex: number): boolean =>
+        members.has(vertex),
+      ).length;
       if (count === 3) inside.push(...corners);
       else if (count === 0) outside.push(...corners);
     }
-    const mesh = (indices: number[]): IAutoMovieMesh => ({
+    const mesh: (indices: number[]) => IAutoMovieMesh = (
+      indices: number[],
+    ): IAutoMovieMesh => ({
       positions: [...points],
       indices,
       normals: null,
       uvs: null,
       skin: null,
     });
-    const request = {
+    const request: {
+      owner: string;
+      state: "performed";
+      subject: string;
+      against: string;
+      judged: boolean;
+      toleranceMetres: number;
+    } = {
       owner: "skin-regions",
       state: "performed" as const,
       subject: surface.id + ":" + name,

@@ -9,7 +9,7 @@
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
-    "evidence": "pnpm --filter=./docs --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence"
+    "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence"
   },
   "keywords": [
     "coding-agent",

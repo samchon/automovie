@@ -5,31 +5,23 @@
  * the alternative is a default, and any default here would be a claim nobody
  * made, either that an element predates the work or that it survives it.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignLifecycle` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignLifecycle` for the narrative intent reference lineage system contract.
+ * When both ends are set, the installing phase must be a strict, possibly
+ * indirect prerequisite of the removing phase, so installing and removing in
+ * the same phase is refused.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateDesignLineage` resolves the subject and both phase ids, refuses a second lifecycle for one subject or a subject with none, and, when both ends are set, requires the installing phase among the removing phase's transitive `requires` collected by breadth-first walk.
+ * @evidence contracts/common.md#clear-and-simple-design Two nullable phase ids carry the whole lifecycle; the role and per-phase presence are derived from them by `designLineagePhaseSnapshot` instead of being stored a second time.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A subject missing a lifecycle is refused rather than given a predates-and-survives default, and an incomparable install and removal on parallel branches is refused rather than ordered by array position.
+ * @evidence contracts/common.md#meaningful-documentation States the one-per-subject totality and why, what null means at each end, and the strict transitive ordering both ends must satisfy.
+ * @author Samchon
  */
 export interface IAutoMovieDesignLifecycle {
-  /**
-   * Declared subject id this record is about.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `subject` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subject` for the narrative intent reference lineage system contract.
-   */
+  /** Declared subject id this record is about. */
   subject: string;
 
-  /**
-   * Phase that installs it, or null when it predates the work.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `introducedIn` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `introducedIn` for the narrative intent reference lineage system contract.
-   */
+  /** Declared phase that installs it, or null when it predates the work. */
   introducedIn: string | null;
 
-  /**
-   * Phase that removes it, or null when it outlives the work.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `removedIn` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `removedIn` for the narrative intent reference lineage system contract.
-   */
+  /** Declared phase that removes it, or null when it outlives the work. */
   removedIn: string | null;
 }

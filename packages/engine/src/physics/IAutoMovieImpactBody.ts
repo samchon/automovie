@@ -1,51 +1,30 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A colliding body, reduced to what a collision _response_ needs: how heavy it
- * is, how fast it is going, and the material traits that decide whether a hit
- * bounces, embeds, or passes through. This is deliberately abstract: the point
- * (per the project's direction) is to compute a high-level, deterministic
- * _result_ an AI can be handed as a hint, not to run a full rigid-body sim.
+ * Borrowed collision-advice inputs: finite positive kilograms, finite world metres/second velocity and finite restitution, hardness and penetrability in [0,1]. Material traits drive a deterministic qualitative heuristic.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Reduces authored bodies to the traits needed for a deterministic impact result.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the physical inputs consumed after contact is established.
+ * @evidence contracts/common.md#principled-implementation resolveImpact validates exactly these values before normal impulse arithmetic and its material/speed classifications; the record deliberately omits geometry and angular state.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps the minimum normal-response inputs together instead of introducing a full rigid-body simulation model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Hardness/penetrability are dimensionless advisory controls, not measured constitutive fracture laws; no fixture-specific material behavior belongs to this record.
+ * @evidence contracts/common.md#meaningful-documentation Members state positive finite mass, velocity units, [0,1] ranges and what each material trait influences.
+ * @evidence contracts/performance.md#efficient-algorithms The type has constant-size input storage and no algorithm; collision producer cost is constant normal-response arithmetic.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same borrowed body inputs serve admission and impact calculation, with no duplicate material lookup or body-state cache in the type.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns body and velocity lifetime; this representation retains no collider, physical world or task handle.
  * @author Samchon
  */
 export interface IAutoMovieImpactBody {
-  /**
-   * Mass (kg); larger = harder to move.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Determines the impulse split between contacted bodies.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the inertial input used to compute the response.
-   */
+  /** Finite strictly positive kilograms, admitted by resolveImpact. */
   mass: number;
-  /**
-   * Linear velocity (world m/s).
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Determines closing speed and post-impact motion.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the world velocity at contact.
-   */
+
+  /** Borrowed finite world metres/second vector. */
   velocity: IAutoMovieVector3;
-  /**
-   * Bounciness `[0,1]`: how much closing speed is returned.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Selects how much normal motion rebounds after contact.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the bounded restitution trait of the response.
-   */
+
+  /** Finite [0,1] fraction of returned normal closing speed. */
   restitution: number;
-  /**
-   * Rigidity `[0,1]`: 1 a hard shell, 0 soft flesh.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Distinguishes bounce and deflection material outcomes.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies one material trait used by the qualitative contact result.
-   */
+
+  /** Finite [0,1] heuristic rigidity trait, with one denoting hard material. */
   hardness: number;
-  /**
-   * How easily this body is pierced `[0,1]`: 1 a soft target an arrow sinks
-   * into.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Selects embed or pass-through outcomes for fast strikes.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Supplies the penetration trait used by the bounded response heuristic.
-   */
+
+  /** Finite [0,1] heuristic ease-of-piercing trait; no constitutive material law is implied. */
   penetrability: number;
 }

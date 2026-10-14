@@ -1,7 +1,10 @@
-import { Quaternion, decomposeJointRotation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
+import { decomposeJointRotation } from "../../../../packages/engine/src/kinematics/decomposeJointRotation";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * `decomposeJointRotation` can be called directly with runtime-provided
@@ -13,9 +16,18 @@ import { throwsError } from "../internal/predicates";
  * 1. Non-finite quaternion components throw.
  * 2. Non-finite custom joint-axis components throw.
  * 3. A valid quaternion and axis basis still decomposes normally.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the inverse with malformed quaternion/axis values and checks explicit error fragments, then observes 25-degree twist for ordinary and nonunit orthogonal bases; nonfinite propagation or failed normalization is caught without rounding away angular error.
+ * @evidence contracts/testing.md#independent-expectations Finite orthogonal input is the supported boundary premise, whereas NaN/infinity, zero, collinear and oblique axes violate it; the authored Y25 input defines the expected twist. Axis-angle construction is shared engine math, so this is not an independent proof of that constructor.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps NaN/infinite quaternion components, infinite axis, zero/collinear/nonorthogonal axes, a valid input and scaled orthogonal twin; mixed rotations and Euler branch choices are owned elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This exported runner entry directly calls portable inverse source and the existing synchronous throwsError helper; no external solver, installed consumer or rendering host participates.
  */
-export const test_kinematics_decompose_joint_inputs = (): void => {
-  const validAxes = {
+export function test_kinematics_decompose_joint_inputs(): void {
+  const validAxes: {
+    flexion: { x: number; y: number; z: number };
+    abduction: { x: number; y: number; z: number };
+    twist: { x: number; y: number; z: number };
+  } = {
     flexion: { x: 0, y: 1, z: 0 },
     abduction: { x: 0, y: 0, z: 1 },
     twist: { x: 1, y: 0, z: 0 },
@@ -24,7 +36,8 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "NaN quaternion component rejects",
     throwsError(
-      () => decomposeJointRotation({ x: Number.NaN, y: 0, z: 0, w: 1 }),
+      (): IAutoMovieResolvedJointAngles =>
+        decomposeJointRotation({ x: Number.NaN, y: 0, z: 0, w: 1 }),
       ["decomposeJointRotation quaternion.x", "finite", "NaN"],
     ),
   );
@@ -32,7 +45,8 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "infinite quaternion component rejects",
     throwsError(
-      () => decomposeJointRotation({ x: 0, y: 0, z: 0, w: Infinity }),
+      (): IAutoMovieResolvedJointAngles =>
+        decomposeJointRotation({ x: 0, y: 0, z: 0, w: Infinity }),
       ["decomposeJointRotation quaternion.w", "finite", "Infinity"],
     ),
   );
@@ -40,7 +54,7 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "non-finite custom axis rejects",
     throwsError(
-      () =>
+      (): IAutoMovieResolvedJointAngles =>
         decomposeJointRotation(Quaternion.identity(), {
           flexion: { x: 1, y: 0, z: 0 },
           abduction: { x: 0, y: Infinity, z: 1 },
@@ -53,7 +67,7 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "zero-length custom axis rejects",
     throwsError(
-      () =>
+      (): IAutoMovieResolvedJointAngles =>
         decomposeJointRotation(Quaternion.identity(), {
           ...validAxes,
           twist: { x: 0, y: 0, z: 0 },
@@ -65,7 +79,7 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "collinear custom axes reject",
     throwsError(
-      () =>
+      (): IAutoMovieResolvedJointAngles =>
         decomposeJointRotation(Quaternion.identity(), {
           ...validAxes,
           twist: { x: 0, y: 2, z: 0 },
@@ -77,7 +91,7 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
   TestValidator.predicate(
     "non-orthogonal custom axes reject",
     throwsError(
-      () =>
+      (): IAutoMovieResolvedJointAngles =>
         decomposeJointRotation(Quaternion.identity(), {
           ...validAxes,
           twist: { x: 1, y: 0, z: 1 },
@@ -86,12 +100,15 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
     ),
   );
 
-  const valid = decomposeJointRotation(
+  const valid: IAutoMovieResolvedJointAngles = decomposeJointRotation(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 25),
   );
-  TestValidator.equals("valid twist decomposes", Math.round(valid.twist), 25);
+  TestValidator.predicate(
+    "valid twist decomposes",
+    nclose(valid.twist, 25, 1e-9),
+  );
 
-  const normalized = decomposeJointRotation(
+  const normalized: IAutoMovieResolvedJointAngles = decomposeJointRotation(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 25),
     {
       flexion: { x: 2, y: 0, z: 0 },
@@ -99,9 +116,8 @@ export const test_kinematics_decompose_joint_inputs = (): void => {
       twist: { x: 0, y: 4, z: 0 },
     },
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "valid non-unit orthogonal axes normalize before decomposing",
-    Math.round(normalized.twist),
-    25,
+    nclose(normalized.twist, 25, 1e-9),
   );
-};
+}

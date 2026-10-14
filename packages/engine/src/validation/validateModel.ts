@@ -9,7 +9,12 @@
  * downstream correction rounds present these diagnostics to the author.
  */
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieBone,
+  IAutoMovieMaterial,
   IAutoMovieModel,
+  IAutoMovieModelPart,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
@@ -32,31 +37,26 @@ import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * Validate an {@link IAutoMovieModel}: Tier-1 structural/range checks over its
- * geometry and material wiring, the constraints the rough types don't encode.
+ * Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
  *
- * Checks: at least one part; primitive extents are strictly positive; material
- * references and attached-bone references resolve; skeleton graphs have one
- * connected root; material coefficients (`metallic`/`roughness`/`opacity`) and
- * color components sit in `[0, 1]`.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-geometry-validation Rejects non-finite, degenerate, and structurally invalid model geometry.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-numeric-structure Reports exact paths for numeric and structural model violations.
- * @evidence requirements/external-inputs/validation-and-quarantine.md#external-validation-structure-semantics `validateModel` checks resolved references, finite transforms and mesh values, ranges, topology, skeleton hierarchy, material wiring, and supported profile semantics after parsing.
- * @evidence specifications/interchange-and-adoption/validation-and-quarantine.md#interchange-layered-validation The model gate implements the Engine's structural and intended-consumer validation layers without claiming container integrity, quarantine state, or adoption authority.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-image-independence `validateModel` keeps material properties separate from optional image-resource bindings and validates each binding independently.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition `validateModel` validates the declared base color, emissive response, PBR coefficients, opacity, transmission, and texture-channel composition of each material.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale `validateModel` checks the supported UV set, texture transform components, and slot-specific sampling interpretation rather than accepting arbitrary coordinate state.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations The model gate enforces the Engine's bounded material-channel, image-binding, UV, transform, and color-space relation subset.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-joint-control-invariants The model gate validates unique joint identities, parent resolution, acyclic hierarchy, finite rest transforms, and declared joint constraints without claiming a separate control graph.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
+ * @evidence contracts/common.md#clear-and-simple-design Leaf owners append to one local collector; model orchestration owns cross-reference sets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed record/list shape is a premise; scalar/reference success does not certify visual quality or repair bad geometry.
+ * @evidence contracts/common.md#meaningful-documentation Empty parts, null optional metadata and exact field diagnostics are stated.
+ * @evidence contracts/performance.md#efficient-algorithms Parts/bones/materials/attributes drive scans, skeleton graph and mesh topology costs; material id sets share repeated lookup work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Leaf validators and texture slot enumeration are reused within this current model request.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned report owns rows; temporary maps/sets release and no model loader, host task or geometry cache remains.
  */
-export const validateModel = (props: {
+export const validateModel: (props: {
+  model: IAutoMovieModel;
+}) => IAutoMovieValidation = (props: {
+  /** Borrowed typed model; numeric/reference checks append faults without repairing it. */
   model: IAutoMovieModel;
 }): IAutoMovieValidation => {
-  const path = "$input";
-  const collector = new ViolationCollector();
-  const { model } = props;
+  const path: string = "$input";
+  const collector: ViolationCollector = new ViolationCollector();
+  const { model }: { model: IAutoMovieModel } = props;
 
   collectNonEmptyId(model.id, `${path}.id`, "model id", collector);
   if (model.asset !== null)
@@ -73,7 +73,7 @@ export const validateModel = (props: {
       "skeleton id",
       collector,
     );
-    model.skeleton.bones.forEach((bone, i) => {
+    model.skeleton.bones.forEach((bone: IAutoMovieBone, i: number): void => {
       collectNonEmptyId(
         bone.bone,
         `${path}.skeleton.bones[${i}].bone`,
@@ -90,24 +90,40 @@ export const validateModel = (props: {
     });
   }
 
-  const materialIds = new Set(model.materials.map((m) => m.id));
-  const boneNames = new Set((model.skeleton?.bones ?? []).map((b) => b.bone));
+  const materialIds: Set<string> = new Set(
+    model.materials.map((m: IAutoMovieMaterial): string => m.id),
+  );
+  const boneNames: Set<AutoMovieHumanoidBone> = new Set(
+    (model.skeleton?.bones ?? []).map(
+      (b: IAutoMovieBone): AutoMovieHumanoidBone => b.bone,
+    ),
+  );
 
   validateUniqueValues(
-    model.materials.map((m, i) => [m.id, `${path}.materials[${i}].id`]),
+    model.materials.map(
+      (m: IAutoMovieMaterial, i: number): [string, string] => [
+        m.id,
+        `${path}.materials[${i}].id`,
+      ],
+    ),
     "material id",
     collector,
   );
   validateUniqueValues(
-    model.parts.map((p, i) => [p.id, `${path}.parts[${i}].id`]),
+    model.parts.map((p: IAutoMovieModelPart, i: number): [string, string] => [
+      p.id,
+      `${path}.parts[${i}].id`,
+    ]),
     "part id",
     collector,
   );
   validateUniqueValues(
-    (model.skeleton?.bones ?? []).map((b, i) => [
-      b.bone,
-      `${path}.skeleton.bones[${i}].bone`,
-    ]),
+    (model.skeleton?.bones ?? []).map(
+      (b: IAutoMovieBone, i: number): [AutoMovieHumanoidBone, string] => [
+        b.bone,
+        `${path}.skeleton.bones[${i}].bone`,
+      ],
+    ),
     "skeleton bone",
     collector,
   );
@@ -122,8 +138,8 @@ export const validateModel = (props: {
       model.parts,
     );
 
-  model.parts.forEach((part, i) => {
-    const pp = `${path}.parts[${i}]`;
+  model.parts.forEach((part: IAutoMovieModelPart, i: number): void => {
+    const pp: string = `${path}.parts[${i}]`;
     collectNonEmptyId(part.id, `${pp}.id`, "model part id", collector);
     if (part.material !== null)
       collectNonEmptyId(
@@ -159,7 +175,7 @@ export const validateModel = (props: {
         );
         break;
       default: {
-        const unknown = part.geometry as { type: unknown };
+        const unknown: { type: unknown } = part.geometry as { type: unknown };
         collector.push(
           "type",
           `${pp}.geometry.type`,
@@ -178,8 +194,8 @@ export const validateModel = (props: {
       });
   });
 
-  model.skeleton?.bones.forEach((bone, i) => {
-    const bp = `${path}.skeleton.bones[${i}]`;
+  model.skeleton?.bones.forEach((bone: IAutoMovieBone, i: number): void => {
+    const bp: string = `${path}.skeleton.bones[${i}]`;
     validateTransformScalars({
       transform: bone.rest,
       path: `${bp}.rest`,
@@ -192,7 +208,7 @@ export const validateModel = (props: {
 
   if (model.body !== null) validateBody(model.body, `${path}.body`, collector);
 
-  const profileValidation = validateProfileCapabilities({
+  const profileValidation: IAutoMovieValidation = validateProfileCapabilities({
     profiles: model.profiles ?? [],
   });
   collector.items.push(
@@ -201,20 +217,25 @@ export const validateModel = (props: {
       : profileValidation.violations),
   );
 
-  const affordances = model.affordances ?? null;
+  const affordances: IAutoMovieAffordance[] | null = model.affordances ?? null;
   if (affordances !== null) {
     validateUniqueValues(
-      affordances.map((a, i) => [a.id, `${path}.affordances[${i}].id`]),
+      affordances.map(
+        (a: IAutoMovieAffordance, i: number): [string, string] => [
+          a.id,
+          `${path}.affordances[${i}].id`,
+        ],
+      ),
       "affordance id",
       collector,
     );
-    affordances.forEach((affordance, i) =>
+    affordances.forEach((affordance: IAutoMovieAffordance, i: number): void =>
       validateAffordance(affordance, `${path}.affordances[${i}]`, collector),
     );
   }
 
-  model.materials.forEach((m, i) => {
-    const mp = `${path}.materials[${i}]`;
+  model.materials.forEach((m: IAutoMovieMaterial, i: number): void => {
+    const mp: string = `${path}.materials[${i}]`;
     collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
     for (const slot of materialTextureSlots(m))
       validateTextureBinding(
@@ -307,7 +328,7 @@ export const validateModel = (props: {
         "an opaque material must have opacity 1",
         m.opacity,
       );
-    const effectiveAlphaMode =
+    const effectiveAlphaMode: "opaque" | "mask" | "blend" =
       m.alphaMode ?? (m.opacity < 1 ? "blend" : "opaque");
     if ((m.transmission ?? 0) > 0 && effectiveAlphaMode !== "opaque")
       collector.push(

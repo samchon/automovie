@@ -12,6 +12,14 @@ import type { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
  * `assertPortraitDentalCrown` admits the completed profile.
  *
  * @author Samchon
+ *
+ * @evidence contracts/common.md#principled-implementation Omitted cervical ratio and edge rise resolve to 0.78 and 0.035 times the supplied height while explicit values retain their exact meaning.
+ * @evidence contracts/common.md#clear-and-simple-design One small default resolver supplies complete profiles to the separate crown admission/construction owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is admitted or clipped here and the contour object remains borrowed from the caller rather than falsely described as an owned deep copy.
+ * @evidence contracts/common.md#meaningful-documentation The prose states defaults, shared contour mutation effects and the separate assertPortraitDentalCrown boundary.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of property reads and one result record use constant time/space independent of crown geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work Consumers share these same omission defaults; no profile cache assumes borrowed contour data remains unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned scalar record and retains ownership of the shared contour object, with no mesh buffers or resources acquired.
  */
 export function resolvePortraitDentalCrown(
   crown: Pick<IPortraitDentalCrown, "width" | "height" | "contour"> &

@@ -1,14 +1,18 @@
-import {
-  type IAutoMovieFilmEffectClock,
-  productionFilmFrameForShotTime,
-  projectProductionShotEffectFilmIntervals,
-} from "@automovie/engine";
-import type { IAutoMovieFilmTimelineSegment } from "@automovie/interface";
+import { IAutoMovieFilmTimelineSegment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAutoMovieFilmEffectClock } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectClock";
+import { IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
+import { productionFilmFrameForShotTime } from "../../../../packages/engine/src/effectRuntime/productionFilmFrameForShotTime";
+import { projectProductionShotEffectFilmIntervals } from "../../../../packages/engine/src/effectRuntime/projectProductionShotEffectFilmIntervals";
 import { filmEffectRefusal } from "./filmEffectRuntimeFixtures";
 
-const segment = (
+const segment: (
+  shot: string,
+  sourceInFrame: number,
+  sourceOutFrame: number,
+  startFrame: number,
+) => IAutoMovieFilmTimelineSegment = (
   shot: string,
   sourceInFrame: number,
   sourceOutFrame: number,
@@ -26,32 +30,19 @@ const segment = (
 });
 
 /**
- * Shot seconds map to film frames by exact rational boundaries, not rounding.
- *
- * A shot cue owns source frame `f` when `start <= f / rate < end`, and a shot
- * review second belongs to the largest frame whose boundary is at or before
- * it. Expectations are that exact rational rule applied by hand. Four inputs
- * are chosen where the float estimate `seconds * rate` lands one ulp on the
- * wrong side of an integer: `0.28 * 25` rounds up past frame 7, `1.16 * 25`
- * rounds down below frame 29, the double above `32 / 24` estimates exactly
- * 32, and the double below `34 / 24` estimates exactly 34.
+ * Shot intervals and review seconds map through rational film frame boundaries.
  *
  * Scenarios:
+ * 1. Trim repeated shot occurrences and drop absent/empty intersections.
+ * 2. Resolve four floating boundary witnesses and frame zero.
+ * 3. Refuse malformed intervals/clocks and return null for invalid, absent or multiply realized seconds.
  *
- * 1. A cue realized by two occurrences of its shot projects once per occurrence
- *    trimmed to each segment; a cue outside its segment's source range and a
- *    shot absent from the compiled set project nothing.
- * 2. The four float-boundary witnesses project to frames 7, 29 and 33 on
- *    their exact boundary, and a cue starting at zero starts at frame zero.
- * 3. A non-finite or negative start, an end not after its start, an infinite
- *    end, and a start beyond any safe-integer frame are refused as input, and
- *    so is a clock whose display rate contradicts its rational rate.
- * 4. A shot second realized exactly once maps to its film frame, including
- *    zero and both float-boundary witnesses; a second realized twice, never,
- *    or on an unknown shot maps to `null`, as do a NaN, negative, infinite, or
- *    unrepresentable second, and the contradictory clock is refused.
+ * @evidence contracts/testing.md#behavioral-verification Runs interval projection and shot-time mapping and asserts exact integer frame records, refusal classes and null ambiguity, catching a rounded seconds-times-rate estimate that assigns an adjacent frame.
+ * @evidence contracts/testing.md#independent-expectations The half-open source interval and exact boundary-second comparison determine expected integer frames by hand; selected adjacent doubles around 32/24 and 34/24 distinguish the rounded product estimate. Frame outputs are discrete indexes, not floating coordinate comparisons.
+ * @evidence contracts/testing.md#distinguishing-cases Covers repeated/absent shots, segment trimming, zero, four one-ulp witnesses, invalid/unrepresentable seconds/intervals and inconsistent clocks. Sampling particle state belongs to runtime_sampling.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable unit owns portable timeline queries without a review-page/browser host; productionFilmFrameForShotTime currently has test-only reach, so this verifies its semantics rather than a live installed consumer.
  */
-export const test_film_effect_shot_frame_projection = (): void => {
+export function test_film_effect_shot_frame_projection(): void {
   const clock: IAutoMovieFilmEffectClock = {
     fps: 24,
     segments: [
@@ -61,11 +52,16 @@ export const test_film_effect_shot_frame_projection = (): void => {
       segment("ghost", 0, 10, 92),
     ],
   };
-  const effect = (
+  const effect: (
     id: string,
     start: number,
     end: number,
-    zone = "yard",
+    zone?: string,
+  ) => { id: string; zone: string; start: number; end: number } = (
+    id: string,
+    start: number,
+    end: number,
+    zone: string = "yard",
   ): { id: string; zone: string; start: number; end: number } => ({
     id,
     zone,
@@ -142,16 +138,22 @@ export const test_film_effect_shot_frame_projection = (): void => {
       effect("infinite", 0, Number.POSITIVE_INFINITY),
       effect("huge", 1e300, 2e300),
     ]
-      .map((item) =>
-        filmEffectRefusal(() =>
-          projectProductionShotEffectFilmIntervals({
-            timeline: clock,
-            shots: new Map([["s1", { effects: [item] }]]),
-          }),
-        ),
+      .map(
+        (item: {
+          id: string;
+          zone: string;
+          start: number;
+          end: number;
+        }): string =>
+          filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
+            projectProductionShotEffectFilmIntervals({
+              timeline: clock,
+              shots: new Map([["s1", { effects: [item] }]]),
+            }),
+          ),
       )
       .concat(
-        filmEffectRefusal(() =>
+        filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
           projectProductionShotEffectFilmIntervals({
             timeline: {
               ...clock,
@@ -161,10 +163,14 @@ export const test_film_effect_shot_frame_projection = (): void => {
           }),
         ),
       ),
-    Array.from({ length: 6 }, () => "film-effect-input-invalid"),
+    Array.from({ length: 6 }, (): string => "film-effect-input-invalid"),
   );
 
-  const frame = (
+  const frame: (
+    shot: string,
+    time: number,
+    timeline?: IAutoMovieFilmEffectClock,
+  ) => number | null = (
     shot: string,
     time: number,
     timeline: IAutoMovieFilmEffectClock = clock,
@@ -198,7 +204,7 @@ export const test_film_effect_shot_frame_projection = (): void => {
   );
   TestValidator.equals(
     "a contradictory clock is refused before any second is mapped",
-    filmEffectRefusal(() =>
+    filmEffectRefusal((): number | null =>
       frame("s1", 0.5, {
         ...clock,
         frameRate: { numerator: 25, denominator: 1 },
@@ -206,4 +212,4 @@ export const test_film_effect_shot_frame_projection = (): void => {
     ),
     "film-effect-input-invalid",
   );
-};
+}

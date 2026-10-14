@@ -7,7 +7,8 @@ import { mountSpectatorControls } from "@automovie/website/spectator-controls";
 import { JSDOM } from "jsdom";
 import * as THREE from "three";
 
-export const spectatorFixture = () => {
+/** Own the existing synthetic spectator arrangement; pointer-lock/capture method replacement remains an unresolved harness limitation rather than native browser evidence. */
+export const websiteSpectatorFixture = () => {
   const dom = new JSDOM(
     `<canvas tabindex="0"></canvas><input><button id="ordinary"></button><button data-flight-reset></button>
     ${["forward", "back", "left", "right", "up", "down", "slow"].map((name) => `<button data-flight="${name}"></button>`).join("")}`,

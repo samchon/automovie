@@ -3,55 +3,34 @@ import { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
 import { IAutoMovieJointConstraint } from "./IAutoMovieJointConstraint";
 
 /**
- * One bone in a {@link IAutoMovieSkeleton}: its identity, parent, rest pose, and
- * anatomical range of motion.
+ * One bone in a {@link IAutoMovieSkeleton}: its identity, parent, rest pose, and anatomical range of motion.
  *
- * A bone binds together (a) the normalized humanoid slot it fills (`bone`), (b)
- * where it sits in the hierarchy (`parent`), (c) its neutral local transform
- * (`rest`, the 0-articulation pose), and (d) the ROM the engine validates poses
- * against (`constraint`). For a _generated_ character the geometry phase
- * produces these; for an _imported_ glTF/VRM the ingest package derives them.
+ * A bone binds together (a) the normalized humanoid slot it fills (`bone`), (b) where it sits in the hierarchy (`parent`), (c) its neutral local transform (`rest`, the 0-articulation pose), and (d) the ROM the engine validates poses against (`constraint`). For a _generated_ character the geometry phase produces these; for an _imported_ glTF/VRM the ingest package derives them.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-humanoid-mapping Exposes `IAutoMovieBone` as the portable data boundary for the actor humanoid mapping requirement.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-semantic-joint-mapping Types `IAutoMovieBone` for the performance rig semantic joint mapping system contract.
+ * @evidence contracts/common.md#principled-implementation Bone identity, resolved parent and local rest translation/rotation establish the FK graph; resolvePose and lowerSkeletonNodes do not apply authored rest scale. Nullable rig ROM override selects the shared humanoid default when available, while an explicit override replaces it.
+ * @evidence contracts/common.md#clear-and-simple-design One record keeps neutral geometry and pose-admission responsibility local to the bone without embedding clinical defaults or animation channels.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null bone constraint is default-or-unconstrained, distinct from a null axis inside a supplied constraint, and a named parent must exist in the admitted single-root connected graph.
+ * @evidence contracts/common.md#meaningful-documentation Defines unique semantic identity, parent/rest basis and default-versus-override ROM behavior.
  * @author Samchon
  */
 export interface IAutoMovieBone {
   /**
    * Which normalized humanoid slot this bone fills. Unique within a skeleton.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-humanoid-mapping Exposes `bone` as the portable data boundary for the actor humanoid mapping requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-semantic-joint-mapping Types `bone` for the performance rig semantic joint mapping system contract.
    */
   bone: AutoMovieHumanoidBone;
 
   /**
-   * Parent bone in the hierarchy, or `null` for the root (`hips`). Defines the
-   * space in which `rest` and articulation are expressed.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-humanoid-mapping Exposes `parent` as the portable data boundary for the actor humanoid mapping requirement.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-semantic-joint-mapping Types `parent` for the performance rig semantic joint mapping system contract.
+   * Parent bone in the hierarchy, or `null` for the sole root. Defines the space in which `rest` and articulation are expressed.
    */
   parent: AutoMovieHumanoidBone | null;
 
   /**
-   * Rest-pose local transform relative to `parent`: the bone at 0 articulation.
-   * Semantic joint angles ({@link IAutoMovieJointPose}) are applied _on top of_
-   * this by the engine.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rest-bind-deformation Exposes `rest` as the bone's explicit rest-pose transform.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-skin-rigid-morph-deformation Types `rest` as the deformation binding's declared rest basis.
+   * Rest-pose local transform relative to parent at zero articulation. Current FK composes rest rotation with clinical articulation and rotates rest translation by the parent frame; FK ignores rest.scale and general skeleton lowering emits unit bone scales.
    */
   rest: IAutoMovieTransform;
 
   /**
-   * Per-rig anatomical range-of-motion override for this joint. `null` keeps
-   * the normalized humanoid default when that slot has one; a slot absent from
-   * the default table is unconstrained. Supply a constraint to replace the
-   * default for a stylized, non-human, or specially trained character.
-   *
-   * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-joint-range-constraints Exposes `constraint` as the declared joint range and coupled behavior.
-   * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Types `constraint` as the rig's explicit ROM contract.
+   * Per-rig anatomical range-of-motion override for this joint. `null` keeps the normalized humanoid default when that slot has one; a slot absent from the default table is unconstrained. Supply a constraint to replace the default for a stylized, non-human, or specially trained character.
    */
   constraint: IAutoMovieJointConstraint | null;
 }

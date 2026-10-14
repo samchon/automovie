@@ -1,19 +1,43 @@
 import { canonicalProductionFrameRate } from "@automovie/engine";
 import type { IAutoMovieProductionVideoProbe } from "@automovie/interface";
-import type { Box, Track, createFile } from "mp4box";
+import type {
+  BoxKind,
+  BoxParser,
+  Entry,
+  Sample,
+  Track,
+  VisualSampleEntry,
+  createFile,
+} from "mp4box";
 
 import { AUTOMOVIE_MP4_SRGB_COLOUR } from "./AUTOMOVIE_MP4_SRGB_COLOUR";
+import { residentMp4Box } from "./residentMp4Box";
+import { sampleDescription } from "./sampleDescription";
 import { verifySampleStorage } from "./verifySampleStorage";
 
+type ColourBox = InstanceType<typeof BoxParser.box.colr>;
+type PixelAspectBox = InstanceType<typeof BoxParser.box.pasp>;
+
 /**
- * Read one parsed H.264 track into the video probe record.
+ * Read one parsed H.264 track of `file`, whose bytes are `bytes`, into the video probe record.
  *
- * Codec identity, raster, rational frame rate, file-type brands, the sample
- * table, the presentation clocks and the container colour description are all
- * read here, so the rendered-media probe and the parsed video probe answer with
- * one field-for-field reading instead of two.
+ * The record carries codec identity, the track raster mp4box reports and the sample entry's coded raster, the rational frame rate from media timescale over the one sample duration, file-type brands, the track header's 16.16 display size and matrix, pixel aspect, the movie and media clocks with every edit, the first and last decode and composition times, and the container colour description with whether it spells sRGB. `runtimeSeconds` is the media duration over the media timescale. The record states what the file declares; whether those facts meet a delivery profile is `assertProductionVideoProfile`'s question.
+ *
+ * Throws, in this order, for a codec that is not `avc1` or `avc3`, a missing or non-positive raster, duration, timescale or sample count, the refusals of `verifySampleStorage`, samples without one positive constant duration, no sync sample, other than one file-type box with nonblank brands, a sample entry that is not a visual one, more than one colour or pixel-aspect box, a pixel-aspect term that is not a positive safe integer, and other than one track header for the track.
+ *
+ * @evidence contracts/common.md#principled-implementation Every value is read from the ISO boxes mp4box parsed, `instanceof` against the resident module's box classes narrows each child box before its fields are read, and the frame rate is the exact rational `timescale / sampleDuration` reduced by `canonicalProductionFrameRate`; the premise that the parser's raster and clock fields are integers holds because it reads them from fixed-width table entries.
+ * @evidence contracts/common.md#clear-and-simple-design The rendered-media probe's feature arm and the single-video probe both call this one reading, so the record is assembled field for field in one place and each caller adds only its own track-count rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The sRGB verdict compares the four H.273 code points with `AUTOMOVIE_MP4_SRGB_COLOUR`, an ICC or absent colour box reports `absent`, and no file or caller is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation The doc lists the record's facts, the unit of the runtime, that it reports rather than judges, and every refusal in the order it is checked.
+ * @evidence contracts/performance.md#efficient-algorithms For S samples, M media boxes and B boxes in the parsed tree, residency costs O(M + S log(M + 1)), duration and sync each require one O(S) pass, and file-type and track-header lookup each sweep the box tree in O(B). Colour and pixel-aspect selection each scan the sample-entry children; the returned brand and edit lists require work proportional to their contents. These input-dependent lists have no cap here.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one parsed file its caller owns and returns a fresh record, and no caller reads the same track twice.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record holds copies of the brand list, matrix and edit list, not parser objects; the parsed file stays owned by the caller and nothing is opened.
  */
-export const probeVideoTrack = (
+export const probeVideoTrack: (
+  bytes: Uint8Array,
+  file: ReturnType<typeof createFile>,
+  track: Track,
+) => IAutoMovieProductionVideoProbe = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -33,71 +57,61 @@ export const probeVideoTrack = (
     throw new Error(
       "MP4 video track lacks positive dimensions, duration, timescale, or samples.",
     );
-  const samples = verifySampleStorage(bytes, file, track);
-  const firstDuration = samples[0]!.duration;
+  const samples: Sample[] = verifySampleStorage(bytes, file, track);
+  const first: Sample = samples[0]!;
+  const last: Sample = samples.at(-1)!;
+  const sampleDuration: number = first.duration;
   if (
-    firstDuration <= 0 ||
-    samples.some((sample) => sample.duration !== firstDuration)
+    sampleDuration <= 0 ||
+    samples.some(
+      (sample: Sample): boolean => sample.duration !== sampleDuration,
+    )
   )
     throw new Error(
       "MP4 video samples do not use one constant deterministic frame duration.",
     );
-  const runtimeSeconds = track.duration / track.timescale;
-  const fps = track.timescale / firstDuration;
-  if (samples.some((sample) => sample.is_sync) === false)
+  if (samples.some((sample: Sample): boolean => sample.is_sync) === false)
     throw new Error(
       "MP4 video track has no independently decodable sync sample.",
     );
-  const ftypBoxes = file.getBoxes("ftyp", false) as Array<
-    Box & {
-      major_brand: string;
-      compatible_brands: string[];
-    }
-  >;
+  const ftypBoxes: Array<InstanceType<typeof BoxParser.box.ftyp>> =
+    file.getBoxes("ftyp", false);
+  const ftyp: InstanceType<typeof BoxParser.box.ftyp> | undefined =
+    ftypBoxes[0];
   if (
     ftypBoxes.length !== 1 ||
-    typeof ftypBoxes[0]!.major_brand !== "string" ||
-    Array.isArray(ftypBoxes[0]!.compatible_brands) === false ||
-    ftypBoxes[0]!.compatible_brands.some(
-      (brand) => typeof brand !== "string",
-    ) ||
-    ftypBoxes[0]!.major_brand.trim().length === 0 ||
-    ftypBoxes[0]!.compatible_brands.some((brand) => brand.trim().length === 0)
+    ftyp === undefined ||
+    ftyp.major_brand.trim().length === 0 ||
+    ftyp.compatible_brands.some(
+      (brand: string): boolean => brand.trim().length === 0,
+    )
   )
     throw new Error("MP4 output requires one nonblank file-type brand box.");
-  const ftyp = ftypBoxes[0]!;
-  const description = samples[0]!.description as unknown as {
-    width: number;
-    height: number;
-    boxes?: Array<{ type?: string } & Record<string, unknown>>;
-  };
-  // The parser derives the track raster from this same sample entry and
-  // stamps every sample with the one media timescale it decoded from 32-bit
-  // table entries, so neither the raster nor the sample clock can disagree.
-  const colorBoxes = (description.boxes ?? []).filter(
-    (box) => box.type === "colr",
+  const mp4: ReturnType<typeof residentMp4Box> = residentMp4Box();
+  const entry: VisualSampleEntry | undefined =
+    first.description instanceof mp4.VisualSampleEntry
+      ? first.description
+      : undefined;
+  if (entry === undefined)
+    throw new Error("MP4 video sample entry is not a visual sample entry.");
+  const children: BoxKind[] = sampleDescription(first).boxes;
+  const colorBoxes: ColourBox[] = children.filter(
+    (box: BoxKind): box is ColourBox => box instanceof mp4.BoxParser.box.colr,
   );
   if (colorBoxes.length > 1)
     throw new Error("MP4 video sample entry contains multiple color boxes.");
-  const colorBox = colorBoxes[0] as
-    | {
-        colour_type: string;
-        colour_primaries: number;
-        transfer_characteristics: number;
-        matrix_coefficients: number;
-        full_range_flag: number;
-      }
-    | undefined;
-  const paspBoxes = (description.boxes ?? []).filter(
-    (box) => box.type === "pasp",
-  ) as Array<{ hSpacing: number; vSpacing: number }>;
+  const colorBox: ColourBox | undefined = colorBoxes[0];
+  const paspBoxes: PixelAspectBox[] = children.filter(
+    (box: BoxKind): box is PixelAspectBox =>
+      box instanceof mp4.BoxParser.box.pasp,
+  );
   if (paspBoxes.length > 1)
     throw new Error(
       "MP4 video sample entry contains multiple pixel-aspect boxes.",
     );
   if (
     paspBoxes.some(
-      (box) =>
+      (box: PixelAspectBox): boolean =>
         Number.isSafeInteger(box.hSpacing) === false ||
         box.hSpacing <= 0 ||
         Number.isSafeInteger(box.vSpacing) === false ||
@@ -105,100 +119,100 @@ export const probeVideoTrack = (
     )
   )
     throw new Error("MP4 pixel-aspect terms must be positive safe integers.");
-  const trackHeaders = file.getBoxes("tkhd", false) as Array<
-    Box & {
-      track_id: number;
-      width: number;
-      height: number;
-      matrix: number[];
-    }
-  >;
-  const trackHeaderMatches = trackHeaders.filter(
-    (header) => header.track_id === track.id,
-  );
-  if (trackHeaderMatches.length !== 1)
+  const trackHeaders: Array<InstanceType<typeof BoxParser.box.tkhd>> = file
+    .getBoxes("tkhd", false)
+    .filter(
+      (header: InstanceType<typeof BoxParser.box.tkhd>): boolean =>
+        header.track_id === track.id,
+    );
+  if (trackHeaders.length !== 1)
     throw new Error(
       `MP4 video track ${track.id} requires one exact track header.`,
     );
   // The parser reads the header width and height as 32-bit integers and the
-  // nine fixed-point matrix terms as one Int32Array, so no malformed display
-  // transform survives parsing; the terms are copied as plain numbers below.
-  const trackHeader = trackHeaderMatches[0]!;
+  // nine fixed-point matrix terms as one Int32Array of length nine, so the
+  // copy below is the nine-term tuple the probe record declares.
+  const trackHeader: InstanceType<typeof BoxParser.box.tkhd> = trackHeaders[0]!;
+  const nclx: ColourBox | undefined =
+    colorBox?.colour_type === "nclx" ? colorBox : undefined;
   return {
     kind: "video",
     container: "mp4",
     codec: "h264",
     width: track.video.width,
     height: track.video.height,
-    runtimeSeconds,
+    runtimeSeconds: track.duration / track.timescale,
     frameCount: track.nb_samples,
-    fps,
+    fps: track.timescale / sampleDuration,
     frameRate: canonicalProductionFrameRate({
       numerator: track.timescale,
-      denominator: firstDuration,
+      denominator: sampleDuration,
     }),
     brands: {
       major: ftyp.major_brand,
       compatible: [...ftyp.compatible_brands],
     },
     coded: {
-      width: description.width,
-      height: description.height,
+      width: entry.width,
+      height: entry.height,
     },
     trackDisplay: {
       width16_16: trackHeader.width,
       height16_16: trackHeader.height,
     },
-    trackMatrix: [
-      ...trackHeader.matrix,
-    ] as IAutoMovieProductionVideoProbe["trackMatrix"],
+    trackMatrix: Array.from(
+      trackHeader.matrix,
+    ) as IAutoMovieProductionVideoProbe["trackMatrix"],
     pixelAspect:
-      paspBoxes.length === 0
+      paspBoxes[0] === undefined
         ? { kind: "implicit-square" }
         : {
             kind: "explicit",
-            hSpacing: paspBoxes[0]!.hSpacing,
-            vSpacing: paspBoxes[0]!.vSpacing,
+            hSpacing: paspBoxes[0].hSpacing,
+            vSpacing: paspBoxes[0].vSpacing,
           },
     presentation: {
       movieTimescale: track.movie_timescale,
       mediaTimescale: track.timescale,
       movieDuration: track.movie_duration,
       mediaDuration: track.duration,
-      edits: (track.edits ?? []).map((edit) => ({
-        segmentDuration: edit.segment_duration,
-        mediaTime: edit.media_time,
-        mediaRateInteger: edit.media_rate_integer,
-        mediaRateFraction: edit.media_rate_fraction,
-      })),
+      edits: (track.edits ?? []).map(
+        (
+          edit: Entry,
+        ): IAutoMovieProductionVideoProbe["presentation"]["edits"][number] => ({
+          segmentDuration: edit.segment_duration,
+          mediaTime: edit.media_time,
+          mediaRateInteger: edit.media_rate_integer,
+          mediaRateFraction: edit.media_rate_fraction,
+        }),
+      ),
     },
     samples: {
       count: samples.length,
-      duration: firstDuration,
+      duration: sampleDuration,
       timescale: track.timescale,
-      firstDts: samples[0]!.dts,
-      lastDts: samples.at(-1)!.dts,
-      firstCts: samples[0]!.cts,
-      lastCts: samples.at(-1)!.cts,
+      firstDts: first.dts,
+      lastDts: last.dts,
+      firstCts: first.cts,
+      lastCts: last.cts,
     },
     color: {
       container:
-        colorBox?.colour_type === "nclx"
-          ? {
+        nclx === undefined
+          ? { kind: "absent" }
+          : {
               kind: "nclx",
-              primaries: colorBox.colour_primaries,
-              transfer: colorBox.transfer_characteristics,
-              matrix: colorBox.matrix_coefficients,
-              fullRange: colorBox.full_range_flag === 1,
-            }
-          : { kind: "absent" },
+              primaries: nclx.colour_primaries,
+              transfer: nclx.transfer_characteristics,
+              matrix: nclx.matrix_coefficients,
+              fullRange: nclx.full_range_flag === 1,
+            },
       resolved:
-        colorBox?.colour_type === "nclx" &&
-        colorBox.colour_primaries === AUTOMOVIE_MP4_SRGB_COLOUR.primaries &&
-        colorBox.transfer_characteristics ===
-          AUTOMOVIE_MP4_SRGB_COLOUR.transfer &&
-        colorBox.matrix_coefficients === AUTOMOVIE_MP4_SRGB_COLOUR.matrix &&
-        (colorBox.full_range_flag === 1) === AUTOMOVIE_MP4_SRGB_COLOUR.fullRange
+        nclx !== undefined &&
+        nclx.colour_primaries === AUTOMOVIE_MP4_SRGB_COLOUR.primaries &&
+        nclx.transfer_characteristics === AUTOMOVIE_MP4_SRGB_COLOUR.transfer &&
+        nclx.matrix_coefficients === AUTOMOVIE_MP4_SRGB_COLOUR.matrix &&
+        (nclx.full_range_flag === 1) === AUTOMOVIE_MP4_SRGB_COLOUR.fullRange
           ? { kind: "srgb", source: "container" }
           : { kind: "absent" },
     },

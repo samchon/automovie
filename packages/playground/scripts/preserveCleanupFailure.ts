@@ -1,21 +1,16 @@
+import type { IAutoMoviePlaygroundOperationFailure } from "./IAutoMoviePlaygroundOperationFailure";
+
 /**
- * Failure retained while a resource is being released.
+ * Await one caller-supplied cleanup. A cleanup-only failure is rethrown unchanged; when an earlier operation also failed, AggregateError retains [operation cause, cleanup cause] in that order and identifies the resource. Successful cleanup leaves the caller's original control flow intact.
+ *
  *
  * @author Samchon
  */
-export interface IAutoMoviePlaygroundOperationFailure {
-  /** Original operation error that cleanup must not replace. */
-  error: unknown;
-}
-
-/**
- * Run one fallible cleanup without replacing an earlier operation failure.
- *
- * @param failure - Earlier operation failure, when one exists.
- * @param resource - Resource label for a combined failure.
- * @param cleanup - Fallible resource release.
- */
-export const preserveCleanupFailure = async (
+export const preserveCleanupFailure: (
+  failure: IAutoMoviePlaygroundOperationFailure | undefined,
+  resource: string,
+  cleanup: () => unknown,
+) => Promise<void> = async (
   failure: IAutoMoviePlaygroundOperationFailure | undefined,
   resource: string,
   cleanup: () => unknown,

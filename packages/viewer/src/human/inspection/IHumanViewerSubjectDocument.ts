@@ -1,28 +1,20 @@
 /**
  * What the catalogue reads of a published face subject: its id and display name. The rest is face document JSON admitted by the face owner when built.
  *
- * @evidence contracts/common.md#principled-implementation Catalogue composition reads only a subject identity and optional display name; the face owner admits the remaining document.
- * @evidence contracts/common.md#clear-and-simple-design A minimal projection avoids duplicating the complete face-document schema in catalogue code.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing optional display name is preserved rather than used to fabricate anatomical authoring data.
- * @evidence contracts/common.md#meaningful-documentation States the catalogue's identity/name boundary and the face owner's separate JSON admission.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Catalogue composition reads only a subject identity and optional display name; the face owner admits the remaining document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document A minimal projection avoids duplicating the complete face-document schema in catalogue code.
+ * @evidence contracts/common.md#principled-implementation Catalogue code reads published subject identity and optional display name while leaving remaining numerical face JSON to owner admission.
+ * @evidence contracts/common.md#clear-and-simple-design The minimal subject projection prevents catalogue discovery from duplicating the face document's validation schema.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A subject id is descriptive only and never bypasses face-owner admission or embeds a named preset's geometry.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines the catalogue projection, optional name and deferred face-owner admission of the remaining JSON.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This subject projection chooses no document parsing or face construction algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Identity labels alone are not cache authority; catalogue keys additionally include full document, basis and source digests.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The projection contains strings without handles; the face-document catalogue retains and replaces subject arrays.
+ *
  * @author Samchon
  */
 export interface IHumanViewerSubjectDocument {
-  /**
-   * Subject id.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Subject id. Catalogue composition reads only a subject identity and optional display name; the face owner admits the remaining document.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Subject id. A minimal projection avoids duplicating the complete face-document schema in catalogue code.
-   */
+  /** Subject id. */
   id: string;
 
-  /**
-   * Display name, when the subject has one.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Display name, when the subject has one. Catalogue composition reads only a subject identity and optional display name; the face owner admits the remaining document.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Display name, when the subject has one. A minimal projection avoids duplicating the complete face-document schema in catalogue code.
-   */
+  /** Display name, when the subject has one. */
   name?: string;
 }

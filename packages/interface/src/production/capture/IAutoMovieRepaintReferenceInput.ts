@@ -1,25 +1,18 @@
 import { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
 
 /**
- * One fixed, role-specific reference consumed by repaint.
+ * One explicitly authored role-specific reference selected from the production asset manifest.
  *
- * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `IAutoMovieRepaintReferenceInput` as the portable data boundary for the repaint reference roles requirement.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `IAutoMovieRepaintReferenceInput` for the asset spec repaint controls references system contract.
+ * @evidence contracts/common.md#principled-implementation A closed role and string path describe an authored reference selection; this erased type resolves no manifest entry, digest or adapter input.
+ * @evidence contracts/common.md#clear-and-simple-design A role and path express selection without duplicating provenance, digest or bytes in each authored reference.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record provides no external discovery mechanism, but path containment, current bytes and role preservation require a consumer; no retained generation host enforces them.
+ * @evidence contracts/common.md#meaningful-documentation Defines exact manifest-relative reference addressing and the non-collapsible authored adapter purpose.
+ * @author Samchon
  */
 export interface IAutoMovieRepaintReferenceInput {
-  /**
-   * How the adapter must use this reference.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `role` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `role` for the asset spec repaint controls references system contract.
-   */
+  /** How the adapter must use this reference. */
   role: AutoMovieRepaintReferenceRole;
 
-  /**
-   * Exact project-relative asset-manifest path.
-   *
-   * @evidence requirements/repaint/source-frames-and-reference-locking.md#repaint-reference-roles Exposes `path` as the portable data boundary for the repaint reference roles requirement.
-   * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-controls-references Types `path` for the asset spec repaint controls references system contract.
-   */
+  /** Exact project-relative asset-manifest path. */
   path: string;
 }

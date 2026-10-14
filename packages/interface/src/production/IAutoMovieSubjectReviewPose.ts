@@ -3,8 +3,10 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * Exact inspection camera state that produced one subject observation.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence Makes the observed pose part of the reopenable subject receipt rather than an unrecorded host choice.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation Types the exact coordinate space, eye, target, lens and clipping state paired with a subject artifact.
+ * @evidence contracts/common.md#principled-implementation Explicit eye and look-at positions plus perspective projection scalars describe a capture camera in the declared model or world meter basis; callers own camera application and any plan digest that incorporates these poses.
+ * @evidence contracts/common.md#clear-and-simple-design One camera state keeps position, target and projection parameters together without adopting the work's shot camera or storing renderer objects.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This pose shape is perspective-oriented and does not encode an orthographic span; declaring an orthographic viewpoint elsewhere does not establish an implemented orthographic capture path.
+ * @evidence contracts/common.md#meaningful-documentation Defines shared coordinate basis, meter positions and clip distances, degree vertical field of view and width-to-height aspect.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewPose {

@@ -1,15 +1,14 @@
 /**
- * Observed Opus sample-entry facts from final delivery bytes.
+ * Observed Opus dOps sample-entry facts from final delivery bytes; delivery-profile acceptance is checked separately.
  *
- * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the coded channel count, mapping family, coupling, and channel order the final Opus stream declares.
- * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Carries parser-observed codec configuration for fieldwise comparison with the selected delivery profile.
+ * @evidence contracts/common.md#principled-implementation productionOpusDescription validates serialized field widths and channel-mapping relations against the parsed MP4 audio entry, retaining observed pre-skip, informational input rate and signed fixed-point gain.
+ * @evidence contracts/common.md#clear-and-simple-design Separates codec facts from profile acceptance so a structurally valid non-delivery Opus entry can be reported accurately before the host rejects its unsupported profile.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Family zero has implied mono or stereo order and null stream counts; nonzero families keep their explicit mapping and null unexpanded speaker order rather than guessing channel meaning.
+ * @evidence contracts/common.md#meaningful-documentation Defines observed codec fields, sample units, informational input rate, signed Q7.8 gain and family-dependent mapping nulls and arrays.
+ * @author Samchon
  */
 export interface IAutoMovieProductionOpusDescription {
-  /**
-   * Closed parsed sample-entry family.
-   * @evidence requirements/delivery-and-accessibility/containers-codecs-and-media-facts.md#delivery-supported-combinations Identifies the Opus sample-entry family the delivery profile's supported codec subset is checked against.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed sample-entry kind.
-   */
+  /** Closed parsed sample-entry family. */
   kind: "opus";
 
   /**
@@ -17,44 +16,33 @@ export interface IAutoMovieProductionOpusDescription {
    */
   version: number;
 
-  /**
-   * Parsed output channel count.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the coded channel population.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the sample-entry channel count.
-   */
+  /** Parsed output channel count. */
   outputChannelCount: number;
 
-  /**
-   * Parsed decoder pre-skip in samples.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Preserves the coded priming boundary that offsets the first audible sample.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed pre-skip.
-   */
+  /** Parsed decoder pre-skip in samples. */
   preSkip: number;
 
-  /**
-   * Parsed input sample rate.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-sample-boundary Preserves the Opus input clock that converts sample counts into presentation time.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the sample-entry rate.
-   */
+  /** Informational original-input sample rate in hertz, independent of decoder output rate. */
   inputSampleRate: number;
 
-  /**
-   * Parsed signed Q7.8 output gain.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-audio-downmix Prevents hidden final-stream gain changes.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed Opus gain.
-   */
+  /** Parsed signed Q7.8 output gain. */
   outputGainQ7_8: number;
 
-  /**
-   * Parsed mapping-family, stream, and channel-order facts.
-   * @evidence requirements/delivery-and-accessibility/audio-streams-and-channels.md#delivery-channel-layout Preserves the complete coded channel mapping.
-   * @evidence specifications/editorial-render-and-delivery/delivery-profiles-time-and-picture.md#spec-delivery-container-media-facts Supplies the parsed mapping structure.
-   */
+  /** Parsed mapping-family, stream, and channel-order facts. */
   channelMapping: {
+    /** Serialized mapping-family code: zero, one or 255. */
     family: number;
+
+    /** Serialized stream count, or null for family zero's implicit mapping. */
     streamCount: number | null;
+
+    /** Coupled-stream count, or null for family zero. */
     coupledCount: number | null;
+
+    /** Ordered decoded-channel indices, with 255 meaning silence; empty for family zero. */
     mapping: number[];
+
+    /** Implied mono/stereo order for family zero; null when the parser does not expand speaker meaning. */
     channelOrder: string[] | null;
   };
 }

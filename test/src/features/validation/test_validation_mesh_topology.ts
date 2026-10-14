@@ -1,14 +1,23 @@
-import { tessellateToMesh, validateMeshTopology } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMesh,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { tessellateToMesh } from "../../../../packages/engine/src/geometry/tessellateToMesh";
+import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
 import {
   hasViolation,
   namedFacts,
   violationCount,
 } from "../internal/predicates";
+import { withoutArraySlot } from "../internal/withoutArraySlot";
 
-const mesh = (
+const mesh: (
+  positions: number[],
+  indices: number[] | null,
+) => IAutoMovieMesh = (
   positions: number[],
   indices: number[] | null,
 ): IAutoMovieMesh => ({
@@ -20,7 +29,7 @@ const mesh = (
 });
 
 /** Four distinct vertices of a unit square (z=0) plus spares for extra fins. */
-const P = [
+const P: number[] = [
   0,
   0,
   0, // v0
@@ -38,8 +47,13 @@ const P = [
   1, // v4 (out of plane, for a third fin)
 ];
 
-const topo = (m: IAutoMovieMesh, expectClosed = false) =>
-  validateMeshTopology({ mesh: m, expectClosed });
+const topo: (
+  m: IAutoMovieMesh,
+  expectClosed?: boolean,
+) => IAutoMovieValidation = (
+  m: IAutoMovieMesh,
+  expectClosed: boolean = false,
+): IAutoMovieValidation => validateMeshTopology({ mesh: m, expectClosed });
 
 /**
  * The Tier-5 mesh-topology validator (#1183): the `"topology"` violation kind
@@ -70,10 +84,17 @@ const topo = (m: IAutoMovieMesh, expectClosed = false) =>
  * 8. That same tetrahedron with one face removed reports its three now-open
  *    boundary edges under `expectClosed`, pinning the watertight check to fire
  *    only on genuine boundaries.
+ * 9. Nonfinite or missing position/index slots yield no topology verdict;
+ *    model admission owns their structural findings and welding must not throw.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The actual standalone topology gate catches nonmanifold incidence, shared-edge winding and optional closure through returned findings; malformed structural buffers must skip topology without escaping a weld error.
+ * @evidence contracts/testing.md#independent-expectations Authored square/tetrahedron face lists independently determine edge multiplicity and direction; deleting one tetrahedron face exposes three edges, and structural holes cannot name finite coordinates or vertex references.
+ * @evidence contracts/testing.md#distinguishing-cases Preserve open/closed twins, third fin, flipped pair, collapsed triangle, nonindexed soup, all malformed lengths/indices and the real tessellated-box weld seam, adding NaN/Infinity and sparse position/index buffers; model-buffer admission owns the located structural errors.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_mesh_topology; authored mesh records, the existing tessellator and actual topology results own the assertions without a GPU mesh upload, viewer or Human host.
  */
-export const test_validation_mesh_topology = (): void => {
+export function test_validation_mesh_topology(): void {
   // 1. consistent open pair: passes; expectClosed flags its open edges.
-  const openPair = mesh(P.slice(0, 12), [0, 1, 2, 1, 3, 2]);
+  const openPair: IAutoMovieMesh = mesh(P.slice(0, 12), [0, 1, 2, 1, 3, 2]);
   TestValidator.equals("a consistent open pair passes", topo(openPair), {
     success: true,
   });
@@ -82,31 +103,35 @@ export const test_validation_mesh_topology = (): void => {
     namedFacts([
       [
         "refused",
-        () => hasViolation(topo(openPair, true), "topology", "$input.indices"),
+        (): boolean =>
+          hasViolation(topo(openPair, true), "topology", "$input.indices"),
       ],
-      ["violated", () => topo(openPair, true).success === false],
+      ["violated", (): boolean => topo(openPair, true).success === false],
     ]),
     { refused: true, violated: true },
   );
 
   // 2. a fin: three triangles share edge 0–1 → non-manifold.
-  const fin = mesh(P, [0, 1, 2, 1, 0, 3, 0, 1, 4]);
-  const finResult = topo(fin);
+  const fin: IAutoMovieMesh = mesh(P, [0, 1, 2, 1, 0, 3, 0, 1, 4]);
+  const finResult: IAutoMovieValidation = topo(fin);
   TestValidator.equals(
     "a third triangle on one edge is a non-manifold error",
     namedFacts([
-      ["finResultSuccess", () => finResult.success === false],
+      ["finResultSuccess", (): boolean => finResult.success === false],
       [
         "hasViolationFinResultTopology",
-        () =>
+        (): boolean =>
           finResult.success === false &&
           hasViolation(finResult, "topology", "$input.indices"),
       ],
       [
         "finResultViolationsV",
-        () =>
+        (): boolean =>
           finResult.success === false &&
-          finResult.violations.some((v) => v.expected.includes("2-manifold")),
+          finResult.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.expected.includes("2-manifold"),
+          ),
       ],
     ]),
     {
@@ -117,24 +142,27 @@ export const test_validation_mesh_topology = (): void => {
   );
 
   // 3. two triangles winding edge 0–1 the same way → flipped.
-  const flipped = mesh(P.slice(0, 12), [0, 1, 2, 0, 1, 3]);
-  const flippedResult = topo(flipped);
+  const flipped: IAutoMovieMesh = mesh(P.slice(0, 12), [0, 1, 2, 0, 1, 3]);
+  const flippedResult: IAutoMovieValidation = topo(flipped);
   TestValidator.equals(
     "two triangles winding a shared edge alike is a winding error",
     namedFacts([
-      ["refused", () => flippedResult.success === false],
+      ["refused", (): boolean => flippedResult.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           flippedResult.success === false &&
-          flippedResult.violations.some((v) => v.expected.includes("flipped")),
+          flippedResult.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.expected.includes("flipped"),
+          ),
       ],
     ]),
     { refused: true, violated: true },
   );
 
   // 4. a degenerate triangle (v3 repeated) carries no surface: skipped.
-  const degenerate = mesh(P, [0, 1, 2, 3, 3, 4]);
+  const degenerate: IAutoMovieMesh = mesh(P, [0, 1, 2, 3, 3, 4]);
   TestValidator.equals(
     "a degenerate triangle is skipped, not errored",
     topo(degenerate),
@@ -142,7 +170,7 @@ export const test_validation_mesh_topology = (): void => {
   );
 
   // 5. non-indexed single triangle; defaults (no path, no expectClosed) hold.
-  const soup = mesh(P.slice(0, 9), null);
+  const soup: IAutoMovieMesh = mesh(P.slice(0, 9), null);
   TestValidator.equals(
     "a non-indexed single triangle passes with defaults",
     validateMeshTopology({ mesh: soup }),
@@ -188,13 +216,34 @@ export const test_validation_mesh_topology = (): void => {
     topo(mesh([0, 0, 0, 1], null)),
     { success: true },
   );
+  for (const value of [Number.NaN, Number.POSITIVE_INFINITY]) {
+    const positions: number[] = P.slice(0, 9);
+    positions[4] = value;
+    TestValidator.equals(
+      "nonfinite coordinates leave structural reporting to model admission",
+      topo(mesh(positions, [0, 1, 2])),
+      { success: true },
+    );
+  }
+  const missingPosition: number[] = withoutArraySlot(P.slice(0, 9), 4);
+  const missingIndex: number[] = withoutArraySlot([0, 1, 2], 1);
+  TestValidator.equals(
+    "missing position slots cannot escape through welding",
+    topo(mesh(missingPosition, [0, 1, 2])),
+    { success: true },
+  );
+  TestValidator.equals(
+    "missing indices cannot invent topology edges",
+    topo(mesh(P.slice(0, 9), missingIndex)),
+    { success: true },
+  );
 
   // 7. a closed manifold passes expectClosed (the watertight non-firing twin).
   // Tetrahedron on v0(0,0,0) v1(1,0,0) v2(0,1,0) v3(0,0,1); the four faces are
   // wound outward so every one of the six edges is shared by exactly two faces
   // traversing it oppositely (2-manifold, consistent winding, watertight).
-  const TETRA = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1];
-  const closedTetra = mesh(TETRA, [
+  const TETRA: number[] = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1];
+  const closedTetra: IAutoMovieMesh = mesh(TETRA, [
     0,
     2,
     1, // face opposite v3
@@ -220,13 +269,13 @@ export const test_validation_mesh_topology = (): void => {
   );
 
   // 8. the same tetrahedron minus one face exposes exactly its three open edges
-  const openTetra = mesh(TETRA, [0, 2, 1, 0, 1, 3, 0, 3, 2]);
+  const openTetra: IAutoMovieMesh = mesh(TETRA, [0, 2, 1, 0, 1, 3, 0, 3, 2]);
   TestValidator.equals(
     "an open tetra passes without expectClosed",
     topo(openTetra),
     { success: true },
   );
-  const openTetraClosed = topo(openTetra, true);
+  const openTetraClosed: IAutoMovieValidation = topo(openTetra, true);
   TestValidator.equals(
     "an open tetra fails under expectClosed",
     openTetraClosed.success,
@@ -250,7 +299,7 @@ export const test_validation_mesh_topology = (): void => {
   // the topology check welds coincident positions. Passing `expectClosed`
   // exercises WELD_GRID on a genuine seam (the merge's real purpose), where the
   // hand-built fixtures above already share their vertex indices.
-  const weldedBox = tessellateToMesh({
+  const weldedBox: IAutoMovieMesh = tessellateToMesh({
     type: "box",
     width: 1,
     height: 1,
@@ -265,4 +314,4 @@ export const test_validation_mesh_topology = (): void => {
     topo(weldedBox, true),
     { success: true },
   );
-};
+}

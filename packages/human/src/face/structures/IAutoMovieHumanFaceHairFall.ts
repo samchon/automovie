@@ -17,6 +17,14 @@
  * gravity only for an upright head. No hold length of combed or styled hair
  * was read from a measurement; `reach` is authored.
  *
+ * @evidence contracts/common.md#principled-implementation evaluateHumanFaceHairDirection exponentially hands the normalized comb direction to head-frame -Y by centreline arc length, then removes inward skin-directed components.
+ * @evidence contracts/common.md#clear-and-simple-design One positive metre reach controls the static hand-over without a second path, hold-length threshold or gravity solver.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Head -Y is not world gravity for a rotated head; the field provides no mass, stiffness, lock-to-lock contact or measured styling endurance.
+ * @evidence contracts/common.md#meaningful-documentation The exact exponential weight, omission behavior and upright-head limitation identify the actual kinematic approximation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The reach declaration does not evaluate or integrate the direction field.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work It carries a scalar without caching arc-length evaluations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No curve, query, task or physical simulation state is created.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHairFall {

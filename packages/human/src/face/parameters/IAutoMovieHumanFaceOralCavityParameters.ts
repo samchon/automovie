@@ -13,6 +13,14 @@
  * cavity cross-section; the future resolver must enforce tongue, palate,
  * dentition and lining contact together.
  *
+ * @evidence contracts/common.md#principled-implementation The cubic-centimetre field records residual oral-cavity-proper space under its tongue/dental acquisition pose, distinct from tongue volume and broader cavity capacity. Current observation rules keep it while clinical palate/floor-of-mouth boundaries and the common-basis inverse remain unregistered.
+ * @evidence contracts/common.md#clear-and-simple-design One scalar owns this specific observed residual volume; tongue dimensions, dentition and numerical lining geometry stay with their existing owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A photograph, arbitrary wall coordinates or the earlier broader MRI cavity cannot substitute for the declared CBCT proper-space quantity; coarse lining geometry is not a clinical volume certificate.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the acquisition pose, residual-space meaning, cubic centimetres, incompatible broader measures and required coupled tongue/dentition/lining contact.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface computes no segmentation, cavity integral or contact solve.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The scalar observation coordinates no repeated cavity measurement or shared inverse.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no CBCT volume or oral mesh handle; its document owns the optional measured scalar.
+ *
  * @publicUnconsumed createHumanFaceAnatomicalResolver: Oral space has no validated common-basis inverse or joint tongue/dentition admission yet.
  * @author Samchon
  */

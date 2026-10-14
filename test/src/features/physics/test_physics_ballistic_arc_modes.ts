@@ -6,32 +6,35 @@ import { namedFacts } from "../internal/predicates";
 
 const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const target: IAutoMovieVector3 = { x: 8, y: 1, z: 0 };
-const invalidArc = "flat" as Parameters<typeof solveBallisticLaunch>[4];
+const invalidArc: Parameters<typeof solveBallisticLaunch>[4] =
+  "flat" as Parameters<typeof solveBallisticLaunch>[4];
 
 /**
- * Ballistic arc mode is a runtime input at the LLM/JS boundary. Unknown modes
- * must fail like the solver's other invalid inputs instead of silently becoming
- * the direct arc.
+ * Observe rejection of an unknown runtime ballistic arc mode by both static and moving launch solvers. The explicit type assertion injects the same invalid JavaScript value while keeping the public TypeScript signature intact.
  *
  * Scenarios:
  *
  * 1. Static launch returns `null` for an unknown arc mode.
- * 2. Moving launch returns `null` for the same bad mode before sampling the target
- *    callback.
+ * 2. Moving launch returns null for the same bad mode without sampling its supplied target callback.
  * 3. Valid `direct` and `high` modes still solve.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls both actual solvers with flat, requires null and observes a callback side-effect flag remaining false for moving launch. Static direct/high calls must remain non-null, separating invalid admission from unconditional refusal.
+ * @evidence contracts/testing.md#independent-expectations The supported direct/high union defines the categorical expectation, and the literal flat input is outside it. The callback flag independently exposes whether invalid admission reached target sampling; no floating-point result is compared or synthesized into an expected answer.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the invalid static/moving twins, skipped callback observation and valid static direct/high controls with original positions and speed 14. Other invalid inputs, valid moving convergence, flight ordering and landing accuracy belong to other units.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns both solver calls and the local callback flag. Its supplied target callback is not a separately registered test, and no native artifact, process or viewer is required.
  */
-export const test_physics_ballistic_arc_modes = (): void => {
+export function test_physics_ballistic_arc_modes(): void {
   TestValidator.predicate(
     "invalid static arc is null",
     solveBallisticLaunch(origin, target, 14, undefined, invalidArc) === null,
   );
 
-  let sampled = false;
+  let sampled: boolean = false;
   TestValidator.predicate(
     "invalid moving arc is null",
     solveMovingLaunch(
       origin,
-      () => {
+      (): IAutoMovieVector3 => {
         sampled = true;
         return target;
       },
@@ -51,13 +54,13 @@ export const test_physics_ballistic_arc_modes = (): void => {
     namedFacts([
       [
         "solveBallisticLaunchOriginTarget",
-        () =>
+        (): boolean =>
           solveBallisticLaunch(origin, target, 14, undefined, "direct") !==
           null,
       ],
       [
         "solveBallisticLaunchOriginTarget2",
-        () =>
+        (): boolean =>
           solveBallisticLaunch(origin, target, 14, undefined, "high") !== null,
       ],
     ]),
@@ -66,4 +69,4 @@ export const test_physics_ballistic_arc_modes = (): void => {
       solveBallisticLaunchOriginTarget2: true,
     },
   );
-};
+}

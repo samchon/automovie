@@ -1,83 +1,60 @@
 import { IAutoMovieLight, IAutoMovieStageLight } from "@automovie/interface";
+
 import { Vector3 } from "../../math/Vector3";
 import { AUTO_MOVIE_LIGHT_TYPES } from "../../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";
 import { withArticle } from "../../text/withArticle";
 import { ViolationCollector } from "../../validation/ViolationCollector";
+import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { isRecord } from "../../validation/isRecord";
+import { validateColor } from "../../validation/validateColor";
 import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 import { lightTypeOf } from "./lightTypeOf";
-import { validateStageUnitColorComponent } from "./validateStageUnitColorComponent";
 
 /**
- * The rectangular panel's extent as a placement may carry it.
+ * The staging light contract, per kind: each placement takes exactly the parameters its `type` can act on, so `stageScene` can lower it to the scene light that kind names without guessing.
  *
- * Read through one accessor rather than off the placement type for the same
- * reason {@link lightTypeOf} reads `type` that way: the gate must be able to
- * doubt a value an author supplied, and a field asserted before it is checked
- * is a field that stopped being checked. Both axes are `unknown` here and
- * become numbers only once {@link validateLightExtent} has said so.
- * @author Samchon
+ * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero `direction`, and a `point` light must not carry one, since it radiates every way.
+ * - A positioned light (`point`, `spot`, `area`) needs a finite `position`, and a `directional` light must not carry one, since it is infinitely distant.
+ * - `range` belongs to the two punctual falloff kinds and must be finite and at least zero; `coneAngle` belongs to `spot` alone, within `(0, 90]`; `width` and `height` belong to `area` alone and must be finite and positive, and both are reported when both are wrong.
+ * - `color`, when given, follows validateColor's canonical linear RGBA rule, including nullable alpha and an optional matching sRGB hex label.
+ * - `castShadow` is a boolean, is refused on an `area` light, which renders no shadow map, and when `true` requires `shadow`; `shadow` requires `castShadow: true` and carries a positive safe-integer `mapSize`, finite biases, a positive `near` and a finite `far` beyond it.
+ *
+ * A parameter that cannot act is refused rather than ignored, because silently dropping a `coneAngle` on a point light stages a light that is not the one authored. An unknown `type` is reported once and nothing else is judged, since no rule set applies. The caller supplies a light record; malformed ordinary JSON fields, including null vectors, colors and shadows, produce located findings. A failed string conversion uses `an uninspectable value` only in text and retains the authored value. Throwing property accessors and nonterminating conversion hooks are outside that guarantee.
+ *
+ * @evidence contracts/common.md#principled-implementation Derives the kind once through `lightTypeOf` and then requires or forbids each field by the kind's physical meaning, aim for every kind but point, position for every kind but directional, falloff range only for point and spot, and reads every authored value as `unknown` until a shape and finiteness test admits it.
+ * @evidence contracts/common.md#clear-and-simple-design Owns light aim, position, range and cone with private extent and shadow helpers; the full color record delegates to validateColor so staged lights, materials and backgrounds share shape, channel and display-label rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is defaulted or clamped to pass, the area-shadow refusal is a stated rendering fact rather than a fixture exception, and no node or role is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States per-kind ranges, color and shadow rules, inapplicable-parameter refusal, unknown-type handling, the caller's record premise and ordinary-field conversion fallback with its limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Checks a fixed field population per placement; refusal adds conversion/output-sized text with no time bound on user-defined hooks, and stageScene invokes the gate once per light.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one placement per call and coordinates no work across placements or calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; it appends at most one violation per checked field to the caller's collector, which owns them.
  */
-interface IAutoMovieStageLightExtent {
-  /** Declared panel width, unchecked. */
-  width?: unknown;
-  /** Declared panel height, unchecked. */
-  height?: unknown;
-}
-
-/** A placement's declared panel extent, before any of it is believed. */
-const lightExtentOf = (
+export const validateLightPlacementShape: (
   light: IAutoMovieStageLight,
-): IAutoMovieStageLightExtent => light as IAutoMovieStageLightExtent;
-
-/**
- * The staging light contract, per kind (#1341).
- *
- * `stage` used to accept `{node, role, direction, intensity}` and lower every
- * entry to a white directional light, so a candle, a sunset, a neon sign, and a
- * window shaft were all the same frame, and an author who wanted a warm lamp
- * had to hand-patch `scene.lights` after `stage` and lose the referential
- * integrity `stage` exists to give. The placement now spans every kind
- * {@link IAutoMovieLight} models, which makes each kind's parameter set exact
- * rather than advisory:
- *
- * - An aimed light (`directional`, `spot`, `area`) needs a finite non-zero
- *   `direction` and a `point` light must not carry one, since it radiates every
- *   way;
- * - A positioned light (`point`, `spot`, `area`) needs a finite `position` and a
- *   `directional` light must not carry one, since it is infinitely distant;
- * - `range` belongs to the two punctual falloff kinds, `coneAngle` to `spot`
- *   alone, and `width`/`height` to `area` alone.
- *
- * A parameter that cannot act is refused rather than ignored: silently dropping
- * a `coneAngle` on a point light is the same false green the campaign is
- * closing elsewhere. Colors are range-checked here too, because `stage` is the
- * only rung between the model and the scene.
- *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-refusal Checks each supported staged light kind, its permitted geometry and color, and its explicit shadow-map settings before any light is lowered.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Checks each supported staged light kind, its permitted geometry and color, and its explicit shadow-map settings before any light is lowered.
- */
-export const validateLightPlacementShape = (
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   path: string,
   out: ViolationCollector,
 ): void => {
-  const type = lightTypeOf(light);
+  const type: IAutoMovieLight["type"] | null = lightTypeOf(light);
   if (type === null) {
+    const declared: unknown = light.type;
     out.push(
       "type",
       `${path}.type`,
       `light type must be one of ${[...AUTO_MOVIE_LIGHT_TYPES].join(", ")}`,
-      (light as unknown as { type?: unknown }).type,
+      declared,
     );
     return;
   }
-  const aimed = type !== "point";
-  const positioned = type !== "directional";
+  const aimed: boolean = type !== "point";
+  const positioned: boolean = type !== "directional";
   // Distance falloff is narrower than "has a position": an area panel stands
   // somewhere and still takes no range, because its falloff follows from the
   // panel's own extent.
-  const falloff = type === "point" || type === "spot";
+  const falloff: boolean = type === "point" || type === "spot";
 
   if (light.direction === undefined) {
     if (aimed)
@@ -140,7 +117,7 @@ export const validateLightPlacementShape = (
       out.push(
         "range",
         `${path}.range`,
-        `light range must be a finite number >= 0 (0 = infinite), but was ${light.range}`,
+        `light range must be a finite number >= 0 (0 = infinite), but was ${describeInvalidValue(light.range)}`,
         light.range,
       );
   }
@@ -161,32 +138,35 @@ export const validateLightPlacementShape = (
       out.push(
         "range",
         `${path}.coneAngle`,
-        `spot coneAngle must be a finite number within (0, 90], but was ${light.coneAngle}`,
+        `spot coneAngle must be a finite number within (0, 90], but was ${describeInvalidValue(light.coneAngle)}`,
         light.coneAngle,
       );
   }
 
   validateLightExtent(light, type, path, out);
-  if (light.color !== undefined) validateLightColor(light.color, path, out);
+  if (light.color !== undefined)
+    validateColor(light.color, `${path}.color`, out);
   validateLightShadow(light, type, path, out);
 };
 
 /**
  * The panel's extent: required exactly on an `area` light, refused elsewhere.
  *
- * Both axes are checked, not just the first missing one, so an author who typed
- * neither is told both rather than being walked through the same placement one
- * recompile at a time.
+ * Both axes are checked, not just the first missing one, so an author who typed neither is told both rather than being walked through the same placement one recompile at a time. Each axis is read as `unknown`, because an untyped payload may carry anything there.
  */
-const validateLightExtent = (
+const validateLightExtent: (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
   out: ViolationCollector,
 ): void => {
-  const extent = lightExtentOf(light);
   for (const axis of ["width", "height"] as const) {
-    const value = extent[axis];
+    const value: unknown = light[axis];
     if (value === undefined) {
       if (type === "area")
         out.push(
@@ -206,13 +186,21 @@ const validateLightExtent = (
       out.push(
         "range",
         `${path}.${axis}`,
-        `area ${axis} must be a finite number greater than zero, but was ${String(value)}`,
+        `area ${axis} must be a finite number greater than zero, but was ${describeInvalidValue(value)}`,
         value,
       );
   }
 };
 
-const validateLightShadow = (
+/**
+ * `castShadow` and `shadow`: a boolean flag, refused on an area light, and settings present exactly when the flag is `true`, each field finite and `far` beyond `near`.
+ */
+const validateLightShadow: (
+  light: IAutoMovieStageLight,
+  type: IAutoMovieLight["type"],
+  path: string,
+  out: ViolationCollector,
+) => void = (
   light: IAutoMovieStageLight,
   type: IAutoMovieLight["type"],
   path: string,
@@ -227,12 +215,11 @@ const validateLightShadow = (
     );
   // A rectangular area source is integrated analytically, so `three.js` renders
   // no shadow map for it. Accepting the flag would stage a light that says it
-  // occludes and never does, which is exactly the false green this campaign is
-  // closing; the correction is a spot or directional key beside the panel. The
-  // refusal replaces the shadow-settings demand rather than joining it: asking
-  // an author to tune a map that will never be rendered is worse advice than
-  // none.
-  else if (light.castShadow === true && type === "area") {
+  // occludes and never does; the correction is a spot or directional key
+  // beside the panel. The refusal replaces the shadow-settings demand rather
+  // than joining it: asking an author to tune a map that will never be
+  // rendered is worse advice than none.
+  else if (light.castShadow !== undefined && type === "area") {
     out.push(
       "type",
       `${path}.castShadow`,
@@ -258,22 +245,22 @@ const validateLightShadow = (
       "shadow settings require castShadow to be true",
       light.shadow,
     );
-  if (!isRecord(light.shadow)) {
-    out.push(
-      "type",
-      `${path}.shadow`,
-      "shadow must be a JSON object",
-      light.shadow,
-    );
+  const shadow: unknown = light.shadow;
+  if (!isRecord(shadow)) {
+    out.push("type", `${path}.shadow`, "shadow must be a JSON object", shadow);
     return;
   }
-  const shadow = light.shadow;
-  if (!Number.isSafeInteger(shadow.mapSize) || (shadow.mapSize as number) <= 0)
+  const mapSize: unknown = shadow.mapSize;
+  if (
+    typeof mapSize !== "number" ||
+    !Number.isSafeInteger(mapSize) ||
+    mapSize <= 0
+  )
     out.push(
       "range",
       `${path}.shadow.mapSize`,
       "shadow mapSize must be a positive safe integer",
-      shadow.mapSize,
+      mapSize,
     );
   for (const key of ["bias", "normalBias"] as const)
     if (typeof shadow[key] !== "number" || !Number.isFinite(shadow[key]))
@@ -283,67 +270,25 @@ const validateLightShadow = (
         `shadow ${key} must be finite`,
         shadow[key],
       );
-  if (
-    typeof shadow.near !== "number" ||
-    !Number.isFinite(shadow.near) ||
-    shadow.near <= 0
-  )
+  const near: unknown = shadow.near;
+  const far: unknown = shadow.far;
+  if (typeof near !== "number" || !Number.isFinite(near) || near <= 0)
     out.push(
       "range",
       `${path}.shadow.near`,
       "shadow near must be finite and greater than zero",
-      shadow.near,
+      near,
     );
   if (
-    typeof shadow.far !== "number" ||
-    !Number.isFinite(shadow.far) ||
-    typeof shadow.near !== "number" ||
-    shadow.far <= shadow.near
+    typeof far !== "number" ||
+    !Number.isFinite(far) ||
+    typeof near !== "number" ||
+    far <= near
   )
     out.push(
       "range",
       `${path}.shadow.far`,
       "shadow far must be finite and greater than near",
-      shadow.far,
+      far,
     );
-};
-
-/**
- * A staged light's color, checked to the same rule the scene artifact validator
- * applies downstream.
- *
- * Both halves matter. The object check keeps this validator TOTAL: `stage` is
- * reachable in-process with an untyped payload (the transport's structural gate
- * is not the engine's), and a `null` color would otherwise dereference into a
- * TypeError instead of a located violation. The alpha check keeps the two rungs
- * agreeing: `validateColorArtifact` range-checks a non-null `a`, so leaving it
- * to `commitScene` would let a bad alpha compose a scene here and be refused
- * one stage later, which is the wrong-stage failure this cycle closes
- * elsewhere.
- */
-const validateLightColor = (
-  color: unknown,
-  path: string,
-  out: ViolationCollector,
-): void => {
-  if (!isRecord(color)) {
-    out.push(
-      "type",
-      `${path}.color`,
-      "light color must be a JSON object",
-      color,
-    );
-    return;
-  }
-  for (const key of ["r", "g", "b"] as const)
-    validateStageUnitColorComponent(
-      color[key],
-      `${path}.color.${key}`,
-      `light color ${key}`,
-      out,
-    );
-  // `a` is nullable by contract: a light slot is opacity-irrelevant, so `null`
-  // is the documented value there, distinct from an out-of-range number.
-  if (color.a !== null)
-    validateStageUnitColorComponent(color.a, `${path}.color.a`, "light color a", out);
 };

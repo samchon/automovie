@@ -14,53 +14,23 @@ import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHuman
 import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
 
 /**
- * An immutable, externally authored connected body below the neck, with the
- * joints that move it and the endpoints that shape it.
+ * An externally supplied connected body below the neck, with the landmarks, joints and endpoint rows that shape and perform it. Coordinates and sparse differences use metres in the common right-handed +Y-up, +Z-forward frame. The package bundles no person's mesh.
  *
- * The caller supplies licensed geometry; this package supplies no person's
- * mesh. Coordinates and sparse differences use metres in a right-handed Y-up,
- * Z-forward frame shared with the face basis. In the shipped body, the
- * nonplanar collar boundary has 120 vertices with Y between -0.0902116299 m
- * and -0.0807635784 m. These are the face collar's same source vertices in
- * the common frame, so a separate combination stage can join the two by
- * position instead of by a transform.
- * The ground therefore sits well below the origin; a consumer that wants the
- * feet at zero translates the whole model by the neutral's lowest Y.
+ * A basis revision owns its source topology, shared-boundary identity, endpoints, landmarks, joints, weights and appearance policies. Changing any of these dependencies requires a new identity. Face/body composition must retain actual shared-source correspondence; matching positions or generation labels alone do not establish a compatible boundary.
  *
- * What the face basis lacked and the body cannot do without is the joint. A
- * 145 degree elbow walked as a linear endpoint leaves the forearm centimetres
- * off the arc, so joints, their landmarks and the skin weights are part of
- * this contract from the first revision rather than a later layer. Evaluation
- * is channels, then correctives, then landmarks, then the rest skeleton, then
- * the pose with the declared couplings added and shoulder goals resolved,
- * then skinning
- * (`createHumanBodyBasisBuilder`).
+ * The builder admits the basis and document, resolves named anatomical targets and source-reference goals, computes channel weights and corrective activations, evaluates shaped landmarks, resolves the posed rig, then evaluates appearance and connected skin. Internal assembly, final placement and garment composition use those evaluated authorities. Neither endpoint interpolation nor skinning proves physiological range, contact or tissue-volume conservation for arbitrary combinations.
  *
- * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
- * must move at least one resident skin vertex or landmark in a standalone
- * body. A person may supply the exact same-generation head source with actual
- * endpoint driver contributions; its constructor verifies those external rows
- * separately. A surface or the landmark set omits rows for an endpoint it does
- * not move. The current r16
- * study has 1,859 declared endpoints on skin and 183 with landmark rows;
- * only those 183 also reposition rig points. Changes to geometry, endpoints,
- * landmarks, joints or weights require a new basis identity.
+ * Every declared endpoint must move resident skin or landmarks, or have actual external contributions supplied by the composition owner and verified against the exact same-generation source. A population may omit rows only for an endpoint that does not move it. Declared unavailable targets refuse nonzero activation instead of treating missing dependencies as zero.
  *
- * Basis IDs that address record fields (channels, endpoints, landmarks,
- * surfaces, materials and regions) must not name an inherited Object property.
- * The admission stages check this once so a missing authored row cannot be
- * mistaken for `constructor`, `toString` or another prototype member during
- * shape evaluation. This is a JavaScript representation constraint, not an
- * anatomical limit on a person's measurements.
+ * Record-key identities cannot name inherited Object properties; admission enforces this representation constraint before evaluation. Genital and nipple geometry remain excluded until a product decision reopens them. Clothing beyond basic underwear belongs to production assets, hair to the face groom, and ethnicity axes remain outside this basis.
  *
- * Endpoint interpolation describes an authored shape, not muscle; skinning
- * describes a rigid attachment, not tissue. Neither proves nonpenetration or
- * physiological range for arbitrary combinations, which the body-review
- * census measures separately. Genital and nipple geometry, clothing, hair and
- * ethnicity axes are not channels of this basis: the first two are product
- * exclusions that reopen only with a product decision, the rest belong to
- * other owners (clothing to a production's own assets, hair to the face's
- * groom, ethnicity to the face track that declined it too).
+ * @evidence contracts/common.md#principled-implementation One revision binds externally supplied shared skin, sparse endpoints, landmarks and rig policy in a common metre frame.
+ * @evidence contracts/common.md#clear-and-simple-design The immutable basis owns source geometry and coordinate conventions while compact documents carry edits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts External source arrays supply no bundled person's mesh and do not certify internal tissue anatomy or arbitrary-pose clearance.
+ * @evidence contracts/common.md#meaningful-documentation The prose states revision invalidation, source ownership, evaluation stages and representation limitations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The connected body basis contract is a type declaration without executable processing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The connected body basis contract coordinates no cross-call computation or caching.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The connected body basis contract type itself acquires no retained runtime resources.
  *
  * @author Samchon
  */
@@ -115,8 +85,7 @@ export interface IAutoMovieHumanBodyBasis {
 
   /**
    * Named areas of the skin, each a set of vertices of one surface, for
-   * measurement rules that keep a feature out of a search (none on the
-   * shipped body yet).
+   * measurement rules that keep a feature out of a search.
    * Rules name an area instead of listing vertices, which belong to one
    * basis's topology; a rule naming an area this basis does not declare
    * refuses by that name. Omission declares none.

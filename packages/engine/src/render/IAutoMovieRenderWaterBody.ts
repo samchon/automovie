@@ -1,26 +1,20 @@
 import { IAutoMovieFluidDomain } from "@automovie/interface";
 
-/**
- * One declared water body and whatever a solver has proved about it.
+/** One declared water body and whatever a solver has proved about it.
  *
- * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Groups the surface, simulation, material, and ownership inputs charged for one water body.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Defines the fluid-cost record consumed by worst-case preflight.
+ * @evidence contracts/common.md#principled-implementation A bound fluid domain authoritatively determines grid cells, particle cap and drawn surface; external solver counts apply only without a domain, and wholly unproved facts remain unsupported.
+ * @evidence contracts/common.md#clear-and-simple-design One water-body row joins semantic/material ownership and simulation geometry without charging both domain surface and ordinary scene nodes for the same water.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null counts mean no solver proof, not zero; domain-derived quantities override hand counts rather than accepting contradictory estimates.
+ * @evidence contracts/common.md#meaningful-documentation Members document domain precedence, node double-count avoidance, semantic ownership and material use only for a domain-drawn surface.
+ * @evidence contracts/performance.md#efficient-algorithms Grid-derived counts use dimensions/emitter caps without running the solver; record storage is proportional to named staged nodes rather than grid cells.
+ * @evidence contracts/performance.md#reuse-equivalent-work Mask and inventory reuse the same domain/binding row; topology counts survive changing water heights, while altered grid/emitter laws require remeasurement.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The holder owns the domain record and external facts; no solver state, water mesh or native resource is allocated by this type.
  */
 export interface IAutoMovieRenderWaterBody {
-  /**
-   * Stable water-body id.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Keeps a fluid finding addressable as the same budget subject across runs.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keys water cost and recovery to one stable owner record.
-   */
+  /** Stable water-body id. */
   id: string;
 
-  /**
-   * Semantic id of the owning building space, or `null` when unowned.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Names the source owner a fluid budget finding directs the author to edit.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Attributes water cost to a bounded dominant-owner report without inventing ownership.
-   */
+  /** Semantic id of the owning building space, or `null` when unowned. */
   owner: string | null;
 
   /**
@@ -29,9 +23,6 @@ export interface IAutoMovieRenderWaterBody {
    * These are ordinary staged nodes and are already counted as such, so a body
    * drawn by a bound {@link domain}'s own free surface names none here: listing
    * both would bill the same water twice.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Identifies staged surface nodes already charged elsewhere so water geometry is not double-counted.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Preserves exact cost accounting when a body is drawn by ordinary nodes rather than a domain surface.
    */
   nodes: string[];
 
@@ -43,36 +34,22 @@ export interface IAutoMovieRenderWaterBody {
    * particle cap, so a number derived from the record cannot drift from the
    * record the way a hand-copied one does. It also carries the drawn free
    * surface, one vertex per cell, into the geometry metrics.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Provides authoritative grid, emitter, and free-surface bounds for fluid cost.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Prefers the declared domain over stale copied counts during worst-case preflight.
    */
   domain: IAutoMovieFluidDomain | null;
 
   /**
    * Simulation cell count proved by a solver outside this repository, or `null`
    * when none ran. Ignored when {@link domain} is present.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Carries an externally proved fluid-cell count only when no authoritative domain exists.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Distinguishes supplied measurement from not-run fluid accounting.
    */
   cells: number | null;
 
-  /**
-   * Live particle count proved by such a solver, or `null` when none ran.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Carries the bounded live-particle contribution to simulation cost.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Reports absent particle analysis as not-run rather than zero.
-   */
+  /** Live particle count proved by such a solver, or `null` when none ran. */
   particles: number | null;
 
   /**
    * Material id the free surface is drawn with, or `null` for the renderer's
    * own default. Ignored when {@link domain} is `null`, because a body with no
    * domain draws no surface of its own here.
-   *
-   * @evidence requirements/rendering/budgets.md#rendering-geometry-memory-budget Includes the free surface's material and draw ownership in water cost.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Charges a material only when the domain actually contributes a drawable surface.
    */
   material: string | null;
 }

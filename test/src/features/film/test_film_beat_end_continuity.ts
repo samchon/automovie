@@ -1,6 +1,9 @@
 import { resolveBeatEnd, sampleMotion } from "@automovie/engine";
 import {
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieJointPose,
   IAutoMovieMotion,
+  type IAutoMoviePose,
   IAutoMovieScene,
   IAutoMovieShot,
 } from "@automovie/interface";
@@ -61,7 +64,9 @@ const scene: IAutoMovieScene = {
   lights: [],
 };
 
-const shotOf = (duration: number): IAutoMovieShot => ({
+const shotOf: (duration: number) => IAutoMovieShot = (
+  duration: number,
+): IAutoMovieShot => ({
   id: "shot:beat-1",
   name: null,
   scene: "scene",
@@ -72,7 +77,9 @@ const shotOf = (duration: number): IAutoMovieShot => ({
   duration,
 });
 
-const endOf = (duration: number) =>
+const endOf: (duration: number) => IAutoMovieBeatEndActorState = (
+  duration: number,
+): IAutoMovieBeatEndActorState =>
   resolveBeatEnd({
     beat: "beat-1",
     scene,
@@ -81,31 +88,27 @@ const endOf = (duration: number) =>
   }).actors[0]!;
 
 /**
- * The continuity invariant behind "an hour of walking with no stutter at the
- * cuts": a beat-end state must let the next beat resume the gait exactly where
- * this beat left it. The carried gait phase re-samples to the very pose the
- * beat ended on, the folded transform is the exact world position to restage at
- * (with the pose root cleared so nothing double-applies), and the root velocity
- * matches the clip's true derivative, including at the loop seam, where a naive
- * finite difference across the wrap would report a teleport.
+ * Beat-end continuity carries the stride phase, folded root position and incoming velocity a later beat needs. The checks constrain the phase and both sampled poses with hand-derived values and distinguish loop-wrap discontinuity from physical travel; a cleared pose root marks the folded transform as the sole root placement.
  *
  * Scenarios:
  *
  * 1. Mid-cycle end (2.25 s into a 1 s loop): gaitPhase = 0.25, world position
  *    folds to x = 0.5, and rootVelocity = the clip's constant 2 m/s.
- * 2. Resume equality: sampling the clip at the carried phase reproduces the end
- *    sample exactly (same joints, same root): the next beat's first frame IS
- *    this beat's last.
- * 3. Restage seam: the end pose's root is cleared, so an actor staged at the
- *    carried transform starts precisely at the end position, no double-apply.
+ * 2. Resume equality: sampling at the carried phase and elapsed time gives the same one-joint articulation and root translation, checked against ten degrees of flexion and x=0.5.
+ * 3. Restage seam: the end pose's root is cleared so a consumer can use its carried transform without applying the same root twice; this test does not stage a second beat.
  * 4. Exactly on the loop seam (2.0 s): phase wraps to 0 and velocity is measured
  *    on the cycle's closing stretch (clamped, not wrapped): still 2 m/s, not a
  *    backwards teleport.
  * 5. In the cycle's opening instants (phase < the finite-difference window) the
  *    window shrinks to [0, phase] and still reads 2 m/s.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatEnd at mid-cycle, seam and opening instants and checks carried phase, folded position, root clearing and velocity, then samples both resume clocks and checks their articulation and translation. This catches a seam-crossing backward velocity spike or a carried phase that resumes a different pose.
+ * @evidence contracts/testing.md#independent-expectations The literal one-second root law x=2t gives phase 0.25, position 0.5 and velocity 2, while linear flexion from zero to forty gives ten degrees. Those hand values constrain both product sampler observations, so agreement between two wrong samples alone cannot pass; full next-beat restaging is outside these assertions.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves mid-cycle elapsed time 2.25, exact seam 2, and early-cycle 2.02 with its shortened derivative window, plus resumed articulation and cleared-root ownership; nonlooping tails and zero-duration loops belong to test_film_beat_end_sim_state.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_beat_end_continuity entry owns all numeric boundary calls and existing motion fixtures in-process, without installing a production or starting native compilation, a process or a renderer.
  */
-export const test_film_beat_end_continuity = (): void => {
-  const mid = endOf(2.25);
+export function test_film_beat_end_continuity(): void {
+  const mid: IAutoMovieBeatEndActorState = endOf(2.25);
   TestValidator.predicate("mid-cycle phase", nclose(mid.gaitPhase!, 0.25));
   TestValidator.predicate(
     "mid-cycle world position",
@@ -116,13 +119,47 @@ export const test_film_beat_end_continuity = (): void => {
     vclose(mid.rootVelocity!, { x: 2, y: 0, z: 0 }, 1e-9),
   );
 
-  const resumed = sampleMotion(walk, mid.gaitPhase!).pose;
-  const ended = sampleMotion(walk, 2.25).pose;
+  const resumed: IAutoMoviePose = sampleMotion(walk, mid.gaitPhase!).pose;
+  const ended: IAutoMoviePose = sampleMotion(walk, 2.25).pose;
   TestValidator.equals(
     "resume reproduces joints",
-    resumed.joints,
-    ended.joints,
+    resumed.joints.map(
+      (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+        joint.bone,
+        joint.abduction === null,
+        joint.twist === null,
+      ],
+    ),
+    ended.joints.map(
+      (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+        joint.bone,
+        joint.abduction === null,
+        joint.twist === null,
+      ],
+    ),
   );
+  for (const pose of [resumed, ended]) {
+    TestValidator.equals(
+      "resumed joint identity and nullable axes",
+      pose.joints.map(
+        (joint: IAutoMovieJointPose): readonly [string, boolean, boolean] => [
+          joint.bone,
+          joint.abduction === null,
+          joint.twist === null,
+        ],
+      ),
+      [["leftLowerLeg", true, true]],
+    );
+    TestValidator.predicate(
+      "resumed flexion follows the authored linear quarter cycle",
+      nclose(pose.joints[0]?.flexion ?? Number.NaN, 10, 1e-12),
+    );
+    TestValidator.predicate(
+      "resumed root follows the authored linear quarter cycle",
+      pose.root !== null &&
+        vclose(pose.root.translation, { x: 0.5, y: 0, z: 0 }, 1e-12),
+    );
+  }
   TestValidator.predicate(
     "resume reproduces root",
     vclose(resumed.root!.translation, ended.root!.translation, 1e-12),
@@ -130,14 +167,14 @@ export const test_film_beat_end_continuity = (): void => {
 
   TestValidator.equals("end pose root cleared", mid.pose!.root, null);
 
-  const seam = endOf(2);
+  const seam: IAutoMovieBeatEndActorState = endOf(2);
   TestValidator.predicate("seam phase wraps to 0", nclose(seam.gaitPhase!, 0));
   TestValidator.predicate(
     "seam velocity from the closing stretch",
     vclose(seam.rootVelocity!, { x: 2, y: 0, z: 0 }, 1e-9),
   );
 
-  const opening = endOf(2.02);
+  const opening: IAutoMovieBeatEndActorState = endOf(2.02);
   TestValidator.predicate(
     "opening-instants phase",
     nclose(opening.gaitPhase!, 0.02, 1e-9),
@@ -146,4 +183,4 @@ export const test_film_beat_end_continuity = (): void => {
     "opening-instants velocity",
     vclose(opening.rootVelocity!, { x: 2, y: 0, z: 0 }, 1e-6),
   );
-};
+}

@@ -5,50 +5,32 @@ import { IAutoMovieDesignDifference } from "./IAutoMovieDesignDifference";
  *
  * Both alternatives must apply to the same revision, so the comparison is
  * between two schemes and not between two buildings. Every difference names a
- * subject id both schemes share, which is the mechanical proof that identity
- * survived the alternative.
+ * lineage subject id both schemes share, which shows that identity survived
+ * the alternative.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignComparison` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignComparison` for the narrative intent reference lineage system contract.
+ * A subject both alternatives edit to identical values appears in neither
+ * {@link common} nor {@link differences}. Both lists sort by UTF-16 code unit,
+ * never by locale.
+ *
+ * @evidence contracts/common.md#principled-implementation `designLineageCompare` keys each variant's changes by subject and aspect, keeps every key whose two verbatim values differ, and sorts by UTF-16 code unit so the result is identical on every host and locale.
+ * @evidence contracts/common.md#clear-and-simple-design The shared revision, both variant ids, the untouched subjects, and the differences are returned together, so a reader can check the comparison's basis and its complement from one record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Variants on different base revisions and an invalid lineage throw instead of being compared, and subjects edited identically by both sides are left out of both lists as documented rather than counted as common.
+ * @evidence contracts/common.md#meaningful-documentation States the shared-revision requirement, what lands in `common` versus `differences`, the omission of identically edited subjects, the code-unit ordering, and which side each variant id is reported on.
+ * @author Samchon
  */
 export interface IAutoMovieDesignComparison {
-  /**
-   * Base revision both alternatives apply to.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `revision` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `revision` for the narrative intent reference lineage system contract.
-   */
+  /** Base revision both alternatives apply to. */
   revision: string;
 
-  /**
-   * Left variant id.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `left` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `left` for the narrative intent reference lineage system contract.
-   */
+  /** Id of the variant reported on each difference's `left` side. */
   left: string;
 
-  /**
-   * Right variant id.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `right` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `right` for the narrative intent reference lineage system contract.
-   */
+  /** Id of the variant reported on each difference's `right` side. */
   right: string;
 
-  /**
-   * Subject ids neither alternative edits, in ascending order.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `common` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `common` for the narrative intent reference lineage system contract.
-   */
+  /** Lineage subject ids neither alternative edits, in ascending order. */
   common: string[];
 
-  /**
-   * Every differing subject and aspect, in ascending order.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `differences` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `differences` for the narrative intent reference lineage system contract.
-   */
+  /** Every differing subject and aspect, ordered by subject, then aspect. */
   differences: IAutoMovieDesignDifference[];
 }

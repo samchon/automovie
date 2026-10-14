@@ -1,14 +1,18 @@
-import { performShot, stageScene } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
   IAutoMovieBone,
   IAutoMovieCameraAction,
+  IAutoMovieConstraintViolation,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -17,7 +21,11 @@ import {
 } from "../internal/filmFixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const bone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  translation: IAutoMovieVector3,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   translation: IAutoMovieVector3,
@@ -34,10 +42,16 @@ const bone = (
 
 /**
  * A rig whose arms rest hanging (`down`) or in the canonical T-pose (`out`).
- * One property apart, so the pair isolates the rest direction.
+ * One direction parameter changes both lower-arm and hand rest offsets, keeping
+ * lengths, hierarchy and the remaining rig fields fixed.
  */
-const armRig = (direction: "down" | "out"): IAutoMovieSkeleton => {
-  const step = (length: number, sign: number): IAutoMovieVector3 =>
+const armRig: (direction: "down" | "out") => IAutoMovieSkeleton = (
+  direction: "down" | "out",
+): IAutoMovieSkeleton => {
+  const step: (length: number, sign: number) => IAutoMovieVector3 = (
+    length: number,
+    sign: number,
+  ): IAutoMovieVector3 =>
     direction === "down"
       ? { x: 0, y: -length, z: 0 }
       : { x: sign * length, y: 0, z: 0 };
@@ -76,11 +90,20 @@ const frame: IAutoMovieCameraAction = {
   on: { kind: "node", node: "knightA" },
 };
 
-const run = (rig: IAutoMovieSkeleton | null, actions: IAutoMovieActionCall[]) =>
+const run: (
+  rig: IAutoMovieSkeleton | null,
+  actions: IAutoMovieActionCall[],
+) => IAutoMoviePerformedShot = (
+  rig: IAutoMovieSkeleton | null,
+  actions: IAutoMovieActionCall[],
+): IAutoMoviePerformedShot =>
   performShot({
     script: makeScriptWrite(),
-    staged: (() => {
-      const s = stageScene(makeScriptWrite(), makeStagingWrite());
+    staged: ((): IAutoMovieStagedSet.ISuccess => {
+      const s: IAutoMovieStagedSet = stageScene(
+        makeScriptWrite(),
+        makeStagingWrite(),
+      );
       if (s.success !== true) throw new Error("staging must succeed");
       return s;
     })(),
@@ -89,39 +112,25 @@ const run = (rig: IAutoMovieSkeleton | null, actions: IAutoMovieActionCall[]) =>
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => rig,
+    skeleton: (): IAutoMovieSkeleton | null => rig,
   });
 
 /**
- * The perform gate must refuse an arm verb asked of a rig whose elbow cannot
- * bend that arm (#1346), and this gate exists because the fix to the solver
- * would otherwise have made the failure QUIETER.
- *
- * Before, such a rig got a pose that loaded the bend onto abduction and twist,
- * so the shot failed loudly with ROM errors on axes the rig declared immobile.
- * Now `reachPose` refuses the rig outright, and a `null` synthesis is SKIPPED
- * by `compilePerformance` ("no motion for this actor, skip"), so without a gate
- * the shot would come back successful having performed nothing at all. That is
- * #1349's failure shape one verb lower, and trading a loud wrong answer for a
- * silent one is not a fix.
+ * Arm-solving actions refuse incompatible rest chains at their authored fields.
  *
  * Scenarios:
+ * 1. Refuse reach, point and strike on an arms-down chain with located geometry guidance.
+ * 2. Accept the identical actions on the outward rest-chain twin.
+ * 3. Leave non-arm hold and unresolved skeleton lookup outside this arm-chain refusal.
  *
- * 1. A `reach` on an arms-down rig is a `type` violation at the action's own
- *    `hand` field, carrying the rig's geometry rather than a missing clip.
- * 2. NEGATIVE TWIN: the identical shot on the T-pose rig passes. Only the rest
- *    direction changed, so only the rest direction can have caused the
- *    refusal.
- * 3. The arm GESTURES are gated on the same fact: `point` and `strike` always
- *    solve the right arm, so they are refused at their `kind` field on the same
- *    rig, and pass on the twin.
- * 4. Boundary: a shot with no arm verb at all is untouched on either rig, so the
- *    gate is scoped to the verbs that ask an arm-IK question and a quadruped
- *    that never reaches stays performable.
+ * @evidence contracts/testing.md#behavioral-verification Runs stageScene and performShot and checks located hand/kind faults, geometry guidance and accepted twins, catching an unperformable arm request silently skipped after null synthesis.
+ * @evidence contracts/testing.md#independent-expectations The authored down-chain rest direction is parallel to its flexion axis, while the outward twin changes that direction alone; the gate contract makes the former unbendable for these verbs. The test measures admission, not a rendered reach trajectory.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps reach and both right-arm gestures, outward positive twins, hold and unresolved-rig scope boundaries. Solver position accuracy, region masking and motion constraints have dedicated tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable unit owns all in-memory performance gate cases and directly calls engine source with the existing numerical synthesizer; no native rig, browser or GPU is started.
  */
-export const test_film_perform_shot_arm_chain_gate = (): void => {
+export function test_film_perform_shot_arm_chain_gate(): void {
   // 1. the refusal, at the field that names the arm
-  const refused = run(armRig("down"), [reach]);
+  const refused: IAutoMoviePerformedShot = run(armRig("down"), [reach]);
   TestValidator.equals(
     "a reach on an unbendable arm fails the shot",
     refused.success,
@@ -134,13 +143,13 @@ export const test_film_perform_shot_arm_chain_gate = (): void => {
   TestValidator.equals(
     "with the rig's own geometry as the reason",
     namedFacts([
-      ["refused", () => refused.success === false],
+      ["refused", (): boolean => refused.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           refused.success === false &&
           refused.violations.some(
-            (v) =>
+            (v: IAutoMovieConstraintViolation): boolean =>
               v.path.includes("[0].hand") &&
               v.expected.includes("parallel") &&
               v.expected.includes("knightA"),
@@ -167,14 +176,16 @@ export const test_film_perform_shot_arm_chain_gate = (): void => {
       kind,
       at: { kind: "point", point: { x: 0, y: 1.1, z: 0.3 } },
     };
-    const gestureRefused = run(armRig("down"), [gesture]);
+    const gestureRefused: IAutoMoviePerformedShot = run(armRig("down"), [
+      gesture,
+    ]);
     TestValidator.equals(
       `a ${kind} gesture on an unbendable arm is refused at its kind field`,
       namedFacts([
-        ["refused", () => gestureRefused.success === false],
+        ["refused", (): boolean => gestureRefused.success === false],
         [
           "violated",
-          () =>
+          (): boolean =>
             gestureRefused.success === false &&
             hasViolation(gestureRefused, "type", "$input.draft[0].kind"),
         ],
@@ -210,4 +221,4 @@ export const test_film_perform_shot_arm_chain_gate = (): void => {
     "an unresolved rig raises no arm-chain violation",
     !hasViolation(run(null, [reach]), "type", "$input.draft[0].hand"),
   );
-};
+}

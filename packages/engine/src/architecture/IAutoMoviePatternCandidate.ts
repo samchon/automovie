@@ -3,50 +3,48 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
 /**
  * One module a zone's own program proposes, before any clipping.
  *
- * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `IAutoMoviePatternCandidate` represents one module a zone's own program proposes, before any clipping. This ensures authored physical-module placement and texture sampling remain under project control.
- * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `IAutoMoviePatternCandidate` structures one module a zone's own program proposes, before any clipping for the system that resolves the declared physical-module pattern deterministically.
+ * `generateAutoMovieSurfacePattern` forms the module's four corners by turning
+ * `±size / 2` by `rotationDeg` about `center`, and throws on the first
+ * candidate whose id is blank or repeated in its zone, whose centre, rotation
+ * or grain is not finite, whose size is not above zero, or whose corners reach
+ * further than the zone's `reach` from the cell origin.
+ *
+ * @evidence contracts/common.md#principled-implementation A module is a rectangle given by centre, size and in-plane rotation, so its four corners are `±size / 2` turned by `rotationDeg` about `center`, the representation the clipper, reach check and instancer all derive from.
+ * @evidence contracts/common.md#clear-and-simple-design Holds only what a generator decides per module, identity, placement, footprint, grain and flip, while clipping, cut state and variant are derived by the run.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `mirror` changes no footprint or instance slot and is visible only through the texture transform, and a mirrored pair is not a grain break; the run applies these rules to every candidate alike.
+ * @evidence contracts/common.md#meaningful-documentation States who forms the corners and every refusal on a candidate, the metre and degree units, that `size.u` need not be the longer side, the rotation direction, the grain's modulo-180 reading, and what book-matching means for `mirror`.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each candidate is validated and cornered in constant time inside the run, whose cost is answered on `generateAutoMovieSurfacePattern`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run consumes each candidate once per cell and keeps none, so there is no generator output to share across runs.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The author's generator returns it and the run copies the fields it keeps into a placement, retaining no reference to the candidate.
+ * @author Samchon
  */
 export interface IAutoMoviePatternCandidate {
-  /**
-   * Stable module identity, unique inside its zone.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `id` records `IAutoMoviePatternCandidate`'s stable module identity, unique inside its zone. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `id` supplies `IAutoMoviePatternCandidate`'s stable module identity, unique inside its zone when the engine resolves the declared physical-module pattern deterministically.
-   */
+  /** Stable module identity, unique inside its zone. */
   id: string;
-  /**
-   * Module centre in face-local metres.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `center` records `IAutoMoviePatternCandidate`'s module centre in face-local metres. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `center` supplies `IAutoMoviePatternCandidate`'s module centre in face-local metres when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Module centre in face-local metres. */
   center: IAutoMoviePatternPoint;
-  /**
-   * Module footprint in metres; the joint is the gap the author leaves.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `size` records `IAutoMoviePatternCandidate`'s module footprint in metres; the joint is the gap the author leaves. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `size` supplies `IAutoMoviePatternCandidate`'s module footprint in metres; the joint is the gap the author leaves when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Module footprint in metres; the joint is the gap the author leaves. */
   size: {
-    /** Module extent along its own long axis before rotation, in metres. */
+    /**
+     * Module extent along its own U axis before rotation, in metres; it need
+     * not be the longer side.
+     */
     u: number;
-    /** Module extent across that axis before rotation, in metres. */
+
+    /** Module extent along its own V axis before rotation, in metres. */
     v: number;
   };
+
   /**
    * In-plane module rotation in degrees, counter-clockwise about the normal.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `rotationDeg` records `IAutoMoviePatternCandidate`'s in-plane module rotation in degrees, counter-clockwise about the normal. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `rotationDeg` supplies `IAutoMoviePatternCandidate`'s in-plane module rotation in degrees, counter-clockwise about the normal when the engine resolves the declared physical-module pattern deterministically.
    */
   rotationDeg: number;
-  /**
-   * Material grain direction in degrees; read modulo 180.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `grainDeg` records `IAutoMoviePatternCandidate`'s material grain direction in degrees; read modulo 180. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `grainDeg` supplies `IAutoMoviePatternCandidate`'s material grain direction in degrees; read modulo 180 when the engine resolves the declared physical-module pattern deterministically.
-   */
+
+  /** Material grain direction in degrees; read modulo 180. */
   grainDeg: number;
+
   /**
    * Whether the piece is laid face-flipped, its own U axis reversed.
    *
@@ -60,9 +58,6 @@ export interface IAutoMoviePatternCandidate {
    * It is not the grain turned. {@link grainDeg} states the direction the grain
    * runs on the surface either way, so a mirrored pair whose grain runs one way
    * is continuous grain and is not reported as a break.
-   *
-   * @evidence requirements/interior/textures-patterns-and-variation.md#interior-pattern-source `mirror` records whether the piece is laid face-flipped, its own U axis reversed for `IAutoMoviePatternCandidate`. This ensures authored physical-module placement and texture sampling remain under project control.
-   * @evidence specifications/interior-space/patterns-tolerances-and-aging.md#interior-space-physical-module-pattern `mirror` tells the engine whether the piece is laid face-flipped, its own U axis reversed for `IAutoMoviePatternCandidate` as it resolves the declared physical-module pattern deterministically.
    */
   mirror: boolean;
 }

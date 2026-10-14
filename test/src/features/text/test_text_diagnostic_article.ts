@@ -6,7 +6,11 @@ import {
   summarizeAutoMovieAnalysis,
 } from "@automovie/engine";
 import {
+  AutoMovieAnalysisDomain,
   IAutoMovieActionCall,
+  IAutoMovieAnalysisGap,
+  IAutoMovieConstraintViolation,
+  IAutoMovieLight,
   IAutoMovieStageLight,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -23,9 +27,7 @@ import { namedFacts } from "../internal/predicates";
 /**
  * A diagnostic agrees with the value it interpolates, for every value.
  *
- * The messages here name a member of a closed union — a light type, an analysis
- * domain, a schedule subject, an action verb — and every one of those unions is
- * something this project keeps extending. A message that spells its article
+ * The messages name light types, analysis domains and action verbs from closed unions that this project extends. A message that spells its article
  * beside the interpolation instead of deriving it reads correctly until the day
  * a vowel-initial member is added, and then reads `a opening` forever, in the
  * gap and violation text an author consults to decide what is wrong. That is
@@ -51,40 +53,52 @@ import { namedFacts } from "../internal/predicates";
  *    the other three are the counter-case a blanket `an` would fail.
  * 2. Every analysis domain, required with nothing submitted, in both the gap's
  *    reason and its remedy. Three of the six begin with a vowel.
- * 3. Both schedule subjects that owe a location, and the third subject that
- *    does not, because the article and that guard sit on one statement.
+ * 3. Schedule subjects are not exercised by the assertions in this entry.
  * 4. The two vowel-initial action verbs against a camera actor, with a
  *    consonant-initial verb as the counter-case.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises stageScene light refusals, summarizeAutoMovieAnalysis missing-domain gaps and performShot camera-actor refusals, checking interpolated diagnostic articles on actual returned product messages. It formats no authored prose and grades no source comment or production text.
+ * @evidence contracts/testing.md#independent-expectations Literal article tables independently state an area, an artificial-light/air/acoustic analysis and an emote/enact action, with consonant-led counter-cases. Runtime light/domain coverage and the verb table's type contract expose newly added labels; substring checks permit unrelated wording and do not prove complete refusal content or general English pronunciation.
+ * @evidence contracts/testing.md#distinguishing-cases Every current light kind and analysis domain is probed, while action refusal samples emote, enact and gesture only. The fixtures require refusals to exist before checking messages; schedule subjects, other verbs, arbitrary names and valid camera framing are outside this entry.
+ * @evidence contracts/testing.md#execution-ownership The named test_text_diagnostic_article entry owns the light/domain rows expanded through namedFacts and the three direct action cases, using portable engine gates and in-memory film fixtures without a consumer install, host or renderer.
  */
-export const test_text_diagnostic_article = (): void => {
+export function test_text_diagnostic_article(): void {
   TestValidator.equals(
     "every light type is named with its own article",
     namedFacts([
       [
         "the table covers the union",
-        () =>
+        (): boolean =>
           [...AUTO_MOVIE_LIGHT_TYPES].every(
-            (type) => LIGHT_ARTICLE[type] !== undefined,
+            (type: IAutoMovieLight["type"]): boolean =>
+              LIGHT_ARTICLE[type] !== undefined,
           ) &&
           Object.keys(LIGHT_ARTICLE).length === AUTO_MOVIE_LIGHT_TYPES.size,
       ],
-      ...[...AUTO_MOVIE_LIGHT_TYPES].map((type): [string, () => boolean] => [
-        lightFact(type),
-        () => {
-          const messages = lightMessages(type);
-          return (
-            messages.length > 0 &&
-            messages.every((message) =>
-              message.includes(`${LIGHT_ARTICLE[type]} light`),
-            )
-          );
-        },
-      ]),
+      ...[...AUTO_MOVIE_LIGHT_TYPES].map(
+        (type: IAutoMovieLight["type"]): [string, () => boolean] => [
+          lightFact(type),
+          (): boolean => {
+            const messages: string[] = lightMessages(type);
+            return (
+              messages.length > 0 &&
+              messages.every((message: string): boolean =>
+                message.includes(`${LIGHT_ARTICLE[type]} light`),
+              )
+            );
+          },
+        ],
+      ),
     ]),
     {
       "the table covers the union": true,
       ...Object.fromEntries(
-        [...AUTO_MOVIE_LIGHT_TYPES].map((type) => [lightFact(type), true]),
+        [...AUTO_MOVIE_LIGHT_TYPES].map(
+          (type: IAutoMovieLight["type"]): [string, boolean] => [
+            lightFact(type),
+            true,
+          ],
+        ),
       ),
     },
   );
@@ -94,35 +108,47 @@ export const test_text_diagnostic_article = (): void => {
     namedFacts([
       [
         "the table covers the union",
-        () =>
+        (): boolean =>
           AUTOMOVIE_ANALYSIS_DOMAINS.every(
-            (domain) => DOMAIN_ARTICLE[domain] !== undefined,
+            (domain: AutoMovieAnalysisDomain): boolean =>
+              DOMAIN_ARTICLE[domain] !== undefined,
           ) &&
           Object.keys(DOMAIN_ARTICLE).length ===
             AUTOMOVIE_ANALYSIS_DOMAINS.length,
       ],
-      ...AUTOMOVIE_ANALYSIS_DOMAINS.map((domain): [string, () => boolean] => [
-        domainFact(domain),
-        () => {
-          const gap = summarizeAutoMovieAnalysis({
-            runs: [],
-            revision: "revision-1",
-            required: [domain],
-          }).gaps.find((entry) => entry.domain === domain);
-          return (
-            gap !== undefined &&
-            gap.reason.includes(
-              `the production requires ${DOMAIN_ARTICLE[domain]} answer`,
-            ) &&
-            gap.remedy.includes(`run ${DOMAIN_ARTICLE[domain]} analysis`)
-          );
-        },
-      ]),
+      ...AUTOMOVIE_ANALYSIS_DOMAINS.map(
+        (domain: AutoMovieAnalysisDomain): [string, () => boolean] => [
+          domainFact(domain),
+          (): boolean => {
+            const gap: IAutoMovieAnalysisGap | undefined =
+              summarizeAutoMovieAnalysis({
+                runs: [],
+                revision: "revision-1",
+                required: [domain],
+              }).gaps.find(
+                (entry: IAutoMovieAnalysisGap): boolean =>
+                  entry.domain === domain,
+              );
+            return (
+              gap !== undefined &&
+              gap.reason.includes(
+                `the production requires ${DOMAIN_ARTICLE[domain]} answer`,
+              ) &&
+              gap.remedy.includes(`run ${DOMAIN_ARTICLE[domain]} analysis`)
+            );
+          },
+        ],
+      ),
     ]),
     {
       "the table covers the union": true,
       ...Object.fromEntries(
-        AUTOMOVIE_ANALYSIS_DOMAINS.map((domain) => [domainFact(domain), true]),
+        AUTOMOVIE_ANALYSIS_DOMAINS.map(
+          (domain: AutoMovieAnalysisDomain): [string, boolean] => [
+            domainFact(domain),
+            true,
+          ],
+        ),
       ),
     },
   );
@@ -132,7 +158,7 @@ export const test_text_diagnostic_article = (): void => {
     namedFacts([
       [
         "an emote action",
-        () =>
+        (): boolean =>
           cameraActorRefusal({
             verb: "emote",
             actor: CAMERA,
@@ -144,7 +170,7 @@ export const test_text_diagnostic_article = (): void => {
       ],
       [
         "an enact action",
-        () =>
+        (): boolean =>
           cameraActorRefusal({
             verb: "enact",
             actor: CAMERA,
@@ -155,7 +181,7 @@ export const test_text_diagnostic_article = (): void => {
       ],
       [
         "a gesture action",
-        () =>
+        (): boolean =>
           cameraActorRefusal({
             verb: "gesture",
             actor: CAMERA,
@@ -172,17 +198,17 @@ export const test_text_diagnostic_article = (): void => {
       "a gesture action": true,
     },
   );
-};
+}
 
 /** The staged camera every verb case aims through. */
-const CAMERA = "cam-main";
+const CAMERA: string = "cam-main";
 
 /** The fact name a light type is reported under, spelled once. */
-const lightFact = (type: string): string =>
+const lightFact: (type: string) => string = (type: string): string =>
   `${type} is refused as "${LIGHT_ARTICLE[type]} light"`;
 
 /** The fact name an analysis domain is reported under. */
-const domainFact = (domain: string): string =>
+const domainFact: (domain: string) => string = (domain: string): string =>
   `${domain} reads as "${DOMAIN_ARTICLE[domain]}"`;
 
 /**
@@ -192,8 +218,8 @@ const domainFact = (domain: string): string =>
  * position trips whichever of the four parameter rules apply to its own type,
  * so the same probe covers all of them without a per-type fixture.
  */
-const lightMessages = (type: string): string[] => {
-  const staged = stageScene(makeScriptWrite(), {
+const lightMessages: (type: string) => string[] = (type: string): string[] => {
+  const staged: ReturnType<typeof stageScene> = stageScene(makeScriptWrite(), {
     ...makeStagingWrite(),
     lights: [
       {
@@ -207,26 +233,34 @@ const lightMessages = (type: string): string[] => {
   });
   if (staged.success === true) return [];
   return staged.violations
-    .map((violation) => violation.expected)
-    .filter((message) => message.includes(` ${type} light`));
+    .map(
+      (violation: IAutoMovieConstraintViolation): string => violation.expected,
+    )
+    .filter((message: string): boolean => message.includes(` ${type} light`));
 };
 
 /** The refusal an action draws for naming a camera as its actor. */
-const cameraActorRefusal = (action: IAutoMovieActionCall): string | null => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+const cameraActorRefusal: (action: IAutoMovieActionCall) => string | null = (
+  action: IAutoMovieActionCall,
+): string | null => {
+  const staged: ReturnType<typeof stageScene> = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true)
     throw new Error("the staging fixture must succeed");
-  const performed = performShot({
+  const performed: ReturnType<typeof performShot> = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({ draft: [action] }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): ReturnType<typeof createSkeleton> => createSkeleton(),
   });
   if (performed.success === true) return null;
   return (
-    performed.violations.find((violation) =>
-      violation.expected.includes("is a camera"),
+    performed.violations.find(
+      (violation: IAutoMovieConstraintViolation): boolean =>
+        violation.expected.includes("is a camera"),
     )?.expected ?? null
   );
 };
@@ -262,7 +296,7 @@ const DOMAIN_ARTICLE: Record<string, string> = {
  * nobody has stated an article for. The three cases above read from it, so it
  * is a checked constant rather than dead weight.
  */
-const VERB_ARTICLE = {
+const VERB_ARTICLE: Record<IAutoMovieActionCall["verb"], string> = {
   attachTo: "an attachTo",
   emote: "an emote",
   enact: "an enact",

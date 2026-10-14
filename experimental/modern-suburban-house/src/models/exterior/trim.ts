@@ -1,5 +1,5 @@
 /**
- * One exposed exterior L-corner trim run from docs/models/15-outdoor.md.
+ * One exposed exterior L-corner trim run
  * The caller supplies the actual corner run height and world placement; this
  * source owns only the local outward X/Z section and its metric face mapping.
  */

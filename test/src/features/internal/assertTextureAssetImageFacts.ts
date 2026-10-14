@@ -7,33 +7,33 @@ import { TestValidator } from "@nestia/e2e";
 import type { ITextureAssetClosureOverrides } from "./ITextureAssetClosureOverrides";
 import { hasViolation, namedFacts } from "./predicates";
 
-/** Existing media/edge-budget boundary assertions on the caller's unchanged texture closure.
- * The source facts reader and original supported/refused cases retain their order.
- */
-export const assertTextureAssetImageFacts = (
+/** Assert the existing media and edge-budget cases through supplied image facts; no image bytes are read or decoded here. The test entry owns these callbacks and their original order. */
+export function assertTextureAssetImageFacts(
   closure: (
     props: ITextureAssetClosureOverrides,
   ) => ReturnType<typeof validateTextureAssets>,
   facts: (asset: string) => IAutoMovieTextureImageFacts | undefined,
-): void => {
+): void {
   TestValidator.equals(
-    "media and dimensions are decided by the bytes",
+    "supplied media and dimensions govern closure admission",
     namedFacts([
       [
         "unreadable",
-        () =>
+        (): boolean =>
           hasViolation(
-            closure({ facts: () => undefined }),
+            closure({ facts: (): undefined => undefined }),
             "type",
             "$input.models[0].materials[0].baseColorTexture",
           ),
       ],
       [
         "hdrAsBaseColor",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
-              facts: (asset) =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/vnd.radiance", width: 8, height: 8 }
                   : facts(asset),
@@ -44,9 +44,9 @@ export const assertTextureAssetImageFacts = (
       ],
       [
         "pngEnvironmentAccepted",
-        () =>
+        (): boolean =>
           closure({
-            facts: (asset) =>
+            facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
               asset === "public/textures/studio.hdr"
                 ? { mediaType: "image/png", width: 64, height: 32 }
                 : facts(asset),
@@ -54,10 +54,12 @@ export const assertTextureAssetImageFacts = (
       ],
       [
         "zeroEdge",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
-              facts: (asset) =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 0, height: 16 }
                   : facts(asset),
@@ -68,10 +70,12 @@ export const assertTextureAssetImageFacts = (
       ],
       [
         "fractionalEdge",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
-              facts: (asset) =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 16, height: 16.5 }
                   : facts(asset),
@@ -82,10 +86,12 @@ export const assertTextureAssetImageFacts = (
       ],
       [
         "overBudget",
-        () =>
+        (): boolean =>
           hasViolation(
             closure({
-              facts: (asset) =>
+              facts: (
+                asset: string,
+              ): IAutoMovieTextureImageFacts | undefined =>
                 asset === "public/textures/tile-base.png"
                   ? { mediaType: "image/png", width: 8193, height: 16 }
                   : facts(asset),
@@ -96,9 +102,9 @@ export const assertTextureAssetImageFacts = (
       ],
       [
         "exactBudgetAccepted",
-        () =>
+        (): boolean =>
           closure({
-            facts: (asset) =>
+            facts: (asset: string): IAutoMovieTextureImageFacts | undefined =>
               asset === "public/textures/tile-base.png"
                 ? { mediaType: "image/png", width: 8192, height: 8192 }
                 : facts(asset),
@@ -115,4 +121,4 @@ export const assertTextureAssetImageFacts = (
       exactBudgetAccepted: true,
     },
   );
-};
+}

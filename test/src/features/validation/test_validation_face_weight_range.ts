@@ -1,41 +1,48 @@
 import { validateFaceResult } from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeFace } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
 
 /**
- * Weights are rough plain numbers, so the [-2, 2] bound is enforced at runtime
- * by the engine rather than by the type, on the EFFECTIVE per-side weight.
- * Under the side rule a lone side sources BOTH targets, so one illegal value
- * fails on both sides, and each violation points at the one field the document
- * actually spells.
+ * A lone side supplies both paired targets, so an excessive source weight produces two range findings with the same authored source path.
  *
- * Scenario: a lone `eyes.left.size: 2.1` mirrors to both eyes: two `range`
- * violations, both at `.eyes.left.size`.
+ * Scenarios:
+ * 1. Lone left-eye size 2.1 fails with exactly two range findings naming eyes.left.size.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual face validation on a lone-side overflow and checks failed admission, exact finding population and common source path, catching lost mirroring or a diagnostic pointing at an unauthored right field.
+ * @evidence contracts/testing.md#independent-expectations The documented side rule emits two targets from the lone source, and 2.1 exceeds their inclusive +2 bound; the literal count, kind and source address judge behavior independently of the flattening implementation.
+ * @evidence contracts/testing.md#distinguishing-cases Owns mirrored upper overflow; the negative jaw neighbor, accepted endpoints, distinct sides and empty document belong to separate face tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit uses the existing face identity fixture and reads engine diagnostics without loading a Human asset, native artifact or renderer.
  */
-export const test_validation_face_weight_range = (): void => {
-  const result = validateFaceResult(
+export function test_validation_face_weight_range(): void {
+  const result: IAutoMovieValidation = validateFaceResult(
     makeFace({ eyes: { left: { size: 2.1 } } }),
   );
   TestValidator.equals("out-of-range weight fails", result.success, false);
   TestValidator.equals(
     "both mirrored targets violate at the source field",
     namedFacts([
-      ["resultSuccess", () => result.success === false],
+      ["resultSuccess", (): boolean => result.success === false],
       [
         "resultViolations",
-        () => result.success === false && result.violations.length === 2,
+        (): boolean =>
+          result.success === false && result.violations.length === 2,
       ],
       [
         "resultViolationsV",
-        () =>
+        (): boolean =>
           result.success === false &&
           result.violations.every(
-            (v) => v.kind === "range" && v.path.includes(".eyes.left.size"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "range" && v.path.includes(".eyes.left.size"),
           ),
       ],
     ]),
     { resultSuccess: true, resultViolations: true, resultViolationsV: true },
   );
-};
+}

@@ -1,34 +1,27 @@
+import { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
 import { IAutoMovieNodeTarget } from "../harness/IAutoMovieNodeTarget";
 import { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
 
 /**
- * Camera grammar shared by hero and alternate takes.
+ * Camera grammar shared by the hero intent and every alternate take.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieBlockingCamera` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieBlockingCamera` for the spec authoring authority compatibility system contract.
+ * framing and move share the frame action's closed vocabulary. For the hero intent, performShot compares them with the earliest chronological frame action, while camera election uses the first frame camera in authored list order. blockBeat checks a node on target for placement; no gate compares the hero intent's subject with the performed subject. With no frame action, only move is checked for static.
+ *
+ * @evidence contracts/common.md#principled-implementation Types `framing` and `move` as indexed accesses into `IAutoMovieCameraAction`, so the compile-time vocabulary has one owner, and restricts `on` to a node or a fixed point because a plan names one subject while group subjects belong to the frame action that measures them.
+ * @evidence contracts/common.md#clear-and-simple-design Three fields carry the whole intent; the camera id lives only on `IAutoMovieBlockingCoverage`, because the hero camera is elected by the performance's first `frame` action rather than named by the plan.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The documented gap stays visible: the hero `on` is checked for placement only and never compared with the performed subject, instead of being claimed as verified.
+ * @evidence contracts/common.md#meaningful-documentation States the shared vocabulary, which gates read each field for the hero and for a coverage take, what an `on` node may name, and the subject comparison gap.
+ * @author Samchon
  */
 export interface IAutoMovieBlockingCamera {
-  /**
-   * Shot size the compiled camera must deliver.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `framing` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `framing` for the spec authoring authority compatibility system contract.
-   */
-  framing: "wide" | "full" | "medium" | "close";
+  /** Shot size the compiled camera must deliver, in `frame` vocabulary. */
+  framing: IAutoMovieCameraAction["framing"];
+
+  /** Move family the compiled camera path takes, in `frame` vocabulary. */
+  move: IAutoMovieCameraAction["move"];
 
   /**
-   * Deterministic move family.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `move` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `move` for the spec authoring authority compatibility system contract.
-   */
-  move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
-
-  /**
-   * Staged node or literal point the camera must favor.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `on` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `on` for the spec authoring authority compatibility system contract.
+   * What the camera favors: a staged actor, set piece or camera by id, or a fixed world point. A node id must name something the staged set places; hero intent does not itself drive or verify the performed subject.
    */
   on: IAutoMovieNodeTarget | IAutoMoviePointTarget;
 }

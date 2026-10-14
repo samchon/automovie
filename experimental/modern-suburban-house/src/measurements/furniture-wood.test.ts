@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {buildingModelFinish} from "../materials/model-bindings";
 import {ServiceRooms} from "../models/furnishings/service-rooms";
-import {furnitureOakSample} from "../materials/furnishings/wood-grain.mjs";
+import {furnitureOakSample} from "../materials/furnishings/wood-grain.js";
 
 void test("every pantry shelf and cleat resolves to the canonical oil-finished oak",()=>{
   const built=new ServiceRooms().pantryShelves();

@@ -1,24 +1,18 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 /**
- * Return a copy of a person document with one catalogue input written or
- * removed; the caller's document is not changed.
+ * Return an independent copy of a person document with one catalogue input written or removed; the caller's document is unchanged. Paths are literal segments supplied by the catalogue, and values retain their precision without range validation.
  *
- * Writing creates the records on the way to the value. When the record that
- * holds the value is absent and its owner publishes a default for it, that
- * record starts as a copy of the owner's default, so one member can be
- * edited without the caller supplying the rest. `seedPath` names that record
- * when the owner default belongs to an ancestor,
- * such as a whole brow population containing its named grain quantities.
- * Removing deletes the
- * value and then every record it emptied, up to but not including the face
- * and body documents and their required `shape` records, so removing the
- * last head trait restores an absent `headShape`, as the document means by
- * omission. Whether the resulting document is complete and in range is the
- * owner's admission to decide, not this function's.
+ * Writing traverses only own ancestors and creates ordinary enumerable data properties, preserving supported literal source ids even when they name a prototype member. A supplied owner default is cloned only at its exact seedPath, preserving neighboring members of an omitted population. Removal prunes empty ancestors while retaining face/body roots and their required shape records. Completeness, supported keys and ranges remain the generation owner's admission decision.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Writes or removes one listed input in a copy of the working person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Leaves the caller's document untouched so a refused edit keeps the last valid one.
+ * @evidence contracts/common.md#principled-implementation Cloning separates edits from the current draft; literal path traversal preserves authored identifiers, exact seed-prefix matching inserts owner defaults and empty-record pruning restores omission without deleting required document roots.
+ * @evidence contracts/common.md#clear-and-simple-design One copied document and an ancestor chain serve both writing and removal; defaults are supplied by their owner rather than derived by this generic editor.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Catalogue-owned paths are a caller premise, not a general untrusted-path sanitizer. The operation does not clamp values, fabricate anatomy or treat an edited document as accepted.
+ * @evidence contracts/common.md#meaningful-documentation The comment explains independent copying, literal paths, exact default insertion, omission pruning and separate admission.
+ * @evidence contracts/performance.md#efficient-algorithms The full document clone costs O(n) document data; ancestor traversal/storage is O(d), matching a seed prefix adds its segment checks and pruning enumerates the visited records' keys. Whole-document copying is required by this independent-copy editing contract.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every edit requires its own mutable document and optional seed copy; this function retains no cross-edit cache or prior clone.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned document belongs to the editing transaction and the local ancestor chain ends with the call. No worker, timer or cross-call state is retained; published documents and history remain panel/editor-owned.
+ *
  * @author Samchon
  */
 export function writeConnectedPersonInput(
@@ -30,13 +24,13 @@ export function writeConnectedPersonInput(
 ): IAutoMovieHumanPersonDocument {
   if (path.length === 0)
     throw new Error("A catalogue input needs a document path.");
-  const next = structuredClone(document);
+  const next: IAutoMovieHumanPersonDocument = structuredClone(document);
   const chain: Record<string, unknown>[] = [
     next as unknown as Record<string, unknown>,
   ];
   for (const key of path.slice(0, -1)) {
-    const parent = chain[chain.length - 1];
-    const child = parent[key];
+    const parent: Record<string, unknown> = chain[chain.length - 1];
+    const child: unknown = Object.hasOwn(parent, key) ? parent[key] : undefined;
     if (typeof child === "object" && child !== null)
       chain.push(child as Record<string, unknown>);
     else if (value === undefined) return next;
@@ -45,23 +39,35 @@ export function writeConnectedPersonInput(
       const created: Record<string, unknown> =
         seed !== null &&
         chain.length === seedPath.length &&
-        seedPath.every((member, index) => path[index] === member)
+        seedPath.every(
+          (member: string, index: number): boolean => path[index] === member,
+        )
           ? (structuredClone(seed) as Record<string, unknown>)
           : {};
-      parent[key] = created;
+      Object.defineProperty(parent, key, {
+        value: created,
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
       chain.push(created);
     }
   }
-  const leaf = path[path.length - 1];
+  const leaf: string = path[path.length - 1];
   if (value !== undefined) {
-    chain[chain.length - 1][leaf] = value;
+    Object.defineProperty(chain[chain.length - 1], leaf, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    });
     return next;
   }
   delete chain[chain.length - 1][leaf];
   // prune the records this removal emptied, keeping each document's required members
-  for (let depth = chain.length - 1; depth >= 1; --depth) {
-    const key = path[depth - 1];
-    const required =
+  for (let depth: number = chain.length - 1; depth >= 1; --depth) {
+    const key: string = path[depth - 1];
+    const required: boolean =
       depth === 1
         ? key === "face" || key === "body"
         : depth === 2 && key === "shape";

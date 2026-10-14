@@ -1,110 +1,9 @@
-import { forgeProp } from "@automovie/engine";
-import {
-  IAutoMovieNode,
-  IAutoMoviePropSpec,
-  IAutoMovieTransform,
-} from "@automovie/interface";
+import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const IDENTITY: IAutoMovieTransform = {
-  translation: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-};
-
-const jointNode = (
-  id: string,
-  parent: string | null = null,
-): IAutoMovieNode => ({
-  id,
-  name: null,
-  parent,
-  kind: "group",
-  transform: IDENTITY,
-  mesh: null,
-  camera: null,
-  light: null,
-  skin: null,
-});
-
-const SIN55 = Math.sin((55 * Math.PI) / 180);
-const COS55 = Math.cos((55 * Math.PI) / 180);
-
-/** A fully-loaded door prop: body + stack-top affordance + hinge articulation. */
-export const createDoorPropSpec = (): IAutoMoviePropSpec => ({
-  node: "door",
-  model: {
-    id: "door",
-    name: "door",
-    origin: "generated",
-    skeleton: null,
-    body: { mass: 25, centerOfMass: null, friction: 0.4, restitution: 0.1 },
-    affordances: [
-      {
-        id: "top",
-        kind: "stack-top",
-        frame: { ...IDENTITY, translation: { x: 0, y: 2, z: 0 } },
-        extent: [
-          { x: -0.4, y: 0, z: -0.02 },
-          { x: 0.4, y: 0, z: -0.02 },
-          { x: 0.4, y: 0, z: 0.02 },
-          { x: -0.4, y: 0, z: 0.02 },
-        ],
-      },
-    ],
-    materials: [],
-    parts: [
-      {
-        id: "panel",
-        name: null,
-        geometry: {
-          type: "primitive",
-          shape: { type: "box", width: 0.8, height: 2, depth: 0.04 },
-        },
-        material: null,
-        attachedBone: null,
-        transform: null,
-      },
-    ],
-    asset: null,
-  },
-  articulation: {
-    nodes: [
-      jointNode("root"),
-      jointNode("hinge", "root"),
-      jointNode("handleMirror", "root"),
-    ],
-    profile: {
-      id: "door-profile",
-      name: "hinge",
-      controls: [],
-      drivers: [
-        {
-          type: "copy",
-          owner: "mirror",
-          source: "pivot",
-          translation: false,
-          rotation: true,
-          scale: false,
-          influence: 1,
-        },
-      ],
-      limits: [
-        {
-          channel: { kind: "node", node: "pivot", path: "rotation" },
-          min: [0, 0, 0, COS55],
-          max: [0, SIN55, 0, 1],
-        },
-      ],
-    },
-    binding: {
-      profile: "door-profile",
-      root: "root",
-      instanceName: null,
-      boneMap: { pivot: "hinge", mirror: "handleMirror" },
-    },
-  },
-});
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
+import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 
 /**
  * ForgeProp accepts a prop authored entirely as data (crude primitive parts
@@ -118,10 +17,15 @@ export const createDoorPropSpec = (): IAutoMoviePropSpec => ({
  *    staging join.
  * 2. A rigid prop (articulation null) passes on the model contract alone: the
  *    articulation gates never fire for it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls forgeProp with a fully admitted door and its rigid variant; success and the returned node identity show that articulated and articulation-null props reach the staging join.
+ * @evidence contracts/testing.md#independent-expectations Both inputs satisfy the model contract and the articulated fixture's explicit hierarchy, driver, binding and travel declarations; expected success and node "door" follow those authored values, without deriving an oracle from forgeProp. This case does not prove every returned field is copied or immutable.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps the same model while changing articulation to null, isolating the optional articulation boundary. Malformed model/articulation refusals, dangling joint bindings and mesh reach are owned by the dedicated forge_prop_gates and forge_prop_articulation_mesh tests.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_forge_prop and calls portable TypeScript forgeProp over in-memory data, with no renderer, process or external asset; this function owns both cases.
  */
-export const test_film_forge_prop = (): void => {
-  const spec = createDoorPropSpec();
-  const forged = forgeProp(spec);
+export function test_film_forge_prop(): void {
+  const spec: IAutoMoviePropSpec = createDoorPropSpec();
+  const forged: IAutoMovieForgedProp = forgeProp(spec);
   TestValidator.equals("articulated prop passes", forged.success, true);
   TestValidator.equals(
     "accepted spec echoed",
@@ -129,6 +33,9 @@ export const test_film_forge_prop = (): void => {
     "door",
   );
 
-  const rigid = forgeProp({ ...spec, articulation: null });
+  const rigid: IAutoMovieForgedProp = forgeProp({
+    ...spec,
+    articulation: null,
+  });
   TestValidator.equals("rigid prop passes", rigid.success, true);
-};
+}

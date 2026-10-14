@@ -1,26 +1,25 @@
-import { forgeCast } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { hasViolation } from "../internal/predicates";
 
 /**
- * Pins the casting-contract gates of the FORGE consumer, all raised from one
- * incoherent write: entries must name stand-in cast members exactly once, with
- * the model id/origin carrying the join contract.
+ * An incoherent forge plan reports each violated casting join at its field.
  *
- * Scenarios (entry per index):
+ * Scenarios:
+ * 1. A stranger and an imported-model cast member cannot receive stand-ins.
+ * 2. A generated member's model id must match its node.
+ * 3. A repeated entry with imported origin reports both duplicate node and wrong origin.
  *
- * 1. `ghost`: not in the cast → `type` on `$input.entries[0].node`.
- * 2. `knightA`: has modelRef "stickman" (imported) → `type` on
- *    `$input.entries[1].node`.
- * 3. `knightB` with model id "wrong-id" → `type` on `$input.entries[2].model.id`.
- * 4. `knightB` again (duplicate) with `origin: "imported"` → `type` on
- *    `$input.entries[3].node` (re-forged) and on
- *    `$input.entries[3].model.origin`.
+ * @evidence contracts/testing.md#behavioral-verification Calls forgeCast once with four incoherent entries and asserts five located violations, detecting fail-fast loss, an imported-member overwrite or an invalid model-to-cast join.
+ * @evidence contracts/testing.md#independent-expectations The authored script imports knightA and requires a generated knightB; ghost is undeclared, wrong-id differs from knightB and the second knightB entry duplicates the first. Those input positions determine the literal diagnostic paths.
+ * @evidence contracts/testing.md#distinguishing-cases Collects stranger, imported member, wrong model id, duplicate node and wrong origin in one result; valid singleton joins, missing bodies and malformed rig graphs have separate forge tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable function owns this portable forge case and imports its source directly; existing factories construct data only and no renderer, process or asset loader runs.
  */
-export const test_film_forge_cast_bad_refs = (): void => {
-  const forged = forgeCast(makeScriptWrite(), {
+export function test_film_forge_cast_bad_refs(): void {
+  const forged: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {
     entries: [
       forgeEntry("ghost"),
       forgeEntry("knightA"),
@@ -50,4 +49,4 @@ export const test_film_forge_cast_bad_refs = (): void => {
     "non-generated origin rejected",
     hasViolation(forged, "type", "$input.entries[3].model.origin"),
   );
-};
+}

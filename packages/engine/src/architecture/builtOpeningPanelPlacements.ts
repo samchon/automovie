@@ -1,237 +1,88 @@
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltOpening,
-  IAutoMovieConnectorCarriage,
-  IAutoMovieConnectorState,
   IAutoMovieMovablePanel,
   IAutoMovieOperationState,
   IAutoMovieQuaternion,
-  IAutoMovieTravelMotion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { IAutoMovieOpeningPanelPlacement } from "./IAutoMovieOpeningPanelPlacement";
+import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
+import { requireBuiltOpening } from "./requireBuiltOpening";
 
 /**
  * Where an opening's panels stand, in world space, at one named state.
  *
- * Omitting the state answers for the state the record itself stands in, which
- * is the placement {@link lowerBuiltEnvironment} stages. Naming another one
- * answers for that state without editing the record, so a shot can ask where
- * the leaf would be when open without a second building.
+ * Omitting the state answers for the state the record itself stands in, which is the placement {@link lowerBuiltEnvironment} stages. Naming another one answers for that state without editing the record, so a shot can ask where the leaf would be when open without a second building.
  *
- * A state is a configuration rather than a moment. A door that swings on screen
- * is a shot `objectMotions` clip over the
- * {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the
- * architecture record never grows a second clock beside the shot's own.
+ * A state is a configuration rather than a moment. A door that swings on screen is a shot `objectMotions` clip over the {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the architecture record never grows a second clock beside the shot's own.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `builtOpeningPanelPlacements` returns where an opening's panels stand, in world space, at one named state. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `builtOpeningPanelPlacements` resolves every opening panel to its world-space placement at the requested state.
- * @evidence requirements/interior/doors-windows-and-openings.md#interior-opening-components `builtOpeningPanelPlacements` materializes the declared movable fill panels at their named-state world placements without claiming unmodeled frame or hardware components.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-host-opening-operation `builtOpeningPanelPlacements` resolves the movable panel subset of the host opening's declared operation state.
+ * Entries follow the opening's panel order, each with the decomposed world transform of the element the panel drives and a normalized rotation. Naming a state applies it to every opening and run that declares a state with that id, through {@link builtEnvironmentWorldMatrices}, so an ancestor leaf of another opening moves too. An opening without an operation answers an empty list. Throws an `Error` when the opening does not exist, the named state is not one of its states, or a panel's element is missing from the record.
+ *
+ * @param environment Building record holding the opening.
+ * @param openingId Id of the opening whose panels are placed.
+ * @param stateId Operating state to answer for; the record's own when omitted.
+ * @returns One placement per panel, in panel order.
+ *
+ * @evidence contracts/common.md#principled-implementation Reads the shared world matrix and decomposes it with a normalized rotation. Finite, unsheared TRS representability is a premise beyond an acyclic parent tree: `validateBuiltEnvironment` checks named configurations, but this query does not validate input and decomposition does not preserve arbitrary shear.
+ * @evidence contracts/common.md#clear-and-simple-design The query owns only the state check and the per-panel answer; staging under a state lives in `builtEnvironmentWorldMatrices` and the opening lookup in `requireBuiltOpening`, replacing a private copy of each.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no opening, state or element; an unknown state and a missing panel element are refused by name rather than answered at rest.
+ * @evidence contracts/common.md#meaningful-documentation States what an omitted state means, that a named state applies building-wide, the entry order and content, the empty answer for an inoperable opening, and each thrown refusal.
+ * @evidence contracts/performance.md#efficient-algorithms One opening lookup and requested-state scan, the shared world staging cost O(E + O + S + M + V) for elements, opening/connector records, scanned states, moving members and selected values, then one constant-size decomposition per panel.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one opening and state per call from the caller's mutable record, so no staging is cached across calls; within a call the one staging serves every panel.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the staged matrix map only for the call and returns new placement records; nothing is retained.
  */
-export const builtOpeningPanelPlacements = (
+export const builtOpeningPanelPlacements: (
+  environment: IAutoMovieBuiltEnvironment,
+  openingId: string,
+  stateId?: string,
+) => IAutoMovieOpeningPanelPlacement[] = (
   environment: IAutoMovieBuiltEnvironment,
   openingId: string,
   stateId?: string,
 ): IAutoMovieOpeningPanelPlacement[] => {
-  const opening = requireOpening(environment, openingId);
-  const operation = opening.operation;
+  const opening: IAutoMovieBuiltOpening = requireBuiltOpening(
+    environment,
+    openingId,
+  );
+  const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;
   if (operation === undefined) return [];
   if (
     stateId !== undefined &&
-    !operation.states.some((state) => state.id === stateId)
+    !operation.states.some(
+      (state: IAutoMovieOperationState): boolean => state.id === stateId,
+    )
   )
     throw new Error(
       `opening "${openingId}" of built environment "${environment.id}" has no operating state "${stateId}"`,
     );
-  const matrices = worldMatricesOf(
+  const matrices: Map<string, number[]> = builtEnvironmentWorldMatrices(
     environment,
-    operationDeltas(environment, stateId),
+    stateId,
   );
-  return operation.panels.map((panel) => {
-    const world = Matrix4.decompose(
-      requireTravellerMatrix(environment, matrices, panel, "panel"),
-    );
-    return {
-      panel: panel.id,
-      element: panel.element,
-      node: `${environment.id}/${panel.element}`,
-      position: world.position,
-      rotation: Quaternion.normalize(world.rotation),
-      scale: world.scale,
-    };
-  });
-};
-
-const requireOpening = (
-  environment: IAutoMovieBuiltEnvironment,
-  openingId: string,
-): IAutoMovieBuiltOpening => {
-  const opening = environment.openings.find(
-    (candidate) => candidate.id === openingId,
+  return operation.panels.map(
+    (panel: IAutoMovieMovablePanel): IAutoMovieOpeningPanelPlacement => {
+      const matrix: number[] | undefined = matrices.get(panel.element);
+      if (matrix === undefined)
+        throw new Error(
+          `built environment "${environment.id}" has no element "${panel.element}" for panel "${panel.id}"`,
+        );
+      const world: {
+        position: IAutoMovieVector3;
+        rotation: IAutoMovieQuaternion;
+        scale: IAutoMovieVector3;
+      } = Matrix4.decompose(matrix);
+      return {
+        panel: panel.id,
+        element: panel.element,
+        node: `${environment.id}/${panel.element}`,
+        position: world.position,
+        rotation: Quaternion.normalize(world.rotation),
+        scale: world.scale,
+      };
+    },
   );
-  if (opening === undefined)
-    throw new Error(
-      `built environment "${environment.id}" has no opening "${openingId}"`,
-    );
-  return opening;
-};
-
-const requireTravellerMatrix = (
-  environment: IAutoMovieBuiltEnvironment,
-  matrices: ReadonlyMap<string, number[]>,
-  traveller: { id: string; element: string },
-  label: string,
-): number[] => {
-  const world = matrices.get(traveller.element);
-  if (world === undefined)
-    throw new Error(
-      `built environment "${environment.id}" has no element "${traveller.element}" for ${label} "${traveller.id}"`,
-    );
-  return world;
-};
-
-/**
- * World matrices for every element, optionally displaced by panel travel.
- *
- * A joint displacement is applied after the element's own local transform and
- * therefore rides down the hierarchy, which is what makes a folding leaf work
- * without a second parenting notion: parent its element to the leaf it folds
- * against and the outer leaf's travel carries it.
- */
-const worldMatricesOf = (
-  environment: IAutoMovieBuiltEnvironment,
-  joints: ReadonlyMap<string, number[]> = new Map(),
-): Map<string, number[]> => {
-  const byId = new Map(
-    environment.elements.map((element) => [element.id, element]),
-  );
-  const matrices = new Map<string, number[]>();
-  const read = (id: string): number[] => {
-    const cached = matrices.get(id);
-    if (cached !== undefined) return cached;
-    const element = byId.get(id)!;
-    const rest = Matrix4.compose(
-      element.transform.translation,
-      element.transform.rotation,
-      element.transform.scale,
-    );
-    const joint = joints.get(id);
-    const local = joint === undefined ? rest : Matrix4.multiply(rest, joint);
-    const world =
-      element.parent === null
-        ? local
-        : Matrix4.multiply(read(element.parent), local);
-    matrices.set(id, world);
-    return world;
-  };
-  environment.elements.forEach((element) => read(element.id));
-  return matrices;
-};
-
-/** The element-local displacement one moving member carries at one value. */
-const travelDelta = (
-  motion: IAutoMovieTravelMotion,
-  value: number,
-): number[] => {
-  const axis = Vector3.normalize(motion.axis);
-  if (motion.kind === "prismatic")
-    return Matrix4.compose(
-      Vector3.scale(axis, value),
-      { x: 0, y: 0, z: 0, w: 1 },
-      { x: 1, y: 1, z: 1 },
-    );
-  const half = value / 2;
-  const sine = Math.sin(half);
-  const rotation: IAutoMovieQuaternion = {
-    x: axis.x * sine,
-    y: axis.y * sine,
-    z: axis.z * sine,
-    w: Math.cos(half),
-  };
-  // Turning about a pivot is a turn about the origin plus the offset that puts
-  // the pivot back where it was.
-  return Matrix4.compose(
-    Vector3.subtract(
-      motion.pivot,
-      Quaternion.rotateVector(rotation, motion.pivot),
-    ),
-    rotation,
-    { x: 1, y: 1, z: 1 },
-  );
-};
-
-/**
- * The element-local displacement every moving member carries in a named state.
- *
- * The default is the environment's own current state; a caller asking for
- * another state gets that one instead, which is how a shot stages the same
- * building with its doors open without editing the record. An opening or run
- * that has no such state simply does not move, so asking for `open` swings the
- * doors that can open and leaves every other opening, and every lift, exactly
- * where it was.
- *
- * Openings and runs share one table because they share one rule: an element
- * carries one displacement. Validation refuses a work where two members claim
- * the same element, so the table is a merge of disjoint keys rather than a
- * race, and whichever member owns the element owns it everywhere.
- *
- * A state that names no value for a member leaves that member at rest.
- * `validateBuiltEnvironment` refuses such a record by name, and answering at
- * rest is what keeps a query over an unvalidated one from failing on a value it
- * was never given.
- */
-const operationDeltas = (
-  environment: IAutoMovieBuiltEnvironment,
-  stateId?: string,
-): Map<string, number[]> => {
-  const deltas = new Map<string, number[]>();
-  for (const opening of environment.openings) {
-    const operation = opening.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyPanelState(operation.panels, state, deltas);
-  }
-  for (const connector of environment.connectors) {
-    const operation = connector.operation;
-    if (operation === undefined) continue;
-    const wanted = stateId ?? operation.state;
-    const state = operation.states.find((candidate) => candidate.id === wanted);
-    if (state === undefined) continue;
-    applyCarriageState(operation.carriages, state, deltas);
-  }
-  return deltas;
-};
-
-/** Place every panel of one opening at the travel a named state gives it. */
-const applyPanelState = (
-  panels: readonly IAutoMovieMovablePanel[],
-  state: IAutoMovieOperationState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const panel of panels) {
-    const entry = state.panels.find((value) => value.panel === panel.id);
-    if (entry === undefined) continue;
-    deltas.set(panel.element, travelDelta(panel.motion, entry.value));
-  }
-};
-
-/** Place every carriage of one run at the travel a named state gives it. */
-const applyCarriageState = (
-  carriages: readonly IAutoMovieConnectorCarriage[],
-  state: IAutoMovieConnectorState,
-  deltas: Map<string, number[]>,
-): void => {
-  for (const carriage of carriages) {
-    const entry = state.carriages.find(
-      (value) => value.carriage === carriage.id,
-    );
-    if (entry === undefined) continue;
-    deltas.set(carriage.element, travelDelta(carriage.motion, entry.value));
-  }
 };

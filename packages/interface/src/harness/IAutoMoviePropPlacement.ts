@@ -3,51 +3,45 @@ import { IAutoMoviePropBox } from "./IAutoMoviePropBox";
 import { IAutoMoviePropRelation } from "./IAutoMoviePropRelation";
 
 /**
- * Stable building relations and model-local proxies for one prop.
+ * The building relations and model-local volumes one prop claims, judged by
+ * `validatePropPlacements` against the staged set and the built environments.
  *
- * These references name the architecture graph and other prop specifications;
- * they never copy their geometry. The engine resolves the complete prop
- * registry before checking them, so a relation may cite a prop declared later
- * without changing the result. A staged set piece supplies the prop's world
- * TRS, and every model-local box below is read through that same transform.
+ * Relations cite the architecture graph and other props by id and never copy
+ * their geometry. The registry is indexed before any relation is judged, so a
+ * prop may cite one declared later. The prop must be staged by exactly one set
+ * piece, whose transform places every model-local box below. A prop without a
+ * placement claims nothing and is still measured as an occupant others must
+ * clear and as a host others may rest on.
  *
- * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `IAutoMoviePropPlacement` as the portable data boundary for the story scene local arc requirement.
- * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `IAutoMoviePropPlacement` for the narrative intent scene prose index system contract.
+ * @evidence contracts/common.md#principled-implementation Claims resolve against per-call registries and world AABBs from the staged piece. Only forged, uniquely declared and uniquely staged props with a sound optional footprint enter geometry; upstream staging and building admission remain premises. These rest-placement proxy checks do not measure an articulated or imported mesh at every animation instant.
+ * @evidence contracts/common.md#clear-and-simple-design Relations, the occupied volume and keep-out volumes are the three kinds of claim a prop makes; volumes are model-local so the staging transform is applied once, by the engine.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry order does not decide admitted identity. A placementless sound prop remains a clearance obstacle and affordance host, but pairwise occupancy overlap is checked only when both props declare placement; any prop-affordance relation between that pair exempts that overlap. Geometry uses the unique occupied environment or one environment shared by all building citations; no unique environment means no containment or passage measurement.
+ * @evidence contracts/common.md#meaningful-documentation States the validator, the cite-not-copy rule, order independence, the staging requirement, and what an absent placement means; members give the relation limits, the footprint default and when to declare one, and the clearance purpose.
  * @author Samchon
  */
 export interface IAutoMoviePropPlacement {
   /**
-   * Typed spatial relations this prop claims, in authored order.
+   * Typed spatial relations this prop claims.
    *
-   * Order never changes the outcome. At most one `in-space` and at most one
-   * `fill-opening` relation may be declared, because a prop occupies one
-   * logical space and fills one passage; every other kind may repeat (a cabinet
-   * standing against two walls, a rail socketed into three posts).
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `relations` as the portable data boundary for the story scene local arc requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `relations` for the narrative intent scene prose index system contract.
+   * A prop declares at most one `in-space` and one `fill-opening` relation,
+   * since it occupies one logical space and fills one passage, and never the
+   * same kind and target twice. Other kinds may repeat, such as a cabinet
+   * against two walls. Whether the placement passes does not depend on
+   * relation order.
    */
   relations: IAutoMoviePropRelation[];
 
   /**
-   * Model-local occupancy box, or `null` to derive it from visible geometry.
+   * Model-local occupancy box, or `null` to derive it from the prop's own
+   * model parts.
    *
-   * A declared footprint is what other props must not intrude on and what the
-   * occupied space must contain. Deriving is the honest default: it is the
-   * exact bound of the prop's own parts. Declaring one states a use volume the
-   * geometry does not show (a chair needs the room its seat sweeps back into)
-   * or trims a decorative overhang that is not really in the way.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `footprint` as the portable data boundary for the story scene local arc requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `footprint` for the narrative intent scene prose index system contract.
+   * Occupancy drives declared containment, pairwise overlap and other props' clearance checks, subject to those checks' exemptions. The default is the world bound of authored mesh or tessellated primitive vertices under rest part/stage transforms, not the imported appearance or an animation sweep; a vertexless model collapses to a zero box at the staged origin. Declare a use volume when the proxy does not express it, such as a chair's backward sweep, or to trim a decorative overhang.
    */
   footprint: IAutoMoviePropBox | null;
 
   /**
-   * Model-local keep-out boxes for doors, drawers, service, and use.
-   *
-   * @evidence requirements/story/scenes-and-observable-action.md#story-scene-local-arc Exposes `clearance` as the portable data boundary for the story scene local arc requirement.
-   * @evidence specifications/narrative-and-intent/story-authority-and-hierarchy.md#narrative-intent-scene-prose-index Types `clearance` for the narrative intent scene prose index system contract.
+   * Model-local keep-out boxes, such as the swing of a door or drawer, that no
+   * other staged prop may occupy.
    */
   clearance: IAutoMovieClearanceBox[];
 }

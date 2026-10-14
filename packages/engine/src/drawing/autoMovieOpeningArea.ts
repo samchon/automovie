@@ -1,35 +1,39 @@
-import {
-  IAutoMovieOpeningProfile,
-  IAutoMoviePlanarPoint,
-} from "@automovie/interface";
+import { IAutoMovieOpeningProfile } from "@automovie/interface";
 
 import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
+import { IAutoMovieOpeningArc } from "./IAutoMovieOpeningArc";
+import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/** Below this the bulge is a straight edge, not an arc anybody can see. */
-const BULGE_EPSILON = 1e-12;
-
 /**
- * The exact area of an opening's void, in square metres.
+ * The exact area of an opening's void, in square metres, on the drawing grid.
  *
- * Exact rather than the bounding hull's area, because an area is a quantity
- * somebody orders glass by while an extent is a rectangle somebody cuts a hole
- * for: the hull that governs the cut deliberately errs towards refusing, and
- * carrying that error into a take-off would over-order every arch in the
- * building. The straight polygon's own area is corrected by each arc's circular
- * segment, which is a closed form and not a sampling of the chords the drawing
- * happens to draft.
+ * Exact rather than the bounding hull's area, because an area is what glass is
+ * ordered by while the hull is what a hole is cut for: the hull errs towards
+ * refusing, and carrying that error into a take-off would over-order every
+ * arch. The straight polygon's signed area is corrected by each arc's circular
+ * segment `r^2 (sweep - sin sweep) / 2` in closed form, not by sampling the
+ * chords the drawing drafts. The result is unsigned, so the outline may wind
+ * either way, and the profile must be the validated simple outline.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Measures the true void area of a straight or arced opening for the quantity report rather than substituting its bounding box.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Combines the profile's signed shoelace area with each bulge's closed-form circular-segment area, then rounds the absolute result.
+ * @param profile Opening profile with its outline and optional bulges.
+ * @returns The void's area in square metres, rounded to the drawing grid.
+ *
+ * @evidence contracts/common.md#principled-implementation The shoelace area of the straight outline plus the signed circular-segment area of each bulged edge, which is exact for a simple outline whose arcs cross no other edge, the outline validation accepts; the segment's sign follows the sweep, so an arc bulging inward subtracts and one bulging outward adds whichever way the outline winds.
+ * @evidence contracts/common.md#clear-and-simple-design One function owns the opening area for the take-off, reusing `polygonDoubleArea` for the straight part and `autoMovieOpeningArc` for each edge's circle, so the area and the drafted outline read one arc convention.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No opening shape is special-cased, and the hull the wall kernel cuts is deliberately not used because it measures a different quantity.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the unit and rounding, why the exact area is used instead of the hull, the segment formula, the winding independence and the validated-outline premise.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` outline edges plus the shoelace pass, linear time and constant extra space.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per opening per quantity report; nothing equivalent repeats.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one small arc record per bulged edge and retains nothing.
  * @author Samchon
  */
 export const autoMovieOpeningArea = (
   profile: IAutoMovieOpeningProfile,
 ): number => {
-  let doubled = polygonDoubleArea(profile.outline);
-  for (let index = 0; index < profile.outline.length; ++index) {
-    const arc = arcOf(
+  let doubled: number = polygonDoubleArea(profile.outline);
+  for (let index: number = 0; index < profile.outline.length; ++index) {
+    const arc: IAutoMovieOpeningArc | null = autoMovieOpeningArc(
       profile.outline[index]!,
       profile.outline[(index + 1) % profile.outline.length]!,
       profile.bulges?.[index] ?? 0,
@@ -38,43 +42,4 @@ export const autoMovieOpeningArea = (
     doubled += arc.radius * arc.radius * (arc.sweep - Math.sin(arc.sweep));
   }
   return roundAutoMovieDrawingScalar(Math.abs(doubled) / 2);
-};
-
-/** The circle one bulged edge runs on. */
-interface IArc {
-  center: IAutoMoviePlanarPoint;
-  radius: number;
-  start: number;
-  sweep: number;
-}
-
-const arcOf = (
-  from: IAutoMoviePlanarPoint,
-  to: IAutoMoviePlanarPoint,
-  bulge: number,
-): IArc | null => {
-  if (Math.abs(bulge) <= BULGE_EPSILON) return null;
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const chord = Math.hypot(dx, dy);
-  if (chord <= BULGE_EPSILON) return null;
-  // The bulge is `tan(|sweep| / 4)` and, in this design's convention, a positive
-  // one bulges to the LEFT of the edge's own direction — the same convention
-  // `outlineHull` places its sagitta by, because two spellings of which way an
-  // arch curves is one spelling too many. The centre therefore sits on the
-  // opposite side of the chord from the bulge, at the signed distance below,
-  // which runs off to infinity exactly as the bulge goes to zero and the arc
-  // becomes the chord; and the sweep runs clockwise for a positive bulge, which
-  // is what puts the arc on the left.
-  const offset = (chord * (1 - bulge * bulge)) / (4 * bulge);
-  const center = {
-    x: (from.x + to.x) / 2 + (offset * dy) / chord,
-    y: (from.y + to.y) / 2 - (offset * dx) / chord,
-  };
-  return {
-    center,
-    radius: Math.hypot(chord / 2, offset),
-    start: Math.atan2(from.y - center.y, from.x - center.x),
-    sweep: -4 * Math.atan(bulge),
-  };
 };

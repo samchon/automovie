@@ -6,4 +6,8 @@ import { createHumanViewerCompileGate } from "@automovie/viewer/human/inspection
  * and server composition borrow it instead of creating competing gate states.
  *
  */
-export const humanViewerCompileGate = createHumanViewerCompileGate();
+export const humanViewerCompileGate: {
+  hold: () => void;
+  release: () => void;
+  withdraw: (reset: () => void) => void;
+} = createHumanViewerCompileGate();

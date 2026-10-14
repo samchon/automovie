@@ -1,5 +1,9 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
@@ -9,10 +13,15 @@ import { IPortraitHairShape } from "./IPortraitHairShape";
 import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
 
 /**
- * Tessellate cubic guide strips with root-to-tip UVs. Each row has two vertices
- * and each interval two triangles, independent of painted fibre count. Normals
- * come from the emitted triangles. No camera-facing rotation or random state
- * enters the construction. Caller guides and profiles remain unchanged.
+ * Tessellate cubic guide strips with root-to-tip UVs. Each row has two vertices and each interval two triangles, independent of painted fibre count. Normals come from the emitted triangles. No camera-facing rotation or random state enters the construction. Caller guides and profiles remain unchanged.
+ *
+ * @evidence contracts/common.md#principled-implementation Paired cubic guides and width frames tessellate legacy strips with root-to-tip UVs and emitted-triangle normals.
+ * @evidence contracts/common.md#clear-and-simple-design Card count, strip resolution and painted fibre detail remain separate controls.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Input ranges and finite nondegenerate triangles refuse invalid strips; guide input is a legacy surface representation, not anatomical reconstruction.
+ * @evidence contracts/common.md#meaningful-documentation Guide positions use portrait millimetres before metric conversion, and empty cards return no model parts.
+ * @evidence contracts/performance.md#efficient-algorithms Bounded cards times segments determines vertex and triangle work, followed by one mesh merge.
+ * @evidence contracts/performance.md#reuse-equivalent-work Catmull-Rom, normal and metric-part owners are shared with other portrait geometry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each strip and merged output owns buffers; caller guides and frames remain unchanged.
  */
 export function buildPortraitHairCards(
   shape: IPortraitHairShape,
@@ -57,7 +66,7 @@ export function buildPortraitHairCards(
       "Hair cards need bounded finite widths, sampling, coverage and an unsigned seed.",
     );
   const meshes: IAutoMovieMesh[] = [];
-  const taperStart = shape.taperStart ?? 0;
+  const taperStart: number = shape.taperStart ?? 0;
   for (const card of shape.cards) {
     if (
       card.guide.length < 2 ||
@@ -67,14 +76,21 @@ export function buildPortraitHairCards(
       card.width <= 0 ||
       card.width > 40 ||
       [...card.guide, ...card.across].some(
-        (p) => p.length !== 3 || !p.every(Number.isFinite),
+        (p: readonly [number, number, number]): boolean =>
+          p.length !== 3 || !p.every(Number.isFinite),
       )
     )
       throw new Error(
         "Each hair card needs paired finite guide/frame stations and a positive bounded width.",
       );
-    const guide = card.guide.map((p) => millimetrePoint(...p));
-    const across = card.across.map((p) => millimetrePoint(...p));
+    const guide: ImportedIAutoMovieVector3[] = card.guide.map(
+      (p: readonly [number, number, number]): ImportedIAutoMovieVector3 =>
+        millimetrePoint(...p),
+    );
+    const across: ImportedIAutoMovieVector3[] = card.across.map(
+      (p: readonly [number, number, number]): ImportedIAutoMovieVector3 =>
+        millimetrePoint(...p),
+    );
     const mesh: IAutoMovieMesh = {
       positions: [],
       indices: [],
@@ -82,11 +98,11 @@ export function buildPortraitHairCards(
       uvs: [],
       skin: null,
     };
-    for (let row = 0; row <= shape.segments; row++) {
-      const t = row / shape.segments;
-      const center = catmullRomPoint(guide, t),
-        frame = catmullRomPoint(across, t);
-      const direction = Vector3.normalize(frame);
+    for (let row: number = 0; row <= shape.segments; row++) {
+      const t: number = row / shape.segments;
+      const center: ImportedIAutoMovieVector3 = catmullRomPoint(guide, t),
+        frame: ImportedIAutoMovieVector3 = catmullRomPoint(across, t);
+      const direction: ImportedIAutoMovieVector3 = Vector3.normalize(frame);
       if (
         ![direction.x, direction.y, direction.z].every(Number.isFinite) ||
         Vector3.length(direction) === 0
@@ -94,7 +110,7 @@ export function buildPortraitHairCards(
         throw new Error(
           "Hair width frames must remain finite and nonzero between stations.",
         );
-      const radius =
+      const radius: number =
         (card.width *
           shape.widthScale *
           (1 -
@@ -102,7 +118,7 @@ export function buildPortraitHairCards(
               (1 - shape.tipWidth))) /
         2;
       for (const side of [-1, 1]) {
-        const point = Vector3.add(
+        const point: ImportedIAutoMovieVector3 = Vector3.add(
           center,
           Vector3.scale(direction, side * radius),
         );
@@ -110,21 +126,22 @@ export function buildPortraitHairCards(
         mesh.uvs!.push((side + 1) / 2, t);
       }
       if (row > 0) {
-        const a = 2 * (row - 1);
+        const a: number = 2 * (row - 1);
         mesh.indices!.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
       }
     }
-    for (let i = 0; i < mesh.indices!.length; i += 3) {
-      const [a, b, c] = mesh
+    for (let i: number = 0; i < mesh.indices!.length; i += 3) {
+      const [a, b, c]: ImportedIAutoMovieVector3[] = mesh
         .indices!.slice(i, i + 3)
-        .map((id) =>
-          millimetrePoint(
-            mesh.positions[id * 3],
-            mesh.positions[id * 3 + 1],
-            mesh.positions[id * 3 + 2],
-          ),
+        .map(
+          (id: number): ImportedIAutoMovieVector3 =>
+            millimetrePoint(
+              mesh.positions[id * 3],
+              mesh.positions[id * 3 + 1],
+              mesh.positions[id * 3 + 2],
+            ),
         );
-      const area = Vector3.length(
+      const area: number = Vector3.length(
         Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
       );
       if (!(area > 1e-8) || !Number.isFinite(area))

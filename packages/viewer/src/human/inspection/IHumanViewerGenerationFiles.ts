@@ -1,32 +1,20 @@
 /**
- * The two tracked files of the published one-skin person generation: the
- * head view and the body view, each opening with the generation id.
+ * The two files of the published one-skin person generation in the viewer's ignored storage: the head view and the body view, each opening with the generation id.
  *
- * @evidence contracts/common.md#meaningful-documentation Names both views.
- *
- * @evidence contracts/common.md#principled-implementation Paired head and body file paths identify the two typed views of the same Person generation.
- * @evidence contracts/common.md#clear-and-simple-design The record carries only the two view files; generation semantics remain with Human.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An arbitrary master checkout or similar basis name cannot substitute for the selected generation's files.
- *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Paired head and body file paths identify the two typed views of the same Person generation.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest An arbitrary master checkout or similar basis name cannot substitute for the selected generation's files.
+ * @evidence contracts/common.md#principled-implementation Names the explicitly paired head/body partition views for the published one-skin generation in resolved mutable storage.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps file locations separate from the opening generation/basis identities and byte digests learned by sidecar readers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Both views must be present and share generation identity; absence refuses or remains pending rather than falling back to unrelated legacy bases.
+ * @evidence contracts/common.md#meaningful-documentation Documents head/body roles and common generation premise; the type itself does not certify numerical view schema.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Two path strings do no reading; asynchronous facts own hashing/inflation and the pair reader performs fixed identity checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work Paired view digests jointly determine person/paired-body tokens and keys; matching generation name alone cannot authorize replaced bytes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The source owner retains the path pair; byte streams, facts and numerical view lifetimes remain their actual readers' responsibilities.
  *
  * @author Samchon
  */
 export interface IHumanViewerGenerationFiles {
-  /**
-   * Head view from the selected `erased-data` generation.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Names the selected Person generation's typed head file rather than an unrelated Face basis.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Names the selected Person generation's typed head file rather than an unrelated Face basis.
-   */
+  /** Head view of the published generation. */
   head: string;
 
-  /**
-   * Body view from the same `erased-data` generation.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Names the same Person generation's paired Body view file for coherent source and cache identity.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Names the same Person generation's paired Body view file for coherent source and cache identity.
-   */
+  /** Body view of the same generation. */
   body: string;
 }

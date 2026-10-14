@@ -1,6 +1,10 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { assertFilmNonFrameActorShapes } from "../internal/assertFilmNonFrameActorShapes";
 import {
   makePerformanceWrite,
@@ -12,49 +16,26 @@ import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- * Pins the referential and range gates of the PERFORMANCE consumer, all raised
- * from one incoherent write so the correction round sees the full list at
- * once.
+ * Performance input gates return located referential, timing and verb-field faults.
  *
  * Scenarios:
+ * 1. Collect unknown beat, zero shot duration, unstaged actor and out-of-span start together.
+ * 2. Refuse invalid action duration/repeat/list, force/intensity, targets and untargeted point.
+ * 3. Preserve malformed actor-shape refusal and located relative/unstaged react-source errors.
  *
- * 1. The performance names a beat the script never planned → `type` on
- *    `$input.beat`.
- * 2. Its duration is 0 → `range` on `$input.duration`.
- * 3. Its only action is performed by an unstaged `ghost` → `type` on
- *    `$input.draft[0].actor`.
- * 4. That action starts at t = 5 s, outside the shot's [0, 0] span → `range` on
- *    `$input.draft[0].start`.
- * 5. A staged action with explicit duration 0: `range` on
- *    `$input.draft[0].duration`.
- * 6. A staged action whose explicit span ends after the shot yields `range` on
- *    `$input.draft[0].duration`.
- * 7. A staged action with `repeat: 0` yields `range` on `$input.draft[0].repeat`.
- * 8. A staged action with fractional `repeat` yields `range` on
- *    `$input.draft[0].repeat`.
- * 9. A staged action with an empty actor list yields `type` on
- *    `$input.draft[0].actor`.
- * 10. A staged action with a duplicate actor entry yields `type` on the repeated
- *     item.
- * 11. A staged `react` with force outside `[0,1]` yields `range` on
- *     `$input.draft[0].force`.
- * 12. A staged `emote` with intensity outside `[0,1]` yields `range` on
- *     `$input.draft[0].intensity`.
- * 13. A staged `reach` to a relative target yields `type` on `$input.draft[0].to`.
- * 14. A staged `lookAt` to a relative target yields `type` on `$input.draft[0].to`.
- * 15. A staged `point` gesture without `at` yields `type` on `$input.draft[0].at`.
- * 16. A staged `strike` gesture aimed at a relative target yields `type` on
- *     `$input.draft[0].at`.
- * 17. A non-`frame` action assigned to a staged camera yields `type` on
- *     `$input.draft[0].actor`.
- * 18. Malformed non-frame actor shapes yield `type` violations instead of raw
- *     iteration failures.
+ * @evidence contracts/testing.md#behavioral-verification Calls performShot on the original incoherent and single-field mutations and checks exact type/range paths, catching omitted input gates or escaped actor-shape iteration failures.
+ * @evidence contracts/testing.md#independent-expectations The script/stage declare the legal ids and two-second span; positive duration/integer repeat, bounded force/intensity and resolvable targets define expected field refusals. Literal input indices determine paths without using output as an oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves every original shot/action/actor/repeat/force/intensity/target case and the shared non-frame actor-shape cases; accepted performances and camera selection are owned by focused neighbouring entries.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns its original cases and delegates existing malformed actor cases to assertFilmNonFrameActorShapes, not a new driver; source validation runs in memory without a process or renderer.
  */
-export const test_film_perform_shot_bad_refs = (): void => {
-  const staged = stageScene(makeScriptWrite(), makeStagingWrite());
+export function test_film_perform_shot_bad_refs(): void {
+  const staged: IAutoMovieStagedSet = stageScene(
+    makeScriptWrite(),
+    makeStagingWrite(),
+  );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -72,32 +53,38 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals("fails", performed.success, false);
   TestValidator.equals(
     "unknown beat",
     namedFacts([
-      ["refused", () => performed.success === false],
-      ["violated", () => hasViolation(performed, "type", "$input.beat")],
+      ["refused", (): boolean => performed.success === false],
+      [
+        "violated",
+        (): boolean => hasViolation(performed, "type", "$input.beat"),
+      ],
     ]),
     { refused: true, violated: true },
   );
   TestValidator.equals(
     "zero duration",
     namedFacts([
-      ["refused", () => performed.success === false],
-      ["violated", () => hasViolation(performed, "range", "$input.duration")],
+      ["refused", (): boolean => performed.success === false],
+      [
+        "violated",
+        (): boolean => hasViolation(performed, "range", "$input.duration"),
+      ],
     ]),
     { refused: true, violated: true },
   );
   TestValidator.equals(
     "unstaged actor",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () => hasViolation(performed, "type", "$input.draft[0].actor"),
+        (): boolean => hasViolation(performed, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
@@ -105,16 +92,17 @@ export const test_film_perform_shot_bad_refs = (): void => {
   TestValidator.equals(
     "start out of shot",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () => hasViolation(performed, "range", "$input.draft[0].start"),
+        (): boolean =>
+          hasViolation(performed, "range", "$input.draft[0].start"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const zeroActionDuration = performShot({
+  const zeroActionDuration: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -130,22 +118,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "zero action duration rejected",
     namedFacts([
-      ["refused", () => zeroActionDuration.success === false],
+      ["refused", (): boolean => zeroActionDuration.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           hasViolation(zeroActionDuration, "range", "$input.draft[0].duration"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const overrunActionDuration = performShot({
+  const overrunActionDuration: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -161,15 +149,15 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "overrun action duration rejected",
     namedFacts([
-      ["refused", () => overrunActionDuration.success === false],
+      ["refused", (): boolean => overrunActionDuration.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           hasViolation(
             overrunActionDuration,
             "range",
@@ -180,7 +168,7 @@ export const test_film_perform_shot_bad_refs = (): void => {
     { refused: true, violated: true },
   );
 
-  const zeroRepeat = performShot({
+  const zeroRepeat: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -197,21 +185,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "zero repeat rejected",
     namedFacts([
-      ["refused", () => zeroRepeat.success === false],
+      ["refused", (): boolean => zeroRepeat.success === false],
       [
         "violated",
-        () => hasViolation(zeroRepeat, "range", "$input.draft[0].repeat"),
+        (): boolean =>
+          hasViolation(zeroRepeat, "range", "$input.draft[0].repeat"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const fractionalRepeat = performShot({
+  const fractionalRepeat: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -228,21 +217,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "fractional repeat rejected",
     namedFacts([
-      ["refused", () => fractionalRepeat.success === false],
+      ["refused", (): boolean => fractionalRepeat.success === false],
       [
         "violated",
-        () => hasViolation(fractionalRepeat, "range", "$input.draft[0].repeat"),
+        (): boolean =>
+          hasViolation(fractionalRepeat, "range", "$input.draft[0].repeat"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const emptyActorList = performShot({
+  const emptyActorList: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -258,21 +248,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "empty actor list rejected",
     namedFacts([
-      ["refused", () => emptyActorList.success === false],
+      ["refused", (): boolean => emptyActorList.success === false],
       [
         "violated",
-        () => hasViolation(emptyActorList, "type", "$input.draft[0].actor"),
+        (): boolean =>
+          hasViolation(emptyActorList, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const duplicateActor = performShot({
+  const duplicateActor: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -288,21 +279,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "duplicate actor list entry rejected",
     namedFacts([
-      ["refused", () => duplicateActor.success === false],
+      ["refused", (): boolean => duplicateActor.success === false],
       [
         "violated",
-        () => hasViolation(duplicateActor, "type", "$input.draft[0].actor[1]"),
+        (): boolean =>
+          hasViolation(duplicateActor, "type", "$input.draft[0].actor[1]"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const oversizedReact = performShot({
+  const oversizedReact: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -319,21 +311,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "oversized react force rejected",
     namedFacts([
-      ["refused", () => oversizedReact.success === false],
+      ["refused", (): boolean => oversizedReact.success === false],
       [
         "violated",
-        () => hasViolation(oversizedReact, "range", "$input.draft[0].force"),
+        (): boolean =>
+          hasViolation(oversizedReact, "range", "$input.draft[0].force"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const oversizedEmote = performShot({
+  const oversizedEmote: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -350,22 +343,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "oversized emote intensity rejected",
     namedFacts([
-      ["refused", () => oversizedEmote.success === false],
+      ["refused", (): boolean => oversizedEmote.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           hasViolation(oversizedEmote, "range", "$input.draft[0].intensity"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const relativeReach = performShot({
+  const relativeReach: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -382,21 +375,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "relative reach target rejected",
     namedFacts([
-      ["refused", () => relativeReach.success === false],
+      ["refused", (): boolean => relativeReach.success === false],
       [
         "violated",
-        () => hasViolation(relativeReach, "type", "$input.draft[0].to"),
+        (): boolean =>
+          hasViolation(relativeReach, "type", "$input.draft[0].to"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const relativeLook = performShot({
+  const relativeLook: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -412,21 +406,21 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "relative lookAt target rejected",
     namedFacts([
-      ["refused", () => relativeLook.success === false],
+      ["refused", (): boolean => relativeLook.success === false],
       [
         "violated",
-        () => hasViolation(relativeLook, "type", "$input.draft[0].to"),
+        (): boolean => hasViolation(relativeLook, "type", "$input.draft[0].to"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const untargetedPoint = performShot({
+  const untargetedPoint: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -442,21 +436,22 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "untargeted point gesture rejected",
     namedFacts([
-      ["refused", () => untargetedPoint.success === false],
+      ["refused", (): boolean => untargetedPoint.success === false],
       [
         "violated",
-        () => hasViolation(untargetedPoint, "type", "$input.draft[0].at"),
+        (): boolean =>
+          hasViolation(untargetedPoint, "type", "$input.draft[0].at"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const relativeStrike = performShot({
+  const relativeStrike: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -473,19 +468,57 @@ export const test_film_perform_shot_bad_refs = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "relative strike target rejected",
     namedFacts([
-      ["refused", () => relativeStrike.success === false],
+      ["refused", (): boolean => relativeStrike.success === false],
       [
         "violated",
-        () => hasViolation(relativeStrike, "type", "$input.draft[0].at"),
+        (): boolean =>
+          hasViolation(relativeStrike, "type", "$input.draft[0].at"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
   assertFilmNonFrameActorShapes(staged);
-};
+
+  for (const [label, from] of [
+    ["relative react source rejected", { kind: "direction", headingDeg: 90 }],
+    ["unstaged react source rejected", { kind: "node", node: "ghost" }],
+  ] as const) {
+    const unresolvedReact: IAutoMoviePerformedShot = performShot({
+      script: makeScriptWrite(),
+      staged,
+      performance: makePerformanceWrite({
+        draft: [
+          {
+            verb: "react",
+            actor: "knightA",
+            start: 0,
+            duration: 1,
+            from,
+            force: 0.5,
+          },
+        ],
+        revise: { review: "unchanged.", final: null },
+      }),
+      synthesize: validSynthesizer,
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
+    });
+    TestValidator.equals(
+      label,
+      namedFacts([
+        ["refused", (): boolean => unresolvedReact.success === false],
+        [
+          "violated",
+          (): boolean =>
+            hasViolation(unresolvedReact, "type", "$input.draft[0].from"),
+        ],
+      ]),
+      { refused: true, violated: true },
+    );
+  }
+}

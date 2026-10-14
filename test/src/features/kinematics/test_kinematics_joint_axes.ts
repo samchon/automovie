@@ -1,7 +1,8 @@
-import { Quaternion, jointToQuaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { qclose } from "../internal/predicates";
+import { jointToQuaternion } from "../../../../packages/engine/src/kinematics/jointToQuaternion";
+import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
+import { qclose } from "../internal/qclose";
 
 /**
  * `jointToQuaternion` turns the semantic angles an LLM emits (flexion /
@@ -15,9 +16,14 @@ import { qclose } from "../internal/predicates";
  * 2. Flexion rotates about local X.
  * 3. Abduction rotates about local Z.
  * 4. Twist rotates about local Y.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Converts undriven/zero joints and separate 90-degree flexion, abduction and twist, checking rotation against literal Cartesian quaternions; an axis swap or failure to preserve identity fails.
+ * @evidence contracts/testing.md#independent-expectations Identity is (0,0,0,1); a quarter-turn has half-angle sine/cosine sqrt(1/2) on exactly the declared X/Z/Y axis. Expected rotations do not call the product quaternion constructor or composition owner.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps null and explicit-zero triples plus each individually driven default axis; mixed order, custom bases and malformed inputs belong to neighboring entries.
+ * @evidence contracts/testing.md#execution-ownership The runner discovers this exported CPU test and it directly invokes jointToQuaternion source using finite conventional angles; no renderer or clinical measurement protocol is executed.
  */
-export const test_kinematics_joint_axes = (): void => {
-  const id = Quaternion.identity();
+export function test_kinematics_joint_axes(): void {
+  const id: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   TestValidator.predicate(
     "null axes → identity",
     qclose(
@@ -32,23 +38,29 @@ export const test_kinematics_joint_axes = (): void => {
 
   TestValidator.predicate(
     "flexion about X",
-    qclose(
-      jointToQuaternion({ flexion: 90, abduction: null, twist: null }),
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-    ),
+    qclose(jointToQuaternion({ flexion: 90, abduction: null, twist: null }), {
+      x: Math.SQRT1_2,
+      y: 0,
+      z: 0,
+      w: Math.SQRT1_2,
+    }),
   );
   TestValidator.predicate(
     "abduction about Z",
-    qclose(
-      jointToQuaternion({ flexion: null, abduction: 90, twist: null }),
-      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-    ),
+    qclose(jointToQuaternion({ flexion: null, abduction: 90, twist: null }), {
+      x: 0,
+      y: 0,
+      z: Math.SQRT1_2,
+      w: Math.SQRT1_2,
+    }),
   );
   TestValidator.predicate(
     "twist about Y",
-    qclose(
-      jointToQuaternion({ flexion: null, abduction: null, twist: 90 }),
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-    ),
+    qclose(jointToQuaternion({ flexion: null, abduction: null, twist: 90 }), {
+      x: 0,
+      y: Math.SQRT1_2,
+      z: 0,
+      w: Math.SQRT1_2,
+    }),
   );
-};
+}

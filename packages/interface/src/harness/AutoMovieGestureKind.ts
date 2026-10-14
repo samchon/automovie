@@ -1,22 +1,30 @@
 import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * A closed set of **gesture families** the engine has motion for. A closed enum
- * (not a free string) is deliberate: across many parallel generations, free
- * names drift ("wave"/"waving"/"hand-wave"); a fixed set converges. Use `note`
- * to specialise within a family ("strike" + note "jab"), or `custom` to
- * describe a one-off the engine should approximate.
+ * The closed set of gesture families a `gesture` action names.
  *
- * The set spans **both humanoid and creature** actors: the project rigs horses
- * and cats on the same {@link AutoMovieHumanoidBone} skeleton (spine = barrel,
- * the limbs retargeted), so the engine dispatches each kind to the actor's rig
- * vocabulary: `kick` is a leg snap on a fighter and a hind-leg lash on a horse;
- * `rear`/`buck`/`paw` only resolve on a quadruped rig. Idle creature poses with
- * no directed target (a cat's stretch/sit, a tail flick) are a `hold` plus an
- * `emote`, or a `custom` gesture.
+ * A closed set rather than a free string keeps parallel generations from
+ * drifting between spellings such as "wave", "waving", and "hand-wave". The
+ * action's `note` specialises within a family ("strike" with note "jab"), and
+ * `custom` names a one-off.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `AutoMovieGestureKind` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `AutoMovieGestureKind` for the performance interaction attachment object handoff system contract.
+ * The set names both humanoid and creature families, because horses and cats
+ * are rigged on the same {@link AutoMovieHumanoidBone} skeleton (spine as
+ * barrel, limbs retargeted). The engine's reference synthesizer covers part of
+ * it: `gestureMotion` plays fixed humanoid-bone keyframes on any rig for `bow`,
+ * `nod`, `shake`, `crouch`, `kick`, `stagger`, `wave`, `celebrate`, `draw`,
+ * `throw`, and `jump`; `point` and `strike` solve the right arm toward their
+ * target only on a rig with arm geometry; and `guard`, `rear`, `buck`, `paw`,
+ * and `custom` produce no motion unless a host supplies its own synthesizer.
+ * `actionRegion` defaults `nod` and `shake` to `head`, `bow`, `crouch`, `kick`,
+ * `stagger`, `jump`, and `draw` to `fullBody`, and every other kind to
+ * `upperBody`. Hold preserves existing articulation and emote supplies facial expression; a stretch or tail flick that changes body joints needs authored enact motion or a host synthesizer.
+ *
+ * @evidence contracts/common.md#principled-implementation A closed string union converges parallel generations on one spelling per family, and the engine maps kinds to motion through explicit tables, `gestureMotion`'s generic set and `actionRegion`'s per-kind region defaults, so each kind's behavior is a lookup rather than a guess.
+ * @evidence contracts/common.md#clear-and-simple-design Eighteen families with `note` for refinement and `custom` as the escape keep the vocabulary small enough to choose from while leaving variety to the free-text note the engine ignores.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Kinds the reference synthesizer cannot animate return no motion instead of borrowing another family's keyframes, and the documentation lists them so an author knows a host synthesizer must supply them.
+ * @evidence contracts/common.md#meaningful-documentation States why the set is closed, how `note` and `custom` widen it, why creature families share the humanoid skeleton, exactly which kinds produce motion and under what condition, each kind's default region, and how to express an untargeted creature pose.
+ * @author Samchon
  */
 export type AutoMovieGestureKind =
   // humanoid

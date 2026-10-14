@@ -1,47 +1,25 @@
 /**
- * Renderer-independent shadow map controls shared by physical lights.
+ * Explicit shadow-map resolution, bias and clip controls for supported punctual sources.
  *
- * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `IAutoMovieLightShadow` as the portable data boundary for the lighting linking requirement.
- * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `IAutoMovieLightShadow` for the clv light link resolution system contract.
+ * @evidence contracts/common.md#principled-implementation Admitted positive map resolution and ordered positive camera clips configure the shared light-space shadow adapter, with finite depth and normal bias retained as authored numeric tuning.
+ * @evidence contracts/common.md#clear-and-simple-design Five scalar controls describe common shadow state without exposing renderer camera objects or selecting the scene's master filter policy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Shadow tuning cannot enable unsupported area maps or override disabled scene shadows; near/far remain explicit rather than guessed from one fixture.
+ * @evidence contracts/common.md#meaningful-documentation Defines resolution, depth and normal bias and positive ordered clip distances.
+ * @author Samchon
  */
 export interface IAutoMovieLightShadow {
-  /**
-   * Square shadow-map resolution, a positive safe integer.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `mapSize` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `mapSize` for the clv light link resolution system contract.
-   */
+  /** Square shadow-map resolution, a positive safe integer. */
   mapSize: number;
 
-  /**
-   * Depth bias used to suppress surface acne.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `bias` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `bias` for the clv light link resolution system contract.
-   */
+  /** Depth bias used to suppress surface acne. */
   bias: number;
 
-  /**
-   * Normal-relative depth bias.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `normalBias` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `normalBias` for the clv light link resolution system contract.
-   */
+  /** Normal-relative depth bias. */
   normalBias: number;
 
-  /**
-   * Positive shadow-camera near distance.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `near` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `near` for the clv light link resolution system contract.
-   */
+  /** Positive shadow-camera near distance. */
   near: number;
 
-  /**
-   * Shadow-camera far distance, greater than `near`.
-   *
-   * @evidence requirements/lighting/shape-filters-and-linking.md#lighting-linking Exposes `far` as the portable data boundary for the lighting linking requirement.
-   * @evidence specifications/camera-light-and-visibility/practical-shaping-and-linking.md#clv-light-link-resolution Types `far` for the clv light link resolution system contract.
-   */
+  /** Shadow-camera far distance, greater than `near`. */
   far: number;
 }

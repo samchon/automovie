@@ -6,10 +6,10 @@ import {
 
 import { gaitMotion } from "./gaitMotion";
 
-const assertUniqueProfileGaitNames = (
+const assertUniqueProfileGaitNames: (
   gaits: readonly IAutoMovieGait[],
-): void => {
-  const seen = new Set<string>();
+) => void = (gaits: readonly IAutoMovieGait[]): void => {
+  const seen: Set<string> = new Set<string>();
   for (const gait of gaits) {
     if (seen.has(gait.name))
       throw new Error(`duplicate profile gait name ${gait.name}`);
@@ -18,31 +18,34 @@ const assertUniqueProfileGaitNames = (
 };
 
 /**
- * Bind a profile's gait set ({@link IAutoMovieProfile.gaits}) onto a concrete
- * skeleton, synthesising each named gait into a clip for **this** body. The
- * point of a profile binding: the _same_ profile applied to a horse skeleton
- * and a pony skeleton yields each its own gait clips, so one declarative gait
- * set drives many bodies. Returns the clips keyed by gait name (empty when the
- * profile declares no gaits).
+ * Synthesize each uniquely named profile gait into a clip targeting the supplied skeleton id, keyed by the exact gait name; absent gaits yield an empty object. This assigns clinical controls and identity without inspecting body geometry.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Applies every named profile gait to the selected skeleton without embedding creature-specific code.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Expands a reusable compact gait set into skeleton-bound motion clips.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Checks gait-name uniqueness then delegates each declared gait to gaitMotion with the requested sampling count and skeleton id; binding preserves profile gait semantics rather than deriving body-specific angles from an unavailable rig.
+ * @evidence contracts/common.md#clear-and-simple-design The binder owns profile-scoped clip identity and name indexing while gaitMotion owns sampling, phase and scalar gait admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate names refuse before synthesis, and own data-property definition preserves names such as __proto__ without mutating the result prototype or silently losing a clip.
+ * @evidence contracts/common.md#meaningful-documentation States exact-name keys, empty-gait behavior, skeleton-id binding and the absence of geometry-dependent retargeting.
+ * @evidence contracts/performance.md#efficient-algorithms Name admission is O(G) with a set; synthesis is O(sum of sampled gait keyframes times declared limb rows), and the output stores one clip per gait without extra entry arrays.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each declared gait is synthesized once per call; different skeleton ids produce independently identified clips rather than reusing a mutable cache by profile name.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns its clips and keyframe populations; the temporary name set is released after return/throw and no profile object or resource handle is retained.
  */
-export const bindProfileGaits = (
+export const bindProfileGaits: (
+  profile: IAutoMovieProfile,
+  skeleton: string,
+  samples: number,
+) => Record<string, IAutoMovieMotion> = (
   profile: IAutoMovieProfile,
   skeleton: string,
   samples: number,
 ): Record<string, IAutoMovieMotion> => {
-  const gaits = profile.gaits ?? [];
+  const gaits: IAutoMovieGait[] = profile.gaits ?? [];
   assertUniqueProfileGaitNames(gaits);
   const clips: Record<string, IAutoMovieMotion> = {};
   for (const gait of gaits)
-    clips[gait.name] = gaitMotion(
-      `${profile.id}:${gait.name}`,
-      skeleton,
-      gait,
-      samples,
-    );
+    Object.defineProperty(clips, gait.name, {
+      value: gaitMotion(`${profile.id}:${gait.name}`, skeleton, gait, samples),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   return clips;
 };

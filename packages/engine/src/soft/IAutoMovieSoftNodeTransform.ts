@@ -1,34 +1,24 @@
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Evaluated scene-node transform available to one soft fixed step.
+ * One evaluated node's rigid world frame supplied in a wearable soft snapshot.
  *
- * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Resolves an object attachment from its owning frame.
- * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Supplies one immutable moving-subject pose.
+ * @evidence contracts/common.md#principled-implementation World position and orientation lift an authored node-local anchor offset into the resolved boundary at one fixed-step time.
+ * @evidence contracts/common.md#clear-and-simple-design The wearable resolver receives only node identity and rigid placement, leaving motion sampling and scene ownership to its caller.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No scale or missing-node default changes the rigid anchor contract; the resolver refuses an absent named frame.
+ * @evidence contracts/common.md#meaningful-documentation States node identity, world frame and fixed-step provenance for both placement fields.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This frame record executes no animation sampling or anchor transformation; consumers own those fixed-dimensional calculations.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A frame describes one absolute snapshot and contains no playback cursor or cache for future steps.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Snapshot ownership covers its position/quaternion references, while the record retains no scene graph object or renderer.
+ * @author Samchon
  */
 export interface IAutoMovieSoftNodeTransform {
-  /**
-   * Stable scene-node identity.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Keeps missing attachments distinct from the world origin.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Joins the authored node binding explicitly.
-   */
+  /** Stable scene-node identity. */
   node: string;
-  /**
-   * World position at this fixed-step boundary.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Reads primary motion on the same sample.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Supplies the current attachment translation.
-   */
+
+  /** World position at this fixed-step boundary. */
   worldPosition: IAutoMovieVector3;
-  /**
-   * World orientation at this fixed-step boundary.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Reads primary motion on the same sample.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Places the declared local offset without a stale frame.
-   */
+
+  /** World orientation at this fixed-step boundary. */
   worldRotation: IAutoMovieQuaternion;
 }

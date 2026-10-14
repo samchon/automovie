@@ -1,25 +1,29 @@
 import { IAutoMovieChannel, IAutoMovieProfile } from "@automovie/interface";
 
 /**
- * Every semantic node key a profile references: the exact set of `boneMap`
- * entries {@link bindProfile} will demand. Walks the same references
- * `mapDriver`/`mapChannel` remap (limit node channels; each driver's node
- * fields; pointer channels excluded), deduplicated in first-reference order, so
- * a gate (forgeProp) can report **every** missing mapping in one correction
- * round instead of surfacing bindProfile's first throw at a time.
+ * List every supported profile node reference in first-reference order, deduplicated, so forgeProp can report all missing mappings. Pointer channels are global and excluded; unknown driver kinds throw.
  *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Enumerates every semantic node required by the profile graph.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Exposes the complete dependency-key set needed to validate a concrete driver graph.
+ * @evidence contracts/common.md#principled-implementation Enumerate supported limit/driver node references, exclude global pointers and deduplicate in first-reference order, matching fields bindProfile remaps.
+ * @evidence contracts/common.md#clear-and-simple-design A set-backed collector lets forgeProp report all absent mappings before concrete binding.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown driver kinds throw and no key is inferred from unrelated payload names or fixture ids.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify demanded boneMap entries, pointer exclusion and deterministic order.
+ * @evidence contracts/performance.md#efficient-algorithms L limits, D drivers and R chain references cost O(L+D+R), with O(K) distinct-key storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work One local set shares repeated references across the profile; changed authored data requires fresh enumeration.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned key array, with no bound graph, profile cache, native handle or task retained.
  */
-export const profileSemanticKeys = (profile: IAutoMovieProfile): string[] => {
+export const profileSemanticKeys: (profile: IAutoMovieProfile) => string[] = (
+  profile: IAutoMovieProfile,
+): string[] => {
   const keys: string[] = [];
-  const seen = new Set<string>();
-  const add = (key: string): void => {
+  const seen: Set<string> = new Set<string>();
+  const add: (key: string) => void = (key: string): void => {
     if (seen.has(key)) return;
     seen.add(key);
     keys.push(key);
   };
-  const addChannel = (channel: IAutoMovieChannel): void => {
+  const addChannel: (channel: IAutoMovieChannel) => void = (
+    channel: IAutoMovieChannel,
+  ): void => {
     if (channel.kind === "node") add(channel.node);
   };
 
@@ -53,7 +57,7 @@ export const profileSemanticKeys = (profile: IAutoMovieProfile): string[] => {
         if (driver.center !== null) add(driver.center);
         break;
       default: {
-        const unknown = driver as { type?: unknown };
+        const unknown: { type?: unknown } = driver as { type?: unknown };
         throw new Error(`unknown driver type "${String(unknown.type)}"`);
       }
     }

@@ -3,12 +3,14 @@ import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 /**
  * The entry files of each revision digest's import graph.
  *
- * @evidence contracts/common.md#principled-implementation Every revision domain receives its own readonly entry-file population through the keys of IHumanViewerRevisions.
- * @evidence contracts/common.md#clear-and-simple-design A mapped record reuses the domain owner instead of declaring a second set of digest names.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The entry record declares the actual import-graph roots without excluding files according to a subject or capture.
- * @evidence contracts/common.md#meaningful-documentation States that each readonly string population names a digest's import-graph entry files.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Every revision domain receives its own readonly entry-file population through the keys of IHumanViewerRevisions.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity A mapped record reuses the domain owner instead of declaring a second set of digest names.
+ * @evidence contracts/common.md#principled-implementation A record keyed by every revision domain requires an entry-file array for browser, face, body and person import graphs.
+ * @evidence contracts/common.md#clear-and-simple-design Deriving keys from the revision record keeps graph roots aligned with the digests consumers use.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Entries describe real source roots rather than a precomputed list of expected digest outputs.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies import-graph entry files; readonly arrays prevent mutation through this root-set contract.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This keyed type selects no import traversal or path-resolution algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Root lists establish dependencies but store no completed graph or memoized source text themselves.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Readonly file-name arrays own no threads or open files; their lifetime follows revision-owner configuration.
+ *
  * @author Samchon
  */
 export type IHumanViewerRevisionsEntries = Record<

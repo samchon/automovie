@@ -1,101 +1,73 @@
 import { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBox";
 
 /**
- * Where a room is, and what the design already declares about it.
+ * Where a space is, and what the design already declares about it.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `IAutoMovieDrawingSpacePlace` as the location, membership and relation the schedule requirement asks a room row to provide.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `IAutoMovieDrawingSpacePlace` for the interior space drawing schedule quantity system contract.
+ * Each field delegates to the current environment's graph, box or metadata query. Declared is a box of the space's own volume representation; content folds descendant content proxies. Their tolerances and static-geometry premises differ, so neither box independently proves actual visible occupancy or a suitable camera view.
+ *
+ * @evidence contracts/common.md#principled-implementation `deriveAutoMovieDrawingSchedule` fills each field from one query: `builtEnvironmentBuildingOfSpace`, the space's own `parent`, `autoMovieDrawingSpaceBox`, `builtEnvironmentSpaceContentBounds`, `builtEnvironmentSpaceFidelity`, `builtEnvironmentSpaceNodes`, `builtEnvironmentAdjacentSpaces` and `builtEnvironmentSpaceConnectors`, sorting every id list with `compareAutoMovieRenderIds`.
+ * @evidence contracts/common.md#clear-and-simple-design One place record gathers delegated hierarchy, box, content, adjacency and connector answers. Bounds are rounded and named contents truncated after sorting, while fidelity remains an authored metadata fold rather than an accuracy measurement; the record does not authenticate a source revision.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contents come from the declared `space` of elements and populations, never from id prefixes, and a population is named once by its owner id rather than expanded or sampled.
+ * @evidence contracts/common.md#meaningful-documentation States the one-query-per-field rule and why two boxes exist; members give when each nullable field is `null`, the descendant folding of `content`, `fidelity` and `contents`, the id spellings and bound of `contents`, how to recover the full count, and the exact-match rule of `connectors`.
+ * @author Samchon
  */
 export interface IAutoMovieDrawingSpacePlace {
-  /**
-   * Discriminant naming the subject this place describes.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `kind` so a reader knows which location a row states before reading its fields.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `kind` for the interior space drawing schedule quantity system contract.
-   */
+  /** Discriminant naming the subject this place describes. */
   kind: "space";
 
-  /**
-   * Building unit that owns the zone.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `building` so a scheduled zone names the building unit it belongs to.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `building` for the interior space drawing schedule quantity system contract.
-   */
+  /** Building unit that owns the space through its root ancestor. */
   building: string;
 
   /**
-   * Owning logical space, or `null` for a building root.
+   * Parent logical space, or `null` for a building root.
    *
-   * Spaces nest, and a flattened index loses the question "which storey is
-   * unreviewed", so the hierarchy is carried rather than dissolved.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `parent` so a scheduled zone keeps its place in the space hierarchy.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `parent` for the interior space drawing schedule quantity system contract.
+   * The hierarchy is carried rather than flattened, so a reader can still ask
+   * which storey a room belongs to.
    */
   parent: string | null;
 
   /**
-   * World box of the zone's own declared volume, or `null` when it declares
-   * none this derivation can bound.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `declared` as the zone's own stated extent, kept apart from where its contents are.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `declared` for the interior space drawing schedule quantity system contract.
+   * Rounded shell-vertex box or aggregate cell-axis-limit box for this space alone. Null means no stated volume or failure of the helper's 1e-9 axis-component/finite-limit checks; a non-null box does not prove a nonempty exact cell intersection.
    */
   declared: IAutoMovieDrawingScheduleBox | null;
 
   /**
-   * World box the zone's contents fill, or `null` when nothing stands in it at
-   * any depth.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `content` as the measured extent of what stands in the zone rather than of the zone itself.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `content` for the interior space drawing schedule quantity system contract.
+   * Rounded box of static CPU element bounds and declared population placement proxies in the subtree, or null when none contributes. Missing external-model geometry and empty held geometry contribute an element origin; attached bones, skinning, animation and GPU evaluation are outside the measurement.
    */
   content: IAutoMovieDrawingScheduleBox | null;
 
   /**
-   * What the zone's declared volume claims to be, folded over its descendants.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `fidelity` as the declared state of the zone's volume, which the schedule requirement counts among a row's relevant properties.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `fidelity` for the interior space drawing schedule quantity system contract.
+   * What the declared volumes of the space and its descendants claim to be:
+   * `faceted` when any of them approximates a curved region, `unstated` when
+   * none states a volume, and `exact` otherwise.
    */
   fidelity: "exact" | "faceted" | "unstated";
 
   /**
-   * Staged node ids in the zone and its descendants, ascending, bounded by
-   * {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS}.
+   * Staged node ids in the space and its descendants, ascending, at most the
+   * engine's `AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS`.
    *
-   * A compact population contributes its one owner id rather than its members,
-   * so a field of 2,392 slates is one entry and not an unbounded expansion.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `contents` so a room row answers what stands in it by declared membership.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `contents` for the interior space drawing schedule quantity system contract.
+   * An element with a model appears as `<environment>/<element>`. A population
+   * contributes its one owner id, `instance-set:<set>`, rather than its members,
+   * so a field of thousands of slates is one entry.
    */
   contents: string[];
 
   /**
-   * Staged nodes the bound left out.
-   *
-   * `contents.length` plus this is the zone's full staged population, so the
-   * count a reviewer needs is reproducible from a bounded row.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `omittedContents` so the bounded content sample still reports the zone's whole count.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `omittedContents` for the interior space drawing schedule quantity system contract.
+   * Staged nodes the bound left out; `contents.length` plus this is the full
+   * staged population of the space.
    */
   omittedContents: number;
 
   /**
-   * Zones directly joined to this one, ascending.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `adjacent` so a scheduled zone states what it adjoins.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `adjacent` for the interior space drawing schedule quantity system contract.
+   * Spaces joined to this one by a shared boundary, or by a connector that
+   * travels from here to them, ascending.
    */
   adjacent: string[];
 
   /**
-   * Connectors landing in this zone, ascending.
-   *
-   * @evidence requirements/interior/deliverables-and-quantities.md#interior-schedules Exposes `connectors` so a scheduled zone states what reaches it.
-   * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Types `connectors` for the interior space drawing schedule quantity system contract.
+   * Connectors whose declared stops name this space itself, not one of its
+   * descendants, ascending.
    */
   connectors: string[];
 }

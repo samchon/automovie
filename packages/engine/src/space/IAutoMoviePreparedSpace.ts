@@ -5,24 +5,19 @@ import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 /**
  * Prepared footprint index for all surfaces in a space.
  *
- * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `IAutoMoviePreparedSpace` represents prepared footprint index for all surfaces in a space. This ensures marks and supports resolve against their declared host geometry.
- * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `IAutoMoviePreparedSpace` structures prepared footprint index for all surfaces in a space for the system that resolves host-relative support geometry and whole-footprint zone membership.
+ * @evidence contracts/common.md#principled-implementation prepareSpace maps each source surface to its original ring-and-hole footprint; ground queries choose among those regions using the shared surface height function.
+ * @evidence contracts/common.md#clear-and-simple-design One prepared collection supplies repeated point queries while keeping each source surface authoritative for identity, height and walkability.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Preparation does not replace concave regions with convex hulls or validate them; a caller passing a prepared record from another space can obtain inconsistent queries.
+ * @evidence contracts/common.md#meaningful-documentation States source-space borrowing and prepared region storage; callers must rebuild after source polygon mutation and keep the prepared argument paired with its space.
+ * @evidence contracts/performance.md#efficient-algorithms S surfaces with E total ring vertices need O(S+E) preparation time/storage; a query may scan all surfaces and their region edges.
+ * @evidence contracts/performance.md#reuse-equivalent-work Explicit prepared arguments share completed projections/areas across queries; there is no global cache, source revision check or mutation watcher.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prepared surface collection, which retains the source space/surfaces and their vertices until discarded; no renderer or background task is acquired.
  * @author Samchon
  */
 export interface IAutoMoviePreparedSpace {
-  /**
-   * The source space this prepared index was built from.
-   *
-   * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `space` records `IAutoMoviePreparedSpace`'s source space this prepared index was built from. This ensures marks and supports resolve against their declared host geometry.
-   * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `space` supplies `IAutoMoviePreparedSpace`'s source space this prepared index was built from when the engine resolves host-relative support geometry and whole-footprint zone membership.
-   */
+  /** The source space this prepared index was built from. */
   readonly space: IAutoMovieSpace;
 
-  /**
-   * Surface footprints with precomputed convex hulls.
-   *
-   * @evidence requirements/staging/marks-zones-and-blocking.md#staging-mark-surface `surfaces` records `IAutoMoviePreparedSpace`'s surface footprints with precomputed convex hulls. This ensures marks and supports resolve against their declared host geometry.
-   * @evidence specifications/performance-motion-and-staging/staging-space-state-and-choreography.md#performance-staging-mark-surface-zone-membership `surfaces` supplies `IAutoMoviePreparedSpace`'s surface footprints with precomputed convex hulls when the engine resolves host-relative support geometry and whole-footprint zone membership.
-   */
+  /** Prepared authored rings and holes, preserving concavity rather than taking convex hulls. */
   readonly surfaces: readonly IAutoMoviePreparedSurface[];
 }

@@ -7,65 +7,51 @@ import type { createHumanViewerViewportHost } from "./createHumanViewerViewportH
 /**
  * What a body or whole-person resident is built from.
  *
- * @evidence contracts/common.md#meaningful-documentation Names every member.
- *
- * @evidence contracts/common.md#principled-implementation A document and its typed numerical port are bound to the viewport host that owns the resulting resident.
- * @evidence contracts/common.md#clear-and-simple-design Optional serialization accommodates Person text while preview and construction remain explicit product operations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The input selects the existing Body or Person operation instead of substituting a viewer-specific model.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-document A document and its typed numerical port are bound to the viewport host that owns the resulting resident.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The input selects the existing Body or Person operation instead of substituting a viewer-specific model.
+ * @evidence contracts/common.md#principled-implementation The body/person resident passes this borrowed document and viewport bindings to createConnectedBodyViewport; only operation construct requests the construction admission and rig readings.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps document serialization, numerical connection acquisition and viewport controls together without implementing a second body builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Preview does not manufacture construction admission; the adapter forwards the actual owner operation and leaves document values unchanged.
+ * @evidence contracts/common.md#meaningful-documentation Identifies preview default, serialization of paired-person text and viewport ownership; host controls retire with the resident while page renderer resources remain borrowed.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The interface erases; buildHumanViewerBodyResident pays numerical construction, GPU preparation and retained-array accounting proportional to the produced model.
+ * @evidence contracts/performance.md#reuse-equivalent-work Serialize and worker bindings are passed to one viewport; document/basis/builder equivalence and repeated-build reuse remain with its numerical and resident-cache owners.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The resident retains the supplied document and stage until release; stage close retires its acquired connection and host.release retires controls, without disposing the page renderer here.
  *
  * @author Samchon
  */
 export interface IBuildHumanViewerBodyResidentProps<Document> {
-  /**
-   * The viewport host the resident owns.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Binds the resulting Body or Person resident to the supplied viewport host's control and disposal lifetime.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Binds the resulting Body or Person resident to the supplied viewport host's control and disposal lifetime.
-   */
+  /** Resident-owned controls and resize hooks over the page's borrowed renderer, canvas and loader. */
   host: ReturnType<typeof createHumanViewerViewportHost>;
 
-  /**
-   * The body or person document.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Supplies the original typed Body or Person document to its product numerical owner without a viewer-only model schema.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Supplies the original typed Body or Person document to its product numerical owner without a viewer-only model schema.
-   */
+  /** The body or person document. */
   document: Document;
 
   /**
    * Use the existing product construct entry and retain its admission report.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Distinguishes explicit construction from the omitted preview operation without converting rejected construction into preview.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Distinguishes explicit construction from the omitted preview operation without converting rejected construction into preview.
    */
   operation?: "preview" | "construct";
 
   /**
    * The document's text form, when it is not a body basis document.
    *
-   * @evidence contracts/common.md#principled-implementation The optional encoder supplies the document text consumed by the same Body or Person numerical port.
-   * @evidence contracts/common.md#clear-and-simple-design Only document serialization varies while viewport construction remains shared.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Encoding the supplied document does not replace the numerical result or admission path.
-   * @evidence contracts/common.md#meaningful-documentation Omission retains the body document's normal serializer; Person may supply its own text form.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document The optional encoder supplies the document text consumed by the same Body or Person numerical port.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Omission retains the body document's normal serializer; Person may supply its own text form.
+   * @evidence contracts/common.md#principled-implementation The optional converter supplies the textual document used by the body protocol, allowing paired-person input while the body-basis default converter handles ordinary body documents.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps the document-to-text choice at the application binding rather than changing numerical body request types.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The converter must describe the actual supplied document; its returned string is not schema admission or a substitute model.
+   * @evidence contracts/common.md#meaningful-documentation Omission uses the viewport's existing body document converter; a custom serializer must preserve the paired document's numerical meaning.
+   * @evidence contracts/performance.md#efficient-algorithms Serialization cost and output bytes depend on document size; this signature adds no scan or copy beyond the callback's chosen converter.
+   * @evidence contracts/performance.md#reuse-equivalent-work The viewport receives the same converter for its stage; text equality alone does not establish paired basis or builder-source equivalence.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The callback and original document remain reachable through the stage until resident release; the temporary text is owned by each numerical request, with no byte cap here.
    */
   serialize?: (document: Document) => string;
 
   /**
    * Open the numerical port for this document.
    *
-   * @evidence contracts/common.md#principled-implementation The factory opens a typed Body request/result port for this resident.
-   * @evidence contracts/common.md#clear-and-simple-design Numerical lifetime is provided independently of the viewport host.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The port carries original product messages rather than a viewer-only numerical producer.
-   * @evidence contracts/common.md#meaningful-documentation The returned port belongs to this document's numerical connection and is released with its resident.
-   *
-   * @evidence requirements/actors/body-authoring/contract.md#actor-body-document The factory opens a typed Body request/result port for this resident.
-   * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The returned port belongs to this document's numerical connection and is released with its resident.
+   * @evidence contracts/common.md#principled-implementation Supplies a connection implementing ConnectedBodyRequest/Result to the viewport's numerical owner; it may wrap a browser worker or an existing checked Node session.
+   * @evidence contracts/common.md#clear-and-simple-design The factory boundary keeps transport creation outside body mesh publication and byte accounting.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A port-shaped value must implement the real protocol; this type does not replace replies, infer admission from drawing or require a fresh native worker per document.
+   * @evidence contracts/common.md#meaningful-documentation The viewport lazily acquires the port and stage.close retires that connection; native allocation policy remains with the supplied factory.
+   * @evidence contracts/performance.md#efficient-algorithms Factory acquisition is invoked by the numerical owner when required; body construction and transport costs depend on the actual document and chosen transport.
+   * @evidence contracts/performance.md#reuse-equivalent-work The stage retains its acquired connection across its requests; reuse across documents requires the factory's own protocol and source authority.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Once acquired the connection belongs to the stage's close path, including failed builds; this property itself holds only the factory reference and opens no port eagerly.
    */
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
 }

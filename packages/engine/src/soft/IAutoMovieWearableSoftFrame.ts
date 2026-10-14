@@ -2,31 +2,24 @@ import { IAutoMovieSoftNodeTransform } from "./IAutoMovieSoftNodeTransform";
 import { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPose";
 
 /**
- * Complete primary-motion snapshot for one absolute soft step.
+ * Complete node/actor primary-motion snapshot supplied at one absolute soft step.
  *
- * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Samples attachment and collision boundaries on the cloth clock.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Makes arbitrary seek consume the same immutable inputs.
+ * @evidence contracts/common.md#principled-implementation One step joins node and actor frames that must be temporally coherent before local anchors and body capsules become one cloth boundary.
+ * @evidence contracts/common.md#clear-and-simple-design Primary-motion evaluation stays with the caller, while simulateAutoMovieWearableSoftBody consumes plain snapshots rather than a playback or rendering service.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Complete zero-through-target snapshot admission refuses missing steps and named participants instead of reusing a stale prior frame.
+ * @evidence contracts/common.md#meaningful-documentation States absolute step and the evaluated node/actor populations that constitute that step's supplied frame.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A snapshot interface executes no sampling or boundary conversion; those costs belong to the producing caller and wearable resolver.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each step's snapshot can be borrowed by all its moving bindings, but this row owns no temporal cache policy.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns readonly snapshot arrays and their frame references; no viewer, motion cursor or live solver task is embedded.
+ * @author Samchon
  */
 export interface IAutoMovieWearableSoftFrame {
-  /**
-   * Absolute fixed-step index.
-   *
-   * @evidence requirements/motion/secondary-motion.md#motion-secondary-moving-boundary Aligns primary and secondary time.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-secondary-motion-boundary-choice Prevents cursor-dependent sampling.
-   */
+  /** Absolute fixed-step index. */
   step: number;
-  /**
-   * Evaluated object and platform nodes.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-anchors Supports moving non-actor attachments.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-static-moving-anchor-input Resolves node-local points before the solve.
-   */
+
+  /** Evaluated object and platform nodes. */
   nodes: readonly IAutoMovieSoftNodeTransform[];
-  /**
-   * Evaluated actors and bones.
-   *
-   * @evidence requirements/effects-and-simulation/soft-bodies-and-deformation.md#effects-soft-colliders Supplies the current body boundary.
-   * @evidence specifications/simulation-effects-and-sound/soft-bodies-and-deformation.md#soft-collider-and-solver-transition Resolves shared capsules before projection.
-   */
+
+  /** Evaluated actors and bones. */
   actors: readonly IAutoMovieWearableSoftActorPose[];
 }

@@ -6,7 +6,11 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -37,13 +41,16 @@ const skeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const LEG = {
-  foot: "leftFoot",
-  upper: "leftUpperLeg",
-  lower: "leftLowerLeg",
-} as const;
+const LEG: NonNullable<Parameters<typeof plantStanceFeet>[0]["legs"]>[number] =
+  {
+    foot: "leftFoot",
+    upper: "leftUpperLeg",
+    lower: "leftLowerLeg",
+  } as const;
 
-const motion = (peakY: number): IAutoMovieMotion => ({
+const motion: (peakY: number) => IAutoMovieMotion = (
+  peakY: number,
+): IAutoMovieMotion => ({
   id: "bob",
   skeleton: "leg",
   duration: 1,
@@ -74,18 +81,21 @@ const motion = (peakY: number): IAutoMovieMotion => ({
 });
 
 /**
- * The pass detects stance runs, not the whole clip: a foot that lifts off the
- * ground in a swing splits the stance into runs on either side, and a foot that
- * never touches down is never planted.
+ * Observe detected stance-run counts for a mid-clip lift versus an always-airborne foot. The unit counts compact plants and does not separately inspect whether swing articulation remains unchanged.
  *
  * Scenarios:
  *
  * 1. A foot that lifts mid-clip and lands again yields two stance runs (the middle
- *    swing frames are left untouched).
+ *    swing separates the two detected contact populations).
  * 2. A foot lifted clear of the ground for the whole clip yields no runs.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls plantStanceFeet for the authored rise-and-land clip and for a constantly lifted clip, then observes two runs versus no run in the product's plant records.
+ * @evidence contracts/testing.md#independent-expectations The local rest offsets cancel to foot y=0. At 4 Hz the 0.5-metre triangular lift leaves only endpoint samples within 0.02 of ground, producing two isolated runs; root y=1 throughout never meets that threshold. Literal counts are authored independently of contactMask and pinStanceTargets.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves lift-then-land versus permanently airborne, sample rate 4, zero plane and 0.02 tolerance. Exact run timestamps, swing-pose preservation and corrected coordinates are not asserted here and belong to other planting checks.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both direct planting calls with local rig/motion data. Private constructors register no additional cases and start no viewer, process or native artifact.
  */
-export const test_motion_plant_feet_swing = (): void => {
-  const swung = plantStanceFeet({
+export function test_motion_plant_feet_swing(): void {
+  const swung: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton,
     motion: motion(0.5),
     groundY: 0,
@@ -117,7 +127,7 @@ export const test_motion_plant_feet_swing = (): void => {
       },
     ],
   };
-  const airborne = plantStanceFeet({
+  const airborne: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton,
     motion: lifted,
     groundY: 0,
@@ -130,4 +140,4 @@ export const test_motion_plant_feet_swing = (): void => {
     airborne.plants.length,
     0,
   );
-};
+}

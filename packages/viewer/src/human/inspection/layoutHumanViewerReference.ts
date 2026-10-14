@@ -2,38 +2,22 @@ import type { IHumanViewerReferenceBox } from "./IHumanViewerReferenceBox.js";
 import type { IHumanViewerReferenceLayer } from "./IHumanViewerReferenceLayer.js";
 import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.js";
 
-
 /**
- * The pixel layout of a capture that shows a reference photograph beside or
- * over the render. The display page draws the photograph as a DOM layer above
- * the canvas, so the canvas alone never contains it. This layout is the same
- * composition in pixels, so a PNG captured for `ref` shows what the page shows.
- * Units are capture pixels. The photograph is fitted inside its square cell
- * without cropping, centred, as CSS `object-fit: contain` places it. `split`
- * widens the capture to two cells with the render left and the photograph
- * right. `overlay` draws the photograph over the render at opacity
- * `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows
- * the photograph only right of the `opacity` fraction of the width.
- * Landmarks are observed on the photograph in unit image coordinates, so each
- * marker lands inside the photograph's fitted box, whichever mode places it.
- * The plan reads no image bytes and records no file name or path.
+ * The pixel layout of a capture that shows a reference photograph beside or over the render. The display page draws the photograph as a DOM layer above the canvas, so the canvas alone never contains it. This layout is the same composition in pixels, so a PNG captured for `ref` shows what the page shows. Units are capture pixels. The photograph is fitted inside its square cell without cropping, centred, as CSS `object-fit: contain` places it. `split` widens the capture to two cells with the render left and the photograph right. `overlay` draws the photograph over the render at opacity `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows the photograph only right of the `opacity` fraction of the width. Landmarks are observed on the photograph in unit image coordinates, so each marker lands inside the photograph's fitted box, whichever mode places it. The plan reads no image bytes and records no file name or path.
  *
- * @evidence contracts/common.md#principled-implementation Contain-fitting is the uniform scale min(cell/width, cell/height); the other geometry follows from the three closed modes.
- * @evidence contracts/common.md#clear-and-simple-design One pure layout serves the page capture and its unit test.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No document, photograph or subject is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States why the canvas lacks the photograph, the units and each mode.
- * @evidence contracts/modeling.md#spatial-conventions Capture pixels with a top-left origin; the only conversion is the contain-fit of the photograph into its cell.
+ * @evidence contracts/common.md#principled-implementation Aspect-preserving contain placement and the declared split/overlay/swipe layer rules derive pixel boxes, clips and photograph-coordinate markers without changing numerical geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Shared fitted/place helpers produce one render layer and one photo layer with explicit alpha/clip semantics for each presentation mode.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonpositive sizes and out-of-range opacity refuse; only supplied landmark coordinates are projected and image paths/bytes cannot enter the public layout.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines capture-pixel units, contain fitting, render-share opacity, swipe clipping and observed unit-image landmark placement.
+ * @evidence contracts/performance.md#efficient-algorithms Box/layer work is fixed arithmetic and marker placement traverses supplied landmarks once, without pixel decoding or image sampling.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same layout owner serves screen and PNG composition so their fitted coordinates share one calculation rather than separately cached geometry.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Two layer descriptions and one marker per supplied landmark remain in the result; no image, canvas or filesystem resource is retained by the planner.
  *
  * @param mode Presentation mode.
  * @param size Square cell side in pixels, positive.
  * @param opacity Render share in overlay mode, swipe position in swipe mode, between zero and one.
  * @param photo Natural photograph size in pixels, both positive.
  * @param landmarks Observed landmarks in unit image coordinates, empty for none.
- * @evidence contracts/modeling.md#part-identity-and-grouping An ordered render layer and photograph layer own the two image sources; landmark group labels are preserved rather than inventing new observed points.
- * @evidence contracts/modeling.md#parameter-channels Cell size controls pixel extent; mode selects split/overlay/swipe; opacity is render share for overlay and the horizontal cut fraction for swipe.
- * @evidence contracts/modeling.md#emitted-geometry Every mode plans two image rectangles plus one marker per supplied landmark, so the population follows the observed input instead of a subject catalogue.
- * @evidence contracts/modeling.md#shared-boundaries The same contain-fitted photograph rectangle owns photo placement and landmark conversion, and swipe clip coordinates derive from the same cell width and opacity fraction.
- * @evidence contracts/modeling.md#rendered-observation This pure pixel plan owns no painted surface; the shared canvas painter and visible DOM comparison own display observation and consume these exact rectangles and markers.
  */
 export function layoutHumanViewerReference(
   mode: "split" | "overlay" | "swipe",
@@ -52,24 +36,33 @@ export function layoutHumanViewerReference(
     throw new Error("Reference layout needs positive sizes");
   if (!(opacity >= 0 && opacity <= 1))
     throw new Error("Reference opacity must lie between zero and one");
-  const scale = Math.min(size / photo.width, size / photo.height);
-  const w = photo.width * scale;
-  const h = photo.height * scale;
-  const fitted = (left: number): IHumanViewerReferenceBox => ({
+  const scale: number = Math.min(size / photo.width, size / photo.height);
+  const w: number = photo.width * scale;
+  const h: number = photo.height * scale;
+  const fitted: (left: number) => IHumanViewerReferenceBox = (
+    left: number,
+  ): IHumanViewerReferenceBox => ({
     x: left + (size - w) / 2,
     y: (size - h) / 2,
     w,
     h,
   });
-  const cell = { x: 0, y: 0, w: size, h: size };
-  const place = (left: number) => {
-    const box = fitted(left);
+  const cell: IHumanViewerReferenceBox = { x: 0, y: 0, w: size, h: size };
+  const place: (left: number) => {
+    markers: IHumanViewerReferenceMarker[];
+    markerRadius: number;
+  } = (
+    left: number,
+  ): { markers: IHumanViewerReferenceMarker[]; markerRadius: number } => {
+    const box: IHumanViewerReferenceBox = fitted(left);
     return {
-      markers: landmarks.map((point) => ({
-        x: box.x + point.x * box.w,
-        y: box.y + point.y * box.h,
-        group: point.group,
-      })),
+      markers: landmarks.map(
+        (point: (typeof landmarks)[number]): IHumanViewerReferenceMarker => ({
+          x: box.x + point.x * box.w,
+          y: box.y + point.y * box.h,
+          group: point.group,
+        }),
+      ),
       markerRadius: Math.max(2, size * 0.004),
     };
   };

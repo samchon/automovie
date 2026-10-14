@@ -1,13 +1,17 @@
-import type { IAutoMoviePropSupportFace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMoviePropBox,
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 
+import type { IAutoMoviePropSupportFace } from "../../../../packages/engine/src/film/IAutoMoviePropSupportFace";
 import type { IFilmPropPatchInput } from "./IFilmPropPatchInput";
 
-/** Shared original environment and geometric readers for placement utility assertion groups. */
+/**
+ * Shared original environment and geometric readers for placement utility assertion groups; the entry retains ownership of its isolated mutable fixtures and asserted expectations.
+ *
+ * @author Samchon
+ */
 export interface IFilmPropUtilityInputs {
   /** The original room graph being queried. */
   environment: IAutoMovieBuiltEnvironment;

@@ -1,7 +1,7 @@
 {
   "name": "automovie",
   "version": "0.1.0",
-  "description": "Scaffold and inspect a coding-agent-first AutoMovie production repository.",
+  "description": "Scaffold a coding-agent-first AutoMovie production repository.",
   "main": "src/index.ts",
   "bin": {
     "automovie": "lib/bin.js"
@@ -14,8 +14,7 @@
     "build": "rimraf lib && ttsc",
     "start": "ttsx src/bin.ts",
     "prepack": "pnpm run build",
-    "evidence": "evidence && pnpm run evidence:guards",
-    "evidence:guards": "ttsc --noEmit -p tsconfig.evidence.json"
+    "evidence": "evidence"
   },
   "keywords": [
     "automovie",
@@ -31,7 +30,13 @@
     "type": "git",
     "url": "https://github.com/samchon/automovie"
   },
-  "files": ["lib", "src", "package.json", "LICENSE", "README.md"],
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
   "publishConfig": {
     "access": "public",
     "main": "lib/index.js",
@@ -48,11 +53,6 @@
     }
   },
   "dependencies": {
-    "@automovie/engine": "workspace:^",
-    "@automovie/evidence": "workspace:^",
-    "@automovie/ingest": "workspace:^",
-    "@automovie/interface": "workspace:^",
-    "@automovie/production": "workspace:^",
     "@automovie/template": "workspace:^"
   },
   "devDependencies": {

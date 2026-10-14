@@ -1,7 +1,10 @@
 /**
- * How reachability is traversed from a system's root.
+ * Direction in which network reachability is traversed from a declared system root.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `AutoMovieServiceFlow` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `AutoMovieServiceFlow` for the interior space service network contract system contract.
+ * @evidence contracts/common.md#principled-implementation serviceSystemReach walks forward adjacency for from-root, backward for to-root and both for undirected; load reads the demand-bearing end appropriate to that direction.
+ * @evidence contracts/common.md#clear-and-simple-design Three graph traversal choices express supply, return and ring topology without implying a physical flow solver.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Root orientation is explicit and not inferred from discipline or port order; declaration reachability is distinct from closed-valve operating reach.
+ * @evidence contracts/common.md#meaningful-documentation Defines forward, reverse and bidirectional root traversal semantics.
+ * @author Samchon
  */
 export type AutoMovieServiceFlow = "from-root" | "to-root" | "undirected";

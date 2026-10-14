@@ -10,6 +10,14 @@
  * incidence, geometry or anatomical validity. Producers own those facts and
  * supply the same instance/registration to all parts intended to share points.
  * It consumes primitive strings and retains no caller-owned mutable state.
+ *
+ * @evidence contracts/common.md#principled-implementation JSON-encodes exact nonblank instance/registration strings as an injective tuple, escaping delimiters without trimming admitted identities.
+ * @evidence contracts/common.md#clear-and-simple-design Owns domain spelling only; producers own actual source registration, incidence and anatomical admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Generation alone cannot identify separate figures, and a formatted domain is not geometry or compatibility proof.
+ * @evidence contracts/common.md#meaningful-documentation Documents nonblank refusal, exact identity spelling and the formatter's qualification limits.
+ * @evidence contracts/performance.md#efficient-algorithms For L identity characters, blank checks and escaped tuple output cost O(L) time/space.
+ * @evidence contracts/performance.md#reuse-equivalent-work Body/face producers share deterministic formatting, without a cache or retained mutable registration.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string belongs to its producer; fixed tuple/temporary strings retain no source geometry or resource.
  */
 export function humanPhysicalSourceDomain(
   instance: string,

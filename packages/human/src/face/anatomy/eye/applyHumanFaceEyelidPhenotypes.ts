@@ -1,6 +1,12 @@
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFaceEyelidPhenotype } from "../../structures/IAutoMovieHumanFaceEyelidPhenotype";
 import type { IAutoMovieHumanFaceEyelidPhenotypes } from "../../structures/IAutoMovieHumanFaceEyelidPhenotypes";
+import type { IAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMovieHumanFaceOpticalSupport";
+import type { IAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
 
 /**
  * Convert resting visible crease and hood traits on the actual source skin.
@@ -17,6 +23,14 @@ import type { IAutoMovieHumanFaceEyelidPhenotypes } from "../../structures/IAuto
  * This is authored prototype morphology on a coarse source cage. Geometry
  * sampling and actual assembled admission limit supported combinations; these
  * rules do not establish clinical fold anatomy or a personal reconstruction.
+ *
+ * @evidence contracts/common.md#principled-implementation Named crease/hood controls deform the actual source-registered lid station rows with canthal fade while preserving seam aliases.
+ * @evidence contracts/common.md#clear-and-simple-design Omission returns the existing position map; supplied sides clone only affected buffers and use the canonical cage/optical frame owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Conflicting single-crease/height/overlap requests and unrepresentable outputs refuse; authored phenotype controls are not clinical inference.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes millimetre profile fields, omitted controls, source aliases and authored rest-identity meaning.
+ * @evidence contracts/performance.md#efficient-algorithms Affected station columns and source aliases drive work; cage admission and optical chart resolution are included rather than counted as free.
+ * @evidence contracts/performance.md#reuse-equivalent-work One side's resolved frame and source-alias mapping serve its affected rows; unchanged surfaces remain shared without mutation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owned changed buffers escape in the returned map; temporary charts/alias tables expire, and no prior pose or external resource is retained.
  */
 export function applyHumanFaceEyelidPhenotypes(
   basis: IAutoMovieHumanFaceBasis,
@@ -24,9 +38,9 @@ export function applyHumanFaceEyelidPhenotypes(
   input: IAutoMovieHumanFaceEyelidPhenotypes | undefined,
 ): ReadonlyMap<string, readonly number[]> {
   if (input === undefined) return positions;
-  const result = new Map(positions);
+  const result: Map<string, readonly number[]> = new Map(positions);
   for (const side of ["left", "right"] as const) {
-    const profile = input[side];
+    const profile: IAutoMovieHumanFaceEyelidPhenotype | undefined = input[side];
     if (profile === undefined) continue;
     if (
       profile.crease === undefined &&
@@ -44,17 +58,24 @@ export function applyHumanFaceEyelidPhenotypes(
       );
     if (profile.crease === "inset" && profile.hoodOverlapMm === undefined)
       throw new Error("Inset creasing needs its explicit hood overlap.");
-    const cage = basis.periocular?.[side].cage;
-    const support = basis.opticalSupport?.find(
-      (entry) => entry.owner === (side === "left" ? "leftEye" : "rightEye"),
-    );
-    const skin = cage === undefined ? undefined : result.get(cage.surface);
-    const optical =
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined =
+      basis.periocular?.[side].cage;
+    const support: IAutoMovieHumanFaceOpticalSupport | undefined =
+      basis.opticalSupport?.find(
+        (entry: IAutoMovieHumanFaceOpticalSupport): boolean =>
+          entry.owner === (side === "left" ? "leftEye" : "rightEye"),
+      );
+    const skin: readonly number[] | undefined =
+      cage === undefined ? undefined : result.get(cage.surface);
+    const optical: readonly number[] | undefined =
       support === undefined ? undefined : result.get(support.surface);
-    const host =
+    const host: IAutoMovieHumanFaceBasisSurface | undefined =
       cage === undefined
         ? undefined
-        : basis.surfaces.find((surface) => surface.id === cage.surface);
+        : basis.surfaces.find(
+            (surface: IAutoMovieHumanFaceBasisSurface): boolean =>
+              surface.id === cage.surface,
+          );
     if (
       cage === undefined ||
       support === undefined ||
@@ -67,26 +88,36 @@ export function applyHumanFaceEyelidPhenotypes(
           side,
       );
     assertHumanFacePeriocularCage(basis, cage);
-    const row = (role: string): readonly number[] => {
-      const value = cage.stations.find((station) => station.role === role);
+    const row: (role: string) => readonly number[] = (
+      role: string,
+    ): readonly number[] => {
+      const value: IAutoMovieHumanFacePeriocularStation | undefined =
+        cage.stations.find(
+          (station: IAutoMovieHumanFacePeriocularStation): boolean =>
+            station.role === role,
+        );
       if (value === undefined)
         throw new Error("Lid morphology needs its source row: " + role);
       return value.vertices;
     };
-    const chart = support.anterior;
-    const x = chart.triangle.reduce(
-      (sum, vertex, at) =>
+    const chart: IAutoMovieHumanFaceOpticalSupportAnterior = support.anterior;
+    const x: number = chart.triangle.reduce(
+      (sum: number, vertex: number, at: number): number =>
         sum +
         optical[3 * vertex] * [1 - chart.u - chart.v, chart.u, chart.v][at],
       0,
     );
-    const height = (vertices: readonly number[]): number => {
-      const chain = cage.upperColumns.map((column) => vertices[column]);
-      for (let at = 1; at < chain.length; at++) {
-        const a = chain[at - 1],
-          b = chain[at];
-        const xa = skin[3 * a],
-          xb = skin[3 * b];
+    const height: (vertices: readonly number[]) => number = (
+      vertices: readonly number[],
+    ): number => {
+      const chain: number[] = cage.upperColumns.map(
+        (column: number): number => vertices[column],
+      );
+      for (let at: number = 1; at < chain.length; at++) {
+        const a: number = chain[at - 1],
+          b: number = chain[at];
+        const xa: number = skin[3 * a],
+          xb: number = skin[3 * b];
         if ((xa - x) * (xb - x) > 0 || xa === xb) continue;
         return (
           skin[3 * a + 1] +
@@ -97,20 +128,22 @@ export function applyHumanFaceEyelidPhenotypes(
         "Lid morphology chart misses its source row vertical: " + side,
       );
     };
-    const crease = row("crease"),
-      hood = row("hood"),
-      pretarsal = row("pretarsal");
-    const marginHeight = height(row("posteriorMargin"));
-    const currentHeight = height(crease) - marginHeight;
-    let chartFade = 0,
-      hoodChartFade = 0;
-    const fadeAt = (vertices: readonly number[]): number => {
-      const columns = cage.upperColumns;
-      for (let at = 1; at < columns.length; at++) {
-        const xa = skin[3 * vertices[columns[at - 1]]],
-          xb = skin[3 * vertices[columns[at]]];
+    const crease: readonly number[] = row("crease"),
+      hood: readonly number[] = row("hood"),
+      pretarsal: readonly number[] = row("pretarsal");
+    const marginHeight: number = height(row("posteriorMargin"));
+    const currentHeight: number = height(crease) - marginHeight;
+    let chartFade: number = 0,
+      hoodChartFade: number = 0;
+    const fadeAt: (vertices: readonly number[]) => number = (
+      vertices: readonly number[],
+    ): number => {
+      const columns: number[] = cage.upperColumns;
+      for (let at: number = 1; at < columns.length; at++) {
+        const xa: number = skin[3 * vertices[columns[at - 1]]],
+          xb: number = skin[3 * vertices[columns[at]]];
         if ((xa - x) * (xb - x) > 0 || xa === xb) continue;
-        const t = (x - xa) / (xb - xa);
+        const t: number = (x - xa) / (xb - xa);
         return (
           Math.sin((Math.PI * (at - 1)) / (columns.length - 1)) * (1 - t) +
           Math.sin((Math.PI * at) / (columns.length - 1)) * t
@@ -126,12 +159,12 @@ export function applyHumanFaceEyelidPhenotypes(
       throw new Error(
         "Lid morphology source chart lies on a fixed canthal join.",
       );
-    const maximumHeight = height(row("preseptal")) - marginHeight;
-    const requestedHeight =
+    const maximumHeight: number = height(row("preseptal")) - marginHeight;
+    const requestedHeight: number =
       profile.creaseHeightMm === undefined
         ? currentHeight
         : profile.creaseHeightMm / 1000;
-    const overlap = (profile.hoodOverlapMm ?? 0) / 1000;
+    const overlap: number = (profile.hoodOverlapMm ?? 0) / 1000;
     if (
       !(requestedHeight > 0) ||
       !Number.isFinite(requestedHeight) ||
@@ -143,28 +176,34 @@ export function applyHumanFaceEyelidPhenotypes(
       throw new Error(
         "Lid morphology exceeds its actual source row spacing: " + side,
       );
-    const aliases = new Map<number, number[]>();
-    host.sourcePartition.samples.forEach((sample, vertex) => {
-      const group = aliases.get(sample) ?? [];
-      group.push(vertex);
-      aliases.set(sample, group);
-    });
-    const changed = [...skin];
-    const hoodShift = marginHeight + requestedHeight - overlap - height(hood);
-    for (let at = 1; at + 1 < cage.upperColumns.length; at++) {
-      const column = cage.upperColumns[at];
-      const fade = Math.sin((Math.PI * at) / (cage.upperColumns.length - 1));
-      const vertex = crease[column];
-      let anteriorShift = 0;
+    const aliases: Map<number, number[]> = new Map<number, number[]>();
+    host.sourcePartition.samples.forEach(
+      (sample: number, vertex: number): void => {
+        const group: number[] = aliases.get(sample) ?? [];
+        group.push(vertex);
+        aliases.set(sample, group);
+      },
+    );
+    const changed: number[] = [...skin];
+    const hoodShift: number =
+      marginHeight + requestedHeight - overlap - height(hood);
+    for (let at: number = 1; at + 1 < cage.upperColumns.length; at++) {
+      const column: number = cage.upperColumns[at];
+      const fade: number = Math.sin(
+        (Math.PI * at) / (cage.upperColumns.length - 1),
+      );
+      const vertex: number = crease[column];
+      let anteriorShift: number = 0;
       if (profile.crease === "single") {
-        const lower = pretarsal[column],
-          upper = hood[column];
-        const span = skin[3 * upper + 1] - skin[3 * lower + 1];
+        const lower: number = pretarsal[column],
+          upper: number = hood[column];
+        const span: number = skin[3 * upper + 1] - skin[3 * lower + 1];
         if (!(span > 0))
           throw new Error(
             "Single crease morphology needs ordered pretarsal and hood source heights.",
           );
-        const fraction = (skin[3 * vertex + 1] - skin[3 * lower + 1]) / span;
+        const fraction: number =
+          (skin[3 * vertex + 1] - skin[3 * lower + 1]) / span;
         anteriorShift =
           skin[3 * lower + 2] +
           fraction * (skin[3 * upper + 2] - skin[3 * lower + 2]) -
@@ -181,7 +220,11 @@ export function applyHumanFaceEyelidPhenotypes(
         )!)
           changed[3 * alias + 1] += (hoodShift * fade) / hoodChartFade;
     }
-    if (!changed.every((value) => Number.isFinite(Math.fround(value))))
+    if (
+      !changed.every((value: number): boolean =>
+        Number.isFinite(Math.fround(value)),
+      )
+    )
       throw new Error(
         "Lid morphology exceeds finite Float32 source coordinates.",
       );

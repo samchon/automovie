@@ -1,48 +1,35 @@
 import type { Browser, Page } from "playwright";
 
 /**
- * What the renderer observer watches and whom it tells. `failed` receives a
- * cause and whether the renderer has physically stopped; only a physical stop
- * may release captures that were already dispatched to it.
+ * Borrowed renderer observation capabilities and the residency failure notification. The boolean reports terminal lifecycle settlement from Playwright/CDP, not measured operating-system process exit or physical GPU reclamation; residency uses that host report to settle dispatched capture ownership.
  *
- * @evidence contracts/common.md#principled-implementation Separates physical renderer settlement from uncertain transport loss in the callback contract.
- * @evidence contracts/common.md#meaningful-documentation States what each member supplies.
- *
- * @evidence contracts/common.md#clear-and-simple-design Borrowed browser and page projections expose only the lifecycle events needed to correlate the owned renderer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Physical-settlement evidence comes from actual lifecycle events, never inferred solely from a lost transport connection.
- *
- * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Separates physical renderer settlement from uncertain transport loss in the callback contract.
- * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Physical-settlement evidence comes from actual lifecycle events, never inferred solely from a lost transport connection.
+ * @evidence contracts/common.md#principled-implementation Borrowed browser/page capabilities correlate terminal lifecycle signals with the resident page; failed distinguishes a cause from host-reported settlement without asserting independent OS or GPU observation.
+ * @evidence contracts/common.md#clear-and-simple-design The observer receives only the browser/page operations it uses plus one failure callback, keeping recovery with residency.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Inspector detachment is not itself terminal settlement, and even accepted browser/page/CDP terminal reports do not measure physical process or GPU termination.
+ * @evidence contracts/common.md#meaningful-documentation Defines the resident page, borrowed lifecycle observer and the host-report limit behind capture ownership settlement.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The options declaration implements no CDP event matching; observeHumanViewerRendererTarget performs that correlation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Options carry borrowed observer capabilities rather than a shared observation cache or renderer-recovery result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Browser and page ownership remain with residency; the observer acquires subscriptions and returns its own disposal function.
  *
  * @author Samchon
  */
 export interface IHumanViewerRendererTargetOptions {
-  /**
-   * Browser whose root session reports target lifecycle events.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Borrows the owning browser's actual root lifecycle event surface without modifying its methods.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Borrows the owning browser's actual root lifecycle event surface without modifying its methods.
-   */
+  /** Browser whose root session reports target lifecycle events. */
   browser: Pick<Browser, "newBrowserCDPSession" | "on" | "off" | "isConnected">;
 
-  /**
-   * The one resident page whose renderer is observed.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Correlates lifecycle observation with the exact resident page rather than an unrelated Chromium target.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement Correlates lifecycle observation with the exact resident page rather than an unrelated Chromium target.
-   */
+  /** The one resident page whose renderer is observed. */
   page: Pick<Page, "context" | "on" | "off">;
 
   /**
-   * Called with the cause and whether the renderer physically stopped.
+   * Called with the cause and whether the host reported terminal renderer/page lifecycle settlement. The retained parameter name does not imply independently observed OS or GPU termination.
    *
-   * @evidence contracts/common.md#principled-implementation Actual target lifecycle evidence reports both failure cause and physical settlement.
-   * @evidence contracts/common.md#clear-and-simple-design The observer reports evidence while the capture lifetime owner decides release.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A lost CDP transport alone cannot certify that dispatched renderer work stopped.
-   * @evidence contracts/common.md#meaningful-documentation The boolean distinguishes physical stop from uncertain transport loss.
-   *
-   * @evidence requirements/operations-and-recovery/cancellation-and-interruption.md#operations-safe-interruption-point Actual target lifecycle evidence reports both failure cause and physical settlement.
-   * @evidence specifications/execution-and-recovery/cancellation-timeout-and-preemption.md#execution-safe-point-acknowledgement The boolean distinguishes physical stop from uncertain transport loss.
+   * @evidence contracts/common.md#principled-implementation Conveys the renderer failure and the observer's terminal Playwright/CDP report; residency decides capture settlement and recovery from that host authority.
+   * @evidence contracts/common.md#clear-and-simple-design Recovery is delegated to the residency owner instead of being coupled to individual CDP event handlers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither detached inspection nor the accepted terminal host report is physical GPU/OS termination measurement; no inferred physical allocation release is supplied.
+   * @evidence contracts/common.md#meaningful-documentation Documents the cause, host-reported terminal condition and the physical-observation limitation despite the historical parameter name.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This notification signature selects no recovery algorithm; residency serializes replacement of the owned page.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Failure reports are notifications, while residency independently suppresses duplicate recovery of the same failed page.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Residency may settle dispatched capture ownership under a true terminal host report; false keeps it outstanding until awaited page-close completion or later terminal notification, and neither measures native memory release.
    */
   failed: (cause: string, physicalSettled: boolean) => void;
 }

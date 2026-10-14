@@ -4,69 +4,35 @@ import type { ConnectedFaceResult } from "@automovie/human/face/runtime/Connecte
 /**
  * One original product result, error or document-admission response.
  *
- * @evidence contracts/common.md#principled-implementation Correlated product values, admission verdicts and execution errors preserve the original numerical owner's alternatives.
- * @evidence contracts/common.md#clear-and-simple-design One request id scopes optional result fields without adding a second model schema.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A refused or failed computation retains its cause and does not substitute a cached preview.
- * @evidence contracts/common.md#meaningful-documentation Missing value denotes no model result; null admission reason belongs to the owner's accepted document outcome.
+ * @evidence contracts/common.md#principled-implementation Correlates original product preview/construct/export results, document-only admission or named failure with one numerical request id.
+ * @evidence contracts/common.md#clear-and-simple-design Optional reply alternatives let the transport preserve existing domain outputs without fabricating a preview for a rejected construction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The plain interface does not enforce alternative consistency; the page requires actual success/value or admission/reason and rejects incompatible replies.
+ * @evidence contracts/common.md#meaningful-documentation Documents original operation/value, null owner-admission reason and completed runtime milliseconds rather than planned work.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This shape performs no build; advanced IPC/devalue serialization scale with produced output and domain owners measure runtime work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Correlation removes the exact pending request; a reply from a retired/unknown id cannot settle a different display's work.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Pending maps retire on reply/failure and the returned model lives with viewport/resident ownership; the envelope owns no extra numerical realm.
  *
- * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Correlated product values, admission verdicts and execution errors preserve the original numerical owner's alternatives.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant A refused or failed computation retains its cause and does not substitute a cached preview.
  * @author Samchon
  */
 export interface IHumanViewerNumericalReply {
-  /**
-   * Request correlation within one owned numerical realm.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Correlates the original product reply with its request in the same owned numerical realm.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Correlates the original product reply with its request in the same owned numerical realm.
-   */
+  /** Request correlation within one owned numerical realm. */
   id: number;
 
-  /**
-   * A successful build retains the original operation and complete value.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Preserves the original numerical outcome without treating missing output as a successful preview.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Preserves the original numerical outcome without treating missing output as a successful preview.
-   */
+  /** A successful build retains the original operation and complete value. */
   success?: boolean;
 
-  /**
-   * Original preview or construct; no rejected draft becomes a preview.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Carries the original complete Face or Body/Person product value rather than a viewer-only replacement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Carries the original complete Face or Body/Person product value rather than a viewer-only replacement.
-   */
+  /** Original preview or construct; no rejected draft becomes a preview. */
   value?: ConnectedFaceResult | ConnectedBodyResult;
 
-  /**
-   * Completed runtime cost, not an admission estimate.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Reports actually completed worker cost rather than an admission or remaining-time estimate.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Reports actually completed worker cost rather than an admission or remaining-time estimate.
-   */
+  /** Completed runtime cost, not an admission estimate. */
   buildMs?: number;
 
-  /**
-   * Original document-only admission alternative.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Keeps document-only admission replies distinct from model-producing operations.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Keeps document-only admission replies distinct from model-producing operations.
-   */
+  /** Original document-only admission alternative. */
   admission?: boolean;
 
-  /**
-   * Original admission reason; null means admitted by that owner.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Preserves the original domain admission refusal, with null for that owner's accepted outcome.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Preserves the original domain admission refusal, with null for that owner's accepted outcome.
-   */
+  /** Original admission reason; null means admitted by that owner. */
   reason?: string | null;
 
-  /**
-   * Failed execution reason, without a manufactured numerical value.
-   *
-   * @evidence requirements/agent-authoring/roles-and-authorities.md#agent-runtime-authority Reports actual execution failure without supplying a fabricated numerical value.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-runtime-evidence-authority-invariant Reports actual execution failure without supplying a fabricated numerical value.
-   */
+  /** Failed execution reason, without a manufactured numerical value. */
   error?: string;
 }

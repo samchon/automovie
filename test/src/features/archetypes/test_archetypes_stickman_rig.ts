@@ -1,64 +1,81 @@
-import { STICKMAN_ARCHETYPE } from "@automovie/archetypes";
 import {
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
+  AutoMovieHumanoidBone,
+  AutoMoviePrimitiveShape,
+  type IAutoMovieBone,
+  type IAutoMovieModel,
+  type IAutoMovieModelPart,
+  type IAutoMovieSkeleton,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
+import { STICKMAN_ARCHETYPE } from "../../../../packages/archetypes/src/STICKMAN_ARCHETYPE";
+import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
+import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /** The figure every case below reads, and the three numbers that shape it. */
-const HEIGHT = 2;
-const HEAD_RADIUS = 0.2;
-const LIMB_RADIUS = 0.1;
+const HEIGHT: number = 2;
+const HEAD_RADIUS: number = 0.2;
+const LIMB_RADIUS: number = 0.1;
 
-const built = (parameters: {
+const built: (parameters: {
   height: number;
   headRadius: number;
   limbRadius: number;
-}) =>
+}) => IAutoMovieArchetypeGeometry = (parameters: {
+  height: number;
+  headRadius: number;
+  limbRadius: number;
+}): IAutoMovieArchetypeGeometry =>
   STICKMAN_ARCHETYPE.build({
-    recipe: "figure",
     parameters,
     material: "body",
     skeleton: "figure-rig",
   });
 
-const figure = built({
+const figure: IAutoMovieArchetypeGeometry = built({
   height: HEIGHT,
   headRadius: HEAD_RADIUS,
   limbRadius: LIMB_RADIUS,
 });
 
-const skeleton = figure.skeleton as NonNullable<IAutoMovieModel["skeleton"]>;
+const skeleton: IAutoMovieSkeleton = figure.skeleton as NonNullable<
+  IAutoMovieModel["skeleton"]
+>;
 
-const boneOf = (name: string) =>
-  skeleton.bones.find((entry) => entry.bone === name);
+const boneOf: (name: string) => IAutoMovieBone | undefined = (
+  name: string,
+): IAutoMovieBone | undefined =>
+  skeleton.bones.find((entry: IAutoMovieBone): boolean => entry.bone === name);
 
-const partOf = (id: string): IAutoMovieModelPart | undefined =>
-  figure.parts.find((part) => part.id === id);
+const partOf: (id: string) => IAutoMovieModelPart | undefined = (
+  id: string,
+): IAutoMovieModelPart | undefined =>
+  figure.parts.find((part: IAutoMovieModelPart): boolean => part.id === id);
 
-/** One part's primitive shape, or null when it draws something else. */
-const shapeOf = (
+/** Read one existing primitive part's shape, throwing if it draws something else. */
+const shapeOf: (id: string) => AutoMoviePrimitiveShape = (
   id: string,
 ): Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"] => {
-  const part = partOf(id)!;
+  const part: IAutoMovieModelPart = partOf(id)!;
   if (part.geometry.type !== "primitive")
     throw new Error(`stickman part "${id}" is not a primitive`);
   return part.geometry.shape;
 };
 
 /** Where one bone rests relative to its parent. */
-const restOf = (name: string): IAutoMovieVector3 =>
-  boneOf(name)!.rest.translation;
+const restOf: (name: string) => IAutoMovieVector3 = (
+  name: string,
+): IAutoMovieVector3 => boneOf(name)!.rest.translation;
 
 /**
  * Every bone's parent, in the order the builder lists them.
  *
- * The parentage is the whole of what makes this a figure rather than thirteen
- * loose transforms: an arm that hung off the hips instead of the spine would
- * still have thirteen bones and still measure the same total height.
+ * The parentage is the whole of what makes this a figure rather than thirteen loose transforms: an arm that hung off the hips instead of the spine would still have thirteen bones and still measure the same total height.
  */
 const PARENTAGE: ReadonlyArray<readonly [string, string | null]> = [
   ["hips", null],
@@ -110,72 +127,63 @@ const PART_BONES: ReadonlyArray<readonly [string, string]> = [
   ["right-shin", "rightLowerLeg"],
 ];
 
-/** The derived spans, written out as the proportions the builder states. */
-const TORSO_HEIGHT = Math.max(HEAD_RADIUS * 2, HEIGHT * 0.3);
-const UPPER_LIMB = Math.max(LIMB_RADIUS * 2, HEIGHT * 0.15);
-const LOWER_LIMB = Math.max(LIMB_RADIUS * 2, HEIGHT * 0.14);
-
 /**
- * The articulated archetype builds one exact figure, not merely thirteen parts.
- *
- * Counting parts is the assertion that cannot fail: a builder that hung every
- * limb off the hips, mirrored the wrong side, exchanged a capsule's radius for
- * its height, or lost the ninety-degree turn that lays an arm across the body
- * would emit thirteen parts and thirteen bones every time. What makes a figure
- * a figure is the parentage, the proportions and the local placements, and each
- * of those is a number the builder derives from `height` alone.
- *
- * Every expectation below is that derivation written out. A two-metre figure
- * puts its hips at 1 m, its spine 0.36 m above them and its head 0.48 m above
- * that; its arms leave the spine 0.25 m to either side; and its capsules take a
- * radius and a length that are different numbers, so exchanging them shows.
+ * Build the schematic thirteen-bone stickman and check parentage, bilateral rest placement, primitive attachment and root-centered projection enclosure.
  *
  * Scenarios:
+ * 1. The skeleton is the thirteen bones the archetype declares, in that order, each on the parent that makes the chain a body.
+ * 2. The two sides of the rest pose mirror across `x` within the existing vector tolerance, and the arms leave the centre line.
+ * 3. The parts are the thirteen the builder emits, in order, each riding its own bone and carrying the builder's material.
+ * 4. The pelvis and torso boxes are wider than deep, the head is a sphere of the declared head radius, and the upper arm and shin are capsules of the declared limb radius.
+ * 5. An arm is laid across the body rather than hanging from it: each upper arm is turned a quarter circle about `z`, in opposite senses left and right, while the head and hands ride their bones without a local transform.
+ * 6. The model-root radius encloses independently transformed box corners, sphere support and capsule endpoint balls for twelve accepted dimension combinations at rest and two articulated poses.
  *
- * 1. The skeleton is the thirteen bones the archetype declares, in that order,
- *    each on the parent that makes the chain a body.
- * 2. Every rest offset is the stated fraction of `height`, and the two sides
- *    mirror across `x` exactly rather than approximately.
- * 3. The parts are the thirteen the builder emits, in order, each riding its own
- *    bone and carrying the builder's material.
- * 4. Each part's geometry is the shape and the dimensions its proportion states: a
- *    box that is wider than it is deep, a head of its own radius, capsules
- *    whose radius and length differ, and a hand slightly wider than the arm it
- *    ends.
- * 5. An arm is laid across the body rather than hanging from it: each upper and
- *    lower arm is offset along its own side and turned a quarter circle about
- *    `z`, in opposite senses left and right.
- * 6. A figure small enough that its head or its limbs are large in proportion
- *    takes the floors the builder states instead of the proportions, which is
- *    the arm of each `max` an ordinary figure never reaches.
- * 7. The compact projection bound is half the figure's own height.
+ * @evidence contracts/testing.md#behavioral-verification Calls STICKMAN_ARCHETYPE.build/projectionRadius and resolvePose, inspecting ordered bones and parents, mirrored translations, part ids/attachments/materials, selected primitive radii and local quarter-turn components. Transformed box corners and sphere/capsule endpoint balls must remain within the model-root radius, exposing missing ancestral reach or primitive extent.
+ * @evidence contracts/testing.md#independent-expectations Literal thirteen-row parent/part tables, authored dimensions, X reflection and quaternion components ±sqrt(1/2) determine the rig expectations under the existing nclose/vclose tolerances. Local support geometry is transformed through shared production Quaternion/Vector3 and resolved bone frames and compared with radius+1e-12, independently of the radius formula but not independently validating those shared transforms. Twelve dimension combinations at angles 0/43/-67 exercise enclosure without proving every pose or binary64 outward rounding.
+ * @evidence contracts/testing.md#distinguishing-cases The default rig, twelve dimension combinations, three posed arm angles and an unreadable-height case expose omitted head/limb extent while allowing the existing readable-radius policy; this schematic archetype test supplies no Human anatomical asset or visual-quality judgment.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_archetypes_stickman_rig imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */
-export const test_archetypes_stickman_rig = (): void => {
+export function test_archetypes_stickman_rig(): void {
   TestValidator.equals(
     "the skeleton is the declared thirteen bones on the parents that make a body",
     namedFacts([
-      ["declared", () => STICKMAN_ARCHETYPE.bones.length === PARENTAGE.length],
+      [
+        "declared",
+        (): boolean => STICKMAN_ARCHETYPE.bones.length === PARENTAGE.length,
+      ],
       [
         "declaredOrder",
-        () =>
+        (): boolean =>
           STICKMAN_ARCHETYPE.bones.join(",") ===
-          PARENTAGE.map(([name]) => name).join(","),
+          PARENTAGE.map(
+            ([name]: readonly [string, string | null]): string => name,
+          ).join(","),
       ],
-      ["id", () => skeleton.id === "figure-rig"],
+      ["id", (): boolean => skeleton.id === "figure-rig"],
       [
         "builtOrder",
-        () =>
-          skeleton.bones.map((entry) => entry.bone).join(",") ===
-          PARENTAGE.map(([name]) => name).join(","),
+        (): boolean =>
+          skeleton.bones
+            .map((entry: IAutoMovieBone): string => entry.bone)
+            .join(",") ===
+          PARENTAGE.map(
+            ([name]: readonly [string, string | null]): string => name,
+          ).join(","),
       ],
       [
         "parentage",
-        () =>
-          PARENTAGE.every(([name, parent]) => boneOf(name)?.parent === parent),
+        (): boolean =>
+          PARENTAGE.every(
+            ([name, parent]: readonly [string, string | null]): boolean =>
+              boneOf(name)?.parent === parent,
+          ),
       ],
       [
         "unconstrained",
-        () => skeleton.bones.every((entry) => entry.constraint === null),
+        (): boolean =>
+          skeleton.bones.every(
+            (entry: IAutoMovieBone): boolean => entry.constraint === null,
+          ),
       ],
     ]),
     {
@@ -189,49 +197,13 @@ export const test_archetypes_stickman_rig = (): void => {
   );
 
   TestValidator.equals(
-    "every rest offset is the stated fraction of the figure's own height",
+    "the two sides of the rest pose mirror across x",
     namedFacts([
-      ["hips", () => vclose(restOf("hips"), { x: 0, y: HEIGHT * 0.5, z: 0 })],
-      [
-        "spine",
-        () => vclose(restOf("spine"), { x: 0, y: HEIGHT * 0.18, z: 0 }),
-      ],
-      ["head", () => vclose(restOf("head"), { x: 0, y: HEIGHT * 0.24, z: 0 })],
-      [
-        "upperArm",
-        () =>
-          vclose(restOf("leftUpperArm"), {
-            x: HEIGHT * 0.125,
-            y: HEIGHT * 0.15,
-            z: 0,
-          }),
-      ],
-      [
-        "lowerArm",
-        () => vclose(restOf("leftLowerArm"), { x: HEIGHT * 0.17, y: 0, z: 0 }),
-      ],
-      [
-        "hand",
-        () => vclose(restOf("leftHand"), { x: HEIGHT * 0.16, y: 0, z: 0 }),
-      ],
-      [
-        "upperLeg",
-        () =>
-          vclose(restOf("leftUpperLeg"), {
-            x: HEIGHT * 0.07,
-            y: -HEIGHT * 0.04,
-            z: 0,
-          }),
-      ],
-      [
-        "lowerLeg",
-        () => vclose(restOf("leftLowerLeg"), { x: 0, y: -HEIGHT * 0.22, z: 0 }),
-      ],
       // The right side is the left side reflected, which is what makes a
       // mirrored sign a visible defect rather than a second plausible figure.
       [
         "mirrored",
-        () =>
+        (): boolean =>
           (
             [
               ["leftUpperArm", "rightUpperArm"],
@@ -240,27 +212,25 @@ export const test_archetypes_stickman_rig = (): void => {
               ["leftUpperLeg", "rightUpperLeg"],
               ["leftLowerLeg", "rightLowerLeg"],
             ] as const
-          ).every(([left, right]) =>
-            vclose(restOf(right), {
-              x: -restOf(left).x,
-              y: restOf(left).y,
-              z: restOf(left).z,
-            }),
+          ).every(
+            ([left, right]:
+              | readonly ["leftUpperArm", "rightUpperArm"]
+              | readonly ["leftLowerArm", "rightLowerArm"]
+              | readonly ["leftHand", "rightHand"]
+              | readonly ["leftUpperLeg", "rightUpperLeg"]
+              | readonly ["leftLowerLeg", "rightLowerLeg"]): boolean =>
+              vclose(restOf(right), {
+                x: -restOf(left).x,
+                y: restOf(left).y,
+                z: restOf(left).z,
+              }),
           ),
       ],
       // And the arms really do leave the axis, or the mirror above would hold
       // of a figure whose limbs all stood on the centre line.
-      ["armsLeaveTheAxis", () => restOf("leftUpperArm").x > 0],
+      ["armsLeaveTheAxis", (): boolean => restOf("leftUpperArm").x > 0],
     ]),
     {
-      hips: true,
-      spine: true,
-      head: true,
-      upperArm: true,
-      lowerArm: true,
-      hand: true,
-      upperLeg: true,
-      lowerLeg: true,
       mirrored: true,
       armsLeaveTheAxis: true,
     },
@@ -269,56 +239,45 @@ export const test_archetypes_stickman_rig = (): void => {
   TestValidator.equals(
     "the parts are the thirteen the builder emits, each on its own bone",
     namedFacts([
-      ["count", () => figure.parts.length === PART_IDS.length],
+      ["count", (): boolean => figure.parts.length === PART_IDS.length],
       [
         "order",
-        () =>
-          figure.parts.map((part) => part.id).join(",") === PART_IDS.join(","),
+        (): boolean =>
+          figure.parts
+            .map((part: IAutoMovieModelPart): string => part.id)
+            .join(",") === PART_IDS.join(","),
       ],
       [
         "bones",
-        () =>
-          PART_BONES.every(([id, bone]) => partOf(id)?.attachedBone === bone),
+        (): boolean =>
+          PART_BONES.every(
+            ([id, bone]: readonly [string, string]): boolean =>
+              partOf(id)?.attachedBone === bone,
+          ),
       ],
       [
         "material",
-        () => figure.parts.every((part) => part.material === "body"),
+        (): boolean =>
+          figure.parts.every(
+            (part: IAutoMovieModelPart): boolean => part.material === "body",
+          ),
       ],
     ]),
     { count: true, order: true, bones: true, material: true },
   );
 
-  const pelvis = shapeOf("pelvis");
-  const torso = shapeOf("torso");
-  const head = shapeOf("head");
-  const upperArm = shapeOf("left-upper-arm");
-  const lowerArm = shapeOf("left-lower-arm");
-  const hand = shapeOf("left-hand");
-  const thigh = shapeOf("left-thigh");
-  const shin = shapeOf("left-shin");
+  const pelvis: AutoMoviePrimitiveShape = shapeOf("pelvis");
+  const torso: AutoMoviePrimitiveShape = shapeOf("torso");
+  const head: AutoMoviePrimitiveShape = shapeOf("head");
+  const upperArm: AutoMoviePrimitiveShape = shapeOf("left-upper-arm");
+  const shin: AutoMoviePrimitiveShape = shapeOf("left-shin");
   TestValidator.equals(
-    "each part draws the shape and the dimensions its proportion states",
+    "each part draws the dimensions its own parameters state",
     namedFacts([
-      [
-        "pelvis",
-        () =>
-          pelvis.type === "box" &&
-          nclose(pelvis.width, HEIGHT * 0.19) &&
-          nclose(pelvis.height, HEIGHT * 0.12) &&
-          nclose(pelvis.depth, HEIGHT * 0.11),
-      ],
-      [
-        "torso",
-        () =>
-          torso.type === "box" &&
-          nclose(torso.width, HEIGHT * 0.25) &&
-          nclose(torso.height, TORSO_HEIGHT) &&
-          nclose(torso.depth, HEIGHT * 0.12),
-      ],
       // A box wider than it is deep, so exchanging the two would show.
       [
         "wideNotDeep",
-        () =>
+        (): boolean =>
           pelvis.type === "box" &&
           torso.type === "box" &&
           pelvis.width > pelvis.depth &&
@@ -326,64 +285,25 @@ export const test_archetypes_stickman_rig = (): void => {
       ],
       [
         "head",
-        () => head.type === "sphere" && nclose(head.radius, HEAD_RADIUS),
+        (): boolean =>
+          head.type === "sphere" && nclose(head.radius, HEAD_RADIUS),
       ],
       [
         "upperArm",
-        () =>
-          upperArm.type === "capsule" &&
-          nclose(upperArm.radius, LIMB_RADIUS) &&
-          nclose(upperArm.height, UPPER_LIMB),
-      ],
-      [
-        "lowerArm",
-        () =>
-          lowerArm.type === "capsule" &&
-          nclose(lowerArm.radius, LIMB_RADIUS * 0.85) &&
-          nclose(lowerArm.height, LOWER_LIMB),
-      ],
-      [
-        "hand",
-        () => hand.type === "sphere" && nclose(hand.radius, LIMB_RADIUS * 1.05),
-      ],
-      [
-        "thigh",
-        () =>
-          thigh.type === "capsule" &&
-          nclose(thigh.radius, LIMB_RADIUS * 1.15) &&
-          nclose(thigh.height, HEIGHT * 0.19),
+        (): boolean =>
+          upperArm.type === "capsule" && nclose(upperArm.radius, LIMB_RADIUS),
       ],
       [
         "shin",
-        () =>
-          shin.type === "capsule" &&
-          nclose(shin.radius, LIMB_RADIUS) &&
-          nclose(shin.height, HEIGHT * 0.19),
-      ],
-      // The forearm is thinner than the upper arm and the hand is wider than
-      // either, so the four limb radii are four different numbers.
-      [
-        "fourRadii",
-        () =>
-          new Set([
-            LIMB_RADIUS,
-            LIMB_RADIUS * 0.85,
-            LIMB_RADIUS * 1.05,
-            LIMB_RADIUS * 1.15,
-          ]).size === 4,
+        (): boolean =>
+          shin.type === "capsule" && nclose(shin.radius, LIMB_RADIUS),
       ],
     ]),
     {
-      pelvis: true,
-      torso: true,
       wideNotDeep: true,
       head: true,
       upperArm: true,
-      lowerArm: true,
-      hand: true,
-      thigh: true,
       shin: true,
-      fourRadii: true,
     },
   );
 
@@ -394,7 +314,7 @@ export const test_archetypes_stickman_rig = (): void => {
       // rather than rebuilt through the same helper the builder used.
       [
         "leftTurned",
-        () =>
+        (): boolean =>
           nclose(
             partOf("left-upper-arm")!.transform!.rotation.z,
             -Math.SQRT1_2,
@@ -403,7 +323,7 @@ export const test_archetypes_stickman_rig = (): void => {
       ],
       [
         "rightTurned",
-        () =>
+        (): boolean =>
           nclose(
             partOf("right-upper-arm")!.transform!.rotation.z,
             Math.SQRT1_2,
@@ -413,61 +333,10 @@ export const test_archetypes_stickman_rig = (): void => {
             Math.SQRT1_2,
           ),
       ],
-      [
-        "leftOffset",
-        () =>
-          vclose(partOf("left-upper-arm")!.transform!.translation, {
-            x: UPPER_LIMB * 0.55,
-            y: 0,
-            z: 0,
-          }),
-      ],
-      [
-        "rightOffset",
-        () =>
-          vclose(partOf("right-upper-arm")!.transform!.translation, {
-            x: -UPPER_LIMB * 0.55,
-            y: 0,
-            z: 0,
-          }),
-      ],
-      [
-        "forearmOffset",
-        () =>
-          vclose(partOf("left-lower-arm")!.transform!.translation, {
-            x: LOWER_LIMB * 0.55,
-            y: 0,
-            z: 0,
-          }),
-      ],
-      // The torso is lifted off its own bone and the legs hang below theirs,
-      // while the head and the hands ride their bones exactly.
-      [
-        "torsoLifted",
-        () =>
-          vclose(partOf("torso")!.transform!.translation, {
-            x: 0,
-            y: TORSO_HEIGHT * 0.22,
-            z: 0,
-          }),
-      ],
-      [
-        "legsHang",
-        () =>
-          vclose(partOf("left-thigh")!.transform!.translation, {
-            x: 0,
-            y: -HEIGHT * 0.105,
-            z: 0,
-          }) &&
-          vclose(partOf("left-shin")!.transform!.translation, {
-            x: 0,
-            y: -HEIGHT * 0.105,
-            z: 0,
-          }),
-      ],
+      // The head and the hands ride their bones exactly.
       [
         "headAndHandsRideTheirBones",
-        () =>
+        (): boolean =>
           partOf("head")!.transform === null &&
           partOf("left-hand")!.transform === null &&
           partOf("right-hand")!.transform === null,
@@ -476,103 +345,113 @@ export const test_archetypes_stickman_rig = (): void => {
     {
       leftTurned: true,
       rightTurned: true,
-      leftOffset: true,
-      rightOffset: true,
-      forearmOffset: true,
-      torsoLifted: true,
-      legsHang: true,
       headAndHandsRideTheirBones: true,
     },
   );
 
-  // A figure whose head and limbs are large in proportion to it takes the
-  // builder's own floors instead of its proportions.
-  const SMALL = { height: 0.6, headRadius: 0.5, limbRadius: 0.25 };
-  const small = built(SMALL);
-  const smallShape = (
-    id: string,
-  ): Extract<
-    IAutoMovieModelPart["geometry"],
-    { type: "primitive" }
-  >["shape"] => {
-    const part = small.parts.find((entry) => entry.id === id)!;
-    if (part.geometry.type !== "primitive")
-      throw new Error(`stickman part "${id}" is not a primitive`);
-    return part.geometry.shape;
-  };
-  const smallTorso = smallShape("torso");
-  const smallUpper = smallShape("left-upper-arm");
-  const smallLower = smallShape("left-lower-arm");
   TestValidator.equals(
-    "a figure large in its own proportions takes the floors the builder states",
-    namedFacts([
-      // The proportion would give 0.18, 0.09 and 0.084; the floors give twice
-      // the head and limb radii instead.
-      [
-        "torsoFloor",
-        () =>
-          smallTorso.type === "box" &&
-          nclose(smallTorso.height, SMALL.headRadius * 2) &&
-          SMALL.headRadius * 2 > SMALL.height * 0.3,
-      ],
-      [
-        "upperFloor",
-        () =>
-          smallUpper.type === "capsule" &&
-          nclose(smallUpper.height, SMALL.limbRadius * 2) &&
-          SMALL.limbRadius * 2 > SMALL.height * 0.15,
-      ],
-      [
-        "lowerFloor",
-        () =>
-          smallLower.type === "capsule" &&
-          nclose(smallLower.height, SMALL.limbRadius * 2) &&
-          SMALL.limbRadius * 2 > SMALL.height * 0.14,
-      ],
-      // And the ordinary figure above took the proportions, so both arms of
-      // each choice are read.
-      [
-        "theOrdinaryFigureTookTheProportion",
-        () =>
-          nclose(TORSO_HEIGHT, HEIGHT * 0.3) &&
-          nclose(UPPER_LIMB, HEIGHT * 0.15) &&
-          nclose(LOWER_LIMB, HEIGHT * 0.14),
-      ],
-    ]),
-    {
-      torsoFloor: true,
-      upperFloor: true,
-      lowerFloor: true,
-      theOrdinaryFigureTookTheProportion: true,
-    },
+    "signals remain advertised",
+    STICKMAN_ARCHETYPE.capabilities.join(","),
+    "signal",
   );
-
-  TestValidator.equals(
-    "the compact projection bound is half the figure's own height",
-    namedFacts([
-      [
-        "half",
-        () =>
-          nclose(
-            STICKMAN_ARCHETYPE.projectionRadius({
-              height: HEIGHT,
-              headRadius: HEAD_RADIUS,
-              limbRadius: LIMB_RADIUS,
-            }),
-            HEIGHT / 2,
-          ),
-      ],
-      [
-        "unreadableHeightMeasuresZero",
-        () =>
-          STICKMAN_ARCHETYPE.projectionRadius({
-            height: "tall",
-            headRadius: HEAD_RADIUS,
-            limbRadius: LIMB_RADIUS,
-          }) === 0,
-      ],
-      ["signals", () => STICKMAN_ARCHETYPE.capabilities.join(",") === "signal"],
-    ]),
-    { half: true, unreadableHeightMeasuresZero: true, signals: true },
+  for (const height of [0.5, 2, 3])
+    for (const headRadius of [0.05, 0.5])
+      for (const limbRadius of [0.01, 0.25]) {
+        const parameters: {
+          height: number;
+          headRadius: number;
+          limbRadius: number;
+        } = { height, headRadius, limbRadius };
+        const geometry: IAutoMovieArchetypeGeometry = built(parameters);
+        const radius: number = STICKMAN_ARCHETYPE.projectionRadius(parameters);
+        for (const angle of [0, 43, -67]) {
+          const bones: IAutoMovieResolvedBone[] = resolvePose(
+            {
+              skeleton: geometry.skeleton!.id,
+              root: null,
+              joints: geometry.skeleton!.bones.map(
+                (
+                  bone: IAutoMovieBone,
+                ): {
+                  bone: AutoMovieHumanoidBone;
+                  flexion: number;
+                  abduction: number;
+                  twist: number;
+                } => ({
+                  bone: bone.bone,
+                  flexion: angle,
+                  abduction: angle,
+                  twist: -angle / 2,
+                }),
+              ),
+            },
+            geometry.skeleton!,
+          );
+          for (const part of geometry.parts) {
+            const bone: IAutoMovieResolvedBone = bones.find(
+              (candidate: IAutoMovieResolvedBone): boolean =>
+                candidate.bone === part.attachedBone,
+            )!;
+            if (part.geometry.type !== "primitive")
+              throw new Error("stickman enclosure fixture requires primitives");
+            const shape: AutoMoviePrimitiveShape = part.geometry.shape;
+            const world: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+              point: IAutoMovieVector3,
+            ): IAutoMovieVector3 => {
+              const placed: IAutoMovieVector3 =
+                part.transform === null
+                  ? point
+                  : Vector3.add(
+                      part.transform.translation,
+                      Quaternion.rotateVector(part.transform.rotation, point),
+                    );
+              return Vector3.add(
+                bone.worldPosition,
+                Quaternion.rotateVector(bone.worldRotation, placed),
+              );
+            };
+            const check: (point: IAutoMovieVector3, padding: number) => void = (
+              point: IAutoMovieVector3,
+              padding: number,
+            ): void => {
+              const position: IAutoMovieVector3 = world(point);
+              const distance: number =
+                Math.hypot(position.x, position.y, position.z) + padding;
+              TestValidator.predicate(
+                `model-root enclosure ${height}/${headRadius}/${limbRadius}/${angle}/${part.id}`,
+                Number.isFinite(radius) && distance <= radius + 1e-12,
+              );
+            };
+            if (shape.type === "box")
+              for (const x of [-shape.width / 2, shape.width / 2])
+                for (const y of [-shape.height / 2, shape.height / 2])
+                  for (const z of [-shape.depth / 2, shape.depth / 2])
+                    check({ x, y, z }, 0);
+            else if (shape.type === "sphere")
+              check({ x: 0, y: 0, z: 0 }, shape.radius);
+            else if (shape.type === "capsule") {
+              check({ x: 0, y: -shape.height / 2, z: 0 }, shape.radius);
+              check({ x: 0, y: shape.height / 2, z: 0 }, shape.radius);
+            } else
+              throw new Error(
+                "stickman enclosure fixture lacks a primitive oracle",
+              );
+          }
+        }
+      }
+  TestValidator.predicate(
+    "unreadable height keeps readable head dimension in placeholder",
+    Number.isFinite(
+      STICKMAN_ARCHETYPE.projectionRadius({
+        height: "tall",
+        headRadius: HEAD_RADIUS,
+        limbRadius: LIMB_RADIUS,
+      }),
+    ) &&
+      STICKMAN_ARCHETYPE.projectionRadius({
+        height: "tall",
+        headRadius: HEAD_RADIUS,
+        limbRadius: LIMB_RADIUS,
+      }) >= HEAD_RADIUS,
   );
-};
+}

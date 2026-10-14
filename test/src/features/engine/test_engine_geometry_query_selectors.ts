@@ -1,3 +1,7 @@
+import type {
+  IAutoMovieGeometrySelector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "../internal/GEOMETRY_SELECTOR_TEST_WORLD";
@@ -34,42 +38,59 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * 5. A performed actor's root is its node plus the pose root at the performance's
  *    local time; a held actor reports its node, its authored pose, or an empty
  *    pose; a time outside the shot and a missing motion refuse.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual distance/ground/pose dispatcher through existing compiled-record fixtures, observing selector resolution, object/performance-local root sampling, terrain height/walkability and contextual failures instead of fabricated zero distances.
+ * @evidence contracts/testing.md#independent-expectations Literal 3/4/12 and 6/8 geometry, rig rest offsets, quarter-turn/doubled-scale placement, linear path and ramp laws supply expected metres independently of the query. This uses the existing incomplete test rig rather than a measured Human model; successful records do not prove compiled-source freshness or rendered appearance.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts point/landmark/root/bone and selected/ambiguous shots, omitted/explicit time, malformed or unresolved selectors/models, walkable/nonwalkable/absent terrain and performed/authored/empty poses. Existing derived tolerances remain unchanged and formerly exact floating observations use zero tolerance.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns only query callbacks/local result records over existing canonical fixtures; it opens no file, render host, browser or GPU and replaces no foreign methods or installed consumers.
  */
-export const test_engine_geometry_query_selectors = (): void => {
-  const handWorld = { x: 10, y: 2.8, z: -1.5 };
+export function test_engine_geometry_query_selectors(): void {
+  const handWorld: IAutoMovieVector3 = { x: 10, y: 2.8, z: -1.5 };
   TestValidator.equals(
     "selectors resolve to hand-computed world points",
     namedFacts([
       [
         "points",
-        () =>
-          meters({
-            query: "distance",
-            from: point(0, 0, 0),
-            to: point(3, 4, 12),
-          }) === 13,
+        (): boolean =>
+          nclose(
+            meters({
+              query: "distance",
+              from: point(0, 0, 0),
+              to: point(3, 4, 12),
+            }),
+            13,
+            0,
+          ),
       ],
       [
         "landmark",
-        () =>
-          meters({
-            query: "distance",
-            from: { kind: "landmark", landmark: "well" },
-            to: point(0, 0, 0),
-          }) === 10,
+        (): boolean =>
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "landmark", landmark: "well" },
+              to: point(0, 0, 0),
+            }),
+            10,
+            0,
+          ),
       ],
       [
         "actorRoot",
-        () =>
-          meters({
-            query: "distance",
-            from: { kind: "actor", actor: "crate" },
-            to: point(1, 5, 6),
-          }) === 5,
+        (): boolean =>
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "actor", actor: "crate" },
+              to: point(1, 5, 6),
+            }),
+            5,
+            0,
+          ),
       ],
       [
         "turnedScaledBone",
-        () =>
+        (): boolean =>
           nclose(
             meters({
               query: "distance",
@@ -83,7 +104,7 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "headInOtherShot",
-        () =>
+        (): boolean =>
           nclose(
             meters({
               query: "distance",
@@ -97,7 +118,7 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "pathMidway",
-        () =>
+        (): boolean =>
           nclose(
             meters({
               query: "distance",
@@ -111,12 +132,16 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "pathStart",
-        () =>
-          meters({
-            query: "distance",
-            from: { kind: "actor", actor: "cart" },
-            to: point(0, 0, 0),
-          }) === 0,
+        (): boolean =>
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "actor", actor: "cart" },
+              to: point(0, 0, 0),
+            }),
+            0,
+            0,
+          ),
       ],
     ]),
     {
@@ -130,10 +155,13 @@ export const test_engine_geometry_query_selectors = (): void => {
     },
   );
 
-  const actor = (
+  const actor: (
+    name: string,
+    extra?: IGeometrySelectorTestActorExtra,
+  ) => Extract<IAutoMovieGeometrySelector, { kind: "actor" }> = (
     name: string,
     extra: IGeometrySelectorTestActorExtra = {},
-  ) => ({
+  ): Extract<IAutoMovieGeometrySelector, { kind: "actor" }> => ({
     kind: "actor" as const,
     actor: name,
     ...extra,
@@ -143,9 +171,9 @@ export const test_engine_geometry_query_selectors = (): void => {
     namedFacts([
       [
         "negativeTime",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 time: -1,
@@ -157,9 +185,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "nanTime",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 time: Number.NaN,
@@ -171,9 +199,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "landmark",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 from: { kind: "landmark", landmark: "nope" },
@@ -184,9 +212,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "landmarkWithoutWorld",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof ask> =>
               ask(
                 {
                   query: "distance",
@@ -200,9 +228,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "boneWithoutSkeleton",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 from: actor("crate", { bone: "head" }),
@@ -213,9 +241,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "unresolvedBone",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 shot: "a",
@@ -227,9 +255,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "ambiguous",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 from: actor("hero"),
@@ -240,9 +268,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "absent",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 from: actor("nobody"),
@@ -253,9 +281,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "absentInShot",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 shot: "a",
@@ -267,9 +295,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "absentShot",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 shot: "zzz",
@@ -281,9 +309,9 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "absentModel",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): number =>
               meters({
                 query: "distance",
                 from: actor("ghost"),
@@ -308,15 +336,22 @@ export const test_engine_geometry_query_selectors = (): void => {
     },
   );
 
-  const ground = (x: number, z: number, world: typeof WORLD | null = WORLD) =>
-    ask({ query: "ground", point: { x, z } }, world);
+  const ground: (
+    x: number,
+    z: number,
+    world?: typeof WORLD | null,
+  ) => ReturnType<typeof ask> = (
+    x: number,
+    z: number,
+    world: typeof WORLD | null = WORLD,
+  ): ReturnType<typeof ask> => ask({ query: "ground", point: { x, z } }, world);
   TestValidator.equals(
     "ground answers the first containing surface or none",
     namedFacts([
       [
         "slope",
-        () => {
-          const answer = ground(0, 5);
+        (): boolean => {
+          const answer: ReturnType<typeof ground> = ground(0, 5);
           return (
             answer.kind === "ground" &&
             nclose(answer.height, 3, 1e-12) &&
@@ -327,8 +362,8 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "ledge",
-        () => {
-          const answer = ground(20, 5);
+        (): boolean => {
+          const answer: ReturnType<typeof ground> = ground(20, 5);
           return (
             answer.kind === "ground" &&
             nclose(answer.height, 3, 1e-12) &&
@@ -339,11 +374,11 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "nothing",
-        () => {
-          const answer = ground(100, 100);
+        (): boolean => {
+          const answer: ReturnType<typeof ground> = ground(100, 100);
           return (
             answer.kind === "ground" &&
-            answer.height === 0 &&
+            nclose(answer.height, 0, 0) &&
             answer.surface === null &&
             answer.walkable === false
           );
@@ -351,11 +386,11 @@ export const test_engine_geometry_query_selectors = (): void => {
       ],
       [
         "noWorld",
-        () => {
-          const answer = ground(0, 5, null);
+        (): boolean => {
+          const answer: ReturnType<typeof ground> = ground(0, 5, null);
           return (
             answer.kind === "ground" &&
-            answer.height === 0 &&
+            nclose(answer.height, 0, 0) &&
             answer.surface === null
           );
         },
@@ -364,64 +399,92 @@ export const test_engine_geometry_query_selectors = (): void => {
     { slope: true, ledge: true, nothing: true, noWorld: true },
   );
 
-  const walker = values({ query: "pose", actor: "walker", shot: "a", time: 1 });
-  const statue = values({ query: "pose", actor: "statue", shot: "a", time: 0 });
-  const idle = values({ query: "pose", actor: "idle", shot: "a", time: 0 });
-  const crate = values({ query: "pose", actor: "crate", shot: "a", time: 0 });
+  const walker: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "walker",
+    shot: "a",
+    time: 1,
+  });
+  const statue: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "statue",
+    shot: "a",
+    time: 0,
+  });
+  const idle: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "idle",
+    shot: "a",
+    time: 0,
+  });
+  const crate: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "crate",
+    shot: "a",
+    time: 0,
+  });
   TestValidator.equals(
     "a pose query reports the performed or held root and joints",
     namedFacts([
       [
         "walkerRoot",
-        () =>
+        (): boolean =>
           walker.held === false &&
-          walker.rootX === 0 &&
-          walker.rootY === 0 &&
+          nclose(walker.rootX as number, 0, 0) &&
+          nclose(walker.rootY as number, 0, 0) &&
           nclose(walker.rootZ as number, 6, 1e-12),
       ],
       [
         "walkerJoints",
-        () =>
+        (): boolean =>
           walker.jointCount === 1 &&
           walker.shot === "a" &&
           walker.actor === "walker",
       ],
       [
         "statue",
-        () =>
-          statue.held === true && statue.jointCount === 1 && statue.rootX === 3,
+        (): boolean =>
+          statue.held === true &&
+          statue.jointCount === 1 &&
+          nclose(statue.rootX as number, 3, 0),
       ],
       [
         "idle",
-        () => idle.held === true && idle.jointCount === 0 && idle.rootX === 4,
+        (): boolean =>
+          idle.held === true &&
+          idle.jointCount === 0 &&
+          nclose(idle.rootX as number, 4, 0),
       ],
       [
         "crate",
-        () =>
-          crate.held === true && crate.jointCount === 0 && crate.rootY === 2,
+        (): boolean =>
+          crate.held === true &&
+          crate.jointCount === 0 &&
+          nclose(crate.rootY as number, 2, 0),
       ],
       [
         "late",
-        () =>
+        (): boolean =>
           throwsError(
-            () => values({ query: "pose", actor: "crate", shot: "a", time: 5 }),
+            (): ReturnType<typeof values> =>
+              values({ query: "pose", actor: "crate", shot: "a", time: 5 }),
             'Actor sample time 5 is outside shot "a" duration 0..4',
           ),
       ],
       [
         "early",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof values> =>
               values({ query: "pose", actor: "crate", shot: "a", time: -1 }),
             'Actor sample time -1 is outside shot "a"',
           ),
       ],
       [
         "missingMotion",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof values> =>
               values({ query: "pose", actor: "dancer", shot: "a", time: 0 }),
             'Actor "dancer" references missing motion "missing-motion"',
           ),
@@ -438,4 +501,4 @@ export const test_engine_geometry_query_selectors = (): void => {
       missingMotion: true,
     },
   );
-};
+}

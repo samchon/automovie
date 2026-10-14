@@ -1,4 +1,4 @@
-/** Fixed sanitary fittings from docs/models/14-bathrooms.md. Floor Y is local metres. */
+/** Fixed sanitary fittings Floor Y is local metres. */
 import { FittingParts, type FittingBuilt, type FittingPoint } from "./geometry";
 
 type XZ = readonly [number,number];

@@ -1,11 +1,16 @@
 import {
+  AutoMovieTextureBinding,
   IAutoMovieAssetProvenance,
+  IAutoMovieAssetUse,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
   IAutoMovieTextureReference,
   IAutoMovieValidation,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
+import type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 import { ViolationCollector } from "./ViolationCollector";
@@ -28,119 +33,113 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 ]);
 
 /**
- * Close the loop between what a compiled production SAMPLES and what its asset
- * ledger AUTHORIZES.
+ * Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent.
  *
- * Four different lies are possible once materials name images, and the manifest
- * alone catches none of them:
- *
- * 1. A material binds an image the ledger never heard of, so nothing verifies its
- *    bytes or consumer bindings;
- * 2. The ledger authorizes an image for a model or shot that no longer binds it,
- *    so a stale entry keeps a file in the distributable forever;
- * 3. The bytes are not the image they are used as: a renamed `.png` that is really
- *    a PDF, or a Radiance HDR bound as a base-color map;
- * 4. Two consumers bind the same bytes under contradictory color-space intent, so
- *    the same pixels are both a colour and a measurement and one of the two is
- *    silently wrong. A material slot states its intent; a scene environment
- *    takes it from its proven media, because an equirectangular image is always
- *    a colour and only its container says how that colour is stored.
- *
- * Byte identity itself is NOT rechecked here. The manifest gate already digests
- * every registered asset against its resident bytes, and repeating that would
- * be a second copy of a rule with an owner. What this adds is the reason that
- * gate applies at all: an image nobody registered is an image nobody digests.
- *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Verifies every sampled texture is registered with matching image facts and intent.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Rejects missing, unused, mismatched, and multiply interpreted surface resources before model output is accepted.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-value-interpretation `validateTextureAssets` keeps sRGB color slots, linear measurement slots, and Radiance environment intent explicit and rejects one image used under contradictory interpretations.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-value-interpretation-layer The texture gate validates the Engine's image color-space and channel-role subset without claiming general raster, audio, no-data, or scalar-unit interpretation.
- * @evidence requirements/external-inputs/resource-closure-and-acquisition.md#external-resource-media-dependencies `validateTextureAssets` resolves every sampled material or environment image through its typed asset-ledger use and byte-proven image facts and rejects missing or stale uses.
- * @evidence specifications/interchange-and-adoption/resource-closure-and-acquisition.md#interchange-media-dependency-extraction The validator closes the Engine's material-texture and scene-environment dependency subset; archive, stream, sidecar, and network closure remain upstream.
- * @evidence requirements/external-inputs/unsupported-and-degradation.md#external-unsupported-format-feature `validateTextureAssets` distinguishes a readable image container from suitability for a material or environment consumer and rejects the unsupported image/material combination.
- * @evidence specifications/interchange-and-adoption/support-degradation-and-refusal.md#interchange-format-feature-support-matrix The texture gate evaluates byte-proven container type against the selected Engine consumer's accepted image subset instead of treating parser recognition as universal support.
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-collision-ambiguity `validateTextureAssets` rejects a shared image whose material and environment bindings demand competing color-space interpretations rather than selecting one by traversal order.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-identity-ambiguity-refusal The validator reports every conflicting binding path and blocks the ambiguous image interpretation without choosing a silent winner.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-user-authored-texture `validateTextureAssets` accepts project-registered image resources through explicit material texture bindings and validates the exact consumers that sample them.
- * @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-provenance `validateTextureAssets` requires every sampled texture to resolve through the production asset ledger and rejects stale or missing consumer-use records.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual The validator implements the material-slot, channel-intent, color-space, media-type, and byte-observed extent subset of surface validation without claiming frame review.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-model-resource-separation Material records retain independent texture resource identities, and the validator checks those bindings without collapsing image bytes into model identity.
- * @evidence specifications/asset-and-representation/identity-resources-and-lifecycle.md#asset-spec-element-consumer-links The validator derives model-material and scene-environment consumer paths and checks each against its exact ledger authorization.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-surface-resource-closure The validator closes every sampled texture through ledger ownership, declared use, byte-proven image facts, and compatible interpretation.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent.
+ * @evidence contracts/common.md#clear-and-simple-design materialTextureSlots owns consumer slots and facts is the host-provided header-fact seam; byte digest ownership stays with the manifest gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Facts do not prove full decoding, and this validator does not reread or redigest bytes.
+ * @evidence contracts/common.md#meaningful-documentation Material versus environment media, positive pixel edges/portable limit and stale-use errors are stated.
+ * @evidence contracts/performance.md#efficient-algorithms Assets/uses/slots drive maps and scans; repeated asset uses checks cost O(TU) worst-case and string keys/text also contribute.
+ * @evidence contracts/performance.md#reuse-equivalent-work Asset records and intent/declared maps are shared within one call; the facts callback may own per-asset reuse outside it.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; assets/models are borrowed and no file, pixel buffer or texture handle is acquired.
  */
-export const validateTextureAssets = (
+export const validateTextureAssets: (
+  props: IAutoMovieTextureClosureInput,
+) => IAutoMovieValidation = (
   props: IAutoMovieTextureClosureInput,
 ): IAutoMovieValidation => {
-  const out = new ViolationCollector();
-  const records = new Map(props.assets.map((asset) => [asset.path, asset]));
+  const out: ViolationCollector = new ViolationCollector();
+  const records: Map<string, IAutoMovieAssetProvenance> = new Map(
+    props.assets.map(
+      (
+        asset: IAutoMovieAssetProvenance,
+      ): [string, IAutoMovieAssetProvenance] => [asset.path, asset],
+    ),
+  );
 
   // What the compiled production actually samples, per consumer.
-  const declared = new Map<string, Set<string>>();
-  const claim = (kind: string, id: string, asset: string): void => {
-    const key = `${kind}\0${id}`;
-    const existing = declared.get(key);
+  const declared: Map<string, Set<string>> = new Map<string, Set<string>>();
+  const claim: (kind: string, id: string, asset: string) => void = (
+    kind: string,
+    id: string,
+    asset: string,
+  ): void => {
+    const key: string = `${kind}\0${id}`;
+    const existing: Set<string> | undefined = declared.get(key);
     if (existing === undefined) declared.set(key, new Set([asset]));
     else existing.add(asset);
   };
 
-  const intents = new Map<string, Map<string, string>>();
-  const intend = (asset: string, path: string, intent: string): void => {
-    const seen = intents.get(asset) ?? new Map<string, string>();
+  const intents: Map<string, Map<string, string>> = new Map<
+    string,
+    Map<string, string>
+  >();
+  const intend: (asset: string, path: string, intent: string) => void = (
+    asset: string,
+    path: string,
+    intent: string,
+  ): void => {
+    const seen: Map<string, string> =
+      intents.get(asset) ?? new Map<string, string>();
     seen.set(path, intent);
     intents.set(asset, seen);
   };
-  props.models.forEach((model, modelIndex) => {
-    model.materials.forEach((material, materialIndex) => {
-      const path = `$input.models[${modelIndex}].materials[${materialIndex}]`;
-      for (const slot of materialTextureSlots(material)) {
-        const binding = slot.binding;
-        const asset = bindingAsset(binding);
-        claim("material-texture", model.id, asset);
-        intend(
-          asset,
-          `${path}${slot.path}`,
-          typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
-        );
-        checkAsset({
-          asset,
-          path: `${path}${slot.path}`,
-          consumer: { kind: "material-texture", id: model.id },
-          media: MATERIAL_MEDIA,
-          out,
-          input: props,
-          records,
-        });
-      }
-    });
+  props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
+    model.materials.forEach(
+      (material: IAutoMovieMaterial, materialIndex: number): void => {
+        const path: string = `$input.models[${modelIndex}].materials[${materialIndex}]`;
+        for (const slot of materialTextureSlots(material)) {
+          const binding: AutoMovieTextureBinding = slot.binding;
+          const asset: string = bindingAsset(binding);
+          claim("material-texture", model.id, asset);
+          intend(
+            asset,
+            `${path}${slot.path}`,
+            typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
+          );
+          checkAsset({
+            asset,
+            path: `${path}${slot.path}`,
+            consumer: { kind: "material-texture", id: model.id },
+            media: MATERIAL_MEDIA,
+            out,
+            input: props,
+            records,
+          });
+        }
+      },
+    );
   });
 
-  props.scenes.forEach((scene, sceneIndex) => {
-    const image = scene.environment?.image ?? null;
-    if (image === null) return;
-    const path = `$input.scenes[${sceneIndex}].environment.image`;
-    claim("scene-environment", scene.shot, image);
-    checkAsset({
-      asset: image,
-      path,
-      consumer: { kind: "scene-environment", id: scene.shot },
-      media: ENVIRONMENT_MEDIA,
-      out,
-      input: props,
-      records,
-    });
-    // An environment image declares no intent of its own, so the media its own
-    // bytes prove decides one, and that intent joins the same contradiction
-    // rule the material slots answer to. Bytes that read as no image at all are
-    // already reported above; inventing a decoding for them would only add a
-    // second complaint about the same file.
-    const facts = props.facts(image);
-    if (facts !== undefined) intend(image, path, environmentIntent(facts));
-  });
+  props.scenes.forEach(
+    (scene: IAutoMovieSceneEnvironmentUse, sceneIndex: number): void => {
+      const image: string | null = scene.environment?.image ?? null;
+      if (image === null) return;
+      const path: string = `$input.scenes[${sceneIndex}].environment.image`;
+      claim("scene-environment", scene.shot, image);
+      checkAsset({
+        asset: image,
+        path,
+        consumer: { kind: "scene-environment", id: scene.shot },
+        media: ENVIRONMENT_MEDIA,
+        out,
+        input: props,
+        records,
+      });
+      // An environment image declares no intent of its own, so the media its own
+      // bytes prove decides one, and that intent joins the same contradiction
+      // rule the material slots answer to. Bytes that read as no image at all are
+      // already reported above; inventing a decoding for them would only add a
+      // second complaint about the same file.
+      const facts: IAutoMovieTextureImageFacts | undefined = props.facts(image);
+      if (facts !== undefined) intend(image, path, environmentIntent(facts));
+    },
+  );
 
   // The same bytes cannot be both a colour and a measurement.
   for (const [asset, slots] of intents) {
-    const distinct = new Set(slots.values());
+    const distinct: Set<string> = new Set(slots.values());
     if (distinct.size < 2) continue;
     for (const [path, intent] of slots)
       out.push(
@@ -152,51 +151,95 @@ export const validateTextureAssets = (
   }
 
   // A ledger entry for a consumer that no longer samples it.
-  props.assets.forEach((asset, assetIndex) => {
-    asset.uses.forEach((use, useIndex) => {
-      if (use.production !== props.production) return;
-      if (
-        use.consumer.kind !== "material-texture" &&
-        use.consumer.kind !== "scene-environment"
-      )
-        return;
-      const key = `${use.consumer.kind}\0${use.consumer.id}`;
-      if (declared.get(key)?.has(asset.path) === true) return;
-      out.push(
-        "type",
-        `$input.assets[${assetIndex}].uses[${useIndex}]`,
-        `asset "${asset.path}" is authorized as a ${use.consumer.kind} of "${use.consumer.id}", which no longer binds it; drop the stale use`,
-        use.consumer,
-      );
-    });
-  });
+  props.assets.forEach(
+    (asset: IAutoMovieAssetProvenance, assetIndex: number): void => {
+      asset.uses.forEach((use: IAutoMovieAssetUse, useIndex: number): void => {
+        if (use.production !== props.production) return;
+        if (
+          use.consumer.kind !== "material-texture" &&
+          use.consumer.kind !== "scene-environment"
+        )
+          return;
+        const key: string = `${use.consumer.kind}\0${use.consumer.id}`;
+        if (declared.get(key)?.has(asset.path) === true) return;
+        out.push(
+          "type",
+          `$input.assets[${assetIndex}].uses[${useIndex}]`,
+          `asset "${asset.path}" is authorized as a ${use.consumer.kind} of "${use.consumer.id}", which no longer binds it; drop the stale use`,
+          use.consumer,
+        );
+      });
+    },
+  );
 
   return out.toValidation();
 };
 
-/** The one asset id a legacy or structured binding names. */
-const bindingAsset = (binding: string | IAutoMovieTextureReference): string =>
-  typeof binding === "string" ? binding : binding.asset;
+/**
+ * Return the legacy string id or structured binding's asset field.
+ *
+ * One identity read serves ledger lookup and declared-use tracking.
+ *
+ * Structured shape admission is a caller/model gate premise.
+ *
+ * The returned string preserves authored identity without resolving bytes.
+ *
+ * One branch/property read costs constant work apart from borrowed text.
+ *
+ * Every texture slot uses the same identity extraction.
+ *
+ * No binding or byte buffer is retained after returning the id.
+ */
+const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
+  binding: string | IAutoMovieTextureReference,
+): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
- * The one decoding an equirectangular environment image can mean.
+ * Map Radiance header media to linear and supported8-bit image media to srgb environment intent.
  *
- * A material slot states its intent because one image can be either a colour or
- * a measurement; an environment image is always a colour, and only its
- * container says how that colour is stored. Radiance holds linear radiance
- * already, which is why it is the container an HDR sky arrives in; the three
- * 8-bit containers hold sRGB-encoded texels, which is what the viewer decodes
- * them as. Deriving it here rather than asking the author for it keeps the
- * bytes the single authority, and lets an image bound both as image lighting
- * and as a linear material map be refused like any other contradiction.
+ * The existing viewer decoding policy determines the environment's single color interpretation.
+ *
+ * Header facts are metadata; this does not inspect transfer-function chunks or decoded pixels.
+ *
+ * The returned closed intent feeds cross-slot contradiction checks.
+ *
+ * One media comparison takes constant work.
+ *
+ * Environment and material consumers share the same request-local intent ledger.
+ *
+ * Only a string literal escapes and no image/decoder is retained.
  */
-const environmentIntent = (
+const environmentIntent: (
+  facts: IAutoMovieTextureImageFacts,
+) => "srgb" | "linear" = (
   facts: IAutoMovieTextureImageFacts,
 ): "srgb" | "linear" =>
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
 
-/** Registration, authorization, media, and dimension for one cited asset. */
-const checkAsset = (props: {
+/**
+ * Check registration, exact production/consumer authorization, allowed header media and positive bounded pixel edges.
+ *
+ * The ledger owns identity and this helper owns the cited slot's closure policy.
+ *
+ * It does not redigest bytes or certify complete image decoding.
+ *
+ * Unregistered/unreadable/disallowed assets report at the citing slot with field-specific dimensions.
+ *
+ * One map lookup plus record-use scan and facts callback dominate; fixed media/dimension checks follow.
+ *
+ * The coordinator shares its records map and the host may cache facts by current byte identity.
+ *
+ * Only caller-owned diagnostics remain; asset/facts references are borrowed without an image load.
+ */
+const checkAsset: (props: {
+  asset: string;
+  path: string;
+  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  media: ReadonlySet<AutoMovieTextureMediaType>;
+  out: ViolationCollector;
+  input: IAutoMovieTextureClosureInput;
+  records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
+}) => void = (props: {
   asset: string;
   path: string;
   consumer: { kind: "material-texture" | "scene-environment"; id: string };
@@ -205,7 +248,9 @@ const checkAsset = (props: {
   input: IAutoMovieTextureClosureInput;
   records: ReadonlyMap<string, IAutoMovieAssetProvenance>;
 }): void => {
-  const record = props.records.get(props.asset);
+  const record: IAutoMovieAssetProvenance | undefined = props.records.get(
+    props.asset,
+  );
   if (record === undefined) {
     props.out.push(
       "type",
@@ -217,7 +262,7 @@ const checkAsset = (props: {
   }
   if (
     !record.uses.some(
-      (use) =>
+      (use: IAutoMovieAssetUse): boolean =>
         use.production === props.input.production &&
         use.consumer.kind === props.consumer.kind &&
         use.consumer.id === props.consumer.id,
@@ -229,7 +274,9 @@ const checkAsset = (props: {
       `asset "${props.asset}" carries no ${props.consumer.kind} use for "${props.consumer.id}" in production "${props.input.production}"; add the exact typed ledger entry`,
       props.consumer.id,
     );
-  const facts = props.input.facts(props.asset);
+  const facts: IAutoMovieTextureImageFacts | undefined = props.input.facts(
+    props.asset,
+  );
   if (facts === undefined) {
     props.out.push(
       "type",
@@ -249,7 +296,7 @@ const checkAsset = (props: {
     return;
   }
   for (const axis of ["width", "height"] as const) {
-    const value = facts[axis];
+    const value: number = facts[axis];
     if (!Number.isSafeInteger(value) || value <= 0)
       props.out.push(
         "range",

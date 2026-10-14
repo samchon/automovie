@@ -1,41 +1,24 @@
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieProductionRenderReceiptFile } from "./IAutoMovieProductionRenderReceiptFile";
 
 /**
- * Renderer-owned aggregate receipt bound to current output bytes.
+ * Renderer-owned aggregate receipt derived from the exact published manifest and output bytes.
  *
- * @evidence requirements/production-design/continuity-change-and-deliverables.md#production-design-deliverable-provenance Preserves renderer-owned evidence for the final package.
- * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-atomic-current-commit Binds manifest, receipt, and bytes to one current commit.
+ * @evidence contracts/common.md#principled-implementation Terminal publication digests serialized manifest bytes, recomputes publication identity and probes every supplied deliverable file, then records those facts in canonical path order alongside the committed ledger.
+ * @evidence contracts/common.md#clear-and-simple-design Separates renderer-derived byte and media evidence from the manifest's delivery claims while linking them by manifest and publication digests.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied paths must exactly equal exclusively claimed paths; missing, duplicate, extra or byte-mismatched files refuse before receipt publication, and final readers reopen the resident output.
+ * @evidence contracts/common.md#meaningful-documentation Defines receipt epoch, exact tracked-manifest digest, recomputed publication fingerprint and canonical per-file probe population.
+ * @author Samchon
  */
 export interface IAutoMovieProductionRenderReceipt {
-  /**
-   * Receipt format.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Versions the plan-bound receipt contract.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Selects the publication-fingerprint receipt schema.
-   */
+  /** Receipt format. */
   version: 4;
 
-  /**
-   * Exact digest of the active production's tracked render manifest.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-artifact-invalidation Detects manifest-byte change.
-   * @evidence specifications/execution-and-recovery/artifacts-and-atomic-publication.md#execution-atomic-current-commit Joins the receipt to the committed manifest bytes.
-   */
-  manifestDigest: AutoMovieContentDigest;
+  /** Exact digest of the active production's tracked render manifest. */
+  manifestDigest: string;
 
-  /**
-   * Exact recomputed publication identity carried by the manifest.
-   * @evidence requirements/rendering/headless-and-platform-determinism.md#rendering-runtime-identity Carries the runtime-bound publication digest.
-   * @evidence specifications/editorial-render-and-delivery/delivery-package-provenance-and-publication.md#spec-delivery-provenance-integrity Joins the independently parsed receipt and manifest identities.
-   */
-  publicationFingerprint: AutoMovieContentDigest;
+  /** Exact recomputed publication identity carried by the manifest. */
+  publicationFingerprint: string;
 
-  /**
-   * Exact byte and media probes in canonical path order.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-missing-artifact-refusal Requires the exact complete delivered-file population.
-   * @evidence specifications/validation-and-diagnostics/partial-artifacts-and-refusal.md#validation-resume-verified-artifacts Allows reuse only after all receipt rows verify.
-   */
+  /** Exact byte and media probes in canonical path order. */
   files: IAutoMovieProductionRenderReceiptFile[];
 }

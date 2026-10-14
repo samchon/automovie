@@ -1,5 +1,6 @@
 import {
   IAutoMovieDiagnostic,
+  IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
   IAutoMovieFormationSlotMotion,
   IAutoMovieModel,
@@ -14,132 +15,194 @@ import {
   sampleFormationMotion,
   sampleFormationSlotMotion,
 } from "../index";
+import type { IAutoMovieFormationGrounding } from "./../IAutoMovieFormationGrounding";
+import type { IAutoMovieFormationSlotPlacement } from "./../IAutoMovieFormationSlotPlacement";
+import type { IAutoMovieSampledFormationMotion } from "./../IAutoMovieSampledFormationMotion";
 import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * One reading as a reader wants it: three decimals, so a metre is stated to the
- * millimetre and a second to the millisecond.
+ * Round a diagnostic quantity to three decimals with Math.round(value*1000)/1000.
+ *
+ * The validateAutoMovieFormationOverlap owner applies presentation rounding after its actual predicate.
+ *
+ * Binary64 rounding is not an exact decimal serialization or decision tolerance.
+ *
+ * Only displayed metre/second quantities are rounded, leaving comparison arithmetic unchanged.
+ *
+ * Fixed scalar arithmetic takes constant work.
+ *
+ * Diagnostics reuse the same presentation rule within validateAutoMovieFormationOverlap, not cached measurements.
+ *
+ * Only a number returns and no sampled state is retained.
  */
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number =>
+  Math.round(value * 1_000) / 1_000;
+
+/** Measure the first 4096 slots per unit; members beyond that prefix can overlap without being sampled. */
+const FORMATION_OVERLAP_MEMBER_LIMIT: number = 4096;
+
+/** Interior sample budget of 16; every authored endpoint remains even when endpoint count exceeds the budget. */
+const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
 
 /**
- * Members of one unit the overlap gate measures.
+ * Describe one staged unit with source order, borrowed placement, selected members and every tier's columns.
  *
- * Every measured member is a point placed into a grid at every sampled time,
- * and a unit may be a hundred thousand of them. Past this many the walk stays
- * bounded and what is measured is the unit's first slots, which is the trade a
- * gate that samples has to make somewhere and had better say out loud. Below it
- * — where nearly every authored unit sits — every member is measured, so every
- * pair standing inside its own bodies is found.
- */
-const FORMATION_OVERLAP_MEMBER_LIMIT = 4096;
-
-/**
- * Times inside one shot the overlap gate places its units at.
+ * The row joins spatial placement to tier-aware clearance without a second runtime model.
  *
- * Zero and both ends of every cue are always among them, because those are
- * states the shot certainly holds; whatever budget is left fills the gaps
- * between them evenly. The interior is what catches two units standing clear at
- * both ends of a cue and walking through one another in between, and a cue that
- * closes a gap for less than one such interval is the honest limit this number
- * states rather than hides.
+ * Member and column inventories are sampled proxies, not native geometry.
+ *
+ * Order index, rest points and tier column meanings are documented.
+ *
+ * Population depends on at most4096 members and authored tier/column counts.
+ *
+ * One unit row is shared by all its placements within the overlap call.
+ *
+ * The validation owns wrappers while placement/model owners retain borrowed source data.
+ *
+ * @author Samchon
  */
-const FORMATION_OVERLAP_SAMPLE_LIMIT = 16;
-
-/** One unit the overlap gate measures, with everything it is measured by. */
 interface IFormationOverlapUnit {
   /** Position in the shot's own order, which is the order refusals come in. */
   index: number;
+
   /** The staged unit itself. */
   formation: IAutoMovieFormationPlacement & {
     lod: ReadonlyArray<{ model: string }>;
   };
+
   /** Where each measured member stands at rest, with the slot it is. */
   members: ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>;
+
   /** Columns of every runtime one of its members may be drawn as. */
   tiers: ReadonlyArray<readonly IAutoMovieModelColumn[]>;
 }
 
-/** One measured member, placed where the sampled time really puts it. */
+/**
+ * Pair one sampled member world point with its unit and slot identity.
+ *
+ * The row lets the grid recover the same tier-aware unit pair.
+ *
+ * It represents one time sample rather than a swept collision trajectory.
+ *
+ * World-point, unit and zero-based slot meanings are stated.
+ *
+ * Each placed member adds one fixed wrapper plus a point.
+ *
+ * Grid neighbor comparisons reuse the same placement row.
+ *
+ * Per-time grid/row owners release it after that sample, with no native body retained.
+ *
+ * @author Samchon
+ */
 interface IFormationOverlapPlacement {
   /** Unit this member stands in. */
   unit: IFormationOverlapUnit;
+
   /** Zero-based slot it is. */
   slot: number;
+
   /** Where it stands at the sampled time. */
   point: IAutoMovieVector3;
 }
 
-/**
- * The members one unit is measured by, found once and remembered.
- *
- * The set is a pure function of the unit, and the builder hands the same
- * compiled unit to every shot that stages it, so a crowd in fifty shots would
- * otherwise be regenerated fifty times over. Keyed by the unit itself, so
- * nothing outlives the compile that made it.
- */
-const formationOverlapMemberCache = new WeakMap<
+/** Memoize rest points by unchanged placement identity; weak-key lifetime is not bounded to one compile. */
+const formationOverlapMemberCache: WeakMap<
+  IAutoMovieFormationPlacement,
+  readonly { slot: number; point: IAutoMovieVector3 }[]
+> = new WeakMap<
   IAutoMovieFormationPlacement,
   ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>
 >();
 
-const formationOverlapMembers = (
+/**
+ * Enumerate the first min(count,4096) designed slot points and memoize by placement identity.
+ *
+ * This caps repeated crowd placement work while preserving slot identities.
+ *
+ * Counts beyond4096 are sampled incompletely and mutable placement changes are not invalidated.
+ *
+ * The returned rows describe rest points, not current cue-transformed positions.
+ *
+ * At most4096 slot queries/rows are produced per fresh identity.
+ *
+ * The WeakMap shares rows only under an unchanged placement-data premise.
+ *
+ * Live placement objects retain bounded cached member rows until their weak keys become collectible.
+ */
+const formationOverlapMembers: (
+  formation: IAutoMovieFormationPlacement,
+) => ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> = (
   formation: IAutoMovieFormationPlacement,
 ): ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> => {
-  const remembered = formationOverlapMemberCache.get(formation);
+  const remembered:
+    | readonly { slot: number; point: IAutoMovieVector3 }[]
+    | undefined = formationOverlapMemberCache.get(formation);
   if (remembered !== undefined) return remembered;
-  const members = Array.from(
+  const members: { slot: number; point: IAutoMovieVector3 }[] = Array.from(
     { length: Math.min(formation.count, FORMATION_OVERLAP_MEMBER_LIMIT) },
-    (_, slot) => ({ slot, point: formationSlotPosition(formation, slot) }),
+    (_: unknown, slot: number): { slot: number; point: IAutoMovieVector3 } => ({
+      slot,
+      point: formationSlotPosition(formation, slot),
+    }),
   );
   formationOverlapMemberCache.set(formation, members);
   return members;
 };
 
 /**
- * When one shot is worth placing its units at.
+ * Keep zero and every cue endpoint, then distribute remaining16-sample budget evenly among gaps.
  *
- * Ends first, because the ends of a cue are states the shot certainly holds and
- * zero is where a unit that has no cue at all stands. Then the gaps between
- * them, filled evenly with whatever budget is left, because two units clear at
- * both ends of a cue can walk straight through one another in between and a
- * spacing that closes and reopens inside one cue never shows at either end.
+ * Authored endpoints retain precedence over interior density.
  *
- * This samples; it does not solve. Whether two members are ever inside one
- * another has no closed form — it depends on the layouts, the easings and the
- * cues together — so a resolution is stated instead of a guarantee. Every
- * sampled time is a state the shot really holds, which is what keeps the gate
- * from refusing a production that was correct.
+ * More than16 distinct endpoints exceed the nominal budget; brief interior overlaps can be missed.
+ *
+ * Sorted unique seconds and endpoint preservation are documented.
+ *
+ * E endpoints cost O(E log E) sorting, with at most the endpoint population plus budgeted interiors.
+ *
+ * One set deduplicates unit/member cue endpoints within the request.
+ *
+ * Only a fresh scalar array escapes; no cue history or playback task is retained.
  */
-const formationOverlapSampleTimes = (
+const formationOverlapSampleTimes: (
+  cues: readonly IAutoMovieFormationMotion[],
+  slotCues: readonly IAutoMovieFormationSlotMotion[],
+) => number[] = (
   cues: readonly IAutoMovieFormationMotion[],
   slotCues: readonly IAutoMovieFormationSlotMotion[],
 ): number[] => {
-  const ends = [
+  const ends: number[] = [
     ...new Set([
       0,
-      ...cues.flatMap((cue) => [cue.start, cue.end]),
-      ...slotCues.flatMap((cue) => [cue.start, cue.end]),
+      ...cues.flatMap((cue: IAutoMovieFormationMotion): number[] => [
+        cue.start,
+        cue.end,
+      ]),
+      ...slotCues.flatMap((cue: IAutoMovieFormationSlotMotion): number[] => [
+        cue.start,
+        cue.end,
+      ]),
     ]),
-  ].sort((left, right) => left - right);
-  const gaps = Math.max(1, ends.length - 1);
-  const inside = Math.max(
+  ].sort((left: number, right: number): number => left - right);
+  const gaps: number = Math.max(1, ends.length - 1);
+  const inside: number = Math.max(
     0,
     Math.floor((FORMATION_OVERLAP_SAMPLE_LIMIT - ends.length) / gaps),
   );
   return [
     ...new Set(
-      ends.flatMap((time, index) => {
-        const next = ends[index + 1];
+      ends.flatMap((time: number, index: number): number[] => {
+        const next: number = ends[index + 1];
         return next === undefined
           ? [time]
           : [
               time,
               ...Array.from(
                 { length: inside },
-                (_, step) => time + ((next - time) * (step + 1)) / (inside + 1),
+                (_: unknown, step: number): number =>
+                  time + ((next - time) * (step + 1)) / (inside + 1),
               ),
             ];
       }),
@@ -148,23 +211,33 @@ const formationOverlapSampleTimes = (
 };
 
 /**
- * How close two members of two units may stand before they are in one place.
+ * For every LOD tier pair, find the widest radius sum whose vertical intervals strictly overlap, then take the tier-pair minimum.
  *
- * The least any pair of the runtimes they may be drawn as allows, because which
- * tier a member is drawn at is the camera's decision and a refusal has to hold
- * whichever one it makes. Zero when no pair of their columns ever meets in
- * height, which is two bodies that pass each other at different levels rather
- * than through each other.
+ * Clearance must hold regardless of selected runtime tier, with vertical lift applied to the right columns.
+ *
+ * No overlapping columns yield zero; validity relies on the column owner's occupied-solid meaning.
+ *
+ * Vertical lift and returned horizontal clearance use model/world metres.
+ *
+ * All tier pairs and their column pairs are traversed, O(sum Lc*Rc), without mesh vertex reads.
+ *
+ * Tier arrays are shared by candidate comparisons, but the coordinator recomputes clearance rather than retaining a pair/lift cache.
+ *
+ * Only a scalar returns; tier arrays are borrowed and no collision world is retained.
  */
-const formationOverlapClearance = (
+const formationOverlapClearance: (
+  left: IFormationOverlapUnit,
+  right: IFormationOverlapUnit,
+  lift: number,
+) => number = (
   left: IFormationOverlapUnit,
   right: IFormationOverlapUnit,
   lift: number,
 ): number => {
-  let least = Number.POSITIVE_INFINITY;
+  let least: number = Number.POSITIVE_INFINITY;
   for (const near of left.tiers)
     for (const far of right.tiers) {
-      let widest = 0;
+      let widest: number = 0;
       for (const one of near)
         for (const other of far)
           if (
@@ -179,43 +252,28 @@ const formationOverlapClearance = (
 };
 
 /**
- * Refuse a shot that stands one member of a crowd inside another.
- *
- * Two bodies cannot occupy one place. That is a fact about dancers, animals,
- * vehicles and machines alike, and until this gate existed nothing in the
- * pipeline checked it: a unit could be laid out at a tenth of its members' own
- * width, a cue could pull one to a fifth of its spacing, and two units could be
- * staged on the same ground, and every one of those compiled clean and rendered
- * as figures standing through each other.
- *
- * A member's own size is not asked of the author. It is read from the runtime
- * the builder already built for it by {@link autoMovieModelColumns}, so the
- * measure follows the geometry rather than sitting beside it going stale, and a
- * unit whose runtime this shot does not carry is not measured at all rather
- * than measured against a guess.
- *
- * What is measured is members, at the times {@link formationOverlapSampleTimes}
- * picks and in the places {@link placeFormationSlot} puts them, which is the
- * same answer the renderer places them by. Both units of a pair are placed at
- * one time and compared to each other, which is what the ground gate's
- * per-formation loop structurally cannot see: two crowds each standing
- * perfectly well on the floor, in each other.
- *
- * Sound by construction and incomplete by design, in three stated ways: a
- * column is inscribed in a member and never around it, so a refusal means two
- * bodies really share a place; only the first
- * {@link FORMATION_OVERLAP_MEMBER_LIMIT} slots of an enormous unit are measured;
- * and time is sampled rather than solved. Each of those loses overlaps this
- * gate could have found. None of them can make it refuse a production that was
- * correct, which is the discipline the ground gate beside it is built on and
- * the only one worth having here.
- *
- * A member the shot has taken out is not measured, because nothing can stand
- * inside a body that is not there.
+ * Place sampled members in a spatial grid and compare both same-unit and cross-unit distances against height-overlapping runtime columns across every LOD pair.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Place sampled members in a spatial grid and compare same-unit and cross-unit distances against height-overlapping runtime columns across every LOD pair.
+ * @evidence contracts/common.md#clear-and-simple-design autoMovieModelColumns owns occupied proxy dimensions and placeFormationSlot owns cue-aware placement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the first 4096 slots and sampled times are checked. Primitive-core columns omit unsupported geometry, nonunit ancestral scales, nonisometric axial rotations and unrepresentable outer envelopes. Exact binary64 gain equality can omit mathematically unit rotations; GPU Float32 narrowing and animated deformation also remain outside this sampled rest-geometry gate.
+ * @evidence contracts/common.md#meaningful-documentation Removed members are omitted, tier-pair minimum clearance is used, and unsupported/missing columns are not guessed.
+ * @evidence contracts/performance.md#efficient-algorithms M models build the runtime index; each referenced runtime's B bones and P parts incur O(B^2+P) column measurement once per call. T times place at most 4096 members per unit; local density can cause quadratic pair checks traversing tier/column pairs, while cue sampling scans current cue lists.
+ * @evidence contracts/performance.md#reuse-equivalent-work A lazy request-local runtime-id map shares pure column measurement through the current runtime table; member points still use identity WeakMap caching with an unchanged-placement premise. A found row suppresses later unit-pair checks, while unsuccessful clearance computations are not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Live formation identities retain bounded member arrays; the M-entry runtime index, referenced-runtime column arrays and unit wrappers are call-local. Per-time grids release after sampling and at most quadratic unit-pair findings remain during the call, with no native collision world acquired.
  */
-export const validateAutoMovieFormationOverlap = (
+export const validateAutoMovieFormationOverlap: (
+  contract: Pick<IAutoMovieShotContract, "id">,
+  value: {
+    models: readonly IAutoMovieModel[];
+    formations: ReadonlyArray<
+      IAutoMovieFormationPlacement & { lod: ReadonlyArray<{ model: string }> }
+    >;
+    formationMotions?: readonly IAutoMovieFormationMotion[];
+    formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
+  },
+) => IAutoMovieDiagnostic[] = (
   contract: Pick<IAutoMovieShotContract, "id">,
   value: {
     models: readonly IAutoMovieModel[];
@@ -228,18 +286,48 @@ export const validateAutoMovieFormationOverlap = (
     formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
   },
 ): IAutoMovieDiagnostic[] => {
-  const runtimes = new Map(value.models.map((model) => [model.id, model]));
-  const units = value.formations.flatMap(
-    (formation, index): IFormationOverlapUnit[] => {
-      const tiers = formation.lod.map((tier) => {
-        const runtime = runtimes.get(tier.model);
-        return runtime === undefined ? [] : autoMovieModelColumns(runtime);
-      });
+  const runtimes: Map<string, IAutoMovieModel> = new Map(
+    value.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
+      model.id,
+      model,
+    ]),
+  );
+  const columnsByRuntime: Map<string, IAutoMovieModelColumn[]> = new Map();
+  const columnsFor: (id: string) => IAutoMovieModelColumn[] = (
+    id: string,
+  ): IAutoMovieModelColumn[] => {
+    const remembered: IAutoMovieModelColumn[] | undefined =
+      columnsByRuntime.get(id);
+    if (remembered !== undefined) return remembered;
+    const runtime: IAutoMovieModel | undefined = runtimes.get(id);
+    if (runtime === undefined) return [];
+    const columns: IAutoMovieModelColumn[] = autoMovieModelColumns(runtime);
+    columnsByRuntime.set(id, columns);
+    return columns;
+  };
+  const units: IFormationOverlapUnit[] = value.formations.flatMap(
+    (
+      formation: Pick<
+        IAutoMovieFormationDesign,
+        "id" | "count" | "layout" | "anchor" | "facingDeg" | "seed"
+      > &
+        IAutoMovieFormationGrounding & {
+          lod: ReadonlyArray<{ model: string }>;
+        },
+      index: number,
+    ): IFormationOverlapUnit[] => {
+      const tiers: IAutoMovieModelColumn[][] = formation.lod.map(
+        (tier: { model: string }): IAutoMovieModelColumn[] =>
+          columnsFor(tier.model),
+      );
       // A unit with a tier this shot does not carry, or one whose geometry fills
       // no column at all, has no size this gate can prove. Measuring it against
       // a stand-in number is how a gate starts refusing productions that were
       // correct, so it is left alone instead.
-      return tiers.length === 0 || tiers.some((columns) => columns.length === 0)
+      return tiers.length === 0 ||
+        tiers.some(
+          (columns: IAutoMovieModelColumn[]): boolean => columns.length === 0,
+        )
         ? []
         : [
             {
@@ -252,20 +340,36 @@ export const validateAutoMovieFormationOverlap = (
     },
   );
   if (units.length === 0) return [];
-  const cues = value.formationMotions ?? [];
-  const slotCues = value.formationSlotMotions ?? [];
+  const cues: readonly IAutoMovieFormationMotion[] =
+    value.formationMotions ?? [];
+  const slotCues: readonly IAutoMovieFormationSlotMotion[] =
+    value.formationSlotMotions ?? [];
   // One cell wide enough that no pair inside its own clearance can fall outside
   // the ring of cells around either of them. A height difference narrows a
   // clearance and never widens it, so twice the widest column in the shot bounds
   // every clearance there is.
-  const cell =
+  const cell: number =
     2 *
     Math.max(
-      ...units.flatMap((unit) =>
-        unit.tiers.flatMap((columns) => columns.map((column) => column.radius)),
+      ...units.flatMap((unit: IFormationOverlapUnit): number[] =>
+        unit.tiers.flatMap(
+          (columns: readonly IAutoMovieModelColumn[]): number[] =>
+            columns.map(
+              (column: IAutoMovieModelColumn): number => column.radius,
+            ),
+        ),
       ),
     );
-  const found = new Map<
+  const found: Map<
+    string,
+    {
+      time: number;
+      left: IFormationOverlapPlacement;
+      right: IFormationOverlapPlacement;
+      apart: number;
+      clearance: number;
+    }
+  > = new Map<
     string,
     {
       time: number;
@@ -276,19 +380,26 @@ export const validateAutoMovieFormationOverlap = (
     }
   >();
   for (const time of formationOverlapSampleTimes(cues, slotCues)) {
-    const grid = new Map<string, IFormationOverlapPlacement[]>();
+    const grid: Map<string, IFormationOverlapPlacement[]> = new Map<
+      string,
+      IFormationOverlapPlacement[]
+    >();
     for (const unit of units) {
-      const motion = sampleFormationMotion(cues, unit.formation.id, time);
+      const motion: IAutoMovieSampledFormationMotion = sampleFormationMotion(
+        cues,
+        unit.formation.id,
+        time,
+      );
       for (const member of unit.members) {
         // Where the design puts this member NOW: a re-forming unit is moving
         // its own arrangement, so the cached point is where the member stood
         // before the cue began. Members crossing each other mid-re-form is
         // exactly the collision this gate exists to catch.
-        const designed =
+        const designed: IAutoMovieVector3 =
           motion.reform === null
             ? member.point
             : formationSlotPosition(unit.formation, member.slot, motion.reform);
-        const placed = placeFormationSlot({
+        const placed: IAutoMovieFormationSlotPlacement = placeFormationSlot({
           position: designed,
           facingDeg: unit.formation.facingDeg,
           anchor: unit.formation.anchor,
@@ -307,23 +418,23 @@ export const validateAutoMovieFormationOverlap = (
           slot: member.slot,
           point: placed.position,
         };
-        const column = Math.floor(placed.position.x / cell);
-        const row = Math.floor(placed.position.z / cell);
-        for (let across = -1; across <= 1; ++across)
-          for (let along = -1; along <= 1; ++along)
+        const column: number = Math.floor(placed.position.x / cell);
+        const row: number = Math.floor(placed.position.z / cell);
+        for (let across: number = -1; across <= 1; ++across)
+          for (let along: number = -1; along <= 1; ++along)
             for (const other of grid.get(`${column + across}:${row + along}`) ??
               []) {
               // Ordered by the unit each stands in, and every member already in
               // the grid was placed by a unit no later than this one, so one
               // reading of a pair of units is the whole of what it reports.
-              const pair = `${other.unit.index}:${unit.index}`;
+              const pair: string = `${other.unit.index}:${unit.index}`;
               if (found.has(pair)) continue;
-              const clearance = formationOverlapClearance(
+              const clearance: number = formationOverlapClearance(
                 other.unit,
                 unit,
                 here.point.y - other.point.y,
               );
-              const apart = Math.hypot(
+              const apart: number = Math.hypot(
                 here.point.x - other.point.x,
                 here.point.z - other.point.z,
               );
@@ -336,31 +447,39 @@ export const validateAutoMovieFormationOverlap = (
                 clearance,
               });
             }
-        const key = `${column}:${row}`;
-        const neighbours = grid.get(key);
+        const key: string = `${column}:${row}`;
+        const neighbours: IFormationOverlapPlacement[] | undefined =
+          grid.get(key);
         if (neighbours === undefined) grid.set(key, [here]);
         else neighbours.push(here);
       }
     }
   }
-  return [...found.values()].map((overlap) =>
-    engineDiagnostic(
-      contract.id,
-      `formation:${overlap.left.unit.formation.id}`,
-      // Reported to the millimetre and the millisecond, the same as every other
-      // reading a shot's author reads to find a place on a field. Only the
-      // reading is rounded; the comparison above is not.
-      `must not stand a member where another body already is, but at ${round(
-        overlap.time,
-      )}s ${
-        overlap.left.unit === overlap.right.unit
-          ? `its slots ${overlap.left.slot} and ${overlap.right.slot}`
-          : `its slot ${overlap.left.slot} and slot ${overlap.right.slot} of "${overlap.right.unit.formation.id}"`
-      } stand ${round(overlap.apart)}m apart at (${round(
-        (overlap.left.point.x + overlap.right.point.x) / 2,
-      )}, ${round(
-        (overlap.left.point.z + overlap.right.point.z) / 2,
-      )}), inside the ${round(overlap.clearance)}m their bodies fill`,
-    ),
+  return [...found.values()].map(
+    (overlap: {
+      time: number;
+      left: IFormationOverlapPlacement;
+      right: IFormationOverlapPlacement;
+      apart: number;
+      clearance: number;
+    }): IAutoMovieDiagnostic =>
+      engineDiagnostic(
+        contract.id,
+        `formation:${overlap.left.unit.formation.id}`,
+        // Reported to the millimetre and the millisecond, the same as every other
+        // reading a shot's author reads to find a place on a field. Only the
+        // reading is rounded; the comparison above is not.
+        `must not stand a member where another body already is, but at ${round(
+          overlap.time,
+        )}s ${
+          overlap.left.unit === overlap.right.unit
+            ? `its slots ${overlap.left.slot} and ${overlap.right.slot}`
+            : `its slot ${overlap.left.slot} and slot ${overlap.right.slot} of "${overlap.right.unit.formation.id}"`
+        } stand ${round(overlap.apart)}m apart at (${round(
+          (overlap.left.point.x + overlap.right.point.x) / 2,
+        )}, ${round(
+          (overlap.left.point.z + overlap.right.point.z) / 2,
+        )}), inside the ${round(overlap.clearance)}m their bodies fill`,
+      ),
   );
 };

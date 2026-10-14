@@ -1,5 +1,6 @@
 import {
   IAutoMovieTextureImageFacts,
+  validateModel,
   validateTextureAssets,
   validateTextureScale,
 } from "@automovie/engine";
@@ -8,21 +9,26 @@ import {
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
-const PRODUCTION = "atrium";
-const VEINS = "public/textures/veins.png";
+const PRODUCTION: string = "atrium";
+const VEINS: string = "public/textures/veins.png";
 
-const facts = (asset: string): IAutoMovieTextureImageFacts | undefined =>
+const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (
+  asset: string,
+): IAutoMovieTextureImageFacts | undefined =>
   asset === VEINS
     ? { mediaType: "image/png", width: 2048, height: 2048 }
     : undefined;
 
-const record = (path: string): IAutoMovieAssetProvenance => ({
+const record: (path: string) => IAutoMovieAssetProvenance = (
+  path: string,
+): IAutoMovieAssetProvenance => ({
   path,
   digest: `sha256:${"0".repeat(64)}`,
   original: {
@@ -40,7 +46,9 @@ const record = (path: string): IAutoMovieAssetProvenance => ({
   ],
 });
 
-const skin = (
+const skin: (
+  coordinateSource: "normalized" | "source-uv",
+) => IAutoMovieMaterial = (
   coordinateSource: "normalized" | "source-uv",
 ): IAutoMovieMaterial => ({
   ...createModel().materials[0]!,
@@ -77,7 +85,9 @@ const part: IAutoMovieModelPart = {
   transform: null,
 };
 
-const model = (material: IAutoMovieMaterial): IAutoMovieModel => ({
+const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
+  material: IAutoMovieMaterial,
+): IAutoMovieModel => ({
   ...createModel(),
   id: "arm",
   parts: [part],
@@ -85,17 +95,25 @@ const model = (material: IAutoMovieMaterial): IAutoMovieModel => ({
 });
 
 /**
- * An overlay's images are closed and measured like the material's own.
+ * Exercise overlay image closure, UV-coordinate scale meaning and malformed overlay metadata through the owning validators.
  *
  * Scenarios:
- * 1. The asset ledger closes a registered overlay image cleanly and locates an
- *    unregistered one at the overlay's colour slot.
- * 2. A `"normalized"` overlay image over a set spanning nine by four is
- *    refused at the overlay's slot, whose name the message carries; a
- *    `"source-uv"` one is left alone.
+ * 1. A registered overlay image closes and an unregistered one reports its exact color slot.
+ * 2. A normalized nine-by-four UV span is refused while source-uv coordinates remain exempt.
+ * 3. Null colorFactor and a sparse overlay entry report type faults instead of throwing or silently disappearing.
+ * 4. A finite nonnegative RGB factor, including zero and a value above one, remains admitted by the factor contract.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Call actual texture closure/scale and model validators, checking cited slots and malformed metadata reports so null dereferences and hole-skipping fail observably.
+ * @evidence contracts/testing.md#independent-expectations Manifest authorization supplies the image identity, authored UV extrema yield nine-by-four span, and optional RGB factor semantics require a record of nonnegative finite scalars rather than a null object or absent array element.
+ * @evidence contracts/testing.md#distinguishing-cases Preserve registered/unregistered and normalized/source-uv twins, then add null/sparse failures plus zero/positive/>1 factor controls; codec decoding and full material palettes are owned elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported unit calls portable engine seams with existing fixtures and a local facts callback, acquiring no file, process, browser or GPU resource.
  */
-export const test_validation_material_overlay_textures = (): void => {
-  const closure = (assets: IAutoMovieAssetProvenance[]) =>
+export function test_validation_material_overlay_textures(): void {
+  const closure: (
+    assets: IAutoMovieAssetProvenance[],
+  ) => IAutoMovieValidation = (
+    assets: IAutoMovieAssetProvenance[],
+  ): IAutoMovieValidation =>
     validateTextureAssets({
       production: PRODUCTION,
       models: [model(skin("source-uv"))],
@@ -117,7 +135,7 @@ export const test_validation_material_overlay_textures = (): void => {
     ),
   );
 
-  const measured = validateTextureScale({
+  const measured: IAutoMovieValidation = validateTextureScale({
     models: [model(skin("normalized"))],
   });
   TestValidator.predicate(
@@ -137,4 +155,44 @@ export const test_validation_material_overlay_textures = (): void => {
     validateTextureScale({ models: [model(skin("source-uv"))] }).success,
     true,
   );
-};
+
+  const structural: (overlays: unknown) => IAutoMovieValidation = (
+    overlays: unknown,
+  ): IAutoMovieValidation => {
+    const base: IAutoMovieModel = createModel();
+    return validateModel({
+      model: {
+        ...base,
+        materials: [{ ...base.materials[0]!, overlays } as IAutoMovieMaterial],
+      },
+    });
+  };
+  const validOverlay: {
+    baseColorTexture: string;
+    blend: string;
+    strength: number;
+  } = {
+    baseColorTexture: VEINS,
+    blend: "multiply",
+    strength: 1,
+  };
+  TestValidator.predicate(
+    "null overlay color factors are reported instead of escaping as throws",
+    hasViolation(
+      structural([{ ...validOverlay, colorFactor: null }]),
+      "type",
+      "$input.materials[0].overlays[0].colorFactor",
+    ),
+  );
+  const sparse: unknown[] = new Array<unknown>(1);
+  TestValidator.predicate(
+    "a sparse overlay slot is a malformed entry rather than an absent overlay",
+    hasViolation(structural(sparse), "type", "$input.materials[0].overlays[0]"),
+  );
+  TestValidator.equals(
+    "a finite nonnegative overlay color factor remains admitted",
+    structural([{ ...validOverlay, colorFactor: { r: 0, g: 1, b: 2 } }])
+      .success,
+    true,
+  );
+}

@@ -1,49 +1,29 @@
 import { IAutoMovieChannel } from "./IAutoMovieChannel";
 
 /**
- * A constraint: a value-domain restriction on one channel, the generalized
- * range of motion. The engine clamps the channel to these bounds during
- * resolution and, crucially, _reports_ any violation (the same `[min, max]`
- * that clamps the pose also feeds the harness's `// ❌` correction), so
- * constraint resolution and validation are one computation.
+ * A per-component restriction on one sampled channel. applyChannelLimit validates the values and bounds, clamps crossed components and returns their original values in the same outcome.
  *
- * Bounds are per-component vectors matching the channel's width (a `scalar` rig
- * DOF has length-1 bounds; a `vec3` translation has length-3). A `null` side,
- * or a `null` component within a side, means that direction is unconstrained.
+ * A null side or null component leaves that direction unconstrained; a shorter bound vector also leaves its omitted tail unconstrained. A resident array hole is not an omitted tail: its undefined entry is refused. Bounds are checked against the supplied value array's width, not independently against the channel's declared width.
  *
- * This is the general form. Humanoid anatomical ROM keeps its dedicated
- * semantic representation ({@link IAutoMovieJointConstraint},
- * flexion/abduction/twist) as the humanoid profile's specialization; this
- * channel limit covers scalar rig DOFs, group/node rotations, weights, and
- * generic object channels.
+ * resolveFrame clamps only sampled or channel-driven values; unsampled rest values are not checked. World-space drivers run after clamping. Non-null bounds past the supplied value width, nonfinite values/bounds and reversed intervals throw. Quaternion components are boxed independently without subsequent normalization, so this is not an angular or anatomical limit.
  *
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Exposes `IAutoMovieChannelLimit` as the portable data boundary for the motion channel contract requirement.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `IAutoMovieChannelLimit` for the performance motion clip keytime interpolation system contract.
+ * Humanoid clinical ROM keeps its separate IAutoMovieJointConstraint representation. This generic box limit addresses scalar, vector, quaternion-component and weight values.
+ *
+ * @evidence contracts/common.md#principled-implementation `applyChannelLimit` validates finiteness, width and ordering, then clamps each component independently to its own bounds and records one violation per crossed bound with the component, side, limit and actual value, a per-axis box clamp.
+ * @evidence contracts/common.md#clear-and-simple-design One channel reference and two nullable bound vectors express every per-component box limit, and profile-bound limits apply before direct ones in `resolveFrame` so the caller's limit clamps last.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed bounds throw instead of being ignored, and an out-of-range value is clamped and reported rather than silently clamped; the remaining gap is that a rotation quaternion is boxed per component, which is not an angular limit, so the humanoid joint constraint stays separate.
+ * @evidence contracts/common.md#meaningful-documentation States combined clamping/reporting, supplied-value width, null versus omitted-tail versus resident-hole semantics, phase ordering and unnormalized quaternion component bounds.
  * @author Samchon
  */
 export interface IAutoMovieChannelLimit {
-  /**
-   * The channel whose value is constrained.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Exposes `channel` as the portable data boundary for the motion channel contract requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `channel` for the performance motion clip keytime interpolation system contract.
-   */
+  /** The channel whose value is constrained. */
   channel: IAutoMovieChannel;
 
   /**
-   * Lower bounds, one per channel component (e.g. `[xMin, yMin, zMin]`). `null`
-   * = no lower bound on the channel; a `null` component = that axis is free.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Exposes `min` as the portable data boundary for the motion channel contract requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `min` for the performance motion clip keytime interpolation system contract.
+   * Lower component bounds, such as [xMin, yMin, zMin]. A null side, null component or omitted tail leaves that direction free; resident holes are invalid.
    */
   min: (number | null)[] | null;
 
-  /**
-   * Upper bounds, one per channel component. `null` semantics as for `min`.
-   *
-   * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-contract Exposes `max` as the portable data boundary for the motion channel contract requirement.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Types `max` for the performance motion clip keytime interpolation system contract.
-   */
+  /** Upper bounds, one per channel component, with the same `null` meaning. */
   max: (number | null)[] | null;
 }

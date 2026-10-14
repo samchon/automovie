@@ -1,11 +1,17 @@
-import { aimYawPitch } from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { aimYawPitch } from "../../../../packages/engine/src/kinematics/aimYawPitch";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 const O: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-const at = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({
   x,
   y,
   z,
@@ -22,26 +28,33 @@ const at = (x: number, y: number, z: number): IAutoMovieVector3 => ({
  *    up/down target tilts the pitch.
  * 3. Facing is undone: with the actor turned to +X, a +X target reads as straight
  *    ahead and a +Z target as −90 (its right).
+ * 4. Huge finite headings and overflowing finite endpoint differences preserve direction.
+ * 5. A subnormal target retains its heading-relative angle rather than rounding a rotated component away.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls aimYawPitch on cardinal, tilted, zero and extreme represented targets, checking both returned angles and named nonfinite refusals.
+ * @evidence contracts/testing.md#independent-expectations Cardinal geometry supplies zero, signed right-angle and diagonal expectations; a two-to-one endpoint direction supplies atan2(1,2), and MAX_VALUE heading has binary64 remainder 128 degrees modulo 360.
+ * @evidence contracts/testing.md#distinguishing-cases Covers ordinary heading inversion beside huge periodic heading, overflowing subtraction and subnormal rotation, plus invalid origin, target and heading; aimRotation tests own quaternion output.
+ * @evidence contracts/testing.md#execution-ownership The exported unit entry reaches the portable yaw/pitch source directly and owns each assertion without a Human fixture, renderer or application process.
  */
-export const test_kinematics_aim_yaw_pitch = (): void => {
+export function test_kinematics_aim_yaw_pitch(): void {
   // 1. degenerate
-  const zero = aimYawPitch(O, O, 0);
+  const zero: IAutoMovieYawPitch = aimYawPitch(O, O, 0);
   TestValidator.equals(
     "zero-length aim → 0/0",
     namedFacts([
-      ["ncloseZeroYawDeg", () => nclose(zero.yawDeg, 0)],
-      ["ncloseZeroPitchDeg", () => nclose(zero.pitchDeg, 0)],
+      ["ncloseZeroYawDeg", (): boolean => nclose(zero.yawDeg, 0)],
+      ["ncloseZeroPitchDeg", (): boolean => nclose(zero.pitchDeg, 0)],
     ]),
     { ncloseZeroYawDeg: true, ncloseZeroPitchDeg: true },
   );
 
   // 2. facing +Z (0°)
-  const ahead = aimYawPitch(O, at(0, 0, 5), 0);
+  const ahead: IAutoMovieYawPitch = aimYawPitch(O, at(0, 0, 5), 0);
   TestValidator.equals(
     "dead ahead → 0 yaw, 0 pitch",
     namedFacts([
-      ["ncloseAheadYawDeg", () => nclose(ahead.yawDeg, 0)],
-      ["ncloseAheadPitchDeg", () => nclose(ahead.pitchDeg, 0)],
+      ["ncloseAheadYawDeg", (): boolean => nclose(ahead.yawDeg, 0)],
+      ["ncloseAheadPitchDeg", (): boolean => nclose(ahead.pitchDeg, 0)],
     ]),
     { ncloseAheadYawDeg: true, ncloseAheadPitchDeg: true },
   );
@@ -70,22 +83,41 @@ export const test_kinematics_aim_yaw_pitch = (): void => {
   TestValidator.predicate(
     "NaN aim origin rejects",
     throwsError(
-      () => aimYawPitch(at(Number.NaN, 0, 0), at(0, 0, 1), 0),
+      (): IAutoMovieYawPitch =>
+        aimYawPitch(at(Number.NaN, 0, 0), at(0, 0, 1), 0),
       ["aimYawPitch from.x", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(
     "infinite aim target rejects",
     throwsError(
-      () => aimYawPitch(O, at(0, 0, Infinity), 0),
+      (): IAutoMovieYawPitch => aimYawPitch(O, at(0, 0, Infinity), 0),
       ["aimYawPitch to.z", "finite", "Infinity"],
     ),
   );
   TestValidator.predicate(
     "NaN facing rejects",
     throwsError(
-      () => aimYawPitch(O, at(0, 0, 1), Number.NaN),
+      (): IAutoMovieYawPitch => aimYawPitch(O, at(0, 0, 1), Number.NaN),
       ["aimYawPitch facingDeg", "finite", "NaN"],
     ),
   );
-};
+  const huge: IAutoMovieYawPitch = aimYawPitch(
+    at(-Number.MAX_VALUE, 0, 0),
+    at(Number.MAX_VALUE, Number.MAX_VALUE, 0),
+    0,
+  );
+  TestValidator.predicate(
+    "overflowing finite endpoints retain two-to-one direction",
+    nclose(huge.yawDeg, 90) &&
+      nclose(huge.pitchDeg, (Math.atan2(1, 2) * 180) / Math.PI),
+  );
+  TestValidator.predicate(
+    "huge finite heading remains periodic",
+    nclose(aimYawPitch(O, at(0, 0, 1), Number.MAX_VALUE).yawDeg, -128),
+  );
+  TestValidator.predicate(
+    "subnormal direction remains sixty degrees left of heading",
+    nclose(aimYawPitch(O, at(Number.MIN_VALUE, 0, 0), 30).yawDeg, 60),
+  );
+}

@@ -1,22 +1,27 @@
 /**
- * One closed ring's span inside a triangulation's shared point list.
+ * One closed ring's span inside a region's shared canonical point list.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Preserves each planar boundary as a distinct closed ring.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Records a ring's topology inside the canonical point buffer.
+ * `canonicalRegion` lays the rings out contiguously in declaration order, outer
+ * ring first at index zero and each hole after the previous ring, so the spans
+ * tile the point list without gaps. Ear clipping bridges holes along these
+ * spans, and region extrusion and loft walk them to emit side walls.
+ *
+ * @evidence contracts/common.md#principled-implementation A half-open span `[start, start + count)` over one flat array, filled by `canonicalRegion` as it appends each wound ring, so every point belongs to exactly one ring.
+ * @evidence contracts/common.md#clear-and-simple-design Offsets into one shared list instead of nested arrays, so triangle indices, source indices and side walls all address the same point numbering without translation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Spans are derived from the rings as authored; no ring is merged, dropped or split to make spans line up.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, the layout order and contiguity, and which consumers walk the spans.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Two integers with no runtime body; the layout pass that fills them is linear in the point count inside `canonicalRegion`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per canonical region and read by its consumers; nothing is shared across regions.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers, one record per ring, released with the region that owns them.
+ * @author Samchon
  */
 export interface IAutoMovieRegionRing {
   /**
-   * First index the ring owns in {@link IAutoMovieRegionTriangulation.points}.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Keeps the ring boundary addressable in the shared geometry.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Identifies where this ring begins in canonical storage.
+   * First index the ring owns in {@link IAutoMovieRegionTriangulation.points};
+   * zero for the outer ring.
    */
   start: number;
-  /**
-   * How many points the ring owns.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-geometry-topology Bounds the points belonging to one closed boundary.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Identifies the complete canonical span of this ring.
-   */
+
+  /** How many points the ring owns, at least three. */
   count: number;
 }

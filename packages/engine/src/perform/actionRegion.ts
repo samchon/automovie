@@ -38,12 +38,19 @@ const REGION_BY_GESTURE: Partial<
 };
 
 /**
- * Which region an action owns: its explicit `region`, else the verb default.
+ * Resolve an action's explicit body region, else its gesture-kind default, verb default, or fullBody. Head-only and whole-body gesture defaults match the actual reference gesture channels; explicit overrides remain authoritative.
  *
- * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-mask-weight Resolves each action to the body-region mask that controls its surviving channels.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-layer-mask-transition-composition Implements the specification's named-mask input to layer composition.
+ * @evidence contracts/common.md#principled-implementation Finite lookup tables encode the current supported verbs and gesture shapes, with nullish precedence preserving an authored region before inferred defaults.
+ * @evidence contracts/common.md#clear-and-simple-design The single owner serves compilePerformance masking so gesture-content policy is not repeated in each caller.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Known gesture differences follow the bones/root authored by gestureMotion, not actor ids or test fixtures; unsupported kinds use the existing verb/full-body policy.
+ * @evidence contracts/common.md#meaningful-documentation Documents explicit-region precedence and the difference between gesture and verb defaults.
+ * @evidence contracts/performance.md#efficient-algorithms Constant table lookups and no per-call collection construction; cost does not depend on scene or rig size.
+ * @evidence contracts/performance.md#reuse-equivalent-work The immutable-by-contract module tables are reused across calls, and all per-call decisions depend only on the supplied action.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed module tables persist; the caller receives a union value with no allocated resource or retained action reference.
  */
-export const actionRegion = (
+export const actionRegion: (
+  action: IAutoMovieActionCall,
+) => AutoMovieBodyRegion = (
   action: IAutoMovieActionCall,
 ): AutoMovieBodyRegion =>
   action.region ??

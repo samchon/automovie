@@ -1,27 +1,40 @@
 import { validateModel } from "@automovie/engine";
+import {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
 
 /**
- * A rigid part may be attached to a bone; naming a bone the model's skeleton
- * lacks is a dangling reference, reported as a `type` violation. Pins that
- * part-to-bone wiring is checked.
+ * Refuse a part attachment naming a bone absent from the model's declared rig.
  *
- * Scenario: a part attached to `jaw` (absent from the test skeleton) fails,
- * with a `type` violation on `attachedBone`.
+ * Scenarios:
+ * 1. Attaching the existing part to undeclared jaw fails at attachedBone.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with a dangling attachment and requires failed admission plus a type finding at the reference field, catching undeclared rigid-bone wiring.
+ * @evidence contracts/testing.md#independent-expectations The existing fixture rig declares no jaw, so its part cannot resolve that name; literal type/path expectations follow reference admission rather than runtime attachment output.
+ * @evidence contracts/testing.md#distinguishing-cases Owns one missing-bone reference; valid model, graph topology and rest-transform admission are separate model entries. This does not observe a built attachment or FK.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry reuses the existing model/rig fixture and invokes the portable validator without loading a Human asset, renderer or native artifact.
  */
-export const test_validation_model_bone_ref = (): void => {
-  const base = createModel();
-  const model = {
+export function test_validation_model_bone_ref(): void {
+  const base: IAutoMovieModel = createModel();
+  const model: IAutoMovieModel = {
     ...base,
-    parts: base.parts.map((p) => ({ ...p, attachedBone: "jaw" as const })),
+    parts: base.parts.map(
+      (p: IAutoMovieModelPart): IAutoMovieModelPart => ({
+        ...p,
+        attachedBone: "jaw",
+      }),
+    ),
   };
-  const result = validateModel({ model });
+  const result: IAutoMovieValidation = validateModel({ model });
   TestValidator.equals("dangling bone fails", result.success, false);
   TestValidator.predicate(
     "type violation on attachedBone",
     hasViolation(result, "type", ".attachedBone"),
   );
-};
+}

@@ -52,6 +52,14 @@ import type { IAutoMovieHumanFaceTongueParameters } from "./IAutoMovieHumanFaceT
  * https://onlinelibrary.wiley.com/doi/full/10.1111/joa.12407); one protocol
  * must own a measurement and a source landmark before inversion.
  *
+ * @evidence contracts/common.md#principled-implementation A jawReference-discriminated union keeps dentate and edentulous records structurally consistent while all nested optional values remain neutral observations. Admission keeps supported observations unchanged or refuses named gaps; current permanent-dentition basis refuses habitual closure and primary/mixed/edentulous stages despite their representable type shapes.
+ * @evidence contracts/common.md#clear-and-simple-design Shared Fields groups independently owned anatomical subrecords, with two jaw-reference variants expressing dental coupling once rather than duplicating the full observation hierarchy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No missing observation becomes zero, a population mean, a photograph-derived hidden dimension or a morph weight; only separately registered measurement targets may move existing channels, and unsupported reference states refuse.
+ * @evidence contracts/common.md#meaningful-documentation The comment distinguishes neutral acquisition, optional unknowns, observations versus targets, named measurement gaps, frame derivation and the oral-frame convention, retaining population/protocol limitations beside these public inputs.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This discriminated observation type computes no geometry, derived frame, measurement inversion or schema at runtime.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The union defines no request coordinator or cached measurement result; the actual resolver owns evaluation and dependency identity.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no source mesh, imaging data or task; the personal document owns its optional observation records.
+ *
  * @author Samchon
  */
 export type IAutoMovieHumanFaceAnatomicalParameters =
@@ -62,6 +70,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Observed fields shared by both jaw references; the exported union owns
    * the dental-reference coupling.
+   *
+   * @evidence contracts/common.md#principled-implementation A fixed neutral reference pose and independently optional clinical subrecords distinguish observation metadata, shape measurements, optical properties and performance; undefined remains unknown and explicit absent hair remains null.
+   * @evidence contracts/common.md#clear-and-simple-design Fields is the shared structural base of both jaw-reference variants, while named nested owners hold their own units and protocols.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Age/reference sex is descriptive rather than a preset, and the record contains no personal mesh or free control curve; keeping a supplied observation does not lower it into numerical geometry.
+   * @evidence contracts/common.md#meaningful-documentation Each member identifies acquisition state, anatomical site, independent side, optical versus geometric role, absent-hair meaning or observed capacity versus posed performance.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The shared field layout executes no observation traversal or biological conversion.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This base interface owns no repeated evaluation or source-equivalence cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration acquires no imaging resource or renderer task; record allocation belongs to document authors/loaders.
    *
    * @author Samchon
    */
@@ -136,6 +152,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * A dentate jaw, closed at maximum intercuspation.
    *
+   * @evidence contracts/common.md#principled-implementation The maximum-intercuspation discriminator permits only DentateDentition alongside the shared neutral fields; current admission supports the basis's permanent stage, not every stage the observation type can describe.
+   * @evidence contracts/common.md#clear-and-simple-design This variant adds only its jaw reference and compatible dental record to Fields, keeping the coupled choice explicit.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No edentulous jaw is represented by a dentate default or proxy, and optional dentition does not invent an observed stage.
+   * @evidence contracts/common.md#meaningful-documentation The comment and fields state the closed reference, unknown omitted stage and exclusion of an observed edentulous record.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This jaw-reference interface performs no contact or occlusion calculation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A dentate record defines no repeated jaw evaluation or shared result cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The variant acquires no teeth mesh or jaw handle; the document owns its shared fields and optional dental observations.
+   *
    * @author Samchon
    */
   export interface Dentate extends Fields {
@@ -148,6 +172,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
 
   /**
    * An edentulous jaw, closed at its documented habitual closure.
+   *
+   * @evidence contracts/common.md#principled-implementation The habitual-closure discriminator couples an optional EdentulousDentition and excludes the incisor-contact oralCavity protocol with never. Current observation admission refuses this closure because the supplied basis has no edentulous representation.
+   * @evidence contracts/common.md#clear-and-simple-design This variant states its incompatible oral-space protocol locally while inheriting the remaining neutral fields.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Structural availability does not manufacture missing incisors, use maximum intercuspation for an edentulous person or certify an unsupported runtime closure.
+   * @evidence contracts/common.md#meaningful-documentation Fields specify habitual closure, unknown omitted dental stage and the incisor-dependent oral-space prohibition.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This variant executes no habitual-closure measurement or oral-space solver.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface coordinates no cached edentulous solve or request.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No prosthetic geometry, scan bytes or task is acquired by this type; the personal record owns its values.
    *
    * @author Samchon
    */
@@ -165,6 +197,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Dental observations of a primary, mixed or permanent dentition.
    *
+   * @evidence contracts/common.md#principled-implementation Extends the dental observation owner with a required natural-dentition stage, excluding edentulous while preserving tooth measurements; current basis admission accepts permanent only and reports unsupported primary/mixed stages.
+   * @evidence contracts/common.md#clear-and-simple-design The shared dental vocabulary is inherited once and only the compatible stage discriminator is narrowed here.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A primary or mixed label is not converted to adult permanent teeth or a numerical tooth-count proxy.
+   * @evidence contracts/common.md#meaningful-documentation The comment and stage member identify compatible natural stages at the reference pose without declaring their runtime realization complete.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This dental subtype performs no tooth registration or age/stage inference.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no shared dental measurement or morph-result cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This declaration acquires no tooth geometry or radiograph resources; observations live in their document owner.
+   *
    * @author Samchon
    */
   export interface DentateDentition extends IAutoMovieHumanFaceDentalParameters {
@@ -175,6 +215,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Dental observations of an edentulous jaw.
    *
+   * @evidence contracts/common.md#principled-implementation The dental observation subtype requires stage edentulous so it can pair only with habitual closure in the public union; the current permanent-tooth basis refuses this observed stage.
+   * @evidence contracts/common.md#clear-and-simple-design One literal stage narrowing reuses the dental record rather than duplicating its fields or adding a prosthetic solver.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The label invents neither natural dentition nor a permanent-tooth fallback for missing biological support.
+   * @evidence contracts/common.md#meaningful-documentation The comment and member explicitly identify absence of natural dentition at the reference pose.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This subtype runs no tooth-state or prosthetic acquisition algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No edentulous request coordinator or computed result is owned by this shape.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no jaw asset or fitting handle; its containing observation document owns the stage label.
+   *
    * @author Samchon
    */
   export interface EdentulousDentition extends IAutoMovieHumanFaceDentalParameters {
@@ -184,6 +232,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
 
   /**
    * Paired eyebrow envelopes and positions in the neutral expression, each side independently owned.
+   *
+   * @evidence contracts/common.md#principled-implementation Independently optional left/right brow records preserve measured envelope asymmetry and unknown omissions without generating fibre roots or shape offsets.
+   * @evidence contracts/common.md#clear-and-simple-design This pair owns anatomical side assignment while IAutoMovieHumanFaceBrowParameters owns the one-brow distances and protocols.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No absent side is mirrored or averaged from the other and no scalar observation supplies a drawn arch.
+   * @evidence contracts/common.md#meaningful-documentation The comment states neutral envelopes and independence, and each member names its anatomical side.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This pair performs no brow computation or traversal.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Side assignment defines no shared measured-brow result or cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pair acquires no hair buffers or measurement tasks; optional side records belong to the document.
    *
    * @author Samchon
    */
@@ -198,6 +254,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Paired upper/lower lash populations attached to their eyelid margins, each side independently owned.
    *
+   * @evidence contracts/common.md#principled-implementation Left/right lash observation records keep upper/lower populations in their existing owner and preserve independent acquired sides rather than imposing equal counts.
+   * @evidence contracts/common.md#clear-and-simple-design This pair assigns anatomical eyes; IAutoMovieHumanFaceEyelashParameters assigns each lid-row protocol and unit.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing lash observations do not become numerical emitted shaft counts or a mirrored contralateral measurement.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies lid-margin populations and independent sides, with side labels beside the members.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This type runs no shaft generation or clinical counting window.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work It owns no repeated lash evaluation or population cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The observation pair allocates no lash meshes or scan resources; the document owns its optional records.
+   *
    * @author Samchon
    */
   export interface EyelashPair {
@@ -211,6 +275,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
   /**
    * Internal cheek-fat compartments, independently measured by side, each side independently owned.
    *
+   * @evidence contracts/common.md#principled-implementation Two optional cheek records keep superficial/deep MRI volumes independent by anatomical side; current observation admission stores them without fat-compartment shape lowering.
+   * @evidence contracts/common.md#clear-and-simple-design Side assignment belongs here and volume units/protocol limits remain in IAutoMovieHumanFaceCheekParameters.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No contralateral copy, facial-width estimate or age preset fills an unknown internal volume.
+   * @evidence contracts/common.md#meaningful-documentation The comment states internal compartment measurement and independent sides, while members identify left/right.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This pair computes no MRI segmentation or compartment volume.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no shared imaging or shape solve.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration owns no MRI buffers, compartment meshes or imaging handles; optional scalar records belong to the document.
+   *
    * @author Samchon
    */
   export interface CheekPair {
@@ -223,6 +295,14 @@ export namespace IAutoMovieHumanFaceAnatomicalParameters {
 
   /**
    * External auricles, each side independently owned.
+   *
+   * @evidence contracts/common.md#principled-implementation Independently optional auricle records preserve separate acquired left/right dimensions and categories; omission provides no anatomy on the missing side.
+   * @evidence contracts/common.md#clear-and-simple-design EarPair owns side assignment and the ear parameter owner retains measurement protocols and units.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No mirrored ear, photograph-derived hidden thickness or default category is constructed by this pair.
+   * @evidence contracts/common.md#meaningful-documentation The comment names external auricles and independence, with anatomical side labels on both fields.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This pair executes no pinna construction or measurement algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The shape defines no repeated auricle evaluation or cached correspondence.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record acquires no temporal mesh or scan; its document owns the optional observations.
    *
    * @author Samchon
    */

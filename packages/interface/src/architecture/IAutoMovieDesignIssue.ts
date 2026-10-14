@@ -1,24 +1,22 @@
 /**
  * Something still undecided about a reference, and what it blocks.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignIssue` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignIssue` for the narrative intent reference lineage system contract.
+ * An open issue blocks a candidate's promotion only when that candidate lists
+ * the issue's id in its own `issues`. Naming a primitive or candidate in
+ * {@link subjects} blocks nothing by itself, and validation does not require
+ * the two directions to agree.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateDesignReference` requires a known kind, a non-blank detail, and at least one distinct subject resolving to a primitive or candidate of the same document; `promoteDesignObservations` collects the ids of open issues and withholds a candidate whose own `issues` names one.
+ * @evidence contracts/common.md#clear-and-simple-design The blocking relation lives once, on the candidate's `issues` list, so `subjects` only scopes the question for a reader and no second link has to be kept in sync with the first.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Blocking is not inferred from subjects or reconciled reciprocally. The caller's open flag and the candidate's issue list alone decide this gate; the engine does not authenticate who closed an issue or whether its uncertainty was resolved. Removing a candidate link or clearing open removes that specific block without settling other promotion gates.
+ * @evidence contracts/common.md#meaningful-documentation States that only an open issue a candidate lists blocks it, that naming a subject blocks nothing, what each subject must resolve to, and that the detail is the decision a human still owes.
+ * @author Samchon
  */
 export interface IAutoMovieDesignIssue {
-  /**
-   * Stable issue identity within the document.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `id` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
-   */
+  /** Stable, non-blank issue identity, unique within the document. */
   id: string;
 
-  /**
-   * Closed reason family that keeps a reading unsettled.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `kind` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `kind` for the narrative intent reference lineage system contract.
-   */
+  /** Closed reason family that keeps a reading unsettled. */
   kind:
     | "unknown-scale"
     | "ambiguous-geometry"
@@ -28,26 +26,14 @@ export interface IAutoMovieDesignIssue {
     | "other";
 
   /**
-   * Primitive or candidate ids this issue is about; at least one, distinct.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `subjects` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `subjects` for the narrative intent reference lineage system contract.
+   * Primitive or candidate ids of the same document this issue is about; at
+   * least one, each resolving and listed once.
    */
   subjects: string[];
 
-  /**
-   * What a human still has to decide.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `detail` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `detail` for the narrative intent reference lineage system contract.
-   */
+  /** Non-blank statement of what a human still has to decide. */
   detail: string;
 
-  /**
-   * Whether the issue is still open.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `open` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `open` for the narrative intent reference lineage system contract.
-   */
+  /** Whether the issue is still open; only an open issue blocks promotion. */
   open: boolean;
 }

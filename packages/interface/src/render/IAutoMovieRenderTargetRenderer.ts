@@ -1,31 +1,19 @@
 /**
- * Renderer identity: what the frame is drawn by.
+ * Host-reported graphics API and device identity used by render target fingerprinting.
  *
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-identity-collision-corruption Exposes `IAutoMovieRenderTargetRenderer` as the portable data boundary for the rendering identity collision corruption requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Types `IAutoMovieRenderTargetRenderer` for the spec render frame identity system contract.
+ * @evidence contracts/common.md#principled-implementation Nonblank API, vendor and device strings distinguish the graphics implementation whose frame costs and pixels the capture reports; unavailable hardware details remain the explicit unknown spelling.
+ * @evidence contracts/common.md#clear-and-simple-design Three reported identity fields keep graphics authority separate from settings and dependency bytes without embedding a native context object.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown is not a verified hardware identity and equal reported strings do not guarantee identical drivers or pixels; the full capture runtime supplies additional installed closure when needed.
+ * @evidence contracts/common.md#meaningful-documentation Defines API family and host-withheld vendor/device meaning for target identity.
+ * @author Samchon
  */
 export interface IAutoMovieRenderTargetRenderer {
-  /**
-   * Graphics API family, such as `webgl2`.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-identity-collision-corruption Exposes `api` as the portable data boundary for the rendering identity collision corruption requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Types `api` for the spec render frame identity system contract.
-   */
+  /** Graphics API family, such as `webgl2`. */
   api: string;
 
-  /**
-   * Reported hardware vendor, or `unknown` when the host withholds it.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-identity-collision-corruption Exposes `vendor` as the portable data boundary for the rendering identity collision corruption requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Types `vendor` for the spec render frame identity system contract.
-   */
+  /** Reported hardware vendor, or `unknown` when the host withholds it. */
   vendor: string;
 
-  /**
-   * Reported device or renderer string, or `unknown`.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-identity-collision-corruption Exposes `device` as the portable data boundary for the rendering identity collision corruption requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Types `device` for the spec render frame identity system contract.
-   */
+  /** Reported device or renderer string, or `unknown`. */
   device: string;
 }

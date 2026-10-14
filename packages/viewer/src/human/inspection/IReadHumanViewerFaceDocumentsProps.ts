@@ -1,48 +1,32 @@
 import type { IHumanViewerBasisIdentity } from "./IHumanViewerBasisIdentity.js";
-import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 import type { IHumanViewerReferenceFaceDocument } from "./IHumanViewerReferenceFaceDocument.js";
+import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
 
 /**
  * What the face documents are read from.
  *
- * @evidence contracts/common.md#principled-implementation Face document keys read the published face identity and the source revisions supplied to the reader.
- * @evidence contracts/common.md#clear-and-simple-design One input record separates face basis authority from the subjects-file path and dependency authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader's inputs identify the actual basis and source instead of embedding named-person geometry.
- * @evidence contracts/common.md#meaningful-documentation Documents the published face basis, subjects path and face revision used in document keys.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Face document keys read the published face identity and the source revisions supplied to the reader.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document One input record separates face basis authority from the subjects-file path and dependency authority.
+ * @evidence contracts/common.md#principled-implementation Face catalogue reading combines an application reference, published subjects, the exact face basis and face-source authority for stable document keys.
+ * @evidence contracts/common.md#clear-and-simple-design The input record leaves reference authoring with the application and source/basis identity with their respective owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader receives parameter documents rather than a bundled subject geometry file masquerading as a general face implementation.
+ * @evidence contracts/common.md#meaningful-documentation Comments identify application-owned reference parameters, basis identity, subjects path and the source digest that enters keys.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This face-reader input shape implements no JSON parse or cryptographic digest algorithm.
+ * @evidence contracts/performance.md#reuse-equivalent-work Document keys depend on document content, face basis digest and face source digest; a matching display name alone cannot reuse a built result.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The props borrow configuration and documents without acquiring file handles; the caller owns any face-document memo.
+ *
  * @author Samchon
  */
 export interface IReadHumanViewerFaceDocumentsProps {
   /**
    * Reference parameter document authored by the application on the supplied face basis.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Reference parameter document authored by the application on the supplied face basis. Face document keys read the published face identity and the source revisions supplied to the reader.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Reference parameter document authored by the application on the supplied face basis. One input record separates face basis authority from the subjects-file path and dependency authority.
    */
   reference: IHumanViewerReferenceFaceDocument;
 
-  /**
-   * The published face basis.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The published face basis. Face document keys read the published face identity and the source revisions supplied to the reader.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The published face basis. One input record separates face basis authority from the subjects-file path and dependency authority.
-   */
+  /** The published face basis. */
   face: IHumanViewerBasisIdentity;
 
-  /**
-   * The published subjects file.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document The published subjects file. Face document keys read the published face identity and the source revisions supplied to the reader.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The published subjects file. One input record separates face basis authority from the subjects-file path and dependency authority.
-   */
+  /** The published subjects file. */
   documentsFile: string;
 
-  /**
-   * Source digests; the face digest enters the keys.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Source digests; the face digest enters the keys. Face document keys read the published face identity and the source revisions supplied to the reader.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Source digests; the face digest enters the keys. One input record separates face basis authority from the subjects-file path and dependency authority.
-   */
+  /** Source digests; the face digest enters the keys. */
   sources: IHumanViewerRevisions;
 }

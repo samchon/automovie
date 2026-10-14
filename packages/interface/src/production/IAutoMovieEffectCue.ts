@@ -1,57 +1,30 @@
 import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
 
 /**
- * One bounded reference to a registered deterministic world effect zone.
+ * Bounded film-global activation of one registered deterministic world effect zone.
  *
- * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `IAutoMovieEffectCue` as the portable data boundary for the effects authoring control requirement.
- * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `IAutoMovieEffectCue` for the effect tier state machine system contract.
+ * @evidence contracts/common.md#principled-implementation Authored film time and duration describe an intended half-open activation. The production edit normalizer is retired; Engine materializeProductionFilmEffects instead consumes already-normalized timeline frames and explicitly validates cue identity, interval, intensity, zone/recipe membership and ownership conflicts.
+ * @evidence contracts/common.md#clear-and-simple-design Zone identity, timing and strength are the whole cue; emission, motion, appearance and hard budgets remain on the reusable world effect recipe.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This authoring record performs no time-grid or film-duration check. The explicit normalized Engine materializer rejects missing zones/recipes and unsafe or nonpositive intervals rather than substituting an emitter; the host must normalize time and enforce total-film extent.
+ * @evidence contracts/common.md#meaningful-documentation Gives stable cue and registered zone identity, the supported world-zone family, film-global exact timing and normalized bounded strength.
+ * @author Samchon
  */
 export interface IAutoMovieEffectCue {
-  /**
-   * Stable cue id.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `id` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `id` for the effect tier state machine system contract.
-   */
+  /** Stable cue id. */
   id: string;
 
-  /**
-   * Supported builder-owned recipe family.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `recipe` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `recipe` for the effect tier state machine system contract.
-   */
+  /** Supported builder-owned recipe family. */
   recipe: "world-zone";
 
-  /**
-   * Existing world effect-zone id.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `zone` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `zone` for the effect tier state machine system contract.
-   */
+  /** Existing world effect-zone id. */
   zone: string;
 
-  /**
-   * Film-global cue start.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `start` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `start` for the effect tier state machine system contract.
-   */
+  /** Film-global cue start. */
   start: AutoMovieFilmTime;
 
-  /**
-   * Cue duration.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `duration` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `duration` for the effect tier state machine system contract.
-   */
+  /** Cue duration. */
   duration: AutoMovieFilmTime;
 
-  /**
-   * Bounded normalized strength.
-   *
-   * @evidence requirements/effects-and-simulation/scope-and-simulation-tiers.md#effects-authoring-control Exposes `intensity` as the portable data boundary for the effects authoring control requirement.
-   * @evidence specifications/simulation-effects-and-sound/scope-tiers-and-identities.md#effect-tier-state-machine Types `intensity` for the effect tier state machine system contract.
-   */
+  /** Finite normalized strength in `[0, 1]`. */
   intensity: number;
 }

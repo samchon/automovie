@@ -1,80 +1,40 @@
 /**
  * The bounded cost a planting recipe and its cluster add to a shot.
  *
- * Every field is derived from the records alone, so a production can be refused
- * for an unaffordable green wall before a single branch is grown.
+ * Every field is derived from the records alone, so a production can be refused for an unaffordable green wall before a single branch is grown.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `IAutoMoviePlantingBudget` as the portable data boundary for the interior plant placement state requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePlantingBudget` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation plantingBudget walks the admitted branching depth and maximum length-jitter law, summing complete-tree branches and density-derived worst-case leaves before multiplying by requested cluster members.
+ * @evidence contracts/common.md#clear-and-simple-design Derived worst-case demand remains separate from authored branch/leaf caps so validation compares a recipe's actual bound with its declared affordability.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaf cost is not copied from maxLeaves and bare foliage has zero leaves; admitted depth bounds are a premise so an unbounded declared tree cannot exhaust the budget computation itself.
+ * @evidence contracts/common.md#meaningful-documentation Defines recipe attribution, unpruned full-growth bounds, declared caps and standalone-versus-cluster member multiplication.
+ * @author Samchon
  */
 export interface IAutoMoviePlantingBudget {
-  /**
-   * Identity of the measured recipe.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `domain` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `domain` for the interior space soft furnishing planting system contract.
-   */
+  /** Identity of the measured recipe. */
   domain: string;
 
-  /**
-   * Branch segments a fully grown, unpruned structure would emit.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `worstCaseBranches` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `worstCaseBranches` for the interior space soft furnishing planting system contract.
-   */
+  /** Full-tree branch-count upper bound before growth-stage or pruning omissions. */
   worstCaseBranches: number;
 
   /**
-   * Leaf occurrences a fully grown, unpruned structure would emit, or `0` for a
-   * recipe with no foliage rule.
+   * Leaf-count upper bound from the full unpruned tree and maximum length jitter, or `0` for a recipe with no foliage rule; this is not the exact count for one seed.
    *
-   * Derived from the density rule and the branching law rather than read off
-   * {@link maxLeaves}: a cap is what the recipe promises not to exceed, not what
-   * it costs, and a bare winter branch that reported its cap would hand a
-   * render budget a bill for foliage nobody grows.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `worstCaseLeaves` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `worstCaseLeaves` for the interior space soft furnishing planting system contract.
+   * Derived from the density rule and the branching law rather than read off {@link maxLeaves}: a cap is what the recipe promises not to exceed, not what it costs, and a bare winter branch that reported its cap would hand a render budget a bill for foliage nobody grows.
    */
   worstCaseLeaves: number;
 
-  /**
-   * Declared branch cap.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `maxBranches` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `maxBranches` for the interior space soft furnishing planting system contract.
-   */
+  /** Declared branch cap. */
   maxBranches: number;
 
-  /**
-   * Declared leaf cap.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `maxLeaves` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `maxLeaves` for the interior space soft furnishing planting system contract.
-   */
+  /** Declared leaf cap. */
   maxLeaves: number;
 
-  /**
-   * Cluster members requested, or `1` when the recipe stands alone.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `members` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `members` for the interior space soft furnishing planting system contract.
-   */
+  /** Cluster members requested, or `1` when the recipe stands alone. */
   members: number;
 
-  /**
-   * Worst-case branch instances the renderer would draw over every member.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `worstCaseBranchInstances` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `worstCaseBranchInstances` for the interior space soft furnishing planting system contract.
-   */
+  /** Worst-case branch instances the renderer would draw over every member. */
   worstCaseBranchInstances: number;
 
-  /**
-   * Worst-case leaf instances the renderer would draw over every member.
-   *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `worstCaseLeafInstances` as the portable data boundary for the interior plant placement state requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `worstCaseLeafInstances` for the interior space soft furnishing planting system contract.
-   */
+  /** Worst-case leaf instances the renderer would draw over every member. */
   worstCaseLeafInstances: number;
 }

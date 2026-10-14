@@ -8,14 +8,6 @@ import { builtSpaceContainsPoint } from "@automovie/engine";
 import type { IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
 import type { IRoomReservation } from "./rooms/reservations";
 import type { IHouseObservation, IObservationPose } from "./observation-records";
-
-/**
- * @evidence spaces/04-observations.md A station retains its question and own space while standing clear of planned bodies and swings.
- * @evidence spaces/04-observations.md#spatial-observation-derivation Tests the oriented person footprint, body height, cell containment, reservation separation, and nearest finite 0.10 m candidate; an unavailable pose returns null.
- * @evidence principles/core/source-units.md#source-scope-preservation Consumes existing cell bounds, room reservations and prior poses without constructing a wall, moving furniture, or discarding a question.
- * @evidence principles/core/source-units.md#source-substantive-completion Returns the original clear station, a nearest clear station with its displacement reason, or null; centre directions remain parallel and other targets remain fixed.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Physical renders exposed door leaves and shelf bodies in accepted logical stations; the observation design now requires the full person footprint outside body and swing reservations before acceptance.
- */
 export const standingObservation = (input:{
   space:IAutoMovieBuiltSpace;
   pose:IObservationPose;

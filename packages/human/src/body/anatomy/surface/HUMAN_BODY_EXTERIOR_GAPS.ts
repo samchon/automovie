@@ -21,7 +21,7 @@ export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[]
         "The lowest palpable rib and the iliac crest that place this waist are not registered on the source skin.",
     },
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorGap[] => [
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorGap[] => [
         {
           path: `surface.trunk.${side}SubscapularSkinfold`,
           reason: "missing-tissue-boundary",
@@ -38,7 +38,7 @@ export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[]
     ),
     // upper limb (#2718, #2710)
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorGap[] => [
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorGap[] => [
         {
           path: `surface.${side}UpperLimb.upperArm.tricepsSkinfold`,
           reason: "missing-tissue-boundary",
@@ -49,7 +49,7 @@ export const HUMAN_BODY_EXTERIOR_GAPS: readonly IAutoMovieHumanBodyExteriorGap[]
     ),
     // lower limb (#2716, #2714)
     ...(["left", "right"] as const).flatMap(
-      (side): IAutoMovieHumanBodyExteriorGap[] => [
+      (side: "left" | "right"): IAutoMovieHumanBodyExteriorGap[] => [
         {
           path: `surface.${side}LowerLimb.thigh.hipToKneeLength`,
           reason: "missing-landmark",

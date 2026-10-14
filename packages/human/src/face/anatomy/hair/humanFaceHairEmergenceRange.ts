@@ -20,22 +20,27 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  * modelled: the sources give no occipital figure, so a per-azimuth field would
  * be this project's own invention rather than theirs.
  */
-const SCALP_DEGREES = 30;
-const HAIRLINE_DEGREES = 15;
-const SCALP_TOP_DEGREES = 45;
-const HAIRLINE_TOP_DEGREES = 20;
+const SCALP_DEGREES: number = 30;
+const HAIRLINE_DEGREES: number = 15;
+const SCALP_TOP_DEGREES: number = 45;
+const HAIRLINE_TOP_DEGREES: number = 20;
 
 /**
- * The cited exit-elevation interval at one root: both ends blended from the
- * frontal hairline to the mid scalp by the hairline's own coverage ramp, the
- * same ramp every other hairline rule reads, so each end stays between its two
- * sourced figures.
+ * The cited exit-elevation interval at one root: both ends blended from the frontal hairline to the mid scalp by the hairline's own coverage ramp, the same ramp every other hairline rule reads, so each end stays between its two sourced figures.
+ *
+ * @evidence contracts/common.md#principled-implementation Shared hairline coverage blends the existing lower and upper placement-convention elevations.
+ * @evidence contracts/common.md#clear-and-simple-design Integration uses this interval only when an explicit authored emergence elevation is absent.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The stored surgeon-placement ranges are not native-population measurements, and no temporal/occipital field is invented.
+ * @evidence contracts/common.md#meaningful-documentation Lowest/highest are degrees, with frontal-to-mid-scalp blending driven by neutral chart metres.
+ * @evidence contracts/performance.md#efficient-algorithms One coverage evaluation and two affine blends take constant work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same coverage owner also drives scalp tint, avoiding a separate emergence hairline ramp.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the small interval escapes and no geometry/query state is acquired.
  */
 export function humanFaceHairEmergenceRange(
   hairline: IAutoMovieHumanFaceHair.Layer["hairline"],
   chart: IAutoMovieVector3,
 ): IHumanFaceHairEmergenceRange {
-  const coverage = humanFaceHairlineCoverage(chart, hairline);
+  const coverage: number = humanFaceHairlineCoverage(chart, hairline);
   return {
     lowest: HAIRLINE_DEGREES + (SCALP_DEGREES - HAIRLINE_DEGREES) * coverage,
     highest:

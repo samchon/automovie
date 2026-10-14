@@ -3,94 +3,73 @@ import { AutoMovieChannelValueType } from "@automovie/interface";
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**
- * One animatable light property: how it is addressed, and how it is applied.
+ * One supported light axis joins track type/bounds, kind admission, optional whole-vector validation and sparse override writing. The canonical property table supplies the implementations, while staged-kind validity and sample width are caller admission preconditions.
  *
- * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Binds one authored light property to its explicit channel rule.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Defines one branch-aware light-property contract.
+ * @evidence contracts/common.md#principled-implementation Represent one supported light axis with its value type, component bounds, light-kind predicate, optional whole-value fault and override writer; the shared table supplies actual rules.
+ * @evidence contracts/common.md#clear-and-simple-design The table co-locates gate admission and playback writing, while sampleClip owns type widths and the scene gate owns staged-light validity.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each rule follows the supported light/property pair; this interface does not validate arbitrary implementations or introduce an unsupported axis.
+ * @evidence contracts/common.md#meaningful-documentation Members describe inclusive bounds, optional collective checks, kind admission and the write preconditions rather than promising unrestricted property assignment.
+ * @evidence contracts/performance.md#efficient-algorithms Each table row is fixed-size; carries/write/valueFault costs depend on their concrete fixed-width implementations, not a type-level traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Light staging, track admission and shot application reuse the same property table; changed animation samples are evaluated rather than cached by property name.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The constant table owns callback references; this shape acquires no light, sampled buffer, native handle or running task.
  * @author Samchon
  */
 export interface IAutoMovieLightChannelProperty {
   /**
-   * The value type the addressing pointer channel must declare, which is also
-   * the only place this axis states a value's WIDTH. `sampleClip` already owns
-   * the value-type → width mapping and refuses a track that disagrees with it,
-   * so restating "vec3 is three numbers" here would be a second copy of a rule
-   * that already has an owner, and the two could drift.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input States the typed value shape required from this authored light channel.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Keeps the channel's value representation consistent across admitted light branches.
+   * Track value discriminator; sampleClip owns the corresponding component width and rejects mismatched payloads.
    */
   valueType: AutoMovieChannelValueType;
 
   /**
-   * The bounds every component of a keyframe value must satisfy: the SAME ones
-   * the staged light is held to by the scene gate. Without them a track could
-   * state through time what `commitScene` refuses outright (a negative
-   * intensity, a 200-degree cone), and the axis would be the one place in the
-   * artifact where a documented range is not enforced.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Enforces the numeric domain of an authored light property before playback.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Supplies the numeric domain used to admit sampled writes.
+   * Per-component keyframe bounds shared by scene admission and playback semantics; positive-only axes use exclusive min.
    */
   bounds: {
     /** Lower bound. */
     min: number;
+
     /** Upper bound, `Infinity` for none. */
     max: number;
+
     /** Whether {@link min} itself is allowed (`false` for the spot cone). */
     inclusiveMin: boolean;
   };
 
   /**
-   * Whether a light of this kind (`IAutoMovieLight["type"]`) carries the
-   * property at all: `range` is meaningless on a directional (infinitely
-   * distant) light and `coneAngle` exists only on a spot. The gate asks this
-   * before admitting a track, so a track the applier could not honor is refused
-   * at commit rather than dropped at playback.
+   * Whether the admitted light kind carries this axis; the gate checks it before allowing a track to reach the writer.
    *
-   * Placement splits the same way, and along the other axis. A directional
-   * light is infinitely distant, so `IAutoMovieLight.transform` documents that
-   * "only the orientation matters" and it carries no `position`; a point light
-   * radiates equally in every direction, so it carries no `rotation`. A spot
-   * carries both, being the one kind that has somewhere to stand AND somewhere
-   * to look.
-   *
-   * The parameter is `unknown` so the gate can ask it of a staged light's raw
-   * `type` without first asserting the union it is reading — asserting the
-   * value a check is about to doubt is how a validator stops validating. A kind
-   * outside the union is a broken scene the scene gate owns, not something this
-   * predicate is deciding.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Tests whether the staged light kind actually owns the authored property.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Prevents a property from crossing into a light-authority branch that does not carry it.
+   * @evidence contracts/common.md#principled-implementation Under admitted staged kinds, table predicates identify which kinds carry the axis; unconditional shared-axis predicates rely on that prior admission rather than themselves validating unknown kinds.
+   * @evidence contracts/common.md#clear-and-simple-design The predicate sits beside its writer and bounds so staging and playback share one supported-axis decision.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unconditional intensity/color predicates rely on prior staged-kind admission; kind-specific predicates implement the supported compatibility law rather than a consumer-id exception.
+   * @evidence contracts/common.md#meaningful-documentation The comment describes kind admission before writing and distinguishes this predicate from whole-light validation.
+   * @evidence contracts/performance.md#efficient-algorithms Supported light kinds form a fixed population and each predicate uses constant-time scalar comparisons.
+   * @evidence contracts/performance.md#reuse-equivalent-work Gate and shot application borrow the same table callback; changing a light kind requires a new predicate evaluation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The table owns the callback reference and the call retains only a boolean, with no light object, handle or task.
    */
   carries: (kind: unknown) => boolean;
 
   /**
-   * A rule the whole keyframe VALUE must satisfy, beyond the per-component
-   * {@link bounds}, as a sentence with no subject, or `null` when the value is
-   * sound. Absent when the components are the whole rule, which is every scalar
-   * and colour axis.
+   * Optional whole-vector fault text, or null when valid. Rotation uses this for unit norm; scalar/color axes need only component bounds.
    *
-   * It exists because {@link bounds} is a per-component range and some
-   * constraints are not: a rotation's four components are jointly constrained
-   * to unit length, and no range over one component can say so. The gate reads
-   * it off this table for the same reason it reads everything else here — a
-   * rule stated beside the applier cannot drift from what the applier writes.
-   *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Validates whole-value constraints that component bounds cannot express.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Keeps branch-specific authored values valid before they are written.
+   * @evidence contracts/common.md#principled-implementation The optional callback checks a collective constraint such as quaternion unit norm that component bounds cannot express; null means no reported whole-value fault.
+   * @evidence contracts/common.md#clear-and-simple-design Whole-vector admission stays in the same property table as the writer, while scalar/color entries omit this extra check.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Its concrete quaternion norm tolerance is the supported rotation rule, not an id-specific exception; omission does not excuse component admission.
+   * @evidence contracts/common.md#meaningful-documentation Docs distinguish optional callback absence from null success and identify rotation's whole-vector constraint.
+   * @evidence contracts/performance.md#efficient-algorithms Concrete supported checks examine a fixed-width vector with constant work and diagnostic-string storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work The gate reuses the table callback for each key value; mutable vectors are rechecked rather than cached by identity.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The table retains the callback, while supplied vectors remain borrowed and returned fault text belongs to the caller; no handle or task is acquired.
    */
   valueFault?: (value: readonly unknown[]) => string | null;
 
   /**
-   * Record the sampled value. Precondition: {@link carries} accepted the light,
-   * and `value` is as wide as {@link valueType} resolves to — the gate
-   * establishes the first, `sampleClip`'s width check the second, before a
-   * value ever reaches here.
+   * Write an admitted, correctly sized numeric sample into the sparse override. Kind admission and track width are caller preconditions.
    *
-   * @evidence requirements/lighting/scope-and-identity.md#lighting-authored-input Applies the sampled authored value to its matching light property only.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-light-authority-branches Implements the property write owned by the accepted light branch.
+   * @evidence contracts/common.md#principled-implementation Concrete writers copy scalar/vector/quaternion sample components into the corresponding override field after kind and width admission.
+   * @evidence contracts/common.md#clear-and-simple-design Writing is a narrow numerical operation; applyLightOverride separately owns exhaustive reconstruction of the staged light kind.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Writers assign only supported axes and introduce no renderer callback or fixture-specific light value; malformed input admission is not performed here.
+   * @evidence contracts/common.md#meaningful-documentation Docs state admitted kind/width preconditions and sparse override effects, with absent fields preserving staged values later.
+   * @evidence contracts/performance.md#efficient-algorithms Each supported width is at most four components, requiring constant work and at most one fixed-size vector/color record.
+   * @evidence contracts/performance.md#reuse-equivalent-work All shot light application uses the same table writer; a new sample replaces that field rather than repeating light reconstruction.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the mutated override and its numeric records; the table callback retains no samples, native light handles or running tasks.
    */
   write: (override: IAutoMovieLightOverride, value: readonly number[]) => void;
 }

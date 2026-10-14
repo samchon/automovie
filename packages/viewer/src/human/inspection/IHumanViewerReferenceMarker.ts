@@ -1,37 +1,23 @@
 /**
- * One observed landmark placed in capture pixels.  *
+ * One observed landmark placed in capture pixels.
  *
- * @evidence contracts/common.md#principled-implementation Pixel marker coordinates are the image-to-capture layout's projection of an observed photograph landmark.
- * @evidence contracts/common.md#clear-and-simple-design Only marker centre and group label are needed by PNG and SVG overlays.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Markers preserve observations without determining the subject's anatomical construction.
- * @evidence contracts/common.md#meaningful-documentation x and y use capture pixels from the top-left origin, and group retains the reference observation identity.
+ * @evidence contracts/common.md#principled-implementation The marker stores capture-pixel coordinates after layout transforms normalized observed landmarks into the photograph's fitted box.
+ * @evidence contracts/common.md#clear-and-simple-design Position and original observation group are sufficient for both PNG circles and SVG overlay markers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Marker coordinates are observations mapped by shared layout; the type carries no manufactured anatomical target or subject exception.
+ * @evidence contracts/common.md#meaningful-documentation Member comments distinguish capture pixels from original observation groups and identify the PNG/SVG sharing boundary.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A marker is an output coordinate record; landmark transformation and drawing costs are borne by layout and consumers.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The marker introduces no retained lookup or invalidation key; each composition receives newly placed landmarks.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Numeric coordinates and a group label require no explicit disposal; the capture result owns the containing marker array.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Pixel marker coordinates are the image-to-capture layout's projection of an observed photograph landmark.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Markers preserve observations without determining the subject's anatomical construction.
  * @author Samchon
  */
 export interface IHumanViewerReferenceMarker {
-  /**
-   * Horizontal position of the observed marker centre in capture pixels.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Carries the observed marker centre projected into capture-pixel horizontal coordinates.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Carries the observed marker centre projected into capture-pixel horizontal coordinates.
-   */
+  /** Horizontal position of the observed marker centre in capture pixels. */
   x: number;
 
-  /**
-   * Vertical position of the observed marker centre in capture pixels.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Carries the same marker's capture-pixel vertical coordinate for matching SVG and PNG overlays.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Carries the same marker's capture-pixel vertical coordinate for matching SVG and PNG overlays.
-   */
+  /** Vertical position of the observed marker centre in capture pixels. */
   y: number;
 
-  /**
-   * Original observed landmark group, shared by the PNG and SVG overlays.
-   *
-   * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach Preserves the original observed landmark group instead of assigning anatomical identity from its position.
-   * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Preserves the original observed landmark group instead of assigning anatomical identity from its position.
-   */
+  /** Original observed landmark group, shared by the PNG and SVG overlays. */
   group: string;
 }

@@ -1,31 +1,24 @@
 import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 
 /**
- * A bone's per-axis rest frame; an omitted axis is the identity (sign 1, 0).
+ * Optional degree-valued rest mappings for the three anatomical axes. An absent axis uses sign one and zero neutral in conversion.
  *
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Groups the semantic control conversions owned by one bone rest frame.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Represents the optional rest-basis mapping supplied with rig input.
+ * @evidence contracts/common.md#principled-implementation Store optional flexion/abduction/twist affine frames; absent axes use sign one and zero neutral in conversion.
+ * @evidence contracts/common.md#clear-and-simple-design Three anatomical axes keep rest mapping separate from skeleton constraints and pose sampling.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absence is identity rather than an inferred side-specific mirror, while conversion owners refuse invalid runtime frames.
+ * @evidence contracts/common.md#meaningful-documentation Members state optional meaning and degree convention rather than arbitrary orientation recovery.
+ * @evidence contracts/performance.md#efficient-algorithms At most three fixed axis records occupy constant storage; conversions own evaluation cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unchanged rig frames can serve multiple angles, without encoding a result cache or invalidation guarantee.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns borrowed frame records and no joint history, native rig or task is retained.
+ * @author Samchon
  */
 export interface IAutoMovieRestFrame {
-  /**
-   * Rest-frame mapping for the flexion axis.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Reconciles the named flexion control with its rest-relative rig value.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Carries the optional flexion rest-basis conversion.
-   */
+  /** Rest-frame mapping for the flexion axis. */
   flexion?: IAutoMovieAxisFrame;
-  /**
-   * Rest-frame mapping for the abduction axis.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Reconciles the named abduction control with its rest-relative rig value.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Carries the optional abduction rest-basis conversion.
-   */
+
+  /** Rest-frame mapping for the abduction axis. */
   abduction?: IAutoMovieAxisFrame;
-  /**
-   * Rest-frame mapping for the twist axis.
-   *
-   * @evidence requirements/asset-authoring/rig-and-state.md#asset-rig-basis-controls Reconciles the named twist control with its rest-relative rig value.
-   * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-rig-inputs Carries the optional twist rest-basis conversion.
-   */
+
+  /** Rest-frame mapping for the twist axis. */
   twist?: IAutoMovieAxisFrame;
 }

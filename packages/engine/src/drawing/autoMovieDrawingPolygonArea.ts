@@ -1,20 +1,27 @@
 import { IAutoMovieDrawingPoint } from "@automovie/interface";
 
+import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
+
 /**
- * Signed doubled-area shoelace magnitude, halved: the area of a simple polygon.
+ * Unsigned area of a simple page polygon, in square metres.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Measures the area enclosed by a derived page polygon directly from its ordered drawing coordinates.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Returns half the absolute shoelace sum for three or more vertices and zero for a non-polygonal input.
+ * The polygon is an implicitly closed ring, so the result does not depend on
+ * its winding. Fewer than three corners enclose nothing and yield `0`. A
+ * self-crossing ring yields the net of its lobes, so callers pass simple
+ * polygons, such as the convex cell sections the drafter produces.
+ *
+ * @param polygon Page corners in metres.
+ * @returns The enclosed area in square metres.
+ *
+ * @evidence contracts/common.md#principled-implementation The shoelace formula through `polygonDoubleArea`, halved and made unsigned, which is exact for a simple polygon; the drafter only passes convex cell sections, so the self-crossing limitation never applies to its inputs.
+ * @evidence contracts/common.md#clear-and-simple-design A page-polygon reading of the engine's single shoelace implementation, so the drawing has no second area formula to drift from the architecture code.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No polygon is special-cased; a degenerate ring yields zero because the shoelace sum of fewer than three corners is zero, not through a guard.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the unit, the closing convention, winding independence, the degenerate result and the simple-polygon premise.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` corners, linear time and constant space, which is the minimum for an area that depends on every corner.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function evaluated once per drafted region; nothing equivalent repeats.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Delegates to a fold that keeps one running sum on the stack, so the area call holds no object between invocations.
+ * @author Samchon
  */
 export const autoMovieDrawingPolygonArea = (
   polygon: readonly IAutoMovieDrawingPoint[],
-): number => {
-  if (polygon.length < 3) return 0;
-  let sum = 0;
-  for (let index = 0; index < polygon.length; ++index) {
-    const current = polygon[index]!;
-    const next = polygon[(index + 1) % polygon.length]!;
-    sum += current.x * next.y - next.x * current.y;
-  }
-  return Math.abs(sum) / 2;
-};
+): number => Math.abs(polygonDoubleArea(polygon)) / 2;

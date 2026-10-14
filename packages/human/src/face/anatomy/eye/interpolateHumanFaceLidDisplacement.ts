@@ -28,54 +28,75 @@ import type { IHumanFaceLidDisplacementInput } from "./structures/IHumanFaceLidD
  * map includes all resident aliases of each annulus sample, with identical
  * displacement values. Changes invalidate seated skin, normals, source replay
  * derivatives and the consumer's affected observations.
+ *
+ * @evidence contracts/common.md#principled-implementation The canonical source-sample quotient's unit-weight graph Laplacian minimizes displacement energy with exact Dirichlet pins and pin-reachable free components.
+ * @evidence contracts/common.md#clear-and-simple-design Graph admission owns topology; the existing sparse numerical solver owns conjugate-gradient residual/refusal and unit conversion occurs only for free solutions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The field does not prove injectivity, normals or optical clearance; exact pins never undergo a metre/millimetre round trip.
+ * @evidence contracts/common.md#meaningful-documentation The prose states source aliases, SPD premise, numerical residual scope and unchanged caller inputs.
+ * @evidence contracts/performance.md#efficient-algorithms Topology/reachability scans and degree sorting precede three solves; up to four-times-free-count iterations each scan sparse adjacency.
+ * @evidence contracts/performance.md#reuse-equivalent-work One adjacency/free-index/diagonal population serves all three axes; shared samples reuse identical displacement values across aliases.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned alias displacements own records; graph/solver arrays expire on success/refusal without tasks or global state.
  */
 export function interpolateHumanFaceLidDisplacement(
   input: IHumanFaceLidDisplacementInput,
 ): Map<number, IAutoMovieVector3> {
-  const { positions, indices, samples, pins, boundaryVertices } = input;
+  const {
+    positions,
+    indices,
+    samples,
+    pins,
+    boundaryVertices,
+  }: IHumanFaceLidDisplacementInput = input;
   if (
     positions.length === 0 ||
     positions.length !== 3 * samples.length ||
     !positions.every(Number.isFinite) ||
-    !samples.every((sample) => Number.isSafeInteger(sample) && sample >= 0) ||
+    !samples.every(
+      (sample: number): boolean => Number.isSafeInteger(sample) && sample >= 0,
+    ) ||
     indices.length === 0 ||
     indices.length % 3 !== 0
   )
     throw new Error(
       "Lid displacement needs finite source positions and triangles.",
     );
-  const sampleAt = (vertex: number): number => {
+  const sampleAt: (vertex: number) => number = (vertex: number): number => {
     if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= samples.length)
       throw new Error("Lid displacement references an absent source vertex.");
     return samples[vertex];
   };
-  const neighbours = new Map<number, Set<number>>();
-  const edges = new Map<string, [number, number, number]>();
-  const triangles = new Set<string>();
-  for (let at = 0; at < indices.length; at += 3) {
-    const corners = indices.slice(at, at + 3).map(sampleAt);
+  const neighbours: Map<number, Set<number>> = new Map<number, Set<number>>();
+  const edges: Map<string, [number, number, number]> = new Map<
+    string,
+    [number, number, number]
+  >();
+  const triangles: Set<string> = new Set<string>();
+  for (let at: number = 0; at < indices.length; at += 3) {
+    const corners: number[] = indices.slice(at, at + 3).map(sampleAt);
     if (new Set(corners).size !== 3)
       throw new Error(
         "Lid displacement has a collapsed source-sample triangle.",
       );
-    const triangle = [...corners].sort((a, b) => a - b).join(":");
+    const triangle: string = [...corners]
+      .sort((a: number, b: number): number => a - b)
+      .join(":");
     if (triangles.has(triangle))
       throw new Error(
         "Lid displacement repeats a native source-sample triangle.",
       );
     triangles.add(triangle);
-    for (let corner = 0; corner < 3; corner++) {
-      const a = corners[corner];
-      const b = corners[(corner + 1) % 3];
-      const adjacent = neighbours.get(a) ?? new Set<number>();
+    for (let corner: number = 0; corner < 3; corner++) {
+      const a: number = corners[corner];
+      const b: number = corners[(corner + 1) % 3];
+      const adjacent: Set<number> = neighbours.get(a) ?? new Set<number>();
       adjacent.add(b);
       neighbours.set(a, adjacent);
-      const reverse = neighbours.get(b) ?? new Set<number>();
+      const reverse: Set<number> = neighbours.get(b) ?? new Set<number>();
       reverse.add(a);
       neighbours.set(b, reverse);
-      const low = Math.min(a, b);
-      const high = Math.max(a, b);
-      const key = low + ":" + high;
+      const low: number = Math.min(a, b);
+      const high: number = Math.max(a, b);
+      const key: string = low + ":" + high;
       const edge: [number, number, number] = edges.get(key) ?? [low, high, 0];
       edge[2]++;
       if (edge[2] > 2)
@@ -85,24 +106,29 @@ export function interpolateHumanFaceLidDisplacement(
       edges.set(key, edge);
     }
   }
-  const actualBoundary = new Set<number>();
+  const actualBoundary: Set<number> = new Set<number>();
   for (const [a, b, count] of edges.values())
     if (count === 1) {
       actualBoundary.add(a);
       actualBoundary.add(b);
     }
-  const declaredBoundary = new Set(boundaryVertices.map(sampleAt));
+  const declaredBoundary: Set<number> = new Set(boundaryVertices.map(sampleAt));
   if (
     actualBoundary.size === 0 ||
     actualBoundary.size !== declaredBoundary.size ||
-    [...actualBoundary].some((sample) => !declaredBoundary.has(sample))
+    [...actualBoundary].some(
+      (sample: number): boolean => !declaredBoundary.has(sample),
+    )
   )
     throw new Error(
       "Lid displacement needs its complete native annulus boundary.",
     );
-  const fixed = new Map<number, IAutoMovieVector3>();
+  const fixed: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
   for (const [vertex, delta] of pins) {
-    const sample = sampleAt(vertex);
+    const sample: number = sampleAt(vertex);
     if (
       !neighbours.has(sample) ||
       ![delta.x, delta.y, delta.z].every(Number.isFinite)
@@ -110,7 +136,7 @@ export function interpolateHumanFaceLidDisplacement(
       throw new Error(
         "Lid displacement pins need annulus samples and finite XYZ.",
       );
-    const previous = fixed.get(sample);
+    const previous: IAutoMovieVector3 | undefined = fixed.get(sample);
     if (
       previous !== undefined &&
       (previous.x !== delta.x ||
@@ -120,13 +146,15 @@ export function interpolateHumanFaceLidDisplacement(
       throw new Error("Lid displacement has contradictory source-alias pins.");
     fixed.set(sample, { x: delta.x, y: delta.y, z: delta.z });
   }
-  if ([...actualBoundary].some((sample) => !fixed.has(sample)))
+  if ([...actualBoundary].some((sample: number): boolean => !fixed.has(sample)))
     throw new Error(
       "Lid displacement needs an exact pin on every boundary sample.",
     );
-  const reached = new Set(fixed.keys());
-  const queue = [...reached].sort((a, b) => a - b);
-  for (let at = 0; at < queue.length; at++)
+  const reached: Set<number> = new Set(fixed.keys());
+  const queue: number[] = [...reached].sort(
+    (a: number, b: number): number => a - b,
+  );
+  for (let at: number = 0; at < queue.length; at++)
     for (const near of neighbours.get(queue[at])!)
       if (!reached.has(near)) {
         reached.add(near);
@@ -134,43 +162,68 @@ export function interpolateHumanFaceLidDisplacement(
       }
   if (reached.size !== neighbours.size)
     throw new Error("Lid displacement has a free component without a pin.");
-  const free = [...neighbours.keys()]
-    .filter((sample) => !fixed.has(sample))
-    .sort((a, b) => a - b);
-  const columns = new Map(free.map((sample, column) => [sample, column]));
-  const rows = free.map((sample) =>
-    [...neighbours.get(sample)!].sort((a, b) => a - b),
+  const free: number[] = [...neighbours.keys()]
+    .filter((sample: number): boolean => !fixed.has(sample))
+    .sort((a: number, b: number): number => a - b);
+  const columns: Map<number, number> = new Map(
+    free.map((sample: number, column: number): [number, number] => [
+      sample,
+      column,
+    ]),
   );
-  const diagonal = rows.map((row) => row.length);
-  const multiply = (values: number[]): number[] =>
-    rows.map((row, i) =>
-      row.reduce((sum, near) => {
-        const column = columns.get(near);
+  const rows: number[][] = free.map((sample: number): number[] =>
+    [...neighbours.get(sample)!].sort((a: number, b: number): number => a - b),
+  );
+  const diagonal: number[] = rows.map((row: number[]): number => row.length);
+  const multiply: (values: number[]) => number[] = (
+    values: number[],
+  ): number[] =>
+    rows.map((row: number[], i: number): number =>
+      row.reduce((sum: number, near: number): number => {
+        const column: number | undefined = columns.get(near);
         return sum + values[i] - (column === undefined ? 0 : values[column]);
       }, 0),
     );
-  const result = new Map(fixed);
+  const result: Map<number, IAutoMovieVector3> = new Map(fixed);
   for (const sample of free) result.set(sample, { x: 0, y: 0, z: 0 });
   for (const axis of ["x", "y", "z"] as const) {
-    const millimetres = new Map(
-      [...fixed].map(([sample, delta]) => [sample, delta[axis] * 1000]),
+    const millimetres: Map<number, number> = new Map(
+      [...fixed].map(
+        ([sample, delta]: [number, IAutoMovieVector3]): [number, number] => [
+          sample,
+          delta[axis] * 1000,
+        ],
+      ),
     );
-    const scale = [...millimetres.values()].reduce(
-      (maximum, value) => Math.max(maximum, Math.abs(value)),
+    const scale: number = [...millimetres.values()].reduce(
+      (maximum: number, value: number): number =>
+        Math.max(maximum, Math.abs(value)),
       1,
     );
-    const rhs = rows.map((row) =>
-      row.reduce((sum, near) => sum + (millimetres.get(near) ?? 0), 0),
+    const rhs: number[] = rows.map((row: number[]): number =>
+      row.reduce(
+        (sum: number, near: number): number =>
+          sum + (millimetres.get(near) ?? 0),
+        0,
+      ),
     );
     if (!Number.isFinite(scale) || !rhs.every(Number.isFinite))
       throw new Error("Lid displacement exceeds finite solver millimetres.");
-    const values = solvePortraitSkinSystem(multiply, diagonal, rhs, scale);
-    for (let column = 0; column < free.length; column++)
+    const values: number[] = solvePortraitSkinSystem(
+      multiply,
+      diagonal,
+      rhs,
+      scale,
+    );
+    for (let column: number = 0; column < free.length; column++)
       result.get(free[column])![axis] = values[column] / 1000;
   }
-  const expanded = new Map<number, IAutoMovieVector3>();
-  samples.forEach((sample, vertex) => {
-    const delta = result.get(sample);
+  const expanded: Map<number, IAutoMovieVector3> = new Map<
+    number,
+    IAutoMovieVector3
+  >();
+  samples.forEach((sample: number, vertex: number): void => {
+    const delta: IAutoMovieVector3 | undefined = result.get(sample);
     if (delta !== undefined)
       expanded.set(vertex, { x: delta.x, y: delta.y, z: delta.z });
   });

@@ -1,9 +1,16 @@
-import { validatePoseResult } from "@automovie/engine";
-import { IAutoMovieTransform } from "@automovie/interface";
+import type {
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createSkeleton, joint, makePose } from "../internal/fixtures";
-import { hasViolation } from "../internal/predicates";
+import { validatePoseResult } from "../../../../packages/engine/src/validation/validatePoseResult";
+import { createSkeleton } from "../internal/createSkeleton";
+import { hasViolation } from "../internal/hasViolation";
+import { joint } from "../internal/joint";
+import { makePose } from "../internal/makePose";
 
 const ROOT: IAutoMovieTransform = {
   translation: { x: 0, y: 1, z: 2 },
@@ -11,13 +18,12 @@ const ROOT: IAutoMovieTransform = {
   scale: { x: 1, y: 1, z: 1 },
 };
 
-const poseWith = (root: IAutoMovieTransform) =>
-  makePose([joint("leftLowerArm", { flexion: 30 })], root);
+const poseWith: (root: IAutoMovieTransform) => IAutoMoviePose = (
+  root: IAutoMovieTransform,
+): IAutoMoviePose => makePose([joint("leftLowerArm", { flexion: 30 })], root);
 
 /**
- * Pose root transforms are renderer/export-facing TRS data. Their numeric
- * components must be finite, rotation must stay unit-length, and scale must
- * remain positive.
+ * Exercise optional pose-root TRS admission without normalizing authored values.
  *
  * Scenarios:
  *
@@ -26,16 +32,21 @@ const poseWith = (root: IAutoMovieTransform) =>
  * 3. Non-finite rotation is a range violation.
  * 4. Finite but non-unit rotation is a range violation.
  * 5. Non-positive scale is a range violation.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult for supported root TRS and four malformed scalar families, requiring each owning translation/rotation/scale range address.
+ * @evidence contracts/testing.md#independent-expectations Finite components, unit quaternion norm and strictly positive scale define supported TRS; identity has norm one while w=2 has norm two independently of pose validation.
+ * @evidence contracts/testing.md#distinguishing-cases Retains valid root acceptance, NaN translation, infinite rotation, non-unit finite rotation and zero scale; model_part_transform owns part TRS and pose_valid owns a null root.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit uses a local pose adapter and existing rig factory without composing world transforms, exporting or starting a renderer.
  */
-export const test_validation_pose_root_transform = (): void => {
-  const skeleton = createSkeleton();
+export function test_validation_pose_root_transform(): void {
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
   TestValidator.equals(
     "valid root transform succeeds",
     validatePoseResult(poseWith(ROOT), skeleton).success,
     true,
   );
 
-  const badTranslation = validatePoseResult(
+  const badTranslation: IAutoMovieValidation = validatePoseResult(
     poseWith({
       ...ROOT,
       translation: { ...ROOT.translation, x: Number.NaN },
@@ -52,7 +63,7 @@ export const test_validation_pose_root_transform = (): void => {
     hasViolation(badTranslation, "range", "$input.root.translation.x"),
   );
 
-  const badRotation = validatePoseResult(
+  const badRotation: IAutoMovieValidation = validatePoseResult(
     poseWith({
       ...ROOT,
       rotation: { ...ROOT.rotation, w: Number.POSITIVE_INFINITY },
@@ -69,7 +80,7 @@ export const test_validation_pose_root_transform = (): void => {
     hasViolation(badRotation, "range", "$input.root.rotation.w"),
   );
 
-  const nonUnitRotation = validatePoseResult(
+  const nonUnitRotation: IAutoMovieValidation = validatePoseResult(
     poseWith({
       ...ROOT,
       rotation: { ...ROOT.rotation, w: 2 },
@@ -86,7 +97,7 @@ export const test_validation_pose_root_transform = (): void => {
     hasViolation(nonUnitRotation, "range", "$input.root.rotation"),
   );
 
-  const badScale = validatePoseResult(
+  const badScale: IAutoMovieValidation = validatePoseResult(
     poseWith({
       ...ROOT,
       scale: { ...ROOT.scale, y: 0 },
@@ -102,4 +113,4 @@ export const test_validation_pose_root_transform = (): void => {
     "range violation on root scale",
     hasViolation(badScale, "range", "$input.root.scale.y"),
   );
-};
+}

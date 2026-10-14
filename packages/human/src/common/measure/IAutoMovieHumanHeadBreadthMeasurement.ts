@@ -9,6 +9,15 @@
  * not as a bound. A named point or area the head view does not declare
  * refuses the rule by name.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation The breadth kind selects X extent above each named ear top and excludes ear-touching triangles; sample extrema report cited observations rather than admitting a head against limits.
+ * @evidence contracts/common.md#clear-and-simple-design Source ear names and sample context are rule data; readHumanHeadBreadth owns triangle/edge search and its result.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sample bounds never replace this person's skin-derived breadth, and the interface fixes no expected ear identifiers or answer.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives rest skin, exclusion/height semantics, missing-name refusal and reporting-only metre ranges.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This breadth rule shape executes no triangle search; that cost stays with its dispatched reader.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work No prior ear population or breadth reading is carried by this source-name configuration.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The rule owns no retained collection or async work; its strings and sample numbers remain ordinary caller data.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanHeadBreadthMeasurement {

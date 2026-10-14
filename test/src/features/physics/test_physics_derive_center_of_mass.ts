@@ -1,17 +1,35 @@
 import { deriveCenterOfMass } from "@automovie/engine";
-import { IAutoMovieTransform } from "@automovie/interface";
+import {
+  AutoMoviePrimitiveShape,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
 
-const at = (x: number, y: number, z: number, s = 1): IAutoMovieTransform => ({
+const at: (
+  x: number,
+  y: number,
+  z: number,
+  s?: number,
+) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+  s: number = 1,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: s, y: s, z: s },
 });
 
-const unit = { type: "box", width: 1, height: 1, depth: 1 } as const;
+const unit: AutoMoviePrimitiveShape = {
+  type: "box",
+  width: 1,
+  height: 1,
+  depth: 1,
+};
 
 /**
  * `deriveCenterOfMass` is the volume-weighted centroid the engine falls back to
@@ -31,8 +49,13 @@ const unit = { type: "box", width: 1, height: 1, depth: 1 } as const;
  *    out at x=3 balances an unscaled unit box the same 1:8 as scenario 4.
  * 6. A cone contributes its off-origin centroid (+height/4), shifted by its
  *    transform.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Derives centers from primitive prop parts and checks transformed location and volume-weighted balance, catching unweighted averaging or an omitted scale Jacobian and cone offset.
+ * @evidence contracts/testing.md#independent-expectations Symmetry, the 1:8 solid-volume ratio and the cone's height/4 centroid give authored vectors independently of the product's primitive helpers. These fixtures do not establish rotated or articulated mass placement.
+ * @evidence contracts/testing.md#distinguishing-cases Covers one untransformed/translated box, equal opposite boxes, unequal dimensions, equivalent transform scaling and a shifted cone; zero-volume refusal belongs to the degenerate unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported unit executes portable derivation with existing local prop fixtures and direct assertions, without rendering or a native host.
  */
-export const test_physics_derive_center_of_mass = (): void => {
+export function test_physics_derive_center_of_mass(): void {
   TestValidator.predicate(
     "single untransformed box → origin",
     vclose(deriveCenterOfMass(makeProp([primitivePart("b", unit)]))!, {
@@ -103,4 +126,4 @@ export const test_physics_derive_center_of_mass = (): void => {
       { x: 0, y: 6, z: 0 },
     ),
   );
-};
+}

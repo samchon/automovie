@@ -1,13 +1,23 @@
-import { sampleProductionRenderFrame } from "@automovie/engine";
 import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { IAutoMovieProductionRenderFrame } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderFrame";
+import { IAutoMovieProductionRenderLayer } from "../../../../packages/engine/src/film/IAutoMovieProductionRenderLayer";
+import { sampleProductionRenderFrame } from "../../../../packages/engine/src/film/sampleProductionRenderFrame";
+import { nclose, throwsError } from "../internal/predicates";
+import { sameFilmProductionRenderFrames } from "../internal/sameFilmProductionRenderFrames";
+import { sameFilmProductionRenderLayers } from "../internal/sameFilmProductionRenderLayers";
 
-const segment = (
+const segment: (
+  partial: Partial<IAutoMovieFilmTimelineSegment> &
+    Pick<
+      IAutoMovieFilmTimelineSegment,
+      "shot" | "sourceInFrame" | "sourceOutFrame" | "startFrame" | "endFrame"
+    >,
+) => IAutoMovieFilmTimelineSegment = (
   partial: Partial<IAutoMovieFilmTimelineSegment> &
     Pick<
       IAutoMovieFilmTimelineSegment,
@@ -21,7 +31,11 @@ const segment = (
   ...partial,
 });
 
-const timeline = (
+const timeline: (
+  segments: IAutoMovieFilmTimelineSegment[],
+  totalFrames: number,
+  clock?: Pick<IAutoMovieFilmTimeline, "fps" | "frameRate">,
+) => IAutoMovieFilmTimeline = (
   segments: IAutoMovieFilmTimelineSegment[],
   totalFrames: number,
   clock: Pick<IAutoMovieFilmTimeline, "fps" | "frameRate"> = { fps: 24 },
@@ -39,35 +53,22 @@ const timeline = (
 });
 
 /**
- * A film frame resolves to its layers from the global frame number alone.
- *
- * The browser film viewer and the headless render both call this sampler, so
- * the layer set, source frames and weights at every frame are the shared edit
- * truth. Expectations are exact integer and binary-fraction arithmetic on the
- * declared segments: a layer's source frame is its segment's source-in plus
- * the frame offset, a dissolve's outgoing frame counts back from the outgoing
- * segment's exclusive source-out, and a fade scales by offset over duration.
+ * Samples a film timeline and checks fade/dissolve layers, hard-cut source frames, rational-rate timestamp, reverse-order consistency and located schedule failures.
  *
  * Scenarios:
+ * 1. Sample fade-in and dissolve start/interior/end layers.
+ * 2. Sample fade-out, whose final retained frame has quarter weight, and simultaneous fades.
+ * 3. Hand a hard-cut boundary frame to the next segment.
+ * 4. Stamp frame three at 30000/1001 fps and preserve reverse-order sampling.
+ * 5. Refuse invalid frame indexes, an uncovered frame and an orphan dissolve while admitting its post-window neighbour.
  *
- * 1. A fade-in opens the film at weight 0 on the first frame and reaches full
- *    weight exactly when the offset equals the fade duration.
- * 2. Inside a dissolve the later-starting segment owns the frame and the
- *    outgoing tail blends back to front at weights 1, 0.5 and 0.25; on the
- *    first frame after the dissolve one incoming layer remains.
- * 3. A fade-out ends the film at 0.25 on its last frame and is not applied
- *    before its window; a segment fading in and out takes the smaller weight.
- * 4. A hard cut hands the frame to the next segment on its start frame, with
- *    exactly one layer on either side of the cut.
- * 5. A rational clock stamps exact frame time, and every frame sampled in
- *    reverse order equals the forward schedule, so a chunk or seek order
- *    cannot change a frame.
- * 6. A negative, fractional, or end-of-film frame, a frame no segment covers,
- *    and a dissolve with no outgoing segment are refused by name, while the
- *    same first segment past its dissolve window samples normally.
+ * @evidence contracts/testing.md#behavioral-verification Samples a film timeline and checks fade/dissolve layers, hard-cut source frames, rational-rate timestamp, reverse-order consistency and located schedule failures.
+ * @evidence contracts/testing.md#independent-expectations Integer source-in/out offsets and duration-four linear ramps determine each expected layer; timestamp is binary64 3*1001/30000 rather than exact rational storage. Reverse equality is a relational determinism check and cannot independently expose a shared sampler defect.
+ * @evidence contracts/testing.md#distinguishing-cases Retains fade endpoints/interior, dissolve start/interior/end, simultaneous fades, hard cut, rational clock, forward/reverse traversal, invalid clocks, schedule gap and orphan dissolve with its post-window neighbor.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_frame_sampling unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_production_frame_sampling = (): void => {
-  const edit = timeline(
+export function test_film_production_frame_sampling(): void {
+  const edit: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "a",
@@ -91,23 +92,29 @@ export const test_film_production_frame_sampling = (): void => {
     ],
     20,
   );
-  const layers = (frame: number) =>
+  const layers: (frame: number) => IAutoMovieProductionRenderLayer[] = (
+    frame: number,
+  ): IAutoMovieProductionRenderLayer[] =>
     sampleProductionRenderFrame(edit, frame).layers;
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "a fade-in opens at zero and reaches full weight at its duration",
-    [0, 1, 3, 4, 7].map(layers),
     [
       [{ shot: "a", sourceFrame: 10, weight: 0 }],
       [{ shot: "a", sourceFrame: 11, weight: 0.25 }],
       [{ shot: "a", sourceFrame: 13, weight: 0.75 }],
       [{ shot: "a", sourceFrame: 14, weight: 1 }],
       [{ shot: "a", sourceFrame: 17, weight: 1 }],
-    ],
+    ].every(
+      (expected: IAutoMovieProductionRenderLayer[], index: number): boolean =>
+        sameFilmProductionRenderLayers(
+          layers([0, 1, 3, 4, 7][index]!),
+          expected,
+        ),
+    ),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a dissolve blends the outgoing tail back to front",
-    [8, 10, 11, 12].map(layers),
     [
       [
         { shot: "a", sourceFrame: 18, weight: 1 },
@@ -122,19 +129,30 @@ export const test_film_production_frame_sampling = (): void => {
         { shot: "b", sourceFrame: 8, weight: 0.75 },
       ],
       [{ shot: "b", sourceFrame: 9, weight: 1 }],
-    ],
+    ].every(
+      (expected: IAutoMovieProductionRenderLayer[], index: number): boolean =>
+        sameFilmProductionRenderLayers(
+          layers([8, 10, 11, 12][index]!),
+          expected,
+        ),
+    ),
   );
-  TestValidator.equals(
-    "a fade-out closes the film on its last frame",
-    [15, 16, 17, 19].map(layers),
+  TestValidator.predicate(
+    "the fade-out's final retained frame has quarter weight",
     [
       [{ shot: "b", sourceFrame: 12, weight: 1 }],
       [{ shot: "b", sourceFrame: 13, weight: 1 }],
       [{ shot: "b", sourceFrame: 14, weight: 0.75 }],
       [{ shot: "b", sourceFrame: 16, weight: 0.25 }],
-    ],
+    ].every(
+      (expected: IAutoMovieProductionRenderLayer[], index: number): boolean =>
+        sameFilmProductionRenderLayers(
+          layers([15, 16, 17, 19][index]!),
+          expected,
+        ),
+    ),
   );
-  const shortFade = timeline(
+  const shortFade: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "e",
@@ -148,16 +166,19 @@ export const test_film_production_frame_sampling = (): void => {
     ],
     4,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a segment fading in and out takes the smaller weight",
-    [0, 1, 2, 3].map(
-      (frame) =>
-        sampleProductionRenderFrame(shortFade, frame).layers[0]!.weight,
-    ),
-    [0, 0.25, 0.5, 0.25],
+    [0, 1, 2, 3]
+      .map(
+        (frame: number): number =>
+          sampleProductionRenderFrame(shortFade, frame).layers[0]!.weight,
+      )
+      .every((weight: number, index: number): boolean =>
+        nclose(weight, [0, 0.25, 0.5, 0.25][index]!),
+      ),
   );
 
-  const cut = timeline(
+  const cut: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "c",
@@ -176,16 +197,21 @@ export const test_film_production_frame_sampling = (): void => {
     ],
     10,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "a hard cut hands the start frame to the next segment",
-    [5, 6].map((frame) => sampleProductionRenderFrame(cut, frame).layers),
     [
       [{ shot: "c", sourceFrame: 8, weight: 1 }],
       [{ shot: "d", sourceFrame: 0, weight: 1 }],
-    ],
+    ].every(
+      (expected: IAutoMovieProductionRenderLayer[], index: number): boolean =>
+        sameFilmProductionRenderLayers(
+          sampleProductionRenderFrame(cut, [5, 6][index]!).layers,
+          expected,
+        ),
+    ),
   );
 
-  const rational = timeline(
+  const rational: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "r",
@@ -198,29 +224,36 @@ export const test_film_production_frame_sampling = (): void => {
     10,
     { fps: 30000 / 1001, frameRate: { numerator: 30000, denominator: 1001 } },
   );
-  TestValidator.equals(
-    "a rational clock stamps exact frame time on the global frame",
-    sampleProductionRenderFrame(rational, 3),
-    {
-      globalFrame: 3,
-      timelineFrame: 3,
-      timeSeconds: 3003 / 30000,
-      layers: [{ shot: "r", sourceFrame: 3, weight: 1 }],
-    },
+  TestValidator.predicate(
+    "a rational clock stamps the independently calculated frame time within 1e-6",
+    sameFilmProductionRenderFrames(
+      [sampleProductionRenderFrame(rational, 3)],
+      [
+        {
+          globalFrame: 3,
+          timelineFrame: 3,
+          timeSeconds: 3003 / 30000,
+          layers: [{ shot: "r", sourceFrame: 3, weight: 1 }],
+        },
+      ],
+    ),
   );
-  const forward = Array.from({ length: 20 }, (_, frame) =>
-    sampleProductionRenderFrame(edit, frame),
+  const forward: IAutoMovieProductionRenderFrame[] = Array.from(
+    { length: 20 },
+    (_: unknown, frame: number): IAutoMovieProductionRenderFrame =>
+      sampleProductionRenderFrame(edit, frame),
   );
-  const reverse = Array.from({ length: 20 }, (_, index) =>
-    sampleProductionRenderFrame(edit, 19 - index),
+  const reverse: IAutoMovieProductionRenderFrame[] = Array.from(
+    { length: 20 },
+    (_: unknown, index: number): IAutoMovieProductionRenderFrame =>
+      sampleProductionRenderFrame(edit, 19 - index),
   ).reverse();
-  TestValidator.equals(
+  TestValidator.predicate(
     "reverse sampling equals the forward schedule",
-    reverse,
-    forward,
+    sameFilmProductionRenderFrames(reverse, forward),
   );
 
-  const firstDissolve = timeline(
+  const firstDissolve: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "x",
@@ -233,7 +266,7 @@ export const test_film_production_frame_sampling = (): void => {
     ],
     4,
   );
-  const gap = timeline(
+  const gap: IAutoMovieFilmTimeline = timeline(
     [
       segment({
         shot: "g",
@@ -249,26 +282,30 @@ export const test_film_production_frame_sampling = (): void => {
     "frames outside the schedule or its sources are refused by name",
     {
       negative: throwsError(
-        () => sampleProductionRenderFrame(edit, -1),
+        (): IAutoMovieProductionRenderFrame =>
+          sampleProductionRenderFrame(edit, -1),
         "Film-global frame -1 is outside 0..19.",
       ),
       fractional: throwsError(
-        () => sampleProductionRenderFrame(edit, 1.5),
+        (): IAutoMovieProductionRenderFrame =>
+          sampleProductionRenderFrame(edit, 1.5),
         "outside 0..19",
       ),
       end: throwsError(
-        () => sampleProductionRenderFrame(edit, 20),
+        (): IAutoMovieProductionRenderFrame =>
+          sampleProductionRenderFrame(edit, 20),
         "outside 0..19",
       ),
       uncovered: throwsError(
-        () => sampleProductionRenderFrame(gap, 5),
+        (): IAutoMovieProductionRenderFrame =>
+          sampleProductionRenderFrame(gap, 5),
         "Film-global frame 5 has no builder-owned video segment.",
       ),
       orphanDissolve: throwsError(
-        () => sampleProductionRenderFrame(firstDissolve, 0),
+        (): IAutoMovieProductionRenderFrame =>
+          sampleProductionRenderFrame(firstDissolve, 0),
         'Segment "x" dissolves without an outgoing segment.',
       ),
-      pastDissolveWindow: sampleProductionRenderFrame(firstDissolve, 2).layers,
     },
     {
       negative: true,
@@ -276,7 +313,13 @@ export const test_film_production_frame_sampling = (): void => {
       end: true,
       uncovered: true,
       orphanDissolve: true,
-      pastDissolveWindow: [{ shot: "x", sourceFrame: 2, weight: 1 }],
     },
   );
-};
+  TestValidator.predicate(
+    "the orphan segment samples normally after its dissolve window",
+    sameFilmProductionRenderLayers(
+      sampleProductionRenderFrame(firstDissolve, 2).layers,
+      [{ shot: "x", sourceFrame: 2, weight: 1 }],
+    ),
+  );
+}

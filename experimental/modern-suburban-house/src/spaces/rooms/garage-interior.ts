@@ -1,22 +1,11 @@
-/**
- * `garage`: the empty two-car garage interior.
- *
- * Design owner: `docs/spaces/rooms/garage-interior.md#garage-interior-plan`,
- * whose outline and inner faces come from
- * `docs/spaces/00-building.md#attached-garage-extent`: finished inner
- * X = [5.75, 11.45], Z = [-6.45, -0.55] m, floor Y = -0.15 m. The garage stays
- * empty: no car or vehicle silhouette is authored. `garage.ts` emits the floor
- * support, ceiling base and shared wall; this owner authors the exposed concrete
- * floor face and the 0.015 m ceiling finish Y = [2.55, 2.565].
- * Shelves and the workbench are later models.
- */
+
 import { PALETTE } from "../palette";
 import { STOREYS } from "../storeys";
 import { GARAGE_FRONT_DOOR } from "../envelope/front";
 import { GARAGE } from "../building";
 import { garageFloorMesh } from "../garage";
 import { partitionPlaneFace } from "../face-partition";
-import { part } from "../solid-records";
+import { part } from "../part";
 import { box, roomCeiling, type IRoomBuild, type IRoomSpace } from "./shared";
 
 const FLOOR = STOREYS.garageFloor;
@@ -61,15 +50,6 @@ const GARAGE_INTERIOR: IRoomSpace = {
 };
 
 /** Emit the garage record, exposed concrete floor and ceiling finish. */
-/**
- * @evidence spaces/rooms/garage-interior.md This builder records the empty garage room and authors its exposed floor and ceiling finishes.
- * @evidence spaces/rooms/garage-interior.md#garage-interior-plan Its -0.15 m floor and 2.55 m ceiling come from STOREYS while garage.ts owns structural base and shared wall.
- * @evidence spaces/rooms/garage-interior.md#garage-storage-use Shelf, workbench, drawer, and tool-board occupancy are reserved at the rear wall, without vehicle geometry.
- * @evidence spaces/rooms/garage-interior.md#garage-use-routes West, cross, and window routes remain as clear floor reservations around those storage boxes.
- * @evidence principles/core/source-units.md#source-scope-preservation It emits no car, shelf, or garage structural base; its floor part contains only the top face of the shared slab.
- * @evidence principles/core/source-units.md#source-substantive-completion The room record has explicit levels and reservations, and this owner emits its exposed floor and ceiling parts.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Adding the designed overhead guide revealed that a planar route test rejected a walkable garage; room-route-network now declares its 2.00 m vertical test band.
- */
 export const buildGarageInterior = (): IRoomBuild => ({
   space: GARAGE_INTERIOR,
   parts: [

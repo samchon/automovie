@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * 신전 뷰어 클라이언트. 서버가 현재 source로 만든 payload만 그린다.
- * 원근 카메라의 source 렌즈, 설정의 주광 방향(정면 좌측 위, 고도 45°)과 하늘
- * 보조광, 부드러운 그림자, 깊이를 쓴다. 라벨·support·표면 소유 색·절개는
- * 검사 모드에서만 켠다. 연직 단면은 X 또는 Z 평면으로 자르고, 서버가 현재
- * source의 실체에서 계산한 정확한 단면 조각과 지면선을 그 평면에 그리며,
- * 정사영과 0.5m 격자로 높이를 읽는다.
- * 불러오기 실패 시 장면을 비우고 오류를 표시한다.
+ * Temple viewer client, drawing only the server's current-source payload.
+ * It uses the source perspective lens, configured daylight direction (upper
+ * front left, elevation 45°), sky fill, soft shadows and depth. Labels,
+ * supports, owner colors and cutaways are inspection displays. Vertical
+ * sections cut an X or Z plane and draw exact server-computed solid pieces
+ * and ground lines; orthographic projection and a 0.5 m grid reveal height.
+ * Loading failure clears the scene and displays the error.
  */
 import * as THREE from "three";
 import type { ViewerPayload } from "./payload";
@@ -36,7 +36,7 @@ import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from ".
  */
 function required<T extends Element>(selector: string, kind: new () => T): T {
   const value = document.querySelector(selector);
-  if (!(value instanceof kind)) throw new Error(`뷰어 조작부 누락: ${selector}`);
+  if (!(value instanceof kind)) throw new Error(`Missing viewer control: ${selector}`);
   return value;
 }
 
@@ -75,7 +75,7 @@ let station: ViewerPayload["observations"][number] | null = null;
 const planCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1.2);
 const verticalCut = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
 const orthoCamera = new THREE.OrthographicCamera(-6.4, 6.4, 4, -4, 0.05, 200);
-// 단면 평면 위 0.5m 격자(1m마다 진한 선, 빨간 선은 Y=0과 평면 원점). 검사 표시이며 geometry가 아니다.
+// Inspection grid on the section plane: 0.5 m spacing, dark at 1 m, red at Y=0 and the plane origin.
 const sectionGrid = new THREE.Group();
 sectionGrid.name = "section-grid";
 for (const [divisions, center, color, opacity] of [[80, 0x9fb3c8, 0x9fb3c8, 0.35], [40, 0xc0392b, 0x2f5f8f, 0.75]]) {
@@ -89,14 +89,14 @@ scene.add(sectionGrid);
 const sectionShapes = new THREE.Group();
 sectionShapes.name = "section-pieces";
 scene.add(sectionShapes);
-/** 단면 조각 종류별 채움 색(검사 표시이며 재료가 아니다). */
+/** Section fill colors by piece kind, for inspection rather than materials. */
 const sectionColors = { wall: 0x7a3b2e, roof: 0x3d4a57, trim: 0xc9a227, floor: 0x5b6b3a };
 let sectionShown: SectionShown | null = null;
 let sectionRequest = 0;
 
 /**
- * 서버 단면을 받아 평면 위 도형으로 바꾼다. 조각은 남기는 쪽 1mm 안에 놓여
- * 잘린 실체의 속을 덮는다. 틈은 조각 사이의 빈칸, 겹침은 조각이 포개진 자리로 보인다.
+ * Convert the server section into plane shapes, placed 1 mm inside the retained
+ * side to cover cut interiors. Gaps leave blank spaces; overlaps stack pieces.
  * @param {{ axis: "x" | "z", offset: number, flip: boolean }} cut
  */
 async function loadSection(cut: TempleSectionRequest) {
@@ -105,7 +105,7 @@ async function loadSection(cut: TempleSectionRequest) {
   const request = ++sectionRequest;
   const response = await fetch(`/section?axis=${cut.axis}&offset=${cut.offset}`, { cache: "no-store" });
   if (!response.ok) {
-    fail(`단면 HTTP ${response.status}
+    fail(`Section HTTP ${response.status}
 ${await response.text()}`);
     return;
   }
@@ -137,7 +137,7 @@ ${await response.text()}`);
   describe();
 }
 
-/** 연직 단면 설정: 축, 위치, 남기는 쪽, 정사영. */
+/** Vertical section settings: axis, position, retained side and orthographic view. */
 function cutState() {
   const axis: "x" | "z" | null = section.value === "cut-x" ? "x" : section.value === "cut-z" ? "z" : null;
   const offset = Number(sectionOffset.value);
@@ -162,12 +162,12 @@ function fail(message: string) {
     current = null;
   }
   banner.hidden = false;
-  banner.textContent = `현재 source를 불러오지 못했습니다. 이전 화면은 표시하지 않습니다.\n${message}`;
-  status.textContent = "오류: 현재 source 불러오기 실패";
+  banner.textContent = `Could not load current source. An earlier scene will not be displayed.\n${message}`;
+  status.textContent = "Error: current source failed to load";
 }
 
 async function load() {
-  status.textContent = "현재 source를 불러오는 중입니다.";
+  status.textContent = "Loading current source.";
   const response = await fetch("/scene", { cache: "no-store" });
   if (!response.ok) {
     fail(`HTTP ${response.status}\n${await response.text()}`);
@@ -194,12 +194,12 @@ async function load() {
   banner.hidden = true;
   populate(body.payload);
   const census = body.payload.census;
-  status.textContent = `source ${body.basis} · RENDERER ${rendererName} · model ${census.models} · 삼각형 ${census.triangles} · 관찰 ${body.payload.observations.length}`;
+  status.textContent = `source ${body.basis} · RENDERER ${rendererName} · models ${census.models} · triangles ${census.triangles} · observations ${body.payload.observations.length}`;
   notices.replaceChildren(...body.payload.notices.map((text) => Object.assign(document.createElement("li"), { textContent: text })));
   applyInspection();
   const requested = params.get("station");
   if (requested === null || !selectStation(requested)) selectStation("exterior.setting");
-  // ?camera=x,y,z&target=x,y,z: 기록된 임의 시점을 재현한다(관찰 목록 밖의 결산 결함 위치 확인용).
+  // ?camera=x,y,z&target=x,y,z reproduces recorded free views for defects outside the observation list.
   const camera3 = parseVector(params.get("camera"));
   const target3 = parseVector(params.get("target"));
   if (camera3 !== null && target3 !== null) {
@@ -215,7 +215,7 @@ async function load() {
 }
 
 /**
- * "x,y,z" 문자열을 세 유한수로 읽는다. 형식이 다르면 null.
+ * Read an "x,y,z" string as three finite numbers; return null for invalid input.
  * @param {string | null} text
  * @returns {[number, number, number] | null}
  */
@@ -227,12 +227,12 @@ function parseVector(text: string | null): [number, number, number] | null {
 
 /** @param {Payload} payload */
 function populate(payload: ViewerPayload) {
-  spaceSelect.replaceChildren(new Option("외부 전체", ""), ...payload.spaces.map((s) => new Option(s.name, s.id)));
+  spaceSelect.replaceChildren(new Option("All exterior", ""), ...payload.spaces.map((s) => new Option(s.name, s.id)));
   refillStations(payload);
   spaceList.replaceChildren(...payload.spaces.map((s) => {
     const item = document.createElement("li");
     const count = payload.observations.filter((o) => o.space === s.id).length;
-    item.textContent = `${s.name}(${s.id}): cell ${s.cellCount}, 관찰 ${count}`;
+    item.textContent = `${s.name}(${s.id}): cells ${s.cellCount}, observations ${count}`;
     return item;
   }));
 }
@@ -242,12 +242,12 @@ function refillStations(payload: ViewerPayload) {
   const space = spaceSelect.value;
   const outside = ["exterior", "junction", "section", "reference"];
   const list = payload.observations.filter((o) => space === "" ? outside.includes(o.group) : o.space === space);
-  stationSelect.replaceChildren(...list.map((o) => new Option(`${o.label}${o.position === null ? " (pose 없음)" : ""}`, o.id)));
+  stationSelect.replaceChildren(...list.map((o) => new Option(`${o.label}${o.position === null ? " (no pose)" : ""}`, o.id)));
 }
 
 let viewApplied = false;
 /**
- * 관찰이 가진 검사 보기(연직 단면·절개 조감)를 켜고, 보기가 없는 관찰로 옮기면 그 보기를 끈다.
+ * Apply the observation's section or cutaway view; clear it when the next observation has none.
  * @param {Observation} observation
  */
 function applyView(observation: ViewerPayload["observations"][number]) {
@@ -285,7 +285,7 @@ function selectStation(id: string) {
   camera.position.set(observation.position.x, observation.position.y, observation.position.z);
   const direction = new THREE.Vector3(observation.target.x - observation.position.x,
     observation.target.y - observation.position.y, observation.target.z - observation.position.z);
-  // 실내 관찰은 target을 눈앞 가까이 두어 궤도 조작이 제자리 둘러보기가 되게 한다.
+  // Indoor observations keep the target near the eye so orbit controls turn in place.
   const reach = observation.group === "space" ? 0.4 : direction.length();
   controls.target.copy(camera.position).add(direction.normalize().multiplyScalar(reach));
   camera.lookAt(controls.target);
@@ -295,7 +295,7 @@ function selectStation(id: string) {
 }
 
 /**
- * 검사용 자유 시점. 관찰 목록에 없는 위치이며 기록할 때는 좌표를 함께 남긴다.
+ * Free inspection view outside the observation list; record its coordinates.
  * @param {number[]} position @param {number[]} target
  */
 function look(position: number[], target: number[]) {
@@ -305,8 +305,8 @@ function look(position: number[], target: number[]) {
   camera.lookAt(controls.target);
   controls.update();
   station = null;
-  details.textContent = `자유 시점(관찰 목록 밖)
-카메라: (${position.join(", ")})
+  details.textContent = `Free view (outside the observation list)
+Camera: (${position.join(", ")})
 target: (${target.join(", ")})`;
   return true;
 }
@@ -315,23 +315,23 @@ function describe() {
   if (station === null) return;
   const f = (v: Point3) => `(${v.x.toFixed(2)}, ${v.y.toFixed(2)}, ${v.z.toFixed(2)})`;
   details.textContent = [
-    `관찰: ${station.id}`, `이름: ${station.label}`, `역할: ${station.role}`,
-    `카메라: ${f(camera.position)}`, `target: ${f(controls.target)}`, `렌즈: 수직 ${camera.fov}°, 화면 비율 ${camera.aspect.toFixed(2)}`,
-    `모드: ${inspection.checked ? `검사(${section.value})` : "납품 보기"}`,
+    `Observation: ${station.id}`, `Name: ${station.label}`, `Role: ${station.role}`,
+    `Camera: ${f(camera.position)}`, `target: ${f(controls.target)}`, `Lens: vertical ${camera.fov}°, aspect ${camera.aspect.toFixed(2)}`,
+    `Mode: ${inspection.checked ? `Inspection (${section.value})` : "Delivery view"}`,
     sectionLine(),
-    station.note === null ? "" : `메모: ${station.note}`,
+    station.note === null ? "" : `Note: ${station.note}`,
   ].filter((line) => line.length > 0).join("\n");
 }
 
 function sectionLine() {
   const cut = cutState();
   if (!inspection.checked || cut.axis === null) return "";
-  const kept = cut.flip ? "큰 쪽" : "작은 쪽";
-  const pieces = sectionShown === null ? "불러오는 중" : `조각 ${sectionShown.pieces}개(벽 적갈·지붕 청회·코핑/기단 황·바닥 녹, 지면선 초록)`;
-  return `단면: ${cut.axis.toUpperCase()}=${cut.offset.toFixed(2)}m, ${kept} 남김${cut.ortho ? `, 정사영 반높이 ${cut.span.toFixed(1)}m` : ""}, ${pieces}`;
+  const kept = cut.flip ? "greater side" : "lesser side";
+  const pieces = sectionShown === null ? "loading" : `${sectionShown.pieces} pieces (walls red-brown, roof blue-gray, coping/plinth yellow, floors green, ground line green)`;
+  return `Section: ${cut.axis.toUpperCase()}=${cut.offset.toFixed(2)}m, retaining ${kept}${cut.ortho ? `, orthographic half-height ${cut.span.toFixed(1)}m` : ""}, ${pieces}`;
 }
 
-/** 정사영 단면 카메라: 잘라낸 쪽에서 평면에 수직으로 controls.target을 본다. */
+/** Orthographic section camera looking normally at controls.target from the removed side. */
 function orthoFrame() {
   const cut = cutState();
   if (!inspection.checked || cut.axis === null || !cut.ortho) return null;
@@ -359,14 +359,14 @@ function applyInspection() {
   const cutting = on && cut.axis !== null;
   for (const input of [sectionOffset, sectionFlip, sectionOrtho, sectionSpan]) input.disabled = !cutting;
   if (cutting) {
-    // 기본은 좌표가 작은 쪽을 남기고(보는 쪽은 큰 쪽), 반대쪽 남김이면 뒤집는다.
+    // Retain lesser coordinates by default, viewing from greater coordinates; flip for the other side.
     const sign = cut.flip ? 1 : -1;
     verticalCut.normal.set(cut.axis === "x" ? sign : 0, 0, cut.axis === "z" ? sign : 0);
     verticalCut.constant = -sign * cut.offset;
     sectionGrid.rotation.set(0, 0, 0);
     if (cut.axis === "x") sectionGrid.rotation.z = Math.PI / 2;
     else sectionGrid.rotation.x = Math.PI / 2;
-    // 격자는 남기는 쪽 바로 안에 둔다(잘라낸 쪽에 두면 절단 평면에 같이 잘린다).
+    // Place the grid just inside the retained side so the cutting plane does not clip it.
     const toward = cut.flip ? 0.004 : -0.004;
     sectionGrid.position.set(cut.axis === "x" ? cut.offset + toward : 0, 0, cut.axis === "z" ? cut.offset + toward : 0);
   }
@@ -432,13 +432,13 @@ for (const input of [inspection, section, owners, supportsToggle, sectionOffset,
 }
 reset.addEventListener("click", () => selectStation(station?.id ?? "exterior.setting"));
 reviewLoad.addEventListener("click", () => {
-  loadReview().catch((error) => { reviewOutput.textContent = `결산 실패: ${error instanceof Error ? error.message : String(error)}`; });
+  loadReview().catch((error) => { reviewOutput.textContent = `Review failed: ${error instanceof Error ? error.message : String(error)}`; });
 });
 
-/** 자가검사와 같은 producer의 /review 결과를 텍스트로 보인다(색만으로 표시하지 않는다). */
+/** Show /review measurements from the self-check producer as text alongside colors. */
 async function loadReview() {
   reviewLoad.disabled = true;
-  reviewOutput.textContent = "현재 source를 재는 중입니다.";
+  reviewOutput.textContent = "Measuring current source.";
   try {
     const response = await fetch("/review?grid=0.01", { cache: "no-store" });
     if (!response.ok) throw new Error(await response.text());
@@ -446,11 +446,11 @@ async function loadReview() {
     const revision = review.revision === null ? "unverified" : `${review.revision.commit.slice(0, 8)}${review.revision.dirty ? " (dirty)" : ""}`;
     const lines = [
       `source ${review.basis} · revision ${revision}`,
-      `겹침 스캔: ${review.overlaps.solids} 실체, ${review.overlaps.grid} m 격자, ${review.overlaps.samples} 표본 → 겹친 쌍 ${review.overlaps.pairs.length}`,
-      `관찰 ${review.observations.count}(pose 없음 ${review.observations.withoutPose}), 실체 안 pose ${review.observations.buried.length}`,
-      `topology 결산 ${review.ledger.length}행, 계약 위반 ${review.ledger.filter((row) => row.findings.length > 0).length}행`,
+      `Overlap scan: ${review.overlaps.solids} solids, ${review.overlaps.grid} m grid, ${review.overlaps.samples} samples → ${review.overlaps.pairs.length} overlapping pairs`,
+      `Observations ${review.observations.count} (${review.observations.withoutPose} without pose), buried poses ${review.observations.buried.length}`,
+      `Topology ledger ${review.ledger.length} rows, ${review.ledger.filter((row) => row.findings.length > 0).length} contract violations`,
       ...review.ledger.map(({ account: a, contract, findings }) =>
-        `${findings.length > 0 ? "위반" : "충족"} ${a.id} [${contract}] 삼각형 ${a.triangles}, 틈 ${a.openEdges}, 비다양체 ${a.nonManifoldEdges}/${a.resolvedNonManifold}, 감김 ${a.windingErrors}, 성분 ${a.components}, 체적 ${a.volume.toFixed(3)}${findings.length > 0 ? ` — ${findings.join("; ")}` : ""}`),
+        `${findings.length > 0 ? "VIOLATION" : "PASS"} ${a.id} [${contract}] triangles ${a.triangles}, open edges ${a.openEdges}, non-manifold ${a.nonManifoldEdges}/${a.resolvedNonManifold}, winding ${a.windingErrors}, components ${a.components}, volume ${a.volume.toFixed(3)}${findings.length > 0 ? ` — ${findings.join("; ")}` : ""}`),
     ];
     reviewOutput.textContent = lines.join("\n");
   } finally {

@@ -13,7 +13,11 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -46,10 +50,20 @@ const skeleton: IAutoMovieSkeleton = {
  * 3. `falloff` of 0 leaves a downstream link's flexion at `null`, not pinned to
  *    its ROM minimum.
  * 4. Each result passes the same pose validator that defines effective ROM.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds recoil on zero-excluding ranges and distinguishes null untouched/zeroed axes from nonzero range-clamped pushes, asserting immobile twist and ordinary validator compatibility.
+ * @evidence contracts/testing.md#independent-expectations Authored 10..145 and 5..30 intervals independently give the 145/5 clamps, while the pose contract makes untouched or zeroed axes null. Validator acceptance shares effective-ROM dependencies and is supplemental compatibility evidence, not independent anatomical proof.
+ * @evidence contracts/testing.md#distinguishing-cases Covers absent push axes, a pushed immobile axis, explicit zero, high and below-minimum nonzero requests and downstream falloff zero; other falloff boundaries and invalid push admission belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and invokes recoil/validation on local rigs, without a Human renderer, OS host or dynamic registration.
  */
-export const test_physics_impact_recoil_neutral_axis = (): void => {
-  const pose = impactRecoil({ twist: 8 }, ["leftLowerArm"], skeleton, 1);
-  const joint = pose.joints[0]!;
+export function test_physics_impact_recoil_neutral_axis(): void {
+  const pose: ReturnType<typeof impactRecoil> = impactRecoil(
+    { twist: 8 },
+    ["leftLowerArm"],
+    skeleton,
+    1,
+  );
+  const joint: (typeof pose.joints)[number] = pose.joints[0]!;
   TestValidator.equals(
     "un-pushed flexion stays at rest, not ROM min 10",
     joint.flexion,
@@ -69,7 +83,7 @@ export const test_physics_impact_recoil_neutral_axis = (): void => {
     validatePoseResult(pose, skeleton),
     { success: true },
   );
-  const explicitZero = impactRecoil(
+  const explicitZero: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 0 },
     ["leftLowerArm"],
     skeleton,
@@ -86,13 +100,13 @@ export const test_physics_impact_recoil_neutral_axis = (): void => {
     { success: true },
   );
 
-  const pushed = impactRecoil(
+  const pushed: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 200, abduction: 1 },
     ["leftLowerArm"],
     skeleton,
     1,
   );
-  const pushedJoint = pushed.joints[0]!;
+  const pushedJoint: (typeof pushed.joints)[number] = pushed.joints[0]!;
   TestValidator.predicate(
     "over-range flexion push clamps to ROM max 145",
     nclose(pushedJoint.flexion!, 145),
@@ -122,7 +136,7 @@ export const test_physics_impact_recoil_neutral_axis = (): void => {
       }),
     ],
   };
-  const chain = impactRecoil(
+  const chain: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 50 },
     ["leftLowerArm", "leftHand"],
     chainSkeleton,
@@ -142,4 +156,4 @@ export const test_physics_impact_recoil_neutral_axis = (): void => {
     validatePoseResult(chain, chainSkeleton),
     { success: true },
   );
-};
+}

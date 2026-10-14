@@ -3,13 +3,15 @@ import {
   sampleFluidDomain,
   simulateFluidDomain,
 } from "@automovie/engine";
+import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { exactArray, flatBasin } from "../internal/fluidFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const seekable = () => {
-  const depth = new Array(24).fill(0.25);
+/** Build the original disturbed 6x4 domain with live source, drain and drag, capped at step 64; the owning entry observes order, repeat and seek-boundary behavior. */
+const seekable: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
+  const depth: number[] = new Array<number>(24).fill(0.25);
   depth[9] = 0.5;
   return flatBasin({
     columns: 6,
@@ -45,90 +47,128 @@ const seekable = () => {
 };
 
 /**
- * Seeking a fluid domain is absolute: any order of requests yields the same
- * states as playing straight through, and the same request twice yields
- * bit-identical bytes.
+ * Observe absolute CPU seeks in the selected scrambled order and repeated
+ * requests at step 40, including fixed-step time snapping and refusal bounds.
  *
- * This is the product contract that lets a shot be scrubbed, re-rendered from
- * the middle, or chunked across workers. It holds because a state is a pure
- * function of `(domain, step)` with nothing cached between calls — there is no
- * runtime object for a frame-order accumulation to hide in — and it is proven
- * here on a domain that is deliberately hard: a running source, a gated drain,
- * drag, and an off-centre disturbance, so every accumulating term is live.
+ * Absolute seeking supports shot scrubbing and replay without call-order state. This entry observes one in-process domain with a source, drain, drag and off-centre disturbance; it does not launch workers or prove another host's arithmetic.
  *
  * Scenarios:
  *
- * 1. Steps 0..16 requested in a scrambled order digest identically to the same
- *    steps requested in ascending order, field by field.
- * 2. Asking twice for the same step returns bit-identical depth, velocity and
- *    ledger arrays.
- * 3. `sampleFluidDomain` snaps a shot second down to its step: any time inside a
- *    step reads that step's state, a negative time reads step 0, and the exact
- *    step boundary reads the new step and not the old one.
+ * 1. Steps 0..16 requested in the selected scrambled order have matching
+ *    eight-character digests; hash equality alone is not field identity.
+ * 2. Asking twice for step 40 returns bit-identical depth/velocity arrays, volume and ledger scalars, plus the same digest.
+ * 3. At 9.75 steps the sample is step 9; the exact tenth boundary is step 10, while negative and zero times are step 0. These cases do not exercise the sampler's near-boundary 1e-9 step-fraction allowance.
  * 4. An unreachable seek is refused rather than guessed: a fractional step, a
  *    negative step, a step past the declared budget, and a non-finite sample
  *    time each throw with the domain named.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs scrambled and ascending absolute seeks, repeated step-40 field comparisons, time snapping and invalid seeks; catches retained call-order state, changed floor semantics and missing budget/time refusals.
+ * @evidence contracts/testing.md#independent-expectations Literal scramble order and fixed dt define seek/time expectations; step-40 strict field/ledger equality tests repeatability, while step-0-through-16 hash agreement has the documented 32-bit collision limitation and is not a full-field oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Retains zero-through-16 order samples, repeated step 40, inside/boundary/negative/zero time, fractional/negative/over-budget steps, accepted exact budget and NaN time; physics accuracy belongs to hand-math and conservation entries.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns portable absolute CPU calls and refusal-message fragments, without a frame loop, worker process, GPU or cross-platform execution.
  */
-export const test_fluid_seek_determinism = (): void => {
-  const domain = seekable();
-  const ascending = Array.from({ length: 17 }, (_, step) =>
-    fluidStateDigest(simulateFluidDomain(domain, step)),
+export function test_fluid_seek_determinism(): void {
+  const domain: ReturnType<typeof seekable> = seekable();
+  const ascending: string[] = Array.from(
+    { length: 17 },
+    (_: unknown, step: number): string =>
+      fluidStateDigest(simulateFluidDomain(domain, step)),
   );
-  const scrambled = [13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14];
+  const scrambled: number[] = [
+    13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
+  ];
   TestValidator.equals(
     "an absolute seek does not care what was sampled before it",
     namedFacts([
       [
         "digestsMatch",
-        () =>
+        (): boolean =>
           scrambled.every(
-            (step) =>
+            (step: number): boolean =>
               fluidStateDigest(simulateFluidDomain(domain, step)) ===
               ascending[step],
           ),
       ],
-      ["digestsMove", () => new Set(ascending).size === ascending.length],
+      [
+        "digestsMove",
+        (): boolean => new Set(ascending).size === ascending.length,
+      ],
     ]),
     { digestsMatch: true, digestsMove: true },
   );
 
-  const once = simulateFluidDomain(domain, 40);
-  const twice = simulateFluidDomain(domain, 40);
+  const once: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    40,
+  );
+  const twice: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+    domain,
+    40,
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact depth",
+    exactArray(once.depth, twice.depth) &&
+      once.depth.every((value: number, index: number): boolean =>
+        nclose(value, twice.depth[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact X velocity",
+    exactArray(once.velocityX, twice.velocityX) &&
+      once.velocityX.every((value: number, index: number): boolean =>
+        nclose(value, twice.velocityX[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact Z velocity",
+    exactArray(once.velocityZ, twice.velocityZ) &&
+      once.velocityZ.every((value: number, index: number): boolean =>
+        nclose(value, twice.velocityZ[index]!, 0),
+      ),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact volume",
+    Object.is(once.volume, twice.volume) &&
+      nclose(once.volume, twice.volume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact source booking",
+    Object.is(once.sourceVolume, twice.sourceVolume) &&
+      nclose(once.sourceVolume, twice.sourceVolume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact drain booking",
+    Object.is(once.drainVolume, twice.drainVolume) &&
+      nclose(once.drainVolume, twice.drainVolume, 0),
+  );
+  TestValidator.predicate(
+    "repeat seek preserves exact outflow booking",
+    Object.is(once.outflowVolume, twice.outflowVolume) &&
+      nclose(once.outflowVolume, twice.outflowVolume, 0),
+  );
   TestValidator.equals(
-    "the same seek twice is bit-identical",
-    namedFacts([
-      ["depth", () => exactArray(once.depth, twice.depth)],
-      ["velocityX", () => exactArray(once.velocityX, twice.velocityX)],
-      ["velocityZ", () => exactArray(once.velocityZ, twice.velocityZ)],
-      ["volume", () => Object.is(once.volume, twice.volume)],
-      ["source", () => Object.is(once.sourceVolume, twice.sourceVolume)],
-      ["drain", () => Object.is(once.drainVolume, twice.drainVolume)],
-      ["outflow", () => Object.is(once.outflowVolume, twice.outflowVolume)],
-      ["digest", () => fluidStateDigest(once) === fluidStateDigest(twice)],
-    ]),
-    {
-      depth: true,
-      velocityX: true,
-      velocityZ: true,
-      volume: true,
-      source: true,
-      drain: true,
-      outflow: true,
-      digest: true,
-    },
+    "repeat seek preserves digest",
+    fluidStateDigest(once),
+    fluidStateDigest(twice),
   );
 
-  const dt = domain.solver.fixedStepSeconds;
+  const dt: number = domain.solver.fixedStepSeconds;
   TestValidator.equals(
     "a shot second snaps down to its fixed step",
     namedFacts([
-      ["inside", () => sampleFluidDomain(domain, dt * 9.75).step === 9],
-      ["boundary", () => sampleFluidDomain(domain, dt * 10).step === 10],
-      ["negative", () => sampleFluidDomain(domain, -5).step === 0],
-      ["zero", () => sampleFluidDomain(domain, 0).step === 0],
+      [
+        "inside",
+        (): boolean => sampleFluidDomain(domain, dt * 9.75).step === 9,
+      ],
+      [
+        "boundary",
+        (): boolean => sampleFluidDomain(domain, dt * 10).step === 10,
+      ],
+      ["negative", (): boolean => sampleFluidDomain(domain, -5).step === 0],
+      ["zero", (): boolean => sampleFluidDomain(domain, 0).step === 0],
       [
         "sameAsSeek",
-        () =>
+        (): boolean =>
           fluidStateDigest(sampleFluidDomain(domain, dt * 9.75)) ===
           ascending[9],
       ],
@@ -147,35 +187,39 @@ export const test_fluid_seek_determinism = (): void => {
     namedFacts([
       [
         "fractional",
-        () =>
+        (): boolean =>
           throwsError(
-            () => simulateFluidDomain(domain, 1.5),
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, 1.5),
             ["seekable", "non-negative integer"],
           ),
       ],
       [
         "negativeStep",
-        () =>
+        (): boolean =>
           throwsError(
-            () => simulateFluidDomain(domain, -1),
-            ["non-negative integer"],
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, -1),
+            ["seekable", "non-negative integer"],
           ),
       ],
       [
         "pastBudget",
-        () =>
+        (): boolean =>
           throwsError(
-            () => simulateFluidDomain(domain, 65),
-            ["budget stops at 64"],
+            (): ReturnType<typeof simulateFluidDomain> =>
+              simulateFluidDomain(domain, 65),
+            ["seekable", "budget stops at 64"],
           ),
       ],
-      ["atBudget", () => simulateFluidDomain(domain, 64).step === 64],
+      ["atBudget", (): boolean => simulateFluidDomain(domain, 64).step === 64],
       [
         "nonFiniteTime",
-        () =>
+        (): boolean =>
           throwsError(
-            () => sampleFluidDomain(domain, Number.NaN),
-            ["non-finite time"],
+            (): ReturnType<typeof sampleFluidDomain> =>
+              sampleFluidDomain(domain, Number.NaN),
+            ["seekable", "non-finite time"],
           ),
       ],
     ]),
@@ -187,4 +231,4 @@ export const test_fluid_seek_determinism = (): void => {
       nonFiniteTime: true,
     },
   );
-};
+}

@@ -1,73 +1,35 @@
 /**
- * The numerical preview members persisted in the cache: the model and its
- * numerical readings. Display and photograph data are not members, so they
- * cannot reach the disk through this projection.
+ * The fixed preview envelope persisted by the numerical cache: the canonical producer's model and numerical readings. Display/reference fields are omitted from this outer envelope; shallow admission does not independently certify the content of arbitrary nested model members.
  *
- * @evidence contracts/common.md#principled-implementation An explicit member list keeps display metadata out of persistence.
- * @evidence contracts/common.md#meaningful-documentation Names every persisted member.
- *
- * @evidence contracts/common.md#clear-and-simple-design The projection lists numerical model and readings explicitly instead of persisting arbitrary result members.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Display state and photographs have no fields in the disk projection, and construction is not converted into preview.
- *
- * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity An explicit member list keeps display metadata out of persistence.
- * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Display state and photographs have no fields in the disk projection, and construction is not converted into preview.
+ * @evidence contracts/common.md#principled-implementation Names the fixed numerical preview envelope persisted by encoder/upload/decoder with model and optional owner readings only.
+ * @evidence contracts/common.md#clear-and-simple-design Separates cacheable preview fields from display/reference data and construction/export outputs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The shared guard requires operation preview and a non-null non-array object model; nested schema/admission is not certified by that shallow gate.
+ * @evidence contracts/common.md#meaningful-documentation Documents unknown ingress fields, absent optional readings and actual guarded model requirement rather than claiming this broad interface admits itself.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The shape performs no codec work; serialization/decoding scale with model values and the shared guard uses fixed envelope checks.
+ * @evidence contracts/performance.md#reuse-equivalent-work Preview equivalence still requires selected document/basis/source/AO key; matching envelope shape or object identity cannot authorize cache reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Persistence owns one active/one pending preview and full encoded payload bytes until settlement, with no byte cap; the type acquires no worker or photograph.
  *
  * @author Samchon
  */
 export interface IHumanViewerPreviewProjection {
-  /**
-   * Always `preview` for a cached result.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains preview operation identity at the persisted projection boundary rather than converting construction into preview.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains preview operation identity at the persisted projection boundary rather than converting construction into preview.
-   */
+  /** Always `preview` for a cached result. */
   operation: string;
 
-  /**
-   * The numerical model.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Persists only the original numerical model, keeping canvas and photograph data outside cache storage.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Persists only the original numerical model, keeping canvas and photograph data outside cache storage.
-   */
+  /** Unknown ingress model; encoder/upload/decoder admission requires a non-null non-array object without certifying nested model schema. */
   model?: unknown;
 
-  /**
-   * Face articulation reading.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains optional Face articulation readings from the original numerical preview.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains optional Face articulation readings from the original numerical preview.
-   */
+  /** Face articulation reading. */
   articulation?: unknown;
 
-  /**
-   * Face contact reading.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains optional Face contact readings without deriving them from rendered pixels.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains optional Face contact readings without deriving them from rendered pixels.
-   */
+  /** Face contact reading. */
   contact?: unknown;
 
-  /**
-   * Surface crossing reading.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains optional original surface-crossing observations independently of visual acceptance.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains optional original surface-crossing observations independently of visual acceptance.
-   */
+  /** Surface crossing reading. */
   crossings?: unknown;
 
-  /**
-   * Body extras (bones and readings).
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains optional Body numerical bones and readings rather than display-only objects.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains optional Body numerical bones and readings rather than display-only objects.
-   */
+  /** Body extras (bones and readings). */
   extras?: unknown;
 
-  /**
-   * Body anatomy reading.
-   *
-   * @evidence requirements/operations-and-recovery/cache-integrity-and-dependency-loss.md#operations-cache-identity-integrity Retains optional original Body anatomy readings without a viewer-produced anatomical judgement.
-   * @evidence specifications/execution-and-recovery/checkpoints-resume-cache-and-dependencies.md#execution-cache-identity-invalidation Retains optional original Body anatomy readings without a viewer-produced anatomical judgement.
-   */
+  /** Body anatomy reading. */
   anatomy?: unknown;
 }

@@ -7,6 +7,15 @@ import type { IHumanFacePeriocularMappingReading } from "./IHumanFacePeriocularM
 
 /** Actual source sampler buffers and generated sheets for one mapping reading.
  *
+ *
+ * @evidence contracts/common.md#principled-implementation Actual source, outer/inner sheets and optional conforming incidence retain the same producer seats/frames and local publication origin.
+ * @evidence contracts/common.md#clear-and-simple-design readHumanFacePeriocularMapping owns observations and may reuse only the unchanged same-band source reading.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent material remains unknown and no reconstructed coarse sheet replaces a conformed domain.
+ * @evidence contracts/common.md#meaningful-documentation Fields state frames/units, original requested distances, native parents and source-only reuse.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms IHumanFacePeriocularMappingInput is an erased geometry/source contract; its concrete producer or reader owns actual algorithms and population traversal.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work IHumanFacePeriocularMappingInput declares correspondence only; its concrete owner decides geometry copies, shared readings and invalidation.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources IHumanFacePeriocularMappingInput acquires no runtime buffer, handle or task; concrete builders/readers own referenced arrays and optional callback retention.
+ *
  * @author Samchon
  */
 export interface IHumanFacePeriocularMappingInput extends IHumanFacePeriocularGrid {

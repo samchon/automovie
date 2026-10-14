@@ -11,6 +11,7 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieSpace,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,12 +22,20 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const v = (x: number, z: number, y = 0) => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+  y: number = 0,
+): IAutoMovieVector3 => ({ x, y, z });
 
 /** A ramp rising 0 → 0.4 over x=0..2, wide enough for the whole path. */
 const space: IAutoMovieSpace = {
@@ -70,14 +79,16 @@ const legSkeleton: IAutoMovieSkeleton = {
     },
   ],
 };
-const KNEE_REST_FLEXION = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES = {
+const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
+const REST_FRAMES: Parameters<typeof plantStanceFeet>[0]["restFrames"] = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
 };
 
-const kf = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: [] },
   expression: null,
@@ -110,25 +121,32 @@ const gait: IAutoMovieMotion = {
  *    the same space ground corrects it: the corrected clip passes
  *    `validateFootSkate`.
  * 4. The corrected clip also passes `validateGroundContact` judged against the
- *    space heights: feet neither sink into nor float off the ramp.
+ *    space heights: the sampled foot does not penetrate beyond the tolerance.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Composes spaceGround, followPathMotion and plantStanceFeet, checking a hand-computed mid-path height, off-surface defaults, raw foot-skate warnings, and warning-free planted motion under foot-skate and ground-penetration validators.
+ * @evidence contracts/testing.md#independent-expectations The authored ramp has slope 0.4/2=0.2, so halfway along the 0.15 m path gives height 0.015. Off-surface fallback is explicitly zero or 7. A planted stance should remove horizontal skate while remaining above ground minus 0.001 m; the ground validator does not measure floating height or visible appearance.
+ * @evidence contracts/testing.md#distinguishing-cases A rising path, absent-surface fallback, raw skating negative twin and corrected clip test one bent leg with reach slack. Steep/unreachable climbs, other legs, stance transitions and viewer behavior are outside this numerical composition.
+ * @evidence contracts/testing.md#execution-ownership The named test_space_ground_pipeline entry owns this portable in-memory path/IK/validator composition directly, with no render host or dynamically registered cases; its numerical assertions are not visual validation.
  */
-export const test_space_ground_pipeline = (): void => {
-  const ground = spaceGround(space);
-  const path = followPathMotion({
+export function test_space_ground_pipeline(): void {
+  const ground: ReturnType<typeof spaceGround> = spaceGround(space);
+  const path: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "climb",
     gait,
     waypoints: [v(0, 0), v(0.15, 0)],
     speed: 0.15,
     ground,
   });
-  const mid = path.frames.find((frame) => nclose(frame.time, 0.5));
+  const mid: (typeof path.frames)[number] | undefined = path.frames.find(
+    (frame: (typeof path.frames)[number]): boolean => nclose(frame.time, 0.5),
+  );
   TestValidator.equals(
     "mid-path frame follows the ramp height",
     namedFacts([
-      ["mid", () => mid !== undefined],
+      ["mid", (): boolean => mid !== undefined],
       [
         "ncloseMidPosition",
-        () => mid !== undefined && nclose(mid.position.y, 0.015),
+        (): boolean => mid !== undefined && nclose(mid.position.y, 0.015),
       ],
     ]),
     { mid: true, ncloseMidPosition: true },
@@ -140,7 +158,9 @@ export const test_space_ground_pipeline = (): void => {
     nclose(spaceGround(space, 7)(50, 50), 7),
   );
 
-  const contacts = [{ bone: "leftFoot", start: 0, end: 1 } as const];
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
+    { bone: "leftFoot", start: 0, end: 1 } as const,
+  ];
   TestValidator.predicate(
     "raw ramp bake skates the foot (warns)",
     validationHasWarnings(
@@ -154,7 +174,7 @@ export const test_space_ground_pipeline = (): void => {
     ),
   );
 
-  const planted = plantStanceFeet({
+  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: path.motion,
     groundY: ground,
@@ -188,4 +208,4 @@ export const test_space_ground_pipeline = (): void => {
       }),
     ),
   );
-};
+}

@@ -1,51 +1,28 @@
 /**
  * A rotation expressed as intrinsic Euler angles in degrees.
  *
- * A middle ground between LLM-friendly single-axis semantic angles
- * ({@link IAutoMovieJointPose}) and the engine's quaternions
- * ({@link IAutoMovieQuaternion}). It is occasionally useful for free 3D objects
- * (a prop tilted on three axes) where there is no anatomical joint to attach
- * semantic flexion/abduction names to.
+ * Quaternion.fromEuler multiplies one axis-angle quaternion per order letter from left to right, so XYZ gives qx · qy · qz, the intrinsic convention three.js uses. Angles are not range-checked or wrapped; finite values compose with floating-point rounding.
  *
- * `order` records the intrinsic rotation order so the engine can compose the
- * axes unambiguously. Euler angles are gimbal-prone and order-sensitive. This
- * type is intentionally secondary; prefer semantic joint angles for
- * characters.
+ * No authored record field carries this type. Instance-set paths use it for seeded per-slot offsets in instanceSlot and fixed rotation-range offsets in builtInstanceSetPlacementBounds, both in XYZ order. Character articulation uses semantic joint angles through {@link IAutoMovieJointPose}; Euler angles depend on order and have gimbal singularities.
  *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `IAutoMovieEuler` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `IAutoMovieEuler` within the declared spatial transform chain.
+ * @evidence contracts/common.md#principled-implementation Intrinsic Euler composition multiplies single-axis quaternions in the declared order through Quaternion.fromEuler. Unit factors give a unit rotation mathematically, with binary64 rounding in implementation; the order field distinguishes the six conventions.
+ * @evidence contracts/common.md#clear-and-simple-design Three angles plus an order enum cover every intrinsic Tait-Bryan convention without a matrix or quaternion field, and the type stays the single parameter shape of `fromEuler` rather than a structural copy at the engine.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No caller special-cases an order; both instance-set callers state `"XYZ"` explicitly, and the composition never normalizes angles or wraps them into a range it would then have to document.
+ * @evidence contracts/common.md#meaningful-documentation States the unit, the composition rule with the `"XYZ"` example, that angles are not range-checked, the actual callers, and why character joints use semantic angles instead; members give the axis and unit.
  * @author Samchon
  */
 export interface IAutoMovieEuler {
-  /**
-   * Rotation about the local X axis, degrees.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `x` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `x` within the declared spatial transform chain.
-   */
+  /** Rotation about the local X axis, degrees. */
   x: number;
 
-  /**
-   * Rotation about the local Y axis, degrees.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `y` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `y` within the declared spatial transform chain.
-   */
+  /** Rotation about the local Y axis, degrees. */
   y: number;
 
-  /**
-   * Rotation about the local Z axis, degrees.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `z` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `z` within the declared spatial transform chain.
-   */
+  /** Rotation about the local Z axis, degrees. */
   z: number;
 
   /**
-   * Intrinsic rotation order in which `x`/`y`/`z` are applied.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `order` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `order` within the declared spatial transform chain.
+   * Intrinsic rotation order: the letters name the axes applied first to last about the body's successive local axes.
    */
   order: "XYZ" | "XZY" | "YXZ" | "YZX" | "ZXY" | "ZYX";
 }

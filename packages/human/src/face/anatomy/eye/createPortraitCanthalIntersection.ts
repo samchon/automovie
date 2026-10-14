@@ -20,18 +20,30 @@ import { createPortraitDirectionalIntersection } from "../../surface/createPortr
  * the same way, intersected, and the hit scaled back by 1000, so the caller
  * sees millimetres on both sides. The direction is the recorded camera ray in
  * the head frame.
+ *
+ * @evidence contracts/common.md#principled-implementation The recorded head-frame camera direction intersects the actual emitted support bidirectionally after matching canonical millimetre-to-metre multiplication.
+ * @evidence contracts/common.md#clear-and-simple-design One metric mesh and canonical directional-intersection reader serve all query points; results convert back to construction millimetres.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A missed actual ray refuses rather than retaining an unsupported analytic sphere point or applying a preliminary depth shift.
+ * @evidence contracts/common.md#meaningful-documentation The prose identifies head frame, direction, exact conversion factors and unsupported-aperture failure.
+ * @evidence contracts/performance.md#efficient-algorithms Metric mesh preparation and the canonical intersection acceleration build cost depend on resident incidence; each query pays its actual directional traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work One prepared support/intersector is reused across queries with unchanged geometry and direction premises.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure owns its prepared metric support/intersector until caller release; query vectors expire and no external handle or task is acquired.
  */
 export function createPortraitCanthalIntersection(
   mesh: IAutoMovieMesh,
   direction: Point,
 ): (point: Point) => Point {
-  const metric = createMetricMeshPart("canthal-support", mesh, "skin").geometry
-    .mesh;
-  const intersect = createPortraitDirectionalIntersection(metric, direction);
-  return (point) => {
+  const metric: IAutoMovieMesh = createMetricMeshPart(
+    "canthal-support",
+    mesh,
+    "skin",
+  ).geometry.mesh;
+  const intersect: (point: Point) => Point | null =
+    createPortraitDirectionalIntersection(metric, direction);
+  return (point: Point): Point => {
     // Match createMetricMeshPart's uniform engine scale exactly. Dividing by 1000
     // instead can round an apex one ulp outside its transformed footprint.
-    const hit = intersect(Vector3.scale(point, 0.001));
+    const hit: Point | null = intersect(Vector3.scale(point, 0.001));
     if (hit === null)
       throw new Error("The observed lid ray misses its canthal support.");
     return Vector3.scale(hit, 1000);

@@ -1,11 +1,16 @@
 import { projectileSphereHit, segmentSphere } from "@automovie/engine";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-const v = (x: number, y: number, z: number) => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
-const throws = (task: () => void): boolean => {
+const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
     task();
     return false;
@@ -25,37 +30,52 @@ const throws = (task: () => void): boolean => {
  * 2. `projectileSphereHit` inherits center-vector rejection through sampled
  *    segment checks.
  * 3. Finite segment/sphere intersection behavior is preserved.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Rejects non-finite segment or center vectors through both collision entries and checks a valid entry parameter, catching invalid roots silently converted into misses while preserving finite intersections.
+ * @evidence contracts/testing.md#independent-expectations Finite vector admission and authored one-dimensional geometry give refusal and entry 0.4 independently of implementation output; exceptions are checked for presence rather than identity.
+ * @evidence contracts/testing.md#distinguishing-cases Separates invalid start, end and center, inherited projectile-center admission and a finite positive twin; radius and timing admission belong to neighboring units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit supplies local records and owns every assertion without real processes, browsers, GPUs or dynamic cases.
  */
-export const test_physics_segment_sphere_vectors = (): void => {
-  const a = v(0, 0, 0);
-  const b = v(10, 0, 0);
-  const center = v(5, 0, 0);
+export function test_physics_segment_sphere_vectors(): void {
+  const a: IAutoMovieVector3 = v(0, 0, 0);
+  const b: IAutoMovieVector3 = v(10, 0, 0);
+  const center: IAutoMovieVector3 = v(5, 0, 0);
 
   TestValidator.predicate(
     "non-finite segment start throws",
-    throws(() => segmentSphere(v(Number.NaN, 0, 0), b, center, 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(v(Number.NaN, 0, 0), b, center, 1),
+    ),
   );
   TestValidator.predicate(
     "non-finite segment end throws",
-    throws(() => segmentSphere(a, v(10, Infinity, 0), center, 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(a, v(10, Infinity, 0), center, 1),
+    ),
   );
   TestValidator.predicate(
     "non-finite sphere center throws",
-    throws(() => segmentSphere(a, b, v(5, 0, -Infinity), 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(a, b, v(5, 0, -Infinity), 1),
+    ),
   );
   TestValidator.predicate(
     "projectile sphere center throws",
-    throws(() =>
-      projectileSphereHit(
-        {
-          origin: a,
-          velocity: v(10, 0, 0),
-          gravity: v(0, 0, 0),
-        },
-        { center: v(Number.NaN, 0, 0), radius: 1 },
-        1,
-        10,
-      ),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(
+          {
+            origin: a,
+            velocity: v(10, 0, 0),
+            gravity: v(0, 0, 0),
+          },
+          { center: v(Number.NaN, 0, 0), radius: 1 },
+          1,
+          10,
+        ),
     ),
   );
 
@@ -63,4 +83,4 @@ export const test_physics_segment_sphere_vectors = (): void => {
     "finite segment hit remains unchanged",
     nclose(segmentSphere(a, b, center, 1)!, 0.4),
   );
-};
+}

@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieModelObject,
   POSE_OVERLAY_NAME,
   applyRenderMode,
   buildModel,
@@ -9,8 +10,10 @@ import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 
-const buildOneNodeScene = () => {
-  const objects = new Map([
+const buildOneNodeScene: () => ReturnType<typeof buildScene> = (): ReturnType<
+  typeof buildScene
+> => {
+  const objects: Map<string, IAutoMovieModelObject> = new Map([
     ["model-a", buildModel({ ...createModel(), id: "model-a" })],
   ]);
   return buildScene(
@@ -29,13 +32,15 @@ const buildOneNodeScene = () => {
       cameras: [],
       lights: [],
     },
-    (id) => objects.get(id),
+    (id: string): IAutoMovieModelObject | undefined => objects.get(id),
   );
 };
 
-const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
+const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
+  root: THREE.Object3D,
+): THREE.Mesh[] => {
   const meshes: THREE.Mesh[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if ((object as THREE.Mesh).isMesh === true)
       meshes.push(object as THREE.Mesh);
   });
@@ -43,80 +48,141 @@ const meshesOf = (root: THREE.Object3D): THREE.Mesh[] => {
 };
 
 /** Attach a dispose-event spy to a material or geometry; returns the counter. */
-const spyDispose = (
-  target: THREE.Material | THREE.BufferGeometry,
-): { count: number } => {
-  const counter = { count: 0 };
-  target.addEventListener("dispose", () => {
+const spyDispose: (target: THREE.Material | THREE.BufferGeometry) => {
+  count: number;
+} = (target: THREE.Material | THREE.BufferGeometry): { count: number } => {
+  const counter: { count: number } = { count: 0 };
+  target.addEventListener("dispose", (): void => {
     counter.count += 1;
   });
   return counter;
 };
 
-const materialsOf = (mesh: THREE.Mesh): THREE.Material[] =>
+const materialsOf: (mesh: THREE.Mesh) => THREE.Material[] = (
+  mesh: THREE.Mesh,
+): THREE.Material[] =>
   Array.isArray(mesh.material) ? mesh.material : [mesh.material];
 
 /**
- * Restore() must dispose every resource the override CREATED (exactly once) and
- * never the borrowed originals: a guide-pass render applies and restores once
- * per frame per pass, so an hour of film would otherwise leak tens of thousands
- * of WebGL materials/geometries (#645). Restoring twice is a no-op.
+ * A successful restore retires the observed override materials and pose resources once and preserves borrowed originals. Outline observes its fill materials here; shell-material retirement has no independent event assertion in this unit. Public events do not measure WebGL allocations or physical release.
  *
  * Scenarios:
  *
- * 1. `depth`: every created override material is disposed exactly once on restore;
- *    the borrowed originals are never disposed; a second restore() leaves every
- *    count unchanged (idempotence).
- * 2. `outline`: same contract as depth (the other single-material override).
- * 3. `mask`: the created per-node flat materials are disposed exactly once;
- *    originals untouched; the background instance is restored.
- * 4. `pose`: every created line geometry AND the shared line material are disposed
- *    exactly once; the overlay leaves the scene.
- * 5. `beauty`: creates nothing and disposes nothing. Original materials keep a
- *    zero dispose count through apply+restore.
+ * 1. Depth retires every created override once, preserves borrowed materials and repeats restore without another event.
+ * 2. Outline's observed replacement fill materials retire once.
+ * 3. Mask retires created flat materials, preserves originals and restores the background instance.
+ * 4. Pose retires the observed line geometries and shared line material once; overlay removal is asserted by the render-modes and restoration units.
+ * 5. Beauty creates no override and leaves original disposal counts at zero.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Applies and restores actual guide modes on a built generic scene while observing real owned material/geometry dispose events; catches leaking temporary overrides, double retirement and disposal of borrowed source materials.
+ * @evidence contracts/testing.md#independent-expectations Each observed temporary resource has one public retirement attempt and original borrowed owners have none; original background identity pins the mask restoration. Overlay departure and outline shell-material retirement are not independently asserted here, and public events do not prove physical WebGL allocations were freed.
+ * @evidence contracts/testing.md#distinguishing-cases Covers depth/outline/mask/pose/beauty and repeated successful restoration, with source/background preservation; throwing listeners and sticky failed ownership are owned by the restoration unit.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit calls maintained source and existing generic fixtures, with event listeners on actual CPU-side Three resources rather than replaced foreign methods; it acquires no browser, GPU renderer or process.
  */
-export const test_viewer_render_mode_dispose = (): void => {
-  const { scene } = buildOneNodeScene();
-  const meshes = meshesOf(scene);
-  const originalSpies = meshes.flatMap((mesh) =>
-    materialsOf(mesh).map(spyDispose),
+export function test_viewer_render_mode_dispose(): void {
+  const { scene }: ReturnType<typeof buildScene> = buildOneNodeScene();
+  const meshes: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = meshesOf(scene);
+  const originalSpies: { count: number }[] = meshes.flatMap(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): { count: number }[] => materialsOf(mesh).map(spyDispose),
   );
 
   // 1. depth: created disposed once, originals never, restore-twice safe.
-  const depth = applyRenderMode(scene, "depth");
-  const depthSpies = meshes.flatMap((mesh) =>
-    materialsOf(mesh).map(spyDispose),
+  const depth: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "depth",
+  );
+  const depthSpies: { count: number }[] = meshes.flatMap(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): { count: number }[] => materialsOf(mesh).map(spyDispose),
   );
   depth.restore();
   TestValidator.predicate(
     "depth override materials disposed exactly once",
-    depthSpies.every((spy) => spy.count === 1),
+    depthSpies.every((spy: { count: number }): boolean => spy.count === 1),
   );
   depth.restore();
   TestValidator.predicate(
     "second restore is a no-op (no double dispose)",
-    depthSpies.every((spy) => spy.count === 1),
+    depthSpies.every((spy: { count: number }): boolean => spy.count === 1),
   );
 
   // 2. outline: same contract.
-  const outline = applyRenderMode(scene, "outline");
-  const outlineSpies = meshes.flatMap((mesh) =>
-    materialsOf(mesh).map(spyDispose),
+  const outline: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "outline",
+  );
+  const outlineSpies: { count: number }[] = meshes.flatMap(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): { count: number }[] => materialsOf(mesh).map(spyDispose),
   );
   outline.restore();
   TestValidator.predicate(
     "outline override materials disposed exactly once",
-    outlineSpies.every((spy) => spy.count === 1),
+    outlineSpies.every((spy: { count: number }): boolean => spy.count === 1),
   );
 
   // 3. mask: created per-node materials disposed once, background restored.
-  const background = scene.background;
-  const mask = applyRenderMode(scene, "mask");
-  const maskSpies = meshes.flatMap((mesh) => materialsOf(mesh).map(spyDispose));
+  const background:
+    | THREE.Color
+    | THREE.Texture<unknown, THREE.TextureEventMap>
+    | null = scene.background;
+  const mask: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "mask",
+  );
+  const maskSpies: { count: number }[] = meshes.flatMap(
+    (
+      mesh: THREE.Mesh<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): { count: number }[] => materialsOf(mesh).map(spyDispose),
+  );
   mask.restore();
   TestValidator.predicate(
     "mask materials disposed exactly once",
-    maskSpies.every((spy) => spy.count === 1),
+    maskSpies.every((spy: { count: number }): boolean => spy.count === 1),
   );
   TestValidator.predicate(
     "mask restores the background instance",
@@ -124,17 +190,46 @@ export const test_viewer_render_mode_dispose = (): void => {
   );
 
   // 4. pose: line geometries and the shared line material disposed once.
-  const pose = applyRenderMode(scene, "pose");
-  const overlay = scene.getObjectByName(POSE_OVERLAY_NAME);
+  const pose: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "pose",
+  );
+  const overlay: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    scene.getObjectByName(POSE_OVERLAY_NAME);
   if (overlay === undefined) throw new Error("pose overlay must exist");
-  const lines = overlay.children as THREE.Line[];
-  TestValidator.predicate("pose drew at least one line", lines.length > 0);
-  const geometrySpies = lines.map((line) => spyDispose(line.geometry));
-  const lineMaterialSpy = spyDispose(lines[0]!.material as THREE.Material);
+  const lines: THREE.Line<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = overlay.children as THREE.Line[];
+  TestValidator.predicate(
+    "pose constructed at least one line",
+    lines.length > 0,
+  );
+  const geometrySpies: { count: number }[] = lines.map(
+    (
+      line: THREE.Line<
+        THREE.BufferGeometry<
+          THREE.NormalBufferAttributes,
+          THREE.BufferGeometryEventMap
+        >,
+        | THREE.Material<THREE.MaterialEventMap>
+        | THREE.Material<THREE.MaterialEventMap>[],
+        THREE.Object3DEventMap
+      >,
+    ): { count: number } => spyDispose(line.geometry),
+  );
+  const lineMaterialSpy: { count: number } = spyDispose(
+    lines[0]!.material as THREE.Material,
+  );
   pose.restore();
   TestValidator.predicate(
     "pose line geometries disposed exactly once",
-    geometrySpies.every((spy) => spy.count === 1),
+    geometrySpies.every((spy: { count: number }): boolean => spy.count === 1),
   );
   TestValidator.equals(
     "pose shared line material disposed exactly once",
@@ -148,13 +243,15 @@ export const test_viewer_render_mode_dispose = (): void => {
     1,
   );
 
-  // 5. beauty: nothing created, nothing disposed; originals never disposed
-  //    through the whole run.
-  const beauty = applyRenderMode(scene, "beauty");
+  // 5. Beauty leaves the original material retirement counts unchanged.
+  const beauty: ReturnType<typeof applyRenderMode> = applyRenderMode(
+    scene,
+    "beauty",
+  );
   beauty.restore();
   beauty.restore();
   TestValidator.predicate(
     "borrowed originals were never disposed by any mode",
-    originalSpies.every((spy) => spy.count === 0),
+    originalSpies.every((spy: { count: number }): boolean => spy.count === 0),
   );
-};
+}

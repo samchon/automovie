@@ -7,15 +7,16 @@ import {
   sealAutoMovieRenderTarget,
 } from "@automovie/engine";
 import {
-  AutoMovieContentDigest,
   IAutoMovieRenderReport,
   IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 import { namedFacts, throwsError } from "../internal/predicates";
+import type { IAutoMovieRenderTargetDrift } from "./../../../../packages/engine/src/render/IAutoMovieRenderTargetDrift";
 
 /**
  * A report is evidence only while the target it measured is still the target in
@@ -39,11 +40,17 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 4. Every kind of drift is detected and named: renderer, each setting, a changed
  *    asset, a removed asset and an added asset.
  * 5. An unchanged target is fresh, and the one-line summary says which.
+ * 6. Renderer tuple tabs and embedded asset row delimiters cannot alias a distinct target.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual digest, seal, target comparator and summary; malformed input refuses, real field drift names its source and embedded separators cannot merge different renderer or asset tuples.
+ * @evidence contracts/testing.md#independent-expectations Node SHA over Buffer UTF-8 independently checks hashing across padding/Unicode boundaries. Authored tuple (webgl2-tab-x,y,gpu) differs from (webgl2,x-tab-y,gpu); one asset whose path contains a rendered second row differs from two distinct assets, regardless of a delimiter-joined spelling.
+ * @evidence contracts/testing.md#distinguishing-cases Covers exact digest block boundaries, lone surrogates, reordered assets, each admitted numeric/string refusal, every target drift kind, equal targets and tab/newline collision neighbors. Native upload-sharing identity is owned by texture residency tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_render_target_fingerprint runs portable synchronous identity semantics with Node crypto as an independent oracle; it starts no capture host, GPU, process or dynamically registered suite.
  */
-export const test_render_target_fingerprint = (): void => {
-  const oracle = (text: string): AutoMovieContentDigest =>
+export function test_render_target_fingerprint(): void {
+  const oracle: (text: string) => string = (text: string): string =>
     `sha256:${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}`;
-  const samples = [
+  const samples: string[] = [
     "",
     "a",
     "x".repeat(55),
@@ -60,7 +67,7 @@ export const test_render_target_fingerprint = (): void => {
   ];
   TestValidator.equals(
     "the engine's own SHA-256 agrees with node:crypto on every boundary",
-    samples.map((text) => autoMovieRenderDigest(text)),
+    samples.map((text: string): string => autoMovieRenderDigest(text)),
     samples.map(oracle),
   );
 
@@ -89,7 +96,10 @@ export const test_render_target_fingerprint = (): void => {
     toneMapping: "acesFilmic",
     exposure: 1.2,
   };
-  const seal = (
+  const seal: (
+    override?: Partial<IAutoMovieRenderTargetSettings>,
+    assets?: Array<{ path: string; digest: `sha256:${string}` }>,
+  ) => IAutoMovieRenderTarget = (
     override?: Partial<IAutoMovieRenderTargetSettings>,
     assets?: Array<{ path: string; digest: `sha256:${string}` }>,
   ): IAutoMovieRenderTarget =>
@@ -103,11 +113,41 @@ export const test_render_target_fingerprint = (): void => {
           "a.png": `sha256:${"a".repeat(64)}`,
         }),
     });
-  const sealed = seal();
+  const sealed: IAutoMovieRenderTarget = seal();
+  const rendererTupleLeft: IAutoMovieRenderTarget = sealAutoMovieRenderTarget({
+    renderer: { api: "webgl2\tx", vendor: "y", device: "gpu" },
+    settings,
+    assets: [],
+  });
+  const rendererTupleRight: IAutoMovieRenderTarget = sealAutoMovieRenderTarget({
+    renderer: { api: "webgl2", vendor: "x\ty", device: "gpu" },
+    settings,
+    assets: [],
+  });
+  TestValidator.predicate(
+    "embedded renderer tabs preserve tuple identity",
+    (): boolean => rendererTupleLeft.digest !== rendererTupleRight.digest,
+  );
+  const oneEmbeddedRow: IAutoMovieRenderTarget = seal(undefined, [
+    {
+      path: `a\tsha256:${"a".repeat(64)}\nasset\tb`,
+      digest: `sha256:${"b".repeat(64)}`,
+    },
+  ]);
+  const twoAssetRows: IAutoMovieRenderTarget = seal(undefined, [
+    { path: "a", digest: `sha256:${"a".repeat(64)}` },
+    { path: "b", digest: `sha256:${"b".repeat(64)}` },
+  ]);
+  TestValidator.predicate(
+    "one path containing a row cannot alias two assets",
+    (): boolean => oneEmbeddedRow.digest !== twoAssetRows.digest,
+  );
   TestValidator.equals(
     "sealing normalizes asset order and repeats byte for byte",
     {
-      paths: sealed.assets.map((asset) => asset.path),
+      paths: sealed.assets.map(
+        (asset: IAutoMovieRenderTargetAsset): string => asset.path,
+      ),
       stable: seal().digest === sealed.digest,
       shuffled:
         seal(undefined, [
@@ -123,9 +163,9 @@ export const test_render_target_fingerprint = (): void => {
     namedFacts([
       [
         "blank api",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: " ", vendor: "acme", device: "gpu-1" },
                 settings,
@@ -136,9 +176,9 @@ export const test_render_target_fingerprint = (): void => {
       ],
       [
         "blank vendor",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: "webgl2", vendor: "", device: "gpu-1" },
                 settings,
@@ -149,9 +189,9 @@ export const test_render_target_fingerprint = (): void => {
       ],
       [
         "blank device",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderTarget =>
               sealAutoMovieRenderTarget({
                 renderer: { api: "webgl2", vendor: "acme", device: "" },
                 settings,
@@ -162,37 +202,58 @@ export const test_render_target_fingerprint = (): void => {
       ],
       [
         "fractional width",
-        () => throwsError(() => seal({ width: 10.5 }), "settings.width"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ width: 10.5 }),
+            "settings.width",
+          ),
       ],
       [
         "zero height",
-        () => throwsError(() => seal({ height: 0 }), "settings.height"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ height: 0 }),
+            "settings.height",
+          ),
       ],
       [
         "zero ratio",
-        () => throwsError(() => seal({ pixelRatio: 0 }), "settings.pixelRatio"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ pixelRatio: 0 }),
+            "settings.pixelRatio",
+          ),
       ],
       [
         "infinite exposure",
-        () =>
+        (): boolean =>
           throwsError(
-            () => seal({ exposure: Number.POSITIVE_INFINITY }),
+            (): IAutoMovieRenderTarget =>
+              seal({ exposure: Number.POSITIVE_INFINITY }),
             "settings.exposure",
           ),
       ],
       [
         "shadows on with no filter",
-        () => throwsError(() => seal({ shadowType: "none" }), "contradicts"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ shadowType: "none" }),
+            "contradicts",
+          ),
       ],
       [
         "shadows off with a filter",
-        () => throwsError(() => seal({ shadows: false }), "contradicts"),
+        (): boolean =>
+          throwsError(
+            (): IAutoMovieRenderTarget => seal({ shadows: false }),
+            "contradicts",
+          ),
       ],
       [
         "blank asset path",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderTarget =>
               seal(undefined, [
                 { path: " ", digest: `sha256:${"a".repeat(64)}` },
               ]),
@@ -201,9 +262,9 @@ export const test_render_target_fingerprint = (): void => {
       ],
       [
         "duplicated asset",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): IAutoMovieRenderTarget =>
               seal(undefined, [
                 { path: "a.png", digest: `sha256:${"a".repeat(64)}` },
                 { path: "a.png", digest: `sha256:${"a".repeat(64)}` },
@@ -213,9 +274,10 @@ export const test_render_target_fingerprint = (): void => {
       ],
       [
         "malformed digest",
-        () =>
+        (): boolean =>
           throwsError(
-            () => seal(undefined, [{ path: "a.png", digest: "sha256:zz" }]),
+            (): IAutoMovieRenderTarget =>
+              seal(undefined, [{ path: "a.png", digest: "sha256:zz" }]),
             "exact lowercase SHA-256",
           ),
       ],
@@ -236,7 +298,7 @@ export const test_render_target_fingerprint = (): void => {
     },
   );
 
-  const carrying = (
+  const carrying: (target: IAutoMovieRenderTarget) => IAutoMovieRenderReport = (
     target: IAutoMovieRenderTarget,
   ): IAutoMovieRenderReport => ({
     version: 1,
@@ -248,11 +310,13 @@ export const test_render_target_fingerprint = (): void => {
     target,
     digest: `sha256:${"0".repeat(64)}`,
   });
-  const drifted = (current: IAutoMovieRenderTarget): string[] =>
+  const drifted: (current: IAutoMovieRenderTarget) => string[] = (
+    current: IAutoMovieRenderTarget,
+  ): string[] =>
     compareAutoMovieRenderTarget({
       report: carrying(sealed),
       current,
-    }).drift.map((entry) => entry.field);
+    }).drift.map((entry: IAutoMovieRenderTargetDrift): string => entry.field);
 
   TestValidator.equals(
     "every kind of drift is detected and named",
@@ -322,4 +386,4 @@ export const test_render_target_fingerprint = (): void => {
     },
     { fresh: `fresh: ${sealed.digest}`, stale: true },
   );
-};
+}

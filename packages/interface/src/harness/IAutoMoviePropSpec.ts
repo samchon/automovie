@@ -3,114 +3,41 @@ import { IAutoMoviePropArticulation } from "./IAutoMoviePropArticulation";
 import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
 
 /**
- * One authored prop, a crude primitive proxy with rich meaning: the geometry
- * stays simple boxes and cylinders, while the physics body
- * ({@link IAutoMovieModel.body}), the contact semantics
- * ({@link IAutoMovieModel.affordances}), and the self-declared articulation
- * carry everything the engine validates and simulates.
+ * One authored prop: a primitive proxy whose meaning is stated as data. The geometry stays simple parts, while the physics body ({@link IAutoMovieModel.body}), the contact points ({@link IAutoMovieModel.affordances}), the articulation and the placement carry what the engine validates and simulates.
  *
- * The spec is what the FORGE stage's object side (`forgeProp`) gates: the model
- * must be a skeleton-less prop whose id equals `node` (the staged scene joins
- * on it, exactly as a forged cast member does), generated unless
- * {@link modelRef} names the registration its imported bytes came from, and the
- * articulation, when present, must bind its profile onto the declared nodes
- * without a dangling reference.
+ * `forgeProp` gates one spec and returns every violation at once: `node` is non-blank and equals `model.id`, because the staged scene joins on it; the model is skeleton-less, because a rigged performer goes through `forgeCast`; `origin` is `"generated"` unless {@link modelRef} is stated; `validateModel` passes; and an articulation binds its profile onto declared nodes without a dangling reference or cycle. `validatePropPlacements` forges every prop of a shot, requires exactly one staged set piece drawing the prop's model, and then judges its placement.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `IAutoMoviePropSpec` as the portable data boundary for the motion object authored vocabulary requirement.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `IAutoMoviePropSpec` for the performance interaction attachment object handoff system contract.
+ * @evidence contracts/common.md#principled-implementation `forgeProp` requires `model.id === node` and placement validation requires one set piece joining that node and model. Geometry uses authored footprint/clearance boxes when declared, otherwise proxy model-part vertices, together with model affordances and building records. Importing appearance does not replace these semantic measurements with external asset geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Four concerns, each in its own member: the model with body and contact points, the articulation, the optional placement, and the optional external-appearance reference; the gates live in `forgeProp` and `validatePropPlacements`, not in this record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A model carrying a skeleton is refused; an imported appearance needs a structurally coherent rigid closure, whose digest strings are checked without reading bytes. Registry resolution and byte provenance belong to production. The forge gate assumes typed nested records and checks articulation references, not every joint transform, profile numeric value or rendered host capability; success returns the caller's mutable spec rather than a deep immutable seal.
+ * @evidence contracts/common.md#meaningful-documentation States what carries the prop's meaning, every `forgeProp` rule with its reason, the staging requirement, and what omitting `placement` or `modelRef` means.
  * @author Samchon
  */
 export interface IAutoMoviePropSpec {
-  /**
-   * The scene node this prop will occupy (the staging join key).
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `node` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `node` for the performance interaction attachment object handoff system contract.
-   */
+  /** Scene node this prop occupies; non-blank and equal to `model.id`. */
   node: string;
 
   /**
-   * The prop model: `skeleton: null` (a riggable actor goes through `forgeCast`
-   * instead), primitive parts, optional body and affordances. `origin` is
-   * `"generated"` for a prop drawn from those parts and `"imported"` for one
-   * drawing a registered external appearance, which {@link modelRef} names and
-   * gates.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `model` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `model` for the performance interaction attachment object handoff system contract.
+   * The prop model, with `skeleton: null`, parts that serve as the measured proxy, and an optional body and affordances. `origin` is `"generated"` for a prop drawn from its parts and `"imported"` for one drawing the external appearance {@link modelRef} names.
    */
   model: IAutoMovieModel;
 
-  /**
-   * Self-declared moving parts, or `null` for a rigid prop.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `articulation` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `articulation` for the performance interaction attachment object handoff system contract.
-   */
+  /** Self-declared moving parts, or `null` for a rigid prop. */
   articulation: IAutoMoviePropArticulation | null;
 
   /**
-   * Optional semantic placement constraints checked beside the staged node.
-   * Omission preserves the original prop contract: the prop is forged and
-   * staged without claiming a building relation or a keep-out volume.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `placement` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `placement` for the performance interaction attachment object handoff system contract.
+   * Building relations, footprint and clearances checked against the staged piece. Omitted, the prop makes no relation, containment, pairwise-overlap or passage claim of its own, but other props may still cite its affordances and must clear its staged occupancy. Forging and the unique staged-model join remain required.
    */
   placement?: IAutoMoviePropPlacement;
 
   /**
-   * The builder-owned model registration whose imported bytes draw this prop,
-   * or absent / `null` for a prop drawn from its own generated parts.
+   * Registered external appearance drawing this prop, or absent or `null` for a prop drawn from its own generated parts.
    *
-   * This is the escape hatch to an external asset, and it deliberately buys the
-   * appearance alone. A manufacturer's chair arrives as a mesh with no mass, no
-   * seat face, no hinge and no keep-out volume, so a prop that cited one and
-   * nothing else would be a picture standing where furniture should be. Stating
-   * the reference therefore moves no meaning out of this spec: {@link model}'s
-   * parts stay the deterministic proxy every geometric judgment is made against
-   * (occupancy, bearing on a support, clearance, containment, passage
-   * intrusion), its `body` and `affordances` stay the contact semantics, and
-   * {@link articulation} and {@link placement} stay the prop's own. That is the
-   * same split the builder already makes when it materializes a registered
-   * external appearance: the visible primitives become one registered collision
-   * proxy and the imported bytes are kept for the viewer.
+   * The reference buys appearance only. Authored proxy parts, explicit footprint/clearance boxes and affordances remain the inputs to occupancy, bearing, clearance, containment and passage measurements. Body, articulation and placement remain this spec's own data; this path does not infer mass, a seat face, a hinge or a keep-out volume from imported bytes.
    *
-   * So this does not repeal "crude primitive proxy, rich meaning" (D011). That
-   * principle never said the pixels have to be ours; it said the meaning has to
-   * be in the record rather than inferred from a mesh, which is exactly why the
-   * proxy survives the reference instead of being replaced by it. What the
-   * reference does repeal is the accident that the one category where free-form
-   * geometry actually lives, furniture and fixtures and ironmongery, was also
-   * the only category forbidden to bring any in.
+   * The value names a model recipe id or runtime model id the production registry owns, as a built environment's `modelReferences` entries do. It means "forge me as an imported appearance", unlike a cast member's `modelRef`, which skips forging because an imported rig carries the bones a performer is driven through.
    *
-   * The reference is itself the classification the hatch demands, in the sense
-   * Revit's DirectShape demands a category: free geometry is admitted, but only
-   * under a registration it can be found and filtered by, so a blank reference
-   * is refused. No second label rides along, because a per-prop category
-   * nothing in this repository schedules or filters on would be decoration, and
-   * the meaning a prop is classified by is already the affordances, body, and
-   * relations it declares.
-   *
-   * The value names a registration the builder owns, a model recipe id or the
-   * runtime model id it materializes, exactly as a built environment's
-   * `modelReferences` entries do. It is not the spelling a cast member's
-   * `modelRef` uses. There, a reference means "do not forge me", because an
-   * imported rig carries the bones a performer is driven through; here it means
-   * "forge me as an imported appearance", because nothing a prop means can be
-   * imported at all.
-   *
-   * Stating it is what opens `forgeProp`'s origin gate, and it opens it exactly
-   * as far as the record can be checked: `origin` must be `"imported"`, `asset`
-   * must name the bytes, and the builder-sealed `imported` closure must be a
-   * rigid `gltf-static-v1` appearance whose hero LOD binds those bytes under a
-   * well-formed digest its own ledger covers. A humanoid appearance is a
-   * performer and goes through `forgeCast`. Whether those digests match bytes
-   * on disk, and whether the reference resolves to a registration at all, are
-   * the builder's own gates, where the registry and the files are.
-   *
-   * @evidence requirements/motion/object-motion-and-interaction.md#motion-object-authored-vocabulary Exposes `modelRef` as the portable data boundary for the motion object authored vocabulary requirement.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff Types `modelRef` for the performance interaction attachment object handoff system contract.
+   * Stating it makes `forgeProp` require a non-blank value, `origin: "imported"`, a non-null `asset`, and a sealed `imported` closure: unique asset paths with `sha256:` digests of 64 lowercase hex digits, the rigid `gltf-static-v1` profile on the closure and every LOD with no humanoid bones, unique LOD levels whose asset and digest match the ledger, and a `hero` LOD binding `asset`. The production shot runtime then refuses a reference that does not resolve to a registered glTF, GLB or VRM appearance, a closure other than the one it sealed, and an `asset` other than the registered one.
    */
   modelRef?: string | null;
 }

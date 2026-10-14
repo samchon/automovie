@@ -1,24 +1,27 @@
 /**
  * Borrowed text reader used with the revision resolver to hash loaded source.
  *
- * @evidence contracts/common.md#principled-implementation Revision hashing reads current source text and keeps an unavailable file distinct through an undefined result.
- * @evidence contracts/common.md#clear-and-simple-design One borrowed text reader leaves import resolution and digest construction with the revision owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The port supplies original source text rather than rewriting modules or inventing bytes for unavailable files.
- * @evidence contracts/common.md#meaningful-documentation Documents the current-text result and the undefined unreadable-file state.
- * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Revision hashing reads current source text and keeps an unavailable file distinct through an undefined result.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity One borrowed text reader leaves import resolution and digest construction with the revision owner.
+ * @evidence contracts/common.md#principled-implementation A borrowed source-text reader exposes current contents or undefined so revision hashing can represent unreadable dependencies.
+ * @evidence contracts/common.md#clear-and-simple-design Text access remains separate from module resolution and graph traversal, keeping filesystem behavior with the adapter.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The reader supplies actual dependency text and does not substitute fixture digests or skip chosen source modules.
+ * @evidence contracts/common.md#meaningful-documentation Documentation states current source-text delivery and the undefined unreadable-file outcome.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The source-reader signature does not choose hashing, traversal or file-read buffering strategies.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Text memoization is not promised by this seam; createHumanViewerRevisions invalidates its own text entries after edits.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned strings hold no open read handle; underlying filesystem access remains owned by the reader implementation.
+ *
  * @author Samchon
  */
 export interface IHumanViewerRevisionReadIo {
   /**
    * Return current source text, or undefined when this file cannot be read.
    *
-   * @evidence contracts/common.md#principled-implementation Source text is returned unchanged and an unreadable file is represented by undefined.
-   * @evidence contracts/common.md#clear-and-simple-design The revision owner borrows reading while retaining hashing and graph traversal.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable source bytes are not replaced with a fabricated empty module.
-   * @evidence contracts/common.md#meaningful-documentation Defines current text and the undefined failure result.
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-frame-dependency-closure Source text is returned unchanged and an unreadable file is represented by undefined.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity The revision owner borrows reading while retaining hashing and graph traversal.
+   * @evidence contracts/common.md#principled-implementation Reading current text gives dependency hashing the bytes' textual source representation; unreadability remains explicit as undefined.
+   * @evidence contracts/common.md#clear-and-simple-design The source-text operation does not duplicate import resolution or graph ownership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No fallback source text is supplied for chosen missing modules by this capability contract.
+   * @evidence contracts/common.md#meaningful-documentation The comment documents the unreadable-file outcome as well as current-text delivery.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The reader declaration specifies no file buffering or text-decoding algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The callback itself promises no text cache; callers invalidate their memoized source text on recorded edits.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a string or absence is returned, leaving read-handle cleanup with the adapter.
    */
   read(file: string): string | undefined;
 }

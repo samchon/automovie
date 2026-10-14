@@ -1,29 +1,22 @@
-/**
- * A reactive deflection (degrees) the impact pushes a joint toward.
+/** Clinical axis targets in degrees used to construct a recoil pose.
  *
- * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Converts contact impulse into an authored-facing joint reaction cue.
- * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the bounded reaction derived from the contact output.
+ * @evidence contracts/common.md#principled-implementation Optional degree-valued clinical axes let impactRecoil distinguish absent/zero axes from requested nonzero targets; they are targets to clamp, not a general rest-neutral additive rotation.
+ * @evidence contracts/common.md#clear-and-simple-design One sparse axis record carries the intent consumed by a named bone chain; joint constraints remain with the skeleton.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture-specific recoil is encoded; impulseToRecoilPush currently produces magnitude-based flexion only, so physical impact direction is not represented.
+ * @evidence contracts/common.md#meaningful-documentation Axis units, absent-axis meaning and target semantics are documented for callers composing flinch poses.
+ * @evidence contracts/performance.md#efficient-algorithms At most three scalars are stored; chain traversal and constraint projection are owned by impactRecoil.
+ * @evidence contracts/performance.md#reuse-equivalent-work The producer returns a new intent record; callers may supply one record to multiple recoil evaluations but this type defines no cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The intent retains no bone list or resource; its scalar storage lasts only as long as the caller retains it.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieRecoilPush {
-  /**
-   * Flexion deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Drives the dominant bend response to an impact.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries one joint-axis component of the contact reaction.
-   */
+  /** Flexion target in degrees; absent or zero authors no flexion response. */
   flexion?: number;
-  /**
-   * Abduction deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Allows the contact reaction to push the joint laterally.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the lateral joint-axis component of the reaction.
-   */
+
+  /** Abduction target in degrees; absent or zero authors no abduction response. */
   abduction?: number;
-  /**
-   * Twist deflection in degrees.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-impact-consequence Allows the contact reaction to rotate the joint axially.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#collision-proxy-and-world-contact-output Carries the axial joint component of the reaction.
-   */
+
+  /** Twist target in degrees; absent or zero authors no twist response. */
   twist?: number;
 }

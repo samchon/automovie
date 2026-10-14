@@ -3,62 +3,47 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
 /**
  * A build-up placed on a signed measuring line, ready to be dimensioned.
  *
- * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `IAutoMovieResolvedAssembly` represents a build-up placed on a signed measuring line, ready to be dimensioned. This ensures each host region retains its ordered construction build-up and total thickness.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `IAutoMovieResolvedAssembly` structures a build-up placed on a signed measuring line, ready to be dimensioned for the system that resolves ordered construction layers into their host face regions.
+ * Produced by `resolveAutoMovieMaterialAssembly` only after validation passes.
+ * Coordinates are metres along `axis` in the host's frame: `start` is the
+ * assembly's `offset`, each layer advances by its thickness in the declared
+ * sense, and `extent` orders `start` and `end`. `end` is computed from the
+ * summed `total`, while the last layer's own `end` is accumulated layer by
+ * layer, so the two can differ by floating-point rounding.
+ *
+ * @evidence contracts/common.md#principled-implementation Accumulates binary64 signed endpoints and unsigned thickness after the producer's validation refuses non-finite derived sums/endpoints. Ordered extent supports either sense; rounding can collapse a sufficiently small layer at a large offset, so this is numerical placement rather than exact-real interval arithmetic.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps the overall dimension, both signed ends, the ordered extent and the placed layers, which is what dimensioning, reveal and junction queries read.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid build-up is refused before resolution rather than resolved into usable-looking numbers, and the rounding difference between `end` and the last layer's end is stated rather than patched.
+ * @evidence contracts/common.md#meaningful-documentation States the producer and its precondition, the coordinate convention, how `start`, `end` and `extent` relate, and the rounding difference between `end` and the last layer.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; resolution is linear in the layer count, answered on `resolveAutoMovieMaterialAssembly`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved per call; the reveal and junction functions read the same resolved record rather than resolving again.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds numbers and a fresh layer array owned by the caller.
+ * @author Samchon
  */
 export interface IAutoMovieResolvedAssembly {
-  /**
-   * The contributing {@link IAutoMovieMaterialAssembly.id}.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `id` records `IAutoMovieResolvedAssembly`'s contributing `IAutoMovieMaterialAssembly.id`. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `id` supplies `IAutoMovieResolvedAssembly`'s contributing `IAutoMovieMaterialAssembly.id` when the engine resolves ordered construction layers into their host face regions.
-   */
+  /** The contributing {@link IAutoMovieMaterialAssembly.id}. */
   id: string;
-  /**
-   * Host-local axis the layers stack along.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `axis` records `IAutoMovieResolvedAssembly`'s host-local axis the layers stack along. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `axis` supplies `IAutoMovieResolvedAssembly`'s host-local axis the layers stack along when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Host-local axis the layers stack along. */
   axis: "x" | "y" | "z";
-  /**
-   * Summed layer thickness in metres: the build-up's overall dimension.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `total` records `IAutoMovieResolvedAssembly`'s summed layer thickness in metres: the build-up's overall dimension. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `total` supplies `IAutoMovieResolvedAssembly`'s summed layer thickness in metres: the build-up's overall dimension when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Summed layer thickness in metres: the build-up's overall dimension. */
   total: number;
-  /**
-   * Signed coordinate of the first layer's outer face.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `start` records `IAutoMovieResolvedAssembly`'s signed coordinate of the first layer's outer face. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `start` supplies `IAutoMovieResolvedAssembly`'s signed coordinate of the first layer's outer face when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Signed coordinate of the first layer's outer face: the assembly offset. */
   start: number;
-  /**
-   * Signed coordinate of the last layer's outer face.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `end` records `IAutoMovieResolvedAssembly`'s signed coordinate of the last layer's outer face. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `end` supplies `IAutoMovieResolvedAssembly`'s signed coordinate of the last layer's outer face when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Signed coordinate of the last layer's outer face. */
   end: number;
-  /**
-   * Ordered signed span of the whole build-up, lowest coordinate first.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `extent` records `IAutoMovieResolvedAssembly`'s ordered signed span of the whole build-up, lowest coordinate first. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `extent` supplies `IAutoMovieResolvedAssembly`'s ordered signed span of the whole build-up, lowest coordinate first when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Ordered signed span of the whole build-up, lowest coordinate first. */
   extent: {
     /** Lowest signed coordinate the build-up occupies. */
     min: number;
+
     /** Highest signed coordinate the build-up occupies. */
     max: number;
   };
-  /**
-   * Layers in authored order, each placed on the measuring line.
-   *
-   * @evidence requirements/interior/surface-assemblies.md#interior-surface-regions-layers `layers` records `IAutoMovieResolvedAssembly`'s layers in authored order, each placed on the measuring line. This ensures each host region retains its ordered construction build-up and total thickness.
-   * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `layers` supplies `IAutoMovieResolvedAssembly`'s layers in authored order, each placed on the measuring line when the engine resolves ordered construction layers into their host face regions.
-   */
+
+  /** Layers in authored order, each placed on the measuring line. */
   layers: IAutoMovieResolvedLayer[];
 }

@@ -1,31 +1,26 @@
 /**
- * What an analysis of this network can and cannot answer today.
+ * Capability statements emitted by serviceAnalysisSupport for one network.
+ * Supported names a check the validator can perform, not a recorded successful
+ * execution. Discipline-performance entries explicitly describe absent solvers.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-routing `IAutoMovieServiceCheckReport` distinguishes checks the engine truly performs from quantitative service analyses it cannot claim have passed.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `IAutoMovieServiceCheckReport` carries one named capability decision with an explicit support state and rationale.
+ * @evidence contracts/common.md#principled-implementation Rule identity, supported status and explanation separate structural capability from a numerical verdict that the producer does not compute.
+ * @evidence contracts/common.md#clear-and-simple-design One plain row carries the service support report without adding pressure, voltage or hydraulic output fields no solver supplies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported disciplines remain explicit rows rather than implied passes; the record contains no validation-success boolean.
+ * @evidence contracts/common.md#meaningful-documentation Names the producer and distinguishes supported capability from executed admission, with stable identity and explanation documented per member.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This row has no runtime body; capability enumeration costs belong to serviceAnalysisSupport.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Report rows describe one input network's capabilities and coordinate no solver or request reuse themselves.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each row owns primitive status and strings; report-array lifetime belongs to its caller and carries no environment reference.
+ * @author Samchon
  */
 export interface IAutoMovieServiceCheckReport {
-  /**
-   * Stable rule identity.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `check` gives each connectivity, clearance, waterproofing, or discipline-performance claim a stable name in the report.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `check` is the deterministic rule identity to which the support decision applies.
-   */
+  /** Stable rule identity. */
   check: string;
   /**
-   * `supported` when the engine really performs the check on this input;
-   * `unsupported` when nothing here can perform it. A supported check that was
-   * simply not executed is never reported as either.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `status` prevents an unavailable pressure, head, voltage-drop, or throw solver from being presented as a successful check.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `status` closes every reported capability to the honest `supported` or `unsupported` outcome.
+   * supported when the engine has an applicable structural check for this
+   * input; unsupported when the required geometry or numerical solver is absent.
+   * This status does not record execution or a successful verdict.
    */
   status: "supported" | "unsupported";
-  /**
-   * Why it is or is not answerable, naming what is missing when it is not.
-   *
-   * @evidence requirements/interior/services-and-environment.md#interior-service-routing `reason` tells the author which geometry, reference, or solver makes the named service check answerable or unavailable.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract `reason` records the input-specific basis for the paired support state instead of implying a silent pass.
-   */
+  /** Why it is or is not answerable, naming what is missing when it is not. */
   reason: string;
 }

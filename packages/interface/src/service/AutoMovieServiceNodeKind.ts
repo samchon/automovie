@@ -1,8 +1,11 @@
 /**
- * Computational family of a node.
+ * Computational role of an authored service node, independent of equipment catalog geometry.
  *
- * @evidence requirements/interior/services-and-environment.md#interior-service-network-validation Exposes `AutoMovieServiceNodeKind` as the portable data boundary for the interior service network validation requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `AutoMovieServiceNodeKind` for the interior space service network contract system contract.
+ * @evidence contracts/common.md#principled-implementation Node admission checks the six role names for membership, while ports and explicit state determine connectivity and optional zero-opening isolation. No role-specific geometry, demand or state requirement is inferred.
+ * @evidence contracts/common.md#clear-and-simple-design One role union serves all disciplines without a class hierarchy or embedded fixture catalog.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Naming a valve or fixture does not infer dimensions, ports, load or opening state; productions author those quantities directly.
+ * @evidence contracts/common.md#meaningful-documentation Explains every role with its supported network responsibility and examples.
+ * @author Samchon
  */
 export type AutoMovieServiceNodeKind =
   /** Where the medium enters or leaves the building: a main, a panel, a stack. */

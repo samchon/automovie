@@ -3,69 +3,45 @@ import { IAutoMovieBlockingCamera } from "./IAutoMovieBlockingCamera";
 import { IAutoMovieBlockingCoverage } from "./IAutoMovieBlockingCoverage";
 
 /**
- * Models one shot's intent before dense motion is synthesized.
+ * One shot's plan before any dense motion is synthesized.
  *
- * The engine checks this plan against script, stage, prior beat state and the
- * final action program. Prose explains craft; typed anchors and camera fields
- * carry the facts that can be checked deterministically.
+ * Prose fields explain craft for review; typed anchors, camera fields and duration carry the facts the engine checks. blockBeat gates the plan against the script, staged set and optional prior beat state. performShot later checks beat, duration, anchor coverage, the earliest chronological frame action's framing/move and coverage cameras; it does not judge cue meaning or compare the hero intent's subject with the performed subject.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieBlocking` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieBlocking` for the spec authoring authority compatibility system contract.
+ * @evidence contracts/common.md#principled-implementation blockBeat checks beat and placed-node membership, positive finite duration, anchor ranges/order and hero/coverage framing vocabulary. performShot compares beat, duration within 1e-6 s, non-frame actor-action coverage within 1e-9 s and the earliest chronological frame's framing/move; camera election instead follows the first frame camera in authored list order.
+ * @evidence contracts/common.md#clear-and-simple-design One record holds the beat-level plan, with per-actor intent, the hero camera and each alternate take as their own types, so the gates that read each part own its rules and the review prose sits beside the facts it explains.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts `analysis` and `rationale` are documented as unchecked prose rather than given a fake verifier, and a `static` hero intent accepting no `frame` action is the documented locked-off case, not an exemption for a fixture.
+ * @evidence contracts/common.md#meaningful-documentation States which gate checks each field, that the prose fields are never read, the hero camera's comparison rule and its static case, the coverage camera distinctness rule, and the duration unit and matching tolerance.
+ * @author Samchon
  */
 export interface IAutoMovieBlocking {
-  /**
-   * Script beat identity realized by this plan.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `beat` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `beat` for the spec authoring authority compatibility system contract.
-   */
+  /** Non-blank script beat id realized by this plan; it must name a beat. */
   beat: string;
 
-  /**
-   * Dramatic purpose used by later visual review.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `analysis` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `analysis` for the spec authoring authority compatibility system contract.
-   */
+  /** Dramatic purpose for later visual review; no engine gate reads it. */
   analysis: string;
 
   /**
-   * Why the chosen placement, coverage and timing serve that purpose.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `rationale` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `rationale` for the spec authoring authority compatibility system contract.
+   * Why the chosen placement, coverage and timing serve that purpose; review prose that no engine gate reads.
    */
   rationale: string;
 
   /**
-   * Actor-local intent and optional causal timing anchors.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `actors` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `actors` for the spec authoring authority compatibility system contract.
+   * Per-node intent and optional ordered timing anchors; each names a scene node the staged set places, and a node without an entry has no anchors. Duplicate intent rows are not separately refused.
    */
   actors: IAutoMovieBlockingActor[];
 
   /**
-   * Hero camera coverage the action program must realize.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `camera` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `camera` for the spec authoring authority compatibility system contract.
+   * Hero camera intent. performShot compares framing and move with the earliest frame action after sorting by start; with no frame action only a static move passes. In that static case the intent's framing and subject are not verified against the staged view.
    */
   camera: IAutoMovieBlockingCamera;
 
   /**
-   * Additional independently renderable camera takes.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `coverage` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `coverage` for the spec authoring authority compatibility system contract.
+   * Additional takes compiled for other staged cameras over the whole beat. Each names a staged camera that is neither the elected hero camera nor another take's camera; omitted means only the hero take is compiled.
    */
   coverage?: IAutoMovieBlockingCoverage[];
 
   /**
-   * Positive shot-local duration in seconds.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `duration` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `duration` for the spec authoring authority compatibility system contract.
+   * Finite positive shot-local duration in seconds; the performance must match it within `1e-6` s.
    */
   duration: number;
 }

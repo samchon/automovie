@@ -47,8 +47,15 @@ function textile(variant: string): Role {
   throw new Error(`unknown textile material variant ${variant}`);
 }
 
-/** The reviewed model part is the binding address; geometry and member placement
- * remain with modelSources and instanceSources respectively. */
+/**
+ * Classify an authored anchor/state/part into a production finish role; model
+ * geometry and placement stay with their source owners. Unknown anchors throw;
+ * textile branches also reject unknown variants, while other branches ignore variant.
+ * Known anchors do not validate a complete part/state vocabulary. This draft classifier
+ * does not establish the design's per-face binding census or missing-face refusal.
+ * Calls construct material records synchronously from module-retained role tables;
+ * subordinate finish errors propagate and no native resource or mesh is acquired.
+ */
 export function modelMaterialFor(anchor: string, state: string, part: string, variant = "default"): IAutoMovieMaterial {
   let role: Role | null = null;
   const starts = (prefix: string) => part.startsWith(prefix);

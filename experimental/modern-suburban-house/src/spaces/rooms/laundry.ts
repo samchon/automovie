@@ -1,7 +1,7 @@
 /**
  * `laundry-mudroom`: the buffer room between the service band and the garage.
  *
- * Design owner: `docs/spaces/rooms/laundry.md#laundry-plan`. Finished inner
+ * Finished inner
  * X = [3.22, 5.50], Z = [-4.55, -2.05] m. 07 assigns this owner its partitions
  * to service-access (X = [3.07, 3.22], carrying `service-laundry-door`
  * Z = [-4.40, -3.35], Y = [0, 2.20] m) and to the pantry (Z = [-4.70, -4.55]).
@@ -15,7 +15,7 @@ import { MAIN } from "../building";
 import { partitionPlaneFace } from "../face-partition";
 import { PALETTE } from "../palette";
 import { block, rect, slab } from "../solids";
-import { part } from "../solid-records";
+import { part } from "../part";
 import {
   box,
   door,
@@ -28,10 +28,6 @@ import {
 } from "./shared";
 import { floorOf, GROUND_LAYERS } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
- * @evidence spaces/rooms/laundry.md The service-laundry-door void follows the partition assigned to laundry.
- * @evidence principles/core/source-units.md#source-scope-preservation The service-laundry-door interval remains with laundry while its adjacent room receives the span.
- * @evidence principles/core/source-units.md#source-substantive-completion The service-laundry-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan gives service-laundry-door the west partition's Z=[-4.40, -3.35], Y=[0, 2.20] cut, distinct from the east garage door; this export carries the west span.
  */
 export const DOOR_SERVICE_LAUNDRY_DOOR = door(
   "service-laundry-door",
@@ -47,13 +43,6 @@ const WASHER_Z = [MACHINE_BACK_Z, MACHINE_BACK_Z + MACHINE_WIDTH_Z] as const;
 const DRYER_Z = [WASHER_Z[1], WASHER_Z[1] + MACHINE_WIDTH_Z] as const;
 const MACHINE_BAND_Z = [WASHER_Z[0], DRYER_Z[1]] as const;
 /** Laundry owns the passage through the main/garage shared wall. */
-/**
- * @evidence spaces/rooms/laundry.md The mudroom owns the only interior passage into the attached garage.
- * @evidence spaces/rooms/laundry.md#laundry-plan The -4.40..-3.35 m Z void spans the shared wall and preserves the garage's lower floor step.
- * @evidence principles/core/source-units.md#source-scope-preservation The garage wall receives this cut from laundry rather than declaring another door.
- * @evidence principles/core/source-units.md#source-substantive-completion The shared wall hole, ground base tongue, and laundry threshold use this interval.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan places laundry-garage-door through the shared wall at Z=-4.40..-3.35 m and preserves the garage's lower floor step; this export carries that one mudroom passage.
- */
 export const LAUNDRY_GARAGE_DOOR = {
   id: "laundry-garage-door",
   from: -4.4,
@@ -63,14 +52,6 @@ export const LAUNDRY_GARAGE_DOOR = {
 } as const;
 
 /** One under-door slab supplies disjoint structural and room-owned faces. */
-/**
- * @evidence spaces/rooms/laundry.md The mudroom's garage door and single step determine this shared under-door slab.
- * @evidence spaces/10-ground-floor.md#ground-threshold-junctions The slab continues the ground support through the laundry-garage shared-wall opening.
- * @evidence spaces/rooms/laundry.md#laundry-plan Its garage-facing end lies below the room's raised threshold at the designed passage.
- * @evidence principles/core/source-units.md#source-scope-preservation The ground owner and laundry owner partition this one mesh rather than overlapping support and finish solids.
- * @evidence principles/core/source-units.md#source-substantive-completion The shared opening span and ground layer datums produce the full under-door slab for face partitioning.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground threshold and laundry passage parents already fix the shared-wall crossing used here.
- */
 export const laundryGarageDoorBaseMesh = (): IAutoMovieMesh => slab({
   outline: rect(
     [MAIN.inner.x[1], MAIN.outer.x[1]],
@@ -112,15 +93,6 @@ const LAUNDRY: IRoomSpace = {
 };
 
 /** Emit laundry finishes, both garage riser faces, and the two partitions. */
-/**
- * @evidence spaces/rooms/laundry.md This export builds the laundry-mudroom between service access and the lower garage.
- * @evidence spaces/rooms/laundry.md#laundry-plan It emits service/pantry partitions and the full exposed garage-side riser across the shared-wall void.
- * @evidence spaces/rooms/laundry.md#laundry-equipment-use Two machine boxes, folding top, upper storage, shoe bench, hooks, and their work areas remain separately reserved.
- * @evidence spaces/rooms/laundry.md#laundry-through-route The upper waiting, lower garage-side waiting, and through-route retain the 0.15 m level change.
- * @evidence principles/core/source-units.md#source-scope-preservation The garage shared-wall body and its cut stay with garage.ts; this builder owns room finishes, the service and pantry partitions, and the higher garage threshold.
- * @evidence principles/core/source-units.md#source-substantive-completion The room, floor, ceiling, door strip, two walls, threshold, and lower exposed riser are returned with stable ids.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan fixes both door spans and the garage step, laundry-equipment-use assigns one band to two machines, and laundry-through-route keeps their rear crossing clear; buildLaundry consumes these decisions without a parent revision.
- */
 export const buildLaundry = (): IRoomBuild => ({
   space: LAUNDRY,
   parts: [

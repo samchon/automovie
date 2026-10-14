@@ -4,68 +4,37 @@ import type { IHumanViewerWarmLastFailure } from "./IHumanViewerWarmLastFailure.
 /**
  * Progress of the current background warm pass, as `/health` reports it.
  *
- * @evidence contracts/common.md#principled-implementation Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
- * @evidence contracts/common.md#clear-and-simple-design Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Skipped documents retain explicit reasons and do not contribute to the successful draw counter.
- * @evidence contracts/common.md#meaningful-documentation Explains warm revision, total/done/skipped counts, nullable current document and retained latest failure.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
+ * @evidence contracts/common.md#principled-implementation Warm progress separates total documents, successful/already-cached completions and capture failures under a named source generation.
+ * @evidence contracts/common.md#clear-and-simple-design One health record exposes pass counters, active document and retained latest failure without owning queue admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Skipped captures retain per-document reasons instead of contributing to the done count or hiding refusal under warming progress.
+ * @evidence contracts/common.md#meaningful-documentation Comments define counters, null active document between work, and latest failure retention across new-pass resets.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The warming status declaration chooses no document filtering or low-priority queue scheduling algorithm.
+ * @evidence contracts/performance.md#reuse-equivalent-work Already-cached documents count as done only through the host's thumbnail-key policy; revision mismatch withdraws obsolete warm work.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The current pass holds at most one failure record per attempted document and one latest historical failure; counters reset for each new pass.
+ *
  * @author Samchon
  */
 export interface IHumanViewerWarming {
-  /**
-   * Source generation the pass warms.
-   *
-   * @evidence requirements/rendering/frame-identity-and-content-addressing.md#rendering-current-stale Source generation the pass warms. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-frame-identity Source generation the pass warms. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Source generation the pass warms. */
   revision: string;
 
-  /**
-   * Published documents the pass covers.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Published documents the pass covers. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Published documents the pass covers. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Published documents the pass covers. */
   total: number;
 
-  /**
-   * Documents already drawn, including those found warm.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Documents already drawn, including those found warm. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Documents already drawn, including those found warm. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Documents already drawn, including those found warm. */
   done: number;
 
-  /**
-   * Documents whose capture failed.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Documents whose capture failed. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Documents whose capture failed. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Documents whose capture failed. */
   skipped: number;
 
-  /**
-   * Why each skipped document failed.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Why each skipped document failed. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Why each skipped document failed. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Why each skipped document failed. */
   failures: IHumanViewerWarmFailure[];
 
-  /**
-   * Document being warmed, or null between documents.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review Document being warmed, or null between documents. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review Document being warmed, or null between documents. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
-   */
+  /** Document being warmed, or null between documents. */
   current: string | null;
 
   /**
    * The latest failure of any pass, kept when a new pass resets the counters; null before the first.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-review The latest failure of any pass, kept when a new pass resets the counters; null before the first. Warm progress ties total, successful draws, skipped failures and current document to one pass revision.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The latest failure of any pass, kept when a new pass resets the counters; null before the first. Current-pass counters and the cross-pass last failure coexist in one health record with distinct lifetimes.
    */
   lastFailure: IHumanViewerWarmLastFailure | null;
 }

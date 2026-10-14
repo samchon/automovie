@@ -8,11 +8,14 @@ import { IAutoMovieDesignPhaseState } from "./IAutoMovieDesignPhaseState";
  * read one answer about what is standing instead of computing four.
  *
  * None of the four reads it yet. `designLineagePhaseSnapshot` is called by the
- * engine's own phase filter and view digest, by the scaffold's renovation
- * example, and by the test suite, and no compiled artifact is derived from it.
+ * engine's own phase filter and view digest and by the test suite, and no
+ * compiled artifact is derived from it.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-original-derived Exposes `IAutoMovieDesignPhaseSnapshot` as the portable data boundary for the production design reference original derived requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignPhaseSnapshot` for the narrative intent reference lineage system contract.
+ * @evidence contracts/common.md#principled-implementation `designLineagePhaseSnapshot` validates the lineage, maps each lifecycle to one state against the asked phase plus its transitive prerequisites, and sorts the states with `compareCodeUnits`, so the output depends on the plan and not on array order.
+ * @evidence contracts/common.md#clear-and-simple-design The snapshot is the asked phase plus one flat state list; the role and presence rules live in their own union types, and filtering records is left to `designLineageProject` rather than embedded here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent subjects are listed with their presence rather than dropped, and the documentation says plainly that no scene, drawing, schedule, or render consumes the snapshot yet instead of implying they agree.
+ * @evidence contracts/common.md#meaningful-documentation States that every declared subject appears once in code-unit order, who calls the producer today and who does not, and what a null phase means.
+ * @author Samchon
  */
 export interface IAutoMovieDesignPhaseSnapshot {
   /**
@@ -21,17 +24,9 @@ export interface IAutoMovieDesignPhaseSnapshot {
    * The completed work is a real question and not a missing answer: a lineage
    * that records alternatives without recording a construction sequence still
    * has to say what stands at the end.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-original-derived Exposes `phase` as the portable data boundary for the production design reference original derived requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `phase` for the narrative intent reference lineage system contract.
    */
   phase: string | null;
 
-  /**
-   * Every declared subject, in ascending id order.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-reference-original-derived Exposes `states` as the portable data boundary for the production design reference original derived requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `states` for the narrative intent reference lineage system contract.
-   */
+  /** Every declared subject, in ascending code-unit id order. */
   states: IAutoMovieDesignPhaseState[];
 }

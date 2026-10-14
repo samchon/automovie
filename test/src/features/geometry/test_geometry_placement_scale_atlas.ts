@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
 import { atlasDensityRange } from "../internal/atlasMeasure";
 import { namedFacts, nclose, violationCount } from "../internal/predicates";
 
@@ -22,11 +23,13 @@ import { namedFacts, nclose, violationCount } from "../internal/predicates";
  * a failure to zero warnings would let a refused model compare equal to a clean
  * one. `-1` keeps the two apart in the comparison below.
  */
-const warningCount = (validation: IAutoMovieValidation): number =>
+const warningCount: (validation: IAutoMovieValidation) => number = (
+  validation: IAutoMovieValidation,
+): number =>
   validation.success === true ? (validation.warnings ?? []).length : -1;
 
 /** A 1 m square section extruded 4 m: one atlas-bearing member at unit size. */
-const member = (): IAutoMovieMesh =>
+const member: () => IAutoMovieMesh = (): IAutoMovieMesh =>
   extrudeAutoMovieRegion({
     outer: [
       { x: -0.5, y: -0.5 },
@@ -45,7 +48,10 @@ const member = (): IAutoMovieMesh =>
  * say nothing. A `"normalized"` declaration over a span of 4 is refused, so the
  * same model differing only in that word is the positive control.
  */
-const declaredModel = (
+const declaredModel: (
+  scale: number | null,
+  source?: "surface-metres" | "normalized",
+) => IAutoMovieModel = (
   scale: number | null,
   source: "surface-metres" | "normalized" = "surface-metres",
 ): IAutoMovieModel => {
@@ -88,22 +94,10 @@ const declaredModel = (
 /**
  * What a placement's scale does to a metric atlas, and what nothing does about it.
  *
- * A placement carries its member's coordinates through untouched, which is the
- * stated rule and the right one for a rotation: a board turned on its side
- * keeps the grain it was cut with. A scale takes the same path and arrives
- * somewhere else. The surface stretches while the numbers stay where they
- * were, so the set goes on claiming metres it no longer measures, and the
- * finish comes out wrong by the scale factor with nothing in the frame to say
- * why.
- *
- * The contract answers this by telling an author to build an atlas-bearing
- * member at the size it will be seen at rather than by rescaling coordinates,
- * because rescaling would rewrite every surface already authored and could not
- * be done at all for a non-uniform factor. What that leaves is a stated trap,
- * and a stated trap has to be pinned or the statement is the only thing holding
- * it. Every expected number is the placement's own arithmetic: area scales as
- * the square of a uniform factor, so the ratio an unmoved atlas reads is its
- * reciprocal.
+ * Placement preserves UVs while scaling geometry. A uniform scale's surface
+ * area grows by the square of that factor, so the unchanged UV-area ratio is
+ * its reciprocal. A nonuniform scale changes faces by their own directions.
+ * These numeric measurements do not observe a finish's rendered appearance.
  *
  * Scenarios:
  *
@@ -126,25 +120,32 @@ const declaredModel = (
  *    face carries no ratio, so it would drop out of both bounds and leave the
  *    survivors looking better behaved than the surface is; all three meshes
  *    report zero of them.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Transforms the authored metric prism and measures its UV/surface-area extrema, asserting unchanged UV buffers for rigid and uniform placement, ratios one, one ninth and one third-to-one, and no skipped small-area faces. Texture-scale validation must retain the same clean verdict for unscaled/scaled surface-metres declarations while refusing the adjacent normalized declaration.
+ * @evidence contracts/testing.md#independent-expectations Rigid transforms preserve area, uniform scale three multiplies it by nine, and scaling only X multiplies affected face areas by three while orthogonal faces retain theirs. The independent triangle area observer measures these analytic ratios. Validation counts observe its resident-UV contract rather than world-space geometric admission; partial typed fixtures are used only at that seam, and no rendered finish is checked.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves rigid versus uniform/nonuniform transforms, both ratio extrema, three zero-exclusion counts, unchanged UVs, equal validation warnings and the normalized-span negative control. General texture binding admission and malformed transform inputs belong to their own validation/procedural entries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry invokes portable extrusion, transform and validation source with the existing atlas observer and fixture. It requires no consumer installation, native build, real host, browser or GPU and owns all cases without dynamic registration.
  */
-export const test_geometry_placement_scale_atlas = (): void => {
-  const built = member();
-  const placed = transformAutoMovieMesh(built, {
+export function test_geometry_placement_scale_atlas(): void {
+  const built: IAutoMovieMesh = member();
+  const placed: IAutoMovieMesh = transformAutoMovieMesh(built, {
     translation: { x: 7, y: -2, z: 3 },
     rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
   });
-  const turned = atlasDensityRange(placed);
+  const turned: IAtlasDensityRange = atlasDensityRange(placed);
   TestValidator.equals(
     "a rotation and a translation keep both the atlas and what it means",
     namedFacts([
       [
         "uvBufferIsElementForElement",
-        () =>
+        (): boolean =>
           placed.uvs!.length === built.uvs!.length &&
-          placed.uvs!.every((value, at) => value === built.uvs![at]),
+          placed.uvs!.every((value: number, at: number): boolean =>
+            nclose(value, built.uvs![at], 0),
+          ),
       ],
-      ["andStillReadsOneMetrePerUnit", () => nclose(turned.least, 1)],
-      ["onEveryTriangle", () => nclose(turned.most, 1)],
+      ["andStillReadsOneMetrePerUnit", (): boolean => nclose(turned.least, 1)],
+      ["onEveryTriangle", (): boolean => nclose(turned.most, 1)],
     ]),
     {
       uvBufferIsElementForElement: true,
@@ -153,19 +154,23 @@ export const test_geometry_placement_scale_atlas = (): void => {
     },
   );
 
-  const enlarged = transformAutoMovieMesh(built, {
+  const enlarged: IAutoMovieMesh = transformAutoMovieMesh(built, {
     scale: { x: 3, y: 3, z: 3 },
   });
-  const grown = atlasDensityRange(enlarged);
+  const grown: IAtlasDensityRange = atlasDensityRange(enlarged);
   TestValidator.equals(
     "a uniform scale of 3 leaves the atlas alone and makes every unit 3 m",
     namedFacts([
       [
         "uvBufferIsStillElementForElement",
-        () => enlarged.uvs!.every((value, at) => value === built.uvs![at]),
+        (): boolean =>
+          enlarged.uvs!.length === built.uvs!.length &&
+          enlarged.uvs!.every((value: number, at: number): boolean =>
+            nclose(value, built.uvs![at], 0),
+          ),
       ],
-      ["yetTheDensityIsOneNinth", () => nclose(grown.least, 1 / 9)],
-      ["uniformlySo", () => nclose(grown.most, 1 / 9)],
+      ["yetTheDensityIsOneNinth", (): boolean => nclose(grown.least, 1 / 9)],
+      ["uniformlySo", (): boolean => nclose(grown.most, 1 / 9)],
     ]),
     {
       uvBufferIsStillElementForElement: true,
@@ -174,15 +179,21 @@ export const test_geometry_placement_scale_atlas = (): void => {
     },
   );
 
-  const stretched = atlasDensityRange(
+  const stretched: IAtlasDensityRange = atlasDensityRange(
     transformAutoMovieMesh(built, { scale: { x: 3, y: 1, z: 1 } }),
   );
   TestValidator.equals(
     "a non-uniform scale is not wrong by one number, so nothing corrects it",
     namedFacts([
-      ["facesAlongTheScaledAxis", () => nclose(stretched.least, 1 / 3)],
-      ["facesAcrossItAreUntouched", () => nclose(stretched.most, 1)],
-      ["soOneFactorCannotServeBoth", () => stretched.most !== stretched.least],
+      [
+        "facesAlongTheScaledAxis",
+        (): boolean => nclose(stretched.least, 1 / 3),
+      ],
+      ["facesAcrossItAreUntouched", (): boolean => nclose(stretched.most, 1)],
+      [
+        "soOneFactorCannotServeBoth",
+        (): boolean => !nclose(stretched.most, stretched.least, 0),
+      ],
     ]),
     {
       facesAlongTheScaledAxis: true,
@@ -191,9 +202,13 @@ export const test_geometry_placement_scale_atlas = (): void => {
     },
   );
 
-  const asBuilt = validateTextureScale({ models: [declaredModel(null)] });
-  const asScaled = validateTextureScale({ models: [declaredModel(3)] });
-  const control = validateTextureScale({
+  const asBuilt: IAutoMovieValidation = validateTextureScale({
+    models: [declaredModel(null)],
+  });
+  const asScaled: IAutoMovieValidation = validateTextureScale({
+    models: [declaredModel(3)],
+  });
+  const control: IAutoMovieValidation = validateTextureScale({
     models: [declaredModel(null, "normalized")],
   });
   TestValidator.equals(
@@ -201,12 +216,15 @@ export const test_geometry_placement_scale_atlas = (): void => {
     namedFacts([
       // The control first: a clean verdict below means nothing unless this
       // fixture is one the validator actually reads and can refuse.
-      ["theValidatorDoesReadThisFixture", () => violationCount(control) > 0],
-      ["theUnscaledPartIsClean", () => violationCount(asBuilt) === 0],
-      ["andSoIsTheScaledOne", () => violationCount(asScaled) === 0],
+      [
+        "theValidatorDoesReadThisFixture",
+        (): boolean => violationCount(control) > 0,
+      ],
+      ["theUnscaledPartIsClean", (): boolean => violationCount(asBuilt) === 0],
+      ["andSoIsTheScaledOne", (): boolean => violationCount(asScaled) === 0],
       [
         "withTheSameWarnings",
-        () => warningCount(asBuilt) === warningCount(asScaled),
+        (): boolean => warningCount(asBuilt) === warningCount(asScaled),
       ],
     ]),
     {
@@ -220,10 +238,10 @@ export const test_geometry_placement_scale_atlas = (): void => {
   TestValidator.equals(
     "every density above was taken over real area, none of it over a collapsed face",
     namedFacts([
-      ["turned", () => turned.degenerate === 0],
-      ["grown", () => grown.degenerate === 0],
-      ["stretched", () => stretched.degenerate === 0],
+      ["turned", (): boolean => turned.degenerate === 0],
+      ["grown", (): boolean => grown.degenerate === 0],
+      ["stretched", (): boolean => stretched.degenerate === 0],
     ]),
     { turned: true, grown: true, stretched: true },
   );
-};
+}

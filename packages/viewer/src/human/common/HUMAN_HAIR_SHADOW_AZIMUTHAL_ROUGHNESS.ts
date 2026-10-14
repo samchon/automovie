@@ -1,7 +1,7 @@
 /**
- * Azimuthal roughness of the fibre scattering model the absorption mapping
- * is fitted for (Chiang, Bitterli, Tappan and Burley, "A Practical and
- * Controllable Hair and Fur Model for Production Path Tracing", Computer
- * Graphics Forum 35(2), 2016; pbrt-v3's default).
+ * Conventional dimensionless azimuthal roughness of the display fibre model.
+ * It selects the argument of the simulated color-to-absorption fit, not a
+ * measured roughness of a person or population. One scalar is shared by the
+ * absorption-scale owner and its shader; no native resource is retained.
  */
-export const HUMAN_HAIR_SHADOW_AZIMUTHAL_ROUGHNESS = 0.3;
+export const HUMAN_HAIR_SHADOW_AZIMUTHAL_ROUGHNESS: number = 0.3;

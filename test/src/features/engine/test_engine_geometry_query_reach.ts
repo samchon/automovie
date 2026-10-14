@@ -3,62 +3,78 @@ import {
   reachPose,
   validatePose,
 } from "@automovie/engine";
-import {
+import type {
   AutoMovieGeometryQuery,
   IAutoMovieBone,
   IAutoMovieCamera,
   IAutoMovieCompiledShotSource,
   IAutoMovieModel,
+  IAutoMovieQuaternion,
   IAutoMovieSceneNode,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel, createSkeleton } from "../internal/fixtures";
+import { createModel } from "../internal/createModel";
+import { createSkeleton } from "../internal/createSkeleton";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const place = (
+const place: (
   translation: { x: number; y: number; z: number },
-  rotation = { x: 0, y: 0, z: 0, w: 1 },
-  scale = { x: 1, y: 1, z: 1 },
+  rotation?: IAutoMovieQuaternion,
+  scale?: IAutoMovieVector3,
+) => IAutoMovieTransform = (
+  translation: { x: number; y: number; z: number },
+  rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 },
+  scale: IAutoMovieVector3 = { x: 1, y: 1, z: 1 },
 ): IAutoMovieTransform => ({ translation, rotation, scale });
 
-const QUARTER_Y = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
-
-/** The shared humanoid with its left lower arm collapsed onto the upper arm. */
-const collapsedLeftSkeleton = (): IAutoMovieSkeleton => {
-  const skeleton = createSkeleton();
-  return {
-    id: "collapsed-left",
-    bones: [
-      ...skeleton.bones.map(
-        (bone): IAutoMovieBone =>
-          bone.bone === "leftLowerArm"
-            ? { ...bone, rest: place({ x: 0, y: 0, z: 0 }) }
-            : bone,
-      ),
-      {
-        bone: "rightHand",
-        parent: "rightLowerArm",
-        rest: place({ x: -0.25, y: 0, z: 0 }),
-        constraint: null,
-      },
-    ],
-  };
+const QUARTER_Y: IAutoMovieQuaternion = {
+  x: 0,
+  y: Math.SQRT1_2,
+  z: 0,
+  w: Math.SQRT1_2,
 };
 
+/** The shared humanoid with its left lower arm collapsed onto the upper arm. */
+const collapsedLeftSkeleton: () => IAutoMovieSkeleton =
+  (): IAutoMovieSkeleton => {
+    const skeleton: IAutoMovieSkeleton = createSkeleton();
+    return {
+      id: "collapsed-left",
+      bones: [
+        ...skeleton.bones.map(
+          (bone: IAutoMovieBone): IAutoMovieBone =>
+            bone.bone === "leftLowerArm"
+              ? { ...bone, rest: place({ x: 0, y: 0, z: 0 }) }
+              : bone,
+        ),
+        {
+          bone: "rightHand",
+          parent: "rightLowerArm",
+          rest: place({ x: -0.25, y: 0, z: 0 }),
+          constraint: null,
+        },
+      ],
+    };
+  };
+
 /** A spine and head with no arms at all. */
-const armlessSkeleton = (): IAutoMovieSkeleton => ({
+const armlessSkeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   id: "armless",
   bones: createSkeleton().bones.filter(
-    (bone) =>
+    (bone: IAutoMovieBone): boolean =>
       bone.bone.includes("Arm") === false &&
       bone.bone.includes("Hand") === false,
   ),
 });
 
-const model = (
+const model: (
+  id: string,
+  skeleton: IAutoMovieSkeleton | null,
+) => IAutoMovieModel = (
   id: string,
   skeleton: IAutoMovieSkeleton | null,
 ): IAutoMovieModel => ({
@@ -66,7 +82,11 @@ const model = (
   id,
 });
 
-const node = (
+const node: (
+  id: string,
+  modelId: string,
+  transform?: IAutoMovieTransform,
+) => IAutoMovieSceneNode = (
   id: string,
   modelId: string,
   transform: IAutoMovieTransform = place({ x: 0, y: 0, z: 0 }),
@@ -141,7 +161,11 @@ const shot: IAutoMovieCompiledShotSource = {
   effects: [],
 };
 
-const measure = (
+const measure: (
+  actor: string,
+  target: { x: number; y: number; z: number },
+  time?: number,
+) => Record<string, number | string | boolean> = (
   actor: string,
   target: { x: number; y: number; z: number },
   time?: number,
@@ -153,17 +177,18 @@ const measure = (
     target: { kind: "point", position: target },
     ...(time === undefined ? {} : { time }),
   };
-  const result = measureAutoMovieGeometry({
-    request,
-    design: {
-      production: null,
-      world: null,
-      formations: new Map(),
-      shots: new Map(),
-    },
-    compiled: new Map([["reach", shot]]),
-    timeline: null,
-  });
+  const result: ReturnType<typeof measureAutoMovieGeometry> =
+    measureAutoMovieGeometry({
+      request,
+      design: {
+        production: null,
+        world: null,
+        formations: new Map(),
+        shots: new Map(),
+      },
+      compiled: new Map([["reach", shot]]),
+      timeline: null,
+    });
   if (result.kind !== "measurement")
     throw new Error("reach answers a measurement");
   return result.values;
@@ -194,66 +219,153 @@ const measure = (
  *    reports the left arm unmeasurable and the right arm's own gap.
  * 5. A collapsed scale on any one axis, an actor with no skeleton, and a skeleton
  *    with no arm chain at all each refuse by name.
+ * 6. A root quarter turn under nonuniform node scale preserves the two affine
+ *    stages: a model target at x=2.2 maps to world z=-2.2, and the rest hand
+ *    maps to z=-0.75. Flattening these stages doubles the wrong axis.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the public reach and distance query entry; asserts arm gaps, measurability, ROM reporting and named refusal, including affine composition.
+ * @evidence contracts/testing.md#independent-expectations Shoulder x=0.2 plus lengths 0.3+0.25 gives far gap 1.45; a +Y quarter turn sends x to -z before node x scaling. ROM comparisons only verify delegation to the separately tested pose validator.
+ * @evidence contracts/testing.md#distinguishing-cases Near/far, handless/collapsed/absent chains, all three zero-scale axes and a translated turn distinguish refusal from valid measurements; the nonuniform root-turn case catches TRS flattening. Selector lookup and terrain boundaries belong to the selector suite.
+ * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_engine_geometry_query_reach by the repository test runner; this export directly owns every case and starts no host or native build.
  */
-export const test_engine_geometry_query_reach = (): void => {
-  const skeleton = createSkeleton();
-  const near = { x: 0.5, y: 1.4, z: 0 };
-  const expectedLeftRom = (target: { x: number; y: number; z: number }) => {
-    const pose = reachPose(skeleton, "left", target);
+export function test_engine_geometry_query_reach(): void {
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
+  const near: IAutoMovieVector3 = { x: 0.5, y: 1.4, z: 0 };
+  const expectedLeftRom: (target: IAutoMovieVector3) => boolean = (
+    target: IAutoMovieVector3,
+  ): boolean => {
+    const pose: ReturnType<typeof reachPose> = reachPose(
+      skeleton,
+      "left",
+      target,
+    );
     return pose !== null && validatePose({ pose, skeleton }).items.length === 0;
   };
 
-  const reachable = measure("hero", near);
-  const far = measure("hero", { x: 2.2, y: 1.4, z: 0 }, 2);
-  const turned = measure("turned", { x: 10, y: 1.4, z: -0.5 });
-  const collapsed = measure("collapsed", { x: -0.5, y: 1.4, z: 0 });
+  const reachable: ReturnType<typeof measure> = measure("hero", near);
+  const far: ReturnType<typeof measure> = measure(
+    "hero",
+    { x: 2.2, y: 1.4, z: 0 },
+    2,
+  );
+  const turned: ReturnType<typeof measure> = measure("turned", {
+    x: 10,
+    y: 1.4,
+    z: -0.5,
+  });
+  const collapsed: ReturnType<typeof measure> = measure("collapsed", {
+    x: -0.5,
+    y: 1.4,
+    z: 0,
+  });
+  const affineShot: IAutoMovieCompiledShotSource = {
+    ...shot,
+    scene: {
+      ...shot.scene,
+      nodes: [
+        {
+          ...node(
+            "affine",
+            "rigged",
+            place({ x: 0, y: 0, z: 0 }, undefined, { x: 2, y: 1, z: 1 }),
+          ),
+          pose: {
+            skeleton: skeleton.id,
+            root: place({ x: 0, y: 0, z: 0 }, QUARTER_Y),
+            joints: [],
+          },
+        },
+      ],
+    },
+  };
+  const affineAsk: (
+    request: AutoMovieGeometryQuery,
+  ) => ReturnType<typeof measureAutoMovieGeometry> = (
+    request: AutoMovieGeometryQuery,
+  ): ReturnType<typeof measureAutoMovieGeometry> =>
+    measureAutoMovieGeometry({
+      request,
+      design: {
+        production: null,
+        world: null,
+        formations: new Map(),
+        shots: new Map(),
+      },
+      compiled: new Map([[shot.shot.id, affineShot]]),
+      timeline: null,
+    });
+  const affineReach: ReturnType<typeof affineAsk> = affineAsk({
+    query: "reach",
+    actor: "affine",
+    shot: "reach",
+    target: { kind: "point", position: { x: 0, y: 1.4, z: -2.2 } },
+  });
+  const affineHand: ReturnType<typeof affineAsk> = affineAsk({
+    query: "distance",
+    shot: "reach",
+    from: { kind: "actor", actor: "affine", bone: "leftHand" },
+    to: { kind: "point", position: { x: 0, y: 1.4, z: -0.75 } },
+  });
+  TestValidator.predicate(
+    "root turn is applied before nonuniform node scale for reach",
+    (): boolean =>
+      affineReach.kind === "measurement" &&
+      nclose(affineReach.values.leftGap as number, 1.45, 1e-9),
+  );
+  TestValidator.predicate(
+    "bone selector preserves both affine stages",
+    (): boolean =>
+      affineHand.kind === "distance" && nclose(affineHand.meters, 0, 1e-9),
+  );
 
   TestValidator.equals(
     "a reach query measures each arm's own chain in model space",
     namedFacts([
       [
         "reachable",
-        () => reachable.reachable === true && reachable.sampledTime === 0,
+        (): boolean =>
+          reachable.reachable === true &&
+          nclose(reachable.sampledTime as number, 0, 0),
       ],
       [
         "leftChain",
-        () =>
+        (): boolean =>
           reachable.leftMeasurable === true &&
           nclose(reachable.leftGap as number, 0, 1e-12),
       ],
       [
         "leftRomReported",
-        () => reachable.leftPoseWithinRom === expectedLeftRom(near),
+        (): boolean => reachable.leftPoseWithinRom === expectedLeftRom(near),
       ],
       [
         "rightHandless",
-        () =>
+        (): boolean =>
           reachable.rightMeasurable === false &&
-          reachable.rightGap === 0 &&
+          nclose(reachable.rightGap as number, 0, 0) &&
           reachable.rightPoseWithinRom === false,
       ],
       [
         "farGap",
-        () =>
+        (): boolean =>
           nclose(far.leftGap as number, 1.45, 1e-12) && far.reachable === false,
       ],
-      ["askedTime", () => far.sampledTime === 2],
+      ["askedTime", (): boolean => nclose(far.sampledTime as number, 2, 0)],
       [
         "modelSpace",
-        () =>
+        (): boolean =>
           turned.reachable === true &&
           nclose(turned.leftGap as number, 0, 1e-9),
       ],
       [
         "collapsedLeft",
-        () =>
+        (): boolean =>
           collapsed.leftMeasurable === false &&
-          collapsed.leftGap === 0 &&
+          nclose(collapsed.leftGap as number, 0, 0) &&
           collapsed.leftPoseWithinRom === false,
       ],
       [
         "wholeRight",
-        () =>
+        (): boolean =>
           collapsed.rightMeasurable === true &&
           nclose(collapsed.rightGap as number, 0, 1e-12) &&
           collapsed.reachable === true,
@@ -277,45 +389,45 @@ export const test_engine_geometry_query_reach = (): void => {
     namedFacts([
       [
         "flatX",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure("flatX", near),
+            (): ReturnType<typeof measure> => measure("flatX", near),
             'Actor "flatX" has a degenerate current scale',
           ),
       ],
       [
         "flatY",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure("flatY", near),
+            (): ReturnType<typeof measure> => measure("flatY", near),
             'Actor "flatY" has a degenerate current scale',
           ),
       ],
       [
         "flatZ",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure("flatZ", near),
+            (): ReturnType<typeof measure> => measure("flatZ", near),
             'Actor "flatZ" has a degenerate current scale',
           ),
       ],
       [
         "noSkeleton",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure("crate", near),
+            (): ReturnType<typeof measure> => measure("crate", near),
             'Actor "crate" has no skeleton',
           ),
       ],
       [
         "noArms",
-        () =>
+        (): boolean =>
           throwsError(
-            () => measure("armless", near),
+            (): ReturnType<typeof measure> => measure("armless", near),
             'Actor "armless" has no measurable upper-arm, lower-arm and hand chain',
           ),
       ],
     ]),
     { flatX: true, flatY: true, flatZ: true, noSkeleton: true, noArms: true },
   );
-};
+}

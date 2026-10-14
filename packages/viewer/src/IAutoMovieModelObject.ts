@@ -7,25 +7,21 @@ import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 /**
  * A built model: its `three.js` root object and a lookup of its bones.
  *
- * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Keeps this model surface in the compiled transform hierarchy.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes the same hierarchy for render visibility and culling.
+ * @evidence contracts/common.md#principled-implementation A root group with semantic bone and authored part-id maps supports common pose and prop-articulation application; imported appearances may supply expression/frame callbacks and an empty part map.
+ * @evidence contracts/common.md#clear-and-simple-design Separates root placement, skeletal articulation, authored part lookup and optional runtime integration without exposing a concrete imported-avatar SDK.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Part ids decide articulation rather than optional nonunique display names; missing imported rig slots are not replaced with invented bones.
+ * @evidence contracts/common.md#meaningful-documentation Documents root mounting, nonrigged bone absence, part-id lookup rationale and optional expression/runtime-flush hooks.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The built-model shape performs no object traversal or forward kinematics.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Maps expose existing runtime identity but the type coordinates no build cache or asynchronous request.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builders or importing hosts own root geometry/material lifetime; this interface creates no loop, renderer or loaded asset.
+ *
  * @author Samchon
  */
 export interface IAutoMovieModelObject {
-  /**
-   * Root group; add this to a scene (or a node group) to display the model.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Keeps this model root in the compiled transform hierarchy.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes that hierarchy for render visibility and culling.
-   */
+  /** Root group; add this to a scene (or a node group) to display the model. */
   object: THREE.Group;
 
-  /**
-   * Bones by humanoid slot, for posing. Empty for a non-rigged object.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Preserves the compiled bone hierarchy for pose playback.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes that hierarchy as runtime bone objects.
-   */
+  /** Bones by humanoid slot, for posing. Empty for a non-rigged object. */
   bones: ReadonlyMap<AutoMovieHumanoidBone, THREE.Object3D>;
 
   /**
@@ -36,25 +32,24 @@ export interface IAutoMovieModelObject {
    * joint's own object. Found by id rather than by traversing for a name,
    * because a part's `name` is optional and a model may carry two parts sharing
    * one, so a name search would move whichever it reached first.
-   *
-   * @evidence requirements/rendering/geometry-visibility-and-culling.md#rendering-hierarchical-transforms Keeps this model surface in the compiled transform hierarchy.
-   * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-visibility-culling Materializes the same hierarchy for render visibility and culling.
    */
   parts: ReadonlyMap<string, THREE.Object3D>;
 
   /**
    * Optional expression sinks: morph managers, VRM expression managers, etc.
-   *
-   * @evidence requirements/motion/layers-blends-and-transitions.md#motion-layer-channel-ownership Exposes the expression sinks that own resolved expression channels.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-gaze-expression-attention Materializes those channels at the runtime expression boundary.
    */
   expressionTargets?: readonly IAutoMovieExpressionTarget[];
 
   /**
    * Optional imported-runtime flush after pose and expression are written.
    *
-   * @evidence requirements/motion/timing-and-semantic-events.md#motion-boundary-sampling Flushes imported runtime state only after the exact frame sample is written.
-   * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clock-semantic-event Keeps the imported runtime on the frame's shared motion-clock sample.
+   * @evidence contracts/common.md#principled-implementation Receives AutoMoviePlayer's actual applied pose/expression frame after both viewer adapters finish, so imported dependent state shares the same elapsed/delta clock.
+   * @evidence contracts/common.md#clear-and-simple-design One optional callback adapts foreign runtime integration without exposing its SDK methods throughout model construction and playback.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The host supplies this callback explicitly instead of monkey-patching a runtime update method or synthesizing a global clock.
+   * @evidence contracts/common.md#meaningful-documentation States optional imported-runtime flushing and its ordering after pose/expression application.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This callback contract does not select the imported runtime's update algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The player invokes effectful flushing for each update and defines no result-sharing promise here.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Any imported state or task retained by the callback remains host-owned; the model handle acquires no imported manager.
    */
   afterAutoMovieFrame?: (frame: IAutoMovieViewerFrame) => void;
 }

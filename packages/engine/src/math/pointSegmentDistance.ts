@@ -1,40 +1,27 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { Vector3 } from "./Vector3";
-
-const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
-
-/** Closest point on segment `[start, end]` to `point`. */
-const closestPointOnSegment = (
-  point: IAutoMovieVector3,
-  start: IAutoMovieVector3,
-  end: IAutoMovieVector3,
-): IAutoMovieVector3 => {
-  const segment = Vector3.subtract(end, start);
-  // Guard the zero-length segment (start === end, e.g. two bones the FK
-  // resolves onto the same world point): an unguarded `0/0` yields NaN, and a
-  // NaN distance slips every `distance < minimum` collision test as false,
-  // silently passing a real overlap. `Number.EPSILON` floors the span so t=0
-  // and the closest point degrades to `start`, i.e. the exact point-to-point
-  // distance. Mirrors `hull.ts`'s `closestPointOnSegmentXZ`.
-  const span = Math.max(Vector3.dot(segment, segment), Number.EPSILON);
-  const t = clamp01(
-    Vector3.dot(Vector3.subtract(point, start), segment) / span,
-  );
-  return Vector3.lerp(start, end, t);
-};
+import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
 
 /**
- * Distance from `point` to segment `[start, end]`.
+ * Distance in metres from a point to a closed segment in one coordinate frame.
+ * Coincident endpoints give point distance without collapsing tiny nonzero spans.
+ * The shared segment owner admits finite represented arithmetic and reports
+ * rounded witnesses rather than a certified exact separation bound.
  *
- * @evidence requirements/motion/contact-weight-and-support.md#motion-contact-authority-tolerance Measures a contact point's shortest residual to a bounded support or collider segment.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-contact-phase-weight-support Measures a contact point's shortest residual to a bounded support or collider segment.
+ * @evidence contracts/common.md#principled-implementation An exactly collapsed first segment represents the query point in the shared constrained segment minimum, preserving exact zero endpoints and scaled tiny-span arithmetic.
+ * @evidence contracts/common.md#clear-and-simple-design The scalar adapter consumes closestPointsBetweenSegments instead of a second squared-length floor and projection formula.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No Number.EPSILON length floor turns short real segments into points; finite-arithmetic failures follow the shared refusal contract.
+ * @evidence contracts/common.md#meaningful-documentation States metre coordinates, bounded endpoints, exact collapsed behavior and inherited represented precision/refusals.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed candidate set supplies the minimum, keeping the scalar query constant in time and temporary storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Supplying the point twice expresses its geometry without duplicating the projection algorithm; collision calls share no cached result.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The witness pair is temporary and only its distance escapes, with no retained input or collision state.
  */
-export const pointSegmentDistance = (
+export const pointSegmentDistance: (
   point: IAutoMovieVector3,
   start: IAutoMovieVector3,
   end: IAutoMovieVector3,
-): number =>
-  Vector3.length(
-    Vector3.subtract(point, closestPointOnSegment(point, start, end)),
-  );
+) => number = (
+  point: IAutoMovieVector3,
+  start: IAutoMovieVector3,
+  end: IAutoMovieVector3,
+): number => closestPointsBetweenSegments(point, point, start, end).distance;

@@ -8,32 +8,27 @@ import { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
  * The frame is a full rigid placement, never a heading: local `+X` and `+Y`
  * span the face and local `+Z` is the outward normal, so a wall leaning out of
  * plumb or a sloping soffit is stated exactly rather than flattened to a
- * compass direction. Everything an opening says about itself is written in this
- * frame's metres, which is what makes "the door is inside the wall" a fact the
- * engine can settle instead of two unrelated coordinate systems.
+ * compass direction. Every opening on the boundary is written in this frame's
+ * metres, so whether a door lies inside its wall is one planar containment
+ * test.
  *
- * The patch is planar on purpose. A curved separation is authored as several
- * boundaries, each one flat, rather than as one face carrying a surface the
- * containment test would then have to approximate.
+ * The patch is planar. A curved separation is authored as several flat
+ * boundaries rather than as one face whose surface the containment test would
+ * have to approximate.
  *
- * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `IAutoMovieBoundaryFace` as the portable data boundary for the interior wall boundary validation requirement.
- * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `IAutoMovieBoundaryFace` for the interior space wall partition boundary system contract.
+ * Validation checks finite origin, unit rotation, positive finite thickness, at least three finite corners with consecutive spacing above 1e-9 m, finite doubled area magnitude above 1e-9 and the approximate simple-ring predicate. It does not check that the face borders its cited volume or `+Z` points outward. Envelope derivation flips authored `+Z` only when one probe 0.001 m along it from the shoelace centroid is inside the space; it does not test the opposite side, and a concave outline's centroid can lie outside its patch.
+ *
+ * @evidence contracts/common.md#principled-implementation The rigid frame places local XY into world space and shared planar predicates test outlines and opening hulls in that frame. Their binary64 and scale-dependent tolerances can round or overflow; sharing a frame establishes coordinate compatibility rather than exact geometric containment or agreement with visible wall geometry.
+ * @evidence contracts/common.md#clear-and-simple-design Origin, rotation, outline and thickness are the minimum that locate a slab in space; the thickness extrudes along local `+Z`, so no second outline or depth record exists.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record is not reoriented at admission. `builtEnvironmentEnvelopeFaces` applies its one-probe orientation heuristic to exposed boundaries, preserving authored direction when the probe is outside; thin, off-volume or concave geometry can defeat an outward interpretation, so the result is not an orientation certificate.
+ * @evidence contracts/common.md#meaningful-documentation States the frame's axis meaning, the unit, why the face is planar, the outline's simplicity rule and its reason, and exactly what validation checks and leaves to the envelope derivation.
+ * @author Samchon
  */
 export interface IAutoMovieBoundaryFace {
-  /**
-   * World-space origin of the boundary's own frame.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `origin` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `origin` for the interior space wall partition boundary system contract.
-   */
+  /** World-space origin of the boundary's own frame. */
   origin: IAutoMovieVector3;
 
-  /**
-   * Unit quaternion taking the boundary's local axes into world space.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `rotation` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `rotation` for the interior space wall partition boundary system contract.
-   */
+  /** Unit quaternion taking the boundary's local axes into world space. */
   rotation: IAutoMovieQuaternion;
 
   /**
@@ -42,17 +37,11 @@ export interface IAutoMovieBoundaryFace {
    * The outline is a simple polygon: it may be concave, but it may not cross
    * itself, because a self-crossing outline has no inside for an opening to be
    * checked against.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `outline` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `outline` for the interior space wall partition boundary system contract.
    */
   outline: IAutoMoviePlanarPoint[];
 
   /**
    * Positive separation thickness along the boundary's local `+Z`, in metres.
-   *
-   * @evidence requirements/interior/walls-partitions-and-linings.md#interior-wall-boundary-validation Exposes `thickness` as the portable data boundary for the interior wall boundary validation requirement.
-   * @evidence specifications/interior-space/boundaries-openings-and-circulation.md#interior-space-wall-partition-boundary Types `thickness` for the interior space wall partition boundary system contract.
    */
   thickness: number;
 }

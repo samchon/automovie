@@ -3,15 +3,17 @@ import { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
 /**
  * Coding-agent-authored stand-in model inventory for a script cast.
  *
- * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `IAutoMovieForgePlan` as the portable data boundary for the agent authoring tool replaceability requirement.
- * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `IAutoMovieForgePlan` for the spec authoring authority compatibility system contract.
+ * forgeCast accepts it as a map from cast node to the original model references, or returns the casting and model findings collected by that pass. An entry with an unknown cast node returns before its model is inspected.
+ *
+ * @evidence contracts/common.md#principled-implementation `forgeCast` indexes the cast once, checks each entry, then walks the cast again to report every member with a `null` `modelRef` that no entry forged, so the plan must be an exact cover of the stand-in members.
+ * @evidence contracts/common.md#clear-and-simple-design One entry list is the whole plan; the cast and its `modelRef` choices stay on the script, so the plan states only the models it supplies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing stand-in is reported rather than filled with a default rig, and a second entry for one node is refused rather than letting the later one win.
+ * @evidence contracts/common.md#meaningful-documentation States which consumer reads the plan, what it returns, and the exact-cover rule over cast members with and without a `modelRef`.
+ * @author Samchon
  */
 export interface IAutoMovieForgePlan {
   /**
-   * Exactly one generated stand-in for every cast member without a model.
-   *
-   * @evidence requirements/agent-authoring/project-ownership.md#agent-authoring-tool-replaceability Exposes `entries` as the portable data boundary for the agent authoring tool replaceability requirement.
-   * @evidence specifications/authoring-and-authority/delegation-and-decision-authority.md#spec-authoring-authority-compatibility Types `entries` for the spec authoring authority compatibility system contract.
+   * Exactly one generated stand-in for every cast member whose modelRef is null, and none for a member whose modelRef names an imported asset.
    */
   entries: IAutoMovieForgeEntry[];
 }

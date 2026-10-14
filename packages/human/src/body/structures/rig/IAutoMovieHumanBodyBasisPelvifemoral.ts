@@ -54,6 +54,15 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * nondecreasing nonnegative ordinates and every `rest + ordinate` of the
  * lumbar joint inside its flexion range, and no coupling driving a leg's or
  * the lumbar joint's flexion.
+ *
+ * @evidence contracts/common.md#principled-implementation A degree-valued curve coordinates the larger trunk-relative hip flexion with posterior pelvic tilt; actual changed parent-relative coordinates remain independently checked.
+ * @evidence contracts/common.md#clear-and-simple-design One pelvis relation owns the lumbar restoring joint and shared bilateral tilt.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The authored curve has task-dependent measurement limits and is not a universal physiological ratio.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes scalar increments from composed coordinates, refusal paths and unresolved population validity.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The pelvifemoral coordination schema declares data and signatures without implementing runtime algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pelvifemoral coordination schema declaration shares no computations across consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pelvifemoral coordination schema type has no runtime acquisition, retention or release operation.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisPelvifemoral {

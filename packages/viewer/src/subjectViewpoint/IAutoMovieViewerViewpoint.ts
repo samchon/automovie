@@ -1,27 +1,26 @@
 /**
- * One planned direction to look at a subject from.
+ * Named inspection direction: azimuth from +Z toward +X, elevation above the world horizontal, and a positive multiplier on sphere-fit distance.
  *
- * A viewpoint is stated relative to the subject rather than in world
- * coordinates. Angles stay the same across subjects; distance follows the
- * subject's framing radius with the minimum neighbourhood radius defined by
- * {@link frameAutoMovieViewerSubject}.
+ * @evidence contracts/common.md#principled-implementation Angles are subject-relative directions while distance uses the subject box half-diagonal with the framing floor; at least factor one is needed to claim whole-sphere fit.
+ * @evidence contracts/common.md#clear-and-simple-design A compact direction record separates planning identity from world-space pose calculation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An id names a planned direction and is not proof of rendering; finite angles, valid bounds/lens and positive distance remain caller premises.
+ * @evidence contracts/common.md#meaningful-documentation Documents axes, angle units, sphere distance and planning-versus-observation identity.
+ * @evidence contracts/performance.md#efficient-algorithms The record chooses no traversal; framing consumes its fixed-size numbers and generation scales with plan size.
+ * @evidence contracts/performance.md#reuse-equivalent-work Directions can be reused across subjects, but world poses depend on each current box, lens and multiplier.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This scalar/text record owns no native resources; plan and capture consumers control reference lifetime.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `IAutoMovieViewerViewpoint` records an angle and distance the inspection chose, not one an authored camera imposed.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-viewpoint-plan `IAutoMovieViewerViewpoint` types one entry of the viewpoint plan with its direction, distance, and deterministic identity.
  * @author Samchon
  */
 export interface IAutoMovieViewerViewpoint {
   /**
    * Deterministic identity of this viewpoint within its plan.
    *
-   * Derived from the angles, so the same plan yields the same identities and a
-   * coverage record can say which of them were actually rendered.
+   * Derived from the angles, so the same plan yields the same identities and a coverage record can say which of them were actually rendered.
    */
   id: string;
 
   /**
-   * Compass angle around the subject's world-up axis, in degrees, measured
-   * from `+Z` toward `+X`.
+   * Compass angle around the subject's world-up axis, in degrees, measured from `+Z` toward `+X`.
    */
   azimuthDeg: number;
 
@@ -31,8 +30,7 @@ export interface IAutoMovieViewerViewpoint {
   elevationDeg: number;
 
   /**
-   * Multiplier on the distance that exactly fits the subject, where `1` fits
-   * it and larger values leave surrounding context in frame.
+   * Multiplier on the floored circumsphere-fit distance; values above one add distance. Finite input and clip conventions still govern whether the complete subject is actually visible.
    */
   distanceFactor: number;
 }

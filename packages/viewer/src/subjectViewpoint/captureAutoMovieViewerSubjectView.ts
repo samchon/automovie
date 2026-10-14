@@ -1,32 +1,22 @@
-import { captureViewerSnapshot } from "../snapshot.js";
-import type { IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
+import { captureViewerSnapshot } from "../captureViewerSnapshot.js";
 import type { IAutoMovieViewerSubjectView } from "./IAutoMovieViewerSubjectView.js";
+import type { IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
 import { applyAutoMovieViewerSubjectPose } from "./applyAutoMovieViewerSubjectPose.js";
 
 /**
- * Pose in, image out, for one named subject.
+ * Apply pose, resolve populations, then synchronously draw/encode one inspection image. Subject and pose are supplied labels and borrowed references; equal labels do not guarantee equal scene pixels, source freshness or actual hardware readiness.
  *
- * This is the call that makes the harness usable by something that cannot look
- * at a screen. An authoring agent names a subject and a pose and receives an
- * image; a reviewer names the same subject and the same pose and receives the
- * same image. That symmetry is the whole point, and the record it returns
- * carries the subject identity so a finding can travel as an id rather than as
- * a picture nobody can act on.
- *
- * The populations are resolved first and unconditionally. See
- * {@link IAutoMovieViewerSubjectViewRequest.resolveForCamera} for why that
- * argument is not optional.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-inspection-reach `captureAutoMovieViewerSubjectView` answers a named subject and a stated viewpoint with an observation artifact, which is what makes the instrument usable by a party that cannot look at a screen.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-inspection-reach Resolves a stable subject and viewpoint request into the actual viewer observation artifact.
- * @evidence requirements/review/subject-inspection.md#review-subject-evidence `captureAutoMovieViewerSubjectView` produces one subject observation carrying the observed identity, the viewpoint it was taken from, and the artifact it produced.
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership `captureAutoMovieViewerSubjectView` renders through the inspection's own pose and marks the result as something no delivery review may consume.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-observation `captureAutoMovieViewerSubjectView` emits the subject observation record the inspection surface accumulates.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Orders native camera update before the required population callback and existing snapshot draw/encoding; caller owns an admitted pose, matching renderer/canvas and valid scene realization.
+ * @evidence contracts/common.md#clear-and-simple-design Coordinates existing pose and snapshot owners without adding another render or provenance service.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Literal deliveryEvidence=false distinguishes inspection from authored delivery; it neither resolves subject existence nor certifies pixels, and callback/draw failures propagate without rollback.
+ * @evidence contracts/common.md#meaningful-documentation States ordering, label/reference limits, delivery distinction and retained camera/population mutation on failure.
+ * @evidence contracts/performance.md#efficient-algorithms Cost is camera update plus actual population resolution, native draw and image-sized encoding; record assembly is fixed apart from the encoded snapshot.
+ * @evidence contracts/performance.md#reuse-equivalent-work Every request executes its own mutable resolution/draw; equivalent subject/pose text cannot replace current scene, source, renderer and callback effects.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene/camera/renderer and transfers the encoded string to its caller; no browser/worker is acquired and the owner retains/retires all native resources.
  */
-export const captureAutoMovieViewerSubjectView = (
+export function captureAutoMovieViewerSubjectView(
   request: IAutoMovieViewerSubjectViewRequest,
-): IAutoMovieViewerSubjectView => {
+): IAutoMovieViewerSubjectView {
   applyAutoMovieViewerSubjectPose(request.camera, request.pose);
   request.resolveForCamera(request.camera, request.renderer.domElement.height);
   return {
@@ -41,4 +31,4 @@ export const captureAutoMovieViewerSubjectView = (
     ),
     deliveryEvidence: false,
   };
-};
+}

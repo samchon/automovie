@@ -13,7 +13,11 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -31,7 +35,7 @@ const skeleton: IAutoMovieSkeleton = {
   ],
 };
 
-const throws = (task: () => void): boolean => {
+const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
     task();
     return false;
@@ -49,8 +53,13 @@ const throws = (task: () => void): boolean => {
  *
  * 1. Non-finite push axes throw before propagation.
  * 2. Finite large push axes still use the existing ROM clamp behavior.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Rejects non-finite recoil axes, then checks all three finite saturated axes against authored ROM bounds, catching invalid push admission or a guard that suppresses valid clamping.
+ * @evidence contracts/testing.md#independent-expectations Finite degree targets are the input contract; the rig's explicit maxima/minimum independently define 40/-15/20. Exception presence is asserted without claiming exact diagnostic identity or evaluation order.
+ * @evidence contracts/testing.md#distinguishing-cases Separates flexion NaN, abduction infinity and twist negative infinity from a finite three-axis positive twin; omitted/zero axes, falloff and default/coupled constraints belong to neighboring recoil units.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns the local loop assertions and calls impactRecoil with an in-memory rig; no host or dynamic cases are installed.
  */
-export const test_physics_impact_recoil_push_finite = (): void => {
+export function test_physics_impact_recoil_push_finite(): void {
   const cases: [keyof IAutoMovieRecoilPush, number][] = [
     ["flexion", Number.NaN],
     ["abduction", Infinity],
@@ -59,12 +68,13 @@ export const test_physics_impact_recoil_push_finite = (): void => {
   for (const [axis, value] of cases)
     TestValidator.predicate(
       `${axis} ${value} throws`,
-      throws(() =>
-        impactRecoil({ [axis]: value }, ["spine", "chest"], skeleton, 1),
+      throws(
+        (): ReturnType<typeof impactRecoil> =>
+          impactRecoil({ [axis]: value }, ["spine", "chest"], skeleton, 1),
       ),
     );
 
-  const pose = impactRecoil(
+  const pose: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 200, abduction: -100, twist: 50 },
     ["spine"],
     skeleton,
@@ -82,4 +92,4 @@ export const test_physics_impact_recoil_push_finite = (): void => {
     "finite twist keeps ROM max clamp",
     nclose(pose.joints[0]!.twist!, 20),
   );
-};
+}

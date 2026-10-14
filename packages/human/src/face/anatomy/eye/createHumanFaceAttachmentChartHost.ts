@@ -18,16 +18,25 @@ import type { IHumanFaceAttachmentChartHost } from "./structures/IHumanFaceAttac
  * Admission and every later query share privately copied material vertex,
  * coordinate and triangle tables. The caller retains its chart and host;
  * this reader stores neither host geometry nor continuation metadata.
+ *
+ * @evidence contracts/common.md#principled-implementation Positive oriented material triangles must exactly reproduce same-generation canonical host incidence before barycentric queries can read the current skin.
+ * @evidence contracts/common.md#clear-and-simple-design Owned material/triangle tables separate dimensionless source coordinates from metric skin frames and retain no spatial-nearest fallback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source embedding/nonoverlap remains the producer's premise; a missing location reports its signed witness rather than snapping or expanding the disk.
+ * @evidence contracts/common.md#meaningful-documentation The prose states private copies, exact incidence, positive area, source-domain refusal and embedding ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Construction scans chart vertices/triangles; seat lookup scans all T chart triangles and on refusal scans them again for the arithmetic witness.
+ * @evidence contracts/performance.md#reuse-equivalent-work Ordinal/host-triangle/vertex-seat maps reuse admitted incidence; coordinate reads are constant-size and barycentric queries use owned copies.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned reader retains copied tables and ordinal maps for caller lifetime; each query returns owned seats/coordinates without retaining query state or handles.
  */
 export function createHumanFaceAttachmentChartHost(
   chart: IAutoMovieHumanFaceAttachmentChart,
   surface: IAutoMovieHumanFaceBasisSurface,
 ): IHumanFaceAttachmentChartHost {
-  const vertices = [...chart.vertices];
-  const coordinates = [...chart.coordinates];
-  const indices = [...chart.indices];
-  const sourceTriangles = [...chart.sourceTriangles];
-  const samples = surface.sourcePartition?.samples;
+  const vertices: number[] = [...chart.vertices];
+  const coordinates: number[] = [...chart.coordinates];
+  const indices: number[] = [...chart.indices];
+  const sourceTriangles: number[] = [...chart.sourceTriangles];
+  const samples: readonly number[] | undefined =
+    surface.sourcePartition?.samples;
   if (
     samples === undefined ||
     chart.surface !== surface.id ||
@@ -37,20 +46,38 @@ export function createHumanFaceAttachmentChartHost(
     coordinates.length !== 2 * vertices.length ||
     chart.sourceVertices.length !== vertices.length ||
     indices.length !== 3 * sourceTriangles.length ||
-    coordinates.some((value) => !Number.isFinite(value)) ||
+    coordinates.some((value: number): boolean => !Number.isFinite(value)) ||
     new Set(vertices).size !== vertices.length ||
-    vertices.some((vertex, at) => samples[vertex] !== chart.sourceVertices[at])
+    vertices.some(
+      (vertex: number, at: number): boolean =>
+        samples[vertex] !== chart.sourceVertices[at],
+    )
   )
     throw new Error(
       "A material attachment chart needs exact same-generation host samples.",
     );
-  const ordinal = new Map(vertices.map((vertex, at) => [vertex, at]));
-  const hostOrdinal = new Map(
-    sourceTriangles.map((triangle, at) => [triangle, at]),
+  const ordinal: Map<number, number> = new Map(
+    vertices.map((vertex: number, at: number): [number, number] => [
+      vertex,
+      at,
+    ]),
   );
-  const vertexSeats = new Map<number, IHumanFaceSkinSeat>();
-  for (let triangle = 0; triangle < sourceTriangles.length; triangle++) {
-    const hostTriangle = sourceTriangles[triangle];
+  const hostOrdinal: Map<number, number> = new Map(
+    sourceTriangles.map((triangle: number, at: number): [number, number] => [
+      triangle,
+      at,
+    ]),
+  );
+  const vertexSeats: Map<number, IHumanFaceSkinSeat> = new Map<
+    number,
+    IHumanFaceSkinSeat
+  >();
+  for (
+    let triangle: number = 0;
+    triangle < sourceTriangles.length;
+    triangle++
+  ) {
+    const hostTriangle: number = sourceTriangles[triangle];
     if (
       !Number.isSafeInteger(hostTriangle) ||
       hostTriangle < 0 ||
@@ -59,8 +86,8 @@ export function createHumanFaceAttachmentChartHost(
       throw new Error(
         "A material attachment chart needs resident host triangles.",
       );
-    for (let corner = 0; corner < 3; corner++) {
-      const local = indices[3 * triangle + corner];
+    for (let corner: number = 0; corner < 3; corner++) {
+      const local: number = indices[3 * triangle + corner];
       if (
         !Number.isSafeInteger(local) ||
         local < 0 ||
@@ -76,8 +103,8 @@ export function createHumanFaceAttachmentChartHost(
         vertexSeats.set(vertices[local], { triangle: hostTriangle, weights });
       }
     }
-    const [a, b, c] = indices.slice(3 * triangle, 3 * triangle + 3);
-    const area =
+    const [a, b, c]: number[] = indices.slice(3 * triangle, 3 * triangle + 3);
+    const area: number =
       (coordinates[2 * b] - coordinates[2 * a]) *
         (coordinates[2 * c + 1] - coordinates[2 * a + 1]) -
       (coordinates[2 * b + 1] - coordinates[2 * a + 1]) *
@@ -87,23 +114,31 @@ export function createHumanFaceAttachmentChartHost(
         "A material attachment chart triangle must have positive area.",
       );
   }
-  const coordinate = (vertex: number): [number, number] => {
-    const at = ordinal.get(vertex);
+  const coordinate: (vertex: number) => [number, number] = (
+    vertex: number,
+  ): [number, number] => {
+    const at: number | undefined = ordinal.get(vertex);
     if (at === undefined)
       throw new Error(
         "A registered station is outside its source attachment disk.",
       );
     return [coordinates[2 * at], coordinates[2 * at + 1]];
   };
-  const sourceSeat = (
+  const sourceSeat: (
+    point: IAutoMovieHumanFaceAttachmentPoint,
+  ) => IHumanFaceSkinSeat = (
     point: IAutoMovieHumanFaceAttachmentPoint,
   ): IHumanFaceSkinSeat => {
-    const sum = point.weights.reduce((total, weight) => total + weight, 0);
+    const sum: number = point.weights.reduce(
+      (total: number, weight: number): number => total + weight,
+      0,
+    );
     if (
       !hostOrdinal.has(point.triangle) ||
       point.weights.length !== 3 ||
-      point.weights.some(
-        (weight) => !Number.isFinite(weight) || weight < 0 || weight > 1,
+      [point.weights[0], point.weights[1], point.weights[2]].some(
+        (weight: number): boolean =>
+          !Number.isFinite(weight) || weight < 0 || weight > 1,
       ) ||
       Math.abs(sum - 1) > 8 * Number.EPSILON
     )
@@ -115,28 +150,33 @@ export function createHumanFaceAttachmentChartHost(
       weights: [point.weights[0], point.weights[1], point.weights[2]],
     };
   };
-  const barycentricAt = (
+  const barycentricAt: (
+    triangle: number,
+    point: readonly number[],
+  ) => [number, number, number] = (
     triangle: number,
     point: readonly number[],
   ): [number, number, number] => {
-    const [a, b, c] = indices.slice(3 * triangle, 3 * triangle + 3);
-    const ax = coordinates[2 * a],
-      ay = coordinates[2 * a + 1];
-    const bx = coordinates[2 * b],
-      by = coordinates[2 * b + 1];
-    const cx = coordinates[2 * c],
-      cy = coordinates[2 * c + 1];
-    const area = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
-    const u =
+    const [a, b, c]: number[] = indices.slice(3 * triangle, 3 * triangle + 3);
+    const ax: number = coordinates[2 * a],
+      ay: number = coordinates[2 * a + 1];
+    const bx: number = coordinates[2 * b],
+      by: number = coordinates[2 * b + 1];
+    const cx: number = coordinates[2 * c],
+      cy: number = coordinates[2 * c + 1];
+    const area: number = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+    const u: number =
       ((point[0] - ax) * (cy - ay) - (point[1] - ay) * (cx - ax)) / area;
-    const v =
+    const v: number =
       ((bx - ax) * (point[1] - ay) - (by - ay) * (point[0] - ax)) / area;
     return [1 - u - v, u, v];
   };
   return {
     coordinate,
-    vertexSeat: (vertex) => {
-      const seat = vertexSeats.get(vertex);
+    vertexSeat: (
+      vertex: number,
+    ): { triangle: number; weights: [number, number, number] } => {
+      const seat: IHumanFaceSkinSeat | undefined = vertexSeats.get(vertex);
       if (seat === undefined)
         throw new Error(
           "A station needs its actual source triangle incidence.",
@@ -144,32 +184,43 @@ export function createHumanFaceAttachmentChartHost(
       return { triangle: seat.triangle, weights: [...seat.weights] };
     },
     sourceSeat,
-    coordinateAt: (point) => {
+    coordinateAt: (
+      point: IAutoMovieHumanFaceAttachmentPoint,
+    ): [number, number] => {
       sourceSeat(point);
-      const triangle = hostOrdinal.get(point.triangle);
+      const triangle: number | undefined = hostOrdinal.get(point.triangle);
       // Three bounded additions may round the unit sum; this arithmetic bound
       // never changes the supplied weights or geometrical acceptance policy.
       const uv: [number, number] = [0, 0];
-      for (let corner = 0; corner < 3; corner++) {
-        const vertex = indices[3 * triangle! + corner];
+      for (let corner: number = 0; corner < 3; corner++) {
+        const vertex: number = indices[3 * triangle! + corner];
         uv[0] += point.weights[corner] * coordinates[2 * vertex];
         uv[1] += point.weights[corner] * coordinates[2 * vertex + 1];
       }
       return uv;
     },
-    seat: (point) => {
+    seat: (
+      point: readonly number[],
+    ): { triangle: number; weights: [number, number, number] } => {
       if (point.length !== 2 || !point.every(Number.isFinite))
         throw new Error(
           "A material attachment location needs finite u,v coordinates.",
         );
-      for (let triangle = 0; triangle < sourceTriangles.length; triangle++) {
-        const [a, b, c] = indices.slice(3 * triangle, 3 * triangle + 3);
-        const ax = coordinates[2 * a],
-          ay = coordinates[2 * a + 1];
-        const bx = coordinates[2 * b],
-          by = coordinates[2 * b + 1];
-        const cx = coordinates[2 * c],
-          cy = coordinates[2 * c + 1];
+      for (
+        let triangle: number = 0;
+        triangle < sourceTriangles.length;
+        triangle++
+      ) {
+        const [a, b, c]: number[] = indices.slice(
+          3 * triangle,
+          3 * triangle + 3,
+        );
+        const ax: number = coordinates[2 * a],
+          ay: number = coordinates[2 * a + 1];
+        const bx: number = coordinates[2 * b],
+          by: number = coordinates[2 * b + 1];
+        const cx: number = coordinates[2 * c],
+          cy: number = coordinates[2 * c + 1];
         if (
           point[0] < Math.min(ax, bx, cx) ||
           point[0] > Math.max(ax, bx, cx) ||
@@ -177,18 +228,28 @@ export function createHumanFaceAttachmentChartHost(
           point[1] > Math.max(ay, by, cy)
         )
           continue;
-        const [w, u, v] = barycentricAt(triangle, point);
+        const [w, u, v]: [number, number, number] = barycentricAt(
+          triangle,
+          point,
+        );
         if (u >= 0 && v >= 0 && w >= 0)
           return { triangle: sourceTriangles[triangle], weights: [w, u, v] };
       }
       // Preserve a signed arithmetic witness on refusal without snapping the
       // point, choosing a nearest attachment or expanding the source domain.
-      let witness = -1,
-        minimumWeight = -Infinity;
+      let witness: number = -1,
+        minimumWeight: number = -Infinity;
       let weights: number[] = [];
-      for (let triangle = 0; triangle < sourceTriangles.length; triangle++) {
-        const candidate = barycentricAt(triangle, point),
-          minimum = Math.min(...candidate);
+      for (
+        let triangle: number = 0;
+        triangle < sourceTriangles.length;
+        triangle++
+      ) {
+        const candidate: [number, number, number] = barycentricAt(
+            triangle,
+            point,
+          ),
+          minimum: number = Math.min(...candidate);
         if (minimum > minimumWeight) {
           witness = triangle;
           minimumWeight = minimum;
@@ -204,7 +265,7 @@ export function createHumanFaceAttachmentChartHost(
             weights,
             vertices: indices
               .slice(3 * witness, 3 * witness + 3)
-              .map((vertex) => ({
+              .map((vertex: number): { host: number; uv: number[] } => ({
                 host: vertices[vertex],
                 uv: coordinates.slice(2 * vertex, 2 * vertex + 2),
               })),

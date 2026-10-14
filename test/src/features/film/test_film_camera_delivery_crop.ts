@@ -1,4 +1,5 @@
 import {
+  IAutoMovieResolvedCamera,
   intersectsPerspectiveFrustumBox,
   intersectsPerspectiveFrustumSegment,
   intersectsPerspectiveFrustumSphere,
@@ -9,8 +10,9 @@ import { IAutoMovieDeliveryCrop } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const CAMERA = {
+const CAMERA: IAutoMovieResolvedCamera = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
@@ -22,10 +24,10 @@ const RIGHT_HALF: IAutoMovieDeliveryCrop = {
   bottom: 1,
 };
 
-const segment = (
+const segment: (
   x: number,
   crop: IAutoMovieDeliveryCrop | undefined,
-): boolean =>
+) => boolean = (x: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
   intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x, y: 0, z: -2 },
@@ -37,10 +39,10 @@ const segment = (
     crop,
   });
 
-const verticalSegment = (
+const verticalSegment: (
   y: number,
   crop: IAutoMovieDeliveryCrop | undefined,
-): boolean =>
+) => boolean = (y: number, crop: IAutoMovieDeliveryCrop | undefined): boolean =>
   intersectsPerspectiveFrustumSegment({
     camera: CAMERA,
     from: { x: 0, y, z: -2 },
@@ -52,64 +54,98 @@ const verticalSegment = (
     crop,
   });
 
-/** Delivery crop is one validated gate across point and bounded projection. */
-export const test_film_camera_delivery_crop = (): void => {
-  const whole = resolveAutoMovieDeliveryCrop(undefined);
+/**
+ * Delivery crop is one validated gate across point and bounded projection.
+ *
+ * Scenarios:
+ *
+ * 1. Omitted and explicit whole crops leave projection unchanged.
+ * 2. A resolved crop owns its copied edges and remaps its window to output NDC.
+ * 3. The right half includes both horizontal edges and excludes either outside
+ *    neighbour while the whole gate still accepts the crop-only negative.
+ * 4. A bottom-half crop respects top-origin vertical edges and their negatives.
+ * 5. Boxes and zero-radius spheres share the off-axis crop boundary.
+ * 6. Five nonfinite, out-of-range, empty, or reversed crops throw.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveAutoMovieDeliveryCrop, projectToNdc, and segment/box/sphere frustum predicates to observe copying, whole-gate parity, affine NDC remapping, closed edges, and invalid crop refusal.
+ * @evidence contracts/testing.md#independent-expectations Identity camera, unit half-angle tangent, and depth two place uncropped sides at x/y plus or minus two. Authored half/central crop fractions determine fixed boundary booleans and projected (1,0.5,1); the copied central crop retains literal 0.25/0.75 edges after its source is mutated.
+ * @evidence contracts/testing.md#distinguishing-cases Exact edge contact and 0.001 metre neighbours distinguish closed clipping from padding; horizontal versus top-origin vertical crops expose sign conventions, and the whole-gate negative twin distinguishes cropping from ordinary frustum exclusion.
+ * @evidence contracts/testing.md#execution-ownership Uses synchronous pure mathematical functions and local records, with one deliberate caller-owned source mutation to test copying. No renderer, resource access, clock, process state, or dependency replacement is involved; exact numeric record checks reuse existing test12ValuesClose, and zero-radius spheres do not exercise conservative finite-radius corner behavior.
+ */
+export function test_film_camera_delivery_crop(): void {
+  const whole: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
+    resolveAutoMovieDeliveryCrop(undefined);
   const explicitWhole: IAutoMovieDeliveryCrop = {
     left: 0,
     top: 0,
     right: 1,
     bottom: 1,
   };
-  const uncropped = projectToNdc(CAMERA, { x: 0.5, y: 0.25, z: -1 }, 1, 1);
-  const explicit = projectToNdc(
+  const uncropped: ReturnType<typeof projectToNdc> = projectToNdc(
+    CAMERA,
+    { x: 0.5, y: 0.25, z: -1 },
+    1,
+    1,
+  );
+  const explicit: ReturnType<typeof projectToNdc> = projectToNdc(
     CAMERA,
     { x: 0.5, y: 0.25, z: -1 },
     1,
     1,
     explicitWhole,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "omitted and explicit whole crops are exact no-ops",
-    { whole, explicit, uncropped },
-    { whole: explicitWhole, explicit: uncropped, uncropped },
+    test12ValuesClose(
+      { whole, explicit, uncropped },
+      { whole: explicitWhole, explicit: uncropped, uncropped },
+    ),
   );
 
-  const source = { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 };
-  const resolved = resolveAutoMovieDeliveryCrop(source);
+  const source: IAutoMovieDeliveryCrop = {
+    left: 0.25,
+    top: 0.25,
+    right: 0.75,
+    bottom: 0.75,
+  };
+  const resolved: ReturnType<typeof resolveAutoMovieDeliveryCrop> =
+    resolveAutoMovieDeliveryCrop(source);
   source.left = 0;
-  TestValidator.equals(
+  TestValidator.predicate(
     "a crop resolves by value and maps its window onto the complete output",
-    {
-      resolved,
-      projected: projectToNdc(
-        CAMERA,
-        { x: 0.5, y: 0.25, z: -1 },
-        1,
-        1,
+    test12ValuesClose(
+      {
         resolved,
-      ),
-    },
-    {
-      resolved: { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 },
-      projected: { ndcX: 1, ndcY: 0.5, depth: 1 },
-    },
+        projected: projectToNdc(
+          CAMERA,
+          { x: 0.5, y: 0.25, z: -1 },
+          1,
+          1,
+          resolved,
+        ),
+      },
+      {
+        resolved: { left: 0.25, top: 0.25, right: 0.75, bottom: 0.75 },
+        projected: { ndcX: 1, ndcY: 0.5, depth: 1 },
+      },
+    ),
   );
 
   TestValidator.equals(
     "closed crop edges include exact contact and reject either outside side",
     namedFacts([
-      ["leftEdge", () => segment(0, RIGHT_HALF)],
-      ["rightEdge", () => segment(2, RIGHT_HALF)],
-      ["leftOutside", () => segment(-0.001, RIGHT_HALF) === false],
-      ["rightOutside", () => segment(2.001, RIGHT_HALF) === false],
+      ["leftEdge", (): boolean => segment(0, RIGHT_HALF)],
+      ["rightEdge", (): boolean => segment(2, RIGHT_HALF)],
+      ["leftOutside", (): boolean => segment(-0.001, RIGHT_HALF) === false],
+      ["rightOutside", (): boolean => segment(2.001, RIGHT_HALF) === false],
       [
         "cropOnlyRejection",
-        () => segment(-0.001, undefined) && !segment(-0.001, RIGHT_HALF),
+        (): boolean =>
+          segment(-0.001, undefined) && !segment(-0.001, RIGHT_HALF),
       ],
       [
         "wholeParity",
-        () => segment(-1, undefined) === segment(-1, explicitWhole),
+        (): boolean => segment(-1, undefined) === segment(-1, explicitWhole),
       ],
     ]),
     {
@@ -131,10 +167,10 @@ export const test_film_camera_delivery_crop = (): void => {
   TestValidator.equals(
     "top-origin vertical crop includes both exact edges and rejects outside",
     namedFacts([
-      ["topEdge", () => verticalSegment(0, BOTTOM_HALF)],
-      ["bottomEdge", () => verticalSegment(-2, BOTTOM_HALF)],
-      ["topOutside", () => !verticalSegment(0.001, BOTTOM_HALF)],
-      ["bottomOutside", () => !verticalSegment(-2.001, BOTTOM_HALF)],
+      ["topEdge", (): boolean => verticalSegment(0, BOTTOM_HALF)],
+      ["bottomEdge", (): boolean => verticalSegment(-2, BOTTOM_HALF)],
+      ["topOutside", (): boolean => !verticalSegment(0.001, BOTTOM_HALF)],
+      ["bottomOutside", (): boolean => !verticalSegment(-2.001, BOTTOM_HALF)],
     ]),
     { topEdge: true, bottomEdge: true, topOutside: true, bottomOutside: true },
   );
@@ -144,7 +180,7 @@ export const test_film_camera_delivery_crop = (): void => {
     namedFacts([
       [
         "boxAtCropEdge",
-        () =>
+        (): boolean =>
           intersectsPerspectiveFrustumBox({
             camera: CAMERA,
             min: { x: 0, y: -0.1, z: -2.1 },
@@ -158,7 +194,7 @@ export const test_film_camera_delivery_crop = (): void => {
       ],
       [
         "boxOutsideCrop",
-        () =>
+        (): boolean =>
           intersectsPerspectiveFrustumBox({
             camera: CAMERA,
             min: { x: -0.2, y: -0.1, z: -2.1 },
@@ -172,7 +208,7 @@ export const test_film_camera_delivery_crop = (): void => {
       ],
       [
         "sphereAtCropEdge",
-        () =>
+        (): boolean =>
           intersectsPerspectiveFrustumSphere({
             camera: CAMERA,
             center: { x: 0, y: 0, z: -2 },
@@ -186,7 +222,7 @@ export const test_film_camera_delivery_crop = (): void => {
       ],
       [
         "sphereOutsideCrop",
-        () =>
+        (): boolean =>
           intersectsPerspectiveFrustumSphere({
             camera: CAMERA,
             center: { x: -0.001, y: 0, z: -2 },
@@ -207,17 +243,20 @@ export const test_film_camera_delivery_crop = (): void => {
     },
   );
 
-  const invalid = [
+  const invalid: IAutoMovieDeliveryCrop[] = [
     { left: Number.NaN, top: 0, right: 1, bottom: 1 },
     { left: -0.1, top: 0, right: 1, bottom: 1 },
     { left: 0, top: 0, right: 1.1, bottom: 1 },
     { left: 0.5, top: 0, right: 0.5, bottom: 1 },
     { left: 0, top: 0.75, right: 1, bottom: 0.25 },
-  ] satisfies IAutoMovieDeliveryCrop[];
+  ];
   TestValidator.predicate(
     "invalid and out-of-raster crop regions fail closed",
-    invalid.every((crop) =>
-      throwsError(() => resolveAutoMovieDeliveryCrop(crop)),
+    invalid.every((crop: IAutoMovieDeliveryCrop): boolean =>
+      throwsError(
+        (): ReturnType<typeof resolveAutoMovieDeliveryCrop> =>
+          resolveAutoMovieDeliveryCrop(crop),
+      ),
     ),
   );
-};
+}

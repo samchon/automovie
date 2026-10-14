@@ -25,7 +25,6 @@ export * from "./jointToQuaternion";
 export * from "./normalizeJointAxes";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
-export * from "./resolveAffordanceSeat";
 export * from "./resolveAttachment";
 export * from "./resolvePose";
 export * from "./solveTwoBoneIK";

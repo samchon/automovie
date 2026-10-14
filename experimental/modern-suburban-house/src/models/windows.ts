@@ -1,8 +1,4 @@
-/**
- * Window filling prototypes in the opening-local frame. Dimensions, depth
- * bands, part boundaries and metric UVs belong to docs/models/01-windows.md.
- * World positions and finish properties belong to instances and materials.
- */
+
 import type {
   IAutoMovieMesh,
   IAutoMovieModel,

@@ -1,5 +1,4 @@
 import { IAutoMovieModel } from "../model/IAutoMovieModel";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
 import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
@@ -8,87 +7,67 @@ import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
 import { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
 
 /**
- * Fully builder-owned shot artifact consumed by render and oracle services.
+ * Host-composed shot artifact consumed by render and numerical oracle services. Resolved models and compact populations travel with source-authored scene and motion, so consumers read one supplied snapshot.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `IAutoMovieCompiledShotSource` as the portable data boundary for the agent source result link requirement.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `IAutoMovieCompiledShotSource` for the spec authoring source derivation state system contract.
+ * @evidence contracts/common.md#principled-implementation The record combines shot source output, resolved models, regenerable populations, formation cues and deterministic effects for Engine measurement and render adapters. The production composer is retired; a host must assemble and explicitly admit these fields, and optional source attribution is declared metadata rather than a surviving graph-selection proof.
+ * @evidence contracts/common.md#clear-and-simple-design Extending shot output preserves its scene and motion representation, while compiler-only resolution and provenance fields stay on the compiled artifact rather than expanding the source authoring API.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Render and measurement consume the supplied artifact without executing acceptance exports. This type supplies no source-owner admission, review/final publication gate or automatic formation-cue validation after production retirement; the host owns those checks.
+ * @evidence contracts/common.md#meaningful-documentation States host composition, optional unverified source/acceptance attribution, model and compact-population membership, explicit cue admission ownership and deterministic effect records.
+ * @author Samchon
  */
 export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput {
   /**
-   * Exact graph-selected source export and authored unit carried into the
-   * materialized shot. Omitted only for legacy source-scope callers that did
-   * not supply authoring evidence; review and final never publish without it.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps the executed source revision and exact authored target together in the compiled result.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries the resolved runtime and target identity into the derived shot artifact.
+   * Optional source export and authored-unit attribution supplied by the host. No surviving production graph or publication gate proves this metadata or requires its presence.
    */
   sourceOwner?: {
+    /** Graph-selected source branch that owns this authored unit. */
     branch: string;
+
+    /** Canonical source-module path relative to the project. */
     path: string;
+
+    /** Exact named build declaration selected by the graph. */
     export: string;
-    digest: AutoMovieContentDigest;
+
+    /** SHA-256 of the normalized source bytes. */
+    digest: string;
+
+    /** Authored unit address proved by this source declaration. */
     target: string;
   };
 
   /**
-   * Completed non-entry exports bound to the same unit, retained as acceptance
-   * attribution without executing them as shot builders.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps completed acceptance attribution separate from the executed runtime source.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries non-entry completed edges without promoting them to runtime ownership.
+   * Completed non-entry exports bound to the same unit, retained as acceptance attribution without executing them as shot builders.
    */
   acceptanceSources?: Array<{
+    /** Canonical module path of the completed acceptance source. */
     path: string;
+
+    /** Named declaration attributed without calling it as a shot builder. */
     export: string;
-    digest: AutoMovieContentDigest;
+
+    /** SHA-256 of the normalized acceptance source bytes. */
+    digest: string;
+
+    /** Same authored unit address to which this acceptance is bound. */
     target: string;
   }>;
 
-  /**
-   * Models required by this shot.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `models` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `models` for the spec authoring source derivation state system contract.
-   */
+  /** Models required by this shot. */
   models: IAutoMovieModel[];
 
-  /**
-   * Compact formation runtimes required by this shot.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formations` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formations` for the spec authoring source derivation state system contract.
-   */
+  /** Compact formation runtimes required by this shot. */
   formations: IAutoMovieCompiledFormation[];
 
-  /**
-   * Compact general instance runtimes placed by the production world.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `instanceSets` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `instanceSets` for the spec authoring source derivation state system contract.
-   */
+  /** Compact general instance runtimes placed by the production world. */
   instanceSets: IAutoMovieCompiledInstanceSet[];
 
-  /**
-   * Validated compact formation-level cues, empty when source omitted them.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formationMotions` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationMotions` for the spec authoring source derivation state system contract.
-   */
+  /** Compact formation-level cues; the composing host supplies an empty list for none and owns explicit validation. */
   formationMotions: IAutoMovieFormationMotion[];
 
-  /**
-   * Validated sparse per-member exceptions, empty when source omitted them.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formationSlotMotions` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationSlotMotions` for the spec authoring source derivation state system contract.
-   */
+  /** Sparse per-member exceptions; the composing host supplies an empty list for none and owns explicit validation. */
   formationSlotMotions: IAutoMovieFormationSlotMotion[];
 
-  /**
-   * Compiler-owned deterministic effect runtimes.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `effects` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `effects` for the spec authoring source derivation state system contract.
-   */
+  /** Compiler-owned deterministic effect runtimes. */
   effects: IAutoMovieCompiledEffect[];
 }

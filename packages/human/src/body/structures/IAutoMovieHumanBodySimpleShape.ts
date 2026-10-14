@@ -12,7 +12,7 @@
  * measurement rules so the built body actually measures them, and when
  * absent the body's sex, age and mass decide them. The expansion
  * (`expandHumanBodySimpleShape`) is a numeric table of terms per channel
- * plus measured inversions: stature against the basis's own height rule,
+ * plus measured inversions: stature against the whole person's floor-to-crown reading,
  * mass through the skin volume, and each tape measurement against its rule.
  * Age, mass and training drive legacy authored exterior responses. Sarcopenia,
  * gluteal and breast ptosis and fat redistribution motivate their directions,
@@ -27,6 +27,14 @@
  * keeps the existing basis residue. These inferred channels do not assert an
  * individual's internal tissue volumes or the correctness of joint contact.
  *
+ * @evidence contracts/common.md#principled-implementation Named stature, mass and optional exterior measurements project onto a fixed legacy basis; sex and muscle remain appearance coordinates.
+ * @evidence contracts/common.md#clear-and-simple-design The simple tier exposes familiar scalar inputs while the detailed document remains canonical for replay.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy authored age and training responses are not individual tissue or joint-contact measurements.
+ * @evidence contracts/common.md#meaningful-documentation The prose distinguishes units, required inputs, optional measurement solving and unresolved anatomical limitations.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The simple shape parameter contract declaration is erased by TypeScript and chooses no runtime algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The simple shape parameter contract schema coordinates no requests or cached computations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The simple shape parameter contract type acquires no handles, tasks or retained storage.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShape {
@@ -36,7 +44,7 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Years, inside the basis's age nodes (the source's child node is 11 years, its old node 90). */
   ageYears: number;
 
-  /** Standing height in metres, crown to floor, solved against the measured height rule. */
+  /** Standing height in metres, crown to floor, solved through the caller's whole-person reader. */
   statureMetres: number;
 
   /** Body mass in kilograms, solved against the measured skin volume at the estimated fat fraction's density. */

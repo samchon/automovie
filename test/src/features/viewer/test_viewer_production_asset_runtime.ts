@@ -6,6 +6,8 @@ import {
 } from "@automovie/interface";
 import {
   AutoMoviePlayer,
+  type IAutoMovieModelObject,
+  type IAutoMovieViewerFrame,
   IAutoMovieViewerSnapshotRenderer,
   applyExpression,
   buildModel,
@@ -25,37 +27,41 @@ import {
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * The viewer production-asset runtime contract: skinned mesh parts bind to the
- * model skeleton, rigid attachments keep precedence over a stray skin payload,
- * imported three/VRM-like objects accept pose/expression playback through the
- * same player frame, and the public snapshot helper renders before reading the
- * canvas.
+ * Existing generic model cases bind skinned parts, preserve rigid-attachment precedence and deliver pose/expression/runtime updates through one player timestamp. The snapshot case observes a supplied render callback before its supplied canvas encoder; no GPU renderer or new Human driver is acquired.
  *
  * Scenarios:
  *
- * 1. A mesh skin creates one `THREE.SkinnedMesh` with `skinIndex/skinWeight`
- *    attributes bound to the requested skeleton bones.
- * 2. A part with both `attachedBone` and skin data stays rigid under that bone,
- *    while a missing skin joint rejects with a targeted message.
- * 3. `applyExpression` drives both morph target dictionaries and imported
- *    expression sinks, with explicit ARKit channels overriding preset
- *    expansion.
- * 4. `AutoMoviePlayer.update` writes pose, expression, and imported-runtime frame
- *    hooks on the same timestamp; the pose root lands on a viewer-owned wrapper
- *    even for Group inputs, preserving the caller's baked transform (#1047),
- *    and a null-root pose returns to the staged base (#1046).
- * 5. `captureViewerSnapshot` renders exactly once and returns canvas metadata.
+ * 1. A skin creates a SkinnedMesh with skinIndex/skinWeight attributes bound to the requested bones.
+ * 2. attachedBone takes precedence over a skin payload; a missing skin joint refuses.
+ * 3. Expression application drives morph dictionaries and imported sinks, with explicit ARKit channels overriding preset expansion.
+ * 4. Player update delivers pose, expression and imported-runtime callbacks on one timestamp; wrapper-root application preserves the caller's baked Group transform and null-root restores the staged base.
+ * 5. Snapshot requests render once before encoding and returns the supplied canvas metadata.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds the existing skinned/rigid generic asset, applies morph/sink expressions and Player frames, then invokes the public snapshot adapter; catches wrong skin binding, overwritten imported-root state, stale null roots and canvas encoding requested before drawing.
+ * @evidence contracts/testing.md#independent-expectations Literal bone names, authored expression overrides, metre translations, preserved baked yaw and elapsed timestamp differences define expectations. The existing snapshot port records request order and supplied metadata only, without proving a native image, VRM loader or rendered pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Covers skinned versus rigid precedence, missing joints, preset/explicit/non-expression channels, synchronized frame hooks, Group wrapping, rooted-to-null motion and snapshot ordering; broad imported-file admission and actual browser capture belong elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This named asynchronous unit uses its existing generic fixture builders, actual CPU-side Three objects and the already declared structural snapshot port; it imports maintained source and starts no browser, GPU, native process or new Human test driver.
  *
  * @author Samchon
  */
-export const test_viewer_production_asset_runtime = async (): Promise<void> => {
-  const model = createProductionAssetModel();
-  const built = buildModel(model);
-  const skinned = collectSkinnedMeshes(built.object);
+export async function test_viewer_production_asset_runtime(): Promise<void> {
+  const model: IAutoMovieModel = createProductionAssetModel();
+  const built: IAutoMovieModelObject = buildModel(model);
+  const skinned: THREE.SkinnedMesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  >[] = collectSkinnedMeshes(built.object);
   TestValidator.equals("one skinned mesh", skinned.length, 1);
   TestValidator.equals(
     "skinned joints",
-    skinned[0]!.skeleton.bones.map((b) => b.name),
+    skinned[0]!.skeleton.bones.map(
+      (b: THREE.Bone<THREE.Object3DEventMap>): string => b.name,
+    ),
     ["hips", "leftUpperArm"],
   );
   TestValidator.equals(
@@ -69,12 +75,13 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
     4,
   );
 
-  const rigid = built.object.getObjectByName("rigid-with-skin");
+  const rigid: THREE.Object3D<THREE.Object3DEventMap> | undefined =
+    built.object.getObjectByName("rigid-with-skin");
   TestValidator.equals("rigid parent", rigid?.parent?.name, "leftHand");
   TestValidator.predicate(
     "missing skin bone rejects",
     throwsError(
-      () =>
+      (): IAutoMovieModelObject =>
         buildModel(
           createProductionAssetModel({
             joints: ["hips", "rightFoot"],
@@ -84,56 +91,73 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
     ),
   );
 
-  const morph = createMorphMesh();
-  const importedBone = new THREE.Object3D();
-  const importedRoot = new THREE.Group();
-  // a caller-baked transform (three-vrm's VRM0 π yaw) that pose roots must
-  // never overwrite (#1047)
+  const morph: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = createMorphMesh();
+  const importedBone: THREE.Object3D<THREE.Object3DEventMap> =
+    new THREE.Object3D();
+  const importedRoot: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
+  // The caller's baked π yaw must survive pose-root application (#1047).
   importedRoot.rotateY(Math.PI);
   importedRoot.add(importedBone, morph);
-  const expressionValues = new Map<string, number>();
+  const expressionValues: Map<string, number> = new Map<string, number>();
   const frames: Array<{ seconds: number; deltaSeconds: number }> = [];
-  const imported = createImportedModelObject({
+  const imported: IAutoMovieModelObject = createImportedModelObject({
     object: importedRoot,
     bones: { hips: importedBone },
     expressionTargets: [
       {
-        setExpressionValue: (name, weight) =>
-          expressionValues.set(name, weight),
+        setExpressionValue: (
+          name: string,
+          weight: number,
+        ): Map<string, number> => expressionValues.set(name, weight),
       },
     ],
-    afterAutoMovieFrame: ({ seconds, deltaSeconds }) =>
-      frames.push({ seconds, deltaSeconds }),
+    afterAutoMovieFrame: ({
+      seconds,
+      deltaSeconds,
+    }: IAutoMovieViewerFrame): number => frames.push({ seconds, deltaSeconds }),
   });
-  const happy = expression("happy", 0.7, [
+  const happy: IAutoMovieExpression = expression("happy", 0.7, [
     { channel: "mouthSmileLeft", weight: 0.2 },
   ]);
   applyExpression(imported, happy);
-  TestValidator.equals("preset morph", morph.morphTargetInfluences![0], 0.7);
-  TestValidator.equals(
+  TestValidator.predicate(
+    "preset morph",
+    nclose(morph.morphTargetInfluences![0]!, 0.7, 0),
+  );
+  TestValidator.predicate(
     "explicit channel override",
-    morph.morphTargetInfluences![1],
-    0.2,
+    nclose(morph.morphTargetInfluences![1]!, 0.2, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "preset expansion channel",
-    morph.morphTargetInfluences![2],
-    0.7,
+    nclose(morph.morphTargetInfluences![2]!, 0.7, 0),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "non-expression morph preserved",
-    morph.morphTargetInfluences![3],
-    0.4,
+    nclose(morph.morphTargetInfluences![3]!, 0.4, 0),
   );
-  TestValidator.equals("sink preset", expressionValues.get("happy"), 0.7);
-  TestValidator.equals(
+  TestValidator.predicate(
+    "sink preset",
+    nclose(expressionValues.get("happy") ?? Number.NaN, 0.7, 0),
+  );
+  TestValidator.predicate(
     "sink override",
-    expressionValues.get("mouthSmileLeft"),
-    0.2,
+    nclose(expressionValues.get("mouthSmileLeft") ?? Number.NaN, 0.2, 0),
   );
-  TestValidator.equals("sink reset", expressionValues.get("angry"), 0);
+  TestValidator.predicate(
+    "sink reset",
+    nclose(expressionValues.get("angry") ?? Number.NaN, 0, 0),
+  );
 
-  const skeleton = singleBoneSkeleton();
+  const skeleton: IAutoMovieSkeleton = singleBoneSkeleton();
   const pose: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: {
@@ -142,7 +166,7 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
     },
     joints: [],
   };
-  const player = new AutoMoviePlayer(
+  const player: AutoMoviePlayer = new AutoMoviePlayer(
     imported,
     skeleton,
     makeMotion(
@@ -155,11 +179,17 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
   TestValidator.equals(
     "root transform applied",
     namedFacts([
-      ["ncloseImportedObject", () => nclose(imported.object.position.x, 1.25)],
-      ["ncloseImportedObject2", () => nclose(imported.object.position.y, 0.5)],
+      [
+        "ncloseImportedObject",
+        (): boolean => nclose(imported.object.position.x, 1.25),
+      ],
+      [
+        "ncloseImportedObject2",
+        (): boolean => nclose(imported.object.position.y, 0.5),
+      ],
       [
         "ncloseImportedObject3",
-        () => nclose(imported.object.position.z, -0.25),
+        (): boolean => nclose(imported.object.position.z, -0.25),
       ],
     ]),
     {
@@ -168,18 +198,26 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
       ncloseImportedObject3: true,
     },
   );
-  // even a Group input gets a viewer-owned wrapper (#1047): the pose root
-  // landed on the wrapper, and the caller's baked π yaw survived beneath it
+  // The pose root lands on the Viewer wrapper while the caller's baked Group yaw survives beneath it (#1047).
   TestValidator.equals(
     "an imported Group is wrapped, its baked transform preserved",
     namedFacts([
-      ["importedObjectImportedRoot", () => imported.object !== importedRoot],
-      ["ncloseMathAbs", () => nclose(Math.abs(importedRoot.quaternion.y), 1)],
+      [
+        "importedObjectImportedRoot",
+        (): boolean => imported.object !== importedRoot,
+      ],
+      [
+        "ncloseMathAbs",
+        (): boolean => nclose(Math.abs(importedRoot.quaternion.y), 1),
+      ],
       [
         "ncloseImportedRootQuaternion",
-        () => nclose(importedRoot.quaternion.w, 0),
+        (): boolean => nclose(importedRoot.quaternion.w, 0),
       ],
-      ["ncloseImportedRootPosition", () => nclose(importedRoot.position.x, 0)],
+      [
+        "ncloseImportedRootPosition",
+        (): boolean => nclose(importedRoot.position.x, 0),
+      ],
     ]),
     {
       importedObjectImportedRoot: true,
@@ -189,14 +227,36 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
     },
   );
   TestValidator.equals("frame hook count", frames.length, 2);
-  TestValidator.equals("first frame time", frames[0]!.seconds, 0.25);
-  TestValidator.equals("first frame delta", frames[0]!.deltaSeconds, 0);
-  TestValidator.equals("second frame delta", frames[1]!.deltaSeconds, 0.25);
-  TestValidator.equals("last expression", player.lastExpression, happy);
+  TestValidator.predicate(
+    "first frame time",
+    nclose(frames[0]!.seconds, 0.25, 0),
+  );
+  TestValidator.predicate(
+    "first frame delta",
+    nclose(frames[0]!.deltaSeconds, 0, 0),
+  );
+  TestValidator.predicate(
+    "second frame delta",
+    nclose(frames[1]!.deltaSeconds, 0.25, 0),
+  );
+  const lastExpression: IAutoMovieExpression | null = player.lastExpression;
+  TestValidator.predicate(
+    "last expression",
+    lastExpression !== null &&
+      lastExpression.preset === happy.preset &&
+      nclose(lastExpression.intensity, happy.intensity, 0) &&
+      lastExpression.blendshapes?.length === happy.blendshapes!.length &&
+      lastExpression.blendshapes.every(
+        (
+          blendshape: NonNullable<IAutoMovieExpression["blendshapes"]>[number],
+          index: number,
+        ): boolean =>
+          blendshape.channel === happy.blendshapes![index]!.channel &&
+          nclose(blendshape.weight, happy.blendshapes![index]!.weight, 0),
+      ),
+  );
 
-  // a null-root pose returns the model to the node's staged base (#1046):
-  // the engine defaults a null root to identity, so a gesture clip taking
-  // over from a walk must not strand the model at the walk's destination
+  // A null pose root returns the wrapper to its staged base rather than retaining the previous rooted destination (#1046).
   player.setMotion(
     makeMotion(
       [
@@ -210,9 +270,18 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
   TestValidator.equals(
     "a null root resets to the staged base, not the last rooted pose",
     namedFacts([
-      ["ncloseImportedObject", () => nclose(imported.object.position.x, 0)],
-      ["ncloseImportedObject2", () => nclose(imported.object.position.y, 0)],
-      ["ncloseImportedObject3", () => nclose(imported.object.position.z, 0)],
+      [
+        "ncloseImportedObject",
+        (): boolean => nclose(imported.object.position.x, 0),
+      ],
+      [
+        "ncloseImportedObject2",
+        (): boolean => nclose(imported.object.position.y, 0),
+      ],
+      [
+        "ncloseImportedObject3",
+        (): boolean => nclose(imported.object.position.z, 0),
+      ],
     ]),
     {
       ncloseImportedObject: true,
@@ -221,44 +290,66 @@ export const test_viewer_production_asset_runtime = async (): Promise<void> => {
     },
   );
 
-  let renders = 0;
+  let renders: number = 0;
+  const snapshotSequence: string[] = [];
   const renderer: IAutoMovieViewerSnapshotRenderer = {
-    render: () => {
+    render: (): void => {
+      snapshotSequence.push("render");
       renders += 1;
     },
     domElement: {
       width: 32,
       height: 18,
-      toDataURL: (mimeType, quality) => `${mimeType}:${quality}`,
+      toDataURL: (
+        mimeType: string | undefined,
+        quality: number | undefined,
+      ): string => {
+        snapshotSequence.push("encode");
+        return `${mimeType}:${quality}`;
+      },
     },
   };
-  const snapshot = captureViewerSnapshot(
-    renderer,
-    new THREE.Scene(),
-    new THREE.PerspectiveCamera(),
-    { mimeType: "image/jpeg", quality: 0.8 },
-  );
+  const snapshot: ReturnType<typeof captureViewerSnapshot> =
+    captureViewerSnapshot(
+      renderer,
+      new THREE.Scene(),
+      new THREE.PerspectiveCamera(),
+      { mimeType: "image/jpeg", quality: 0.8 },
+    );
   TestValidator.equals("snapshot render count", renders, 1);
+  TestValidator.equals(
+    "snapshot draws before requesting canvas encoding",
+    snapshotSequence,
+    ["render", "encode"],
+  );
   TestValidator.equals("snapshot payload", snapshot, {
     width: 32,
     height: 18,
     mimeType: "image/jpeg",
     dataUrl: "image/jpeg:0.8",
   });
-};
+}
 
-const collectSkinnedMeshes = (root: THREE.Object3D): THREE.SkinnedMesh[] => {
+const collectSkinnedMeshes: (root: THREE.Object3D) => THREE.SkinnedMesh[] = (
+  root: THREE.Object3D,
+): THREE.SkinnedMesh[] => {
   const out: THREE.SkinnedMesh[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (object instanceof THREE.SkinnedMesh) out.push(object);
   });
   return out;
 };
 
-const createProductionAssetModel = (options?: {
+const createProductionAssetModel: (options?: {
+  joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
+}) => IAutoMovieModel = (options?: {
   joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
 }): IAutoMovieModel => {
-  const skin = {
+  const skin: {
+    joints: ["hips", "leftUpperArm"] | ["hips", "rightFoot"];
+    boneIndices: number[];
+    weights: number[];
+  } = {
     joints: options?.joints ?? ["hips", "leftUpperArm"],
     boneIndices: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
     weights: [1, 0, 0, 0, 1, 0, 0, 0, 0.25, 0.75, 0, 0],
@@ -306,13 +397,23 @@ const createProductionAssetModel = (options?: {
   };
 };
 
-const createMorphMesh = (): THREE.Mesh => {
-  const geometry = new THREE.BufferGeometry();
+const createMorphMesh: () => THREE.Mesh = (): THREE.Mesh => {
+  const geometry: THREE.BufferGeometry<
+    THREE.NormalBufferAttributes,
+    THREE.BufferGeometryEventMap
+  > = new THREE.BufferGeometry();
   geometry.setAttribute(
     "position",
     new THREE.Float32BufferAttribute([0, 0, 0, 0, 1, 0, 1, 0, 0], 3),
   );
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
+  const mesh: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshBasicMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
   mesh.morphTargetDictionary = {
     happy: 0,
     mouthSmileLeft: 1,
@@ -323,20 +424,25 @@ const createMorphMesh = (): THREE.Mesh => {
   return mesh;
 };
 
-const expression = (
+const expression: (
+  preset: IAutoMovieExpression["preset"],
+  intensity: number,
+  blendshapes?: IAutoMovieExpression["blendshapes"],
+) => IAutoMovieExpression = (
   preset: IAutoMovieExpression["preset"],
   intensity: number,
   blendshapes: IAutoMovieExpression["blendshapes"] = null,
 ): IAutoMovieExpression => ({ preset, intensity, blendshapes });
 
-const singleBoneSkeleton = (): IAutoMovieSkeleton => ({
-  id: "runtime",
-  bones: [
-    {
-      bone: "hips",
-      parent: null,
-      rest: IDENTITY_TRANSFORM,
-      constraint: null,
-    },
-  ],
-});
+const singleBoneSkeleton: () => IAutoMovieSkeleton =
+  (): IAutoMovieSkeleton => ({
+    id: "runtime",
+    bones: [
+      {
+        bone: "hips",
+        parent: null,
+        rest: IDENTITY_TRANSFORM,
+        constraint: null,
+      },
+    ],
+  });

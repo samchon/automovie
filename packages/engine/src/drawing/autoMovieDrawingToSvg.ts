@@ -1,35 +1,58 @@
 import {
   AutoMovieDrawingRole,
   IAutoMovieDrawing,
+  IAutoMovieDrawingAnnotation,
+  IAutoMovieDrawingDimension,
+  IAutoMovieDrawingExtent,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingLine,
+  IAutoMovieDrawingOpeningMark,
   IAutoMovieDrawingPoint,
+  IAutoMovieDrawingRegion,
   IAutoMovieDrawingView,
 } from "@automovie/interface";
 
+import { AUTOMOVIE_DRAWING_ROLES } from "./constants/AUTOMOVIE_DRAWING_ROLES";
 import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "./constants/AUTOMOVIE_DRAWING_SVG_MARGIN";
+
+/** One SVG attribute as a name and its unescaped value. */
+type Attribute = [string, string];
 
 /**
  * Serialize one derived drawing as a self-describing SVG sheet.
  *
- * The vector output is not a picture with the meaning thrown away. Every line
- * carries the element it came from, the layer it belongs to and its relation to
- * the cut plane; every region carries its logical space and cell; every note
- * carries whether it resolved; every gap the derivation declared is carried
- * through as a marker, so a sheet cannot look complete while its report says it
- * is not. The drawing a human reads and the sidecar a machine reads are the
- * same file, and a consumer never has to match geometry to learn what it is
- * looking at.
+ * Every line carries its owner, space, layer and role; every region its space,
+ * cell, kind, finish and area; every opening its identity, basis and size, as
+ * an empty group when it has no outline; every dimension and note its status,
+ * as an empty group with its reason when stale; and every gap is a marker, so
+ * a sheet cannot look complete while its record says it is not. The root
+ * carries the drawing's protocol, view, environment, projection, discipline,
+ * scale and digest.
  *
- * The scale is honoured as drafting scale: one model metre becomes `1000 /
- * scale` millimetres on the page, so a 1:50 plan prints at 1:50 and a stroke
- * weight given in page millimetres means what it says at every scale.
+ * The scale is drafting scale: one model metre is `1000 / scale` page
+ * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
+ * are page millimetres. The page is the drawing's extent plus a fixed
+ * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because
+ * SVG y grows downward. Numbers are rounded and printed to three decimals and
+ * every attribute value is XML-escaped, so one drawing and view yield one byte
+ * sequence.
  *
- * Output is byte-deterministic. Coordinates are rounded and then formatted to
- * fixed decimals, which is also what keeps a value a whisker either side of an
- * axis from printing a sign; every element is emitted in the order the drawing
- * already canonicalized, so one design yields one file.
+ * Throws an `Error` when the view is not the one the drawing was derived from,
+ * or its pen has a weight, dash or text height that is not a finite positive
+ * number.
  *
- * @evidence requirements/interior/deliverables-and-quantities.md#interior-drawing-views Serializes the derived sheet at its authored drafting scale while retaining source identities, line roles, annotations, regions, and unresolved gaps in the SVG itself.
- * @evidence specifications/interior-space/deliverables-and-validation.md#interior-space-drawing-schedule-quantity Validates pen values, converts model metres to page millimetres, emits canonical semantic SVG groups, and formats coordinates for byte-deterministic output.
+ * @param props.drawing Drawing to serialize.
+ * @param props.view View the drawing was derived from; supplies the pen.
+ * @returns The SVG document, lines separated by `\n`, without a trailing
+ *   newline.
+ *
+ * @evidence contracts/common.md#principled-implementation Maps page metres to SVG user units in millimetres by the drafting-scale factor and flips y once, writes geometry as plain `line`, `polygon` and `text` elements with semantic `data-*` attributes, and escapes the five XML special characters in every value, so the output is well-formed for any authored text.
+ * @evidence contracts/common.md#clear-and-simple-design One serializer owns pen validation, page placement and element emission; the tag, escape, number and point helpers are private because no other module writes SVG.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No drawing or view is special-cased; stale and outline-less items are emitted as empty groups by a stated rule rather than dropped, and a mismatched or invalid pen throws instead of being replaced by defaults.
+ * @evidence contracts/common.md#meaningful-documentation The comment states every element and attribute family, the scale and page mapping, the margin, the flip, rounding and escaping, every refusal, and the exact output shape.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over each array of the drawing emitting one element each, so time and output are linear in the drawing's size; the body is joined once at the end instead of by repeated concatenation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure serializer called once per sheet; nothing equivalent repeats within a call.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds the body strings for one call and returns one string owned by the caller; nothing is retained.
  * @author Samchon
  */
 export const autoMovieDrawingToSvg = (props: {
@@ -43,8 +66,8 @@ export const autoMovieDrawingToSvg = (props: {
     throw new Error(
       `drawing "${drawing.view}" cannot be drawn with the pen of view "${view.id}"`,
     );
-  for (const role of ROLES) {
-    const weight = view.style.weights[role];
+  for (const role of AUTOMOVIE_DRAWING_ROLES) {
+    const weight: number = view.style.weights[role];
     if (!Number.isFinite(weight) || weight <= 0)
       throw new Error(
         `drawing view "${view.id}" ${role} stroke weight must be a finite number > 0, but was ${weight}`,
@@ -60,26 +83,35 @@ export const autoMovieDrawingToSvg = (props: {
       `drawing view "${view.id}" text height must be a finite number > 0, but was ${view.style.textHeight}`,
     );
 
-  const perMetre = 1000 / drawing.scale;
-  const extent = drawing.extent ?? { min: { x: 0, y: 0 }, max: { x: 0, y: 0 } };
-  const width =
+  const perMetre: number = 1000 / drawing.scale;
+  const extent: IAutoMovieDrawingExtent = drawing.extent ?? {
+    min: { x: 0, y: 0 },
+    max: { x: 0, y: 0 },
+  };
+  const width: number =
     (extent.max.x - extent.min.x) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN * 2;
-  const height =
+  const height: number =
     (extent.max.y - extent.min.y) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN * 2;
   const at = (point: IAutoMovieDrawingPoint): { x: string; y: string } => ({
     x: number(
       (point.x - extent.min.x) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN,
     ),
-    // SVG y grows downward while the page up axis grows upward, so the sheet is
-    // flipped once here rather than in every consumer that reads it back.
     y: number(
       (extent.max.y - point.y) * perMetre + AUTOMOVIE_DRAWING_SVG_MARGIN,
     ),
   });
+  const points = (polygon: readonly IAutoMovieDrawingPoint[]): string =>
+    polygon
+      .map((point: IAutoMovieDrawingPoint): string => {
+        const placed: { x: string; y: string } = at(point);
+        return `${placed.x},${placed.y}`;
+      })
+      .join(" ");
+  const stroke = (role: AutoMovieDrawingRole): string =>
+    number(view.style.weights[role]);
 
-  const body: string[] = [];
-  for (const region of drawing.regions)
-    body.push(
+  const body: string[] = [
+    ...drawing.regions.map((region: IAutoMovieDrawingRegion): string =>
       tag("polygon", [
         ["class", "automovie-region"],
         ["data-space", region.space],
@@ -87,25 +119,17 @@ export const autoMovieDrawingToSvg = (props: {
         ["data-kind", region.kind],
         ["data-finish", region.finish ?? ""],
         ["data-area", number(region.area)],
-        [
-          "points",
-          region.polygon
-            .map((point) => {
-              const placed = at(point);
-              return `${placed.x},${placed.y}`;
-            })
-            .join(" "),
-        ],
+        ["points", points(region.polygon)],
         ["fill", "currentColor"],
         ["fill-opacity", "0.06"],
         ["stroke", "none"],
       ]),
-    );
-  for (const line of drawing.lines) {
-    const from = at(line.from);
-    const to = at(line.to);
-    body.push(
-      tag("line", [
+    ),
+    ...drawing.lines.map((line: IAutoMovieDrawingLine): string => {
+      const from: { x: string; y: string } = at(line.from);
+      const to: { x: string; y: string } = at(line.to);
+      const dashes: readonly number[] = view.style.dashes[line.role];
+      return tag("line", [
         ["class", "automovie-line"],
         ["data-owner", line.owner],
         ["data-space", line.space ?? ""],
@@ -116,106 +140,87 @@ export const autoMovieDrawingToSvg = (props: {
         ["x2", to.x],
         ["y2", to.y],
         ["stroke", "currentColor"],
-        ["stroke-width", number(view.style.weights[line.role])],
-        ...dashAttribute(view.style.dashes[line.role]),
-      ]),
-    );
-  }
-  for (const mark of drawing.openings) {
-    const identity: Array<[string, string]> = [
-      ["class", "automovie-opening"],
-      ["data-opening", mark.opening],
-      ["data-boundary", mark.boundary],
-      ["data-kind", mark.kind],
-      ["data-fill", mark.fill ?? ""],
-      ["data-basis", mark.basis],
-      ["data-width", mark.width === null ? "" : number(mark.width)],
-      ["data-height", mark.height === null ? "" : number(mark.height)],
-    ];
-    // An opening with no void outline is still carried, as an empty marker: the
-    // schedule counts it, so a sheet that dropped it would disagree with the
-    // schedule about how many openings the building has.
-    body.push(
-      mark.polygon.length < 3
+        ["stroke-width", stroke(line.role)],
+        ...(dashes.length === 0
+          ? []
+          : [["stroke-dasharray", dashes.map(number).join(",")] as Attribute]),
+      ]);
+    }),
+    ...drawing.openings.map((mark: IAutoMovieDrawingOpeningMark): string => {
+      const identity: Attribute[] = [
+        ["class", "automovie-opening"],
+        ["data-opening", mark.opening],
+        ["data-boundary", mark.boundary],
+        ["data-kind", mark.kind],
+        ["data-fill", mark.fill ?? ""],
+        ["data-basis", mark.basis],
+        ["data-width", mark.width === null ? "" : number(mark.width)],
+        ["data-height", mark.height === null ? "" : number(mark.height)],
+      ];
+      // An opening with no outline is still carried, because the schedule
+      // counts it and the sheet must agree about how many openings exist.
+      return mark.polygon.length < 3
         ? tag("g", identity)
         : tag("polygon", [
             ...identity,
-            [
-              "points",
-              mark.polygon
-                .map((point) => {
-                  const placed = at(point);
-                  return `${placed.x},${placed.y}`;
-                })
-                .join(" "),
-            ],
+            ["points", points(mark.polygon)],
             ["fill", "none"],
             ["stroke", "currentColor"],
-            ["stroke-width", number(view.style.weights.cut)],
-          ]),
-    );
-  }
-  for (const dimension of drawing.dimensions) {
-    if (dimension.status === "stale") {
-      body.push(
-        tag("g", [
+            ["stroke-width", stroke("cut")],
+          ]);
+    }),
+    ...drawing.dimensions.map(
+      (dimension: IAutoMovieDrawingDimension): string => {
+        if (dimension.status === "stale")
+          return tag("g", [
+            ["class", "automovie-dimension"],
+            ["data-id", dimension.id],
+            ["data-status", "stale"],
+            ["data-reason", dimension.reason ?? ""],
+          ]);
+        const from: { x: string; y: string } = at(dimension.from!);
+        const to: { x: string; y: string } = at(dimension.to!);
+        return tag("line", [
           ["class", "automovie-dimension"],
           ["data-id", dimension.id],
-          ["data-status", "stale"],
-          ["data-reason", dimension.reason ?? ""],
-        ]),
-      );
-      continue;
-    }
-    const from = at(dimension.from!);
-    const to = at(dimension.to!);
-    body.push(
-      tag("line", [
-        ["class", "automovie-dimension"],
-        ["data-id", dimension.id],
-        ["data-status", "resolved"],
-        ["data-measure", dimension.measure],
-        ["data-value", number(dimension.value!)],
-        ["x1", from.x],
-        ["y1", from.y],
-        ["x2", to.x],
-        ["y2", to.y],
-        ["stroke", "currentColor"],
-        ["stroke-width", number(view.style.weights.projected)],
-      ]),
-    );
-  }
-  for (const annotation of drawing.annotations) {
-    if (annotation.status === "stale") {
-      body.push(
-        tag("g", [
-          ["class", "automovie-annotation"],
-          ["data-id", annotation.id],
-          ["data-status", "stale"],
-          ["data-reason", annotation.reason ?? ""],
-        ]),
-      );
-      continue;
-    }
-    const placed = at(annotation.at!);
-    body.push(
-      `  ${tag(
-        "text",
-        [
-          ["class", "automovie-annotation"],
-          ["data-id", annotation.id],
           ["data-status", "resolved"],
-          ["x", placed.x],
-          ["y", placed.y],
-          ["font-size", number(view.style.textHeight)],
-          ["fill", "currentColor"],
-        ],
-        false,
-      )}${xml(annotation.text)}</text>`,
-    );
-  }
-  for (const gap of drawing.gaps)
-    body.push(
+          ["data-measure", dimension.measure],
+          ["data-value", number(dimension.value!)],
+          ["x1", from.x],
+          ["y1", from.y],
+          ["x2", to.x],
+          ["y2", to.y],
+          ["stroke", "currentColor"],
+          ["stroke-width", stroke("projected")],
+        ]);
+      },
+    ),
+    ...drawing.annotations.map(
+      (annotation: IAutoMovieDrawingAnnotation): string => {
+        if (annotation.status === "stale")
+          return tag("g", [
+            ["class", "automovie-annotation"],
+            ["data-id", annotation.id],
+            ["data-status", "stale"],
+            ["data-reason", annotation.reason ?? ""],
+          ]);
+        const placed: { x: string; y: string } = at(annotation.at!);
+        return `  ${tag(
+          "text",
+          [
+            ["class", "automovie-annotation"],
+            ["data-id", annotation.id],
+            ["data-status", "resolved"],
+            ["x", placed.x],
+            ["y", placed.y],
+            ["font-size", number(view.style.textHeight)],
+            ["fill", "currentColor"],
+          ],
+          false,
+        )}${xml(annotation.text)}</text>`;
+      },
+    ),
+    ...drawing.gaps.map((gap: IAutoMovieDrawingGap): string =>
       tag("g", [
         ["class", "automovie-gap"],
         ["data-subject", gap.subject],
@@ -223,7 +228,8 @@ export const autoMovieDrawingToSvg = (props: {
         ["data-reason", gap.reason],
         ["data-remedy", gap.remedy],
       ]),
-    );
+    ),
+  ];
 
   return [
     tag(
@@ -248,41 +254,28 @@ export const autoMovieDrawingToSvg = (props: {
   ].join("\n");
 };
 
-const ROLES: AutoMovieDrawingRole[] = [
-  "cut",
-  "projected",
-  "overhead",
-  "hidden",
-];
-
+/** One element: indented and self-closing, or an unindented opening tag. */
 const tag = (
   name: string,
-  attributes: ReadonlyArray<[string, string]>,
-  selfClosing = true,
+  attributes: readonly Attribute[],
+  selfClosing: boolean = true,
 ): string => {
-  const written = attributes
-    .map(([key, value]) => `${key}="${xml(value)}"`)
+  const written: string = attributes
+    .map(([key, value]: Attribute): string => `${key}="${xml(value)}"`)
     .join(" ");
   return selfClosing ? `  <${name} ${written} />` : `<${name} ${written}>`;
 };
 
-const dashAttribute = (dashes: readonly number[]): Array<[string, string]> =>
-  dashes.length === 0
-    ? []
-    : [["stroke-dasharray", dashes.map(number).join(",")]];
-
 /**
- * Format one page millimetre value.
+ * Format one page millimetre value to three fixed decimals.
  *
- * Fixed decimals so two runs cannot differ in a trailing digit. Rounding first
- * is also what keeps a coordinate that lands on an axis from printing its sign:
- * a value a whisker below zero rounds to negative zero, which `toFixed` writes
- * as `0.000` rather than `-0.000`, so which side the geometry approached from
- * cannot change the bytes.
+ * Rounding first keeps a value a whisker below zero from printing a sign:
+ * it rounds to negative zero, which `toFixed` writes as `0.000`.
  */
 const number = (value: number): string =>
   (Math.round(value * 1000) / 1000).toFixed(3);
 
+/** Escape the five XML special characters. */
 const xml = (text: string): string =>
   text
     .replace(/&/g, "&amp;")

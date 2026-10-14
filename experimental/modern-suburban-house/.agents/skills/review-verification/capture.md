@@ -6,8 +6,6 @@ Capture is an observation of an exact source result under declared conditions. I
 
 Before capturing, name the source revision and explicit inputs, subject or shot, camera, time or pose, pass, raster, frame clock, and actual browser and graphics runtime. Reuse the producer inspected by the source viewer. A stale result, substituted camera, smaller raster, or different runtime is a different observation.
 
-Inspect the actual graphics vendor and renderer before claiming hardware acceleration. A requested backend is not evidence of the backend that drew the picture. Keep the runtime and presentation conditions fixed for comparisons.
-
 ## Select the complete view set
 
 Derive views from the contract being judged before drawing them. A shot owes its declared frame-and-pass population. An isolated model needs the required silhouette, opposing perspectives, relevant articulation extremes, and difficult or occluded details. Name which complete population a sample represents and the contract that permits that inference.

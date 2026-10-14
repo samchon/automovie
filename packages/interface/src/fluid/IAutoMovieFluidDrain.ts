@@ -1,66 +1,41 @@
 /**
  * One declared outflow from a single cell.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `IAutoMovieFluidDrain` as the portable data boundary for the interior fluid volume level requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieFluidDrain` for the interior space water feature fluid domain system contract.
+ * validateFluidDomain requires a nonsolid in-grid cell, a nonblank id unique among drains and finite authored numbers. The solver limits requested drain/face outflows against held water and records drainVolume; nonfinite intermediate and ledger handling retains IAutoMovieFluidState's documented gaps.
+ *
+ * @evidence contracts/common.md#principled-implementation Active steps request flowRate * dt when the step-start free surface exceeds sillLevel, then share one donor scaling factor with outgoing faces. For finite representable arithmetic that factor bounds removal by held water; overflowed requests and NaN ledger values are not independently admitted by this type or fully rejected by the current integrator.
+ * @evidence contracts/common.md#clear-and-simple-design A single-cell point outflow with a rate cap, a sill and a time window covers floor drains, overflow weirs and timed returns without a pump or pipe model.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Drain and face fluxes share the same held-volume limiter and ledger path, without a drain-specific depth clamp. An overflowed request can produce a NaN scaled removal, so the current implementation does not establish the intended bounded-removal identity for every finite authored rate.
+ * @evidence contracts/common.md#meaningful-documentation States the validation rules and where removed volume is counted; members give units, index ranges, how the realized rate is limited, the sill comparison and the half-open activity window.
+ * @author Samchon
  */
 export interface IAutoMovieFluidDrain {
-  /**
-   * Stable drain identity within the domain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `id` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `id` for the interior space water feature fluid domain system contract.
-   */
+  /** Stable drain identity within the domain. */
   id: string;
 
-  /**
-   * Cell column the water leaves from; `0 <= column < grid.columns`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `column` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `column` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell column the water leaves from; `0 <= column < grid.columns`. */
   column: number;
 
-  /**
-   * Cell row the water leaves from; `0 <= row < grid.rows`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `row` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `row` for the interior space water feature fluid domain system contract.
-   */
+  /** Cell row the water leaves from; `0 <= row < grid.rows`. */
   row: number;
 
   /**
-   * Maximum volumetric outflow in m³/s; must be `>= 0`. The realized rate is
-   * limited by the water actually available in the cell during the step.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `flowRate` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `flowRate` for the interior space water feature fluid domain system contract.
+   * Finite nonnegative requested maximum outflow in cubic metres per second. When requested drain and outgoing-face volumes exceed held water, the solver scales them by one factor; the documented intermediate-arithmetic limits still apply.
    */
   flowRate: number;
 
   /**
-   * Free-surface elevation in metres above `grid.origin.y` below which the
-   * drain is closed: the sill of an overflow weir, or the bed elevation for a
-   * plain floor drain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `sillLevel` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `sillLevel` for the interior space water feature fluid domain system contract.
+   * Free-surface threshold in metres above grid.origin.y, such as an overflow sill or floor-drain bed elevation. A step drains only when its initial bed + depth is strictly above the threshold.
    */
   sillLevel: number;
 
   /**
-   * Domain-clock second at which the drain opens; finite and `>= 0`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `start` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `start` for the interior space water feature fluid domain system contract.
+   * Nonnegative domain-clock opening second; a step drains when its start time satisfies start <= t < end.
    */
   start: number;
 
   /**
-   * Domain-clock second at which it closes, or `null` for "never".
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-volume-level Exposes `end` as the portable data boundary for the interior fluid volume level requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `end` for the interior space water feature fluid domain system contract.
+   * Closing second strictly after start, or null for no close.
    */
   end: number | null;
 }

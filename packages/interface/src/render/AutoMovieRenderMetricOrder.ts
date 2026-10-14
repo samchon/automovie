@@ -1,13 +1,13 @@
 /**
  * Every metric, in the fixed order a report lists them.
  *
- * A pure type package cannot hold a runtime array, so the ordering lives here
- * as a tuple type and the engine derives its single runtime constant from it.
- * Report order is fixed so two reports of the same production diff line by
- * line.
+ * The pure type package declares a tuple and the engine's runtime constant is typed against it; reports preserve this order for deterministic comparison.
  *
- * @evidence requirements/rendering/budgets.md#rendering-runtime-budget-enforcement Exposes `AutoMovieRenderMetricOrder` as the portable data boundary for the rendering runtime budget enforcement requirement.
- * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types `AutoMovieRenderMetricOrder` for the spec render budget preflight system contract.
+ * @evidence contracts/common.md#principled-implementation Literal tuple positions define the complete metric protocol order, and AUTOMOVIE_RENDER_METRICS uses that tuple as its runtime type so budget findings iterate the same bounded population.
+ * @evidence contracts/common.md#clear-and-simple-design A type-only ordering contract permits one engine runtime array without adding values or runtime dependencies to interface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine spells its array explicitly under this type rather than deriving values from erased types; no locale or inventory traversal order changes report position.
+ * @evidence contracts/common.md#meaningful-documentation Defines complete fixed metric order and its type-only versus runtime ownership.
+ * @author Samchon
  */
 export type AutoMovieRenderMetricOrder = [
   "triangles",

@@ -8,8 +8,6 @@ Use it for a film set, a bounded brief, or a standalone library, including a reu
 
 Begin with one observable question about one exact revision: which place, form, spatial relation, or requested function is being judged, under which production condition, and what result would falsify the design. Select observations from the delivered work's references, representation, topology, scale, and authored functions. An operational study starts from an explicitly requested actor, task, route, or performance claim.
 
-Do not import a preferred floor-plan type, period rule, furniture set, or material palette. When the production claims an era, structural language, fidelity ceiling, or reference relationship, ask whether its own decisions agree with that claim. Judge the promised blocking representation rather than demanding unpromised finish, but never use the prototype ceiling to excuse wrong topology, dimensions, clearance, placement, or envelope agreement. When the production makes no style or era claim, do not invent one in review.
-
 ## Read the world before the site
 
 When maps are active, begin at their declared extent, coordinate and vertical reference, current phase, source-resolution boundary, and review scale. Trace the terrain, water, vegetation, land use, settlement, transport, infrastructure, weather, and temporal owners the production actually selected. Do not demand an unused world family, but do not let a background image, imported terrain, or settlement label stand in for the selected features and relations that must exist in the resolved world.
@@ -31,8 +29,6 @@ Plan clarity is not rectangular neatness. A complex organization can be legible 
 ## Measure the declared spatial question
 
 When the review needs derived drawings, schedules, quantities, or declared performance studies, follow [Building reports](../review-verification/measurements.md#building-reports) and pass the current typed result to the applicable public engine report function. Read its `space` schedule for the relevant `parent`, `adjacent`, `connectors`, bounded `contents`, authored `place.declared` box, and measured `place.content` box. Interpret each measurement against the spatial claim that requested it.
-
-The standard report derives one plan per building unit at world Y = 1.2 metres, plus one reflected ceiling plan, section, elevation, services plan, and finish plan. One root plan is not automatically one plan per storey, and the fixed world cut is not automatically relative to a raised unit. If the required level is not actually exposed by that cut, the review set needs a production-owned view at the relevant level before anyone claims that storey was checked.
 
 Read every reported gap and remedy at the artifact that produced it. Use each as a question for the owning design and actual view rather than turning the total into a good-building or bad-building verdict. The measurement guide owns the command's empty-population and library boundaries; this guide owns the spatial judgment made from an applicable report.
 
@@ -66,8 +62,6 @@ Use the section to test relationships a plan or elevation can hide: floor-to-flo
 
 ## Read surfaces and populations as spatial consequences
 
-A material belongs to a stable host surface, and an instance belongs to a completed prototype and placement rule. Judge their spatial result without taking ownership away from those branches. Construction and finish should agree with the production's declared structure, environment, use, and era; repeated populations should preserve the routes, clearances, hierarchy, and density their space owners require.
-
 Inspect junctions, edges, orientation, texture scale, face assignment, and transitions under repeatable conditions before dramatic light hides them. Repeatable does not mean a flat wash: use a directional key or normal view that reveals form for geometry, and the material branch's declared neutral sample for surface response. When texture scale is an authored claim, follow [Texture scale](../review-verification/measurements.md#texture-scale) and judge its census and findings against the visible surface rather than treating a command exit as review. For a population, inspect representative members and the worst cases: thresholds, corners, edges, steep terrain, tight clearances, tier transitions, and hero overrides. A bounded room-schedule `contents` sample is an index, not proof that every repeated member was seen; keep `contents.length + omittedContents` as the exact total and the omitted count in the review basis.
 
 Repetition should reveal an authored rule rather than evaluation order. Random-looking variation is still deterministic work and needs a declared seed and bounds. A member whose silhouette, construction, or role changes beyond the permitted variation returns to its prototype or material owner instead of becoming an unexplained exception in placement.
@@ -88,11 +82,5 @@ No single observation substitutes for another. A world map cannot prove a site t
 ## Look at the place
 
 Spatial quality is a relation among observations, so finish by opening the complete review set rather than choosing one favourable view.
-
-1. When maps are active, open their declared map or plan views, profiles or sections, network and route results, state comparisons, source-resolution comparisons, and boundary or seam checks at the exact reviewed revision. Name the extent, coordinate basis, phase, scale, selected feature families, and sample limits.
-2. Open the plan, section, elevation, and neutral observations selected by the completed spatial claims. Where the review uses a building report, also read its relevant schedule rows and gaps at the same revision.
-3. Open the current neutral perspectives for the exact spaces, surfaces, and populations under review. Follow [inspection](../review-verification/inspection.md) for stable subject identities, content versus declared bounds, sections, and the limit of the hand-driven subject page.
-4. Traverse every required route from its declared start to destination and back where return matters, beginning on the external map network when that approach is promised. For a staged environment, use the production-owned source viewer to see the sequence and the report or engine measurements to settle dimensions and obstruction. Name the revision, start, destination, user, viewpoint or coordinates, and any sample limit.
-5. State what the map, plan, section, elevation, perspectives, state comparisons, and traversal actually showed in the evidence citations on the design or source owners that claim the result is realized. A citation that names no observation is not a spatial judgment.
 
 The report provides measurements and the views provide observations. Neither writes the verdict for you.

@@ -1,9 +1,17 @@
-import { humanFaceRegions } from "../editor/humanFaceRegions";
+import type { humanFaceRegions } from "../editor/humanFaceRegions";
 
 /**
  * A numerical anatomical channel. Identity neutral is the named basis
  * value, not a universal person's dimension. Coupled geometry still requires
  * successful construction; these scalar envelopes cannot prove attachment.
+ *
+ * @evidence contracts/common.md#principled-implementation Named region/path, physical-or-authoring unit and supported numeric envelope identify a detailed recipe field; its neutral comes from the document basis, and actual geometry still requires coupled construction.
+ * @evidence contracts/common.md#clear-and-simple-design Identity, interpretation, interval and attachment metadata serve the editor without becoming a second profile or universal person's dimension.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Slider step does not quantize finer valid entry, count fields still require integral admission, and scalar ranges certify no attachment or physiological population envelope.
+ * @evidence contracts/common.md#meaningful-documentation Members give profile path, meaning, units, inclusive bounds, source-neutral, signs, side policy and shared geometry reference.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This metadata schema performs no detail validation or geometry solve.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stable paths identify fields but implement no shared profile computation or cached neutral.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The editor owns channel metadata and its path array; no model/renderer handle is acquired here.
  *
  * @author Samchon
  */

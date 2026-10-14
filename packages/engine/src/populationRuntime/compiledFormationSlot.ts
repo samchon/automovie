@@ -1,5 +1,6 @@
-import {
+import type {
   IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
   IAutoMovieFormationSlot,
 } from "@automovie/interface";
 
@@ -24,16 +25,25 @@ import { formationSlotRecord } from "../formationSlotRecord";
  * phase. A test pins the two answers equal for every slot of a compiled
  * formation.
  *
- * @evidence requirements/formations/budgets-and-validation.md#formation-determinism Returns the same member identity, grounded transform and motion phase for a slot whichever consumer regenerates it from the compiled record.
- * @evidence specifications/performance-motion-and-staging/formation-motion-resolution-and-budgets.md#performance-formation-determinism-status-compatibility Makes a one-member regeneration return exactly the transform and state the full compiled runtime holds for that slot.
- * @evidence requirements/formations/scope-and-identity.md#formation-authoring-mode-selection Resolves one reviewable member, hero or anonymous, from a compact formation without expanding its roster.
- * @evidence specifications/performance-motion-and-staging/formation-identity-layout-and-terrain.md#performance-formation-compact-representation-compatibility Regenerates members through the shared slot generator and the compiled terrain snapshot instead of a consumer's own layout arithmetic.
+ * @evidence contracts/common.md#principled-implementation Regenerate the terrain-aware designed position and shared seeded identity/phase record for one slot, selecting its hero override if present; inputs follow compiled-formation admission.
+ * @evidence contracts/common.md#clear-and-simple-design This adapter combines formationSlotPosition with formationSlotRecord so compiled and authored callers share the same position and identity laws.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Hero membership comes from the compiled override table, with no actor-specific shortcut; numeric/slot admission remains in the called owners.
+ * @evidence contracts/common.md#meaningful-documentation Docs identify compact regeneration, terrain snapshot use and hero identity; the result is one member rather than an expanded formation.
+ * @evidence contracts/performance.md#efficient-algorithms One slot has fixed-size output; H hero overrides are searched and terrain sampling depends on the retained surface polygons, so total lookup is not unconditionally constant time.
+ * @evidence contracts/performance.md#reuse-equivalent-work Position and record owners are reused by all formation consumers; no result cache survives mutable compiled terrain or hero overrides.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only one caller-owned member record escapes; the borrowed formation and terrain snapshot are not copied or retained by a registry.
  */
-export const compiledFormationSlot = (
+export const compiledFormationSlot: (
+  formation: IAutoMovieCompiledFormation,
+  slot: number,
+) => IAutoMovieFormationSlot = (
   formation: IAutoMovieCompiledFormation,
   slot: number,
 ): IAutoMovieFormationSlot =>
   formationSlotRecord(formation, slot, {
-    actor: formation.heroes.find((hero) => hero.slot === slot)?.actor ?? null,
+    actor:
+      formation.heroes.find(
+        (hero: IAutoMovieCompiledFormationHero): boolean => hero.slot === slot,
+      )?.actor ?? null,
     position: formationSlotPosition(formation, slot),
   });

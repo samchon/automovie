@@ -3,106 +3,55 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 import { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
 
 /**
- * One metric's measurement, limit, dominant owners, and way back.
+ * One render metric's preflight measurement, declared limit, bounded editable owners and corrective action.
  *
- * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `IAutoMovieRenderFinding` as the portable data boundary for the rendering compile render distinction requirement.
- * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `IAutoMovieRenderFinding` for the spec render artifact lifecycle system contract.
+ * @evidence contracts/common.md#principled-implementation Evaluation classifies measured versus missing analysis and inclusive budget comparison, then ranks only own-cost rows while preserving omitted contributor count and all remaining attributed cost.
+ * @evidence contracts/common.md#clear-and-simple-design One finding keeps outcome, numeric basis and bounded attribution together, with nullable recovery only when a cost breach or analysis gap needs correction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unbudgeted and unmeasured remain distinct null states, and pass/runtime costs are accounted without ranking them as author-editable geometry; omitted cost prevents silent truncation.
+ * @evidence contracts/common.md#meaningful-documentation Defines measured and limit nulls, excess, deterministic contributor ordering and bound, omitted accounting and recovery presence.
+ * @author Samchon
  */
 export interface IAutoMovieRenderFinding {
-  /**
-   * Metric this finding answers for.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `metric` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `metric` for the spec render artifact lifecycle system contract.
-   */
+  /** Metric this finding answers for. */
   metric: AutoMovieRenderMetric;
 
-  /**
-   * Outcome.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `status` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `status` for the spec render artifact lifecycle system contract.
-   */
+  /** Outcome. */
   status: AutoMovieRenderFindingStatus;
 
-  /**
-   * Measured value, or `null` when the analysis produced none.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `measured` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `measured` for the spec render artifact lifecycle system contract.
-   */
+  /** Measured value, or `null` when the analysis produced none. */
   measured: number | null;
 
-  /**
-   * Inclusive declared limit, or `null` when the metric is unbudgeted.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `limit` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `limit` for the spec render artifact lifecycle system contract.
-   */
+  /** Inclusive declared limit, or `null` when the metric is unbudgeted. */
   limit: number | null;
 
-  /**
-   * How far above the limit the measurement is; zero unless `over`.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `excess` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `excess` for the spec render artifact lifecycle system contract.
-   */
+  /** How far above the limit the measurement is; zero unless `over`. */
   excess: number;
 
   /**
    * Dominant owners, descending by cost then ascending by owner id.
    *
-   * Bounded by {@link AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS}. Ties break on
-   * the id so the list is deterministic rather than dependent on the order the
-   * inventory happened to visit owners.
+   * Bounded by the evaluator's caller-selected positive safe integer K, which defaults to the engine's contributor limit. Ties break on the id so the list is deterministic rather than dependent on inventory traversal order.
    *
-   * These are the places an author can edit, so only the inventory's `own`
-   * rows are ranked here. A frame pass redraws what the listed owners already
-   * paid for, which makes its cost their sum and its position in a
-   * cost-descending list a constant; it is counted in
-   * {@link omittedContributors} and {@link omittedCost} instead, and named in
-   * {@link recovery} as a pass rather than as somewhere to go and change.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `contributors` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Exposes only editable cost owners as the dominant contributors of a budget decision.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `contributors` for the spec render artifact lifecycle system contract.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Types the bounded editable-owner ranking separately from repeated frame-pass work.
+   * These are the places an author can edit, so only the inventory's `own` rows are ranked here. A frame pass redraws what the listed owners already paid for, which makes its cost their sum and its position in a cost-descending list a constant; it is counted in {@link omittedContributors} and {@link omittedCost} instead, and named in {@link recovery} as a pass rather than as somewhere to go and change.
    */
   contributors: IAutoMovieRenderContributor[];
 
   /**
-   * Owners the report does not name: those past the bound, and the frame
-   * passes that are never ranked.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `omittedContributors` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Counts every attributed owner left outside the bounded dominant-owner list.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `omittedContributors` for the spec render artifact lifecycle system contract.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps frame passes and bounded-out owners visible as omitted contributors.
+   * Distinct own owners beyond the bound plus pass and runtime owners, which are never ranked as editable contributors.
    */
   omittedContributors: number;
 
   /**
    * Total cost carried by the owners the report does not name.
    *
-   * The listed contributors plus this number are the whole of what the
-   * inventory attributed to the metric, frame passes included, so a report
-   * never leaves a shortfall nothing on it explains.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `omittedCost` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence requirements/rendering/budgets.md#rendering-budget-decision Preserves the full measured cost beside the bounded dominant-owner list.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `omittedCost` for the spec render artifact lifecycle system contract.
-   * @evidence specifications/editorial-render-and-delivery/render-budget-identity-and-recovery.md#spec-render-budget-preflight Keeps excluded pass cost inside the accounted preflight total.
+   * Listed contributors plus this number partition the supplied owner rows for this metric, including pass and runtime rows. The evaluator does not prove their sum equals the separately supplied measured total; inventory consistency is a caller premise.
    */
   omittedCost: number;
 
   /**
    * Exactly what to change, or `null` when nothing is wrong.
    *
-   * Present for `over`, `unsupported` and `not-run`; absent for `within` and
-   * `unbudgeted`.
-   *
-   * @evidence requirements/rendering/scope-and-artifact-identity.md#rendering-compile-render-distinction Exposes `recovery` as the portable data boundary for the rendering compile render distinction requirement.
-   * @evidence specifications/editorial-render-and-delivery/render-schedule-state-and-headless.md#spec-render-artifact-lifecycle Types `recovery` for the spec render artifact lifecycle system contract.
+   * Present for `over`, `unsupported` and `not-run`; absent for `within` and `unbudgeted`.
    */
   recovery: string | null;
 }

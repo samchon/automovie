@@ -4,32 +4,23 @@ import { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
  * What {@link resolveShotLighting} evaluates: the staged lights and the clips
  * changing them.
  *
- * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling Defines the authored source state sampled at one shot instant.
- * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Defines the input boundary for deterministic source sampling.
+ *
+ * @evidence contracts/common.md#principled-implementation Provide staged lights, shot light-motion clips and shot-local seconds; resolveShotLighting samples pointer channels and reconstructs only touched lights.
+ * @evidence contracts/common.md#clear-and-simple-design The input keeps lighting evaluation independent of node world composition and renderer object allocation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted animation is represented by an empty clip list, retaining staged light identities; unknown light ids/properties are errors, not discarded tracks.
+ * @evidence contracts/common.md#meaningful-documentation Members identify borrowed staging order, shot light-motion population and seconds rather than host clock time.
+ * @evidence contracts/performance.md#efficient-algorithms The wrapper borrows L lights and C clips; per-clip key/value validation and sampling, then per-light lookup/reconstruction, own the actual work and output populations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unchanged lights pass through by identity; changed samples rebuild touched lights while retaining unanimated nested fields.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns lights/clips and returned light array; this declaration acquires no renderer light, timer or background task.
  * @author Samchon
  */
 export interface IAutoMovieShotLightingInput {
-  /**
-   * The scene's staged lights, in staging order.
-   *
-   * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling Supplies the authored light sources whose state is sampled at the requested time.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Preserves the staged source inventory during temporal evaluation.
-   */
+  /** The scene's staged lights, in staging order. */
   lights: readonly IAutoMovieLight[];
 
-  /**
-   * The shot's light-motion clips (`IAutoMovieShot.lightMotions`).
-   *
-   * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling Supplies the authored time-varying channels evaluated for each light source.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Carries authored source-animation records into deterministic sampling.
-   */
+  /** The shot's light-motion clips (`IAutoMovieShot.lightMotions`). */
   clips: readonly IAutoMovieClip[];
 
-  /**
-   * The instant to evaluate, in shot-local seconds.
-   *
-   * @evidence requirements/lighting/sources-and-photometry.md#lighting-source-time-sampling Selects the exact shot-local instant at which every light source is evaluated.
-   * @evidence specifications/camera-light-and-visibility/light-source-photometry-and-environment.md#clv-source-sampling-refusal Provides the common sample time for deterministic light state.
-   */
+  /** The instant to evaluate, in shot-local seconds. */
   seconds: number;
 }

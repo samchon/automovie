@@ -4,38 +4,30 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * The path frame at one baked keyframe time: where the root sits on the path
  * and which way it faces, the per-time data a later pass (a camera follow, a
  * foot-planting pass) consumes without re-deriving the path math.
+ * Position is the path baseline before the gait's rotated root bob is added;
+ * yaw and tangent describe the corner-blended facing, not the geometric
+ * derivative of that bob or of the unsmoothed waypoint polyline.
  *
- * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-terrain-adaptation Records the terrain-adjusted position and facing derived at one gait sample.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Exposes the resolved path state beside the compact gait output.
+ * @evidence contracts/common.md#principled-implementation Records one arc-length path sample and its corner-blended yaw, with a horizontal unit tangent reconstructed from that same yaw so downstream facing data cannot diverge within the frame.
+ * @evidence contracts/common.md#clear-and-simple-design Baseline placement facts accompany the baked clip without duplicating gait joints or root bob, which remain in motion keyframes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The tangent is explicitly facing data rather than an unmeasured path velocity; world height comes from the supplied ground source for every waypoint sequence.
+ * @evidence contracts/common.md#meaningful-documentation Gives local seconds, world coordinates, degree axis convention and the distinction between baseline facing and actual root velocity.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A path sample performs no polyline lookup or corner-window interpolation; followPathMotion owns both.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Downstream consumers may reuse recorded baseline facts at that time, while the type stores no interpolation cache across frames.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each output frame owns two vectors and scalar timing/facing values, bounded by the bake's emitted keyframe count.
+ *
  * @author Samchon
  */
 export interface IAutoMoviePathFrame {
-  /**
-   * Seconds into the baked clip.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-gait-table Locates the resolved path frame on the gait cycle's baked clock.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Aligns path state with the corresponding procedural motion sample.
-   */
+  /** Seconds into the baked clip. */
   time: number;
-  /**
-   * World path point: XZ on the polyline, `y` from the ground source.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-terrain-adaptation Combines route progress with the declared terrain height.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Reports the terrain-adapted root position produced by the gait rule.
-   */
+
+  /** World path point: XZ on the polyline, `y` from the ground source. */
   position: IAutoMovieVector3;
-  /**
-   * Facing about +Y in degrees (0 = +Z, +90 = +X), corner-blended.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-general-procedural-control Makes corner steering an explicit output of the path controller.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Carries the bounded facing derived from the authored route.
-   */
+
+  /** Facing about +Y in degrees (0 = +Z, +90 = +X), corner-blended. */
   yawDeg: number;
-  /**
-   * Unit horizontal facing direction (`y` = 0), matching `yawDeg`.
-   *
-   * @evidence requirements/motion/procedural-motion-and-gaits.md#motion-general-procedural-control Provides the normalized steering result used by downstream motion controls.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-procedural-gait-rule Preserves the resolved route direction independently of display angles.
-   */
+
+  /** Unit horizontal facing direction (`y` = 0), matching `yawDeg`. */
   tangent: IAutoMovieVector3;
 }

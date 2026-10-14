@@ -31,34 +31,54 @@
  * elastic modulus or person's age. A future resolver must reproduce the
  * observed regional result without accepting a free curve or vertex edit.
  *
+ * @evidence contracts/common.md#principled-implementation Independent regional ordinal instruments preserve rest/maximal contraction, protocol and laterality rather than a pooled skin-age scalar. Current observation rules keep these grades without anatomical surface lowering.
+ * @evidence contracts/common.md#clear-and-simple-design The parent assigns anatomical sites and UpperLine owns the upper-face protocol and paired acquisition states; other scales retain their own literal labels.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Grades are not proportional lengths, independent sculptable tissue controls or interpolable expression weights; cohort reliability does not certify a 3D mapping or right-side validation.
+ * @evidence contracts/common.md#meaningful-documentation The comment states acquisition conditions, raw categories, population/laterality limitations and unresolved geometry, while fields name each instrument's region.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface performs no grading, wrinkle construction or surface mapping.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Regional observation grouping defines no shared rater result or repeated-pose cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no photographs, skin meshes or rater tasks; the personal record owns optional grades.
+ *
  * @publicUnconsumed createHumanFaceAnatomicalResolver: Clinical skin-condition observations await a validated anatomical surface mapping and same-protocol rendered review.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceSkinConditionParameters {
   /** Horizontal forehead lines at rest and maximum brow raise. */
   foreheadLines?: IAutoMovieHumanFaceSkinConditionParameters.UpperLine;
+
   /** Glabellar lines at rest and maximum frown. */
   glabellarLines?: IAutoMovieHumanFaceSkinConditionParameters.UpperLine;
+
   /** Anatomical-left lateral canthal lines at rest and maximum smile. */
   leftLateralCanthalLines?: IAutoMovieHumanFaceSkinConditionParameters.UpperLine;
+
   /** Anatomical-right lateral canthal lines at rest and maximum smile. */
   rightLateralCanthalLines?: IAutoMovieHumanFaceSkinConditionParameters.UpperLine;
+
   /** Superficial left cheek/midface fine lines, excluding the nasolabial fold. */
   leftMidfaceFineLinesGrade?: 0 | 1 | 2 | 3 | 4;
+
   /** Superficial right cheek/midface fine lines, under the same protocol. */
   rightMidfaceFineLinesGrade?: 0 | 1 | 2 | 3 | 4;
+
   /** Anatomical-left nasolabial fold, Buchner six-grade protocol. */
   leftNasolabialFoldGrade?: 0 | 1 | 2 | 3 | 4 | 5;
+
   /** Anatomical-right nasolabial fold, Buchner six-grade protocol. */
   rightNasolabialFoldGrade?: 0 | 1 | 2 | 3 | 4 | 5;
+
   /** Left melomental/marionette fold, Allergan five-grade protocol. */
   leftMarionetteLineGrade?: 0 | 1 | 2 | 3 | 4;
+
   /** Right melomental/marionette fold, Allergan five-grade protocol. */
   rightMarionetteLineGrade?: 0 | 1 | 2 | 3 | 4;
+
   /** Left infraorbital depression and orbital-rim visibility, four-grade protocol. */
   leftInfraorbitalHollowGrade?: 0 | 1 | 2 | 3;
+
   /** Right infraorbital depression and orbital-rim visibility, four-grade protocol. */
   rightInfraorbitalHollowGrade?: 0 | 1 | 2 | 3;
+
   /** Whole jawline sagging, Croma five-grade protocol; 1 means none. */
   jawlineSaggingGrade?: 1 | 2 | 3 | 4 | 5;
 }
@@ -67,6 +87,15 @@ export namespace IAutoMovieHumanFaceSkinConditionParameters {
   /**
    * One of the three upper-face four-grade scales, at rest and at its stated
    * maximum contraction. The integer is a category rather than a length.
+   *
+   * @evidence contracts/common.md#principled-implementation A required source protocol and independently observed resting/maximal grades retain the published one-based category meanings instead of an older zero-based interpretation.
+   * @evidence contracts/common.md#clear-and-simple-design One UpperLine shape serves forehead, glabella and lateral canthus while the parent supplies the prescribed site/expression.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The protocol does not automatically migrate records, infer unobserved grades or turn ordinal categories into proportional geometry.
+   * @evidence contracts/common.md#meaningful-documentation Members name the source identity and raw severity labels, distinguishing absent acquisition from none/minimal.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This record runs no photonumeric grading or expression interpolation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The protocol literal defines acquisition identity without a shared measured-result cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration retains no photographs or evaluator resource; its owner holds at most two optional grades.
+   *
    * @author Samchon
    */
   export interface UpperLine {

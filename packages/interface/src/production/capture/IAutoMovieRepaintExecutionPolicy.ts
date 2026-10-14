@@ -1,13 +1,16 @@
 import { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryableFailureClass";
 
 /**
- * Complete bounded execution policy for one immutable repaint request.
+ * Explicit attempt, elapsed-time, cancellation and metered-cost envelope for one immutable repaint request.
  *
- * @evidence requirements/repaint/retries-seeds-and-variation.md#repaint-retry-budget-stop Makes attempts, timeout, elapsed time, cost, retryability, and deterministic backoff authored inputs rather than hidden host behavior.
- * @evidence specifications/asset-and-representation/generated-assets-and-repaint-handoff.md#asset-spec-repaint-attempt-selection Types the bounded request policy consumed before an external call.
+ * @evidence contracts/common.md#principled-implementation Numeric fields and a closed retry vocabulary describe the intended attempt, time and cost envelope. Safe-integer bounds, finite cost, backoff cardinality and remaining budgets are documented obligations, not checks performed by this erased type.
+ * @evidence contracts/common.md#clear-and-simple-design One policy groups attempt, elapsed-time and cost limits with retry classes and backoff values, keeping the intended execution envelope explicit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The retry vocabulary omits cancellation, stale input and budget exhaustion. No current execution host implements charging, cancellation or deadline enforcement for this retained policy.
+ * @evidence contracts/common.md#meaningful-documentation Defines attempts, millisecond deadlines and total ceiling, adapter cost units, backoff population and explicit retry classes.
+ * @author Samchon
  */
 export interface IAutoMovieRepaintExecutionPolicy {
-  /** Maximum provider calls belonging to one request. */
+  /** Positive safe-integer maximum provider calls belonging to one request. */
   maximumAttempts: number;
 
   /** Per-attempt cancellation deadline in milliseconds. */
@@ -19,7 +22,7 @@ export interface IAutoMovieRepaintExecutionPolicy {
   /** Maximum metered cost in the adapter's declared cost unit. */
   maximumCostUnits: number;
 
-  /** One deterministic delay for every possible retry. */
+  /** Exactly maximumAttempts minus one non-negative host-safe millisecond delays, one per possible retry. */
   backoffMs: number[];
 
   /** Exact failure classes allowed to consume another attempt. */

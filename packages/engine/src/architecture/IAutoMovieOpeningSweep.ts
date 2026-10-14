@@ -3,36 +3,27 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 /**
  * The world volume one movable panel sweeps across its whole travel.
  *
- * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `IAutoMovieOpeningSweep` represents the world volume one movable panel sweeps across its whole travel. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
- * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `IAutoMovieOpeningSweep` structures the world volume one movable panel sweeps across its whole travel for the system that resolves ownership, topology, and geometry inside one building-interior boundary.
+ * Produced by `builtOpeningSweepEnvelope`, one per panel in authored order. It is an axis-aligned world box around the four corners of the panel's element-local `(0, 0)` to `(width, height)` rectangle over its own travel range, so the leaf has no thickness here. Ancestors stand at the environment's current state while the panel's own displacement is removed; the box is not the union over every state a chain of leaves could reach.
+ *
+ * @evidence contracts/common.md#principled-implementation The box bounds the four leaf corners over the panel's travel, solved from the closed form `A + B cos(t) + D sin(t)` a revolute corner traces, whose per-axis extremes lie at the limits or at the critical angles crossed, and from the limits for a prismatic leaf.
+ * @evidence contracts/common.md#clear-and-simple-design Two world corners keyed by panel and element are what a clearance or collision analysis reads, and the record states no verdict about passage.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The box is per panel with ancestors held at the current state rather than a union over every reachable configuration, a stated limitation, and the leaf is treated as having no thickness.
+ * @evidence contracts/common.md#meaningful-documentation States the producer and order, that the box spans the panel's element-local rectangle over its own travel, that the leaf has no thickness, how ancestors are posed, and that it is not the union over a chain's states.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the producer stages one matrix table per call and walks a bounded set of critical angles per panel corner, answered on `builtOpeningSweepEnvelope`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer shares one staged matrix table and element index across panels, deriving each rest frame from its parent's staged matrix and its own rest transform without copying the table; no envelope is retained.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two fresh vectors and two strings, owned by the caller's sweep list.
+ * @author Samchon
  */
 export interface IAutoMovieOpeningSweep {
-  /**
-   * Panel id inside its opening.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `panel` records `IAutoMovieOpeningSweep`'s panel id inside its opening. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `panel` supplies `IAutoMovieOpeningSweep`'s panel id inside its opening when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+  /** Panel id inside its opening. */
   panel: string;
-  /**
-   * The visible element the panel drives.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `element` records `IAutoMovieOpeningSweep`'s visible element the panel drives. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `element` supplies `IAutoMovieOpeningSweep`'s visible element the panel drives when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** The visible element the panel drives. */
   element: string;
-  /**
-   * World minimum corner of the swept volume.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `min` records `IAutoMovieOpeningSweep`'s world minimum corner of the swept volume. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `min` supplies `IAutoMovieOpeningSweep`'s world minimum corner of the swept volume when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World minimum corner of the swept volume. */
   min: IAutoMovieVector3;
-  /**
-   * World maximum corner of the swept volume.
-   *
-   * @evidence requirements/interior/scope-and-host-boundary.md#interior-current-product-scope `max` records `IAutoMovieOpeningSweep`'s world maximum corner of the swept volume. This ensures authored building-interior state remains explicit and reviewable within its supported host boundary.
-   * @evidence specifications/interior-space/scope-and-host.md#interior-space-building-interior-boundary `max` supplies `IAutoMovieOpeningSweep`'s world maximum corner of the swept volume when the engine resolves ownership, topology, and geometry inside one building-interior boundary.
-   */
+
+  /** World maximum corner of the swept volume. */
   max: IAutoMovieVector3;
 }

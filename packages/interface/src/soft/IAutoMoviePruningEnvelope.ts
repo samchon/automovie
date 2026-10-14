@@ -3,16 +3,13 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * The volume a plant is kept inside.
  *
- * A branch whose base is already outside is not grown at all; a branch that
- * crosses the boundary is cut exactly at the crossing, and only the children
- * that emerge before the cut survive. That is pruning, not clipping in the
- * renderer: what the envelope removes is gone from the derived structure every
- * reader of the plant works from. The installation binding's canopy collision
- * check reads that structure today. A quantity take-off would read the same
- * one, and none measures planting yet.
+ * A branch whose base is outside is not grown; an analytic exit before its endpoint cuts the centreline, and children whose emergence lies beyond that cut are omitted. Direct-square and quadratic arithmetic retain binary64 overflow and cancellation limits. This changes the shared derived structure rather than applying renderer-only clipping. Installation admission reads its canopy bounds; quantity take-off currently does not measure planting.
  *
- * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-plant-placement-state Exposes `IAutoMoviePruningEnvelope` as the portable data boundary for the interior plant placement state requirement.
- * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IAutoMoviePruningEnvelope` for the interior space soft furnishing planting system contract.
+ * @evidence contracts/common.md#principled-implementation growPlanting tests branch bases and computes box slab exits or sphere quadratic exits in the recipe frame; children beyond the clipped branch length are omitted.
+ * @evidence contracts/common.md#clear-and-simple-design The union exposes the two implemented analytic clipping volumes and an explicit unpruned arm.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The envelope clips branch centreline structure, not leaf blades or branch thickness; it is not a full canopy containment guarantee.
+ * @evidence contracts/common.md#meaningful-documentation Arm comments state the recipe frame, strict box ordering and metre radius, with the structure-only pruning limit.
+ * @author Samchon
  */
 export type IAutoMoviePruningEnvelope =
   | IAutoMoviePruningEnvelope.INone
@@ -20,82 +17,56 @@ export type IAutoMoviePruningEnvelope =
   | IAutoMoviePruningEnvelope.ISphere;
 export namespace IAutoMoviePruningEnvelope {
   /**
-   * Unpruned: the structure grows to its full extent.
+   * Unpruned branching structure.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `INone` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `INone` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation growPlanting treats every base as inside and returns no exit for this arm; growth stage and recursion budgets still limit the result.
+   * @evidence contracts/common.md#clear-and-simple-design A single literal distinguishes absence of pruning without an infinite box.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The arm removes only pruning; it does not bypass branch and leaf caps.
+   * @evidence contracts/common.md#meaningful-documentation The discriminator states that no clipping envelope participates in structural derivation.
+   * @author Samchon
    */
   export interface INone {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "none";
   }
 
   /**
-   * An axis-aligned world box: a trained wall, a clipped hedge, a planter.
+   * Axis-aligned recipe-frame pruning box.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `IBox` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `IBox` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation A branch based inside the box exits at the nearest forward slab intersection; zero direction components contribute no crossing.
+   * @evidence contracts/common.md#clear-and-simple-design Minimum and maximum corners are the complete box parameters consumed by the analytic clipper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Clipping uses the declared corners rather than sampled cuts; equality at a boundary is inside and branch thickness is not tested.
+   * @evidence contracts/common.md#meaningful-documentation The comment identifies the recipe frame and the required strictly ordered corners.
+   * @author Samchon
    */
   export interface IBox {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "box";
 
-    /**
-     * Minimum corner.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `min` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `min` for the interior space soft furnishing planting system contract.
-     */
+    /** Minimum corner. */
     min: IAutoMovieVector3;
 
-    /**
-     * Maximum corner, strictly greater on every axis.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `max` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `max` for the interior space soft furnishing planting system contract.
-     */
+    /** Maximum corner, strictly greater on every axis. */
     max: IAutoMovieVector3;
   }
 
   /**
-   * A ball: a standard topiary, a hanging sphere.
+   * Recipe-frame spherical pruning envelope.
    *
-   * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `ISphere` as the portable data boundary for the interior soft anchor host requirement.
-   * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `ISphere` for the interior space soft furnishing planting system contract.
+   * @evidence contracts/common.md#principled-implementation growPlanting uses squared-distance inclusion and the positive quadratic exit root for a normalized branch axis starting inside the sphere.
+   * @evidence contracts/common.md#clear-and-simple-design Centre and radius express the only parameters needed by the analytic sphere clipper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The radius is validated positive; clipping is centreline-only and does not bound leaf blades extending beyond it.
+   * @evidence contracts/common.md#meaningful-documentation The centre is recipe-local and the radius is measured in metres before instance scaling.
+   * @author Samchon
    */
   export interface ISphere {
-    /**
-     * Discriminator.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `kind` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `kind` for the interior space soft furnishing planting system contract.
-     */
+    /** Discriminator. */
     kind: "sphere";
 
-    /**
-     * World centre.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `center` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `center` for the interior space soft furnishing planting system contract.
-     */
+    /** Centre in the recipe frame. */
     center: IAutoMovieVector3;
 
-    /**
-     * Strictly positive radius in metres.
-     *
-     * @evidence requirements/interior/soft-materials-plants-and-deformation.md#interior-soft-anchor-host Exposes `radius` as the portable data boundary for the interior soft anchor host requirement.
-     * @evidence specifications/interior-space/elements-furnishing-and-clearance.md#interior-space-soft-furnishing-planting Types `radius` for the interior space soft furnishing planting system contract.
-     */
+    /** Strictly positive radius in metres. */
     radius: number;
   }
 }

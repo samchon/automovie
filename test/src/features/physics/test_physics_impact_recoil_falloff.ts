@@ -6,14 +6,17 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 const rest: IAutoMovieTransform = {
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
 ): IAutoMovieBone => ({ bone: name, parent, rest, constraint: null });
@@ -23,7 +26,7 @@ const skeleton: IAutoMovieSkeleton = {
   bones: [bone("spine", null), bone("chest", "spine")],
 };
 
-const throws = (task: () => void): boolean => {
+const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
     task();
     return false;
@@ -41,41 +44,43 @@ const throws = (task: () => void): boolean => {
  *
  * 1. Non-finite and out-of-range falloff values throw before propagation.
  * 2. Boundary falloff values `0` and `1` remain valid attenuation choices.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds recoil with invalid attenuation expecting throws, then checks zero stops propagation and one preserves it, catching non-finite/amplifying admission or broken valid endpoints.
+ * @evidence contracts/testing.md#independent-expectations The finite [0,1] coefficient contract defines refusal; 0^0=1, 0^1=0 and 1^i=1 give independently authored contact/downstream expectations and null rest. Exception type and internal order are not asserted.
+ * @evidence contracts/testing.md#distinguishing-cases Covers NaN, infinity, just-below-zero and just-above-one refusal plus both admitted endpoints on two joints; intermediate falloff and explicit joint clamps belong to the recoil unit.
+ * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls impactRecoil with a local rig and owns its assertions without hosts or dynamically registered cases.
  */
-export const test_physics_impact_recoil_falloff = (): void => {
+export function test_physics_impact_recoil_falloff(): void {
   for (const falloff of [Number.NaN, Infinity, -0.1, 1.1])
     TestValidator.predicate(
       `falloff ${falloff} throws`,
-      throws(() =>
-        impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, falloff),
+      throws(
+        (): ReturnType<typeof impactRecoil> =>
+          impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, falloff),
       ),
     );
 
-  const contactOnly = impactRecoil(
+  const contactOnly: ReturnType<typeof impactRecoil> = impactRecoil(
     { flexion: 10 },
     ["spine", "chest"],
     skeleton,
     0,
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "falloff zero stops at the next joint",
-    namedFacts([
-      [
-        "ncloseContactOnlyJoints",
-        () => nclose(contactOnly.joints[0]!.flexion!, 10),
-      ],
-      ["contactOnlyJoints1", () => contactOnly.joints[1]!.flexion === null],
-    ]),
-    { ncloseContactOnlyJoints: true, contactOnlyJoints1: true },
+    nclose(contactOnly.joints[0]!.flexion!, 10) &&
+      contactOnly.joints[1]!.flexion === null,
   );
 
-  const noLoss = impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, 1);
-  TestValidator.equals(
-    "falloff one preserves the push",
-    namedFacts([
-      ["ncloseNoLossJoints", () => nclose(noLoss.joints[0]!.flexion!, 10)],
-      ["ncloseNoLossJoints2", () => nclose(noLoss.joints[1]!.flexion!, 10)],
-    ]),
-    { ncloseNoLossJoints: true, ncloseNoLossJoints2: true },
+  const noLoss: ReturnType<typeof impactRecoil> = impactRecoil(
+    { flexion: 10 },
+    ["spine", "chest"],
+    skeleton,
+    1,
   );
-};
+  TestValidator.predicate(
+    "falloff one preserves the push",
+    nclose(noLoss.joints[0]!.flexion!, 10) &&
+      nclose(noLoss.joints[1]!.flexion!, 10),
+  );
+}

@@ -8,38 +8,32 @@ import { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
 import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
 
 /**
- * Bind a profile onto a concrete subtree: resolve every semantic node reference
- * in the profile's declared `limits` and `drivers` through the binding's
- * `boneMap` (then the placement `nodePrefix`), yielding limits and drivers
- * `resolveFrame` can consume directly. This is what makes "profiles are data,
- * not code" executable: a door profile's hinge limit or a humanoid profile's
- * eye aim becomes a live constraint/driver on the bound nodes.
+ * Bind every supported semantic node reference through an own boneMap entry and optional placement prefix. Pointer channels retain their global addresses. Mismatched profile ids and missing/blank node mappings throw before a bound result returns; unchanged nested bounds and curve data remain borrowed.
  *
- * Node channels and driver node fields go through the map; **pointer channels
- * pass through untouched** (an RFC-6901 pointer addresses a global property,
- * not a subtree node). A semantic key missing from `boneMap`, or mapping to an
- * empty id, **throws**: a binding that silently dropped a declared constraint
- * would un-constrain the rig without a trace, the exact silent drop the engine
- * refuses everywhere else ({@link motionToClip}, sampled channel validation).
- *
- * @evidence requirements/actors/skeleton-rig-and-retargeting.md#actor-rig-control-drivers Resolves each semantic profile reference to its concrete rig channel.
- * @evidence specifications/performance-motion-and-staging/rig-deformation-and-retargeting.md#performance-rig-rom-control-driver-graph Materializes an executable bound profile for deterministic evaluation.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-driver-refusal Rejects a profile application when a required semantic node has no concrete binding.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Applies driver refusal at the semantic-to-concrete binding boundary.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Resolve every supported driver/node-channel reference through own semantic map entries and a literal placement prefix; enforce matching profile id and refuse missing/blank mappings, while pointer channels retain global addresses.
+ * @evidence contracts/common.md#clear-and-simple-design One mapping closure and exhaustive driver switch keep concrete binding separate from frame evaluation and authored profile policy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Inherited constructor/prototype members never count as authored mappings; actual own reserved-name entries remain supported and no constraint is silently dropped.
+ * @evidence contracts/common.md#meaningful-documentation Docs state pointer pass-through, prefix semantics and profile/mapping refusal; bounds and unchanged nested data remain borrowed in fresh limit/driver wrappers.
+ * @evidence contracts/performance.md#efficient-algorithms L limits and D drivers require O(L+D+R) reference visits plus output id text, with proportional mapped arrays and no scene-wide scan.
+ * @evidence contracts/performance.md#reuse-equivalent-work A single mapping closure serves all fields in one binding; callers may retain completed bindings only while profile contents, own map and prefix remain unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns new limit/driver arrays, while authored nested bounds/curve data remain borrowed; no registry, graph, handle or task survives the call.
  */
-export const bindProfile = (
+export const bindProfile: (
+  application: IAutoMovieProfileApplication,
+) => IAutoMovieBoundProfile = (
   application: IAutoMovieProfileApplication,
 ): IAutoMovieBoundProfile => {
-  const { profile, binding } = application;
-  const prefix = application.nodePrefix ?? "";
+  const { profile, binding }: IAutoMovieProfileApplication = application;
+  const prefix: string = application.nodePrefix ?? "";
   if (binding.profile !== profile.id)
     throw new Error(
       `binding targets profile "${binding.profile}" but was applied to "${profile.id}"`,
     );
 
-  const mapNode = (key: string): string => {
-    const mapped = binding.boneMap[key];
+  const mapNode: (key: string) => string = (key: string): string => {
+    const mapped: string | undefined = Object.hasOwn(binding.boneMap, key)
+      ? binding.boneMap[key]
+      : undefined;
     if (mapped === undefined)
       throw new Error(
         `profile "${profile.id}" binding has no boneMap entry for "${key}"`,
@@ -51,25 +45,32 @@ export const bindProfile = (
     return `${prefix}${mapped}`;
   };
 
-  const mapChannel = (channel: IAutoMovieChannel): IAutoMovieChannel =>
+  const mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel = (
+    channel: IAutoMovieChannel,
+  ): IAutoMovieChannel =>
     channel.kind === "node"
       ? { ...channel, node: mapNode(channel.node) }
       : channel;
 
-  const limits = profile.limits.map(
-    (limit): IAutoMovieChannelLimit => ({
+  const limits: IAutoMovieChannelLimit[] = profile.limits.map(
+    (limit: IAutoMovieChannelLimit): IAutoMovieChannelLimit => ({
       ...limit,
       channel: mapChannel(limit.channel),
     }),
   );
-  const drivers = profile.drivers.map((driver) =>
-    mapDriver(driver, mapNode, mapChannel),
+  const drivers: IAutoMovieDriver[] = profile.drivers.map(
+    (driver: IAutoMovieDriver): IAutoMovieDriver =>
+      mapDriver(driver, mapNode, mapChannel),
   );
   return { limits, drivers };
 };
 
 /** Remap every node reference one driver carries, exhaustively by type. */
-const mapDriver = (
+const mapDriver: (
+  driver: IAutoMovieDriver,
+  mapNode: (key: string) => string,
+  mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel,
+) => IAutoMovieDriver = (
   driver: IAutoMovieDriver,
   mapNode: (key: string) => string,
   mapChannel: (channel: IAutoMovieChannel) => IAutoMovieChannel,
@@ -120,7 +121,7 @@ const mapDriver = (
         center: driver.center === null ? null : mapNode(driver.center),
       };
     default: {
-      const unknown = driver as { type?: unknown };
+      const unknown: { type?: unknown } = driver as { type?: unknown };
       throw new Error(`unknown driver type "${String(unknown.type)}"`);
     }
   }

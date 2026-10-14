@@ -1,8 +1,8 @@
-import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
+import type { IAutoMovieHumanBodyUnderwearTable } from "../structures/IAutoMovieHumanBodyUnderwearTable";
 
 /**
- * The regions of the plain default underwear, placed on the shipped basis's
- * landmarks (source joint cubes, and for the bra the left nipple-areola fill's
+ * The regions of the plain default underwear, placed on the basis's
+ * landmarks (its joint landmarks, and for the bra the left nipple-areola fill's
  * centre vertex, the skin landmark the bust girth is measured at).
  *
  * The fractions were set by rendering the neutral, female, male, child and
@@ -14,7 +14,7 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  * hip joint; the bra's band runs under the breasts, and its upper edge is
  * higher in front than behind, with a strap over each shoulder.
  */
-export const HUMAN_BODY_UNDERWEAR: IAutoMovieHumanBodyUnderwear.ITable = {
+export const HUMAN_BODY_UNDERWEAR: IAutoMovieHumanBodyUnderwearTable = {
   material: "underwear",
   color: { r: 0.62, g: 0.62, b: 0.6 },
   roughness: 0.85,

@@ -7,6 +7,7 @@ export * from "./AutoMovieDrawingGapStatus";
 export * from "./AutoMovieDrawingOpeningBasis";
 export * from "./AutoMovieDrawingProjection";
 export * from "./AutoMovieDrawingRole";
+export * from "./AutoMovieDrawingScheduleSubject";
 export * from "./AutoMovieDrawingTargetStatus";
 export * from "./AutoMovieQuantityBasis";
 export * from "./AutoMovieQuantitySubject";

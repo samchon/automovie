@@ -1,6 +1,6 @@
 import type { AutoMovieHumanBodyPartId } from "../anatomy/identity/AutoMovieHumanBodyPartId";
-import type { IHumanBodyUnderwearFittingProposal } from "../basis/IHumanBodyUnderwearFittingProposal";
 import type { IHumanBodyUnderwearFitObservation } from "../basis/IHumanBodyUnderwearFitObservation";
+import type { IHumanBodyUnderwearFittingProposal } from "../basis/IHumanBodyUnderwearFittingProposal";
 
 /**
  * A completed body construction boundary, never a timer or acceptance verdict.
@@ -14,6 +14,14 @@ import type { IHumanBodyUnderwearFitObservation } from "../basis/IHumanBodyUnder
  * Candidate substage records carry the actual work/native-call context; face
  * reporting is batched at powers of two and the final processed count, without
  * sampling or skipping any geometric validation.
+ *
+ * @evidence contracts/common.md#principled-implementation Named completed stages and scalar work packets report actual construction boundaries synchronously; observer exceptions abort the call.
+ * @evidence contracts/common.md#clear-and-simple-design One transport record carries optional stage-specific context without native coordinate buffers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Progress counts and solver status are observations, never feasibility, anatomical or visual acceptance verdicts.
+ * @evidence contracts/common.md#meaningful-documentation Members document stage meanings, zero-based ordinals, work limits, coefficient units and omitted context.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The construction progress transport declares data and signatures without implementing runtime algorithms.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The construction progress transport declaration shares no computations across consumers.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The construction progress transport type has no runtime acquisition, retention or release operation.
  *
  * @author Samchon
  */
@@ -108,14 +116,24 @@ export interface IHumanBodyConstructionProgress {
   garmentGeometryFailures?: number;
 
   /** Actual completed proximal proposal comparison, excluding raw coordinate buffers. */
-  garmentProposal?: Omit<IHumanBodyUnderwearFittingProposal, "base" | "normalizedCoordinates">;
+  garmentProposal?: Omit<
+    IHumanBodyUnderwearFittingProposal,
+    "base" | "normalizedCoordinates"
+  >;
 
   /** Existing native and nonlinear scalar readings; full native buffers remain in final fitting or failure. */
   garmentFittingRound?: Pick<
     IHumanBodyUnderwearFitObservation,
-    "round" | "phase" | "status" | "nativeIterations" |
-    "nativeMaximumViolation" | "nativeStationarityResidual" |
-    "fieldResidualMetres" | "normalizedViolationSum" | "elasticSlackSum" |
-    "edgeObjective" | "proximalCoefficient"
+    | "round"
+    | "phase"
+    | "status"
+    | "nativeIterations"
+    | "nativeMaximumViolation"
+    | "nativeStationarityResidual"
+    | "fieldResidualMetres"
+    | "normalizedViolationSum"
+    | "elasticSlackSum"
+    | "edgeObjective"
+    | "proximalCoefficient"
   >;
 }

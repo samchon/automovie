@@ -1,13 +1,17 @@
 import {
+  IAutoMovieCamera,
+  IAutoMovieInteractionEvent,
   IAutoMovieMotion,
   IAutoMovieReviewNote,
   IAutoMovieScene,
   IAutoMovieSceneNode,
   IAutoMovieShot,
+  IAutoMovieShotPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { roundToThousandths } from "../math/roundToThousandths";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
@@ -17,56 +21,48 @@ import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNot
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/** Assumed render aspect (width/height), the scene camera carries no aspect. */
-const DEFAULT_ASPECT = 16 / 9;
+/** Assumed render aspect (width / height); the scene camera carries none. */
+const DEFAULT_ASPECT: number = 16 / 9;
 
-/** Default visual-read sampling rate (samples/second). */
-const DEFAULT_SAMPLE_RATE = 12;
+/** Default visual-read sampling rate, in samples per second. */
+const DEFAULT_SAMPLE_RATE: number = 12;
 
-/** Default body radius a contact point must land within to read as connected. */
-const DEFAULT_CONTACT_RADIUS = 1.0;
+/** Default body radius, in metres, a contact point must land within. */
+const DEFAULT_CONTACT_RADIUS: number = 1.0;
 
-/** Default silhouette half-width (m), a torso-ish radius for the blob check. */
-const DEFAULT_SILHOUETTE_RADIUS = 0.35;
+/** Default silhouette half-width, in metres, a torso-sized radius. */
+const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
 
 /**
- * Engine-computed **visual-read** advisory metrics (#1177), surfaced as `tier:
- * "visual"` review notes, the deterministic complement to the subjective review
- * pass, so "does the action read" becomes measurable and the correction loop
- * scales. These are advisory: they never fail a gate, they populate the review
- * backlog for the agent to weigh.
+ * Engine-computed visual-read metrics for one compiled shot, filed as advisory `tier: "visual"` review notes after any film-grammar findings passed in. They never fail a gate; they give the review backlog measurable facts about whether the action reads.
  *
- * Metrics:
+ * Every metric reads a performer's world root: its performance's motion sampled at `max(0, t - startOffset)` and folded through its staged node. A performance whose node or motion is missing, or that plays no motion, is skipped.
  *
- * - **Subject in frame**: each performed actor's world root, sampled over the
- *   shot, must stay inside the live camera's view frustum (in front of the near
- *   plane, within the vertical FOV and an assumed-aspect horizontal FOV), an
- *   actor drifting off-screen or behind the camera reads as a missing subject.
- * - **Contact connection**: each `hit`/`contact` event whose engine-computed
- *   world point lands farther than `contactRadius` from the target actor's body
- *   reads as a miss (the punch swings through empty air the target has left).
- * - **Silhouette separation**: two actors whose angular separation from the
- *   camera is smaller than their combined angular radii merge into one blob,
- *   reading as a single indistinguishable subject.
+ * - **Subject in frame**: sampled at `sampleRate` from 0 to the shot's end, a performer whose root leaves the live camera's frustum, behind the near plane, past the far plane, or outside the vertical field of view and the `aspect`-derived horizontal one, gets one note at the first such time.
+ * - **Silhouette separation**: at the same times, two performers whose angular separation from the camera is smaller than the sum of their angular radii, `atan(silhouetteRadius / distance)` each, get one note at the first such time; a pair with either root nearer than the near plane at that time is left to the framing metric.
+ * - **Contact connection**: a `hit` or `contact` event with a point and a target whose performer's root lies farther than `contactRadius` from the point at the event time gets one note.
  *
- * The root-point subject (vs a head-to-foot bounding extent) is the v1
- * approximation across all three. Deterministic: pure FK (`foldRoot` +
- * `sampleMotion`), fixed-clock sampling, and stateless vector math.
+ * The first two metrics need a live camera with a finite field of view in `(0, 180)` degrees and `far > near`; without one they are skipped. A root is a point, so a subject whose body is in frame while its root is not is reported; that approximation holds for all three metrics.
  *
- * @evidence requirements/camera/validation.md#camera-boundary-negative reviewVisualRead measures framing, silhouette, and contact boundary failures as located visual-tier notes without turning an advisory into a hard gate.
- * @evidence requirements/camera/framing-and-shot-size.md#camera-framing-range Samples the full shot interval and reports the first time a performing subject leaves the resolved moving camera frame.
- * @evidence specifications/camera-light-and-visibility/visibility-and-image-space-observation.md#clv-observation-validation-cases reviewVisualRead samples framing, contact, silhouette, and grammar boundaries and files deterministic negative observations without replacing human judgment.
- * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-framing-interval-crop Evaluates subject visibility at deterministic interval samples, preserving the failing time instead of judging only one representative frame.
- * @author Samchon
+ * @param props The shot, its scene and motions, the metric parameters, and the grammar findings to file first.
+ * @returns The grammar notes followed by the visual-read notes.
+ *
+ * @evidence contracts/common.md#principled-implementation Samples motion roots through foldRoot, live cameras through resolveCameraAt and pinhole framing through projectToNdc on a fixed sampleTimes grid. Angular separation uses the clamped normalized dot product; these sampled root-point proxies do not measure rendered pixels, occlusion or unsampled instants.
+ * @evidence contracts/common.md#clear-and-simple-design The camera reader builds one fixed-clock table of camera placements and performer roots for framing and silhouette checks; contact checks use an indexed performer and query its root at the event's own time. Grammar findings are filed by grammarDiagnosticsToReviewNotes, which owns that record conversion.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No actor, camera or event is special-cased; the thresholds are documented parameters with stated defaults, and a degenerate camera skips the camera metrics instead of producing notes from undefined projections.
+ * @evidence contracts/common.md#meaningful-documentation States what each metric measures, when it fires and at which time, which performances are skipped, the camera precondition, the root-point limitation, the defaults and units, and the order of the returned notes.
+ * @evidence contracts/performance.md#efficient-algorithms T = ceil(duration · rate) + 1 sample times require T camera reads and P·T delegated motion samples; pair comparisons add O(P²·T) vector work. Contact events use indexed target lookup but sample the target motion at each event time, adding up to E delegated samples rather than constant work per event.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares camera placements and performer roots on the fixed clock between frame and silhouette metrics, so pair comparisons do not resample roots. Contact checks sample the target at each event's own time independently; an event can coincide with the fixed clock, but that repeated sample is not reused here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The camera and root tables, O(T + P · T) vectors, live for one call and are released on return; the returned notes are fresh records owned by the caller.
  */
-export const reviewVisualRead = (props: {
+export function reviewVisualRead(props: {
   /** Beat id the notes are filed against. */
   beat: string;
 
-  /** Staged scene (nodes + cameras) the shot plays over. */
+  /** Staged scene whose nodes and cameras the shot plays over. */
   scene: IAutoMovieScene;
 
-  /** The compiled shot (camera, camera motion, performances, events, duration). */
+  /** The compiled shot: camera, its motion, performances, events, duration. */
   shot: IAutoMovieShot;
 
   /** Motions the shot's performances reference. */
@@ -75,157 +71,96 @@ export const reviewVisualRead = (props: {
   /** Samples per second. Defaults to 12. */
   sampleRate?: number;
 
-  /** Render aspect (width/height). Defaults to 16/9. */
+  /** Render aspect (width / height). Defaults to 16 / 9. */
   aspect?: number;
 
-  /** Body radius (m) a contact point must land within. Defaults to 1.0. */
+  /** Body radius in metres a contact point must land within. Defaults to 1. */
   contactRadius?: number;
 
-  /** Silhouette half-width (m) for the merge check. Defaults to 0.35. */
+  /** Silhouette half-width in metres for the merge check. Defaults to 0.35. */
   silhouetteRadius?: number;
 
-  /**
-   * Mechanical film-grammar findings for this shot or its incoming cut.
-   *
-   * The sequence/EDL analyzer owns their calculation; this visual-read socket
-   * only files them beside the existing framing, contact and silhouette notes.
-   */
+  /** Film-grammar findings for this shot or its incoming cut, filed before visual-read notes. */
   grammarDiagnostics?: readonly IAutoMovieGrammarDiagnostic[];
-}): IAutoMovieReviewNote[] => {
-  const motionById = new Map(props.motions.map((m) => [m.id, m]));
-  const nodeById = new Map(props.scene.nodes.map((n) => [n.id, n]));
+}): IAutoMovieReviewNote[] {
+  const motionById: Map<string, IAutoMovieMotion> = new Map(
+    props.motions.map(
+      (motion: IAutoMovieMotion): [string, IAutoMovieMotion] => [
+        motion.id,
+        motion,
+      ],
+    ),
+  );
+  const nodeById: Map<string, IAutoMovieSceneNode> = new Map(
+    props.scene.nodes.map(
+      (node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
+        node.id,
+        node,
+      ],
+    ),
+  );
+  function performerOf(
+    performance: IAutoMovieShotPerformance,
+  ): IPerformer | null {
+    const node: IAutoMovieSceneNode | undefined = nodeById.get(
+      performance.node,
+    );
+    const motion: IAutoMovieMotion | undefined =
+      performance.motion === null
+        ? undefined
+        : motionById.get(performance.motion);
+    return node === undefined || motion === undefined
+      ? null
+      : {
+          name: performance.node,
+          node,
+          motion,
+          offset: performance.startOffset,
+        };
+  }
   const notes: IAutoMovieReviewNote[] = grammarDiagnosticsToReviewNotes({
     beat: props.beat,
     diagnostics: props.grammarDiagnostics ?? [],
   });
 
-  // A performed actor's world root at shot-time `t`, startOffset-aware: the clip
-  // has advanced `max(0, t − startOffset)` at shot time t (the resolveBeatEnd
-  // convention).
-  const worldRootAt = (
-    node: IAutoMovieSceneNode,
-    motion: IAutoMovieMotion,
-    startOffset: number,
-    t: number,
-  ): IAutoMovieVector3 =>
-    foldRoot(
-      node.transform,
-      sampleMotion(motion, Math.max(0, t - startOffset)).pose.root,
-    ).translation;
-
-  // Metrics 1 & 3, subject in frame + silhouette separation (need a live,
-  // sane camera).
-  const camera = props.scene.cameras.find((c) => c.id === props.shot.camera);
+  const camera: IAutoMovieCamera | undefined = props.scene.cameras.find(
+    (candidate: IAutoMovieCamera): boolean =>
+      candidate.id === props.shot.camera,
+  );
   if (
     camera !== undefined &&
     Number.isFinite(camera.fovY) &&
     camera.fovY > 0 &&
     camera.fovY < 180 &&
     camera.far > camera.near
-  ) {
-    const aspect = props.aspect ?? DEFAULT_ASPECT;
-    const silhouetteRadius =
-      props.silhouetteRadius ?? DEFAULT_SILHOUETTE_RADIUS;
-    const halfY = Math.tan((camera.fovY * Math.PI) / 360);
-    const times = sampleTimes(
-      props.shot.duration,
-      props.sampleRate ?? DEFAULT_SAMPLE_RATE,
+  )
+    notes.push(
+      ...cameraNotes({
+        beat: props.beat,
+        shot: props.shot,
+        camera,
+        performers: props.shot.performances.flatMap(
+          (performance: IAutoMovieShotPerformance): IPerformer[] => {
+            const performer: IPerformer | null = performerOf(performance);
+            return performer === null ? [] : [performer];
+          },
+        ),
+        times: sampleTimes(
+          props.shot.duration,
+          props.sampleRate ?? DEFAULT_SAMPLE_RATE,
+        ),
+        aspect: props.aspect ?? DEFAULT_ASPECT,
+        silhouetteRadius: props.silhouetteRadius ?? DEFAULT_SILHOUETTE_RADIUS,
+      }),
     );
-    const camAt = (time: number) =>
-      resolveCameraAt(
-        camera.transform,
-        props.shot.cameraMotion,
-        camera.id,
-        time,
-      );
 
-    // Resolve the actually-performing actors once, for both metrics.
-    const performers = props.shot.performances
-      .map((performance) => {
-        const node = nodeById.get(performance.node);
-        const motion =
-          performance.motion === null
-            ? undefined
-            : motionById.get(performance.motion);
-        return node === undefined || motion === undefined
-          ? null
-          : {
-              name: performance.node,
-              node,
-              motion,
-              offset: performance.startOffset,
-            };
-      })
-      .filter((p): p is NonNullable<typeof p> => p !== null);
-
-    // Metric 1: subject in frame.
-    for (const actor of performers) {
-      const offAt = times.find(
-        (time) =>
-          !inFrame(
-            camAt(time),
-            worldRootAt(actor.node, actor.motion, actor.offset, time),
-            camera.near,
-            camera.far,
-            halfY,
-            aspect,
-          ),
-      );
-      if (offAt !== undefined)
-        notes.push({
-          beat: props.beat,
-          tier: "visual",
-          issue: `subject "${actor.name}" leaves the camera frame at t=${round(offAt)}s (drifts off-screen or behind the camera)`,
-          suggestion: `keep "${actor.name}" in shot, widen or re-aim camera "${camera.id}", or restage the action within the frame`,
-        });
-    }
-
-    // Metric 3: silhouette separation, two actors whose angular separation from
-    // the camera is smaller than their combined angular radii merge into one
-    // unreadable blob.
-    for (let i = 0; i < performers.length; ++i)
-      for (let j = i + 1; j < performers.length; ++j) {
-        const a = performers[i]!;
-        const b = performers[j]!;
-        const mergeAt = times.find((time) => {
-          const camPos = camAt(time).position;
-          const va = Vector3.subtract(
-            worldRootAt(a.node, a.motion, a.offset, time),
-            camPos,
-          );
-          const vb = Vector3.subtract(
-            worldRootAt(b.node, b.motion, b.offset, time),
-            camPos,
-          );
-          const da = Vector3.length(va);
-          const db = Vector3.length(vb);
-          // Too close to the camera is the framing metric's concern, and makes
-          // the angular radius degenerate, do not double-report it here.
-          if (Math.min(da, db) < camera.near) return false;
-          const cos = Math.min(
-            1,
-            Math.max(-1, Vector3.dot(va, vb) / (da * db)),
-          );
-          const separation = Math.acos(cos);
-          return (
-            separation <
-            Math.atan(silhouetteRadius / da) + Math.atan(silhouetteRadius / db)
-          );
-        });
-        if (mergeAt !== undefined)
-          notes.push({
-            beat: props.beat,
-            tier: "visual",
-            issue: `subjects "${a.name}" and "${b.name}" merge in silhouette at t=${round(mergeAt)}s (they overlap into one blob from this camera)`,
-            suggestion: `separate "${a.name}" and "${b.name}" on screen, stagger their depth, re-block, or move the camera off the line that stacks them`,
-          });
-      }
-  }
-
-  // Metric 2, contact connection at hit events (camera-independent).
-  const contactRadius = props.contactRadius ?? DEFAULT_CONTACT_RADIUS;
-  const performanceByNode = new Map(
-    props.shot.performances.map((p) => [p.node, p]),
+  const contactRadius: number = props.contactRadius ?? DEFAULT_CONTACT_RADIUS;
+  const performanceByNode: Map<string, IAutoMovieShotPerformance> = new Map(
+    props.shot.performances.map(
+      (
+        performance: IAutoMovieShotPerformance,
+      ): [string, IAutoMovieShotPerformance] => [performance.node, performance],
+    ),
   );
   for (const event of props.shot.events ?? []) {
     if (
@@ -234,49 +169,158 @@ export const reviewVisualRead = (props: {
       event.target === null
     )
       continue;
-    const performance = performanceByNode.get(event.target);
-    if (performance === undefined) continue;
-    const node = nodeById.get(performance.node);
-    const motion =
-      performance.motion === null
-        ? undefined
-        : motionById.get(performance.motion);
-    if (node === undefined || motion === undefined) continue;
-    const world = worldRootAt(
-      node,
-      motion,
-      performance.startOffset,
-      event.time,
+    const performance: IAutoMovieShotPerformance | undefined =
+      performanceByNode.get(event.target);
+    const performer: IPerformer | null =
+      performance === undefined ? null : performerOf(performance);
+    if (performer === null) continue;
+    const distance: number = Vector3.length(
+      Vector3.subtract(worldRootAt(performer, event.time), event.point),
     );
-    const distance = Vector3.length(Vector3.subtract(world, event.point));
     if (distance > contactRadius)
+      notes.push(missNote(props.beat, event, distance, contactRadius));
+  }
+  return notes;
+}
+
+/**
+ * A performance whose node and motion both resolved.
+ *
+ * @author Samchon
+ */
+interface IPerformer {
+  /** Scene-node identity used in advisory note text. */
+  name: string;
+
+  /** Borrowed staged placement folded with the sampled pose root. */
+  node: IAutoMovieSceneNode;
+
+  /** Borrowed compiled motion sampled for this performance. */
+  motion: IAutoMovieMotion;
+
+  /** Shot-local seconds subtracted before sampling the pose-local clock. */
+  offset: number;
+}
+
+/** The framing and silhouette notes, from one table of cameras and roots. */
+function cameraNotes(props: {
+  beat: string;
+  shot: IAutoMovieShot;
+  camera: IAutoMovieCamera;
+  performers: readonly IPerformer[];
+  times: readonly number[];
+  aspect: number;
+  silhouetteRadius: number;
+}): IAutoMovieReviewNote[] {
+  const notes: IAutoMovieReviewNote[] = [];
+  const camera: IAutoMovieCamera = props.camera;
+  const halfY: number = Math.tan((camera.fovY * Math.PI) / 360);
+  const cameras: IAutoMovieResolvedCamera[] = props.times.map(
+    (time: number): IAutoMovieResolvedCamera =>
+      resolveCameraAt(
+        camera.transform,
+        props.shot.cameraMotion,
+        camera.id,
+        time,
+      ),
+  );
+  const roots: IAutoMovieVector3[][] = props.performers.map(
+    (performer: IPerformer): IAutoMovieVector3[] =>
+      props.times.map(
+        (time: number): IAutoMovieVector3 => worldRootAt(performer, time),
+      ),
+  );
+
+  props.performers.forEach((actor: IPerformer, p: number): void => {
+    const off: number = props.times.findIndex(
+      (_time: number, t: number): boolean =>
+        !inFrame(cameras[t]!, roots[p]![t]!, camera, halfY, props.aspect),
+    );
+    if (off >= 0)
       notes.push({
         beat: props.beat,
         tier: "visual",
-        issue: `the ${event.kind} at t=${round(event.time)}s lands ${round(distance)}m from "${event.target}", past the ${contactRadius}m body radius, it reads as a miss`,
-        suggestion: `align the ${event.kind} with "${event.target}"'s body, retime the reaction or reposition the actor so the contact point meets it`,
+        issue: `subject "${actor.name}" leaves the camera frame at t=${roundToThousandths(props.times[off]!)}s (drifts off-screen or behind the camera)`,
+        suggestion: `keep "${actor.name}" in shot, widen or re-aim camera "${camera.id}", or restage the action within the frame`,
       });
-  }
+  });
 
+  for (let i: number = 0; i < props.performers.length; ++i)
+    for (let j: number = i + 1; j < props.performers.length; ++j) {
+      const merge: number = props.times.findIndex(
+        (_time: number, t: number): boolean => {
+          const lens: IAutoMovieVector3 = cameras[t]!.position;
+          const va: IAutoMovieVector3 = Vector3.subtract(roots[i]![t]!, lens);
+          const vb: IAutoMovieVector3 = Vector3.subtract(roots[j]![t]!, lens);
+          const da: number = Vector3.length(va);
+          const db: number = Vector3.length(vb);
+          // Too close to the lens is the framing metric's concern and makes
+          // the angular radius degenerate; do not report it twice.
+          if (Math.min(da, db) < camera.near) return false;
+          const cos: number = Math.min(
+            1,
+            Math.max(-1, Vector3.dot(va, vb) / (da * db)),
+          );
+          return (
+            Math.acos(cos) <
+            Math.atan(props.silhouetteRadius / da) +
+              Math.atan(props.silhouetteRadius / db)
+          );
+        },
+      );
+      if (merge < 0) continue;
+      const a: string = props.performers[i]!.name;
+      const b: string = props.performers[j]!.name;
+      notes.push({
+        beat: props.beat,
+        tier: "visual",
+        issue: `subjects "${a}" and "${b}" merge in silhouette at t=${roundToThousandths(props.times[merge]!)}s (they overlap into one blob from this camera)`,
+        suggestion: `separate "${a}" and "${b}" on screen, stagger their depth, re-block, or move the camera off the line that stacks them`,
+      });
+    }
   return notes;
-};
+}
+
+/** The note for a contact event that lands outside its target's body radius. */
+function missNote(
+  beat: string,
+  event: IAutoMovieInteractionEvent,
+  distance: number,
+  contactRadius: number,
+): IAutoMovieReviewNote {
+  return {
+    beat,
+    tier: "visual",
+    issue: `the ${event.kind} at t=${roundToThousandths(event.time)}s lands ${roundToThousandths(distance)}m from "${event.target}", past the ${contactRadius}m body radius, it reads as a miss`,
+    suggestion: `align the ${event.kind} with "${event.target}"'s body, retime the reaction or reposition the actor so the contact point meets it`,
+  };
+}
 
 /**
- * Whether `point` sits inside the camera's frustum: in front within `[near,
- * far]` and inside the NDC rectangle. Shares the projection with the keypoint
- * sidecar via {@link projectToNdc}.
+ * A performer's world root at shot time `t`: its clip has advanced `max(0, t - startOffset)`, the convention the beat snapshots use.
  */
-const inFrame = (
-  cam: IAutoMovieResolvedCamera,
+function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
+  return foldRoot(
+    performer.node.transform,
+    sampleMotion(performer.motion, Math.max(0, t - performer.offset)).pose.root,
+  ).translation;
+}
+
+/** Whether `point` is inside the camera's frustum, near and far included. */
+function inFrame(
+  resolved: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,
-  near: number,
-  far: number,
+  camera: IAutoMovieCamera,
   halfY: number,
   aspect: number,
-): boolean => {
-  const { ndcX, ndcY, depth } = projectToNdc(cam, point, halfY, aspect);
-  if (depth < near || depth > far) return false;
-  return Math.abs(ndcX) <= 1 && Math.abs(ndcY) <= 1;
-};
-
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+): boolean {
+  const projected: { ndcX: number; ndcY: number; depth: number } = projectToNdc(
+    resolved,
+    point,
+    halfY,
+    aspect,
+  );
+  if (projected.depth < camera.near || projected.depth > camera.far)
+    return false;
+  return Math.abs(projected.ndcX) <= 1 && Math.abs(projected.ndcY) <= 1;
+}

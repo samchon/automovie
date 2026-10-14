@@ -1,8 +1,15 @@
 import {
+  AutoMovieSemanticKind,
+  IAutoMovieBuildingUnit,
+  IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieCompiledInstanceSet,
   IAutoMovieSemanticMask,
   IAutoMovieSemanticMaskEntry,
   IAutoMovieSemanticMaskGap,
+  IAutoMovieSemanticMaskSlot,
+  IAutoMovieSpace,
 } from "@automovie/interface";
 
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
@@ -18,23 +25,17 @@ import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "./constants/AUTOMOVIE_SEMANT
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
 /** Current full-payload semantic-mask format. */
-const SEMANTIC_MASK_VERSION = 2;
+const SEMANTIC_MASK_VERSION: number = 2;
 
 /** Domain separator for the current full-payload semantic-mask format. */
-const SEMANTIC_MASK_PROTOCOL = "automovie.semantic-mask.v2";
+const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 
 /**
  * Derive the stable semantic palette for one render subject.
  *
- * A colour is a pure function of the entity's semantic id: the id is hashed
- * into the palette, and a collision is resolved by giving the colour to the
- * lexicographically smaller id and probing forward for the other. Nothing in
- * that derivation can see the scene's array order, so:
+ * Each semantic id supplies a hashed starting colour; allocation visits ids in code-unit order and probes occupied colours forward. An allocated colour therefore depends on the complete claim population when collisions or probing chains occur. Reordering `scene.nodes` preserves the palette payload, while adding claims can change existing colours through those chains.
  *
- * - Reordering `scene.nodes` reproduces a byte-identical mask, and
- * - Adding an unrelated entity leaves every existing colour untouched, unless the
- *   new id genuinely collides and genuinely sorts first, which is a property of
- *   the two ids and not of the edit.
+ * This function emits palette metadata. It observes no rendered pixels and does not prove byte-identical GPU segmentation.
  *
  * Pixels belong to exactly one entry: the drawable that paints them. A
  * building's logical layers, its spaces, boundaries and openings, paint nothing
@@ -54,21 +55,27 @@ const SEMANTIC_MASK_PROTOCOL = "automovie.semantic-mask.v2";
  * address. Silently dropping the excess would make a mask that segments a
  * different world than the one drawn.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Assigns stable collision-resolved colours to every drawable and retains its semantic ownership chain.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Derives a structural identity product from semantic drawables and ownership rather than reusing beauty colours as object identity.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-pass-refusal Rejects duplicate semantic claimants or a mask population above the bounded palette instead of emitting an ambiguous structural pass.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Builds the complete structural mask product independently of scene traversal order.
+ *
+ * @evidence contracts/common.md#principled-implementation Collect semantic entity/owner/node claims, refuse duplicate ids and palette excess, add bounded instance-slot claims, then allocate FNV-derived RGB colors in id order with forward probing and hash the complete canonical v2 payload.
+ * @evidence contracts/common.md#clear-and-simple-design Claim derivation, capacity and canonical payload identity have separate owners; logical containers paint no pixels and actual drawable node names join the viewer to their tightest semantic claim.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The fixed RGB/background budget bounds output; instance sets that cannot fit retain set identity and explicit unaddressed gaps. Unbound declared simulation domains are not silently dropped and no fixture controls colors.
+ * @evidence contracts/common.md#meaningful-documentation Docs explain id-order invariance, collision effects of additions, owner chains, simulated drawable naming, duplicate/capacity refusal and bounded slot coverage.
+ * @evidence contracts/performance.md#efficient-algorithms Entity/node/binding scans and sorting precede output-bounded slot expansion; N claims require O(N log N) ordering plus hash bytes and probing, whose worst case can approach O(N^2), rather than a guaranteed collision-free hash claim.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shared node naming, capacity, FNV and canonical digest owners define one law; no palette cache survives changed claims, id collisions, ownership or fields.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Claim maps/sets are call-owned and the complete mask transfers to the caller; retained output is bounded by palette policy, with no color buffer, renderer handle or task.
  * @author Samchon
  */
-export const deriveAutoMovieSemanticMask = (
+export const deriveAutoMovieSemanticMask: (
+  subject: IAutoMovieRenderSubject,
+) => IAutoMovieSemanticMask = (
   subject: IAutoMovieRenderSubject,
 ): IAutoMovieSemanticMask => {
-  const claims = collectClaims(subject);
+  const claims: IClaim[] = collectClaims(subject);
   // Two claimants of one semantic id would take two colours under one name, and
   // every reverse lookup of that name would answer with whichever entry the
   // index happened to keep. A mask that cannot say which thing a colour meant
   // is not evidence, so the ambiguity is refused where it is created.
-  const claimed = new Set<string>();
+  const claimed: Set<string> = new Set<string>();
   for (const claim of claims) {
     if (claimed.has(claim.id))
       throw new Error(
@@ -77,8 +84,12 @@ export const deriveAutoMovieSemanticMask = (
     claimed.add(claim.id);
   }
   assertAutoMovieSemanticMaskCapacity(claims.length);
-  const slots = collectSlotClaims(subject, claims.length);
-  const entries = allocate([...claims, ...slots.claims]);
+  const slots: { claims: IClaim[]; unaddressed: IAutoMovieSemanticMaskGap[] } =
+    collectSlotClaims(subject, claims.length);
+  const entries: IAutoMovieSemanticMaskEntry[] = allocate([
+    ...claims,
+    ...slots.claims,
+  ]);
   const payload: Omit<IAutoMovieSemanticMask, "digest"> = {
     version: SEMANTIC_MASK_VERSION as IAutoMovieSemanticMask["version"],
     protocol: SEMANTIC_MASK_PROTOCOL as IAutoMovieSemanticMask["protocol"],
@@ -110,36 +121,55 @@ interface IClaim {
  * colour" tie-break is structural rather than a comparison written out: the
  * first claimant of a colour is by construction the smallest id that wants it.
  */
-const allocate = (claims: readonly IClaim[]): IAutoMovieSemanticMaskEntry[] => {
-  const used = new Set<number>();
+const allocate: (claims: readonly IClaim[]) => IAutoMovieSemanticMaskEntry[] = (
+  claims: readonly IClaim[],
+): IAutoMovieSemanticMaskEntry[] => {
+  const used: Set<number> = new Set<number>();
   return [...claims]
-    .sort((left, right) => compareAutoMovieRenderIds(left.id, right.id))
-    .map((claim) => {
-      let color =
-        1 + (autoMovieRenderHash32(claim.id) % AUTOMOVIE_SEMANTIC_MASK_COLORS);
-      // Linear probe wrapped inside `[1, COLORS]`, so the sequence visits every
-      // assignable colour and `#000000` stays reserved. The entry count is
-      // bounded below the palette size, so a free colour always exists and this
-      // loop has no failure path to conceal a defect in.
-      while (used.has(color))
-        color = (color % AUTOMOVIE_SEMANTIC_MASK_COLORS) + 1;
-      used.add(color);
-      return {
-        id: claim.id,
-        kind: claim.kind,
-        label: claim.label,
-        color: `#${color.toString(16).toUpperCase().padStart(6, "0")}`,
-        owner: claim.owner,
-        nodes: [...claim.nodes].sort(compareAutoMovieRenderIds),
-        slot: claim.slot,
-      };
-    });
+    .sort((left: IClaim, right: IClaim): number =>
+      compareAutoMovieRenderIds(left.id, right.id),
+    )
+    .map(
+      (
+        claim: IClaim,
+      ): {
+        id: string;
+        kind: AutoMovieSemanticKind;
+        label: string | null;
+        color: string;
+        owner: string | null;
+        nodes: string[];
+        slot: IAutoMovieSemanticMaskSlot | null;
+      } => {
+        let color: number =
+          1 +
+          (autoMovieRenderHash32(claim.id) % AUTOMOVIE_SEMANTIC_MASK_COLORS);
+        // Linear probe wrapped inside `[1, COLORS]`, so the sequence visits every
+        // assignable colour and `#000000` stays reserved. The entry count is
+        // bounded below the palette size, so a free colour always exists and this
+        // loop has no failure path to conceal a defect in.
+        while (used.has(color))
+          color = (color % AUTOMOVIE_SEMANTIC_MASK_COLORS) + 1;
+        used.add(color);
+        return {
+          id: claim.id,
+          kind: claim.kind,
+          label: claim.label,
+          color: `#${color.toString(16).toUpperCase().padStart(6, "0")}`,
+          owner: claim.owner,
+          nodes: [...claim.nodes].sort(compareAutoMovieRenderIds),
+          slot: claim.slot,
+        };
+      },
+    );
 };
 
 /** Every entity-level claim in the subject, excluding instanced slots. */
-const collectClaims = (subject: IAutoMovieRenderSubject): IClaim[] => {
+const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
+  subject: IAutoMovieRenderSubject,
+): IClaim[] => {
   const claims: IClaim[] = [];
-  const owned = new Set<string>();
+  const owned: Set<string> = new Set<string>();
   for (const environment of subject.environments ?? [])
     claims.push(...environmentClaims(environment, owned));
   for (const node of subject.scene.nodes)
@@ -152,7 +182,7 @@ const collectClaims = (subject: IAutoMovieRenderSubject): IClaim[] => {
         nodes: [node.id],
         slot: null,
       });
-  const space = subject.scene.space ?? null;
+  const space: IAutoMovieSpace | null = subject.scene.space ?? null;
   if (space !== null)
     claims.push({
       id: `node:${space.id}`,
@@ -217,43 +247,69 @@ const collectClaims = (subject: IAutoMovieRenderSubject): IClaim[] => {
 };
 
 /** Claims for one built environment's buildings, spaces, and drawables. */
-const environmentClaims = (
+const environmentClaims: (
+  environment: IAutoMovieBuiltEnvironment,
+  owned: Set<string>,
+) => IClaim[] = (
   environment: IAutoMovieBuiltEnvironment,
   owned: Set<string>,
 ): IClaim[] => {
-  const scope = environment.id;
-  const buildingOfElement = new Map(
-    environment.buildings.map((building) => [building.element, building.id]),
+  const scope: string = environment.id;
+  const buildingOfElement: Map<string, string> = new Map(
+    environment.buildings.map(
+      (building: IAutoMovieBuildingUnit): [string, string] => [
+        building.element,
+        building.id,
+      ],
+    ),
   );
-  const buildingOfSpace = new Map(
-    environment.buildings.map((building) => [building.space, building.id]),
+  const buildingOfSpace: Map<string, string> = new Map(
+    environment.buildings.map(
+      (building: IAutoMovieBuildingUnit): [string, string] => [
+        building.space,
+        building.id,
+      ],
+    ),
   );
   // The tightest declared container of an element: the opening it fills, else
   // the boundary it realizes, else its parent element, else its building unit.
   // Ties inside one layer break on the ascending owner id so the chain is a
   // property of the design and not of declaration order.
-  const boundaryOfElement = new Map<string, string>();
-  for (const boundary of [...environment.boundaries].sort((left, right) =>
-    compareAutoMovieRenderIds(left.id, right.id),
+  const boundaryOfElement: Map<string, string> = new Map<string, string>();
+  for (const boundary of [...environment.boundaries].sort(
+    (left: IAutoMovieBuiltBoundary, right: IAutoMovieBuiltBoundary): number =>
+      compareAutoMovieRenderIds(left.id, right.id),
   ))
     for (const element of boundary.elements)
       if (!boundaryOfElement.has(element))
         boundaryOfElement.set(element, boundary.id);
-  const openingOfElement = new Map<string, string>();
-  for (const opening of [...environment.openings].sort((left, right) =>
-    compareAutoMovieRenderIds(left.id, right.id),
+  const openingOfElement: Map<string, string> = new Map<string, string>();
+  for (const opening of [...environment.openings].sort(
+    (left: IAutoMovieBuiltOpening, right: IAutoMovieBuiltOpening): number =>
+      compareAutoMovieRenderIds(left.id, right.id),
   ))
     if (opening.fill !== null && !openingOfElement.has(opening.fill))
       openingOfElement.set(opening.fill, opening.id);
 
-  const claims: IClaim[] = environment.buildings.map((building) => ({
-    id: `building:${scope}/${building.id}`,
-    kind: "building",
-    label: null,
-    owner: null,
-    nodes: [],
-    slot: null,
-  }));
+  const claims: IClaim[] = environment.buildings.map(
+    (
+      building: IAutoMovieBuildingUnit,
+    ): {
+      id: string;
+      kind: "building";
+      label: null;
+      owner: null;
+      nodes: never[];
+      slot: null;
+    } => ({
+      id: `building:${scope}/${building.id}`,
+      kind: "building",
+      label: null,
+      owner: null,
+      nodes: [],
+      slot: null,
+    }),
+  );
   for (const space of environment.spaces)
     claims.push({
       id: `space:${scope}/${space.id}`,
@@ -288,10 +344,10 @@ const environmentClaims = (
       slot: null,
     });
   for (const element of environment.elements) {
-    const node = `${scope}/${element.id}`;
+    const node: string = `${scope}/${element.id}`;
     if (element.model !== null) owned.add(node);
-    const opening = openingOfElement.get(element.id);
-    const boundary = boundaryOfElement.get(element.id);
+    const opening: string | undefined = openingOfElement.get(element.id);
+    const boundary: string | undefined = boundaryOfElement.get(element.id);
     claims.push({
       id: `element:${scope}/${element.id}`,
       kind: "element",
@@ -311,7 +367,10 @@ const environmentClaims = (
   return claims;
 };
 
-const buildingOwner = (
+const buildingOwner: (
+  scope: string,
+  building: string | undefined,
+) => string | null = (
   scope: string,
   building: string | undefined,
 ): string | null =>
@@ -325,15 +384,21 @@ const buildingOwner = (
  * addressed never depends on how the caller ordered the array. A set that does
  * not fit keeps its set-level colour and is listed in `unaddressed`.
  */
-const collectSlotClaims = (
+const collectSlotClaims: (
+  subject: IAutoMovieRenderSubject,
+  entities: number,
+) => { claims: IClaim[]; unaddressed: IAutoMovieSemanticMaskGap[] } = (
   subject: IAutoMovieRenderSubject,
   entities: number,
 ): { claims: IClaim[]; unaddressed: IAutoMovieSemanticMaskGap[] } => {
   const claims: IClaim[] = [];
   const unaddressed: IAutoMovieSemanticMaskGap[] = [];
-  let total = entities;
+  let total: number = entities;
   for (const instanceSet of [...(subject.instanceSets ?? [])].sort(
-    (left, right) => compareAutoMovieRenderIds(left.id, right.id),
+    (
+      left: IAutoMovieCompiledInstanceSet,
+      right: IAutoMovieCompiledInstanceSet,
+    ): number => compareAutoMovieRenderIds(left.id, right.id),
   )) {
     if (total + instanceSet.count > AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES) {
       unaddressed.push({
@@ -345,7 +410,7 @@ const collectSlotClaims = (
       continue;
     }
     total += instanceSet.count;
-    for (let index = 0; index < instanceSet.count; ++index)
+    for (let index: number = 0; index < instanceSet.count; ++index)
       claims.push({
         id: `instance-slot:${instanceSet.id}#${index}`,
         kind: "instance-slot",

@@ -1,15 +1,19 @@
 import {
-  IAutoMoviePerformedShot,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
-import {
   IAutoMovieActionCall,
   IAutoMovieBlockingCoverage,
+  IAutoMovieCamera,
+  IAutoMovieConstraintViolation,
   IAutoMovieScene,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makeBlockingWrite,
   makePerformanceWrite,
@@ -22,74 +26,83 @@ import { namedFacts } from "../internal/predicates";
 
 type ICoverage = IAutoMovieBlockingCoverage;
 
-const script = makeScriptWrite();
-
-/** The duel with two cameras, so the hero and a coverage angle are distinct. */
-const staged = (() => {
-  const result = stageScene(
-    script,
-    makeStagingWrite({
-      cameras: [
-        {
-          node: "cam-main",
-          position: { x: 2, y: 1.5, z: 0.35 },
-          lookAt: { kind: "node", node: "knightA" },
-          fovDeg: 40,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-alt",
-          position: { x: -2, y: 1.5, z: 0.35 },
-          lookAt: { kind: "node", node: "knightB" },
-          fovDeg: 40,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-      ],
-    }),
-  );
-  if (result.success !== true) throw new Error("staging fixture must succeed");
-  return result;
-})();
+const script: IAutoMovieScript = makeScriptWrite();
 
 /**
- * The staged set with one camera's field of view or placement replaced. Staging
- * itself refuses these, which is the point: an EXPLICIT staged set never passes
- * through staging, so this is the shape a caller can hand `performShot`.
+ * The duel with two cameras, so the hero and a coverage angle are distinct.
  */
-const withCamera = (
+const staged: IAutoMovieStagedSet.ISuccess =
+  ((): IAutoMovieStagedSet.ISuccess => {
+    const result: IAutoMovieStagedSet = stageScene(
+      script,
+      makeStagingWrite({
+        cameras: [
+          {
+            node: "cam-main",
+            position: { x: 2, y: 1.5, z: 0.35 },
+            lookAt: { kind: "node", node: "knightA" },
+            fovDeg: 40,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+          {
+            node: "cam-alt",
+            position: { x: -2, y: 1.5, z: 0.35 },
+            lookAt: { kind: "node", node: "knightB" },
+            fovDeg: 40,
+            near: 0.1,
+            far: 1000,
+            depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
+          },
+        ],
+      }),
+    );
+    if (result.success !== true)
+      throw new Error("staging fixture must succeed");
+    return result;
+  })();
+
+/**
+ * The staged set with one camera's field of view or placement replaced. Staging itself refuses these, which is the point: an EXPLICIT staged set never passes through staging, so this is the shape a caller can hand `performShot`.
+ */
+const withCamera: (
+  id: string,
+  over: { fovY?: number; x?: number; rotX?: number },
+) => IAutoMovieStagedSet.ISuccess = (
   id: string,
   over: { fovY?: number; x?: number; rotX?: number },
 ): typeof staged => ({
   ...staged,
   scene: {
     ...staged.scene,
-    cameras: staged.scene.cameras.map((camera) =>
-      camera.id !== id
-        ? camera
-        : {
-            ...camera,
-            fovY: over.fovY ?? camera.fovY,
-            transform: {
-              ...camera.transform,
-              translation: {
-                ...camera.transform.translation,
-                x: over.x ?? camera.transform.translation.x,
-              },
-              rotation: {
-                ...camera.transform.rotation,
-                x: over.rotX ?? camera.transform.rotation.x,
+    cameras: staged.scene.cameras.map(
+      (camera: IAutoMovieCamera): IAutoMovieCamera =>
+        camera.id !== id
+          ? camera
+          : {
+              ...camera,
+              fovY: over.fovY ?? camera.fovY,
+              transform: {
+                ...camera.transform,
+                translation: {
+                  ...camera.transform.translation,
+                  x: over.x ?? camera.transform.translation.x,
+                },
+                rotation: {
+                  ...camera.transform.rotation,
+                  x: over.rotX ?? camera.transform.rotation.x,
+                },
               },
             },
-          },
     ),
   } as IAutoMovieScene,
 });
 
-const frame = (
+const frame: (
+  actor: string,
+  move?: "static" | "whip",
+) => IAutoMovieActionCall = (
   actor: string,
   move: "static" | "whip" = "static",
 ): IAutoMovieActionCall => ({
@@ -102,7 +115,7 @@ const frame = (
   on: { kind: "node", node: "knightA" },
 });
 
-const coverageOn = (
+const coverageOn: (camera: string, move?: "static" | "whip") => ICoverage[] = (
   camera: string,
   move: "static" | "whip" = "static",
 ): ICoverage[] => [
@@ -114,7 +127,11 @@ const coverageOn = (
   },
 ];
 
-const perform = (
+const perform: (
+  set: IAutoMovieStagedSet.ISuccess,
+  draft: IAutoMovieActionCall[],
+  coverage?: ICoverage[],
+) => IAutoMoviePerformedShot = (
   set: typeof staged,
   draft: IAutoMovieActionCall[],
   coverage?: ICoverage[],
@@ -127,7 +144,7 @@ const perform = (
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     // `actors: []` drops the fixture's default timing anchors, which the draft
     // here (a lone frame action) would not cover: the coverage scenarios must
     // fail for the camera under test and nothing else.
@@ -137,81 +154,70 @@ const perform = (
         : makeBlockingWrite({ coverage, actors: [] }),
   });
 
-/** True when the refusal at `path` states every fragment. */
-const says = (
+/**
+ * True when the refusal at `path` states every fragment.
+ */
+const says: (
+  result: IAutoMoviePerformedShot,
+  path: string,
+  ...fragments: string[]
+) => boolean = (
   result: IAutoMoviePerformedShot,
   path: string,
   ...fragments: string[]
 ): boolean =>
   result.success === false &&
   result.violations.some(
-    (item) =>
+    (item: IAutoMovieConstraintViolation): boolean =>
       item.path === path &&
-      fragments.every((fragment) => item.expected.includes(fragment)),
+      fragments.every((fragment: string): boolean =>
+        item.expected.includes(fragment),
+      ),
   );
 
-/** Every numeric value across a compiled clip's tracks. */
-const clipValues = (result: IAutoMoviePerformedShot): number[] =>
+/**
+ * Every numeric value across a compiled clip's tracks.
+ */
+const clipValues: (result: IAutoMoviePerformedShot) => number[] = (
+  result: IAutoMoviePerformedShot,
+): number[] =>
   result.success !== true || result.shot.cameraMotion === null
     ? []
-    : result.shot.cameraMotion.tracks.flatMap((track) => track.values);
+    : result.shot.cameraMotion.tracks.flatMap(
+        (track: IAutoMovieTrack): number[] => track.values,
+      );
 
 /**
- * A camera the shot compiles a move FROM must be one the framing grammar can
- * solve.
- *
- * `stageScene` bounds a camera's field of view to (0, 180)° and its placement
- * to a finite point, but an EXPLICIT staged set never passes through staging,
- * and the framing solve divides by `tan(fovY / 2)`. A zero or NaN field of view
- * makes the framed distance infinite or NaN, so every keyframe the solve emits
- * is non-finite and `performShot` returns `success: true` with a clip the
- * artifact validator refuses at commit: the engine declaring a shot successful
- * that its own consumers cannot accept, the class #1224 and #1308 also belong
- * to.
- *
- * Both conditions (range, finiteness) are checked against both subjects (the
- * elected camera, each coverage camera), so each pairing carries its own case
- * rather than one combined probe.
+ * Performs elected and coverage camera moves and checks finite compiled values, field-of-view/placement refusals, whip-only rotation admission and unused-camera counterexamples.
  *
  * Scenarios:
+ * 1. Require nonempty finite values from the valid hero camera.
+ * 2. Refuse zero, negative, NaN and 180-degree hero lenses and nonfinite placement.
+ * 3. Accept 1e-6 and 179.999-degree lenses without claiming their pixels or all key values.
+ * 4. Refuse zero field of view and nonfinite placement for the coverage camera.
+ * 5. Refuse nonfinite rotation for hero/coverage whip moves, accept their non-whip twins and require finite values from a valid hero whip.
+ * 6. Accept unused degenerate cameras and a frameless locked-off fallback.
  *
- * 1. The positive floor: a valid camera compiles, and every emitted clip value is
- *    finite. That finiteness assertion is the contradiction this closes, so it
- *    is stated directly rather than inferred from success.
- * 2. The elected camera, refused on each condition at its own staged path: a zero
- *    field of view, NaN, the exclusive upper bound 180, a negative value, and a
- *    non-finite placement.
- * 3. The exclusive bounds are open, not clamped: 1e-6 and 179.999 still compile,
- *    so legitimate extreme lenses are not swept up by the gate.
- * 4. The same two conditions against a COVERAGE camera, which is a separate
- *    subject reached through a separate path.
- * 5. The rotation, which only a `whip` reads: it pans in place from the staged
- *    orientation, so that quaternion is pushed verbatim as the first keyframe
- *    while every other move derives its rotation through `lookRotation`. Both
- *    subjects are refused when they whip on a non-finite rotation, and both
- *    still compile with the same rotation under a non-whip move, which is what
- *    proves the check follows what the solve consumes rather than validating
- *    the whole transform (#1316). A valid whip emits only finite keyframes.
- * 6. The counter-case that keeps the gate narrow: a degenerate camera the shot
- *    never frames through is not checked. With no frame action at all the shot
- *    falls back to the first camera locked off, compiling no move, so even a
- *    degenerate elected camera is left alone.
+ * @evidence contracts/testing.md#behavioral-verification Performs elected and coverage camera moves and checks finite compiled values, field-of-view/placement refusals, whip-only rotation admission and unused-camera counterexamples.
+ * @evidence contracts/testing.md#independent-expectations The pinhole solve requires finite placement and 0 < fovY < 180; whip consumes staged rotation while other moves derive it. Finiteness is checked on returned keys without comparing captured pixels.
+ * @evidence contracts/testing.md#distinguishing-cases Retains both camera roles, zero/negative/NaN/upper-bound fields, legal extreme lenses, malformed whip rotations and non-whip/unused/locked-off neighbors.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_framing_camera unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
-export const test_film_perform_shot_framing_camera = (): void => {
+export function test_film_perform_shot_framing_camera(): void {
   // 1. the positive floor, and the invariant itself.
-  const ok = perform(staged, [frame("cam-main")]);
+  const ok: IAutoMoviePerformedShot = perform(staged, [frame("cam-main")]);
   TestValidator.equals("a valid framing camera compiles", ok.success, true);
   TestValidator.equals(
     "every compiled camera keyframe is finite",
     namedFacts([
-      ["refused", () => clipValues(ok).length > 0],
-      ["violated", () => clipValues(ok).every(Number.isFinite)],
+      ["refused", (): boolean => clipValues(ok).length > 0],
+      ["violated", (): boolean => clipValues(ok).every(Number.isFinite)],
     ]),
     { refused: true, violated: true },
   );
 
   // 2. the elected camera, one case per condition.
-  const heroPath = "$staged.scene.cameras[0]";
+  const heroPath: string = "$staged.scene.cameras[0]";
   for (const [label, fovY] of [
     ["zero", 0],
     ["NaN", Number.NaN],
@@ -319,8 +325,10 @@ export const test_film_perform_shot_framing_camera = (): void => {
   );
   TestValidator.predicate(
     "a valid whip compiles, and every keyframe it emits is finite",
-    (() => {
-      const whipped = perform(staged, [frame("cam-main", "whip")]);
+    ((): boolean => {
+      const whipped: IAutoMoviePerformedShot = perform(staged, [
+        frame("cam-main", "whip"),
+      ]);
       return (
         whipped.success === true &&
         clipValues(whipped).length > 0 &&
@@ -340,4 +348,4 @@ export const test_film_perform_shot_framing_camera = (): void => {
     perform(withCamera("cam-main", { fovY: 0 }), []).success,
     true,
   );
-};
+}

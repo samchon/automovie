@@ -6,7 +6,7 @@
  * lookup so weather, interior, soffit and riser faces can differ.
  */
 import { PALETTE } from "../spaces/palette";
-import type { HousePartRole } from "../spaces/solid-records";
+import type { HousePartRole } from "../types/HousePartRole";
 import { brick } from "./exterior/brick";
 import { fence } from "./exterior/fence";
 import { frames } from "./exterior/frames";

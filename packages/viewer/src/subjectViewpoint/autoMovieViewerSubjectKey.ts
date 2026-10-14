@@ -1,20 +1,20 @@
 import type { IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
 
 /**
- * Name one subject as a single string both sides of a review can pass around.
+ * Format a caller-supplied subject as kind:id or kind:id@revision without escaping. Round-trip requires a nonempty id, a nonempty revision without @ when present, and an id without @ when revision is null.
  *
- * The form is `kind:id` and, when a revision is stated, `kind:id@revision`.
- * This is what a finding carries instead of a screenshot: the reviewer writes
- * it into the report, the authoring agent pastes it back into the harness, and
- * neither is reasoning about a private reconstruction of the model.
- *
- * @evidence requirements/review/subject-inspection.md#review-subject-identity `autoMovieViewerSubjectKey` renders one subject identity and revision as the stable name by which it is pointed at and opened alone.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record `autoMovieViewerSubjectKey` serializes the subject record's identity fields into one portable target string.
- * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Preserves authored category/id text and appends the optional revision using the parser's first-colon/last-at grammar; reserved delimiter restrictions are a caller premise, not enforced here.
+ * @evidence contracts/common.md#clear-and-simple-design One textual inspection identity is separate from scene resolution and capture metadata.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Encoding does not validate category membership, escape delimiter ambiguity or establish that the named source exists.
+ * @evidence contracts/common.md#meaningful-documentation States exact syntax and the nonempty/delimiter premises needed for parser round-trip.
+ * @evidence contracts/performance.md#efficient-algorithms Copies O(id+revision) text into one key, with no scene traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Repeated inputs produce equal text without caching; text equality alone cannot certify current source or revision content.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string is caller owned and retains no scene, renderer or identity registry.
  */
-export const autoMovieViewerSubjectKey = (
+export function autoMovieViewerSubjectKey(
   subject: IAutoMovieViewerSubject,
-): string =>
-  subject.revision === null
+): string {
+  return subject.revision === null
     ? `${subject.kind}:${subject.id}`
     : `${subject.kind}:${subject.id}@${subject.revision}`;
+}

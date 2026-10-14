@@ -1,28 +1,18 @@
 /**
- * A look direction as **yaw** and **pitch** in degrees: the two angles a head,
- * eye, or camera turns through to face a target, relative to its own forward
- * (yaw = turn off straight-ahead, +90 = its left; pitch = tilt up (+) / down
- * (−)). A rig maps these onto its joints (a neck's twist + flexion, a camera's
- * pan + tilt).
+ * A look direction as yaw and pitch in degrees relative to an actor's forward.
  *
- * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `IAutoMovieYawPitch` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
- * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `IAutoMovieYawPitch` within the declared spatial transform chain.
+ * aimYawPitch rotates the world aim vector by the negated +Y facing, then uses atan2(localX, localZ) for yaw and atan2(dy, horizontal) for elevation. Yaw lies in [-180, 180], including either signed branch endpoint for a backward target, with +90 toward the actor's left; pitch lies in [-90, 90], positive up. A zero-length aim returns zero for both. There is no roll; lookAt synthesis maps yaw to neck/head twist and negated pitch to flexion.
+ *
+ * @evidence contracts/common.md#principled-implementation Spherical angles of the aim vector in the actor's own frame: `atan2` gives a quadrant-correct heading and a pitch measured against the horizontal length, so a target straight above or below reads ±90 without dividing by zero.
+ * @evidence contracts/common.md#clear-and-simple-design Two angles are the whole look state of a roll-free gaze, so the record carries no vector or quaternion and the rig mapping stays in the synthesizer that owns the neck and head.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The degenerate zero-length aim answers a stated `0, 0` rather than `NaN`, and non-finite inputs are refused by `aimYawPitch` before any angle is computed.
+ * @evidence contracts/common.md#meaningful-documentation States frame, formulas, yaw's signed branch endpoints, pitch range, angle signs, zero-aim convention, absent roll and the synthesis consumer's joint mapping.
  * @author Samchon
  */
 export interface IAutoMovieYawPitch {
-  /**
-   * Turn off straight-ahead (degrees): 0 = dead ahead, +90 = the actor's left.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `yawDeg` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `yawDeg` within the declared spatial transform chain.
-   */
+  /** Turn off straight-ahead in degrees: 0 ahead, +90 the actor's left. */
   yawDeg: number;
 
-  /**
-   * Tilt (degrees): positive looks up, negative looks down.
-   *
-   * @evidence requirements/external-inputs/identity-coordinates-and-units.md#external-identity-spatial-coordinates-units Represents `pitchDeg` in the explicit spatial-coordinate and unit boundary shared by imported and authored state.
-   * @evidence specifications/interchange-and-adoption/identity-coordinates-and-units.md#interchange-spatial-transform-chain Types `pitchDeg` within the declared spatial transform chain.
-   */
+  /** Tilt in degrees: positive looks up, negative looks down. */
   pitchDeg: number;
 }

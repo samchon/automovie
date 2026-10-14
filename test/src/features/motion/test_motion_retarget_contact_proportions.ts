@@ -1,5 +1,9 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import { IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  IAutoMovieJointConstraint,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -20,16 +24,9 @@ const WIDE_HIP: IAutoMovieJointConstraint = {
 };
 
 /**
- * The contact-preserving retarget holds a planted foot on the source contact
- * mapped through `rootScale`, even when the target rig's limb proportions
- * differ from the source's.
+ * Observe mapped foot contact on a synthetic nonproportional rig with explicitly widened target hip constraints, against the same retarget with contact correction disabled. This measures authored-key FK positions, not rendered motion or continuous-time ground contact.
  *
- * This is the property v1 could not deliver: copying clinical angles verbatim
- * is exact only for a proportional rig, so a target with relatively longer legs
- * planted its feet somewhere else entirely and the performance skated. The rig
- * pair here is the brief's own case (legs 1.5x, torso 0.9x) with the target
- * declaring its own hip gamut, which is exactly the
- * `target-override-then-default-humanoid` ROM precedence the retarget names.
+ * The target uses legs 1.5 times and torso 0.9 times the source offsets, with explicit wide hips under target-override-then-default-humanoid precedence. The disabled twin supplies the unchanged angle-copy comparison rather than a claim about rendered sliding.
  *
  * Scenarios:
  *
@@ -45,15 +42,24 @@ const WIDE_HIP: IAutoMovieJointConstraint = {
  *    and the mapped contact.
  * 4. The characterization names which policy ran, and the corrected clip keeps the
  *    authored keyframe count and times rather than re-keying onto a clock.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Checks hand-authored source ankle coordinates, retargets with correction enabled/disabled, measures both corrected feet at both authored keys and the disabled left-foot miss, then observes scale, policy labels and unchanged exact key times.
+ * @evidence contracts/testing.md#independent-expectations Fixture offsets give source ankle (0.1,0.1,0.1), shifted z=0.35 and rest heights 1.65/2.025, hence the independent scale ratio. Componentwise mapped source FK supplies the existing contact target while shared FK remains a consumer, not a separate geometry oracle. Original 1e-12 scale, 5e-3 contact and 0.5 negative-twin thresholds remain unchanged.
+ * @evidence contracts/testing.md#distinguishing-cases Retains 1.5 leg/0.9 torso proportions with explicit wide hips, both feet and keyframes, enabled versus disabled correction, policy labels and exact [0,1] clock. Default-ROM residual, airborne frames and hand declarations belong to separate units.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both retarget calls and fixture FK observations. Existing shared fixture/mapping helpers register no extra cases and start no viewer, process or native artifact.
  */
-export const test_motion_retarget_contact_proportions = (): void => {
-  const source = proportionedRig("contact-source");
-  const target = withJointConstraint(
+export function test_motion_retarget_contact_proportions(): void {
+  const source: IAutoMovieSkeleton = proportionedRig("contact-source");
+  const target: IAutoMovieSkeleton = withJointConstraint(
     proportionedRig("leggy-target", { leg: 1.5, torso: 0.9 }),
     ["leftUpperLeg", "rightUpperLeg"],
     WIDE_HIP,
   );
-  const motion = rootShiftClip(source.id, { x: 0, y: 0, z: 0.25 });
+  const motion: IAutoMovieMotion = rootShiftClip(source.id, {
+    x: 0,
+    y: 0,
+    z: 0.25,
+  });
 
   // 1. the source contacts, straight off the rest offsets.
   TestValidator.predicate(
@@ -74,14 +80,15 @@ export const test_motion_retarget_contact_proportions = (): void => {
   );
 
   // 2. the pass holds both feet on the mapped contacts.
-  const pinned = retargetHumanoidMotion({ motion, source, target });
+  const pinned: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({ motion, source, target });
   TestValidator.equals("contact retarget succeeds", pinned.validation, {
     success: true,
   });
   if (pinned.motion === null || pinned.characterization === null)
     throw new Error("contact retarget unexpectedly failed");
 
-  const scale = pinned.characterization.rootScale;
+  const scale: number = pinned.characterization.rootScale;
   TestValidator.predicate(
     "root scale is target height 2.025 over source height 1.65",
     nclose(scale, 2.025 / 1.65, 1e-12),
@@ -98,12 +105,13 @@ export const test_motion_retarget_contact_proportions = (): void => {
       );
 
   // 3. the negative twin: the pass off reproduces the v1 slide.
-  const carried = retargetHumanoidMotion({
-    motion,
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const carried: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion,
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   if (carried.motion === null || carried.characterization === null)
     throw new Error("carried retarget unexpectedly failed");
   for (const index of [0, 1] as const)
@@ -127,9 +135,10 @@ export const test_motion_retarget_contact_proportions = (): void => {
     carried.characterization.contactPolicy,
     "carry-joint-angles",
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "the corrected clip keeps the authored keyframe times",
-    pinned.motion.keyframes.map((kf) => kf.time),
-    [0, 1],
+    pinned.motion.keyframes.length === 2 &&
+      nclose(pinned.motion.keyframes[0]!.time, 0, 0) &&
+      nclose(pinned.motion.keyframes[1]!.time, 1, 0),
   );
-};
+}

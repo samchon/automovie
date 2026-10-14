@@ -1,20 +1,29 @@
 ---
 name: documentation
-description: Defines package README, code JSDoc, source-file context, prose form, and agent-instruction conventions for automovie. Use before writing or modifying docs, AGENTS.md, or a SKILL.md.
+description: Owns automovie's writing rules and writes its READMEs and doc comments. Use before writing or changing a README or a doc comment, and with prompting before changing AGENTS.md or a skill.
 ---
 
 # Documentation
 
-Read the document that matches the surface you are writing. Every document here follows [prose form](prose.md).
+Good writing is the same for every reader: deliver the core point concisely and clearly. Only the reader, and so what the reader needs, differs by document; agent prompts add the rules in the [prompting skill](../prompting/SKILL.md).
 
-## [Package READMEs and code documentation](source-docs.md)
+## Writing
 
-README content, JSDoc voice, and the context every authored source file carries. Read before writing or changing a README, a JSDoc block or a source-file header.
+- Write only what the reader needs and would not otherwise know. Cut padding, repetition, preamble, filler, and closing summaries; completeness means covering what the reader needs, never longer phrasing.
+- One point, one sentence, one place. Give the reason when it is not obvious.
+- Say what to do rather than what to avoid; when a prohibition is needed, name the concrete pattern.
+- Plain English with one term per concept, and no emphasis capitals, em-dashes, emoji in prose, promotional adjectives, stock AI phrasing, or hedging.
 
-## [Agent instructions](instructions.md)
+## Paragraphs And Lists
 
-How harnesses load `AGENTS.md` and skills, skill layout, writing rules, canonical ownership, and the instruction review gate. Read before editing `AGENTS.md` or any `SKILL.md`.
+A paragraph is one topic. Start a new one when the topic changes and keep sentences on the same topic together; merging topics to save paragraphs and splitting every sentence are both failures. Write each paragraph on one source line.
 
-## [Prose form](prose.md)
+Use a list for parallel items, for steps whose order changes the result, and for their sub-steps, marking a sublist differently from its parent, such as `-` items under a numbered list. Write an argument whose conditions, reasons, and exceptions depend on each other as prose. Use a table for repeated mappings and a code block for exact commands.
 
-Line breaks and voice for every Markdown file, README and comment.
+## READMEs
+
+A README is for the package's user: what it is, when to use it, installation, the smallest working setup, and its public surface. Take every code example from code that runs.
+
+## Doc Comments
+
+JSDoc follows the Writing and Paragraphs And Lists rules above, and interface types close with `@author Samchon`. What a public declaration's comment must say is the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter.

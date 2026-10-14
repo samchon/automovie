@@ -1,45 +1,26 @@
 /**
  * Host-owned startup inputs, independent of a personal numerical document.
  *
- * @evidence contracts/common.md#principled-implementation Loopback origin, revision, maintained entry and input digests specify the source authority accepted at numerical startup.
- * @evidence contracts/common.md#clear-and-simple-design Startup authority stays independent of each subsequent numerical document.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The worker receives actual host-observed byte membership instead of trusting the entry filename alone.
- * @evidence contracts/common.md#meaningful-documentation The declaration states origin ownership, absolute entry meaning and after-load source matching.
+ * @evidence contracts/common.md#principled-implementation Pins the host's loopback source origin, selected revision, absolute maintained entry and checked input byte witnesses before child initialization.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps startup source facts separate from personal numerical document/basis/operation input.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The origin string is configured host authority, not validated by this interface; loaded witnesses must match and plain record casts cannot certify bytes.
+ * @evidence contracts/common.md#meaningful-documentation Documents actual launched entry and original host-observed digests, whose values are hashes rather than embedded source byte buffers.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no IO; the checked authority owner reads actual project/loader/input bytes after entry load.
+ * @evidence contracts/performance.md#reuse-equivalent-work One startup witness is shared within its owned session and current host values are compared again before commands.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Session lifetime retains this witness without a separate byte/count cap; no model, photograph or native process handle is embedded.
  *
- * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Loopback origin, revision, maintained entry and input digests specify the source authority accepted at numerical startup.
- * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest The worker receives actual host-observed byte membership instead of trusting the entry filename alone.
  * @author Samchon
  */
 export interface IHumanViewerNodeWorkerData {
-  /**
-   * Verified loopback origin serving unchanged digest-checked basis routes.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps the checked numerical realm's basis requests on the verified loopback data provider.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps the checked numerical realm's basis requests on the verified loopback data provider.
-   */
+  /** Host-selected loopback origin of digest-checked basis routes; this type performs no origin validation. */
   origin: string;
 
-  /**
-   * Current source revision selected before startup.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Preserves source identity elected before startup rather than a later catalogue reading.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Preserves source identity elected before startup rather than a later catalogue reading.
-   */
+  /** Current source revision selected before startup. */
   revision: string;
 
-  /**
-   * Absolute maintained entry actually launched by this host.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Names the actual maintained absolute numerical entry launched by this host.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Names the actual maintained absolute numerical entry launched by this host.
-   */
+  /** Absolute maintained entry actually launched by this host. */
   entry: string;
 
-  /**
-   * Exact host-observed source bytes that must still match after loading.
-   *
-   * @evidence requirements/evidence-and-provenance/canonical-digests-and-content-identity.md#integrity-binary-dependency-closure Keeps the host-observed source membership and byte digests that must still match after loading.
-   * @evidence specifications/evidence-and-provenance/canonical-digests-and-content-identity.md#evp-binary-closure-digest Keeps the host-observed source membership and byte digests that must still match after loading.
-   */
+  /** Host-observed digest per maintained input; the loaded realm must still match these byte and membership witnesses. */
   inputs: Record<string, string>;
 }

@@ -5,17 +5,7 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
 /**
  * Say which objects cast a shadow and which receive one.
  *
- * Every other link of the chain was already built. `stageScene` validates a
- * light's `castShadow` and refuses shadow settings without it, the render
- * inventory counts `shadowMaps` as `casters.length` and a budget constrains
- * that count, {@link buildLight} applies the flag and the whole shadow camera —
- * map size, bias, normal bias, near and far — and
- * {@link applySceneEnvironment} enables `renderer.shadowMap` from the scene's
- * own declaration and restores the prior state afterwards. Nothing set a flag
- * on an **object**, and `three.js` needs all three: an enabled map, a casting
- * light, and geometry that participates. So a production could declare a
- * caster, have it validated, budgeted, applied and rendered with the map on,
- * and no shadow would appear anywhere.
+ * `stageScene` validates a light's `castShadow` and refuses shadow settings without it; the render inventory counts casters and its budget constrains that count. {@link buildLight} applies the flag and shadow camera settings, while {@link applyRendererEnvironment} sets the renderer shadow policy reversibly. This adapter supplies the remaining mesh participation flags; enabled maps and casting lights alone do not make a mesh participate.
  *
  * That absence is not visible as an absence. A benchmark authored a fascia and
  * soffit band with a deliberate dark recess above the wall, and the darkening
@@ -44,28 +34,36 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * so these flags are inert until a production turns shadows on, and only such a
  * production sees its frames change.
  *
- * @evidence requirements/lighting/shadows-reflections-and-transmission.md#lighting-shadow-identity Distinguishes the casting and receiving objects the shadow identity requirement holds apart from the source's own size, direction and bias.
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-beauty-structural-distinction Prevents a structural-only support patch from entering beauty through shadow reception.
- * @evidence specifications/camera-light-and-visibility/light-transport-color-and-budget.md#clv-shadow-state-sampling Completes that shadow state at the object boundary, so the sampled state describes geometry that participates rather than a configured light with nothing to occlude.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Keeps structural support outside the beauty lighting product.
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Marks actual mesh/skinned/instanced geometry as caster/receiver except descendants of the reserved semantic-space group; declared support patches have no physical volume and are structural-guide geometry, while renderer/light owners separately enable actual shadow rendering.
+ * @evidence contracts/common.md#clear-and-simple-design Owns object participation once for built and manually assembled scene hosts, keeping light shadow configuration and renderer policy with their own declarations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Reserved SPACE_GROUP_NAME is a structural viewer identity rather than a fixture name; this uniformly overwrites mesh flags by role and does not emulate a shadow with dark geometry or replace Three internals.
+ * @evidence contracts/common.md#meaningful-documentation Describes model/semantic-ground distinction, mesh subclasses and the separate enabled-renderer/casting-light prerequisites; flags alone do not prove a visible shadow.
+ * @evidence contracts/performance.md#efficient-algorithms Traverses the scene to find reserved groups, visits their descendants into an identity Set and traverses meshes again for constant-time membership; time is O(objects plus reserved descendant visits), potentially repeated for nested reserved groups, and temporary space is linear in semantic-ground objects.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the reserved shared naming contract and one ground Set within a call; scene hierarchy/roles can change, so no cross-call participation cache is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows scene objects, retains only temporary group/ground collections and acquires no shadow map or task; persistent boolean flags remain with each host-owned object.
  */
-export const applyAutoMovieShadowParticipation = (
+export const applyAutoMovieShadowParticipation: (
   root: THREE.Object3D,
-): void => {
+) => void = (root: THREE.Object3D): void => {
   const groups: THREE.Object3D[] = [];
-  root.traverse((object) => {
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     if (object.name === SPACE_GROUP_NAME) groups.push(object);
   });
-  const ground = new Set<THREE.Object3D>();
+  const ground: Set<THREE.Object3D<THREE.Object3DEventMap>> =
+    new Set<THREE.Object3D>();
   for (const group of groups)
-    group.traverse((descendant) => ground.add(descendant));
-  root.traverse((object) => {
+    group.traverse(
+      (
+        descendant: THREE.Object3D<THREE.Object3DEventMap>,
+      ): Set<THREE.Object3D<THREE.Object3DEventMap>> => ground.add(descendant),
+    );
+  root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // `isMesh` covers `SkinnedMesh` and `InstancedMesh`, which is what makes a
     // compact population of several thousand members participate as one object
     // rather than not at all.
     if ((object as THREE.Mesh).isMesh !== true) return;
-    const patch = ground.has(object);
+    const patch: boolean = ground.has(object);
     object.castShadow = !patch;
     object.receiveShadow = !patch;
   });

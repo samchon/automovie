@@ -1,7 +1,8 @@
 /**
- * src/review/section-profile.ts 연직 단면 측정 경로를 아는 경우에 대조한다: 상자를 X·Z로 자른 사각형,
- * 경사 상단의 사다리꼴, 삼각 평면을 비스듬히 지나는 절단, 모서리/변과 일치하는 절단(수치 경계),
- * 실체 밖 절단(조각 없음), 1mm 폭 얇은 실체, 묶음 이름에 따른 종류.
+ * Checks src/review/section-profile.ts against known vertical sections: boxes
+ * cut by X or Z into rectangles, sloped-top trapezoids, oblique cuts through
+ * triangular plans, cuts coincident with corners or edges (numeric boundaries),
+ * cuts outside solids (no pieces), thin solids (1mm), and kinds selected by group names.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

@@ -19,6 +19,7 @@ import {
   IAutoMovieSpace,
   IAutoMovieSurface,
   IAutoMovieTransform,
+  IAutoMovieVector3,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -31,15 +32,23 @@ import {
   validationHasWarnings,
 } from "../internal/predicates";
 
-const t = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
-const v = (x: number, z: number, y = 0) => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+  y: number = 0,
+): IAutoMovieVector3 => ({ x, y, z });
 
 /** Metres of rise per metre of +X, the one number both records are built on. */
-const RISE = 0.2;
+const RISE: number = 0.2;
 
 /**
  * Terrain that climbs along +X, stated as a sampled lattice.
@@ -50,7 +59,7 @@ const RISE = 0.2;
  * function linear in X exactly, which is what lets a hand oracle read `RISE *
  * x` off both records.
  */
-const terrain = (): IAutoMovieWorldSurface =>
+const terrain: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldHeightfield({
     id: "slope",
     polygon: [
@@ -63,26 +72,31 @@ const terrain = (): IAutoMovieWorldSurface =>
     spacing: { x: 1, z: 1 },
     columns: 21,
     rows: 9,
-    height: (point) => point.x * RISE,
+    height: (point: { x: number; z: number }): number => point.x * RISE,
     walkable: true,
   });
 
 /** The same ground as the patch a shot stages performers and feet on. */
-const reliefSurface = (): IAutoMovieSurface => ({
+const reliefSurface: () => IAutoMovieSurface = (): IAutoMovieSurface => ({
   id: "slope",
   kind: "floor",
-  polygon: terrain().polygon.map((point) => v(point.x, point.z)),
+  polygon: terrain().polygon.map(
+    (point: { x: number; z: number }): IAutoMovieVector3 => v(point.x, point.z),
+  ),
   height: terrain().height,
 });
 
-const reliefSpace = (): IAutoMovieSpace => ({
+const reliefSpace: () => IAutoMovieSpace = (): IAutoMovieSpace => ({
   id: "slope-space",
   surfaces: [reliefSurface()],
   walkable: ["slope"],
 });
 
 /** A rank of five abreast at `x` of -4, -2, 0, 2 and 4, standing on `ground`. */
-const rank = (
+const rank: (
+  ground: readonly IAutoMovieWorldSurface[],
+  anchorHeight: number,
+) => IAutoMovieFormationPlacement = (
   ground: readonly IAutoMovieWorldSurface[],
   anchorHeight: number,
 ): IAutoMovieFormationPlacement => ({
@@ -101,7 +115,7 @@ const rank = (
 });
 
 /** A level patch and a ramp, spelled the way every space was spelled before. */
-const anchoredSpace = (): IAutoMovieSpace => ({
+const anchoredSpace: () => IAutoMovieSpace = (): IAutoMovieSpace => ({
   id: "yard",
   surfaces: [
     {
@@ -163,14 +177,16 @@ const legSkeleton: IAutoMovieSkeleton = {
     },
   ],
 };
-const KNEE_REST_FLEXION = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES = {
+const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
+const REST_FRAMES: Parameters<typeof plantStanceFeet>[0]["restFrames"] = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
 };
 
-const kf = (time: number): IAutoMovieKeyframe => ({
+const kf: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: { skeleton: "leg", root: null, joints: [] },
   expression: null,
@@ -186,22 +202,32 @@ const gait: IAutoMovieMotion = {
 };
 
 /** Do the two records answer one number, bit for bit, at this point? */
-const agrees = (
+const agrees: (
+  world: IAutoMovieWorldSurface,
+  patch: IAutoMovieSurface,
+  x: number,
+  z: number,
+) => boolean = (
   world: IAutoMovieWorldSurface,
   patch: IAutoMovieSurface,
   x: number,
   z: number,
 ): boolean =>
-  worldSurfaceHeight(world, { x, z }) === surfaceHeightAt(patch, x, z);
+  nclose(worldSurfaceHeight(world, { x, z }), surfaceHeightAt(patch, x, z), 0);
 
 /** Does one crowd member stand where a performer standing there would? */
-const standsWith = (
+const standsWith: (
+  crowd: IAutoMovieFormationPlacement,
+  space: IAutoMovieSpace,
+  slot: number,
+) => boolean = (
   crowd: IAutoMovieFormationPlacement,
   space: IAutoMovieSpace,
   slot: number,
 ): boolean => {
-  const member = formationSlotPosition(crowd, slot);
-  return member.y === heightAt(space, member.x, member.z);
+  const member: IAutoMovieVector3 = formationSlotPosition(crowd, slot);
+  const height: number | null = heightAt(space, member.x, member.z);
+  return height !== null && nclose(member.y, height, 0);
 };
 
 /**
@@ -233,25 +259,36 @@ const standsWith = (
  *    the flat patch an explicit `null` is, a patch stating no ground at all
  *    reads the scalar zero plane instead of throwing, and `stageScene` composes
  *    the space byte for byte with no field it did not carry before.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Compares world and scene height readings, five formation-slot heights, raw and planted foot motion, and legacy anchored-space staging. Numeric parity, independent slope checks, warning presence/absence and serialized space equality catch divergent terrain consumers while allowing other scene fields to differ.
+ * @evidence contracts/testing.md#independent-expectations The authored slope 0.2 gives height 0.7 at x=3.5, clamped edge height 2.4 at x=12, rank spread 8*0.2, and path midpoint height 0.015 at x=0.075. Exact zero-tolerance world/scene parity is supplemented by these hand oracles so shared implementation mistakes need not agree unnoticed. The planted ground check detects penetration only, not floating height or appearance.
+ * @evidence contracts/testing.md#distinguishing-cases Four groups preserve lattice/cell/corner/off-grid queries, five varied crowd slots, raw skate versus corrected stance, and anchored floor/ramp/omitted ramp/stateless fallback with verbatim staged space. The terrain fixture is planar relief represented as a lattice; nonlinear bilinear relief, failed staging, complex stance transitions and viewer output are outside this case.
+ * @evidence contracts/testing.md#execution-ownership The named test_space_relief_ground entry owns the portable height/formation/path/IK/staging composition and its film fixtures, with no native artifact, renderer, host or dynamically registered cases; numerical agreement is not visual validation.
  */
-export const test_space_relief_ground = (): void => {
-  const world = terrain();
-  const patch = reliefSurface();
-  const space = reliefSpace();
+export function test_space_relief_ground(): void {
+  const world: IAutoMovieWorldSurface = terrain();
+  const patch: IAutoMovieSurface = reliefSurface();
+  const space: IAutoMovieSpace = reliefSpace();
 
   TestValidator.equals(
     "the world record and the staged patch answer one height",
     namedFacts([
       // On a lattice point, inside a cell, and clamped past the lattice edge.
-      ["onSample", () => agrees(world, patch, 0, 0)],
-      ["insideCell", () => agrees(world, patch, 3.5, 1.25)],
-      ["acrossRows", () => agrees(world, patch, 11.75, -3.5)],
-      ["atCorner", () => agrees(world, patch, -8, -4)],
-      ["pastTheLattice", () => agrees(world, patch, 40, 40)],
+      ["onSample", (): boolean => agrees(world, patch, 0, 0)],
+      ["insideCell", (): boolean => agrees(world, patch, 3.5, 1.25)],
+      ["acrossRows", (): boolean => agrees(world, patch, 11.75, -3.5)],
+      ["atCorner", (): boolean => agrees(world, patch, -8, -4)],
+      ["pastTheLattice", (): boolean => agrees(world, patch, 40, 40)],
       // The hand oracle, so "identical" cannot be two copies of one mistake.
-      ["oracle", () => nclose(surfaceHeightAt(patch, 3.5, 1.25), 0.7, 1e-12)],
+      [
+        "oracle",
+        (): boolean => nclose(surfaceHeightAt(patch, 3.5, 1.25), 0.7, 1e-12),
+      ],
       // Clamping, not extrapolating: past the lattice the edge sample stands.
-      ["clamped", () => nclose(surfaceHeightAt(patch, 40, 40), 2.4, 1e-12)],
+      [
+        "clamped",
+        (): boolean => nclose(surfaceHeightAt(patch, 40, 40), 2.4, 1e-12),
+      ],
     ]),
     {
       onSample: true,
@@ -266,20 +303,23 @@ export const test_space_relief_ground = (): void => {
 
   // The unit is staged on its own ground, so a member's height IS the ground
   // under it and can be compared with what a performer standing there reads.
-  const crowd = rank([world], worldSurfaceHeight(world, { x: 0, z: 0 }));
+  const crowd: IAutoMovieFormationPlacement = rank(
+    [world],
+    worldSurfaceHeight(world, { x: 0, z: 0 }),
+  );
   TestValidator.equals(
     "a crowd member and a performer at that point stand at one height",
     namedFacts([
-      ["farLeft", () => standsWith(crowd, space, 0)],
-      ["left", () => standsWith(crowd, space, 1)],
-      ["centre", () => standsWith(crowd, space, 2)],
-      ["right", () => standsWith(crowd, space, 3)],
-      ["farRight", () => standsWith(crowd, space, 4)],
+      ["farLeft", (): boolean => standsWith(crowd, space, 0)],
+      ["left", (): boolean => standsWith(crowd, space, 1)],
+      ["centre", (): boolean => standsWith(crowd, space, 2)],
+      ["right", (): boolean => standsWith(crowd, space, 3)],
+      ["farRight", (): boolean => standsWith(crowd, space, 4)],
       // The rank is not level: without relief every fact above would hold by
       // agreeing on one flat number.
       [
         "spread",
-        () =>
+        (): boolean =>
           nclose(
             formationSlotPosition(crowd, 4).y -
               formationSlotPosition(crowd, 0).y,
@@ -298,17 +338,21 @@ export const test_space_relief_ground = (): void => {
     },
   );
 
-  const ground = spaceGround(space);
-  const path = followPathMotion({
+  const ground: ReturnType<typeof spaceGround> = spaceGround(space);
+  const path: ReturnType<typeof followPathMotion> = followPathMotion({
     id: "climb",
     gait,
     waypoints: [v(0, 0), v(0.15, 0)],
     speed: 0.15,
     ground,
   });
-  const mid = path.frames.find((frame) => nclose(frame.time, 0.5));
-  const contacts = [{ bone: "leftFoot", start: 0, end: 1 } as const];
-  const planted = plantStanceFeet({
+  const mid: (typeof path.frames)[number] | undefined = path.frames.find(
+    (frame: (typeof path.frames)[number]): boolean => nclose(frame.time, 0.5),
+  );
+  const contacts: Parameters<typeof validateFootSkate>[0]["contacts"] = [
+    { bone: "leftFoot", start: 0, end: 1 } as const,
+  ];
+  const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({
     skeleton: legSkeleton,
     motion: path.motion,
     groundY: ground,
@@ -319,12 +363,15 @@ export const test_space_relief_ground = (): void => {
   TestValidator.equals(
     "a foot plant on relieved ground lands on the relief",
     namedFacts([
-      ["mid", () => mid !== undefined],
+      ["mid", (): boolean => mid !== undefined],
       // h(x) = 0.2x, so the half-way frame at x = 0.075 stands at 0.015.
-      ["climbs", () => mid !== undefined && nclose(mid.position.y, 0.015)],
+      [
+        "climbs",
+        (): boolean => mid !== undefined && nclose(mid.position.y, 0.015),
+      ],
       [
         "rawBakeSkates",
-        () =>
+        (): boolean =>
           validationHasWarnings(
             "raw relief foot-skate",
             validateFootSkate({
@@ -337,7 +384,7 @@ export const test_space_relief_ground = (): void => {
       ],
       [
         "plantedHolds",
-        () =>
+        (): boolean =>
           validationHasNoWarnings(
             "planted relief foot-skate",
             validateFootSkate({
@@ -350,7 +397,7 @@ export const test_space_relief_ground = (): void => {
       ],
       [
         "plantedContacts",
-        () =>
+        (): boolean =>
           validationHasNoWarnings(
             "planted relief ground-contact",
             validateGroundContact({
@@ -373,8 +420,8 @@ export const test_space_relief_ground = (): void => {
     },
   );
 
-  const flat = anchoredSpace();
-  const staged = stageScene(
+  const flat: IAutoMovieSpace = anchoredSpace();
+  const staged: ReturnType<typeof stageScene> = stageScene(
     makeScriptWrite(),
     makeStagingWrite({ space: anchoredSpace() }),
   );
@@ -383,21 +430,41 @@ export const test_space_relief_ground = (): void => {
     namedFacts([
       // Exact, not close: the two-anchor spelling still runs its own
       // arithmetic, so a production on a floor or a ramp keeps its bytes.
-      ["level", () => surfaceHeightAt(flat.surfaces[0]!, 1.5, -1.5) === 0.75],
-      ["rampFoot", () => surfaceHeightAt(flat.surfaces[1]!, 2, 0) === 0],
-      ["rampMid", () => surfaceHeightAt(flat.surfaces[1]!, 4, 0.5) === 1],
-      ["rampHead", () => surfaceHeightAt(flat.surfaces[1]!, 6, -0.5) === 2],
+      [
+        "level",
+        (): boolean =>
+          nclose(surfaceHeightAt(flat.surfaces[0]!, 1.5, -1.5), 0.75, 0),
+      ],
+      [
+        "rampFoot",
+        (): boolean => nclose(surfaceHeightAt(flat.surfaces[1]!, 2, 0), 0, 0),
+      ],
+      [
+        "rampMid",
+        (): boolean => nclose(surfaceHeightAt(flat.surfaces[1]!, 4, 0.5), 1, 0),
+      ],
+      [
+        "rampHead",
+        (): boolean =>
+          nclose(surfaceHeightAt(flat.surfaces[1]!, 6, -0.5), 2, 0),
+      ],
       // An omitted `rampTo` is the flat patch an explicit `null` is, so the
       // field being optional cannot turn a floor into a ramp through a throw.
-      ["omittedRampTo", () => surfaceHeightAt(sill, 9, -9) === 3],
+      [
+        "omittedRampTo",
+        (): boolean => nclose(surfaceHeightAt(sill, 9, -9), 3, 0),
+      ],
       // A patch stating no ground at all reads the scalar zero plane rather
       // than throwing. `validateSpace` refuses one; a renderer handed one by
       // hand still draws something a reader can recognize as wrong.
-      ["statesNothing", () => surfaceHeightAt(stateless, 3, 4) === 0],
-      ["staged", () => staged.success === true],
+      [
+        "statesNothing",
+        (): boolean => nclose(surfaceHeightAt(stateless, 3, 4), 0, 0),
+      ],
+      ["staged", (): boolean => staged.success === true],
       [
         "verbatim",
-        () =>
+        (): boolean =>
           staged.success === true &&
           JSON.stringify(staged.scene.space) === JSON.stringify(flat),
       ],
@@ -413,4 +480,4 @@ export const test_space_relief_ground = (): void => {
       verbatim: true,
     },
   );
-};
+}

@@ -2,10 +2,13 @@ import { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 import { IAutoMovieSemanticMaskCoverage } from "./IAutoMovieSemanticMaskCoverage";
 
 /**
- * One shot's palette and runtime coverage captured as one indivisible fact.
+ * One exact shot's semantic palette and runtime coverage observed together.
  *
- * @evidence requirements/rendering/passes-channels-and-products.md#rendering-identity-mask-channels Exposes `IAutoMovieSemanticMaskEvidence` as the portable data boundary for same-frame palette and coverage evidence.
- * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-pass-products Types `IAutoMovieSemanticMaskEvidence` for the semantic render-product closure.
+ * @evidence contracts/common.md#principled-implementation The capture owner supplies palette and assembled-scene coverage together; production verifies version, exact shot, envelope keys, palette container schema/digest and coverage count/order before classifying gaps. The palette verifier does not rederive scalar values, colors, owner links or scene correspondence, and dense unresolved arrays remain a caller premise.
+ * @evidence contracts/common.md#clear-and-simple-design One envelope carries palette and coverage at the shot boundary; their origin in the same scene and frame remains the supplying owner's responsibility rather than something the shape can establish.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolved or unaddressed runtime drawables remain explicit and prevent complete coverage; foreign shots and unsupported versions refuse. Empty coverage and a valid self-consistent digest do not independently prove draw provenance, current scene equality or complete per-slot allocation.
+ * @evidence contracts/common.md#meaningful-documentation Defines envelope version, exact compiled shot and same-frame palette/coverage ownership.
+ * @author Samchon
  */
 export interface IAutoMovieSemanticMaskEvidence {
   /** Evidence envelope schema. */
@@ -14,9 +17,9 @@ export interface IAutoMovieSemanticMaskEvidence {
   /** Exact compiled shot whose drawn scene was audited. */
   shot: string;
 
-  /** Verified current semantic palette. */
+  /** Supplied semantic palette whose container schema and canonical digest are verified at production admission; graph/scalar truth remains a producer premise. */
   mask: IAutoMovieSemanticMask;
 
-  /** Coverage observed from the same built frame. */
+  /** Assembled-scene membership coverage from the same capture context, as established by the supplying owner. */
   coverage: IAutoMovieSemanticMaskCoverage;
 }

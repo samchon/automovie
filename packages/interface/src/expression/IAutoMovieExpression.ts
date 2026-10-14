@@ -2,50 +2,29 @@ import { AutoMovieExpressionPreset } from "./AutoMovieExpressionPreset";
 import { IAutoMovieBlendshapeChannel } from "./IAutoMovieBlendshapeChannel";
 
 /**
- * A facial expression at one instant: coarse preset intent plus optional
- * fine-grained ARKit overrides.
+ * A facial expression at one instant: preset, intensity and a required nullable ARKit override list.
  *
- * AutoMovie offers two registration levels so the model can work at whatever
- * resolution the task needs:
+ * Preset and intensity supply coarse semantic control; blendshapes overrides expanded ARKit weights. Visible response requires matching morph targets or a host-supplied expression sink, so the names alone do not establish portability across every avatar or equivalent appearance.
  *
- * - `preset` + `intensity`: the **coarse, most reliable** handle. "Look happy at
- *   0.8." Portable across every VRM avatar.
- * - `blendshapes`: **fine-grained** ARKit channel overrides for precise lip
- *   shapes, asymmetric expressions, or audio-driven lip-sync, layered on top of
- *   the preset. `null` when the preset alone is enough.
+ * validateExpression refuses unknown names, nonfinite or out-of-range [0, 1] magnitudes and repeated channels when invoked. The viewer separately clamps finite values to [0, 1] and treats nonfinite values as zero.
  *
- * This split keeps the common case tiny (one preset + one number) while still
- * allowing the full 52-channel vector when needed, and both are validated the
- * same way (closed names, `[0, 1]` weights).
+ * sampleMotion blends same-preset intensity and channel weights using outgoing eased progress, switching differing presets when that progress reaches 0.5. An absent side is neutral intensity zero with no channels. Cubic y controls can overshoot between admitted keys; the sampler does not independently gate expression magnitudes there.
  *
- * @evidence requirements/actors/pose-expression-and-gaze.md#actor-expression-channels Exposes `IAutoMovieExpression` as the portable data boundary for the actor expression channels requirement.
- * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Types `IAutoMovieExpression` for the performance actor pose gaze expression state system contract.
+ * @evidence contracts/common.md#principled-implementation sampleMotion uses outgoing eased progress t for same-preset linear intensity/channel interpolation, switches differing presets at t = 0.5 and substitutes zero intensity/no channels for an absent side. That threshold need not be the chronological segment midpoint.
+ * @evidence contracts/common.md#clear-and-simple-design Three required fields separate the coarse preset and intensity from nullable fine overrides; null expresses no overrides without omitting a required member, and validation shares closed names and unit-interval authored magnitudes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation refuses duplicate channels rather than assigning authoring-time merge semantics. Differing presets switch at eased progress 0.5 instead of receiving an invented per-avatar cross-fade; key admission does not prove intermediate magnitudes remain in range or that the avatar implements the requested targets.
+ * @evidence contracts/common.md#meaningful-documentation States the two control levels and when to use each, the validator's refusals, and the interpolation rules between keyframes; members give the intensity range and the meaning of `null` overrides and their uniqueness rule.
  * @author Samchon
  */
 export interface IAutoMovieExpression {
-  /**
-   * Coarse emotion / viseme intent.
-   *
-   * @evidence requirements/actors/pose-expression-and-gaze.md#actor-expression-channels Exposes `preset` as the portable data boundary for the actor expression channels requirement.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Types `preset` for the performance actor pose gaze expression state system contract.
-   */
+  /** Coarse emotion, viseme or eye intent. */
   preset: AutoMovieExpressionPreset;
 
-  /**
-   * How strongly to apply `preset`, `[0, 1]`.
-   *
-   * @evidence requirements/actors/pose-expression-and-gaze.md#actor-expression-channels Exposes `intensity` as the portable data boundary for the actor expression channels requirement.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Types `intensity` for the performance actor pose gaze expression state system contract.
-   */
+  /** How strongly `preset` applies, in `[0, 1]`. */
   intensity: number;
 
   /**
-   * Optional fine-grained ARKit channel overrides layered on top of `preset`.
-   * `null` when the preset alone suffices. Each channel should appear at most
-   * once.
-   *
-   * @evidence requirements/actors/pose-expression-and-gaze.md#actor-expression-channels Exposes `blendshapes` as the portable data boundary for the actor expression channels requirement.
-   * @evidence specifications/performance-motion-and-staging/actor-identity-state-and-fidelity.md#performance-actor-pose-gaze-expression-state Types `blendshapes` for the performance actor pose gaze expression state system contract.
+   * ARKit weights replacing expanded preset contributions for the same channel, or null when there are no overrides; each channel at most once.
    */
   blendshapes: IAutoMovieBlendshapeChannel[] | null;
 }

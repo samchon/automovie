@@ -1,15 +1,19 @@
 import { simulateSoftBody } from "@automovie/engine";
-import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 import { softPanel } from "../internal/softFixtures";
 
-const COLUMNS = 5;
-const ROWS = 5;
+const COLUMNS: number = 5;
+const ROWS: number = 5;
 
 /** The authored pre-fold: alternate columns stand one sixteenth of a metre out. */
-const pleat = (column: number): number => (column % 2 === 0 ? 0.0625 : 0);
+const pleat: (column: number) => number = (column: number): number =>
+  column % 2 === 0 ? 0.0625 : 0;
 
 /**
  * A curtain on a track: five rings across the top, a floor it may not pass
@@ -25,64 +29,80 @@ const pleat = (column: number): number => (column % 2 === 0 ? 0.0625 : 0);
  * position at all; `open` gathers the same five rings into the left quarter of
  * the track, which is what a curtain being drawn actually is.
  */
-const curtain = (): IAutoMovieSoftBodyDomain => {
-  const flat = softPanel({
-    columns: COLUMNS,
-    rows: ROWS,
-    origin: { x: -0.5, y: 0, z: 0 },
-  });
-  const rest = flat.rest.slice();
-  for (let row = 0; row < ROWS; ++row)
-    for (let column = 0; column < COLUMNS; ++column)
-      rest[(row * COLUMNS + column) * 3 + 2] = pleat(column);
-  return softPanel({
-    columns: COLUMNS,
-    rows: ROWS,
-    origin: { x: -0.5, y: 0, z: 0 },
-    overrides: {
-      id: "curtain",
-      rest,
-      solver: {
-        fixedStepSeconds: 0.015625,
-        gravity: { x: 0, y: -8, z: 0 },
-        drag: 1,
-        iterations: 4,
-        stiffness: { structural: 1, shear: 0.5, bend: 0.25 },
-        referenceSpeed: 4,
-        maxSteps: 512,
+const curtain: () => IAutoMovieSoftBodyDomain =
+  (): IAutoMovieSoftBodyDomain => {
+    const flat: IAutoMovieSoftBodyDomain = softPanel({
+      columns: COLUMNS,
+      rows: ROWS,
+      origin: { x: -0.5, y: 0, z: 0 },
+    });
+    const rest: number[] = flat.rest.slice();
+    for (let row: number = 0; row < ROWS; ++row)
+      for (let column: number = 0; column < COLUMNS; ++column)
+        rest[(row * COLUMNS + column) * 3 + 2] = pleat(column);
+    return softPanel({
+      columns: COLUMNS,
+      rows: ROWS,
+      origin: { x: -0.5, y: 0, z: 0 },
+      overrides: {
+        id: "curtain",
+        rest,
+        solver: {
+          fixedStepSeconds: 0.015625,
+          gravity: { x: 0, y: -8, z: 0 },
+          drag: 1,
+          iterations: 4,
+          stiffness: { structural: 1, shear: 0.5, bend: 0.25 },
+          referenceSpeed: 4,
+          maxSteps: 512,
+        },
+        anchors: Array.from(
+          { length: COLUMNS },
+          (
+            _: unknown,
+            column: number,
+          ): IAutoMovieSoftBodyDomain["anchors"][number] => ({
+            id: `ring-${column}`,
+            particle: column,
+            position: null,
+          }),
+        ),
+        states: [
+          {
+            id: "open",
+            anchors: Array.from(
+              { length: COLUMNS },
+              (
+                _: unknown,
+                column: number,
+              ): IAutoMovieSoftBodyDomain["states"][number]["anchors"][number] => ({
+                anchor: `ring-${column}`,
+                position: { x: -0.5 + column * 0.0625, y: 0, z: pleat(column) },
+              }),
+            ),
+          },
+        ],
+        colliders: [
+          {
+            kind: "plane",
+            id: "floor",
+            normal: { x: 0, y: 1, z: 0 },
+            offset: -0.9375,
+          },
+        ],
       },
-      anchors: Array.from({ length: COLUMNS }, (_, column) => ({
-        id: `ring-${column}`,
-        particle: column,
-        position: null,
-      })),
-      states: [
-        {
-          id: "open",
-          anchors: Array.from({ length: COLUMNS }, (_, column) => ({
-            anchor: `ring-${column}`,
-            position: { x: -0.5 + column * 0.0625, y: 0, z: pleat(column) },
-          })),
-        },
-      ],
-      colliders: [
-        {
-          kind: "plane",
-          id: "floor",
-          normal: { x: 0, y: 1, z: 0 },
-          offset: -0.9375,
-        },
-      ],
-    },
-  });
-};
+    });
+  };
 
 /** Extent of the panel's hem along one axis. */
-const hemSpan = (positions: number[], axis: 0 | 1 | 2): number => {
-  let low = Infinity;
-  let high = -Infinity;
-  for (let column = 0; column < COLUMNS; ++column) {
-    const value = positions[((ROWS - 1) * COLUMNS + column) * 3 + axis];
+const hemSpan: (positions: number[], axis: 0 | 1 | 2) => number = (
+  positions: number[],
+  axis: 0 | 1 | 2,
+): number => {
+  let low: number = Infinity;
+  let high: number = -Infinity;
+  for (let column: number = 0; column < COLUMNS; ++column) {
+    const value: number = positions[((ROWS - 1) * COLUMNS + column) * 3 + axis];
     low = Math.min(low, value);
     high = Math.max(high, value);
   }
@@ -97,10 +117,15 @@ const hemSpan = (positions: number[], axis: 0 | 1 | 2): number => {
  * A named state is deliberately not a keyframe of the cloth. It moves the rings
  * on the track and nothing else, so no author has to decide where a crease
  * lands and two states of the same panel cannot contradict each other's
- * physics. What this case pins is that the whole chain actually happens:
+ * boundary conditions. What this case pins is that the sampled chain happens:
  * attachment is exact, gravity produces sag, gathering the rings deepens the
  * folds instead of merely narrowing a flat sheet, and the floor under the hem
- * is not passed through.
+ * contains the final closed-state particles.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Solves the same pleated curtain with rest and gathered anchor targets; exact rings, sag/strain, hem widths/depths and final closed-state floor containment expose ignored named states or inert integration.
+ * @evidence contracts/testing.md#independent-expectations Authored dyadic ring positions use Object.is, while geometric inequalities require sag below -.9, closed strain between zero/.1, narrower gathered width and more than triple depth; these witnesses are qualitative contract bounds rather than an independent full cloth trajectory.
+ * @evidence contracts/testing.md#distinguishing-cases Closed/open states, floor removal and an exact repeated open solve distinguish boundary choice, contacts and reproducibility; floor assertions cover the final closed result only, and no intermediate continuous contact or universal inextensibility is proved.
+ * @evidence contracts/testing.md#execution-ownership The named discoverable portable CPU unit owns all five scenarios without dynamic cases, viewer, browser or GPU; a named state supplies static targets throughout each absolute replay.
  *
  * Scenarios:
  *
@@ -113,18 +138,21 @@ const hemSpan = (positions: number[], axis: 0 | 1 | 2): number => {
  *    tellingly, its depth across the pleat grows several times over: fabric
  *    that cannot compress has to go somewhere, and where it goes is into
  *    folds.
- * 4. The floor under the hem is not passed through: every particle stays at or
- *    above it and contact is reported, while the same panel with the collider
+ * 4. In the final closed state every particle is at or above the floor and
+ *    contact is reported, while the same panel with the collider
  *    removed drops straight through — so the containment is the collider's
  *    doing and not the constraint network's.
- * 5. The two states are different solves of the same domain, and each is
- *    reproducible on its own.
+ * 5. The two states have different hem depths, and a repeated open solve
+ *    reproduces every position exactly.
  */
-export const test_soft_body_curtain_states = (): void => {
-  const domain = curtain();
-  const closed = simulateSoftBody(domain, 256);
-  const open = simulateSoftBody(domain, 256, "open");
-  const columns = Array.from({ length: COLUMNS }, (_, column) => column);
+export function test_soft_body_curtain_states(): void {
+  const domain: IAutoMovieSoftBodyDomain = curtain();
+  const closed: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256);
+  const open: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256, "open");
+  const columns: number[] = Array.from(
+    { length: COLUMNS },
+    (_: unknown, column: number): number => column,
+  );
 
   TestValidator.equals(
     "every ring holds its stated position exactly under both states",
@@ -133,7 +161,7 @@ export const test_soft_body_curtain_states = (): void => {
         "closed",
         () =>
           columns.every(
-            (column) =>
+            (column: number): boolean =>
               Object.is(closed.positions[column * 3], -0.5 + column * 0.25) &&
               Object.is(closed.positions[column * 3 + 1], 0) &&
               Object.is(closed.positions[column * 3 + 2], pleat(column)),
@@ -143,7 +171,7 @@ export const test_soft_body_curtain_states = (): void => {
         "open",
         () =>
           columns.every(
-            (column) =>
+            (column: number): boolean =>
               Object.is(open.positions[column * 3], -0.5 + column * 0.0625) &&
               Object.is(open.positions[column * 3 + 1], 0) &&
               Object.is(open.positions[column * 3 + 2], pleat(column)),
@@ -158,11 +186,11 @@ export const test_soft_body_curtain_states = (): void => {
     namedFacts([
       [
         "closedSag",
-        () => closed.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1] < -0.9,
+        () => -0.9 > closed.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1],
       ],
       [
         "openSag",
-        () => open.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1] < -0.9,
+        () => -0.9 > open.positions[((ROWS - 1) * COLUMNS + 2) * 3 + 1],
       ],
       ["strainReported", () => closed.maxStrain > 0 && closed.maxStrain < 0.1],
     ]),
@@ -192,7 +220,8 @@ export const test_soft_body_curtain_states = (): void => {
         "above",
         () =>
           closed.positions.every(
-            (value, index) => index % 3 !== 1 || value >= -0.9375,
+            (value: number, index: number): boolean =>
+              index % 3 !== 1 || value >= -0.9375,
           ),
       ],
       ["touched", () => closed.contacts > 0],
@@ -200,7 +229,8 @@ export const test_soft_body_curtain_states = (): void => {
         "withoutFloorItDrops",
         () =>
           simulateSoftBody({ ...domain, colliders: [] }, 256).positions.some(
-            (value, index) => index % 3 === 1 && value < -0.9375,
+            (value: number, index: number): boolean =>
+              index % 3 === 1 && -0.9375 > value,
           ),
       ],
     ]),
@@ -218,10 +248,11 @@ export const test_soft_body_curtain_states = (): void => {
         "reproducible",
         () =>
           simulateSoftBody(domain, 256, "open").positions.every(
-            (value, index) => Object.is(value, open.positions[index]),
+            (value: number, index: number): boolean =>
+              Object.is(value, open.positions[index]),
           ),
       ],
     ]),
     { differ: true, reproducible: true },
   );
-};
+}

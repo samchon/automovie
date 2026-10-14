@@ -1,7 +1,7 @@
-import { resolveAutoMovieMaterial } from "@automovie/engine";
-import type { IAutoMovieMaterial } from "@automovie/interface";
+import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { resolveAutoMovieMaterial } from "../../../../packages/engine/src/render/resolveAutoMovieMaterial";
 import { throwsError } from "../internal/predicates";
 import { boxModel, material } from "../internal/renderFixtures";
 
@@ -11,12 +11,15 @@ import { boxModel, material } from "../internal/renderFixtures";
  * Scenarios:
  *
  * 1. One declaration resolves directly, while a blank or absent id is refused.
- * 2. Repeated complete records remain one definition even when model order and
- *    nested object property insertion differ.
- * 3. Any conflicting complete record is refused, and the diagnostic lists its
- *    model population in stable code-unit order under either input order.
+ * 2. Repeated complete records remain one definition even when model order and nested object property insertion differ.
+ * 3. Any conflicting complete record is refused, and the diagnostic lists its model population in stable code-unit order under either input order.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Resolves actual cross-model materials and checks borrowed identity, property-order equivalence, blank/absent refusal and canonical conflict diagnostics rather than accepting whichever model is supplied first.
+ * @evidence contracts/testing.md#independent-expectations The complete authored fabric record and lexically ordered alpha/beta/zeta model names supply the expected definition and error text. Equal floating-valued records are checked by selected record identity, not by exact numeric deep equality; no Three material is created.
+ * @evidence contracts/testing.md#distinguishing-cases Single and repeated equal records, reversed candidate/key order, a changed roughness value and blank/missing names separate equality from conflict. Other material feature validation belongs to Engine admission tests.
+ * @evidence contracts/testing.md#execution-ownership The exported test_render_material_resolution owns its cases. Portable resolver calls over resident model records with no shader, texture upload or renderer.
  */
-export const test_render_material_resolution = (): void => {
+export function test_render_material_resolution(): void {
   const fabric: IAutoMovieMaterial = {
     ...material("fabric"),
     name: "woven fabric",
@@ -64,13 +67,16 @@ export const test_render_material_resolution = (): void => {
     name: fabric.name,
     id: fabric.id,
   };
-  const alpha = boxModel({
+  const alpha: IAutoMovieModel = boxModel({
     id: "alpha",
     materials: [fabric, material("irrelevant")],
   });
-  const zeta = boxModel({ id: "zeta", materials: [reordered] });
+  const zeta: IAutoMovieModel = boxModel({
+    id: "zeta",
+    materials: [reordered],
+  });
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "one declaration and structurally equal repeats resolve identically",
     [
       resolveAutoMovieMaterial({ models: [alpha], material: "fabric" }),
@@ -82,18 +88,18 @@ export const test_render_material_resolution = (): void => {
         models: [zeta, alpha],
         material: "fabric",
       }),
-    ],
-    [fabric, fabric, fabric],
+    ].every((resolved: IAutoMovieMaterial): boolean => resolved === fabric),
   );
   TestValidator.equals(
     "blank and absent ids are explicit refusals",
     [
       throwsError(
-        () => resolveAutoMovieMaterial({ models: [alpha], material: "  " }),
+        (): IAutoMovieMaterial =>
+          resolveAutoMovieMaterial({ models: [alpha], material: "  " }),
         "must not be blank",
       ),
       throwsError(
-        () =>
+        (): IAutoMovieMaterial =>
           resolveAutoMovieMaterial({
             models: [alpha],
             material: "missing",
@@ -104,17 +110,17 @@ export const test_render_material_resolution = (): void => {
     [true, true],
   );
 
-  const beta = boxModel({
+  const beta: IAutoMovieModel = boxModel({
     id: "beta",
     materials: [{ ...fabric, roughness: 0.25 }],
   });
-  const conflict = (
+  const conflict: (models: readonly IAutoMovieModel[]) => string | null = (
     models: Parameters<typeof resolveAutoMovieMaterial>[0]["models"],
-  ) => {
+  ): string | null => {
     try {
       resolveAutoMovieMaterial({ models, material: "fabric" });
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       return (error as Error).message;
     }
   };
@@ -126,4 +132,4 @@ export const test_render_material_resolution = (): void => {
       'material "fabric" has conflicting definitions in models: "alpha", "beta", "zeta".',
     ],
   );
-};
+}

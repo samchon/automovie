@@ -7,4 +7,4 @@
  *
  * @author Samchon
  */
-export const portraitTongueColumns = 48;
+export const portraitTongueColumns: 48 = 48 as const;

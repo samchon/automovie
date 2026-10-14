@@ -1,5 +1,6 @@
-import type {IAutoMovieBlocking} from "@automovie/interface";
-import {APPROACH_DURATION} from "./APPROACH_DURATION";
+import type { IAutoMovieBlocking } from "@automovie/interface";
+
+import { APPROACH_DURATION } from "./APPROACH_DURATION";
 
 /** Authored pursuit-film blockings; the runtime compiles this tracked example unchanged. */
 export const blockings: IAutoMovieBlocking[] = [
@@ -7,7 +8,7 @@ export const blockings: IAutoMovieBlocking[] = [
     beat: "approach",
     analysis: "the distance itself is the drama: the walk must read whole.",
     rationale:
-      "a medium follow keeps the walker's stride and the shrinking gap in one frame.",
+      "a full follow keeps the walker's stride and the shrinking gap in one frame.",
     actors: [
       {
         node: "walker",
@@ -27,7 +28,7 @@ export const blockings: IAutoMovieBlocking[] = [
     beat: "face-off",
     analysis: "stillness after motion: the circle asks who moves first.",
     rationale:
-      "an orbiting close-up on the waiter turns his stillness into tension.",
+      "an orbiting full shot of the waiter turns his stillness into tension.",
     actors: [
       { node: "walker", beats: "holds one pace behind, watching" },
       { node: "waiter", beats: "holds, jaw set" },

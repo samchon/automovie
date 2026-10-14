@@ -8,48 +8,83 @@ import {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
 
-const AXES = ["x", "y", "z"] as const;
+const AXES: readonly IAutoMovieMaterialAssembly["axis"][] = ["x", "y", "z"];
 
-const SENSES = ["positive", "negative"] as const;
+const SENSES: readonly IAutoMovieMaterialAssembly["sense"][] = [
+  "positive",
+  "negative",
+];
 
-const SUBSTANCES = ["solid", "cavity", "membrane"] as const;
+const SUBSTANCES: readonly IAutoMovieMaterialLayer["substance"][] = [
+  "solid",
+  "cavity",
+  "membrane",
+];
 
-const EXPOSURES = ["exposed", "concealed"] as const;
+const EXPOSURES: readonly IAutoMovieMaterialAssembly["faces"]["first"][] = [
+  "exposed",
+  "concealed",
+];
 
 /** Largest metre slack a summed build-up may differ from its host by. */
-const THICKNESS_EPSILON = 1e-9;
+const THICKNESS_EPSILON: number = 1e-9;
 
 /**
  * Judge one layered build-up: its layers, its finishes, and its total.
  *
  * The checks fall into three groups the requirement names separately. Layer
- * conflicts are contradictions inside a layer — a cavity that carries a
+ * conflicts are contradictions inside a layer: a cavity that carries a
  * substance, a solid with no thickness, a substance id that resolves to
- * nothing. Finish defects are contradictions between the stack and the faces it
- * presents — an exposed face with nothing finishing it, a finish laid over
+ * nothing. Finish defects are contradictions between the stack and the faces
+ * it presents: an exposed face with nothing finishing it, a finish laid over
  * another finish, a finish buried where it will never be seen, a finish spent
- * on a concealed face. Dimension conflicts are contradictions with the host — a
+ * on a concealed face. Dimension conflicts are contradictions with the host: a
  * build-up whose layers do not sum to the thickness the host was drawn at.
  *
  * A single-layer stack presents both faces with the same layer, so its finish
  * answers for whichever of them is exposed rather than being demanded twice.
  *
- * @evidence requirements/interior/surface-assemblies.md#interior-assembly-conflicts `validateAutoMovieMaterialAssembly` judges one layered build-up: its layers, its finishes, and its total. This ensures contradictory layer stacks fail before they can produce plausible geometry.
- * @evidence specifications/interior-space/surface-assemblies.md#interior-space-surface-assembly-region `validateAutoMovieMaterialAssembly` performs auto movie material assembly validation when the engine resolves ordered construction layers into their host face regions.
+ * A wrapping layer must belong to the run of wrapping layers starting at one
+ * face; one behind a non-wrapping layer is refused. Ids must be non-blank and
+ * unique within the assembly, the axis, sense, exposures and substances must
+ * be known words, the offset finite, and at least one layer present. Every
+ * finding is reported at once with a `$input` path, and none throws. With
+ * `host`, the summed thickness must equal the host's within 1e-9 m; with
+ * `substances`, every non-cavity layer's material must name one of them by id.
+ *
+ * @param props.assembly Layered build-up to judge.
+ * @param props.substances Substances the layers may cite, or omitted.
+ * @param props.host Host dimension the layers must sum to, or omitted.
+ * @returns Success, or every violation found.
+ *
+ * @evidence contracts/common.md#principled-implementation Checks finish positions and leading/trailing wrapping runs in authored order. Requires finite computed total thickness and signed endpoints before resolution; host comparison admits a fixed absolute `1e-9` m discrepancy, without claiming a universal summation-error or authoring-precision bound.
+ * @evidence contracts/common.md#clear-and-simple-design One validator owns the build-up contract and is the gate `resolveAutoMovieMaterialAssembly` runs before placing layers; finish and wrap defects are separate private passes because each names a different author action, and blank strings use the collector's shared rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No role, substance id or layer is special-cased; a membrane may be zero thick because it is a sheet by definition, which is a contract difference, and the single-layer case follows from both faces sharing one layer rather than from an exception.
+ * @evidence contracts/common.md#meaningful-documentation Names layer/finish/dimension defects, wrapping runs, single-layer faces, field rules, finite derived total/endpoints, host tolerance, optional substance resolution, paths and collector-based failure effects.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the layer count plus the substance count: one pass per rule group, a set for substance and layer ids, and the leading and trailing wrap runs measured once.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one build-up per call; the resolver calls it once before placing, and no work is shared across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The substance and layer id sets are local and released on return, bounded by their counts; the returned validation holds the findings.
  */
-export const validateAutoMovieMaterialAssembly = (props: {
+export const validateAutoMovieMaterialAssembly: (props: {
+  /** Layered build-up to judge. */ assembly: IAutoMovieMaterialAssembly;
+  /** Substances the layers may cite; omitted skips reference resolution. */ substances?: readonly IAutoMovieMaterialSubstance[];
+  /** Host dimension the layers must sum to; omitted skips the comparison. */ host?: IAutoMovieAssemblyHost;
+}) => IAutoMovieValidation = (props: {
+  /** Layered build-up to judge. */
   assembly: IAutoMovieMaterialAssembly;
+
   /** Substances the layers may cite; omitted skips reference resolution. */
   substances?: readonly IAutoMovieMaterialSubstance[];
+
   /** Host dimension the layers must sum to; omitted skips the comparison. */
   host?: IAutoMovieAssemblyHost;
 }): IAutoMovieValidation => {
-  const { assembly } = props;
-  const collector = new ViolationCollector();
-  const root = "$input";
-  const layers = assembly.layers;
+  const assembly: IAutoMovieMaterialAssembly = props.assembly;
+  const collector: ViolationCollector = new ViolationCollector();
+  const root: string = "$input";
+  const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
 
-  nonEmpty(assembly.id, `${root}.id`, "material assembly id", collector);
+  collector.nonEmpty(`${root}.id`, assembly.id, "material assembly id");
   if (!AXES.includes(assembly.axis))
     collector.push(
       "type",
@@ -87,14 +122,18 @@ export const validateAutoMovieMaterialAssembly = (props: {
       layers.length,
     );
 
-  const substanceIds =
+  const substanceIds: Set<string> | null =
     props.substances === undefined
       ? null
-      : new Set(props.substances.map((substance) => substance.id));
-  const ids = new Set<string>();
-  layers.forEach((layer, index) => {
-    const path = `${root}.layers[${index}]`;
-    nonEmpty(layer.id, `${path}.id`, "material layer id", collector);
+      : new Set(
+          props.substances.map(
+            (substance: IAutoMovieMaterialSubstance): string => substance.id,
+          ),
+        );
+  const ids: Set<string> = new Set();
+  layers.forEach((layer: IAutoMovieMaterialLayer, index: number): void => {
+    const path: string = `${root}.layers[${index}]`;
+    collector.nonEmpty(`${path}.id`, layer.id, "material layer id");
     if (ids.has(layer.id))
       collector.push(
         "type",
@@ -103,7 +142,7 @@ export const validateAutoMovieMaterialAssembly = (props: {
         layer.id,
       );
     ids.add(layer.id);
-    nonEmpty(layer.role, `${path}.role`, "material layer role", collector);
+    collector.nonEmpty(`${path}.role`, layer.role, "material layer role");
     if (!SUBSTANCES.includes(layer.substance))
       collector.push(
         "type",
@@ -159,8 +198,35 @@ export const validateAutoMovieMaterialAssembly = (props: {
   appendFinishDefects(assembly, collector, root);
   appendWrapDefects(layers, collector, root);
 
+  const total: number = layers.reduce(
+    (sum: number, layer: IAutoMovieMaterialLayer): number =>
+      sum + layer.thickness,
+    0,
+  );
+  if (
+    Number.isFinite(assembly.offset) &&
+    layers.every(
+      (layer: IAutoMovieMaterialLayer): boolean =>
+        Number.isFinite(layer.thickness) && layer.thickness >= 0,
+    )
+  ) {
+    const direction: number = assembly.sense === "positive" ? 1 : -1;
+    let cursor: number = assembly.offset;
+    for (const layer of layers) cursor += direction * layer.thickness;
+    if (
+      !Number.isFinite(total) ||
+      !Number.isFinite(cursor) ||
+      !Number.isFinite(assembly.offset + direction * total)
+    )
+      collector.push(
+        "range",
+        `${root}.layers`,
+        "material assembly must produce finite total thickness and signed layer endpoints",
+        total,
+      );
+  }
+
   if (props.host !== undefined) {
-    const total = layers.reduce((sum, layer) => sum + layer.thickness, 0);
     if (
       Number.isFinite(props.host.thickness) === false ||
       props.host.thickness <= 0
@@ -193,17 +259,22 @@ export const validateAutoMovieMaterialAssembly = (props: {
  * it; both are defects, and naming them apart is what tells the author whether
  * to delete a layer or move it.
  */
-const appendFinishDefects = (
+const appendFinishDefects: (
+  assembly: IAutoMovieMaterialAssembly,
+  collector: ViolationCollector,
+  root: string,
+) => void = (
   assembly: IAutoMovieMaterialAssembly,
   collector: ViolationCollector,
   root: string,
 ): void => {
-  const layers = assembly.layers;
+  const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
   if (layers.length === 0) return;
-  const last = layers.length - 1;
-  layers.forEach((layer, index) => {
+  const last: number = layers.length - 1;
+  layers.forEach((layer: IAutoMovieMaterialLayer, index: number): void => {
     if (!layer.finish || index === 0 || index === last) return;
-    const doubled = layers[index - 1]!.finish || layers[index + 1]!.finish;
+    const doubled: boolean =
+      layers[index - 1]!.finish || layers[index + 1]!.finish;
     collector.push(
       "type",
       `${root}.layers[${index}].finish`,
@@ -213,12 +284,16 @@ const appendFinishDefects = (
       layer.finish,
     );
   });
-  const terminals = new Map<number, Array<"first" | "last">>();
+  // One entry per presenting layer: a single-layer stack presents both faces
+  // with layer 0, so its finish answers for both at once.
+  const terminals: Map<number, ("first" | "last")[]> = new Map();
   terminals.set(0, ["first"]);
   terminals.set(last, [...(terminals.get(last) ?? []), "last"]);
   for (const [index, faces] of terminals) {
-    const layer = layers[index]!;
-    const exposed = faces.filter((face) => assembly.faces[face] === "exposed");
+    const layer: IAutoMovieMaterialLayer = layers[index]!;
+    const exposed: ("first" | "last")[] = faces.filter(
+      (face: "first" | "last"): boolean => assembly.faces[face] === "exposed",
+    );
     if (exposed.length > 0 && !layer.finish)
       collector.push(
         "type",
@@ -244,17 +319,26 @@ const appendFinishDefects = (
  * buried wrap would otherwise be counted into the finished opening size and
  * quietly narrow a door nothing actually lines.
  */
-const appendWrapDefects = (
+const appendWrapDefects: (
+  layers: readonly IAutoMovieMaterialLayer[],
+  collector: ViolationCollector,
+  root: string,
+) => void = (
   layers: readonly IAutoMovieMaterialLayer[],
   collector: ViolationCollector,
   root: string,
 ): void => {
-  const lead = leadingRun(layers, (layer) => layer.wrapsOpening);
-  const tail = Math.min(
-    trailingRun(layers, (layer) => layer.wrapsOpening),
-    layers.length - lead,
-  );
-  layers.forEach((layer, index) => {
+  // The wrapping runs that start at the first and at the last face; the tail
+  // never reaches into the lead, so an all-wrapping stack is counted once.
+  let lead: number = 0;
+  while (lead < layers.length && layers[lead]!.wrapsOpening) lead += 1;
+  let tail: number = 0;
+  while (
+    tail < layers.length - lead &&
+    layers[layers.length - 1 - tail]!.wrapsOpening
+  )
+    tail += 1;
+  layers.forEach((layer: IAutoMovieMaterialLayer, index: number): void => {
     if (!layer.wrapsOpening) return;
     if (index < lead || index >= layers.length - tail) return;
     collector.push(
@@ -264,33 +348,4 @@ const appendWrapDefects = (
       layer.wrapsOpening,
     );
   });
-};
-
-const leadingRun = <T>(
-  items: readonly T[],
-  match: (item: T) => boolean,
-): number => {
-  let count = 0;
-  while (count < items.length && match(items[count]!)) count += 1;
-  return count;
-};
-
-const trailingRun = <T>(
-  items: readonly T[],
-  match: (item: T) => boolean,
-): number => {
-  let count = 0;
-  while (count < items.length && match(items[items.length - 1 - count]!))
-    count += 1;
-  return count;
-};
-
-const nonEmpty = (
-  value: string,
-  path: string,
-  label: string,
-  collector: ViolationCollector,
-): void => {
-  if (value.trim().length === 0)
-    collector.push("type", path, `${label} must be non-empty`, value);
 };

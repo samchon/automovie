@@ -4,16 +4,24 @@ import {
 } from "@automovie/interface";
 
 /**
- * Build one {@link IAutoMovieConstraintViolation}. Defaults to `"error"`.
+ * Construct a fresh constraint row with supplied fields, optional overshoot and caller severity defaulting to error.
  *
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-path-and-scope `violation` binds one discovered value to its caller-supplied structural path and expected constraint.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-path-scope `violation` constructs the canonical kind, severity, path, observation, and optional overshoot record without widening its scope.
- * @evidence requirements/diagnostics/identity-path-and-context.md#diagnostics-cause-observed-expected `violation` preserves the finding kind, expected constraint, observed value, and optional numeric overshoot in one record.
- * @evidence specifications/validation-and-diagnostics/diagnostic-identity-location-and-severity.md#validation-diagnostic-cause-values The constructor keeps machine-readable cause classification beside the exact expected and observed values that produced the finding.
- * @evidence requirements/diagnostics/localization-and-machine-results.md#diagnostics-machine-readable-result `violation` returns a structured diagnostic object whose kind, path, severity, expectation, observation, and overshoot remain directly inspectable.
- * @evidence specifications/validation-and-diagnostics/localization-and-machine-results.md#validation-machine-result-envelope The violation record supplies typed fields for programmatic handling instead of encoding its result only in prose.
+ * @evidence contracts/common.md#principled-implementation Construct a fresh constraint row with supplied fields, optional overshoot and caller severity defaulting to error.
+ * @evidence contracts/common.md#clear-and-simple-design One row owner serves collector/artifact producers without embedding validation predicates.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Actual values are borrowed unchanged; warning severity is explicit rather than inferred from a caller.
+ * @evidence contracts/common.md#meaningful-documentation Optional overshoot omission and the error default are stated.
+ * @evidence contracts/performance.md#efficient-algorithms One record allocation is constant work; supplied value/text population drives retained bytes.
+ * @evidence contracts/performance.md#reuse-equivalent-work pushViolation/collector callers reuse the canonical shape but each call creates its own row.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the row and borrowed value lifetime; no internal list or native resource remains.
  */
-export const violation = (
+export const violation: (
+  kind: AutoMovieViolationKind,
+  path: string,
+  expected: string,
+  value: unknown,
+  overshoot?: number,
+  severity?: "error" | "warning",
+) => IAutoMovieConstraintViolation = (
   kind: AutoMovieViolationKind,
   path: string,
   expected: string,

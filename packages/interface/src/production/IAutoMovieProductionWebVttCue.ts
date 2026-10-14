@@ -1,35 +1,22 @@
 /**
- * One canonical cue parsed from final WebVTT bytes.
+ * One canonical cue parsed from final strict-UTF8 WebVTT bytes in delivery order.
  *
- * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-text-language Retains delivered cue identity, text, and exact millisecond boundaries for comparison with the current caption plan.
- * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-cues Supplies the canonical delivered cue facts consumed by final caption verification.
+ * @evidence contracts/common.md#principled-implementation The media probe reads WebVTT timing grammar into exact integer millisecond boundaries while preserving delivered identifier and payload; final caption verification compares the complete canonical text against the current plan.
+ * @evidence contracts/common.md#clear-and-simple-design Four fields expose one cue without retaining parser state or treating NOTE, STYLE and REGION blocks as timed captions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent cue id remains null and delivered ordering and text are preserved; malformed timing is refused rather than reordered, repaired or inferred from another cue.
+ * @evidence contracts/common.md#meaningful-documentation Defines nullable delivered id, complete payload and inclusive-start exclusive-end millisecond timing.
+ * @author Samchon
  */
 export interface IAutoMovieProductionWebVttCue {
-  /**
-   * Delivered cue identifier, if present.
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-text-language Preserves cue identity for current-plan comparison.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-cues Supplies the delivered cue id.
-   */
+  /** Delivered cue identifier, if present. */
   id: string | null;
 
-  /**
-   * Complete delivered cue payload.
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-text-language Preserves caption text and markup identity.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-cues Supplies the delivered cue text.
-   */
+  /** Complete delivered cue payload. */
   text: string;
 
-  /**
-   * Exact parsed cue-start millisecond.
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-freshness Preserves the delivered start boundary.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-cues Supplies the delivered cue start.
-   */
+  /** Exact parsed cue-start millisecond. */
   startMilliseconds: number;
 
-  /**
-   * Exact parsed exclusive cue-end millisecond.
-   * @evidence requirements/delivery-and-accessibility/captions-subtitles-and-cues.md#delivery-cue-freshness Preserves the delivered end boundary.
-   * @evidence specifications/editorial-render-and-delivery/delivery-audio-text-and-localization.md#spec-delivery-caption-cues Supplies the delivered cue end.
-   */
+  /** Exact parsed exclusive cue-end millisecond. */
   endMilliseconds: number;
 }

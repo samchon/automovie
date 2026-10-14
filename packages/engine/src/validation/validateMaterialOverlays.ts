@@ -1,20 +1,26 @@
 import { ViolationCollector } from "./ViolationCollector";
 import { finiteMinimum } from "./finiteMinimum";
+import { isRecord } from "./isRecord";
 
 /** The most overlays one material may carry: each samples up to two images. */
-const MAXIMUM_OVERLAYS = 4;
+const MAXIMUM_OVERLAYS: number = 4;
 
 /**
- * Reports a material's malformed overlay list at the caller's exact path: a
- * list that is not one or holds more than four, an entry that is not a
- * record, a missing colour image, an unknown blend, and a roughness,
- * strength or normal scale out of range. The images themselves are checked
- * with the material's other bindings.
+ * Admit optional overlay lists, record entries, required color image, blend, strength and optional numeric factors.
  *
- * @evidence requirements/asset-authoring/validation.md#asset-surface-validation Admits a material's surface overlays by their count, colour image, blend and ranged factors.
- * @evidence specifications/asset-and-representation/fidelity-and-validation.md#asset-spec-validation-surface-visual Admits a material's surface overlays by their count, colour image, blend and ranged factors.
+ * @evidence contracts/common.md#principled-implementation Admit optional overlay lists, record entries, required color image, blend, strength and optional numeric factors.
+ * @evidence contracts/common.md#clear-and-simple-design Binding images are enumerated by materialTextureSlots, while overlay metadata admission stays here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The four-overlay policy reports excess without truncation; malformed colorFactor records and sparse entries must report instead of throwing/skipping.
+ * @evidence contracts/common.md#meaningful-documentation Undefined overlays mean none; diagnostics locate list, entry and factor component errors.
+ * @evidence contracts/performance.md#efficient-algorithms O overlays require fixed per-entry checks and proportional diagnostic storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work finiteMinimum and collector ranges share scalar policy; mutable overlays are checked per call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostics and borrowed actual values, with no image load or material handle acquired.
  */
-export const validateMaterialOverlays = (
+export const validateMaterialOverlays: (
+  overlays: unknown,
+  path: string,
+  collector: ViolationCollector,
+) => void = (
   overlays: unknown,
   path: string,
   collector: ViolationCollector,
@@ -31,13 +37,14 @@ export const validateMaterialOverlays = (
       `a material carries at most ${MAXIMUM_OVERLAYS} overlays, but has ${overlays.length}`,
       overlays.length,
     );
-  overlays.forEach((entry: unknown, index) => {
-    const at = `${path}[${index}]`;
+  for (let index: number = 0; index < overlays.length; ++index) {
+    const entry: unknown = overlays[index];
+    const at: string = `${path}[${index}]`;
     if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
       collector.push("type", at, "an overlay must be a record", entry);
-      return;
+      continue;
     }
-    const overlay = entry as Record<string, unknown>;
+    const overlay: Record<string, unknown> = entry as Record<string, unknown>;
     if (
       overlay.baseColorTexture === undefined ||
       overlay.baseColorTexture === null
@@ -70,15 +77,24 @@ export const validateMaterialOverlays = (
         1,
         "overlay roughness",
       );
-    if (overlay.colorFactor !== undefined)
-      for (const channel of ["r", "g", "b"] as const)
-        finiteMinimum(
-          (overlay.colorFactor as Record<string, number>)[channel],
-          0,
-          `${at}.colorFactor.${channel}`,
-          "overlay colour factor",
-          collector,
+    if (overlay.colorFactor !== undefined) {
+      if (!isRecord(overlay.colorFactor))
+        collector.push(
+          "type",
+          `${at}.colorFactor`,
+          "overlay colour factor must be a record",
+          overlay.colorFactor,
         );
+      else
+        for (const channel of ["r", "g", "b"] as const)
+          finiteMinimum(
+            overlay.colorFactor[channel] as number,
+            0,
+            `${at}.colorFactor.${channel}`,
+            "overlay colour factor",
+            collector,
+          );
+    }
     if (overlay.normalScale !== undefined)
       finiteMinimum(
         overlay.normalScale as number,
@@ -87,5 +103,5 @@ export const validateMaterialOverlays = (
         "overlay normal scale",
         collector,
       );
-  });
+  }
 };

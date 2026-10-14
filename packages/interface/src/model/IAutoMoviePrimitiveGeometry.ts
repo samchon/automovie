@@ -1,25 +1,18 @@
 import { AutoMoviePrimitiveShape } from "./AutoMoviePrimitiveShape";
 
 /**
- * Geometry defined by a parametric primitive shape.
+ * Geometry generated from one compact primitive shape recipe.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMoviePrimitiveGeometry` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMoviePrimitiveGeometry` for the asset spec geometry inputs system contract.
+ * @evidence contracts/common.md#principled-implementation The primitive discriminator selects a closed shape union whose dimensions are validated before deterministic tessellation, retaining authored dimensions rather than requiring the caller to supply triangle buffers.
+ * @evidence contracts/common.md#clear-and-simple-design This wrapper owns only the representation branch, while each shape arm owns its required dimensions and the model part owns its transform and material.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No prebuilt model or triangle fixture is embedded in the recipe; shape identity alone selects the general tessellation path for every subject.
+ * @evidence contracts/common.md#meaningful-documentation States the generated primitive representation and identifies shape as the source of its parameters, with placement deliberately outside the geometry record.
+ * @author Samchon
  */
 export interface IAutoMoviePrimitiveGeometry {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `type` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
-   */
+  /** Discriminator. */
   type: "primitive";
 
-  /**
-   * The parametric shape and its dimensions.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `shape` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `shape` for the asset spec geometry inputs system contract.
-   */
+  /** The parametric shape and its dimensions. */
   shape: AutoMoviePrimitiveShape;
 }

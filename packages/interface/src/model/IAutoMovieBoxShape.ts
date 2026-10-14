@@ -1,39 +1,22 @@
 /**
- * Axis-aligned rectangular box.
+ * Rectangular box centred at the local origin, before the part transform.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `IAutoMovieBoxShape` as the portable data boundary for the asset primitive freeform geometry requirement.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `IAutoMovieBoxShape` for the asset spec geometry inputs system contract.
+ * @evidence contracts/common.md#principled-implementation Three finite positive full extents define the box; tessellation places its corners at plus or minus half each extent and model validation refuses nonpositive dimensions.
+ * @evidence contracts/common.md#clear-and-simple-design Width, height and depth directly follow local X, Y and Z, leaving placement and rotation on the enclosing model part rather than adding corner coordinates here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every box uses the declared dimensions with the same centred convention; no part name or subject selects alternate bounds.
+ * @evidence contracts/common.md#meaningful-documentation States the centred local frame and full metre extents on all three axes; each dimension must be finite and strictly positive.
+ * @author Samchon
  */
 export interface IAutoMovieBoxShape {
-  /**
-   * Discriminator.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `type` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `type` for the asset spec geometry inputs system contract.
-   */
+  /** Discriminator. */
   type: "box";
 
-  /**
-   * Full size along local X, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `width` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `width` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive full size along local X, metres. */
   width: number;
 
-  /**
-   * Full size along local Y, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `height` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `height` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive full size along local Y, metres. */
   height: number;
 
-  /**
-   * Full size along local Z, meters.
-   *
-   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Exposes `depth` as the portable data boundary for the asset primitive freeform geometry requirement.
-   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Types `depth` for the asset spec geometry inputs system contract.
-   */
+  /** Finite positive full size along local Z, metres. */
   depth: number;
 }

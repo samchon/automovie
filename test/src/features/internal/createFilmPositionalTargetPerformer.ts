@@ -1,13 +1,16 @@
-import {
-  type IAutoMoviePerformedShot,
-  performShot,
-  stageScene,
-} from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
+  IAutoMovieScript,
+  IAutoMovieSkeleton,
+  IAutoMovieStage,
+  IAutoMovieStageActor,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import type { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -16,14 +19,12 @@ import {
 } from "./filmFixtures";
 import { createSkeleton } from "./fixtures";
 
-const script = makeScriptWrite();
+const script: IAutoMovieScript = makeScriptWrite();
 
 /**
- * The duel, plus the two things the old lookup could not see: a set piece and a
- * second camera. `cam-main` frames, `cam-side` stands in as a thing to point
- * at.
+ * The duel, plus the two things the old lookup could not see: a set piece and a second camera. `cam-main` frames, `cam-side` stands in as a thing to point at.
  */
-const staging = makeStagingWrite({
+const staging: IAutoMovieStage = makeStagingWrite({
   set: [
     { node: "altar", model: "box", position: { x: 1, y: 0, z: 1 } },
     { node: "pebble", model: "sphere", position: { x: 0, y: 1.2, z: 0 } },
@@ -50,27 +51,34 @@ const staging = makeStagingWrite({
   ],
 });
 
-/** Create the existing staged draft consumer with its optional live target and carried beat-end readers. */
-export const createFilmPositionalTargetPerformer = (
+/**
+ * Create the existing staged draft consumer with its optional live target and carried beat-end readers.
+ */
+export const createFilmPositionalTargetPerformer: (
+  targetAt?: Parameters<typeof performShot>[0]["targetAt"],
+  previous?: Parameters<typeof performShot>[0]["previous"],
+  actorPosition?: IAutoMovieVector3,
+) => (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (
   targetAt?: Parameters<typeof performShot>[0]["targetAt"],
   previous?: Parameters<typeof performShot>[0]["previous"],
   actorPosition?: IAutoMovieVector3,
 ): ((draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot) => {
-  const staged = stageScene(
+  const staged: IAutoMovieStagedSet = stageScene(
     script,
     actorPosition === undefined
       ? staging
       : {
           ...staging,
-          actors: staging.actors.map((actor) =>
-            actor.node === "knightA"
-              ? { ...actor, position: actorPosition }
-              : actor,
+          actors: staging.actors.map(
+            (actor: IAutoMovieStageActor): IAutoMovieStageActor =>
+              actor.node === "knightA"
+                ? { ...actor, position: actorPosition }
+                : actor,
           ),
         },
   );
   if (staged.success !== true) throw new Error("staging fixture must succeed");
-  return (draft) =>
+  return (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
     performShot({
       script,
       staged,
@@ -79,7 +87,7 @@ export const createFilmPositionalTargetPerformer = (
         revise: { review: "unchanged.", final: null },
       }),
       synthesize: validSynthesizer,
-      skeleton: () => createSkeleton(),
+      skeleton: (): IAutoMovieSkeleton => createSkeleton(),
       targetAt,
       previous,
     });

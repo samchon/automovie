@@ -10,17 +10,27 @@ import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFac
  * Apply intermediate offsets to a copied recipe before detailed overrides.
  * Unknown or out-of-envelope controls refuse rather than becoming inactive
  * sliders. Part builders subsequently validate the combined detailed result.
+ *
+ * @evidence contracts/common.md#principled-implementation Registered finite control envelopes apply additive or multiplicative offsets to a cloned source recipe before detailed overrides. Current resolver supplies chinY in host millimetres for cranium/neck defaults; combined component constraints still require their own admission.
+ * @evidence contracts/common.md#clear-and-simple-design The catalogue owns scalar control bounds and profile owners own default cranium/frame/ear/neck shapes; this stage only applies the declared offsets in their required precedence.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown keys/out-of-range values and requested cheek projection without a cheek refuse. Defaults are existing source profiles, not inferred anatomy; admitted individual controls do not certify every combined recipe.
+ * @evidence contracts/common.md#meaningful-documentation Prose gives copied recipe, intermediate-before-detail precedence and later component admission; source arrays are preserved except owned copied/default profile edits.
+ * @evidence contracts/performance.md#efficient-algorithms Deep clone follows the entire recipe, K provided keys search C definitions, and requested cranium/neck updates scan their actual stations. Total work includes clone/profile populations rather than only K controls.
+ * @evidence contracts/performance.md#reuse-equivalent-work Existing profile resolvers supply defaults once per needed edit; omitted controls preserve inherited fields. Changed controls require a new clone, with no mutable recipe cached across requests.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned recipe owns its clone/default edits; transient lookups become collectible and no caller input mutation, handle or asynchronous task occurs.
  */
 export function applyHumanFaceControls(
   basis: IAutoMovieHumanFaceRecipe,
   chinY: number,
   controls: IAutoMovieHumanFaceControls = {},
 ): IAutoMovieHumanFaceRecipe {
-  const recipe = structuredClone(basis);
+  const recipe: IAutoMovieHumanFaceRecipe = structuredClone(basis);
   for (const [key, value] of Object.entries(controls)) {
-    const definition = humanFaceControlDefinitions.find(
-      (entry) => entry.id === key,
-    );
+    const definition: (typeof humanFaceControlDefinitions)[number] | undefined =
+      humanFaceControlDefinitions.find(
+        (entry: (typeof humanFaceControlDefinitions)[number]): boolean =>
+          entry.id === key,
+      );
     if (
       definition === undefined ||
       (value !== undefined &&
@@ -56,14 +66,39 @@ export function applyHumanFaceControls(
     controls.craniumWidth !== undefined ||
     controls.craniumHeight !== undefined
   ) {
-    const shape = resolvePortraitCraniumShape(chinY, recipe.cranium);
+    const shape: {
+      stations: {
+        floor: number;
+        z: number;
+        crownZ: number;
+        width: number;
+        crown: number;
+      }[];
+      capDepth: number;
+      transition: number;
+      frame: { width: number; height: number; centerY: number };
+    } = resolvePortraitCraniumShape(chinY, recipe.cranium);
     recipe.cranium = {
       ...shape,
-      stations: shape.stations.map((station) => ({
-        ...station,
-        width: station.width * (1 + (controls.craniumWidth ?? 0)),
-        crown: station.crown + (controls.craniumHeight ?? 0),
-      })),
+      stations: shape.stations.map(
+        (station: {
+          floor: number;
+          z: number;
+          crownZ: number;
+          width: number;
+          crown: number;
+        }): {
+          width: number;
+          crown: number;
+          floor: number;
+          z: number;
+          crownZ: number;
+        } => ({
+          ...station,
+          width: station.width * (1 + (controls.craniumWidth ?? 0)),
+          crown: station.crown + (controls.craniumHeight ?? 0),
+        }),
+      ),
     };
   }
   if (controls.earHeight !== undefined) {

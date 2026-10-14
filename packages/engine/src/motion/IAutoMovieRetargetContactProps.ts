@@ -1,21 +1,21 @@
 import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
 
 /**
- * Contact policy input for {@link retargetHumanoidMotion}. Every field is
- * optional: the pass runs with humanoid legs and no declared hand contact
- * unless the caller says otherwise.
+ * Configure source-contact preservation during humanoid retargeting; omitted fields enable the pass with source-rest-floor stance detection and no declared hand contacts.
  *
- * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Carries the caller's target-contact preservation choices into the retarget pass.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Defines how source contacts are detected and re-established on the target rig.
+ * @evidence contracts/common.md#principled-implementation Distinguishes geometric foot stance against a scalar or sampled source ground from declared hand windows; tolerance is in source model units and scales with rootScale for target residual warnings.
+ * @evidence contracts/common.md#clear-and-simple-design One optional policy input groups pass enablement, ground, tolerance and hand contacts; required source/target rigs and motion stay in the retarget operation's own input.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Default ground comes from the source rig's resolved rest floor rather than an assumed zero plane; hand contact is declared rather than guessed from hand position.
+ * @evidence contracts/common.md#meaningful-documentation Gives enabled and tolerance defaults, source-ground units, residual-budget scaling and the empty hand-contact meaning.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This structural policy does not run stance detection; preserveRetargetContacts owns keyframe FK and per-chain contact work.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ground callback and hand records are borrowed policy inputs, not cached results; the pass samples ground at current source effector positions.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The policy holds at most the caller's callback and declared hand list and acquires no resource; the retarget call retains neither after completion.
+ *
  * @author Samchon
  */
 export interface IAutoMovieRetargetContactProps {
   /**
-   * Run the contact-preserving pass. Defaults to `true`; `false` restores v1's
-   * verbatim angle copy.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Allows explicit adoption or omission of the contact re-solve.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Selects the target-contact stage without changing the source clip.
+   * Run contact correction. Defaults to true; false keeps copied clinical angles and scaled root motion.
    */
   enabled?: boolean;
 
@@ -24,9 +24,6 @@ export interface IAutoMovieRetargetContactProps {
    * y` source. Defaults to the **source rig's own rest floor** (the lowest
    * world Y of its zero pose), so a rig authored with its feet above the origin
    * still detects stance instead of never touching down.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Establishes the source-space ground authority used to discover foot contacts.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Supplies the ground reference from which contacts are mapped to the target.
    */
   groundY?: number | ((x: number, z: number) => number);
 
@@ -36,17 +33,9 @@ export interface IAutoMovieRetargetContactProps {
    * {@link validateGroundContact} use. It doubles as the residual budget: a
    * pinned effector that ends further than `tolerance * rootScale` from its
    * contact is reported as a plausibility warning.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Bounds both source contact detection and the acceptable target residual.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Defines the numeric budget for preserving a mapped contact.
    */
   tolerance?: number;
 
-  /**
-   * Hand contacts to preserve. Defaults to none.
-   *
-   * @evidence requirements/motion/retargeting-and-scale.md#motion-retarget-contact-preservation Lists the non-ground contacts explicitly selected for re-solving.
-   * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-kinematics-retarget-scale-contact Adds authored hand constraints to the target retarget solve.
-   */
+  /** Hand contacts to preserve. Defaults to none. */
   hands?: readonly IAutoMovieRetargetHandContact[];
 }

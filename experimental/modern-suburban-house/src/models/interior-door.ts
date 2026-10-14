@@ -1,8 +1,4 @@
-/**
- * Eleven interior-door filling variants in the opening-local, Y-up metre frame.
- * The wall cut, floor transition, world placement and finishes have other owners;
- * this source realizes docs/models/03-interior-doors.md alone.
- */
+
 import type {
   IAutoMovieMesh,
   IAutoMovieModel,
@@ -378,7 +374,7 @@ class Faces {
   }
 }
 
-/** Eleven bounded fillings derived from docs/models/03-interior-doors.md. */
+/** Eleven bounded fillings derived */
 export class InteriorDoor {
   /** Build the reviewed door member hierarchy as separately bound mesh faces. */
   public build(input: DoorInput): DoorBuilt {

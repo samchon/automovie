@@ -7,14 +7,19 @@
  * means that population does not move. The endpoint is measured displacement
  * data in the basis frame, not a claim that a muscle or bone has this shape.
  * The basis publisher owns its source provenance and revision identity.
- * The shipped generation's upstream and extraction ancestry is retained in
- * `erased-data`; its historical input
- * paths and hashes identify original inputs, not maintained receipt locations.
- * Other licensed bases supply their own provenance and revision identity.
  *
  * The basis owns order, sign, range and explicit left/right mirror identity.
  * A channel value cannot establish physiological validity or skin contact;
  * those require the posed rig and shared surface to be checked together.
+ *
+ * @evidence contracts/common.md#principled-implementation Signed dimensionless channel weights select named endpoint rows on shared skin and landmarks; zero lies within the admitted envelope.
+ * @evidence contracts/common.md#clear-and-simple-design Ordered channel identity and explicit mirror binding keep trait naming separate from displacement rows.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source displacement data does not certify muscle, bone, physiological motion or contact validity.
+ * @evidence contracts/common.md#meaningful-documentation Members give sign, range, missing-endpoint meaning and explicit left-right mirror ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The basis deformation channel has no runtime implementation that chooses an algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The basis deformation channel schema implements no cache or request sharing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The basis deformation channel declaration allocates no runtime state or handles.
+ *
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisChannel {

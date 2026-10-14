@@ -1,12 +1,16 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
 /**
- * Read a numerical scalar, closed choice or explicit null operation a person
- * document states at a catalogue path, or undefined when it is omitted.
- * Composite records never become an editor control through this reader.
+ * Read a numeric scalar, choice string or explicit null operation at literal catalogue path segments, or undefined for omission/composite values. Dots inside an identifier remain part of that segment. This lookup does not validate a choice, numerical range or admission.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reads the current value of a listed input from the working person document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Distinguishes an authored value from an omitted one without inventing a default.
+ * @evidence contracts/common.md#principled-implementation Own-property traversal distinguishes omitted paths from explicit null and does not split authored identifiers or read inherited members.
+ * @evidence contracts/common.md#clear-and-simple-design One iterative lookup supplies scalar controls while leaving descriptor-specific units/ranges to catalogue metadata and admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Composite records and missing paths are not converted into guessed scalar defaults or fabricated readings.
+ * @evidence contracts/common.md#meaningful-documentation The comment defines literal segments, omission/null and the absence of validation.
+ * @evidence contracts/performance.md#efficient-algorithms Traversal is O(d) own-property checks for d segments with constant auxiliary storage; it stops as soon as an intermediate record is missing.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Lookup reads the supplied document directly and retains no path/value cache that could become stale after edits.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The function borrows its document only during the call and returns a scalar, with no retained document, handle or running task.
+ *
  * @author Samchon
  */
 export function readConnectedPersonInput(

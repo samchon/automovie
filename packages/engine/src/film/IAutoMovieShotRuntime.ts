@@ -1,5 +1,6 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieActionTarget,
   IAutoMovieBeatEndFootPlant,
   IAutoMovieBeatEndState,
   IAutoMovieClip,
@@ -21,191 +22,239 @@ import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRun
 import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 
 /**
- * Host-owned capabilities needed to turn thin verbs into dense motion.
+ * Host-owned capabilities and compiled facts `compileDefinedShot` needs to turn
+ * a shot program's thin verbs into dense, validated motion.
  *
- * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime supports reproducible staging and performance: Host-owned capabilities needed to turn thin verbs into dense motion.
- * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime realizes deterministic staging replay and validation: Host-owned capabilities needed to turn thin verbs into dense motion.
+ * The shot program states what happens; this record supplies what only the
+ * host knows: the rig and model of each staged node, the action synthesizer,
+ * the delivery raster, builder-owned formations and clips, the previous beat's
+ * end state, and any collision advice. `compileDefinedShot` forwards the
+ * capabilities to `performShot`, the measurement inputs to
+ * `realizeShotContract`, `previous` to `blockBeat`, `plants` to the closing
+ * continuity snapshot, and `advice` to its own validation. Every optional
+ * member, when omitted, disables only the check or measurement it feeds, as
+ * stated on that member.
+ *
+ * @evidence contracts/common.md#principled-implementation Capabilities are injected as lookups keyed by scene node id rather than imported, so the engine composes and validates motion against whatever rig, model and gait table the host actually renders with, and the same compile is deterministic for the same runtime answers.
+ * @evidence contracts/common.md#clear-and-simple-design One record for everything outside the shot program, so `compileDefinedShot` keeps a three-argument signature and routes each member to the one phase that reads it; members are optional exactly where a host can lack the fact and the phase has a defined behavior without it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No member is defaulted to an invented rig, gait list or raster: an absent `skeleton` answer skips ROM for that node by contract, an absent `gaits` lookup skips only the gait check, and a clearance-declaring camera without `cameraClearance` is a violation rather than a pass.
+ * @evidence contracts/common.md#meaningful-documentation States the consumer and where each member is routed, and per member its owner, what it is measured against, what omission does, and the units or keys of its answers.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A capability record with no runtime body; the work done with each member is answered on `performShot`, `realizeShotContract` and `compileDefinedShot`.
+ * @evidence contracts/performance.md#reuse-equivalent-work Built once per shot by the host and shared by every compile phase of that shot, so the model, formation and clip lists are handed over once; the engine caches no lookup answer, so a host whose rig or gait lookups are costly memoizes them itself.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns every member; the compiled result copies the advice with `structuredClone` and holds no reference to the lookups, so the record is released when the host drops it after compilation.
+ * @author Samchon
  */
 export interface IAutoMovieShotRuntime {
   /**
-   * Rig-specific action synthesizer; engine composition and ROM gates follow.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.synthesize supports reproducible staging and performance: Rig-specific action synthesizer; engine composition and ROM gates follow.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.synthesize realizes deterministic staging replay and validation: Rig-specific action synthesizer; engine composition and ROM gates follow.
+   * Rig-specific action synthesizer; the engine composes its clips and applies
+   * the ROM and artifact gates after it.
    */
   synthesize: IAutoMovieActionSynthesizer;
+
   /**
-   * Rig lookup for every staged actor.
+   * The rig of a staged node, or `null` for a node without one.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.skeleton supports reproducible staging and performance: Rig lookup for every staged actor.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.skeleton realizes deterministic staging replay and validation: Rig lookup for every staged actor.
+   * `performShot` validates each actor's clips against it and resolves bone
+   * targets through it, `realizeShotContract` measures a model-less actor's
+   * span from it, and a staged mount's parent must answer a rig carrying the
+   * mount bone.
+   *
+   * @evidence contracts/common.md#principled-implementation A pure lookup by scene node id; a `null` answer is the contract for a rig-less node, whose clip skips ROM, while a bone target or mount parent that answers `null` is reported as a violation.
+   * @evidence contracts/common.md#clear-and-simple-design One lookup shared by performance, contract measurement and mount baking, so the three phases read the same rig for a node.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine substitutes no default skeleton for `null`; a phase that needs a rig reports its absence instead of measuring against a stand-in rig.
+   * @evidence contracts/common.md#meaningful-documentation States the key, the meaning of `null`, and each phase that reads the rig and what it uses it for.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; its cost is the host's, and the engine calls it per node per phase without iterating rigs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers, so a host with an expensive rig build memoizes it behind this lookup.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned rig stays host-owned and is read during the call; the compiled shot keeps no reference to it.
    */
   skeleton(node: string): IAutoMovieSkeleton | null;
+
   /**
-   * Raster dimensions used to project required camera subjects at opening,
-   * review-frame and closing times.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.frameFormat supports reproducible staging and performance: Raster dimensions used to project required camera subjects at opening, review-frame and closing times.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.frameFormat realizes deterministic staging replay and validation: Raster dimensions used to project required camera subjects at opening, review-frame and closing times.
+   * Delivery raster in pixels, used to project required camera subjects at the
+   * opening, review and closing times and to fit framing horizontally.
    */
   frameFormat: Pick<
     IAutoMovieProductionDesign["frameFormat"],
     "width" | "height"
   >;
+
   /**
-   * Geometry revision and fixed-clock authority for camera-body clearance.
-   * Required only when a delivered staged camera declares a clearance
-   * envelope.
-   *
-   * @evidence requirements/camera/clipping-occlusion-and-spatial-constraints.md#camera-spatial-geometry-revision Carries the measured and current revision through the public shot builder boundary.
-   * @evidence specifications/camera-light-and-visibility/framing-axis-and-camera-path.md#clv-camera-path-constraints-refusal Arms the addressed swept-path refusal before a shot artifact is published.
+   * Geometry revision and fixed inspection clock for camera-body clearance.
+   * Required only when a delivered staged camera declares a clearance envelope;
+   * such a camera without it is a violation.
    */
   cameraClearance?: IAutoMovieCameraClearanceRuntime;
+
   /**
-   * Optional world landmarks cited by contract predicates.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.world supports reproducible staging and performance: Optional world landmarks cited by contract predicates.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.world realizes deterministic staging replay and validation: Optional world landmarks cited by contract predicates.
+   * World landmarks cited by contract predicates; omitted or `null`, a
+   * predicate citing a landmark fails the compile with a contract-phase
+   * diagnostic.
    */
   world?: IAutoMovieWorldDesign | null;
+
   /**
-   * Formation designs cited by the registered participant contract.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.formationDesigns supports reproducible staging and performance: Formation designs cited by the registered participant contract.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.formationDesigns realizes deterministic staging replay and validation: Formation designs cited by the registered participant contract.
+   * Formation designs by id, cited by the registered participant contract;
+   * omitted means none.
    */
   formationDesigns?: ReadonlyMap<string, IAutoMovieFormationDesign>;
+
   /**
-   * Compiler-owned compact formation runtimes present in this shot.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.formations supports reproducible staging and performance: Compiler-owned compact formation runtimes present in this shot.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.formations realizes deterministic staging replay and validation: Compiler-owned compact formation runtimes present in this shot.
+   * Compiler-owned compact formation runtimes present in this shot, so a camera
+   * can frame a mass; a group target naming a formation absent here is a
+   * violation.
    */
   formations?: readonly IAutoMovieCompiledFormation[];
+
   /**
    * The shot's compact formation cues.
    *
    * A camera framing a unit and the realization grading that frame both measure
    * the unit where the cue playing at that instant has put it, so the cues have
    * to reach the performance boundary rather than being attached to the source
-   * artifact after it is built.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.formationMotions fixes the compact formation cues supplied to every replay of this shot.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.formationMotions realizes deterministic staging replay and validation: The shot's compact formation cues. A camera framing a unit and the realization grading that frame both measure the unit where the cue playing at that instant has put it, so the cues have to reach the performance boundary rather than being attached to the source artifact after it is built.
+   * artifact after it is built. Omitted, every formation is measured at rest.
    */
   formationMotions?: readonly IAutoMovieFormationMotion[];
+
   /**
    * The shot's own light clips, carried onto the compiled shot.
    *
    * The source states them beside its verbs and the host hands them here; the
-   * performance boundary gates them against the staged lights, exactly as it
-   * gates every other reference the source makes.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.lightMotions carries the authored light animation inputs into the reproducible compiled-shot result.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.lightMotions realizes deterministic staging replay and validation: The shot's own light clips, carried onto the compiled shot. The source states them beside its verbs and the host hands them here; the performance boundary gates them against the staged lights, exactly as it gates every other reference the source makes.
+   * performance boundary checks that each addresses a staged light, as it
+   * checks every other reference the source makes.
    */
   lightMotions?: readonly IAutoMovieClip[];
+
   /**
-   * The shot's own object clips and the prop registry they are measured
-   * against, carried onto the compiled shot's `objectMotions`.
+   * The shot's own object clips, carried onto the compiled shot's
+   * `objectMotions`.
    *
    * A building's panel and a prop's leaf are the two things a shot can move
    * that no verb reaches, and both are one node in the staged graph turned over
    * the shot's clock. The performance boundary admits the nodes this shot may
-   * drive and bounds a driven joint by the travel its prop declares; see
-   * {@link gateAuthoredObjectMotions}.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.objectMotions binds authored object clips to the prop registry used to validate and reproduce them.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.objectMotions realizes deterministic staging replay and validation: The shot's own object clips and the prop registry they are measured against, carried onto the compiled shot's `objectMotions`. A building's panel and a prop's leaf are the two things a shot can move that no verb reaches, and both are one node in the staged graph turned over the shot's clock. The performance boundary admits the nodes this shot may drive and bounds a driven joint by the travel its prop declares; see {@link gateAuthoredObjectMotions}.
+   * drive and bounds a driven joint by the travel its prop declares in
+   * {@link props}.
    */
   objectMotions?: readonly IAutoMovieClip[];
-  /**
-   * Forged props this shot stages, whose joints those clips may address.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.props supports reproducible staging and performance: Forged props this shot stages, whose joints those clips may address.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.props realizes deterministic staging replay and validation: Forged props this shot stages, whose joints those clips may address.
-   */
+
+  /** Forged props this shot stages, whose joints those clips may address. */
   props?: readonly IAutoMoviePropSpec[];
+
   /**
-   * Optional full models when predicates need model-owned rig evidence.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.models supports reproducible staging and performance: Optional full models when predicates need model-owned rig evidence.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.models realizes deterministic staging replay and validation: Optional full models when predicates need model-owned rig evidence.
+   * Compiler-owned models of the staged nodes, used to measure what a camera
+   * frames and what the contract grades; omitted, the rig span or a stand-in
+   * height is measured instead.
    */
   models?: readonly IAutoMovieModel[];
+
   /**
-   * Formation-slot collisions found while materializing this shot.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.collisions supports reproducible staging and performance: Formation-slot collisions found while materializing this shot.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.collisions realizes deterministic staging replay and validation: Formation-slot collisions found while materializing this shot.
+   * Ids of formation slots that collided with an authored scene node while the
+   * builder materialized this shot; each one fails the contract realization.
    */
   collisions?: readonly string[];
+
   /**
-   * Optional distinction between missing actor context and a rig-less actor.
+   * Whether a staged node has an actor context in the host's registry.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.hasActorContext supports reproducible staging and performance: Optional distinction between missing actor context and a rig-less actor.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.hasActorContext realizes deterministic staging replay and validation: Optional distinction between missing actor context and a rig-less actor.
+   * `performShot` reports a bone target on a staged node without a context as
+   * missing context, which keeps it distinct from a present actor that simply
+   * has no rig. Omitted, every staged node is taken to have a context.
+   *
+   * @evidence contracts/common.md#principled-implementation A membership lookup by scene node id, consulted only after the target node is known to be staged and before its rig is read, so the two failures are named in that order.
+   * @evidence contracts/common.md#clear-and-simple-design A separate optional lookup rather than a sentinel answer from `skeleton`, because `null` there already means a rig-less actor and cannot also mean an unknown one.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine does not infer membership from a missing rig or model; without this lookup it skips the distinction rather than guessing.
+   * @evidence contracts/common.md#meaningful-documentation States the key, the reader, the distinction it enables and the omitted behavior.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied predicate signature; the engine calls it once per bone target.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers; it is called once per bone target per compile.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Answers one boolean per bone target and the engine keeps neither the answer nor the predicate after compiling.
    */
   hasActorContext?(node: string): boolean;
+
   /**
-   * Optional clinical joint axes used by ground IK and attachment baking.
+   * Clinical joint axes of a node's rig, keyed by humanoid bone, used by ground
+   * IK and attachment baking; `undefined` for a node without them.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.jointAxes supports reproducible staging and performance: Optional clinical joint axes used by ground IK and attachment baking.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.jointAxes realizes deterministic staging replay and validation: Optional clinical joint axes used by ground IK and attachment baking.
+   * @evidence contracts/common.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so stance solving and attachment baking read the rig in the same anatomical basis the renderer uses.
+   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup returning a partial table, because rigs carry axes for different bone subsets and a node may carry none.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing table or bone is passed as `undefined` to the consumers, which fall back to their documented rig-space behavior rather than to invented axes.
+   * @evidence contracts/common.md#meaningful-documentation States the key, the table's keying, its two consumers, why they need it, and the meaning of `undefined`.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine asks it once per performed actor for ground planting and again when baking that actor's attachments or mounts.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine keeps no axis table between compiles, so a host whose rigs are fixed memoizes the table per rig behind this lookup.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned axis table stays host-owned; ground planting and attachment baking read it during compilation and the compiled shot keeps no reference to it.
    */
   jointAxes?(
     node: string,
   ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
+
   /**
-   * Optional clinical rest frames used by ground IK and attachment baking.
+   * Clinical rest frames of a node's rig, keyed by humanoid bone, used by ground
+   * IK and attachment baking; `undefined` for a node without them.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.restFrames supports reproducible staging and performance: Optional clinical rest frames used by ground IK and attachment baking.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.restFrames realizes deterministic staging replay and validation: Optional clinical rest frames used by ground IK and attachment baking.
+   * @evidence contracts/common.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so planted feet and `attachTo` motions follow the visible pose rather than raw rig-space forward kinematics.
+   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup returning a partial table, the same shape as `jointAxes`, because the two describe one rig basis for the same consumers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing table or bone reaches the consumers as `undefined` and they use raw rig-space frames, never a guessed rest pose.
+   * @evidence contracts/common.md#meaningful-documentation States the key, the table's keying, its consumers, why the visible pose matters, and the meaning of `undefined`.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine asks it per performed actor for ground planting and when baking attachments, alongside `jointAxes` for the same node.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The rest-frame table is fetched afresh for each compile; a host with fixed rigs memoizes it per rig, since the engine stores none.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned rest-frame table stays host-owned and is only read while stance feet and attachment motions are computed.
    */
   restFrames?(
     node: string,
   ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
+
   /**
-   * Optional live point resolver for moving targets.
+   * The world point of an action target at shot-local `seconds`, or `null` to
+   * let the engine resolve it from the staged placements.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.targetAt supports reproducible staging and performance: Optional live point resolver for moving targets.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.targetAt realizes deterministic staging replay and validation: Optional live point resolver for moving targets.
+   * @evidence contracts/common.md#principled-implementation `performShot` asks it first and falls back to `resolveTargetPoint` over staged node positions on `null`; an answer that is not finite is reported as an unresolved target, and a bone strike uses it as the moving intercept point.
+   * @evidence contracts/common.md#clear-and-simple-design One optional resolver for targets that move during the shot, so a host with live geometry overrides the static answer without the engine modelling that geometry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A `null` or missing resolver falls back to the staged resolution rather than a cached or extrapolated point, and a non-finite point is reported, not clamped.
+   * @evidence contracts/common.md#meaningful-documentation States the time base, the space, the meaning of `null`, and the fallback.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied resolver signature; the engine calls it per target query, including per sample of a moving strike.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers, since a live target may move between queries.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned vector is read during the call; strike closures that capture the resolver live only for that shot's compilation.
    */
   targetAt?(
-    target: import("@automovie/interface").IAutoMovieActionTarget,
+    target: IAutoMovieActionTarget,
     seconds: number,
   ): IAutoMovieVector3 | null;
+
   /**
-   * Gait vocabulary available to each actor.
+   * The gait names a node's actor context supplies, or `undefined` to skip the
+   * check for that node.
    *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.gaits supports reproducible staging and performance: Gait vocabulary available to each actor.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.gaits realizes deterministic staging replay and validation: Gait vocabulary available to each actor.
+   * @evidence contracts/common.md#principled-implementation `performShot` reports a `locomote` whose gait is not in the actor's list as a violation, because the reference synthesizer resolves gaits by name and would otherwise produce no motion for an unknown one.
+   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup, because gait vocabularies belong to each actor's context rather than to the shot.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An omitted lookup or an `undefined` answer skips the check rather than assuming a default gait set, and an empty list rejects every gait.
+   * @evidence contracts/common.md#meaningful-documentation States the key, the check it feeds, the effect of `undefined` and of omission.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine calls it once per actor per `locomote` action.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each gait list is requested per actor per `locomote` action and compared at once; no list survives the check inside the engine.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned list stays host-owned and is read during the check only.
    */
   gaits?(node: string): readonly string[] | undefined;
+
   /**
-   * Prior verified beat state used as this shot's opening condition.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.previous supports reproducible staging and performance: Prior verified beat state used as this shot's opening condition.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.previous realizes deterministic staging replay and validation: Prior verified beat state used as this shot's opening condition.
+   * The previous beat's verified end state, used as this shot's opening
+   * condition: actors resume its placement, facing, pose, gait phase, velocity,
+   * plants and mount. Omitted for a first beat.
    */
   previous?: IAutoMovieBeatEndState;
+
   /**
-   * Ground-IK stance runs carried into the closing continuity snapshot.
-   *
-   * @evidence requirements/staging/budgets-safety-and-validation.md#staging-deterministic-replay IAutoMovieShotRuntime.plants supports reproducible staging and performance: Ground-IK stance runs carried into the closing continuity snapshot.
-   * @evidence specifications/performance-motion-and-staging/staging-events-coverage-and-validation.md#performance-staging-deterministic-replay-failure-result IAutoMovieShotRuntime.plants realizes deterministic staging replay and validation: Ground-IK stance runs carried into the closing continuity snapshot.
+   * Ground-IK stance runs carried into the closing continuity snapshot, one
+   * entry per node; a node this shot replants replaces its entry.
    */
   plants?: ReadonlyArray<{
     /** Scene node whose feet were measured. */
     node: string;
+
     /** Measured stance runs for that node. */
     plants: readonly IAutoMovieBeatEndFootPlant[];
   }>;
+
   /**
-   * Optional D010 suggestions generated by shot code or a host analysis pass.
-   *
-   * @evidence requirements/effects-and-simulation/rigid-motion-ballistics-and-collision.md#effects-authored-simulated-trajectory Carries D010 suggestions and their author dispositions into compilation as optional source data rather than applying any proposal automatically.
-   * @evidence specifications/simulation-effects-and-sound/rigid-collision-and-damage.md#rigid-trajectory-tier-contract Supplies the proposal, selected response, decision, and rationale that the builder validates at the explicit trajectory-authority boundary.
+   * Collision-response suggestions from shot code or a host analysis pass,
+   * with the author's decisions; validated, then copied onto the compiled
+   * result and never applied to motion.
    */
   advice?: readonly IAutoMovieShotPhysicsAdvice[];
 }

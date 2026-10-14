@@ -1,4 +1,4 @@
-/** Wall-bound laundry cabinet and pantry shelving from docs/models/12-service-rooms.md. */
+/** Wall-bound laundry cabinet and pantry shelving */
 import { FittingParts, type FittingBuilt, type FittingPoint } from "./geometry";
 
 type XZ = readonly [number,number];

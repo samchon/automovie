@@ -1,67 +1,57 @@
-import { materializeCompiledInstanceSet } from "@automovie/engine";
+import {
+  materializeCompiledInstanceSet,
+  productionRuntimeModelId,
+  srgbHexToLinearColor,
+} from "@automovie/engine";
 import {
   IAutoMovieInstanceSetDesign,
+  IAutoMovieModel,
   IAutoMovieModelRecipe,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
-import { materializeProductionModels } from "@automovie/production";
-import { buildInstancedInstanceSet, buildMaterial } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { nclose } from "../internal/predicates";
+import { buildInstancedInstanceSet } from "../../../../packages/viewer/src/buildInstancedInstanceSet";
+import { buildMaterial } from "../../../../packages/viewer/src/buildMaterial";
+import { createModel } from "../internal/fixtures";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * One swatch authored through either color path renders one color.
+ * One authored swatch reaches the same linear albedo through the material and instance-palette paths.
  *
- * A production covers a surface two ways at once: whole units come from an
- * instance set's `variation.palette`, and the cut pieces that meet them carry a
- * generated model recipe's own material. Both are authored as `#RRGGBB`, so an
- * author reasonably expects the same string to mean the same color. It did not:
- * the viewer decoded the palette from sRGB while the builder divided the
- * recipe's digits by 255 and wrote them into a linear `baseColor`, which put
- * one roof's whole slates at linear 0.21 and its cut slates at 0.49 and drew a
- * bright band along every hip and ridge where the two met.
+ * Both paths interpret authored hex swatches as sRGB and supply linear values to native material or instance color state. The independent transfer function distinguishes a shared correct decode from two paths agreeing on byte transcription.
  *
- * The two paths are read where they become the renderer's albedo: a batch's
- * instance color, and a material's diffuse color. The batch material is forced
- * to white so its instance color is the whole answer, which is what makes the
- * two directly comparable.
+ * The unit reads CPU-side instance and diffuse colors with a white batch material, without observing rendered pixels. Repeated slot equality establishes output consistency rather than a measured decode-cache hit count.
  *
  * Scenarios:
  *
- * 1. `#7d828c`, the swatch the observed defect was measured on, renders one
- *    linear triple through both paths.
- * 2. Both land on the value the sRGB standard gives that swatch rather than on
- *    the transcription, so restoring the divide-by-255 fails here instead of
- *    merely making the two paths agree on a wrong color.
- * 3. A deliberately different palette entry stays different from the material,
- *    so the parity above cannot be satisfied by collapsing every color onto one
- *    value.
- * 4. `#000000` and `#ffffff` agree exactly at both gamut ends, where a decode
- *    and a transcription are indistinguishable and a broken one would still
- *    look right.
- * 5. Disabling three.js's mutable color-management switch cannot turn an
- *    instance palette back into transcribed RGB; the engine-owned decode stays
- *    equal to the material path and the global is restored before this case
- *    returns.
- * 6. Two slots sharing one palette entry both receive that color, covering the
- *    per-set decoded-swatch cache rather than paying the transfer per slot.
+ * 1. The midtone #7d828c reaches the same linear triple through both paths.
+ * 2. The independent sRGB transfer reference distinguishes decode from divide-by-255 transcription.
+ * 3. A contrasting palette entry stays different from the material swatch.
+ * 4. Black and white endpoints agree within Float32 tolerance.
+ * 5. Two slots using one palette entry receive equal color values.
+ * 6. Instance retirement attempts later resources after a geometry listener throws, preserves its failure without retry and refuses later updates.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Decodes an authored material swatch with the engine color seam and materializes a compact instance set, reads real material/instance albedo and observes actual dispose events; catches sRGB transcription, color collapse and instance lifetime that skips later releases after a listener failure.
+ * @evidence contracts/testing.md#independent-expectations W3C CSS Color 4's sRGB transfer function independently maps authored hex bytes to linear channels, with 1e-7 tolerance covering Float32 attributes; dispose event counts follow one attempt per owned visible resource and the supplied listener Error must remain the repeated completion.
+ * @evidence contracts/testing.md#distinguishing-cases Covers a midtone, contrasting palette, black/white endpoints, repeated swatch slots, normal cleanup and a throwing geometry retirement with healthy instance/material release; other instancing tests own transforms, culling and prototype selection.
+ * @evidence contracts/testing.md#execution-ownership This discovered unit function uses portable materialization plus in-memory Three colors, geometry and disposal events; no browser, GPU, native artifact or process is created and all cases are declared directly here.
  */
-export const test_viewer_palette_color_space = (): void => {
-  const SLATE = "#7d828c";
+export function test_viewer_palette_color_space(): void {
+  const SLATE: string = "#7d828c";
 
   TestValidator.predicate(
-    "one swatch renders one linear triple through both paths",
+    "one swatch supplies one linear triple through both paths",
     sameRendered(materialAlbedo(SLATE), instanceAlbedo(SLATE)),
   );
 
-  const decoded = materialAlbedo(SLATE);
+  const decoded: THREE.Color = materialAlbedo(SLATE);
   TestValidator.predicate(
     "both paths land on the standard's value, not the transcription",
-    nclose(decoded.r, 0.20507874, 1e-7) &&
-      nclose(decoded.g, 0.22322796, 1e-7) &&
-      nclose(decoded.b, 0.26225066, 1e-7) &&
+    nclose(decoded.r, referenceSrgbChannel(0x7d), 1e-7) &&
+      nclose(decoded.g, referenceSrgbChannel(0x82), 1e-7) &&
+      nclose(decoded.b, referenceSrgbChannel(0x8c), 1e-7) &&
       nclose(decoded.r, 0x7d / 255, 1e-7) === false,
   );
 
@@ -71,45 +61,122 @@ export const test_viewer_palette_color_space = (): void => {
   );
 
   TestValidator.predicate(
-    "the gamut ends agree exactly",
+    "the gamut ends agree within Float32 tolerance",
     sameRendered(materialAlbedo("#000000"), instanceAlbedo("#000000")) &&
       sameRendered(materialAlbedo("#ffffff"), instanceAlbedo("#ffffff")),
   );
 
-  const colorManagement = THREE.ColorManagement.enabled;
-  try {
-    THREE.ColorManagement.enabled = false;
-    TestValidator.predicate(
-      "a host color-management switch cannot change palette decoding",
-      sameRendered(materialAlbedo(SLATE), instanceAlbedo(SLATE)),
-    );
-  } finally {
-    THREE.ColorManagement.enabled = colorManagement;
-  }
-
-  const repeated = instanceAlbedos(SLATE);
+  const repeated: THREE.Color[] = instanceAlbedos(SLATE);
   TestValidator.predicate(
     "slots sharing one decoded swatch receive the same color",
     sameRendered(repeated[0]!, repeated[1]!),
   );
+
+  const fragile: ReturnType<typeof buildInstancedInstanceSet> =
+    paletteInstances(SLATE);
+  const mesh: THREE.InstancedMesh = fragile.object
+    .children[0] as THREE.InstancedMesh;
+  const failure: Error = new Error(
+    "Instance geometry retirement listener refused.",
+  );
+  let geometries: number = 0;
+  let instances: number = 0;
+  let materials: number = 0;
+  mesh.geometry.addEventListener("dispose", (): never => {
+    ++geometries;
+    throw failure;
+  });
+  mesh.addEventListener("dispose", (): void => {
+    ++instances;
+  });
+  for (const material of new Set(
+    Array.isArray(mesh.material) ? mesh.material : [mesh.material],
+  ))
+    material.addEventListener("dispose", (): void => {
+      ++materials;
+    });
+  let firstFailure: unknown;
+  let repeatedFailure: unknown;
+  try {
+    fragile.dispose();
+  } catch (error) {
+    firstFailure = error;
+  }
+  try {
+    fragile.dispose();
+  } catch (error) {
+    repeatedFailure = error;
+  }
+  TestValidator.predicate(
+    "instance retirement preserves its actual failure without retry",
+    firstFailure === failure && repeatedFailure === failure,
+  );
+  TestValidator.equals(
+    "geometry failure cannot skip instance and material release",
+    [geometries, instances, materials],
+    [1, 1, 1],
+  );
+  TestValidator.predicate(
+    "disposed instance sets refuse further updates",
+    throwsError(
+      (): void => fragile.update(new THREE.PerspectiveCamera(), 100),
+      "is disposed",
+    ),
+  );
+}
+
+/** Byte-to-linear reference from https://www.w3.org/TR/css-color-4/#predefined-sRGB. */
+function referenceSrgbChannel(byte: number): number {
+  const encoded: number = byte / 255;
+  return encoded <= 0.04045
+    ? encoded / 12.92
+    : ((encoded + 0.055) / 1.055) ** 2.4;
+}
+
+/** Read an authored material's CPU-side linear diffuse color. */
+const materialAlbedo: (swatch: string) => THREE.Color = (
+  swatch: string,
+): THREE.Color => {
+  const model: IAutoMovieModel = paletteModel(swatch);
+  const material: THREE.MeshPhysicalMaterial = buildMaterial(
+    model.materials[0]!,
+  );
+  const result: THREE.Color = material.color.clone();
+  material.dispose();
+  return result;
 };
 
-/** The linear diffuse color a generated recipe's own material renders with. */
-const materialAlbedo = (swatch: string): THREE.Color => {
-  const recipe = paletteRecipe(swatch);
-  const model = [
-    ...materializeProductionModels(new Map([[recipe.id, recipe]])).values(),
-  ][0]!;
-  return buildMaterial(model.materials[0]!).color;
-};
-
-/** The linear instance color one slot of a palette-driven batch renders with. */
-const instanceAlbedo = (swatch: string): THREE.Color =>
-  instanceAlbedos(swatch)[0]!;
+/** Read one slot's CPU-side linear instance color. */
+const instanceAlbedo: (swatch: string) => THREE.Color = (
+  swatch: string,
+): THREE.Color => instanceAlbedos(swatch)[0]!;
 
 /** The two linear instance colors in one palette-driven batch. */
-const instanceAlbedos = (swatch: string): THREE.Color[] => {
-  const recipe = paletteRecipe(swatch);
+const instanceAlbedos: (swatch: string) => THREE.Color[] = (
+  swatch: string,
+): THREE.Color[] => {
+  const built: ReturnType<typeof buildInstancedInstanceSet> =
+    paletteInstances(swatch);
+  try {
+    const mesh: THREE.InstancedMesh = built.object.children.find(
+      (child: THREE.Object3D): child is THREE.InstancedMesh =>
+        child instanceof THREE.InstancedMesh,
+    )!;
+    return [0, 1].map((index: number): THREE.Color => {
+      const color: THREE.Color = new THREE.Color();
+      mesh.getColorAt(index, color);
+      return color;
+    });
+  } finally {
+    built.dispose();
+  }
+};
+
+/** Build the authored two-slot slab set used by color and retirement cases. */
+function paletteInstances(
+  swatch: string,
+): ReturnType<typeof buildInstancedInstanceSet> {
+  const recipe: IAutoMovieModelRecipe = paletteRecipe(swatch);
   const design: IAutoMovieInstanceSetDesign = {
     id: "roof",
     modelRecipe: recipe.id,
@@ -134,33 +201,37 @@ const instanceAlbedos = (swatch: string): THREE.Color[] => {
     effectZones: [],
     instanceSets: [design],
   };
-  const recipes = new Map([[recipe.id, recipe]]);
-  const built = buildInstancedInstanceSet({
+  const recipes: Map<string, IAutoMovieModelRecipe> = new Map([
+    [recipe.id, recipe],
+  ]);
+  return buildInstancedInstanceSet({
     instanceSet: materializeCompiledInstanceSet({
       instanceSet: design,
       world,
       recipes,
     }),
-    models: new Map(
-      [...materializeProductionModels(recipes).values()].map((model) => [
-        model.id,
-        model,
-      ]),
-    ),
+    models: new Map([
+      [productionRuntimeModelId(recipe.id), paletteModel(swatch)],
+    ]),
   });
-  const mesh = built.object.children.find(
-    (child): child is THREE.InstancedMesh =>
-      child instanceof THREE.InstancedMesh,
-  )!;
-  return [0, 1].map((index) => {
-    const color = new THREE.Color();
-    mesh.getColorAt(index, color);
-    return color;
-  });
-};
+}
+
+/** Author the slab directly through the model AST and the shared sRGB decoder. */
+function paletteModel(swatch: string): IAutoMovieModel {
+  const model: IAutoMovieModel = createModel(null);
+  model.id = productionRuntimeModelId("slate");
+  model.materials[0]!.baseColor = srgbHexToLinearColor(swatch);
+  model.parts[0]!.geometry = {
+    type: "primitive",
+    shape: { type: "box", width: 1, height: 0.05, depth: 1 },
+  };
+  return model;
+}
 
 /** One flat slab whose single material color is the swatch under test. */
-const paletteRecipe = (swatch: string): IAutoMovieModelRecipe => ({
+const paletteRecipe: (swatch: string) => IAutoMovieModelRecipe = (
+  swatch: string,
+): IAutoMovieModelRecipe => ({
   id: "slate",
   role: "prop",
   archetype: "primitive-prop",
@@ -172,10 +243,12 @@ const paletteRecipe = (swatch: string): IAutoMovieModelRecipe => ({
 });
 
 /**
- * Both paths end in a 32-bit attribute or a float uniform, so they are compared
- * at that width rather than as doubles.
+ * Float32 instance attributes introduce rounding relative to the double-precision material color, so both paths use the same finite 1e-7 comparison tolerance.
  */
-const sameRendered = (left: THREE.Color, right: THREE.Color): boolean =>
+const sameRendered: (left: THREE.Color, right: THREE.Color) => boolean = (
+  left: THREE.Color,
+  right: THREE.Color,
+): boolean =>
   nclose(left.r, right.r, 1e-7) &&
   nclose(left.g, right.g, 1e-7) &&
   nclose(left.b, right.b, 1e-7);

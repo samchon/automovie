@@ -1,4 +1,3 @@
-import { sampleClip } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -6,15 +5,13 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { type IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { namedFacts } from "../internal/namedFacts";
+import { nclose } from "../internal/nclose";
 
 /**
- * The track sampler now binary-searches the enclosing keyframe segment instead
- * of scanning front to back, the same O(N·F) → O(F·log N) fix the pose sampler
- * got, on the general channel path (`resolveFrame`/`resolveDrivers`/attached
- * objects). A closed-form ramp on a vec3 translation track (value.x = i at time
- * i·dt, linear) gives an exact oracle: the sampled x equals time/dt across the
- * whole 240-key array.
+ * A 240-key linear translation ramp supplies the closed-form x=time/DT expectation for midpoint, exact-key and off-grid queries. Numerical agreement does not prove the segment-search algorithm or its complexity.
  *
  * Scenarios:
  *
@@ -23,20 +20,20 @@ import { namedFacts, nclose } from "../internal/predicates";
  * 2. Exact keyframe times return that keyframe's value verbatim.
  */
 
-const DT = 0.1;
-const N = 240;
+const DT: number = 0.1;
+const N: number = 240;
 
 const TRANSLATION: IAutoMovieChannel = {
   kind: "node",
   node: "n",
   path: "translation",
 };
-const KEY = "node:n:translation";
+const KEY: string = "node:n:translation";
 
-const rampClip = (): IAutoMovieClip => {
+const rampClip: () => IAutoMovieClip = (): IAutoMovieClip => {
   const times: number[] = [];
   const values: number[] = [];
-  for (let i = 0; i < N; ++i) {
+  for (let i: number = 0; i < N; ++i) {
     times.push(i * DT);
     values.push(i, 0, 0);
   }
@@ -55,42 +52,59 @@ const rampClip = (): IAutoMovieClip => {
   };
 };
 
-const xAt = (t: number): number[] => {
-  const hit = sampleClip(rampClip(), t).get(KEY);
+const xAt: (t: number) => number[] = (t: number): number[] => {
+  const hit: IAutoMovieSampledChannel | undefined = sampleClip(
+    rampClip(),
+    t,
+  ).get(KEY);
   if (hit === undefined) throw new Error(`${KEY} missing`);
   return hit.value;
 };
 
-export const test_resolve_sample_clip_binary_search = (): void => {
-  const last = (N - 1) * DT;
+/**
+ * @evidence contracts/testing.md#behavioral-verification Samples a 240-key translation ramp through sampleClip and checks midpoint, exact-key and off-grid coordinates, catching incorrect enclosing-segment/tie selection or altered inactive axes.
+ * @evidence contracts/testing.md#independent-expectations Authored x=i at time i*DT makes linear x=time/DT with y=z=0; exact keys137/200 have literal endpoint values. This value oracle cannot establish whether the implementation uses binary rather than linear search.
+ * @evidence contracts/testing.md#distinguishing-cases Every existing interior segment midpoint/key plus three off-grid queries and two exact-key vectors exercises dense segment selection; loop/clamp and malformed tracks belong to test_resolve_sample_clip.
+ * @evidence contracts/testing.md#execution-ownership The named test_resolve_sample_clip_binary_search entry owns synchronous portable numerical queries through the actual sampler, without performance instrumentation or a new runtime validation driver.
+ */
+export function test_resolve_sample_clip_binary_search(): void {
+  const last: number = (N - 1) * DT;
 
   const queries: number[] = [];
-  for (let i = 0; i < N - 1; ++i) queries.push((i + 0.5) * DT); // midpoints
-  for (let i = 1; i < N - 1; ++i) queries.push(i * DT); // interior keys
+  for (let i: number = 0; i < N - 1; ++i) queries.push((i + 0.5) * DT); // midpoints
+  for (let i: number = 1; i < N - 1; ++i) queries.push(i * DT); // interior keys
   queries.push(last * 0.137, last * 0.611, last * 0.909); // off-grid
 
   for (const t of queries) {
-    const v = xAt(t);
+    const v: number[] = xAt(t);
     TestValidator.equals(
       `translation.x ramp is exact at t=${t.toFixed(4)}`,
       namedFacts([
-        ["ncloseVT", () => nclose(v[0]!, t / DT, 1e-9)],
-        ["v", () => v[1] === 0],
-        ["v2", () => v[2] === 0],
+        ["ncloseVT", (): boolean => nclose(v[0]!, t / DT, 1e-9)],
+        ["v", (): boolean => nclose(v[1]!, 0, 0)],
+        ["v2", (): boolean => nclose(v[2]!, 0, 0)],
       ]),
       { ncloseVT: true, v: true, v2: true },
     );
   }
 
   // Endpoint tie: an exact interior key returns that key's value verbatim.
-  TestValidator.equals(
+  TestValidator.predicate(
     "exact key 137 returns x=137",
-    xAt(137 * DT),
-    [137, 0, 0],
+    sameValues(xAt(137 * DT), [137, 0, 0]),
   );
-  TestValidator.equals(
+  TestValidator.predicate(
     "exact key 200 returns x=200",
-    xAt(200 * DT),
-    [200, 0, 0],
+    sameValues(xAt(200 * DT), [200, 0, 0]),
   );
-};
+}
+
+/** Compare array length and finite scalar values with zero absolute tolerance. */
+function sameValues(actual: number[], expected: number[]): boolean {
+  return (
+    actual.length === expected.length &&
+    actual.every((value: number, index: number): boolean =>
+      nclose(value, expected[index]!, 0),
+    )
+  );
+}

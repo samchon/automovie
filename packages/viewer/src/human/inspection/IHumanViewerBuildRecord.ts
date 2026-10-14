@@ -1,39 +1,23 @@
 /**
- * One numerical build the server saw, kept by document so a saving can be measured.
+ * The latest numerical build observed for a document in the last captured catalogue; its time locates capture completion.
  *
- * @evidence contracts/common.md#meaningful-documentation Names the build duration, occlusion and time.
- *
- * @evidence contracts/common.md#principled-implementation Duration, AO choice and observation time record an actual numerical build rather than a cache-hit estimate.
- * @evidence contracts/common.md#clear-and-simple-design The per-document record contains only the completed build's timing context.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Elapsed build milliseconds are supplied by worker telemetry and cannot be inferred from a viewer readiness flag.
- *
- * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Duration, AO choice and observation time record an actual numerical build rather than a cache-hit estimate.
- * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Elapsed build milliseconds are supplied by worker telemetry and cannot be inferred from a viewer readiness flag.
+ * @evidence contracts/common.md#principled-implementation Records the latest observed numerical build duration/AO choice at capture completion for a document in the last captured catalogue.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps build-only telemetry apart from cache-hit render duration and current capture phases.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Cache-only captures do not fabricate a fresh numerical build; ms can reflect the page's most recent successful numerical reply rather than every request.
+ * @evidence contracts/common.md#meaningful-documentation States worker milliseconds, requested AO and capture-completion wall-clock ISO time; the timestamp is not the worker's start time.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no measurement; describeHumanViewerCapture projects actual counters/timestamps in fixed work.
+ * @evidence contracts/performance.md#reuse-equivalent-work The capture owner keeps the latest per-document observation; equal duration/AO does not establish equivalent model or source.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Builds are pruned to ids in the last captured catalogue and use a prototype-free record; values retain no image or geometry bytes.
  *
  * @author Samchon
  */
 export interface IHumanViewerBuildRecord {
-  /**
-   * Worker milliseconds of the build.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Records the completed worker's numerical milliseconds separately from GPU display and queue waiting time.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Records the completed worker's numerical milliseconds separately from GPU display and queue waiting time.
-   */
+  /** Worker milliseconds of the build. */
   ms: number;
 
-  /**
-   * Whether ambient occlusion was baked.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Preserves whether this actual Face build evaluated ambient occlusion.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Preserves whether this actual Face build evaluated ambient occlusion.
-   */
+  /** Whether ambient occlusion was baked. */
   ao: boolean;
 
-  /**
-   * ISO time of the build.
-   *
-   * @evidence requirements/operations-and-recovery/resource-budgets-and-backpressure.md#operations-budget-result-accounting Locates the completed build observation in wall-clock time without using that time as model identity.
-   * @evidence specifications/execution-and-recovery/resource-budgets-and-backpressure.md#execution-resource-accounting Locates the completed build observation in wall-clock time without using that time as model identity.
-   */
+  /** ISO wall-clock time at capture completion, not numerical build start. */
   at: string;
 }

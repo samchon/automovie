@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,13 +19,13 @@
 </head>
 <body>
   <main>
-    <header><strong>중립 모델 검토 판</strong><select id="model"></select><select id="view">
-      <option value="front">정면</option><option value="right">우측면</option>
-      <option value="rear">배면</option><option value="top">평면</option>
-      <option value="diagonal">첫 대각</option><option value="opposite">반대 대각</option>
-    </select><button id="reset">다시 맞춤</button><span id="error"></span></header>
+    <header><strong>Neutral model review board</strong><select id="model"></select><select id="view">
+      <option value="front">Front</option><option value="right">Right</option>
+      <option value="rear">Rear</option><option value="top">Top</option>
+      <option value="diagonal">First diagonal</option><option value="opposite">Opposite diagonal</option>
+    </select><button id="reset">Refit</button><span id="error"></span></header>
     <canvas width="1600" height="1000"></canvas>
-    <pre id="status">현재 source를 불러오는 중</pre>
+    <pre id="status">Loading the current source</pre>
   </main>
   <script type="module" src="/assets/modelBoard.js"></script>
 </body>

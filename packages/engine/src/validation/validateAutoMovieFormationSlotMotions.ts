@@ -1,8 +1,10 @@
 import {
   IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
   IAutoMovieDiagnostic,
   IAutoMovieFormationSlotMotion,
   IAutoMovieShotContract,
+  IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -18,18 +20,33 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * and is capped for the same reason. This is the cheaper thing and must not
  * become that.
  */
-const FORMATION_SLOT_EXCEPTION_LIMIT = 1_024;
+const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
 
 /**
- * Validate sparse per-member exceptions against one compiled shot.
- *
- * Narrowed to what it reads, like the ground gate beside it: the unit's own
- * count and hero inventory decide which slots exist and which already belong to
- * an actor, and nothing else about a compiled shot bears on the question.
+ * Validate sparse member cue slots, states, ids, order and participant formation references.
  *
  * @author Samchon
+ * @evidence contracts/common.md#principled-implementation Validate sparse member cue slots, states, ids, order and participant formation references.
+ * @evidence contracts/common.md#clear-and-simple-design Per-formation/slot prior maps enforce exception scheduling while base formation admission stays separate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts More than 256 cues or 1024 total named slot entries report excess without truncation; promoted hero slots are refused to preserve their explicit actor owner.
+ * @evidence contracts/common.md#meaningful-documentation Half-open nonoverlapping cue windows, unique in-range slots, offsets bounded to +/-1e9m and facing bounded to +/-360000deg are stated.
+ * @evidence contracts/performance.md#efficient-algorithms F formations and C cues build maps/sort in O(F+C log C); S named slots drive admission/prior lookup, while hero filter with slots.includes adds O(H*S) per cue in the worst case.
+ * @evidence contracts/performance.md#reuse-equivalent-work Request-local compiled formation and nested formation/slot prior maps share repeated identity lookup, without joined-string collisions or cross-shot caching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only diagnostics return; no baked crowd, runtime member handle or cross-request state is retained.
  */
-export const validateAutoMovieFormationSlotMotions = (
+export const validateAutoMovieFormationSlotMotions: (
+  contract: Pick<
+    IAutoMovieShotContract,
+    "id" | "participants" | "durationSeconds"
+  >,
+  value: {
+    formations: readonly Pick<
+      IAutoMovieCompiledFormation,
+      "id" | "count" | "heroes"
+    >[];
+    formationSlotMotions: readonly IAutoMovieFormationSlotMotion[];
+  },
+) => IAutoMovieDiagnostic[] = (
   contract: Pick<
     IAutoMovieShotContract,
     "id" | "participants" | "durationSeconds"
@@ -43,29 +60,48 @@ export const validateAutoMovieFormationSlotMotions = (
   },
 ): IAutoMovieDiagnostic[] => {
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const fail = (field: string, expectation: string): void => {
+  const fail: (field: string, expectation: string) => void = (
+    field: string,
+    expectation: string,
+  ): void => {
     diagnostics.push(engineDiagnostic(contract.id, field, expectation));
   };
-  const cues = value.formationSlotMotions;
+  const cues: readonly IAutoMovieFormationSlotMotion[] =
+    value.formationSlotMotions;
   if (cues.length > 256)
     fail(
       "formationSlotMotions",
       "must contain at most 256 sparse per-member cues",
     );
-  const named = cues.reduce((sum, cue) => sum + cue.slots.length, 0);
+  const named: number = cues.reduce(
+    (sum: number, cue: IAutoMovieFormationSlotMotion): number =>
+      sum + cue.slots.length,
+    0,
+  );
   if (named > FORMATION_SLOT_EXCEPTION_LIMIT)
     fail(
       "formationSlotMotions",
       `must single out at most ${FORMATION_SLOT_EXCEPTION_LIMIT} members in one shot rather than author a curve per member`,
     );
-  const ids = new Set<string>();
-  const participating = new Set(
-    contract.participants.flatMap((participant) =>
-      participant.kind === "formation" ? [participant.id] : [],
+  const ids: Set<string> = new Set<string>();
+  const participating: Set<string> = new Set(
+    contract.participants.flatMap(
+      (participant: IAutoMovieShotParticipant): string[] =>
+        participant.kind === "formation" ? [participant.id] : [],
     ),
   );
-  const compiledById = new Map(
-    value.formations.map((formation) => [formation.id, formation]),
+  const compiledById: Map<
+    string,
+    Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">
+  > = new Map(
+    value.formations.map(
+      (
+        formation: Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">,
+      ): [
+        string,
+        Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">,
+      ] => [formation.id, formation],
+    ),
   );
   // Keyed by formation and then by slot rather than by formation alone, because
   // two members of one crowd doing different things at the same second is the
@@ -73,12 +109,15 @@ export const validateAutoMovieFormationSlotMotions = (
   // Nested rather than joined into one string key, because a formation id is
   // author-chosen text and any separator picked to join them is one an id may
   // legitimately contain.
-  const priorBySlot = new Map<
+  const priorBySlot: Map<
     string,
     Map<number, IAutoMovieFormationSlotMotion>
-  >();
+  > = new Map<string, Map<number, IAutoMovieFormationSlotMotion>>();
   for (const cue of [...cues].sort(
-    (left, right) =>
+    (
+      left: IAutoMovieFormationSlotMotion,
+      right: IAutoMovieFormationSlotMotion,
+    ): number =>
       compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
@@ -89,7 +128,9 @@ export const validateAutoMovieFormationSlotMotions = (
         "must have one non-blank id unique inside the shot",
       );
     ids.add(cue.id);
-    const compiled = compiledById.get(cue.formation);
+    const compiled:
+      | Pick<IAutoMovieCompiledFormation, "id" | "count" | "heroes">
+      | undefined = compiledById.get(cue.formation);
     if (participating.has(cue.formation) === false || compiled === undefined)
       fail(
         `formationSlotMotion:${cue.id}.formation`,
@@ -110,7 +151,7 @@ export const validateAutoMovieFormationSlotMotions = (
       cue.slots.length === 0 ||
       new Set(cue.slots).size !== cue.slots.length ||
       cue.slots.some(
-        (slot) =>
+        (slot: number): boolean =>
           Number.isSafeInteger(slot) === false ||
           slot < 0 ||
           (compiled !== undefined && slot >= compiled.count),
@@ -124,14 +165,19 @@ export const validateAutoMovieFormationSlotMotions = (
     // surface of its own. Letting this channel move one too would give a member
     // two owners writing the same transform, and the frame would show whichever
     // wrote last.
-    const heroes = (compiled?.heroes ?? []).filter((hero) =>
+    const heroes: IAutoMovieCompiledFormationHero[] = (
+      compiled?.heroes ?? []
+    ).filter((hero: IAutoMovieCompiledFormationHero): boolean =>
       cue.slots.includes(hero.slot),
     );
     if (heroes.length !== 0)
       fail(
         `formationSlotMotion:${cue.id}.slots`,
         `must not name slots promoted to named actors (${heroes
-          .map((hero) => `${hero.slot} is "${hero.actor}"`)
+          .map(
+            (hero: IAutoMovieCompiledFormationHero): string =>
+              `${hero.slot} is "${hero.actor}"`,
+          )
           .join(", ")}); author those on the actor instead`,
       );
     for (const [name, state] of [
@@ -140,7 +186,7 @@ export const validateAutoMovieFormationSlotMotions = (
     ] as const) {
       if (
         [state.offset.x, state.offset.y, state.offset.z].some(
-          (number) =>
+          (number: number): boolean =>
             Number.isFinite(number) === false ||
             Math.abs(number) > 1_000_000_000,
         ) ||
@@ -152,12 +198,13 @@ export const validateAutoMovieFormationSlotMotions = (
           "must keep offset inside +/-1000000000m and facing inside +/-360000 degrees",
         );
     }
-    const priorSlots =
+    const priorSlots: Map<number, IAutoMovieFormationSlotMotion> =
       priorBySlot.get(cue.formation) ??
       new Map<number, IAutoMovieFormationSlotMotion>();
     priorBySlot.set(cue.formation, priorSlots);
     for (const slot of cue.slots) {
-      const prior = priorSlots.get(slot);
+      const prior: IAutoMovieFormationSlotMotion | undefined =
+        priorSlots.get(slot);
       // Never against itself. A cue naming one member twice is a malformed
       // slot list, already refused as one above; reading the second mention as
       // an overlap would refuse the same mistake a second time and name the

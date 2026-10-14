@@ -20,130 +20,60 @@ import { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMotion";
 import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
 
 /**
- * Engine-compiled shot source before production materialization is added.
+ * Engine-compiled shot source with optional host-attached semantic carriers.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `IAutoMovieShotSourceOutput` as the portable data boundary for the agent source result link requirement.
- * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `IAutoMovieShotSourceOutput` for the spec authoring source derivation state system contract.
+ * @evidence contracts/common.md#principled-implementation compileDefinedShot returns scene, motions and shot from its stage/performance pipeline and deep-copies authored event samples before realizeShotContract checks their windows and predicates. Optional semantic carriers are host-attached inputs to Engine queries and render adapters; that direct compiler does not automatically preserve or validate every optional field.
+ * @evidence contracts/common.md#clear-and-simple-design Separates required engine artifacts and event samples from optional semantic carriers and compact cues, allowing explicit host composition without expanding the direct defineShot compiler into a production orchestrator.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Source event samples are independently checked by realizeShotContract rather than accepted as proof by id alone. Optional cue omission remains undefined in direct source output; a host composing IAutoMovieCompiledShotSource must provide its required cue arrays and run the relevant validators explicitly.
+ * @evidence contracts/common.md#meaningful-documentation Defines retained ownership and provenance, structured simulation and planting/service bindings, sampled event timing, derived engine artifacts and optional compact cue omission.
+ * @author Samchon
  */
 export interface IAutoMovieShotSourceOutput {
   /**
    * Source-owned generated models retained for materialization and evidence.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `authoredModels` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `authoredModels` for the spec authoring source derivation state system contract.
    */
   authoredModels?: IAutoMovieModel[];
 
-  /**
-   * Source-owned production props retained with their semantic contracts.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `props` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `props` for the spec authoring source derivation state system contract.
-   */
+  /** Source-owned production props retained with their semantic contracts. */
   props?: IAutoMoviePropSpec[];
 
-  /**
-   * Structured buildings retained for spatial queries and evidence.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `builtEnvironments` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `builtEnvironments` for the spec authoring source derivation state system contract.
-   */
+  /** Structured buildings retained for spatial queries and evidence. */
   builtEnvironments?: IAutoMovieBuiltEnvironment[];
 
-  /**
-   * Observation documents the building source read, kept as provenance.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `designReferences` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `designReferences` for the spec authoring source derivation state system contract.
-   */
+  /** Observation documents the building source read, kept as provenance. */
   designReferences?: IAutoMovieDesignReference[];
 
-  /**
-   * Citations from authored design members back to those observations.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `designEvidence` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `designEvidence` for the spec authoring source derivation state system contract.
-   */
+  /** Citations from authored design members back to those observations. */
   designEvidence?: IAutoMovieDesignEvidence[];
 
-  /**
-   * Phase, alternative and change-impact lineage over those identities.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `designLineages` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `designLineages` for the spec authoring source derivation state system contract.
-   */
+  /** Phase, alternative and change-impact lineage over those identities. */
   designLineages?: IAutoMovieDesignLineage[];
 
-  /**
-   * Independent deterministic fluid domains this shot's source declares.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `fluidDomains` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `fluidDomains` for the spec authoring source derivation state system contract.
-   */
+  /** Independent deterministic fluid domains this shot's source declares. */
   fluidDomains?: IAutoMovieFluidDomain[];
 
-  /**
-   * Bindings that make those domains a building's own water features.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `waterFeatures` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `waterFeatures` for the spec authoring source derivation state system contract.
-   */
+  /** Bindings that make those domains a building's own water features. */
   waterFeatures?: IAutoMovieWaterFeature[];
 
-  /**
-   * Cloth and cushion domains this shot's source declares.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `softBodyDomains` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `softBodyDomains` for the spec authoring source derivation state system contract.
-   */
+  /** Cloth and cushion domains this shot's source declares. */
   softBodyDomains?: IAutoMovieSoftBodyDomain[];
 
-  /**
-   * Bindings that hang those domains on a building's own elements.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `softFurnishings` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `softFurnishings` for the spec authoring source derivation state system contract.
-   */
+  /** Bindings that hang those domains on a building's own elements. */
   softFurnishings?: IAutoMovieSoftFurnishing[];
 
-  /**
-   * Growth recipes for the planting this shot's source declares.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `plantingDomains` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `plantingDomains` for the spec authoring source derivation state system contract.
-   */
+  /** Growth recipes for the planting this shot's source declares. */
   plantingDomains?: IAutoMoviePlantingDomain[];
 
-  /**
-   * Arrangements those recipes are grown into.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `plantingClusters` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `plantingClusters` for the spec authoring source derivation state system contract.
-   */
+  /** Arrangements those recipes are grown into. */
   plantingClusters?: IAutoMoviePlantingCluster[];
 
-  /**
-   * Bindings that plant those clusters in a building's own spaces.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `plantingInstallations` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `plantingInstallations` for the spec authoring source derivation state system contract.
-   */
+  /** Bindings that plant those clusters in a building's own spaces. */
   plantingInstallations?: IAutoMoviePlantingInstallation[];
 
-  /**
-   * Port networks that serve the buildings this shot stages.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `serviceNetworks` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `serviceNetworks` for the spec authoring source derivation state system contract.
-   */
+  /** Port networks that serve the buildings this shot stages. */
   serviceNetworks?: IAutoMovieServiceNetwork[];
 
-  /**
-   * Event sample times selected inside authoritative event windows.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `eventSamples` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `eventSamples` for the spec authoring source derivation state system contract.
-   */
+  /** Event sample times selected inside authoritative event windows. */
   eventSamples: Array<{
     /** Exact event-contract id. */
     id: string;
@@ -152,54 +82,25 @@ export interface IAutoMovieShotSourceOutput {
     time: number;
   }>;
 
-  /**
-   * Scene derived by staging the source-authored program.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `scene` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `scene` for the spec authoring source derivation state system contract.
-   */
+  /** Scene derived by staging the source-authored program. */
   scene: IAutoMovieScene;
 
-  /**
-   * Deterministic motions synthesized and assembled by the engine.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `motions` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `motions` for the spec authoring source derivation state system contract.
-   */
+  /** Deterministic motions synthesized and assembled by the engine. */
   motions: IAutoMovieMotion[];
 
   /**
-   * Optional compact formation-level cues. The builder materializes an empty
-   * list when omitted; source never emits arbitrary per-member curves.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formationMotions` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationMotions` for the spec authoring source derivation state system contract.
+   * Optional compact formation-level cues. Direct source output can omit them; composing hosts own empty-list normalization and explicit admission.
    */
   formationMotions?: IAutoMovieFormationMotion[];
 
   /**
-   * Optional sparse per-member exceptions inside compact formations. The
-   * builder materializes an empty list when omitted; the cost is the number of
-   * exceptions, never the number of members.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `formationSlotMotions` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `formationSlotMotions` for the spec authoring source derivation state system contract.
+   * Optional sparse per-member exceptions inside compact formations. Omission remains undefined until host composition. Stored data scales with authored cues and slot references; this field does not bound sampling or full-population execution work.
    */
   formationSlotMotions?: IAutoMovieFormationSlotMotion[];
 
-  /**
-   * Optional bounded shot-local deterministic effect cues.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `effectCues` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `effectCues` for the spec authoring source derivation state system contract.
-   */
+  /** Optional bounded shot-local deterministic effect cues. */
   effectCues?: IAutoMovieShotEffectCue[];
 
-  /**
-   * Engine-compiled shot choreography.
-   *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Exposes `shot` as the portable data boundary for the agent source result link requirement.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-source-derivation-state Types `shot` for the spec authoring source derivation state system contract.
-   */
+  /** Engine-compiled shot choreography. */
   shot: IAutoMovieShot;
 }

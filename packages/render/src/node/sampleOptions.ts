@@ -1,12 +1,27 @@
 import type { Sample, createFile } from "mp4box";
 
 /**
- * Copy one sample's timing and flags into the options a track writer takes.
+ * The `addSample` options that re-emit one parsed sample with its own timing
+ * and dependency flags.
  *
- * Every path that re-emits a sample without decoding it needs exactly these
- * fields, and omitting one would silently change the output's timing.
+ * Duration, decode time and composition time are copied in media ticks, with
+ * the sync, leading, dependency, redundancy and degradation-priority flags and
+ * the subsample table. The sample description index is not copied, so the
+ * sample is written under the target track's first sample entry; every caller
+ * writes a track with exactly one entry. Callers that re-time a sample spread
+ * this record and replace the three time fields.
+ *
+ * @evidence contracts/common.md#principled-implementation The fields are the ISO sample-table and fragment-run facts that decide when a sample decodes and is presented and how it may be dropped, which is everything a lossless re-mux must preserve besides the payload and sample entry; the premise that one sample entry suffices holds because every caller opens a track from one source sample entry.
+ * @evidence contracts/common.md#clear-and-simple-design The three writers that copy samples without decoding them, the normalizer, the feature mux and the lossless clip appender, read one field list, so a new flag is added once.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every available field is copied as parsed, including `depends_on` zero on a sync sample; addProductionMp4Sample preserves it in the output fragment rather than reconciling different declarations during comparison.
+ * @evidence contracts/common.md#meaningful-documentation The doc lists the copied fields and their unit, states that the description index is not copied and why that is safe, and how re-timing callers use the record.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Ten field copies into one object choose no algorithm.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each sample yields its own record, which is cheaper to build than to look up.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The record shares the sample's `subsamples` array by reference, so the writer that keeps the record keeps that array; nothing else is retained.
  */
-export const sampleOptions = (
+export const sampleOptions: (
+  sample: Sample,
+) => NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]> = (
   sample: Sample,
 ): NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]> => ({
   duration: sample.duration,

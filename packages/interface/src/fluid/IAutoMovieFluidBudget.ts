@@ -1,76 +1,42 @@
 /**
- * The bounded cost a fluid domain adds to a shot, for the builder report.
+ * Counts and numerical cost estimates derived by fluidDomainBudget from one fluid domain.
  *
- * Every field is derived from the domain record alone, so a production can be
- * refused for an unaffordable water feature before a single step is
- * integrated.
+ * No step is integrated. validateFluidDomain checks record budgets of 65,536 cells, 100,000 maximum steps, 32 emitters and 4,096 particles per emitter, and rejects a computed Courant value above one; a derived NaN is not rejected by that comparison. measureRenderSimulation reads cells and sprayParticleCap for bound water bodies.
  *
- * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `IAutoMovieFluidBudget` as the portable data boundary for the interior fluid initial boundary record requirement.
- * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `IAutoMovieFluidBudget` for the interior space water feature fluid domain system contract.
+ * @evidence contracts/common.md#principled-implementation Every field is a closed-form count over the grid and emitters, the face count following the Arakawa C staggering of one more face than cells along the crossed axis, and `courant` comes from the same `fluidCourantNumber` the validator checks.
+ * @evidence contracts/common.md#clear-and-simple-design One flat record of derived numbers serves both the render metrics and a reviewer, with the refusal thresholds kept in `validateFluidDomain` rather than duplicated as fields here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts model uncached replay and stored scalar-array payload, excluding per-step scratch arrays, JavaScript container overhead and physical runtime duration. The reported Courant value uses direct arithmetic and can be nonfinite; this record is neither domain admission nor a measured memory/runtime bound.
+ * @evidence contracts/common.md#meaningful-documentation States the producer, that no step is integrated, every limit the validator enforces, and which consumer reads which fields; members give each formula, its unit, and what it leaves out.
+ * @author Samchon
  */
 export interface IAutoMovieFluidBudget {
-  /**
-   * Identity of the measured domain.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `domain` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `domain` for the interior space water feature fluid domain system contract.
-   */
+  /** Id of the measured domain. */
   domain: string;
 
-  /**
-   * Lattice cells, `columns * rows`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `cells` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `cells` for the interior space water feature fluid domain system contract.
-   */
+  /** Lattice cells, `columns * rows`. */
   cells: number;
 
-  /**
-   * Velocity faces, `(columns + 1) * rows + columns * (rows + 1)`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `faces` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `faces` for the interior space water feature fluid domain system contract.
-   */
+  /** Velocity faces, `(columns + 1) * rows + columns * (rows + 1)`. */
   faces: number;
 
   /**
-   * Bytes one state occupies as 64-bit reals: `8 * (cells + faces)`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `stateBytes` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `stateBytes` for the interior space water feature fluid domain system contract.
+   * Modelled depth/face-velocity payload bytes at eight bytes per scalar, 8 * (cells + faces), excluding per-step scratch arrays and JavaScript container overhead.
    */
   stateBytes: number;
 
-  /**
-   * Highest absolute step a sample may integrate to.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `maxSteps` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `maxSteps` for the interior space water feature fluid domain system contract.
-   */
+  /** Highest absolute step a sample may integrate to, copied from the solver. */
   maxSteps: number;
 
   /**
-   * Cell updates a worst-case seek costs, `cells * maxSteps`.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `worstCaseCellUpdates` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `worstCaseCellUpdates` for the interior space water feature fluid domain system contract.
+   * Modelled cell updates for a maxSteps replay, cells * maxSteps. Every seek integrates from zero with no retained state cache; source/drain and face work is not a separately timed measurement.
    */
   worstCaseCellUpdates: number;
 
-  /**
-   * Sum of every emitter's hard particle cap.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `sprayParticleCap` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `sprayParticleCap` for the interior space water feature fluid domain system contract.
-   */
+  /** Sum of every emitter's `maxParticles`, the most spray one sample holds. */
   sprayParticleCap: number;
 
   /**
-   * Courant number `dt * sqrt(g * referenceDepth) * sqrt(1/dx² + 1/dz²)`. At
-   * most `1` for a stable explicit solve.
-   *
-   * @evidence requirements/interior/water-and-fluid-features.md#interior-fluid-initial-boundary-record Exposes `courant` as the portable data boundary for the interior fluid initial boundary record requirement.
-   * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-water-feature-fluid-domain Types `courant` for the interior space water feature fluid domain system contract.
+   * Courant number dt * sqrt(g * referenceDepth) * sqrt(1/dx² + 1/dz²), computed at design depth rather than solved depth. The analytic bound is at most one; direct intermediate products may overflow or produce NaN, and the budget reports that result without validation.
    */
   courant: number;
 }

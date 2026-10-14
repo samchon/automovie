@@ -8,18 +8,23 @@ import { humanPersonHeadShapeFieldUnit } from "./humanPersonHeadShapeFieldUnit";
 /**
  * Resolve numerical head differences through one registered body-channel owner.
  *
- * The provider's positive/negative source-unit magnitudes define signed weights.
- * Existing generation drivers carry the same endpoint into both partitions and
- * attached parts; this conversion copies no body gain or deformation equation.
- * Every present field, including zero, needs actual source registration.
- * Unsupported source bounds or duplicate raw channel authorship refuse without
- * changing the caller. The effective copy contains resolved body weights while
- * saving retains the original numerical request and clinical observations.
+ * Registered positive/negative source-unit magnitudes convert finite signed millimetre/degree differences into one body channel's signed weight. Actual unit identity, finite source support, unique trait/channel ownership and endpoint envelope are admitted when compiling. Every present field, including zero, needs registration; unsupported differences or simultaneous raw-channel authorship refuse.
+ *
+ * Inputs remain unchanged. Empty requests return the original document; nonempty requests return shallow document/body wrappers and a copied shape with headShape removed after conversion. Registration records and channels remain borrowed and must not mutate during resolver lifetime. A nonempty provider qualification is metadata, not a re-evaluated clinical or geometric proof; actual deformation and driver propagation stay downstream.
+ *
+ * @evidence contracts/common.md#principled-implementation Public trait units and actual signed endpoint magnitudes map source-supported differences to the registered body's single channel owner.
+ * @evidence contracts/common.md#clear-and-simple-design Registration/envelope admission compiles separately from per-document conversion; body endpoint gains, geometry and attached-part propagation stay with existing generation owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit zero still needs a registered field, duplicate raw authorship refuses, and provider qualification text is not advertised as reproduced clinical/geometry validation.
+ * @evidence contracts/common.md#meaningful-documentation Prose states source units, signed magnitudes, request removal in effective output, borrowed-registration purity and validation boundaries.
+ * @evidence contracts/performance.md#efficient-algorithms Compile-time field admission scans K fields and searches C body channels per field; each document copies shape keys and searches K registrations for each requested trait before fixed conversion.
+ * @evidence contracts/performance.md#reuse-equivalent-work One admitted registration serves all unchanged-generation requests; the existing body channel remains the sole deformation owner rather than duplicating its gain equations here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains generation/source fields and compiled trait map until dropped; effective wrappers/shape belong to the caller, with no task, mesh cache or independently retained clinical data.
  */
 export function createHumanPersonHeadShapeResolver(
   generation: IAutoMovieHumanPersonGeneration,
 ): (document: IAutoMovieHumanPersonDocument) => IAutoMovieHumanPersonDocument {
-  const source = generation.headShapeSource;
+  const source: IAutoMovieHumanPersonGeneration["headShapeSource"] =
+    generation.headShapeSource;
   if (source !== undefined) {
     typia.assertEquals<IAutoMovieHumanPersonHeadShapeSource>(source);
     if (source.generation !== generation.id)
@@ -27,14 +32,28 @@ export function createHumanPersonHeadShapeResolver(
         "Head numerical source registration belongs to a different generation.",
       );
   }
-  const fields = new Map(source?.fields.map((field) => [field.id, field]));
+  const fields: Map<
+    IAutoMovieHumanPersonHeadShapeSource["fields"][number]["id"],
+    IAutoMovieHumanPersonHeadShapeSource["fields"][number]
+  > = new Map(
+    source?.fields.map(
+      (
+        field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+      ): [typeof field.id, typeof field] => [field.id, field],
+    ),
+  );
   if (fields.size !== (source?.fields.length ?? 0))
     throw new Error(
       "Head numerical source registration repeats a trait identity.",
     );
   if (
-    new Set([...fields.values()].map((field) => field.bodyChannel)).size !==
-    fields.size
+    new Set(
+      [...fields.values()].map(
+        (
+          field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+        ): string => field.bodyChannel,
+      ),
+    ).size !== fields.size
   )
     throw new Error(
       "Head numerical source traits must have distinct body-channel owners.",
@@ -64,8 +83,12 @@ export function createHumanPersonHeadShapeResolver(
           field.id +
           ".",
       );
-    const channel = generation.body.channels.find(
-      (channel) => channel.id === field.bodyChannel,
+    const channel:
+      | IAutoMovieHumanPersonGeneration["body"]["channels"][number]
+      | undefined = generation.body.channels.find(
+      (
+        channel: IAutoMovieHumanPersonGeneration["body"]["channels"][number],
+      ): boolean => channel.id === field.bodyChannel,
     );
     if (
       channel === undefined ||
@@ -94,15 +117,25 @@ export function createHumanPersonHeadShapeResolver(
           ".",
       );
   }
-  return (document) => {
+  return (
+    document: IAutoMovieHumanPersonDocument,
+  ): IAutoMovieHumanPersonDocument => {
     if (
       document.headShape === undefined ||
       Object.keys(document.headShape).length === 0
     )
       return document;
-    const shape = { ...document.body.shape };
+    const shape: IAutoMovieHumanPersonDocument["body"]["shape"] = {
+      ...document.body.shape,
+    };
     for (const [id, units] of Object.entries(document.headShape)) {
-      const field = source?.fields.find((field) => field.id === id);
+      const field:
+        | IAutoMovieHumanPersonHeadShapeSource["fields"][number]
+        | undefined = source?.fields.find(
+        (
+          field: IAutoMovieHumanPersonHeadShapeSource["fields"][number],
+        ): boolean => field.id === id,
+      );
       if (field === undefined)
         throw new Error(
           "Head numerical field unavailable in this source generation: " +
@@ -134,7 +167,10 @@ export function createHumanPersonHeadShapeResolver(
           ? field.negativeUnitsPerWeight
           : field.positiveUnitsPerWeight);
     }
-    const { headShape: _resolved, ...effective } = document;
+    const {
+      headShape: _resolved,
+      ...effective
+    }: IAutoMovieHumanPersonDocument = document;
     return { ...effective, body: { ...document.body, shape } };
   };
 }

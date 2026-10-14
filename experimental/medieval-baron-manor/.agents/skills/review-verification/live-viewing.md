@@ -1,6 +1,6 @@
 # Live viewing while authoring
 
-Create a live view only when the requested work needs visual inspection. The [project ownership boundary](../../../README.md#ownership) governs its source, HTML, assets, and configuration. The scaffold supplies no page, viewer command, preview factory, or template variant to fill in.
+Create a live view only when the requested work needs visual inspection. The [project ownership boundary](../../../README.md) governs its source, HTML, assets, and configuration. The scaffold supplies no page, viewer command, preview factory, or template variant to fill in.
 
 ## Build the required view
 

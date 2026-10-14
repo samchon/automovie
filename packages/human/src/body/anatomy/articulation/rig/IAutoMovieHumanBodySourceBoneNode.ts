@@ -5,7 +5,18 @@ import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodyS
 import type { IAutoMovieHumanBodySourceSite } from "./IAutoMovieHumanBodySourceSite";
 import type { IAutoMovieHumanBodySourceToeProjection } from "./IAutoMovieHumanBodySourceToeProjection";
 
-/** One acquired or shared-authored bone in the source's single anatomical rest graph. */
+/**
+ * One acquired or shared-authored bone in the source's single anatomical rest graph.
+ *
+ * @evidence contracts/common.md#principled-implementation One closed anatomical bone owns its neutral frame, motion, sites and public projections; a nullable parent identifies graph roots.
+ * @evidence contracts/common.md#clear-and-simple-design Geometry attachments and public output frames refer to the same named source node instead of requiring a separately solved skin rig.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Account and qualification remain separate so source registration cannot masquerade as clinical proof or cartilage fit.
+ * @evidence contracts/common.md#meaningful-documentation Members document source-frame metres and axes, parent meaning, site ownership, optional toe outputs and acquisition limits.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The bone-node shape supplies graph data without deciding traversal or projection cost.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A generation's node references alone do not coordinate or cache source evaluations.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The node interface does not own mesh residents or release graph instances retained by its callers.
+ * @author Samchon
+ */
 export interface IAutoMovieHumanBodySourceBoneNode {
   /** Actual closed anatomical identity independent of public humanoid projection names. */
   id: AutoMovieHumanBodyBoneId;
@@ -24,6 +35,7 @@ export interface IAutoMovieHumanBodySourceBoneNode {
 
   /** Registered public frames derived from this actual source bone/site. */
   projections: readonly IAutoMovieHumanBodySourceProjection[];
+
   /** Optional registered skin toe-ray outputs from these same anatomical bone frames. */
   toeProjections?: readonly IAutoMovieHumanBodySourceToeProjection[];
 

@@ -6,19 +6,6 @@ import type {
 import { identityTransform } from "../geometry/model-parts";
 import { TempleLandscape } from "../models/landscape";
 import { templeSiteGrade } from "../spaces/site/extent";
-
-/**
- * @evidence instances/site.md Neighbor envelopes, trees and wall-foot grass receive fixed role IDs, grounded transforms and no individual scale changes.
- * @evidence instances/site.md#neighbors Two gable shells and one shed shell stand across the east, west and north lanes with their fronts facing the temple.
- * @evidence instances/site.md#trees Narrow and broad crowns stand outside the building footprint, access paths and exterior inspection viewpoints.
- * @evidence instances/site.md#grass Six small tufts touch the wall-foot soil outside both access clearances.
- * @evidence principles/core/source-units.md#source-scope-preservation This assembly changes membership and transforms only; the site grade and each local landscape prototype remain parent-owned.
- * @evidence principles/core/source-units.md#source-substantive-completion Every placement uses the site grade at its root and a stable role ID; returned models are deduplicated by prototype identity.
- * @evidenceExclude upstream/design/instance-sources.md#design-revision-from-instance-source-work The three site instance H2s determine every role, coordinate, prototype and rotation used here.
- * @evidence obligations/design/instance-sources.md#instance-source-design-ownership The assembly consumes only the neighborhood, tree and grass decisions in instances/site.md.
- * @evidence obligations/design/instance-sources.md#instance-source-stable-membership The fixed row order and role IDs yield the same member set for equal source inputs.
- * @evidence obligations/design/instance-sources.md#instance-source-invalid-placement The finite source rows select existing concrete models, use a finite grade and retain unit scale; unsupported input rows are not accepted by this closed assembly.
- */
 export const addTempleSiteInstances = (environment: IAutoMovieBuiltEnvironment): IAutoMovieBuiltEnvironment => {
   const landscape = new TempleLandscape();
   const gable = landscape.neighborHouse("gable");

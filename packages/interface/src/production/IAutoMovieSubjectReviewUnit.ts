@@ -4,12 +4,10 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
 /**
  * Resolved review unit for one compiled subject.
  *
- * @evidence requirements/review/subject-inspection.md#review-subject-inspection Makes a subject rather than a film moment the unit being reviewed.
- * @evidence requirements/review/subject-inspection.md#review-subject-identity Carries the stable compiled description without collapsing prototype and placement identities.
- * @evidence requirements/review/subject-inspection.md#review-observable-judgeable-parity Types the independent observation unit exposed for every supported subject target.
- * @evidence requirements/review/subject-inspection.md#review-subject-viewpoint-ownership Records that viewpoint authority belongs to inspection and cannot produce delivery evidence.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-record Types the resolved subject record used by review.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-target-parity Gives a resolved subject target its own observation unit.
+ * @evidence contracts/common.md#principled-implementation resolveAutoMovieSubjectReviewUnit obtains the shared structural description or exact formation projection from current compiled data and adds artifact-qualified target and fixed inspection authority.
+ * @evidence contracts/common.md#clear-and-simple-design Reuses compiled descriptions instead of constructing a second subject inventory, with formation review retaining its compact crowd record separately.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A unit is structurally ineligible as delivery evidence and cannot borrow the work's camera as viewpoint authority; unknown compiled subjects fail rather than producing an empty review unit.
+ * @evidence contracts/common.md#meaningful-documentation Defines review protocol, exact target, description and revision, fixed viewpoint owner and delivery ineligibility.
  * @author Samchon
  */
 export interface IAutoMovieSubjectReviewUnit {

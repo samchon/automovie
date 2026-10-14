@@ -6,31 +6,29 @@
  * structural phase. A cycle is refused rather than broken at an arbitrary edge,
  * because there is no correct place to break one.
  *
- * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `IAutoMovieDesignPhase` as the portable data boundary for the production design generated reference requirement.
- * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `IAutoMovieDesignPhase` for the narrative intent reference lineage system contract.
+ * Where a schedule needs one order, `designLineagePhaseOrder` takes ready
+ * phases in ascending code-unit id order, so reordering the source array never
+ * reorders the schedule.
+ *
+ * @evidence contracts/common.md#principled-implementation `validateDesignLineage` resolves each prerequisite, refuses a repeated one, and finds cycles by depth-first search with visiting and visited marks; `designLineagePhaseOrder` is a topological sort that picks the smallest ready id by code units.
+ * @evidence contracts/common.md#clear-and-simple-design A phase states only its own direct prerequisites; transitive order, snapshots, and the deterministic schedule are computed from those edges by the engine queries instead of being authored.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cyclic plan is refused instead of broken at an arbitrary edge, and ties between ready phases are settled by id rather than by the order the author happened to write them.
+ * @evidence contracts/common.md#meaningful-documentation States why the plan is a graph, that cycles are refused and why, how a single schedule order is chosen, and what an empty prerequisite list means.
+ * @author Samchon
  */
 export interface IAutoMovieDesignPhase {
-  /**
-   * Stable phase identity within the lineage.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `id` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `id` for the narrative intent reference lineage system contract.
-   */
+  /** Stable, non-blank phase identity, unique within the lineage. */
   id: string;
 
   /**
-   * Human label such as `demolition`, `structure`, `services`, `finishes`.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `label` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `label` for the narrative intent reference lineage system contract.
+   * Non-blank human label such as `demolition`, `structure`, `services`, or
+   * `finishes`.
    */
   label: string;
 
   /**
-   * Phase ids that must complete before this one; empty for a first phase.
-   *
-   * @evidence requirements/production-design/references-and-provenance.md#production-design-generated-reference Exposes `requires` as the portable data boundary for the production design generated reference requirement.
-   * @evidence specifications/narrative-and-intent/fidelity-references-and-provenance.md#narrative-intent-reference-lineage Types `requires` for the narrative intent reference lineage system contract.
+   * Phase ids that must complete before this one, each resolving and listed
+   * once; empty for a first phase.
    */
   requires: string[];
 }

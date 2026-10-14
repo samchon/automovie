@@ -1,4 +1,8 @@
-import type { IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionClearanceReading } from "../../../common/structures/IAutoMovieHumanConstructionClearanceReading";
 import { measureHumanFaceClearance } from "../../basis/measureHumanFaceClearance";
@@ -15,6 +19,14 @@ import type { IHumanFaceOpticalAssembly } from "./structures/IHumanFaceOpticalAs
  * on both sides is measured and reported. A refusal is a physical
  * qualification result, never a request to remove a surface or change its
  * dimensions or tolerance.
+ *
+ * @evidence contracts/common.md#principled-implementation Every emitted ocular sheet is measured against its same-state actual optical exterior using original source tolerance and full vertex/triangle readings.
+ * @evidence contracts/common.md#clear-and-simple-design The canonical exterior and clearance owners share geometry/conditions with other face admissions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusal never deletes requested geometry, changes dimensions or derives a permissible penetration floor from rest.
+ * @evidence contracts/common.md#meaningful-documentation The prose states complete population, source tolerance and physical qualification meaning.
+ * @evidence contracts/performance.md#efficient-algorithms Side membership scans and all selected clearance queries dominate, including signed-query compilation/traversal and actual triangle crossings.
+ * @evidence contracts/performance.md#reuse-equivalent-work One exterior per side serves its sheets; the clearance owner's mesh-identity/transform cache reuses only immutable references.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned complete readings own observations; selected/exterior temporaries expire, while canonical weak reference caches follow reference lifetime.
  */
 export function readHumanFaceOcularSurfaceSpace(
   basis: IAutoMovieHumanFaceBasis,
@@ -23,20 +35,20 @@ export function readHumanFaceOcularSurfaceSpace(
   optics: readonly IHumanFaceOpticalAssembly[] | undefined,
   state: "rest" | "performed",
 ): IAutoMovieHumanConstructionClearanceReading[] {
-  const tolerance = basis.contact?.toleranceMetres;
+  const tolerance: number | undefined = basis.contact?.toleranceMetres;
   if (tolerance === undefined || !Number.isFinite(tolerance) || tolerance < 0)
     throw new Error(
       "Ocular visible surface space needs its source contact tolerance.",
     );
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const side of ["left", "right"] as const) {
-    const selected = parts.filter(
-      (part) =>
+    const selected: IAutoMovieModelPart[] = parts.filter(
+      (part: IAutoMovieModelPart): boolean =>
         part.id.startsWith("ocular:" + side + ":") &&
         part.geometry.type === "mesh",
     );
     if (selected.length === 0) continue;
-    const exterior = readHumanFaceOpticalExterior(
+    const exterior: IAutoMovieMesh | undefined = readHumanFaceOpticalExterior(
       basis,
       positions,
       optics,

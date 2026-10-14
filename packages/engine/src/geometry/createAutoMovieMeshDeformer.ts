@@ -1,45 +1,60 @@
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshDeformationField,
+  IAutoMovieMeshPhysicalSource,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieJacobianCofactor } from "../math/IAutoMovieJacobianCofactor";
 import { Vector3 } from "../math/Vector3";
 import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import type { IAutoMovieMeshDeformationInfluence } from "./IAutoMovieMeshDeformationInfluence";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
+import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
- * Compile immutable compact deformation fields into a mesh operation. Every
- * position uses the same summed field, and normals use its analytic inverse
- * transpose. Physical source lineage is copied and admitted before and after
- * deformation: vertex-specific influence may not separate declared aliases.
- * Legacy correspondence still follows current positions. Splitting one skin
- * into material regions therefore cannot create a new lighting seam. UVs,
- * triangle identities and skin bindings are retained.
+ * Compile compact deformation fields into an operation that deforms a mesh.
  *
- * Influence is (1-r²)^3 inside the normalized ellipsoid and zero outside.
- * Nonfinite fields, nonpositive radii and local orientation reversal are refused.
- * A positive Jacobian at each vertex does not guarantee that the straight
- * triangles joining those samples remain valid. Each emitted triangle must
- * retain nonzero area and agree with its original face orientation transported
- * by the three vertex Jacobians. This is a tessellation check, not a global
- * self-intersection test or proof of the field between its sampled vertices.
+ * Each field moves points inside its axis-aligned ellipsoid by its
+ * displacement plus its stretch times the offset from its centre, weighted by
+ * `(1 - r^2)^3` of the normalized radius `r` and zero outside. Every vertex
+ * uses the same summed map, and normals are transported by its analytic
+ * cofactor (inverse-transpose) matrix, so splitting one skin into material
+ * regions cannot open a lighting seam. UVs, triangle identities and skin
+ * bindings are kept; physical source correspondence is copied and checked
+ * before and after, so a vertex-specific influence cannot separate declared
+ * aliases, while a mesh without it keeps welding by current position. Fields
+ * are copied at compile time; meshes and influences are only read, and each
+ * call returns a new mesh.
  *
- * An optional influence sample supplies a scalar mask and its spatial gradient
- * at each resident vertex. For displacement d and mask f, the composed map is
- * p + f*d and its Jacobian is I + f*(J-I) + outer(d, gradient(f)). Gradients
- * use inverse metres in the same local frame. Apply an attachment mask here,
- * before orientation checks, rather than multiplying returned displacement
- * afterwards and silently invalidating the checked geometry. Mask samples are
- * caller-owned differential observations; the operation validates their shape
- * and finite domain, not their provenance or unsampled interpolation.
+ * An optional influence supplies, per vertex, a mask weight `f` in [0, 1] and
+ * its gradient in inverse metres. For displacement `d` the composed map is
+ * `p + f d` with Jacobian `I + f (J - I) + outer(d, grad f)`. Apply an
+ * attachment mask here, before the orientation checks, rather than scaling
+ * the returned displacement afterwards and invalidating the checked geometry.
+ * The caller owns the samples' provenance and their behaviour between
+ * vertices.
  *
- * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Applies composable spatial displacement and stretch fields to resident geometry without changing its triangle population.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Preserves connectivity and shared normals through one analytic deformation, rejecting local folds instead of emitting inverted surface patches.
- * @evidence requirements/asset-authoring/geometry.md#asset-degenerate-geometry-refusal Refuses malformed resident triangles and deformation output whose area collapses or opposes its transported face orientation.
- * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-model-output-failures Checks the actual emitted triangle population as well as vertex derivatives, naming a triangle that cannot preserve an oriented surface.
+ * Compilation throws on a non-finite field vector or a nonpositive radius. A
+ * call throws on a malformed index buffer, a non-finite position or normal, a
+ * normal buffer not aligned to the positions, a wrong influence count or an
+ * influence outside its domain, a Jacobian that reverses orientation at a
+ * vertex, a non-finite result, and, through `assertAutoMovieDeformedTriangles`,
+ * an emitted triangle that collapses or disagrees with its source orientation
+ * transported by its three vertex Jacobians. That is a tessellation check, not
+ * a global self-intersection test or a proof of the field between vertices.
+ *
+ * @param fields Deformation fields in the mesh's local metre frame.
+ * @returns The deformation operation.
+ *
+ * @evidence contracts/common.md#principled-implementation The smooth compactly supported kernel `(1 - r^2)^3` has a continuous gradient, so the summed map has an analytic Jacobian whose cofactor matrix transports normals exactly; the masked map's Jacobian follows the product rule, and orientation is checked per vertex by a positive determinant and per triangle by `assertAutoMovieDeformedTriangles`.
+ * @evidence contracts/common.md#clear-and-simple-design Fields are packed once into a closure and the returned operation does admission, evaluation and normal transport, delegating cofactors to `cofactorAutoMovieJacobian`, triangle orientation to `assertAutoMovieDeformedTriangles`, index admission to `triangleIndicesOf` and physical identity to `resolveAutoMovieMeshPhysicalVertices`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An orientation reversal or collapse throws instead of being clamped, the mask enters the Jacobian before checking rather than scaling the output afterwards, and the movement-over-radius ratio is formed in that order only so an underflowing radius square cannot zero a finite gradient term.
+ * @evidence contracts/common.md#meaningful-documentation States the field kernel, normal transport, what survives, ownership, the influence formula and when to use it, every refusal at compile and call time, and what the triangle check does not prove.
+ * @evidence contracts/performance.md#efficient-algorithms O(V F) for V vertices and F fields, each field rejected by its bounding box before any ellipsoid arithmetic, plus a linear triangle check; fields are few local features, so a spatial index over them would cost more than it saves.
+ * @evidence contracts/performance.md#reuse-equivalent-work Field packing happens once per compiled deformer and is reused by every call; each call's result depends on its own mesh and influence, so nothing else is shared.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The deformer retains only the packed fields, four three-number arrays each; a call holds one nine-number cofactor matrix per vertex until the triangle check finishes and returns new position, normal and physical buffers.
  * @author Samchon
  */
 export function createAutoMovieMeshDeformer(
@@ -48,43 +63,33 @@ export function createAutoMovieMeshDeformer(
   mesh: IAutoMovieMesh,
   influence?: readonly IAutoMovieMeshDeformationInfluence[],
 ) => IAutoMovieMesh {
-  const packed = fields.map((field) => {
-    const vector = (value: IAutoMovieVector3): number[] => [
-      value.x,
-      value.y,
-      value.z,
-    ];
-    const center = vector(field.center),
-      radius = vector(field.radius),
-      displacement = vector(field.displacement),
-      stretch = vector(field.stretch);
-    if (
-      ![...center, ...radius, ...displacement, ...stretch].every(
-        Number.isFinite,
-      ) ||
-      radius.some((value) => value <= 0)
-    )
-      throw new Error(
-        "Mesh deformation fields need finite vectors and strictly positive radii.",
-      );
-    return { center, radius, displacement, stretch };
-  });
-  return (mesh, influence) => {
+  const packed: IPackedField[] = fields.map(
+    (field: IAutoMovieMeshDeformationField): IPackedField => {
+      const center: number[] = components(field.center);
+      const radius: number[] = components(field.radius);
+      const displacement: number[] = components(field.displacement);
+      const stretch: number[] = components(field.stretch);
+      if (
+        ![...center, ...radius, ...displacement, ...stretch].every(
+          Number.isFinite,
+        ) ||
+        radius.some((value: number): boolean => value <= 0)
+      )
+        throw new Error(
+          "Mesh deformation fields need finite vectors and strictly positive radii.",
+        );
+      return { center, radius, displacement, stretch };
+    },
+  );
+  return (
+    mesh: IAutoMovieMesh,
+    influence?: readonly IAutoMovieMeshDeformationInfluence[],
+  ): IAutoMovieMesh => {
     if (mesh.physicalVertices !== undefined)
       resolveAutoMovieMeshPhysicalVertices(mesh);
-    const indices =
-      mesh.indices ??
-      Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i);
+    const indices: number[] = triangleIndicesOf(mesh, "Mesh deformation");
     if (
-      mesh.positions.length % 3 !== 0 ||
       !mesh.positions.every(Number.isFinite) ||
-      indices.length % 3 !== 0 ||
-      indices.some(
-        (index) =>
-          !Number.isInteger(index) ||
-          index < 0 ||
-          index >= mesh.positions.length / 3,
-      ) ||
       (mesh.normals !== null &&
         (mesh.normals.length !== mesh.positions.length ||
           !mesh.normals.every(Number.isFinite)))
@@ -96,7 +101,7 @@ export function createAutoMovieMeshDeformer(
       influence !== undefined &&
       (influence.length !== mesh.positions.length / 3 ||
         influence.some(
-          ({ weight, gradient }) =>
+          ({ weight, gradient }: IAutoMovieMeshDeformationInfluence): boolean =>
             ![weight, gradient.x, gradient.y, gradient.z].every(
               Number.isFinite,
             ) ||
@@ -113,83 +118,96 @@ export function createAutoMovieMeshDeformer(
     // Topological orientation belongs to each source face's winding, not to
     // smooth normals supplied by a caller or reconstructed from the result.
     const cofactors: number[][] = [];
-    for (let vertex = 0; vertex < mesh.positions.length; vertex += 3) {
-      const point = mesh.positions.slice(vertex, vertex + 3);
-      const target = [...point];
-      const jacobian = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    for (let vertex: number = 0; vertex < mesh.positions.length; vertex += 3) {
+      const point: number[] = mesh.positions.slice(vertex, vertex + 3);
+      const target: number[] = [...point];
+      const jacobian: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
       for (const field of packed) {
-        const dx = point[0] - field.center[0],
-          dy = point[1] - field.center[1],
-          dz = point[2] - field.center[2];
+        const dx: number = point[0]! - field.center[0]!;
+        const dy: number = point[1]! - field.center[1]!;
+        const dz: number = point[2]! - field.center[2]!;
         // A compact field and its derivative are zero outside its support.
         // Reject the bounding box before allocating vectors or evaluating the
         // ellipsoid, since local anatomy affects only a small part of a mesh.
         if (
-          Math.abs(dx) >= field.radius[0] ||
-          Math.abs(dy) >= field.radius[1] ||
-          Math.abs(dz) >= field.radius[2]
+          Math.abs(dx) >= field.radius[0]! ||
+          Math.abs(dy) >= field.radius[1]! ||
+          Math.abs(dz) >= field.radius[2]!
         )
           continue;
-        const delta = [dx, dy, dz];
-        const coordinates = delta.map(
-          (value, axis) => value / field.radius[axis],
+        const delta: number[] = [dx, dy, dz];
+        const coordinates: number[] = delta.map(
+          (value: number, axis: number): number => value / field.radius[axis]!,
         );
-        const squared = coordinates.reduce((sum, value) => sum + value ** 2, 0);
+        const squared: number = coordinates.reduce(
+          (sum: number, value: number): number => sum + value ** 2,
+          0,
+        );
         if (squared >= 1) continue;
-        const remaining = 1 - squared,
-          weight = remaining ** 3;
-        const derivative = -6 * remaining ** 2;
-        for (let row = 0; row < 3; row++) {
-          const movement =
-            field.displacement[row] + field.stretch[row] * delta[row];
+        const remaining: number = 1 - squared;
+        const weight: number = remaining ** 3;
+        const derivative: number = -6 * remaining ** 2;
+        for (let row: number = 0; row < 3; row++) {
+          const movement: number =
+            field.displacement[row]! + field.stretch[row]! * delta[row]!;
           target[row] += weight * movement;
-          for (let column = 0; column < 3; column++)
+          for (let column: number = 0; column < 3; column++)
             // Form movement*gradient(weight) as a dimensionless ratio. A
             // physical radius squared can underflow/overflow even when this
             // product is finite, including a neutral field's exact zero term.
             jacobian[row * 3 + column] +=
               derivative *
-              ((movement * coordinates[column]) / field.radius[column]);
-          jacobian[row * 3 + row] += weight * field.stretch[row];
+              ((movement * coordinates[column]!) / field.radius[column]!);
+          jacobian[row * 3 + row] += weight * field.stretch[row]!;
         }
       }
       if (influence !== undefined) {
-        const sample = influence[vertex / 3];
-        const gradient = [
-          sample.gradient.x,
-          sample.gradient.y,
-          sample.gradient.z,
-        ];
-        for (let row = 0; row < 3; row++) {
-          const displacement = target[row] - point[row];
-          target[row] = point[row] + sample.weight * displacement;
-          for (let column = 0; column < 3; column++) {
-            const identity = row === column ? 1 : 0;
+        const sample: IAutoMovieMeshDeformationInfluence =
+          influence[vertex / 3]!;
+        const gradient: number[] = components(sample.gradient);
+        for (let row: number = 0; row < 3; row++) {
+          const displacement: number = target[row]! - point[row]!;
+          target[row] = point[row]! + sample.weight * displacement;
+          for (let column: number = 0; column < 3; column++) {
+            const identity: number = row === column ? 1 : 0;
             jacobian[3 * row + column] =
               identity +
-              sample.weight * (jacobian[3 * row + column] - identity) +
-              displacement * gradient[column];
+              sample.weight * (jacobian[3 * row + column]! - identity) +
+              displacement * gradient[column]!;
           }
         }
       }
-      const { matrix } = cofactorAutoMovieJacobian(jacobian);
+      const { matrix }: IAutoMovieJacobianCofactor =
+        cofactorAutoMovieJacobian(jacobian);
       if (!target.every(Number.isFinite))
         throw new Error(
           "Mesh deformation must remain finite and preserve local surface orientation.",
         );
-      positions.push(...target);
+      positions.push(target[0]!, target[1]!, target[2]!);
       cofactors.push(matrix);
       if (normals !== null) {
-        const bc = Vector3.create(matrix[0], matrix[3], matrix[6]);
-        const ca = Vector3.create(matrix[1], matrix[4], matrix[7]);
-        const ab = Vector3.create(matrix[2], matrix[5], matrix[8]);
-        const normal = Vector3.normalize(
+        const bc: IAutoMovieVector3 = Vector3.create(
+          matrix[0]!,
+          matrix[3]!,
+          matrix[6]!,
+        );
+        const ca: IAutoMovieVector3 = Vector3.create(
+          matrix[1]!,
+          matrix[4]!,
+          matrix[7]!,
+        );
+        const ab: IAutoMovieVector3 = Vector3.create(
+          matrix[2]!,
+          matrix[5]!,
+          matrix[8]!,
+        );
+        const normal: IAutoMovieVector3 = Vector3.normalize(
           Vector3.add(
             Vector3.add(
-              Vector3.scale(bc, mesh.normals![vertex]),
-              Vector3.scale(ca, mesh.normals![vertex + 1]),
+              Vector3.scale(bc, mesh.normals![vertex]!),
+              Vector3.scale(ca, mesh.normals![vertex + 1]!),
             ),
-            Vector3.scale(ab, mesh.normals![vertex + 2]),
+            Vector3.scale(ab, mesh.normals![vertex + 2]!),
           ),
         );
         normals.push(normal.x, normal.y, normal.z);
@@ -201,7 +219,7 @@ export function createAutoMovieMeshDeformer(
       indices,
       cofactors,
     );
-    const result = {
+    const result: IAutoMovieMesh = {
       ...mesh,
       positions,
       normals,
@@ -209,9 +227,11 @@ export function createAutoMovieMeshDeformer(
         ? {}
         : {
             physicalVertices: {
-              sources: mesh.physicalVertices.sources.map((source) => ({
-                ...source,
-              })),
+              sources: mesh.physicalVertices.sources.map(
+                (
+                  source: IAutoMovieMeshPhysicalSource,
+                ): IAutoMovieMeshPhysicalSource => ({ ...source }),
+              ),
               vertices: mesh.physicalVertices.vertices.slice(),
             },
           }),
@@ -221,3 +241,25 @@ export function createAutoMovieMeshDeformer(
     return result;
   };
 }
+
+/** One field's vectors as XYZ arrays, read by index in the vertex loop. */
+interface IPackedField {
+  /** Ellipsoid centre in metres. */
+  center: number[];
+
+  /** Positive ellipsoid semi-axes in metres. */
+  radius: number[];
+
+  /** Translation at full weight, in metres. */
+  displacement: number[];
+
+  /** Dimensionless per-axis stretch of the offset from the centre. */
+  stretch: number[];
+}
+
+/** A vector's three components in XYZ order. */
+const components = (value: IAutoMovieVector3): number[] => [
+  value.x,
+  value.y,
+  value.z,
+];

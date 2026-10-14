@@ -1,12 +1,17 @@
-import { AutoMovieRenderMetric, IAutoMovieRenderInventory, IAutoMovieRenderReport } from "@automovie/interface";
+import {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { BOX_TRIANGLES } from "../internal/renderFixtures";
-import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
-import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
-import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
-import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
+
 import { evaluateRenderBudgetFixture as report } from "../internal/evaluateRenderBudgetFixture";
+import { measureRenderBudgetSubject as measure } from "../internal/measureRenderBudgetSubject";
 import { renderBudgetFindingShape as shape } from "../internal/renderBudgetFindingShape";
+import { renderBudgetSubjectFixture } from "../internal/renderBudgetSubjectFixture";
+import { renderBudgetTargetFixture } from "../internal/renderBudgetTargetFixture";
+import { BOX_TRIANGLES } from "../internal/renderFixtures";
+import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture";
 
 /**
  * Over-limit twins identify the dominant editable resource while retaining repeated pass cost.
@@ -14,17 +19,28 @@ import { renderBudgetFindingShape as shape } from "../internal/renderBudgetFindi
  * Scenarios:
  *
  * 1. Triangle, draw, texture, shadow, instance and fluid overruns name their exact excess and owner.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Evaluates six one-metric over-limit twins and asserts each finding's status, exact excess, dominant editable owner/source/cost and recovery presence, catching attribution to a repeated frame pass instead of authored resources.
+ * @evidence contracts/testing.md#independent-expectations Original staged/instance populations, unit-box counts, RGBA mip texel sum and declared shadow/fluid storage determine literal arithmetic. Only the selected metric limit changes, and expected owner paths are authored addresses rather than report-derived values.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves triangle, draw, texture-byte, shadow-map, instance-slot and fluid-cell overruns with repeated pass costs retained; unbudgeted, malformed, unknown storage and contributor truncation are separate cases.
+ * @evidence contracts/testing.md#execution-ownership The named test_render_budget_overrun_owners owns the six portable CPU inventory/report twins through existing fixtures and shape projection; no renderer, texture allocation, fluid host or GPU is started.
  */
-export const test_render_budget_overrun_owners = (): void => {
-  const target = renderBudgetTargetFixture();
-  const subject = renderBudgetSubjectFixture;
-  const budget = renderReportBudgetFixture();
+export function test_render_budget_overrun_owners(): void {
+  const target: ReturnType<typeof renderBudgetTargetFixture> =
+    renderBudgetTargetFixture();
+  const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;
+  const budget: ReturnType<typeof renderReportBudgetFixture> =
+    renderReportBudgetFixture();
 
-  const inventory = measure(subject());
+  const inventory: ReturnType<typeof measure> = measure(subject());
 
   // Over-limit twins: one metric at a time, every other limit untouched, so a
   // failure names the metric that actually broke.
-  const twin = (
+  const twin: (
+    metric: AutoMovieRenderMetric,
+    over: IAutoMovieRenderInventory,
+    limit: number,
+  ) => IAutoMovieRenderReport["findings"][number] = (
     metric: AutoMovieRenderMetric,
     over: IAutoMovieRenderInventory,
     limit: number,
@@ -33,9 +49,12 @@ export const test_render_budget_overrun_owners = (): void => {
       over,
       { ...budget, limits: { ...budget.limits, [metric]: limit } },
       target,
-    ).findings.find((finding) => finding.metric === metric)!;
+    ).findings.find(
+      (finding: IAutoMovieRenderReport["findings"][number]): boolean =>
+        finding.metric === metric,
+    )!;
 
-  const fluid = measure({
+  const fluid: ReturnType<typeof measure> = measure({
     ...subject(),
     waterBodies: [
       {
@@ -115,4 +134,4 @@ export const test_render_budget_overrun_owners = (): void => {
       },
     },
   );
-};
+}

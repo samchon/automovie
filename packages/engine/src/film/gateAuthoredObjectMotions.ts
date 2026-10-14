@@ -1,10 +1,16 @@
 import {
-  IAutoMovieChannel,
+  IAutoMovieCamera,
+  IAutoMovieClip,
   IAutoMovieConstraintViolation,
+  IAutoMovieLight,
+  IAutoMovieNode,
   IAutoMoviePropSpec,
+  IAutoMovieSceneNode,
+  IAutoMovieTrack,
 } from "@automovie/interface";
 
 import { IAutoMovieProfileApplication } from "../resolve/IAutoMovieProfileApplication";
+import { IAutoMovieResolveViolation } from "../resolve/IAutoMovieResolveViolation";
 import { channelKey } from "../resolve/channelKey";
 import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { resolveFrame } from "../resolve/resolveFrame";
@@ -17,97 +23,61 @@ import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
 import { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";
+import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 
 /**
- * Gate the object clips a shot's source authored, so a moving thing that is not
- * a performer can reach a compiled shot at all.
+ * Gate the object clips a shot's source authored, so a moving thing that is not a performer can reach a compiled shot.
  *
- * Everything on `objectMotions` used to be baked by the engine from a verb: a
- * launch's flight, a coupling's follow. Nothing else could get there, and two
- * separate contracts already promised that something would.
- * {@link builtOpeningPanelPlacements} says in as many words that a door which
- * swings on screen is an `objectMotions` clip over the panel node ids it
- * answers with, and {@link IAutoMoviePropArticulation} says a prop's hinge is a
- * lowered joint a clip drives. Both were true of the data and false of the
- * pipeline: no field carried such a clip, so every door in every production was
- * a configuration that could be authored open or shut and never seen to move.
+ * {@link builtOpeningPanelPlacements} promises that a door which swings on screen is an `objectMotions` clip over the panel node ids it answers with, and {@link IAutoMoviePropArticulation} promises that a prop's hinge is a lowered joint a clip drives. Both are one thing, a node in the staged graph turned over the shot's own clock: a building's panel is a staged set piece (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint (`<placement>/<joint>`), so one channel serves both.
  *
- * One channel serves both, because they are one thing: a node in the staged
- * graph, turned over the shot's own clock. A building's panel is a staged set
- * piece (`<environment>/<element>`) and a prop's leaf is a lowered articulation
- * joint (`<placement>/<joint>`), and admitting only one of them would leave the
- * other needing a second mechanism for the same sentence.
+ * Every clip first passes the transform-clip artifact rule with a channel gate that refuses, each with its own path and reason:
  *
- * What is refused, and why each refusal is not a preference:
+ * - a node no shot staged, or a joint no staged prop declares, because a clip addressing nothing would be stored and rendered as silence;
+ * - a node a performance already drives, because a transform clip written over a rig would fight the pose every frame;
+ * - a channel a baked clip already drives, and an id a baked clip or an earlier authored clip already carries, because each channel and each clip id has one authority;
+ * - a key outside `[0, duration]`, which no frame reads;
+ * - `cubicspline` interpolation, because a spline's tangents can overshoot a travel bound between two keys that both satisfy it, and nothing downstream clamps an object clip.
  *
- * - **A node no shot staged**, or a joint no staged prop declares. A clip
- *   addressing nothing is written, validated, stored, and rendered as silence;
- *   this is the same drop the honorable-channel gate closed for pointer
- *   tracks.
- * - **A node a performance already drives.** A performer's motion comes off its
- *   rig, and a transform clip written over it would fight the pose every frame
- *   with the winner decided by producer order.
- * - **A channel a baked clip already drives**, and an id a baked clip already
- *   carries. One authority per channel, which is the grain the sampler resolves
- *   at, and `validateUniqueIds` refuses the shot outright on a duplicate id.
- * - **A key outside the shot's own clock.** A time past the end is data no frame
- *   reads, exactly as a launch landing past the end is refused rather than
- *   trimmed.
- * - **`cubicspline` interpolation.** The travel a prop declares is a bound this
- *   gate proves, and it proves it at the authored keys: between two bounded
- *   keys a `step` track never leaves the pair, and a `linear` one stays on the
- *   segment (a translation) or the arc (a rotation) between them, so neither
- *   can escape a componentwise bound its endpoints satisfy. A spline's tangents
- *   can overshoot both, and nothing downstream clamps an object clip: the
- *   viewer writes it onto the object verbatim. Refusing what cannot be bounded
- *   is the alternative to shipping a shot whose declared limit is decoration.
+ * A scene whose lowered graph carries one id twice is refused at the gate's path, since no frame can be resolved for it. Only a prop `forgeProp` accepts contributes joints; its own refusals belong to `forgeProp` and the placement gate. When all of that passes and a staged prop binds an articulation profile, the clips resolve through {@link resolveFrame} at time `0`, at every authored key, at analytical quaternion-component extrema and just inside key boundaries. Periodic direct curves share their first-cycle bound. Profiles bind at their placement prefix, and a channel the clips drive past its declared travel is reported once, naming the profile. A channel a clip does not drive is never blamed, even if its rest pose breaches. An empty clip list answers no violations. The critical clock bounds directly interpolated components; it does not derive additional extrema for nonlinear channel-space driver combinations.
  *
- * The bound itself is measured rather than asserted: the clips resolve through
- * {@link resolveFrame} over the lowered graph with every staged prop's profile
- * bound at its own placement prefix, which is the same CONSTRAIN stage the
- * engine's own door round-trip is proved with. A clamp that fires is reported
- * with the profile that owns it, so a correction round reads "this travel, this
- * channel" instead of an anonymous number.
+ * @param gate The clips, the staged scene and what the shot already drives.
+ * @returns The violations, empty when every clip is admitted.
  *
- * @evidence requirements/motion/object-motion-and-interaction.md#motion-interaction-refusal Refuses unstaged targets, undeclared articulation, conflicting ownership, and travel outside the prop's authored limit.
- * @evidence specifications/performance-motion-and-staging/kinematics-contact-and-interaction.md#performance-interaction-attachment-object-handoff gateAuthoredObjectMotions realizes declared attachment and object handoff: Gate the object clips a shot's source authored, so a moving thing that is not a performer can reach a compiled shot at all. Everything on `objectMotions` used to be baked by the engine from a verb: a launch's flight, a coupling's follow. Nothing else could get there, and two separate contracts already promised that something would. {@link builtOpeningPanelPlacements} says in as many words that a door which swings on screen is an `objectMotions` clip over the panel node ids it answers with, and {@link IAutoMoviePropArticulation} says a prop's hinge is a lowered joint a clip drives. Both were true of the data and false of the pipeline: no field carried such a clip, so every door in every production was a configuration that could be authored open or shut and never seen to move. One channel serves both, because they are one thing: a node in the staged graph, turned over the shot's own clock. A building's panel is a staged set piece (`<environment>/<element>`) and a prop's leaf is a lowered articulation joint (`<placement>/<joint>`), and admitting only one of them would leave the other needing a second mechanism for the same sentence. What is refused, and why each refusal is not a preference: - **A node no shot staged**, or a joint no staged prop declares. A clip   addressing nothing is written, validated, stored, and rendered as silence;   this is the same drop the honorable-channel gate closed for pointer   tracks. - **A node a performance already drives.** A performer's motion comes off its   rig, and a transform clip written over it would fight the pose every frame   with the winner decided by producer order. - **A channel a baked clip already drives**, and an id a baked clip already   carries. One authority per channel, which is the grain the sampler resolves   at, and `validateUniqueIds` refuses the shot outright on a duplicate id. - **A key outside the shot's own clock.** A time past the end is data no frame   reads, exactly as a launch landing past the end is refused rather than   trimmed. - **`cubicspline` interpolation.** The travel a prop declares is a bound this   gate proves, and it proves it at the authored keys: between two bounded   keys a `step` track never leaves the pair, and a `linear` one stays on the   segment (a translation) or the arc (a rotation) between them, so neither   can escape a componentwise bound its endpoints satisfy. A spline's tangents   can overshoot both, and nothing downstream clamps an object clip: the   viewer writes it onto the object verbatim. Refusing what cannot be bounded   is the alternative to shipping a shot whose declared limit is decoration. The bound itself is measured rather than asserted: the clips resolve through {@link resolveFrame} over the lowered graph with every staged prop's profile bound at its own placement prefix, which is the same CONSTRAIN stage the engine's own door round-trip is proved with. A clamp that fires is reported with the profile that owns it, so a correction round reads "this travel, this channel" instead of an anonymous number.
- * @evidence requirements/motion/channels-controls-and-drivers.md#motion-channel-control-ownership Rejects an authored object track whose exact channel is already owned by a baked shot clip.
- * @evidence requirements/asset-authoring/rig-and-state.md#asset-state-motion-distinction Keeps the forged prop's articulation graph as retained structural state while validating its authored clip as a separate shot-clock motion.
- * @evidence specifications/performance-motion-and-staging/motion-sampling-and-composition.md#performance-motion-clip-keytime-interpolation Enforces one writer per object channel across authored and baked clip sources.
- * @evidence specifications/asset-and-representation/rig-deformation-and-state.md#asset-spec-state-motion-separation Resolves the time-varying object channels against, but does not merge them into, the prop's declared articulation state.
+ * @evidence contracts/common.md#principled-implementation The same resolveFrame CONSTRAIN stage checks the opening, authored keys, one-sided boundaries and analytical rotation-component extrema supplied by authoredRotationCriticalTimes. Scalar linear/step interpolation stays within endpoint ranges; quaternion SLERP and normalized lerp can exceed endpoint component bounds, so their derivative roots are explicitly evaluated. The actual clip sequence decides authority at every clock, and floating clock rounding remains; nonlinear driver combinations have no additional stationary-point solver here.
+ * @evidence contracts/common.md#clear-and-simple-design The artifact rule is `validateClipArtifact` with a shot-specific channel gate, channel identity is the sampler's own `channelKey`, the joint lowering is `sceneToNodes`, and the bound is `resolveFrame`, so this function only states which nodes and channels a shot admits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No door, prop, joint or shot is special-cased; every refusal is a stated rule, the channel key is built from validated fields rather than cast from an unchecked record, and a breach on an undriven channel is left to the prop's own gate instead of being blamed here.
+ * @evidence contracts/common.md#meaningful-documentation States the two promises the gate fulfils, every refusal with its reason, the duplicate-id refusal, which props contribute joints, when and how the travel bound is measured, the one-report-per-channel rule, the undriven-channel exemption, and the empty-list answer.
+ * @evidence contracts/performance.md#efficient-algorithms Typed outer clip/track records are a caller premise before post-validation reads. Artifact checks traverse clips, tracks and key components; forging every registry prop and sceneToNodes lowering add delegated model/graph costs. Profiled scenes add at most four rotation roots per segment and one-sided boundaries, then resolve the lowered graph, including drivers and constraints, once per distinct instant. Repeated direct loop curves share their first-cycle bound and sets deduplicate clocks and channel membership, without a fixed-rate sampling density.
+ * @evidence contracts/performance.md#reuse-equivalent-work The lowered graph, the drivable set, the baked channel and id sets and the profile list are each built once per call and shared by every clip and every sampled instant, and distinct key times are deduplicated so one instant is resolved once.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Every set, the lowered graph and the resolved frames are dropped on return; the caller owns the returned violations.
  */
-export const gateAuthoredObjectMotions = (
+export function gateAuthoredObjectMotions(
   gate: IAutoMovieObjectMotionGate,
-): IAutoMovieConstraintViolation[] => {
-  const out = new ViolationCollector();
+): IAutoMovieConstraintViolation[] {
+  const out: ViolationCollector = new ViolationCollector();
   if (gate.clips.length === 0) return out.items;
 
-  // Only a prop the forge accepts contributes joints. Its own refusals belong
-  // to `forgeProp` and to the placement gate that already ran; repeating them
-  // here would answer for one fault twice, under two paths.
-  const registry: Record<string, IAutoMoviePropSpec> = {};
+  const registry: Record<string, IAutoMoviePropSpec> = Object.create(null);
   for (const spec of gate.props ?? [])
     if (registry[spec.node] === undefined && forgeProp(spec).success)
       registry[spec.node] = spec;
 
-  const placements = new Set(gate.scene.nodes.map((node) => node.id));
-  const staged = new Set([
+  const placements: Set<string> = new Set(
+    gate.scene.nodes.map((node: IAutoMovieSceneNode): string => node.id),
+  );
+  const staged: Set<string> = new Set([
     ...placements,
-    ...gate.scene.cameras.map((camera) => camera.id),
-    ...gate.scene.lights.map((light) => light.id),
+    ...gate.scene.cameras.map((camera: IAutoMovieCamera): string => camera.id),
+    ...gate.scene.lights.map((light: IAutoMovieLight): string => light.id),
   ]);
-  const lowered = sceneToNodes({
+  const lowered: IAutoMovieNode[] = sceneToNodes({
     scene: gate.scene,
     props: registry,
     allowPartialModels: true,
   });
-  const joints = lowered.map((node) => node.id).filter((id) => !staged.has(id));
 
-  // A joint whose lowered id collides with something the scene already carries
-  // has no single frame to be resolved in, and composing it would throw rather
-  // than report. Named here, where the author can move the joint or the node.
-  const seen = new Set<string>();
+  const seen: Set<string> = new Set();
   const collided: string[] = [];
   for (const node of lowered) {
     if (seen.has(node.id)) collided.push(node.id);
@@ -116,34 +86,37 @@ export const gateAuthoredObjectMotions = (
   if (collided.length !== 0)
     out.push(
       "type",
-      `${gate.path}`,
+      gate.path,
       `the lowered scene carries ${collided[0]!} twice, so no object clip over this shot can be resolved; rename the colliding scene node or prop joint`,
       collided,
     );
 
-  const drivable = new Set(joints);
+  const drivable: Set<string> = new Set(
+    lowered
+      .map((node: IAutoMovieNode): string => node.id)
+      .filter((id: string): boolean => !staged.has(id)),
+  );
   for (const id of placements) if (!gate.performed.has(id)) drivable.add(id);
-  // Keyed by CHANNEL rather than by node, because that is the grain the
-  // sampler resolves at: a baked flight owning a projectile's translation
-  // leaves its rotation free, and refusing the pair would refuse a spin nothing
-  // contends for. `channelKey` is the sampler's own key function, so the two
-  // cannot disagree about what "the same channel" means.
-  const bakedChannels = new Set(
-    gate.baked.flatMap((clip) =>
-      clip.tracks.map((track) => channelKey(track.channel)),
+  // Keyed by channel rather than by node, the grain the sampler resolves at: a
+  // baked flight owning a projectile's translation leaves its rotation free.
+  const bakedChannels: Set<string> = new Set(
+    gate.baked.flatMap((clip: IAutoMovieClip): string[] =>
+      clip.tracks.map((track: IAutoMovieTrack): string =>
+        channelKey(track.channel),
+      ),
     ),
   );
-  const bakedIds = new Set(gate.baked.map((clip) => clip.id));
+  const bakedIds: Set<string> = new Set(
+    gate.baked.map((clip: IAutoMovieClip): string => clip.id),
+  );
 
-  // The transform-clip rule stands, and this adds the question only a shot can
-  // answer: whether the node named is one this shot may drive with a clip.
   const channelGate: IAutoMovieClipChannelGate = (
-    channel,
-    channelPath,
-    violations,
+    channel: Record<string, unknown>,
+    channelPath: string,
+    violations: IAutoMovieConstraintViolation[],
   ): void => {
     validateHonorableChannel(channel, channelPath, violations);
-    const node = channel.node;
+    const node: unknown = channel.node;
     if (channel.kind !== "node" || typeof node !== "string") return;
     if (!drivable.has(node)) {
       pushViolation(
@@ -157,11 +130,12 @@ export const gateAuthoredObjectMotions = (
       );
       return;
     }
-    // The path has already been refused by the rule above when it is not one
-    // the pipeline writes, and an unknown one has no canonical key to compare.
-    if (!NODE_CHANNEL_PATHS.has(channel.path as IAutoMovieNodeChannel["path"]))
-      return;
-    const key = channelKey(channel as unknown as IAutoMovieChannel);
+    // An unknown path was already refused by the honorable-channel rule and
+    // has no canonical key to compare.
+    const path: IAutoMovieNodeChannel["path"] =
+      channel.path as IAutoMovieNodeChannel["path"];
+    if (!NODE_CHANNEL_PATHS.has(path)) return;
+    const key: string = channelKey({ kind: "node", node, path });
     if (bakedChannels.has(key))
       pushViolation(
         violations,
@@ -172,12 +146,12 @@ export const gateAuthoredObjectMotions = (
       );
   };
 
-  const ids = new Map<string, number>();
-  const times = new Set<number>([0]);
-  gate.clips.forEach((clip, index) => {
-    const path = `${gate.path}[${index}]`;
+  const ids: Map<string, number> = new Map();
+  const times: Set<number> = new Set([0]);
+  gate.clips.forEach((clip: IAutoMovieClip, index: number): void => {
+    const path: string = `${gate.path}[${index}]`;
     validateClipArtifact(clip, path, out.items, channelGate);
-    const first = ids.get(clip.id);
+    const first: number | undefined = ids.get(clip.id);
     if (first !== undefined)
       out.push(
         "type",
@@ -194,8 +168,8 @@ export const gateAuthoredObjectMotions = (
       );
     else ids.set(clip.id, index);
 
-    clip.tracks.forEach((track, trackIndex) => {
-      const trackPath = `${path}.tracks[${trackIndex}]`;
+    clip.tracks.forEach((track: IAutoMovieTrack, trackIndex: number): void => {
+      const trackPath: string = `${path}.tracks[${trackIndex}]`;
       if (track.interpolation === "cubicspline")
         out.push(
           "type",
@@ -203,7 +177,7 @@ export const gateAuthoredObjectMotions = (
           "an object motion track interpolates step or linear; a spline's tangents can leave a declared travel between two keys, and nothing clamps an object clip downstream",
           track.interpolation,
         );
-      track.times.forEach((time, timeIndex) => {
+      track.times.forEach((time: number, timeIndex: number): void => {
         if (Number.isFinite(time) && time >= 0 && time <= gate.duration) {
           times.add(time);
           return;
@@ -220,8 +194,8 @@ export const gateAuthoredObjectMotions = (
   if (out.items.length > 0) return out.items;
 
   const profiles: IAutoMovieProfileApplication[] = gate.scene.nodes.flatMap(
-    (placement) => {
-      const spec = registry[placement.model];
+    (placement: IAutoMovieSceneNode): IAutoMovieProfileApplication[] => {
+      const spec: IAutoMoviePropSpec | undefined = registry[placement.model];
       if (spec === undefined || spec.articulation === null) return [];
       return [
         {
@@ -233,36 +207,42 @@ export const gateAuthoredObjectMotions = (
     },
   );
   if (profiles.length === 0) return out.items;
-  // Only the channels these clips actually drive. `resolveFrame` clamps every
-  // bound profile in the scene, so a prop whose own REST joint already sits
-  // outside the travel it declares would breach here too, and blaming that on
-  // `objectMotions` would refuse a shot for a channel its author never touched.
-  // That prop's own record is wrong and its own gate is where it is answered.
-  const driven = new Set(
-    gate.clips.flatMap((clip) =>
-      clip.tracks.map((track) => channelKey(track.channel)),
+  for (const time of authoredRotationCriticalTimes(gate.clips, gate.duration))
+    times.add(time);
+  // Only the channels these clips drive: `resolveFrame` clamps every bound
+  // profile, so a prop whose rest joint already sits outside its own travel
+  // would breach here too, and that is its own gate's fault to report.
+  const driven: Set<string> = new Set(
+    gate.clips.flatMap((clip: IAutoMovieClip): string[] =>
+      clip.tracks.map((track: IAutoMovieTrack): string =>
+        channelKey(track.channel),
+      ),
     ),
   );
-  const reported = new Set<string>();
-  for (const seconds of [...times].sort((left, right) => left - right))
-    for (const violation of resolveFrame({
+  const reported: Set<string> = new Set();
+  for (const seconds of [...times].sort(
+    (left: number, right: number): number => left - right,
+  )) {
+    const violations: IAutoMovieResolveViolation[] = resolveFrame({
       nodes: lowered,
-      clip: [...gate.clips],
+      clip: gate.clips,
       limits: [],
       profiles,
       seconds,
-    }).violations) {
-      // One channel, one refusal. A hinge held past its travel breaches at
-      // every sampled key, and an author correcting it corrects one number.
+    }).violations;
+    for (const violation of violations) {
+      // One channel, one refusal: a hinge held past its travel breaches at
+      // every sampled key, and the author corrects one number.
       if (!driven.has(violation.channel) || reported.has(violation.channel))
         continue;
       reported.add(violation.channel);
       out.push(
         "range",
-        `${gate.path}`,
+        gate.path,
         `object motion drives "${violation.channel}" past the travel profile "${violation.profile}" declares for it`,
         violation.channel,
       );
     }
+  }
   return out.items;
-};
+}

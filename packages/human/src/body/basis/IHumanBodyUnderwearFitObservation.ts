@@ -1,11 +1,19 @@
 import type { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+
 import type { IHumanBodyUnderwearLiftDerivativeFailure } from "./IHumanBodyUnderwearLiftDerivativeFailure";
-import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrialFailure";
 import type { IHumanBodyUnderwearSurfaceViolation } from "./IHumanBodyUnderwearSurfaceViolation";
+import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrialFailure";
 
 /**
  * Raw actual fitting readings, separate from anatomical or rendered acceptance.
  *
+ * @evidence contracts/common.md#principled-implementation Native QP status/buffers, normalized merit and original nonlinear field/geometry/derivative readings preserve their separate units and full-row correspondence.
+ * @evidence contracts/common.md#clear-and-simple-design One observation records an actual bounded-work call with optional selected-row history and original logical-group mappings for review.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Native slack/stationarity, omitted-row selections or local geometry counts cannot replace complete original conditions or certify anatomical/rendered acceptance.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish dimensionless native/merit values from meter field resolution, explain historical phases/caps and preserve trial-failure provenance.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Fitting-observation typing performs no QP solve, full-row separation or nonlinear readback.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Actual-call history records no equivalence cache across native programs or nonlinear trial points.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The schema describes owned native buffers and variable row/trial arrays; retention bounds and release remain with the synchronous fitting-history owner.
  * @author Samchon
  */
 export interface IHumanBodyUnderwearFitObservation {

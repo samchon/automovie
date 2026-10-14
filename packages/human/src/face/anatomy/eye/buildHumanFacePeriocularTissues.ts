@@ -1,12 +1,19 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { createHumanLocalMeshFrame } from "../../../common/mesh/createHumanLocalMeshFrame";
 import type { IHumanLocalMeshFrame } from "../../../common/mesh/IHumanLocalMeshFrame";
+import { createHumanLocalMeshFrame } from "../../../common/mesh/createHumanLocalMeshFrame";
 import { assertHumanFacePeriocularCage } from "../../basis/assertHumanFacePeriocularCage";
+import type { AutoMovieHumanFacePeriocularTissue } from "../../structures/AutoMovieHumanFacePeriocularTissue";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasisSurface } from "../../structures/IAutoMovieHumanFaceBasisSurface";
+import type { IAutoMovieHumanFacePeriocularCage } from "../../structures/IAutoMovieHumanFacePeriocularCage";
+import type { IAutoMovieHumanFacePeriocularStation } from "../../structures/IAutoMovieHumanFacePeriocularStation";
+import type { IAutoMovieHumanFacePeriocularTissueSection } from "../../structures/IAutoMovieHumanFacePeriocularTissueSection";
 import type { IAutoMovieHumanFacePeriocularTissues } from "../../structures/IAutoMovieHumanFacePeriocularTissues";
+import type { IHumanFaceSkinFrame } from "../skin/IHumanFaceSkinFrame";
 import type { IHumanFaceSkinHost } from "../skin/IHumanFaceSkinHost";
+import type { IHumanFaceSkinSeat } from "../skin/IHumanFaceSkinSeat";
 import { createHumanFaceSkinHost } from "../skin/createHumanFaceSkinHost";
 import { HUMAN_FACE_LID_SEAT } from "./HUMAN_FACE_LID_SEAT";
 import { buildHumanFacePeriocularBand } from "./buildHumanFacePeriocularBand";
@@ -14,6 +21,7 @@ import { createHumanFaceConformingSheet } from "./createHumanFaceConformingSheet
 import { createHumanFacePeriocularIndexedShell } from "./createHumanFacePeriocularIndexedShell";
 import { createHumanFacePeriocularShellMesh } from "./createHumanFacePeriocularShellMesh";
 import { readHumanFacePeriocularMapping } from "./readHumanFacePeriocularMapping";
+import type { IHumanFaceConformingSheetVertex } from "./structures/IHumanFaceConformingSheetVertex";
 import type { IHumanFaceOcularSurface } from "./structures/IHumanFaceOcularSurface";
 import type { IHumanFacePeriocularBand } from "./structures/IHumanFacePeriocularBand";
 import type { IHumanFacePeriocularHostSample } from "./structures/IHumanFacePeriocularHostSample";
@@ -72,6 +80,14 @@ import type { IHumanFacePeriocularTissuePart } from "./structures/IHumanFacePeri
  * source identities. Incidence reports every refused edge's native and grid
  * parents; Float32 retains the completed overlay. Reporting changes neither
  * the mapping nor the shell and performs no second geometric query.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual source skin frames supply normal-offset lamellae and the same ocular exterior measures each emitted inner-face sample without changing requested dimensions.
+ * @evidence contracts/common.md#clear-and-simple-design One band/conforming overlay per lid is shared across posterior tissues; anterior station strips and final local publication retain their own geometry responsibilities.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Deficient room remains a refusal candidate for downstream whole-surface admission; incidence/Float32 witnesses retain the original source population rather than repairing it.
+ * @evidence contracts/common.md#meaningful-documentation The prose specifies millimetre inputs, metre meshes, named tissue ownership, observers, signed room and admission limitations.
+ * @evidence contracts/performance.md#efficient-algorithms Source-host construction, native exact overlay and per-sample ocular projection dominate; fixed tissue roles do not hide chart/refinement and numeric bit-width costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Skin hosts are shared per source surface, bands/overlay/frames per lid, and each part memoizes its actual mapping reading on first request.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned parts and mapping closures retain their actual band/geometry until caller release; temporary build maps expire and no background task is acquired.
  */
 export function buildHumanFacePeriocularTissues(
   basis: IAutoMovieHumanFaceBasis,
@@ -81,15 +97,26 @@ export function buildHumanFacePeriocularTissues(
   input: IAutoMovieHumanFacePeriocularTissues,
   progress?: (owner: string) => void,
 ): IHumanFacePeriocularTissuePart[] {
-  const tear = HUMAN_FACE_LID_SEAT.tearFilmMetres;
+  const tear: number = HUMAN_FACE_LID_SEAT.tearFilmMetres;
   const parts: IHumanFacePeriocularTissuePart[] = [];
-  const skinHosts = new Map<string, IHumanFaceSkinHost>();
+  const skinHosts: Map<string, IHumanFaceSkinHost> = new Map<
+    string,
+    IHumanFaceSkinHost
+  >();
   for (const side of ["left", "right"] as const) {
-    const requested = input[side];
+    const requested:
+      | Partial<
+          Record<
+            AutoMovieHumanFacePeriocularTissue,
+            IAutoMovieHumanFacePeriocularTissueSection
+          >
+        >
+      | undefined = input[side];
     if (requested === undefined || Object.keys(requested).length === 0)
       continue;
-    const cage = basis.periocular?.[side].cage;
-    const surface = surfaces.get(side);
+    const cage: IAutoMovieHumanFacePeriocularCage | undefined =
+      basis.periocular?.[side].cage;
+    const surface: IHumanFaceOcularSurface | undefined = surfaces.get(side);
     if (cage === undefined)
       throw new Error("Periocular tissue source cage unavailable: " + side);
     if (surface === undefined)
@@ -98,9 +125,13 @@ export function buildHumanFacePeriocularTissues(
           side,
       );
     assertHumanFacePeriocularCage(basis, cage);
-    const points = positions.get(cage.surface),
-      directions = normals.get(cage.surface);
-    const host = basis.surfaces.find((entry) => entry.id === cage.surface);
+    const points: readonly number[] | undefined = positions.get(cage.surface),
+      directions: readonly number[] | undefined = normals.get(cage.surface);
+    const host: IAutoMovieHumanFaceBasisSurface | undefined =
+      basis.surfaces.find(
+        (entry: IAutoMovieHumanFaceBasisSurface): boolean =>
+          entry.id === cage.surface,
+      );
     if (
       host === undefined ||
       points === undefined ||
@@ -112,18 +143,30 @@ export function buildHumanFacePeriocularTissues(
         "Periocular tissue needs complete matching live position and normal buffers: " +
           side,
       );
-    const read = (rows: readonly number[], vertex: number): IAutoMovieVector3 =>
+    const read: (
+      rows: readonly number[],
+      vertex: number,
+    ) => IAutoMovieVector3 = (
+      rows: readonly number[],
+      vertex: number,
+    ): IAutoMovieVector3 =>
       Vector3.create(
         rows[3 * vertex],
         rows[3 * vertex + 1],
         rows[3 * vertex + 2],
       );
-    const skinHost =
+    const skinHost: IHumanFaceSkinHost =
       skinHosts.get(host.id) ?? createHumanFaceSkinHost(host.indices, points);
     skinHosts.set(host.id, skinHost);
-    const bandsByLid = new Map<boolean, IHumanFacePeriocularBand>();
-    const station = (role: string) => {
-      const found = cage.stations.findIndex((entry) => entry.role === role);
+    const bandsByLid: Map<boolean, IHumanFacePeriocularBand> = new Map<
+      boolean,
+      IHumanFacePeriocularBand
+    >();
+    const station: (role: string) => number = (role: string): number => {
+      const found: number = cage.stations.findIndex(
+        (entry: IAutoMovieHumanFacePeriocularStation): boolean =>
+          entry.role === role,
+      );
       if (found < 0)
         throw new Error(
           "Periocular tissue needs its station row: " + side + ":" + role,
@@ -131,15 +174,16 @@ export function buildHumanFacePeriocularTissues(
       return found;
     };
     for (const tissue of Object.keys(requested) as (keyof typeof requested)[]) {
-      const profile = requested[tissue];
+      const profile: IAutoMovieHumanFacePeriocularTissueSection | undefined =
+        requested[tissue];
       if (profile === undefined) continue;
-      const offset = profile.inwardOffsetMm / 1000,
-        thickness = profile.thicknessMm / 1000;
-      const upper = tissue.startsWith("upper");
-      const columns = upper ? cage.upperColumns : cage.lowerColumns;
+      const offset: number = profile.inwardOffsetMm / 1000,
+        thickness: number = profile.thicknessMm / 1000;
+      const upper: boolean = tissue.startsWith("upper");
+      const columns: number[] = upper ? cage.upperColumns : cage.lowerColumns;
       if (
         ![offset, thickness].every(
-          (value) =>
+          (value: number): boolean =>
             Number.isFinite(value) &&
             value > 0 &&
             Number.isFinite(Math.fround(value)),
@@ -154,21 +198,33 @@ export function buildHumanFacePeriocularTissues(
         );
       const outer: number[] = [],
         inner: number[] = [];
-      const push = (target: number[], p: IAutoMovieVector3): void => {
+      const push: (target: number[], p: IAutoMovieVector3) => void = (
+        target: number[],
+        p: IAutoMovieVector3,
+      ): void => {
         target.push(p.x, p.y, p.z);
       };
       let stride: number, height: number;
-      const collapsedColumns = new Set<number>();
+      const collapsedColumns: Set<number> = new Set<number>();
       const hostSamples: IHumanFacePeriocularHostSample[] = [];
       let mappingBand: IHumanFacePeriocularBand | undefined;
-      let stations = 0,
-        shortStations = 0,
-        minimumMarginMetres = Infinity;
-      const room = (margin: number): void => {
+      let stations: number = 0,
+        shortStations: number = 0,
+        minimumMarginMetres: number = Infinity;
+      const room: (margin: number) => void = (margin: number): void => {
         stations++;
         if (margin < 0) shortStations++;
         minimumMarginMetres = Math.min(minimumMarginMetres, margin);
-        progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":projection:" + stations);
+        progress?.(
+          "periocular:" +
+            side +
+            ":" +
+            tissue +
+            ":" +
+            cage.surface +
+            ":projection:" +
+            stations,
+        );
       };
       if (tissue.endsWith("TarsalBody") || tissue.endsWith("Conjunctiva")) {
         mappingBand = bandsByLid.get(upper);
@@ -183,7 +239,9 @@ export function buildHumanFacePeriocularTissues(
             side,
             tissue,
           });
-          progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":band");
+          progress?.(
+            "periocular:" + side + ":" + tissue + ":" + cage.surface + ":band",
+          );
           bandsByLid.set(upper, mappingBand);
         }
         stride = mappingBand.stride;
@@ -193,13 +251,13 @@ export function buildHumanFacePeriocularTissues(
         hostSamples.push(...mappingBand.samples);
         if (mappingBand.chart === undefined)
           for (const frame of mappingBand.frames) {
-            const skin = Vector3.create(...frame.point),
-              normal = Vector3.create(...frame.normal);
-            const outside = Vector3.subtract(
+            const skin: IAutoMovieVector3 = Vector3.create(...frame.point),
+              normal: IAutoMovieVector3 = Vector3.create(...frame.normal);
+            const outside: IAutoMovieVector3 = Vector3.subtract(
               skin,
               Vector3.scale(normal, offset),
             );
-            const inside = Vector3.subtract(
+            const inside: IAutoMovieVector3 = Vector3.subtract(
               skin,
               Vector3.scale(normal, offset + thickness),
             );
@@ -208,27 +266,30 @@ export function buildHumanFacePeriocularTissues(
             push(inner, inside);
           }
       } else {
-        const orbicularis = tissue.endsWith("Orbicularis");
-        const first = station(orbicularis ? "pretarsal" : "hood"),
-          last = station("outerAttachment");
-        const rows = cage.stations.slice(first, last + 1);
+        const orbicularis: boolean = tissue.endsWith("Orbicularis");
+        const first: number = station(orbicularis ? "pretarsal" : "hood"),
+          last: number = station("outerAttachment");
+        const rows: IAutoMovieHumanFacePeriocularStation[] =
+          cage.stations.slice(first, last + 1);
         stride = columns.length;
         height = rows.length;
-        for (let column = 0; column < columns.length; column++)
+        for (let column: number = 0; column < columns.length; column++)
           if (
             rows.every(
-              (row) =>
+              (row: IAutoMovieHumanFacePeriocularStation): boolean =>
                 row.vertices[columns[column]] ===
                 rows[0].vertices[columns[column]],
             )
           )
             collapsedColumns.add(column);
-        const floor = tear;
+        const floor: number = tear;
         for (const row of rows)
           for (const column of columns) {
-            const vertex = row.vertices[column];
-            const skin = read(points, vertex);
-            const normal = Vector3.normalize(read(directions, vertex));
+            const vertex: number = row.vertices[column];
+            const skin: IAutoMovieVector3 = read(points, vertex);
+            const normal: IAutoMovieVector3 = Vector3.normalize(
+              read(directions, vertex),
+            );
             if (Vector3.length(normal) === 0)
               throw new Error(
                 "Periocular tissue attachment needs a finite nonzero live host normal.",
@@ -248,29 +309,40 @@ export function buildHumanFacePeriocularTissues(
             );
           }
       }
-      const actualBand = mappingBand;
-      const sourceBandFailure = (error: unknown): Error => new Error(
-        (error instanceof Error ? error.message : String(error)) +
-        " source-band:" + JSON.stringify({
-          side,
-          tissue,
-          stride,
-          height,
-          columns,
-          sourceColumns: actualBand?.sourceColumns,
-          nearBoundary: actualBand?.nearBoundary,
-          nearSourceSamples: actualBand?.nearBoundary?.map((vertex) => host.sourcePartition?.samples[vertex]),
-          farBoundary: actualBand?.farBoundary,
-          materialBoundary: actualBand?.boundary,
-          collapsedColumns: [...collapsedColumns],
-          arcs: upper ? cage.tarsalExtent?.upperArcMetres : cage.tarsalExtent?.lowerArcMetres,
-          medialBed: upper ? cage.medialBed?.upperColumns : cage.medialBed?.lowerColumns,
-          inwardOffsetMm: profile.inwardOffsetMm,
-          thicknessMm: profile.thicknessMm,
-          hostSamples,
-          conforming: actualBand?.conforming,
-        }),
-      );
+      const actualBand: IHumanFacePeriocularBand | undefined = mappingBand;
+      const sourceBandFailure: (error: unknown) => Error = (
+        error: unknown,
+      ): Error =>
+        new Error(
+          (error instanceof Error ? error.message : String(error)) +
+            " source-band:" +
+            JSON.stringify({
+              side,
+              tissue,
+              stride,
+              height,
+              columns,
+              sourceColumns: actualBand?.sourceColumns,
+              nearBoundary: actualBand?.nearBoundary,
+              nearSourceSamples: actualBand?.nearBoundary?.map(
+                (vertex: number): number | undefined =>
+                  host.sourcePartition?.samples[vertex],
+              ),
+              farBoundary: actualBand?.farBoundary,
+              materialBoundary: actualBand?.boundary,
+              collapsedColumns: [...collapsedColumns],
+              arcs: upper
+                ? cage.tarsalExtent?.upperArcMetres
+                : cage.tarsalExtent?.lowerArcMetres,
+              medialBed: upper
+                ? cage.medialBed?.upperColumns
+                : cage.medialBed?.lowerColumns,
+              inwardOffsetMm: profile.inwardOffsetMm,
+              thicknessMm: profile.thicknessMm,
+              hostSamples,
+              conforming: actualBand?.conforming,
+            }),
+        );
       if (actualBand?.chart !== undefined) {
         try {
           actualBand.conforming ??= createHumanFaceConformingSheet({
@@ -283,7 +355,8 @@ export function buildHumanFacePeriocularTissues(
           throw sourceBandFailure(error);
         }
         actualBand.conformingFrames ??= actualBand.conforming.vertices.map(
-          (vertex) => skinHost.frame(vertex.seat),
+          (vertex: IHumanFaceConformingSheetVertex): IHumanFaceSkinFrame =>
+            skinHost.frame(vertex.seat),
         );
         outer.length = 0;
         inner.length = 0;
@@ -291,10 +364,13 @@ export function buildHumanFacePeriocularTissues(
         shortStations = 0;
         minimumMarginMetres = Infinity;
         for (const frame of actualBand.conformingFrames) {
-          const skin = Vector3.create(...frame.point),
-            normal = Vector3.create(...frame.normal);
-          const outside = Vector3.subtract(skin, Vector3.scale(normal, offset));
-          const inside = Vector3.subtract(
+          const skin: IAutoMovieVector3 = Vector3.create(...frame.point),
+            normal: IAutoMovieVector3 = Vector3.create(...frame.normal);
+          const outside: IAutoMovieVector3 = Vector3.subtract(
+            skin,
+            Vector3.scale(normal, offset),
+          );
+          const inside: IAutoMovieVector3 = Vector3.subtract(
             skin,
             Vector3.scale(normal, offset + thickness),
           );
@@ -303,7 +379,7 @@ export function buildHumanFacePeriocularTissues(
           push(inner, inside);
         }
       }
-      const mesh =
+      const mesh: IAutoMovieMesh =
         actualBand?.conforming === undefined
           ? createHumanFacePeriocularShellMesh({
               outer,
@@ -320,11 +396,14 @@ export function buildHumanFacePeriocularTissues(
             });
       let publication: IHumanLocalMeshFrame;
       try {
-        publication = createHumanLocalMeshFrame(mesh, "periocular:" + side + ":" + tissue);
+        publication = createHumanLocalMeshFrame(
+          mesh,
+          "periocular:" + side + ":" + tissue,
+        );
       } catch (error) {
         throw sourceBandFailure(error);
       }
-      const sampledBand = mappingBand;
+      const sampledBand: IHumanFacePeriocularBand | undefined = mappingBand;
       let mappingReading: IHumanFacePeriocularMappingReading | undefined;
       parts.push({
         side,
@@ -337,7 +416,7 @@ export function buildHumanFacePeriocularTissues(
         ...(sampledBand === undefined
           ? {}
           : {
-              readMapping: () => {
+              readMapping: (): IHumanFacePeriocularMappingReading => {
                 if (mappingReading === undefined) {
                   mappingReading = readHumanFacePeriocularMapping({
                     stride,
@@ -346,31 +425,44 @@ export function buildHumanFacePeriocularTissues(
                     indices: sampledBand.conforming?.indices,
                     frames: sampledBand.conformingFrames,
                     seats: sampledBand.conforming?.vertices.map(
-                      (vertex) => vertex.seat,
+                      (
+                        vertex: IHumanFaceConformingSheetVertex,
+                      ): IHumanFaceSkinSeat => vertex.seat,
                     ),
                     outerDistanceMetres: offset,
                     innerDistanceMetres: offset + thickness,
                     skin: (
                       sampledBand.conformingFrames ?? sampledBand.frames
-                    ).flatMap((frame) => frame.point),
+                    ).flatMap(
+                      (frame: IHumanFaceSkinFrame): number[] => frame.point,
+                    ),
                     outer,
                     inner,
                     publicationOrigin: publication.origin,
                     material:
                       sampledBand.conforming !== undefined
                         ? sampledBand.conforming.vertices.flatMap(
-                            (vertex) => vertex.materialPoint,
+                            (
+                              vertex: IHumanFaceConformingSheetVertex,
+                            ): [number, number] => vertex.materialPoint,
                           )
                         : sampledBand.samples.every(
-                              (sample) => sample.materialPoint !== undefined,
+                              (
+                                sample: IHumanFacePeriocularHostSample,
+                              ): boolean => sample.materialPoint !== undefined,
                             )
                           ? sampledBand.samples.flatMap(
-                              (sample) => sample.materialPoint!,
+                              (
+                                sample: IHumanFacePeriocularHostSample,
+                              ): [number, number] => sample.materialPoint!,
                             )
                           : undefined,
                     sourceTriangles:
                       sampledBand.conforming?.sourceTriangles ??
-                      sampledBand.samples.map((sample) => sample.seat.triangle),
+                      sampledBand.samples.map(
+                        (sample: IHumanFacePeriocularHostSample): number =>
+                          sample.seat.triangle,
+                      ),
                     sourceReading: sampledBand.sourceReading,
                   });
                   sampledBand.sourceReading ??= mappingReading;
@@ -379,7 +471,9 @@ export function buildHumanFacePeriocularTissues(
               },
             }),
       });
-      progress?.("periocular:" + side + ":" + tissue + ":" + cage.surface + ":tissue");
+      progress?.(
+        "periocular:" + side + ":" + tissue + ":" + cage.surface + ":tissue",
+      );
     }
   }
   return parts;

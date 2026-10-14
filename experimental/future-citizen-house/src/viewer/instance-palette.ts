@@ -1,7 +1,6 @@
 import type { IAutoMovieColor, IAutoMovieMaterial } from "@automovie/interface";
 
-/** Resolves only the declared common tint reference of the selected native model.
- * Owner: docs/materials/001-binding-and-scale.md#surface-bindings. */
+
 export function instancePaletteReference(
   materials: readonly IAutoMovieMaterial[],
   traits: Readonly<Record<string, number>>,

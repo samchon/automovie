@@ -20,39 +20,47 @@ interface IClippedCorner {
 }
 
 /**
- * Clip source triangles against a frozen vertex-sampled scalar cut.
- * The seam and its region consumer share this topology owner. Positive margins
- * are removed; zero belongs to the retained side. Intersections are registered
- * once by undirected source edge, while corner stencils remain region-local so
- * an atlas seam never borrows its neighbour's UVs. Input arrays are read only.
- * This is a piecewise-linear scalar boundary, not the analytic angular profile.
- * Convex clipped triangles need at most two triangles; repeated corners at an
- * exact endpoint are omitted without an area tolerance.
+ * Clip admitted source triangles against a captured vertex-sampled scalar cut: positive margins are removed and zero is retained. Strict intersections use the cut's undirected-edge registration once, while source-corner stencils remain region-local for independent atlas attributes. Input rows, finite margins and crossing registrations must match this unchanged cut; this gatherer does not revalidate the entire table.
+ *
+ * The boundary is piecewise-linear in sampled margins, not the analytic angular profile. Each convex clipped triangle emits at most two triangles; repeated exact endpoint identities are omitted without an area tolerance. Local incidence/winding preservation does not establish global embeddedness or physical source lineage for newly inserted vertices.
+ *
+ * @evidence contracts/common.md#principled-implementation Actual sampled sign transitions and existing edge registrations determine retained corner identity and interpolation stencils.
+ * @evidence contracts/common.md#clear-and-simple-design The shared cutter owns source topology; region mesh consumers gather their own attributes from region-local corner indices.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero keeps the original endpoint, repeated identity removal uses no metric epsilon, and analytic boundary/global geometry or registered new lineage is not invented.
+ * @evidence contracts/common.md#meaningful-documentation Prose states cut consistency premises, retained sign convention, local chart coordinates and exact endpoint/global boundaries.
+ * @evidence contracts/performance.md#efficient-algorithms One edge map is built from I registered crossings and T source triangles perform fixed-size polygon filtering/fan emission, giving O(I+T) work under admitted tables.
+ * @evidence contracts/performance.md#reuse-equivalent-work All region triangles reuse the cut's existing shared intersection identities through one per-call map, with no recomputation of crossing fractions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned corner records scale with clipped triangle output; edge/polygon workspace is local and no source evaluator or render resource is retained.
  */
 export function clipHumanPersonTriangles(
   sources: readonly number[],
   cut: NonNullable<IAutoMovieHumanPersonSeam["cut"]>,
 ): IClippedCorner[] {
-  const edges = new Map(
-    cut.intersections.map(({ a, b, t }, index) => [
-      `${a}/${b}`,
-      { vertex: cut.margins.length + index, t },
-    ]),
+  const edges: Map<string, { vertex: number; t: number }> = new Map(
+    cut.intersections.map(
+      (
+        { a, b, t }: (typeof cut.intersections)[number],
+        index: number,
+      ): [string, { vertex: number; t: number }] => [
+        `${a}/${b}`,
+        { vertex: cut.margins.length + index, t },
+      ],
+    ),
   );
   const result: IClippedCorner[] = [];
-  for (let offset = 0; offset < sources.length; offset += 3) {
+  for (let offset: number = 0; offset < sources.length; offset += 3) {
     const polygon: typeof result = [];
-    for (let corner = 0; corner < 3; corner++) {
-      const previous = (corner + 2) % 3;
-      const a = sources[offset + previous];
-      const b = sources[offset + corner];
-      const insideA = cut.margins[a] <= 0;
-      const insideB = cut.margins[b] <= 0;
+    for (let corner: number = 0; corner < 3; corner++) {
+      const previous: number = (corner + 2) % 3;
+      const a: number = sources[offset + previous];
+      const b: number = sources[offset + corner];
+      const insideA: boolean = cut.margins[a] <= 0;
+      const insideB: boolean = cut.margins[b] <= 0;
       if (insideA !== insideB) {
-        const low = Math.min(a, b);
-        const high = Math.max(a, b);
-        const endpoint = cut.margins[low] === 0 ? low : high;
-        const hit =
+        const low: number = Math.min(a, b);
+        const high: number = Math.max(a, b);
+        const endpoint: number = cut.margins[low] === 0 ? low : high;
+        const hit: { vertex: number; t: number } =
           cut.margins[endpoint] === 0
             ? { vertex: endpoint, t: endpoint === low ? 0 : 1 }
             : edges.get(`${low}/${high}`)!;
@@ -71,11 +79,13 @@ export function clipHumanPersonTriangles(
           t: 0,
         });
     }
-    const uniqueCorners = polygon.filter(
-      (one, at) =>
-        polygon.findIndex((other) => other.vertex === one.vertex) === at,
+    const uniqueCorners: IClippedCorner[] = polygon.filter(
+      (one: IClippedCorner, at: number): boolean =>
+        polygon.findIndex(
+          (other: IClippedCorner): boolean => other.vertex === one.vertex,
+        ) === at,
     );
-    for (let corner = 1; corner + 1 < uniqueCorners.length; corner++)
+    for (let corner: number = 1; corner + 1 < uniqueCorners.length; corner++)
       result.push(
         uniqueCorners[0],
         uniqueCorners[corner],
