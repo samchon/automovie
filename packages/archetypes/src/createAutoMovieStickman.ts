@@ -5,125 +5,75 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
-import { IAutoMovieArchetypeBuildInput } from "./IAutoMovieArchetypeBuildInput";
-import { IAutoMovieArchetypeGeometry } from "./IAutoMovieArchetypeGeometry";
-import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameterPlan";
-import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
-import { numberOf } from "./numberOf";
-import { numberParameter } from "./numberParameter";
+import { IAutoMovieStickmanProps } from "./IAutoMovieStickmanProps";
 
 /**
- * The catalogue's articulated figure: one height-driven primitive rig.
+ * Produce the catalogue's articulated figure: one height-driven primitive model group.
  *
- * Height sets bone offsets and most dimensions; independent headRadius and limbRadius parameters set thickness and lower bounds on torso and arm lengths. The same three dimensions reproduce the same geometry. This upright figure is registered like any other catalogue entry.
+ * The group is thirteen bones and thirteen primitive parts in fixed order: a pelvis and torso box, a head sphere, and per side an upper arm, lower arm, hand, thigh and shin. Dimensions are conventional metre proportions for this schematic figure, not measured Human anatomy, and equal props produce equal models on every host.
  *
- * Dimensions are conventional metre proportions for this schematic catalogue, not measured Human anatomy. The design gate admits the three dimensions before build. Projection radius encloses every part around the model root under bone rotations, using rest-chain lengths, local offsets and primitive enclosing spheres from this same builder. Build emits thirteen bones and thirteen primitive parts in fixed order, allocating fresh geometry while retaining no recipe state.
+ * @param props Id, metre dimensions and the material every part wears.
+ * @returns A fresh generated model whose skeleton id equals its model id and whose only material is `props.material`.
+ * @throws Error naming the correction when the id is blank or a dimension is non-finite or outside its documented range.
  *
+ * @evidence contracts/common.md#principled-implementation Height scales every bone offset and most part dimensions, while the head and limb radii set thickness and lower-bound the torso and limb lengths through `max`, so a thick limb never exceeds its own segment. The inclusive ranges are the ones the retired parameter schema admitted, checked before any geometry is built.
+ * @evidence contracts/common.md#clear-and-simple-design One producer returns the whole `IAutoMovieModel` group, the type films already reference, so no registry, parameter plan or materializer stands between an author and the figure; placement, LOD and profiles stay with their owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Range refusals apply to every figure and throw before output instead of clamping, and no id or production is special-cased.
+ * @evidence contracts/common.md#meaningful-documentation States the part and bone inventory, metre units, schematic proportions, the skeleton id rule, material adoption and the refusal behavior.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work: three range checks, thirteen bones and thirteen parts with their transforms, allocated once per call.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
  * @author Samchon
  */
-export const STICKMAN_ARCHETYPE: IAutoMovieModelArchetype = {
-  id: "stickman",
-  capabilities: ["signal"],
-  bones: [
-    "hips",
-    "spine",
-    "head",
-    "leftUpperArm",
-    "leftLowerArm",
-    "leftHand",
-    "rightUpperArm",
-    "rightLowerArm",
-    "rightHand",
-    "leftUpperLeg",
-    "leftLowerLeg",
-    "rightUpperLeg",
-    "rightLowerLeg",
-  ],
-  parameters: {
-    height: { kind: "number", minimum: 0.5, maximum: 3 },
-    headRadius: { kind: "number", minimum: 0.05, maximum: 0.5 },
-    limbRadius: { kind: "number", minimum: 0.01, maximum: 0.25 },
-  },
-  plan: (): IAutoMovieArchetypeParameterPlan => ({
-    required: ["height", "headRadius", "limbRadius"],
-    accepted: null,
-    refusals: [],
-  }),
-  projectionRadius: (parameters: AutoMovieArchetypeParameters): number =>
-    projectionRadius(parameters),
-  build: (input: IAutoMovieArchetypeBuildInput): IAutoMovieArchetypeGeometry =>
-    build(input),
+export const createAutoMovieStickman: (
+  props: IAutoMovieStickmanProps,
+) => IAutoMovieModel = (props: IAutoMovieStickmanProps): IAutoMovieModel => {
+  if (props.id.trim().length === 0)
+    throw new Error(
+      "A stickman model id must contain non-whitespace text. Give the figure the id its scene nodes cite.",
+    );
+  assertRange(props.id, "height", props.height, 0.5, 3);
+  assertRange(props.id, "headRadius", props.headRadius, 0.05, 0.5);
+  assertRange(props.id, "limbRadius", props.limbRadius, 0.01, 0.25);
+  return {
+    id: props.id,
+    name: null,
+    origin: "generated",
+    parts: build(props),
+    skeleton: skeletonOf(props.id, props.height),
+    body: null,
+    materials: [props.material],
+    asset: null,
+  };
 };
 
-/**
- * Apply the triangle inequality to ancestral rest-offset lengths, part-local offsets and primitive radii to enclose generated parts around the model root for any unit bone rotations in exact arithmetic. Binary64 sums and hypot are not rounded outward. Geometry comes from the same build owner, so independent head/limb changes enter the measurement.
- *
- * Missing or nonfinite ungated parameters read as zero; out-of-range arithmetic is only a placeholder. Two thirteen-row scans and one fixed-size build allocate fresh temporary records with no cache or persistent geometry.
- */
-const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (
-  parameters: AutoMovieArchetypeParameters,
-): number => {
-  const geometry: IAutoMovieArchetypeGeometry = build({
-    parameters: {
-      height: numberOf(parameters, "height"),
-      headRadius: numberOf(parameters, "headRadius"),
-      limbRadius: numberOf(parameters, "limbRadius"),
-    },
-    // Identity metadata does not enter the geometric bound and is never emitted.
-    material: "",
-    skeleton: "",
-  });
-  const reach: Map<string, number> = new Map();
-  for (const bone of geometry.skeleton!.bones) {
-    const offset: IAutoMovieTransform["translation"] = bone.rest.translation;
-    reach.set(
-      bone.bone,
-      (bone.parent === null ? 0 : reach.get(bone.parent)!) +
-        Math.hypot(offset.x, offset.y, offset.z),
+/** Refuse one non-finite or out-of-range metre dimension with the inclusive range the figure supports. */
+const assertRange: (
+  id: string,
+  field: string,
+  value: number,
+  minimum: number,
+  maximum: number,
+) => void = (
+  id: string,
+  field: string,
+  value: number,
+  minimum: number,
+  maximum: number,
+): void => {
+  if (Number.isFinite(value) === false || value < minimum || value > maximum)
+    throw new Error(
+      `Stickman "${id}" ${field} must be a finite number of metres from ${minimum} through ${maximum}.`,
     );
-  }
-  let radius: number = 0;
-  for (const part of geometry.parts) {
-    if (part.geometry.type !== "primitive")
-      throw new Error(
-        "Stickman radius requires its generated primitive geometry.",
-      );
-    const shape: Extract<
-      IAutoMovieModelPart["geometry"],
-      { type: "primitive" }
-    >["shape"] = part.geometry.shape;
-    let primitiveRadius: number;
-    if (shape.type === "box")
-      primitiveRadius = Math.hypot(shape.width, shape.height, shape.depth) / 2;
-    else if (shape.type === "sphere") primitiveRadius = shape.radius;
-    else if (shape.type === "capsule")
-      primitiveRadius = shape.radius + shape.height / 2;
-    else
-      throw new Error(
-        `Stickman radius has no enclosing bound for ${shape.type}.`,
-      );
-    const offset: IAutoMovieTransform["translation"] | undefined =
-      part.transform?.translation;
-    const offsetRadius: number =
-      offset === undefined ? 0 : Math.hypot(offset.x, offset.y, offset.z);
-    radius = Math.max(
-      radius,
-      reach.get(part.attachedBone!)! + offsetRadius + primitiveRadius,
-    );
-  }
-  return radius;
 };
 
-/** Assemble conventional height-derived parts from an admitted map and compiler-owned ids. The local part factory shares this call's material; none of its fresh records retain the parameter map. */
-const build: (
-  input: IAutoMovieArchetypeBuildInput,
-) => IAutoMovieArchetypeGeometry = (
-  input: IAutoMovieArchetypeBuildInput,
-): IAutoMovieArchetypeGeometry => {
-  const height: number = numberParameter(input.parameters, "height");
-  const headRadius: number = numberParameter(input.parameters, "headRadius");
-  const limbRadius: number = numberParameter(input.parameters, "limbRadius");
+/** Assemble the thirteen conventional height-derived parts from admitted props; every fresh part references the props material by id. */
+const build: (props: IAutoMovieStickmanProps) => IAutoMovieModelPart[] = (
+  props: IAutoMovieStickmanProps,
+): IAutoMovieModelPart[] => {
+  const height: number = props.height;
+  const headRadius: number = props.headRadius;
+  const limbRadius: number = props.limbRadius;
   /** One fresh material-bound primitive attached to its declared bone and local placement. */
   const part: (
     id: string,
@@ -145,16 +95,14 @@ const build: (
     id,
     name: id,
     geometry: { type: "primitive", shape },
-    material: input.material,
+    material: props.material.id,
     attachedBone: bone,
     transform: local,
   });
   const torsoHeight: number = Math.max(headRadius * 2, height * 0.3);
   const upperLimb: number = Math.max(limbRadius * 2, height * 0.15);
   const lowerLimb: number = Math.max(limbRadius * 2, height * 0.14);
-  return {
-    skeleton: skeletonOf(input.skeleton, height),
-    parts: [
+  return [
       part(
         "pelvis",
         "hips",
@@ -231,8 +179,7 @@ const build: (
           ];
         },
       ),
-    ],
-  };
+  ];
 };
 
 /** Construct the thirteen-bone conventional rest tree in metres, with symmetric X offsets and no ROM constraints; the caller owns every bone and transform. */

@@ -1,7 +1,7 @@
 {
   "name": "@automovie/archetypes",
   "version": "0.1.0",
-  "description": "automovie primitive model archetype catalogue: parameter schemas, bounds, and deterministic geometry builders behind one registry",
+  "description": "automovie shipped model catalogue: typed producers of model groups and humanoid gait tables",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
