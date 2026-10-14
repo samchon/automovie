@@ -1,8 +1,8 @@
-/** Static coordinates copied from reviewed docs/models/005-everyday-objects.md @part and @inventory. */
-import { ModelRepresentation, ModelPrototype } from "./representation";
+/** Draft metre-coordinate records for this production; authored design records do not certify mesh realization. */
+import { ModelRepresentation, ModelPrototype } from "../common/model-geometry/representation";
 import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 const prototypes: ModelPrototype[] = [
-  { "anchor": "household-textiles", "name": "직물과 출입 매트", "states": [
+  { "anchor": "household-textiles", "name": "Textiles and entrance mats", "states": [
     { "state": "sofa-cushion", "parts": [
       {"id":"body","shape":"curved","x":[-0.24,0.24],"y":[0.0,0.16],"z":[-0.21,0.21]},
     ],
@@ -54,7 +54,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.45,0.45],"y":[0.0,0.014],"z":[-0.275,0.275]},
     },
   ] },
-  { "anchor": "kitchen-extractor", "name": "주방 상부장 부착 배기 후드", "states": [
+  { "anchor": "kitchen-extractor", "name": "Kitchen wall-cabinet extractor hood", "states": [
     { "state": "default", "parts": [
       {"id":"body","shape":"box","x":[-0.32,0.32],"y":[-0.09,0.0],"z":[-0.24,0.24]},
       {"id":"filter-left","shape":"box","x":[-0.27,-0.01],"y":[-0.097,-0.09],"z":[-0.18,0.18]},
@@ -63,7 +63,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.32,0.32],"y":[-0.097,0.0],"z":[-0.24,0.24]},
     },
   ] },
-  { "anchor": "personal-articles", "name": "신발·의복·우산", "states": [
+  { "anchor": "personal-articles", "name": "Shoes, clothing, and umbrellas", "states": [
     { "state": "shoe", "parts": [
       {"id":"body","shape":"curved","x":[-0.055,0.055],"y":[0.0,0.13],"z":[-0.145,0.145]},
     ],
@@ -98,7 +98,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.13,0.13],"y":[0.0,0.55],"z":[-0.13,0.13]},
     },
   ] },
-  { "anchor": "dining-wares", "name": "식탁 식기와 용기", "states": [
+  { "anchor": "dining-wares", "name": "Dining tableware and containers", "states": [
     { "state": "plate", "parts": [
       {"id":"body","shape":"hollow","x":[-0.135,0.135],"y":[0.0,0.032],"z":[-0.135,0.135]},
     ],
@@ -133,7 +133,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.07,0.07],"y":[0.0,0.3],"z":[-0.07,0.07]},
     },
   ] },
-  { "anchor": "kitchen-smallwares", "name": "조리 도구와 소형 기기", "states": [
+  { "anchor": "kitchen-smallwares", "name": "Cooking utensils and small appliances", "states": [
     { "state": "pot", "parts": [
       {"id":"body","shape":"hollow","x":[-0.175,0.175],"y":[0.0,0.17],"z":[-0.14,0.14]},
     ],
@@ -196,7 +196,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.055,0.055],"y":[0.0,0.19],"z":[-0.055,0.055]},
     },
   ] },
-  { "anchor": "bath-accessories", "name": "욕실 위생 소품", "states": [
+  { "anchor": "bath-accessories", "name": "Bathroom hygiene accessories", "states": [
     { "state": "soap-dispenser", "parts": [
       {"id":"body","shape":"hollow","x":[-0.0375,0.0375],"y":[0.0,0.17],"z":[-0.0375,0.0375]},
     ],
@@ -256,7 +256,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.24,0.24],"y":[0.0,0.4],"z":[-0.175,0.175]},
     },
   ] },
-  { "anchor": "household-boxes", "name": "생활 수납 상자", "states": [
+  { "anchor": "household-boxes", "name": "Household storage boxes", "states": [
     { "state": "file-box", "parts": [
       {"id":"body","shape":"hollow","x":[-0.155,0.155],"y":[0.0,0.31],"z":[-0.195,0.195]},
     ],
@@ -286,7 +286,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.31,0.31],"y":[0.0,0.84],"z":[-0.24,0.24]},
     },
   ] },
-  { "anchor": "household-tools", "name": "청소·수선·설비 도구", "states": [
+  { "anchor": "household-tools", "name": "Cleaning, repair, and equipment tools", "states": [
     { "state": "tool-box", "parts": [
       {"id":"body","shape":"box","x":[-0.215,0.215],"y":[0.0,0.22],"z":[-0.12,0.12]},
     ],
@@ -323,7 +323,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.23,0.23],"y":[0.0,0.49],"z":[-0.15,0.15]},
     },
   ] },
-  { "anchor": "exterior-furnishings", "name": "현관과 외부 비품", "states": [
+  { "anchor": "exterior-furnishings", "name": "Entry and exterior furnishings", "states": [
     { "state": "mailbox", "parts": [
       {"id":"body","shape":"hollow","x":[-0.19,0.19],"y":[0.0,0.48],"z":[-0.12,0.12]},
     ],
@@ -373,7 +373,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.21,0.21],"y":[0.0,0.65],"z":[-0.21,0.21]},
     },
   ] },
-  { "anchor": "wall-accessories", "name": "현관 거울·벽등·코트 걸이", "states": [
+  { "anchor": "wall-accessories", "name": "Entry mirror, wall light, and coat hooks", "states": [
     { "state": "entry-mirror", "parts": [
       {"id":"body","shape":"box","x":[-0.28,0.28],"y":[0.0,1.22],"z":[0.0,0.035]},
     ],
@@ -390,14 +390,14 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.4,0.4],"y":[0.0,0.12],"z":[0.0,0.12]},
     },
   ] },
-  { "anchor": "desk-controls", "name": "작업실 소형 장치", "states": [
+  { "anchor": "desk-controls", "name": "Small study devices", "states": [
     { "state": "pointing-device", "parts": [
       {"id":"body","shape":"curved","x":[-0.0325,0.0325],"y":[0.0,0.035],"z":[-0.055,0.055]},
     ],
       "envelope": {"x":[-0.0325,0.0325],"y":[0.0,0.035],"z":[-0.055,0.055]},
     },
   ] },
-  { "anchor": "under-cabinet-light", "name": "주방 상부장 밑면 선형등", "states": [
+  { "anchor": "under-cabinet-light", "name": "Linear light under kitchen wall cabinets", "states": [
     { "state": "default", "parts": [
       {"id":"body","shape":"box","x":[-0.4,0.4],"y":[-0.03,0.0],"z":[-0.025,0.025]},
     ],
@@ -405,12 +405,24 @@ const prototypes: ModelPrototype[] = [
     },
   ] },
 ];
-/** Reviewed model owners in 005-everyday-objects.md. */
+/**
+ * Own the ordered everyday-object draft catalog discovered by model-source-audit through this file's Models005 export.
+ *
+ * Module initialization retains these mutable metre-coordinate records for the module lifetime. catalog exposes that shared data; build delegates each requested state to ModelRepresentation without a mesh cache or native resources. The catalog does not certify complete design faces, contacts or room placement.
+ */
 export class Models005 {
-  static catalog(): readonly ModelPrototype[] { return prototypes; }
-  static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
-    const prototype = prototypes.find(item => item.anchor === anchor);
-    if (!prototype) throw Error(`unknown model ${anchor} in Models005`);
+  /**
+ * Return the retained ordered array in constant time without allocation. Readonly is a caller type view: the array and nested records are shared mutable identities, so external mutation affects later builds and catalog readers.
+ */
+static catalog(): readonly ModelPrototype[] { return prototypes; }
+  /**
+ * Find the first exact anchor by a linear catalog scan; absence throws this owner's unknown-model error. ModelRepresentation selects the state, invokes materialFor per part and propagates state, material or mesh failures; an effectful resolver may already have run when a later part fails.
+ *
+ * Each call pays the selected parts' complete geometry/material cost and returns fresh mesh arrays plus the resolver's original material objects. Catalog records stay shared; output array mutation belongs to the caller, while material identity and any resolver side effects remain the resolver's responsibility. No handles or background tasks are acquired.
+ */
+static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
+    const prototype: ModelPrototype | undefined = prototypes.find((item: ModelPrototype): boolean => item.anchor === anchor);
+    if (!prototype) throw new Error(`unknown model ${anchor} in Models005`);
     return ModelRepresentation.build(prototype, state, materialFor);
   }
 }

@@ -1,8 +1,8 @@
-/** Static coordinates copied from reviewed docs/models/003-service-fixtures.md @part and @inventory. */
-import { ModelRepresentation, ModelPrototype } from "./representation";
+/** Draft metre-coordinate records for this production; authored design records do not certify mesh realization. */
+import { ModelRepresentation, ModelPrototype } from "../common/model-geometry/representation";
 import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 const prototypes: ModelPrototype[] = [
-  { "anchor": "basin", "name": "세면대·수전·거울", "states": [
+  { "anchor": "basin", "name": "Washbasin, tap, and mirror", "states": [
     { "state": "800", "parts": [
       {"id":"rim","shape":"hollow","x":[-0.4,0.4],"y":[0.8,0.85],"z":[-0.25,0.25]},
       {"id":"bowl","shape":"hollow","x":[-0.29,0.29],"y":[0.71,0.8],"z":[-0.14,0.19]},
@@ -28,7 +28,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.5,0.5],"y":[0.71,1.87],"z":[-0.27,0.25]},
     },
   ] },
-  { "anchor": "toilet", "name": "변기", "states": [
+  { "anchor": "toilet", "name": "Toilet", "states": [
     { "state": "lid-open", "parts": [
       {"id":"pedestal","shape":"box","x":[-0.155,0.155],"y":[0.0,0.27],"z":[-0.235,0.235]},
       {"id":"bowl","shape":"hollow","x":[-0.205,0.205],"y":[0.27,0.43],"z":[-0.295,0.295]},
@@ -41,7 +41,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.21,0.21],"y":[0.0,0.828],"z":[-0.36,0.36]},
     },
   ] },
-  { "anchor": "shower", "name": "고정 스크린 샤워", "states": [
+  { "anchor": "shower", "name": "Shower with fixed screen", "states": [
     { "state": "default", "parts": [
       {"id":"tray","shape":"hollow","x":[-1.025,1.025],"y":[0.0,0.07],"z":[-0.725,0.725]},
       {"id":"screen","shape":"box","x":[-1.025,0.075],"y":[0.07,2.225],"z":[0.713,0.725]},
@@ -58,7 +58,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-1.025,1.025],"y":[0.0,2.25],"z":[-0.725,0.725]},
     },
   ] },
-  { "anchor": "bathtub", "name": "욕조", "states": [
+  { "anchor": "bathtub", "name": "Bathtub", "states": [
     { "state": "default", "parts": [
       {"id":"shell","shape":"hollow","x":[-0.38,0.38],"y":[0.0,0.525],"z":[-0.81,0.81]},
       {"id":"floor","shape":"curved","x":[-0.34,0.34],"y":[0.12,0.2],"z":[-0.765,0.765]},
@@ -68,7 +68,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.38,0.38],"y":[0.0,0.58],"z":[-0.81,0.81]},
     },
   ] },
-  { "anchor": "kitchen-island", "name": "주방 섬·싱크", "states": [
+  { "anchor": "kitchen-island", "name": "Kitchen island and sink", "states": [
     { "state": "default", "parts": [
       {"id":"counter","shape":"hollow","x":[-0.6,0.6],"y":[0.87,0.93],"z":[-1.41,1.41]},
       {"id":"sink","shape":"hollow","x":[-0.38,0.14],"y":[0.75,0.87],"z":[0.45,0.85]},
@@ -80,7 +80,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.6,0.6],"y":[0.75,1.291],"z":[-1.41,1.41]},
     },
   ] },
-  { "anchor": "cooking-appliances", "name": "벽 조리대·쿡탑·오븐", "states": [
+  { "anchor": "cooking-appliances", "name": "Wall counter, cooktop, and oven", "states": [
     { "state": "wall-worktop", "parts": [
       {"id":"top","shape":"hollow","x":[-1.5,1.5],"y":[0.87,0.925],"z":[-0.335,0.335]},
     ],
@@ -112,7 +112,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.3,0.3],"y":[0.15,0.74],"z":[-0.248,0.338]},
     },
   ] },
-  { "anchor": "refrigerator", "name": "두 문 냉장고", "states": [
+  { "anchor": "refrigerator", "name": "Two-door refrigerator", "states": [
     { "state": "default", "parts": [
       {"id":"body","shape":"box","x":[-0.45,0.45],"y":[0.08,2.65],"z":[-0.38,0.29]},
       {"id":"door-lower","shape":"box","x":[-0.45,0.45],"y":[0.08,1.047],"z":[0.29,0.38]},
@@ -124,7 +124,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.45,0.45],"y":[0.0,2.65],"z":[-0.38,0.405]},
     },
   ] },
-  { "anchor": "laundry-appliances", "name": "세탁기와 건조기", "states": [
+  { "anchor": "laundry-appliances", "name": "Washing machine and dryer", "states": [
     { "state": "washer", "parts": [
       {"id":"body","shape":"hollow","x":[-0.33,0.33],"y":[0.0,0.84],"z":[-0.33,0.3]},
       {"id":"drum-inner","shape":"curved","x":[-0.19,0.19],"y":[0.19,0.57],"z":[0.246,0.26]},
@@ -159,7 +159,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.33,0.33],"y":[0.0,0.84],"z":[-0.33,0.33]},
     },
   ] },
-  { "anchor": "rear-counter-sink", "name": "뒤 조리대 싱크·수전", "states": [
+  { "anchor": "rear-counter-sink", "name": "Rear-counter sink and tap", "states": [
     { "state": "default", "parts": [
       {"id":"bowl","shape":"hollow","x":[0.9,1.3],"y":[0.8,0.925],"z":[-0.08,0.22]},
       {"id":"rim","shape":"hollow","x":[0.88,1.32],"y":[0.925,0.94],"z":[-0.1,0.24]},
@@ -173,12 +173,24 @@ const prototypes: ModelPrototype[] = [
     },
   ] },
 ];
-/** Reviewed model owners in 003-service-fixtures.md. */
+/**
+ * Own the ordered service-fixture draft catalog discovered by model-source-audit through this file's Models003 export.
+ *
+ * Module initialization retains these mutable metre-coordinate records for the module lifetime. catalog exposes that shared data; build delegates each requested state to ModelRepresentation without a mesh cache or native resources. The catalog does not certify complete design faces, contacts or room placement.
+ */
 export class Models003 {
-  static catalog(): readonly ModelPrototype[] { return prototypes; }
-  static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
-    const prototype = prototypes.find(item => item.anchor === anchor);
-    if (!prototype) throw Error(`unknown model ${anchor} in Models003`);
+  /**
+ * Return the retained ordered array in constant time without allocation. Readonly is a caller type view: the array and nested records are shared mutable identities, so external mutation affects later builds and catalog readers.
+ */
+static catalog(): readonly ModelPrototype[] { return prototypes; }
+  /**
+ * Find the first exact anchor by a linear catalog scan; absence throws this owner's unknown-model error. ModelRepresentation selects the state, invokes materialFor per part and propagates state, material or mesh failures; an effectful resolver may already have run when a later part fails.
+ *
+ * Each call pays the selected parts' complete geometry/material cost and returns fresh mesh arrays plus the resolver's original material objects. Catalog records stay shared; output array mutation belongs to the caller, while material identity and any resolver side effects remain the resolver's responsibility. No handles or background tasks are acquired.
+ */
+static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
+    const prototype: ModelPrototype | undefined = prototypes.find((item: ModelPrototype): boolean => item.anchor === anchor);
+    if (!prototype) throw new Error(`unknown model ${anchor} in Models003`);
     return ModelRepresentation.build(prototype, state, materialFor);
   }
 }

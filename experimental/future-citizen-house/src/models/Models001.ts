@@ -1,8 +1,8 @@
-/** Static coordinates copied from reviewed docs/models/001-seating-and-work.md @part and @inventory. */
-import { ModelRepresentation, ModelPrototype } from "./representation";
+/** Draft metre-coordinate records for this production; authored design records do not certify mesh realization. */
+import { ModelRepresentation, ModelPrototype } from "../common/model-geometry/representation";
 import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 const prototypes: ModelPrototype[] = [
-  { "anchor": "living-sofa", "name": "거실 직선·L자 소파", "states": [
+  { "anchor": "living-sofa", "name": "Straight and L-shaped living-room sofas", "states": [
     { "state": "straight", "parts": [
       {"id":"frame","shape":"box","x":[-1.19,1.19],"y":[0.1,0.31],"z":[-0.48,0.48]},
       {"id":"leg-0","shape":"box","x":[-1.24,-1.18],"y":[0.0,0.1],"z":[-0.37,-0.31]},
@@ -50,7 +50,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-1.35,1.35],"y":[0.0,0.88],"z":[-0.48,1.3]},
     },
   ] },
-  { "anchor": "dining-table", "name": "여섯 자리 식탁", "states": [
+  { "anchor": "dining-table", "name": "Six-seat dining table", "states": [
     { "state": "default", "parts": [
       {"id":"top","shape":"box","x":[-0.9,0.9],"y":[0.696,0.74],"z":[-0.46,0.46]},
       {"id":"leg-0","shape":"box","x":[-0.8325,-0.7875],"y":[0.0,0.696],"z":[-0.3925,-0.3475]},
@@ -61,7 +61,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.9,0.9],"y":[0.0,0.74],"z":[-0.46,0.46]},
     },
   ] },
-  { "anchor": "coffee-table", "name": "거실 낮은 탁자", "states": [
+  { "anchor": "coffee-table", "name": "Low living-room table", "states": [
     { "state": "default", "parts": [
       {"id":"top","shape":"box","x":[-0.45,0.45],"y":[0.32,0.36],"z":[-0.625,0.625]},
       {"id":"leg-0","shape":"box","x":[-0.41,-0.37],"y":[0.0,0.32],"z":[-0.57,-0.53]},
@@ -72,7 +72,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.45,0.45],"y":[0.0,0.36],"z":[-0.625,0.625]},
     },
   ] },
-  { "anchor": "dining-chair", "name": "천 씌운 식탁 의자", "states": [
+  { "anchor": "dining-chair", "name": "Upholstered dining chair", "states": [
     { "state": "default", "parts": [
       {"id":"seat-frame","shape":"box","x":[-0.24,0.24],"y":[0.38,0.415],"z":[-0.26,0.26]},
       {"id":"seat-pad","shape":"box","x":[-0.22,0.22],"y":[0.415,0.45],"z":[-0.24,0.24]},
@@ -86,7 +86,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.24,0.24],"y":[0.0,0.84],"z":[-0.29,0.26]},
     },
   ] },
-  { "anchor": "island-stool", "name": "고리 발받침 섬 스툴", "states": [
+  { "anchor": "island-stool", "name": "Island stool with ring footrest", "states": [
     { "state": "default", "parts": [
       {"id":"seat","shape":"cylinder","x":[-0.18,0.18],"y":[0.585,0.63],"z":[-0.18,0.18]},
       {"id":"leg-0","shape":"box","x":[-0.1225,-0.0975],"y":[0.0,0.585],"z":[-0.1225,-0.0975]},
@@ -101,7 +101,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.18,0.18],"y":[0.0,0.63],"z":[-0.18,0.18]},
     },
   ] },
-  { "anchor": "work-desk", "name": "벽 연결 작업 책상과 침실 변종", "states": [
+  { "anchor": "work-desk", "name": "Wall-connected work desk and bedroom variants", "states": [
     { "state": "folded", "parts": [
       {"id":"top","shape":"hollow","x":[-0.7,0.7],"y":[0.7,0.74],"z":[-0.3,0.3]},
       {"id":"back-rail","shape":"box","x":[-0.7,0.7],"y":[0.74,0.86],"z":[-0.3,-0.275]},
@@ -166,7 +166,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.625,0.625],"y":[0.0,0.82],"z":[-0.3,0.3]},
     },
   ] },
-  { "anchor": "desk-chair", "name": "천 씌운 셸 책상 의자", "states": [
+  { "anchor": "desk-chair", "name": "Upholstered shell desk chair", "states": [
     { "state": "default", "parts": [
       {"id":"shell-seat","shape":"curved","x":[-0.26,0.26],"y":[0.39,0.415],"z":[-0.1,0.28]},
       {"id":"shell-back","shape":"curved","x":[-0.26,0.26],"y":[0.415,0.83],"z":[-0.27,-0.075]},
@@ -180,7 +180,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.26,0.26],"y":[0.0,0.83],"z":[-0.27,0.28]},
     },
   ] },
-  { "anchor": "work-equipment", "name": "책상 화면과 키보드", "states": [
+  { "anchor": "work-equipment", "name": "Desk display and keyboard", "states": [
     { "state": "display", "parts": [
       {"id":"stand-base","shape":"box","x":[-0.09,0.09],"y":[0.0,0.014],"z":[-0.06,0.06]},
       {"id":"stand-shaft","shape":"box","x":[-0.02,0.02],"y":[0.014,0.12],"z":[-0.02,0.02]},
@@ -245,7 +245,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.175,0.175],"y":[0.0,0.015],"z":[-0.06,0.06]},
     },
   ] },
-  { "anchor": "accent-chair", "name": "작업실 안락의자", "states": [
+  { "anchor": "accent-chair", "name": "Study armchair", "states": [
     { "state": "default", "parts": [
       {"id":"frame","shape":"box","x":[-0.37,0.37],"y":[0.12,0.28],"z":[-0.35,0.35]},
       {"id":"leg-0","shape":"box","x":[-0.37,-0.32],"y":[0.0,0.12],"z":[-0.35,-0.3]},
@@ -262,12 +262,24 @@ const prototypes: ModelPrototype[] = [
     },
   ] },
 ];
-/** Reviewed model owners in 001-seating-and-work.md. */
+/**
+ * Own the ordered seating-and-work draft catalog discovered by model-source-audit through this file's Models001 export.
+ *
+ * Module initialization retains these mutable metre-coordinate records for the module lifetime. catalog exposes that shared data; build delegates each requested state to ModelRepresentation without a mesh cache or native resources. The catalog does not certify complete design faces, contacts or room placement.
+ */
 export class Models001 {
-  static catalog(): readonly ModelPrototype[] { return prototypes; }
-  static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
-    const prototype = prototypes.find(item => item.anchor === anchor);
-    if (!prototype) throw Error(`unknown model ${anchor} in Models001`);
+  /**
+ * Return the retained ordered array in constant time without allocation. Readonly is a caller type view: the array and nested records are shared mutable identities, so external mutation affects later builds and catalog readers.
+ */
+static catalog(): readonly ModelPrototype[] { return prototypes; }
+  /**
+ * Find the first exact anchor by a linear catalog scan; absence throws this owner's unknown-model error. ModelRepresentation selects the state, invokes materialFor per part and propagates state, material or mesh failures; an effectful resolver may already have run when a later part fails.
+ *
+ * Each call pays the selected parts' complete geometry/material cost and returns fresh mesh arrays plus the resolver's original material objects. Catalog records stay shared; output array mutation belongs to the caller, while material identity and any resolver side effects remain the resolver's responsibility. No handles or background tasks are acquired.
+ */
+static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
+    const prototype: ModelPrototype | undefined = prototypes.find((item: ModelPrototype): boolean => item.anchor === anchor);
+    if (!prototype) throw new Error(`unknown model ${anchor} in Models001`);
     return ModelRepresentation.build(prototype, state, materialFor);
   }
 }

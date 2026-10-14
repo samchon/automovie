@@ -1,8 +1,8 @@
-/** Static coordinates copied from reviewed docs/models/004-decor-and-fixtures.md @part and @inventory. */
-import { ModelRepresentation, ModelPrototype } from "./representation";
+/** Draft metre-coordinate records for this production; authored design records do not certify mesh realization. */
+import { ModelRepresentation, ModelPrototype } from "../common/model-geometry/representation";
 import { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 const prototypes: ModelPrototype[] = [
-  { "anchor": "potted-plant", "name": "낮은·높은 실내 화분", "states": [
+  { "anchor": "potted-plant", "name": "Low and tall indoor potted plants", "states": [
     { "state": "180", "parts": [
       {"id":"pot","shape":"hollow","x":[-0.0342,0.0342],"y":[0.0,0.0612],"z":[-0.0342,0.0342]},
       {"id":"soil","shape":"curved","x":[-0.0282,0.0282],"y":[0.006,0.0612],"z":[-0.0282,0.0282]},
@@ -154,7 +154,7 @@ const prototypes: ModelPrototype[] = [
       "plantSpec": {"heights":[180,280,600,800,1100],"potHeight":0.34,"potTopRadius":0.19,"potBottomRadius":0.15,"wallMinimum":0.006,"wallFactor":0.018,"soilSurface":0.34,"stemRadius":0.014,"stemTop":0.84,"crownDiameterLimit":0.6,"branchStart":0.48,"branchPitch":0.09,"branchLength":0.18,"branchRadius":0.006,"branchAzimuthsDegrees":[0,75,150,225,300],"leafLength":0.16,"leafWidth":0.055,"leafThickness":0.003,"leafFanDegrees":25},
     },
   ] },
-  { "anchor": "books", "name": "개별 책", "states": [
+  { "anchor": "books", "name": "Individual books", "states": [
     { "state": "180x30x120", "parts": [
       {"id":"cover-left","shape":"box","x":[-0.015,-0.011],"y":[0.0,0.18],"z":[-0.06,0.054]},
       {"id":"cover-right","shape":"box","x":[0.011,0.015],"y":[0.0,0.18],"z":[-0.06,0.054]},
@@ -180,7 +180,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.025,0.025],"y":[0.0,0.3],"z":[-0.1,0.1]},
     },
   ] },
-  { "anchor": "folded-towels", "name": "접힌 수건", "states": [
+  { "anchor": "folded-towels", "name": "Folded towels", "states": [
     { "state": "80", "parts": [
       {"id":"layer-0","shape":"box","x":[-0.19,0.19],"y":[0.0,0.024],"z":[-0.3,0.3]},
       {"id":"layer-1","shape":"box","x":[-0.19,0.19],"y":[0.028,0.052],"z":[-0.3,0.3]},
@@ -209,7 +209,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.19,0.19],"y":[0.0,0.16],"z":[-0.3,0.3]},
     },
   ] },
-  { "anchor": "storage-basket", "name": "손잡이 있는 빈 바구니", "states": [
+  { "anchor": "storage-basket", "name": "Empty basket with handles", "states": [
     { "state": "default", "parts": [
       {"id":"bottom","shape":"box","x":[-0.2,0.2],"y":[0.0,0.012],"z":[-0.325,0.325]},
       {"id":"wall","shape":"hollow","x":[-0.2,0.2],"y":[0.012,0.262],"z":[-0.325,0.325]},
@@ -221,7 +221,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.2,0.2],"y":[0.0,0.28],"z":[-0.325,0.325]},
     },
   ] },
-  { "anchor": "entry-charger", "name": "현관 충전 물체", "states": [
+  { "anchor": "entry-charger", "name": "Entry charging object", "states": [
     { "state": "default", "parts": [
       {"id":"body","shape":"hollow","x":[-0.035,0.035],"y":[0.0,0.015],"z":[-0.06,0.06]},
       {"id":"interface","shape":"box","x":[-0.026,0.026],"y":[0.013,0.015],"z":[-0.0375,0.0375]},
@@ -230,7 +230,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.035,0.035],"y":[0.0,0.015],"z":[-0.06,0.06]},
     },
   ] },
-  { "anchor": "rugs", "name": "거실·침실 러그", "states": [
+  { "anchor": "rugs", "name": "Living-room and bedroom rugs", "states": [
     { "state": "living", "parts": [
       {"id":"base","shape":"box","x":[-1.4,1.4],"y":[0.0,0.013],"z":[-1.825,1.825]},
       {"id":"pile","shape":"box","x":[-1.375,1.375],"y":[0.013,0.016],"z":[-1.8,1.8]},
@@ -256,7 +256,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.6,0.6],"y":[0.0,0.012],"z":[-0.6,0.6]},
     },
   ] },
-  { "anchor": "wall-art", "name": "벽 액자", "states": [
+  { "anchor": "wall-art", "name": "Wall picture frame", "states": [
     { "state": "default", "parts": [
       {"id":"back","shape":"box","x":[-0.3,0.3],"y":[-0.21,0.21],"z":[0.0,0.012]},
       {"id":"frame","shape":"hollow","x":[-0.3,0.3],"y":[-0.21,0.21],"z":[0.012,0.035]},
@@ -268,7 +268,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.3,0.3],"y":[-0.21,0.21],"z":[0.0,0.035]},
     },
   ] },
-  { "anchor": "tabletop-props", "name": "빈 그릇·쟁반·컵", "states": [
+  { "anchor": "tabletop-props", "name": "Empty bowl, tray, and cup", "states": [
     { "state": "bowl", "parts": [
       {"id":"shell","shape":"hollow","x":[-0.11,0.11],"y":[0.0,0.07],"z":[-0.11,0.11]},
     ],
@@ -290,7 +290,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.0425,0.0425],"y":[0.0,0.095],"z":[-0.0425,0.0825]},
     },
   ] },
-  { "anchor": "living-display", "name": "거실 화면", "states": [
+  { "anchor": "living-display", "name": "Living-room display", "states": [
     { "state": "default", "parts": [
       {"id":"mount","shape":"box","x":[-0.09,0.09],"y":[-0.06,0.06],"z":[0.0,0.018]},
       {"id":"housing","shape":"box","x":[-0.715,0.715],"y":[-0.4,0.4],"z":[0.018,0.039]},
@@ -301,7 +301,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.715,0.715],"y":[-0.4,0.4],"z":[0.0,0.045]},
     },
   ] },
-  { "anchor": "ceiling-surface-light", "name": "천장 표면 부착등", "states": [
+  { "anchor": "ceiling-surface-light", "name": "Surface-mounted ceiling light", "states": [
     { "state": "default", "parts": [
       {"id":"housing-body","shape":"cylinder","x":[-0.0425,0.0425],"y":[-0.037,-0.028],"z":[-0.0425,0.0425]},
       {"id":"housing-flange","shape":"cylinder","x":[-0.05,0.05],"y":[-0.028,-0.025],"z":[-0.05,0.05]},
@@ -313,7 +313,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.06,0.06],"y":[-0.04,0.0],"z":[-0.06,0.06]},
     },
   ] },
-  { "anchor": "dining-pendant", "name": "가는 원통 식탁 펜던트", "states": [
+  { "anchor": "dining-pendant", "name": "Slender cylindrical dining pendant", "states": [
     { "state": "default", "parts": [
       {"id":"canopy","shape":"hollow","x":[-0.04,0.04],"y":[-0.018,0.0],"z":[-0.04,0.04]},
       {"id":"cord","shape":"cylinder","x":[-0.003,0.003],"y":[-0.62,0.0],"z":[-0.003,0.003]},
@@ -325,7 +325,7 @@ const prototypes: ModelPrototype[] = [
       "envelope": {"x":[-0.04,0.04],"y":[-1.0,0.0],"z":[-0.04,0.04]},
     },
   ] },
-  { "anchor": "portable-lamps", "name": "바닥 독서등·구형 협탁등·작업등", "states": [
+  { "anchor": "portable-lamps", "name": "Floor reading light, spherical bedside lamp, and task light", "states": [
     { "state": "reading", "parts": [
       {"id":"base","shape":"cylinder","x":[-0.125,0.125],"y":[0.0,0.025],"z":[-0.125,0.125]},
       {"id":"stem-lower","shape":"cylinder","x":[-0.009,0.009],"y":[0.025,1.1],"z":[-0.009,0.009]},
@@ -355,12 +355,24 @@ const prototypes: ModelPrototype[] = [
     },
   ] },
 ];
-/** Reviewed model owners in 004-decor-and-fixtures.md. */
+/**
+ * Own the ordered decor-and-fixture draft catalog discovered by model-source-audit through this file's Models004 export.
+ *
+ * Module initialization retains these mutable metre-coordinate records for the module lifetime. catalog exposes that shared data; build delegates each requested state to ModelRepresentation without a mesh cache or native resources. The catalog does not certify complete design faces, contacts or room placement.
+ */
 export class Models004 {
-  static catalog(): readonly ModelPrototype[] { return prototypes; }
-  static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
-    const prototype = prototypes.find(item => item.anchor === anchor);
-    if (!prototype) throw Error(`unknown model ${anchor} in Models004`);
+  /**
+ * Return the retained ordered array in constant time without allocation. Readonly is a caller type view: the array and nested records are shared mutable identities, so external mutation affects later builds and catalog readers.
+ */
+static catalog(): readonly ModelPrototype[] { return prototypes; }
+  /**
+ * Find the first exact anchor by a linear catalog scan; absence throws this owner's unknown-model error. ModelRepresentation selects the state, invokes materialFor per part and propagates state, material or mesh failures; an effectful resolver may already have run when a later part fails.
+ *
+ * Each call pays the selected parts' complete geometry/material cost and returns fresh mesh arrays plus the resolver's original material objects. Catalog records stay shared; output array mutation belongs to the caller, while material identity and any resolver side effects remain the resolver's responsibility. No handles or background tasks are acquired.
+ */
+static build(anchor: string, state: string, materialFor: (anchor: string, state: string, part: string) => IAutoMovieMaterial): IAutoMovieModel {
+    const prototype: ModelPrototype | undefined = prototypes.find((item: ModelPrototype): boolean => item.anchor === anchor);
+    if (!prototype) throw new Error(`unknown model ${anchor} in Models004`);
     return ModelRepresentation.build(prototype, state, materialFor);
   }
 }
