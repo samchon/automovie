@@ -13,27 +13,19 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { analysisContext, boxSolid } from "../internal/analysisFixtures";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * The viewer draws a field only from the artifact a report reads, and refuses
  * to draw anything else.
  *
- * A heatmap is the most persuasive thing a review looks at, so the overlay is
- * the place a missing analysis would most easily be laundered into a result.
- * Every refusal below exists for that: an `unsupported` or `not-run` run, a
- * metric the run never carried, a metric that produced no value, and a metric
- * with no spatial field each throw carrying the run's own reason, so the only
- * picture that can exist is one of a measurement that happened.
+ * Overlay admission requires a solved numerical run with a present metric value and spatial field. Unsupported, not-run, unknown, gapped and fieldless inputs refuse with their own reason; a numerical artifact is not a physical measurement or evidence of a completed rendered picture.
  *
- * The colour ramp is written out rather than sampled, so the same value paints
- * the same colour in a live viewer and in a headless capture. Its stops are
- * checked against the definition: blue at the bottom, green at the middle, red
- * at the top, linear between them, clamped outside.
+ * The pure color ramp follows authored blue/green/red endpoints, linear intermediate stops and outside clamping, checked through finite scalar predicates.
  *
  * Scenarios:
  *
- * 1. A solved two-cell study becomes two points at the measured positions,
+ * 1. A solved two-cell study becomes two points at the field positions,
  *    coloured by the ends of the ramp, carrying the run identity and unit in
  *    `userData`.
  * 2. The ramp is its own definition at both ends, the middle, both quarters and
@@ -43,13 +35,18 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 4. A default material is disposed with the overlay; a caller's material is left
  *    alone.
  * 5. An unsupported run, a not-run run, an unknown metric, a gapped metric and a
- *    measured metric with no field are each refused with the reason attached.
+ *    solved metric with no field are each refused with the reason attached.
  * 6. A non-positive point size and an inverted or non-finite ramp domain are
  *    refused.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds actual overlay point buffers from solved analysis fields, observes ramp/domain/identity metadata and native disposal events, and refuses unsupported, absent, gapped or fieldless results plus invalid presentation operands. A numerical run without usable spatial samples cannot become an apparent field through this adapter.
+ * @evidence contracts/testing.md#independent-expectations Authored workplane cell centers give X=-0.5/0.5 at Y=Z=0; the unblocked 900-intensity luminaire three metres above the first cell gives 100 under the solver's inverse-square model, while the second cell is shaded. Explicit blue/green/red ramp stops and affine midpoint values define colors independently of overlay output; run digest is borrowed input identity, and neither numerical analysis nor disposal events certify physical measurement or GPU release.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts solved field endpoints, quarter/midpoint/outside ramp values, pinned and zero-spread domains, owned versus borrowed material, unsupported/not-run/unknown/gapped/fieldless results and invalid size/domain operands. Solver calibration and rendered pixels belong to their owners; this entry owns field-to-native metadata realization and refusal.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit directly invokes numerical analysis and overlay construction with existing authored context/solid fixtures, then observes native metadata/dispose events. It starts no viewer, browser or GPU and all local predicate callbacks belong to this entry.
  */
-export const test_viewer_analysis_overlay = (): void => {
-  const context = analysisContext();
-  const request = (
+export function test_viewer_analysis_overlay(): void {
+  const context: ReturnType<typeof analysisContext> = analysisContext();
+  const request: (overrides?: Partial<IAutoMovieDaylightRequest>) => IAutoMovieDaylightRequest = (
     overrides: Partial<IAutoMovieDaylightRequest> = {},
   ): IAutoMovieDaylightRequest => ({
     id: "hall-daylight",
@@ -75,32 +72,29 @@ export const test_viewer_analysis_overlay = (): void => {
     targets: [],
     ...overrides,
   });
-  const run = analyzeAutoMovieDaylight({ request: request() });
-  const overlay = buildAnalysisOverlayObject({
+  const run: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({ request: request() });
+  const overlay: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
     run,
     metric: "workplane.total.illuminance",
   });
-  const positions = overlay.object.geometry.getAttribute("position");
-  const colors = overlay.object.geometry.getAttribute("color");
+  const positions: ReturnType<typeof overlay.object.geometry.getAttribute> = overlay.object.geometry.getAttribute("position");
+  const colors: ReturnType<typeof overlay.object.geometry.getAttribute> = overlay.object.geometry.getAttribute("color");
+  const sameNumbers: (actual: ArrayLike<number>, expected: readonly number[]) => boolean = (actual: ArrayLike<number>, expected: readonly number[]): boolean => actual.length === expected.length && Array.from(actual).every((value: number, index: number): boolean => nclose(value, expected[index]!));
+  const identity: Record<string, unknown> = overlay.object.userData.autoMovieAnalysis as Record<string, unknown>;
+  const range: ReturnType<typeof overlay.range> = overlay.range();
   TestValidator.equals(
     "a solved study becomes one coloured point per measured cell",
     {
       type: overlay.object.type,
       name: overlay.object.name,
       count: overlay.count(),
-      range: overlay.range(),
-      positions: Array.from(positions.array),
-      colors: Array.from(colors.array),
       bounded: overlay.object.geometry.boundingSphere !== null,
-      userData: overlay.object.userData.autoMovieAnalysis,
+      userData: { run: identity.run, domain: identity.domain, metric: identity.metric, unit: identity.unit, status: identity.status, digest: identity.digest },
     },
     {
       type: "Points",
       name: "analysis:hall-daylight:workplane.total.illuminance",
       count: 2,
-      range: { min: 0, max: 100 },
-      positions: [-0.5, 0, 0, 0.5, 0, 0],
-      colors: [1, 0, 0, 0, 0, 1],
       bounded: true,
       userData: {
         run: "hall-daylight",
@@ -108,88 +102,72 @@ export const test_viewer_analysis_overlay = (): void => {
         metric: "workplane.total.illuminance",
         unit: "lx",
         status: "untargeted",
-        min: 0,
-        max: 100,
         digest: run.digest,
       },
     },
   );
+  TestValidator.predicate("authored field positions and color endpoints are realized",
+    sameNumbers(positions.array, [-0.5, 0, 0, 0.5, 0, 0]) &&
+      sameNumbers(colors.array, [1, 0, 0, 0, 0, 1]) &&
+      nclose(range.min, 0) && nclose(range.max, 100) &&
+      typeof identity.min === "number" && nclose(identity.min, 0) &&
+      typeof identity.max === "number" && nclose(identity.max, 100));
   overlay.dispose();
 
-  TestValidator.equals(
-    "the ramp is its own definition at every stop and clamped outside",
-    {
-      bottom: autoMovieAnalysisRampColor(0),
-      quarter: autoMovieAnalysisRampColor(0.25),
-      middle: autoMovieAnalysisRampColor(0.5),
-      threeQuarter: autoMovieAnalysisRampColor(0.75),
-      top: autoMovieAnalysisRampColor(1),
-      under: autoMovieAnalysisRampColor(-2),
-      over: autoMovieAnalysisRampColor(3),
-    },
-    {
-      bottom: { r: 0, g: 0, b: 1 },
-      quarter: { r: 0, g: 0.5, b: 0.5 },
-      middle: { r: 0, g: 1, b: 0 },
-      threeQuarter: { r: 0.5, g: 0.5, b: 0 },
-      top: { r: 1, g: 0, b: 0 },
-      under: { r: 0, g: 0, b: 1 },
-      over: { r: 1, g: 0, b: 0 },
-    },
-  );
+  const rampCases: Array<[number, ReturnType<typeof autoMovieAnalysisRampColor>]> = [
+    [0, { r: 0, g: 0, b: 1 }], [0.25, { r: 0, g: 0.5, b: 0.5 }],
+    [0.5, { r: 0, g: 1, b: 0 }], [0.75, { r: 0.5, g: 0.5, b: 0 }],
+    [1, { r: 1, g: 0, b: 0 }], [-2, { r: 0, g: 0, b: 1 }],
+    [3, { r: 1, g: 0, b: 0 }],
+  ];
+  for (const [value, expected] of rampCases) {
+    const actual: ReturnType<typeof autoMovieAnalysisRampColor> = autoMovieAnalysisRampColor(value);
+    TestValidator.predicate("authored ramp stop " + value,
+      nclose(actual.r, expected.r) && nclose(actual.g, expected.g) && nclose(actual.b, expected.b));
+  }
 
-  const pinned = buildAnalysisOverlayObject({
+  const pinned: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
     run,
     metric: "workplane.total.illuminance",
     domain: { min: 0, max: 200 },
     size: 0.25,
   });
-  const flatRun = analyzeAutoMovieDaylight({
+  const flatRun: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({
     request: request({ shades: [] }),
   });
-  const flat = buildAnalysisOverlayObject({
+  const flat: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
     run: flatRun,
     metric: "workplane.total.illuminance",
     domain: { min: 5, max: 5 },
   });
-  TestValidator.equals(
+  const pinnedRange: ReturnType<typeof pinned.range> = pinned.range();
+  TestValidator.predicate(
     "a pinned domain rescales the field and a flat one sits at the middle",
-    {
-      pinnedRange: pinned.range(),
-      pinnedColors: Array.from(
-        pinned.object.geometry.getAttribute("color").array,
-      ),
-      size: (pinned.object.material as THREE.PointsMaterial).size,
-      flatColors: Array.from(flat.object.geometry.getAttribute("color").array),
-    },
-    {
-      pinnedRange: { min: 0, max: 200 },
-      // 100 of 200 is the middle of the ramp; 0 of 200 is its bottom.
-      pinnedColors: [0, 1, 0, 0, 0, 1],
-      size: 0.25,
-      flatColors: [0, 1, 0, 0, 1, 0],
-    },
+    nclose(pinnedRange.min, 0) && nclose(pinnedRange.max, 200) &&
+      sameNumbers(pinned.object.geometry.getAttribute("color").array, [0, 1, 0, 0, 0, 1]) &&
+      nclose((pinned.object.material as THREE.PointsMaterial).size, 0.25) &&
+      sameNumbers(flat.object.geometry.getAttribute("color").array, [0, 1, 0, 0, 1, 0]),
   );
   pinned.dispose();
   flat.dispose();
 
-  let ownedDisposed = 0;
-  let borrowedDisposed = 0;
-  const defaulted = buildAnalysisOverlayObject({
+  let ownedDisposed: number = 0;
+  let borrowedDisposed: number = 0;
+  const defaulted: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
     run,
     metric: "workplane.total.illuminance",
   });
   (defaulted.object.material as THREE.PointsMaterial).addEventListener(
     "dispose",
-    () => {
+    (): void => {
       ownedDisposed += 1;
     },
   );
-  const borrowed = new THREE.PointsMaterial({ size: 1, vertexColors: true });
-  borrowed.addEventListener("dispose", () => {
+  const borrowed: THREE.PointsMaterial = new THREE.PointsMaterial({ size: 1, vertexColors: true });
+  borrowed.addEventListener("dispose", (): void => {
     borrowedDisposed += 1;
   });
-  const lent = buildAnalysisOverlayObject({
+  const lent: ReturnType<typeof buildAnalysisOverlayObject> = buildAnalysisOverlayObject({
     run,
     metric: "workplane.total.illuminance",
     material: borrowed,
@@ -207,10 +185,10 @@ export const test_viewer_analysis_overlay = (): void => {
   );
   borrowed.dispose();
 
-  const unsupported = analyzeAutoMovieDaylight({
+  const unsupported: IAutoMovieAnalysisRun = analyzeAutoMovieDaylight({
     request: request({ sky: "perez-all-weather" }),
   });
-  const skipped = sealAutoMovieAnalysisRun({
+  const skipped: IAutoMovieAnalysisRun = sealAutoMovieAnalysisRun({
     id: "skipped",
     domain: "air",
     subject: "space:hall",
@@ -223,7 +201,7 @@ export const test_viewer_analysis_overlay = (): void => {
       remedy: "declare the supply flow",
     },
   });
-  const acoustics = analyzeAutoMovieAcoustics({
+  const acoustics: IAutoMovieAnalysisRun = analyzeAutoMovieAcoustics({
     request: {
       id: "hall-acoustics",
       subject: "space:hall",
@@ -236,21 +214,21 @@ export const test_viewer_analysis_overlay = (): void => {
       targets: [],
     },
   });
-  const draw = (
+  const draw: (target: IAutoMovieAnalysisRun, metric: string, fragment: string) => boolean = (
     target: IAutoMovieAnalysisRun,
     metric: string,
     fragment: string,
   ): boolean =>
     throwsError(
-      () => buildAnalysisOverlayObject({ run: target, metric }),
+      (): ReturnType<typeof buildAnalysisOverlayObject> => buildAnalysisOverlayObject({ run: target, metric }),
       fragment,
     );
   TestValidator.equals(
-    "nothing but a real measurement can be drawn",
+    "inputs without an admitted numerical field refuse overlay construction",
     namedFacts([
       [
         "an unsupported run",
-        () =>
+        (): boolean =>
           draw(
             unsupported,
             "workplane.total.illuminance",
@@ -259,15 +237,15 @@ export const test_viewer_analysis_overlay = (): void => {
       ],
       [
         "a not-run run",
-        () => draw(skipped, "space.airChangeRate", "no supply flow declared"),
+        (): boolean => draw(skipped, "space.airChangeRate", "no supply flow declared"),
       ],
       [
         "an unknown metric",
-        () => draw(run, "room.clarity", 'carries no metric "room.clarity"'),
+        (): boolean => draw(run, "room.clarity", 'carries no metric "room.clarity"'),
       ],
       [
         "a gapped metric",
-        () =>
+        (): boolean =>
           draw(
             run,
             "workplane.groundReflected.illuminance",
@@ -276,7 +254,7 @@ export const test_viewer_analysis_overlay = (): void => {
       ],
       [
         "a measurement with no field",
-        () =>
+        (): boolean =>
           draw(
             acoustics,
             "room.absorptionArea",
@@ -285,9 +263,9 @@ export const test_viewer_analysis_overlay = (): void => {
       ],
       [
         "a non-positive point size",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof buildAnalysisOverlayObject> =>
               buildAnalysisOverlayObject({
                 run,
                 metric: "workplane.total.illuminance",
@@ -298,9 +276,9 @@ export const test_viewer_analysis_overlay = (): void => {
       ],
       [
         "an inverted ramp domain",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof buildAnalysisOverlayObject> =>
               buildAnalysisOverlayObject({
                 run,
                 metric: "workplane.total.illuminance",
@@ -311,9 +289,9 @@ export const test_viewer_analysis_overlay = (): void => {
       ],
       [
         "a non-finite ramp domain",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof buildAnalysisOverlayObject> =>
               buildAnalysisOverlayObject({
                 run,
                 metric: "workplane.total.illuminance",
@@ -334,4 +312,4 @@ export const test_viewer_analysis_overlay = (): void => {
       "a non-finite ramp domain": true,
     },
   );
-};
+}
