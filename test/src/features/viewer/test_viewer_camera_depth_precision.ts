@@ -7,9 +7,9 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const sourceCamera = (
+const sourceCamera: (overrides?: Partial<IAutoMovieCamera>) => IAutoMovieCamera = (
   overrides: Partial<IAutoMovieCamera> = {},
 ): IAutoMovieCamera => {
   const camera: IAutoMovieCamera = {
@@ -29,7 +29,7 @@ const sourceCamera = (
   return camera;
 };
 
-const realizedCamera = (
+const realizedCamera: (source?: IAutoMovieCamera) => THREE.PerspectiveCamera = (
   source: IAutoMovieCamera = sourceCamera(),
 ): THREE.PerspectiveCamera => {
   const scene: IAutoMovieScene = {
@@ -39,36 +39,38 @@ const realizedCamera = (
     cameras: [source],
     lights: [],
   };
-  return buildScene(scene, () => undefined).cameras[0]!;
+  return buildScene(scene, (): undefined => undefined).cameras[0]!;
 };
 
-const renderer = (
+const renderer: (bits: unknown, logarithmic?: boolean, reversed?: boolean) => THREE.WebGLRenderer = (
   bits: unknown,
-  logarithmic = false,
-  reversed = false,
+  logarithmic: boolean = false,
+  reversed: boolean = false,
 ): THREE.WebGLRenderer => {
-  const depthBits = 0x0d56;
+  const depthBits: number = 0x0d56;
   return {
     capabilities: {
       logarithmicDepthBuffer: logarithmic,
       reversedDepthBuffer: reversed,
     },
-    getContext: () => ({
+    getContext: (): { DEPTH_BITS: number; getParameter: (parameter: number) => unknown } => ({
       DEPTH_BITS: depthBits,
-      getParameter: (parameter: number) =>
+      getParameter: (parameter: number): unknown =>
         parameter === depthBits ? bits : null,
     }),
   } as unknown as THREE.WebGLRenderer;
 };
 
-const evaluate = (props: {
+/** Local authored camera and capability operands for the portable observation seam. */
+type EvaluateProps = {
   source?: IAutoMovieCamera;
   realized?: THREE.PerspectiveCamera;
   bits?: unknown;
   logarithmic?: boolean;
   reversed?: boolean;
-}) => {
-  const source = props.source ?? sourceCamera();
+};
+const evaluate: (props: EvaluateProps) => ReturnType<typeof evaluateAutoMovieViewerCameraDepthPrecision> = (props: EvaluateProps): ReturnType<typeof evaluateAutoMovieViewerCameraDepthPrecision> => {
+  const source: IAutoMovieCamera = props.source ?? sourceCamera();
   return evaluateAutoMovieViewerCameraDepthPrecision({
     renderer: renderer(props.bits ?? 24, props.logarithmic, props.reversed),
     source,
@@ -76,18 +78,23 @@ const evaluate = (props: {
   });
 };
 
-/** Three camera clips and the actual WebGL depth capability stay in parity. */
-export const test_viewer_camera_depth_precision = (): void => {
-  const accepted = evaluate({});
+/**
+ * Three camera clips and supplied capability operands retain addressed admission.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual depth-capability evaluator/wrapper with native cameras and a supplied query port, checking satisfied, mismatched, insufficient, invalid-source/capability and nonstandard-mode reports. Nonfinite observations must become null and the throwing wrapper must distinguish the passing and refused operands.
+ * @evidence contracts/testing.md#independent-expectations Authored clips 0.25/250 and required 24 bits define the expected source/native fields; supplied observations 24 versus 23 distinguish the capability threshold. These are explicit operands, not actual GPU measurements, and this unit does not independently certify a metric maximum-step bound or custom projection matrix.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts exact clips with far=251, standard with logarithmic/reversed modes, integer capability with string/fractional/negative operands, and finite positive source fields with invalid identity/clip/bit/budget boundaries. Native framebuffer integration and engine depth-error derivation belong to their owners.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit directly invokes observation semantics through an owned structural renderer query port and actual Three camera construction. It starts no WebGL renderer, browser or GPU; local predicates own every case without dynamic registration.
+ */
+export function test_viewer_camera_depth_precision(): void {
+  const accepted: ReturnType<typeof evaluate> = evaluate({});
   TestValidator.equals(
-    "buildScene and a standard 24-bit framebuffer preserve the declaration",
-    accepted,
+    "buildScene and a supplied standard 24-bit capability preserve the declaration",
+    { camera: accepted.camera, minimumDepthBits: accepted.minimumDepthBits,
+      observedDepthBits: accepted.observedDepthBits, projection: accepted.projection,
+      status: accepted.status, passed: accepted.passed },
     {
       camera: "camera-main",
-      sourceNear: 0.25,
-      sourceFar: 250,
-      realizedNear: 0.25,
-      realizedFar: 250,
       minimumDepthBits: 24,
       observedDepthBits: 24,
       projection: "standard",
@@ -95,11 +102,16 @@ export const test_viewer_camera_depth_precision = (): void => {
       passed: true,
     },
   );
+  TestValidator.predicate("authored and realized clip values are preserved",
+    accepted.sourceNear !== null && accepted.sourceFar !== null &&
+      accepted.realizedNear !== null && accepted.realizedFar !== null &&
+      nclose(accepted.sourceNear, 0.25, 0) && nclose(accepted.sourceFar, 250, 0) &&
+      nclose(accepted.realizedNear, 0.25, 0) && nclose(accepted.realizedFar, 250, 0));
 
-  const mismatched = realizedCamera();
+  const mismatched: THREE.PerspectiveCamera = realizedCamera();
   mismatched.far = 251;
   TestValidator.equals(
-    "near/far mismatch and insufficient actual bits are distinct refusals",
+    "near/far mismatch and insufficient supplied bits are distinct refusals",
     [evaluate({ realized: mismatched }).status, evaluate({ bits: 23 }).status],
     ["projection-mismatch", "insufficient-capability"],
   );
@@ -115,16 +127,16 @@ export const test_viewer_camera_depth_precision = (): void => {
   );
 
   TestValidator.equals(
-    "invalid current-framebuffer observations stay addressed",
+    "invalid supplied capability observations stay addressed",
     [
       evaluate({ bits: "24" }),
       evaluate({ bits: 1.5 }),
       evaluate({ bits: -1 }),
-    ].map((report) => report.status),
+    ].map((report: ReturnType<typeof evaluate>): ReturnType<typeof evaluate>["status"] => report.status),
     ["invalid-capability", "invalid-capability", "invalid-capability"],
   );
 
-  const invalidSources = [
+  const invalidSources: IAutoMovieCamera[] = [
     sourceCamera({ id: " " }),
     sourceCamera({ near: Number.NaN }),
     sourceCamera({ near: 0 }),
@@ -152,14 +164,14 @@ export const test_viewer_camera_depth_precision = (): void => {
   TestValidator.predicate(
     "malformed portable camera operands never become viewer capability passes",
     invalidSources.every(
-      (source) => evaluate({ source }).status === "invalid-source",
+      (source: IAutoMovieCamera): boolean => evaluate({ source }).status === "invalid-source",
     ),
   );
 
-  const nonFinite = sourceCamera({ near: Number.NaN });
-  const nonFiniteRealized = realizedCamera();
+  const nonFinite: IAutoMovieCamera = sourceCamera({ near: Number.NaN });
+  const nonFiniteRealized: THREE.PerspectiveCamera = realizedCamera();
   nonFiniteRealized.far = Number.POSITIVE_INFINITY;
-  const serializable = evaluate({
+  const serializable: ReturnType<typeof evaluate> = evaluate({
     source: nonFinite,
     realized: nonFiniteRealized,
     bits: "unknown",
@@ -179,7 +191,7 @@ export const test_viewer_camera_depth_precision = (): void => {
     namedFacts([
       [
         "pass",
-        () =>
+        (): boolean =>
           assertAutoMovieViewerCameraDepthPrecision({
             renderer: renderer(24),
             source: sourceCamera(),
@@ -188,8 +200,8 @@ export const test_viewer_camera_depth_precision = (): void => {
       ],
       [
         "refuse",
-        () =>
-          throwsError(() =>
+        (): boolean =>
+          throwsError((): ReturnType<typeof assertAutoMovieViewerCameraDepthPrecision> =>
             assertAutoMovieViewerCameraDepthPrecision({
               renderer: renderer(16),
               source: sourceCamera(),
@@ -200,4 +212,4 @@ export const test_viewer_camera_depth_precision = (): void => {
     ]),
     { pass: true, refuse: true },
   );
-};
+}
