@@ -1,12 +1,14 @@
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
 import { ITessellation } from "./ITessellation";
+import { PRIMITIVE_RADIAL_SEGMENTS } from "./constants/PRIMITIVE_RADIAL_SEGMENTS";
+import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
 /**
  * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.
  *
  * Lets the LLM-authored "named dimensions" path (a 0.4 m sphere, a capsule)
  * become concrete geometry a renderer can draw, without the model ever emitting
- * vertices. The engine owns this so generated primitives render identically
- * everywhere.
+ * vertices. The engine owns this fixed primitive recipe independently of the
+ * rendering host; renderer precision and appearance are separate observations.
  *
  * Coordinates are local metres, centred on the origin, and faces wind
  * counter-clockwise from outside. Dimensions must already have passed model
@@ -15,10 +17,12 @@ import { ITessellation } from "./ITessellation";
  * Capsules currently use a closed bounding cylinder rather than hemispherical
  * caps, so their silhouette and volume are approximations requiring correction.
  * Each call returns fresh indexed position and normal arrays, without UVs.
+ * Finite admitted dimensions can still overflow derived capsule height or
+ * normal arithmetic; this producer does not refuse every extreme invalid mesh.
  *
  * @throws Error when the runtime primitive discriminator is unknown.
  *
- * @evidence contracts/common.md#principled-implementation Box faces use independent flat-normal corners, spheres sample latitude and longitude, and cylinders and cones use radial rings with slope-correct normals and cap fans. Validated dimensions are a caller prerequisite; sphere poles and cone apexes retain degenerate lattice faces, and the capsule cylinder approximation is an unresolved geometric limitation.
+ * @evidence contracts/common.md#principled-implementation Box faces use independent flat-normal corners, spheres sample latitude and longitude, and cylinders and cones use radial rings with slope-correct normals and cap fans. Validated dimensions and representable derived arithmetic are premises; finite scalar admission does not establish the latter. Sphere poles and cone apexes retain degenerate lattice faces, and the capsule cylinder approximation remains unresolved.
  * @evidence contracts/common.md#clear-and-simple-design One discriminator dispatches to private primitive builders shared by viewer geometry, model extents, drawing and GLB export; fixed angular resolution keeps the lightweight render deterministic without adding authoring options.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The capsule branch still substitutes its bounding cylinder for the declared rounded shape; this remaining compensation must be replaced and visually checked rather than certified as capsule geometry.
  * @evidence contracts/common.md#meaningful-documentation States local metre coordinates, winding, prior dimension validation, fixed sampling counts, zero-height plane topology, fresh output ownership and the capsule approximation.
@@ -35,11 +39,11 @@ export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (sh
     case "plane":
       return box(shape.width, 0, shape.depth);
     case "sphere":
-      return sphere(shape.radius, 16, 12);
+      return sphere(shape.radius, PRIMITIVE_RADIAL_SEGMENTS, PRIMITIVE_SPHERE_RINGS);
     case "cylinder":
-      return cylinder(shape.radius, shape.radius, shape.height, 16);
+      return cylinder(shape.radius, shape.radius, shape.height, PRIMITIVE_RADIAL_SEGMENTS);
     case "cone":
-      return cylinder(shape.radius, 0, shape.height, 16);
+      return cylinder(shape.radius, 0, shape.height, PRIMITIVE_RADIAL_SEGMENTS);
     case "capsule":
       // Approximate a capsule by its closed bounding cylinder for now (the
       // SPHERICAL end caps are a future refinement); height spans body + both
@@ -48,7 +52,7 @@ export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (sh
         shape.radius,
         shape.radius,
         shape.height + 2 * shape.radius,
-        16,
+        PRIMITIVE_RADIAL_SEGMENTS,
       );
     default: {
       const unknown: { type: unknown } = shape as unknown as { type: unknown };

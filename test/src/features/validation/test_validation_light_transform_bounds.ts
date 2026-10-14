@@ -1,21 +1,15 @@
-import { validateShotArtifact } from "@automovie/engine";
-import {
-  IAutoMovieScene,
-  IAutoMovieShot,
-  IAutoMovieValidation,
-} from "@automovie/interface";
+import { validateShotArtifact } from "../../../../packages/engine/src/validation/validateShotArtifact";
+import { IAutoMovieScene, IAutoMovieShot, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts } from "../internal/predicates";
-
-const transform = () => ({
+const transform: () => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /** One scene light of each kind, so the placement split has all three cases. */
-const scene = (): IAutoMovieScene =>
+const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
   ({
     id: "sc",
     nodes: [],
@@ -51,7 +45,7 @@ const scene = (): IAutoMovieScene =>
   }) as unknown as IAutoMovieScene;
 
 /** A shot carrying exactly one light-motion track, so a case reports only it. */
-const shot = (track: Record<string, unknown>): IAutoMovieShot =>
+const shot: (track: Record<string, unknown>) => IAutoMovieShot = (track: Record<string, unknown>): IAutoMovieShot =>
   ({
     id: "opening",
     scene: "sc",
@@ -74,12 +68,12 @@ const shot = (track: Record<string, unknown>): IAutoMovieShot =>
     ],
   }) as unknown as IAutoMovieShot;
 
-const track = (
+const track: (pointer: string, valueType: string, times: unknown[], values: unknown[], interpolation?: string) => Record<string, unknown> = (
   pointer: string,
   valueType: string,
   times: unknown[],
   values: unknown[],
-  interpolation = "linear",
+  interpolation: string = "linear",
 ): Record<string, unknown> => ({
   channel: { kind: "pointer", pointer, valueType },
   times,
@@ -87,35 +81,35 @@ const track = (
   interpolation,
 });
 
-const verdict = (one: Record<string, unknown>): IAutoMovieValidation =>
+const verdict: (one: Record<string, unknown>) => IAutoMovieValidation = (one: Record<string, unknown>): IAutoMovieValidation =>
   validateShotArtifact(shot(one), scene(), null);
 
 /** Whether any violation's path starts with `prefix`. */
-const reportsAt = (one: Record<string, unknown>, prefix: string): boolean => {
-  const validation = verdict(one);
+const reportsAt: (one: Record<string, unknown>, prefix: string) => boolean = (one: Record<string, unknown>, prefix: string): boolean => {
+  const validation: IAutoMovieValidation = verdict(one);
   return (
     validation.success === false &&
-    validation.violations.some((entry) => entry.path.startsWith(prefix))
+    validation.violations.some((entry: IAutoMovieConstraintViolation): boolean => entry.path.startsWith(prefix))
   );
 };
 
 /** Whether any violation's message mentions the joint unit-quaternion rule. */
-const reportsNonUnit = (one: Record<string, unknown>): boolean => {
-  const validation = verdict(one);
+const reportsNonUnit: (one: Record<string, unknown>) => boolean = (one: Record<string, unknown>): boolean => {
+  const validation: IAutoMovieValidation = verdict(one);
   return (
     validation.success === false &&
-    validation.violations.some((entry) =>
+    validation.violations.some((entry: IAutoMovieConstraintViolation): boolean =>
       entry.expected.includes("unit quaternion"),
     )
   );
 };
 
-const accepts = (one: Record<string, unknown>): boolean =>
+const accepts: (one: Record<string, unknown>) => boolean = (one: Record<string, unknown>): boolean =>
   verdict(one).success === true;
 
 /** A quarter turn about Y, the unit quaternion a swinging light is keyed with. */
-const QUARTER_TURN = [0, Math.SQRT1_2, 0, Math.SQRT1_2];
-const IDENTITY = [0, 0, 0, 1];
+const QUARTER_TURN: number[] = [0, Math.SQRT1_2, 0, Math.SQRT1_2];
+const IDENTITY: number[] = [0, 0, 0, 1];
 
 /**
  * The artifact gate holds a light's PLACEMENT to the same rules the scene gate
@@ -134,10 +128,10 @@ const IDENTITY = [0, 0, 0, 1];
  *
  * The `cubicspline` asymmetry is deliberate and is the subtle half. A rotation
  * is RENORMALIZED at playback — the sampler puts an interpolated quaternion
- * back on the unit sphere before anything reads it — so the value a film
- * actually plays is unit at every interior instant however wild the tangents
- * are, and refusing that overshoot would refuse a declaration that renders
- * correctly. The keys themselves get no such reprieve: the sampler returns a
+ * back on the unit sphere before anything reads it — so a finite evaluated
+ * interior is unit despite component overshoot. This witness uses finite
+ * tangents; overflow before normalization remains a separate numeric limit.
+ * The keys themselves get no such reprieve: the sampler returns a
  * boundary key verbatim, so a non-unit key really does reach the light.
  *
  * Scenarios:
@@ -162,22 +156,29 @@ const IDENTITY = [0, 0, 0, 1];
  *    and NOT re-reported as a unit-length fault, and an empty payload is
  *    refused by that same contract: the joint rule judges keyframes, and a
  *    payload that states no keyframe states nothing for it to judge.
+ * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero
+ *    keys; reversing their signs is an adjacent admitted curve.
+ *
+ * @evidence contracts/testing.md#behavioral-verification The actual shot artifact gate returns light property/kind, component/unit-key and scalar-interior findings, retaining the finite quaternion normalization exemption and exposing an absolute derivative floor that lost tiny negative excursions.
+ * @evidence contracts/testing.md#independent-expectations Authored light-kind and unit-quaternion laws supply placement expectations; for zero keys at span one with tangents -2^-45 and +2^-45, the Hermite midpoint is independently -2^-47, below nonnegative intensity. Reversing tangents keeps the whole quadratic nonnegative.
+ * @evidence contracts/testing.md#distinguishing-cases Preserve spot/directional/point placement splits, wrong widths, nonunit/out-of-range/nonfinite/empty rotation keys, valid position, finite wild quaternion tangents and ordinary scalar dip, adding small negative/positive scalar twins without widening the rotation exemption.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_light_transform_bounds; authored scene/shot records and the actual artifact gate own the cases, without installing a light playback consumer or proving browser/GPU appearance.
  */
-export const test_validation_light_transform_bounds = (): void => {
+export function test_validation_light_transform_bounds(): void {
   // 1. the kind split.
   TestValidator.equals(
     "placement is admitted where the kind carries it and refused where it does not",
     namedFacts([
       [
         "spotTakesPosition",
-        () =>
+        (): boolean =>
           accepts(
             track("/lights/key/position", "vec3", [0, 4], [0, 0, 0, 1, 2, 3]),
           ),
       ],
       [
         "spotTakesRotation",
-        () =>
+        (): boolean =>
           accepts(
             track(
               "/lights/key/rotation",
@@ -189,7 +190,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "sunTakesRotation",
-        () =>
+        (): boolean =>
           accepts(
             track(
               "/lights/sun/rotation",
@@ -201,7 +202,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "sunRefusesPosition",
-        () =>
+        (): boolean =>
           reportsAt(
             track("/lights/sun/position", "vec3", [0, 4], [0, 0, 0, 1, 2, 3]),
             "$input.lightMotions[0].tracks[0].channel.pointer",
@@ -209,14 +210,14 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "bulbTakesPosition",
-        () =>
+        (): boolean =>
           accepts(
             track("/lights/bulb/position", "vec3", [0, 4], [0, 0, 0, 1, 2, 3]),
           ),
       ],
       [
         "bulbRefusesRotation",
-        () =>
+        (): boolean =>
           reportsAt(
             track(
               "/lights/bulb/rotation",
@@ -244,7 +245,7 @@ export const test_validation_light_transform_bounds = (): void => {
     namedFacts([
       [
         "refusesNonUnitLinearKey",
-        () =>
+        (): boolean =>
           reportsNonUnit(
             track(
               "/lights/key/rotation",
@@ -256,7 +257,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "refusesNonUnitCubicKey",
-        () =>
+        (): boolean =>
           reportsNonUnit(
             track(
               "/lights/key/rotation",
@@ -278,7 +279,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "refusesMisdeclaredValueType",
-        () =>
+        (): boolean =>
           reportsAt(
             track(
               "/lights/key/rotation",
@@ -296,7 +297,7 @@ export const test_validation_light_transform_bounds = (): void => {
       // rather than subsumed by the rule beside it.
       [
         "refusesOutOfRangeComponent",
-        () =>
+        (): boolean =>
           reportsAt(
             track(
               "/lights/key/rotation",
@@ -335,7 +336,7 @@ export const test_validation_light_transform_bounds = (): void => {
     namedFacts([
       [
         "acceptsWildRotationTangents",
-        () =>
+        (): boolean =>
           accepts(
             track(
               "/lights/key/rotation",
@@ -355,7 +356,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "refusesScalarDipBelowZero",
-        () =>
+        (): boolean =>
           reportsAt(
             // Two in-range keys whose tangents drive the Hermite to -4 halfway
             // between them: an intensity no light can hold.
@@ -379,7 +380,7 @@ export const test_validation_light_transform_bounds = (): void => {
     namedFacts([
       [
         "nonFiniteIsNotAlsoNonUnit",
-        () =>
+        (): boolean =>
           !reportsNonUnit(
             track(
               "/lights/key/rotation",
@@ -391,7 +392,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "nonFiniteStillRefused",
-        () =>
+        (): boolean =>
           reportsAt(
             track(
               "/lights/key/rotation",
@@ -404,7 +405,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "unevenIsNotAlsoNonUnit",
-        () =>
+        (): boolean =>
           !reportsNonUnit(
             track(
               "/lights/key/rotation",
@@ -416,7 +417,7 @@ export const test_validation_light_transform_bounds = (): void => {
       ],
       [
         "unevenStillRefused",
-        () =>
+        (): boolean =>
           reportsAt(
             track(
               "/lights/key/rotation",
@@ -434,7 +435,7 @@ export const test_validation_light_transform_bounds = (): void => {
       // would report exactly what that fact refuses.
       [
         "emptyStillRefused",
-        () =>
+        (): boolean =>
           reportsAt(
             track("/lights/key/rotation", "quaternion", [0, 4], []),
             "$input.lightMotions[0].tracks[0].values",
@@ -449,4 +450,7 @@ export const test_validation_light_transform_bounds = (): void => {
       emptyStillRefused: true,
     },
   );
-};
+  const tiny: number = 2 ** -45;
+  TestValidator.predicate("tiny nonzero cubic dip cannot be discarded by an absolute derivative floor", reportsAt(track("/lights/key/intensity", "scalar", [0, 1], [0, 0, -tiny, tiny, 0, 0], "cubicspline"), "$input.lightMotions[0].tracks[0].values"));
+  TestValidator.predicate("opposite tiny tangents keep nonnegative intensity admitted", accepts(track("/lights/key/intensity", "scalar", [0, 1], [0, 0, tiny, -tiny, 0, 0], "cubicspline")));
+}

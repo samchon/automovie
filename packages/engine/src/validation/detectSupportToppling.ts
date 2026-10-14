@@ -1,8 +1,4 @@
-import {
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../math/convexHull2D";
@@ -10,25 +6,22 @@ import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 import { ViolationCollector } from "./ViolationCollector";
-
-const DEFAULT_MARGIN = 0.02;
+import { IAutoMovieHullEdge } from "../math/IAutoMovieHullEdge";
+const DEFAULT_MARGIN: number = 0.02;
 
 /**
- * Judge whether an object is stably supported: its center of mass, projected
- * onto the ground plane, must fall within the convex hull (plus margin) of its
- * support contact points. When it overhangs, and because a film may be
- * deliberately unphysical, this reports an advisory `warning`, not a hard
- * reject, and suggests the topple (the pivot edge and fall direction). A
- * `physicsIntent` marker (a levitating prop) suppresses the warning and
- * suggestion while still surfacing the event.
+ * Advise a topple when an XZ center lies beyond a support hull and margin.
  *
- * The support contacts are given as input: the top face of whatever the object
- * rests on. Deriving them from real surface geometry is deferred to #605; full
- * fall-motion synthesis into the shot is deferred to #620.
- *
+ * @evidence contracts/common.md#principled-implementation Nonempty support and finite nonnegative margin precede canonical convex-hull distance and nearest-edge projection; the overhang direction and excess distance become a time-zero fall event and optional pivot suggestion.
+ * @evidence contracts/common.md#clear-and-simple-design Hull, segment projection and vector normalization stay with their shared math owners while this adapter joins warning, event and suggestion from one support decision.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No contact geometry is invented for empty support; physicsIntent suppresses warning/suggestion but keeps the event. Finite representable input geometry remains a caller premise and point support does not prove dynamic stability.
+ * @evidence contracts/common.md#meaningful-documentation States world-frame support/center, default .02m allowance, exact supported boundary, borrowed pivot endpoints, fresh event point and uninstalled motion-synthesis scope.
+ * @evidence contracts/performance.md#efficient-algorithms For S support points, hull construction costs O(S log S) and distance/nearest-edge scans O(S), with O(S) hull storage and fixed result/event allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work One prepared hull serves distance and pivot queries, and one nearest point supplies event and fall direction; no stale support verdict is cached across mutable inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh findings/event/direction transfer to the caller while pivot endpoints borrow support records; no support population is otherwise retained and no physics task is acquired.
  * @author Samchon
  */
-export const detectSupportToppling = (props: {
+export const detectSupportToppling: (props: { node?: string | undefined; centerOfMass: IAutoMovieVector3; support: readonly IAutoMovieVector3[]; margin?: number | undefined; physicsIntent?: string | undefined; path?: string | undefined; }) => IAutoMovieSupportResult = (props: {
   /** Object node id, used to label the emitted event. */
   node?: string;
   /** Object center of mass (same frame as `support`; e.g. `bodyCenterOfMass`). */
@@ -42,10 +35,10 @@ export const detectSupportToppling = (props: {
   /** JSON path of the annotation being checked. Defaults to `$input`. */
   path?: string;
 }): IAutoMovieSupportResult => {
-  const collector = new ViolationCollector();
-  const path = props.path ?? "$input";
-  const margin = props.margin === undefined ? DEFAULT_MARGIN : props.margin;
-  const node = props.node ?? null;
+  const collector: ViolationCollector = new ViolationCollector();
+  const path: string = props.path ?? "$input";
+  const margin: number = props.margin === undefined ? DEFAULT_MARGIN : props.margin;
+  const node: string | null = props.node ?? null;
 
   if (props.support.length === 0) {
     collector.push(
@@ -66,23 +59,23 @@ export const detectSupportToppling = (props: {
     return { validation: collector.toValidation(), events: [], toppling: null };
   }
 
-  const hull = convexHull2D(props.support);
-  const distance = pointHullDistance(props.centerOfMass, hull);
+  const hull: IAutoMovieVector3[] = convexHull2D(props.support);
+  const distance: number = pointHullDistance(props.centerOfMass, hull);
   if (distance <= margin)
     return { validation: collector.toValidation(), events: [], toppling: null };
 
-  const edge = nearestHullEdge(props.centerOfMass, hull);
-  const nearest = closestPointOnSegmentXZ(
+  const edge: IAutoMovieHullEdge = nearestHullEdge(props.centerOfMass, hull);
+  const nearest: IAutoMovieVector3 = closestPointOnSegmentXZ(
     props.centerOfMass,
     edge.start,
     edge.end,
   );
-  const fallDirection = Vector3.normalize({
+  const fallDirection: IAutoMovieVector3 = Vector3.normalize({
     x: props.centerOfMass.x - nearest.x,
     y: 0,
     z: props.centerOfMass.z - nearest.z,
   });
-  const overshoot = distance - margin;
+  const overshoot: number = distance - margin;
   const event: IAutoMovieInteractionEvent = {
     id: "fall:0",
     kind: "fall",
@@ -122,4 +115,4 @@ export const detectSupportToppling = (props: {
   };
 };
 
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;

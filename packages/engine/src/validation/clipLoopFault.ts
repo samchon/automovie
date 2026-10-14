@@ -1,16 +1,17 @@
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
-
 /**
- * The `loop` flag, which decides whether a query time wraps or clamps. A
- * non-boolean would take that branch on JavaScript truthiness, so a clip
- * carrying `"false"` would loop.
+ * Return a loop-shape fault unless the authored flag is boolean.
  *
- * Separate from {@link clipDurationFault} because the artifact gate applies a
- * STRICTER duration rule than the sampler (a committed clip must last longer
- * than zero seconds, `validateClipArtifact`), and a gate stricter than the
- * sampler cannot let a throw escape. Only the looser direction is a defect.
+ * @evidence contracts/common.md#principled-implementation A strict typeof boolean check prevents truthy strings or objects from choosing time wrapping, preserving the sampler's declared wrap-versus-clamp branch.
+ * @evidence contracts/common.md#clear-and-simple-design Loop admission is separate from duration because artifact duration is deliberately stricter while both callers share the same boolean policy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No truthiness coercion or default looping changes a malformed author flag; the original value is carried with a type fault.
+ * @evidence contracts/common.md#meaningful-documentation Names loop field, boolean acceptance, null success and the reason duration has another owner.
+ * @evidence contracts/performance.md#efficient-algorithms One type check is constant work; refusal additionally allocates a message/fault and can invoke authored value string conversion.
+ * @evidence contracts/performance.md#reuse-equivalent-work Sampler and artifact callers reuse this policy rather than independent truthiness checks; no loop verdict is cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fresh fault/value reference or null transfers, with no clip, playback cursor or host resource acquired.
+ * @author Samchon
  */
-export const clipLoopFault = (
+export const clipLoopFault: (loop: unknown) => IAutoMovieClipShapeFault | null = (
   loop: unknown,
 ): IAutoMovieClipShapeFault | null =>
   typeof loop === "boolean"

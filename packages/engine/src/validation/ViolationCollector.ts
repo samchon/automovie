@@ -1,15 +1,7 @@
-import {
-  AutoMovieViolationKind,
-  IAutoMovieConstraintViolation,
-  IAutoMovieQuaternion,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
+import { AutoMovieViolationKind, IAutoMovieConstraintViolation, IAutoMovieQuaternion, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../math/Vector3";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";
-
 /** A direction this short or shorter carries no direction at all. */
 const DIRECTION_EPSILON: number = 1e-12;
 
@@ -17,14 +9,32 @@ const DIRECTION_EPSILON: number = 1e-12;
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
 /**
- * A small append-only sink for violations, so each validator can push with a
- * stable path prefix without threading arrays through every call.
+ * Mutable insertion-ordered finding storage shared by validation predicates.
+ *
+ * @evidence contracts/common.md#principled-implementation Canonical violation construction and toValidation severity folding preserve warning-only success and error failure, with field-specific predicates appending in call order.
+ * @evidence contracts/common.md#clear-and-simple-design A shared collector eliminates repeated array threading and common scalar/vector/rotation policies; callers supply their own paths and semantic limits.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The public items array is mutable and returned validation aliases it, so append-only usage is a caller discipline rather than enforced immutable publication; no severity or offending value is silently repaired.
+ * @evidence contracts/common.md#meaningful-documentation Documents insertion order, public mutable storage, shared result ownership and error-versus-warning folding, with no automatic freeze or population ceiling.
+ * @evidence contracts/performance.md#efficient-algorithms Individual predicates have scalar/string costs, appending F findings uses O(F) storage, and toValidation scans until an error or the end; labels and retained offending values add their own size.
+ * @evidence contracts/performance.md#reuse-equivalent-work Canonical scalar/vector/quaternion methods and violation/result owners serve all gates; mutable value verdicts are not cached across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and its aliased result own the same finding array for as long as callers retain it, including referenced offending objects; no external handle is acquired or released by this sink.
+ * @author Samchon
  */
 export class ViolationCollector {
   /** Violations accumulated in insertion order. */
   public readonly items: IAutoMovieConstraintViolation[] = [];
 
-  /** Append one violation to the collector. */
+  /**
+   * Append one canonical violation in the caller's traversal order.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates kind, path, expectation, offending value, optional overshoot and severity to violation without altering their numerical or reporting meaning.
+   * @evidence contracts/common.md#clear-and-simple-design The collector owns insertion and the canonical constructor owns record shape, so validators retain only their field-specific decisions.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No value coercion, severity promotion, path repair or deduplication suppresses the supplied finding.
+   * @evidence contracts/common.md#meaningful-documentation States insertion order, default error severity and the retained offending-value reference.
+   * @evidence contracts/performance.md#efficient-algorithms One record construction and amortized array append take constant work, excluding caller-prepared strings and retained value size.
+   * @evidence contracts/performance.md#reuse-equivalent-work All collector predicates reuse the same constructor and insertion operation rather than independent finding schemas.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The finding and offending reference remain in public items and any aliased validation result until callers discard or mutate them; no host resource is acquired.
+   */
   public push(
     kind: AutoMovieViolationKind,
     path: string,
@@ -42,6 +52,14 @@ export class ViolationCollector {
    * Push a `"warning"`-severity violation, physical-plausibility advice that
    * does not fail validation (see
    * {@link IAutoMovieConstraintViolation.severity}).
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates the exact supplied finding to push with severity=warning, retaining optional measured overshoot without failing warning-only canonical validation.
+   * @evidence contracts/common.md#clear-and-simple-design Physical advice uses the same finding shape and ordered collector as structural errors, with severity expressing its different consequence.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No physics-intent interpretation or automatic suppression occurs here; the detector decides whether to call this method.
+   * @evidence contracts/common.md#meaningful-documentation Names warning severity, unchanged caller fields and the successful-warning envelope produced by toValidation.
+   * @evidence contracts/performance.md#efficient-algorithms One delegation and append take constant additional work beyond constructing the supplied finding text.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses push and violation instead of a parallel warning record or separate retention list.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The shared items array retains the warning and offending value; this method adds no callback, task or independent storage owner.
    */
   public warn(
     kind: AutoMovieViolationKind,
@@ -57,6 +75,14 @@ export class ViolationCollector {
    * Finite range check `[min, max]`; pushes a `range` violation unless `value`
    * is a finite number inside it. `value` is `unknown` so a field read off an
    * untyped payload is narrowed here rather than cast to `number` first.
+   *
+   * @evidence contracts/common.md#principled-implementation Type and Number.isFinite checks precede inclusive min/max comparisons; internal infinite bounds are permitted while the tested value must be finite.
+   * @evidence contracts/common.md#clear-and-simple-design The shared collector supplies one unknown-scalar interval policy while each gate supplies the field path, label and bounds.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid values are reported unchanged rather than clamped or coerced; bounds are caller policy and are not reordered here.
+   * @evidence contracts/common.md#meaningful-documentation States closed endpoints, finite tested values, range-kind result and the unknown-input shape check.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed scalar checks take constant work; only refusal renders the value and allocates its message and finding.
+   * @evidence contracts/performance.md#reuse-equivalent-work One interval predicate serves distinct fields without memoizing mutable input values or rebuilding an admission table.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources At most one finding retains the offending value in items; accepted values acquire no storage or host resource.
    */
   public range(
     path: string,
@@ -87,7 +113,7 @@ export class ViolationCollector {
    * @param value String that must carry a non-whitespace character.
    * @param label Name of the field in the message.
    *
-   * @evidence contracts/common.md#principled-implementation `String.prototype.trim` removes every ECMAScript whitespace and line terminator, so a zero trimmed length is exactly a string with no visible content.
+   * @evidence contracts/common.md#principled-implementation String.prototype.trim removes ECMAScript whitespace and line terminators, so zero trimmed length denotes an empty or whitespace-only string; non-whitespace invisible characters are not refused by this rule.
    * @evidence contracts/common.md#clear-and-simple-design The blank-string rule lives on the collector the validators already hold, replacing the private `nonEmpty` helpers the analysis validators each declared with the same message.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No field or label is special-cased; the value is reported unchanged, untrimmed, so a reader sees what was authored.
    * @evidence contracts/common.md#meaningful-documentation The documentation states the violation kind, the condition, and the message form, and each parameter states its role.
@@ -106,16 +132,16 @@ export class ViolationCollector {
    * finite, one at `path` if the length is `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
-   * @param value Direction to check; any finite non-zero length passes.
+   * @param value Direction to check; a finite measured length above 1e-12 passes.
    * @param label Name of the direction in the messages.
    *
-   * @evidence contracts/common.md#principled-implementation Checks each component with `Number.isFinite`, then measures the length with `Vector3.length`, which stays accurate for extreme finite components, and refuses a length at or below `1e-12` because such a vector carries no reliable direction; a non-finite length is skipped because its component violation already names the fault.
+   * @evidence contracts/common.md#principled-implementation Checks each component with Number.isFinite, then uses Vector3.length and refuses a finite length at or below 1e-12. A nonfinite measured length is skipped; finite components can still overflow the representable norm, so this is not a finite-normalized-output certificate.
    * @evidence contracts/common.md#clear-and-simple-design The direction rule lives on the collector so the environment-context and solid-plane validators share one wording and one floor instead of each keeping a private copy.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The `1e-12` floor is a named constant for every caller, and no axis or label is special-cased.
    * @evidence contracts/common.md#meaningful-documentation The documentation states the violation kind, the per-axis paths, the length floor and when it is skipped, and each parameter states its role.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Three finiteness tests and one vector length, with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A check of one vector per call, coordinating no work across requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most three violations per call to `items`, three non-finite axes or one short length,, which lives as long as the collector; nothing else is retained.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Appends at most three violations per call to items, either non-finite axes or one short length, held for the collector's lifetime; nothing else is retained.
    */
   public direction(
     path: string,
@@ -221,7 +247,17 @@ export class ViolationCollector {
       );
   }
 
-  /** Convert the accumulated violations to the canonical validation result. */
+  /**
+   * Wrap the current findings with canonical severity folding and shared storage.
+   *
+   * @evidence contracts/common.md#principled-implementation toValidation scans for any error, otherwise returns warning-only success or empty clean success; a nonempty result aliases this collector's items array.
+   * @evidence contracts/common.md#clear-and-simple-design Severity meaning has one canonical owner and the collector only supplies its accumulated insertion-ordered population.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Findings are neither sorted nor filtered, and publication does not freeze or clone items; later caller mutation remains observable through an aliased result.
+   * @evidence contracts/common.md#meaningful-documentation Documents empty, warning and failure outcomes plus shared mutable ownership instead of promising an immutable snapshot.
+   * @evidence contracts/performance.md#efficient-algorithms F findings require at most O(F) scanning with early error exit and one fixed wrapper allocation; no finding copy is made.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same severity fold all standalone validator arrays use, with no cached result that could conceal later items mutation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller and collector share the nonempty result array and offending references until released; an empty wrapper retains no array or external handle.
+   */
   public toValidation(): IAutoMovieValidation {
     return toValidation(this.items);
   }

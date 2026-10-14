@@ -3,21 +3,23 @@ import type { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
 import type { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
 /**
- * Throws unless a diagonal quadratic program is one the native kernel can
- * represent, without building its sparse matrix.
+ * Check explicit diagonal-program admission rules without building its sparse matrix.
  *
- * A caller that later solves only a selected subset of rows admits the whole
- * original program here first, so a currently inactive malformed row cannot
- * evade the check; `assembleAutoMovieQuadraticProgram` runs the same check
- * before it builds the matrix. The program needs between one and `2^31 - 1`
- * variables, at most `2^31 - 1` rows, dense diagonal, linear and optional
- * initial vectors of the variable count, a nonnegative diagonal, and in every
- * row as many weights as indices, unique integer indices inside the variable
- * range, and ordered endpoints. Every coefficient and endpoint must be finite
- * with magnitude below `AUTOMOVIE_QUADRATIC_INFINITY` (`1e30`), the kernel's
- * unbounded sentinel. Each refusal names the failed rule in its message.
+ * The bounded displacement and underwear-surface working-set callers admit the whole program before restricting it; assembly and original-coordinate refinement share this admission. Inactive malformed rows cannot evade the check. This does not solve the program or prove its feasibility, convergence, conditioning or post-transform geometry.
+ *
+ * The program needs one through 2^31-1 variables, at most 2^31-1 rows, complete diagonal/linear/optional initial vectors, a nonnegative diagonal and equally sized row weights/indices. Indices must be unique in-range integers and nullable inclusive bounds must be ordered. Each supplied coefficient or nonnull endpoint is finite with magnitude strictly below the native 1e30 infinity sentinel; exact zero coefficients remain unchanged.
+ *
+ * Array containers and row shape are typed caller premises. Indexed reads refuse resident holes, and explicit rule failures throw before matrix assembly without changing inputs. Int32 dimensions do not prove aggregate CSC-entry or wasm32 transport capacity: the duplicate marker or later assembled workspace can still fail to allocate, and host allocation or malformed-container errors need not have a named rule message.
  *
  * @param input Program to check; it is only read.
+ *
+ * @evidence contracts/common.md#principled-implementation Indexed vector/row admission establishes dense finite coefficients below the native sentinel, PSD diagonal terms, complete rows, unique in-range variable indices and ordered nullable intervals. One signed-int32 last-row marker per variable detects duplicates without sorting or changing zero coefficients.
+ * @evidence contracts/common.md#clear-and-simple-design This admission owner is shared by CSC assembly, bounded displacement, original-coordinate refinement and the underwear-surface restricted solve. It checks the original full population while those consumers own selection, solving and acceptance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No row is skipped, normalized, merged or repaired; resident vector/index/row holes fail actual indexed reads. Typed array/row shape and allocatable marker storage remain premises; aggregate CSC/wasm capacity is unchecked here, and admission does not imply numerical solve or geometric success.
+ * @evidence contracts/common.md#meaningful-documentation States int32 dimensions, vector/row completeness, nonnegative diagonal, index uniqueness, null-bound meaning, strict 1e30 limits, unchanged input and explicit-rule versus host allocation failure.
+ * @evidence contracts/performance.md#efficient-algorithms N variables, M rows and Z listed entries require O(N+M+Z) work, including marker initialization and dense vector scans. The Int32Array adds four N bytes plus its host object, avoids per-row sets and is allocated even when the row population is empty.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same marker buffer serves every row by storing its latest row ordinal; vectors and scalar bounds share private admission predicates. Changed mutable programs are reread and no verdict or buffer is cached between calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs remain borrowed and unmodified; the call-local marker becomes unreachable on return or throw and is reclaimed by the host rather than explicitly disposed. Explicit refusal creates one Error/host stack without attaching the input, and no matrix, native kernel workspace or task is acquired.
  */
 export function admitAutoMovieQuadraticProgram(
   input: Parameters<typeof solveAutoMovieQuadraticProgram>[0],
@@ -71,6 +73,7 @@ function admitVector(values: readonly number[], length: number): void {
   for (let at: number = 0; at < values.length; at++) admitScalar(values[at]!);
 }
 
+/** Return the original finite scalar only when its magnitude is strictly below the native infinity sentinel. */
 function admitScalar(value: number): number {
   if (
     !Number.isFinite(value) ||

@@ -1,17 +1,19 @@
 import { IAutoMovieModelRecipe, IAutoMovieVector3 } from "@automovie/interface";
-
 import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
-
 /**
- * Build one box-proxy wall or building from a grounded base and size.
+ * Build a box-proxy recipe, placed node and bounds from a grounded base and size.
  *
- * The emitted recipe names an archetype the production must have registered. It
- * defaults to the shipped `primitive-prop` builder and its `box` shape, because
- * that is what this helper's parameters describe; a production whose catalogue
- * spells the same static primitive differently passes its own id.
+ * @evidence contracts/common.md#principled-implementation Half-extents around the base XZ and baseY plus half-height place the same box dimensions carried by the primitive-prop recipe; runtime identity uses the canonical model-id owner. Finite input fields do not universally keep derived additions representable.
+ * @evidence contracts/common.md#clear-and-simple-design One constructor joins recipe, node and bounds while archetype registration/materialization remain with the production; the optional archetype id selects a registered spelling rather than another geometry method.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Blank id, nonpositive/nonfinite enumerated sizes, nonfinite base and non-hex color throw before output. Typed vector shape is a premise; missing fields and arbitrary archetype ids are not total unknown-payload admission here.
+ * @evidence contracts/common.md#meaningful-documentation Documents metre base/size, centered box placement, #RRGGBB palette, default primitive-prop and fresh result ownership; the helper itself has test-only repository reach.
+ * @evidence contracts/performance.md#efficient-algorithms For fixed vector fields, arithmetic and output size are constant plus id/color string work; declared box volume does not allocate geometry or render resources.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same supplied dimensions feed recipe, translation and bounds within the call; no cheap scalar result cache or separately tunable extent is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh recipe/node/bounds records, which retain scalar strings only; no builder registry, model instance, renderer or background task is acquired.
+ * @author Samchon
  */
-export const worldBlock = (input: {
+export const worldBlock: (input: { id: string; kind: "wall" | "building"; base: IAutoMovieVector3; size: IAutoMovieVector3; color: string; archetype?: string | undefined; }) => IAutoMovieWorldBlock = (input: {
   id: string;
   kind: IAutoMovieWorldBlock["kind"];
   base: IAutoMovieVector3;
@@ -77,12 +79,14 @@ export const worldBlock = (input: {
   };
 };
 
-const assertText = (value: string, field: string): void => {
+/** Require non-whitespace id text without rewriting its spelling or certifying displayed visibility. */
+const assertText: (value: string, field: string) => void = (value: string, field: string): void => {
   if (value.trim().length === 0)
     throw new Error(`${field} must contain non-whitespace text.`);
 };
 
-const assertVector = (value: IAutoMovieVector3, field: string): void => {
+/** Refuse a nonfinite base component before grounded-box arithmetic. */
+const assertVector: (value: IAutoMovieVector3, field: string) => void = (value: IAutoMovieVector3, field: string): void => {
   if ([value.x, value.y, value.z].every(Number.isFinite) === false)
     throw new Error(`${field} must be finite.`);
 };

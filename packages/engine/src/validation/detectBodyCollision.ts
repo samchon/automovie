@@ -1,15 +1,6 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBody,
-  IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-
-import {
-  IAutoMovieSkeletonTopology,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
+import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieInteractionEvent, IAutoMovieVector3, IAutoMovieCapsuleProxy, IAutoMovieBone } from "@automovie/interface";
+import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
+import { resolvePose } from "../kinematics/resolvePose";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { sampleMotion } from "../motion/sampleMotion";
@@ -21,18 +12,20 @@ import { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
+import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+import { IAutoMovieClosestSegmentPoints } from "../math/IAutoMovieClosestSegmentPoints";
+import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+const DEFAULT_SAMPLE_RATE: number = 24;
 
-const DEFAULT_SAMPLE_RATE = 24;
+const DEFAULT_MASS: number = 70; // kg: an unspecified body defaults to a human mass
 
-const DEFAULT_MASS = 70; // kg: an unspecified body defaults to a human mass
+const DEFAULT_RESTITUTION: number = 0.2;
 
-const DEFAULT_RESTITUTION = 0.2;
+const DEFAULT_HARDNESS: number = 0.5;
 
-const DEFAULT_HARDNESS = 0.5;
+const DEFAULT_PENETRABILITY: number = 0.3;
 
-const DEFAULT_PENETRABILITY = 0.3;
-
-const DEFAULT_GAIN = 0.05; // recoil flexion degrees per unit impulse
+const DEFAULT_GAIN: number = 0.05; // recoil flexion degrees per unit impulse
 
 const FALLBACK_NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -47,21 +40,18 @@ interface IPenetration {
 }
 
 /**
- * Detect where two actors' capsule proxies interpenetrate over a shot, and,
- * because a film may be deliberately unphysical, report it as advisory
- * `warning`s, not a hard rejection. At the deepest contact it suggests a
- * plausible response ({@link resolveImpact} + recoil flinch) the model can
- * accept or override, and emits `contact` events so downstream/render see the
- * same computed contact. A `physicsIntent` marker (e.g. a choreographed fight)
- * suppresses the warnings and the suggestion while still surfacing the events.
+ * Sample two capsule-proxy actors and return overlap advice, contact events and an optional response.
  *
- * Generalizes {@link validateSelfIntersection} from one body to two. Full
- * synthesis of the suggested react action into `performShot` is deferred (#600
- * follow-up); this returns the response as data.
- *
+ * @evidence contracts/common.md#principled-implementation Finite positive sample rate and canonical reachable-capsule admission precede endpoint-inclusive pose sampling; every capsule pair uses shared closest-segment distance and strict summed-radius penetration, then one deepest contact seeds the response.
+ * @evidence contracts/common.md#clear-and-simple-design Pose/FK, distance and impact-response owners remain shared, while this detector owns sampled cross-body population and warning/event correspondence; runtime repository consumers are portable tests rather than an installed film collision host.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid capsules return structural findings before sampling, and physicsIntent suppresses advice while preserving contacts. Sampling is not continuous collision proof; final truncated-interval velocity still multiplies displacement by nominal rate, and derived numeric failures can propagate.
+ * @evidence contracts/common.md#meaningful-documentation States sample-clock scope, shortest actor duration, default response-body quantities, strict penetration, deepest tie order and uncorrected final-interval velocity approximation.
+ * @evidence contracts/performance.md#efficient-algorithms For F frames, J resolved bones and A/B capsules, pose maps cost O(F*J), pair checks O(F*A*B), and deepest-contact sorting O(E log E) for E penetrations; storage is O(F*J+E).
+ * @evidence contracts/performance.md#reuse-equivalent-work Each actor pose resolves once per frame and its map serves all capsule pairs; one retained penetration list supplies events, warnings and deepest response without a cross-call motion cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Local pose maps and penetration rows are discarded; fresh events, validation and response transfer to the caller without retaining sampled poses or owning a physics/render task.
  * @author Samchon
  */
-export const detectBodyCollision = (props: {
+export const detectBodyCollision: (props: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor; sampleRate?: number | undefined; physicsIntent?: string | undefined; gainDegPerImpulse?: number | undefined; path?: string | undefined; }) => IAutoMovieBodyCollisionResult = (props: {
   a: IAutoMovieCollisionActor;
   b: IAutoMovieCollisionActor;
   sampleRate?: number;
@@ -69,15 +59,15 @@ export const detectBodyCollision = (props: {
   gainDegPerImpulse?: number;
   path?: string;
 }): IAutoMovieBodyCollisionResult => {
-  const collector = new ViolationCollector();
-  const path = props.path ?? "$input";
-  const sampleRate =
+  const collector: ViolationCollector = new ViolationCollector();
+  const path: string = props.path ?? "$input";
+  const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
-  const gain =
+  const gain: number =
     props.gainDegPerImpulse === undefined
       ? DEFAULT_GAIN
       : props.gainDegPerImpulse;
-  const suppressed = props.physicsIntent !== undefined;
+  const suppressed: boolean = props.physicsIntent !== undefined;
 
   if (!Number.isFinite(sampleRate) || sampleRate <= 0) {
     collector.push(
@@ -96,31 +86,31 @@ export const detectBodyCollision = (props: {
   // crashes outright, #1056), and `NaN < minimum` is false, so an unguarded
   // run would drop the overlap in silence. These are structural errors, not
   // physics warnings: return before sampling.
-  const topologyA = indexSkeletonTopology(props.a.skeleton);
-  const topologyB = indexSkeletonTopology(props.b.skeleton);
-  const capsulesValid = [
+  const topologyA: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.a.skeleton);
+  const topologyB: IAutoMovieSkeletonTopology = indexSkeletonTopology(props.b.skeleton);
+  const capsulesValid: boolean = [
     validateActorCapsules(props.a, `${path}.a`, topologyA, collector),
     validateActorCapsules(props.b, `${path}.b`, topologyB, collector),
   ].every(Boolean);
   if (!capsulesValid)
     return { validation: collector.toValidation(), events: [], response: null };
 
-  const duration = Math.min(props.a.motion.duration, props.b.motion.duration);
-  const times = sampleTimes(duration, sampleRate);
-  const mapsA = times.map((time) => resolveMap(props.a, time, topologyA));
-  const mapsB = times.map((time) => resolveMap(props.b, time, topologyB));
+  const duration: number = Math.min(props.a.motion.duration, props.b.motion.duration);
+  const times: number[] = sampleTimes(duration, sampleRate);
+  const mapsA: Map<AutoMovieHumanoidBone, IAutoMovieVector3>[] = times.map((time: number): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => resolveMap(props.a, time, topologyA));
+  const mapsB: Map<AutoMovieHumanoidBone, IAutoMovieVector3>[] = times.map((time: number): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => resolveMap(props.b, time, topologyB));
 
   const penetrations: IPenetration[] = [];
-  times.forEach((time, frame) => {
-    props.a.capsules.forEach((ca) => {
-      props.b.capsules.forEach((cb) => {
-        const closest = closestPointsBetweenSegments(
+  times.forEach((time: number, frame: number): void => {
+    props.a.capsules.forEach((ca: IAutoMovieCapsuleProxy): void => {
+      props.b.capsules.forEach((cb: IAutoMovieCapsuleProxy): void => {
+        const closest: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
           mapsA[frame]!.get(ca.from)!,
           mapsA[frame]!.get(ca.to)!,
           mapsB[frame]!.get(cb.from)!,
           mapsB[frame]!.get(cb.to)!,
         );
-        const minimum = ca.radius + cb.radius;
+        const minimum: number = ca.radius + cb.radius;
         if (closest.distance < minimum)
           penetrations.push({
             frame,
@@ -135,7 +125,7 @@ export const detectBodyCollision = (props: {
     });
   });
 
-  const events: IAutoMovieInteractionEvent[] = penetrations.map((pen, i) => ({
+  const events: IAutoMovieInteractionEvent[] = penetrations.map((pen: IPenetration, i: number): { id: string; kind: "contact"; source: "sampledProximity"; time: number; actor: string; target: string; object: null; point: IAutoMovieVector3; actionIndex: null; reaction: null; } => ({
     id: `contact:${i}`,
     kind: "contact",
     source: "sampledProximity",
@@ -151,7 +141,7 @@ export const detectBodyCollision = (props: {
   if (suppressed || penetrations.length === 0)
     return { validation: collector.toValidation(), events, response: null };
 
-  penetrations.forEach((pen, i) => {
+  penetrations.forEach((pen: IPenetration, i: number): void => {
     collector.warn(
       "physics",
       `${path}.contacts[${i}].distance`,
@@ -161,7 +151,7 @@ export const detectBodyCollision = (props: {
     );
   });
 
-  const response = suggestResponse(
+  const response: IAutoMovieCollisionResponse = suggestResponse(
     props,
     penetrations,
     sampleRate,
@@ -177,16 +167,16 @@ export const detectBodyCollision = (props: {
  * fault (all capsules are checked so a correction round sees them together).
  * Returns whether the actor's capsules are all usable.
  */
-const validateActorCapsules = (
+const validateActorCapsules: (actor: IAutoMovieCollisionActor, path: string, topology: IAutoMovieSkeletonTopology, collector: ViolationCollector) => boolean = (
   actor: IAutoMovieCollisionActor,
   path: string,
   topology: IAutoMovieSkeletonTopology,
   collector: ViolationCollector,
 ): boolean => {
-  const bones = new Set(actor.skeleton.bones.map((bone) => bone.bone));
-  const reachable = fkReachableBones(actor.skeleton, topology);
-  let valid = true;
-  actor.capsules.forEach((capsule, index) => {
+  const bones: Set<AutoMovieHumanoidBone> = new Set(actor.skeleton.bones.map((bone: IAutoMovieBone): AutoMovieHumanoidBone => bone.bone));
+  const reachable: Set<AutoMovieHumanoidBone> = fkReachableBones(actor.skeleton, topology);
+  let valid: boolean = true;
+  actor.capsules.forEach((capsule: IAutoMovieCapsuleProxy, index: number): void => {
     if (
       !validateCapsule(
         capsule,
@@ -201,7 +191,7 @@ const validateActorCapsules = (
   return valid;
 };
 
-const suggestResponse = (
+const suggestResponse: (props: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor; }, penetrations: IPenetration[], rate: number, mapsA: readonly ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>[], mapsB: readonly ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>[], gain: number) => IAutoMovieCollisionResponse = (
   props: {
     a: IAutoMovieCollisionActor;
     b: IAutoMovieCollisionActor;
@@ -212,13 +202,13 @@ const suggestResponse = (
   mapsB: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>,
   gain: number,
 ): IAutoMovieCollisionResponse => {
-  const deepest = [...penetrations].sort((x, y) => y.depth - x.depth)[0]!;
-  const prev = Math.max(0, deepest.frame - 1);
-  const velA = velocity(mapsA, deepest.frame, prev, deepest.from, rate);
-  const velB = velocity(mapsB, deepest.frame, prev, deepest.otherFrom, rate);
+  const deepest: IPenetration = [...penetrations].sort((x: IPenetration, y: IPenetration): number => y.depth - x.depth)[0]!;
+  const prev: number = Math.max(0, deepest.frame - 1);
+  const velA: IAutoMovieVector3 = velocity(mapsA, deepest.frame, prev, deepest.from, rate);
+  const velB: IAutoMovieVector3 = velocity(mapsB, deepest.frame, prev, deepest.otherFrom, rate);
 
-  const rawNormal = Vector3.subtract(deepest.pointB, deepest.pointA);
-  const normal =
+  const rawNormal: IAutoMovieVector3 = Vector3.subtract(deepest.pointB, deepest.pointA);
+  const normal: IAutoMovieVector3 =
     Vector3.dot(rawNormal, rawNormal) > 0 ? rawNormal : FALLBACK_NORMAL;
 
   return suggestCollisionResponse({
@@ -231,7 +221,7 @@ const suggestResponse = (
   });
 };
 
-const velocity = (
+const velocity: (maps: readonly ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>[], frame: number, prev: number, bone: AutoMovieHumanoidBone, rate: number) => IAutoMovieVector3 = (
   maps: ReadonlyArray<ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>>,
   frame: number,
   prev: number,
@@ -243,7 +233,7 @@ const velocity = (
     rate,
   );
 
-const impactBody = (
+const impactBody: (body: IAutoMovieBody | null, vel: IAutoMovieVector3) => { mass: number; velocity: IAutoMovieVector3; restitution: number; hardness: number; penetrability: number; } = (
   body: IAutoMovieBody | null,
   vel: IAutoMovieVector3,
 ): {
@@ -260,7 +250,7 @@ const impactBody = (
   penetrability: DEFAULT_PENETRABILITY,
 });
 
-const resolveMap = (
+const resolveMap: (actor: IAutoMovieCollisionActor, time: number, topology: IAutoMovieSkeletonTopology) => Map<AutoMovieHumanoidBone, IAutoMovieVector3> = (
   actor: IAutoMovieCollisionActor,
   time: number,
   topology: IAutoMovieSkeletonTopology,
@@ -272,7 +262,7 @@ const resolveMap = (
       actor.jointAxes,
       actor.restFrames,
       topology,
-    ).map((bone) => [bone.bone, bone.worldPosition]),
+    ).map((bone: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieVector3] => [bone.bone, bone.worldPosition]),
   );
 
-const round = (value: number): number => Math.round(value * 1_000) / 1_000;
+const round: (value: number) => number = (value: number): number => Math.round(value * 1_000) / 1_000;

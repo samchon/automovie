@@ -1,5 +1,4 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
-
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { AutoMovieLightProperty } from "../resolve/AutoMovieLightProperty";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
@@ -14,36 +13,22 @@ import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
-
+import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
+import { IAutoMovieLightPointer } from "../resolve/IAutoMovieLightPointer";
+import { IAutoMovieLightChannelProperty } from "../resolve/IAutoMovieLightChannelProperty";
 /**
- * The shot's `lightMotions`, gated the way every other optional shot field is:
- * absent stays valid ("absent means legacy"), a present value is inspected in
- * full.
+ * Append light-clip shape, target, uniqueness and range findings for a shot.
  *
- * Each clip goes through {@link validateClipArtifact} unchanged, so a light clip
- * is held to the SAME track-shape contract `sampleClip` reads (#1353): strictly
- * increasing times inside the duration, a whole-number stride, the width the
- * channel's `valueType` fixes, a supported interpolation, a boolean `loop`.
- * Those rules are about a track, not about a node, and re-deciding them here
- * would re-split the contract that issue just made single.
- *
- * Beyond that shape, three rules are this field's alone: which channel a track
- * may address, which light kinds carry the property, and the value's own
- * range.
- *
- * Two of them are worth stating.
- *
- * No two tracks in the whole field may address the same light property. Within
- * one clip `validateClipArtifact` already refuses a duplicate channel, but two
- * CLIPS both dimming the same candle would resolve last-writer-wins, which is a
- * deterministic answer to a question the artifact never meant to ask. Refusing
- * it keeps the committed film's lighting single-valued at every instant.
- *
- * And every keyframe value is held to the property's own bounds
- * ({@link appendLightValueBounds}), because the light a track drives has a
- * documented range that the scene gate already enforces on the staged value.
+ * @evidence contracts/common.md#principled-implementation Canonical clip admission and light-pointer/property owners precede per-key bounds and scale-normalized Hermite derivative roots evaluated through the playback scalar owner. Finite quaternion interior is exempt because playback normalizes it; keyed rotations still require unit norm.
+ * @evidence contracts/common.md#clear-and-simple-design One light pass joins shared channel/track shape with light-kind/property policy and field-wide channel uniqueness, keeping interpolation arithmetic shared with playback.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent lightMotions is legacy-valid and malformed tracks retain located findings without fabricated clips. Nonzero derivative coefficients are not discarded by an absolute floor; overflow before coefficient normalization or in playback evaluation remains a numeric limitation rather than a universal range proof.
+ * @evidence contracts/common.md#meaningful-documentation States optional-field meaning, staged-light index, duplicate target scope, key/tangent distinction, quaternion exemption and unresolved extrema precision limits.
+ * @evidence contracts/performance.md#efficient-algorithms For C clips, T tracks and K stored scalars/times, shared admission plus key/extrema traversal is linear in those populations and message sizes; address rows and findings require O(T+F) storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shared property bounds and channel width feed both key and cubic checks, and each Hermite extremum uses the canonical evaluator; mutable clip records have no retained verdict cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended findings and their offending values persist in the caller array; temporary target rows, slices and roots are local and no lighting/GPU host is acquired.
+ * @author Samchon
  */
-export const appendLightMotionsArtifact = (
+export const appendLightMotionsArtifact: (lightMotions: unknown, path: string, stagedLights: ReadonlyMap<string, unknown> | null, violations: IAutoMovieConstraintViolation[]) => void = (
   lightMotions: unknown,
   path: string,
   /**
@@ -59,13 +44,13 @@ export const appendLightMotionsArtifact = (
   )
     return;
   validateUniqueIds(lightMotions, path, "light motion clip id", violations);
-  const gate = lightClipChannelGate(stagedLights);
+  const gate: IAutoMovieClipChannelGate = lightClipChannelGate(stagedLights);
   const addressed: { id: unknown; path: string }[] = [];
-  lightMotions.forEach((clip, i) => {
-    const clipPath = `${path}[${i}]`;
+  lightMotions.forEach((clip: unknown, i: number): void => {
+    const clipPath: string = `${path}[${i}]`;
     validateClipArtifact(clip, clipPath, violations, gate);
-    asArray(isRecord(clip) ? clip.tracks : undefined).forEach((track, j) => {
-      const trackPath = `${clipPath}.tracks[${j}]`;
+    asArray(isRecord(clip) ? clip.tracks : undefined).forEach((track: unknown, j: number): void => {
+      const trackPath: string = `${clipPath}.tracks[${j}]`;
       // A track that is not an object addresses nothing; `validateClipArtifact`
       // has already refused it at its own index. Narrowing here rather than
       // re-asking further down keeps the bounds pass free of a guard its caller
@@ -75,7 +60,7 @@ export const appendLightMotionsArtifact = (
         return;
       }
       const channel: unknown = track.channel;
-      const target = isRecord(channel)
+      const target: IAutoMovieLightPointer | null = isRecord(channel)
         ? parseLightPointer(channel.pointer)
         : null;
       addressed.push({
@@ -101,18 +86,18 @@ export const appendLightMotionsArtifact = (
  * polynomial's derivative, evaluated through the SAME {@link cubicHermiteValue}
  * playback uses (#1371).
  */
-const appendLightValueBounds = (
+const appendLightValueBounds: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, violations: IAutoMovieConstraintViolation[]) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const { bounds } = LIGHT_CHANNEL_PROPERTIES[property];
+  const { bounds }: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[property];
   if (track.interpolation === "cubicspline") {
     appendCubicLightValueBounds(track, property, path, violations);
     return;
   }
-  asArray(track.values).forEach((value, k) => {
+  asArray(track.values).forEach((value: unknown, k: number): void => {
     // Finiteness belongs to the shared track-shape contract
     // (`clipTrackShapeFaults`), which reports it at this very path. Adding a
     // range verdict on top would read as two separate faults for one mistake.
@@ -140,7 +125,7 @@ const appendLightValueBounds = (
  * `scalar ? 1 : 3`, a rule that was right only while every non-scalar axis
  * happened to be a `vec3`.
  */
-const lightValueWidth = (property: AutoMovieLightProperty): number =>
+const lightValueWidth: (property: AutoMovieLightProperty) => number = (property: AutoMovieLightProperty): number =>
   channelValueWidth({
     kind: "pointer",
     valueType: LIGHT_CHANNEL_PROPERTIES[property].valueType,
@@ -163,23 +148,23 @@ const lightValueWidth = (property: AutoMovieLightProperty): number =>
  * to judge; the shared shape gate has already refused it, and slicing one out
  * of it anyway would report a fault about a value the author never wrote.
  */
-const appendLightKeyValueFaults = (
+const appendLightKeyValueFaults: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, cubic: boolean, violations: IAutoMovieConstraintViolation[]) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
   cubic: boolean,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const { valueFault } = LIGHT_CHANNEL_PROPERTIES[property];
+  const { valueFault }: IAutoMovieLightChannelProperty = LIGHT_CHANNEL_PROPERTIES[property];
   if (valueFault === undefined) return;
-  const width = lightValueWidth(property);
-  const stride = cubic ? width * 3 : width;
-  const values = asArray(track.values);
+  const width: number = lightValueWidth(property);
+  const stride: number = cubic ? width * 3 : width;
+  const values: unknown[] = asArray(track.values);
   if (values.length === 0 || values.length % stride !== 0) return;
-  for (let key = 0; key * stride < values.length; ++key) {
-    const base = key * stride + (cubic ? width : 0);
-    const value = values.slice(base, base + width);
-    const fault = valueFault(value);
+  for (let key: number = 0; key * stride < values.length; ++key) {
+    const base: number = key * stride + (cubic ? width : 0);
+    const value: unknown[] = values.slice(base, base + width);
+    const fault: string | null = valueFault(value);
     if (fault !== null)
       pushViolation(
         violations,
@@ -192,63 +177,67 @@ const appendLightKeyValueFaults = (
 };
 
 /** A finite scalar lies inside one light property's documented range. */
-const lightValueInBounds = (
+const lightValueInBounds: (value: number, property: AutoMovieLightProperty) => boolean = (
   value: number,
   property: AutoMovieLightProperty,
 ): boolean => {
-  const { min, max, inclusiveMin } = LIGHT_CHANNEL_PROPERTIES[property].bounds;
+  const { min, max, inclusiveMin }: { min: number; max: number; inclusiveMin: boolean; } = LIGHT_CHANNEL_PROPERTIES[property].bounds;
   return (inclusiveMin ? value >= min : value > min) && value <= max;
 };
 
-/** Roots of `a*t² + b*t + c` strictly inside the normalized segment `(0, 1)`. */
-const interiorQuadraticRoots = (a: number, b: number, c: number): number[] => {
-  const epsilon = 1e-12;
-  const roots =
-    Math.abs(a) < epsilon
-      ? Math.abs(b) < epsilon
+/** Normalize finite derivative coefficients before solving, retaining tiny nonzero curves; select roots strictly inside (0,1), with stable paired roots avoiding subtraction cancellation. */
+const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (a: number, b: number, c: number): number[] => {
+  const scale: number = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
+  if (scale === 0 || !Number.isFinite(scale)) return [];
+  const qa: number = a / scale;
+  const qb: number = b / scale;
+  const qc: number = c / scale;
+  const roots: number[] =
+    qa === 0
+      ? qb === 0
         ? []
-        : [-c / b]
-      : (() => {
-          const discriminant = b * b - 4 * a * c;
+        : [-qc / qb]
+      : ((): number[] => {
+          const discriminant: number = qb * qb - 4 * qa * qc;
           if (discriminant < 0) return [];
-          const root = Math.sqrt(discriminant);
-          return root < epsilon
-            ? [-b / (2 * a)]
-            : [(-b - root) / (2 * a), (-b + root) / (2 * a)];
+          const root: number = Math.sqrt(discriminant);
+          if (root === 0) return [-qb / (2 * qa)];
+          const paired: number = -0.5 * (qb + (qb >= 0 ? root : -root));
+          return [paired / qa, qc / paired];
         })();
-  return roots.filter((root) => root > 0 && root < 1);
+  return roots.filter((root: number): boolean => root > 0 && root < 1);
 };
 
 /** Validate cubic key values and every interior Hermite extremum. */
-const appendCubicLightValueBounds = (
+const appendCubicLightValueBounds: (track: Record<string, unknown>, property: AutoMovieLightProperty, path: string, violations: IAutoMovieConstraintViolation[]) => void = (
   track: Record<string, unknown>,
   property: AutoMovieLightProperty,
   path: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const times = asArray(track.times);
-  const values = asArray(track.values);
-  const width = lightValueWidth(property);
-  const stride = width * 3;
+  const times: unknown[] = asArray(track.times);
+  const values: unknown[] = asArray(track.values);
+  const width: number = lightValueWidth(property);
+  const stride: number = width * 3;
   // The shared clip-shape gate owns every malformed case. Stop here rather
   // than deriving ranges from a stride or clock it has already refused.
   if (
     times.length === 0 ||
     values.length !== times.length * stride ||
-    !times.every((time) => Number.isFinite(time)) ||
-    !values.every((value) => Number.isFinite(value)) ||
+    !times.every((time: unknown): boolean => Number.isFinite(time)) ||
+    !values.every((value: unknown): boolean => Number.isFinite(value)) ||
     times.some(
-      (time, index) =>
+      (time: unknown, index: number): boolean =>
         index > 0 && !((time as number) > (times[index - 1] as number)),
     )
   )
     return;
 
-  let keysInBounds = true;
-  for (let key = 0; key < times.length; ++key)
-    for (let component = 0; component < width; ++component) {
-      const index = key * stride + width + component;
-      const value = values[index] as number;
+  let keysInBounds: boolean = true;
+  for (let key: number = 0; key < times.length; ++key)
+    for (let component: number = 0; component < width; ++component) {
+      const index: number = key * stride + width + component;
+      const value: number = values[index] as number;
       if (!lightValueInBounds(value, property)) keysInBounds = false;
       validateRange(
         value,
@@ -272,23 +261,23 @@ const appendCubicLightValueBounds = (
   // key VERBATIM, without that renormalization.
   if (LIGHT_CHANNEL_PROPERTIES[property].valueType === "quaternion") return;
 
-  for (let segment = 0; segment + 1 < times.length; ++segment) {
-    const span = (times[segment + 1] as number) - (times[segment] as number);
-    for (let component = 0; component < width; ++component) {
-      const leftBase = segment * stride;
-      const rightBase = (segment + 1) * stride;
-      const left = values[leftBase + width + component] as number;
-      const outTangent = values[leftBase + 2 * width + component] as number;
-      const right = values[rightBase + width + component] as number;
-      const inTangent = values[rightBase + component] as number;
+  for (let segment: number = 0; segment + 1 < times.length; ++segment) {
+    const span: number = (times[segment + 1] as number) - (times[segment] as number);
+    for (let component: number = 0; component < width; ++component) {
+      const leftBase: number = segment * stride;
+      const rightBase: number = (segment + 1) * stride;
+      const left: number = values[leftBase + width + component] as number;
+      const outTangent: number = values[leftBase + 2 * width + component] as number;
+      const right: number = values[rightBase + width + component] as number;
+      const inTangent: number = values[rightBase + component] as number;
       // Derivative of the shared Hermite cubic in normalized segment time.
-      const a =
+      const a: number =
         6 * left + 3 * span * outTangent - 6 * right + 3 * span * inTangent;
-      const b =
+      const b: number =
         -6 * left - 4 * span * outTangent + 6 * right - 2 * span * inTangent;
-      const c = span * outTangent;
+      const c: number = span * outTangent;
       for (const t of interiorQuadraticRoots(a, b, c)) {
-        const value = cubicHermiteValue(
+        const value: number = cubicHermiteValue(
           left,
           outTangent,
           right,

@@ -1,18 +1,14 @@
-import {
-  worldGroundHeight,
-  worldGroundSurface,
-  worldHeightfield,
-  worldRamp,
-  worldSurfaceHeight,
-  worldTerrain,
-} from "@automovie/engine";
+import { worldGroundHeight } from "../../../../packages/engine/src/worldGroundHeight";
+import { worldGroundSurface } from "../../../../packages/engine/src/worldGroundSurface";
+import { worldHeightfield } from "../../../../packages/engine/src/worldHeightfield";
+import { worldRamp } from "../../../../packages/engine/src/worldRamp";
+import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurfaceHeight";
+import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
-
 /** A square footprint of a stated half-extent, centred on the origin. */
-const square = (half: number): IAutoMovieWorldSurface["polygon"] => [
+const square: (half: number) => { x: number; z: number; }[] = (half: number): IAutoMovieWorldSurface["polygon"] => [
   { x: -half, z: -half },
   { x: half, z: -half },
   { x: half, z: half },
@@ -24,10 +20,10 @@ const square = (half: number): IAutoMovieWorldSurface["polygon"] => [
  *
  * The sampler is a rule rather than a transcription, so the lattice reads the
  * same hill the prose describes: height climbs with `z` and dips with `|x|`,
- * which makes every one of the nine samples a different number and leaves no
- * two facts below able to pass by accident.
+ * leaving an explicit row-major pattern; mirrored X samples repeat because the
+ * authored rule is symmetric about that axis.
  */
-const hill = (): IAutoMovieWorldSurface =>
+const hill: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldHeightfield({
     id: "hill",
     polygon: square(4),
@@ -35,12 +31,12 @@ const hill = (): IAutoMovieWorldSurface =>
     spacing: { x: 4, z: 4 },
     columns: 3,
     rows: 3,
-    height: (point) => point.z * 0.5 - Math.abs(point.x) * 0.25,
+    height: (point: { x: number; z: number; }): number => point.z * 0.5 - Math.abs(point.x) * 0.25,
     walkable: true,
   });
 
 /** The rule of {@link hill}, as the oracle every sampled fact is read against. */
-const hillHeight = (point: { x: number; z: number }): number =>
+const hillHeight: (point: { x: number; z: number; }) => number = (point: { x: number; z: number }): number =>
   point.z * 0.5 - Math.abs(point.x) * 0.25;
 
 /**
@@ -58,9 +54,9 @@ const hillHeight = (point: { x: number; z: number }): number =>
  * where it was not: a lattice point reads its own number back, the space
  * between two reads their blend, and a query past the edge reads the edge
  * rather than an extrapolation that would invent terrain. Nothing here consults
- * a clock, a file, or a seed, so the same design answers the same heights on
- * every machine, which is the whole reason relief is stored as numbers instead
- * of as the function that made them.
+ * a clock, a file, or a seed; queries use the stored design without invoking
+ * its authoring callback, which is why relief stores
+ * numbers instead of retaining the function that made them.
  *
  * Scenarios:
  *
@@ -88,17 +84,22 @@ const hillHeight = (point: { x: number; z: number }): number =>
  * 8. The builder refuses what it cannot sample deterministically: a degenerate
  *    pitch, a lattice too small to interpolate across, a blank id, and a
  *    sampler that answers with a non-finite height.
- * 9. A malformed field whose samples do not fill its lattice reads zero rather
- *    than `NaN`, so a record design validation refuses is wrong in a way a
- *    reader can see instead of poisoning every number downstream of it.
+ * 9. A malformed field's absent samples read zero instead of `NaN`, while its
+ *    available sample remains readable; this is a local fallback rather than
+ *    admission of an incomplete lattice.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual world heightfield construction and surface/ground queries read lattice points, cell blends, clamped edges, stored samples and first-containing-surface selection; malformed constructor inputs throw and incomplete samples retain their documented fallback.
+ * @evidence contracts/testing.md#independent-expectations The authored hill formula supplies nine row-major sample values, bilinear corner means supply between-sample expectations, and explicit ramp endpoints and declaration order supply the other answers. These CPU numeric observations do not prove callback purity or cross-platform bit identity.
+ * @evidence contracts/testing.md#distinguishing-cases Sample points, midpoint/edge blends, outside clamps, ordinary constant/plane surfaces, first-surface order, exact rims and no ground contrast blank ids, invalid lattice pitch/dimensions, nonfinite origin/height and missing stored samples.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_world_heightfield_terrain; this function owns every sampler/query assertion and existing malformed-input callback, without installing terrain rendering, a native artifact or a browser/GPU host.
  */
-export const test_world_heightfield_terrain = (): void => {
-  const field = hill();
-  const lattice = [-4, 0, 4];
+export function test_world_heightfield_terrain(): void {
+  const field: IAutoMovieWorldSurface = hill();
+  const lattice: number[] = [-4, 0, 4];
   TestValidator.predicate(
     "every lattice point reads back its own authored height",
-    lattice.every((z) =>
-      lattice.every((x) =>
+    lattice.every((z: number): boolean =>
+      lattice.every((x: number): boolean =>
         nclose(
           worldSurfaceHeight(field, { x, z }),
           hillHeight({ x, z }),
@@ -112,7 +113,7 @@ export const test_world_heightfield_terrain = (): void => {
   // centre is 0.5 — which the sampler itself would call 1 - 0.5 = 0.5 here only
   // by coincidence of this cell being planar. The corner at (-4, 0) is what
   // makes the field genuinely non-affine and is why `plane` cannot hold it.
-  const corners = [
+  const corners: number[] = [
     hillHeight({ x: 0, z: 0 }),
     hillHeight({ x: 4, z: 0 }),
     hillHeight({ x: 0, z: 4 }),
@@ -123,10 +124,10 @@ export const test_world_heightfield_terrain = (): void => {
     namedFacts([
       [
         "centre",
-        () =>
+        (): boolean =>
           nclose(
             worldSurfaceHeight(field, { x: 2, z: 2 }),
-            corners.reduce((sum, value) => sum + value, 0) / 4,
+            corners.reduce((sum: number, value: number): number => sum + value, 0) / 4,
             1e-12,
           ),
       ],
@@ -138,7 +139,7 @@ export const test_world_heightfield_terrain = (): void => {
       // already reads every one of them back.
       [
         "edge",
-        () =>
+        (): boolean =>
           nclose(
             worldSurfaceHeight(field, { x: 2, z: 0 }),
             (corners[0]! + corners[1]!) / 2,
@@ -154,7 +155,7 @@ export const test_world_heightfield_terrain = (): void => {
     namedFacts([
       [
         "beyondPositiveX",
-        () =>
+        (): boolean =>
           nclose(
             worldSurfaceHeight(field, { x: 40, z: 0 }),
             hillHeight({ x: 4, z: 0 }),
@@ -163,7 +164,7 @@ export const test_world_heightfield_terrain = (): void => {
       ],
       [
         "beyondNegativeZ",
-        () =>
+        (): boolean =>
           nclose(
             worldSurfaceHeight(field, { x: 0, z: -40 }),
             hillHeight({ x: 0, z: -4 }),
@@ -172,7 +173,7 @@ export const test_world_heightfield_terrain = (): void => {
       ],
       [
         "beyondBoth",
-        () =>
+        (): boolean =>
           nclose(
             worldSurfaceHeight(field, { x: -40, z: 40 }),
             hillHeight({ x: -4, z: 4 }),
@@ -196,13 +197,13 @@ export const test_world_heightfield_terrain = (): void => {
     [-3, -2, -3, -1, 0, -1, 1, 2, 1],
   );
 
-  const flat = worldTerrain({
+  const flat: IAutoMovieWorldSurface = worldTerrain({
     id: "flat",
     polygon: square(4),
     height: 2.5,
     walkable: true,
   });
-  const ramp = worldRamp({
+  const ramp: IAutoMovieWorldSurface = worldRamp({
     id: "ramp",
     from: { x: 0, z: 0 },
     to: { x: 0, z: 10 },
@@ -214,19 +215,19 @@ export const test_world_heightfield_terrain = (): void => {
   TestValidator.equals(
     "the two rules that existed answer exactly what they answered before",
     namedFacts([
-      ["flatHere", () => worldSurfaceHeight(flat, { x: 3, z: -3 }) === 2.5],
-      ["flatThere", () => worldSurfaceHeight(flat, { x: -1, z: 4 }) === 2.5],
+      ["flatHere", (): boolean => worldSurfaceHeight(flat, { x: 3, z: -3 }) === 2.5],
+      ["flatThere", (): boolean => worldSurfaceHeight(flat, { x: -1, z: 4 }) === 2.5],
       [
         "rampBase",
-        () => nclose(worldSurfaceHeight(ramp, { x: 0, z: 0 }), 1, 1e-12),
+        (): boolean => nclose(worldSurfaceHeight(ramp, { x: 0, z: 0 }), 1, 1e-12),
       ],
       [
         "rampTop",
-        () => nclose(worldSurfaceHeight(ramp, { x: 0, z: 10 }), 6, 1e-12),
+        (): boolean => nclose(worldSurfaceHeight(ramp, { x: 0, z: 10 }), 6, 1e-12),
       ],
       [
         "rampMiddle",
-        () => nclose(worldSurfaceHeight(ramp, { x: 2, z: 5 }), 3.5, 1e-12),
+        (): boolean => nclose(worldSurfaceHeight(ramp, { x: 2, z: 5 }), 3.5, 1e-12),
       ],
     ]),
     {
@@ -240,13 +241,13 @@ export const test_world_heightfield_terrain = (): void => {
 
   // A step standing on a wider terrace: both contain the origin, and the one
   // declared first is the one a member stands on.
-  const terrace = worldTerrain({
+  const terrace: IAutoMovieWorldSurface = worldTerrain({
     id: "terrace",
     polygon: square(8),
     height: 0,
     walkable: true,
   });
-  const step = worldTerrain({
+  const step: IAutoMovieWorldSurface = worldTerrain({
     id: "step",
     polygon: square(2),
     height: 1.5,
@@ -257,28 +258,28 @@ export const test_world_heightfield_terrain = (): void => {
     namedFacts([
       [
         "stepFirst",
-        () =>
+        (): boolean =>
           worldGroundSurface([step, terrace], { x: 0, z: 0 })?.id === "step",
       ],
       [
         "terraceFirst",
-        () =>
+        (): boolean =>
           worldGroundSurface([terrace, step], { x: 0, z: 0 })?.id === "terrace",
       ],
       [
         "height",
-        () => worldGroundHeight([step, terrace], { x: 0, z: 0 }) === 1.5,
+        (): boolean => worldGroundHeight([step, terrace], { x: 0, z: 0 }) === 1.5,
       ],
       // The edge of a floor is still floor. A unit sized to its own ground puts
       // its outermost rank exactly here, and a strict reading would drop it off
       // the terrain the author sized for it.
       [
         "onTheEdge",
-        () => worldGroundSurface([step], { x: 2, z: 0 })?.id === "step",
+        (): boolean => worldGroundSurface([step], { x: 2, z: 0 })?.id === "step",
       ],
       [
         "onACorner",
-        () => worldGroundSurface([step], { x: -2, z: 2 })?.id === "step",
+        (): boolean => worldGroundSurface([step], { x: -2, z: 2 })?.id === "step",
       ],
     ]),
     {
@@ -293,40 +294,40 @@ export const test_world_heightfield_terrain = (): void => {
   TestValidator.equals(
     "a point over no surface has no ground, which is not ground at zero",
     namedFacts([
-      ["noSurface", () => worldGroundSurface([step], { x: 40, z: 0 }) === null],
-      ["noHeight", () => worldGroundHeight([step], { x: 40, z: 0 }) === null],
-      ["noneAtAll", () => worldGroundHeight([], { x: 0, z: 0 }) === null],
+      ["noSurface", (): boolean => worldGroundSurface([step], { x: 40, z: 0 }) === null],
+      ["noHeight", (): boolean => worldGroundHeight([step], { x: 40, z: 0 }) === null],
+      ["noneAtAll", (): boolean => worldGroundHeight([], { x: 0, z: 0 }) === null],
     ]),
     { noSurface: true, noHeight: true, noneAtAll: true },
   );
 
-  const builder = (
+  const builder: (overrides: Partial<{ id: string; polygon: { x: number; z: number; }[]; origin: { x: number; z: number; }; spacing: { x: number; z: number; }; columns: number; rows: number; height: (point: { x: number; z: number; }) => number; walkable: boolean; }>) => () => IAutoMovieWorldSurface = (
     overrides: Partial<Parameters<typeof worldHeightfield>[0]>,
   ): (() => IAutoMovieWorldSurface) => {
-    const input = {
+    const input: { id: string; polygon: { x: number; z: number; }[]; origin: { x: number; z: number; }; spacing: { x: number; z: number; }; columns: number; rows: number; height: (point: { x: number; z: number; }) => number; walkable: boolean; } = {
       id: "probe",
       polygon: square(4),
       origin: { x: -4, z: -4 },
       spacing: { x: 4, z: 4 },
       columns: 3,
       rows: 3,
-      height: () => 0,
+      height: (): number => 0,
       walkable: true,
       ...overrides,
     };
-    return () => worldHeightfield(input);
+    return (): IAutoMovieWorldSurface => worldHeightfield(input);
   };
   TestValidator.equals(
     "the builder refuses a lattice it could not sample deterministically",
     namedFacts([
-      ["blankId", () => throwsError(builder({ id: "  " }), "non-whitespace")],
+      ["blankId", (): boolean => throwsError(builder({ id: "  " }), "non-whitespace")],
       [
         "zeroPitch",
-        () => throwsError(builder({ spacing: { x: 0, z: 1 } }), "positive"),
+        (): boolean => throwsError(builder({ spacing: { x: 0, z: 1 } }), "positive"),
       ],
       [
         "infiniteOrigin",
-        () =>
+        (): boolean =>
           throwsError(
             builder({ origin: { x: Number.POSITIVE_INFINITY, z: 0 } }),
             "finite origin",
@@ -334,15 +335,15 @@ export const test_world_heightfield_terrain = (): void => {
       ],
       [
         "oneColumn",
-        () => throwsError(builder({ columns: 1 }), "at least two sample"),
+        (): boolean => throwsError(builder({ columns: 1 }), "at least two sample"),
       ],
       [
         "fractionalRows",
-        () => throwsError(builder({ rows: 2.5 }), "at least two sample"),
+        (): boolean => throwsError(builder({ rows: 2.5 }), "at least two sample"),
       ],
       [
         "unsampleable",
-        () => throwsError(builder({ height: () => NaN }), "non-finite height"),
+        (): boolean => throwsError(builder({ height: (): number => NaN }), "non-finite height"),
       ],
     ]),
     {
@@ -373,11 +374,11 @@ export const test_world_heightfield_terrain = (): void => {
   TestValidator.equals(
     "a field whose samples do not fill its lattice reads zero rather than NaN",
     namedFacts([
-      ["stored", () => worldSurfaceHeight(malformed, { x: 0, z: 0 }) === 3],
-      ["missing", () => worldSurfaceHeight(malformed, { x: 1, z: 1 }) === 0],
+      ["stored", (): boolean => worldSurfaceHeight(malformed, { x: 0, z: 0 }) === 3],
+      ["missing", (): boolean => worldSurfaceHeight(malformed, { x: 1, z: 1 }) === 0],
       [
         "blended",
-        () =>
+        (): boolean =>
           nclose(worldSurfaceHeight(malformed, { x: 0.5, z: 0 }), 1.5, 1e-12),
       ],
     ]),

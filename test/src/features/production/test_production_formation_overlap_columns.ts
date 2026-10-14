@@ -1,23 +1,35 @@
-import { autoMovieModelColumns } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
+import { autoMovieModelColumns } from "../../../../packages/engine/src/validation/autoMovieModelColumns";
+import { tessellate } from "../../../../packages/engine/src/geometry/tessellate";
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import { IAutoMovieModel, IAutoMovieGeometry, IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { createFormationOverlapScenario } from "../internal/createFormationOverlapScenario";
 import { namedFacts, nclose } from "../internal/predicates";
-
+import { IAutoMovieModelColumn } from "../../../../packages/engine/src/validation/IAutoMovieModelColumn";
+import { ITessellation } from "../../../../packages/engine/src/geometry/ITessellation";
 /**
- * Columns follow unchanged primitive dimensions and the full original rest-chain/transform geometry.
+ * Filled columns stay inside actual tessellated primitive faces and omit unmeasurable ancestry or arithmetic.
  *
  * Scenarios:
- * 1. Keep all original sphere, capsule, cylinder, cone, box and absent-column values.
- * 2. Keep every original bone-chain, offset, rotation, mirrored-scale and erased-column predicate.
+ * 1. Face-plane support independently bounds every measured sphere, capsule,
+ *    cylinder, cone and box core; radial facet apothems replace outer vertex radii.
+ * 2. Keep rest-chain, offset, rotation, mirrored part-scale and erased-column cases.
+ * 3. Nonunit ancestral scale omits its subtree; overflowed primitive/scaled outer envelopes and intervals are omitted
+ *    while ordinary dense unit-scale ancestry remains measurable.
+ * 4. Admitted near-unit yaw shrinkage/expansion is omitted for both part and
+ *    ancestral frames; an exact half-turn remains horizontally isometric.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Actual column outputs are checked against every nondegenerate face halfspace of actual primitive tessellation, plus explicit interval, omission and rest-chain cases. The old full sphere cylinder and radial vertex radii protrude past these faces.
+ * @evidence contracts/testing.md#independent-expectations A cylinder's maximum face-normal projection is r*hypot(nx,nz)+h*abs(ny)+centre*ny; triangle vertices define its independent supporting plane. Expected dimensions follow regular-polygon apothems and an inscribed ball. The authored yaw's TRS matrix has horizontal gain hypot(1-2*y*y,2*y*w), so a near-unit norm is not an isometry certificate; an exact half-turn has gain one.
+ * @evidence contracts/testing.md#distinguishing-cases Sphere and radial solids face all planes, while box, mirrored part scale, unit rest chains, off-axis and unsupported parts retain their original cases. Nonunit ancestry, summed rest height and actual/scaled/translated outer overflow add omissions after scalar admission, with admitted near-unit shrink/expand part yaw and a shrinking ancestor contrasted against an exact isometric half-turn.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_production_formation_overlap_columns; this exported function owns all numeric assertions using existing authored model seams, without a native renderer, browser or GPU claim.
  */
-export const test_production_formation_overlap_columns = (): void => {
-  const scenario = createFormationOverlapScenario();
-  const { post } = scenario;
-  const wide = post({ id: "post", radius: 0.4 });
+export function test_production_formation_overlap_columns(): void {
+  const scenario: ReturnType<typeof createFormationOverlapScenario> = createFormationOverlapScenario();
+  const { post }: typeof scenario = scenario;
+  const wide: IAutoMovieModel = post({ id: "post", radius: 0.4 });
 
-  const { at, bone } = scenario;
+  const { at, bone }: typeof scenario = scenario;
   const shapes: IAutoMovieModel = {
     ...wide,
     id: "shapes",
@@ -30,7 +42,7 @@ export const test_production_formation_overlap_columns = (): void => {
       { type: "plane" as const, width: 3, depth: 3 },
       { type: "sphere" as const, radius: Number.POSITIVE_INFINITY },
       { type: "box" as const, width: 1, height: 0, depth: 1 },
-    ].map((shape, index) => ({
+    ].map((shape: { type: "sphere"; radius: number; height?: undefined; width?: undefined; depth?: undefined; } | { type: "capsule"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "cylinder"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "cone"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "box"; width: number; height: number; depth: number; radius?: undefined; } | { type: "plane"; width: number; depth: number; radius?: undefined; height?: undefined; }, index: number): { id: string; name: null; geometry: { type: "primitive"; shape: { type: "sphere"; radius: number; height?: undefined; width?: undefined; depth?: undefined; } | { type: "capsule"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "cylinder"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "cone"; radius: number; height: number; width?: undefined; depth?: undefined; } | { type: "box"; width: number; height: number; depth: number; radius?: undefined; } | { type: "plane"; width: number; depth: number; radius?: undefined; height?: undefined; }; }; material: null; attachedBone: null; transform: null; } => ({
       id: `part-${index}`,
       name: null,
       geometry: { type: "primitive" as const, shape },
@@ -56,33 +68,64 @@ export const test_production_formation_overlap_columns = (): void => {
     attachedBone: null,
     transform: null,
   });
-  const measured = autoMovieModelColumns(shapes);
+  const measured: IAutoMovieModelColumn[] = autoMovieModelColumns(shapes);
+  for (let shapeIndex: number = 0; shapeIndex < 5; ++shapeIndex) {
+    const geometry: IAutoMovieGeometry = shapes.parts[shapeIndex]!.geometry;
+    if (geometry.type !== "primitive") throw new Error("expected an authored primitive");
+    const mesh: ITessellation = tessellate(geometry.shape);
+    const column: IAutoMovieModelColumn = measured[shapeIndex]!;
+    const centre: number = (column.bottom + column.top) / 2;
+    const half: number = (column.top - column.bottom) / 2;
+    for (let face: number = 0; face < mesh.indices.length; face += 3) {
+      const a: number = mesh.indices[face]! * 3;
+      const b: number = mesh.indices[face + 1]! * 3;
+      const c: number = mesh.indices[face + 2]! * 3;
+      const ux: number = mesh.positions[b]! - mesh.positions[a]!;
+      const uy: number = mesh.positions[b + 1]! - mesh.positions[a + 1]!;
+      const uz: number = mesh.positions[b + 2]! - mesh.positions[a + 2]!;
+      const vx: number = mesh.positions[c]! - mesh.positions[a]!;
+      const vy: number = mesh.positions[c + 1]! - mesh.positions[a + 1]!;
+      const vz: number = mesh.positions[c + 2]! - mesh.positions[a + 2]!;
+      let nx: number = uy * vz - uz * vy;
+      let ny: number = uz * vx - ux * vz;
+      let nz: number = ux * vy - uy * vx;
+      const norm: number = Math.hypot(nx, ny, nz);
+      if (norm === 0) continue;
+      nx /= norm;
+      ny /= norm;
+      nz /= norm;
+      let distance: number = nx * mesh.positions[a]! + ny * mesh.positions[a + 1]! + nz * mesh.positions[a + 2]!;
+      if (distance < 0) { nx = -nx; ny = -ny; nz = -nz; distance = -distance; }
+      const support: number = column.radius * Math.hypot(nx, nz) + half * Math.abs(ny) + centre * ny;
+      TestValidator.predicate(`primitive ${shapeIndex} column fits face ${face / 3}`, support <= distance || nclose(support, distance, 1e-12));
+    }
+  }
   TestValidator.equals(
     "every primitive states the disc inside it and nothing states one it has not got",
     namedFacts([
       // Sphere, capsule, cylinder, cone and box; the plane, the mesh, the
       // infinite radius and the flattened box hold no column at all.
-      ["five", () => measured.length === 5],
+      ["five", (): boolean => measured.length === 5],
       [
         "sphere",
-        () =>
-          nclose(measured[0]!.radius, 0.5) &&
-          nclose(measured[0]!.bottom, -0.5) &&
-          nclose(measured[0]!.top, 0.5),
+        (): boolean =>
+          nclose(measured[0]!.radius, 0.5 * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 24) / Math.SQRT2) &&
+          nclose(measured[0]!.bottom, -measured[0]!.radius) &&
+          nclose(measured[0]!.top, measured[0]!.radius),
       ],
-      // A capsule's caps taper, so only the shaft between them is certainly
-      // inside the disc its radius states.
+      // The current capsule producer is a bounding cylinder; this core stays
+      // within its shaft interval without claiming the rounded silhouette.
       [
         "capsule",
-        () =>
-          nclose(measured[1]!.radius, 0.3) &&
+        (): boolean =>
+          nclose(measured[1]!.radius, 0.3 * Math.cos(Math.PI / 16)) &&
           nclose(measured[1]!.bottom, -1) &&
           nclose(measured[1]!.top, 1),
       ],
       [
         "cylinder",
-        () =>
-          nclose(measured[2]!.radius, 0.2) &&
+        (): boolean =>
+          nclose(measured[2]!.radius, 0.2 * Math.cos(Math.PI / 16)) &&
           nclose(measured[2]!.bottom, -2) &&
           nclose(measured[2]!.top, 2),
       ],
@@ -90,15 +133,15 @@ export const test_production_formation_overlap_columns = (): void => {
       // half its base radius is filled through its upper half and nowhere else.
       [
         "cone",
-        () =>
-          nclose(measured[3]!.radius, 0.4) &&
+        (): boolean =>
+          nclose(measured[3]!.radius, 0.4 * Math.cos(Math.PI / 16)) &&
           nclose(measured[3]!.bottom, 0) &&
           nclose(measured[3]!.top, 2),
       ],
       // A box turned to any heading still holds the disc of its narrower side.
       [
         "box",
-        () =>
+        (): boolean =>
           nclose(measured[4]!.radius, 0.5) &&
           nclose(measured[4]!.bottom, -3) &&
           nclose(measured[4]!.top, 3),
@@ -241,17 +284,17 @@ export const test_production_formation_overlap_columns = (): void => {
       },
     ],
   };
-  const chained = autoMovieModelColumns(rigged);
+  const chained: IAutoMovieModelColumn[] = autoMovieModelColumns(rigged);
   TestValidator.equals(
     "a part is measured up its own chain, and left out wherever that chain leaves the axis",
     namedFacts([
       // The pelvis, the crown and the scaled box. The forearm rides a branch
       // that left the axis, and the four beside it are displaced or tipped off
       // it themselves; the last is scaled to nothing across.
-      ["three", () => chained.length === 3],
+      ["three", (): boolean => chained.length === 3],
       [
         "pelvis",
-        () =>
+        (): boolean =>
           nclose(chained[0]!.radius, 0.15) &&
           nclose(chained[0]!.bottom, 0.9) &&
           nclose(chained[0]!.top, 1.1),
@@ -260,28 +303,28 @@ export const test_production_formation_overlap_columns = (): void => {
       // that: two metres, whatever order the bones were listed in.
       [
         "crown",
-        () =>
-          nclose(chained[1]!.radius, 0.1) &&
-          nclose(chained[1]!.bottom, 1.9) &&
-          nclose(chained[1]!.top, 2.1),
+        (): boolean =>
+          nclose(chained[1]!.radius, 0.1 * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 24) / Math.SQRT2) &&
+          nclose(chained[1]!.bottom, 2 - 0.1 * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 24) / Math.SQRT2) &&
+          nclose(chained[1]!.top, 2 + 0.1 * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 24) / Math.SQRT2),
       ],
       // A box 2 m across and 1 m deep, scaled by 3 and 4, is 6 m across and 4 m
       // deep, and the disc inside it is half the narrower of those. Mirrored
       // vertically it fills exactly what its unmirrored twin did, one metre up.
       [
         "scaled",
-        () =>
+        (): boolean =>
           nclose(chained[2]!.radius, 2) &&
           nclose(chained[2]!.bottom, -1) &&
           nclose(chained[2]!.top, 3),
       ],
       // The collar rides a bone that stands on the axis and is turned off the
-      // vertical, so its column is not vertical and is not measured. Its radius
-      // is unique among the parts, so its absence is a fact about that part
+      // vertical, so its column is not vertical and is not measured. Its expected
+      // inscribed core radius is unique, so absence is a fact about that part
       // rather than a count that happens to agree.
       [
         "theTurnedBoneCarriesNothing",
-        () => chained.every((column) => nclose(column.radius, 0.33) === false),
+        (): boolean => chained.every((column: IAutoMovieModelColumn): boolean => nclose(column.radius, 0.33 * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 24) / Math.SQRT2) === false),
       ],
     ]),
     {
@@ -292,4 +335,40 @@ export const test_production_formation_overlap_columns = (): void => {
       theTurnedBoneCarriesNothing: true,
     },
   );
-};
+  const ancestorModel: IAutoMovieModel = {
+    ...wide,
+    skeleton: { id: "ancestor-rig", bones: [bone("hips", null, at(0, 0, 0)), bone("spine", "hips", at(0, 0, 0))] },
+    parts: [{ ...wide.parts[0]!, attachedBone: "spine" }],
+  };
+  TestValidator.equals("unit-scale ancestor chain preserves its column", autoMovieModelColumns(ancestorModel).length, 1);
+  const scaledAncestor: IAutoMovieModel = { ...ancestorModel, skeleton: { ...ancestorModel.skeleton!, bones: [bone("hips", null, { ...at(0, 0, 0), scale: { x: 2, y: 1, z: 1 } }), bone("spine", "hips", at(0, 0, 0))] } };
+  TestValidator.equals("nonunit ancestor scale omits its otherwise axial child", autoMovieModelColumns(scaledAncestor).length, 0);
+  const overflowed: IAutoMovieModel = { ...ancestorModel, skeleton: { ...ancestorModel.skeleton!, bones: [bone("hips", null, at(0, Number.MAX_VALUE, 0)), bone("spine", "hips", at(0, Number.MAX_VALUE, 0))] } };
+  TestValidator.equals("finite authored transforms pass the current model admission", validateModel({ model: overflowed }).success, true);
+  TestValidator.equals("overflowed summed rest height does not claim infinite occupancy", autoMovieModelColumns(overflowed).length, 0);
+  const hugeCapsule: IAutoMovieModel = { ...wide, parts: [{ ...wide.parts[0]!, geometry: { type: "primitive", shape: { type: "capsule", radius: Number.MAX_VALUE / 4, height: Number.MAX_VALUE } } }] };
+  TestValidator.equals("finite capsule dimensions pass scalar model admission", validateModel({ model: hugeCapsule }).success, true);
+  TestValidator.equals("overflowed actual capsule cylinder height has no measurable filled core", autoMovieModelColumns(hugeCapsule).length, 0);
+  const hugeScaled: IAutoMovieModel = { ...wide, parts: [{ ...wide.parts[0]!, geometry: { type: "primitive", shape: { type: "cylinder", radius: Number.MAX_VALUE, height: 2 } }, transform: { ...at(0, 0, 0), scale: { x: 2, y: 1, z: 1 } } }] };
+  TestValidator.equals("finite primitive and part scale pass scalar model admission", validateModel({ model: hugeScaled }).success, true);
+  TestValidator.equals("a finite core minimum cannot hide overflowed scaled outer coordinates", autoMovieModelColumns(hugeScaled).length, 0);
+  const hugeOuterInterval: IAutoMovieModel = { ...wide, parts: [{ ...wide.parts[0]!, geometry: { type: "primitive", shape: { type: "sphere", radius: 1e308 } }, transform: at(0, 1e308, 0) }] };
+  TestValidator.equals("finite sphere dimensions and base pass scalar model admission", validateModel({ model: hugeOuterInterval }).success, true);
+  TestValidator.equals("finite inscribed endpoints cannot hide an overflowed outer Y end", autoMovieModelColumns(hugeOuterInterval).length, 0);
+  for (const factor of [1 - 5e-7, 1 + 5e-7]) {
+    const rotation: IAutoMovieQuaternion = { x: 0, y: Math.SQRT1_2 * factor, z: 0, w: Math.SQRT1_2 * factor };
+    const gain: number = Math.hypot(1 - 2 * rotation.y * rotation.y, 2 * rotation.y * rotation.w);
+    const yawed: IAutoMovieModel = { ...wide, parts: [{ ...wide.parts[0]!, transform: { ...at(0, 0, 0), rotation } }] };
+    TestValidator.equals("near-unit axial part yaw passes current scalar admission", validateModel({ model: yawed }).success, true);
+    TestValidator.predicate("the admitted yaw matrix changes horizontal lengths", factor < 1 ? gain < 1 : gain > 1);
+    TestValidator.equals("a nonisometric axial part frame cannot certify its unchanged core", autoMovieModelColumns(yawed).length, 0);
+    const yawAncestor: IAutoMovieModel = { ...ancestorModel, skeleton: { ...ancestorModel.skeleton!, bones: [bone("hips", null, { ...at(0, 0, 0), rotation }), bone("spine", "hips", at(0, 0, 0))] } };
+    TestValidator.equals("near-unit axial ancestor yaw passes current scalar admission", validateModel({ model: yawAncestor }).success, true);
+    TestValidator.equals("a nonisometric ancestor omits its otherwise axial subtree", autoMovieModelColumns(yawAncestor).length, 0);
+  }
+  const halfTurn: IAutoMovieModel = { ...wide, parts: [{ ...wide.parts[0]!, transform: { ...at(0, 0, 0), rotation: { x: 0, y: 1, z: 0, w: 0 } } }] };
+  TestValidator.equals("an exact isometric half-turn remains admitted", validateModel({ model: halfTurn }).success, true);
+  const halfTurnColumns: IAutoMovieModelColumn[] = autoMovieModelColumns(halfTurn);
+  TestValidator.equals("an exact isometric half-turn preserves its column", halfTurnColumns.length, 1);
+  TestValidator.predicate("the preserved half-turn core keeps its polygon apothem", nclose(halfTurnColumns[0]!.radius, 0.4 * Math.cos(Math.PI / 16)));
+}

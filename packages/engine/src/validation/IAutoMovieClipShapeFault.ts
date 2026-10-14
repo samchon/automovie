@@ -1,23 +1,14 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
-
 /**
- * What a well-formed clip track IS, stated once for the two sides that must
- * never disagree about it (#1353).
+ * Represent a shared clip shape rule failure for sampler and artifact readers.
  *
- * `sampleClip` refuses a malformed track by THROWING (a track it cannot read is
- * an engine-level defect once every gate has run), while the artifact gate
- * refuses one by returning a located violation. Those are two failure modes of
- * one rule, and holding the rule twice is what let the gate learn a single one
- * of the sampler's checks: #1331 taught it strictly increasing times, and an
- * uneven `values` stride, an empty keyframe list, a wrong value width, an
- * unsupported interpolation, a non-triplet `cubicspline` stride, a non-boolean
- * `loop`, and an unknown node channel path all still validated clean,
- * committed, persisted, and threw out of the engine at playback.
- *
- * So the rule lives here as data, and each side formats it in its own voice:
- * the sampler prefixes the track's channel key and throws the first fault, the
- * gate appends every fault at `<track path>.<field>`.
- *
+ * @evidence contracts/common.md#principled-implementation Relative field, violation kind, message and offending value describe duration, loop or track faults; sampleClip throws its first fault while artifact validation locates and appends the applicable failures.
+ * @evidence contracts/common.md#clear-and-simple-design Fault data separates the shared arithmetic/shape rule from the two consumers' failure presentation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Dense shape faults carry a length or stride instead of echoing every sample, while value faults can retain an offending value; the type does not invent a successful playable track.
+ * @evidence contracts/common.md#meaningful-documentation Documents relative path joining, message use and diagnostic payload ownership without claiming every fault stores only a scalar.
+ * @evidence contracts/performance.md#efficient-algorithms Each fault has fixed fields but its value can retain a larger authored object; generating faults pays the shared track/timing scan cost.
+ * @evidence contracts/performance.md#reuse-equivalent-work Sampler and artifact gate consume the same fault owners, preventing duplicated shape policies without caching mutable track admission.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns each fault until consumed or discarded; an offending value can retain source data, with no playback task or host resource.
  * @author Samchon
  */
 export interface IAutoMovieClipShapeFault {
@@ -39,10 +30,8 @@ export interface IAutoMovieClipShapeFault {
   message: string;
 
   /**
-   * The offending value, for the violation record. A fault about a dense
-   * payload's SHAPE reports the quantity that offends (a length, a stride)
-   * rather than the payload: echoing hundreds of floats back spends the
-   * client's context to repeat what it just sent (#1362).
+   * Offending diagnostic data. Dense shape faults use a length or stride,
+   * while other faults can retain an authored value or empty array.
    */
   value: unknown;
 }

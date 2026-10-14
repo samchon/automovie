@@ -1,83 +1,57 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
+import { IAutoMovieVector3, IAutoMoviePlanarPoint } from "@automovie/interface";
 import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
+import { planarCross } from "../geometry/planarCross";
 import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
-import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
-import { footprintRing } from "./footprintRing";
-import { footprintRingPlacement } from "./footprintRingPlacement";
-
 /**
- * The footprint as convex pieces whose union is exactly the region.
+ * Produce convex pieces for the footprint's exact-region contract.
  *
- * Everything that has to sweep, clip or draw a footprint wants convex input:
- * lattice clipping is Sutherland–Hodgman, a fan is only a triangulation of a
- * convex ring, and a containment probe against a convex piece is four
- * comparisons. Handing those a hull was the original defect; handing them a
- * decomposition of the true region is the same code with the notch and the hole
- * still missing from it.
- *
- * A solid convex footprint is already one convex piece and comes back as its
- * own hull, which is both the minimal decomposition and byte-for-byte what this
- * region used to produce. Anything else is decomposed by a vertical slab sweep:
- * cut the plan at every vertex `x`, and inside each slab pair the ring
- * crossings by even-odd parity, so a hole is a pair of crossings that closes
- * the band rather than a case anybody has to name. A degenerate region yields
- * nothing.
- *
- * **A ring that crosses itself has no region, and this does not invent one.**
- * Both readings of such a footprint stay finite and deterministic — nothing
- * throws, nothing is `NaN` — but the pieces here and what
- * {@link footprintContains} answers need not describe the same shape, because
- * there is no shape for them to agree on. That is why `validateSpace` refuses a
- * self-crossing ring outright rather than leaving either reading to stand for
- * it.
+ * @evidence contracts/common.md#principled-implementation Region hygiene precedes a winding-aware convex-turn fast path or even-odd vertical slab sweep. Raw orientation signs preserve admitted concavity, and every distinct positive-width slab and nonidentical corner survives without a second feature-size tolerance.
+ * @evidence contracts/common.md#clear-and-simple-design The decomposition owner feeds surface clipping and support/anchor queries while the shared region gate owns topology admission; the original rings remain the region definition.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected regions return no pieces and a cached zero-area ring also yields none; callers must rebuild after mutation. No admitted band is dropped or notch filled to fit containment's separate rim tolerance, though binary64 cancellation or unrepresentable interior abscissae still limit extreme coordinates.
+ * @evidence contracts/common.md#meaningful-documentation States exact-region intent, hygiene refusal, positive plan winding and preservation of small admitted features; finite coordinates alone do not certify exact binary64 orientation or interpolation arithmetic.
+ * @evidence contracts/performance.md#efficient-algorithms For N vertices, hygiene is O(N^2), the convex-turn walk O(N), hull construction O(N log N), and the slab sweep scans/sorts crossings over up to N cuts in O(N^2 log N), with up to O(N^2) returned piece vertices.
+ * @evidence contracts/performance.md#reuse-equivalent-work One sorted cut population and each slab's sorted crossings serve all bands in that slab; source projections are reused but mutable region results are not cached.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned piece arrays; slab points are fresh, while the convex fast path retains original hull point references. Call-local rings, cuts and crossings leave scope without renderer handles.
+ * @author Samchon
  */
-export const footprintConvexPieces = (
+export const footprintConvexPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (
   footprint: IAutoMovieFootprint,
 ): IAutoMovieVector3[][] => {
-  const failure = autoMoviePlanarRegionFailure({
+  const failure: string | null = autoMoviePlanarRegionFailure({
     outer: footprint.outer.plan,
-    holes: footprint.holes.map((hole) => hole.plan),
+    holes: footprint.holes.map((hole: IAutoMovieFootprintRing): readonly IAutoMoviePlanarPoint[] => hole.plan),
     label: "footprint",
   });
   if (failure !== null) return [];
   if (footprint.outer.doubleArea === 0) return [];
-  if (footprint.holes.length === 0) {
-    const hull = convexHull2D(footprint.outer.points);
-    if (isConvexRing(footprint.outer, hull)) return [hull];
+  if (footprint.holes.length === 0 && isConvexRing(footprint.outer)) {
+    const hull: IAutoMovieVector3[] = convexHull2D(footprint.outer.points);
+    return [hull];
   }
   return slabPieces(footprint);
 };
 
-/**
- * Is the outer ring already convex, i.e. does every vertex sit on its own hull?
- *
- * This is the predicate `validateSpace` enforced while footprints had to be
- * convex, kept because it is still the question that decides whether a region
- * needs decomposing at all. For a simple ring it is exactly right: all vertices
- * on the hull and no crossing means the ring **is** the hull.
- *
- * A hull too small to enclose area holds no vertex on its boundary, so a
- * degenerate ring answers `false` without a case of its own.
- */
-const isConvexRing = (
+/** An admitted simple ring is convex when every nonzero turn follows its winding. */
+const isConvexRing: (ring: IAutoMovieFootprintRing) => boolean = (
   ring: IAutoMovieFootprintRing,
-  hull: readonly IAutoMovieVector3[],
 ): boolean => {
-  const onHull = footprintRing(hull);
-  return ring.points.every(
-    (point) => footprintRingPlacement(onHull, point.x, point.z) === "boundary",
-  );
+  for (let index: number = 0; index < ring.plan.length; ++index) {
+    const turn: number = planarCross(ring.plan[index]!, ring.plan[(index + 1) % ring.plan.length]!, ring.plan[(index + 2) % ring.plan.length]!);
+    if (ring.doubleArea > 0 ? turn < 0 : turn > 0) return false;
+  }
+  return true;
 };
 
 /** One ring edge crossing a slab, kept with the edge that produced it. */
 interface ISlabCrossing {
   /** Plan `z` where the edge crosses the slab's own mid-abscissa. */
   z: number;
+
   /** The crossing edge's start, in world XZ. */
   from: IAutoMovieVector3;
+
   /** The crossing edge's end, in world XZ. */
   to: IAutoMovieVector3;
 }
@@ -92,29 +66,29 @@ interface ISlabCrossing {
  * no separate treatment: its two rims are simply the crossings that close one
  * band and open the next.
  */
-const slabPieces = (footprint: IAutoMovieFootprint): IAutoMovieVector3[][] => {
-  const rings = [footprint.outer, ...footprint.holes];
-  const cuts = [
-    ...new Set(rings.flatMap((ring) => ring.points.map((point) => point.x))),
-  ].sort((left, right) => left - right);
+const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (footprint: IAutoMovieFootprint): IAutoMovieVector3[][] => {
+  const rings: IAutoMovieFootprintRing[] = [footprint.outer, ...footprint.holes];
+  const cuts: number[] = [
+    ...new Set(rings.flatMap((ring: IAutoMovieFootprintRing): number[] => ring.points.map((point: IAutoMovieVector3): number => point.x))),
+  ].sort((left: number, right: number): number => left - right);
   const pieces: IAutoMovieVector3[][] = [];
-  for (let index = 0; index + 1 < cuts.length; ++index) {
-    const left = cuts[index]!;
-    const right = cuts[index + 1]!;
-    if (right - left <= FOOTPRINT_EPSILON) continue;
-    const middle = (left + right) / 2;
+  for (let index: number = 0; index + 1 < cuts.length; ++index) {
+    const left: number = cuts[index]!;
+    const right: number = cuts[index + 1]!;
+    if (right <= left) continue;
+    const middle: number = left / 2 + right / 2;
     const crossings: ISlabCrossing[] = [];
     for (const ring of rings)
-      for (let edge = 0; edge < ring.points.length; ++edge) {
-        const from = ring.points[edge]!;
-        const to = ring.points[(edge + 1) % ring.points.length]!;
+      for (let edge: number = 0; edge < ring.points.length; ++edge) {
+        const from: IAutoMovieVector3 = ring.points[edge]!;
+        const to: IAutoMovieVector3 = ring.points[(edge + 1) % ring.points.length]!;
         if (Math.min(from.x, to.x) >= middle) continue;
         if (Math.max(from.x, to.x) <= middle) continue;
         crossings.push({ z: edgeZAt(from, to, middle), from, to });
       }
-    crossings.sort((a, b) => a.z - b.z);
-    for (let pair = 0; pair + 1 < crossings.length; pair += 2) {
-      const piece = slabPiece(
+    crossings.sort((a: ISlabCrossing, b: ISlabCrossing): number => a.z - b.z);
+    for (let pair: number = 0; pair + 1 < crossings.length; pair += 2) {
+      const piece: IAutoMovieVector3[] = slabPiece(
         crossings[pair]!,
         crossings[pair + 1]!,
         left,
@@ -126,12 +100,12 @@ const slabPieces = (footprint: IAutoMovieFootprint): IAutoMovieVector3[][] => {
   return pieces;
 };
 
-/** Plan `z` of the edge `from → to` at abscissa `x`, which the edge spans. */
-const edgeZAt = (
+/** Plan z of the edge from its first point to its second at abscissa x, which it spans. */
+const edgeZAt: (from: IAutoMovieVector3, to: IAutoMovieVector3, x: number) => number = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   x: number,
-): number => from.z + ((x - from.x) / (to.x - from.x)) * (to.z - from.z);
+): number => x === from.x ? from.z : x === to.x ? to.z : from.z + ((x - from.x) / (to.x - from.x)) * (to.z - from.z);
 
 /**
  * The trapezoid between two crossings over one slab, wound positively.
@@ -142,28 +116,28 @@ const edgeZAt = (
  * at both ends encloses nothing and comes back as the two points it is, which
  * the sweep drops.
  */
-const slabPiece = (
+const slabPiece: (lower: ISlabCrossing, upper: ISlabCrossing, left: number, right: number) => IAutoMovieVector3[] = (
   lower: ISlabCrossing,
   upper: ISlabCrossing,
   left: number,
   right: number,
 ): IAutoMovieVector3[] => {
-  const lowerLeft = { x: left, y: 0, z: edgeZAt(lower.from, lower.to, left) };
-  const lowerRight = {
+  const lowerLeft: { x: number; y: number; z: number; } = { x: left, y: 0, z: edgeZAt(lower.from, lower.to, left) };
+  const lowerRight: { x: number; y: number; z: number; } = {
     x: right,
     y: 0,
     z: edgeZAt(lower.from, lower.to, right),
   };
-  const upperRight = {
+  const upperRight: { x: number; y: number; z: number; } = {
     x: right,
     y: 0,
     z: edgeZAt(upper.from, upper.to, right),
   };
-  const upperLeft = { x: left, y: 0, z: edgeZAt(upper.from, upper.to, left) };
+  const upperLeft: { x: number; y: number; z: number; } = { x: left, y: 0, z: edgeZAt(upper.from, upper.to, left) };
   const piece: IAutoMovieVector3[] = [lowerLeft, lowerRight];
-  if (Math.abs(upperRight.z - lowerRight.z) > FOOTPRINT_EPSILON)
+  if (upperRight.z !== lowerRight.z)
     piece.push(upperRight);
-  if (Math.abs(upperLeft.z - lowerLeft.z) > FOOTPRINT_EPSILON)
+  if (upperLeft.z !== lowerLeft.z)
     piece.push(upperLeft);
   return piece;
 };

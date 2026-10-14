@@ -1,29 +1,23 @@
-import {
-  footprintArea,
-  footprintContains,
-  footprintConvexPieces,
-  footprintInteriorPoint,
-  footprintRing,
-  footprintRingPlacement,
-  heightAt,
-  isWalkable,
-  spaceGround,
-  supportContactsFor,
-  surfaceContains,
-  surfaceFootprint,
-} from "@automovie/engine";
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieSpace,
-  IAutoMovieSurface,
-} from "@automovie/interface";
+import { footprintArea } from "../../../../packages/engine/src/space/footprintArea";
+import { footprintContains } from "../../../../packages/engine/src/space/footprintContains";
+import { footprintConvexPieces } from "../../../../packages/engine/src/space/footprintConvexPieces";
+import { footprintInteriorPoint } from "../../../../packages/engine/src/space/footprintInteriorPoint";
+import { footprintRing } from "../../../../packages/engine/src/space/footprintRing";
+import { footprintRingPlacement } from "../../../../packages/engine/src/space/footprintRingPlacement";
+import { heightAt } from "../../../../packages/engine/src/space/heightAt";
+import { isWalkable } from "../../../../packages/engine/src/space/isWalkable";
+import { spaceGround } from "../../../../packages/engine/src/space/spaceGround";
+import { supportContactsFor } from "../../../../packages/engine/src/space/supportContactsFor";
+import { surfaceContains } from "../../../../packages/engine/src/space/surfaceContains";
+import { surfaceFootprint } from "../../../../packages/engine/src/space/surfaceFootprint";
+import { IAutoMovieBuiltEnvironment, IAutoMovieSpace, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
+import { autoMoviePlanarRegionFailure } from "../../../../packages/engine/src/geometry/autoMoviePlanarRegionFailure";
 import { assertFootprintVoidGeometry } from "../internal/assertFootprintVoidGeometry";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
-
-const v = (x: number, z: number, y = 0) => ({ x, y, z });
+import { IAutoMovieFootprint } from "../../../../packages/engine/src/space/IAutoMovieFootprint";
+const v: (x: number, z: number, y?: number) => { x: number; y: number; z: number; } = (x: number, z: number, y: number = 0): { x: number; y: number; z: number; } => ({ x, y, z });
 
 /** An 8x8 floor plate with a 4x4 atrium void cut through the middle of it. */
 const plate: IAutoMovieSurface = {
@@ -85,7 +79,7 @@ const relief: IAutoMovieSurface = {
 };
 
 /** A one-room building whose only support patch is the holed plate. */
-const gallery = (): IAutoMovieBuiltEnvironment => ({
+const gallery: () => IAutoMovieBuiltEnvironment = (): IAutoMovieBuiltEnvironment => ({
   version: 1,
   id: "gallery",
   units: "meter",
@@ -114,17 +108,17 @@ const gallery = (): IAutoMovieBuiltEnvironment => ({
   walkable: [plate.id],
 });
 
-const spaceOf = (surface: IAutoMovieSurface): IAutoMovieSpace => ({
+const spaceOf: (surface: IAutoMovieSurface) => IAutoMovieSpace = (surface: IAutoMovieSurface): IAutoMovieSpace => ({
   id: "set",
   surfaces: [surface],
   walkable: [surface.id],
 });
 
 /** Twice the plan area of one convex piece, by the shoelace formula. */
-const pieceArea = (
-  piece: ReturnType<typeof footprintConvexPieces>[number],
+const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
+  piece: readonly IAutoMovieVector3[],
 ): number =>
-  Math.abs(footprintRing(piece.map((p) => v(p.x, p.z))).doubleArea) / 2;
+  Math.abs(footprintRing(piece.map((p: IAutoMovieVector3): { x: number; y: number; z: number; } => v(p.x, p.z))).doubleArea) / 2;
 
 /**
  * A support patch is the region its own rings describe, notch and void
@@ -174,29 +168,40 @@ const pieceArea = (
  *     over the atrium bears on nothing while the same prop over an arm bears on
  *     the slab, a patch with no area is no face at all, and the take-off
  *     subtracts the void from the floor area somebody orders against.
- * 14. Two vertices a hair apart in plan produce no sliver band: the slab between
- *     them is thinner than the tolerance and is skipped, so the decomposition
- *     is still exactly the region rather than the region plus a piece whose own
- *     arithmetic divides by nearly nothing.
+ * 14. An admitted positive thin band survives decomposition. An independently
+ *     specified dyadic L has normalized area three in either winding, so a hull
+ *     replacement or dropped band cannot hide behind a broad absolute tolerance.
  * 15. A ring that crosses itself has no region to be decomposed into, and none is
  *     invented for it: both readings stay finite and deterministic, and
  *     validation refuses the ring rather than letting either of them stand for
  *     a shape nobody wrote.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Footprint membership, support/ground outputs, convex-piece area and emitted surface triangles exercise actual region readers and consumers; the dyadic thin L catches both hull-filled notches and dropped positive slabs.
+ * @evidence contracts/testing.md#independent-expectations Authored rectangles give plate area 64-16=48 and thin L area three times its binary-exact width. Shoelace sums check the actual decomposition, while downstream membership and emitted triangle probes establish the asserted local void cases rather than universal polygon exactness.
+ * @evidence contracts/testing.md#distinguishing-cases Holed and filled plates, concave L, both rims, ordinary convex input, zero-area and crossing rings, point-closing slabs, relief and supported/unsupported props preserve the existing cases; the admitted thin L and narrow band distinguish feature preservation from the separate containment rim tolerance.
+ * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_space_footprint_voids; this export owns its assertions and invokes assertFootprintVoidGeometry for the existing geometric/consumer cases. It neither installs a viewer nor proves GPU appearance or another OS.
  */
-export const test_space_footprint_voids = (): void => {
-  const holed = surfaceFootprint(plate);
-  const filled = surfaceFootprint(solid);
+export function test_space_footprint_voids(): void {
+  // An admitted dyadic L is three width-by-one rectangles. Normalize its area
+  // by width so a broad absolute tolerance cannot hide the positive feature.
+  const width: number = 2 ** -32;
+  const thin: IAutoMovieFootprint = surfaceFootprint({ ...ell, polygon: [v(0, 0), v(width, 0), v(width, 1), v(2 * width, 1), v(2 * width, 2), v(0, 2)] });
+  TestValidator.equals("thin positive L is admitted by canonical region hygiene", autoMoviePlanarRegionFailure({ outer: thin.outer.plan }), null);
+  const thinArea: number = footprintConvexPieces(thin).reduce((sum: number, piece: readonly IAutoMovieVector3[]): number => sum + pieceArea(piece), 0);
+  TestValidator.predicate(`convex pieces preserve the independently authored thin L area: measured ${thinArea / width}, expected 3`, nclose(thinArea / width, 3, 1e-12));
+  const holed: IAutoMovieFootprint = surfaceFootprint(plate);
+  const filled: IAutoMovieFootprint = surfaceFootprint(solid);
 
   TestValidator.equals(
     "a void in a plate is off the surface while its arms are on it",
     namedFacts([
-      ["inTheVoid", () => surfaceContains(plate, 4, 4) === false],
-      ["southArm", () => surfaceContains(plate, 4, 1)],
-      ["northArm", () => surfaceContains(plate, 4, 7)],
-      ["westArm", () => surfaceContains(plate, 1, 4)],
-      ["eastArm", () => surfaceContains(plate, 7, 4)],
-      ["beyondThePlate", () => surfaceContains(plate, 9, 4) === false],
-      ["voidCorner", () => surfaceContains(plate, 5.9, 5.9) === false],
+      ["inTheVoid", (): boolean => surfaceContains(plate, 4, 4) === false],
+      ["southArm", (): boolean => surfaceContains(plate, 4, 1)],
+      ["northArm", (): boolean => surfaceContains(plate, 4, 7)],
+      ["westArm", (): boolean => surfaceContains(plate, 1, 4)],
+      ["eastArm", (): boolean => surfaceContains(plate, 7, 4)],
+      ["beyondThePlate", (): boolean => surfaceContains(plate, 9, 4) === false],
+      ["voidCorner", (): boolean => surfaceContains(plate, 5.9, 5.9) === false],
     ]),
     {
       inTheVoid: true,
@@ -212,12 +217,12 @@ export const test_space_footprint_voids = (): void => {
   TestValidator.equals(
     "both rims belong to the slab, because the concrete reaches them",
     namedFacts([
-      ["onTheVoidRim", () => surfaceContains(plate, 2, 4)],
-      ["onTheVoidCorner", () => surfaceContains(plate, 6, 6)],
-      ["onTheOuterRim", () => surfaceContains(plate, 0, 4)],
+      ["onTheVoidRim", (): boolean => surfaceContains(plate, 2, 4)],
+      ["onTheVoidCorner", (): boolean => surfaceContains(plate, 6, 6)],
+      ["onTheOuterRim", (): boolean => surfaceContains(plate, 0, 4)],
       [
         "ringPlacementSaysBoundary",
-        () =>
+        (): boolean =>
           footprintRingPlacement(holed.holes[0]!, 2, 4) === "boundary" &&
           footprintRingPlacement(holed.holes[0]!, 4, 4) === "inside" &&
           footprintRingPlacement(holed.holes[0]!, 7, 4) === "outside",
@@ -234,13 +239,13 @@ export const test_space_footprint_voids = (): void => {
   TestValidator.equals(
     "without the void the same plate answers what the convex query answered",
     namedFacts([
-      ["theVoidsPlace", () => surfaceContains(solid, 4, 4)],
-      ["southArm", () => surfaceContains(solid, 4, 1)],
-      ["northArm", () => surfaceContains(solid, 4, 7)],
-      ["westArm", () => surfaceContains(solid, 1, 4)],
-      ["eastArm", () => surfaceContains(solid, 7, 4)],
-      ["beyondThePlate", () => surfaceContains(solid, 9, 4) === false],
-      ["onTheOuterRim", () => surfaceContains(solid, 0, 4)],
+      ["theVoidsPlace", (): boolean => surfaceContains(solid, 4, 4)],
+      ["southArm", (): boolean => surfaceContains(solid, 4, 1)],
+      ["northArm", (): boolean => surfaceContains(solid, 4, 7)],
+      ["westArm", (): boolean => surfaceContains(solid, 1, 4)],
+      ["eastArm", (): boolean => surfaceContains(solid, 7, 4)],
+      ["beyondThePlate", (): boolean => surfaceContains(solid, 9, 4) === false],
+      ["onTheOuterRim", (): boolean => surfaceContains(solid, 0, 4)],
     ]),
     {
       theVoidsPlace: true,
@@ -256,11 +261,11 @@ export const test_space_footprint_voids = (): void => {
   TestValidator.equals(
     "an L-shaped plate keeps its notch out and both arms in",
     namedFacts([
-      ["inTheNotch", () => surfaceContains(ell, 3, 3) === false],
-      ["longArm", () => surfaceContains(ell, 3, 1)],
-      ["shortArm", () => surfaceContains(ell, 1, 3)],
-      ["onTheInnerCorner", () => surfaceContains(ell, 2, 2)],
-      ["outside", () => surfaceContains(ell, 5, 5) === false],
+      ["inTheNotch", (): boolean => surfaceContains(ell, 3, 3) === false],
+      ["longArm", (): boolean => surfaceContains(ell, 3, 1)],
+      ["shortArm", (): boolean => surfaceContains(ell, 1, 3)],
+      ["onTheInnerCorner", (): boolean => surfaceContains(ell, 2, 2)],
+      ["outside", (): boolean => surfaceContains(ell, 5, 5) === false],
     ]),
     {
       inTheNotch: true,
@@ -271,22 +276,22 @@ export const test_space_footprint_voids = (): void => {
     },
   );
 
-  const holedSpace = spaceOf(plate);
+  const holedSpace: IAutoMovieSpace = spaceOf(plate);
   TestValidator.equals(
     "every query built on containment reads the void as nothing",
     namedFacts([
-      ["heightOverTheArm", () => heightAt(holedSpace, 4, 1) === 3],
-      ["heightOverTheVoid", () => heightAt(holedSpace, 4, 4) === null],
-      ["walkableOverTheArm", () => isWalkable(holedSpace, 4, 1)],
-      ["walkableOverTheVoid", () => isWalkable(holedSpace, 4, 4) === false],
+      ["heightOverTheArm", (): boolean => heightAt(holedSpace, 4, 1) === 3],
+      ["heightOverTheVoid", (): boolean => heightAt(holedSpace, 4, 4) === null],
+      ["walkableOverTheArm", (): boolean => isWalkable(holedSpace, 4, 1)],
+      ["walkableOverTheVoid", (): boolean => isWalkable(holedSpace, 4, 4) === false],
       [
         "onlyTheArmCornersSupport",
-        () =>
+        (): boolean =>
           supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
           2,
       ],
-      ["groundOverTheArm", () => spaceGround(holedSpace)(4, 1) === 3],
-      ["groundOverTheVoid", () => spaceGround(holedSpace, -1)(4, 4) === -1],
+      ["groundOverTheArm", (): boolean => spaceGround(holedSpace)(4, 1) === 3],
+      ["groundOverTheVoid", (): boolean => spaceGround(holedSpace, -1)(4, 4) === -1],
     ]),
     {
       heightOverTheArm: true,
@@ -302,48 +307,48 @@ export const test_space_footprint_voids = (): void => {
   TestValidator.equals(
     "the plate's plan area is its outer ring less the void",
     namedFacts([
-      ["holed", () => nclose(footprintArea(holed), 8 * 8 - 4 * 4)],
-      ["filled", () => nclose(footprintArea(filled), 8 * 8)],
+      ["holed", (): boolean => nclose(footprintArea(holed), 8 * 8 - 4 * 4)],
+      ["filled", (): boolean => nclose(footprintArea(filled), 8 * 8)],
     ]),
     { holed: true, filled: true },
   );
 
-  const holedPieces = footprintConvexPieces(holed);
-  const ellPieces = footprintConvexPieces(surfaceFootprint(ell));
+  const holedPieces: IAutoMovieVector3[][] = footprintConvexPieces(holed);
+  const ellPieces: IAutoMovieVector3[][] = footprintConvexPieces(surfaceFootprint(ell));
   TestValidator.equals(
     "the convex decomposition is exactly the region, no more and no less",
     namedFacts([
       [
         "holedPiecesSumToTheHoledArea",
-        () =>
+        (): boolean =>
           nclose(
-            holedPieces.reduce((sum, piece) => sum + pieceArea(piece), 0),
+            holedPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
             48,
           ),
       ],
       [
         "ellPiecesSumToTheEllArea",
-        () =>
+        (): boolean =>
           nclose(
-            ellPieces.reduce((sum, piece) => sum + pieceArea(piece), 0),
+            ellPieces.reduce((sum: number, piece: IAutoMovieVector3[]): number => sum + pieceArea(piece), 0),
             4 * 2 + 2 * 2,
           ),
       ],
       [
         "noPieceReachesIntoTheVoid",
-        () =>
+        (): boolean =>
           holedPieces.every(
-            (piece) =>
+            (piece: IAutoMovieVector3[]): boolean =>
               footprintContains(
                 holed,
-                piece.reduce((sum, point) => sum + point.x, 0) / piece.length,
-                piece.reduce((sum, point) => sum + point.z, 0) / piece.length,
+                piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.x, 0) / piece.length,
+                piece.reduce((sum: number, point: IAutoMovieVector3): number => sum + point.z, 0) / piece.length,
               ) === true,
           ),
       ],
       [
         "aConvexPatchIsOnePiece",
-        () => footprintConvexPieces(filled).length === 1,
+        (): boolean => footprintConvexPieces(filled).length === 1,
       ],
     ]),
     {
@@ -359,8 +364,8 @@ export const test_space_footprint_voids = (): void => {
     namedFacts([
       [
         "holedAnchorIsOnTheSlab",
-        () => {
-          const anchor = footprintInteriorPoint(holed);
+        (): boolean => {
+          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(holed);
           return (
             anchor !== null && footprintContains(holed, anchor.x, anchor.z)
           );
@@ -368,8 +373,8 @@ export const test_space_footprint_voids = (): void => {
       ],
       [
         "ellAnchorIsOutOfTheNotch",
-        () => {
-          const anchor = footprintInteriorPoint(surfaceFootprint(ell));
+        (): boolean => {
+          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(surfaceFootprint(ell));
           return (
             anchor !== null &&
             footprintContains(surfaceFootprint(ell), anchor.x, anchor.z)
@@ -378,14 +383,14 @@ export const test_space_footprint_voids = (): void => {
       ],
       [
         "aConvexPatchKeepsItsOwnCentre",
-        () => {
-          const anchor = footprintInteriorPoint(filled);
+        (): boolean => {
+          const anchor: { x: number; z: number; } | null = footprintInteriorPoint(filled);
           return anchor !== null && nclose(anchor.x, 4) && nclose(anchor.z, 4);
         },
       ],
       [
         "aRegionWithNoAreaHasNoAnchor",
-        () =>
+        (): boolean =>
           footprintInteriorPoint({
             outer: footprintRing([v(0, 0), v(1, 1), v(2, 2)]),
             holes: [],
