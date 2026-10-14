@@ -3,7 +3,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const bytes: (...values: number[]) => Uint8Array = (...values: number[]): Uint8Array => Uint8Array.from(values);
+const bytes: (...values: number[]) => Uint8Array = (
+  ...values: number[]
+): Uint8Array => Uint8Array.from(values);
 
 const beU32: (value: number) => number[] = (value: number): number[] => [
   (value >>> 24) & 0xff,
@@ -12,9 +14,15 @@ const beU32: (value: number) => number[] = (value: number): number[] => [
   value & 0xff,
 ];
 
-const beU16: (value: number) => number[] = (value: number): number[] => [(value >>> 8) & 0xff, value & 0xff];
+const beU16: (value: number) => number[] = (value: number): number[] => [
+  (value >>> 8) & 0xff,
+  value & 0xff,
+];
 
-const leU16: (value: number) => number[] = (value: number): number[] => [value & 0xff, (value >>> 8) & 0xff];
+const leU16: (value: number) => number[] = (value: number): number[] => [
+  value & 0xff,
+  (value >>> 8) & 0xff,
+];
 
 const leU24: (value: number) => number[] = (value: number): number[] => [
   value & 0xff,
@@ -25,10 +33,15 @@ const leU24: (value: number) => number[] = (value: number): number[] => [
 const chars: (text: string) => number[] = (text: string): number[] =>
   [...text].map((character: string): number => character.charCodeAt(0));
 
-const PNG_SIGNATURE: number[] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+const PNG_SIGNATURE: number[] = [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+];
 
 /** A minimal PNG: signature, IHDR length, IHDR tag, then the two edges. */
-const png: (width: number, height: number) => Uint8Array = (width: number, height: number): Uint8Array =>
+const png: (width: number, height: number) => Uint8Array = (
+  width: number,
+  height: number,
+): Uint8Array =>
   bytes(
     ...PNG_SIGNATURE,
     ...beU32(13),
@@ -41,7 +54,12 @@ const png: (width: number, height: number) => Uint8Array = (width: number, heigh
  * A JPEG carrying one preceding segment before its frame header, so the reader
  * must actually walk the segment chain rather than read a fixed offset.
  */
-const jpeg: (props: { width: number; height: number; marker?: number; lead?: number[] }) => Uint8Array = (props: {
+const jpeg: (props: {
+  width: number;
+  height: number;
+  marker?: number;
+  lead?: number[];
+}) => Uint8Array = (props: {
   width: number;
   height: number;
   marker?: number;
@@ -62,7 +80,10 @@ const jpeg: (props: { width: number; height: number; marker?: number; lead?: num
     0x00,
   );
 
-const webpLossy: (width: number, height: number) => Uint8Array = (width: number, height: number): Uint8Array =>
+const webpLossy: (width: number, height: number) => Uint8Array = (
+  width: number,
+  height: number,
+): Uint8Array =>
   bytes(
     ...chars("RIFF"),
     ...beU32(0),
@@ -79,7 +100,10 @@ const webpLossy: (width: number, height: number) => Uint8Array = (width: number,
     ...leU16(height),
   );
 
-const webpLossless: (width: number, height: number) => Uint8Array = (width: number, height: number): Uint8Array => {
+const webpLossless: (width: number, height: number) => Uint8Array = (
+  width: number,
+  height: number,
+): Uint8Array => {
   const packed: number = (width - 1) | ((height - 1) << 14);
   return bytes(
     ...chars("RIFF"),
@@ -96,7 +120,10 @@ const webpLossless: (width: number, height: number) => Uint8Array = (width: numb
   );
 };
 
-const webpExtended: (width: number, height: number) => Uint8Array = (width: number, height: number): Uint8Array =>
+const webpExtended: (width: number, height: number) => Uint8Array = (
+  width: number,
+  height: number,
+): Uint8Array =>
   bytes(
     ...chars("RIFF"),
     ...beU32(0),
@@ -111,7 +138,11 @@ const webpExtended: (width: number, height: number) => Uint8Array = (width: numb
     ...leU24(height - 1),
   );
 
-const hdr: (props: { signature?: string; header?: string; resolution?: string }) => Uint8Array = (props: {
+const hdr: (props: {
+  signature?: string;
+  header?: string;
+  resolution?: string;
+}) => Uint8Array = (props: {
   signature?: string;
   header?: string;
   resolution?: string;
@@ -193,11 +224,15 @@ export function test_validation_image_facts(): void {
     "malformed and non-image bytes are reported rather than guessed",
     namedFacts([
       ["nullBytes", (): boolean => readAutoMovieImageFacts(null) === null],
-      ["undefinedBytes", (): boolean => readAutoMovieImageFacts(undefined) === null],
+      [
+        "undefinedBytes",
+        (): boolean => readAutoMovieImageFacts(undefined) === null,
+      ],
       ["empty", (): boolean => readAutoMovieImageFacts(bytes()) === null],
       [
         "pngShort",
-        (): boolean => readAutoMovieImageFacts(png(4, 4).subarray(0, 23)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(png(4, 4).subarray(0, 23)) === null,
       ],
       [
         "pngSignature",
@@ -217,15 +252,18 @@ export function test_validation_image_facts(): void {
       ],
       [
         "jpegSoiOnly",
-        (): boolean => readAutoMovieImageFacts(bytes(0xff, 0xd8, 0x00, 0x00)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0x00, 0x00)) === null,
       ],
       [
         "jpegUnterminatedFill",
-        (): boolean => readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xff)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xff)) === null,
       ],
       [
         "jpegNoLengthWord",
-        (): boolean => readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xe0)) === null,
       ],
       [
         "jpegShortLength",
@@ -278,11 +316,13 @@ export function test_validation_image_facts(): void {
       ],
       [
         "jpegEndOfImage",
-        (): boolean => readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xd9)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(bytes(0xff, 0xd8, 0xff, 0xd9)) === null,
       ],
       [
         "webpShort",
-        (): boolean => readAutoMovieImageFacts(webpLossy(4, 4).subarray(0, 29)) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(webpLossy(4, 4).subarray(0, 29)) === null,
       ],
       [
         "webpRiff",
@@ -326,7 +366,8 @@ export function test_validation_image_facts(): void {
       ],
       [
         "hdrSignature",
-        (): boolean => readAutoMovieImageFacts(hdr({ signature: "#?HDR" })) === null,
+        (): boolean =>
+          readAutoMovieImageFacts(hdr({ signature: "#?HDR" })) === null,
       ],
       [
         "hdrNoBlankLine",

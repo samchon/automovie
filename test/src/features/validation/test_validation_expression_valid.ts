@@ -1,6 +1,6 @@
 import { validateExpressionResult } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { IAutoMovieValidation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { makeExpression } from "../internal/fixtures";
 

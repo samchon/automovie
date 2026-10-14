@@ -1,16 +1,20 @@
 import { validateGroundContact } from "@automovie/engine";
 import {
+  IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
-  IAutoMovieKeyframe,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { validationHasWarning } from "../internal/predicates";
 
-const t: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const t: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -25,22 +29,26 @@ const skeleton: IAutoMovieSkeleton = {
 };
 
 /** Root slides x 0 → 1 over one second at a constant height. */
-const slide: (footY: number) => IAutoMovieMotion = (footY: number): IAutoMovieMotion => ({
+const slide: (footY: number) => IAutoMovieMotion = (
+  footY: number,
+): IAutoMovieMotion => ({
   id: "slide",
   skeleton: "walker",
   duration: 1,
   loop: false,
-  keyframes: [0, 1].map((time: number): IAutoMovieKeyframe => ({
-    time,
-    pose: {
-      skeleton: "walker",
-      root: t(time, footY, 0),
-      joints: [],
-    },
-    expression: null,
-    easing: "linear" as const,
-    bezier: null,
-  })),
+  keyframes: [0, 1].map(
+    (time: number): IAutoMovieKeyframe => ({
+      time,
+      pose: {
+        skeleton: "walker",
+        root: t(time, footY, 0),
+        joints: [],
+      },
+      expression: null,
+      easing: "linear" as const,
+      bezier: null,
+    }),
+  ),
 });
 
 /** Ground rises with x: h(x) = 0.5·x. */

@@ -1,12 +1,12 @@
 import { validateBalanceSupport } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,13 +19,20 @@ import {
   validationHasWarning,
 } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const skeleton: (centerX: number, centerZ: number) => IAutoMovieSkeleton = (centerX: number, centerZ: number): IAutoMovieSkeleton => ({
+const skeleton: (centerX: number, centerZ: number) => IAutoMovieSkeleton = (
+  centerX: number,
+  centerZ: number,
+): IAutoMovieSkeleton => ({
   id: `balance-${centerX}-${centerZ}`,
   bones: [
     { bone: "hips", parent: null, rest: restAt(0, 1, 0), constraint: null },
@@ -68,13 +75,18 @@ const root: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const pose: (target: IAutoMovieSkeleton) => IAutoMoviePose = (target: IAutoMovieSkeleton): IAutoMoviePose => ({
+const pose: (target: IAutoMovieSkeleton) => IAutoMoviePose = (
+  target: IAutoMovieSkeleton,
+): IAutoMoviePose => ({
   skeleton: target.id,
   root: root(),
   joints: [],
 });
 
-const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (target: IAutoMovieSkeleton, time: number): IAutoMovieKeyframe => ({
+const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (
+  target: IAutoMovieSkeleton,
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(target),
   expression: null,
@@ -82,8 +94,9 @@ const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (t
   bezier: null,
 });
 
-const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (target: IAutoMovieSkeleton): IAutoMovieMotion =>
-  makeMotion([key(target, 0), key(target, 1)], 1);
+const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
+  target: IAutoMovieSkeleton,
+): IAutoMovieMotion => makeMotion([key(target, 0), key(target, 1)], 1);
 
 /**
  * `validateBalanceSupport` pins the balance heuristic: callers declare a
@@ -139,7 +152,10 @@ export function test_validation_balance_support(): void {
   );
   const first: IAutoMovieConstraintViolation | undefined | null =
     rejected.success === true
-      ? (rejected.warnings ?? []).find((v: IAutoMovieConstraintViolation): boolean => v.path.includes("samples[0]"))
+      ? (rejected.warnings ?? []).find(
+          (v: IAutoMovieConstraintViolation): boolean =>
+            v.path.includes("samples[0]"),
+        )
       : null;
   TestValidator.equals(
     "balance support overshoot",
@@ -147,7 +163,8 @@ export function test_validation_balance_support(): void {
       ["firstKindPhysics", (): boolean => first?.kind === "physics"],
       [
         "ncloseFirstOvershoot",
-        (): boolean => first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.25),
+        (): boolean =>
+          first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.25),
       ],
     ]),
     { firstKindPhysics: true, ncloseFirstOvershoot: true },

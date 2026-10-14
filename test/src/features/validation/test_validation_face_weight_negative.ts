@@ -1,6 +1,9 @@
 import { validateFaceResult } from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 
 import { makeFace } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
@@ -17,7 +20,9 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns one local face document and reads actual validation output, without constructing Human geometry or starting a host.
  */
 export function test_validation_face_weight_negative(): void {
-  const result: IAutoMovieValidation = validateFaceResult(makeFace({ jaw: { width: -2.1 } }));
+  const result: IAutoMovieValidation = validateFaceResult(
+    makeFace({ jaw: { width: -2.1 } }),
+  );
   TestValidator.equals("below-range weight fails", result.success, false);
   TestValidator.equals(
     "range violation on the field",
@@ -28,7 +33,8 @@ export function test_validation_face_weight_negative(): void {
         (): boolean =>
           result.success === false &&
           result.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".jaw.width"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "range" && v.path.includes(".jaw.width"),
           ),
       ],
     ]),

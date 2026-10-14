@@ -1,11 +1,11 @@
 import { validateGroundContact } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
-  IAutoMovieConstraintViolation,
-  IAutoMovieMotion,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -18,7 +18,11 @@ import {
   validationHasWarning,
 } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -62,20 +66,26 @@ const detached: IAutoMovieSkeleton = {
   ],
 };
 
-const pose: (skeletonId: string) => IAutoMoviePose = (skeletonId: string): IAutoMoviePose => ({
+const pose: (skeletonId: string) => IAutoMoviePose = (
+  skeletonId: string,
+): IAutoMoviePose => ({
   skeleton: skeletonId,
   root: restAt(0, 0, 0),
   joints: [],
 });
-const key: (skeletonId: string, time: number) => IAutoMovieKeyframe = (skeletonId: string, time: number): IAutoMovieKeyframe => ({
+const key: (skeletonId: string, time: number) => IAutoMovieKeyframe = (
+  skeletonId: string,
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(skeletonId),
   expression: null,
   easing: "linear",
   bezier: null,
 });
-const still: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (target: IAutoMovieSkeleton): IAutoMovieMotion =>
-  makeMotion([key(target.id, 0), key(target.id, 1)], 1);
+const still: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
+  target: IAutoMovieSkeleton,
+): IAutoMovieMotion => makeMotion([key(target.id, 0), key(target.id, 1)], 1);
 
 /**
  * A configured body capsule receives ground-penetration advice from its endpoint heights and radius; detached endpoints fail admission rather than disappearing from FK.
@@ -178,7 +188,9 @@ export function test_validation_ground_contact_capsule(): void {
         "badViolationsV",
         (): boolean =>
           bad.success === false &&
-          bad.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          bad.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     { badSuccess: true, hasViolationBadType: true, badViolationsV: true },

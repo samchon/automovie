@@ -1,8 +1,23 @@
-import { validateShotArtifact } from "../../../../packages/engine/src/validation/validateShotArtifact";
-import { IAutoMovieScene, IAutoMovieShot, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { validateShotArtifact } from "../../../../packages/engine/src/validation/validateShotArtifact";
 import { namedFacts } from "../internal/predicates";
-const transform: () => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
+
+const transform: () => {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = (): {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -45,7 +60,9 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
   }) as unknown as IAutoMovieScene;
 
 /** A shot carrying exactly one light-motion track, so a case reports only it. */
-const shot: (track: Record<string, unknown>) => IAutoMovieShot = (track: Record<string, unknown>): IAutoMovieShot =>
+const shot: (track: Record<string, unknown>) => IAutoMovieShot = (
+  track: Record<string, unknown>,
+): IAutoMovieShot =>
   ({
     id: "opening",
     scene: "sc",
@@ -68,7 +85,13 @@ const shot: (track: Record<string, unknown>) => IAutoMovieShot = (track: Record<
     ],
   }) as unknown as IAutoMovieShot;
 
-const track: (pointer: string, valueType: string, times: unknown[], values: unknown[], interpolation?: string) => Record<string, unknown> = (
+const track: (
+  pointer: string,
+  valueType: string,
+  times: unknown[],
+  values: unknown[],
+  interpolation?: string,
+) => Record<string, unknown> = (
   pointer: string,
   valueType: string,
   times: unknown[],
@@ -81,31 +104,42 @@ const track: (pointer: string, valueType: string, times: unknown[], values: unkn
   interpolation,
 });
 
-const verdict: (one: Record<string, unknown>) => IAutoMovieValidation = (one: Record<string, unknown>): IAutoMovieValidation =>
-  validateShotArtifact(shot(one), scene(), null);
+const verdict: (one: Record<string, unknown>) => IAutoMovieValidation = (
+  one: Record<string, unknown>,
+): IAutoMovieValidation => validateShotArtifact(shot(one), scene(), null);
 
 /** Whether any violation's path starts with `prefix`. */
-const reportsAt: (one: Record<string, unknown>, prefix: string) => boolean = (one: Record<string, unknown>, prefix: string): boolean => {
+const reportsAt: (one: Record<string, unknown>, prefix: string) => boolean = (
+  one: Record<string, unknown>,
+  prefix: string,
+): boolean => {
   const validation: IAutoMovieValidation = verdict(one);
   return (
     validation.success === false &&
-    validation.violations.some((entry: IAutoMovieConstraintViolation): boolean => entry.path.startsWith(prefix))
-  );
-};
-
-/** Whether any violation's message mentions the joint unit-quaternion rule. */
-const reportsNonUnit: (one: Record<string, unknown>) => boolean = (one: Record<string, unknown>): boolean => {
-  const validation: IAutoMovieValidation = verdict(one);
-  return (
-    validation.success === false &&
-    validation.violations.some((entry: IAutoMovieConstraintViolation): boolean =>
-      entry.expected.includes("unit quaternion"),
+    validation.violations.some(
+      (entry: IAutoMovieConstraintViolation): boolean =>
+        entry.path.startsWith(prefix),
     )
   );
 };
 
-const accepts: (one: Record<string, unknown>) => boolean = (one: Record<string, unknown>): boolean =>
-  verdict(one).success === true;
+/** Whether any violation's message mentions the joint unit-quaternion rule. */
+const reportsNonUnit: (one: Record<string, unknown>) => boolean = (
+  one: Record<string, unknown>,
+): boolean => {
+  const validation: IAutoMovieValidation = verdict(one);
+  return (
+    validation.success === false &&
+    validation.violations.some(
+      (entry: IAutoMovieConstraintViolation): boolean =>
+        entry.expected.includes("unit quaternion"),
+    )
+  );
+};
+
+const accepts: (one: Record<string, unknown>) => boolean = (
+  one: Record<string, unknown>,
+): boolean => verdict(one).success === true;
 
 /** A quarter turn about Y, the unit quaternion a swinging light is keyed with. */
 const QUARTER_TURN: number[] = [0, Math.SQRT1_2, 0, Math.SQRT1_2];
@@ -452,6 +486,29 @@ export function test_validation_light_transform_bounds(): void {
     },
   );
   const tiny: number = 2 ** -45;
-  TestValidator.predicate("tiny nonzero cubic dip cannot be discarded by an absolute derivative floor", reportsAt(track("/lights/key/intensity", "scalar", [0, 1], [0, 0, -tiny, tiny, 0, 0], "cubicspline"), "$input.lightMotions[0].tracks[0].values"));
-  TestValidator.predicate("opposite tiny tangents keep nonnegative intensity admitted", accepts(track("/lights/key/intensity", "scalar", [0, 1], [0, 0, tiny, -tiny, 0, 0], "cubicspline")));
+  TestValidator.predicate(
+    "tiny nonzero cubic dip cannot be discarded by an absolute derivative floor",
+    reportsAt(
+      track(
+        "/lights/key/intensity",
+        "scalar",
+        [0, 1],
+        [0, 0, -tiny, tiny, 0, 0],
+        "cubicspline",
+      ),
+      "$input.lightMotions[0].tracks[0].values",
+    ),
+  );
+  TestValidator.predicate(
+    "opposite tiny tangents keep nonnegative intensity admitted",
+    accepts(
+      track(
+        "/lights/key/intensity",
+        "scalar",
+        [0, 1],
+        [0, 0, tiny, -tiny, 0, 0],
+        "cubicspline",
+      ),
+    ),
+  );
 }

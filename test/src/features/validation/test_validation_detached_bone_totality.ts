@@ -1,25 +1,29 @@
 import {
-  detectBodyCollision,
   IAutoMovieBodyCollisionResult,
   IAutoMovieCollisionActor,
+  detectBodyCollision,
   validateBalanceSupport,
   validateFootSkate,
   validateSelfIntersection,
 } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
-  IAutoMovieConstraintViolation,
-  IAutoMovieValidation,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -49,7 +53,9 @@ const restPose: IAutoMoviePose = {
   root: null,
   joints: [],
 };
-const key: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const key: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: restPose,
   expression: null,
@@ -109,7 +115,9 @@ export function test_validation_detached_bone_totality(): void {
         "footViolationsV",
         (): boolean =>
           foot.success === false &&
-          foot.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          foot.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     { hasViolationFootType: true, footSuccess: true, footViolationsV: true },
@@ -135,7 +143,9 @@ export function test_validation_detached_bone_totality(): void {
         "centerViolationsV",
         (): boolean =>
           center.success === false &&
-          center.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          center.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -158,14 +168,17 @@ export function test_validation_detached_bone_totality(): void {
     namedFacts([
       [
         "hasViolationSupportType",
-        (): boolean => hasViolation(support, "type", "supports[0].supportBones"),
+        (): boolean =>
+          hasViolation(support, "type", "supports[0].supportBones"),
       ],
       ["supportSuccess", (): boolean => support.success === false],
       [
         "supportViolationsV",
         (): boolean =>
           support.success === false &&
-          support.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          support.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -203,7 +216,9 @@ export function test_validation_detached_bone_totality(): void {
         "capsuleViolationsV",
         (): boolean =>
           capsule.success === false &&
-          capsule.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          capsule.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     {
@@ -216,24 +231,31 @@ export function test_validation_detached_bone_totality(): void {
 
   // body collision: a detached endpoint on either actor reports, does not
   // crash, and sampling is skipped (#1056).
-  const actor: (node: string) => IAutoMovieCollisionActor = (node: string): IAutoMovieCollisionActor => ({
+  const actor: (node: string) => IAutoMovieCollisionActor = (
+    node: string,
+  ): IAutoMovieCollisionActor => ({
     node,
     skeleton: DETACHED_SKELETON,
     motion: MOTION,
     capsules: [{ from: "hips" as const, to: "leftFoot" as const, radius: 0.1 }],
     body: null,
   });
-  const collision: IAutoMovieBodyCollisionResult = detectBodyCollision({ a: actor("a"), b: actor("b") });
+  const collision: IAutoMovieBodyCollisionResult = detectBodyCollision({
+    a: actor("a"),
+    b: actor("b"),
+  });
   TestValidator.equals(
     "body collision: detached capsule endpoint is a reachability violation, not a crash",
     namedFacts([
       [
         "hasViolationCollisionValidation",
-        (): boolean => hasViolation(collision.validation, "type", "a.capsules[0].to"),
+        (): boolean =>
+          hasViolation(collision.validation, "type", "a.capsules[0].to"),
       ],
       [
         "hasViolationCollisionValidation2",
-        (): boolean => hasViolation(collision.validation, "type", "b.capsules[0].to"),
+        (): boolean =>
+          hasViolation(collision.validation, "type", "b.capsules[0].to"),
       ],
       [
         "collisionValidationSuccess",
@@ -266,13 +288,17 @@ export function test_validation_detached_bone_totality(): void {
         "absentViolationsV",
         (): boolean =>
           absent.success === false &&
-          absent.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("must exist")),
+          absent.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("must exist"),
+          ),
       ],
       [
         "absentViolationsV2",
         (): boolean =>
           absent.success === false &&
-          !absent.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("not reachable")),
+          !absent.violations.some((v: IAutoMovieConstraintViolation): boolean =>
+            v.expected.includes("not reachable"),
+          ),
       ],
     ]),
     { absentSuccess: true, absentViolationsV: true, absentViolationsV2: true },

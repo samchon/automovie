@@ -1,12 +1,22 @@
-import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
-import { validateClipArtifact } from "../../../../packages/engine/src/validation/validateClipArtifact";
-import { channelValueWidth } from "../../../../packages/engine/src/validation/channelValueWidth";
-import { IAutoMovieClip, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
+
 import { IAutoMovieSampledChannel } from "../../../../packages/engine/src/resolve/IAutoMovieSampledChannel";
-const clip: (over?: { track?: Record<string, unknown> | undefined; } & Record<string, unknown>) => unknown = (
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { channelValueWidth } from "../../../../packages/engine/src/validation/channelValueWidth";
+import { validateClipArtifact } from "../../../../packages/engine/src/validation/validateClipArtifact";
+import { namedFacts, throwsError } from "../internal/predicates";
+import { withoutArraySlot } from "../internal/withoutArraySlot";
+
+const clip: (
+  over?: { track?: Record<string, unknown> | undefined } & Record<
+    string,
+    unknown
+  >,
+) => unknown = (
   over: { track?: Record<string, unknown> } & Record<string, unknown> = {},
 ): unknown => {
   const { track: trackOver, ...rest }: typeof over = over;
@@ -28,34 +38,59 @@ const clip: (over?: { track?: Record<string, unknown> | undefined; } & Record<st
   };
 };
 
-const track: (over: Record<string, unknown>) => unknown = (over: Record<string, unknown>): unknown => clip({ track: over });
+const track: (over: Record<string, unknown>) => unknown = (
+  over: Record<string, unknown>,
+): unknown => clip({ track: over });
 
-const gate: (value: unknown) => IAutoMovieConstraintViolation[] = (value: unknown): IAutoMovieConstraintViolation[] => {
+const gate: (value: unknown) => IAutoMovieConstraintViolation[] = (
+  value: unknown,
+): IAutoMovieConstraintViolation[] => {
   const violations: IAutoMovieConstraintViolation[] = [];
   validateClipArtifact(value, "$input.clip", violations);
   return violations;
 };
 
 /** The gate reports this fault at exactly this path, in these words. */
-const refusedAt: (value: unknown, path: string, fragment: string) => boolean = (value: unknown, path: string, fragment: string): boolean =>
-  gate(value).some((v: IAutoMovieConstraintViolation): boolean => v.path === path && v.expected.includes(fragment));
+const refusedAt: (value: unknown, path: string, fragment: string) => boolean = (
+  value: unknown,
+  path: string,
+  fragment: string,
+): boolean =>
+  gate(value).some(
+    (v: IAutoMovieConstraintViolation): boolean =>
+      v.path === path && v.expected.includes(fragment),
+  );
 
 /**
  * The sampler refuses the same clip, by throwing. The fragment is optional
  * because a channel too malformed to carry a discriminator faults inside the
  * key builder, whose wording is not this contract's to state.
  */
-const samplerThrows: (value: unknown, fragment?: string) => boolean = (value: unknown, fragment: string = ""): boolean =>
-  throwsError((): Map<string, IAutoMovieSampledChannel> => sampleClip(value as IAutoMovieClip, 0), fragment);
+const samplerThrows: (value: unknown, fragment?: string) => boolean = (
+  value: unknown,
+  fragment: string = "",
+): boolean =>
+  throwsError(
+    (): Map<string, IAutoMovieSampledChannel> =>
+      sampleClip(value as IAutoMovieClip, 0),
+    fragment,
+  );
 
 /** One rule, both sides: a located violation here, a throw there. */
-const bothRefuse: (value: unknown, path: string, fragment: string) => boolean = (value: unknown, path: string, fragment: string): boolean =>
+const bothRefuse: (
+  value: unknown,
+  path: string,
+  fragment: string,
+) => boolean = (value: unknown, path: string, fragment: string): boolean =>
   refusedAt(value, path, fragment) && samplerThrows(value, fragment);
 
 /** The gate accepts it and the sampler reads it: the counter-case per rule. */
 const bothAccept: (value: unknown) => boolean = (value: unknown): boolean =>
   gate(value).length === 0 &&
-  !throwsError((): Map<string, IAutoMovieSampledChannel> => sampleClip(value as IAutoMovieClip, 0.5));
+  !throwsError(
+    (): Map<string, IAutoMovieSampledChannel> =>
+      sampleClip(value as IAutoMovieClip, 0.5),
+  );
 
 /**
  * The clip track has ONE shape contract, and the artifact gate and the sampler
@@ -107,12 +142,39 @@ const bothAccept: (value: unknown) => boolean = (value: unknown): boolean =>
 export function test_validation_clip_shape_contract(): void {
   const sparseTimes: number[] = withoutArraySlot([0, 1], 1);
   const sparseValues: number[] = withoutArraySlot([0, 0, 0, 1, 1, 1], 4);
-  TestValidator.predicate("a missing resident clock slot refuses on both sides", bothRefuse(track({ times: sparseTimes }), "$input.clip.tracks[0].times[1]", "must be finite"));
-  TestValidator.predicate("a missing resident value slot refuses on both sides", bothRefuse(track({ values: sparseValues }), "$input.clip.tracks[0].values[4]", "must be finite"));
-  TestValidator.predicate("the dense translation twin remains readable", bothAccept(track({})));
+  TestValidator.predicate(
+    "a missing resident clock slot refuses on both sides",
+    bothRefuse(
+      track({ times: sparseTimes }),
+      "$input.clip.tracks[0].times[1]",
+      "must be finite",
+    ),
+  );
+  TestValidator.predicate(
+    "a missing resident value slot refuses on both sides",
+    bothRefuse(
+      track({ values: sparseValues }),
+      "$input.clip.tracks[0].values[4]",
+      "must be finite",
+    ),
+  );
+  TestValidator.predicate(
+    "the dense translation twin remains readable",
+    bothAccept(track({})),
+  );
   const sparseTracks: unknown[] = new Array<unknown>(1);
-  TestValidator.predicate("a missing resident track reports its exact path without escaping", refusedAt(clip({ tracks: sparseTracks }), "$input.clip.tracks[0]", "JSON object"));
-  TestValidator.predicate("the sampler refuses the same missing track", samplerThrows(clip({ tracks: sparseTracks })));
+  TestValidator.predicate(
+    "a missing resident track reports its exact path without escaping",
+    refusedAt(
+      clip({ tracks: sparseTracks }),
+      "$input.clip.tracks[0]",
+      "JSON object",
+    ),
+  );
+  TestValidator.predicate(
+    "the sampler refuses the same missing track",
+    samplerThrows(clip({ tracks: sparseTracks })),
+  );
   // 1. the keyframe payload, rule by rule
   TestValidator.predicate(
     "an uneven value stride refuses on both sides",
@@ -287,7 +349,10 @@ export function test_validation_clip_shape_contract(): void {
   );
 
   // 5. the deliberate asymmetry: the gate is stricter about duration
-  const zero: unknown = clip({ duration: 0, track: { times: [0], values: [0, 0, 0] } });
+  const zero: unknown = clip({
+    duration: 0,
+    track: { times: [0], values: [0, 0, 0] },
+  });
   TestValidator.equals(
     "a zero-length clip is refused by the gate and tolerated by the sampler",
     namedFacts([
@@ -297,7 +362,11 @@ export function test_validation_clip_shape_contract(): void {
       ],
       [
         "throwsErrorSampleClipZero",
-        (): boolean => !throwsError((): Map<string, IAutoMovieSampledChannel> => sampleClip(zero as IAutoMovieClip, 5)),
+        (): boolean =>
+          !throwsError(
+            (): Map<string, IAutoMovieSampledChannel> =>
+              sampleClip(zero as IAutoMovieClip, 5),
+          ),
       ],
     ]),
     { refusedAtZero$input: true, throwsErrorSampleClipZero: true },
@@ -318,7 +387,8 @@ export function test_validation_clip_shape_contract(): void {
       ],
       [
         "samplerThrowsTrackChannel",
-        (): boolean => samplerThrows(track({ channel: 7 }), "unknown channel kind"),
+        (): boolean =>
+          samplerThrows(track({ channel: 7 }), "unknown channel kind"),
       ],
     ]),
     { refusedAtTrackChannel: true, samplerThrowsTrackChannel: true },
@@ -365,13 +435,21 @@ export function test_validation_clip_shape_contract(): void {
     ]),
     { refusedAtTrackChannel: true, samplerThrowsTrackChannel: true },
   );
-  TestValidator.equals("only own fixed-width keys supply a numeric width", [
-    channelValueWidth({ kind: "node", path: "translation" }),
-    channelValueWidth({ kind: "node", path: "weights" }),
-    channelValueWidth({ kind: "node", path: "constructor" }),
-    channelValueWidth({ kind: "node", path: "__proto__" }),
-    channelValueWidth({ kind: "pointer", valueType: "quaternion" }),
-    channelValueWidth({ kind: "pointer", valueType: "constructor" }),
-  ], [3, undefined, undefined, undefined, 4, undefined]);
-  TestValidator.equals("a nonstring width key is rejected without coercion", channelValueWidth({ kind: "pointer", valueType: Object.create(null) }), undefined);
+  TestValidator.equals(
+    "only own fixed-width keys supply a numeric width",
+    [
+      channelValueWidth({ kind: "node", path: "translation" }),
+      channelValueWidth({ kind: "node", path: "weights" }),
+      channelValueWidth({ kind: "node", path: "constructor" }),
+      channelValueWidth({ kind: "node", path: "__proto__" }),
+      channelValueWidth({ kind: "pointer", valueType: "quaternion" }),
+      channelValueWidth({ kind: "pointer", valueType: "constructor" }),
+    ],
+    [3, undefined, undefined, undefined, 4, undefined],
+  );
+  TestValidator.equals(
+    "a nonstring width key is rejected without coercion",
+    channelValueWidth({ kind: "pointer", valueType: Object.create(null) }),
+    undefined,
+  );
 }

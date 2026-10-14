@@ -1,11 +1,11 @@
 import { validateFootSkate } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
-  IAutoMovieConstraintViolation,
-  IAutoMovieMotion,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -20,7 +20,11 @@ import {
   violationCount,
 } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -51,19 +55,29 @@ const SKELETON: IAutoMovieSkeleton = {
   ],
 };
 
-const root: (x: number, z: number) => IAutoMovieTransform = (x: number, z: number): IAutoMovieTransform => ({
+const root: (x: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const pose: (x: number, z: number) => IAutoMoviePose = (x: number, z: number): IAutoMoviePose => ({
+const pose: (x: number, z: number) => IAutoMoviePose = (
+  x: number,
+  z: number,
+): IAutoMoviePose => ({
   skeleton: SKELETON.id,
   root: root(x, z),
   joints: [],
 });
 
-const key: (time: number, x: number, z: number) => IAutoMovieKeyframe = (time: number, x: number, z: number): IAutoMovieKeyframe => ({
+const key: (time: number, x: number, z: number) => IAutoMovieKeyframe = (
+  time: number,
+  x: number,
+  z: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(x, z),
   expression: null,
@@ -115,7 +129,10 @@ export function test_validation_foot_skate(): void {
   );
   const first: IAutoMovieConstraintViolation | null | undefined =
     rejected.success === true
-      ? (rejected.warnings ?? []).find((v: IAutoMovieConstraintViolation): boolean => v.path.includes("samples[1]"))
+      ? (rejected.warnings ?? []).find(
+          (v: IAutoMovieConstraintViolation): boolean =>
+            v.path.includes("samples[1]"),
+        )
       : null;
   TestValidator.equals(
     "foot skate overshoot",
@@ -123,7 +140,8 @@ export function test_validation_foot_skate(): void {
       ["firstKindPhysics", (): boolean => first?.kind === "physics"],
       [
         "ncloseFirstOvershoot",
-        (): boolean => first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.15),
+        (): boolean =>
+          first?.kind === "physics" && nclose(first.overshoot ?? -1, 0.15),
       ],
     ]),
     { firstKindPhysics: true, ncloseFirstOvershoot: true },

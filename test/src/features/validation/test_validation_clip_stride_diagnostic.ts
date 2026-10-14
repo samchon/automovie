@@ -8,7 +8,12 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /** A clip carrying one track, whose payload the caller states. */
-const clip: (channel: Record<string, unknown>, times: number[], values: number[], interpolation?: string) => unknown = (
+const clip: (
+  channel: Record<string, unknown>,
+  times: number[],
+  values: number[],
+  interpolation?: string,
+) => unknown = (
   channel: Record<string, unknown>,
   times: number[],
   values: number[],
@@ -21,17 +26,22 @@ const clip: (channel: Record<string, unknown>, times: number[], values: number[]
   tracks: [{ channel, times, values, interpolation }],
 });
 
-const NODE: (path: string) => Record<string, unknown> = (path: string): Record<string, unknown> => ({
+const NODE: (path: string) => Record<string, unknown> = (
+  path: string,
+): Record<string, unknown> => ({
   kind: "node",
   node: "n",
   path,
 });
 
-const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (value: unknown): IAutoMovieConstraintViolation => {
+const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (
+  value: unknown,
+): IAutoMovieConstraintViolation => {
   const violations: IAutoMovieConstraintViolation[] = [];
   validateClipArtifact(value, "$input.clip", violations);
   const found: IAutoMovieConstraintViolation | undefined = violations.find(
-    (item: IAutoMovieConstraintViolation): boolean => item.path === "$input.clip.tracks[0].values",
+    (item: IAutoMovieConstraintViolation): boolean =>
+      item.path === "$input.clip.tracks[0].values",
   );
   if (found === undefined)
     throw new Error("the payload under test must be refused at `values`");
@@ -39,13 +49,21 @@ const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (value: unkno
 };
 
 /** Every fragment appears in the gate's message. */
-const says: (value: unknown, fragments: string[]) => boolean = (value: unknown, fragments: string[]): boolean => {
+const says: (value: unknown, fragments: string[]) => boolean = (
+  value: unknown,
+  fragments: string[],
+): boolean => {
   const { expected }: IAutoMovieConstraintViolation = faultOn(value);
-  return fragments.every((fragment: string): boolean => expected.includes(fragment));
+  return fragments.every((fragment: string): boolean =>
+    expected.includes(fragment),
+  );
 };
 
 /** The S-05 trajectory that could not converge: 67 keyframes, 195 values. */
-const S05_TIMES: number[] = Array.from({ length: 67 }, (_: unknown, i: number): number => i);
+const S05_TIMES: number[] = Array.from(
+  { length: 67 },
+  (_: unknown, i: number): number => i,
+);
 const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
 
 /**
@@ -113,7 +131,8 @@ export function test_validation_clip_stride_diagnostic(): void {
   TestValidator.predicate(
     "the sampler's throw carries the same numbers",
     throwsError(
-      (): ReturnType<typeof sampleClip> => sampleClip(uneven as IAutoMovieClip, 0),
+      (): ReturnType<typeof sampleClip> =>
+        sampleClip(uneven as IAutoMovieClip, 0),
       ["keyframe count 67", "195 does not", "values must hold 201"],
     ),
   );

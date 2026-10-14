@@ -17,7 +17,12 @@ import {
 
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-const actor: (props: { node: string; x?: number; facing?: IAutoMovieVector3; mount?: IAutoMovieMountBinding | null }) => IAutoMovieBeatEndActorState = (props: {
+const actor: (props: {
+  node: string;
+  x?: number;
+  facing?: IAutoMovieVector3;
+  mount?: IAutoMovieMountBinding | null;
+}) => IAutoMovieBeatEndActorState = (props: {
   node: string;
   x?: number;
   facing?: IAutoMovieVector3;
@@ -38,7 +43,9 @@ const actor: (props: { node: string; x?: number; facing?: IAutoMovieVector3; mou
   mount: props.mount ?? null,
 });
 
-const state: (actors: IAutoMovieBeatEndActorState[]) => IAutoMovieBeatEndState = (
+const state: (
+  actors: IAutoMovieBeatEndActorState[],
+) => IAutoMovieBeatEndState = (
   actors: IAutoMovieBeatEndActorState[],
 ): IAutoMovieBeatEndState => ({ beat: "b", shot: "shot:b", actors });
 

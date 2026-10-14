@@ -11,7 +11,13 @@ const BODY: IAutoMovieBody = {
   restitution: 0.5,
 };
 
-const fall: (over: { margin?: number; fallDuration?: number }) => ReturnType<typeof detectFreeFall> = (over: { margin?: number; fallDuration?: number }): ReturnType<typeof detectFreeFall> =>
+const fall: (over: {
+  margin?: number;
+  fallDuration?: number;
+}) => ReturnType<typeof detectFreeFall> = (over: {
+  margin?: number;
+  fallDuration?: number;
+}): ReturnType<typeof detectFreeFall> =>
   detectFreeFall({
     body: BODY,
     centerOfMass: { x: 0, y: 5, z: 0 },
@@ -52,7 +58,9 @@ export function test_validation_free_fall_config(): void {
     hasViolation(fall({ margin: Number.NaN }).validation, "range", ".margin"),
   );
 
-  const zeroDuration: ReturnType<typeof detectFreeFall> = fall({ fallDuration: 0 });
+  const zeroDuration: ReturnType<typeof detectFreeFall> = fall({
+    fallDuration: 0,
+  });
   TestValidator.equals(
     "zero fallDuration fails",
     zeroDuration.validation.success,

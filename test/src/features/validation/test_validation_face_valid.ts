@@ -1,6 +1,6 @@
 import { validateFaceResult } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { IAutoMovieValidation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { makeFace } from "../internal/fixtures";
 
@@ -35,6 +35,8 @@ export function test_validation_face_valid(): void {
   TestValidator.equals("valid face succeeds", result.success, true);
 
   // spacing alone (no per-eye objects at all) must also flatten and pass
-  const spacingOnly: IAutoMovieValidation = validateFaceResult(makeFace({ eyes: { spacing: 0.4 } }));
+  const spacingOnly: IAutoMovieValidation = validateFaceResult(
+    makeFace({ eyes: { spacing: 0.4 } }),
+  );
   TestValidator.equals("pair spacing alone valid", spacingOnly.success, true);
 }

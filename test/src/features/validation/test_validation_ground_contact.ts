@@ -1,11 +1,11 @@
 import { validateGroundContact } from "@automovie/engine";
 import {
+  IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
-  IAutoMovieConstraintViolation,
-  IAutoMovieMotion,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -20,7 +20,11 @@ import {
   validationHasWarningCount,
 } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -51,19 +55,26 @@ const SKELETON: IAutoMovieSkeleton = {
   ],
 };
 
-const root: (y: number) => IAutoMovieTransform = (y: number): IAutoMovieTransform => ({
+const root: (y: number) => IAutoMovieTransform = (
+  y: number,
+): IAutoMovieTransform => ({
   translation: { x: 0, y, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const pose: (rootY: number) => IAutoMoviePose = (rootY: number): IAutoMoviePose => ({
+const pose: (rootY: number) => IAutoMoviePose = (
+  rootY: number,
+): IAutoMoviePose => ({
   skeleton: SKELETON.id,
   root: root(rootY),
   joints: [],
 });
 
-const key: (time: number, rootY: number) => IAutoMovieKeyframe = (time: number, rootY: number): IAutoMovieKeyframe => ({
+const key: (time: number, rootY: number) => IAutoMovieKeyframe = (
+  time: number,
+  rootY: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(rootY),
   expression: null,
@@ -91,7 +102,10 @@ const key: (time: number, rootY: number) => IAutoMovieKeyframe = (time: number, 
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit reuses its existing generic rig and clip cases to reach portable sampling/FK; it creates no Human asset, new geometry case, browser, renderer or native artifact.
  */
 export function test_validation_ground_contact(): void {
-  const dipping: IAutoMovieMotion = makeMotion([key(0, 0), key(0.5, -0.2), key(1, 0)], 1);
+  const dipping: IAutoMovieMotion = makeMotion(
+    [key(0, 0), key(0.5, -0.2), key(1, 0)],
+    1,
+  );
   const rejected: IAutoMovieValidation = validateGroundContact({
     motion: dipping,
     skeleton: SKELETON,
@@ -108,7 +122,10 @@ export function test_validation_ground_contact(): void {
   );
   const mid: IAutoMovieConstraintViolation | null | undefined =
     rejected.success === true
-      ? (rejected.warnings ?? []).find((v: IAutoMovieConstraintViolation): boolean => v.path.includes("samples[2]"))
+      ? (rejected.warnings ?? []).find(
+          (v: IAutoMovieConstraintViolation): boolean =>
+            v.path.includes("samples[2]"),
+        )
       : null;
   TestValidator.equals(
     "penetration overshoot",
@@ -116,7 +133,8 @@ export function test_validation_ground_contact(): void {
       ["refused", (): boolean => mid?.kind === "physics"],
       [
         "violated",
-        (): boolean => mid?.kind === "physics" && nclose(mid.overshoot ?? -1, 0.2),
+        (): boolean =>
+          mid?.kind === "physics" && nclose(mid.overshoot ?? -1, 0.2),
       ],
     ]),
     { refused: true, violated: true },
@@ -134,7 +152,10 @@ export function test_validation_ground_contact(): void {
     validationHasNoWarnings("acknowledged ground contact", acknowledged),
   );
 
-  const grazing: IAutoMovieMotion = makeMotion([key(0, 0), key(0.5, -0.02), key(1, 0)], 1);
+  const grazing: IAutoMovieMotion = makeMotion(
+    [key(0, 0), key(0.5, -0.02), key(1, 0)],
+    1,
+  );
   TestValidator.equals(
     "tolerance accepts graze",
     validateGroundContact({

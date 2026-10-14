@@ -1,6 +1,6 @@
 import {
-  IAutoMovieCollisionActor,
   IAutoMovieBodyCollisionResult,
+  IAutoMovieCollisionActor,
   detectBodyCollision,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -9,7 +9,10 @@ import { staticActor } from "../internal/collision";
 import { hasViolation } from "../internal/predicates";
 
 /** Two actors whose hips→spine capsules overlap at the origin. */
-const overlapping: () => { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = (): { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } => ({
+const overlapping: () => {
+  a: IAutoMovieCollisionActor;
+  b: IAutoMovieCollisionActor;
+} = (): { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } => ({
   a: staticActor({
     node: "A",
     a: { x: 0, y: 0, z: 0 },
@@ -24,7 +27,10 @@ const overlapping: () => { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionAc
   }),
 });
 
-const withCapsule: (actor: IAutoMovieCollisionActor, capsule: IAutoMovieCollisionActor["capsules"][number]) => IAutoMovieCollisionActor = (
+const withCapsule: (
+  actor: IAutoMovieCollisionActor,
+  capsule: IAutoMovieCollisionActor["capsules"][number],
+) => IAutoMovieCollisionActor = (
   actor: IAutoMovieCollisionActor,
   capsule: IAutoMovieCollisionActor["capsules"][number],
 ): IAutoMovieCollisionActor => ({ ...actor, capsules: [capsule] });
@@ -57,7 +63,8 @@ const withCapsule: (actor: IAutoMovieCollisionActor, capsule: IAutoMovieCollisio
  */
 export function test_validation_body_collision_bad_capsule(): void {
   // 1. sanity: the well-formed geometry overlaps, so a real warning exists.
-  const clean: IAutoMovieBodyCollisionResult = detectBodyCollision(overlapping());
+  const clean: IAutoMovieBodyCollisionResult =
+    detectBodyCollision(overlapping());
   TestValidator.equals(
     "well-formed overlap warns (success stays true, warning-only)",
     clean.validation.success,
@@ -69,7 +76,8 @@ export function test_validation_body_collision_bad_capsule(): void {
   );
 
   // 2. bone off the rig: previously a silent success, now an error.
-  const badBone: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const badBone: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } =
+    overlapping();
   const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...badBone,
     a: withCapsule(badBone.a, { from: "head", to: "spine", radius: 0.5 }),
@@ -86,7 +94,8 @@ export function test_validation_body_collision_bad_capsule(): void {
   );
 
   // 3. non-distinct endpoints.
-  const same: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const same: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } =
+    overlapping();
   const distinct: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...same,
     a: withCapsule(same.a, { from: "hips", to: "hips", radius: 0.5 }),
@@ -102,7 +111,10 @@ export function test_validation_body_collision_bad_capsule(): void {
   );
 
   // 4. non-positive radius.
-  const badRadius: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const badRadius: {
+    a: IAutoMovieCollisionActor;
+    b: IAutoMovieCollisionActor;
+  } = overlapping();
   const radius: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...badRadius,
     a: withCapsule(badRadius.a, { from: "hips", to: "spine", radius: -1 }),
@@ -114,7 +126,8 @@ export function test_validation_body_collision_bad_capsule(): void {
   );
 
   // 5. both actors malformed: every fault reported, nothing sampled.
-  const both: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const both: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } =
+    overlapping();
   const pair: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...both,
     a: withCapsule(both.a, { from: "head", to: "spine", radius: 0.5 }),

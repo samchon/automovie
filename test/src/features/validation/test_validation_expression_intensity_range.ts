@@ -1,6 +1,6 @@
 import { validateExpressionResult } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import { IAutoMovieValidation } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { makeExpression } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
@@ -17,7 +17,9 @@ import { hasViolation } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns one local expression and directly reads engine admission without a renderer, asset, process or native artifact.
  */
 export function test_validation_expression_intensity_range(): void {
-  const result: IAutoMovieValidation = validateExpressionResult(makeExpression("happy", 2));
+  const result: IAutoMovieValidation = validateExpressionResult(
+    makeExpression("happy", 2),
+  );
   TestValidator.equals("out-of-range intensity fails", result.success, false);
   TestValidator.predicate(
     "range violation on intensity",

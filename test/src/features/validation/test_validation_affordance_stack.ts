@@ -1,10 +1,20 @@
-﻿import { affordanceSupportContacts } from "../../../../packages/engine/src/space/affordanceSupportContacts";
-import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
-import type { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
-import type { IAutoMovieAffordance, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+﻿import type {
+  IAutoMovieAffordance,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, validationHasNoWarnings, validationHasWarningCount, vclose } from "../internal/predicates";
+import { affordanceSupportContacts } from "../../../../packages/engine/src/space/affordanceSupportContacts";
+import type { IAutoMovieSupportResult } from "../../../../packages/engine/src/validation/IAutoMovieSupportResult";
+import { detectSupportToppling } from "../../../../packages/engine/src/validation/detectSupportToppling";
+import {
+  namedFacts,
+  validationHasNoWarnings,
+  validationHasWarningCount,
+  vclose,
+} from "../internal/predicates";
 
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
@@ -25,7 +35,11 @@ export function test_validation_affordance_stack(): void {
   const top: IAutoMovieAffordance = {
     id: "top",
     kind: "stack-top",
-    frame: { translation: { x: 0, y: 0.5, z: 0 }, rotation: IDENTITY, scale: UNIT },
+    frame: {
+      translation: { x: 0, y: 0.5, z: 0 },
+      rotation: IDENTITY,
+      scale: UNIT,
+    },
     extent: [
       { x: -0.5, y: 0, z: -0.5 },
       { x: 0.5, y: 0, z: -0.5 },
@@ -34,19 +48,47 @@ export function test_validation_affordance_stack(): void {
     ],
   };
   const crateA: IAutoMovieTransform = {
-    translation: { x: 3, y: 0, z: 2 }, rotation: IDENTITY, scale: UNIT,
+    translation: { x: 3, y: 0, z: 2 },
+    rotation: IDENTITY,
+    scale: UNIT,
   };
-  const support: IAutoMovieVector3[] = affordanceSupportContacts({ affordance: top, parentWorld: crateA });
-  const stable: IAutoMovieSupportResult = detectSupportToppling({ node: "crateB", centerOfMass: { x: 3, y: 1, z: 2 }, support });
-  TestValidator.predicate("no warning for a stable stack", validationHasNoWarnings("centered affordance stack", stable.validation));
+  const support: IAutoMovieVector3[] = affordanceSupportContacts({
+    affordance: top,
+    parentWorld: crateA,
+  });
+  const stable: IAutoMovieSupportResult = detectSupportToppling({
+    node: "crateB",
+    centerOfMass: { x: 3, y: 1, z: 2 },
+    support,
+  });
+  TestValidator.predicate(
+    "no warning for a stable stack",
+    validationHasNoWarnings("centered affordance stack", stable.validation),
+  );
   TestValidator.equals("no toppling suggested", stable.toppling, null);
-  const overhung: IAutoMovieSupportResult = detectSupportToppling({ node: "crateB", centerOfMass: { x: 3.7, y: 1, z: 2 }, support });
-  TestValidator.predicate("overhang raises one physics warning", validationHasWarningCount("overhung affordance stack", overhung.validation, 1));
+  const overhung: IAutoMovieSupportResult = detectSupportToppling({
+    node: "crateB",
+    centerOfMass: { x: 3.7, y: 1, z: 2 },
+    support,
+  });
+  TestValidator.predicate(
+    "overhang raises one physics warning",
+    validationHasWarningCount(
+      "overhung affordance stack",
+      overhung.validation,
+      1,
+    ),
+  );
   TestValidator.equals(
     "toppling falls toward the overhang (+X)",
     namedFacts([
       ["overhungToppling", (): boolean => overhung.toppling !== null],
-      ["vcloseOverhungToppling", (): boolean => overhung.toppling !== null && vclose(overhung.toppling.fallDirection, { x: 1, y: 0, z: 0 })],
+      [
+        "vcloseOverhungToppling",
+        (): boolean =>
+          overhung.toppling !== null &&
+          vclose(overhung.toppling.fallDirection, { x: 1, y: 0, z: 0 }),
+      ],
     ]),
     { overhungToppling: true, vcloseOverhungToppling: true },
   );

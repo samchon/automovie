@@ -1,5 +1,8 @@
 import { ViolationCollector } from "@automovie/engine";
-import { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -48,7 +51,8 @@ export function test_validation_collector(): void {
   TestValidator.predicate(
     "non-finite range mentions finite",
     nonFinite.items.some(
-      (v: IAutoMovieConstraintViolation): boolean => v.path === "$input.c" && v.expected.includes("finite"),
+      (v: IAutoMovieConstraintViolation): boolean =>
+        v.path === "$input.c" && v.expected.includes("finite"),
     ),
   );
 }

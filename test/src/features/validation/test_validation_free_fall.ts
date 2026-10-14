@@ -1,5 +1,9 @@
 import { detectFreeFall } from "@automovie/engine";
-import { IAutoMovieBody, IAutoMovieTrack, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBody,
+  IAutoMovieTrack,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -105,7 +109,8 @@ export function test_validation_free_fall(): void {
   TestValidator.equals("supported has no arc", supported.trajectory, null);
 
   const track: IAutoMovieTrack = unheld.trajectory!.tracks.find(
-    (t: IAutoMovieTrack): boolean => t.channel.kind === "node" && t.channel.path === "translation",
+    (t: IAutoMovieTrack): boolean =>
+      t.channel.kind === "node" && t.channel.path === "translation",
   )!;
   const lastY: number = track.values[track.values.length - 2]!;
   TestValidator.predicate(

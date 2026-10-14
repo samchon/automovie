@@ -1,10 +1,17 @@
-import { IAutoMovieBodyCollisionResult, IAutoMovieCollisionActor, detectBodyCollision } from "@automovie/engine";
+import {
+  IAutoMovieBodyCollisionResult,
+  IAutoMovieCollisionActor,
+  detectBodyCollision,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { staticActor } from "../internal/collision";
 import { hasViolation } from "../internal/predicates";
 
-const apart: () => { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = (): { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } => ({
+const apart: () => {
+  a: IAutoMovieCollisionActor;
+  b: IAutoMovieCollisionActor;
+} = (): { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } => ({
   a: staticActor({
     node: "A",
     a: { x: 0, y: 0, z: 0 },
@@ -35,14 +42,20 @@ const apart: () => { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } 
  * @evidence contracts/testing.md#execution-ownership The named test_validation_body_collision_bad_rate entry reaches portable detector admission with shared staticActor fixtures, with no real host or dynamically registered cases.
  */
 export function test_validation_body_collision_bad_rate(): void {
-  const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({ ...apart(), sampleRate: Number.NaN });
+  const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({
+    ...apart(),
+    sampleRate: Number.NaN,
+  });
   TestValidator.equals("non-finite rate fails", nan.validation.success, false);
   TestValidator.predicate(
     "range violation on sampleRate (non-finite)",
     hasViolation(nan.validation, "range", ".sampleRate"),
   );
 
-  const zero: IAutoMovieBodyCollisionResult = detectBodyCollision({ ...apart(), sampleRate: 0 });
+  const zero: IAutoMovieBodyCollisionResult = detectBodyCollision({
+    ...apart(),
+    sampleRate: 0,
+  });
   TestValidator.equals(
     "non-positive rate fails",
     zero.validation.success,

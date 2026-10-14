@@ -1,6 +1,9 @@
 import { validateFaceResult } from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
 
 import { makeFace } from "../internal/fixtures";
 import { namedFacts } from "../internal/predicates";
@@ -27,14 +30,16 @@ export function test_validation_face_weight_range(): void {
       ["resultSuccess", (): boolean => result.success === false],
       [
         "resultViolations",
-        (): boolean => result.success === false && result.violations.length === 2,
+        (): boolean =>
+          result.success === false && result.violations.length === 2,
       ],
       [
         "resultViolationsV",
         (): boolean =>
           result.success === false &&
           result.violations.every(
-            (v: IAutoMovieConstraintViolation): boolean => v.kind === "range" && v.path.includes(".eyes.left.size"),
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.kind === "range" && v.path.includes(".eyes.left.size"),
           ),
       ],
     ]),
