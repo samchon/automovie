@@ -1,4 +1,5 @@
 import type { IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface } from "@automovie/human";
+
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 
@@ -19,7 +20,8 @@ export function readHumanFaceSurfaceVolume(
   context: IHumanFaceMeasurementContext,
   surfaceId: string,
 ): number | IHumanFaceMeasurementGap {
-  const { positions, indices }: ImportedIHumanFaceMeasurementSurface = context.surface(surfaceId);
+  const { positions, indices }: ImportedIHumanFaceMeasurementSurface =
+    context.surface(surfaceId);
   const edges: Map<string, number> = new Map<string, number>();
   for (let at: number = 0; at < indices.length; at += 3)
     for (let k: number = 0; k < 3; k++) {
@@ -28,20 +30,24 @@ export function readHumanFaceSurfaceVolume(
       const key: string = a < b ? a + "," + b : b + "," + a;
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
-  const open: number = [...edges.values()].filter((count: number): boolean => count !== 2).length;
+  const open: number = [...edges.values()].filter(
+    (count: number): boolean => count !== 2,
+  ).length;
   if (open !== 0)
     return {
       reason: `the surface ${surfaceId} is not closed (${open} edges not shared by two triangles)`,
     };
   let volume: number = 0;
   for (let at: number = 0; at < indices.length; at += 3) {
-    const [a, b, c]: number[][] = [indices[at], indices[at + 1], indices[at + 2]].map(
-      (vertex: number): number[] => [
-        positions[3 * vertex],
-        positions[3 * vertex + 1],
-        positions[3 * vertex + 2],
-      ],
-    );
+    const [a, b, c]: number[][] = [
+      indices[at],
+      indices[at + 1],
+      indices[at + 2],
+    ].map((vertex: number): number[] => [
+      positions[3 * vertex],
+      positions[3 * vertex + 1],
+      positions[3 * vertex + 2],
+    ]);
     volume +=
       (a[0] * (b[1] * c[2] - b[2] * c[1]) -
         a[1] * (b[0] * c[2] - b[2] * c[0]) +

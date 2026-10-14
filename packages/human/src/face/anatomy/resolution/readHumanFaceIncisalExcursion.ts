@@ -1,5 +1,5 @@
-import type { IHumanFaceIncisalOffset as ImportedIHumanFaceIncisalOffset } from "./IHumanFaceIncisalOffset";
 import type { IHumanFaceIncisalExcursion } from "./IHumanFaceIncisalExcursion";
+import type { IHumanFaceIncisalOffset as ImportedIHumanFaceIncisalOffset } from "./IHumanFaceIncisalOffset";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 import { readHumanFaceIncisalOffset } from "./readHumanFaceIncisalOffset";
@@ -22,9 +22,11 @@ import { readHumanFaceIncisalOffset } from "./readHumanFaceIncisalOffset";
 export function readHumanFaceIncisalExcursion(
   context: IHumanFaceMeasurementContext,
 ): IHumanFaceIncisalExcursion | IHumanFaceMeasurementGap {
-  const performed: IHumanFaceMeasurementGap | ImportedIHumanFaceIncisalOffset = readHumanFaceIncisalOffset(context);
+  const performed: IHumanFaceMeasurementGap | ImportedIHumanFaceIncisalOffset =
+    readHumanFaceIncisalOffset(context);
   if ("reason" in performed) return performed;
-  const reference: IHumanFaceMeasurementGap | ImportedIHumanFaceIncisalOffset = readHumanFaceIncisalOffset(context, true);
+  const reference: IHumanFaceMeasurementGap | ImportedIHumanFaceIncisalOffset =
+    readHumanFaceIncisalOffset(context, true);
   if ("reason" in reference) return reference;
   return {
     forward: performed.forward - reference.forward,

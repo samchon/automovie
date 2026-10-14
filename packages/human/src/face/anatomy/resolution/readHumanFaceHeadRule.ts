@@ -23,7 +23,8 @@ export function readHumanFaceHeadRule(
   read: (head: IAutoMovieHumanHeadSkin) => number,
   scale: number = 1000,
 ): number | IHumanFaceMeasurementGap {
-  const head: IAutoMovieHumanHeadSkin | IHumanFaceMeasurementGap = readHumanFaceHeadSkin(context, landmarks, regions);
+  const head: IAutoMovieHumanHeadSkin | IHumanFaceMeasurementGap =
+    readHumanFaceHeadSkin(context, landmarks, regions);
   if ("reason" in head) return head;
   try {
     const value: number = read(head) * scale;

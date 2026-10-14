@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular, IAutoMovieHumanFacePeriocularMargins as ImportedIAutoMovieHumanFacePeriocularMargins } from "@automovie/human";
+import type {
+  IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular,
+  IAutoMovieHumanFacePeriocularMargins as ImportedIAutoMovieHumanFacePeriocularMargins,
+} from "@automovie/human";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
@@ -25,14 +28,17 @@ export function readHumanFaceMarginAtVertical(
   lid: "upper" | "lower",
   x: number,
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
-  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined = context.basis.periocular;
+  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined =
+    context.basis.periocular;
   if (periocular === undefined)
     return {
       reason: "missing registration: the basis's periocular registration",
     };
-  const margins: ImportedIAutoMovieHumanFacePeriocularMargins = periocular[side].margins;
-  const row: IAutoMovieVector3[] = margins[lid].map((vertex: number): IAutoMovieVector3 =>
-    context.point(margins.surface, vertex),
+  const margins: ImportedIAutoMovieHumanFacePeriocularMargins =
+    periocular[side].margins;
+  const row: IAutoMovieVector3[] = margins[lid].map(
+    (vertex: number): IAutoMovieVector3 =>
+      context.point(margins.surface, vertex),
   );
   for (let at: number = 1; at < row.length; at++) {
     const a: IAutoMovieVector3 = row[at - 1];

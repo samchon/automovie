@@ -1,5 +1,6 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface } from "@automovie/human";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 import { readHumanFaceMeasurementLandmark } from "./readHumanFaceMeasurementLandmark";
@@ -21,7 +22,8 @@ export function readHumanFaceVertexToLandmark(
   context: IHumanFaceMeasurementContext,
   landmark: string,
 ): number | IHumanFaceMeasurementGap {
-  const point: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, landmark);
+  const point: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, landmark);
   if ("reason" in point) return point;
   const surface: ImportedIAutoMovieHumanFaceBasisSurface =
     context.basis.surfaces[context.basis.skinLandmarks![landmark].surface];

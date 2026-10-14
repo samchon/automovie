@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanFaceMeasurementTarget as ImportedIAutoMovieHumanFaceMeasurementTarget, IHumanFaceMeasurement as ImportedIHumanFaceMeasurement } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceMeasurementTarget as ImportedIAutoMovieHumanFaceMeasurementTarget,
+  IHumanFaceMeasurement as ImportedIHumanFaceMeasurement,
+} from "@automovie/human";
+
 import type { AutoMovieHumanFaceMeasurementReading } from "../../structures/AutoMovieHumanFaceMeasurementReading";
 import type { IAutoMovieHumanFaceAnatomicalRequest } from "../../structures/IAutoMovieHumanFaceAnatomicalRequest";
 import { HUMAN_FACE_MEASUREMENTS } from "./HUMAN_FACE_MEASUREMENTS";
@@ -25,39 +29,59 @@ export function readHumanFaceMeasurements(
   request: IAutoMovieHumanFaceAnatomicalRequest | undefined,
 ): AutoMovieHumanFaceMeasurementReading[] {
   const targets: Map<string, number> = new Map(
-    (request?.targets ?? []).map((target: ImportedIAutoMovieHumanFaceMeasurementTarget): [string, number] => [
-      target.measurement,
-      target.value,
-    ]),
+    (request?.targets ?? []).map(
+      (
+        target: ImportedIAutoMovieHumanFaceMeasurementTarget,
+      ): [string, number] => [target.measurement, target.value],
+    ),
   );
-  return HUMAN_FACE_MEASUREMENTS.map((measurement: ImportedIHumanFaceMeasurement): { qualification?: string | undefined; status: "measured"; measurement: string; unit: "count" | "degrees" | "millimetres" | "square-millimetres" | "cubic-centimetres"; requested: number | null; measured: number; reason?: undefined; } | { status: "unavailable"; measurement: string; reason: string; } => {
-    let value: number | IHumanFaceMeasurementGap;
-    try {
-      value = measurement.read(context);
-      if (typeof value === "number" && !Number.isFinite(value))
-        value = {
-          reason: `The instrument for ${measurement.id} has no finite reading on the final surface.`,
-        };
-    } catch (error) {
-      value = {
-        reason: error instanceof Error ? error.message : String(error),
-      };
-    }
-    return typeof value === "number"
-      ? {
-          status: "measured",
-          measurement: measurement.id,
-          unit: measurement.unit,
-          requested: targets.get(measurement.id) ?? null,
-          measured: value,
-          ...(measurement.qualification === undefined
-            ? {}
-            : { qualification: measurement.qualification }),
+  return HUMAN_FACE_MEASUREMENTS.map(
+    (
+      measurement: ImportedIHumanFaceMeasurement,
+    ):
+      | {
+          qualification?: string | undefined;
+          status: "measured";
+          measurement: string;
+          unit:
+            | "count"
+            | "degrees"
+            | "millimetres"
+            | "square-millimetres"
+            | "cubic-centimetres";
+          requested: number | null;
+          measured: number;
+          reason?: undefined;
         }
-      : {
-          status: "unavailable",
-          measurement: measurement.id,
-          reason: value.reason,
+      | { status: "unavailable"; measurement: string; reason: string } => {
+      let value: number | IHumanFaceMeasurementGap;
+      try {
+        value = measurement.read(context);
+        if (typeof value === "number" && !Number.isFinite(value))
+          value = {
+            reason: `The instrument for ${measurement.id} has no finite reading on the final surface.`,
+          };
+      } catch (error) {
+        value = {
+          reason: error instanceof Error ? error.message : String(error),
         };
-  });
+      }
+      return typeof value === "number"
+        ? {
+            status: "measured",
+            measurement: measurement.id,
+            unit: measurement.unit,
+            requested: targets.get(measurement.id) ?? null,
+            measured: value,
+            ...(measurement.qualification === undefined
+              ? {}
+              : { qualification: measurement.qualification }),
+          }
+        : {
+            status: "unavailable",
+            measurement: measurement.id,
+            reason: value.reason,
+          };
+    },
+  );
 }

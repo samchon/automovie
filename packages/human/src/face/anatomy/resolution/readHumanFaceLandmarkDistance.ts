@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -25,9 +25,11 @@ export function readHumanFaceLandmarkDistance(
   from: string,
   to: string,
 ): number | IHumanFaceMeasurementGap {
-  const a: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, from);
+  const a: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, from);
   if ("reason" in a) return a;
-  const b: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, to);
+  const b: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, to);
   if ("reason" in b) return b;
   return Vector3.length(Vector3.subtract(a, b)) * 1000;
 }

@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -24,14 +24,18 @@ export function readHumanFaceLandmarkAngle(
   vertex: string,
   to: string,
 ): number | IHumanFaceMeasurementGap {
-  const a: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, from);
+  const a: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, from);
   if ("reason" in a) return a;
-  const b: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, vertex);
+  const b: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, vertex);
   if ("reason" in b) return b;
-  const c: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap = readHumanFaceMeasurementLandmark(context, to);
+  const c: ImportedIAutoMovieVector3 | IHumanFaceMeasurementGap =
+    readHumanFaceMeasurementLandmark(context, to);
   if ("reason" in c) return c;
   const u: ImportedIAutoMovieVector3 = Vector3.subtract(a, b);
   const w: ImportedIAutoMovieVector3 = Vector3.subtract(c, b);
-  const cosine: number = Vector3.dot(u, w) / (Vector3.length(u) * Vector3.length(w));
+  const cosine: number =
+    Vector3.dot(u, w) / (Vector3.length(u) * Vector3.length(w));
   return (Math.acos(Math.min(1, Math.max(-1, cosine))) * 180) / Math.PI;
 }

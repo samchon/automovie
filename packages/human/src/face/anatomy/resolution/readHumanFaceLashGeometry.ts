@@ -1,5 +1,8 @@
-import type { IAutoMovieMesh as ImportedIAutoMovieMesh, IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMesh as ImportedIAutoMovieMesh,
+  IAutoMovieVector3 as ImportedIAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -23,8 +26,13 @@ export function readHumanFaceLashGeometry(
   row: "upper" | "lower",
   quantity: "shaftCount" | "longestSampledCentrelineLength",
 ): number | IHumanFaceMeasurementGap {
-  const mesh: ImportedIAutoMovieMesh | null | undefined = context.lashMesh?.(side, row);
-  const gap: (cause: string) => IHumanFaceMeasurementGap = (cause: string): IHumanFaceMeasurementGap => ({
+  const mesh: ImportedIAutoMovieMesh | null | undefined = context.lashMesh?.(
+    side,
+    row,
+  );
+  const gap: (cause: string) => IHumanFaceMeasurementGap = (
+    cause: string,
+  ): IHumanFaceMeasurementGap => ({
     reason: `unread generated ${side} ${row} lashes: ${cause}`,
   });
   if (mesh === undefined || mesh === null)
@@ -38,7 +46,10 @@ export function readHumanFaceLashGeometry(
     mesh.indices === null
   )
     return gap("the row's complete finite tube lattice is not present");
-  const parent: number[] = Array.from({ length: vertices }, (_: unknown, vertex: number): number => vertex);
+  const parent: number[] = Array.from(
+    { length: vertices },
+    (_: unknown, vertex: number): number => vertex,
+  );
   const root: (vertex: number) => number = (vertex: number): number => {
     let current: number = vertex;
     while (parent[current] !== current) current = parent[current];
@@ -71,16 +82,19 @@ export function readHumanFaceLashGeometry(
   if (quantity === "shaftCount") return count;
   let longest: number = 0;
   for (let shaft: number = 0; shaft * 117 < vertices; shaft++) {
-    const points: ImportedIAutoMovieVector3[] = Array.from({ length: 13 }, (_: unknown, ring: number): ImportedIAutoMovieVector3 => {
-      const sum: ImportedIAutoMovieVector3 = Vector3.create();
-      for (let angular: number = 0; angular < 8; angular++) {
-        const at: number = 3 * (shaft * 117 + ring * 9 + angular);
-        sum.x += mesh.positions[at] / 8;
-        sum.y += mesh.positions[at + 1] / 8;
-        sum.z += mesh.positions[at + 2] / 8;
-      }
-      return sum;
-    });
+    const points: ImportedIAutoMovieVector3[] = Array.from(
+      { length: 13 },
+      (_: unknown, ring: number): ImportedIAutoMovieVector3 => {
+        const sum: ImportedIAutoMovieVector3 = Vector3.create();
+        for (let angular: number = 0; angular < 8; angular++) {
+          const at: number = 3 * (shaft * 117 + ring * 9 + angular);
+          sum.x += mesh.positions[at] / 8;
+          sum.y += mesh.positions[at + 1] / 8;
+          sum.z += mesh.positions[at + 2] / 8;
+        }
+        return sum;
+      },
+    );
     const length: number = points
       .slice(1)
       .reduce(

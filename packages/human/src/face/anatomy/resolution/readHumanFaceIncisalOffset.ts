@@ -1,8 +1,11 @@
-import type { IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact, IAutoMovieHumanFaceBasisArticulation as ImportedIAutoMovieHumanFaceBasisArticulation } from "@automovie/human";
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
-import type { IHumanFaceApertureDirections as ImportedIHumanFaceApertureDirections } from "../../basis/IHumanFaceApertureDirections";
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieHumanFaceBasisArticulation as ImportedIAutoMovieHumanFaceBasisArticulation,
+  IAutoMovieHumanFaceBasisContact as ImportedIAutoMovieHumanFaceBasisContact,
+} from "@automovie/human";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanFaceApertureDirections as ImportedIHumanFaceApertureDirections } from "../../basis/IHumanFaceApertureDirections";
 import { resolveHumanFaceApertureDirections } from "../../basis/resolveHumanFaceApertureDirections";
 import type { IHumanFaceIncisalOffset } from "./IHumanFaceIncisalOffset";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
@@ -27,8 +30,10 @@ export function readHumanFaceIncisalOffset(
   context: IHumanFaceMeasurementContext,
   reference: boolean = false,
 ): IHumanFaceIncisalOffset | IHumanFaceMeasurementGap {
-  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined = context.basis.contact;
-  const articulation: ImportedIAutoMovieHumanFaceBasisArticulation | undefined = context.basis.articulation;
+  const contact: ImportedIAutoMovieHumanFaceBasisContact | undefined =
+    context.basis.contact;
+  const articulation: ImportedIAutoMovieHumanFaceBasisArticulation | undefined =
+    context.basis.articulation;
   if (
     contact === undefined ||
     articulation === undefined ||
@@ -37,14 +42,16 @@ export function readHumanFaceIncisalOffset(
     return {
       reason: "the basis declares no incisor contact pair and jaw articulation",
     };
-  const point: ((surface: string, vertex: number) => ImportedIAutoMovieVector3) | null | undefined = reference ? context.referencePoint : context.point;
+  const point:
+    | ((surface: string, vertex: number) => ImportedIAutoMovieVector3)
+    | null
+    | undefined = reference ? context.referencePoint : context.point;
   if (point === undefined || point === null)
     return {
       reason: "the current identity has no evaluated closed incisal reference",
     };
-  const { axis, up, forward }: ImportedIHumanFaceApertureDirections = resolveHumanFaceApertureDirections(
-    articulation.jaw.axis,
-  );
+  const { axis, up, forward }: ImportedIHumanFaceApertureDirections =
+    resolveHumanFaceApertureDirections(articulation.jaw.axis);
   const offset: ImportedIAutoMovieVector3 = Vector3.subtract(
     point(contact.incisors.surface, contact.incisors.lower),
     point(contact.incisors.surface, contact.incisors.upper),

@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanFaceNasalContour as ImportedIAutoMovieHumanFaceNasalContour, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanFaceNasalContour as ImportedIAutoMovieHumanFaceNasalContour,
+  IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface,
+} from "@automovie/human";
+
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceNasalContourReading } from "./IHumanFaceNasalContourReading";
 
@@ -20,7 +25,10 @@ export function readHumanFaceNasalContour(
   side: "left" | "right",
 ): IHumanFaceNasalContourReading {
   const matches: ImportedIAutoMovieHumanFaceNasalContour[] =
-    context.basis.nasalContours?.filter((record: ImportedIAutoMovieHumanFaceNasalContour): boolean => record.side === side) ?? [];
+    context.basis.nasalContours?.filter(
+      (record: ImportedIAutoMovieHumanFaceNasalContour): boolean =>
+        record.side === side,
+    ) ?? [];
   if (matches.length !== 1)
     throw new Error(
       `The ${side} nasal source contour has no unique registration.`,
@@ -39,9 +47,11 @@ export function readHumanFaceNasalContour(
     fail(
       "missing source identity, qualification or supported projection protocol.",
     );
-  const sourceSurface: ImportedIAutoMovieHumanFaceBasisSurface | undefined = context.basis.surfaces.find(
-    (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean => surface.id === contour.surface,
-  );
+  const sourceSurface: ImportedIAutoMovieHumanFaceBasisSurface | undefined =
+    context.basis.surfaces.find(
+      (surface: ImportedIAutoMovieHumanFaceBasisSurface): boolean =>
+        surface.id === contour.surface,
+    );
   if (sourceSurface?.sourcePartition?.generation !== contour.generationSourceId)
     fail(
       "ordered contour and actual skin do not share the owning source generation.",
@@ -69,7 +79,11 @@ export function readHumanFaceNasalContour(
   if (!Number.isFinite(length) || Math.abs(length - 1) > 1e-6)
     fail("projection normal is not a finite unit direction.");
   const seed: number = n.map(Math.abs).indexOf(Math.min(...n.map(Math.abs)));
-  const u: number[] = [seed === 0 ? 1 : 0, seed === 1 ? 1 : 0, seed === 2 ? 1 : 0];
+  const u: number[] = [
+    seed === 0 ? 1 : 0,
+    seed === 1 ? 1 : 0,
+    seed === 2 ? 1 : 0,
+  ];
   for (let axis: number = 0; axis < 3; axis++)
     u[axis] -= (n[axis] * n[seed]) / (length * length);
   const ul: number = Math.hypot(...u);
@@ -79,24 +93,38 @@ export function readHumanFaceNasalContour(
     n[2] * u[0] - n[0] * u[2],
     n[0] * u[1] - n[1] * u[0],
   ].map((value: number): number => value / length);
-  const skin: ImportedIHumanFaceMeasurementSurface = context.surface(contour.surface);
+  const skin: ImportedIHumanFaceMeasurementSurface = context.surface(
+    contour.surface,
+  );
   for (const id of ids)
     if (!Number.isInteger(id) || id < 0 || id * 3 + 2 >= skin.positions.length)
       fail("skin index is unavailable.");
   const origin: number = ids[0] * 3;
   const points: number[][] = ids.map((id: number): number[] => {
     const delta: number[] = [0, 1, 2].map(
-      (axis: number): number => skin.positions[id * 3 + axis] - skin.positions[origin + axis],
+      (axis: number): number =>
+        skin.positions[id * 3 + axis] - skin.positions[origin + axis],
     );
     return [
-      delta.reduce((sum: number, value: number, axis: number): number => sum + value * u[axis], 0),
-      delta.reduce((sum: number, value: number, axis: number): number => sum + value * v[axis], 0),
+      delta.reduce(
+        (sum: number, value: number, axis: number): number =>
+          sum + value * u[axis],
+        0,
+      ),
+      delta.reduce(
+        (sum: number, value: number, axis: number): number =>
+          sum + value * v[axis],
+        0,
+      ),
     ];
   });
   if (!points.flat().every(Number.isFinite))
     fail("final projected coordinates are non-finite.");
-  const orient: (a: number[], b: number[], c: number[]) => number = (a: number[], b: number[], c: number[]): number =>
-    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const orient: (a: number[], b: number[], c: number[]) => number = (
+    a: number[],
+    b: number[],
+    c: number[],
+  ): number => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
   let twiceArea: number = 0;
   let longAxis: number = 0;
   let direction: number[] = [0, 0];
@@ -129,7 +157,8 @@ export function readHumanFaceNasalContour(
     }
   }
   const across: number[] = points.map(
-    (point: number[]): number => -point[0] * direction[1] + point[1] * direction[0],
+    (point: number[]): number =>
+      -point[0] * direction[1] + point[1] * direction[0],
   );
   const area: number = Math.abs(twiceArea) / 2;
   const shortAxis: number = Math.max(...across) - Math.min(...across);

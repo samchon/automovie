@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanHeadSkin as ImportedIAutoMovieHumanHeadSkin } from "../../../common/measure/IAutoMovieHumanHeadSkin";
 import type { IAutoMovieHumanHeadMeasurement } from "../../../common/measure/IAutoMovieHumanHeadMeasurement";
+import type { IAutoMovieHumanHeadSkin as ImportedIAutoMovieHumanHeadSkin } from "../../../common/measure/IAutoMovieHumanHeadSkin";
 import { readHumanHeadMeasurement } from "../../../common/measure/readHumanHeadMeasurement";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -36,7 +36,8 @@ export function readHumanFaceHeadMeasurement(
     rule.kind === "head-breadth" || rule.kind === "head-circumference"
       ? [rule.rightEar, rule.leftEar]
       : [];
-  const head: ImportedIAutoMovieHumanHeadSkin | IHumanFaceMeasurementGap = readHumanFaceHeadSkin(context, landmarks, regions);
+  const head: ImportedIAutoMovieHumanHeadSkin | IHumanFaceMeasurementGap =
+    readHumanFaceHeadSkin(context, landmarks, regions);
   if ("reason" in head) return head;
   return readHumanHeadMeasurement(head, rule).metres * 1000;
 }

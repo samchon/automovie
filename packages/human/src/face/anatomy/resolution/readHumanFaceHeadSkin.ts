@@ -1,4 +1,11 @@
-import type { IAutoMovieHumanFaceBasis as ImportedIAutoMovieHumanFaceBasis, IAutoMovieHumanSkinLandmark as ImportedIAutoMovieHumanSkinLandmark, IAutoMovieHumanSkinRegion as ImportedIAutoMovieHumanSkinRegion, IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface, IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceBasis as ImportedIAutoMovieHumanFaceBasis,
+  IAutoMovieHumanFaceBasisSurface as ImportedIAutoMovieHumanFaceBasisSurface,
+  IAutoMovieHumanSkinLandmark as ImportedIAutoMovieHumanSkinLandmark,
+  IAutoMovieHumanSkinRegion as ImportedIAutoMovieHumanSkinRegion,
+  IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface,
+} from "@automovie/human";
+
 import type { IAutoMovieHumanHeadSkin } from "../../../common/measure/IAutoMovieHumanHeadSkin";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -22,8 +29,10 @@ export function readHumanFaceHeadSkin(
   regions: readonly string[],
 ): IAutoMovieHumanHeadSkin | IHumanFaceMeasurementGap {
   const basis: ImportedIAutoMovieHumanFaceBasis = context.basis;
-  const points: { [x: string]: ImportedIAutoMovieHumanSkinLandmark; } = basis.skinLandmarks ?? {};
-  const areas: { [x: string]: ImportedIAutoMovieHumanSkinRegion; } = basis.skinRegions ?? {};
+  const points: { [x: string]: ImportedIAutoMovieHumanSkinLandmark } =
+    basis.skinLandmarks ?? {};
+  const areas: { [x: string]: ImportedIAutoMovieHumanSkinRegion } =
+    basis.skinRegions ?? {};
   for (const name of landmarks)
     if (!Object.hasOwn(points, name))
       return { reason: `missing landmark: ${name}` };
@@ -35,8 +44,11 @@ export function readHumanFaceHeadSkin(
     return {
       reason: "missing landmark: any skin landmark naming the skin surface",
     };
-  const surface: ImportedIAutoMovieHumanFaceBasisSurface = basis.surfaces[named.surface];
-  const skin: ImportedIHumanFaceMeasurementSurface = context.surface(surface.id);
+  const surface: ImportedIAutoMovieHumanFaceBasisSurface =
+    basis.surfaces[named.surface];
+  const skin: ImportedIHumanFaceMeasurementSurface = context.surface(
+    surface.id,
+  );
   return {
     id: basis.id,
     surface: named.surface,

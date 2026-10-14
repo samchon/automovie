@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular, IAutoMovieHumanFacePeriocularSide as ImportedIAutoMovieHumanFacePeriocularSide, IAutoMovieHumanFaceCanthusExtreme as ImportedIAutoMovieHumanFaceCanthusExtreme, IAutoMovieHumanFaceCanthusVertex as ImportedIAutoMovieHumanFaceCanthusVertex } from "@automovie/human";
+import type {
+  IAutoMovieHumanFaceCanthusExtreme as ImportedIAutoMovieHumanFaceCanthusExtreme,
+  IAutoMovieHumanFaceCanthusVertex as ImportedIAutoMovieHumanFaceCanthusVertex,
+  IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular,
+  IAutoMovieHumanFacePeriocularSide as ImportedIAutoMovieHumanFacePeriocularSide,
+} from "@automovie/human";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
@@ -24,13 +29,17 @@ export function readHumanFaceCanthus(
   side: "left" | "right",
   corner: "medial" | "lateral",
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
-  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined = context.basis.periocular;
+  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined =
+    context.basis.periocular;
   if (periocular === undefined)
     return {
       reason: "missing registration: the basis's periocular registration",
     };
-  const { margins, canthi }: ImportedIAutoMovieHumanFacePeriocularSide = periocular[side];
-  const definition: ImportedIAutoMovieHumanFaceCanthusExtreme | ImportedIAutoMovieHumanFaceCanthusVertex = canthi[corner];
+  const { margins, canthi }: ImportedIAutoMovieHumanFacePeriocularSide =
+    periocular[side];
+  const definition:
+    | ImportedIAutoMovieHumanFaceCanthusExtreme
+    | ImportedIAutoMovieHumanFaceCanthusVertex = canthi[corner];
   if (definition.kind === "vertex")
     return context.point(margins.surface, definition.vertex);
   const [ax, ay, az]: [number, number, number] = definition.axis;

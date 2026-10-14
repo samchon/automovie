@@ -1,7 +1,10 @@
+import type {
+  IAutoMovieVector3,
+  IAutoMovieMesh as ImportedIAutoMovieMesh,
+} from "@automovie/interface";
+
 import type { IAutoMovieHumanFaceOpticalSupport as ImportedIAutoMovieHumanFaceOpticalSupport } from "../../structures/IAutoMovieHumanFaceOpticalSupport";
 import type { IAutoMovieHumanFaceOpticalSupportAnterior as ImportedIAutoMovieHumanFaceOpticalSupportAnterior } from "../../structures/IAutoMovieHumanFaceOpticalSupportAnterior";
-import type { IAutoMovieVector3, IAutoMovieMesh as ImportedIAutoMovieMesh } from "@automovie/interface";
-
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 
@@ -24,7 +27,10 @@ export function readHumanFacePupilCentre(
   context: IHumanFaceMeasurementContext,
   side: "left" | "right",
 ): IAutoMovieVector3 | IHumanFaceMeasurementGap {
-  const iris: ImportedIAutoMovieMesh | null | undefined = context.opticalMesh?.(side, "iris");
+  const iris: ImportedIAutoMovieMesh | null | undefined = context.opticalMesh?.(
+    side,
+    "iris",
+  );
   if (iris !== undefined && iris !== null) {
     const count: number = iris.positions.length / 3;
     if (
@@ -44,18 +50,23 @@ export function readHumanFacePupilCentre(
     });
     return { x: center[0], y: center[1], z: center[2] };
   }
-  const owner: "leftEye" | "rightEye" = side === "left" ? "leftEye" : "rightEye";
-  const support: ImportedIAutoMovieHumanFaceOpticalSupport | undefined = context.basis.opticalSupport?.find(
-    (entry: ImportedIAutoMovieHumanFaceOpticalSupport): boolean => entry.owner === owner,
-  );
+  const owner: "leftEye" | "rightEye" =
+    side === "left" ? "leftEye" : "rightEye";
+  const support: ImportedIAutoMovieHumanFaceOpticalSupport | undefined =
+    context.basis.opticalSupport?.find(
+      (entry: ImportedIAutoMovieHumanFaceOpticalSupport): boolean =>
+        entry.owner === owner,
+    );
   if (support === undefined)
     return {
       reason: `missing registration: the basis's ${owner} optical support`,
     };
-  const [a, b, c]: IAutoMovieVector3[] = support.anterior.triangle.map((vertex: number): IAutoMovieVector3 =>
-    context.point(support.surface, vertex),
+  const [a, b, c]: IAutoMovieVector3[] = support.anterior.triangle.map(
+    (vertex: number): IAutoMovieVector3 =>
+      context.point(support.surface, vertex),
   );
-  const { u, v }: ImportedIAutoMovieHumanFaceOpticalSupportAnterior = support.anterior;
+  const { u, v }: ImportedIAutoMovieHumanFaceOpticalSupportAnterior =
+    support.anterior;
   const w: number = 1 - u - v;
   return {
     x: w * a.x + u * b.x + v * c.x,

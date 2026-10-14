@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular, IAutoMovieHumanFacePeriocularComponent as ImportedIAutoMovieHumanFacePeriocularComponent } from "@automovie/human";
+import type {
+  IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular,
+  IAutoMovieHumanFacePeriocularComponent as ImportedIAutoMovieHumanFacePeriocularComponent,
+} from "@automovie/human";
+
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
 
@@ -19,12 +23,14 @@ export function readHumanFaceBrowLength(
   context: IHumanFaceMeasurementContext,
   side: "left" | "right",
 ): number | IHumanFaceMeasurementGap {
-  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined = context.basis.periocular;
+  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined =
+    context.basis.periocular;
   if (periocular === undefined)
     return {
       reason: "missing registration: the basis's periocular registration",
     };
-  const brow: ImportedIAutoMovieHumanFacePeriocularComponent = periocular[side].brow;
+  const brow: ImportedIAutoMovieHumanFacePeriocularComponent =
+    periocular[side].brow;
   const xs: number[] = brow.vertices.map(
     (vertex: number): number => context.point(brow.surface, vertex).x,
   );

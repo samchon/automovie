@@ -1,4 +1,9 @@
-import type { IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular, IAutoMovieHumanFacePeriocularComponent as ImportedIAutoMovieHumanFacePeriocularComponent, IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface } from "@automovie/human";
+import type {
+  IAutoMovieHumanFacePeriocular as ImportedIAutoMovieHumanFacePeriocular,
+  IAutoMovieHumanFacePeriocularComponent as ImportedIAutoMovieHumanFacePeriocularComponent,
+  IHumanFaceMeasurementSurface as ImportedIHumanFaceMeasurementSurface,
+} from "@automovie/human";
+
 import type { IHumanFaceBrowSection } from "./IHumanFaceBrowSection";
 import type { IHumanFaceMeasurementContext } from "./IHumanFaceMeasurementContext";
 import type { IHumanFaceMeasurementGap } from "./IHumanFaceMeasurementGap";
@@ -23,15 +28,21 @@ export function readHumanFaceBrowAtVertical(
   side: "left" | "right",
   x: number,
 ): IHumanFaceBrowSection | IHumanFaceMeasurementGap {
-  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined = context.basis.periocular;
+  const periocular: ImportedIAutoMovieHumanFacePeriocular | undefined =
+    context.basis.periocular;
   if (periocular === undefined)
     return {
       reason: "missing registration: the basis's periocular registration",
     };
-  const brow: ImportedIAutoMovieHumanFacePeriocularComponent = periocular[side].brow;
+  const brow: ImportedIAutoMovieHumanFacePeriocularComponent =
+    periocular[side].brow;
   const own: Set<number> = new Set(brow.vertices);
-  const surface: ImportedIHumanFaceMeasurementSurface = context.surface(brow.surface);
-  const point: (vertex: number) => { x: number; y: number; z: number; } = (vertex: number): { x: number; y: number; z: number; } => ({
+  const surface: ImportedIHumanFaceMeasurementSurface = context.surface(
+    brow.surface,
+  );
+  const point: (vertex: number) => { x: number; y: number; z: number } = (
+    vertex: number,
+  ): { x: number; y: number; z: number } => ({
     x: surface.positions[vertex * 3],
     y: surface.positions[vertex * 3 + 1],
     z: surface.positions[vertex * 3 + 2],
@@ -46,11 +57,17 @@ export function readHumanFaceBrowAtVertical(
     ];
     if (!corners.every((vertex: number): boolean => own.has(vertex))) continue;
     for (let edge: number = 0; edge < 3; edge++) {
-      const a: { x: number; y: number; z: number; } = point(corners[edge]);
-      const b: { x: number; y: number; z: number; } = point(corners[(edge + 1) % 3]);
+      const a: { x: number; y: number; z: number } = point(corners[edge]);
+      const b: { x: number; y: number; z: number } = point(
+        corners[(edge + 1) % 3],
+      );
       if ((a.x - x) * (b.x - x) > 0 || a.x === b.x) continue;
       const t: number = (x - a.x) / (b.x - a.x);
-      const p: { x: number; y: number; z: number; } = { x, y: a.y + t * (b.y - a.y), z: a.z + t * (b.z - a.z) };
+      const p: { x: number; y: number; z: number } = {
+        x,
+        y: a.y + t * (b.y - a.y),
+        z: a.z + t * (b.z - a.z),
+      };
       if (inferior === null || p.y < inferior.y) inferior = p;
       if (superior === null || p.y > superior.y) superior = p;
     }
