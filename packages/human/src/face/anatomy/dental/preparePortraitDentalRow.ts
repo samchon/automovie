@@ -1,6 +1,3 @@
-import type { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
-import type { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
-
 import { mergeAutoMovieMeshes } from "@automovie/engine";
 import { IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
 
@@ -9,6 +6,8 @@ import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { createPortraitDentalArc } from "./createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "./preparePortraitDentalCrown";
 import { separatePortraitDentalCrowns } from "./separatePortraitDentalCrowns";
+import type { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
+import type { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
 import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
 
 /**
@@ -30,7 +29,10 @@ import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * @evidence contracts/performance.md#reuse-equivalent-work One compiled arc serves all crown centres/tangents, each crown's own cycle is offset during its same placement pass, and surface separation uses the shared engine owner.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned merged mesh and cervical arrays are owned; copied profile, individual crown meshes and guide/separation temporaries expire without global retention or resources.
  */
-export function preparePortraitDentalRow(input: IPortraitDentalRow): { mesh: IAutoMovieMesh; cervical: number[][]; }  {
+export function preparePortraitDentalRow(input: IPortraitDentalRow): {
+  mesh: IAutoMovieMesh;
+  cervical: number[][];
+} {
   const shape: IPortraitDentalRow = structuredClone(input);
   if (
     ![shape.halfWidth, shape.depth, shape.gap].every(Number.isFinite) ||
@@ -54,33 +56,43 @@ export function preparePortraitDentalRow(input: IPortraitDentalRow): { mesh: IAu
   const cervical: number[][] = [];
   let vertices: number = 0;
   const length: number =
-    shape.crowns.reduce((sum: number, crown: IPortraitDentalCrown): number  => sum + crown.width, 0) +
-    shape.gap * (shape.crowns.length - 1);
-  const guide: IAutoMovieVector3[] = Array.from({ length: 33 }, (_v: unknown, i: number): IAutoMovieVector3  => {
-    const theta: number = Math.PI * (i / 32 - 0.5);
-    return p(
-      shape.halfWidth * Math.sin(theta),
+    shape.crowns.reduce(
+      (sum: number, crown: IPortraitDentalCrown): number => sum + crown.width,
       0,
-      shape.depth * (Math.cos(theta) - 1),
-    );
-  });
+    ) +
+    shape.gap * (shape.crowns.length - 1);
+  const guide: IAutoMovieVector3[] = Array.from(
+    { length: 33 },
+    (_v: unknown, i: number): IAutoMovieVector3 => {
+      const theta: number = Math.PI * (i / 32 - 0.5);
+      return p(
+        shape.halfWidth * Math.sin(theta),
+        0,
+        shape.depth * (Math.cos(theta) - 1),
+      );
+    },
+  );
   const arc: IPortraitDentalArc = createPortraitDentalArc(guide, length);
   let cursor: number = arc.center - length / 2;
   for (let tooth: number = 0; tooth < shape.crowns.length; tooth++) {
     const profile: IPortraitDentalCrown = shape.crowns[tooth];
     const distance: number = cursor + profile.width / 2;
-    const { position, tangent }: { position: IAutoMovieVector3; tangent: IAutoMovieVector3; } = arc.sample(distance);
+    const {
+      position,
+      tangent,
+    }: { position: IAutoMovieVector3; tangent: IAutoMovieVector3 } =
+      arc.sample(distance);
     // The proximal side toward the common arch midpoint is mesial. Resolve it
     // from arrangement, including unequal crown widths, instead of a tooth ID.
-    const crown: { mesh: IAutoMovieMesh; cervical: number[]; } = preparePortraitDentalCrown(
-      profile,
-      distance <= arc.center ? 1 : -1,
-    );
-    const { mesh }: { mesh: IAutoMovieMesh; cervical: number[]; } = crown;
+    const crown: { mesh: IAutoMovieMesh; cervical: number[] } =
+      preparePortraitDentalCrown(profile, distance <= arc.center ? 1 : -1);
+    const { mesh }: { mesh: IAutoMovieMesh; cervical: number[] } = crown;
     // mergeAutoMovieMeshes preserves input order and offsets all native indices
     // by preceding vertex counts. The same documented correspondence carries
     // the crown-owned cycle; no position search recovers attachment identity.
-    cervical.push(crown.cervical.map((vertex: number): number  => vertices + vertex));
+    cervical.push(
+      crown.cervical.map((vertex: number): number => vertices + vertex),
+    );
     vertices += mesh.positions.length / 3;
     crowns.push(mesh);
     cursor += profile.width + shape.gap;
@@ -102,6 +114,9 @@ export function preparePortraitDentalRow(input: IPortraitDentalRow): { mesh: IAu
   // rotated three-dimensional proximal faces, so the intact crowns are shifted
   // along group X until no two overlap. The nominal ellipse is a guide, not an
   // exact locus after this always-applied separation.
-  const placed: IAutoMovieMesh[] = separatePortraitDentalCrowns(crowns, shape.contactGap ?? 0);
+  const placed: IAutoMovieMesh[] = separatePortraitDentalCrowns(
+    crowns,
+    shape.contactGap ?? 0,
+  );
   return { mesh: mergeAutoMovieMeshes(placed), cervical };
 }

@@ -1,11 +1,15 @@
-import type { IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
-import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";
 import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
@@ -42,17 +46,33 @@ export function createPortraitDentalComponent(
     throw new Error(
       "Upper dentition attachment must name the refined oral or observed maxillary frame.",
     );
-  const socket: { rightCorner: number; leftCorner: number; upperLipMiddle: number; } = structuredClone(inputSocket),
-    placement: { lift: number; recess: number; } = structuredClone(inputPlacement),
-    row: { mesh: IAutoMovieMesh; cervical: number[][]; } = preparePortraitDentalRow(inputRow);
+  const socket: {
+      rightCorner: number;
+      leftCorner: number;
+      upperLipMiddle: number;
+    } = structuredClone(inputSocket),
+    placement: { lift: number; recess: number } =
+      structuredClone(inputPlacement),
+    row: { mesh: IAutoMovieMesh; cervical: number[][] } =
+      preparePortraitDentalRow(inputRow);
   if (![placement.lift, placement.recess].every(Number.isFinite))
     throw new Error("Dental component placement must be finite millimetres.");
   return {
     id: "upper-dentition",
-    fit: (host: IPortraitComponentHost): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }; }  => {
+    fit: (
+      host: IPortraitComponentHost,
+    ): {
+      constraints: never[];
+      cutFaces: never[];
+      attach: () => {
+        prepareInteriors: (refined: IControlMesh) => IPortraitInterior[];
+        finish: (refined: IControlMesh) => IAutoMovieModelPart[];
+        openings: never[];
+      };
+    } => {
       if (
         Object.values(socket).some(
-          (id: number): boolean  =>
+          (id: number): boolean =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
@@ -69,30 +89,50 @@ export function createPortraitDentalComponent(
       return {
         constraints: [],
         cutFaces: [],
-        attach: (): { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }  => ({
+        attach: (): {
+          prepareInteriors: (refined: IControlMesh) => IPortraitInterior[];
+          finish: (refined: IControlMesh) => IAutoMovieModelPart[];
+          openings: never[];
+        } => ({
           openings: [],
-          ...createPortraitInteriorFinisher((refined: IControlMesh): { id: string; mesh: IAutoMovieMesh; material: string; loops: { name: string; vertices: number[]; }[]; }[]  => {
-            const source: number[][] = maxilla ?? refined.positions;
-            const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
-              p(source[id][0], source[id][1], source[id][2]);
-            return [
-              {
-                id: "tooth-upper-arch",
-                mesh: attachPortraitDentalRow(row.mesh, {
-                  rightCorner: point(socket.rightCorner),
-                  leftCorner: point(socket.leftCorner),
-                  upperLipMiddle: point(socket.upperLipMiddle),
-                  up: p(0, 1, 0),
-                  ...placement,
-                }),
-                material: "teeth",
-                loops: row.cervical.map((vertices: number[], tooth: number): { name: string; vertices: number[]; }  => ({
-                  name: `cervical-${tooth}`,
-                  vertices: [...vertices],
-                })),
-              },
-            ];
-          }),
+          ...createPortraitInteriorFinisher(
+            (
+              refined: IControlMesh,
+            ): {
+              id: string;
+              mesh: IAutoMovieMesh;
+              material: string;
+              loops: { name: string; vertices: number[] }[];
+            }[] => {
+              const source: number[][] = maxilla ?? refined.positions;
+              const point: (id: number) => IAutoMovieVector3 = (
+                id: number,
+              ): IAutoMovieVector3 =>
+                p(source[id][0], source[id][1], source[id][2]);
+              return [
+                {
+                  id: "tooth-upper-arch",
+                  mesh: attachPortraitDentalRow(row.mesh, {
+                    rightCorner: point(socket.rightCorner),
+                    leftCorner: point(socket.leftCorner),
+                    upperLipMiddle: point(socket.upperLipMiddle),
+                    up: p(0, 1, 0),
+                    ...placement,
+                  }),
+                  material: "teeth",
+                  loops: row.cervical.map(
+                    (
+                      vertices: number[],
+                      tooth: number,
+                    ): { name: string; vertices: number[] } => ({
+                      name: `cervical-${tooth}`,
+                      vertices: [...vertices],
+                    }),
+                  ),
+                },
+              ];
+            },
+          ),
         }),
       };
     },

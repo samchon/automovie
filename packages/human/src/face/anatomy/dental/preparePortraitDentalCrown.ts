@@ -1,10 +1,9 @@
-import type { IPortraitDentalSideContour } from "./structures/IPortraitDentalSideContour";
-
 import { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
+import type { IPortraitDentalSideContour } from "./structures/IPortraitDentalSideContour";
 
 /**
  * A closed crown loft with a narrow cervical end, broad body and thin cutting
@@ -32,7 +31,7 @@ import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
 export function preparePortraitDentalCrown(
   s: IPortraitDentalCrown,
   mesialDirection: number = 1,
-): { mesh: IAutoMovieMesh; cervical: number[]; }  {
+): { mesh: IAutoMovieMesh; cervical: number[] } {
   assertPortraitDentalCrown(s);
   if (mesialDirection !== 1 && mesialDirection !== -1)
     throw new Error(
@@ -41,19 +40,38 @@ export function preparePortraitDentalCrown(
   const columns: number = 32 as const,
     positions: number[] = [],
     indices: number[] = [];
-  const contours: { contactHeight: number; cervicalWidth: number; incisalRise: number; }[] = [s.contour?.mesial, s.contour?.distal].map((side: IPortraitDentalSideContour | undefined): { contactHeight: number; cervicalWidth: number; incisalRise: number; }  => ({
-    contactHeight: side?.contactHeight ?? 0.3,
-    cervicalWidth: side?.cervicalWidth ?? s.cervicalWidth,
-    incisalRise: side?.incisalRise ?? s.edgeRise,
-  }));
+  const contours: {
+    contactHeight: number;
+    cervicalWidth: number;
+    incisalRise: number;
+  }[] = [s.contour?.mesial, s.contour?.distal].map(
+    (
+      side: IPortraitDentalSideContour | undefined,
+    ): {
+      contactHeight: number;
+      cervicalWidth: number;
+      incisalRise: number;
+    } => ({
+      contactHeight: side?.contactHeight ?? 0.3,
+      cervicalWidth: side?.cervicalWidth ?? s.cervicalWidth,
+      incisalRise: side?.incisalRise ?? s.edgeRise,
+    }),
+  );
   const levels: number[] = [
     ...new Set([
-      ...Array.from({ length: 11 }, (_: unknown, i: number): number  => i / 10),
-      ...contours.map((c: { contactHeight: number; cervicalWidth: number; incisalRise: number; }): number  => c.contactHeight),
+      ...Array.from({ length: 11 }, (_: unknown, i: number): number => i / 10),
+      ...contours.map(
+        (c: {
+          contactHeight: number;
+          cervicalWidth: number;
+          incisalRise: number;
+        }): number => c.contactHeight,
+      ),
     ]),
-  ].sort((a: number, b: number): number  => a - b);
+  ].sort((a: number, b: number): number => a - b);
   const rows: number = levels.length - 1;
-  const rounded: (v: number) => number = (v: number): number  => Math.sign(v) * Math.abs(v) ** 0.45;
+  const rounded: (v: number) => number = (v: number): number =>
+    Math.sign(v) * Math.abs(v) ** 0.45;
   for (let row: number = 0; row <= rows; row++) {
     const v: number = levels[row];
     const thickness: number =
@@ -61,7 +79,11 @@ export function preparePortraitDentalCrown(
     for (let column: number = 0; column < columns; column++) {
       const a: number = (column / columns) * 2 * Math.PI,
         x: number = rounded(Math.cos(a));
-      const contour: { contactHeight: number; cervicalWidth: number; incisalRise: number; } = contours[x * mesialDirection >= 0 ? 0 : 1];
+      const contour: {
+        contactHeight: number;
+        cervicalWidth: number;
+        incisalRise: number;
+      } = contours[x * mesialDirection >= 0 ? 0 : 1];
       const breadth: number =
         v <= contour.contactHeight
           ? 0.92 + 0.08 * Math.sin(((v / contour.contactHeight) * Math.PI) / 2)
@@ -112,7 +134,7 @@ export function preparePortraitDentalCrown(
   // fixed vertex count would break after sampling or a rigid oral placement.
   const cervical: number[] = Array.from(
     { length: columns },
-    (_: unknown, column: number): number  => rows * columns + column,
+    (_: unknown, column: number): number => rows * columns + column,
   );
   return { mesh, cervical };
 }

@@ -30,10 +30,12 @@ export function separatePortraitDentalCrowns(
   contactGap: number,
 ): IAutoMovieMesh[] {
   return separateAutoMovieMeshSequence(
-    crowns.map((mesh: IAutoMovieMesh): IAutoMovieMesh => ({
-      ...mesh,
-      positions: mesh.positions.map((value: number): number  => value / 1000),
-    })),
+    crowns.map(
+      (mesh: IAutoMovieMesh): IAutoMovieMesh => ({
+        ...mesh,
+        positions: mesh.positions.map((value: number): number => value / 1000),
+      }),
+    ),
     "x",
     contactGap / 1000,
   ).map((mesh: IAutoMovieMesh, index: number): IAutoMovieMesh => {
@@ -41,8 +43,9 @@ export function separatePortraitDentalCrowns(
       (mesh.positions[0] - crowns[index].positions[0] / 1000) * 1000;
     return {
       ...mesh,
-      positions: crowns[index].positions.map((value: number, axis: number): number  =>
-        axis % 3 === 0 ? value + shift : value,
+      positions: crowns[index].positions.map(
+        (value: number, axis: number): number =>
+          axis % 3 === 0 ? value + shift : value,
       ),
     };
   });

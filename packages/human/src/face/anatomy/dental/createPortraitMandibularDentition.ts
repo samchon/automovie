@@ -1,13 +1,17 @@
-import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
-
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieVector3, IAutoMovieMesh, IAutoMovieModelPart, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { millimetrePoint } from "../../mesh/millimetrePoint";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
+import type { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";
@@ -41,9 +45,15 @@ export function createPortraitMandibularDentition(
   inputPlacement: { drop: number; recess: number },
   inputJaw: { hinge: IAutoMovieVector3; observed: number; current: number },
 ): IPortraitComponent {
-  const socket: { rightCorner: number; leftCorner: number; lowerLipMiddle: number; } = structuredClone(inputSocket),
-    placement: { drop: number; recess: number; } = structuredClone(inputPlacement),
-    jaw: { hinge: IAutoMovieVector3; observed: number; current: number; } = structuredClone(inputJaw);
+  const socket: {
+      rightCorner: number;
+      leftCorner: number;
+      lowerLipMiddle: number;
+    } = structuredClone(inputSocket),
+    placement: { drop: number; recess: number } =
+      structuredClone(inputPlacement),
+    jaw: { hinge: IAutoMovieVector3; observed: number; current: number } =
+      structuredClone(inputJaw);
   if (
     ![placement.drop, placement.recess, jaw.observed, jaw.current].every(
       Number.isFinite,
@@ -59,7 +69,8 @@ export function createPortraitMandibularDentition(
       "Mandibular dentition requires nonnegative finite offsets and jaw angles in [0,25] degrees.",
     );
   posePortraitJawPoint(jaw.hinge, jaw.hinge, 0, 1);
-  const prepared: { mesh: IAutoMovieMesh; cervical: number[][]; } = preparePortraitDentalRow(inputRow);
+  const prepared: { mesh: IAutoMovieMesh; cervical: number[][] } =
+    preparePortraitDentalRow(inputRow);
   const row: IAutoMovieMesh = prepared.mesh;
   // Reflect the cervical-to-incisal axis, including normals and handedness.
   for (let i: number = 1; i < row.positions.length; i += 3) {
@@ -72,15 +83,27 @@ export function createPortraitMandibularDentition(
     [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
   return {
     id: "lower-dentition",
-    fit: (host: IPortraitComponentHost): { constraints: never[]; cutFaces: never[]; attach: () => { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }; }  => {
+    fit: (
+      host: IPortraitComponentHost,
+    ): {
+      constraints: never[];
+      cutFaces: never[];
+      attach: () => {
+        prepareInteriors: (refined: IControlMesh) => IPortraitInterior[];
+        finish: (refined: IControlMesh) => IAutoMovieModelPart[];
+        openings: never[];
+      };
+    } => {
       if (
         Object.values(socket).some(
-          (id: number): boolean  =>
+          (id: number): boolean =>
             !Number.isInteger(id) || id < 0 || id >= host.positions.length,
         )
       )
         throw new Error("Mandibular sockets must name resident host vertices.");
-      const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3  =>
+      const point: (id: number) => IAutoMovieVector3 = (
+        id: number,
+      ): IAutoMovieVector3 =>
         millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed: IAutoMovieMesh = attachPortraitDentalRow(row, {
         rightCorner: point(socket.rightCorner),
@@ -91,7 +114,10 @@ export function createPortraitMandibularDentition(
         recess: placement.recess,
       });
       const angle: number = jaw.current - jaw.observed,
-        rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, angle);
+        rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+          { x: 1, y: 0, z: 0 },
+          angle,
+        );
       for (let i: number = 0; i < placed.positions.length; i += 3) {
         const p: IAutoMovieVector3 = posePortraitJawPoint(
           {
@@ -114,7 +140,11 @@ export function createPortraitMandibularDentition(
       return {
         constraints: [],
         cutFaces: [],
-        attach: (): { prepareInteriors: (refined: IControlMesh) => IPortraitInterior[]; finish: (refined: IControlMesh) => IAutoMovieModelPart[]; openings: never[]; }  => ({
+        attach: (): {
+          prepareInteriors: (refined: IControlMesh) => IPortraitInterior[];
+          finish: (refined: IControlMesh) => IAutoMovieModelPart[];
+          openings: never[];
+        } => ({
           openings: [],
           ...createPortraitInteriorFinisher((): IPortraitInterior[] => [
             {
@@ -123,10 +153,15 @@ export function createPortraitMandibularDentition(
               material: "teeth",
               // Reflection reverses the cap's winding along with its faces.
               // Reverse the owned cycle as well; its vertex set stays intact.
-              loops: prepared.cervical.map((vertices: number[], tooth: number): { name: string; vertices: number[]; }  => ({
-                name: `cervical-${tooth}`,
-                vertices: [...vertices].reverse(),
-              })),
+              loops: prepared.cervical.map(
+                (
+                  vertices: number[],
+                  tooth: number,
+                ): { name: string; vertices: number[] } => ({
+                  name: `cervical-${tooth}`,
+                  vertices: [...vertices].reverse(),
+                }),
+              ),
             },
           ]),
         }),
