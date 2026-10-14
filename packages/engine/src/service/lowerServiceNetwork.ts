@@ -1,19 +1,11 @@
-import {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieModel,
-  IAutoMovieServiceNetwork,
-  IAutoMovieStageSetPiece,
-  IAutoMovieValidation,
-} from "@automovie/interface";
-
+import { IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMovieServiceNetwork, IAutoMovieStageSetPiece, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
 import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { IAutoMovieProfilePoint } from "../geometry/IAutoMovieProfilePoint";
 import { sweepAutoMovieProfile } from "../geometry/sweepAutoMovieProfile";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
-
 /** Default number of sides a swept run is drawn with. */
-const DEFAULT_SIDES = 8;
+const DEFAULT_SIDES: number = 8;
 
 /**
  * Lower one service network to the models and staged pieces that draw it.
@@ -34,17 +26,28 @@ const DEFAULT_SIDES = 8;
  * Refuses to draw an invalid network. Lowering a graph with a dangling port or
  * a clash would put a picture of a working installation in front of the reason
  * it does not work, which is the one thing this record exists to prevent.
+ * No current production consumer calls this lowering; service render tests
+ * exercise the emitted contribution. Sides are unbounded apart from integer
+ * admission, so caller-selected resolution controls allocation size.
+ *
+ * @evidence contracts/common.md#principled-implementation Validated centre lines and radii become regular-section sweeps baked into the same world metre frame; zero staged position avoids applying that authored world placement twice.
+ * @evidence contracts/common.md#clear-and-simple-design Shared network/wet-zone gates and sweep geometry own admission and tessellation, while this contribution builder currently has no live product consumer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid service geometry refuses before drawing, and no discipline-specific fitting or appearance is invented to make the installation look complete.
+ * @evidence contracts/common.md#meaningful-documentation States world-baked geometry, lack of fitting library, integer resolution/refusals and the missing production consumer with unbounded side-allocation premise.
+ * @evidence contracts/performance.md#efficient-algorithms Validation precedes one sweep per run; regular sections cost O(sides) and emitted vertices scale with route length times sides, with underlying network checks retaining their own pairwise costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both gates run once before the loop, while every run's radius/route needs its own section and sweep; no mutable mesh is cached across networks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh models, set pieces and mesh buffers transfer to the contribution caller; no GPU object, validator collector or source network reference is retained.
  *
  * @author Samchon
  */
-export const lowerServiceNetwork = (props: {
+export const lowerServiceNetwork: (props: { network: IAutoMovieServiceNetwork; environment: IAutoMovieBuiltEnvironment; sides?: number | undefined; }) => IAutoMovieSubjectContribution = (props: {
   network: IAutoMovieServiceNetwork;
   environment: IAutoMovieBuiltEnvironment;
   /** Sides the swept section is drawn with; an integer `>= 3`. Defaults to 8. */
   sides?: number;
 }): IAutoMovieSubjectContribution => {
-  const { network, environment } = props;
-  const sides = props.sides ?? DEFAULT_SIDES;
+  const { network, environment }: typeof props = props;
+  const sides: number = props.sides ?? DEFAULT_SIDES;
   if (!Number.isInteger(sides) || sides < 3)
     throw new Error(
       `a swept service run needs at least 3 sides, but ${sides} was requested`,
@@ -55,7 +58,7 @@ export const lowerServiceNetwork = (props: {
   const models: IAutoMovieModel[] = [];
   const set: IAutoMovieStageSetPiece[] = [];
   for (const segment of network.segments) {
-    const id = `${network.id}/${segment.id}`;
+    const id: string = `${network.id}/${segment.id}`;
     models.push({
       id,
       name: `service run ${segment.id}`,
@@ -90,18 +93,18 @@ export const lowerServiceNetwork = (props: {
 };
 
 /** A regular section of the given radius, in the sweep's own profile plane. */
-const section = (radius: number, sides: number): IAutoMovieProfilePoint[] =>
-  Array.from({ length: sides }, (_unused, index) => {
-    const angle = (2 * Math.PI * index) / sides;
+const section: (radius: number, sides: number) => IAutoMovieProfilePoint[] = (radius: number, sides: number): IAutoMovieProfilePoint[] =>
+  Array.from({ length: sides }, (_unused: unknown, index: number): { x: number; y: number; } => {
+    const angle: number = (2 * Math.PI * index) / sides;
     return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
   });
 
-const refuse = (
+const refuse: (network: IAutoMovieServiceNetwork, validation: IAutoMovieValidation) => void = (
   network: IAutoMovieServiceNetwork,
   validation: IAutoMovieValidation,
 ): void => {
   if (validation.success === true) return;
-  const first = validation.violations[0]!;
+  const first: IAutoMovieConstraintViolation = validation.violations[0]!;
   throw new Error(
     `service network "${network.id}" is invalid at ${first.path}: ${first.expected}`,
   );

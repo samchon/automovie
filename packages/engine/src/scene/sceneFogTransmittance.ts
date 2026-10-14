@@ -1,40 +1,33 @@
 import { IAutoMovieFog } from "@automovie/interface";
-
 /**
- * The fraction of a subject's own color that survives the scene's atmosphere at
- * `depthMeters`: its **transmittance**, one at the lens and falling to zero
- * with distance. The rendered color is `subject * T + fog.color * (1 - T)`.
+ * FogExp2 transmittance at axial camera depth in metres:
+ * T(d) = exp(-(density * d)^2). Consumers blend subject * T with fog.color *
+ * (1 - T), following the same atmosphere law selected by viewer fog setup.
  *
- *     T(d) = exp(-(density * d)^2)
+ * Depth is camera-forward distance rather than radial range. The squared law
+ * is even in depth, so a behind-camera point has the same attenuation as its
+ * positive-depth counterpart; consumers own visibility separately. Binary64
+ * evaluation is a prediction of the shader law, not exact pixel agreement
+ * with GPU precision, lighting, compositing or tone mapping.
  *
- * This is the whole of automovie's fog law and the ONLY place it is written.
- * The viewer hands the same `density` to the GPU ({@link applySceneFog} builds a
- * `FogExp2`), whose shader computes `1.0 - exp(-fogDensity * fogDensity *
- * vFogDepth * vFogDepth)` (`three.js` `fog_fragment.glsl`, `FOG_EXP2` branch)
- * over `vFogDepth = -mvPosition.z` (`fog_vertex.glsl`). Reproducing that exact
- * expression here, rather than the physically purer Beer-Lambert `exp(-density
+ * Null or absent fog returns one. Scene-admitted density and finite depth are
+ * caller premises; nonfinite direct inputs follow ordinary exponential arithmetic.
  *
- * - D)`, is what makes this function a PREDICTION of the painted pixel instead of
- *   an estimate of it: an offline artifact and a review frame state the same
- *   atmosphere, or the artifact is lying about the film.
- *
- * `depthMeters` is camera-space depth (distance along the camera's forward
- * axis, `projectToNdc`'s `depth`), not radial distance, again because that is
- * what the shader interpolates. The law is even in depth, so a point behind the
- * camera attenuates like one the same distance in front; that is the shader's
- * behavior too, and a caller that cares reads the depth's sign.
- *
- * An absent or `null` fog is a scene with no declared atmosphere, and returns
- * exactly `1`: nothing is taken from the subject, which is what makes the whole
- * feature invisible to every production that never mentions it.
+ * @evidence contracts/common.md#principled-implementation Exponentiating the negative squared optical depth follows the viewer's FogExp2 attenuation law using axial camera depth; shader floating-point precision can differ from this binary64 calculation.
+ * @evidence contracts/common.md#clear-and-simple-design Offline subject-contribution predictions share the atmosphere law selected by viewer fog construction, with color blending left to those consumers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null or absent fog explicitly means unit transmittance; density and depth are not adjusted to make a rendered prediction appear closer.
+ * @evidence contracts/common.md#meaningful-documentation Gives the exponential formula, camera-depth convention, behind-camera symmetry, absent-fog result and admitted-input precision limits.
+ * @evidence contracts/performance.md#efficient-algorithms Two products, one negation and one exponential take constant time with no geometry traversal or allocation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Density and depth define one independent scalar query, so the function coordinates no repeated scene work or cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned primitive retains no fog record, shader, renderer or temporary object after computation.
  *
  * @author Samchon
  */
-export const sceneFogTransmittance = (
+export const sceneFogTransmittance: (fog: IAutoMovieFog | null | undefined, depthMeters: number) => number = (
   fog: IAutoMovieFog | null | undefined,
   depthMeters: number,
 ): number => {
   if (fog === null || fog === undefined) return 1;
-  const opticalDepth = fog.density * depthMeters;
+  const opticalDepth: number = fog.density * depthMeters;
   return Math.exp(-(opticalDepth * opticalDepth));
 };

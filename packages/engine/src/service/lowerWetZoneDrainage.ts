@@ -1,14 +1,6 @@
-import {
-  IAutoMovieFluidDomain,
-  IAutoMovieFluidDrain,
-  IAutoMovieFluidSource,
-  IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
-  IAutoMovieServiceSystem,
-} from "@automovie/interface";
-
+import { IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem, IAutoMovieWetZone, IAutoMovieServicePort } from "@automovie/interface";
 /** Media a floor drain is allowed to discharge into. */
-const WASTE_MEDIUM = "waste-water";
+const WASTE_MEDIUM: string = "waste-water";
 
 /**
  * Compose a wet zone's plumbing into an independent fluid domain.
@@ -41,22 +33,33 @@ const WASTE_MEDIUM = "waste-water";
  * standing off the lattice and a derived id that collides with an authored one
  * each raise, because every one of them would otherwise produce a domain that
  * silently conserves the wrong amount of water.
+ * The returned domain shares unchanged grid, bed and authored entry records;
+ * only source/drain arrays and derived entries are new. There is currently no
+ * production caller for this composition, only service drainage tests.
+ *
+ * @evidence contracts/common.md#principled-implementation Validated plumbing inlets and waste-water outlets map their declared demand to the containing fluid lattice cell; bed elevation supplies each ordinary floor drain's sill without a second water-motion solver.
+ * @evidence contracts/common.md#clear-and-simple-design Service records compose into the existing fluid domain model, but this lowering's current callers are tests rather than a production wet-zone binding phase.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown zones/drains, off-grid placement and ids shadowing authored entries throw; node kind does not alter hydraulic demand or invent an inlet omission.
+ * @evidence contracts/common.md#meaningful-documentation States prior network admission, lattice and sill rules, all refusals, current unconsumed status and shallow-copy ownership of unchanged domain data.
+ * @evidence contracts/performance.md#efficient-algorithms A system map and node/port scan are linear, but each drain node lookup scans nodes and each derived-id collision check scans authored entries, yielding their product costs without a retained index.
+ * @evidence contracts/performance.md#reuse-equivalent-work The system lookup is built once for all ports; per-cell placement serves every derived row at a node, and no composition result persists across domain edits.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources New source/drain lists and rows transfer to the caller; untouched domain records remain source aliases, and temporary system/candidate arrays retain no independent simulation state.
  *
  * @author Samchon
  */
-export const lowerWetZoneDrainage = (props: {
+export const lowerWetZoneDrainage: (props: { network: IAutoMovieServiceNetwork; zone: string; domain: IAutoMovieFluidDomain; }) => IAutoMovieFluidDomain = (props: {
   network: IAutoMovieServiceNetwork;
   zone: string;
   domain: IAutoMovieFluidDomain;
 }): IAutoMovieFluidDomain => {
-  const { network, domain } = props;
-  const zone = network.zones.find((candidate) => candidate.id === props.zone);
+  const { network, domain }: typeof props = props;
+  const zone: IAutoMovieWetZone | undefined = network.zones.find((candidate: IAutoMovieWetZone): boolean => candidate.id === props.zone);
   if (zone === undefined)
     throw new Error(
       `service network "${network.id}" has no wet zone "${props.zone}"`,
     );
-  const systems = new Map(
-    network.systems.map((system) => [system.id, system] as const),
+  const systems: Map<string, IAutoMovieServiceSystem> = new Map(
+    network.systems.map((system: IAutoMovieServiceSystem): readonly [string, IAutoMovieServiceSystem] => [system.id, system] as const),
   );
 
   const sources: IAutoMovieFluidSource[] = [];
@@ -64,9 +67,9 @@ export const lowerWetZoneDrainage = (props: {
     if (node.space !== zone.space) continue;
     for (const port of node.ports) {
       if (port.direction !== "in") continue;
-      const system = systems.get(port.system);
+      const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
       if (system === undefined || system.discipline !== "plumbing") continue;
-      const cell = cellOf(domain, node, zone.id);
+      const cell: { column: number; row: number; } = cellOf(domain, node, zone.id);
       sources.push({
         id: derivedId(zone.id, port.id, domain, "source"),
         column: cell.column,
@@ -80,12 +83,12 @@ export const lowerWetZoneDrainage = (props: {
 
   const drains: IAutoMovieFluidDrain[] = [];
   for (const id of zone.drains) {
-    const node = network.nodes.find((candidate) => candidate.id === id);
+    const node: IAutoMovieServiceNode | undefined = network.nodes.find((candidate: IAutoMovieServiceNode): boolean => candidate.id === id);
     if (node === undefined)
       throw new Error(
         `wet zone "${zone.id}" cites drain node "${id}", which the network does not declare`,
       );
-    const cell = cellOf(domain, node, zone.id);
+    const cell: { column: number; row: number; } = cellOf(domain, node, zone.id);
     for (const port of wastePortsOf(node, systems))
       drains.push({
         id: derivedId(zone.id, port.id, domain, "drain"),
@@ -106,12 +109,12 @@ export const lowerWetZoneDrainage = (props: {
 };
 
 /** The outgoing waste-water ports a node carries, in declaration order. */
-const wastePortsOf = (
+const wastePortsOf: (node: IAutoMovieServiceNode, systems: ReadonlyMap<string, IAutoMovieServiceSystem>) => IAutoMovieServicePort[] = (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
 ): IAutoMovieServiceNode["ports"] =>
-  node.ports.filter((port) => {
-    const system = systems.get(port.system);
+  node.ports.filter((port: IAutoMovieServicePort): boolean => {
+    const system: IAutoMovieServiceSystem | undefined = systems.get(port.system);
     return (
       port.direction === "out" &&
       system !== undefined &&
@@ -121,15 +124,15 @@ const wastePortsOf = (
   });
 
 /** Resolve the lattice cell a node stands over, refusing one that stands off it. */
-const cellOf = (
+const cellOf: (domain: IAutoMovieFluidDomain, node: IAutoMovieServiceNode, zone: string) => { column: number; row: number; } = (
   domain: IAutoMovieFluidDomain,
   node: IAutoMovieServiceNode,
   zone: string,
 ): { column: number; row: number } => {
-  const column = Math.floor(
+  const column: number = Math.floor(
     (node.position.x - domain.grid.origin.x) / domain.grid.cellX,
   );
-  const row = Math.floor(
+  const row: number = Math.floor(
     (node.position.z - domain.grid.origin.z) / domain.grid.cellZ,
   );
   if (
@@ -149,17 +152,17 @@ const cellOf = (
 };
 
 /** Name a derived inflow or outflow, refusing to shadow an authored one. */
-const derivedId = (
+const derivedId: (zone: string, port: string, domain: IAutoMovieFluidDomain, kind: "source" | "drain") => string = (
   zone: string,
   port: string,
   domain: IAutoMovieFluidDomain,
   kind: "source" | "drain",
 ): string => {
-  const id = `${zone}/${port}`;
-  const taken =
+  const id: string = `${zone}/${port}`;
+  const taken: boolean =
     kind === "source"
-      ? domain.sources.some((entry) => entry.id === id)
-      : domain.drains.some((entry) => entry.id === id);
+      ? domain.sources.some((entry: IAutoMovieFluidSource): boolean => entry.id === id)
+      : domain.drains.some((entry: IAutoMovieFluidDrain): boolean => entry.id === id);
   if (taken)
     throw new Error(
       `fluid domain "${domain.id}" already declares a ${kind} named "${id}"`,
