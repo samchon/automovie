@@ -64,8 +64,7 @@ const placed: (props: {
  *    is deliberately not geometrically checked. The same 3×3 lattice is
  *    admitted with flat bed, but refused when only its centre bed rises above
  *    the convex basin ceiling while all four corner beds remain inside.
- * 7. A basin written as several convex cells is not convex, so it is checked cell
- *    by cell rather than at the lattice's corners: a lattice bridging the notch
+ * 7. A basin written as several convex cells is checked at every bed centre: a lattice bridging the notch
  *    between two halves is refused even though all four of its corners stand in
  *    the room, while a lattice wholly inside one half is accepted. An unsound
  *    domain is not measured at all — a grid that failed its own validation has
@@ -80,7 +79,7 @@ const placed: (props: {
  *
  * @evidence contracts/testing.md#behavioral-verification Validates feature/environment/space/domain/rim joins and bed-point containment, then lowers static, simulated and flowing frames and observes shared step/state/surface/spray fields plus foreign-domain refusal.
  * @evidence contracts/testing.md#independent-expectations Literal identities and basin halfspaces independently require valid joins and in-volume bed centres; the same 3-by-3 lattice changes only its interior bed height for the convex refusal regression. Mode clocks and authored zero-bed heights determine lowering expectations.
- * @evidence contracts/testing.md#distinguishing-cases Retains original missing/duplicate/blank identities, kind/mode/material refusals, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion missed by the current convex-corner shortcut, a pending source fix. No visual result is claimed.
+ * @evidence contracts/testing.md#distinguishing-cases Retains original missing/duplicate/blank identities, kind/mode/material refusals, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion despite inside corner beds. No visual result is claimed.
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns every existing binding/lowering case and the approved same-shape interior-bed twin through engine calls; internal fixture helpers only supply records and no renderer, browser or GPU starts.
  */
 export function test_fluid_water_feature_binding(): void {

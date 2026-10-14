@@ -31,6 +31,7 @@ import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
 import { IAutoMovieRestFrame } from "../../../../packages/engine/src/rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../../../../packages/engine/src/rom/constants/HUMANOID_REST_FRAME";
 import { FILM_MOUNT_WALK as horseWalk } from "../internal/FILM_MOUNT_WALK";
+import { createFilmClinicalMountFixture } from "../internal/createFilmClinicalMountFixture";
 import { createFilmMountScript as scriptOf } from "../internal/createFilmMountScript";
 import { createFilmMountStage as stagingOf } from "../internal/createFilmMountStage";
 import {
@@ -38,14 +39,7 @@ import {
   makeStagingWrite,
   validSynthesizer,
 } from "../internal/filmFixtures";
-import {
-  IDENTITY_TRANSFORM,
-  createSkeleton,
-  joint,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
+import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
@@ -56,47 +50,6 @@ const synth: IAutoMovieActionSynthesizer = (
   actor: string,
 ): IAutoMovieMotion | null =>
   actor === "horse" ? horseWalk : validSynthesizer(action, actor);
-
-const CUSTOM_MOUNT_JOINT_AXES: Partial<
-  Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-> = {
-  hips: {
-    flexion: { x: 0, y: 0, z: 1 },
-    abduction: { x: 1, y: 0, z: 0 },
-    twist: { x: 0, y: 1, z: 0 },
-  },
-};
-const CUSTOM_MOUNT_REST_FRAMES: Partial<
-  Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
-> = {
-  hips: { flexion: { sign: 1 as const, neutral: 15 } },
-};
-const clinicalHorseWalk: IAutoMovieMotion = makeMotion(
-  [
-    keyframe(
-      0,
-      makePose([joint("hips", { flexion: 30 })], {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-    keyframe(
-      2,
-      makePose([joint("hips", { flexion: 30 })], {
-        translation: { x: 2, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-  ],
-  2,
-);
-const clinicalSynth: IAutoMovieActionSynthesizer = (
-  action: IAutoMovieActionCall,
-  actor: string,
-): IAutoMovieMotion | null =>
-  actor === "horse" ? clinicalHorseWalk : validSynthesizer(action, actor);
 
 const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
   clip: IAutoMovieClip,
@@ -112,18 +65,20 @@ const riderPosAt: (clip: IAutoMovieClip, t: number) => IAutoMovieVector3 = (
  * Scenarios:
  * 1. Bake moving rider translation/rotation, distinguish the staged decoy and compare shared attachment FK at the end.
  * 2. Emit no grab/attach/detach/release events for a persistent mount.
- * 3. Read baked beat-end position, trailing velocity and mount binding; retain the legacy zero-velocity offset case and custom clinical-basis contrast.
+ * 3. Read baked beat-end position, trailing velocity and mount binding; distinguish empty, future and short active performance windows and custom clinical bases.
  * 4. Recompile the same staged beat without restating attachTo.
  * 5. Let explicit attachTo replace the persistent mount's clip.
  * 6. Produce no follow when staging has no mount.
  * 7. Refuse a rigless parent or absent mount bone.
  *
  * @evidence contracts/testing.md#behavioral-verification Performs staged mounts, samples baked rider follow and beat-end state, and checks velocity, clinical basis propagation, repeated compilation, explicit override and rig/bone failures.
- * @evidence contracts/testing.md#independent-expectations The airborne staged rider must move and the two-second horse travel requires X velocity above .5 with Y/Z below 1e-6 in magnitude. The 1e-9 attachment reference reuses product FK, so it checks handoff consistency rather than independent FK arithmetic. The preserved 3b zero-velocity expectation conflicts with the current baked shot-clock snapshot contract and awaits a narrow execution; it is not established evidence of an empty baked window.
- * @evidence contracts/testing.md#distinguishing-cases Retains moving follow, absent handoff events, the pending offset/velocity contract disagreement, clinical/fallback contrast, recompilation, explicit override, mountless, rigless and missing-bone neighbours. Recompilation uses beat-1 again and does not execute a distinct resumed second beat; override checks clip population rather than independently sampling the requested chest endpoint.
+ * @evidence contracts/testing.md#independent-expectations The airborne staged rider must move and the authored two-metre horse travel over two seconds gives one metre per second. A performance at or before its start has no trailing history; a five-millisecond active window retains that same slope. The 1e-9 attachment reference reuses product FK, so it checks handoff consistency rather than independent FK arithmetic.
+ * @evidence contracts/testing.md#distinguishing-cases Covers moving follow, absent handoff events, exact-start and future-start zero velocity, a short positive window, clinical/fallback contrast, recompilation, explicit override, mountless, rigless and missing-bone neighbours. Recompilation uses beat-1 again and does not execute a distinct resumed second beat; override checks clip population rather than independently sampling the requested chest endpoint.
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_mount unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  */
 export function test_film_perform_shot_mount(): void {
+  const clinicalFixture: ReturnType<typeof createFilmClinicalMountFixture> =
+    createFilmClinicalMountFixture();
   const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());
   if (staged.success !== true) throw new Error("staging must succeed");
   TestValidator.equals("staging carries the rider mount", staged.mounts, [
@@ -243,19 +198,11 @@ export function test_film_perform_shot_mount(): void {
     bone: "spine",
   });
 
-  // 3b. Preserve the legacy zero-velocity expectation at pose-local time zero.
-  // The current snapshot reads baked velocity on the shot clock, so this case
-  // has a pending contract disagreement rather than a proven empty window.
-  const endStart: IAutoMovieBeatEndState = resolveBeatEnd({
+  // 3b. A performance cannot inherit velocity from before its own start.
+  const offsetSnapshot: Parameters<typeof resolveBeatEnd>[0] = {
     beat: "beat-1",
     scene: staged.scene,
-    shot: {
-      ...ok.shot,
-      performances: [
-        ...ok.shot.performances,
-        { node: "rider", motion: "horse-walk", startOffset: 2 },
-      ],
-    },
+    shot: ok.shot,
     motions: [
       ...Object.entries(ok.motions).map(
         ([, m]: [string, IAutoMovieMotion]): IAutoMovieMotion => m,
@@ -263,7 +210,20 @@ export function test_film_perform_shot_mount(): void {
       { ...horseWalk, id: "horse-walk" },
     ],
     mounts: staged.mounts,
-  });
+  };
+  function endAtOffset(startOffset: number): IAutoMovieBeatEndState {
+    return resolveBeatEnd({
+      ...offsetSnapshot,
+      shot: {
+        ...offsetSnapshot.shot,
+        performances: [
+          ...offsetSnapshot.shot.performances,
+          { node: "rider", motion: "horse-walk", startOffset },
+        ],
+      },
+    });
+  }
+  const endStart: IAutoMovieBeatEndState = endAtOffset(2);
   const riderAtStart: IAutoMovieBeatEndActorState = endStart.actors.find(
     (a: IAutoMovieBeatEndActorState): boolean => a.node === "rider",
   )!;
@@ -271,7 +231,24 @@ export function test_film_perform_shot_mount(): void {
     "a rider mounted at local time 0 has an empty velocity window (zero)",
     vclose(riderAtStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
   );
-
+  const riderBeforeStart: IAutoMovieBeatEndActorState = endAtOffset(
+    3,
+  ).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+  )!;
+  TestValidator.predicate(
+    "a rider's future performance also has no velocity history",
+    vclose(riderBeforeStart.rootVelocity!, { x: 0, y: 0, z: 0 }),
+  );
+  const riderJustStarted: IAutoMovieBeatEndActorState = endAtOffset(
+    1.995,
+  ).actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "rider",
+  )!;
+  TestValidator.predicate(
+    "a short active window retains the carrier's one-metre-per-second velocity",
+    vclose(riderJustStarted.rootVelocity!, { x: 1, y: 0, z: 0 }, 1e-6),
+  );
   // 3c. a mount whose parent clip is authored in clinical space threads the
   // parent's custom axes/rest frames into the follow FK.
   const clinical: IAutoMoviePerformedShot = performShot({
@@ -285,18 +262,19 @@ export function test_film_perform_shot_mount(): void {
       revise: { review: "the clinical-space ride.", final: null },
       duration: 2,
     }),
-    synthesize: clinicalSynth,
+    synthesize: clinicalFixture.synthesize,
     skeleton: (): IAutoMovieSkeleton => createSkeleton(),
     jointAxes: (
       node: string,
     ):
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-      | undefined => (node === "horse" ? CUSTOM_MOUNT_JOINT_AXES : undefined),
+      | undefined => (node === "horse" ? clinicalFixture.jointAxes : undefined),
     restFrames: (
       node: string,
     ):
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
-      | undefined => (node === "horse" ? CUSTOM_MOUNT_REST_FRAMES : undefined),
+      | undefined =>
+      node === "horse" ? clinicalFixture.restFrames : undefined,
   });
   TestValidator.equals("the clinical mount performs", clinical.success, true);
   if (clinical.success === true) {
@@ -310,8 +288,8 @@ export function test_film_perform_shot_mount(): void {
       sampleMotion(clinical.motions["horse"]!, 2).pose,
       createSkeleton(),
       { parentBone: "spine", offset: IDENTITY_TRANSFORM },
-      CUSTOM_MOUNT_JOINT_AXES,
-      CUSTOM_MOUNT_REST_FRAMES,
+      clinicalFixture.jointAxes,
+      clinicalFixture.restFrames,
     );
     const expectedClinical: IAutoMovieVector3 = Vector3.add(
       horse.transform.translation,

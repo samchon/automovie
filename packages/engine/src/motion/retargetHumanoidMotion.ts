@@ -29,7 +29,7 @@ const EPSILON: number = 1e-6;
 /**
  * Retarget an admitted clinical clip from one normalized rig to another, scaling root translation by positive explicit scale or target/source rest height and preserving root rotation. Source, rig/mapping and enabled static-contact failures return null motion/characterization with located validation; target-ROM failure also returns null. Dynamic ground callback failures propagate, and contact residual warnings may accompany a successful motion.
  *
- * @evidence contracts/common.md#principled-implementation Validates source motion before relabeling, checks required bones, bindings and clinical basis/rest frames, derives height from root-reachable unscaled FK, copies clinical angles/root translation and optionally maps source contacts through the same rootScale before target motion admission.
+ * @evidence contracts/common.md#principled-implementation Validates source motion before relabeling, checks required bones, bindings and clinical basis/rest frames, derives height from root-reachable unscaled FK only for admitted skeletons, copies clinical angles/root translation and optionally maps source contacts through the same rootScale before target motion admission. Invalid skeletons have no computed span and retain their structural and unavailable-height findings in the refusal envelope.
  * @evidence contracts/common.md#clear-and-simple-design The retarget gate owns characterization and validation-envelope transfer; static contact policy, clinical basis admission and contact correction have separate existing owners instead of being repeated in consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No malformed source motion is laundered through wider target ROM, no missing required mapping is guessed, and nonproportional contact limits remain warnings under target rig constraints rather than modified ROM tables.
  * @evidence contracts/common.md#meaningful-documentation States clinical-angle identity, scale source, retained facing, null refusal envelope, target validation, optional warnings and dynamic callback exception boundary.
@@ -64,8 +64,18 @@ export const retargetHumanoidMotion: (
     ),
   );
 
-  validateSkeleton("source", props.source, requiredBones, collector);
-  validateSkeleton("target", props.target, requiredBones, collector);
+  const sourceAdmitted: boolean = validateSkeleton(
+    "source",
+    props.source,
+    requiredBones,
+    collector,
+  );
+  const targetAdmitted: boolean = validateSkeleton(
+    "target",
+    props.target,
+    requiredBones,
+    collector,
+  );
   validateBinding(
     "sourceBinding",
     props.sourceBinding,
@@ -100,14 +110,14 @@ export const retargetHumanoidMotion: (
   );
   validateRetargetContacts(props.contacts, props.motion.duration, collector);
 
-  const sourceSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
-    props.source,
-  );
-  const targetSpan: ReturnType<typeof restVerticalSpan> = restVerticalSpan(
-    props.target,
-  );
-  const sourceHeight: number = sourceSpan.height;
-  const targetHeight: number = targetSpan.height;
+  const sourceSpan: ReturnType<typeof restVerticalSpan> | null = sourceAdmitted
+    ? restVerticalSpan(props.source)
+    : null;
+  const targetSpan: ReturnType<typeof restVerticalSpan> | null = targetAdmitted
+    ? restVerticalSpan(props.target)
+    : null;
+  const sourceHeight: number = sourceSpan?.height ?? Number.NaN;
+  const targetHeight: number = targetSpan?.height ?? Number.NaN;
   if (!(sourceHeight > EPSILON))
     collector.push(
       "range",
@@ -185,7 +195,7 @@ export const retargetHumanoidMotion: (
         sourceMotion: props.motion,
         retargeted: scaled,
         rootScale,
-        sourceFloor: sourceSpan.floor,
+        sourceFloor: sourceSpan!.floor,
         sourceJointAxes,
         sourceRestFrames,
         targetJointAxes,
@@ -242,12 +252,13 @@ const validateSkeleton: (
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
   collector: ViolationCollector,
-) => void = (
+) => boolean = (
   label: string,
   skeleton: IAutoMovieSkeleton,
   requiredBones: readonly AutoMovieHumanoidBone[],
   collector: ViolationCollector,
-): void => {
+): boolean => {
+  const previousFindings: number = collector.items.length;
   const path: string = `$input.${label}`;
   const byBone: Map<AutoMovieHumanoidBone, number> = new Map();
 
@@ -286,6 +297,7 @@ const validateSkeleton: (
         `required bone "${bone}" is missing from the ${label} skeleton`,
         bone,
       );
+  return collector.items.length === previousFindings;
 };
 
 const validateBinding: (

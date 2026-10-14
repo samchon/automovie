@@ -9,7 +9,6 @@ import {
 } from "@automovie/interface";
 
 import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
-import { builtSpaceIsConvex } from "../architecture/builtSpaceIsConvex";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
 import { ViolationCollector } from "../validation/ViolationCollector";
@@ -41,14 +40,14 @@ const FEATURE_MODES: ReadonlySet<string> = new Set([
  *
  * A volume-less root basin and a domain rejected by validateFluidDomain skip geometry. Other bindings test cell centres at origin.y + bed against the root/descendant spaces using builtSpaceContainsPoint's numerical tolerances. The test does not measure the full cell footprint or water height.
  *
- * A root with one convex cell selects only the four corner bed points. Arbitrary interior bed elevations need not lie in their convex hull, so this shortcut misses an interior excursion such as the existing 3-by-3 centre-bed regression. The exhaustive branch checks every bed point for other root spellings; neither branch certifies all future solved surfaces fit the basin.
+ * Every bed point is checked in row-major order, including in convex basins: arbitrary interior bed elevations need not lie in the corners' convex hull. This initial bed-centre check does not certify future solved surfaces fit the basin.
  *
- * @evidence contracts/common.md#principled-implementation Resolves supplied ids through maps, checks boundary membership, and applies shared space containment to selected bed centres in the basin subtree. A convex root selects corners, but varying bed height breaks the assumed planar rectangle and can leave interior violations undetected; shared containment also retains its binary64 and tolerance limits.
+ * @evidence contracts/common.md#principled-implementation Resolves supplied ids through maps, checks boundary membership, and applies shared space containment to every authored bed centre in the basin subtree. Per-cell heights can vary independently, so root convexity cannot justify skipping interior points; shared containment retains its binary64 and tolerance limits.
  * @evidence contracts/common.md#clear-and-simple-design The binding validator owns only cross-record agreement; domain soundness is delegated to `validateFluidDomain` and re-pathed rather than re-worded, and geometry to the shared space predicates, so each rule has one owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Volume-less roots and rejected domains skip geometry by explicit policy, with no fixture-specific exceptions. The convex-corner shortcut keeps a disproven premise for arbitrary bed heights and remains a pending behavioral correction; it is not an exact containment certificate.
- * @evidence contracts/common.md#meaningful-documentation Gives binding checks, environment/material admission limits, duplicate resolution and domain re-pathing, geometry skips and the precise bed-centre/corner coverage gap.
- * @evidence contracts/performance.md#efficient-algorithms Maps require O(spaces + boundaries + domains) entries before domain validation and feature/rim walks; each rim membership check scans the cited boundary's spaces list, and id/text handling adds string costs. Per measured feature, subtree indexing/filtering scans all spaces; K selected points then scan descendant volumes with their plane/triangle costs. K is four corner visits or all cells, with per-row span allocation in the exhaustive branch. Domain scans use actual array and flow lengths even for over-budget records.
- * @evidence contracts/performance.md#reuse-equivalent-work Within one call each domain is validated once and its verdict reused by every feature that cites it; across calls nothing is shared, so the production layer, which calls this once per environment with every declared domain, re-validates and re-reports each domain per environment that binds water, a duplication left to that orchestration.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Volume-less roots and rejected domains skip geometry by explicit policy, with no fixture-specific exceptions. Every admitted lattice uses the same exhaustive bed-centre traversal regardless of basin convexity.
+ * @evidence contracts/common.md#meaningful-documentation Gives binding checks, environment/material admission limits, duplicate resolution and domain re-pathing, geometry skips and exhaustive initial bed-centre coverage without claiming water-surface enclosure.
+ * @evidence contracts/performance.md#efficient-algorithms Maps require O(spaces + boundaries + domains) entries before domain validation and feature/rim walks; each rim membership check scans the cited boundary's spaces list, and id/text handling adds string costs. Per measured feature, subtree indexing/filtering scans all spaces; at most rows times columns bed centres scan descendant volumes with their plane/triangle costs, stopping at the first stray. Numeric loops allocate no axis-index arrays. Domain scans use actual array and flow lengths even for over-budget records.
+ * @evidence contracts/performance.md#reuse-equivalent-work Within one call each domain is validated once and its verdict reused by every feature that cites it; each measured feature builds its basin subtree once for all bed points. Nothing is cached across calls because environments and domains are mutable caller inputs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the maps, sets and collector die with the call, and the returned violations belong to the caller.
  */
 export const validateWaterFeatures: (props: {
@@ -225,9 +224,6 @@ export const validateWaterFeatures: (props: {
         environment,
         space: feature.space,
         domain,
-        // Root convexity currently chooses the corner shortcut. Interior bed
-        // heights can still leave that root; other spellings take the full walk.
-        exhaustive: builtSpaceIsConvex(space) === false,
       });
       if (stray !== null)
         out.push(
@@ -245,20 +241,18 @@ export const validateWaterFeatures: (props: {
 /**
  * The first bed point of the lattice standing outside the basin, or `null`.
  *
- * Measures origin plus each selected cell centre's X/Z and authored bed Y, not the depth-shifted water surface or cell footprint. A point is accepted when any root/descendant volume accepts it; subtree membership is built once and volume predicates retain their own numerical limits.
+ * Measures origin plus every cell centre's X/Z and authored bed Y, not the depth-shifted water surface or cell footprint. A point is accepted when any root/descendant volume accepts it; subtree membership is built once and volume predicates retain their own numerical limits.
  *
- * `exhaustive` walks row-major cells; otherwise two endpoints per axis produce four visits, repeating endpoints on singleton axes. Arbitrary bed heights invalidate the corner branch's full-lattice inference. The caller supplies a domain admitted by validateFluidDomain; per-call sets/span arrays become collectible on return, while the returned stray point belongs to the caller. Work is subtree construction plus selected points times volume-predicate cost; exhaustive column spans are rebuilt per row.
+ * Walks every row-major cell once because arbitrary bed heights invalidate inference from corner points. The caller supplies a domain admitted by validateFluidDomain; local subtree records become collectible on return, while the returned stray point belongs to the caller. Work is subtree construction plus visited points times volume-predicate cost, with one point at a time and no axis-index arrays.
  */
 const strayCell: (props: {
   environment: IAutoMovieBuiltEnvironment;
   space: string;
   domain: IAutoMovieFluidDomain;
-  exhaustive: boolean;
 }) => IAutoMovieVector3 | null = (props: {
   environment: IAutoMovieBuiltEnvironment;
   space: string;
   domain: IAutoMovieFluidDomain;
-  exhaustive: boolean;
 }): IAutoMovieVector3 | null => {
   const domain: IAutoMovieFluidDomain = props.domain;
   const included: Set<string> = builtSpaceSubtree(
@@ -268,13 +262,8 @@ const strayCell: (props: {
   const basin: IAutoMovieBuiltSpace[] = props.environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => included.has(space.id),
   );
-  /** Allocate all indices or the two endpoints of one admitted axis; the row loop calls this again for each column span, so arrays are not shared across rows. */
-  const span: (length: number) => number[] = (length: number): number[] =>
-    props.exhaustive
-      ? Array.from({ length }, (_: unknown, at: number): number => at)
-      : [0, length - 1];
-  for (const row of span(domain.grid.rows))
-    for (const column of span(domain.grid.columns)) {
+  for (let row: number = 0; row < domain.grid.rows; ++row)
+    for (let column: number = 0; column < domain.grid.columns; ++column) {
       const point: IAutoMovieVector3 = {
         x: domain.grid.origin.x + (column + 0.5) * domain.grid.cellX,
         y:
