@@ -26,7 +26,10 @@ export function createHumanBodySurfaceSag(
   sag: IAutoMovieHumanBodyBasisSurfaceSag,
 ): (props: IHumanBodySurfaceSagInput) => number[] {
   const count: number = surface.positions.length / 3;
-  const sets: Set<number>[] = Array.from({ length: count }, (): Set<number> => new Set<number>());
+  const sets: Set<number>[] = Array.from(
+    { length: count },
+    (): Set<number> => new Set<number>(),
+  );
   const edges: Map<string, number> = new Map<string, number>();
   for (let t: number = 0; t < surface.indices.length; t += 3)
     for (let k: number = 0; k < 3; k++) {
@@ -37,17 +40,31 @@ export function createHumanBodySurfaceSag(
       const key: string = a < b ? `${a},${b}` : `${b},${a}`;
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
-  const neighbours: number[][] = sets.map((set: Set<number>): number[] => [...set]);
+  const neighbours: number[][] = sets.map((set: Set<number>): number[] => [
+    ...set,
+  ]);
   const held: Uint8Array = new Uint8Array(count);
   for (const [key, triangles] of edges)
     if (triangles === 1) for (const v of key.split(",")) held[Number(v)] = 1;
 
-  return ({ rest, lean, skinned, hanging, softness }: IHumanBodySurfaceSagInput): number[] => {
+  return ({
+    rest,
+    lean,
+    skinned,
+    hanging,
+    softness,
+  }: IHumanBodySurfaceSagInput): number[] => {
     const normals: Float64Array = new Float64Array(count * 3);
     for (let t: number = 0; t < surface.indices.length; t += 3) {
-      const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => surface.indices[t + k]);
-      const e1: number[] = [0, 1, 2].map((k: number): number => rest[b * 3 + k] - rest[a * 3 + k]);
-      const e2: number[] = [0, 1, 2].map((k: number): number => rest[c * 3 + k] - rest[a * 3 + k]);
+      const [a, b, c]: number[] = [0, 1, 2].map(
+        (k: number): number => surface.indices[t + k],
+      );
+      const e1: number[] = [0, 1, 2].map(
+        (k: number): number => rest[b * 3 + k] - rest[a * 3 + k],
+      );
+      const e2: number[] = [0, 1, 2].map(
+        (k: number): number => rest[c * 3 + k] - rest[a * 3 + k],
+      );
       const n: number[] = [
         e1[1] * e2[2] - e1[2] * e2[1],
         e1[2] * e2[0] - e1[0] * e2[2],

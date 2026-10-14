@@ -38,6 +38,8 @@ export function humanBodyShoulderReaches(
   )
     return false;
   if (pose.elevation === 180)
-    return range.envelope.some(([, limit]: [number, number]): boolean => limit >= 180);
+    return range.envelope.some(
+      ([, limit]: [number, number]): boolean => limit >= 180,
+    );
   return pose.elevation <= humanBodyShoulderElevationLimit(range, pose.plane);
 }

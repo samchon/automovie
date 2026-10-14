@@ -39,16 +39,25 @@ export function assertHumanBodyRigCouplings(
   // that is any coupling's source (its own included) would chain, and a
   // second coupling into one axis would add twice, so both are refused.
   const sources: Set<AutoMovieHumanoidBone> = new Set(
-    (basis.couplings ?? []).map((coupling: NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number]): AutoMovieHumanoidBone => coupling.source.bone),
+    (basis.couplings ?? []).map(
+      (
+        coupling: NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number],
+      ): AutoMovieHumanoidBone => coupling.source.bone,
+    ),
   );
   const outputs: Set<string> = new Set<string>();
   const couplingIds: Set<string> = new Set<string>();
   for (const coupling of basis.couplings ?? []) {
-    const source: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(coupling.source.bone);
-    const output: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(coupling.output.bone);
-    const range: { min: number; max: number } | null = output?.constraint?.[coupling.output.axis] ?? null;
+    const source: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+      joints.get(coupling.source.bone);
+    const output: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+      joints.get(coupling.output.bone);
+    const range: { min: number; max: number } | null =
+      output?.constraint?.[coupling.output.axis] ?? null;
     const key: string = coupling.output.bone + "." + coupling.output.axis;
-    const curve: NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number]["curve"] = coupling.curve;
+    const curve: NonNullable<
+      IAutoMovieHumanBodyBasis["couplings"]
+    >[number]["curve"] = coupling.curve;
     if (
       coupling.id.trim() === "" ||
       couplingIds.has(coupling.id) ||

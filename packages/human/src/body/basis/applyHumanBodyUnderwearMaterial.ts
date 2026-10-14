@@ -1,7 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { partitionHumanSkinMaterial } from "../../common/mesh/partitionHumanSkinMaterial";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { partitionHumanSkinMaterial } from "../../common/mesh/partitionHumanSkinMaterial";
 import type { IHumanBodyUnderwearMaterialInput } from "../structures/IHumanBodyUnderwearMaterialInput";
 
 /**
@@ -20,26 +20,36 @@ export function applyHumanBodyUnderwearMaterial(
 ): IAutoMovieModel["parts"] {
   const { part, field, sources, material, offsetMetres }: typeof input = input;
   if (part.geometry.type !== "mesh")
-    throw new Error("Skin-attached underwear requires its actual source mesh part.");
-  const partition: ReturnType<typeof partitionHumanSkinMaterial> = partitionHumanSkinMaterial({ mesh: part.geometry.mesh, field, sources });
+    throw new Error(
+      "Skin-attached underwear requires its actual source mesh part.",
+    );
+  const partition: ReturnType<typeof partitionHumanSkinMaterial> =
+    partitionHumanSkinMaterial({ mesh: part.geometry.mesh, field, sources });
   const parts: IAutoMovieModel["parts"] = [part];
   if (partition.covered.indices!.length !== 0) {
     const normals: typeof partition.covered.normals = partition.covered.normals;
     if (normals === null || !Number.isFinite(offsetMetres))
-      throw new Error("Underwear normal lift needs final skin normals and finite metres.");
+      throw new Error(
+        "Underwear normal lift needs final skin normals and finite metres.",
+      );
     partition.covered.positions = partition.covered.positions.map(
       (value: number, at: number): number => value + offsetMetres * normals[at],
     );
     partition.covered.normals = areaWeightedNormals(
-      partition.covered.positions, partition.covered.indices!,
+      partition.covered.positions,
+      partition.covered.indices!,
     );
     partition.covered.uvs = null;
     delete partition.covered.physicalVertices;
     delete partition.covered.colors;
     delete partition.covered.reliefWeights;
-    parts.push({ ...part, id: part.id + "/" + material.id,
-      name: part.name + "/" + material.id, material: material.id,
-      geometry: { type: "mesh", mesh: partition.covered } });
+    parts.push({
+      ...part,
+      id: part.id + "/" + material.id,
+      name: part.name + "/" + material.id,
+      material: material.id,
+      geometry: { type: "mesh", mesh: partition.covered },
+    });
   }
   return parts;
 }

@@ -1,5 +1,5 @@
-import type { IHumanBodyUnderwearEnvelopeReading } from "./IHumanBodyUnderwearEnvelopeReading";
 import type { IHumanBodyUnderwearEnvelopeFaceReading } from "./IHumanBodyUnderwearEnvelopeFaceReading";
+import type { IHumanBodyUnderwearEnvelopeReading } from "./IHumanBodyUnderwearEnvelopeReading";
 
 /**
  * One original qualified centre field, shared by fitting and final evaluation.

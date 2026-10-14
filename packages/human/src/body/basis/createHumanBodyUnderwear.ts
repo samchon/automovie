@@ -3,9 +3,9 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { humanBasisRegionCorners } from "../../common/basis/humanBasisRegionCorners";
 import { HUMAN_BODY_UNDERWEAR } from "../constants/HUMAN_BODY_UNDERWEAR";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyUnderwearTable } from "../structures/IAutoMovieHumanBodyUnderwearTable";
 import type { IAutoMovieHumanBodyUnderwearParts } from "../structures/IAutoMovieHumanBodyUnderwearParts";
 import type { IAutoMovieHumanBodyUnderwearProps } from "../structures/IAutoMovieHumanBodyUnderwearProps";
+import type { IAutoMovieHumanBodyUnderwearTable } from "../structures/IAutoMovieHumanBodyUnderwearTable";
 import { createHumanBodyUnderwearCoverage } from "./createHumanBodyUnderwearCoverage";
 import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 
@@ -23,59 +23,148 @@ import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,
   table: IAutoMovieHumanBodyUnderwearTable = HUMAN_BODY_UNDERWEAR,
-): (props: IAutoMovieHumanBodyUnderwearProps) => IAutoMovieHumanBodyUnderwearParts {
-  if (basis.materials.some((material: typeof basis.materials[number]): boolean => material.id === table.material))
-    throw new Error("Body underwear needs an unused material id: " + table.material);
+): (
+  props: IAutoMovieHumanBodyUnderwearProps,
+) => IAutoMovieHumanBodyUnderwearParts {
+  if (
+    basis.materials.some(
+      (material: (typeof basis.materials)[number]): boolean =>
+        material.id === table.material,
+    )
+  )
+    throw new Error(
+      "Body underwear needs an unused material id: " + table.material,
+    );
   if (!Number.isFinite(table.offsetMetres))
     throw new Error("Body underwear needs a finite normal lift in metres.");
-  const uncovered: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(table.uncovered);
+  const uncovered: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
+    table.uncovered,
+  );
   for (const joint of basis.joints)
-    if (joint.parent !== null && uncovered.has(joint.parent)) uncovered.add(joint.bone);
-  const arms: number[][] = basis.surfaces.map((surface: typeof basis.surfaces[number]): number[] => {
-    const weights: number[] = new Array<number>(surface.positions.length / 3).fill(0);
-    weights.forEach((_: number, vertex: number): void => {
-      for (let corner: number = 0; corner < 4; corner++)
-        if (uncovered.has(surface.skin.joints[surface.skin.boneIndices[vertex * 4 + corner]]))
-          weights[vertex] += surface.skin.weights[vertex * 4 + corner];
-    });
-    return weights;
-  });
-  const regions: { id: string; surface: number; sources: number[] }[] = basis.surfaces.flatMap((surface: typeof basis.surfaces[number], index: number): { id: string; surface: number; sources: number[] }[] => surface.regions.map((region: typeof surface.regions[number]): { id: string; surface: number; sources: number[] } => ({
-    id: region.id, surface: index,
-    sources: humanBasisRegionCorners(humanBodyGpuRegion(region)).sources,
-  })));
-  return ({ underwear, rest }: IAutoMovieHumanBodyUnderwearProps): IAutoMovieHumanBodyUnderwearParts => {
-    const color: typeof table.color = underwear.color ?? table.color;
-    if (![color.r, color.g, color.b].every((value: number): boolean => Number.isFinite(value) && value >= 0 && value <= 1))
-      throw new Error("Body underwear needs finite linear RGB in [0,1].");
-    const coverage: ReturnType<typeof createHumanBodyUnderwearCoverage> = createHumanBodyUnderwearCoverage({ table, style: underwear.style, basis, rest });
-    const sourceFields: number[][] = rest.surfaces.map((positions: number[], surface: number): number[] => {
-      const canonical: Map<number, number> = new Map<number, number>();
-      const samples: readonly number[] | undefined = basis.surfaces[surface].sourcePartition?.samples;
-      return arms[surface].map((arm: number, vertex: number): number => {
-        const sample: number = samples?.[vertex] ?? vertex;
-        let value: number | undefined = canonical.get(sample);
-        if (value === undefined) {
-          value = coverage(positions[vertex * 3], positions[vertex * 3 + 1], positions[vertex * 3 + 2], arm);
-          canonical.set(sample, value);
-        }
-        return value;
+    if (joint.parent !== null && uncovered.has(joint.parent))
+      uncovered.add(joint.bone);
+  const arms: number[][] = basis.surfaces.map(
+    (surface: (typeof basis.surfaces)[number]): number[] => {
+      const weights: number[] = new Array<number>(
+        surface.positions.length / 3,
+      ).fill(0);
+      weights.forEach((_: number, vertex: number): void => {
+        for (let corner: number = 0; corner < 4; corner++)
+          if (
+            uncovered.has(
+              surface.skin.joints[
+                surface.skin.boneIndices[vertex * 4 + corner]
+              ],
+            )
+          )
+            weights[vertex] += surface.skin.weights[vertex * 4 + corner];
       });
-    });
-    if (sourceFields.some((field: number[]): boolean => !field.every(Number.isFinite)))
-      throw new Error("Body underwear coverage is not finite on its actual shaped rest skin.");
+      return weights;
+    },
+  );
+  const regions: { id: string; surface: number; sources: number[] }[] =
+    basis.surfaces.flatMap(
+      (
+        surface: (typeof basis.surfaces)[number],
+        index: number,
+      ): { id: string; surface: number; sources: number[] }[] =>
+        surface.regions.map(
+          (
+            region: (typeof surface.regions)[number],
+          ): { id: string; surface: number; sources: number[] } => ({
+            id: region.id,
+            surface: index,
+            sources: humanBasisRegionCorners(humanBodyGpuRegion(region))
+              .sources,
+          }),
+        ),
+    );
+  return ({
+    underwear,
+    rest,
+  }: IAutoMovieHumanBodyUnderwearProps): IAutoMovieHumanBodyUnderwearParts => {
+    const color: typeof table.color = underwear.color ?? table.color;
+    if (
+      ![color.r, color.g, color.b].every(
+        (value: number): boolean =>
+          Number.isFinite(value) && value >= 0 && value <= 1,
+      )
+    )
+      throw new Error("Body underwear needs finite linear RGB in [0,1].");
+    const coverage: ReturnType<typeof createHumanBodyUnderwearCoverage> =
+      createHumanBodyUnderwearCoverage({
+        table,
+        style: underwear.style,
+        basis,
+        rest,
+      });
+    const sourceFields: number[][] = rest.surfaces.map(
+      (positions: number[], surface: number): number[] => {
+        const canonical: Map<number, number> = new Map<number, number>();
+        const samples: readonly number[] | undefined =
+          basis.surfaces[surface].sourcePartition?.samples;
+        return arms[surface].map((arm: number, vertex: number): number => {
+          const sample: number = samples?.[vertex] ?? vertex;
+          let value: number | undefined = canonical.get(sample);
+          if (value === undefined) {
+            value = coverage(
+              positions[vertex * 3],
+              positions[vertex * 3 + 1],
+              positions[vertex * 3 + 2],
+              arm,
+            );
+            canonical.set(sample, value);
+          }
+          return value;
+        });
+      },
+    );
+    if (
+      sourceFields.some(
+        (field: number[]): boolean => !field.every(Number.isFinite),
+      )
+    )
+      throw new Error(
+        "Body underwear coverage is not finite on its actual shaped rest skin.",
+      );
     return {
       offsetMetres: table.offsetMetres,
       sourceFields,
-      regions: new Map(regions.map((region: typeof regions[number]): [string, IAutoMovieHumanBodyUnderwearParts["regions"] extends ReadonlyMap<string, infer R> ? R : never] => [region.id, {
-        surface: region.surface, sources: region.sources,
-        field: region.sources.map((source: number): number => sourceFields[region.surface][source]),
-      }])),
+      regions: new Map(
+        regions.map(
+          (
+            region: (typeof regions)[number],
+          ): [
+            string,
+            IAutoMovieHumanBodyUnderwearParts["regions"] extends ReadonlyMap<
+              string,
+              infer R
+            >
+              ? R
+              : never,
+          ] => [
+            region.id,
+            {
+              surface: region.surface,
+              sources: region.sources,
+              field: region.sources.map(
+                (source: number): number =>
+                  sourceFields[region.surface][source],
+              ),
+            },
+          ],
+        ),
+      ),
       material: {
-        id: table.material, name: table.material,
-        baseColor: { ...color, a: 1, hex: null }, metallic: 0,
-        roughness: table.roughness, emissive: null, opacity: 1,
-        baseColorTexture: null, doubleSided: true,
+        id: table.material,
+        name: table.material,
+        baseColor: { ...color, a: 1, hex: null },
+        metallic: 0,
+        roughness: table.roughness,
+        emissive: null,
+        opacity: 1,
+        baseColorTexture: null,
+        doubleSided: true,
       },
     };
   };

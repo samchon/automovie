@@ -23,13 +23,29 @@ export function assertHumanBodyRigCorrectives(
   // Driver metadata names a mobile axis and a neutral-relative ramp, with the
   // existing nanodegree allowance on its full endpoint. Actual document pose
   // admission remains downstream and is not performed by this guard.
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]> = new Map(basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]] => [joint.bone, joint]));
+  const joints: Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBasis["joints"][number]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): [
+        AutoMovieHumanoidBone,
+        IAutoMovieHumanBodyBasis["joints"][number],
+      ] => [joint.bone, joint],
+    ),
+  );
   for (const corrective of basis.correctives ?? [])
     for (const input of corrective.inputs) {
       if ("shoulder" in input) {
-        const shoulder: IAutoMovieHumanBodyBasis["joints"][number]["shoulder"] = joints.get(input.shoulder)?.shoulder;
-        const goal: Parameters<typeof humanBodyShoulderOrientationDistance>[1] = { bone: input.shoulder, ...input.orientation };
-        const rest: Parameters<typeof humanBodyShoulderOrientationDistance>[0] | null =
+        const shoulder: IAutoMovieHumanBodyBasis["joints"][number]["shoulder"] =
+          joints.get(input.shoulder)?.shoulder;
+        const goal: Parameters<typeof humanBodyShoulderOrientationDistance>[1] =
+          { bone: input.shoulder, ...input.orientation };
+        const rest:
+          | Parameters<typeof humanBodyShoulderOrientationDistance>[0]
+          | null =
           shoulder === undefined
             ? null
             : { bone: input.shoulder, ...shoulder.neutral };
@@ -54,7 +70,8 @@ export function assertHumanBodyRigCorrectives(
         continue;
       }
       if (!("bone" in input)) continue;
-      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(input.bone);
+      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+        joints.get(input.bone);
       const range: { min: number; max: number } | null =
         input.axis === "elevation"
           ? (joint?.shoulder?.range[input.axis] ?? null)
@@ -88,14 +105,23 @@ export function assertHumanBodyRigCorrectives(
         );
     }
   for (const corrective of basis.correctives ?? []) {
-    const kernels: Extract<NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number]["inputs"][number], { shoulder: string }>[] = corrective.inputs.filter(
-      (input: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number]["inputs"][number]): input is Extract<typeof input, { shoulder: string }> =>
+    const kernels: Extract<
+      NonNullable<
+        IAutoMovieHumanBodyBasis["correctives"]
+      >[number]["inputs"][number],
+      { shoulder: string }
+    >[] = corrective.inputs.filter(
+      (
+        input: NonNullable<
+          IAutoMovieHumanBodyBasis["correctives"]
+        >[number]["inputs"][number],
+      ): input is Extract<typeof input, { shoulder: string }> =>
         "shoulder" in input,
     );
     for (let first: number = 0; first < kernels.length; first++)
       for (let second: number = first + 1; second < kernels.length; second++) {
-        const a: typeof kernels[number] = kernels[first];
-        const b: typeof kernels[number] = kernels[second];
+        const a: (typeof kernels)[number] = kernels[first];
+        const b: (typeof kernels)[number] = kernels[second];
         if (
           a.shoulder === b.shoulder &&
           humanBodyShoulderOrientationDistance(

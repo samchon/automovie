@@ -35,8 +35,10 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 export function resolveHumanBodyBuildPose(
   input: IHumanBodyBuildPoseInput,
 ): IHumanBodyBuildPose {
-  const { basis, document, poseRows, landmarks }: IHumanBodyBuildPoseInput = input;
-  const rig: ReturnType<typeof resolveHumanBodySkeleton> = input.rig ?? resolveHumanBodySkeleton(basis, landmarks);
+  const { basis, document, poseRows, landmarks }: IHumanBodyBuildPoseInput =
+    input;
+  const rig: ReturnType<typeof resolveHumanBodySkeleton> =
+    input.rig ?? resolveHumanBodySkeleton(basis, landmarks);
   const { skeleton, rest, frames, axes }: typeof rig = rig;
   // Admit authored coordinates before FK, then admit actual changed local
   // frames after the final pelvis transform. Combined coordinates are not
@@ -46,8 +48,12 @@ export function resolveHumanBodyBuildPose(
     root: null,
     joints: poseRows,
   };
-  const rhythm: ReturnType<typeof resolveHumanBodyPelvifemoralRhythm> = resolveHumanBodyPelvifemoralRhythm(basis, poseRows);
-  const violations: ReturnType<typeof validatePose>["items"] = validatePose({ pose, skeleton }).items;
+  const rhythm: ReturnType<typeof resolveHumanBodyPelvifemoralRhythm> =
+    resolveHumanBodyPelvifemoralRhythm(basis, poseRows);
+  const violations: ReturnType<typeof validatePose>["items"] = validatePose({
+    pose,
+    skeleton,
+  }).items;
   if (violations.length > 0)
     throw new Error(
       "Body pose violates the skeleton or its clinical ranges: " +
@@ -61,10 +67,10 @@ export function resolveHumanBodyBuildPose(
     throw new Error(
       "Anatomical motion needs a registered source assembly on this body basis.",
     );
-  const transforms: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform> = new Map<
+  const transforms: Map<
     AutoMovieHumanoidBone,
     IAutoMovieHumanBodyBoneTransform
-  >();
+  > = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform>();
   // The rhythm leaves the trunk and both thighs where the document put
   // them relative to the trunk and turns only the pelvis, posteriorly by
   // the tilt about the line through both hip centres, which leaves the hip
@@ -74,19 +80,36 @@ export function resolveHumanBodyBuildPose(
     input.phase === "pre-pelvis"
       ? 0
       : -(
-          rhythm.contributions.find((one: ReturnType<typeof resolveHumanBodyPelvifemoralRhythm>["contributions"][number]): boolean => one.bone === "hips")?.degrees ?? 0
+          rhythm.contributions.find(
+            (
+              one: ReturnType<
+                typeof resolveHumanBodyPelvifemoralRhythm
+              >["contributions"][number],
+            ): boolean => one.bone === "hips",
+          )?.degrees ?? 0
         );
-  const resolvedBones: ReturnType<typeof resolveHumanBodyShoulders> = resolveHumanBodyShoulders(
-    basis,
-    document.shoulders ?? [],
-    rest,
-    resolvePose(pose, skeleton, axes, frames),
-  );
+  const resolvedBones: ReturnType<typeof resolveHumanBodyShoulders> =
+    resolveHumanBodyShoulders(
+      basis,
+      document.shoulders ?? [],
+      rest,
+      resolvePose(pose, skeleton, axes, frames),
+    );
   if (tilt !== 0) {
-    const at: (bone: AutoMovieHumanoidBone) => ReturnType<typeof resolveHumanBodyShoulders>[number] = (bone: AutoMovieHumanoidBone): typeof resolvedBones[number] =>
-      resolvedBones.find((one: typeof resolvedBones[number]): boolean => one.bone === bone)!;
-    const left: ReturnType<typeof Vector3.create> = at("leftUpperLeg").worldPosition;
-    const line: ReturnType<typeof Vector3.subtract> = Vector3.subtract(left, at("rightUpperLeg").worldPosition);
+    const at: (
+      bone: AutoMovieHumanoidBone,
+    ) => ReturnType<typeof resolveHumanBodyShoulders>[number] = (
+      bone: AutoMovieHumanoidBone,
+    ): (typeof resolvedBones)[number] =>
+      resolvedBones.find(
+        (one: (typeof resolvedBones)[number]): boolean => one.bone === bone,
+      )!;
+    const left: ReturnType<typeof Vector3.create> =
+      at("leftUpperLeg").worldPosition;
+    const line: ReturnType<typeof Vector3.subtract> = Vector3.subtract(
+      left,
+      at("rightUpperLeg").worldPosition,
+    );
     if (
       ![line.x, line.y, line.z].every(Number.isFinite) ||
       (line.x === 0 && line.y === 0 && line.z === 0)
@@ -97,8 +120,10 @@ export function resolveHumanBodyBuildPose(
     const axis: ReturnType<typeof Vector3.normalize> = Vector3.normalize(line);
     // about +X (the subject's left) a positive angle carries the top of
     // the pelvis forward; a posterior tilt is the negative one
-    const turn: ReturnType<typeof Quaternion.fromAxisAngle> = Quaternion.fromAxisAngle(axis, -tilt);
-    const pelvis: ReturnType<typeof resolveHumanBodyShoulders>[number] = at("hips");
+    const turn: ReturnType<typeof Quaternion.fromAxisAngle> =
+      Quaternion.fromAxisAngle(axis, -tilt);
+    const pelvis: ReturnType<typeof resolveHumanBodyShoulders>[number] =
+      at("hips");
     pelvis.worldPosition = Vector3.add(
       left,
       Quaternion.rotateVector(
@@ -110,27 +135,39 @@ export function resolveHumanBodyBuildPose(
       Quaternion.multiply(turn, pelvis.worldRotation),
     );
   }
-  const clinical: ReturnType<typeof readHumanBodyResolvedClinicalPose> = readHumanBodyResolvedClinicalPose({
-    rig,
-    resolved: resolvedBones,
-    basis,
-    pose: poseRows,
-    tilt,
-  });
+  const clinical: ReturnType<typeof readHumanBodyResolvedClinicalPose> =
+    readHumanBodyResolvedClinicalPose({
+      rig,
+      resolved: resolvedBones,
+      basis,
+      pose: poseRows,
+      tilt,
+    });
   if (tilt !== 0) {
-    const root: AutoMovieHumanoidBone = skeleton.bones.find((bone: typeof skeleton.bones[number]): boolean => bone.parent === null)!.bone;
+    const root: AutoMovieHumanoidBone = skeleton.bones.find(
+      (bone: (typeof skeleton.bones)[number]): boolean => bone.parent === null,
+    )!.bone;
     const changed: Set<AutoMovieHumanoidBone> = new Set(
       skeleton.bones
-        .filter((bone: typeof skeleton.bones[number]): boolean => bone.bone === root || bone.parent === root)
-        .map((bone: typeof skeleton.bones[number]): AutoMovieHumanoidBone => bone.bone),
+        .filter(
+          (bone: (typeof skeleton.bones)[number]): boolean =>
+            bone.bone === root || bone.parent === root,
+        )
+        .map(
+          (bone: (typeof skeleton.bones)[number]): AutoMovieHumanoidBone =>
+            bone.bone,
+        ),
     );
-    const actualViolations: ReturnType<typeof validatePose>["items"] = validatePose({
-      pose: {
-        ...pose,
-        joints: clinical.filter((joint: typeof clinical[number]): boolean => changed.has(joint.bone)),
-      },
-      skeleton,
-    }).items;
+    const actualViolations: ReturnType<typeof validatePose>["items"] =
+      validatePose({
+        pose: {
+          ...pose,
+          joints: clinical.filter((joint: (typeof clinical)[number]): boolean =>
+            changed.has(joint.bone),
+          ),
+        },
+        skeleton,
+      }).items;
     if (actualViolations.length > 0)
       throw new Error(
         "Body resolved pelvic-relative pose violates the skeleton or its clinical ranges: " +

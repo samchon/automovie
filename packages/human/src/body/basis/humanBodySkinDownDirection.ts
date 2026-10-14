@@ -17,18 +17,30 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
 export function humanBodySkinDownDirection(
   input: IHumanBodySkinDownInput,
 ): number[] {
-  const { positions, skinned, skin, joints, transforms, toeSplit }: IHumanBodySkinDownInput = input;
+  const {
+    positions,
+    skinned,
+    skin,
+    joints,
+    transforms,
+    toeSplit,
+  }: IHumanBodySkinDownInput = input;
   const scale: number = positions.reduce(
-    (largest: number, value: number): number => Math.max(largest, Math.abs(value)),
+    (largest: number, value: number): number =>
+      Math.max(largest, Math.abs(value)),
     1,
   );
   const step: number = Math.sqrt(Number.EPSILON) * scale;
   const below: number[] = skinHumanBodySurface(
-    positions.map((value: number, i: number): number => (i % 3 === 1 ? value - step : value)),
+    positions.map((value: number, i: number): number =>
+      i % 3 === 1 ? value - step : value,
+    ),
     skin,
     joints,
     transforms,
     toeSplit,
   );
-  return below.map((value: number, i: number): number => (value - skinned[i]) / step);
+  return below.map(
+    (value: number, i: number): number => (value - skinned[i]) / step,
+  );
 }

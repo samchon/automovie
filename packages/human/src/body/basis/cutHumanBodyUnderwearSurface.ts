@@ -23,7 +23,10 @@ export function cutHumanBodyUnderwearSurface(
   const points: number[] = [];
   const lifted: number[] = [];
   const emitted: Map<string, number> = new Map<string, number>();
-  const emit: (a: number, b: number) => number = (a: number, b: number): number => {
+  const emit: (a: number, b: number) => number = (
+    a: number,
+    b: number,
+  ): number => {
     // a kept corner (b === a), or the crossing on the edge a-b read from its
     // lower index so both triangles of the edge share it
     let [low, high]: number[] = a <= b ? [a, b] : [b, a];
@@ -34,9 +37,7 @@ export function cutHumanBodyUnderwearSurface(
     let id: number | undefined = emitted.get(key);
     if (id !== undefined) return id;
     const t: number =
-      low === high
-        ? 0
-        : field[low] / (field[low] - field[high]);
+      low === high ? 0 : field[low] / (field[low] - field[high]);
     const normal: number[] = [0, 1, 2].map(
       (k: number): number =>
         normals[low * 3 + k] +
@@ -44,7 +45,9 @@ export function cutHumanBodyUnderwearSurface(
     );
     const norm: number = Math.hypot(normal[0], normal[1], normal[2]);
     if (!(norm > 0) || !Number.isFinite(norm))
-      throw new Error("Underwear cutting needs each kept interpolated normal to be finite and nonzero.");
+      throw new Error(
+        "Underwear cutting needs each kept interpolated normal to be finite and nonzero.",
+      );
     lifted.push(...normal.map((value: number): number => value / norm));
     for (let k: number = 0; k < 3; k++)
       points.push(
@@ -57,7 +60,9 @@ export function cutHumanBodyUnderwearSurface(
   };
   const indices: number[] = [];
   for (let i: number = 0; i < props.indices.length; i += 3) {
-    const corners: number[] = [0, 1, 2].map((k: number): number => props.indices[i + k]);
+    const corners: number[] = [0, 1, 2].map(
+      (k: number): number => props.indices[i + k],
+    );
     const inside: boolean[] = corners.map((v: number): boolean => field[v] > 0);
     const kept: number = inside.filter(Boolean).length;
     if (kept === 0) continue;
@@ -67,8 +72,12 @@ export function cutHumanBodyUnderwearSurface(
     }
     // rotate the winding so the lone corner (inside with one kept, the
     // outside one with two) comes first
-    const lone: number = inside.findIndex((flag: boolean): boolean => flag === (kept === 1));
-    const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => corners[(lone + k) % 3]);
+    const lone: number = inside.findIndex(
+      (flag: boolean): boolean => flag === (kept === 1),
+    );
+    const [a, b, c]: number[] = [0, 1, 2].map(
+      (k: number): number => corners[(lone + k) % 3],
+    );
     if (kept === 1) indices.push(emit(a, a), emit(a, b), emit(a, c));
     else {
       const ab: number = emit(a, b);

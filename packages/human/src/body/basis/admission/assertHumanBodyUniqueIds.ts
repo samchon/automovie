@@ -9,8 +9,14 @@
  * @evidence contracts/performance.md#reuse-equivalent-work One guard centralizes ID admission, but differing populations are checked independently rather than sharing a mutable admitted-set cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary set expires after synchronous success or failure and input IDs remain unchanged without retained handles.
  */
-export const assertHumanBodyUniqueIds: (ids: string[], what: string) => void = (ids: string[], what: string): void => {
-  if (ids.some((id: string): boolean => id.trim() === "") || new Set(ids).size !== ids.length)
+export const assertHumanBodyUniqueIds: (ids: string[], what: string) => void = (
+  ids: string[],
+  what: string,
+): void => {
+  if (
+    ids.some((id: string): boolean => id.trim() === "") ||
+    new Set(ids).size !== ids.length
+  )
     throw new Error("Body basis " + what + " must be nonempty and unique.");
   if (ids.some((id: string): boolean => Object.hasOwn(Object.prototype, id)))
     throw new Error(

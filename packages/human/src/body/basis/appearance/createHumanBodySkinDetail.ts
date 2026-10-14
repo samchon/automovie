@@ -24,23 +24,32 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
  * @evidence contracts/performance.md#reuse-equivalent-work One immutable basis and fixed detail table define cached texture/UV scale; document strength and age are reevaluated because they change normal scale.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One texture URI and repeat scalar remain with the reachable closure; raster temporaries expire after generation and no renderer texture handle or task is acquired.
  */
-export function createHumanBodySkinDetail(basis: IAutoMovieHumanBodyBasis): (input: { document: IAutoMovieHumanBodyBasisDocument; materialMap: Map<string, IAutoMovieMaterial> }) => void {
+export function createHumanBodySkinDetail(
+  basis: IAutoMovieHumanBodyBasis,
+): (input: {
+  document: IAutoMovieHumanBodyBasisDocument;
+  materialMap: Map<string, IAutoMovieMaterial>;
+}) => void {
   let relief: { texture: string; turns: number } | null = null;
   return (input: {
     document: IAutoMovieHumanBodyBasisDocument;
     materialMap: Map<string, IAutoMovieMaterial>;
   }): void => {
     const { document, materialMap }: typeof input = input;
-    const detail: IAutoMovieHumanBodyBasisDocument["skinDetail"] = document.skinDetail;
+    const detail: IAutoMovieHumanBodyBasisDocument["skinDetail"] =
+      document.skinDetail;
     if (detail === undefined) return;
     const skin: string = HUMAN_BODY_SKIN_SITES.material;
     if (
       !materialMap.has(skin) ||
       !(detail.strength >= 0 && detail.strength <= 1) ||
-      basis.surfaces.some((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
-        surface.regions.some(
-          (region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): boolean => region.material === skin && region.uvs === null,
-        ),
+      basis.surfaces.some(
+        (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+          surface.regions.some(
+            (
+              region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number],
+            ): boolean => region.material === skin && region.uvs === null,
+          ),
       )
     )
       throw new Error(
@@ -74,9 +83,11 @@ export function createHumanBodySkinDetail(basis: IAutoMovieHumanBodyBasis): (inp
       HUMAN_BODY_SKIN_DETAIL.age,
       document.shape.macroAge ?? 0,
     );
-    const anatomical: IAutoMovieHumanBodyBasis["surfaces"][number]["relief"] = basis.surfaces.find(
-      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean => surface.relief?.material === skin,
-    )?.relief;
+    const anatomical: IAutoMovieHumanBodyBasis["surfaces"][number]["relief"] =
+      basis.surfaces.find(
+        (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+          surface.relief?.material === skin,
+      )?.relief;
     if (anatomical !== undefined) {
       material.normalTexture = {
         asset: anatomical.texture,

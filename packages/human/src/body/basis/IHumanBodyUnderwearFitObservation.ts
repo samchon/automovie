@@ -1,7 +1,8 @@
 import type { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+
 import type { IHumanBodyUnderwearLiftDerivativeFailure } from "./IHumanBodyUnderwearLiftDerivativeFailure";
-import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrialFailure";
 import type { IHumanBodyUnderwearSurfaceViolation } from "./IHumanBodyUnderwearSurfaceViolation";
+import type { IHumanBodyUnderwearTrialFailure } from "./IHumanBodyUnderwearTrialFailure";
 
 /**
  * Raw actual fitting readings, separate from anatomical or rendered acceptance.

@@ -30,7 +30,8 @@ export function resolveHumanBodyDocumentPose(
   basis: IAutoMovieHumanBodyBasis,
   input: IAutoMovieHumanBodyBasisDocument,
 ): IAutoMovieJointPose[] {
-  const admitted: IAutoMovieHumanBodyBasisDocument = admitHumanBodyBasisDocument(input, basis.anatomicalAssembly);
+  const admitted: IAutoMovieHumanBodyBasisDocument =
+    admitHumanBodyBasisDocument(input, basis.anatomicalAssembly);
   let document: IAutoMovieHumanBodyBasisDocument =
     admitted.anatomy === undefined
       ? admitted
@@ -46,14 +47,23 @@ export function resolveHumanBodyDocumentPose(
     throw new Error(
       "Body pose reading needs the exact compiled basis revision.",
     );
-  const referenceGoals: ReturnType<typeof prepareHumanBodyReferenceGoalDocument> = prepareHumanBodyReferenceGoalDocument(basis, document);
+  const referenceGoals: ReturnType<
+    typeof prepareHumanBodyReferenceGoalDocument
+  > = prepareHumanBodyReferenceGoalDocument(basis, document);
   document = referenceGoals.document;
-  const rest: ReturnType<typeof resolveHumanBodyShapeShoulderRest> = resolveHumanBodyShapeShoulderRest(basis, document.shape);
-  const state: ReturnType<typeof humanBodyBasisWeights> = humanBodyBasisWeights(basis, document, rest);
+  const rest: ReturnType<typeof resolveHumanBodyShapeShoulderRest> =
+    resolveHumanBodyShapeShoulderRest(basis, document.shape);
+  const state: ReturnType<typeof humanBodyBasisWeights> = humanBodyBasisWeights(
+    basis,
+    document,
+    rest,
+  );
   for (const shoulder of document.shoulders ?? []) {
-    const contract: IAutoMovieHumanBodyBasis["joints"][number]["shoulder"] = basis.joints.find(
-      (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean => joint.bone === shoulder.bone,
-    )?.shoulder;
+    const contract: IAutoMovieHumanBodyBasis["joints"][number]["shoulder"] =
+      basis.joints.find(
+        (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+          joint.bone === shoulder.bone,
+      )?.shoulder;
     if (contract === undefined || !humanBodyShoulderReaches(contract, shoulder))
       throw new Error(
         "Body shoulder goal exceeds its thorax-tt clinical range: " +

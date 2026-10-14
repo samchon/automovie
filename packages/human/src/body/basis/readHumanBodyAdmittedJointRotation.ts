@@ -40,10 +40,17 @@ export function readHumanBodyAdmittedJointRotation(
     rig.axes[reference.bone] ?? DEFAULT_JOINT_AXES,
     "body actual joint coordinates",
   );
-  const frame: typeof rig.frames[typeof reference.bone] = rig.frames[reference.bone];
+  const frame: (typeof rig.frames)[typeof reference.bone] =
+    rig.frames[reference.bone];
   const actual: IAutoMovieQuaternion = Quaternion.normalize(rotation);
-  const admits: (candidate: IAutoMovieResolvedJointAngles) => boolean = (candidate: IAutoMovieResolvedJointAngles): boolean => {
-    const forward: IAutoMovieQuaternion = jointToQuaternion(candidate, axes, frame);
+  const admits: (candidate: IAutoMovieResolvedJointAngles) => boolean = (
+    candidate: IAutoMovieResolvedJointAngles,
+  ): boolean => {
+    const forward: IAutoMovieQuaternion = jointToQuaternion(
+      candidate,
+      axes,
+      frame,
+    );
     const sign: number =
       forward.x * actual.x +
         forward.y * actual.y +
@@ -53,8 +60,9 @@ export function readHumanBodyAdmittedJointRotation(
         ? -1
         : 1;
     const error: number = Math.max(
-      ...(["x", "y", "z", "w"] as const).map((axis: "x" | "y" | "z" | "w"): number =>
-        Math.abs(forward[axis] * sign - actual[axis]),
+      ...(["x", "y", "z", "w"] as const).map(
+        (axis: "x" | "y" | "z" | "w"): number =>
+          Math.abs(forward[axis] * sign - actual[axis]),
       ),
     );
     return (
@@ -75,9 +83,16 @@ export function readHumanBodyAdmittedJointRotation(
     twist: reference.twist ?? frame?.twist?.neutral ?? 0,
   };
   if (admits(authored)) return authored;
-  const principal: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes, frame);
+  const principal: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    rotation,
+    axes,
+    frame,
+  );
   if (admits(principal)) return principal;
-  const raw: IAutoMovieResolvedJointAngles = decomposeJointRotation(rotation, axes);
+  const raw: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    rotation,
+    axes,
+  );
   const handed: number =
     Vector3.dot(axes.twist, Vector3.cross(axes.flexion, axes.abduction)) >= 0
       ? 1

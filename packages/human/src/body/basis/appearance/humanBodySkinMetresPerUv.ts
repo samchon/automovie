@@ -21,9 +21,15 @@ export function humanBodySkinMetresPerUv(
     for (const region of surface.regions) {
       if (region.material !== material || region.uvs === null) continue;
       for (let t: number = 0; t < region.indices.length; t += 3) {
-        const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => region.indices[t + k]);
-        const e1: number[] = [0, 1, 2].map((k: number): number => p[b * 3 + k] - p[a * 3 + k]);
-        const e2: number[] = [0, 1, 2].map((k: number): number => p[c * 3 + k] - p[a * 3 + k]);
+        const [a, b, c]: number[] = [0, 1, 2].map(
+          (k: number): number => region.indices[t + k],
+        );
+        const e1: number[] = [0, 1, 2].map(
+          (k: number): number => p[b * 3 + k] - p[a * 3 + k],
+        );
+        const e2: number[] = [0, 1, 2].map(
+          (k: number): number => p[c * 3 + k] - p[a * 3 + k],
+        );
         const area: number =
           Math.hypot(
             e1[1] * e2[2] - e1[2] * e2[1],
@@ -47,8 +53,18 @@ export function humanBodySkinMetresPerUv(
   }
   if (ratios.length === 0)
     throw new Error("A skin detail needs the skin material's UV layout.");
-  ratios.sort((x: { ratio: number; area: number }, y: { ratio: number; area: number }): number => x.ratio - y.ratio);
-  const half: number = ratios.reduce((sum: number, { area }: { ratio: number; area: number }): number => sum + area, 0) / 2;
+  ratios.sort(
+    (
+      x: { ratio: number; area: number },
+      y: { ratio: number; area: number },
+    ): number => x.ratio - y.ratio,
+  );
+  const half: number =
+    ratios.reduce(
+      (sum: number, { area }: { ratio: number; area: number }): number =>
+        sum + area,
+      0,
+    ) / 2;
   let seen: number = 0;
   let chosen: number = ratios[0].ratio;
   for (const { ratio, area } of ratios) {

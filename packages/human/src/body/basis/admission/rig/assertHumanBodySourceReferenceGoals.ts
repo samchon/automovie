@@ -21,17 +21,38 @@ export function assertHumanBodySourceReferenceGoals(
   basis: IAutoMovieHumanBodyBasis,
 ): void {
   const goals: IAutoMovieHumanBodyBasis["joints"] = basis.joints.filter(
-    (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean => joint.sourceReferenceGoal !== undefined,
+    (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+      joint.sourceReferenceGoal !== undefined,
   );
   if (goals.length === 0) return;
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]> = new Map(basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]] => [joint.bone, joint]));
-  const goalBones: Set<AutoMovieHumanoidBone> = new Set(goals.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): AutoMovieHumanoidBone => joint.bone));
+  const joints: Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBasis["joints"][number]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): [
+        AutoMovieHumanoidBone,
+        IAutoMovieHumanBodyBasis["joints"][number],
+      ] => [joint.bone, joint],
+    ),
+  );
+  const goalBones: Set<AutoMovieHumanoidBone> = new Set(
+    goals.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): AutoMovieHumanoidBone => joint.bone,
+    ),
+  );
   const anchors: Set<string> = new Set(
-    basis.joints.flatMap((joint: IAutoMovieHumanBodyBasis["joints"][number]): string[] => [
-      joint.head,
-      joint.tail,
-      ...(joint.flexionAxis ?? []),
-    ]),
+    basis.joints.flatMap(
+      (joint: IAutoMovieHumanBodyBasis["joints"][number]): string[] => [
+        joint.head,
+        joint.tail,
+        ...(joint.flexionAxis ?? []),
+      ],
+    ),
   );
   const rigIndices: Set<number> = new Set(
     basis.landmarks.ids.flatMap((id: string, index: number): number[] =>
@@ -40,14 +61,22 @@ export function assertHumanBodySourceReferenceGoals(
   );
   for (const corrective of basis.correctives ?? []) {
     if (
-      !corrective.inputs.some((input: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number]["inputs"][number]): boolean => "bone" in input || "shoulder" in input)
+      !corrective.inputs.some(
+        (
+          input: NonNullable<
+            IAutoMovieHumanBodyBasis["correctives"]
+          >[number]["inputs"][number],
+        ): boolean => "bone" in input || "shoulder" in input,
+      )
     )
       continue;
     const rows: number[] = basis.landmarks.targets[corrective.target] ?? [];
     for (let at: number = 0; at < rows.length; at += 4)
       if (
         rigIndices.has(rows[at]) &&
-        rows.slice(at + 1, at + 4).some((offset: number): boolean => offset !== 0)
+        rows
+          .slice(at + 1, at + 4)
+          .some((offset: number): boolean => offset !== 0)
       )
         throw new Error(
           "Source-reference thigh goals do not support pose-driven rig-frame feedback: " +
@@ -59,7 +88,8 @@ export function assertHumanBodySourceReferenceGoals(
       throw new Error(
         "A source-reference thigh goal needs a named upper leg: " + joint.bone,
       );
-    const reference: AutoMovieHumanoidBone = joint.sourceReferenceGoal!.reference;
+    const reference: AutoMovieHumanoidBone =
+      joint.sourceReferenceGoal!.reference;
     if (!joints.has(reference))
       throw new Error(
         "A source-reference thigh goal needs a declared reference: " +
@@ -92,7 +122,12 @@ export function assertHumanBodySourceReferenceGoals(
       bone = ancestor.parent;
     }
     for (const coupling of basis.couplings ?? []) {
-      if (!coupling.curve.some(([, degrees]: readonly [number, number]): boolean => degrees !== 0)) continue;
+      if (
+        !coupling.curve.some(
+          ([, degrees]: readonly [number, number]): boolean => degrees !== 0,
+        )
+      )
+        continue;
       if (goalBones.has(coupling.output.bone))
         throw new Error(
           "Source-reference thigh goals do not support a coupled goal-leg axis: " +

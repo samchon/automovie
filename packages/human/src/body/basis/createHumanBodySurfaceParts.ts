@@ -33,79 +33,111 @@ import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
 export function createHumanBodySurfaceParts(
   basis: IAutoMovieHumanBodyBasis,
   physicalSource?: "native-indexed" | "source-partition",
-): (input: IHumanBodySurfacePartsInput) => { parts: IAutoMovieModel["parts"]; posedSurfaces: IAutoMovieHumanBodyPosedSurface[] } {
+): (input: IHumanBodySurfacePartsInput) => {
+  parts: IAutoMovieModel["parts"];
+  posedSurfaces: IAutoMovieHumanBodyPosedSurface[];
+} {
   // Compilation captures incidence before performance and UV gathering. The
   // instance is supplied by each admitted document, never a generation alone.
-  const registrations: ({ identity: string; samples: number[] } | undefined)[] = basis.surfaces.map((surface: typeof basis.surfaces[number]): { identity: string; samples: number[] } | undefined => {
-    if (physicalSource === undefined) return undefined;
-    const source: typeof surface.sourcePartition = surface.sourcePartition;
-    if (physicalSource === "native-indexed") {
-      if (source !== undefined)
-        throw new Error(
-          "Native indexed registration cannot relabel a declared canonical source partition.",
-        );
-      const fingerprint: string = autoMovieRenderDigest(
-        canonicalizeAutoMovieJson({
-          positions: surface.positions,
-          indices: surface.indices,
-        }),
-      );
-      return {
-        identity: canonicalizeAutoMovieJson({
-          mode: "native-indexed",
-          basis: basis.id,
-          surface: surface.id,
-          fingerprint,
-        }),
-        samples: Array.from(
-          { length: surface.positions.length / 3 },
-          (_: unknown, vertex: number): number => vertex,
-        ),
-      };
-    }
-    if (source === undefined || source.generation.trim() === "")
-      throw new Error(
-        "Physical source-partition registration needs the actual canonical source record.",
-      );
-    const extent: number =
-      source.originalVertices +
-      source.intersections.length +
-      (source.refinements?.length ?? 0);
-    if (
-      !Number.isSafeInteger(source.originalVertices) ||
-      source.originalVertices < 3 ||
-      !Number.isSafeInteger(extent) ||
-      source.samples.length !== surface.positions.length / 3 ||
-      source.samples.some(
-        (sample: number): boolean =>
-          !Number.isSafeInteger(sample) || sample < 0 || sample >= extent,
-      )
-    )
-      throw new Error(
-        "Physical source-partition samples must match the actual preUV surface and safe canonical domain.",
-      );
-    return { identity: source.generation, samples: Array.from(source.samples) };
-  });
-  const posedSurface: ReturnType<typeof createHumanBodyPosedSurface>[] = basis.surfaces.map((surface: typeof basis.surfaces[number]): ReturnType<typeof createHumanBodyPosedSurface> =>
-    createHumanBodyPosedSurface(surface, basis.joints),
-  );
-  const regionParts: ReturnType<typeof createHumanBodySurfaceRegionParts>[] = basis.surfaces.map(createHumanBodySurfaceRegionParts);
-  return (input: IHumanBodySurfacePartsInput): { parts: IAutoMovieModel["parts"]; posedSurfaces: IAutoMovieHumanBodyPosedSurface[] } => {
-    const { document, shaped, posed, transforms, restAll, leanOf, coloured }: typeof input =
-      input;
+  const registrations: ({ identity: string; samples: number[] } | undefined)[] =
+    basis.surfaces.map(
+      (
+        surface: (typeof basis.surfaces)[number],
+      ): { identity: string; samples: number[] } | undefined => {
+        if (physicalSource === undefined) return undefined;
+        const source: typeof surface.sourcePartition = surface.sourcePartition;
+        if (physicalSource === "native-indexed") {
+          if (source !== undefined)
+            throw new Error(
+              "Native indexed registration cannot relabel a declared canonical source partition.",
+            );
+          const fingerprint: string = autoMovieRenderDigest(
+            canonicalizeAutoMovieJson({
+              positions: surface.positions,
+              indices: surface.indices,
+            }),
+          );
+          return {
+            identity: canonicalizeAutoMovieJson({
+              mode: "native-indexed",
+              basis: basis.id,
+              surface: surface.id,
+              fingerprint,
+            }),
+            samples: Array.from(
+              { length: surface.positions.length / 3 },
+              (_: unknown, vertex: number): number => vertex,
+            ),
+          };
+        }
+        if (source === undefined || source.generation.trim() === "")
+          throw new Error(
+            "Physical source-partition registration needs the actual canonical source record.",
+          );
+        const extent: number =
+          source.originalVertices +
+          source.intersections.length +
+          (source.refinements?.length ?? 0);
+        if (
+          !Number.isSafeInteger(source.originalVertices) ||
+          source.originalVertices < 3 ||
+          !Number.isSafeInteger(extent) ||
+          source.samples.length !== surface.positions.length / 3 ||
+          source.samples.some(
+            (sample: number): boolean =>
+              !Number.isSafeInteger(sample) || sample < 0 || sample >= extent,
+          )
+        )
+          throw new Error(
+            "Physical source-partition samples must match the actual preUV surface and safe canonical domain.",
+          );
+        return {
+          identity: source.generation,
+          samples: Array.from(source.samples),
+        };
+      },
+    );
+  const posedSurface: ReturnType<typeof createHumanBodyPosedSurface>[] =
+    basis.surfaces.map(
+      (
+        surface: (typeof basis.surfaces)[number],
+      ): ReturnType<typeof createHumanBodyPosedSurface> =>
+        createHumanBodyPosedSurface(surface, basis.joints),
+    );
+  const regionParts: ReturnType<typeof createHumanBodySurfaceRegionParts>[] =
+    basis.surfaces.map(createHumanBodySurfaceRegionParts);
+  return (
+    input: IHumanBodySurfacePartsInput,
+  ): {
+    parts: IAutoMovieModel["parts"];
+    posedSurfaces: IAutoMovieHumanBodyPosedSurface[];
+  } => {
+    const {
+      document,
+      shaped,
+      posed,
+      transforms,
+      restAll,
+      leanOf,
+      coloured,
+    }: typeof input = input;
     const skin: string = HUMAN_BODY_SKIN_SITES.material;
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored
     const restShape: ReturnType<IHumanBodySurfacePartsInput["restAll"]> | null =
       posed &&
       basis.surfaces.some(
-        (surface: typeof basis.surfaces[number]): boolean => surface.sag !== undefined || surface.mush !== undefined,
+        (surface: (typeof basis.surfaces)[number]): boolean =>
+          surface.sag !== undefined || surface.mush !== undefined,
       )
         ? restAll()
         : null;
     const posedSurfaces: IAutoMovieHumanBodyPosedSurface[] = [];
     const parts: IAutoMovieModel["parts"] = basis.surfaces.flatMap(
-      (surface: typeof basis.surfaces[number], index: number): IAutoMovieModel["parts"] => {
+      (
+        surface: (typeof basis.surfaces)[number],
+        index: number,
+      ): IAutoMovieModel["parts"] => {
         const positions: number[] = posedSurface[index]({
           shaped: shaped.surfaces[index],
           transforms,
@@ -113,7 +145,10 @@ export function createHumanBodySurfaceParts(
           lean: (): number[] => leanOf(index),
           document,
         });
-        const normals: number[] = areaWeightedNormals(positions, surface.indices);
+        const normals: number[] = areaWeightedNormals(
+          positions,
+          surface.indices,
+        );
         posedSurfaces[index] = { positions, normals };
         // the skin's anatomical relief follows the pose: its creases deepen
         // where a bent joint folds the skin and its wrinkles flatten where it

@@ -29,19 +29,39 @@ export interface IHumanBodyUnderwearSurfaceFitInput {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Fitting retains the callback only for its synchronous invocation and owns no subscription or background task; callers decide whether to retain received records.
    */
   observeFitting?: (
-    stage: Extract<IHumanBodyConstructionProgress["stage"],
-      "garment-component-read" | "garment-envelope-evaluated" |
-      "garment-initial-evaluated" | "garment-affine-program-assembled" |
-      "garment-native-round-completed" |
-      "garment-candidate-normals-evaluated" |
-      "garment-candidate-vertices-evaluated" |
-      "garment-candidate-faces-evaluated" |
-      "garment-candidate-evaluated" | "garment-proposal-evaluated">,
-    details: Pick<IHumanBodyConstructionProgress,
-      "completed" | "total" | "garmentSurface" | "garmentComponent" | "garmentPhase" | "garmentRound" |
-      "garmentWorkUsed" | "garmentWorkBound" | "garmentVariables" | "garmentRows" |
-      "garmentEntries" | "garmentMinimumNonzeroCoefficient" | "garmentMaximumCoefficient" |
-      "garmentFieldResidualMetres" | "garmentGeometryFailures" | "garmentFittingRound" | "garmentProposal">,
+    stage: Extract<
+      IHumanBodyConstructionProgress["stage"],
+      | "garment-component-read"
+      | "garment-envelope-evaluated"
+      | "garment-initial-evaluated"
+      | "garment-affine-program-assembled"
+      | "garment-native-round-completed"
+      | "garment-candidate-normals-evaluated"
+      | "garment-candidate-vertices-evaluated"
+      | "garment-candidate-faces-evaluated"
+      | "garment-candidate-evaluated"
+      | "garment-proposal-evaluated"
+    >,
+    details: Pick<
+      IHumanBodyConstructionProgress,
+      | "completed"
+      | "total"
+      | "garmentSurface"
+      | "garmentComponent"
+      | "garmentPhase"
+      | "garmentRound"
+      | "garmentWorkUsed"
+      | "garmentWorkBound"
+      | "garmentVariables"
+      | "garmentRows"
+      | "garmentEntries"
+      | "garmentMinimumNonzeroCoefficient"
+      | "garmentMaximumCoefficient"
+      | "garmentFieldResidualMetres"
+      | "garmentGeometryFailures"
+      | "garmentFittingRound"
+      | "garmentProposal"
+    >,
   ) => void;
 
   /** Actual supplied outward directions at the original material samples. */

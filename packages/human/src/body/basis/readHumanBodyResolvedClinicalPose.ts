@@ -29,28 +29,63 @@ export function readHumanBodyResolvedClinicalPose(
   input: IHumanBodyResolvedClinicalPoseInput,
 ): IAutoMovieJointPose[] {
   const { rig }: IHumanBodyResolvedClinicalPoseInput = input;
-  const resolved: Map<IAutoMovieJointPose["bone"], IHumanBodyResolvedClinicalPoseInput["resolved"][number]> = new Map(input.resolved.map((bone: IHumanBodyResolvedClinicalPoseInput["resolved"][number]): [IAutoMovieJointPose["bone"], IHumanBodyResolvedClinicalPoseInput["resolved"][number]] => [bone.bone, bone]));
-  const root: typeof rig.skeleton.bones[number] = rig.skeleton.bones.find((bone: typeof rig.skeleton.bones[number]): boolean => bone.parent === null)!;
-  const upperLegs: readonly ["leftUpperLeg", "rightUpperLeg"] = ["leftUpperLeg", "rightUpperLeg"] as const;
-  const hips: (typeof rig.skeleton.bones[number] | undefined)[] = upperLegs.map((name: typeof upperLegs[number]): typeof rig.skeleton.bones[number] | undefined =>
-    rig.skeleton.bones.find((bone: typeof rig.skeleton.bones[number]): boolean => bone.bone === name),
+  const resolved: Map<
+    IAutoMovieJointPose["bone"],
+    IHumanBodyResolvedClinicalPoseInput["resolved"][number]
+  > = new Map(
+    input.resolved.map(
+      (
+        bone: IHumanBodyResolvedClinicalPoseInput["resolved"][number],
+      ): [
+        IAutoMovieJointPose["bone"],
+        IHumanBodyResolvedClinicalPoseInput["resolved"][number],
+      ] => [bone.bone, bone],
+    ),
   );
+  const root: (typeof rig.skeleton.bones)[number] = rig.skeleton.bones.find(
+    (bone: (typeof rig.skeleton.bones)[number]): boolean =>
+      bone.parent === null,
+  )!;
+  const upperLegs: readonly ["leftUpperLeg", "rightUpperLeg"] = [
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ] as const;
+  const hips: ((typeof rig.skeleton.bones)[number] | undefined)[] =
+    upperLegs.map(
+      (
+        name: (typeof upperLegs)[number],
+      ): (typeof rig.skeleton.bones)[number] | undefined =>
+        rig.skeleton.bones.find(
+          (bone: (typeof rig.skeleton.bones)[number]): boolean =>
+            bone.bone === name,
+        ),
+    );
   const hipLine: ReturnType<typeof Vector3.subtract> | undefined =
     input.tilt === 0
       ? undefined
       : Vector3.subtract(hips[0]!.rest.translation, hips[1]!.rest.translation);
   return rig.skeleton.bones
     .filter(
-      (bone: typeof rig.skeleton.bones[number]): boolean =>
-        input.basis.joints.find((joint: typeof input.basis.joints[number]): boolean => joint.bone === bone.bone)!
-          .shoulder === undefined,
+      (bone: (typeof rig.skeleton.bones)[number]): boolean =>
+        input.basis.joints.find(
+          (joint: (typeof input.basis.joints)[number]): boolean =>
+            joint.bone === bone.bone,
+        )!.shoulder === undefined,
     )
-    .map((bone: typeof rig.skeleton.bones[number]): IAutoMovieJointPose => {
-      const contract: IHumanBodyResolvedClinicalPoseInput["basis"]["joints"][number] = input.basis.joints.find(
-        (joint: typeof input.basis.joints[number]): boolean => joint.bone === bone.bone,
-      )!;
-      const row: IAutoMovieJointPose | undefined = input.pose.find((joint: IAutoMovieJointPose): boolean => joint.bone === bone.bone);
-      const original: IAutoMovieJointPose & { flexion: number; abduction: number; twist: number } = {
+    .map((bone: (typeof rig.skeleton.bones)[number]): IAutoMovieJointPose => {
+      const contract: IHumanBodyResolvedClinicalPoseInput["basis"]["joints"][number] =
+        input.basis.joints.find(
+          (joint: (typeof input.basis.joints)[number]): boolean =>
+            joint.bone === bone.bone,
+        )!;
+      const row: IAutoMovieJointPose | undefined = input.pose.find(
+        (joint: IAutoMovieJointPose): boolean => joint.bone === bone.bone,
+      );
+      const original: IAutoMovieJointPose & {
+        flexion: number;
+        abduction: number;
+        twist: number;
+      } = {
         bone: bone.bone,
         flexion: row?.flexion ?? contract.neutral.flexion,
         abduction: row?.abduction ?? contract.neutral.abduction,
@@ -65,14 +100,20 @@ export function readHumanBodyResolvedClinicalPose(
       // The current closed humanoid set supplies every nonroot's override or
       // engine default range; only the root is unbounded.
       if (input.actualFrames !== true && bone.parent === root.bone) {
-        const localAxis: ReturnType<typeof Quaternion.rotateVector> = Quaternion.rotateVector(
-          Quaternion.inverse(bone.rest.rotation),
-          hipLine!,
-        );
-        const flexionAxis: typeof DEFAULT_JOINT_AXES.flexion = (rig.axes[bone.bone] ?? DEFAULT_JOINT_AXES).flexion;
+        const localAxis: ReturnType<typeof Quaternion.rotateVector> =
+          Quaternion.rotateVector(
+            Quaternion.inverse(bone.rest.rotation),
+            hipLine!,
+          );
+        const flexionAxis: typeof DEFAULT_JOINT_AXES.flexion = (
+          rig.axes[bone.bone] ?? DEFAULT_JOINT_AXES
+        ).flexion;
         const sharedNames: string[] = upperLegs.map(
-          (name: typeof upperLegs[number]): string =>
-            input.basis.joints.find((joint: typeof input.basis.joints[number]): boolean => joint.bone === name)!.head,
+          (name: (typeof upperLegs)[number]): string =>
+            input.basis.joints.find(
+              (joint: (typeof input.basis.joints)[number]): boolean =>
+                joint.bone === name,
+            )!.head,
         );
         const declaredLine: boolean =
           contract.flexionAxis !== undefined &&
@@ -86,7 +127,8 @@ export function readHumanBodyResolvedClinicalPose(
           original.abduction === contract.neutral.abduction &&
           original.twist === contract.neutral.twist;
         if (collinear && sagittal) {
-          const direction: number = Vector3.dot(localAxis, flexionAxis) > 0 ? 1 : -1;
+          const direction: number =
+            Vector3.dot(localAxis, flexionAxis) > 0 ? 1 : -1;
           return {
             ...original,
             flexion:
@@ -95,8 +137,11 @@ export function readHumanBodyResolvedClinicalPose(
           };
         }
       }
-      const actual: IHumanBodyResolvedClinicalPoseInput["resolved"][number] = resolved.get(bone.bone)!;
-      const parent: IHumanBodyResolvedClinicalPoseInput["resolved"][number] | undefined =
+      const actual: IHumanBodyResolvedClinicalPoseInput["resolved"][number] =
+        resolved.get(bone.bone)!;
+      const parent:
+        | IHumanBodyResolvedClinicalPoseInput["resolved"][number]
+        | undefined =
         bone.parent === null ? undefined : resolved.get(bone.parent)!;
       const local: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
         parent === undefined
@@ -104,10 +149,8 @@ export function readHumanBodyResolvedClinicalPose(
           : Quaternion.inverse(parent.worldRotation),
         actual.worldRotation,
       );
-      const articulation: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
-        Quaternion.inverse(bone.rest.rotation),
-        local,
-      );
+      const articulation: ReturnType<typeof Quaternion.multiply> =
+        Quaternion.multiply(Quaternion.inverse(bone.rest.rotation), local);
       return {
         bone: bone.bone,
         ...(input.actualFrames === true

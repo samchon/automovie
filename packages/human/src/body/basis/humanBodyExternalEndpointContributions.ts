@@ -22,9 +22,11 @@ export function humanBodyExternalEndpointContributions(
     throw new Error(
       "External endpoint source must contain the exact admitted body basis.",
     );
-  const bodySkin: IAutoMovieHumanBodyBasis["surfaces"][number] | undefined = basis.surfaces.find(
-    (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean => surface.sourcePartition !== undefined,
-  );
+  const bodySkin: IAutoMovieHumanBodyBasis["surfaces"][number] | undefined =
+    basis.surfaces.find(
+      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+        surface.sourcePartition !== undefined,
+    );
   if (
     source.partition.generation !== source.generation ||
     bodySkin?.sourcePartition?.generation !== source.generation
@@ -33,10 +35,11 @@ export function humanBodyExternalEndpointContributions(
       "External endpoint contributions need both actual same-generation source partitions.",
     );
   const endpoints: Set<string> = new Set(
-    basis.channels.flatMap((channel: IAutoMovieHumanBodyBasis["channels"][number]): string[] =>
-      channel.negative === null
-        ? [channel.positive]
-        : [channel.positive, channel.negative],
+    basis.channels.flatMap(
+      (channel: IAutoMovieHumanBodyBasis["channels"][number]): string[] =>
+        channel.negative === null
+          ? [channel.positive]
+          : [channel.positive, channel.negative],
     ),
   );
   for (const corrective of basis.correctives ?? [])

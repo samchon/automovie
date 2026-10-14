@@ -26,10 +26,12 @@ export function evaluateHumanBodyShape(
     activations: { target: string; activation: number }[];
   },
 ): { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> } {
-  const surfaces: number[][] = basis.surfaces.map((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): number[] => {
-    const positions: number[] = surface.positions.slice();
-    applyHumanBodyShapeRows(basis, state, positions, surface.targets);
-    return positions;
-  });
+  const surfaces: number[][] = basis.surfaces.map(
+    (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): number[] => {
+      const positions: number[] = surface.positions.slice();
+      applyHumanBodyShapeRows(basis, state, positions, surface.targets);
+      return positions;
+    },
+  );
   return { surfaces, landmarks: evaluateHumanBodyLandmarks(basis, state) };
 }

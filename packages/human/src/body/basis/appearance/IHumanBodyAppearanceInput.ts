@@ -1,4 +1,5 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
+
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 

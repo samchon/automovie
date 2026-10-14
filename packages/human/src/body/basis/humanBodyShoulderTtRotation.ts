@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
 
@@ -23,8 +26,15 @@ export function humanBodyShoulderTtRotation(
 ): IAutoMovieQuaternion {
   const side: number = pose.bone === "leftUpperArm" ? 1 : -1;
   const plane: number = pose.plane * Quaternion.DEG2RAD;
-  const tiltAxis: IAutoMovieVector3 = Vector3.create(-Math.sin(plane), 0, side * Math.cos(plane));
-  const tilt: IAutoMovieQuaternion = Quaternion.fromAxisAngle(tiltAxis, pose.elevation);
+  const tiltAxis: IAutoMovieVector3 = Vector3.create(
+    -Math.sin(plane),
+    0,
+    side * Math.cos(plane),
+  );
+  const tilt: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    tiltAxis,
+    pose.elevation,
+  );
   const humeralAxis: IAutoMovieVector3 = Quaternion.rotateVector(tilt, DOWN);
   const torsion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     humeralAxis,

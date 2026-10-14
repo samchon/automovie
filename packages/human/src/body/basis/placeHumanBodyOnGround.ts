@@ -1,12 +1,16 @@
 import { validateModel } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
 import type { AutoMovieHumanBodyBoneId } from "../anatomy/identity/AutoMovieHumanBodyBoneId";
+import { measureHumanBodyGroundSupport } from "../measure/measureHumanBodyGroundSupport";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import type { IHumanBodyGroundPlacementProps } from "../structures/IHumanBodyGroundPlacementProps";
-import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { AutoMovieHumanBodyToeBone } from "../structures/rig/AutoMovieHumanBodyToeBone";
+import type { IAutoMovieHumanBodyBoneTransform } from "../structures/rig/IAutoMovieHumanBodyBoneTransform";
 
 /**
  * Place the lowest of the two performed feet on the fixed source ground.
@@ -30,53 +34,74 @@ export function placeHumanBodyOnGround(
     throw new Error(
       "Lowest-foot placement needs the source-neutral joint-ground plane.",
     );
-  const groundPlaneHeightMetres: number = basis.landmarks.positions[ground * 3 + 1];
-  const support: ReturnType<typeof measureHumanBodyGroundSupport> = measureHumanBodyGroundSupport(
-    basis,
-    build.posedSurfaces.map((surface: IAutoMovieHumanBodyBuild["posedSurfaces"][number]): number[] => surface.positions),
-    build.landmarks,
-    groundPlaneHeightMetres,
-  );
+  const groundPlaneHeightMetres: number =
+    basis.landmarks.positions[ground * 3 + 1];
+  const support: ReturnType<typeof measureHumanBodyGroundSupport> =
+    measureHumanBodyGroundSupport(
+      basis,
+      build.posedSurfaces.map(
+        (
+          surface: IAutoMovieHumanBodyBuild["posedSurfaces"][number],
+        ): number[] => surface.positions,
+      ),
+      build.landmarks,
+      groundPlaneHeightMetres,
+    );
   if (support === null || support.length !== 2)
     throw new Error(
       "Lowest-foot placement needs joint-ground and both registered foot skin regions.",
     );
-  const shift: number = -Math.min(...support.map((foot: NonNullable<typeof support>[number]): number => foot.gapMetres));
+  const shift: number = -Math.min(
+    ...support.map(
+      (foot: NonNullable<typeof support>[number]): number => foot.gapMetres,
+    ),
+  );
   if (!Number.isFinite(shift))
     throw new Error("Lowest-foot placement needs finite final foot positions.");
-  const translate: (positions: readonly number[]) => number[] = (positions: readonly number[]): number[] =>
-    positions.map((value: number, index: number): number => (index % 3 === 1 ? value + shift : value));
-  const translateFrame: <T extends IAutoMovieHumanBodyBoneTransform>(bone: T) => T = <T extends IAutoMovieHumanBodyBoneTransform>(
+  const translate: (positions: readonly number[]) => number[] = (
+    positions: readonly number[],
+  ): number[] =>
+    positions.map((value: number, index: number): number =>
+      index % 3 === 1 ? value + shift : value,
+    );
+  const translateFrame: <T extends IAutoMovieHumanBodyBoneTransform>(
     bone: T,
-  ): T => ({
+  ) => T = <T extends IAutoMovieHumanBodyBoneTransform>(bone: T): T => ({
     ...bone,
     posed: {
       ...bone.posed,
       position: { ...bone.posed.position, y: bone.posed.position.y + shift },
     },
   });
-  const translateModel: (input: IAutoMovieModel) => IAutoMovieModel = (input: IAutoMovieModel): IAutoMovieModel => ({
+  const translateModel: (input: IAutoMovieModel) => IAutoMovieModel = (
+    input: IAutoMovieModel,
+  ): IAutoMovieModel => ({
     ...input,
-    parts: input.parts.map((part: IAutoMovieModel["parts"][number]): IAutoMovieModel["parts"][number] => {
-      if (
-        part.geometry.type !== "mesh" ||
-        part.transform !== null ||
-        part.attachedBone !== null
-      )
-        throw new Error(
-          "Lowest-foot placement needs a static source-frame mesh: " + part.id,
-        );
-      return {
-        ...part,
-        geometry: {
-          type: "mesh" as const,
-          mesh: {
-            ...part.geometry.mesh,
-            positions: translate(part.geometry.mesh.positions),
+    parts: input.parts.map(
+      (
+        part: IAutoMovieModel["parts"][number],
+      ): IAutoMovieModel["parts"][number] => {
+        if (
+          part.geometry.type !== "mesh" ||
+          part.transform !== null ||
+          part.attachedBone !== null
+        )
+          throw new Error(
+            "Lowest-foot placement needs a static source-frame mesh: " +
+              part.id,
+          );
+        return {
+          ...part,
+          geometry: {
+            type: "mesh" as const,
+            mesh: {
+              ...part.geometry.mesh,
+              positions: translate(part.geometry.mesh.positions),
+            },
           },
-        },
-      };
-    }),
+        };
+      },
+    ),
   });
   const model: IAutoMovieModel = translateModel(build.model);
   const validation: ReturnType<typeof validateModel> = validateModel({ model });
@@ -89,13 +114,19 @@ export function placeHumanBodyOnGround(
     ...build,
     groundPlaneHeightMetres,
     model,
-    ...(build.sourceSkinModel === undefined ? {} : {
-      sourceSkinModel: translateModel(build.sourceSkinModel),
-    }),
-    posedSurfaces: build.posedSurfaces.map((surface: IAutoMovieHumanBodyBuild["posedSurfaces"][number]): IAutoMovieHumanBodyBuild["posedSurfaces"][number] => ({
-      ...surface,
-      positions: translate(surface.positions),
-    })),
+    ...(build.sourceSkinModel === undefined
+      ? {}
+      : {
+          sourceSkinModel: translateModel(build.sourceSkinModel),
+        }),
+    posedSurfaces: build.posedSurfaces.map(
+      (
+        surface: IAutoMovieHumanBodyBuild["posedSurfaces"][number],
+      ): IAutoMovieHumanBodyBuild["posedSurfaces"][number] => ({
+        ...surface,
+        positions: translate(surface.positions),
+      }),
+    ),
     bones: build.bones.map(translateFrame),
     ...(build.anatomicalRig === undefined
       ? {}
@@ -103,34 +134,56 @@ export function placeHumanBodyOnGround(
           anatomicalRig: {
             bones: new Map(
               [...build.anatomicalRig.bones].map(
-                ([id, bone]: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform]): [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform] => [id, translateFrame(bone)],
+                ([id, bone]: [
+                  AutoMovieHumanBodyBoneId,
+                  IAutoMovieHumanBodyBoneTransform,
+                ]): [
+                  AutoMovieHumanBodyBoneId,
+                  IAutoMovieHumanBodyBoneTransform,
+                ] => [id, translateFrame(bone)],
               ),
             ),
             projections: new Map(
               [...build.anatomicalRig.projections].map(
-                ([id, bone]: [AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform]): [AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform] => [id, translateFrame(bone)],
+                ([id, bone]: [
+                  AutoMovieHumanoidBone,
+                  IAutoMovieHumanBodyBoneTransform,
+                ]): [
+                  AutoMovieHumanoidBone,
+                  IAutoMovieHumanBodyBoneTransform,
+                ] => [id, translateFrame(bone)],
               ),
             ),
             toeProjections: new Map(
               [...build.anatomicalRig.toeProjections].map(
-                ([id, bone]: [AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform]): [AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform] => [id, translateFrame(bone)],
+                ([id, bone]: [
+                  AutoMovieHumanBodyToeBone,
+                  IAutoMovieHumanBodyBoneTransform,
+                ]): [
+                  AutoMovieHumanBodyToeBone,
+                  IAutoMovieHumanBodyBoneTransform,
+                ] => [id, translateFrame(bone)],
               ),
             ),
             sites: new Map(
               [...build.anatomicalRig.sites].map(
-                ([id, sites]: [AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>]): [AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>] =>
-                  [
-                    id,
-                    new Map(
-                      [...sites].map(
-                        ([site, position]: [string, IAutoMovieVector3]): [string, IAutoMovieVector3] =>
-                          [
-                            site,
-                            { ...position, y: position.y + shift },
-                          ],
-                      ),
+                ([id, sites]: [
+                  AutoMovieHumanBodyBoneId,
+                  ReadonlyMap<string, IAutoMovieVector3>,
+                ]): [
+                  AutoMovieHumanBodyBoneId,
+                  ReadonlyMap<string, IAutoMovieVector3>,
+                ] => [
+                  id,
+                  new Map(
+                    [...sites].map(
+                      ([site, position]: [string, IAutoMovieVector3]): [
+                        string,
+                        IAutoMovieVector3,
+                      ] => [site, { ...position, y: position.y + shift }],
                     ),
-                  ],
+                  ),
+                ],
               ),
             ),
           },

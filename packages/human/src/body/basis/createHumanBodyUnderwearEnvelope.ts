@@ -3,13 +3,13 @@ import {
   buildAutoMovieMeshQueryHierarchy,
 } from "@automovie/engine";
 
-import { readHumanBodyUnderwearFaceField } from "./readHumanBodyUnderwearFaceField";
-import type { IHumanBodyUnderwearEnvelopeCentre } from "./IHumanBodyUnderwearEnvelopeCentre";
-
 import type { IHumanBodyUnderwearEnvelope } from "./IHumanBodyUnderwearEnvelope";
+import type { IHumanBodyUnderwearEnvelopeCentre } from "./IHumanBodyUnderwearEnvelopeCentre";
 import type { IHumanBodyUnderwearEnvelopeInput } from "./IHumanBodyUnderwearEnvelopeInput";
+import { readHumanBodyUnderwearFaceField } from "./readHumanBodyUnderwearFaceField";
 
-type CentreNode = IAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>;
+type CentreNode =
+  IAutoMovieMeshQueryHierarchy<IHumanBodyUnderwearEnvelopeCentre>;
 
 /**
  * Compile one continuous distance to the qualified exterior ball centres.
@@ -31,59 +31,103 @@ export function createHumanBodyUnderwearEnvelope(
   const mask: ReturnType<typeof voxels.centres> = voxels.centres(rho);
   const centres: IHumanBodyUnderwearEnvelopeCentre[] = [];
   const add: (point: number[]) => void = (point: number[]): void => {
-    centres.push({ id: centres.length, low: point, high: point, centre: point });
+    centres.push({
+      id: centres.length,
+      low: point,
+      high: point,
+      centre: point,
+    });
   };
-  for (let i: number = 0; i < mask.length; i++) if (mask[i] !== 0) add(voxels.centre(i));
+  for (let i: number = 0; i < mask.length; i++)
+    if (mask[i] !== 0) add(voxels.centre(i));
   const free: Uint8Array = new Uint8Array(points.length / 3);
   for (let vertex: number = 0; vertex < free.length; vertex++) {
-    const point: number[] = [0, 1, 2].map((axis: number): number => points[vertex * 3 + axis] + rho * normals[vertex * 3 + axis]);
-    const ownDistance: number = Math.sqrt([0, 1, 2].reduce((sum: number, axis: number): number => sum +
-      (point[axis] - points[vertex * 3 + axis]) ** 2, 0));
+    const point: number[] = [0, 1, 2].map(
+      (axis: number): number =>
+        points[vertex * 3 + axis] + rho * normals[vertex * 3 + axis],
+    );
+    const ownDistance: number = Math.sqrt(
+      [0, 1, 2].reduce(
+        (sum: number, axis: number): number =>
+          sum + (point[axis] - points[vertex * 3 + axis]) ** 2,
+        0,
+      ),
+    );
     if (voxels.clearance(point) >= rho && ownDistance <= rho) {
       free[vertex] = 1;
       add(point);
     }
   }
-  if (centres.length === 0) throw new Error("Garment fitting has no qualified exterior ball centres.");
+  if (centres.length === 0)
+    throw new Error("Garment fitting has no qualified exterior ball centres.");
   const root: CentreNode = buildAutoMovieMeshQueryHierarchy(centres);
   let recent: IHumanBodyUnderwearEnvelopeCentre = centres[0];
-  const read: IHumanBodyUnderwearEnvelope["read"] = (point: Parameters<IHumanBodyUnderwearEnvelope["read"]>[0]): ReturnType<IHumanBodyUnderwearEnvelope["read"]> => {
-      let best: IHumanBodyUnderwearEnvelopeCentre = recent;
-      const squared: (at: readonly number[]) => number = (at: readonly number[]): number =>
-        (point[0] - at[0]) ** 2 + (point[1] - at[1]) ** 2 + (point[2] - at[2]) ** 2;
-      let bestSquared: number = squared(best.centre);
-      const bound: (node: CentreNode) => number = (node: CentreNode): number => {
-        let result: number = 0;
-        for (let k: number = 0; k < 3; k++) result += Math.max(0, node.low[k] - point[k], point[k] - node.high[k]) ** 2;
-        return result;
-      };
-      const visit: (node: CentreNode) => void = (node: CentreNode): void => {
-        if (bound(node) > bestSquared) return;
-        if ("triangles" in node) {
-          for (const centre of node.triangles) {
-            const value: number = squared(centre.centre);
-            if (value < bestSquared || (value === bestSquared && centre.id < best.id)) {
-              best = centre; bestSquared = value;
-            }
+  const read: IHumanBodyUnderwearEnvelope["read"] = (
+    point: Parameters<IHumanBodyUnderwearEnvelope["read"]>[0],
+  ): ReturnType<IHumanBodyUnderwearEnvelope["read"]> => {
+    let best: IHumanBodyUnderwearEnvelopeCentre = recent;
+    const squared: (at: readonly number[]) => number = (
+      at: readonly number[],
+    ): number =>
+      (point[0] - at[0]) ** 2 +
+      (point[1] - at[1]) ** 2 +
+      (point[2] - at[2]) ** 2;
+    let bestSquared: number = squared(best.centre);
+    const bound: (node: CentreNode) => number = (node: CentreNode): number => {
+      let result: number = 0;
+      for (let k: number = 0; k < 3; k++)
+        result +=
+          Math.max(0, node.low[k] - point[k], point[k] - node.high[k]) ** 2;
+      return result;
+    };
+    const visit: (node: CentreNode) => void = (node: CentreNode): void => {
+      if (bound(node) > bestSquared) return;
+      if ("triangles" in node) {
+        for (const centre of node.triangles) {
+          const value: number = squared(centre.centre);
+          if (
+            value < bestSquared ||
+            (value === bestSquared && centre.id < best.id)
+          ) {
+            best = centre;
+            bestSquared = value;
           }
-        } else {
-          const left: number = bound(node.left), right: number = bound(node.right);
-          if (left <= right) { visit(node.left); visit(node.right); }
-          else { visit(node.right); visit(node.left); }
         }
-      };
-      visit(root);
-      recent = best;
-      const distance: number = Math.sqrt(bestSquared);
-      return { distance, centre: [...best.centre], gradient: point.map((value: number, axis: number): number =>
-        distance === 0 ? 0 : (value - best.centre[axis]) / distance) };
+      } else {
+        const left: number = bound(node.left),
+          right: number = bound(node.right);
+        if (left <= right) {
+          visit(node.left);
+          visit(node.right);
+        } else {
+          visit(node.right);
+          visit(node.left);
+        }
+      }
+    };
+    visit(root);
+    recent = best;
+    const distance: number = Math.sqrt(bestSquared);
+    return {
+      distance,
+      centre: [...best.centre],
+      gradient: point.map((value: number, axis: number): number =>
+        distance === 0 ? 0 : (value - best.centre[axis]) / distance,
+      ),
+    };
   };
   return {
     free,
     centres: centres.length,
     read,
-    readFace: (face: Parameters<IHumanBodyUnderwearEnvelope["readFace"]>[0]): ReturnType<IHumanBodyUnderwearEnvelope["readFace"]> => readHumanBodyUnderwearFaceField({
-      face, centres, root, seed: read(face.slice(0, 3)).centre,
-    }),
+    readFace: (
+      face: Parameters<IHumanBodyUnderwearEnvelope["readFace"]>[0],
+    ): ReturnType<IHumanBodyUnderwearEnvelope["readFace"]> =>
+      readHumanBodyUnderwearFaceField({
+        face,
+        centres,
+        root,
+        seed: read(face.slice(0, 3)).centre,
+      }),
   };
 }

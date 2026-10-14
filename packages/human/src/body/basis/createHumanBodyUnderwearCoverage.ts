@@ -26,7 +26,9 @@ export function createHumanBodyUnderwearCoverage(
   props: IAutoMovieHumanBodyUnderwearCoverageProps,
 ): (x: number, y: number, z: number, arm: number) => number {
   const { table, style, basis, rest }: typeof props = props;
-  const landmark: (id: string) => IAutoMovieVector3 = (id: string): IAutoMovieVector3 => {
+  const landmark: (id: string) => IAutoMovieVector3 = (
+    id: string,
+  ): IAutoMovieVector3 => {
     const found: IAutoMovieVector3 | undefined = rest.landmarks[id];
     if (found === undefined)
       throw new Error("Body underwear needs the landmark " + id + ".");
@@ -34,12 +36,19 @@ export function createHumanBodyUnderwearCoverage(
   };
   const names: typeof table.landmarks = table.landmarks;
   const pelvis: IAutoMovieVector3 = landmark(names.pelvis);
-  const briefs: typeof table.briefs[typeof style] = table.briefs[style];
-  const waist: number = pelvis.y + briefs.waist * (landmark(names.lumbar).y - pelvis.y);
+  const briefs: (typeof table.briefs)[typeof style] = table.briefs[style];
+  const waist: number =
+    pelvis.y + briefs.waist * (landmark(names.lumbar).y - pelvis.y);
   // the hip joints' mean height and depth, their half distance and the
   // thighs' mean length
-  const hips: IAutoMovieVector3[] = [landmark(names.hips.left), landmark(names.hips.right)];
-  const knees: IAutoMovieVector3[] = [landmark(names.knees.left), landmark(names.knees.right)];
+  const hips: IAutoMovieVector3[] = [
+    landmark(names.hips.left),
+    landmark(names.hips.right),
+  ];
+  const knees: IAutoMovieVector3[] = [
+    landmark(names.knees.left),
+    landmark(names.knees.right),
+  ];
   const hipY: number = (hips[0].y + hips[1].y) / 2;
   const hipZ: number = (hips[0].z + hips[1].z) / 2;
   const half: number = Math.abs(hips[0].x - hips[1].x) / 2;
@@ -49,11 +58,15 @@ export function createHumanBodyUnderwearCoverage(
         Math.hypot(knees[k].x - hip.x, knees[k].y - hip.y, knees[k].z - hip.z),
       )
       .reduce((sum: number, length: number): number => sum + length, 0) / 2;
-  const clamp: (value: number) => number = (value: number): number => Math.min(1, Math.max(0, value));
+  const clamp: (value: number) => number = (value: number): number =>
+    Math.min(1, Math.max(0, value));
   // the leg line's height: at the crotch within the gusset, rising (or
   // falling) linearly to the outer hip's height by the outer distance, that
   // height blended from the back to the front over the hip joints' depth
-  const legLine: (x: number, z: number) => number = (x: number, z: number): number => {
+  const legLine: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
     const outer: number =
       briefs.back +
       (briefs.front - briefs.back) * clamp(0.5 + (z - hipZ) / half);
@@ -63,12 +76,29 @@ export function createHumanBodyUnderwearCoverage(
     );
     return hipY - thigh * (briefs.crotch + (outer - briefs.crotch) * across);
   };
-  const bra: { bottom: number; front: number; back: number; backDepth: number; frontDepth: number; strap: number; strapHalfWidth: number } | null =
+  const bra: {
+    bottom: number;
+    front: number;
+    back: number;
+    backDepth: number;
+    frontDepth: number;
+    strap: number;
+    strapHalfWidth: number;
+  } | null =
     style === "bra-and-briefs"
-      ? ((): { bottom: number; front: number; back: number; backDepth: number; frontDepth: number; strap: number; strapHalfWidth: number } => {
+      ? ((): {
+          bottom: number;
+          front: number;
+          back: number;
+          backDepth: number;
+          frontDepth: number;
+          strap: number;
+          strapHalfWidth: number;
+        } => {
           const rule: typeof table.bra = table.bra;
           // admitted with the basis, so the named point is a vertex of its surface
-          const { surface, vertex }: ReturnType<typeof humanSkinLandmark> = humanSkinLandmark(basis, rule.nipple);
+          const { surface, vertex }: ReturnType<typeof humanSkinLandmark> =
+            humanSkinLandmark(basis, rule.nipple);
           const nipple: number[] = rest.surfaces[surface].slice(
             vertex * 3,
             vertex * 3 + 3,

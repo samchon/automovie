@@ -27,31 +27,64 @@ export function assertHumanBodyBasisSurface(
   endpoints: ReadonlySet<string>,
 ): Set<string> {
   const resident: Set<string> = new Set<string>();
-  const materials: Set<string> = new Set(basis.materials.map((material: IAutoMovieHumanBodyBasis["materials"][number]): string => material.id));
+  const materials: Set<string> = new Set(
+    basis.materials.map(
+      (material: IAutoMovieHumanBodyBasis["materials"][number]): string =>
+        material.id,
+    ),
+  );
   const solids: ReturnType<typeof humanBodyCappedSurface>[] = [];
   if (basis.surfaces.length === 0)
     throw new Error("A body basis needs resident surfaces.");
   // a material's layers across every surface: one nail layer, and at most
   // four in all, the most a material composites
-  const layers: Map<string, { nails: number; all: number }> = new Map<string, { nails: number; all: number }>();
+  const layers: Map<string, { nails: number; all: number }> = new Map<
+    string,
+    { nails: number; all: number }
+  >();
   for (const surface of basis.surfaces) {
     // The topology checker assumes structurally valid buffers and leaves
     // malformed-buffer reporting to its caller, so establish that premise first.
     const vertices: number = surface.positions.length / 3;
-    const field: IAutoMovieHumanBodyBasis["surfaces"][number]["layerThickness"] = surface.layerThickness;
+    const field: IAutoMovieHumanBodyBasis["surfaces"][number]["layerThickness"] =
+      surface.layerThickness;
     if (field !== undefined) {
-      if (field.basis !== basis.id || field.skinMetres.length !== vertices ||
-          field.subcutaneousMetres.length !== vertices || field.qualification.trim() === "" ||
-          field.anchors.length === 0)
-        throw new Error("Layer thickness needs its exact basis, native population and source qualification: " + surface.id);
+      if (
+        field.basis !== basis.id ||
+        field.skinMetres.length !== vertices ||
+        field.subcutaneousMetres.length !== vertices ||
+        field.qualification.trim() === "" ||
+        field.anchors.length === 0
+      )
+        throw new Error(
+          "Layer thickness needs its exact basis, native population and source qualification: " +
+            surface.id,
+        );
       for (let vertex: number = 0; vertex < vertices; vertex++)
-        if (!Number.isFinite(field.skinMetres[vertex]) || field.skinMetres[vertex] < 0 ||
-            !Number.isFinite(field.subcutaneousMetres[vertex]) || field.subcutaneousMetres[vertex] < 0)
-          throw new Error("Layer thickness needs finite nonnegative native values: " + surface.id + "/" + vertex);
+        if (
+          !Number.isFinite(field.skinMetres[vertex]) ||
+          field.skinMetres[vertex] < 0 ||
+          !Number.isFinite(field.subcutaneousMetres[vertex]) ||
+          field.subcutaneousMetres[vertex] < 0
+        )
+          throw new Error(
+            "Layer thickness needs finite nonnegative native values: " +
+              surface.id +
+              "/" +
+              vertex,
+          );
       for (const anchor of field.anchors)
-        if (!Number.isFinite(anchor.metres) || anchor.metres < 0 ||
-            [anchor.site, anchor.source, anchor.protocol, anchor.population].some((value: string): boolean => value.trim() === ""))
-          throw new Error("Layer thickness anchor lacks its quantity or acquisition meaning: " + surface.id);
+        if (
+          !Number.isFinite(anchor.metres) ||
+          anchor.metres < 0 ||
+          [anchor.site, anchor.source, anchor.protocol, anchor.population].some(
+            (value: string): boolean => value.trim() === "",
+          )
+        )
+          throw new Error(
+            "Layer thickness anchor lacks its quantity or acquisition meaning: " +
+              surface.id,
+          );
     }
     if (
       vertices === 0 ||
@@ -60,7 +93,8 @@ export function assertHumanBodyBasisSurface(
       surface.indices.length === 0 ||
       surface.indices.length % 3 !== 0 ||
       surface.indices.some(
-        (index: number): boolean => !Number.isInteger(index) || index < 0 || index >= vertices,
+        (index: number): boolean =>
+          !Number.isInteger(index) || index < 0 || index >= vertices,
       )
     )
       throw new Error(
@@ -99,9 +133,17 @@ export function assertHumanBodyBasisSurface(
           surface.id,
       );
     if (surface.sag !== undefined) {
-      const { lean, gain, sweeps, softness }: NonNullable<typeof surface.sag> = surface.sag;
-      const channel: (id: string) => IAutoMovieHumanBodyBasis["channels"][number] | undefined = (id: string): IAutoMovieHumanBodyBasis["channels"][number] | undefined =>
-        basis.channels.find((one: IAutoMovieHumanBodyBasis["channels"][number]): boolean => one.id === id);
+      const { lean, gain, sweeps, softness }: NonNullable<typeof surface.sag> =
+        surface.sag;
+      const channel: (
+        id: string,
+      ) => IAutoMovieHumanBodyBasis["channels"][number] | undefined = (
+        id: string,
+      ): IAutoMovieHumanBodyBasis["channels"][number] | undefined =>
+        basis.channels.find(
+          (one: IAutoMovieHumanBodyBasis["channels"][number]): boolean =>
+            one.id === id,
+        );
       if (
         !Number.isFinite(gain) ||
         gain < 0 ||
@@ -111,14 +153,17 @@ export function assertHumanBodyBasisSurface(
         !(softness.range[0] >= 0 && softness.range[0] <= softness.range[1]) ||
         !Number.isFinite(softness.range[1]) ||
         Object.entries(lean).some(([id, weight]: [string, number]): boolean => {
-          const found: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channel(id);
+          const found:
+            | IAutoMovieHumanBodyBasis["channels"][number]
+            | undefined = channel(id);
           return (
             found === undefined ||
             !(weight >= found.minimum && weight <= found.maximum)
           );
         }) ||
         Object.entries(softness.channels).some(
-          ([id, value]: [string, number]): boolean => channel(id) === undefined || !Number.isFinite(value),
+          ([id, value]: [string, number]): boolean =>
+            channel(id) === undefined || !Number.isFinite(value),
         )
       )
         throw new Error(
@@ -130,7 +175,9 @@ export function assertHumanBodyBasisSurface(
       surface.relief !== undefined &&
       (!surface.relief.texture.startsWith("data:image/png;base64,") ||
         !surface.regions.some(
-          (region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): boolean =>
+          (
+            region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number],
+          ): boolean =>
             region.material === surface.relief!.material && region.uvs !== null,
         ))
     )
@@ -141,7 +188,9 @@ export function assertHumanBodyBasisSurface(
     const png: (uri: unknown) => boolean = (uri: unknown): boolean =>
       typeof uri === "string" && uri.startsWith("data:image/png;base64,");
     for (const overlay of surface.overlays ?? []) {
-      const count: { nails: number; all: number } = layers.get(overlay.material) ?? { nails: 0, all: 0 };
+      const count: { nails: number; all: number } = layers.get(
+        overlay.material,
+      ) ?? { nails: 0, all: 0 };
       count.all += 1;
       if (overlay.kind === "nails") count.nails += 1;
       layers.set(overlay.material, count);
@@ -170,7 +219,9 @@ export function assertHumanBodyBasisSurface(
                 (value: number): boolean => value > 0 && value <= 1,
               )))) ||
         !surface.regions.some(
-          (region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): boolean =>
+          (
+            region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number],
+          ): boolean =>
             region.material === overlay.material && region.uvs !== null,
         )
       )
@@ -179,7 +230,8 @@ export function assertHumanBodyBasisSurface(
             surface.id,
         );
     }
-    const solid: ReturnType<typeof humanBodyCappedSurface> = humanBodyCappedSurface(surface.positions, surface.indices);
+    const solid: ReturnType<typeof humanBodyCappedSurface> =
+      humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
     const neutral: IAutoMovieMesh = {
       positions: surface.positions,

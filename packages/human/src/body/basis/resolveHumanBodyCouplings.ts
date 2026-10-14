@@ -38,36 +38,63 @@ export function resolveHumanBodyCouplings(
     IAutoMovieHumanBodyShoulderPose
   > = new Map(),
 ): IHumanBodyCouplingResult {
-  const neutral: Map<IAutoMovieJointPose["bone"], typeof basis.joints[number]["neutral"]> = new Map(
-    basis.joints.map((joint: typeof basis.joints[number]): [IAutoMovieJointPose["bone"], typeof basis.joints[number]["neutral"]] => [joint.bone, joint.neutral]),
+  const neutral: Map<
+    IAutoMovieJointPose["bone"],
+    (typeof basis.joints)[number]["neutral"]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: (typeof basis.joints)[number],
+      ): [
+        IAutoMovieJointPose["bone"],
+        (typeof basis.joints)[number]["neutral"],
+      ] => [joint.bone, joint.neutral],
+    ),
   );
-  const joints: IAutoMovieJointPose[] = pose.map((joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }));
+  const joints: IAutoMovieJointPose[] = pose.map(
+    (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+  );
   const contributions: ReturnType<
     typeof resolveHumanBodyCouplings
   >["contributions"] = [];
   for (const coupling of basis.couplings ?? []) {
-    const rest: typeof basis.joints[number]["neutral"] = neutral.get(coupling.source.bone)!;
-    const source: IAutoMovieJointPose | undefined = pose.find((joint: IAutoMovieJointPose): boolean => joint.bone === coupling.source.bone);
-    const shoulder: typeof basis.joints[number]["shoulder"] = basis.joints.find(
-      (joint: typeof basis.joints[number]): boolean => joint.bone === coupling.source.bone,
-    )?.shoulder;
+    const rest: (typeof basis.joints)[number]["neutral"] = neutral.get(
+      coupling.source.bone,
+    )!;
+    const source: IAutoMovieJointPose | undefined = pose.find(
+      (joint: IAutoMovieJointPose): boolean =>
+        joint.bone === coupling.source.bone,
+    );
+    const shoulder: (typeof basis.joints)[number]["shoulder"] =
+      basis.joints.find(
+        (joint: (typeof basis.joints)[number]): boolean =>
+          joint.bone === coupling.source.bone,
+      )?.shoulder;
     const elevation: number =
       shoulder === undefined
         ? swingConeAngle(
             source?.flexion ?? rest.flexion,
             source?.abduction ?? rest.abduction,
           )
-        : (shoulders.find((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === coupling.source.bone)
-            ?.elevation ??
+        : (shoulders.find(
+            (one: IAutoMovieHumanBodyShoulderPose): boolean =>
+              one.bone === coupling.source.bone,
+          )?.elevation ??
           shoulderRest.get(
             coupling.source.bone as IAutoMovieHumanBodyShoulderPose["bone"],
           )?.elevation ??
           shoulder.neutral.elevation);
-    const degrees: number = evaluateHumanBodyRhythmCurve(coupling.curve, elevation);
+    const degrees: number = evaluateHumanBodyRhythmCurve(
+      coupling.curve,
+      elevation,
+    );
     if (degrees === 0) continue;
     const { bone, axis }: typeof coupling.output = coupling.output;
-    const index: number = joints.findIndex((joint: IAutoMovieJointPose): boolean => joint.bone === bone);
-    const current: IAutoMovieJointPose | null = index < 0 ? null : joints[index];
+    const index: number = joints.findIndex(
+      (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
+    );
+    const current: IAutoMovieJointPose | null =
+      index < 0 ? null : joints[index];
     const next: IAutoMovieJointPose = {
       bone,
       flexion: current?.flexion ?? null,

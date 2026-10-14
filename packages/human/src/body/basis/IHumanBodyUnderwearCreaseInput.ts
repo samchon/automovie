@@ -1,5 +1,5 @@
-import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSurfaceFitInput";
 import type { IHumanBodyUnderwearSkinSurface } from "./IHumanBodyUnderwearSkinSurface";
+import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSurfaceFitInput";
 
 /**
  * Actual posed skin, cut garment and existing garment table lengths.

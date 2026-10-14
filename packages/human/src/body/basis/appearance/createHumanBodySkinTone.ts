@@ -21,26 +21,35 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
  * @evidence contracts/performance.md#reuse-equivalent-work A strength-keyed map and one UV repeat value reuse basis-equivalent texture work; this assumes the captured basis and global table remain unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Generated PNG strings and the captured basis remain reachable with the closure; table-derived admitted strength bins bound the map, and dropping the closure releases its references without external handles.
  */
-export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis): (document: IAutoMovieHumanBodyBasisDocument, materialMap: Map<string, IAutoMovieMaterial>) => void {
-  const tones: Map<number, ReturnType<typeof createHumanBodySkinToneTexture>> = new Map<
+export function createHumanBodySkinTone(
+  basis: IAutoMovieHumanBodyBasis,
+): (
+  document: IAutoMovieHumanBodyBasisDocument,
+  materialMap: Map<string, IAutoMovieMaterial>,
+) => void {
+  const tones: Map<
     number,
     ReturnType<typeof createHumanBodySkinToneTexture>
-  >();
+  > = new Map<number, ReturnType<typeof createHumanBodySkinToneTexture>>();
   let toneTurns: number | null = null;
   return (
     document: IAutoMovieHumanBodyBasisDocument,
     materialMap: Map<string, IAutoMovieMaterial>,
   ): void => {
-    const toneOf: IAutoMovieHumanBodyBasisDocument["skinTone"] = document.skinTone;
+    const toneOf: IAutoMovieHumanBodyBasisDocument["skinTone"] =
+      document.skinTone;
     if (toneOf === undefined) return;
     const skin: string = HUMAN_BODY_SKIN_SITES.material;
     if (
       !materialMap.has(skin) ||
       !(toneOf.strength >= 0 && toneOf.strength <= 1) ||
-      basis.surfaces.some((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
-        surface.regions.some(
-          (region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): boolean => region.material === skin && region.uvs === null,
-        ),
+      basis.surfaces.some(
+        (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+          surface.regions.some(
+            (
+              region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number],
+            ): boolean => region.material === skin && region.uvs === null,
+          ),
       )
     )
       throw new Error(
@@ -57,7 +66,8 @@ export function createHumanBodySkinTone(basis: IAutoMovieHumanBodyBasis): (docum
           ),
       ) / 20;
     if (toneStrength <= 0) return;
-    let tone: ReturnType<typeof createHumanBodySkinToneTexture> | undefined = tones.get(toneStrength);
+    let tone: ReturnType<typeof createHumanBodySkinToneTexture> | undefined =
+      tones.get(toneStrength);
     if (tone === undefined) {
       tone = createHumanBodySkinToneTexture(HUMAN_BODY_SKIN_TONE, toneStrength);
       tones.set(toneStrength, tone);

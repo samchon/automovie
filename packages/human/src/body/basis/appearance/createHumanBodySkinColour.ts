@@ -5,7 +5,13 @@ import type { IHumanBodySkinColourSurface } from "./IHumanBodySkinColourSurface"
 
 type Rgb = [number, number, number];
 
-const SITES: readonly (keyof IAutoMovieHumanBodySkinSites["sites"])[] = ["protected", "exposed", "neck", "dorsal", "palmar"];
+const SITES: readonly (keyof IAutoMovieHumanBodySkinSites["sites"])[] = [
+  "protected",
+  "exposed",
+  "neck",
+  "dorsal",
+  "palmar",
+];
 
 /**
  * Skin colour by anatomical site, from the cheek albedo the face wears.
@@ -29,221 +35,324 @@ export function createHumanBodySkinColour(
   cheek: Rgb,
   flexion?: (bone: string) => number | null,
 ) => { base: Rgb; colors: number[][] } {
-  const joints: Map<string, IAutoMovieHumanBodyBasis["joints"][number]> = new Map(
-    basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [string, IAutoMovieHumanBodyBasis["joints"][number]] => [joint.bone as string, joint]),
-  );
+  const joints: Map<string, IAutoMovieHumanBodyBasis["joints"][number]> =
+    new Map(
+      basis.joints.map(
+        (
+          joint: IAutoMovieHumanBodyBasis["joints"][number],
+        ): [string, IAutoMovieHumanBodyBasis["joints"][number]] => [
+          joint.bone as string,
+          joint,
+        ],
+      ),
+    );
   const landmark: (id: string) => number[] = (id: string): number[] => {
     const k: number = basis.landmarks.ids.indexOf(id);
     return basis.landmarks.positions.slice(k * 3, k * 3 + 3);
   };
-  const reference: Map<string, IAutoMovieHumanBodyBasis["joints"][number]["reference"]> = new Map(
-    basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [string, IAutoMovieHumanBodyBasis["joints"][number]["reference"]] => [joint.bone as string, joint.reference]),
+  const reference: Map<
+    string,
+    IAutoMovieHumanBodyBasis["joints"][number]["reference"]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): [string, IAutoMovieHumanBodyBasis["joints"][number]["reference"]] => [
+        joint.bone as string,
+        joint.reference,
+      ],
+    ),
   );
-  const smooth: (x: number, interval: [number, number]) => number = (x: number, [from, to]: [number, number]): number => {
+  const smooth: (x: number, interval: [number, number]) => number = (
+    x: number,
+    [from, to]: [number, number],
+  ): number => {
     const t: number = Math.min(1, Math.max(0, (x - from) / (to - from)));
     return t * t * (3 - 2 * t);
   };
-  const surfaces: IHumanBodySkinColourSurface[] = basis.surfaces.map((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): IHumanBodySkinColourSurface => {
-    const count: number = surface.positions.length / 3;
-    const p: number[] = surface.positions;
-    const normals: Float64Array = new Float64Array(count * 3);
-    const neighbours: Set<number>[] = Array.from({ length: count }, (): Set<number> => new Set<number>());
-    const edges: Map<string, number> = new Map<string, number>();
-    for (let t: number = 0; t < surface.indices.length; t += 3) {
-      const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => surface.indices[t + k]);
-      const e1: number[] = [0, 1, 2].map((k: number): number => p[b * 3 + k] - p[a * 3 + k]);
-      const e2: number[] = [0, 1, 2].map((k: number): number => p[c * 3 + k] - p[a * 3 + k]);
-      const n: number[] = [
-        e1[1] * e2[2] - e1[2] * e2[1],
-        e1[2] * e2[0] - e1[0] * e2[2],
-        e1[0] * e2[1] - e1[1] * e2[0],
-      ];
-      for (const v of [a, b, c])
-        for (let k: number = 0; k < 3; k++) normals[v * 3 + k] += n[k];
-      for (const [u, v] of [
-        [a, b],
-        [b, c],
-        [c, a],
-      ]) {
-        neighbours[u].add(v);
-        neighbours[v].add(u);
-        const key: string = u < v ? `${u},${v}` : `${v},${u}`;
-        edges.set(key, (edges.get(key) ?? 0) + 1);
-      }
-    }
-    const boundary: Set<number> = new Set<number>();
-    for (const [key, triangles] of edges)
-      if (triangles === 1)
-        for (const v of key.split(",")) boundary.add(Number(v));
-    let weights: Float64Array[] = SITES.map((): Float64Array => new Float64Array(count));
-    for (let v: number = 0; v < count; v++) {
-      const size: number =
-        Math.hypot(normals[v * 3], normals[v * 3 + 1], normals[v * 3 + 2]) || 1;
-      const normal: number[] = [0, 1, 2].map((k: number): number => normals[v * 3 + k] / size);
-      let hand: number = 0;
-      let foot: number = 0;
-      let forearm: number = 0;
-      let shank: number = 0;
-      let neck: number = 0;
-      const flexion: number[] = [0, 0, 0];
-      for (let q: number = 0; q < 4; q++) {
-        const bone: string = surface.skin.joints[surface.skin.boneIndices[v * 4 + q]];
-        const w: number = surface.skin.weights[v * 4 + q];
-        if (/^(left|right)(Hand|Thumb|Index|Middle|Ring|Little)/.test(bone)) {
-          hand += w;
-          const r: IAutoMovieHumanBodyBasis["joints"][number]["reference"] = reference.get(bone)!;
-          for (let k: number = 0; k < 3; k++) flexion[k] += w * r[k];
-        } else if (/^(left|right)(Foot|Toes)/.test(bone)) foot += w;
-        else if (/^(left|right)LowerArm/.test(bone)) forearm += w;
-        else if (/^(left|right)LowerLeg/.test(bone)) shank += w;
-        else if (/^(neck|head)$/.test(bone)) neck += w;
-      }
-      const reach: number = Math.hypot(flexion[0], flexion[1], flexion[2]) || 1;
-      const palm: number = smooth(
-        (normal[0] * flexion[0] +
-          normal[1] * flexion[1] +
-          normal[2] * flexion[2]) /
-          reach,
-        table.palmarFacing,
+  const surfaces: IHumanBodySkinColourSurface[] = basis.surfaces.map(
+    (
+      surface: IAutoMovieHumanBodyBasis["surfaces"][number],
+    ): IHumanBodySkinColourSurface => {
+      const count: number = surface.positions.length / 3;
+      const p: number[] = surface.positions;
+      const normals: Float64Array = new Float64Array(count * 3);
+      const neighbours: Set<number>[] = Array.from(
+        { length: count },
+        (): Set<number> => new Set<number>(),
       );
-      const sole: number = smooth(-normal[1], table.soleFacing);
-      const exposed: number =
-        forearm +
-        table.shankExposure * shank +
-        table.shankExposure * foot * (1 - sole);
-      const palmar: number = hand * palm + foot * sole;
-      const dorsal: number = hand * (1 - palm);
-      weights[1][v] = exposed;
-      weights[2][v] = neck;
-      weights[3][v] = dorsal;
-      weights[4][v] = palmar;
-      weights[0][v] = Math.max(0, 1 - exposed - neck - dorsal - palmar);
-    }
-    for (let sweep: number = 0; sweep < table.sweeps; sweep++)
-      weights = weights.map((field: Float64Array): Float64Array =>
-        field.map((value: number, v: number): number => {
-          const around: Set<number> = neighbours[v];
-          if (around.size === 0) return value;
-          let sum: number = 0;
-          for (const u of around) sum += field[u];
-          return 0.5 * value + (0.5 * sum) / around.size;
-        }),
-      );
-    // each prominence's region on either side, off the neutral rig: the
-    // joint frame is the bone's (Y head to tail, X = Y x reference, Z =
-    // X x Y the flexion side), and the extension side faces -Z
-    const prominences: IHumanBodySkinColourSurface["prominences"] = table.prominences.flatMap((prominence: IAutoMovieHumanBodySkinSites["prominences"][number]): IHumanBodySkinColourSurface["prominences"] =>
-      (["left", "right"] as const).flatMap((side: "left" | "right"): IHumanBodySkinColourSurface["prominences"] => {
-        const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(side + prominence.bone);
-        if (joint === undefined) return [];
-        const head: number[] = landmark(joint.head);
-        const tail: number[] = landmark(joint.tail);
-        const y: number[] = unit(tail.map((value: number, k: number): number => value - head[k]));
-        const x: number[] = unit(cross(y, joint.reference));
-        const z: number[] = cross(x, y);
-        let field: Float64Array = Float64Array.from({ length: count }, (_: unknown, v: number): number => {
-          const d: number[] = [0, 1, 2].map((k: number): number => p[v * 3 + k] - head[k]);
-          const along: number = dot(d, y);
-          const radial: number = Math.hypot(
-            d[0] - along * y[0],
-            d[1] - along * y[1],
-            d[2] - along * y[2],
-          );
-          if (radial > prominence.reachMetres) return 0;
-          const n: number[] = [0, 1, 2].map((k: number): number => normals[v * 3 + k]);
-          const size: number = Math.hypot(n[0], n[1], n[2]) || 1;
-          return (
-            Math.exp(-((along / prominence.sigmaMetres) ** 2)) *
-            smooth(-dot(n, z) / size, [0.2, 0.6])
-          );
-        });
-        for (let sweep: number = 0; sweep < table.sweeps; sweep++)
-          field = field.map((value: number, v: number): number => {
-            const around: Set<number> = neighbours[v];
-            if (around.size === 0) return value;
-            let sum: number = 0;
-            for (const u of around) sum += field[u];
-            return 0.5 * value + (0.5 * sum) / around.size;
-          });
-        return [
-          {
-            prominence,
-            bone: joint.bone as string,
-            neutral: joint.neutral.flexion,
-            field,
-          },
+      const edges: Map<string, number> = new Map<string, number>();
+      for (let t: number = 0; t < surface.indices.length; t += 3) {
+        const [a, b, c]: number[] = [0, 1, 2].map(
+          (k: number): number => surface.indices[t + k],
+        );
+        const e1: number[] = [0, 1, 2].map(
+          (k: number): number => p[b * 3 + k] - p[a * 3 + k],
+        );
+        const e2: number[] = [0, 1, 2].map(
+          (k: number): number => p[c * 3 + k] - p[a * 3 + k],
+        );
+        const n: number[] = [
+          e1[1] * e2[2] - e1[2] * e2[1],
+          e1[2] * e2[0] - e1[0] * e2[2],
+          e1[0] * e2[1] - e1[1] * e2[0],
         ];
-      }),
-    );
-    const ring: number[] = [...boundary];
-    const collar: Float64Array = Float64Array.from({ length: count }, (_: unknown, v: number): number => {
-      let nearest: number = Infinity;
-      for (const u of ring)
-        nearest = Math.min(
-          nearest,
-          Math.hypot(
-            p[v * 3] - p[u * 3],
-            p[v * 3 + 1] - p[u * 3 + 1],
-            p[v * 3 + 2] - p[u * 3 + 2],
-          ),
+        for (const v of [a, b, c])
+          for (let k: number = 0; k < 3; k++) normals[v * 3 + k] += n[k];
+        for (const [u, v] of [
+          [a, b],
+          [b, c],
+          [c, a],
+        ]) {
+          neighbours[u].add(v);
+          neighbours[v].add(u);
+          const key: string = u < v ? `${u},${v}` : `${v},${u}`;
+          edges.set(key, (edges.get(key) ?? 0) + 1);
+        }
+      }
+      const boundary: Set<number> = new Set<number>();
+      for (const [key, triangles] of edges)
+        if (triangles === 1)
+          for (const v of key.split(",")) boundary.add(Number(v));
+      let weights: Float64Array[] = SITES.map(
+        (): Float64Array => new Float64Array(count),
+      );
+      for (let v: number = 0; v < count; v++) {
+        const size: number =
+          Math.hypot(normals[v * 3], normals[v * 3 + 1], normals[v * 3 + 2]) ||
+          1;
+        const normal: number[] = [0, 1, 2].map(
+          (k: number): number => normals[v * 3 + k] / size,
         );
-      return 1 - smooth(nearest, [0, table.collarMetres]);
-    });
-    return { count, weights, collar, prominences };
-  });
+        let hand: number = 0;
+        let foot: number = 0;
+        let forearm: number = 0;
+        let shank: number = 0;
+        let neck: number = 0;
+        const flexion: number[] = [0, 0, 0];
+        for (let q: number = 0; q < 4; q++) {
+          const bone: string =
+            surface.skin.joints[surface.skin.boneIndices[v * 4 + q]];
+          const w: number = surface.skin.weights[v * 4 + q];
+          if (/^(left|right)(Hand|Thumb|Index|Middle|Ring|Little)/.test(bone)) {
+            hand += w;
+            const r: IAutoMovieHumanBodyBasis["joints"][number]["reference"] =
+              reference.get(bone)!;
+            for (let k: number = 0; k < 3; k++) flexion[k] += w * r[k];
+          } else if (/^(left|right)(Foot|Toes)/.test(bone)) foot += w;
+          else if (/^(left|right)LowerArm/.test(bone)) forearm += w;
+          else if (/^(left|right)LowerLeg/.test(bone)) shank += w;
+          else if (/^(neck|head)$/.test(bone)) neck += w;
+        }
+        const reach: number =
+          Math.hypot(flexion[0], flexion[1], flexion[2]) || 1;
+        const palm: number = smooth(
+          (normal[0] * flexion[0] +
+            normal[1] * flexion[1] +
+            normal[2] * flexion[2]) /
+            reach,
+          table.palmarFacing,
+        );
+        const sole: number = smooth(-normal[1], table.soleFacing);
+        const exposed: number =
+          forearm +
+          table.shankExposure * shank +
+          table.shankExposure * foot * (1 - sole);
+        const palmar: number = hand * palm + foot * sole;
+        const dorsal: number = hand * (1 - palm);
+        weights[1][v] = exposed;
+        weights[2][v] = neck;
+        weights[3][v] = dorsal;
+        weights[4][v] = palmar;
+        weights[0][v] = Math.max(0, 1 - exposed - neck - dorsal - palmar);
+      }
+      for (let sweep: number = 0; sweep < table.sweeps; sweep++)
+        weights = weights.map(
+          (field: Float64Array): Float64Array =>
+            field.map((value: number, v: number): number => {
+              const around: Set<number> = neighbours[v];
+              if (around.size === 0) return value;
+              let sum: number = 0;
+              for (const u of around) sum += field[u];
+              return 0.5 * value + (0.5 * sum) / around.size;
+            }),
+        );
+      // each prominence's region on either side, off the neutral rig: the
+      // joint frame is the bone's (Y head to tail, X = Y x reference, Z =
+      // X x Y the flexion side), and the extension side faces -Z
+      const prominences: IHumanBodySkinColourSurface["prominences"] =
+        table.prominences.flatMap(
+          (
+            prominence: IAutoMovieHumanBodySkinSites["prominences"][number],
+          ): IHumanBodySkinColourSurface["prominences"] =>
+            (["left", "right"] as const).flatMap(
+              (
+                side: "left" | "right",
+              ): IHumanBodySkinColourSurface["prominences"] => {
+                const joint:
+                  | IAutoMovieHumanBodyBasis["joints"][number]
+                  | undefined = joints.get(side + prominence.bone);
+                if (joint === undefined) return [];
+                const head: number[] = landmark(joint.head);
+                const tail: number[] = landmark(joint.tail);
+                const y: number[] = unit(
+                  tail.map(
+                    (value: number, k: number): number => value - head[k],
+                  ),
+                );
+                const x: number[] = unit(cross(y, joint.reference));
+                const z: number[] = cross(x, y);
+                let field: Float64Array = Float64Array.from(
+                  { length: count },
+                  (_: unknown, v: number): number => {
+                    const d: number[] = [0, 1, 2].map(
+                      (k: number): number => p[v * 3 + k] - head[k],
+                    );
+                    const along: number = dot(d, y);
+                    const radial: number = Math.hypot(
+                      d[0] - along * y[0],
+                      d[1] - along * y[1],
+                      d[2] - along * y[2],
+                    );
+                    if (radial > prominence.reachMetres) return 0;
+                    const n: number[] = [0, 1, 2].map(
+                      (k: number): number => normals[v * 3 + k],
+                    );
+                    const size: number = Math.hypot(n[0], n[1], n[2]) || 1;
+                    return (
+                      Math.exp(-((along / prominence.sigmaMetres) ** 2)) *
+                      smooth(-dot(n, z) / size, [0.2, 0.6])
+                    );
+                  },
+                );
+                for (let sweep: number = 0; sweep < table.sweeps; sweep++)
+                  field = field.map((value: number, v: number): number => {
+                    const around: Set<number> = neighbours[v];
+                    if (around.size === 0) return value;
+                    let sum: number = 0;
+                    for (const u of around) sum += field[u];
+                    return 0.5 * value + (0.5 * sum) / around.size;
+                  });
+                return [
+                  {
+                    prominence,
+                    bone: joint.bone as string,
+                    neutral: joint.neutral.flexion,
+                    field,
+                  },
+                ];
+              },
+            ),
+        );
+      const ring: number[] = [...boundary];
+      const collar: Float64Array = Float64Array.from(
+        { length: count },
+        (_: unknown, v: number): number => {
+          let nearest: number = Infinity;
+          for (const u of ring)
+            nearest = Math.min(
+              nearest,
+              Math.hypot(
+                p[v * 3] - p[u * 3],
+                p[v * 3 + 1] - p[u * 3 + 1],
+                p[v * 3 + 2] - p[u * 3 + 2],
+              ),
+            );
+          return 1 - smooth(nearest, [0, table.collarMetres]);
+        },
+      );
+      return { count, weights, collar, prominences };
+    },
+  );
 
-  return (cheek: Rgb, flexion?: (bone: string) => number | null): { base: Rgb; colors: number[][] } => {
-    const albedo: number[][] = SITES.map((site: keyof IAutoMovieHumanBodySkinSites["sites"]): number[] =>
-      table.sites[site].map(([a, b]: [number, number], k: number): number =>
-        Math.min(1, Math.exp(a) * cheek[k] ** b),
-      ),
+  return (
+    cheek: Rgb,
+    flexion?: (bone: string) => number | null,
+  ): { base: Rgb; colors: number[][] } => {
+    const albedo: number[][] = SITES.map(
+      (site: keyof IAutoMovieHumanBodySkinSites["sites"]): number[] =>
+        table.sites[site].map(([a, b]: [number, number], k: number): number =>
+          Math.min(1, Math.exp(a) * cheek[k] ** b),
+        ),
     );
-    const per: number[][][] = surfaces.map(({ count, weights, collar, prominences }: IHumanBodySkinColourSurface): number[][] => {
-      // each prominence's ratio at its joint's flexion, the rest's when the
-      // pose leaves the joint unposed
-      const ratios: number[][] = prominences.map(({ prominence, bone, neutral }: IHumanBodySkinColourSurface["prominences"][number]): number[] => {
-        const share: number = Math.min(
-          1,
-          Math.max(
-            0,
-            (flexion?.(bone) ?? neutral) / prominence.foldedAtDegrees,
-          ),
+    const per: number[][][] = surfaces.map(
+      ({
+        count,
+        weights,
+        collar,
+        prominences,
+      }: IHumanBodySkinColourSurface): number[][] => {
+        // each prominence's ratio at its joint's flexion, the rest's when the
+        // pose leaves the joint unposed
+        const ratios: number[][] = prominences.map(
+          ({
+            prominence,
+            bone,
+            neutral,
+          }: IHumanBodySkinColourSurface["prominences"][number]): number[] => {
+            const share: number = Math.min(
+              1,
+              Math.max(
+                0,
+                (flexion?.(bone) ?? neutral) / prominence.foldedAtDegrees,
+              ),
+            );
+            return prominence.extended.map(
+              (value: number, k: number): number =>
+                value + (prominence.folded[k] - value) * share,
+            );
+          },
         );
-        return prominence.extended.map(
-          (value: number, k: number): number => value + (prominence.folded[k] - value) * share,
+        return Array.from(
+          { length: count },
+          (_: unknown, v: number): number[] => {
+            const total: number = weights.reduce(
+              (sum: number, field: Float64Array): number => sum + field[v],
+              0,
+            );
+            return [0, 1, 2].map((k: number): number => {
+              let sites: number = weights.reduce(
+                (sum: number, field: Float64Array, s: number): number =>
+                  sum + (field[v] / total) * albedo[s][k],
+                0,
+              );
+              prominences.forEach(
+                (
+                  { field }: IHumanBodySkinColourSurface["prominences"][number],
+                  at: number,
+                ): void => {
+                  sites *= 1 + field[v] * (ratios[at][k] - 1);
+                },
+              );
+              return collar[v] * cheek[k] + (1 - collar[v]) * sites;
+            });
+          },
         );
-      });
-      return Array.from({ length: count }, (_: unknown, v: number): number[] => {
-        const total: number = weights.reduce((sum: number, field: Float64Array): number => sum + field[v], 0);
-        return [0, 1, 2].map((k: number): number => {
-          let sites: number = weights.reduce(
-            (sum: number, field: Float64Array, s: number): number => sum + (field[v] / total) * albedo[s][k],
-            0,
-          );
-          prominences.forEach(({ field }: IHumanBodySkinColourSurface["prominences"][number], at: number): void => {
-            sites *= 1 + field[v] * (ratios[at][k] - 1);
-          });
-          return collar[v] * cheek[k] + (1 - collar[v]) * sites;
-        });
-      });
-    });
+      },
+    );
     const base: Rgb = [-Infinity, -Infinity, -Infinity];
     for (const vertices of per)
       for (const rgb of vertices)
-        for (let k: number = 0; k < 3; k++)
-          base[k] = Math.max(base[k], rgb[k]);
+        for (let k: number = 0; k < 3; k++) base[k] = Math.max(base[k], rgb[k]);
     return {
       base,
       colors: per.map((vertices: number[][]): number[] =>
-        vertices.flatMap((rgb: number[]): number[] => rgb.map((value: number, k: number): number => value / base[k])),
+        vertices.flatMap((rgb: number[]): number[] =>
+          rgb.map((value: number, k: number): number => value / base[k]),
+        ),
       ),
     };
   };
 }
 
-const dot: (a: number[], b: number[]) => number = (a: number[], b: number[]): number =>
-  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross: (a: number[], b: number[]) => number[] = (a: number[], b: number[]): number[] => [
+const dot: (a: number[], b: number[]) => number = (
+  a: number[],
+  b: number[],
+): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross: (a: number[], b: number[]) => number[] = (
+  a: number[],
+  b: number[],
+): number[] => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],

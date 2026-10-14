@@ -21,8 +21,10 @@ import { assertHumanBodyToeRays } from "./admission/rig/assertHumanBodyToeRays";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Joint maps and declared sets are local to synchronous admission, acquiring no posed output, cache or worker lifetime.
  */
 export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
-  const declared: ReturnType<typeof assertHumanBodyRigJoints> = assertHumanBodyRigJoints(basis);
-  const joints: ReturnType<typeof assertHumanBodyRigCorrectives> = assertHumanBodyRigCorrectives(basis);
+  const declared: ReturnType<typeof assertHumanBodyRigJoints> =
+    assertHumanBodyRigJoints(basis);
+  const joints: ReturnType<typeof assertHumanBodyRigCorrectives> =
+    assertHumanBodyRigCorrectives(basis);
   assertHumanBodyRigCouplings(basis, joints);
   assertHumanBodyPelvifemoral(basis);
   assertHumanBodySourceReferenceGoals(basis);

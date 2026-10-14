@@ -64,9 +64,17 @@ export interface IHumanBodyUnderwearFittingProposal {
   failureReason?: string;
 
   /** Original bounded condition-class counts, never a merit or acceptance proxy. */
-  geometryFailureCounts: Partial<Record<IHumanBodyUnderwearSurfaceViolation["condition"], number>>;
+  geometryFailureCounts: Partial<
+    Record<IHumanBodyUnderwearSurfaceViolation["condition"], number>
+  >;
 
   /** Scalar disposition after the original complete forward/analytic reads. */
-  decision: "pending" | "accepted-feasible" | "accepted-agreement" |
-    "rejected-domain" | "rejected-derivative" | "rejected-agreement" | "failed-model";
+  decision:
+    | "pending"
+    | "accepted-feasible"
+    | "accepted-agreement"
+    | "rejected-domain"
+    | "rejected-derivative"
+    | "rejected-agreement"
+    | "failed-model";
 }

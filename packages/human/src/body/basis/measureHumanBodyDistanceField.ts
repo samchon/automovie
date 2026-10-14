@@ -23,7 +23,9 @@ export function measureHumanBodyDistanceField(props: {
   const [nx, ny, nz]: readonly [number, number, number] = props.dimensions;
   const count: number = nx * ny * nz;
   const squared: Float64Array = new Float64Array(count);
-  const source: Int32Array | null = props.nearest ? new Int32Array(count) : null;
+  const source: Int32Array | null = props.nearest
+    ? new Int32Array(count)
+    : null;
   let hasSite: boolean = false;
   for (let i: number = 0; i < count; i++) {
     const site: boolean = props.sites[i] !== 0;

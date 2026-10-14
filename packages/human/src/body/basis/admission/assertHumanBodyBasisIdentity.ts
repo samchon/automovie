@@ -17,21 +17,35 @@ export function assertHumanBodyBasisIdentity(
 ): void {
   assertHumanBodyUniqueIds([basis.id], "identities");
   assertHumanBodyUniqueIds(
-    basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): string => channel.id),
+    basis.channels.map(
+      (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+        channel.id,
+    ),
     "channel identities",
   );
   assertHumanBodyUniqueIds(basis.landmarks.ids, "landmark identities");
   assertHumanBodyUniqueIds(
-    basis.surfaces.map((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): string => surface.id),
+    basis.surfaces.map(
+      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): string =>
+        surface.id,
+    ),
     "surface identities",
   );
   assertHumanBodyUniqueIds(
-    basis.materials.map((material: IAutoMovieHumanBodyBasis["materials"][number]): string => material.id),
+    basis.materials.map(
+      (material: IAutoMovieHumanBodyBasis["materials"][number]): string =>
+        material.id,
+    ),
     "material identities",
   );
   assertHumanBodyUniqueIds(
-    basis.surfaces.flatMap((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): string[] =>
-      surface.regions.map((region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number]): string => region.id),
+    basis.surfaces.flatMap(
+      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): string[] =>
+        surface.regions.map(
+          (
+            region: IAutoMovieHumanBodyBasis["surfaces"][number]["regions"][number],
+          ): string => region.id,
+        ),
     ),
     "region identities",
   );

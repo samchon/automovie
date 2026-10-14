@@ -18,5 +18,8 @@ type Region = IAutoMovieHumanBodyBasisSurface["regions"][number];
 export function humanBodyGpuRegion(region: Region): Region {
   return region.uvs === null
     ? region
-    : { ...region, uvs: region.uvs.map((value: number): number => Math.fround(value)) };
+    : {
+        ...region,
+        uvs: region.uvs.map((value: number): number => Math.fround(value)),
+      };
 }

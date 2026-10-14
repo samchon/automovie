@@ -20,73 +20,111 @@ import { createHumanBodySkinPoreSampler } from "./createHumanBodySkinPoreSampler
 export function createHumanBodySkinDetailTexture(
   table: IAutoMovieHumanBodySkinDetail,
 ): string {
-  const pores: ReturnType<typeof createHumanBodySkinPoreSampler> = createHumanBodySkinPoreSampler({
-    seed: table.seed,
-    tileMillimetres: table.tileMillimetres,
-    perSquareCentimetre: table.pores.perSquareCentimetre,
-  });
+  const pores: ReturnType<typeof createHumanBodySkinPoreSampler> =
+    createHumanBodySkinPoreSampler({
+      seed: table.seed,
+      tileMillimetres: table.tileMillimetres,
+      perSquareCentimetre: table.pores.perSquareCentimetre,
+    });
   const size: number = table.pixels;
   const micrometresPerPixel: number = (table.tileMillimetres * 1000) / size;
   const height: Float64Array = new Float64Array(size * size);
   // primary lines: phase = (a x + b y) / size + warp, a groove at each integer
-  table.lines.forEach((family: IAutoMovieHumanBodySkinDetail["lines"][number], index: number): void => {
-    const spacing: number =
-      (table.tileMillimetres * 1000) / Math.hypot(family.a, family.b);
-    // a periodic field of six sinusoids, integer frequencies up to eight
-    // turns across the tile, amplitudes falling as one over the frequency
-    const field: (salt: number) => (x: number, y: number) => number = (salt: number): (x: number, y: number) => number => {
-      const waves: { fx: number; fy: number; amplitude: number; phase: number }[] = Array.from({ length: 6 }, (_: unknown, k: number): { fx: number; fy: number; amplitude: number; phase: number } => {
-        const fx: number =
-          Math.floor(seededValue(table.seed, index, salt, k, 1) * 17) - 8;
-        const fy: number =
-          Math.floor(seededValue(table.seed, index, salt, k, 2) * 17) - 8;
-        const f: number = Math.hypot(fx, fy) || 1;
-        return {
-          fx: fx === 0 && fy === 0 ? 1 : fx,
-          fy,
-          amplitude: 1 / f,
-          phase: seededValue(table.seed, index, salt, k, 3) * 2 * Math.PI,
-        };
-      });
-      const total: number = waves.reduce((sum: number, w: typeof waves[number]): number => sum + w.amplitude, 0);
-      // sin(A + B) from per-column and per-row tables: no sine per texel
-      const tables: { amplitude: number; sx: number[]; cx: number[]; sy: number[]; cy: number[] }[] = waves.map((w: typeof waves[number]): { amplitude: number; sx: number[]; cx: number[]; sy: number[]; cy: number[] } => ({
-        amplitude: w.amplitude / total,
-        sx: Array.from({ length: size }, (_: unknown, x: number): number =>
-          Math.sin((2 * Math.PI * w.fx * x) / size),
-        ),
-        cx: Array.from({ length: size }, (_: unknown, x: number): number =>
-          Math.cos((2 * Math.PI * w.fx * x) / size),
-        ),
-        sy: Array.from({ length: size }, (_: unknown, y: number): number =>
-          Math.sin((2 * Math.PI * w.fy * y) / size + w.phase),
-        ),
-        cy: Array.from({ length: size }, (_: unknown, y: number): number =>
-          Math.cos((2 * Math.PI * w.fy * y) / size + w.phase),
-        ),
-      }));
-      return (x: number, y: number): number =>
-        tables.reduce(
-          (sum: number, t: typeof tables[number]): number =>
-            sum + t.amplitude * (t.sx[x] * t.cy[y] + t.cx[x] * t.sy[y]),
+  table.lines.forEach(
+    (
+      family: IAutoMovieHumanBodySkinDetail["lines"][number],
+      index: number,
+    ): void => {
+      const spacing: number =
+        (table.tileMillimetres * 1000) / Math.hypot(family.a, family.b);
+      // a periodic field of six sinusoids, integer frequencies up to eight
+      // turns across the tile, amplitudes falling as one over the frequency
+      const field: (salt: number) => (x: number, y: number) => number = (
+        salt: number,
+      ): ((x: number, y: number) => number) => {
+        const waves: {
+          fx: number;
+          fy: number;
+          amplitude: number;
+          phase: number;
+        }[] = Array.from(
+          { length: 6 },
+          (
+            _: unknown,
+            k: number,
+          ): { fx: number; fy: number; amplitude: number; phase: number } => {
+            const fx: number =
+              Math.floor(seededValue(table.seed, index, salt, k, 1) * 17) - 8;
+            const fy: number =
+              Math.floor(seededValue(table.seed, index, salt, k, 2) * 17) - 8;
+            const f: number = Math.hypot(fx, fy) || 1;
+            return {
+              fx: fx === 0 && fy === 0 ? 1 : fx,
+              fy,
+              amplitude: 1 / f,
+              phase: seededValue(table.seed, index, salt, k, 3) * 2 * Math.PI,
+            };
+          },
+        );
+        const total: number = waves.reduce(
+          (sum: number, w: (typeof waves)[number]): number => sum + w.amplitude,
           0,
         );
-    };
-    // the grooves wander and deepen and fade along their length, some to
-    // nothing, as skin's lines break
-    const wander: (x: number, y: number) => number = field(1);
-    const strength: (x: number, y: number) => number = field(2);
-    for (let y: number = 0; y < size; y++)
-      for (let x: number = 0; x < size; x++) {
-        const phase: number =
-          (family.a * x + family.b * y) / size + family.wander * wander(x, y);
-        const offset: number = (phase - Math.round(phase)) * spacing;
-        const depth: number =
-          family.depth * Math.max(0, 1 + family.vary * strength(x, y));
-        height[y * size + x] -=
-          depth * Math.exp(-((offset / family.width) ** 2));
-      }
-  });
+        // sin(A + B) from per-column and per-row tables: no sine per texel
+        const tables: {
+          amplitude: number;
+          sx: number[];
+          cx: number[];
+          sy: number[];
+          cy: number[];
+        }[] = waves.map(
+          (
+            w: (typeof waves)[number],
+          ): {
+            amplitude: number;
+            sx: number[];
+            cx: number[];
+            sy: number[];
+            cy: number[];
+          } => ({
+            amplitude: w.amplitude / total,
+            sx: Array.from({ length: size }, (_: unknown, x: number): number =>
+              Math.sin((2 * Math.PI * w.fx * x) / size),
+            ),
+            cx: Array.from({ length: size }, (_: unknown, x: number): number =>
+              Math.cos((2 * Math.PI * w.fx * x) / size),
+            ),
+            sy: Array.from({ length: size }, (_: unknown, y: number): number =>
+              Math.sin((2 * Math.PI * w.fy * y) / size + w.phase),
+            ),
+            cy: Array.from({ length: size }, (_: unknown, y: number): number =>
+              Math.cos((2 * Math.PI * w.fy * y) / size + w.phase),
+            ),
+          }),
+        );
+        return (x: number, y: number): number =>
+          tables.reduce(
+            (sum: number, t: (typeof tables)[number]): number =>
+              sum + t.amplitude * (t.sx[x] * t.cy[y] + t.cx[x] * t.sy[y]),
+            0,
+          );
+      };
+      // the grooves wander and deepen and fade along their length, some to
+      // nothing, as skin's lines break
+      const wander: (x: number, y: number) => number = field(1);
+      const strength: (x: number, y: number) => number = field(2);
+      for (let y: number = 0; y < size; y++)
+        for (let x: number = 0; x < size; x++) {
+          const phase: number =
+            (family.a * x + family.b * y) / size + family.wander * wander(x, y);
+          const offset: number = (phase - Math.round(phase)) * spacing;
+          const depth: number =
+            family.depth * Math.max(0, 1 + family.vary * strength(x, y));
+          height[y * size + x] -=
+            depth * Math.exp(-((offset / family.width) ** 2));
+        }
+    },
+  );
   const radius: number = table.pores.radiusMicrometres / micrometresPerPixel;
   const reach: number = Math.ceil(radius * 3);
   for (let index: number = 0; index < pores.count; index++) {
@@ -109,8 +147,10 @@ export function createHumanBodySkinDetailTexture(
     height[(((y % size) + size) % size) * size + (((x % size) + size) % size)];
   for (let y: number = 0; y < size; y++)
     for (let x: number = 0; x < size; x++) {
-      const gx: number = (at(x + 1, y) - at(x - 1, y)) / (2 * micrometresPerPixel);
-      const gy: number = (at(x, y + 1) - at(x, y - 1)) / (2 * micrometresPerPixel);
+      const gx: number =
+        (at(x + 1, y) - at(x - 1, y)) / (2 * micrometresPerPixel);
+      const gy: number =
+        (at(x, y + 1) - at(x, y - 1)) / (2 * micrometresPerPixel);
       const length: number = Math.hypot(gx, gy, 1);
       const n: number[] = [-gx / length, -gy / length, 1 / length];
       for (let k: number = 0; k < 3; k++)

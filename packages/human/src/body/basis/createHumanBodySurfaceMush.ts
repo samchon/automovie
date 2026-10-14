@@ -25,8 +25,12 @@ export function createHumanBodySurfaceMush(
 ): (rest: number[], posed: number[]) => number[] {
   const count: number = surface.positions.length / 3;
   const indices: number[] = surface.indices.slice();
-  const { iterations, blendWidth, spreadRings, spreadDecay }: typeof mush = mush;
-  const sets: Set<number>[] = Array.from({ length: count }, (): Set<number> => new Set<number>());
+  const { iterations, blendWidth, spreadRings, spreadDecay }: typeof mush =
+    mush;
+  const sets: Set<number>[] = Array.from(
+    { length: count },
+    (): Set<number> => new Set<number>(),
+  );
   const edges: Map<string, number> = new Map<string, number>();
   for (let t: number = 0; t < indices.length; t += 3)
     for (let k: number = 0; k < 3; k++) {
@@ -37,7 +41,9 @@ export function createHumanBodySurfaceMush(
       const key: string = a < b ? `${a},${b}` : `${b},${a}`;
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
-  const neighbours: number[][] = sets.map((set: Set<number>): number[] => [...set].sort((a: number, b: number): number => a - b));
+  const neighbours: number[][] = sets.map((set: Set<number>): number[] =>
+    [...set].sort((a: number, b: number): number => a - b),
+  );
   let mask: Float64Array = new Float64Array(count);
   const held: Uint8Array = new Uint8Array(count);
   for (let v: number = 0; v < count; v++) {
@@ -51,7 +57,10 @@ export function createHumanBodySurfaceMush(
       held[v] = 1;
       continue;
     }
-    const total: number = [...sums.values()].reduce((sum: number, weight: number): number => sum + weight, 0);
+    const total: number = [...sums.values()].reduce(
+      (sum: number, weight: number): number => sum + weight,
+      0,
+    );
     const largest: number = Math.max(...sums.values());
     mask[v] = Math.min(1, Math.max(0, (1 - largest / total) / blendWidth));
   }
@@ -67,7 +76,8 @@ export function createHumanBodySurfaceMush(
       held[v] === 1
         ? 0
         : neighbours[v].reduce(
-            (most: number, u: number): number => Math.max(most, spreadDecay * previous[u]),
+            (most: number, u: number): number =>
+              Math.max(most, spreadDecay * previous[u]),
             value,
           ),
     );
@@ -75,7 +85,9 @@ export function createHumanBodySurfaceMush(
   const active: number[] = [];
   for (let v: number = 0; v < count; v++) if (mask[v] > 0) active.push(v);
 
-  const smooth: (positions: number[]) => Float64Array = (positions: number[]): Float64Array => {
+  const smooth: (positions: number[]) => Float64Array = (
+    positions: number[],
+  ): Float64Array => {
     let current: Float64Array = Float64Array.from(positions);
     for (let sweep: number = 0; sweep < iterations; sweep++) {
       const next: Float64Array = new Float64Array(current.length);
@@ -96,10 +108,14 @@ export function createHumanBodySurfaceMush(
     }
     return current;
   };
-  const normalsOf: (positions: Float64Array) => Float64Array = (positions: Float64Array): Float64Array => {
+  const normalsOf: (positions: Float64Array) => Float64Array = (
+    positions: Float64Array,
+  ): Float64Array => {
     const normals: Float64Array = new Float64Array(positions.length);
     for (let t: number = 0; t < indices.length; t += 3) {
-      const [a, b, c]: number[] = [0, 1, 2].map((k: number): number => indices[t + k]);
+      const [a, b, c]: number[] = [0, 1, 2].map(
+        (k: number): number => indices[t + k],
+      );
       const e1: number[] = [0, 1, 2].map(
         (k: number): number => positions[b * 3 + k] - positions[a * 3 + k],
       );
@@ -117,22 +133,34 @@ export function createHumanBodySurfaceMush(
     return normals;
   };
   /** The smoothed surface's frame at a vertex: tangent, bitangent, normal. */
-  const frameOf: (positions: Float64Array, normals: Float64Array, v: number) => number[][] | null = (
+  const frameOf: (
+    positions: Float64Array,
+    normals: Float64Array,
+    v: number,
+  ) => number[][] | null = (
     positions: Float64Array,
     normals: Float64Array,
     v: number,
   ): number[][] | null => {
-    const raw: number[] = [0, 1, 2].map((k: number): number => normals[v * 3 + k]);
+    const raw: number[] = [0, 1, 2].map(
+      (k: number): number => normals[v * 3 + k],
+    );
     const size: number = Math.hypot(raw[0], raw[1], raw[2]);
     const n: number[] = raw.map((value: number): number => value / size);
     // toward the first neighbour, the same one on every surface, so the rest
     // and posed frames name the same directions
     const u: number = neighbours[v][0] ?? v;
-    const d: number[] = [0, 1, 2].map((k: number): number => positions[u * 3 + k] - positions[v * 3 + k]);
+    const d: number[] = [0, 1, 2].map(
+      (k: number): number => positions[u * 3 + k] - positions[v * 3 + k],
+    );
     const along: number = d[0] * n[0] + d[1] * n[1] + d[2] * n[2];
-    const projected: number[] = d.map((value: number, k: number): number => value - along * n[k]);
+    const projected: number[] = d.map(
+      (value: number, k: number): number => value - along * n[k],
+    );
     const length: number = Math.hypot(projected[0], projected[1], projected[2]);
-    const t: number[] = projected.map((value: number): number => value / length);
+    const t: number[] = projected.map(
+      (value: number): number => value / length,
+    );
     const b: number[] = [
       n[1] * t[2] - n[2] * t[1],
       n[2] * t[0] - n[0] * t[2],
@@ -141,7 +169,9 @@ export function createHumanBodySurfaceMush(
     const frame: number[][] = [t, b, n];
     // a collapsed neighbourhood (no normal, or no direction off it) has no
     // frame, and its vertex keeps the skinned position
-    return frame.every((axis: number[]): boolean => axis.every(Number.isFinite)) ? frame : null;
+    return frame.every((axis: number[]): boolean => axis.every(Number.isFinite))
+      ? frame
+      : null;
   };
 
   return (rest: number[], posed: number[]): number[] => {
@@ -155,9 +185,12 @@ export function createHumanBodySurfaceMush(
       const from: number[][] | null = frameOf(restSmooth, restNormals, v);
       const to: number[][] | null = frameOf(posedSmooth, posedNormals, v);
       if (from === null || to === null) continue;
-      const d: number[] = [0, 1, 2].map((k: number): number => rest[v * 3 + k] - restSmooth[v * 3 + k]);
+      const d: number[] = [0, 1, 2].map(
+        (k: number): number => rest[v * 3 + k] - restSmooth[v * 3 + k],
+      );
       const local: number[] = from.map(
-        (axis: number[]): number => axis[0] * d[0] + axis[1] * d[1] + axis[2] * d[2],
+        (axis: number[]): number =>
+          axis[0] * d[0] + axis[1] * d[1] + axis[2] * d[2],
       );
       for (let k: number = 0; k < 3; k++) {
         const mushed: number =

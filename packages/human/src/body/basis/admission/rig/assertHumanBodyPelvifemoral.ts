@@ -1,5 +1,6 @@
-import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHumanBodyBasis";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
+import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHumanBodyBasis";
 
 /**
  * Admit a basis's declared pelvifemoral rhythm, or its absence.
@@ -24,21 +25,43 @@ export function assertHumanBodyPelvifemoral(
 ): void {
   const rhythm: IAutoMovieHumanBodyBasis["pelvifemoral"] = basis.pelvifemoral;
   if (rhythm === undefined) return;
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]> = new Map(basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]] => [joint.bone, joint]));
-  const root: AutoMovieHumanoidBone = basis.joints[0].bone;
-  const chain: readonly AutoMovieHumanoidBone[] = [rhythm.lumbar, "leftUpperLeg", "rightUpperLeg"];
-  const lumbar: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(rhythm.lumbar);
-  const range: NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["constraint"]>["flexion"] = lumbar?.constraint?.flexion ?? null;
-  const rest: number = Math.max(
-    ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
-      (leg: "leftUpperLeg" | "rightUpperLeg"): number => joints.get(leg)?.neutral.flexion ?? Number.NaN,
+  const joints: Map<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBasis["joints"][number]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): [
+        AutoMovieHumanoidBone,
+        IAutoMovieHumanBodyBasis["joints"][number],
+      ] => [joint.bone, joint],
     ),
   );
-  const curve: NonNullable<IAutoMovieHumanBodyBasis["pelvifemoral"]>["curve"] = rhythm.curve;
+  const root: AutoMovieHumanoidBone = basis.joints[0].bone;
+  const chain: readonly AutoMovieHumanoidBone[] = [
+    rhythm.lumbar,
+    "leftUpperLeg",
+    "rightUpperLeg",
+  ];
+  const lumbar: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+    joints.get(rhythm.lumbar);
+  const range: NonNullable<
+    IAutoMovieHumanBodyBasis["joints"][number]["constraint"]
+  >["flexion"] = lumbar?.constraint?.flexion ?? null;
+  const rest: number = Math.max(
+    ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
+      (leg: "leftUpperLeg" | "rightUpperLeg"): number =>
+        joints.get(leg)?.neutral.flexion ?? Number.NaN,
+    ),
+  );
+  const curve: NonNullable<IAutoMovieHumanBodyBasis["pelvifemoral"]>["curve"] =
+    rhythm.curve;
   if (
     rhythm.id.trim() === "" ||
     chain.some((bone: AutoMovieHumanoidBone): boolean => {
-      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined = joints.get(bone);
+      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+        joints.get(bone);
       return (
         joint === undefined ||
         joint.parent !== root ||
@@ -46,7 +69,9 @@ export function assertHumanBodyPelvifemoral(
       );
     }) ||
     (basis.couplings ?? []).some(
-      (coupling: NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number]): boolean =>
+      (
+        coupling: NonNullable<IAutoMovieHumanBodyBasis["couplings"]>[number],
+      ): boolean =>
         coupling.output.axis === "flexion" &&
         (chain as readonly string[]).includes(coupling.output.bone),
     ) ||

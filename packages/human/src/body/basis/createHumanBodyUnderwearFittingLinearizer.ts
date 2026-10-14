@@ -1,9 +1,9 @@
 import type { IAutoMovieQuadraticRow } from "@automovie/engine";
 
-import { createHumanBodyUnderwearLiftLinearizer } from "./createHumanBodyUnderwearLiftLinearizer";
 import type { IHumanBodyUnderwearFittingLinearization } from "./IHumanBodyUnderwearFittingLinearization";
 import type { IHumanBodyUnderwearSurfaceEvaluation } from "./IHumanBodyUnderwearSurfaceEvaluation";
 import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSurfaceFitInput";
+import { createHumanBodyUnderwearLiftLinearizer } from "./createHumanBodyUnderwearLiftLinearizer";
 
 /**
  * Compile the complete field and actual-lift affine model of one material.
@@ -22,29 +22,49 @@ import type { IHumanBodyUnderwearSurfaceFitInput } from "./IHumanBodyUnderwearSu
  */
 export function createHumanBodyUnderwearFittingLinearizer(
   input: IHumanBodyUnderwearSurfaceFitInput,
-  fail: (reason: string, current: IHumanBodyUnderwearSurfaceEvaluation) => never,
-): (current: IHumanBodyUnderwearSurfaceEvaluation) => IHumanBodyUnderwearFittingLinearization {
+  fail: (
+    reason: string,
+    current: IHumanBodyUnderwearSurfaceEvaluation,
+  ) => never,
+): (
+  current: IHumanBodyUnderwearSurfaceEvaluation,
+) => IHumanBodyUnderwearFittingLinearization {
   const { points, envelope, rho }: typeof input = input;
   const count: number = points.length / 3;
-  const linearizeLift: ReturnType<typeof createHumanBodyUnderwearLiftLinearizer> = createHumanBodyUnderwearLiftLinearizer(input);
-  return (current: IHumanBodyUnderwearSurfaceEvaluation): IHumanBodyUnderwearFittingLinearization => {
+  const linearizeLift: ReturnType<
+    typeof createHumanBodyUnderwearLiftLinearizer
+  > = createHumanBodyUnderwearLiftLinearizer(input);
+  return (
+    current: IHumanBodyUnderwearSurfaceEvaluation,
+  ): IHumanBodyUnderwearFittingLinearization => {
     const lift: ReturnType<typeof linearizeLift> = linearizeLift(current);
     const nonlinear: IAutoMovieQuadraticRow[] = [];
     const elasticGroups: number[] = [];
     let elasticCount: number = 0;
     let violationSum: number = 0;
     for (let v: number = 0; v < count; v++) {
-      const at: number[] = current.base.slice(v * 3, v * 3 + 3), reading: ReturnType<typeof envelope.read> = envelope.read(at);
-      if (!Number.isFinite(reading.distance) || !reading.gradient.every(Number.isFinite))
-        fail("Garment Phase I has no finite original field linearization", current);
+      const at: number[] = current.base.slice(v * 3, v * 3 + 3),
+        reading: ReturnType<typeof envelope.read> = envelope.read(at);
+      if (
+        !Number.isFinite(reading.distance) ||
+        !reading.gradient.every(Number.isFinite)
+      )
+        fail(
+          "Garment Phase I has no finite original field linearization",
+          current,
+        );
       const value: number = (reading.distance - rho) / rho;
       violationSum += Math.max(0, value);
       if (reading.distance === 0) continue;
       let upper: number = -value;
       for (let k: number = 0; k < 3; k++)
-        upper += reading.gradient[k] * (at[k] - points[v * 3 + k]) / rho;
-      nonlinear.push({ indices: [v * 3, v * 3 + 1, v * 3 + 2],
-        weights: reading.gradient, lower: null, upper });
+        upper += (reading.gradient[k] * (at[k] - points[v * 3 + k])) / rho;
+      nonlinear.push({
+        indices: [v * 3, v * 3 + 1, v * 3 + 2],
+        weights: reading.gradient,
+        lower: null,
+        upper,
+      });
       elasticGroups.push(elasticCount++);
     }
     const liftValues: Map<string, number> = new Map<string, number>();
@@ -54,13 +74,19 @@ export function createHumanBodyUnderwearFittingLinearizer(
       liftValues.set(key, Math.min(liftValues.get(key) ?? Infinity, row.value));
       if (!liftGroups.has(key)) liftGroups.set(key, elasticCount++);
       let upper: number = row.value;
-      const weights: number[] = row.gradient.map((value: number): number => -rho * value);
+      const weights: number[] = row.gradient.map(
+        (value: number): number => -rho * value,
+      );
       for (let k: number = 0; k < row.indices.length; k++)
-        upper += weights[k] * (current.base[row.indices[k]] - points[row.indices[k]]) / rho;
+        upper +=
+          (weights[k] *
+            (current.base[row.indices[k]] - points[row.indices[k]])) /
+          rho;
       nonlinear.push({ indices: row.indices, weights, lower: null, upper });
       elasticGroups.push(liftGroups.get(key)!);
     }
-    for (const value of liftValues.values()) violationSum += Math.max(0, -value);
+    for (const value of liftValues.values())
+      violationSum += Math.max(0, -value);
     return { rows: nonlinear, elasticGroups, elasticCount, lift, violationSum };
   };
 }

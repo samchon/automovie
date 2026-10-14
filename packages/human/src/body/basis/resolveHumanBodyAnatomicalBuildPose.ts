@@ -31,7 +31,8 @@ export function resolveHumanBodyAnatomicalBuildPose(
   input: IHumanBodyBuildPoseInput,
   rig: IAutoMovieHumanBodySkeletonRig,
 ): IHumanBodyBuildPose {
-  const assembly: IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"] = input.basis.anatomicalAssembly;
+  const assembly: IHumanBodyBuildPoseInput["basis"]["anatomicalAssembly"] =
+    input.basis.anatomicalAssembly;
   if (assembly === undefined)
     throw new Error("Anatomical pose needs a registered source assembly.");
   const contribution: number =
@@ -40,19 +41,32 @@ export function resolveHumanBodyAnatomicalBuildPose(
       : (resolveHumanBodyPelvifemoralRhythm(
           input.basis,
           input.poseRows,
-        ).contributions.find((one: ReturnType<typeof resolveHumanBodyPelvifemoralRhythm>["contributions"][number]): boolean => one.bone === "hips")?.degrees ?? 0);
-  const anatomicalRig: ReturnType<typeof resolveHumanBodySourceRig> = resolveHumanBodySourceRig({
-    rig: assembly.rig,
-    pose: input.poseRows,
-    authoredPose: input.document.pose ?? [],
-    shoulders: input.document.shoulders ?? [],
-    goals: input.document.anatomicalMotion ?? [],
-    toes: input.document.toes,
-    pelvicRhythmContributionDegrees: contribution,
-  });
-  const transforms: IHumanBodyBuildPose["transforms"] = new Map(anatomicalRig.projections);
+        ).contributions.find(
+          (
+            one: ReturnType<
+              typeof resolveHumanBodyPelvifemoralRhythm
+            >["contributions"][number],
+          ): boolean => one.bone === "hips",
+        )?.degrees ?? 0);
+  const anatomicalRig: ReturnType<typeof resolveHumanBodySourceRig> =
+    resolveHumanBodySourceRig({
+      rig: assembly.rig,
+      pose: input.poseRows,
+      authoredPose: input.document.pose ?? [],
+      shoulders: input.document.shoulders ?? [],
+      goals: input.document.anatomicalMotion ?? [],
+      toes: input.document.toes,
+      pelvicRhythmContributionDegrees: contribution,
+    });
+  const transforms: IHumanBodyBuildPose["transforms"] = new Map(
+    anatomicalRig.projections,
+  );
   // These are arithmetic registration tolerances, not clinical accuracy bounds.
-  const assertRest: (bone: string, projected: IAutoMovieHumanBodyBoneWorldRest | undefined, expected: IAutoMovieHumanBodyBoneWorldRest) => void = (
+  const assertRest: (
+    bone: string,
+    projected: IAutoMovieHumanBodyBoneWorldRest | undefined,
+    expected: IAutoMovieHumanBodyBoneWorldRest,
+  ) => void = (
     bone: string,
     projected: IAutoMovieHumanBodyBoneWorldRest | undefined,
     expected: IAutoMovieHumanBodyBoneWorldRest,
@@ -75,8 +89,9 @@ export function resolveHumanBodyAnatomicalBuildPose(
         ? -1
         : 1;
     const rotationError: number = Math.max(
-      ...(["x", "y", "z", "w"] as const).map((axis: "x" | "y" | "z" | "w"): number =>
-        Math.abs(projected.rotation[axis] * sign - expected.rotation[axis]),
+      ...(["x", "y", "z", "w"] as const).map(
+        (axis: "x" | "y" | "z" | "w"): number =>
+          Math.abs(projected.rotation[axis] * sign - expected.rotation[axis]),
       ),
     );
     if (positionError > 1e-9 || rotationError > 1e-12)
@@ -91,11 +106,16 @@ export function resolveHumanBodyAnatomicalBuildPose(
     if (node.joint.kind !== "public-pose" || node.joint.reference === undefined)
       continue;
     const reference: typeof node.joint.reference = node.joint.reference;
-    const expected: IAutoMovieHumanBodyBoneWorldRest | undefined = rig.rest.get(reference.bone);
+    const expected: IAutoMovieHumanBodyBoneWorldRest | undefined = rig.rest.get(
+      reference.bone,
+    );
     const origin: ReturnType<typeof Vector3.create> | undefined =
       reference.site === undefined
         ? Vector3.create(0, 0, 0)
-        : node.sites.find((site: typeof node.sites[number]): boolean => site.id === reference.site)?.position;
+        : node.sites.find(
+            (site: (typeof node.sites)[number]): boolean =>
+              site.id === reference.site,
+          )?.position;
     if (origin === undefined || expected === undefined)
       throw new Error(
         "Anatomical clinical conversion reference has no registered site or skin rest: " +
@@ -107,20 +127,27 @@ export function resolveHumanBodyAnatomicalBuildPose(
       expected,
     );
   }
-  const rayRest: Map<string, IAutoMovieHumanBodyBoneWorldRest> = new Map<string, IAutoMovieHumanBodyBoneWorldRest>();
+  const rayRest: Map<string, IAutoMovieHumanBodyBoneWorldRest> = new Map<
+    string,
+    IAutoMovieHumanBodyBoneWorldRest
+  >();
   for (const ray of input.basis.toeRays ?? []) {
     const parent: IAutoMovieHumanBodyBoneWorldRest | undefined =
       ray.parent === "leftToes" || ray.parent === "rightToes"
         ? rig.rest.get(ray.parent)
         : rayRest.get(ray.parent);
-    const head: IAutoMovieHumanBodyBoneWorldRest["position"] | undefined = input.landmarks[ray.head];
+    const head: IAutoMovieHumanBodyBoneWorldRest["position"] | undefined =
+      input.landmarks[ray.head];
     if (parent === undefined || head === undefined)
       throw new Error(
         "Anatomical toe skin rest registration lacks its parent or head: " +
           ray.bone,
       );
     // The existing ray convention retains its parent's rest rotation at its own head.
-    const expected: IAutoMovieHumanBodyBoneWorldRest | undefined = { position: head, rotation: parent.rotation };
+    const expected: IAutoMovieHumanBodyBoneWorldRest | undefined = {
+      position: head,
+      rotation: parent.rotation,
+    };
     assertRest(
       ray.bone,
       anatomicalRig.toeProjections.get(ray.bone)?.rest,
@@ -128,30 +155,35 @@ export function resolveHumanBodyAnatomicalBuildPose(
     );
     rayRest.set(ray.bone, expected);
   }
-  const resolved: IAutoMovieResolvedBone[] = rig.skeleton.bones.map((bone: typeof rig.skeleton.bones[number]): IAutoMovieResolvedBone => {
-    const frame: IAutoMovieHumanBodyBoneWorldRest = transforms.get(bone.bone)!.posed;
-    const parent: IAutoMovieHumanBodyBoneWorldRest | undefined =
-      bone.parent === null ? undefined : transforms.get(bone.parent)!.posed;
-    return {
-      bone: bone.bone,
-      localRotation: Quaternion.multiply(
-        parent === undefined
-          ? Quaternion.identity()
-          : Quaternion.inverse(parent.rotation),
-        frame.rotation,
-      ),
-      worldPosition: frame.position,
-      worldRotation: frame.rotation,
-    };
-  });
-  const clinical: ReturnType<typeof readHumanBodyResolvedClinicalPose> = readHumanBodyResolvedClinicalPose({
-    rig,
-    resolved,
-    basis: input.basis,
-    pose: input.poseRows,
-    tilt: -contribution,
-    actualFrames: true,
-  });
+  const resolved: IAutoMovieResolvedBone[] = rig.skeleton.bones.map(
+    (bone: (typeof rig.skeleton.bones)[number]): IAutoMovieResolvedBone => {
+      const frame: IAutoMovieHumanBodyBoneWorldRest = transforms.get(
+        bone.bone,
+      )!.posed;
+      const parent: IAutoMovieHumanBodyBoneWorldRest | undefined =
+        bone.parent === null ? undefined : transforms.get(bone.parent)!.posed;
+      return {
+        bone: bone.bone,
+        localRotation: Quaternion.multiply(
+          parent === undefined
+            ? Quaternion.identity()
+            : Quaternion.inverse(parent.rotation),
+          frame.rotation,
+        ),
+        worldPosition: frame.position,
+        worldRotation: frame.rotation,
+      };
+    },
+  );
+  const clinical: ReturnType<typeof readHumanBodyResolvedClinicalPose> =
+    readHumanBodyResolvedClinicalPose({
+      rig,
+      resolved,
+      basis: input.basis,
+      pose: input.poseRows,
+      tilt: -contribution,
+      actualFrames: true,
+    });
   const violations: ReturnType<typeof validatePose>["items"] = validatePose({
     pose: { skeleton: rig.skeleton.id, root: null, joints: clinical },
     skeleton: rig.skeleton,

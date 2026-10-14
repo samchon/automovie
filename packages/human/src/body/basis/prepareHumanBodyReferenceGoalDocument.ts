@@ -29,34 +29,50 @@ export function prepareHumanBodyReferenceGoalDocument(
   if ((document.thighGoals ?? []).length === 0) return { document };
   for (const goal of document.thighGoals!) {
     if (
-      basis.joints.find((joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean => joint.bone === goal.bone)
-        ?.sourceReferenceGoal === undefined
+      basis.joints.find(
+        (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+          joint.bone === goal.bone,
+      )?.sourceReferenceGoal === undefined
     )
       throw new Error(
         "Body source-reference goal needs its exact basis capability: " +
           goal.bone,
       );
-    if (document.pose?.some((row: NonNullable<IAutoMovieHumanBodyBasisDocument["pose"]>[number]): boolean => row.bone === goal.bone))
+    if (
+      document.pose?.some(
+        (
+          row: NonNullable<IAutoMovieHumanBodyBasisDocument["pose"]>[number],
+        ): boolean => row.bone === goal.bone,
+      )
+    )
       throw new Error(
         "Body thigh and source pose cannot author the same bone: " + goal.bone,
       );
   }
-  const withoutGoals: IAutoMovieHumanBodyBasisDocument = { ...document, thighGoals: undefined };
+  const withoutGoals: IAutoMovieHumanBodyBasisDocument = {
+    ...document,
+    thighGoals: undefined,
+  };
   const state: ReturnType<typeof humanBodyBasisWeights> = humanBodyBasisWeights(
     basis,
     withoutGoals,
     resolveHumanBodyShapeShoulderRest(basis, document.shape),
   );
-  const baseline: ReturnType<typeof resolveHumanBodyBuildPose> = resolveHumanBodyBuildPose({
-    basis,
-    document: withoutGoals,
-    poseRows: state.pose,
-    landmarks: evaluateHumanBodyLandmarks(basis, state),
-    phase: "pre-pelvis",
-  });
+  const baseline: ReturnType<typeof resolveHumanBodyBuildPose> =
+    resolveHumanBodyBuildPose({
+      basis,
+      document: withoutGoals,
+      poseRows: state.pose,
+      landmarks: evaluateHumanBodyLandmarks(basis, state),
+      phase: "pre-pelvis",
+    });
   const resolved: IAutoMovieResolvedBone[] = baseline.skeleton.bones.map(
-    (bone: typeof baseline.skeleton.bones[number]): IAutoMovieResolvedBone => {
-      const frame: NonNullable<ReturnType<typeof baseline.transforms.get>>["posed"] = baseline.transforms.get(bone.bone)!.posed;
+    (
+      bone: (typeof baseline.skeleton.bones)[number],
+    ): IAutoMovieResolvedBone => {
+      const frame: NonNullable<
+        ReturnType<typeof baseline.transforms.get>
+      >["posed"] = baseline.transforms.get(bone.bone)!.posed;
       const parent: typeof frame | undefined =
         bone.parent === null
           ? undefined

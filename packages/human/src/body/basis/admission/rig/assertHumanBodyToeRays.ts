@@ -15,13 +15,19 @@ import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHum
  * @author Samchon
  */
 export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {
-  const rays: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]> = basis.toeRays ?? [];
+  const rays: NonNullable<IAutoMovieHumanBodyBasis["toeRays"]> =
+    basis.toeRays ?? [];
   const declared: Set<string> = new Set<string>();
   for (const ray of rays) {
-    const side: "left" | "right" = ray.bone.startsWith("left") ? "left" : "right";
+    const side: "left" | "right" = ray.bone.startsWith("left")
+      ? "left"
+      : "right";
     const parentOk: boolean =
       ray.parent === `${side}Toes`
-        ? basis.joints.some((joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean => joint.bone === ray.parent)
+        ? basis.joints.some(
+            (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+              joint.bone === ray.parent,
+          )
         : declared.has(ray.parent) && ray.parent.startsWith(side);
     if (
       declared.has(ray.bone) ||
@@ -36,7 +42,8 @@ export function assertHumanBodyToeRays(basis: IAutoMovieHumanBodyBasis): void {
     declared.add(ray.bone);
   }
   for (const surface of basis.surfaces) {
-    const split: IAutoMovieHumanBodyBasis["surfaces"][number]["toeSplit"] = surface.toeSplit;
+    const split: IAutoMovieHumanBodyBasis["surfaces"][number]["toeSplit"] =
+      surface.toeSplit;
     if (split === undefined) continue;
     const refuse: (why: string) => never = (why: string): never => {
       throw new Error(`Body toe split of surface ${surface.id} ${why}`);

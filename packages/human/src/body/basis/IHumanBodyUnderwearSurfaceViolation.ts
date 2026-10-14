@@ -12,7 +12,14 @@
  */
 export interface IHumanBodyUnderwearSurfaceViolation {
   /** The original condition whose actual evaluated value failed. */
-  condition: "field" | "base-area" | "exterior-direction" | "normal" | "lift-direction" | "offset-path" | "final-area";
+  condition:
+    | "field"
+    | "base-area"
+    | "exterior-direction"
+    | "normal"
+    | "lift-direction"
+    | "offset-path"
+    | "final-area";
 
   /** Actual material triangle ordinal, or null for a vertex-normal condition. */
   triangle: number | null;

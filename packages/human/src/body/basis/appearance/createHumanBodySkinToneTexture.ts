@@ -29,14 +29,21 @@ export function createHumanBodySkinToneTexture(
     new Float64Array(size * size),
     new Float64Array(size * size),
   ];
-  [table.melanin, table.haemoglobin].forEach((chromophore: IAutoMovieHumanBodySkinTone["melanin"], index: number): void => {
-    const field: Float64Array = fields[index];
-    for (let c: number = 0; c < 3; c++) {
-      const weight: number = strength * chromophore.spread * chromophore.absorbance[c];
-      const channel: Float64Array = density[c];
-      for (let i: number = 0; i < field.length; i++) channel[i] += weight * field[i];
-    }
-  });
+  [table.melanin, table.haemoglobin].forEach(
+    (
+      chromophore: IAutoMovieHumanBodySkinTone["melanin"],
+      index: number,
+    ): void => {
+      const field: Float64Array = fields[index];
+      for (let c: number = 0; c < 3; c++) {
+        const weight: number =
+          strength * chromophore.spread * chromophore.absorbance[c];
+        const channel: Float64Array = density[c];
+        for (let i: number = 0; i < field.length; i++)
+          channel[i] += weight * field[i];
+      }
+    },
+  );
   const rgba: Uint8Array = new Uint8Array(size * size * 4);
   const compensation: [number, number, number] = [1, 1, 1];
   for (let c: number = 0; c < 3; c++) {
@@ -63,13 +70,17 @@ export function createHumanBodySkinToneTexture(
 /**
  * Each chromophore's field scaled by nominal wave power, which no strength changes, computed once per table.
  */
-const FIELDS: WeakMap<IAutoMovieHumanBodySkinTone, Float64Array[]> = new WeakMap<IAutoMovieHumanBodySkinTone, Float64Array[]>();
+const FIELDS: WeakMap<IAutoMovieHumanBodySkinTone, Float64Array[]> =
+  new WeakMap<IAutoMovieHumanBodySkinTone, Float64Array[]>();
 function unitFields(table: IAutoMovieHumanBodySkinTone): Float64Array[] {
   const cached: Float64Array[] | undefined = FIELDS.get(table);
   if (cached !== undefined) return cached;
   const size: number = table.pixels;
   const fields: Float64Array[] = [table.melanin, table.haemoglobin].map(
-    (chromophore: IAutoMovieHumanBodySkinTone["melanin"], index: number): Float64Array => {
+    (
+      chromophore: IAutoMovieHumanBodySkinTone["melanin"],
+      index: number,
+    ): Float64Array => {
       const field: Float64Array = new Float64Array(size * size);
       const [shortest, longest]: [number, number] = chromophore.wavelengths;
       const low: number = table.tileMillimetres / longest;
@@ -78,12 +89,14 @@ function unitFields(table: IAutoMovieHumanBodySkinTone): Float64Array[] {
       for (let k: number = 0; k < chromophore.waves; k++) {
         const frequency: number =
           low * Math.pow(high / low, seededValue(table.seed, index, k, 1));
-        const angle: number = seededValue(table.seed, index, k, 2) * 2 * Math.PI;
+        const angle: number =
+          seededValue(table.seed, index, k, 2) * 2 * Math.PI;
         const fx: number = Math.round(frequency * Math.cos(angle));
         const fy: number = Math.round(frequency * Math.sin(angle));
         if (fx === 0 && fy === 0) continue;
         const amplitude: number = 1 / Math.hypot(fx, fy);
-        const phase: number = seededValue(table.seed, index, k, 3) * 2 * Math.PI;
+        const phase: number =
+          seededValue(table.seed, index, k, 3) * 2 * Math.PI;
         power += (amplitude * amplitude) / 2;
         // sin(A + B) from per-column and per-row tables: no sine per texel
         const sx: Float64Array = new Float64Array(size);
@@ -115,11 +128,14 @@ function unitFields(table: IAutoMovieHumanBodySkinTone): Float64Array[] {
 
 /** 8-bit sRGB of a linear value in [0, 1], in steps of 1/4096. */
 const SRGB_STEPS: number = 4096;
-const SRGB_BYTE: Uint8Array = Uint8Array.from({ length: SRGB_STEPS + 1 }, (_: unknown, i: number): number => {
-  const value: number = i / SRGB_STEPS;
-  const encoded: number =
-    value <= 0.0031308
-      ? 12.92 * value
-      : 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
-  return Math.round(encoded * 255);
-});
+const SRGB_BYTE: Uint8Array = Uint8Array.from(
+  { length: SRGB_STEPS + 1 },
+  (_: unknown, i: number): number => {
+    const value: number = i / SRGB_STEPS;
+    const encoded: number =
+      value <= 0.0031308
+        ? 12.92 * value
+        : 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
+    return Math.round(encoded * 255);
+  },
+);

@@ -21,10 +21,21 @@ import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 export function createHumanBodySurfaceRegionParts(
   surface: IAutoMovieHumanBodyBasis["surfaces"][number],
 ): (input: IHumanBodySurfaceRegionInput) => IAutoMovieModel["parts"] {
-  const regions: { region: ReturnType<typeof humanBodyGpuRegion>; gather: ReturnType<typeof createHumanBasisRegion> }[] = surface.regions.map((source: typeof surface.regions[number]): { region: ReturnType<typeof humanBodyGpuRegion>; gather: ReturnType<typeof createHumanBasisRegion> } => {
-    const region: ReturnType<typeof humanBodyGpuRegion> = humanBodyGpuRegion(source);
-    return { region, gather: createHumanBasisRegion(region) };
-  });
+  const regions: {
+    region: ReturnType<typeof humanBodyGpuRegion>;
+    gather: ReturnType<typeof createHumanBasisRegion>;
+  }[] = surface.regions.map(
+    (
+      source: (typeof surface.regions)[number],
+    ): {
+      region: ReturnType<typeof humanBodyGpuRegion>;
+      gather: ReturnType<typeof createHumanBasisRegion>;
+    } => {
+      const region: ReturnType<typeof humanBodyGpuRegion> =
+        humanBodyGpuRegion(source);
+      return { region, gather: createHumanBasisRegion(region) };
+    },
+  );
   return ({
     positions,
     normals,
@@ -33,27 +44,32 @@ export function createHumanBodySurfaceRegionParts(
     reliefWeights,
     physical,
   }: IHumanBodySurfaceRegionInput): IAutoMovieModel["parts"] =>
-    regions.map(({ region, gather }: typeof regions[number]): IAutoMovieModel["parts"][number] => {
-      const mesh: ReturnType<ReturnType<typeof createHumanBasisRegion>> =
-        colors === null || region.material !== skinMaterial
-          ? gather(positions, normals, undefined, physical)
-          : gather(positions, normals, colors, physical);
-      if (reliefWeights !== null && region.material === skinMaterial) {
-        const triples: number[] = reliefWeights.flatMap((weight: number): number[] => [
-          weight,
-          weight,
-          weight,
-        ]);
-        const gathered: number[] = gather(triples, triples).positions;
-        mesh.reliefWeights = gathered.filter((_: number, i: number): boolean => i % 3 === 0);
-      }
-      return {
-        id: region.id,
-        name: region.id,
-        material: region.material,
-        geometry: { type: "mesh" as const, mesh },
-        attachedBone: null,
-        transform: null,
-      };
-    });
+    regions.map(
+      ({
+        region,
+        gather,
+      }: (typeof regions)[number]): IAutoMovieModel["parts"][number] => {
+        const mesh: ReturnType<ReturnType<typeof createHumanBasisRegion>> =
+          colors === null || region.material !== skinMaterial
+            ? gather(positions, normals, undefined, physical)
+            : gather(positions, normals, colors, physical);
+        if (reliefWeights !== null && region.material === skinMaterial) {
+          const triples: number[] = reliefWeights.flatMap(
+            (weight: number): number[] => [weight, weight, weight],
+          );
+          const gathered: number[] = gather(triples, triples).positions;
+          mesh.reliefWeights = gathered.filter(
+            (_: number, i: number): boolean => i % 3 === 0,
+          );
+        }
+        return {
+          id: region.id,
+          name: region.id,
+          material: region.material,
+          geometry: { type: "mesh" as const, mesh },
+          attachedBone: null,
+          transform: null,
+        };
+      },
+    );
 }

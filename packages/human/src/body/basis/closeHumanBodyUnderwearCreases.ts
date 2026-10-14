@@ -23,39 +23,92 @@ import { voxelizeHumanBodySkin } from "./voxelizeHumanBodySkin";
 export function closeHumanBodyUnderwearCreases(
   input: IHumanBodyUnderwearCreaseInput,
 ): IHumanBodyUnderwearCreaseResult {
-  const { points, normals, indices, offsetMetres, spanMetres }: typeof input = input;
+  const { points, normals, indices, offsetMetres, spanMetres }: typeof input =
+    input;
   const count: number = points.length / 3;
-  const positions: number[] = points.map((value: number, k: number): number => value + offsetMetres * normals[k]);
-  const lifted: number[] = [...normals], bridged: number[] = new Array<number>(count).fill(0);
+  const positions: number[] = points.map(
+    (value: number, k: number): number => value + offsetMetres * normals[k],
+  );
+  const lifted: number[] = [...normals],
+    bridged: number[] = new Array<number>(count).fill(0);
   const fitting: IHumanBodyUnderwearFitObservation[] = [];
-  if (!(spanMetres > 0) || count === 0) return { positions, normals: lifted, bridged, fitting };
+  if (!(spanMetres > 0) || count === 0)
+    return { positions, normals: lifted, bridged, fitting };
   if (normals.length !== points.length || !Number.isInteger(count))
-    throw new Error("Garment fitting needs aligned complete points and normals.");
-  const rho: number = spanMetres / 2, cell: number = spanMetres / 5, pad: number = rho + 2 * cell;
+    throw new Error(
+      "Garment fitting needs aligned complete points and normals.",
+    );
+  const rho: number = spanMetres / 2,
+    cell: number = spanMetres / 5,
+    pad: number = rho + 2 * cell;
   for (const [component, members] of components(count, indices).entries()) {
-    const local: Map<number, number> = new Map(members.map((vertex: number, i: number): [number, number] => [vertex, i]));
+    const local: Map<number, number> = new Map(
+      members.map((vertex: number, i: number): [number, number] => [vertex, i]),
+    );
     const triangles: number[] = [];
-    for (let t: number = 0; t < indices.length; t += 3) if (local.has(indices[t]))
-      triangles.push(local.get(indices[t])!, local.get(indices[t + 1])!, local.get(indices[t + 2])!);
-    const source: number[] = members.flatMap((v: number): number[] => at3(points, v));
-    const sourceNormals: number[] = members.flatMap((v: number): number[] => at3(normals, v));
-    const observeCurrent: IHumanBodyUnderwearCreaseInput["observeFitting"] = input.observeFitting;
+    for (let t: number = 0; t < indices.length; t += 3)
+      if (local.has(indices[t]))
+        triangles.push(
+          local.get(indices[t])!,
+          local.get(indices[t + 1])!,
+          local.get(indices[t + 2])!,
+        );
+    const source: number[] = members.flatMap((v: number): number[] =>
+      at3(points, v),
+    );
+    const sourceNormals: number[] = members.flatMap((v: number): number[] =>
+      at3(normals, v),
+    );
+    const observeCurrent: IHumanBodyUnderwearCreaseInput["observeFitting"] =
+      input.observeFitting;
     const observeFitting: IHumanBodyUnderwearCreaseInput["observeFitting"] =
-      observeCurrent === undefined ? undefined
-        : (stage: Parameters<NonNullable<IHumanBodyUnderwearCreaseInput["observeFitting"]>>[0], details: Parameters<NonNullable<IHumanBodyUnderwearCreaseInput["observeFitting"]>>[1]): void => observeCurrent(stage, { ...details, garmentComponent: component });
+      observeCurrent === undefined
+        ? undefined
+        : (
+            stage: Parameters<
+              NonNullable<IHumanBodyUnderwearCreaseInput["observeFitting"]>
+            >[0],
+            details: Parameters<
+              NonNullable<IHumanBodyUnderwearCreaseInput["observeFitting"]>
+            >[1],
+          ): void =>
+            observeCurrent(stage, { ...details, garmentComponent: component });
     observeFitting?.("garment-component-read", {});
-    const voxels: ReturnType<typeof voxelizeHumanBodySkin> = voxelizeHumanBodySkin({ skin: input.skin, points: source, pad, cell });
-    const envelope: ReturnType<typeof createHumanBodyUnderwearEnvelope> = createHumanBodyUnderwearEnvelope({ voxels, points: source, normals: sourceNormals, rho });
+    const voxels: ReturnType<typeof voxelizeHumanBodySkin> =
+      voxelizeHumanBodySkin({ skin: input.skin, points: source, pad, cell });
+    const envelope: ReturnType<typeof createHumanBodyUnderwearEnvelope> =
+      createHumanBodyUnderwearEnvelope({
+        voxels,
+        points: source,
+        normals: sourceNormals,
+        rho,
+      });
     observeFitting?.("garment-envelope-evaluated", {});
-    const fit: ReturnType<typeof fitHumanBodyUnderwearSurface> = fitHumanBodyUnderwearSurface({ observeFitting, points: source, normals: sourceNormals, indices: triangles, sourceVertices: members, envelope, rho, offsetMetres });
+    const fit: ReturnType<typeof fitHumanBodyUnderwearSurface> =
+      fitHumanBodyUnderwearSurface({
+        observeFitting,
+        points: source,
+        normals: sourceNormals,
+        indices: triangles,
+        sourceVertices: members,
+        envelope,
+        rho,
+        offsetMetres,
+      });
     fitting.push(...fit.observations);
     members.forEach((vertex: number, at: number): void => {
       for (let k: number = 0; k < 3; k++) {
         lifted[vertex * 3 + k] = fit.evaluation.normals[at * 3 + k];
         positions[vertex * 3 + k] = fit.evaluation.positions[at * 3 + k];
       }
-      bridged[vertex] = fit.evaluation.base.slice(at * 3, at * 3 + 3)
-        .some((value: number, k: number): boolean => value !== points[vertex * 3 + k]) ? 1 : 0;
+      bridged[vertex] = fit.evaluation.base
+        .slice(at * 3, at * 3 + 3)
+        .some(
+          (value: number, k: number): boolean =>
+            value !== points[vertex * 3 + k],
+        )
+        ? 1
+        : 0;
     });
   }
   return { positions, normals: lifted, bridged, fitting };
@@ -63,23 +116,48 @@ export function closeHumanBodyUnderwearCreases(
 
 /** Actual indexed material components; no point-cloud connectivity fallback. */
 function components(count: number, indices: readonly number[]): number[][] {
-  if (indices.length % 3 !== 0 || indices.some((v: number): boolean => !Number.isInteger(v) || v < 0 || v >= count))
-    throw new Error("Garment closing requires the actual complete cut triangle indices.");
-  const adjacency: Set<number>[] = Array.from({ length: count }, (): Set<number> => new Set<number>());
-  for (let t: number = 0; t < indices.length; t += 3) for (let k: number = 0; k < 3; k++) {
-    const a: number = indices[t + k], b: number = indices[t + (k + 1) % 3];
-    adjacency[a].add(b); adjacency[b].add(a);
-  }
-  const used: Uint8Array = new Uint8Array(count), result: number[][] = [];
-  for (let v: number = 0; v < count; v++) if (!used[v]) {
-    if (adjacency[v].size === 0) throw new Error("Garment closing cannot invent adjacency for an unused cut vertex.");
-    const members: number[] = [], pending: number[] = [v]; used[v] = 1;
-    while (pending.length) {
-      const next: number = pending.pop()!; members.push(next);
-      for (const neighbour of adjacency[next]) if (!used[neighbour]) { used[neighbour] = 1; pending.push(neighbour); }
+  if (
+    indices.length % 3 !== 0 ||
+    indices.some(
+      (v: number): boolean => !Number.isInteger(v) || v < 0 || v >= count,
+    )
+  )
+    throw new Error(
+      "Garment closing requires the actual complete cut triangle indices.",
+    );
+  const adjacency: Set<number>[] = Array.from(
+    { length: count },
+    (): Set<number> => new Set<number>(),
+  );
+  for (let t: number = 0; t < indices.length; t += 3)
+    for (let k: number = 0; k < 3; k++) {
+      const a: number = indices[t + k],
+        b: number = indices[t + ((k + 1) % 3)];
+      adjacency[a].add(b);
+      adjacency[b].add(a);
     }
-    result.push(members.sort((a: number, b: number): number => a - b));
-  }
+  const used: Uint8Array = new Uint8Array(count),
+    result: number[][] = [];
+  for (let v: number = 0; v < count; v++)
+    if (!used[v]) {
+      if (adjacency[v].size === 0)
+        throw new Error(
+          "Garment closing cannot invent adjacency for an unused cut vertex.",
+        );
+      const members: number[] = [],
+        pending: number[] = [v];
+      used[v] = 1;
+      while (pending.length) {
+        const next: number = pending.pop()!;
+        members.push(next);
+        for (const neighbour of adjacency[next])
+          if (!used[neighbour]) {
+            used[neighbour] = 1;
+            pending.push(neighbour);
+          }
+      }
+      result.push(members.sort((a: number, b: number): number => a - b));
+    }
   return result;
 }
 

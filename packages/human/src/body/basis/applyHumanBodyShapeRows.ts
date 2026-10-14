@@ -21,7 +21,10 @@ export function applyHumanBodyShapeRows(
   positions: number[],
   targets: Record<string, number[]>,
 ): void {
-  const accumulate: (name: string, gain: number) => void = (name: string, gain: number): void => {
+  const accumulate: (name: string, gain: number) => void = (
+    name: string,
+    gain: number,
+  ): void => {
     const rows: number[] | undefined = targets[name];
     if (rows === undefined) return;
     for (let i: number = 0; i < rows.length; i += 4)
@@ -44,7 +47,9 @@ export function applyHumanBodyShapeRows(
   const missing: string[] = [
     ...new Set(
       active
-        .filter(({ target }: IHumanBodyShapeTargetGain): boolean => unavailable.has(target))
+        .filter(({ target }: IHumanBodyShapeTargetGain): boolean =>
+          unavailable.has(target),
+        )
         .map(({ target }: IHumanBodyShapeTargetGain): string => target),
     ),
   ];

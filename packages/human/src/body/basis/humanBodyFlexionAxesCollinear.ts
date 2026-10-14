@@ -25,14 +25,23 @@ export function humanBodyFlexionAxesCollinear(
       "Body flexion-axis identity requires finite source directions.",
     );
   if (
-    [a, b].some((vector: IAutoMovieVector3): boolean => vector.x === 0 && vector.y === 0 && vector.z === 0)
+    [a, b].some(
+      (vector: IAutoMovieVector3): boolean =>
+        vector.x === 0 && vector.y === 0 && vector.z === 0,
+    )
   )
     return false;
-  const part: (value: number) => IHumanBodyDyadicValue = (value: number): IHumanBodyDyadicValue => {
-    const [mantissa, exponent]: [bigint, number] = HumanBinary64Arithmetic.dyadic(value);
+  const part: (value: number) => IHumanBodyDyadicValue = (
+    value: number,
+  ): IHumanBodyDyadicValue => {
+    const [mantissa, exponent]: [bigint, number] =
+      HumanBinary64Arithmetic.dyadic(value);
     return { mantissa, exponent };
   };
-  const product: (left: number, right: number) => IHumanBodyDyadicValue = (left: number, right: number): IHumanBodyDyadicValue => {
+  const product: (left: number, right: number) => IHumanBodyDyadicValue = (
+    left: number,
+    right: number,
+  ): IHumanBodyDyadicValue => {
     const l: IHumanBodyDyadicValue = part(left),
       r: IHumanBodyDyadicValue = part(right);
     return {
@@ -40,7 +49,12 @@ export function humanBodyFlexionAxesCollinear(
       exponent: l.exponent + r.exponent,
     };
   };
-  const equal: (x: number, y: number, z: number, w: number) => boolean = (x: number, y: number, z: number, w: number): boolean => {
+  const equal: (x: number, y: number, z: number, w: number) => boolean = (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+  ): boolean => {
     const left: IHumanBodyDyadicValue = product(x, y),
       right: IHumanBodyDyadicValue = product(z, w);
     const exponent: number = Math.min(left.exponent, right.exponent);

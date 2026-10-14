@@ -20,9 +20,13 @@ export function humanBodyShoulderOrientationDistance(
 ): number {
   if (a.bone !== b.bone)
     throw new Error("A shoulder orientation distance needs one humerus.");
-  const qa: ReturnType<typeof humanBodyShoulderTtRotation> = humanBodyShoulderTtRotation(a);
-  const qb: ReturnType<typeof humanBodyShoulderTtRotation> = humanBodyShoulderTtRotation(b);
-  const dot: number = Math.abs(qa.x * qb.x + qa.y * qb.y + qa.z * qb.z + qa.w * qb.w);
+  const qa: ReturnType<typeof humanBodyShoulderTtRotation> =
+    humanBodyShoulderTtRotation(a);
+  const qb: ReturnType<typeof humanBodyShoulderTtRotation> =
+    humanBodyShoulderTtRotation(b);
+  const dot: number = Math.abs(
+    qa.x * qb.x + qa.y * qb.y + qa.z * qb.z + qa.w * qb.w,
+  );
   return 1 - dot < 1e-12
     ? 0
     : (2 * Math.acos(Math.min(1, dot))) / (Math.PI / 180);

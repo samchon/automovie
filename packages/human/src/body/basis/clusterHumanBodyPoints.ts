@@ -16,7 +16,10 @@ export function clusterHumanBodyPoints(
   gap: number,
 ): number[][] {
   const count: number = points.length / 3;
-  const parent: number[] = Array.from({ length: count }, (_: unknown, v: number): number => v);
+  const parent: number[] = Array.from(
+    { length: count },
+    (_: unknown, v: number): number => v,
+  );
   const find: (v: number) => number = (v: number): number => {
     let root: number = v;
     while (parent[root] !== root) root = parent[root];
@@ -29,7 +32,9 @@ export function clusterHumanBodyPoints(
   };
   const cubes: Map<string, number> = new Map<string, number>();
   for (let v: number = 0; v < count; v++) {
-    const cube: number[] = [0, 1, 2].map((k: number): number => Math.floor(points[v * 3 + k] / gap));
+    const cube: number[] = [0, 1, 2].map((k: number): number =>
+      Math.floor(points[v * 3 + k] / gap),
+    );
     for (let dx: number = -1; dx <= 1; dx++)
       for (let dy: number = -1; dy <= 1; dy++)
         for (let dz: number = -1; dz <= 1; dz++) {

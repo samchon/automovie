@@ -66,18 +66,27 @@ export function assertHumanBodyRigJoints(
       joint.distributeTwist !== undefined &&
       (typeof joint.distributeTwist !== "boolean" ||
         (joint.distributeTwist &&
-          basis.joints.filter((one: IAutoMovieHumanBodyBasis["joints"][number]): boolean => one.parent === joint.bone).length !== 1))
+          basis.joints.filter(
+            (one: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+              one.parent === joint.bone,
+          ).length !== 1))
     )
       throw new Error(
         "Body joint spreads its twist only as a boolean on a bone with one child joint: " +
           joint.bone,
       );
-    const axis: number[] = [tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]];
+    const axis: number[] = [
+      tail[0] - head[0],
+      tail[1] - head[1],
+      tail[2] - head[2],
+    ];
     const length: number = Math.hypot(...axis);
-    const reference: IAutoMovieHumanBodyBasis["joints"][number]["reference"] = joint.reference;
+    const reference: IAutoMovieHumanBodyBasis["joints"][number]["reference"] =
+      joint.reference;
     const norm: number = Math.hypot(...reference);
     if (
-      !Number.isFinite(length) || length === 0 ||
+      !Number.isFinite(length) ||
+      length === 0 ||
       !reference.every(Number.isFinite) ||
       Math.abs(norm - 1) > 1e-6
     )
@@ -92,8 +101,11 @@ export function assertHumanBodyRigJoints(
       length;
     if (
       !Number.isFinite(along) ||
-      Math.hypot(...reference.map((v: number, k: number): number => v - (along * axis[k]) / length)) <
-      1e-6
+      Math.hypot(
+        ...reference.map(
+          (v: number, k: number): number => v - (along * axis[k]) / length,
+        ),
+      ) < 1e-6
     )
       throw new Error(
         "Body joint flexion reference is parallel to the bone: " + joint.bone,
@@ -110,20 +122,25 @@ export function assertHumanBodyRigJoints(
           : [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
       const size: number = line === null ? 0 : Math.hypot(...line);
       const y: number[] = axis.map((v: number): number => v / length);
-      const f: number[] = reference.map((v: number, k: number): number => v - along * y[k]);
+      const f: number[] = reference.map(
+        (v: number, k: number): number => v - along * y[k],
+      );
       const x: number[] = [
         y[1] * f[2] - y[2] * f[1],
         y[2] * f[0] - y[0] * f[2],
         y[0] * f[1] - y[1] * f[0],
       ];
-      const alignment: number = line === null
-        ? NaN
-        : Math.abs(line[0] * x[0] + line[1] * x[1] + line[2] * x[2]) /
-          (size * Math.hypot(...x));
+      const alignment: number =
+        line === null
+          ? NaN
+          : Math.abs(line[0] * x[0] + line[1] * x[1] + line[2] * x[2]) /
+            (size * Math.hypot(...x));
       if (
         line === null ||
-        !Number.isFinite(size) || size === 0 ||
-        !Number.isFinite(alignment) || alignment < 0.5
+        !Number.isFinite(size) ||
+        size === 0 ||
+        !Number.isFinite(alignment) ||
+        alignment < 0.5
       )
         throw new Error(
           "Body joint flexion axis must run between two distinct resident landmarks within 60 degrees of its frame's X: " +
@@ -175,15 +192,18 @@ export function assertHumanBodyRigJoints(
     const cone: number | null = joint.constraint?.swingDeg ?? null;
     if (cone !== null) {
       const reach: number = Math.max(
-        ...(["flexion", "abduction"] as const).flatMap((axisName: "flexion" | "abduction"): number[] => {
-          const range: { min: number; max: number } | null = joint.constraint?.[axisName] ?? null;
-          return range === null
-            ? [0]
-            : [
-                Math.abs(range.min - joint.neutral[axisName]),
-                Math.abs(range.max - joint.neutral[axisName]),
-              ];
-        }),
+        ...(["flexion", "abduction"] as const).flatMap(
+          (axisName: "flexion" | "abduction"): number[] => {
+            const range: { min: number; max: number } | null =
+              joint.constraint?.[axisName] ?? null;
+            return range === null
+              ? [0]
+              : [
+                  Math.abs(range.min - joint.neutral[axisName]),
+                  Math.abs(range.max - joint.neutral[axisName]),
+                ];
+          },
+        ),
       );
       if (!Number.isFinite(cone) || cone < reach)
         throw new Error(
@@ -199,7 +219,9 @@ export function assertHumanBodyRigJoints(
           joint.bone,
       );
     if (joint.shoulder !== undefined) {
-      const shoulder: NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]> = joint.shoulder;
+      const shoulder: NonNullable<
+        IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]
+      > = joint.shoulder;
       const side: number = joint.bone === "leftUpperArm" ? 1 : -1;
       const expectedElevation: number =
         (Math.acos(Math.max(-1, Math.min(1, -axis[1] / length))) * 180) /
@@ -264,9 +286,17 @@ export function assertHumanBodyRigJoints(
     }
     declared.add(joint.bone);
   }
-  const parentOf: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> = new Map(
-    basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [joint.bone, joint.parent]),
-  );
+  const parentOf: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
+    new Map(
+      basis.joints.map(
+        (
+          joint: IAutoMovieHumanBodyBasis["joints"][number],
+        ): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [
+          joint.bone,
+          joint.parent,
+        ],
+      ),
+    );
   for (const joint of basis.joints) {
     if (joint.shoulder === undefined) continue;
     let ancestor: AutoMovieHumanoidBone | null = joint.parent;

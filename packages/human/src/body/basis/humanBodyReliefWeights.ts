@@ -21,20 +21,32 @@ import type { IHumanBodyReliefWeightsInput } from "./IHumanBodyReliefWeightsInpu
  * @evidence contracts/performance.md#reuse-equivalent-work Rest frame and travel are computed once per moved joint, then reused across vertices; caller-owned same-revision rest positions/normals avoid an independent shape evaluation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned weight array escapes, or null when unchanged; joint-frame vectors and traversal state expire on return, with no persistent geometry cache, handle or task.
  */
-export const humanBodyReliefWeights: (props: IHumanBodyReliefWeightsInput) => number[] | null = (props: IHumanBodyReliefWeightsInput): number[] | null => {
+export const humanBodyReliefWeights: (
+  props: IHumanBodyReliefWeightsInput,
+) => number[] | null = (
+  props: IHumanBodyReliefWeightsInput,
+): number[] | null => {
   const count: number = props.positions.length / 3;
   const weights: number[] = new Array<number>(count).fill(1);
   let moved: boolean = false;
   for (const entry of props.table.joints)
     for (const side of ["left", "right"]) {
-      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined = props.basis.joints.find(
-        (one: IAutoMovieHumanBodyBasis["joints"][number]): boolean => one.bone === side + entry.bone,
+      const joint: IAutoMovieHumanBodyBasis["joints"][number] | undefined =
+        props.basis.joints.find(
+          (one: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+            one.bone === side + entry.bone,
+        );
+      const row: IAutoMovieJointPose | undefined = props.pose.find(
+        (one: IAutoMovieJointPose): boolean => one.bone === side + entry.bone,
       );
-      const row: IAutoMovieJointPose | undefined = props.pose.find((one: IAutoMovieJointPose): boolean => one.bone === side + entry.bone);
       if (joint === undefined || row === undefined || row.flexion === null)
         continue;
       const rest: number = joint.neutral.flexion;
-      const range: NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["constraint"]>["flexion"] | undefined = joint.constraint?.flexion;
+      const range:
+        | NonNullable<
+            IAutoMovieHumanBodyBasis["joints"][number]["constraint"]
+          >["flexion"]
+        | undefined = joint.constraint?.flexion;
       if (range === undefined || range === null) continue;
       const end: number = row.flexion >= rest ? range.max : range.min;
       if (end === rest) continue;
@@ -46,7 +58,11 @@ export const humanBodyReliefWeights: (props: IHumanBodyReliefWeightsInput) => nu
       moved = true;
       const head: IAutoMovieVector3 = props.landmarks[joint.head];
       const tail: IAutoMovieVector3 = props.landmarks[joint.tail];
-      const axis: number[] = unit([tail.x - head.x, tail.y - head.y, tail.z - head.z]);
+      const axis: number[] = unit([
+        tail.x - head.x,
+        tail.y - head.y,
+        tail.z - head.z,
+      ]);
       const x: number[] = unit(cross(axis, joint.reference));
       const z: number[] = cross(x, axis);
       for (let v: number = 0; v < count; v++) {
@@ -82,9 +98,14 @@ export const humanBodyReliefWeights: (props: IHumanBodyReliefWeightsInput) => nu
   return moved ? weights : null;
 };
 
-const dot: (a: number[], b: number[]) => number = (a: number[], b: number[]): number =>
-  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross: (a: number[], b: number[]) => number[] = (a: number[], b: number[]): number[] => [
+const dot: (a: number[], b: number[]) => number = (
+  a: number[],
+  b: number[],
+): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross: (a: number[], b: number[]) => number[] = (
+  a: number[],
+  b: number[],
+): number[] => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],

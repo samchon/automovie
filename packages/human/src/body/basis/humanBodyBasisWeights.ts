@@ -37,12 +37,21 @@ export function humanBodyBasisWeights(
   /** The document's pose with the declared couplings added; what the builder poses. */
   pose: IAutoMovieJointPose[];
 } {
-  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [channel.id, channel]),
-  );
+  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> =
+    new Map(
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanBodyBasis["channels"][number],
+        ): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [
+          channel.id,
+          channel,
+        ],
+      ),
+    );
   const weights: Map<string, number> = new Map<string, number>();
   for (const [name, weight] of Object.entries(document.shape)) {
-    const channel: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channels.get(name);
+    const channel: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+      channels.get(name);
     if (
       channel === undefined ||
       !Number.isFinite(weight) ||
@@ -52,8 +61,18 @@ export function humanBodyBasisWeights(
       throw new Error("Unsupported or out-of-domain body control: " + name);
     weights.set(name, weight);
   }
-  const neutral: Map<IAutoMovieJointPose["bone"], IAutoMovieHumanBodyBasis["joints"][number]["neutral"]> = new Map(
-    basis.joints.map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [IAutoMovieJointPose["bone"], IAutoMovieHumanBodyBasis["joints"][number]["neutral"]] => [joint.bone, joint.neutral]),
+  const neutral: Map<
+    IAutoMovieJointPose["bone"],
+    IAutoMovieHumanBodyBasis["joints"][number]["neutral"]
+  > = new Map(
+    basis.joints.map(
+      (
+        joint: IAutoMovieHumanBodyBasis["joints"][number],
+      ): [
+        IAutoMovieJointPose["bone"],
+        IAutoMovieHumanBodyBasis["joints"][number]["neutral"],
+      ] => [joint.bone, joint.neutral],
+    ),
   );
   const pose: IAutoMovieJointPose[] = resolveHumanBodyCouplings(
     basis,
@@ -61,22 +80,60 @@ export function humanBodyBasisWeights(
     document.shoulders ?? [],
     shoulderRest,
   ).joints;
-  const angles: Map<IAutoMovieJointPose["bone"], IAutoMovieJointPose> = new Map(pose.map((joint: IAutoMovieJointPose): [IAutoMovieJointPose["bone"], IAutoMovieJointPose] => [joint.bone, joint]));
-  const shoulderAngles: Map<IAutoMovieHumanBodyShoulderPose["bone"], IAutoMovieHumanBodyShoulderPose> = new Map(
-    (document.shoulders ?? []).map((shoulder: IAutoMovieHumanBodyShoulderPose): [IAutoMovieHumanBodyShoulderPose["bone"], IAutoMovieHumanBodyShoulderPose] => [shoulder.bone, shoulder]),
-  );
-  const shoulderNeutral: Map<IAutoMovieJointPose["bone"], NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]>["neutral"]> = new Map(
-    basis.joints
-      .filter((joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean => joint.shoulder !== undefined)
-      .map((joint: IAutoMovieHumanBodyBasis["joints"][number]): [IAutoMovieJointPose["bone"], NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]>["neutral"]] => [
+  const angles: Map<IAutoMovieJointPose["bone"], IAutoMovieJointPose> = new Map(
+    pose.map(
+      (
+        joint: IAutoMovieJointPose,
+      ): [IAutoMovieJointPose["bone"], IAutoMovieJointPose] => [
         joint.bone,
-        shoulderRest.get(
-          joint.bone as IAutoMovieHumanBodyShoulderPose["bone"],
-        ) ?? joint.shoulder!.neutral,
-      ]),
+        joint,
+      ],
+    ),
+  );
+  const shoulderAngles: Map<
+    IAutoMovieHumanBodyShoulderPose["bone"],
+    IAutoMovieHumanBodyShoulderPose
+  > = new Map(
+    (document.shoulders ?? []).map(
+      (
+        shoulder: IAutoMovieHumanBodyShoulderPose,
+      ): [
+        IAutoMovieHumanBodyShoulderPose["bone"],
+        IAutoMovieHumanBodyShoulderPose,
+      ] => [shoulder.bone, shoulder],
+    ),
+  );
+  const shoulderNeutral: Map<
+    IAutoMovieJointPose["bone"],
+    NonNullable<
+      IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]
+    >["neutral"]
+  > = new Map(
+    basis.joints
+      .filter(
+        (joint: IAutoMovieHumanBodyBasis["joints"][number]): boolean =>
+          joint.shoulder !== undefined,
+      )
+      .map(
+        (
+          joint: IAutoMovieHumanBodyBasis["joints"][number],
+        ): [
+          IAutoMovieJointPose["bone"],
+          NonNullable<
+            IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]
+          >["neutral"],
+        ] => [
+          joint.bone,
+          shoulderRest.get(
+            joint.bone as IAutoMovieHumanBodyShoulderPose["bone"],
+          ) ?? joint.shoulder!.neutral,
+        ],
+      ),
   );
   /** One shoulder kernel's value: the clamped fall-off from its centre. */
-  const kernel: (input: Extract<CorrectiveInput, { shoulder: string }>) => number = (
+  const kernel: (
+    input: Extract<CorrectiveInput, { shoulder: string }>,
+  ) => number = (
     input: Extract<
       NonNullable<
         IAutoMovieHumanBodyBasis["correctives"]
@@ -84,8 +141,12 @@ export function humanBodyBasisWeights(
       { shoulder: string }
     >,
   ): number => {
-    const rest: NonNullable<IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]>["neutral"] = shoulderNeutral.get(input.shoulder)!;
-    const posed: IAutoMovieHumanBodyShoulderPose = shoulderAngles.get(input.shoulder) ?? {
+    const rest: NonNullable<
+      IAutoMovieHumanBodyBasis["joints"][number]["shoulder"]
+    >["neutral"] = shoulderNeutral.get(input.shoulder)!;
+    const posed: IAutoMovieHumanBodyShoulderPose = shoulderAngles.get(
+      input.shoulder,
+    ) ?? {
       bone: input.shoulder,
       ...rest,
     };
@@ -106,7 +167,9 @@ export function humanBodyBasisWeights(
     IAutoMovieHumanBodyBasis["correctives"]
   >[number]["inputs"][number];
   /** One joint or channel driver's clamped ramp. */
-  const ramp: (input: Exclude<Input, { shoulder: string }>) => number = (input: Exclude<Input, { shoulder: string }>): number => {
+  const ramp: (input: Exclude<Input, { shoulder: string }>) => number = (
+    input: Exclude<Input, { shoulder: string }>,
+  ): number => {
     const sign: number = input.side === "negative" ? -1 : 1;
     if ("bone" in input) {
       const shoulderAxis: boolean = input.axis === "elevation";
@@ -141,9 +204,13 @@ export function humanBodyBasisWeights(
   // so no pose wears more than one whole correction of a family, and a
   // kernel whose window reaches no other centre of its family is exactly
   // its own correction at its centre.
-  const { families, examples: named }: ReturnType<typeof correctivePlan> = correctivePlan(basis);
-  const values: number[][] = correctives.map((corrective: Corrective): number[] =>
-    corrective.inputs.map((input: CorrectiveInput): number => ("shoulder" in input ? kernel(input) : 1)),
+  const { families, examples: named }: ReturnType<typeof correctivePlan> =
+    correctivePlan(basis);
+  const values: number[][] = correctives.map(
+    (corrective: Corrective): number[] =>
+      corrective.inputs.map((input: CorrectiveInput): number =>
+        "shoulder" in input ? kernel(input) : 1,
+      ),
   );
   const sums: Map<string, number> = new Map<string, number>();
   families.forEach((keys: (string | null)[], c: number): void =>
@@ -162,19 +229,33 @@ export function humanBodyBasisWeights(
   // one, so a mixed body wears a blend of the corrections solved on its
   // traits rather than all of them added. A body on one example's channels
   // alone reads a sum of at most one and wears that example as solved.
-  const shapes: ({ pose: string; example: string; factor: number } | null)[] = named.map((one: ReturnType<typeof correctivePlan>["examples"][number]): typeof shapes[number] =>
-    one === null
-      ? null
-      : {
-          pose: one.pose,
-          example: one.example,
-          factor: one.tissue.reduce((total: number, input: Extract<CorrectiveInput, { channel: string }>): number => total * ramp(input), 1),
-        },
-  );
-  const examples: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
+  const shapes: ({ pose: string; example: string; factor: number } | null)[] =
+    named.map(
+      (
+        one: ReturnType<typeof correctivePlan>["examples"][number],
+      ): (typeof shapes)[number] =>
+        one === null
+          ? null
+          : {
+              pose: one.pose,
+              example: one.example,
+              factor: one.tissue.reduce(
+                (
+                  total: number,
+                  input: Extract<CorrectiveInput, { channel: string }>,
+                ): number => total * ramp(input),
+                1,
+              ),
+            },
+    );
+  const examples: Map<string, Map<string, number>> = new Map<
+    string,
+    Map<string, number>
+  >();
   for (const shape of shapes) {
     if (shape === null) continue;
-    const found: Map<string, number> = examples.get(shape.pose) ?? new Map<string, number>();
+    const found: Map<string, number> =
+      examples.get(shape.pose) ?? new Map<string, number>();
     found.set(
       shape.example,
       Math.max(found.get(shape.example) ?? 0, shape.factor),
@@ -182,30 +263,41 @@ export function humanBodyBasisWeights(
     examples.set(shape.pose, found);
   }
   const shapeSums: Map<string, number> = new Map(
-    [...examples].map(([pose, found]: [string, Map<string, number>]): [string, number] => [
-      pose,
-      [...found.values()].reduce((sum: number, factor: number): number => sum + factor, 0),
-    ]),
-  );
-  const activations: { target: string; activation: number }[] = correctives.map((corrective: Corrective, c: number): { target: string; activation: number } => ({
-    target: corrective.target,
-    activation: Math.min(
-      1,
-      families[c].reduce(
-        (total: number, key: string | null, at: number): number =>
-          key === null
-            ? total
-            : total * (values[c][at] / Math.max(1, sums.get(key)!)),
-        corrective.inputs.reduce(
-          (total: number, input: CorrectiveInput): number => ("shoulder" in input ? total : total * ramp(input)),
-          corrective.weight,
-        ) /
-          (shapes[c] === null
-            ? 1
-            : Math.max(1, shapeSums.get(shapes[c]!.pose)!)),
-      ),
+    [...examples].map(
+      ([pose, found]: [string, Map<string, number>]): [string, number] => [
+        pose,
+        [...found.values()].reduce(
+          (sum: number, factor: number): number => sum + factor,
+          0,
+        ),
+      ],
     ),
-  }));
+  );
+  const activations: { target: string; activation: number }[] = correctives.map(
+    (
+      corrective: Corrective,
+      c: number,
+    ): { target: string; activation: number } => ({
+      target: corrective.target,
+      activation: Math.min(
+        1,
+        families[c].reduce(
+          (total: number, key: string | null, at: number): number =>
+            key === null
+              ? total
+              : total * (values[c][at] / Math.max(1, sums.get(key)!)),
+          corrective.inputs.reduce(
+            (total: number, input: CorrectiveInput): number =>
+              "shoulder" in input ? total : total * ramp(input),
+            corrective.weight,
+          ) /
+            (shapes[c] === null
+              ? 1
+              : Math.max(1, shapeSums.get(shapes[c]!.pose)!)),
+        ),
+      ),
+    }),
+  );
   return { weights, activations, pose };
 }
 
@@ -223,51 +315,71 @@ function correctivePlan(basis: IAutoMovieHumanBodyBasis): {
     tissue: Extract<CorrectiveInput, { channel: string }>[];
   } | null)[];
 } {
-  const cached: ReturnType<typeof correctivePlan> | undefined = plans.get(basis);
+  const cached: ReturnType<typeof correctivePlan> | undefined =
+    plans.get(basis);
   if (cached !== undefined) return cached;
   const correctives: Corrective[] = basis.correctives ?? [];
   const plan: ReturnType<typeof correctivePlan> = {
     families: correctives.map((corrective: Corrective): (string | null)[] =>
-      corrective.inputs.map((input: CorrectiveInput, at: number): string | null =>
-        "shoulder" in input
-          ? input.shoulder +
-            "|" +
-            JSON.stringify(corrective.inputs.filter((_: CorrectiveInput, other: number): boolean => other !== at))
-          : null,
+      corrective.inputs.map(
+        (input: CorrectiveInput, at: number): string | null =>
+          "shoulder" in input
+            ? input.shoulder +
+              "|" +
+              JSON.stringify(
+                corrective.inputs.filter(
+                  (_: CorrectiveInput, other: number): boolean => other !== at,
+                ),
+              )
+            : null,
       ),
     ),
-    examples: correctives.map((corrective: Corrective): ReturnType<typeof correctivePlan>["examples"][number] => {
-      const posed: Exclude<CorrectiveInput, { channel: string }>[] = corrective.inputs.filter(
-        (input: CorrectiveInput): input is Exclude<CorrectiveInput, { channel: string }> =>
-          !("channel" in input),
-      );
-      const tissue: Extract<CorrectiveInput, { channel: string }>[] = corrective.inputs.filter(
-        (input: CorrectiveInput): input is Extract<CorrectiveInput, { channel: string }> =>
-          "channel" in input,
-      );
-      if (posed.length === 0 || tissue.length === 0) return null;
-      return {
-        pose: posed
-          .map((input: Exclude<CorrectiveInput, { channel: string }>): string =>
-            "shoulder" in input
-              ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
-              : `${input.bone}.${input.axis}.${input.side}`,
-          )
-          .sort((a: string, b: string): number => a.localeCompare(b))
-          .join("+"),
-        example: tissue
-          .map((input: Extract<CorrectiveInput, { channel: string }>): string => `${input.channel}.${input.side}`)
-          .sort((a: string, b: string): number => a.localeCompare(b))
-          .join("+"),
-        tissue,
-      };
-    }),
+    examples: correctives.map(
+      (
+        corrective: Corrective,
+      ): ReturnType<typeof correctivePlan>["examples"][number] => {
+        const posed: Exclude<CorrectiveInput, { channel: string }>[] =
+          corrective.inputs.filter(
+            (
+              input: CorrectiveInput,
+            ): input is Exclude<CorrectiveInput, { channel: string }> =>
+              !("channel" in input),
+          );
+        const tissue: Extract<CorrectiveInput, { channel: string }>[] =
+          corrective.inputs.filter(
+            (
+              input: CorrectiveInput,
+            ): input is Extract<CorrectiveInput, { channel: string }> =>
+              "channel" in input,
+          );
+        if (posed.length === 0 || tissue.length === 0) return null;
+        return {
+          pose: posed
+            .map(
+              (input: Exclude<CorrectiveInput, { channel: string }>): string =>
+                "shoulder" in input
+                  ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
+                  : `${input.bone}.${input.axis}.${input.side}`,
+            )
+            .sort((a: string, b: string): number => a.localeCompare(b))
+            .join("+"),
+          example: tissue
+            .map(
+              (input: Extract<CorrectiveInput, { channel: string }>): string =>
+                `${input.channel}.${input.side}`,
+            )
+            .sort((a: string, b: string): number => a.localeCompare(b))
+            .join("+"),
+          tissue,
+        };
+      },
+    ),
   };
   plans.set(basis, plan);
   return plan;
 }
 
-const plans: WeakMap<IAutoMovieHumanBodyBasis, ReturnType<typeof correctivePlan>> = new WeakMap<
+const plans: WeakMap<
   IAutoMovieHumanBodyBasis,
   ReturnType<typeof correctivePlan>
->();
+> = new WeakMap<IAutoMovieHumanBodyBasis, ReturnType<typeof correctivePlan>>();

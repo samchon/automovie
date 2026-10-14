@@ -17,9 +17,17 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
 export function assertHumanBodyBasisShape(
   basis: IAutoMovieHumanBodyBasis,
 ): Set<string> {
-  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> = new Map(
-    basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [channel.id, channel]),
-  );
+  const channels: Map<string, IAutoMovieHumanBodyBasis["channels"][number]> =
+    new Map(
+      basis.channels.map(
+        (
+          channel: IAutoMovieHumanBodyBasis["channels"][number],
+        ): [string, IAutoMovieHumanBodyBasis["channels"][number]] => [
+          channel.id,
+          channel,
+        ],
+      ),
+    );
   const endpoints: Set<string> = new Set<string>();
   for (const channel of basis.channels) {
     if (
@@ -38,7 +46,8 @@ export function assertHumanBodyBasisShape(
     // group; a one-sided mirror would let an editor pair a control with one
     // that does not pair back.
     if (channel.mirror !== null) {
-      const mate: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channels.get(channel.mirror);
+      const mate: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+        channels.get(channel.mirror);
       if (
         mate === undefined ||
         mate.id === channel.id ||
@@ -53,11 +62,21 @@ export function assertHumanBodyBasisShape(
     endpoints.add(channel.positive);
     if (channel.negative !== null) endpoints.add(channel.negative);
   }
-  const correctives: NonNullable<IAutoMovieHumanBodyBasis["correctives"]> = basis.correctives ?? [];
+  const correctives: NonNullable<IAutoMovieHumanBodyBasis["correctives"]> =
+    basis.correctives ?? [];
   assertHumanBodyUniqueIds(
     [
-      ...basis.channels.map((channel: IAutoMovieHumanBodyBasis["channels"][number]): string => channel.id),
-      ...correctives.map((corrective: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number]): string => corrective.id),
+      ...basis.channels.map(
+        (channel: IAutoMovieHumanBodyBasis["channels"][number]): string =>
+          channel.id,
+      ),
+      ...correctives.map(
+        (
+          corrective: NonNullable<
+            IAutoMovieHumanBodyBasis["correctives"]
+          >[number],
+        ): string => corrective.id,
+      ),
     ],
     "channel and corrective identities",
   );
@@ -69,18 +88,23 @@ export function assertHumanBodyBasisShape(
       corrective.weight > 1 ||
       corrective.target.trim() === "" ||
       new Set(
-        corrective.inputs.map((input: NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number]["inputs"][number]): string =>
-          "bone" in input
-            ? input.bone + "." + input.axis + "/" + input.side
-            : "shoulder" in input
-              ? input.shoulder +
-                "/orientation/" +
-                input.orientation.plane +
-                "/" +
-                input.orientation.elevation +
-                "/" +
-                input.orientation.axialRotation
-              : input.channel + "/" + input.side,
+        corrective.inputs.map(
+          (
+            input: NonNullable<
+              IAutoMovieHumanBodyBasis["correctives"]
+            >[number]["inputs"][number],
+          ): string =>
+            "bone" in input
+              ? input.bone + "." + input.axis + "/" + input.side
+              : "shoulder" in input
+                ? input.shoulder +
+                  "/orientation/" +
+                  input.orientation.plane +
+                  "/" +
+                  input.orientation.elevation +
+                  "/" +
+                  input.orientation.axialRotation
+                : input.channel + "/" + input.side,
         ),
       ).size !== corrective.inputs.length
     )
@@ -89,7 +113,8 @@ export function assertHumanBodyBasisShape(
       );
     for (const input of corrective.inputs) {
       if (!("channel" in input)) continue; // joint and shoulder drivers are admitted with the rig
-      const channel: IAutoMovieHumanBodyBasis["channels"][number] | undefined = channels.get(input.channel);
+      const channel: IAutoMovieHumanBodyBasis["channels"][number] | undefined =
+        channels.get(input.channel);
       if (channel === undefined || channel[input.side] === null)
         throw new Error(
           "A body corrective drives off a side no channel carries: " +

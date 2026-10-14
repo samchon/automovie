@@ -1,4 +1,7 @@
-import type { IAutoMovieJointPose, IAutoMovieMaterial } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieMaterial,
+} from "@automovie/interface";
 
 import { applyHumanSkinFinish } from "../../../common/skin/applyHumanSkinFinish";
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
@@ -21,16 +24,26 @@ import { createHumanBodySkinTone } from "./createHumanBodySkinTone";
  * @evidence contracts/performance.md#reuse-equivalent-work One fixed-basis closure reuses neutral site weights and detail/tone textures; cheek, pose and document overrides are reevaluated because they change current material output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains source-sized site fields and texture-owner caches until unreachable; fresh materials/color arrays escape per call and no renderer handles or worker tasks are acquired here.
  */
-export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis): (input: IHumanBodyAppearanceInput) => IHumanBodyAppearanceResult {
+export function createHumanBodyAppearance(
+  basis: IAutoMovieHumanBodyBasis,
+): (input: IHumanBodyAppearanceInput) => IHumanBodyAppearanceResult {
   // Read the site weights from the basis only when the first cheek asks for them.
   let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
-  const detail: ReturnType<typeof createHumanBodySkinDetail> = createHumanBodySkinDetail(basis);
-  const tone: ReturnType<typeof createHumanBodySkinTone> = createHumanBodySkinTone(basis);
+  const detail: ReturnType<typeof createHumanBodySkinDetail> =
+    createHumanBodySkinDetail(basis);
+  const tone: ReturnType<typeof createHumanBodySkinTone> =
+    createHumanBodySkinTone(basis);
   return (input: IHumanBodyAppearanceInput): IHumanBodyAppearanceResult => {
-    const { document, pose, restAll, leanOf }: IHumanBodyAppearanceInput = input;
+    const { document, pose, restAll, leanOf }: IHumanBodyAppearanceInput =
+      input;
     const materials: IAutoMovieMaterial[] = structuredClone(basis.materials);
     const materialMap: Map<string, IAutoMovieMaterial> = new Map(
-      materials.map((material: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [material.id, material]),
+      materials.map(
+        (material: IAutoMovieMaterial): [string, IAutoMovieMaterial] => [
+          material.id,
+          material,
+        ],
+      ),
     );
     for (const [id, override] of Object.entries(document.materials ?? {})) {
       const material: IAutoMovieMaterial | undefined = materialMap.get(id);
@@ -41,7 +54,8 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis): (inp
       if (
         material === undefined ||
         values.some(
-          (value: number): boolean => !Number.isFinite(value) || value < 0 || value > 1,
+          (value: number): boolean =>
+            !Number.isFinite(value) || value < 0 || value > 1,
         )
       )
         throw new Error(
@@ -62,12 +76,18 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis): (inp
     // skin is translucent: its material takes the scattering distance from
     // the source-owned skin finish
     applyHumanSkinFinish(materials);
-    const cheek: NonNullable<IHumanBodyAppearanceInput["document"]["skinColour"]>["cheek"] | undefined = document.skinColour?.cheek;
+    const cheek:
+      | NonNullable<
+          IHumanBodyAppearanceInput["document"]["skinColour"]
+        >["cheek"]
+      | undefined = document.skinColour?.cheek;
     if (
       cheek !== undefined &&
       (!materialMap.has(skin) ||
         document.materials?.[skin]?.color !== undefined ||
-        [cheek.r, cheek.g, cheek.b].some((value: number): boolean => value <= 0 || value > 1))
+        [cheek.r, cheek.g, cheek.b].some(
+          (value: number): boolean => value <= 0 || value > 1,
+        ))
     )
       throw new Error(
         "Body skin colour needs a skin material without a colour override and a cheek albedo in (0,1].",
@@ -78,7 +98,10 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis): (inp
         : (siteColour ??= createHumanBodySkinColour(basis))(
             [cheek.r, cheek.g, cheek.b],
             // the skin over a joint lightens as the coupled pose folds it
-            (bone: string): number | null => pose.find((row: IAutoMovieJointPose): boolean => row.bone === bone)?.flexion ?? null,
+            (bone: string): number | null =>
+              pose.find(
+                (row: IAutoMovieJointPose): boolean => row.bone === bone,
+              )?.flexion ?? null,
           );
     if (coloured !== null) {
       const [r, g, b]: [number, number, number] = coloured.base;

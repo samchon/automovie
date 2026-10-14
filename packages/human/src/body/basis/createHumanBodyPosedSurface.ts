@@ -32,7 +32,13 @@ export function createHumanBodyPosedSurface(
     surface.mush === undefined
       ? null
       : createHumanBodySurfaceMush(surface, surface.mush);
-  return ({ shaped, transforms, rest, lean, document }: IHumanBodyPosedSurfaceInput): number[] => {
+  return ({
+    shaped,
+    transforms,
+    rest,
+    lean,
+    document,
+  }: IHumanBodyPosedSurfaceInput): number[] => {
     const skinned: number[] = skinHumanBodySurface(
       shaped,
       surface.skin,
@@ -53,7 +59,8 @@ export function createHumanBodyPosedSurface(
             );
             const restored: number[] = mush(rest, neutral);
             return skinned.map(
-              (value: number, i: number): number => value + (restored[i] - neutral[i]),
+              (value: number, i: number): number =>
+                value + (restored[i] - neutral[i]),
             );
           })();
     if (sag === null || rest === null) return filtered;
@@ -63,7 +70,8 @@ export function createHumanBodyPosedSurface(
       Math.max(
         declared.softness.range[0],
         Object.entries(declared.softness.channels).reduce(
-          (total: number, [id, gain]: [string, number]): number => total + gain * (document.shape[id] ?? 0),
+          (total: number, [id, gain]: [string, number]): number =>
+            total + gain * (document.shape[id] ?? 0),
           declared.softness.base,
         ),
       ),

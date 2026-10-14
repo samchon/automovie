@@ -41,14 +41,25 @@ export function createHumanBodySkinOverlays(input: {
     throw new Error("Body skin veins need a strength in [0,1].");
   if (
     document.skinVeins !== undefined &&
-    !basis.surfaces.some((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
-      (surface.overlays ?? []).some(
-        (overlay: NonNullable<IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]>[number]): boolean => overlay.kind === "veins" && overlay.material === skin,
-      ),
+    !basis.surfaces.some(
+      (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+        (surface.overlays ?? []).some(
+          (
+            overlay: NonNullable<
+              IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]
+            >[number],
+          ): boolean => overlay.kind === "veins" && overlay.material === skin,
+        ),
     )
   )
     throw new Error("Body skin veins need declared veins on the basis.");
-  const once: (asset: string, colorSpace: "srgb" | "linear") => IAutoMovieTextureReference = (asset: string, colorSpace: "srgb" | "linear"): IAutoMovieTextureReference => ({
+  const once: (
+    asset: string,
+    colorSpace: "srgb" | "linear",
+  ) => IAutoMovieTextureReference = (
+    asset: string,
+    colorSpace: "srgb" | "linear",
+  ): IAutoMovieTextureReference => ({
     asset,
     texCoord: 0,
     coordinateSource: "source-uv" as const,
@@ -61,12 +72,17 @@ export function createHumanBodySkinOverlays(input: {
     },
   });
   const restNormals: Map<number, number[]> = new Map<number, number[]>();
-  const veinsShow: (index: number, overlay: { vertices: number[]; attenuation: number }, strength: number) => number = (
+  const veinsShow: (
+    index: number,
+    overlay: { vertices: number[]; attenuation: number },
+    strength: number,
+  ) => number = (
     index: number,
     overlay: { vertices: number[]; attenuation: number },
     strength: number,
   ): number => {
-    const surface: IAutoMovieHumanBodyBasis["surfaces"][number] = basis.surfaces[index];
+    const surface: IAutoMovieHumanBodyBasis["surfaces"][number] =
+      basis.surfaces[index];
     const rest: number[] = restAll().surfaces[index];
     const lean: number[] = leanOf(index);
     let normals: number[] | undefined = restNormals.get(index);
@@ -86,48 +102,83 @@ export function createHumanBodySkinOverlays(input: {
       Math.exp((-overlay.attenuation * tissue) / overlay.vertices.length)
     );
   };
-  const overlays: IAutoMovieMaterialOverlay[] = basis.surfaces.flatMap((surface: IAutoMovieHumanBodyBasis["surfaces"][number], index: number): IAutoMovieMaterialOverlay[] =>
-    (surface.overlays ?? [])
-      .filter((overlay: NonNullable<IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]>[number]): boolean => overlay.material === skin)
-      .flatMap((overlay: NonNullable<IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]>[number]): IAutoMovieMaterialOverlay[] => {
-        const normalTexture: IAutoMovieTextureReference | null =
-          overlay.normal === undefined ? null : once(overlay.normal, "linear");
-        if (overlay.kind === "nails") {
-          const cheek: NonNullable<IAutoMovieHumanBodyBasisDocument["skinColour"]>["cheek"] | undefined = document.skinColour?.cheek;
-          const palm: (rgb: { r: number; g: number; b: number }) => number[] = (rgb: { r: number; g: number; b: number }): number[] =>
-            HUMAN_BODY_SKIN_SITES.sites.palmar.map(
-              ([a, b]: [number, number], k: number): number => Math.exp(a) * [rgb.r, rgb.g, rgb.b][k] ** b,
-            );
-          const factor: { r: number; g: number; b: number } | undefined =
-            cheek === undefined || overlay.cheek === undefined
-              ? undefined
-              : ((own: number[], drawn: number[]): { r: number; g: number; b: number } => ({
-                  r: own[0] / drawn[0],
-                  g: own[1] / drawn[1],
-                  b: own[2] / drawn[2],
-                }))(palm(cheek), palm(overlay.cheek));
-          return [
-            {
-              baseColorTexture: once(overlay.color, "srgb"),
-              blend: "replace",
-              ...(factor === undefined ? {} : { colorFactor: factor }),
-              roughness: overlay.roughness,
-              normalTexture,
-              strength: 1,
-            },
-          ];
-        }
-        const veins: IAutoMovieHumanBodyBasisDocument["skinVeins"] = document.skinVeins;
-        if (veins === undefined) return [];
-        return [
-          {
-            baseColorTexture: once(overlay.color, "srgb"),
-            blend: "multiply",
-            normalTexture,
-            strength: veinsShow(index, overlay, veins.strength),
+  const overlays: IAutoMovieMaterialOverlay[] = basis.surfaces.flatMap(
+    (
+      surface: IAutoMovieHumanBodyBasis["surfaces"][number],
+      index: number,
+    ): IAutoMovieMaterialOverlay[] =>
+      (surface.overlays ?? [])
+        .filter(
+          (
+            overlay: NonNullable<
+              IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]
+            >[number],
+          ): boolean => overlay.material === skin,
+        )
+        .flatMap(
+          (
+            overlay: NonNullable<
+              IAutoMovieHumanBodyBasis["surfaces"][number]["overlays"]
+            >[number],
+          ): IAutoMovieMaterialOverlay[] => {
+            const normalTexture: IAutoMovieTextureReference | null =
+              overlay.normal === undefined
+                ? null
+                : once(overlay.normal, "linear");
+            if (overlay.kind === "nails") {
+              const cheek:
+                | NonNullable<
+                    IAutoMovieHumanBodyBasisDocument["skinColour"]
+                  >["cheek"]
+                | undefined = document.skinColour?.cheek;
+              const palm: (rgb: {
+                r: number;
+                g: number;
+                b: number;
+              }) => number[] = (rgb: {
+                r: number;
+                g: number;
+                b: number;
+              }): number[] =>
+                HUMAN_BODY_SKIN_SITES.sites.palmar.map(
+                  ([a, b]: [number, number], k: number): number =>
+                    Math.exp(a) * [rgb.r, rgb.g, rgb.b][k] ** b,
+                );
+              const factor: { r: number; g: number; b: number } | undefined =
+                cheek === undefined || overlay.cheek === undefined
+                  ? undefined
+                  : ((
+                      own: number[],
+                      drawn: number[],
+                    ): { r: number; g: number; b: number } => ({
+                      r: own[0] / drawn[0],
+                      g: own[1] / drawn[1],
+                      b: own[2] / drawn[2],
+                    }))(palm(cheek), palm(overlay.cheek));
+              return [
+                {
+                  baseColorTexture: once(overlay.color, "srgb"),
+                  blend: "replace",
+                  ...(factor === undefined ? {} : { colorFactor: factor }),
+                  roughness: overlay.roughness,
+                  normalTexture,
+                  strength: 1,
+                },
+              ];
+            }
+            const veins: IAutoMovieHumanBodyBasisDocument["skinVeins"] =
+              document.skinVeins;
+            if (veins === undefined) return [];
+            return [
+              {
+                baseColorTexture: once(overlay.color, "srgb"),
+                blend: "multiply",
+                normalTexture,
+                strength: veinsShow(index, overlay, veins.strength),
+              },
+            ];
           },
-        ];
-      }),
+        ),
   );
   if (overlays.length > 0) materialMap.get(skin)!.overlays = overlays;
 }
