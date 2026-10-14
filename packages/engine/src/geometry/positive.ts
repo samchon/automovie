@@ -18,7 +18,10 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure check of one number; there is no result to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the refused error message and retains nothing.
  */
-export const positive = (value: number, label: string): void => {
+export const positive: (value: number, label: string) => void = (
+  value: number,
+  label: string,
+): void => {
   if (!Number.isFinite(value) || value <= 0)
     throw new Error(`${label} must be a finite number > 0`);
 };

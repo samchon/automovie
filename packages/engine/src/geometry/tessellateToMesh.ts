@@ -24,9 +24,9 @@ import { tessellate } from "./tessellate";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Callers may mutate the returned arrays, so each call returns fresh ones and nothing is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the three arrays from `tessellate` are transferred to the returned mesh.
  */
-export const tessellateToMesh = (
+export const tessellateToMesh: (
   shape: AutoMoviePrimitiveShape,
-): IAutoMovieMesh => {
+) => IAutoMovieMesh = (shape: AutoMoviePrimitiveShape): IAutoMovieMesh => {
   const tessellation: ITessellation = tessellate(shape);
   return {
     positions: tessellation.positions,

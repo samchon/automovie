@@ -25,7 +25,11 @@ import { trianglesOf } from "./trianglesOf";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one region per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the layout's arrays are spread into the returned record beside the new triangle array.
  */
-export const triangulateRegion = (
+export const triangulateRegion: (
+  outer: readonly IAutoMovieProfilePoint[],
+  holes: readonly (readonly IAutoMovieProfilePoint[])[],
+  label: string,
+) => IAutoMovieRegionTriangulation = (
   outer: readonly IAutoMovieProfilePoint[],
   holes: ReadonlyArray<readonly IAutoMovieProfilePoint[]>,
   label: string,

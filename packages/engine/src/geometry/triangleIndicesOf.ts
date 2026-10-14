@@ -25,10 +25,10 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Callers admit each mesh once per operation, and the indexed result aliases the mesh's own array instead of copying it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned array is either the mesh's own or a new run of V integers owned by the caller.
  */
-export const triangleIndicesOf = (
+export const triangleIndicesOf: (
   mesh: IAutoMovieMesh,
   label: string,
-): number[] => {
+) => number[] = (mesh: IAutoMovieMesh, label: string): number[] => {
   const vertices: number = mesh.positions.length / 3;
   if (Number.isSafeInteger(vertices) === false)
     throw new Error(`${label} needs positions in whole xyz triples`);

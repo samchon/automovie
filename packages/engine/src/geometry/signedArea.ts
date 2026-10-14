@@ -19,9 +19,9 @@ import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar of the ring passed in; callers compute it once per ring they decide on.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the ring in place, allocating no array or object and retaining nothing after it returns.
  */
-export const signedArea = (
+export const signedArea: (
   points: readonly IAutoMovieProfilePoint[],
-): number => {
+) => number = (points: readonly IAutoMovieProfilePoint[]): number => {
   let total: number = 0;
   for (let index: number = 0; index < points.length; ++index) {
     const from: IAutoMovieProfilePoint = points[index]!;

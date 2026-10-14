@@ -103,18 +103,23 @@ import { meshOf } from "./meshOf";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one requested mesh whose buffers the caller owns, so nothing is cached between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the meridian lengths and normal groups are released on return, and the position, UV, index and normal arrays are transferred to the returned mesh, sized by S * P.
  */
-export const revolveAutoMovieProfile = (props: {
+export const revolveAutoMovieProfile: (props: {
+  profile: readonly IAutoMovieProfilePoint[];
+  segments: number;
+}) => IAutoMovieMesh = (props: {
   profile: readonly IAutoMovieProfilePoint[];
   segments: number;
 }): IAutoMovieMesh => {
   if (props.profile.length < 2)
     throw new Error("revolve profile needs at least two points");
   countAtLeast(props.segments, 3, "revolve segments");
-  props.profile.forEach((point: IAutoMovieProfilePoint, index: number): void => {
-    finitePoint(point, `revolve profile[${index}]`);
-    if (point.x < 0)
-      throw new Error(`revolve profile[${index}] radius must be >= 0`);
-  });
+  props.profile.forEach(
+    (point: IAutoMovieProfilePoint, index: number): void => {
+      finitePoint(point, `revolve profile[${index}]`);
+      if (point.x < 0)
+        throw new Error(`revolve profile[${index}] radius must be >= 0`);
+    },
+  );
   const meridian: number[] = [0];
   for (let index: number = 1; index < props.profile.length; ++index)
     meridian.push(

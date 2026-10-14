@@ -46,7 +46,9 @@ const CLIP_EPSILON: number = 1e-10;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one surface; the viewer and render measurement each tessellate a surface once per scene build.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the cuts, clipped cells and plan-key map are linear in the touched cells and released on return, and the position, normal and index arrays are transferred to the caller.
  */
-export const tessellateSurface = (
+export const tessellateSurface: (
+  surface: IAutoMovieSurface,
+) => ITessellation | null = (
   surface: IAutoMovieSurface,
 ): ITessellation | null => {
   const footprint: IAutoMovieFootprint = surfaceFootprint(surface);
@@ -91,7 +93,13 @@ export const tessellateSurface = (
 };
 
 /** Ascending cut coordinates: the span's two ends and every lattice line strictly inside it. */
-const latticeCuts = (
+const latticeCuts: (
+  min: number,
+  max: number,
+  origin: number,
+  spacing: number,
+  count: number,
+) => number[] = (
   min: number,
   max: number,
   origin: number,
@@ -110,7 +118,10 @@ const latticeCuts = (
 };
 
 /** Sutherland-Hodgman clip of a plan polygon against a counter-clockwise convex polygon. */
-const clipConvexPolygon = (
+const clipConvexPolygon: (
+  subject: IAutoMovieVector3[],
+  clip: IAutoMovieVector3[],
+) => IAutoMovieVector3[] = (
   subject: IAutoMovieVector3[],
   clip: IAutoMovieVector3[],
 ): IAutoMovieVector3[] => {
@@ -145,7 +156,11 @@ const clipConvexPolygon = (
 };
 
 /** Plan cross product of the edge and the point: positive on the edge's inner side. */
-const edgeDistance = (
+const edgeDistance: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  point: IAutoMovieVector3,
+) => number = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   point: IAutoMovieVector3,
@@ -153,14 +168,19 @@ const edgeDistance = (
   (to.x - from.x) * (point.z - from.z) - (to.z - from.z) * (point.x - from.x);
 
 /** Fan each convex plan polygon, lifting every shared plan vertex once by the surface's height rule. */
-const tessellatePolygons = (
+const tessellatePolygons: (
+  surface: IAutoMovieSurface,
+  polygons: IAutoMovieVector3[][],
+) => ITessellation = (
   surface: IAutoMovieSurface,
   polygons: IAutoMovieVector3[][],
 ): ITessellation => {
   const positions: number[] = [];
   const indices: number[] = [];
   const vertexByPlan: Map<string, number> = new Map();
-  const vertexOf = (point: IAutoMovieVector3): number => {
+  const vertexOf: (point: IAutoMovieVector3) => number = (
+    point: IAutoMovieVector3,
+  ): number => {
     const key: string = `${point.x}/${point.z}`;
     const existing: number | undefined = vertexByPlan.get(key);
     if (existing !== undefined) return existing;
@@ -182,7 +202,10 @@ const tessellatePolygons = (
 };
 
 /** Normalized sum of the area-weighted normals of the triangles around each vertex. */
-const vertexNormals = (positions: number[], indices: number[]): number[] => {
+const vertexNormals: (positions: number[], indices: number[]) => number[] = (
+  positions: number[],
+  indices: number[],
+): number[] => {
   const normals: number[] = new Array<number>(positions.length).fill(0);
   for (let index: number = 0; index < indices.length; index += 3) {
     const a: number = indices[index]! * 3;
