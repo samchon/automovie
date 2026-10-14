@@ -19,7 +19,11 @@ import {
   makePose,
 } from "../internal/fixtures";
 
-const action: (kind: AutoMovieGestureKind, region: IAutoMovieActionCall["region"], start: number) => IAutoMovieActionCall = (
+const action: (
+  kind: AutoMovieGestureKind,
+  region: IAutoMovieActionCall["region"],
+  start: number,
+) => IAutoMovieActionCall = (
   kind: AutoMovieGestureKind,
   region: IAutoMovieActionCall["region"],
   start: number,
@@ -33,8 +37,12 @@ const action: (kind: AutoMovieGestureKind, region: IAutoMovieActionCall["region"
 });
 
 /** Every synthesized clip authors an expression, keyed by the gesture kind. */
-const synth: (expressionOf: (kind: string) => IAutoMovieExpression) => (call: IAutoMovieActionCall) => IAutoMovieMotion =
-  (expressionOf: (kind: string) => IAutoMovieExpression): ((call: IAutoMovieActionCall) => IAutoMovieMotion) =>
+const synth: (
+  expressionOf: (kind: string) => IAutoMovieExpression,
+) => (call: IAutoMovieActionCall) => IAutoMovieMotion =
+  (
+    expressionOf: (kind: string) => IAutoMovieExpression,
+  ): ((call: IAutoMovieActionCall) => IAutoMovieMotion) =>
   (call: IAutoMovieActionCall): IAutoMovieMotion => {
     const kind: string = call.verb === "gesture" ? call.kind : "";
     return makeMotion(
@@ -56,8 +64,12 @@ const synth: (expressionOf: (kind: string) => IAutoMovieExpression) => (call: IA
     );
   };
 
-const expressions: (m: IAutoMovieMotion) => (string | null)[] = (m: IAutoMovieMotion): (string | null)[] =>
-  m.keyframes.map((k: IAutoMovieKeyframe): string | null => k.expression?.preset ?? null);
+const expressions: (m: IAutoMovieMotion) => (string | null)[] = (
+  m: IAutoMovieMotion,
+): (string | null)[] =>
+  m.keyframes.map(
+    (k: IAutoMovieKeyframe): string | null => k.expression?.preset ?? null,
+  );
 
 /**
  * Observe expression-channel masking through compilePerformance, using injected clips that author a preset regardless of the action's region. Preset observations cover the mask/layer result rather than a rendered facial expression.
@@ -74,7 +86,8 @@ const expressions: (m: IAutoMovieMotion) => (string | null)[] = (m: IAutoMovieMo
  * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns compiler calls and assertions; its local synth factory returns injected clips and registers nothing. No production host, native build or viewer is started.
  */
 export function test_perform_mask_expression_region(): void {
-  const angryEverywhere: (call: IAutoMovieActionCall) => IAutoMovieMotion = synth((): IAutoMovieExpression => makeExpression("angry", 1));
+  const angryEverywhere: (call: IAutoMovieActionCall) => IAutoMovieMotion =
+    synth((): IAutoMovieExpression => makeExpression("angry", 1));
 
   // 1. a non-face region strips the expression
   const stripped: IAutoMovieMotion = compilePerformance(
@@ -83,7 +96,9 @@ export function test_perform_mask_expression_region(): void {
   ).performances.a!;
   TestValidator.predicate(
     "a non-face region's expression is stripped at every keyframe",
-    expressions(stripped).every((preset: string | null): boolean => preset === null),
+    expressions(stripped).every(
+      (preset: string | null): boolean => preset === null,
+    ),
   );
 
   // 2. negative twin: the face region keeps it
@@ -93,19 +108,24 @@ export function test_perform_mask_expression_region(): void {
   ).performances.a!;
   TestValidator.predicate(
     "the face region keeps its expression at every keyframe",
-    expressions(kept).every((preset: string | null): boolean => preset === "angry"),
+    expressions(kept).every(
+      (preset: string | null): boolean => preset === "angry",
+    ),
   );
 
   // 3. layered: only the face region speaks for the face
-  const byKind: (call: IAutoMovieActionCall) => IAutoMovieMotion = synth((kind: string): IAutoMovieExpression =>
-    kind === "nod" ? makeExpression("happy", 1) : makeExpression("angry", 1),
+  const byKind: (call: IAutoMovieActionCall) => IAutoMovieMotion = synth(
+    (kind: string): IAutoMovieExpression =>
+      kind === "nod" ? makeExpression("happy", 1) : makeExpression("angry", 1),
   );
   const layered: IAutoMovieMotion = compilePerformance(
     [action("stagger", "fullBody", 0), action("nod", "face", 0)],
     byKind as IAutoMovieActionSynthesizer,
   ).performances.a!;
   const presets: Set<string | null> = new Set<string | null>(
-    expressions(layered).filter((preset: string | null): boolean => preset !== null),
+    expressions(layered).filter(
+      (preset: string | null): boolean => preset !== null,
+    ),
   );
   TestValidator.equals(
     "the layered composite carries only the face region's expression",

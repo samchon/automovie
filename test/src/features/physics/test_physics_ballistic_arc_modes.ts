@@ -6,7 +6,8 @@ import { namedFacts } from "../internal/predicates";
 
 const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const target: IAutoMovieVector3 = { x: 8, y: 1, z: 0 };
-const invalidArc: Parameters<typeof solveBallisticLaunch>[4] = "flat" as Parameters<typeof solveBallisticLaunch>[4];
+const invalidArc: Parameters<typeof solveBallisticLaunch>[4] =
+  "flat" as Parameters<typeof solveBallisticLaunch>[4];
 
 /**
  * Observe rejection of an unknown runtime ballistic arc mode by both static and moving launch solvers. The explicit type assertion injects the same invalid JavaScript value while keeping the public TypeScript signature intact.

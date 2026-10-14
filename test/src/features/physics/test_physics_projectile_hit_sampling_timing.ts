@@ -44,30 +44,51 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
 export function test_physics_projectile_hit_sampling_timing(): void {
   TestValidator.predicate(
     "nan tMax throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, Number.NaN, 10)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, Number.NaN, 10),
+    ),
   );
   TestValidator.predicate(
     "infinite tMax throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, Infinity, 10)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, Infinity, 10),
+    ),
   );
   TestValidator.predicate(
     "zero tMax throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, 0, 10)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, 0, 10),
+    ),
   );
   TestValidator.predicate(
     "nan steps throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, 1, Number.NaN)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, 1, Number.NaN),
+    ),
   );
   TestValidator.predicate(
     "infinite steps throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, 1, Infinity)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, 1, Infinity),
+    ),
   );
   TestValidator.predicate(
     "zero steps throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, 1, 0)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, 1, 0),
+    ),
   );
   TestValidator.predicate(
     "fractional steps throws",
-    throws((): ReturnType<typeof projectileSphereHit> => projectileSphereHit(PROJECTILE, SPHERE, 1, 0.5)),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(PROJECTILE, SPHERE, 1, 0.5),
+    ),
   );
 }

@@ -1,6 +1,6 @@
 import { closestPointsBetweenSegments } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
 
@@ -24,7 +24,11 @@ import { nclose, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns all witness cases and calls portable source with local data, without installing a consumer, building a native artifact, starting a process/browser/GPU or dynamically registering tests.
  */
 export function test_math_segment_witness_tie(): void {
-  const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (x: number, y: number = 0, z: number = 0): IAutoMovieVector3 => ({ x, y, z });
+  const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number = 0,
+    z: number = 0,
+  ): IAutoMovieVector3 => ({ x, y, z });
   const a: IAutoMovieVector3 = v(0),
     b: IAutoMovieVector3 = v(0, 0.2),
     c: IAutoMovieVector3 = v(1, 0.1),
@@ -35,7 +39,8 @@ export function test_math_segment_witness_tie(): void {
     [c, d, a, b, c, v(0, 0.1)],
     [a, b, d, c, v(0, 0.1), c],
   ]) {
-    const result: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(p, q, r, s);
+    const result: ReturnType<typeof closestPointsBetweenSegments> =
+      closestPointsBetweenSegments(p, q, r, s);
     TestValidator.predicate(
       "canonical overlap witnesses retain unit separation",
       nclose(result.distance, 1, 1e-12) &&
@@ -43,28 +48,33 @@ export function test_math_segment_witness_tie(): void {
         vclose(result.pointB, expectedB, 1e-12),
     );
   }
-  const rigid: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    v(point.y + 4, point.z - 8, point.x + 2);
-  const rotated: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    rigid(v(0)),
-    rigid(v(0, 2)),
-    rigid(v(1, 1)),
-    rigid(v(1, 3)),
-  );
+  const rigid: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => v(point.y + 4, point.z - 8, point.x + 2);
+  const rotated: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      rigid(v(0)),
+      rigid(v(0, 2)),
+      rigid(v(1, 1)),
+      rigid(v(1, 3)),
+    );
   TestValidator.predicate(
     "rigid-frame tie preserves the earliest overlap",
     nclose(rotated.distance, 1, 1e-12) &&
       vclose(rotated.pointA, rigid(v(0, 1)), 1e-12) &&
       vclose(rotated.pointB, rigid(v(1, 1)), 1e-12),
   );
-  const represented: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+  const represented: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     v(Math.fround(point.x), Math.fround(point.y), Math.fround(point.z));
-  const packed: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    represented(a),
-    represented(b),
-    represented(c),
-    represented(d),
-  );
+  const packed: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      represented(a),
+      represented(b),
+      represented(c),
+      represented(d),
+    );
   TestValidator.predicate(
     "represented Float32 overlap retains its own endpoint",
     nclose(packed.distance, 1, 0) &&
@@ -76,12 +86,13 @@ export function test_math_segment_witness_tie(): void {
     "the constructed plateau is equal in binary64",
     nclose(Math.hypot(800, 0.5, gap), Math.hypot(800, 0, gap), 0),
   );
-  const plateau: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    v(0),
-    v(200),
-    v(1000, -0.5, gap),
-    v(1000, 0.5, gap),
-  );
+  const plateau: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      v(0),
+      v(200),
+      v(1000, -0.5, gap),
+      v(1000, 0.5, gap),
+    );
   TestValidator.predicate(
     "equal first parameter chooses the earliest second parameter",
     vclose(plateau.pointA, v(200), 1e-12) &&

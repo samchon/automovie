@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /**
@@ -20,11 +21,20 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 export function test_math_vector3_lerp(): void {
   const a: IAutoMovieVector3 = Vector3.create(0, 0, 0);
   const b: IAutoMovieVector3 = Vector3.create(2, 4, 6);
-  TestValidator.predicate("lerp at 0", equalGeometryTestValues(Vector3.lerp(a, b, 0), a));
-  TestValidator.predicate("lerp at 1", equalGeometryTestValues(Vector3.lerp(a, b, 1), b));
-  TestValidator.predicate("lerp midpoint", equalGeometryTestValues(Vector3.lerp(a, b, 0.5), {
-    x: 1,
-    y: 2,
-    z: 3,
-  }));
+  TestValidator.predicate(
+    "lerp at 0",
+    equalGeometryTestValues(Vector3.lerp(a, b, 0), a),
+  );
+  TestValidator.predicate(
+    "lerp at 1",
+    equalGeometryTestValues(Vector3.lerp(a, b, 1), b),
+  );
+  TestValidator.predicate(
+    "lerp midpoint",
+    equalGeometryTestValues(Vector3.lerp(a, b, 0.5), {
+      x: 1,
+      y: 2,
+      z: 3,
+    }),
+  );
 }

@@ -4,7 +4,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
@@ -39,29 +43,39 @@ export function test_physics_segment_sphere_vectors(): void {
 
   TestValidator.predicate(
     "non-finite segment start throws",
-    throws((): ReturnType<typeof segmentSphere> => segmentSphere(v(Number.NaN, 0, 0), b, center, 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(v(Number.NaN, 0, 0), b, center, 1),
+    ),
   );
   TestValidator.predicate(
     "non-finite segment end throws",
-    throws((): ReturnType<typeof segmentSphere> => segmentSphere(a, v(10, Infinity, 0), center, 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(a, v(10, Infinity, 0), center, 1),
+    ),
   );
   TestValidator.predicate(
     "non-finite sphere center throws",
-    throws((): ReturnType<typeof segmentSphere> => segmentSphere(a, b, v(5, 0, -Infinity), 1)),
+    throws(
+      (): ReturnType<typeof segmentSphere> =>
+        segmentSphere(a, b, v(5, 0, -Infinity), 1),
+    ),
   );
   TestValidator.predicate(
     "projectile sphere center throws",
-    throws((): ReturnType<typeof projectileSphereHit> =>
-      projectileSphereHit(
-        {
-          origin: a,
-          velocity: v(10, 0, 0),
-          gravity: v(0, 0, 0),
-        },
-        { center: v(Number.NaN, 0, 0), radius: 1 },
-        1,
-        10,
-      ),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(
+          {
+            origin: a,
+            velocity: v(10, 0, 0),
+            gravity: v(0, 0, 0),
+          },
+          { center: v(Number.NaN, 0, 0), radius: 1 },
+          1,
+          10,
+        ),
     ),
   );
 

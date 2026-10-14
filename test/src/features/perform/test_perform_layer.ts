@@ -12,12 +12,20 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
 import { createLayerTestJointClip as jointClip } from "../internal/createLayerTestJointClip";
+import { namedFacts, nclose } from "../internal/predicates";
 import { synthesizeLayerTestAction as synth } from "../internal/synthesizeLayerTestAction";
 
-const frameAt: (motion: IAutoMovieMotion, time: number) => IAutoMovieKeyframe = (motion: IAutoMovieMotion, time: number): IAutoMovieKeyframe =>
-  motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time))!;
+const frameAt: (
+  motion: IAutoMovieMotion,
+  time: number,
+) => IAutoMovieKeyframe = (
+  motion: IAutoMovieMotion,
+  time: number,
+): IAutoMovieKeyframe =>
+  motion.keyframes.find((k: IAutoMovieKeyframe): boolean =>
+    nclose(k.time, time),
+  )!;
 
 /**
  * Observe concurrent region content, mask loss, released envelopes, rest lead-in and overlapping lanes through the actual performance compiler and sampler. Injected clips deliberately contain region leaks; their unchanged fixture operations moved to canonical leaves to keep this source within its 500-line limit after explicit typing.
@@ -78,8 +86,10 @@ export function test_perform_layer(): void {
     duration: "auto",
   };
 
-  const perf: IAutoMovieMotion = compilePerformance([locomote, gesture, emote], synth)
-    .performances.hero!;
+  const perf: IAutoMovieMotion = compilePerformance(
+    [locomote, gesture, emote],
+    synth,
+  ).performances.hero!;
 
   TestValidator.predicate(
     "the layered clip spans one second",
@@ -87,7 +97,13 @@ export function test_perform_layer(): void {
   );
 
   const end: IAutoMovieKeyframe = frameAt(perf, 1);
-  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(end.pose.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]));
+  const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+    end.pose.joints.map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
+  );
   TestValidator.equals(
     "the leg and the arm are driven at the same instant",
     namedFacts([
@@ -116,7 +132,8 @@ export function test_perform_layer(): void {
       ["endPoseRoot", (): boolean => end.pose.root !== null],
       [
         "ncloseEndPose",
-        (): boolean => end.pose.root !== null && nclose(end.pose.root.translation.x, 1),
+        (): boolean =>
+          end.pose.root !== null && nclose(end.pose.root.translation.x, 1),
       ],
     ]),
     { endPoseRoot: true, ncloseEndPose: true },
@@ -127,7 +144,8 @@ export function test_perform_layer(): void {
       ["endExpression", (): boolean => end.expression !== null],
       [
         "endExpressionPreset",
-        (): boolean => end.expression !== null && end.expression.preset === "happy",
+        (): boolean =>
+          end.expression !== null && end.expression.preset === "happy",
       ],
     ]),
     { endExpression: true, endExpressionPreset: true },
@@ -142,10 +160,18 @@ export function test_perform_layer(): void {
     start: 3,
     duration: 1,
   };
-  const late: IAutoMovieMotion = compilePerformance([locomote, lateLook], synth).performances
-    .hero!;
-  const boneAt: (time: number, bone: AutoMovieHumanoidBone) => IAutoMovieJointPose | undefined = (time: number, bone: AutoMovieHumanoidBone): IAutoMovieJointPose | undefined =>
-    frameAt(late, time).pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
+  const late: IAutoMovieMotion = compilePerformance([locomote, lateLook], synth)
+    .performances.hero!;
+  const boneAt: (
+    time: number,
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieJointPose | undefined = (
+    time: number,
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieJointPose | undefined =>
+    frameAt(late, time).pose.joints.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === bone,
+    );
   TestValidator.equals(
     "a late lookAt claims nothing before it starts (causality)",
     namedFacts([
@@ -161,13 +187,16 @@ export function test_perform_layer(): void {
       ["at3PoseRoot", (): boolean => at3.pose.root !== null],
       [
         "ncloseAt3Pose",
-        (): boolean => at3.pose.root !== null && nclose(at3.pose.root.translation.x, 1),
+        (): boolean =>
+          at3.pose.root !== null && nclose(at3.pose.root.translation.x, 1),
       ],
       [
         "at3PoseJoints",
         (): boolean =>
           at3.pose.root !== null &&
-          at3.pose.joints.every((j: IAutoMovieJointPose): boolean => j.bone !== "leftUpperLeg"),
+          at3.pose.joints.every(
+            (j: IAutoMovieJointPose): boolean => j.bone !== "leftUpperLeg",
+          ),
       ],
     ]),
     { at3PoseRoot: true, ncloseAt3Pose: true, at3PoseJoints: true },
@@ -195,14 +224,20 @@ export function test_perform_layer(): void {
     start: 1.5,
     duration: "auto",
   };
-  const undiluted: IAutoMovieMotion = compilePerformance([react, lateBow], synth).performances
-    .hero!;
-  const bowEnd: IAutoMovieJointPose | undefined = frameAt(undiluted, 2.5).pose.joints.find(
+  const undiluted: IAutoMovieMotion = compilePerformance(
+    [react, lateBow],
+    synth,
+  ).performances.hero!;
+  const bowEnd: IAutoMovieJointPose | undefined = frameAt(
+    undiluted,
+    2.5,
+  ).pose.joints.find(
     (j: IAutoMovieJointPose): boolean => j.bone === "leftUpperArm",
   );
-  const spineAfter: IAutoMovieJointPose | undefined = frameAt(undiluted, 2.5).pose.joints.find(
-    (j: IAutoMovieJointPose): boolean => j.bone === "spine",
-  );
+  const spineAfter: IAutoMovieJointPose | undefined = frameAt(
+    undiluted,
+    2.5,
+  ).pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "spine");
   TestValidator.equals(
     "a finished react stops claiming its explicit-zero joints",
     namedFacts([
@@ -219,12 +254,19 @@ export function test_perform_layer(): void {
   // 4. a late-starting composite holds rest until its authored start (the
   //    `step` lead-in pad plus its `first − ε` twin, #1060), instead of
   //    clamping the first pose backward
-  const padded: IAutoMovieMotion = compilePerformance([lateLook], synth).performances.hero!;
+  const padded: IAutoMovieMotion = compilePerformance([lateLook], synth)
+    .performances.hero!;
   TestValidator.equals(
     "a late composite pads rest keyframes up to its authored start",
     namedFacts([
-      ["paddedKeyframesTime", (): boolean => nclose(padded.keyframes[0]!.time, 0, 0)],
-      ["paddedKeyframesEasing", (): boolean => padded.keyframes[0]!.easing === "step"],
+      [
+        "paddedKeyframesTime",
+        (): boolean => nclose(padded.keyframes[0]!.time, 0, 0),
+      ],
+      [
+        "paddedKeyframesEasing",
+        (): boolean => padded.keyframes[0]!.easing === "step",
+      ],
       [
         "paddedKeyframesPose",
         (): boolean => padded.keyframes[0]!.pose.joints.length === 0,
@@ -238,7 +280,10 @@ export function test_perform_layer(): void {
         "paddedKeyframesExpression",
         (): boolean => padded.keyframes[1]!.expression === null,
       ],
-      ["nclosePaddedKeyframes", (): boolean => nclose(padded.keyframes[2]!.time, 3)],
+      [
+        "nclosePaddedKeyframes",
+        (): boolean => nclose(padded.keyframes[2]!.time, 3),
+      ],
     ]),
     {
       paddedKeyframesTime: true,
@@ -257,11 +302,15 @@ export function test_perform_layer(): void {
   const offGrid: ReturnType<typeof sampleMotion> = sampleMotion(late, 2);
   TestValidator.predicate(
     "off-grid: a late lookAt claims nothing mid-segment",
-    offGrid.pose.joints.every((j: IAutoMovieJointPose): boolean => j.bone !== "head"),
+    offGrid.pose.joints.every(
+      (j: IAutoMovieJointPose): boolean => j.bone !== "head",
+    ),
   );
   TestValidator.predicate(
     "off-grid: a finished locomote releases its joints mid-segment",
-    offGrid.pose.joints.every((j: IAutoMovieJointPose): boolean => j.bone !== "leftUpperLeg"),
+    offGrid.pose.joints.every(
+      (j: IAutoMovieJointPose): boolean => j.bone !== "leftUpperLeg",
+    ),
   );
   TestValidator.equals(
     "off-grid: the walk's destination root still persists",
@@ -285,8 +334,10 @@ export function test_perform_layer(): void {
     start: 3,
     duration: 1,
   };
-  const layeredEmote: IAutoMovieMotion = compilePerformance([locomote, lateEmote], synth)
-    .performances.hero!;
+  const layeredEmote: IAutoMovieMotion = compilePerformance(
+    [locomote, lateEmote],
+    synth,
+  ).performances.hero!;
   TestValidator.equals(
     "off-grid: a layered late emote's expression stays null before its start",
     namedFacts([
@@ -300,7 +351,8 @@ export function test_perform_layer(): void {
       ],
       [
         "sampleMotionLayeredEmoteExpression3",
-        (): boolean => sampleMotion(layeredEmote, 3.5).expression?.preset === "happy",
+        (): boolean =>
+          sampleMotion(layeredEmote, 3.5).expression?.preset === "happy",
       ],
     ]),
     {
@@ -309,7 +361,8 @@ export function test_perform_layer(): void {
       sampleMotionLayeredEmoteExpression3: true,
     },
   );
-  const paddedEmote: IAutoMovieMotion = compilePerformance([lateEmote], synth).performances.hero!;
+  const paddedEmote: IAutoMovieMotion = compilePerformance([lateEmote], synth)
+    .performances.hero!;
   TestValidator.equals(
     "the lead-in pad holds a null expression until the authored start",
     namedFacts([
@@ -319,7 +372,8 @@ export function test_perform_layer(): void {
       ],
       [
         "sampleMotionPaddedEmoteExpression2",
-        (): boolean => sampleMotion(paddedEmote, 3.5).expression?.preset === "happy",
+        (): boolean =>
+          sampleMotion(paddedEmote, 3.5).expression?.preset === "happy",
       ],
     ]),
     {
@@ -331,12 +385,17 @@ export function test_perform_layer(): void {
   // a start inside the boundary width (0 < first ≤ ε) gets only the t=0 pad:
   // a `first − ε` twin would land at or before 0 and break the strictly
   // increasing keyframe contract
-  const hairline: IAutoMovieMotion = compilePerformance([{ ...lateEmote, start: 5e-7 }], synth)
-    .performances.hero!;
+  const hairline: IAutoMovieMotion = compilePerformance(
+    [{ ...lateEmote, start: 5e-7 }],
+    synth,
+  ).performances.hero!;
   TestValidator.equals(
     "a hairline start pads t=0 only, keeping times strictly increasing",
     namedFacts([
-      ["hairlineKeyframesTime", (): boolean => nclose(hairline.keyframes[0]!.time, 0, 0)],
+      [
+        "hairlineKeyframesTime",
+        (): boolean => nclose(hairline.keyframes[0]!.time, 0, 0),
+      ],
       [
         "ncloseHairlineKeyframes",
         (): boolean => nclose(hairline.keyframes[1]!.time, 5e-7),
@@ -345,7 +404,11 @@ export function test_perform_layer(): void {
         "hairlineKeyframesK",
         (): boolean =>
           hairline.keyframes.every(
-            (k: IAutoMovieKeyframe, i: number, all: IAutoMovieKeyframe[]): boolean => i === 0 || k.time > all[i - 1]!.time,
+            (
+              k: IAutoMovieKeyframe,
+              i: number,
+              all: IAutoMovieKeyframe[],
+            ): boolean => i === 0 || k.time > all[i - 1]!.time,
           ),
       ],
     ]),
@@ -359,8 +422,8 @@ export function test_perform_layer(): void {
   // 6. an inserted boundary time where NO clip contributes is honestly rest:
   //    two rootless clips with a gap between their spans (a finished flinch,
   //    a not-yet-started lookAt) compile and sample as rest in the gap
-  const gapLook: IAutoMovieMotion = compilePerformance([react, lateLook], synth).performances
-    .hero!;
+  const gapLook: IAutoMovieMotion = compilePerformance([react, lateLook], synth)
+    .performances.hero!;
   const gap: ReturnType<typeof sampleMotion> = sampleMotion(gapLook, 2);
   TestValidator.equals(
     "a fully-released gap samples as rest",
@@ -384,13 +447,18 @@ export function test_perform_layer(): void {
     ...leftLane,
     clip: "right",
   };
-  const laneSynth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall): IAutoMovieMotion =>
+  const laneSynth: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+  ): IAutoMovieMotion =>
     action.verb === "enact" && action.clip === "left"
       ? jointClip("leftUpperArm", 30)
       : jointClip("rightUpperArm", 40);
-  const sameRegionLanes: IAutoMovieMotion = compilePerformance([leftLane, rightLane], laneSynth)
-    .performances.hero!;
-  const laneEnd: IAutoMovieJointPose[] = sampleMotion(sameRegionLanes, 1).pose.joints;
+  const sameRegionLanes: IAutoMovieMotion = compilePerformance(
+    [leftLane, rightLane],
+    laneSynth,
+  ).performances.hero!;
+  const laneEnd: IAutoMovieJointPose[] = sampleMotion(sameRegionLanes, 1).pose
+    .joints;
   TestValidator.equals(
     "content-disjoint same-region overlaps survive on separate lanes",
     namedFacts([

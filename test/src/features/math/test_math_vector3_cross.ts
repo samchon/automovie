@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
 /**
@@ -21,12 +22,24 @@ export function test_math_vector3_cross(): void {
   const X: IAutoMovieVector3 = Vector3.create(1, 0, 0);
   const Y: IAutoMovieVector3 = Vector3.create(0, 1, 0);
   const Z: IAutoMovieVector3 = Vector3.create(0, 0, 1);
-  TestValidator.predicate("X×Y=Z", equalGeometryTestValues(Vector3.cross(X, Y), Z));
-  TestValidator.predicate("Y×Z=X", equalGeometryTestValues(Vector3.cross(Y, Z), X));
-  TestValidator.predicate("Z×X=Y", equalGeometryTestValues(Vector3.cross(Z, X), Y));
-  TestValidator.predicate("anti-commutative", equalGeometryTestValues(Vector3.cross(Y, X), {
-    x: 0,
-    y: 0,
-    z: -1,
-  }));
+  TestValidator.predicate(
+    "X×Y=Z",
+    equalGeometryTestValues(Vector3.cross(X, Y), Z),
+  );
+  TestValidator.predicate(
+    "Y×Z=X",
+    equalGeometryTestValues(Vector3.cross(Y, Z), X),
+  );
+  TestValidator.predicate(
+    "Z×X=Y",
+    equalGeometryTestValues(Vector3.cross(Z, X), Y),
+  );
+  TestValidator.predicate(
+    "anti-commutative",
+    equalGeometryTestValues(Vector3.cross(Y, X), {
+      x: 0,
+      y: 0,
+      z: -1,
+    }),
+  );
 }

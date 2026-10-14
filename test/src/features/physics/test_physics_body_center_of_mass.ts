@@ -5,7 +5,12 @@ import { TestValidator } from "@nestia/e2e";
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
 
-const box: ReturnType<typeof primitivePart> = primitivePart("b", { type: "box", width: 1, height: 1, depth: 1 });
+const box: ReturnType<typeof primitivePart> = primitivePart("b", {
+  type: "box",
+  width: 1,
+  height: 1,
+  depth: 1,
+});
 const body: (centerOfMass: IAutoMovieBody["centerOfMass"]) => IAutoMovieBody = (
   centerOfMass: IAutoMovieBody["centerOfMass"],
 ): IAutoMovieBody => ({

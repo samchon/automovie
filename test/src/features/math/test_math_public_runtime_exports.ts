@@ -1,8 +1,11 @@
 import { Matrix4, Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { vclose } from "../internal/predicates";
 
 /**
@@ -22,9 +25,19 @@ import { vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry executes the workspace package's portable runtime values in the ordinary test process. It starts no second process, browser or GPU, builds no native artifact and dynamically registers no cases.
  */
 export function test_math_public_runtime_exports(): void {
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
-  const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 });
-  const translation: IAutoMovieVector3 = Vector3.add({ x: 1, y: 2, z: 3 }, { x: 4, y: 5, z: 6 });
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
+  const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 1,
+    y: 0,
+    z: 0,
+  });
+  const translation: IAutoMovieVector3 = Vector3.add(
+    { x: 1, y: 2, z: 3 },
+    { x: 4, y: 5, z: 6 },
+  );
   const position: IAutoMovieVector3 = Matrix4.position(
     Matrix4.compose(translation, rotation, { x: 1, y: 1, z: 1 }),
   );

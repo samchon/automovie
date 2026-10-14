@@ -1,6 +1,6 @@
 import {
-  IAutoMovieActorContext,
   IAutoMovieActionSynthesizer,
+  IAutoMovieActorContext,
   makeActorSynthesizer,
 } from "@automovie/engine";
 import {
@@ -23,7 +23,10 @@ const WALK: IAutoMovieGait = {
   limbs: [{ bone: "leftUpperLeg", phase: 0, duty: 0.5, amplitude: 25 }],
 };
 
-const actorAt: (position: IAutoMovieVector3, eyeHeight: number) => IAutoMovieActorContext = (
+const actorAt: (
+  position: IAutoMovieVector3,
+  eyeHeight: number,
+) => IAutoMovieActorContext = (
   position: IAutoMovieVector3,
   eyeHeight: number,
 ): IAutoMovieActorContext => ({
@@ -51,14 +54,20 @@ const ALTAR_PLACEMENT: IAutoMovieVector3 = { x: 0, y: 0.9, z: 3 };
 /** A staged camera: its translation already IS its optical point. */
 const LENS_PLACEMENT: IAutoMovieVector3 = { x: 1, y: 1.6, z: 3 };
 
-const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([
+const contexts: Map<string, IAutoMovieActorContext> = new Map<
+  string,
+  IAutoMovieActorContext
+>([
   ["hero", HERO],
   ["guard", actorAt(GUARD_PLACEMENT, 1.6)],
   ["child", actorAt(CHILD_PLACEMENT, 1.2)],
   ["statue", actorAt({ x: 0, y: 0, z: 4 }, 0)],
 ]);
 
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["hero", { x: 0, y: 0, z: 0 }],
   ["guard", GUARD_PLACEMENT],
   ["child", CHILD_PLACEMENT],
@@ -67,9 +76,14 @@ const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>
   ["lens", LENS_PLACEMENT],
 ]);
 
-const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(contexts, nodes);
+const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+  contexts,
+  nodes,
+);
 
-const lookAt: (to: IAutoMovieActionTarget) => IAutoMovieActionCall = (to: IAutoMovieActionTarget): IAutoMovieActionCall => ({
+const lookAt: (to: IAutoMovieActionTarget) => IAutoMovieActionCall = (
+  to: IAutoMovieActionTarget,
+): IAutoMovieActionCall => ({
   verb: "lookAt",
   to,
   actor: "hero",
@@ -77,19 +91,25 @@ const lookAt: (to: IAutoMovieActionTarget) => IAutoMovieActionCall = (to: IAutoM
   duration: 1,
 });
 
-const look: (to: IAutoMovieActionTarget) => IAutoMovieMotion | null = (to: IAutoMovieActionTarget): IAutoMovieMotion | null =>
-  synth(lookAt(to), "hero");
+const look: (to: IAutoMovieActionTarget) => IAutoMovieMotion | null = (
+  to: IAutoMovieActionTarget,
+): IAutoMovieMotion | null => synth(lookAt(to), "hero");
 
-const headOf: (motion: IAutoMovieMotion) => { flexion: number; twist: number } = (
-  motion: IAutoMovieMotion,
-): { flexion: number; twist: number } => {
-  const bone: IAutoMovieJointPose = motion.keyframes[0]!.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "head")!;
+const headOf: (motion: IAutoMovieMotion) => {
+  flexion: number;
+  twist: number;
+} = (motion: IAutoMovieMotion): { flexion: number; twist: number } => {
+  const bone: IAutoMovieJointPose = motion.keyframes[0]!.pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "head",
+  )!;
   return { flexion: bone.flexion!, twist: bone.twist! };
 };
 
 /** Degrees of head flexion the spec's aim formula demands for a raw aim. */
-const flexionFor: (dy: number, horizontal: number) => number = (dy: number, horizontal: number): number =>
-  (-Math.atan2(dy, horizontal) * 180) / Math.PI;
+const flexionFor: (dy: number, horizontal: number) => number = (
+  dy: number,
+  horizontal: number,
+): number => (-Math.atan2(dy, horizontal) * 180) / Math.PI;
 
 /**
  * Observe the actor synthesizer's gaze-only eye-height lift through first-keyframe head angles and exact node/point motion pairs. The injected contexts have no rig, so this unit observes raw single-head angles without running a ROM gate or rendered-eye FK.
@@ -110,7 +130,9 @@ const flexionFor: (dy: number, horizontal: number) => number = (dy: number, hori
  */
 export function test_perform_look_at_eye_level(): void {
   // 1. eyes meet eyes at conversational range.
-  const level: ReturnType<typeof headOf> = headOf(look({ kind: "node", node: "guard" })!);
+  const level: ReturnType<typeof headOf> = headOf(
+    look({ kind: "node", node: "guard" })!,
+  );
   TestValidator.equals(
     "an actor target at equal eye height needs no head tilt",
     namedFacts([
@@ -119,7 +141,9 @@ export function test_perform_look_at_eye_level(): void {
     ]),
     { ncloseLevelFlexion: true, ncloseLevelTwist: true },
   );
-  const ground: ReturnType<typeof headOf> = headOf(look({ kind: "point", point: GUARD_PLACEMENT })!);
+  const ground: ReturnType<typeof headOf> = headOf(
+    look({ kind: "point", point: GUARD_PLACEMENT })!,
+  );
   TestValidator.equals(
     "the same subject's placement point still demands the ROM-breaking tilt",
     namedFacts([
@@ -127,7 +151,10 @@ export function test_perform_look_at_eye_level(): void {
         "ncloseGroundFlexion",
         (): boolean => nclose(ground.flexion, flexionFor(-1.6, 0.7)),
       ],
-      ["ncloseGroundFlexion2", (): boolean => nclose(ground.flexion, 66.3706, 1e-4)],
+      [
+        "ncloseGroundFlexion2",
+        (): boolean => nclose(ground.flexion, 66.3706, 1e-4),
+      ],
       ["groundFlexion", (): boolean => ground.flexion > 45],
     ]),
     {
@@ -138,14 +165,18 @@ export function test_perform_look_at_eye_level(): void {
   );
 
   // 2. each subject's own eye height, not a shared constant.
-  const shorter: ReturnType<typeof headOf> = headOf(look({ kind: "node", node: "child" })!);
+  const shorter: ReturnType<typeof headOf> = headOf(
+    look({ kind: "node", node: "child" })!,
+  );
   TestValidator.predicate(
     "a shorter subject tilts the head down by its own height difference",
     nclose(shorter.flexion, flexionFor(1.2 - 1.6, 2)),
   );
 
   // 3. a group averages eye points, not ground points.
-  const group: ReturnType<typeof headOf> = headOf(look({ kind: "group", nodes: ["guard", "child"] })!);
+  const group: ReturnType<typeof headOf> = headOf(
+    look({ kind: "group", nodes: ["guard", "child"] })!,
+  );
   TestValidator.predicate(
     "a group target averages the members' eye points",
     nclose(group.flexion, flexionFor((1.6 + 1.2) / 2 - 1.6, (0.7 + 2) / 2)),
@@ -154,17 +185,26 @@ export function test_perform_look_at_eye_level(): void {
   // 4. the negative twins: no context, no lift.
   TestValidator.predicate(
     "a set piece target keeps its placement point",
-    test12ValuesClose(look({ kind: "node", node: "altar" }), look({ kind: "point", point: ALTAR_PLACEMENT })),
+    test12ValuesClose(
+      look({ kind: "node", node: "altar" }),
+      look({ kind: "point", point: ALTAR_PLACEMENT }),
+    ),
   );
   TestValidator.predicate(
     "a camera target keeps its placement point",
-    test12ValuesClose(look({ kind: "node", node: "lens" }), look({ kind: "point", point: LENS_PLACEMENT })),
+    test12ValuesClose(
+      look({ kind: "node", node: "lens" }),
+      look({ kind: "point", point: LENS_PLACEMENT }),
+    ),
   );
 
   // 5. the zero-lift boundary.
   TestValidator.predicate(
     "an actor with zero eye height is lifted by nothing",
-    test12ValuesClose(look({ kind: "node", node: "statue" }), look({ kind: "point", point: { x: 0, y: 0, z: 4 } })),
+    test12ValuesClose(
+      look({ kind: "node", node: "statue" }),
+      look({ kind: "point", point: { x: 0, y: 0, z: 4 } }),
+    ),
   );
 
   // 6. what still resolves to nothing.

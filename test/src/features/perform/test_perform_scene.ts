@@ -1,6 +1,6 @@
 import {
-  IAutoMovieActorContext,
   IAutoMovieActionSynthesizer,
+  IAutoMovieActorContext,
   compilePerformance,
   makeActorSynthesizer,
 } from "@automovie/engine";
@@ -23,7 +23,11 @@ const WALK: IAutoMovieGait = {
   limbs: [{ bone: "leftUpperLeg", phase: 0, duty: 0.5, amplitude: 25 }],
 };
 
-const actorAt: (skeleton: string, position: IAutoMovieVector3, facingDeg: number) => IAutoMovieActorContext = (
+const actorAt: (
+  skeleton: string,
+  position: IAutoMovieVector3,
+  facingDeg: number,
+) => IAutoMovieActorContext = (
   skeleton: string,
   position: IAutoMovieVector3,
   facingDeg: number,
@@ -37,10 +41,21 @@ const actorAt: (skeleton: string, position: IAutoMovieVector3, facingDeg: number
   restPose: makePose([joint("spine", { flexion: 0 })]),
 });
 
-const bonesOf: (motion: IAutoMovieMotion) => Set<string> = (motion: IAutoMovieMotion): Set<string> =>
-  new Set<string>(motion.keyframes.flatMap((k: IAutoMovieKeyframe): string[] => k.pose.joints.map((j: IAutoMovieJointPose): string => j.bone)));
+const bonesOf: (motion: IAutoMovieMotion) => Set<string> = (
+  motion: IAutoMovieMotion,
+): Set<string> =>
+  new Set<string>(
+    motion.keyframes.flatMap((k: IAutoMovieKeyframe): string[] =>
+      k.pose.joints.map((j: IAutoMovieJointPose): string => j.bone),
+    ),
+  );
 
-const hasExpression: (motion: IAutoMovieMotion) => boolean = (motion: IAutoMovieMotion): boolean => motion.keyframes.some((k: IAutoMovieKeyframe): boolean => k.expression !== null);
+const hasExpression: (motion: IAutoMovieMotion) => boolean = (
+  motion: IAutoMovieMotion,
+): boolean =>
+  motion.keyframes.some(
+    (k: IAutoMovieKeyframe): boolean => k.expression !== null,
+  );
 
 /**
  * Observe a two-actor beat through the actual actor synthesizer and performance compiler: hero receives locomote/lookAt/emote actions, while guard receives lookAt/emote. This is portable composition of core semantics, not whole-engine or rendered-scene acceptance.
@@ -57,15 +72,24 @@ const hasExpression: (motion: IAutoMovieMotion) => boolean = (motion: IAutoMovie
  * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns synthesizer construction, compilePerformance and output assertions; local readers only inspect returned keyframes. It registers no cases dynamically and starts no browser, GPU or native artifact.
  */
 export function test_perform_scene(): void {
-  const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([
+  const contexts: Map<string, IAutoMovieActorContext> = new Map<
+    string,
+    IAutoMovieActorContext
+  >([
     ["hero", actorAt("hero-rig", { x: 0, y: 0, z: 0 }, 0)],
     ["guard", actorAt("guard-rig", { x: 0, y: 0, z: 5 }, 180)],
   ]);
-  const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+  const nodes: Map<string, IAutoMovieVector3> = new Map<
+    string,
+    IAutoMovieVector3
+  >([
     ["hero", { x: 0, y: 0, z: 0 }],
     ["guard", { x: 0, y: 0, z: 5 }],
   ]);
-  const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(contexts, nodes);
+  const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    contexts,
+    nodes,
+  );
 
   const actions: IAutoMovieActionCall[] = [
     {
@@ -108,11 +132,14 @@ export function test_perform_scene(): void {
     },
   ];
 
-  const perf: ReturnType<typeof compilePerformance>["performances"] = compilePerformance(actions, synth).performances;
+  const perf: ReturnType<typeof compilePerformance>["performances"] =
+    compilePerformance(actions, synth).performances;
 
   TestValidator.equals(
     "both actors are performed",
-    Object.keys(perf).sort((a: string, b: string): number => a.localeCompare(b)),
+    Object.keys(perf).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     ["guard", "hero"],
   );
 
@@ -122,7 +149,10 @@ export function test_perform_scene(): void {
   TestValidator.equals(
     "hero performance contains walking-leg and head channels",
     namedFacts([
-      ["heroBonesHasLeftUpperLeg", (): boolean => heroBones.has("leftUpperLeg")],
+      [
+        "heroBonesHasLeftUpperLeg",
+        (): boolean => heroBones.has("leftUpperLeg"),
+      ],
       ["heroBonesHasHead", (): boolean => heroBones.has("head")],
     ]),
     { heroBonesHasLeftUpperLeg: true, heroBonesHasHead: true },
@@ -138,7 +168,10 @@ export function test_perform_scene(): void {
 
   // Guard has head content and an expression, without the walking leg channel.
   const guardBones: Set<string> = bonesOf(perf.guard!);
-  TestValidator.predicate("guard performance contains a head channel", guardBones.has("head"));
+  TestValidator.predicate(
+    "guard performance contains a head channel",
+    guardBones.has("head"),
+  );
   TestValidator.predicate(
     "guard does not walk (no leg drive)",
     !guardBones.has("leftUpperLeg"),

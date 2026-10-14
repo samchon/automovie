@@ -25,24 +25,104 @@ export function test_perform_resolve_target(): void {
     ["a", { x: 1, y: 0, z: 0 }],
     ["b", { x: 3, y: 0, z: 0 }],
   ]);
-  function assertPoint(title: string, actual: IAutoMovieVector3 | null, expected: IAutoMovieVector3): void {
+  function assertPoint(
+    title: string,
+    actual: IAutoMovieVector3 | null,
+    expected: IAutoMovieVector3,
+  ): void {
     TestValidator.predicate(title, actual !== null && vclose(actual, expected));
   }
-  assertPoint("a staged node resolves", resolveTargetPoint({ kind: "node", node: "a" }, nodes), { x: 1, y: 0, z: 0 });
-  TestValidator.equals("an absent node is unresolved", resolveTargetPoint({ kind: "node", node: "z" }, nodes), null);
-  assertPoint("literal coordinates resolve", resolveTargetPoint({ kind: "point", point: { x: 5, y: 1, z: 5 } }, nodes), { x: 5, y: 1, z: 5 });
-  assertPoint("a singleton keeps its member's position", resolveTargetPoint({ kind: "group", nodes: ["a"] }, nodes), { x: 1, y: 0, z: 0 });
-  assertPoint("a complete group takes its centroid", resolveTargetPoint({ kind: "group", nodes: ["a", "b"] }, nodes), { x: 2, y: 0, z: 0 });
+  assertPoint(
+    "a staged node resolves",
+    resolveTargetPoint({ kind: "node", node: "a" }, nodes),
+    { x: 1, y: 0, z: 0 },
+  );
+  TestValidator.equals(
+    "an absent node is unresolved",
+    resolveTargetPoint({ kind: "node", node: "z" }, nodes),
+    null,
+  );
+  assertPoint(
+    "literal coordinates resolve",
+    resolveTargetPoint({ kind: "point", point: { x: 5, y: 1, z: 5 } }, nodes),
+    { x: 5, y: 1, z: 5 },
+  );
+  assertPoint(
+    "a singleton keeps its member's position",
+    resolveTargetPoint({ kind: "group", nodes: ["a"] }, nodes),
+    { x: 1, y: 0, z: 0 },
+  );
+  assertPoint(
+    "a complete group takes its centroid",
+    resolveTargetPoint({ kind: "group", nodes: ["a", "b"] }, nodes),
+    { x: 2, y: 0, z: 0 },
+  );
   for (const members of [[], ["z"], ["a", "z"], ["z", "a"]])
-    TestValidator.equals("any absent group member prevents a partial centroid", resolveTargetPoint({ kind: "group", nodes: members }, nodes), null);
-  const formations: Map<string, IAutoMovieVector3> = new Map([["mass", { x: 8, y: 0, z: 0 }]]);
-  assertPoint("a compact mass has one member's weight", resolveTargetPoint({ kind: "group", nodes: ["a", "b"], formations: ["mass"] }, nodes, formations), { x: 4, y: 0, z: 0 });
-  assertPoint("a formation-only group resolves with its table", resolveTargetPoint({ kind: "group", nodes: [], formations: ["mass"] }, nodes, formations), { x: 8, y: 0, z: 0 });
-  TestValidator.equals("an unavailable formation table cannot drop a member", resolveTargetPoint({ kind: "group", nodes: ["a"], formations: ["mass"] }, nodes), null);
-  TestValidator.equals("a missing formation cannot drop a member", resolveTargetPoint({ kind: "group", nodes: ["a"], formations: ["absent"] }, nodes, formations), null);
-  const large: Map<string, IAutoMovieVector3> = new Map([["a", { x: 1e308, y: 0, z: 0 }], ["b", { x: 1e308, y: 0, z: 0 }]]);
-  assertPoint("finite centroids do not overflow a raw sum", resolveTargetPoint({ kind: "group", nodes: ["a", "b"] }, large), { x: 1e308, y: 0, z: 0 });
-  TestValidator.equals("direction needs facing context", resolveTargetPoint({ kind: "direction", headingDeg: 90 }, nodes), null);
-  TestValidator.equals("offscreen needs camera context", resolveTargetPoint({ kind: "offscreen", edge: "left" }, nodes), null);
-  TestValidator.equals("bone needs live rig context", resolveTargetPoint({ kind: "bone", node: "a", bone: "leftHand" }, nodes), null);
+    TestValidator.equals(
+      "any absent group member prevents a partial centroid",
+      resolveTargetPoint({ kind: "group", nodes: members }, nodes),
+      null,
+    );
+  const formations: Map<string, IAutoMovieVector3> = new Map([
+    ["mass", { x: 8, y: 0, z: 0 }],
+  ]);
+  assertPoint(
+    "a compact mass has one member's weight",
+    resolveTargetPoint(
+      { kind: "group", nodes: ["a", "b"], formations: ["mass"] },
+      nodes,
+      formations,
+    ),
+    { x: 4, y: 0, z: 0 },
+  );
+  assertPoint(
+    "a formation-only group resolves with its table",
+    resolveTargetPoint(
+      { kind: "group", nodes: [], formations: ["mass"] },
+      nodes,
+      formations,
+    ),
+    { x: 8, y: 0, z: 0 },
+  );
+  TestValidator.equals(
+    "an unavailable formation table cannot drop a member",
+    resolveTargetPoint(
+      { kind: "group", nodes: ["a"], formations: ["mass"] },
+      nodes,
+    ),
+    null,
+  );
+  TestValidator.equals(
+    "a missing formation cannot drop a member",
+    resolveTargetPoint(
+      { kind: "group", nodes: ["a"], formations: ["absent"] },
+      nodes,
+      formations,
+    ),
+    null,
+  );
+  const large: Map<string, IAutoMovieVector3> = new Map([
+    ["a", { x: 1e308, y: 0, z: 0 }],
+    ["b", { x: 1e308, y: 0, z: 0 }],
+  ]);
+  assertPoint(
+    "finite centroids do not overflow a raw sum",
+    resolveTargetPoint({ kind: "group", nodes: ["a", "b"] }, large),
+    { x: 1e308, y: 0, z: 0 },
+  );
+  TestValidator.equals(
+    "direction needs facing context",
+    resolveTargetPoint({ kind: "direction", headingDeg: 90 }, nodes),
+    null,
+  );
+  TestValidator.equals(
+    "offscreen needs camera context",
+    resolveTargetPoint({ kind: "offscreen", edge: "left" }, nodes),
+    null,
+  );
+  TestValidator.equals(
+    "bone needs live rig context",
+    resolveTargetPoint({ kind: "bone", node: "a", bone: "leftHand" }, nodes),
+    null,
+  );
 }

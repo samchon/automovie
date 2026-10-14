@@ -1,13 +1,23 @@
-import { IAutoMovieHullEdge } from "../../../../packages/engine/src/math/IAutoMovieHullEdge";
 import { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieHullEdge } from "../../../../packages/engine/src/math/IAutoMovieHullEdge";
 import { closestPointOnSegmentXZ } from "../../../../packages/engine/src/math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../../../../packages/engine/src/math/convexHull2D";
 import { nearestHullEdge } from "../../../../packages/engine/src/math/nearestHullEdge";
 import { pointHullDistance } from "../../../../packages/engine/src/math/pointHullDistance";
 import { pointInHull } from "../../../../packages/engine/src/math/pointInHull";
-import { TestValidator } from "@nestia/e2e";
-import { namedFacts, nclose, vclose, throwsError } from "../internal/predicates";
-const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
+import {
+  namedFacts,
+  nclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
+
+const v: (x: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
  * Planar hull construction and point queries retain the authored degenerate
@@ -38,9 +48,18 @@ const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): I
 export function test_math_convex_hull(): void {
   TestValidator.predicate(
     "an empty hull has no boundary edge to return",
-    throwsError((): IAutoMovieHullEdge => nearestHullEdge(v(0, 0), []), "nonempty hull"),
+    throwsError(
+      (): IAutoMovieHullEdge => nearestHullEdge(v(0, 0), []),
+      "nonempty hull",
+    ),
   );
-  const square: IAutoMovieVector3[] = convexHull2D([v(0, 0), v(2, 0), v(2, 2), v(0, 2), v(1, 1)]);
+  const square: IAutoMovieVector3[] = convexHull2D([
+    v(0, 0),
+    v(2, 0),
+    v(2, 2),
+    v(0, 2),
+    v(1, 1),
+  ]);
   TestValidator.equals("square hull drops interior point", square.length, 4);
   TestValidator.equals(
     "duplicate points collapse",

@@ -25,8 +25,10 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named exported unit reaches production controller source through the existing loader and fact recorder; it starts no native process or other host and dynamically registers no cases.
  */
 export function test_process_ownership_windows_admission(): void {
-  const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> = createProcessOwnershipHostFacts(true);
-  const controller: InstanceType<typeof ProcessOwnershipUnit.Controller> = new ProcessOwnershipUnit.Controller(host);
+  const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> =
+    createProcessOwnershipHostFacts(true);
+  const controller: InstanceType<typeof ProcessOwnershipUnit.Controller> =
+    new ProcessOwnershipUnit.Controller(host);
   facts.snapshot = [
     { pid: 20, parentPid: 10, createdAt: "200" },
     { pid: 30, parentPid: 1, createdAt: "300" },
@@ -34,36 +36,72 @@ export function test_process_ownership_windows_admission(): void {
     { pid: 10, parentPid: 1, createdAt: "100" },
   ];
   const before: typeof facts.snapshot = structuredClone(facts.snapshot);
-  TestValidator.equals("matching root exists", facts.snapshot.find((item: (typeof facts.snapshot)[number]): boolean => item.pid === 10)?.createdAt, "100");
+  TestValidator.equals(
+    "matching root exists",
+    facts.snapshot.find(
+      (item: (typeof facts.snapshot)[number]): boolean => item.pid === 10,
+    )?.createdAt,
+    "100",
+  );
   controller.stop(10, "100");
-  TestValidator.equals("only admitted identities reach native termination", facts.calls, [
-    { kind: "snapshot" },
-    { kind: "windows-stop", targets: [{ pid: 10, createdAt: "100" }, { pid: 20, createdAt: "200" }] },
-  ]);
+  TestValidator.equals(
+    "only admitted identities reach native termination",
+    facts.calls,
+    [
+      { kind: "snapshot" },
+      {
+        kind: "windows-stop",
+        targets: [
+          { pid: 10, createdAt: "100" },
+          { pid: 20, createdAt: "200" },
+        ],
+      },
+    ],
+  );
   TestValidator.equals("source facts are unchanged", facts.snapshot, before);
   facts.calls.length = 0;
   controller.stop(99, "999");
-  TestValidator.equals("absent root performs snapshot only", facts.calls, [{ kind: "snapshot" }]);
+  TestValidator.equals("absent root performs snapshot only", facts.calls, [
+    { kind: "snapshot" },
+  ]);
   facts.calls.length = 0;
-  TestValidator.predicate("reused root refuses before termination", throwsError((): void => controller.stop(10, "99"), "reused"));
-  TestValidator.equals("reuse performs snapshot only", facts.calls, [{ kind: "snapshot" }]);
+  TestValidator.predicate(
+    "reused root refuses before termination",
+    throwsError((): void => controller.stop(10, "99"), "reused"),
+  );
+  TestValidator.equals("reuse performs snapshot only", facts.calls, [
+    { kind: "snapshot" },
+  ]);
   facts.snapshot.push({ pid: 10, parentPid: 1, createdAt: "100" });
-  TestValidator.predicate("ambiguous identity set refuses", throwsError((): void => controller.stop(10, "100"), "ambiguous"));
+  TestValidator.predicate(
+    "ambiguous identity set refuses",
+    throwsError((): void => controller.stop(10, "100"), "ambiguous"),
+  );
 
   facts.snapshot = [{ pid: 10, parentPid: 1, createdAt: "100" }];
   const snapshotFailure: Error = new Error("snapshot unavailable");
   facts.snapshotError = snapshotFailure;
-  const failedSnapshot: ReturnType<typeof observeThrownValue> = observeThrownValue((): void => controller.stop(10, "100"));
-  TestValidator.predicate("snapshot failure is unchanged", failedSnapshot.threw && failedSnapshot.error === snapshotFailure);
+  const failedSnapshot: ReturnType<typeof observeThrownValue> =
+    observeThrownValue((): void => controller.stop(10, "100"));
+  TestValidator.predicate(
+    "snapshot failure is unchanged",
+    failedSnapshot.threw && failedSnapshot.error === snapshotFailure,
+  );
   facts.snapshotError = null;
   const stopFailure: Error = new Error("native handle refused");
   facts.stopError = stopFailure;
-  const failedStop: ReturnType<typeof observeThrownValue> = observeThrownValue((): void => controller.stop(10, "100"));
-  TestValidator.predicate("termination failure is unchanged", failedStop.threw && failedStop.error === stopFailure);
+  const failedStop: ReturnType<typeof observeThrownValue> = observeThrownValue(
+    (): void => controller.stop(10, "100"),
+  );
+  TestValidator.predicate(
+    "termination failure is unchanged",
+    failedStop.threw && failedStop.error === stopFailure,
+  );
   facts.stopError = null;
   facts.calls.length = 0;
   controller.stop(10, "100");
   TestValidator.equals("recovery reads a fresh snapshot", facts.calls, [
-    { kind: "snapshot" }, { kind: "windows-stop", targets: [{ pid: 10, createdAt: "100" }] },
+    { kind: "snapshot" },
+    { kind: "windows-stop", targets: [{ pid: 10, createdAt: "100" }] },
   ]);
 }

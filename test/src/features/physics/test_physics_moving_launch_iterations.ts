@@ -8,7 +8,9 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
 
 const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
-const target: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => ({
+const target: (t: number) => IAutoMovieVector3 = (
+  t: number,
+): IAutoMovieVector3 => ({
   x: 6 + 3 * t,
   y: 1,
   z: 0,
@@ -50,7 +52,10 @@ export function test_physics_moving_launch_iterations(): void {
     "one iteration remains a valid partial solve",
     namedFacts([
       ["partial", (): boolean => partial !== null],
-      ["partialHitTime", (): boolean => partial !== null && partial.hitTime > 0],
+      [
+        "partialHitTime",
+        (): boolean => partial !== null && partial.hitTime > 0,
+      ],
     ]),
     { partial: true, partialHitTime: true },
   );

@@ -39,7 +39,11 @@ export function test_physics_ballistic_non_finite_vectors(): void {
 
   TestValidator.predicate(
     "moving origin x nan is null",
-    solveMovingLaunch({ x: Number.NaN, y: 1, z: 0 }, (): IAutoMovieVector3 => target, 10) === null,
+    solveMovingLaunch(
+      { x: Number.NaN, y: 1, z: 0 },
+      (): IAutoMovieVector3 => target,
+      10,
+    ) === null,
   );
   TestValidator.predicate(
     "moving gravity z nan is null",
@@ -51,13 +55,18 @@ export function test_physics_ballistic_non_finite_vectors(): void {
   );
   TestValidator.predicate(
     "moving initial target y infinite is null",
-    solveMovingLaunch(origin, (): IAutoMovieVector3 => ({ x: 8, y: Infinity, z: 0 }), 10) === null,
+    solveMovingLaunch(
+      origin,
+      (): IAutoMovieVector3 => ({ x: 8, y: Infinity, z: 0 }),
+      10,
+    ) === null,
   );
   TestValidator.predicate(
     "moving iterated target x nan is null",
     solveMovingLaunch(
       origin,
-      (t: number): IAutoMovieVector3 => (t === 0 ? target : { x: Number.NaN, y: 1, z: 0 }),
+      (t: number): IAutoMovieVector3 =>
+        t === 0 ? target : { x: Number.NaN, y: 1, z: 0 },
       10,
       gravity,
     ) === null,

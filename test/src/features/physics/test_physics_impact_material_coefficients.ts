@@ -2,7 +2,11 @@ import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const BODY: IAutoMovieImpactBody = {
   mass: 1,
@@ -39,20 +43,26 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
 export function test_physics_impact_material_coefficients(): void {
   const moving: IAutoMovieImpactBody = { ...BODY, velocity: v(0, 0, 10) };
   const normal: IAutoMovieVector3 = v(0, 0, 1);
-  const fields: readonly ["restitution", "hardness", "penetrability"] = ["restitution", "hardness", "penetrability"];
+  const fields: readonly ["restitution", "hardness", "penetrability"] = [
+    "restitution",
+    "hardness",
+    "penetrability",
+  ];
 
   for (const field of fields)
     for (const value of [-0.1, 1.1, Number.NaN, Infinity]) {
       TestValidator.predicate(
         `body a ${field} ${value} throws`,
-        throws((): ReturnType<typeof resolveImpact> =>
-          resolveImpact({ ...moving, [field]: value }, BODY, normal),
+        throws(
+          (): ReturnType<typeof resolveImpact> =>
+            resolveImpact({ ...moving, [field]: value }, BODY, normal),
         ),
       );
       TestValidator.predicate(
         `body b ${field} ${value} throws`,
-        throws((): ReturnType<typeof resolveImpact> =>
-          resolveImpact(moving, { ...BODY, [field]: value }, normal),
+        throws(
+          (): ReturnType<typeof resolveImpact> =>
+            resolveImpact(moving, { ...BODY, [field]: value }, normal),
         ),
       );
     }

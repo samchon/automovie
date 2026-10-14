@@ -28,27 +28,37 @@ const ROOT: IAutoMovieTransform = {
 };
 
 /** A two-keyframe clip whose endpoints may name different bone sets; optional channels borrow the original module-owned ROOT and HAPPY records. */
-const clip: (first: AutoMovieHumanoidBone[], second: AutoMovieHumanoidBone[], extra?: { root?: boolean; expression?: boolean }) => IAutoMovieMotion = (
+const clip: (
+  first: AutoMovieHumanoidBone[],
+  second: AutoMovieHumanoidBone[],
+  extra?: { root?: boolean; expression?: boolean },
+) => IAutoMovieMotion = (
   first: AutoMovieHumanoidBone[],
   second: AutoMovieHumanoidBone[],
   extra: { root?: boolean; expression?: boolean } = {},
 ): IAutoMovieMotion =>
   makeMotion(
-    [first, second].map((bones: AutoMovieHumanoidBone[], index: number): IAutoMovieKeyframe =>
-      keyframe(
-        index,
-        makePose(
-          bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => joint(bone, { flexion: 10 })),
-          extra.root === true ? ROOT : null,
+    [first, second].map(
+      (bones: AutoMovieHumanoidBone[], index: number): IAutoMovieKeyframe =>
+        keyframe(
+          index,
+          makePose(
+            bones.map(
+              (bone: AutoMovieHumanoidBone): IAutoMovieJointPose =>
+                joint(bone, { flexion: 10 }),
+            ),
+            extra.root === true ? ROOT : null,
+          ),
+          "linear",
+          extra.expression === true ? HAPPY : null,
         ),
-        "linear",
-        extra.expression === true ? HAPPY : null,
-      ),
     ),
     1,
   );
 
-const locomote: (actor: string | string[]) => IAutoMovieActionCall = (actor: string | string[]): IAutoMovieActionCall => ({
+const locomote: (actor: string | string[]) => IAutoMovieActionCall = (
+  actor: string | string[],
+): IAutoMovieActionCall => ({
   verb: "locomote",
   actor,
   start: 0,
@@ -58,7 +68,9 @@ const locomote: (actor: string | string[]) => IAutoMovieActionCall = (actor: str
   to: { kind: "point", point: { x: 0, y: 0, z: 1 } },
 });
 
-const wave: (actor: string) => IAutoMovieActionCall = (actor: string): IAutoMovieActionCall => ({
+const wave: (actor: string) => IAutoMovieActionCall = (
+  actor: string,
+): IAutoMovieActionCall => ({
   verb: "gesture",
   kind: "wave",
   actor,
@@ -66,7 +78,9 @@ const wave: (actor: string) => IAutoMovieActionCall = (actor: string): IAutoMovi
   duration: 1,
 });
 
-const emote: (actor: string) => IAutoMovieActionCall = (actor: string): IAutoMovieActionCall => ({
+const emote: (actor: string) => IAutoMovieActionCall = (
+  actor: string,
+): IAutoMovieActionCall => ({
   verb: "emote",
   preset: "happy",
   intensity: 0.5,
@@ -95,11 +109,16 @@ export function test_perform_masked_content(): void {
   // 1. nothing outside the region: an empty report
   const legOnly: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     clip(["leftUpperLeg"], ["leftUpperLeg"]);
-  const clean: ReturnType<typeof compilePerformance> = compilePerformance([locomote("hero")], legOnly);
+  const clean: ReturnType<typeof compilePerformance> = compilePerformance(
+    [locomote("hero")],
+    legOnly,
+  );
   TestValidator.equals("an in-region clip masks nothing", clean.masked, []);
   TestValidator.equals(
     "the in-region clip keeps its bone",
-    clean.performances.hero!.keyframes[1]!.pose.joints.map((j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone),
+    clean.performances.hero!.keyframes[1]!.pose.joints.map(
+      (j: IAutoMovieJointPose): AutoMovieHumanoidBone => j.bone,
+    ),
     ["leftUpperLeg"],
   );
 
@@ -109,7 +128,10 @@ export function test_perform_masked_content(): void {
       ["rightHand", "leftUpperArm", "leftUpperLeg"],
       ["leftUpperArm", "leftHand"],
     );
-  const leaked: ReturnType<typeof compilePerformance> = compilePerformance([locomote("hero")], armLeak);
+  const leaked: ReturnType<typeof compilePerformance> = compilePerformance(
+    [locomote("hero")],
+    armLeak,
+  );
   TestValidator.equals(
     "the masked record names the action, actor, region and bones",
     leaked.masked,
@@ -126,11 +148,16 @@ export function test_perform_masked_content(): void {
   );
 
   // 3. the root channel, which only layering strips
-  const rooted: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall): IAutoMovieMotion =>
+  const rooted: IAutoMovieActionSynthesizer = (
+    action: IAutoMovieActionCall,
+  ): IAutoMovieMotion =>
     action.verb === "locomote"
       ? clip(["leftUpperLeg"], ["leftUpperLeg"], { root: true })
       : clip(["leftUpperArm"], ["leftUpperArm"], { root: true });
-  const layered: ReturnType<typeof compilePerformance> = compilePerformance([locomote("hero"), wave("hero")], rooted);
+  const layered: ReturnType<typeof compilePerformance> = compilePerformance(
+    [locomote("hero"), wave("hero")],
+    rooted,
+  );
   TestValidator.equals(
     "only the non-locomotion region's root is reported",
     layered.masked,
@@ -149,7 +176,10 @@ export function test_perform_masked_content(): void {
   // 4. the expression channel: face keeps it and loses every bone
   const faced: IAutoMovieActionSynthesizer = (): IAutoMovieMotion =>
     clip(["leftUpperArm"], ["leftUpperArm"], { expression: true });
-  const face: ReturnType<typeof compilePerformance> = compilePerformance([emote("hero")], faced);
+  const face: ReturnType<typeof compilePerformance> = compilePerformance(
+    [emote("hero")],
+    faced,
+  );
   TestValidator.equals(
     "a face clip loses its bones and keeps its expression",
     face.masked,
@@ -169,7 +199,10 @@ export function test_perform_masked_content(): void {
     face.performances.hero!.keyframes[1]!.expression?.preset ?? null,
     "happy",
   );
-  const nonFace: ReturnType<typeof compilePerformance> = compilePerformance([wave("hero")], faced);
+  const nonFace: ReturnType<typeof compilePerformance> = compilePerformance(
+    [wave("hero")],
+    faced,
+  );
   TestValidator.equals(
     "a non-face clip loses the expression instead",
     nonFace.masked,
@@ -192,7 +225,10 @@ export function test_perform_masked_content(): void {
   );
   TestValidator.equals(
     "masked records sort by action index, then actor",
-    ordered.masked.map((m: ReturnType<typeof compilePerformance>["masked"][number]): string => `${m.action}:${m.actor}`),
+    ordered.masked.map(
+      (m: ReturnType<typeof compilePerformance>["masked"][number]): string =>
+        `${m.action}:${m.actor}`,
+    ),
     ["0:zeta", "1:alpha", "1:beta"],
   );
 }

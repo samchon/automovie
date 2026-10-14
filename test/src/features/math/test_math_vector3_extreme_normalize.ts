@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
 
@@ -57,13 +57,18 @@ export function test_math_vector3_extreme_normalize(): void {
     );
   TestValidator.predicate(
     "only unrepresentable magnitude overflows",
-    Vector3.length({ x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 }) === Infinity,
+    Vector3.length({ x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 }) ===
+      Infinity,
   );
   TestValidator.predicate(
     "zero remains zero",
     vclose(Vector3.normalize(Vector3.create()), Vector3.create(), 0),
   );
-  const infinite: IAutoMovieVector3 = Vector3.normalize({ x: Infinity, y: 0, z: 0 });
+  const infinite: IAutoMovieVector3 = Vector3.normalize({
+    x: Infinity,
+    y: 0,
+    z: 0,
+  });
   TestValidator.predicate(
     "nonfinite input propagation retained",
     Number.isNaN(infinite.x) &&

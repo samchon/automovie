@@ -2,7 +2,11 @@ import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const BODY: IAutoMovieImpactBody = {
   mass: 1,
@@ -41,14 +45,23 @@ export function test_physics_impact_contact_normal(): void {
 
   TestValidator.predicate(
     "zero normal throws",
-    throws((): ReturnType<typeof resolveImpact> => resolveImpact(moving, BODY, v(0, 0, 0))),
+    throws(
+      (): ReturnType<typeof resolveImpact> =>
+        resolveImpact(moving, BODY, v(0, 0, 0)),
+    ),
   );
   TestValidator.predicate(
     "nan normal throws",
-    throws((): ReturnType<typeof resolveImpact> => resolveImpact(moving, BODY, v(Number.NaN, 0, 1))),
+    throws(
+      (): ReturnType<typeof resolveImpact> =>
+        resolveImpact(moving, BODY, v(Number.NaN, 0, 1)),
+    ),
   );
   TestValidator.predicate(
     "infinite normal throws",
-    throws((): ReturnType<typeof resolveImpact> => resolveImpact(moving, BODY, v(Infinity, 0, 1))),
+    throws(
+      (): ReturnType<typeof resolveImpact> =>
+        resolveImpact(moving, BODY, v(Infinity, 0, 1)),
+    ),
   );
 }

@@ -1,10 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
+import type { ChildProcess } from "node:child_process";
 
 import { ProcessOwnershipUnit } from "../internal/ProcessOwnershipUnit";
 import { createProcessOwnershipHostFacts } from "../internal/createProcessOwnershipHostFacts";
 import { observeThrownValue } from "../internal/observeThrownValue";
 import { throwsError } from "../internal/predicates";
-import type { ChildProcess } from "node:child_process";
 
 /**
  * Capture authority belongs to the original child-observation object and its
@@ -25,42 +25,89 @@ import type { ChildProcess } from "node:child_process";
  * @evidence contracts/testing.md#execution-ownership The named exported unit entry reaches production source through the existing ProcessOwnershipUnit loader and supplied fact records; it starts no real child, OS host, browser or GPU and registers no dynamic cases.
  */
 export function test_process_ownership_capture(): void {
-  const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> = createProcessOwnershipHostFacts(false);
-  const controller: InstanceType<typeof ProcessOwnershipUnit.Controller> = new ProcessOwnershipUnit.Controller(host);
-  const child: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = { pid: 10, exitCode: null, signalCode: null };
+  const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> =
+    createProcessOwnershipHostFacts(false);
+  const controller: InstanceType<typeof ProcessOwnershipUnit.Controller> =
+    new ProcessOwnershipUnit.Controller(host);
+  const child: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = {
+    pid: 10,
+    exitCode: null,
+    signalCode: null,
+  };
   facts.identities.set(10, "birth-a");
-  TestValidator.equals("discovery confirms the arranged identity", controller.read(10), "birth-a");
+  TestValidator.equals(
+    "discovery confirms the arranged identity",
+    controller.read(10),
+    "birth-a",
+  );
   facts.calls.length = 0;
   controller.own(child);
   facts.identities.set(10, "birth-b");
   controller.own(child);
-  TestValidator.equals("capture occurs once", facts.calls, [{ kind: "read", pid: 10 }]);
-  TestValidator.predicate("reused current allocation refuses", throwsError((): void => controller.stopChild(child), "reused"));
-  TestValidator.equals("reuse causes discovery without a signal", facts.calls, [
-    { kind: "read", pid: 10 }, { kind: "read", pid: 10 },
+  TestValidator.equals("capture occurs once", facts.calls, [
+    { kind: "read", pid: 10 },
   ]);
-  const otherObject: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = { ...child };
-  TestValidator.predicate("same PID cannot borrow object authority", throwsError((): void => controller.stopChild(otherObject), "captured"));
+  TestValidator.predicate(
+    "reused current allocation refuses",
+    throwsError((): void => controller.stopChild(child), "reused"),
+  );
+  TestValidator.equals("reuse causes discovery without a signal", facts.calls, [
+    { kind: "read", pid: 10 },
+    { kind: "read", pid: 10 },
+  ]);
+  const otherObject: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = {
+    ...child,
+  };
+  TestValidator.predicate(
+    "same PID cannot borrow object authority",
+    throwsError((): void => controller.stopChild(otherObject), "captured"),
+  );
   facts.identities.set(10, "birth-a");
   controller.stopChild(child);
-  TestValidator.equals("matching capture requests one signal", facts.calls.at(-1), { kind: "signal", pid: 10 });
+  TestValidator.equals(
+    "matching capture requests one signal",
+    facts.calls.at(-1),
+    { kind: "signal", pid: 10 },
+  );
 
-  const absent: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = { pid: 20, exitCode: null, signalCode: null };
+  const absent: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = {
+    pid: 20,
+    exitCode: null,
+    signalCode: null,
+  };
   facts.identities.set(20, null);
   controller.own(absent);
-  TestValidator.predicate("absence grants no authority", throwsError((): void => controller.stopChild(absent), "captured"));
+  TestValidator.predicate(
+    "absence grants no authority",
+    throwsError((): void => controller.stopChild(absent), "captured"),
+  );
   facts.identities.set(20, "birth-c");
   controller.own(absent);
   controller.stopChild(absent);
-  TestValidator.equals("later discovery recovers capture", facts.calls.at(-1), { kind: "signal", pid: 20 });
+  TestValidator.equals("later discovery recovers capture", facts.calls.at(-1), {
+    kind: "signal",
+    pid: 20,
+  });
 
-  const failed: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = { pid: 30, exitCode: null, signalCode: null };
+  const failed: Pick<ChildProcess, "pid" | "exitCode" | "signalCode"> = {
+    pid: 30,
+    exitCode: null,
+    signalCode: null,
+  };
   const failure: Error = new Error("identity service unavailable");
   facts.readError = failure;
-  const observed: ReturnType<typeof observeThrownValue> = observeThrownValue((): void => controller.own(failed));
-  TestValidator.predicate("original discovery failure propagates", observed.threw && observed.error === failure);
+  const observed: ReturnType<typeof observeThrownValue> = observeThrownValue(
+    (): void => controller.own(failed),
+  );
+  TestValidator.predicate(
+    "original discovery failure propagates",
+    observed.threw && observed.error === failure,
+  );
   facts.readError = null;
-  TestValidator.predicate("failed capture grants no authority", throwsError((): void => controller.stopChild(failed), "captured"));
+  TestValidator.predicate(
+    "failed capture grants no authority",
+    throwsError((): void => controller.stopChild(failed), "captured"),
+  );
 
   facts.calls.length = 0;
   controller.own({ pid: undefined, exitCode: null, signalCode: null });
@@ -69,5 +116,9 @@ export function test_process_ownership_capture(): void {
   controller.stopChild({ pid: undefined, exitCode: null, signalCode: null });
   controller.stopChild({ pid: 10, exitCode: 0, signalCode: null });
   controller.stopChild({ pid: 10, exitCode: null, signalCode: "SIGTERM" });
-  TestValidator.equals("ended or uncreated children cause no host request", facts.calls, []);
+  TestValidator.equals(
+    "ended or uncreated children cause no host request",
+    facts.calls,
+    [],
+  );
 }

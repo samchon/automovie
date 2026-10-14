@@ -2,8 +2,8 @@ import {
   closestPointsBetweenSegments,
   segmentSegmentDistance,
 } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
@@ -42,7 +42,8 @@ export function test_math_segment_conditioning(): void {
         [b, a, c, d],
         [c, d, a, b],
       ]) {
-        const one: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(p, q, r, s);
+        const one: ReturnType<typeof closestPointsBetweenSegments> =
+          closestPointsBetweenSegments(p, q, r, s);
         TestValidator.predicate(
           `symmetric interior gap at ${scale}/${slope}`,
           nclose(one.distance, gap, gap * 1e-10) &&
@@ -51,15 +52,21 @@ export function test_math_segment_conditioning(): void {
       }
     }
   }
-  const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (x: number, y: number = 0, z: number = 0): IAutoMovieVector3 => ({ x, y, z });
-  const rigid: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-    v(point.z + 8, point.x - 4, point.y + 2);
-  const transformed: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    rigid(v(-1)),
-    rigid(v(1)),
-    rigid(v(-1, -1e-8, 0.25)),
-    rigid(v(1, 1e-8, 0.25)),
-  );
+  const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number = 0,
+    z: number = 0,
+  ): IAutoMovieVector3 => ({ x, y, z });
+  const rigid: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => v(point.z + 8, point.x - 4, point.y + 2);
+  const transformed: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      rigid(v(-1)),
+      rigid(v(1)),
+      rigid(v(-1, -1e-8, 0.25)),
+      rigid(v(1, 1e-8, 0.25)),
+    );
   TestValidator.predicate(
     "rigid-frame skew midpoint oracle",
     nclose(transformed.distance, 0.25, 1e-12) &&
@@ -113,17 +120,20 @@ export function test_math_segment_conditioning(): void {
       ),
     );
   }
-  const represented: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+  const represented: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const xyz: Float32Array = new Float32Array([point.x, point.y, point.z]);
     return v(xyz[0], xyz[1], xyz[2]);
   };
   const gap: number = new Float32Array([1e-6])[0];
-  const one: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    represented(v(-5e-6)),
-    represented(v(5e-6)),
-    represented(v(0, -5e-6, 1e-6)),
-    represented(v(0, 5e-6, 1e-6)),
-  );
+  const one: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      represented(v(-5e-6)),
+      represented(v(5e-6)),
+      represented(v(0, -5e-6, 1e-6)),
+      represented(v(0, 5e-6, 1e-6)),
+    );
   TestValidator.predicate(
     "represented Float32 interior witnesses",
     nclose(one.distance, gap, 1e-15) &&
@@ -131,41 +141,50 @@ export function test_math_segment_conditioning(): void {
       vclose(one.pointB, v(0, 0, gap), 1e-15),
   );
   const origin: Readonly<IAutoMovieVector3> = Object.freeze(v(0));
-  const result: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(origin, origin, origin, origin);
+  const result: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(origin, origin, origin, origin);
   result.pointA.x = 7;
   result.pointB.y = 8;
   TestValidator.predicate(
     "collapsed witnesses are independently owned",
     nclose(origin.x, 0, 0) &&
       nclose(origin.y, 0, 0) &&
-      nclose(closestPointsBetweenSegments(origin, origin, origin, origin).distance, 0, 0),
+      nclose(
+        closestPointsBetweenSegments(origin, origin, origin, origin).distance,
+        0,
+        0,
+      ),
   );
   for (const invalid of [NaN, Infinity])
     TestValidator.predicate(
       "nonfinite coordinates refuse",
       throwsError(
-        (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(invalid), v(0), v(0), v(1)),
+        (): ReturnType<typeof closestPointsBetweenSegments> =>
+          closestPointsBetweenSegments(v(invalid), v(0), v(0), v(1)),
         "finite",
       ),
     );
   TestValidator.predicate(
     "overflowing differences refuse",
     throwsError(
-      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(-1e308), v(1e308), v(0), v(0)),
+      (): ReturnType<typeof closestPointsBetweenSegments> =>
+        closestPointsBetweenSegments(v(-1e308), v(1e308), v(0), v(0)),
       "finite",
     ),
   );
   TestValidator.predicate(
     "nonzero first scaled span cannot collapse",
     throwsError(
-      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(0), v(1e-200), v(1), v(2)),
+      (): ReturnType<typeof closestPointsBetweenSegments> =>
+        closestPointsBetweenSegments(v(0), v(1e-200), v(1), v(2)),
       "nonzero scaled span",
     ),
   );
   TestValidator.predicate(
     "nonzero second scaled span cannot collapse",
     throwsError(
-      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-200)),
+      (): ReturnType<typeof closestPointsBetweenSegments> =>
+        closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-200)),
       "nonzero scaled span",
     ),
   );
@@ -197,14 +216,26 @@ export function test_math_segment_conditioning(): void {
   );
   TestValidator.predicate(
     "tiny positive first squared rank remains admitted",
-    nclose(closestPointsBetweenSegments(v(0), v(1e-160), v(1), v(2)).distance, 1, 0),
+    nclose(
+      closestPointsBetweenSegments(v(0), v(1e-160), v(1), v(2)).distance,
+      1,
+      0,
+    ),
   );
   TestValidator.predicate(
     "tiny positive second squared rank remains admitted",
-    nclose(closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-160)).distance, 1, 0),
+    nclose(
+      closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-160)).distance,
+      1,
+      0,
+    ),
   );
   TestValidator.predicate(
     "valid pair recovers after refusals",
-    nclose(closestPointsBetweenSegments(v(0), v(1), v(0, 1), v(1, 1)).distance, 1, 0),
+    nclose(
+      closestPointsBetweenSegments(v(0), v(1), v(0, 1), v(1, 1)).distance,
+      1,
+      0,
+    ),
   );
 }

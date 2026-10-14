@@ -1,7 +1,9 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { TestValidator } from "@nestia/e2e";
+
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { qclose, qunit } from "../internal/predicates";
+
 /**
  * Quaternion normalization retains finite nonzero directions at ordinary and
  * extreme magnitudes and maps the exact zero quaternion to identity.
@@ -40,10 +42,16 @@ export function test_math_quaternion_normalize(): void {
     ),
   );
   for (const component of [1e-300, 1e300, Number.MIN_VALUE]) {
-    const normalized: IAutoMovieQuaternion = Quaternion.normalize({ x: component, y: component, z: component, w: component });
+    const normalized: IAutoMovieQuaternion = Quaternion.normalize({
+      x: component,
+      y: component,
+      z: component,
+      w: component,
+    });
     TestValidator.predicate(
       "finite extreme magnitudes retain the same unit direction",
-      qunit(normalized) && qclose(normalized, { x: 0.5, y: 0.5, z: 0.5, w: 0.5 }),
+      qunit(normalized) &&
+        qclose(normalized, { x: 0.5, y: 0.5, z: 0.5, w: 0.5 }),
     );
   }
 }

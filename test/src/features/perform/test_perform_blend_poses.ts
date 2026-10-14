@@ -10,17 +10,26 @@ import { TestValidator } from "@nestia/e2e";
 import { joint, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const rootAt: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
+const rootAt: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const axis: (pose: IAutoMoviePose, bone: AutoMovieHumanoidBone, which: "flexion" | "abduction" | "twist") => number | null = (
+const axis: (
+  pose: IAutoMoviePose,
+  bone: AutoMovieHumanoidBone,
+  which: "flexion" | "abduction" | "twist",
+) => number | null = (
   pose: ReturnType<typeof makePose>,
   bone: AutoMovieHumanoidBone,
   which: "flexion" | "abduction" | "twist",
-): number | null => pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)![which];
+): number | null =>
+  pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)![
+    which
+  ];
 
 /**
  * Observe per-axis weighted means, sparse null semantics, joint population/order and root selection in blendPoses. These authored scalar fixtures do not establish equivalence to every historical mergePoses case or byte serialization.
@@ -132,7 +141,8 @@ export function test_perform_blend_poses(): void {
       ["disjointRoot", (): boolean => disjoint.root !== null],
       [
         "ncloseDisjointRoot",
-        (): boolean => disjoint.root !== null && nclose(disjoint.root.translation.x, 5),
+        (): boolean =>
+          disjoint.root !== null && nclose(disjoint.root.translation.x, 5),
       ],
     ]),
     { disjointRoot: true, ncloseDisjointRoot: true },
@@ -154,7 +164,8 @@ export function test_perform_blend_poses(): void {
       ["ownedRoot", (): boolean => owned.root !== null],
       [
         "ncloseOwnedRoot",
-        (): boolean => owned.root !== null && nclose(owned.root.translation.x, 2),
+        (): boolean =>
+          owned.root !== null && nclose(owned.root.translation.x, 2),
       ],
     ]),
     { ownedRoot: true, ncloseOwnedRoot: true },
@@ -171,7 +182,8 @@ export function test_perform_blend_poses(): void {
       ["lastRootRoot", (): boolean => lastRoot.root !== null],
       [
         "ncloseLastRootRoot",
-        (): boolean => lastRoot.root !== null && nclose(lastRoot.root.translation.x, 7),
+        (): boolean =>
+          lastRoot.root !== null && nclose(lastRoot.root.translation.x, 7),
       ],
     ]),
     { lastRootRoot: true, ncloseLastRootRoot: true },
@@ -180,6 +192,9 @@ export function test_perform_blend_poses(): void {
   // 7. empty rejected
   TestValidator.predicate(
     "empty layer list rejected",
-    throwsError((): IAutoMoviePose => blendPoses([]), "blend poses must not be empty"),
+    throwsError(
+      (): IAutoMoviePose => blendPoses([]),
+      "blend poses must not be empty",
+    ),
   );
 }

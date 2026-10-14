@@ -1,7 +1,9 @@
-import { IAutoMovieVector3, IAutoMovieQuaternion } from "@automovie/interface";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { vclose } from "../internal/predicates";
+
 /**
  * `Quaternion.rotateVector` applies a rotation to a vector. The _direction_ it
  * turns is the convention the entire kinematics layer depends on, so it is
@@ -21,8 +23,14 @@ import { vclose } from "../internal/predicates";
  */
 export function test_math_quaternion_rotate_vector(): void {
   const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const qY90: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
-  const qY180: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180);
+  const qY90: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
+  const qY180: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    180,
+  );
 
   TestValidator.predicate(
     "X by Y90 → -Z",
@@ -40,7 +48,10 @@ export function test_math_quaternion_rotate_vector(): void {
     TestValidator.predicate(
       "axis magnitude cannot change a quarter-turn direction",
       vclose(
-        Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: magnitude, z: 0 }, 90), X),
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle({ x: 0, y: magnitude, z: 0 }, 90),
+          X,
+        ),
         { x: 0, y: 0, z: -1 },
       ),
     );

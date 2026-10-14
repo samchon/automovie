@@ -4,7 +4,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 
-const disjoint: (a: readonly AutoMovieHumanoidBone[], b: readonly AutoMovieHumanoidBone[]) => boolean = (
+const disjoint: (
+  a: readonly AutoMovieHumanoidBone[],
+  b: readonly AutoMovieHumanoidBone[],
+) => boolean = (
   a: readonly AutoMovieHumanoidBone[],
   b: readonly AutoMovieHumanoidBone[],
 ): boolean => {

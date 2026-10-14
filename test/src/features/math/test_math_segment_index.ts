@@ -4,7 +4,10 @@ import { TestValidator } from "@nestia/e2e";
 // The pre-optimization behavior: the first i with times[i] <= time <=
 // times[i+1], given times[0] < time < times[last], the exact scan both
 // samplers ran before the binary search replaced it.
-const linearSegment: (times: readonly number[], time: number) => number = (times: readonly number[], time: number): number => {
+const linearSegment: (times: readonly number[], time: number) => number = (
+  times: readonly number[],
+  time: number,
+): number => {
   for (let i: number = 0; i < times.length - 1; ++i)
     if (time >= times[i]! && time <= times[i + 1]!) return i;
   throw new Error("time outside interior");

@@ -34,8 +34,10 @@ export function test_physics_projectile(): void {
   );
   TestValidator.predicate(
     "t=0 is the launch state",
-    nclose(s0.position.x, 1) && nclose(s0.position.y, 2) &&
-      nclose(s0.position.z, 3) && nclose(s0.velocity.y, 5),
+    nclose(s0.position.x, 1) &&
+      nclose(s0.position.y, 2) &&
+      nclose(s0.position.z, 3) &&
+      nclose(s0.velocity.y, 5),
   );
 
   // 2. arc after 1s
@@ -49,7 +51,9 @@ export function test_physics_projectile(): void {
   );
   TestValidator.predicate(
     "position after 1s",
-    nclose(s1.position.x, 5) && nclose(s1.position.y, 5) && nclose(s1.position.z, 0),
+    nclose(s1.position.x, 5) &&
+      nclose(s1.position.y, 5) &&
+      nclose(s1.position.z, 0),
   );
   TestValidator.predicate(
     "velocity after 1s",

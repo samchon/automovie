@@ -1,8 +1,10 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { pointSegmentDistance } from "../../../../packages/engine/src/math/pointSegmentDistance";
 import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
-import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/predicates";
+
 /**
  * An exact collapsed segment is a point and must retain finite point-to-point
  * and point-to-segment distances. A NaN separation would silently evade a

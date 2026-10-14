@@ -30,14 +30,16 @@ export function test_physics_impulse_to_recoil_push(): void {
   TestValidator.predicate(
     "non-finite gain throws",
     throwsError(
-      (): ReturnType<typeof impulseToRecoilPush> => impulseToRecoilPush({ x: 1, y: 0, z: 0 }, Number.NaN),
+      (): ReturnType<typeof impulseToRecoilPush> =>
+        impulseToRecoilPush({ x: 1, y: 0, z: 0 }, Number.NaN),
       "gain must be finite",
     ),
   );
   TestValidator.predicate(
     "negative gain throws",
     throwsError(
-      (): ReturnType<typeof impulseToRecoilPush> => impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1),
+      (): ReturnType<typeof impulseToRecoilPush> =>
+        impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1),
       "gain must be >= 0",
     ),
   );

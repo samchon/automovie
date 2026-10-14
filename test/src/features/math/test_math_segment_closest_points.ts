@@ -21,12 +21,13 @@ import { nclose, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit owns both cases and invokes portable closest-segment source, without installing a consumer, compiling a native artifact, launching a host or dynamically registering tests.
  */
 export function test_math_segment_closest_points(): void {
-  const gap: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    { x: 0, y: 0, z: 0 },
-    { x: 1, y: 0, z: 0 },
-    { x: 2, y: 0, z: 0 },
-    { x: 3, y: 0, z: 0 },
-  );
+  const gap: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      { x: 2, y: 0, z: 0 },
+      { x: 3, y: 0, z: 0 },
+    );
   TestValidator.predicate("colinear gap distance", nclose(gap.distance, 1));
   TestValidator.predicate(
     "closest point on first segment",
@@ -37,12 +38,13 @@ export function test_math_segment_closest_points(): void {
     vclose(gap.pointB, { x: 2, y: 0, z: 0 }),
   );
 
-  const touching: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
-    { x: 0, y: 0, z: 0 },
-    { x: 1, y: 0, z: 0 },
-    { x: 0, y: 0, z: 0 },
-    { x: 0, y: 0, z: 1 },
-  );
+  const touching: ReturnType<typeof closestPointsBetweenSegments> =
+    closestPointsBetweenSegments(
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 0, z: 1 },
+    );
   TestValidator.predicate(
     "touching distance zero",
     nclose(touching.distance, 0),

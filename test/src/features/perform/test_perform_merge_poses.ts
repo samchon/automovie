@@ -1,20 +1,31 @@
 import { mergePoses } from "@automovie/engine";
-import { IAutoMovieJointPose, IAutoMoviePose, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-const rootAt: (x: number) => IAutoMovieTransform = (x: number): IAutoMovieTransform => ({
+const rootAt: (x: number) => IAutoMovieTransform = (
+  x: number,
+): IAutoMovieTransform => ({
   translation: { x, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const flexionOf: (pose: ReturnType<typeof makePose>, bone: Parameters<typeof joint>[0]) => number = (
+const flexionOf: (
   pose: ReturnType<typeof makePose>,
   bone: Parameters<typeof joint>[0],
-): number => pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)!.flexion!;
+) => number = (
+  pose: ReturnType<typeof makePose>,
+  bone: Parameters<typeof joint>[0],
+): number =>
+  pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone)!
+    .flexion!;
 
 /**
  * Observe ordered pose composition through mergePoses: disjoint joints survive, repeated bones and non-null roots use the later owner, and empty input rejects the absent base pose.
@@ -51,7 +62,8 @@ export function test_perform_merge_poses(): void {
       ["mergedRoot", (): boolean => merged.root !== null],
       [
         "ncloseMergedRoot",
-        (): boolean => merged.root !== null && nclose(merged.root.translation.x, 5),
+        (): boolean =>
+          merged.root !== null && nclose(merged.root.translation.x, 5),
       ],
     ]),
     { mergedRoot: true, ncloseMergedRoot: true },
@@ -88,7 +100,8 @@ export function test_perform_merge_poses(): void {
       ["twoRootsRoot", (): boolean => twoRoots.root !== null],
       [
         "ncloseTwoRootsRoot",
-        (): boolean => twoRoots.root !== null && nclose(twoRoots.root.translation.x, 9),
+        (): boolean =>
+          twoRoots.root !== null && nclose(twoRoots.root.translation.x, 9),
       ],
     ]),
     { twoRootsRoot: true, ncloseTwoRootsRoot: true },
@@ -96,6 +109,9 @@ export function test_perform_merge_poses(): void {
 
   TestValidator.predicate(
     "empty pose merge rejects missing base pose",
-    throwsError((): IAutoMoviePose => mergePoses([]), "merge poses must not be empty"),
+    throwsError(
+      (): IAutoMoviePose => mergePoses([]),
+      "merge poses must not be empty",
+    ),
   );
 }

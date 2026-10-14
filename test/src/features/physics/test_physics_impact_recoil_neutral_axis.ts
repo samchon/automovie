@@ -13,7 +13,11 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], parent: IAutoMovieBone["parent"], constraint: IAutoMovieBone["constraint"]) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -53,7 +57,12 @@ const skeleton: IAutoMovieSkeleton = {
  * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and invokes recoil/validation on local rigs, without a Human renderer, OS host or dynamic registration.
  */
 export function test_physics_impact_recoil_neutral_axis(): void {
-  const pose: ReturnType<typeof impactRecoil> = impactRecoil({ twist: 8 }, ["leftLowerArm"], skeleton, 1);
+  const pose: ReturnType<typeof impactRecoil> = impactRecoil(
+    { twist: 8 },
+    ["leftLowerArm"],
+    skeleton,
+    1,
+  );
   const joint: (typeof pose.joints)[number] = pose.joints[0]!;
   TestValidator.equals(
     "un-pushed flexion stays at rest, not ROM min 10",

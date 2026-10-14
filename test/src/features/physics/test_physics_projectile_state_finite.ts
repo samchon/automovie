@@ -36,47 +36,59 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
 export function test_physics_projectile_state_finite(): void {
   TestValidator.predicate(
     "nan time throws",
-    throws((): ReturnType<typeof projectileAt> => projectileAt(PROJECTILE, Number.NaN)),
+    throws(
+      (): ReturnType<typeof projectileAt> =>
+        projectileAt(PROJECTILE, Number.NaN),
+    ),
   );
   TestValidator.predicate(
     "infinite time throws",
-    throws((): ReturnType<typeof projectileAt> => projectileAt(PROJECTILE, Infinity)),
+    throws(
+      (): ReturnType<typeof projectileAt> => projectileAt(PROJECTILE, Infinity),
+    ),
   );
   TestValidator.predicate(
     "non-finite origin throws",
-    throws((): ReturnType<typeof projectileAt> =>
-      projectileAt(
-        { ...PROJECTILE, origin: { ...PROJECTILE.origin, x: Number.NaN } },
-        1,
-      ),
+    throws(
+      (): ReturnType<typeof projectileAt> =>
+        projectileAt(
+          { ...PROJECTILE, origin: { ...PROJECTILE.origin, x: Number.NaN } },
+          1,
+        ),
     ),
   );
   TestValidator.predicate(
     "non-finite velocity throws",
-    throws((): ReturnType<typeof projectileAt> =>
-      projectileAt(
-        { ...PROJECTILE, velocity: { ...PROJECTILE.velocity, y: Infinity } },
-        1,
-      ),
+    throws(
+      (): ReturnType<typeof projectileAt> =>
+        projectileAt(
+          { ...PROJECTILE, velocity: { ...PROJECTILE.velocity, y: Infinity } },
+          1,
+        ),
     ),
   );
   TestValidator.predicate(
     "non-finite gravity throws",
-    throws((): ReturnType<typeof projectileAt> =>
-      projectileAt(
-        { ...PROJECTILE, gravity: { ...PROJECTILE.gravity, z: -Infinity } },
-        1,
-      ),
+    throws(
+      (): ReturnType<typeof projectileAt> =>
+        projectileAt(
+          { ...PROJECTILE, gravity: { ...PROJECTILE.gravity, z: -Infinity } },
+          1,
+        ),
     ),
   );
 
   const state: ReturnType<typeof projectileAt> = projectileAt(PROJECTILE, 2);
   TestValidator.predicate(
     "finite position follows closed-form projectile equation",
-    nclose(state.position.x, 9) && nclose(state.position.y, -8) && nclose(state.position.z, 19),
+    nclose(state.position.x, 9) &&
+      nclose(state.position.y, -8) &&
+      nclose(state.position.z, 19),
   );
   TestValidator.predicate(
     "finite velocity follows closed-form projectile equation",
-    nclose(state.velocity.x, 4) && nclose(state.velocity.y, -15) && nclose(state.velocity.z, 10),
+    nclose(state.velocity.x, 4) &&
+      nclose(state.velocity.y, -15) &&
+      nclose(state.velocity.z, 10),
   );
 }

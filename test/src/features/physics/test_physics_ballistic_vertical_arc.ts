@@ -8,7 +8,10 @@ const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** The projectile lands on `target` when the solved flight runs `hitTime`. */
-const landsOn: (solution: { velocity: IAutoMovieVector3; hitTime: number }, target: IAutoMovieVector3) => boolean = (
+const landsOn: (
+  solution: { velocity: IAutoMovieVector3; hitTime: number },
+  target: IAutoMovieVector3,
+) => boolean = (
   solution: { velocity: IAutoMovieVector3; hitTime: number },
   target: IAutoMovieVector3,
 ): boolean =>
@@ -53,13 +56,8 @@ export function test_physics_ballistic_vertical_arc(): void {
   // 1./2. Below: h = −20, s = 20 → disc = 400 + 2·9.81·20 = 792.4;
   //       √792.4 = 28.1495988…
   const below: IAutoMovieVector3 = { x: 0, y: -20, z: 0 };
-  const directDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
-    ORIGIN,
-    below,
-    20,
-    GRAVITY,
-    "direct",
-  )!;
+  const directDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, below, 20, GRAVITY, "direct")!;
   TestValidator.predicate(
     "direct below fires straight down",
     vclose(directDown.velocity, { x: 0, y: -20, z: 0 }, 1e-9),
@@ -73,7 +71,8 @@ export function test_physics_ballistic_vertical_arc(): void {
     landsOn(directDown, below),
   );
 
-  const highDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, below, 20, GRAVITY, "high")!;
+  const highDown: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, below, 20, GRAVITY, "high")!;
   TestValidator.predicate(
     "high below fires straight up and falls past",
     vclose(highDown.velocity, { x: 0, y: 20, z: 0 }, 1e-9),
@@ -90,18 +89,14 @@ export function test_physics_ballistic_vertical_arc(): void {
   // 3./4. Overhead: h = 10, s = 20 → disc = 400 − 2·9.81·10 = 203.8;
   //       √203.8 = 14.2758537…
   const overhead: IAutoMovieVector3 = { x: 0, y: 10, z: 0 };
-  const directUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
-    ORIGIN,
-    overhead,
-    20,
-    GRAVITY,
-    "direct",
-  )!;
+  const directUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY, "direct")!;
   TestValidator.predicate(
     "direct overhead keeps the rising first contact",
     nclose(directUp.hitTime, (20 - 14.2758537) / 9.81, 1e-4),
   );
-  const highUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY, "high")!;
+  const highUp: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY, "high")!;
   TestValidator.predicate(
     "high overhead takes the descending re-crossing",
     nclose(highUp.hitTime, (20 + 14.2758537) / 9.81, 1e-4),
@@ -140,13 +135,14 @@ export function test_physics_ballistic_vertical_arc(): void {
     },
   );
   const weightless: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const straight: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(
-    { x: 0, y: 5, z: 0 },
-    weightless,
-    10,
-    { x: 0, y: 0, z: 0 },
-    "high",
-  )!;
+  const straight: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(
+      { x: 0, y: 5, z: 0 },
+      weightless,
+      10,
+      { x: 0, y: 0, z: 0 },
+      "high",
+    )!;
   TestValidator.predicate(
     "zero gravity keeps the straight sightline shot for either arc",
     vclose(straight.velocity, { x: 0, y: -10, z: 0 }, 1e-9) &&

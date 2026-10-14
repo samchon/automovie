@@ -2,7 +2,11 @@ import { IAutoMovieImpactBody, resolveImpact } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const BODY: IAutoMovieImpactBody = {
   mass: 1,
@@ -43,11 +47,17 @@ export function test_physics_impact_body_mass(): void {
   for (const mass of [0, -1, Number.NaN, Infinity]) {
     TestValidator.predicate(
       `body a mass ${mass} throws`,
-      throws((): ReturnType<typeof resolveImpact> => resolveImpact({ ...moving, mass }, BODY, normal)),
+      throws(
+        (): ReturnType<typeof resolveImpact> =>
+          resolveImpact({ ...moving, mass }, BODY, normal),
+      ),
     );
     TestValidator.predicate(
       `body b mass ${mass} throws`,
-      throws((): ReturnType<typeof resolveImpact> => resolveImpact(moving, { ...BODY, mass }, normal)),
+      throws(
+        (): ReturnType<typeof resolveImpact> =>
+          resolveImpact(moving, { ...BODY, mass }, normal),
+      ),
     );
   }
 }

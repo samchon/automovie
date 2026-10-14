@@ -2,7 +2,11 @@ import { projectileSphereHit, segmentSphere } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const throws: (task: () => void) => boolean = (task: () => void): boolean => {
   try {
@@ -38,22 +42,26 @@ export function test_physics_segment_sphere_radius(): void {
   for (const radius of [Number.NaN, Infinity, 0, -1])
     TestValidator.predicate(
       `segment radius ${radius} throws`,
-      throws((): ReturnType<typeof segmentSphere> => segmentSphere(a, b, center, radius)),
+      throws(
+        (): ReturnType<typeof segmentSphere> =>
+          segmentSphere(a, b, center, radius),
+      ),
     );
 
   TestValidator.predicate(
     "projectile sphere radius throws",
-    throws((): ReturnType<typeof projectileSphereHit> =>
-      projectileSphereHit(
-        {
-          origin: a,
-          velocity: v(10, 0, 0),
-          gravity: v(0, 0, 0),
-        },
-        { center, radius: -1 },
-        1,
-        10,
-      ),
+    throws(
+      (): ReturnType<typeof projectileSphereHit> =>
+        projectileSphereHit(
+          {
+            origin: a,
+            velocity: v(10, 0, 0),
+            gravity: v(0, 0, 0),
+          },
+          { center, radius: -1 },
+          1,
+          10,
+        ),
     ),
   );
 }

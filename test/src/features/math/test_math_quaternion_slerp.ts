@@ -1,11 +1,16 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, qunit } from "../internal/predicates";
 
 const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-const yaw: (deg: number) => IAutoMovieQuaternion = (deg: number): IAutoMovieQuaternion => Quaternion.fromAxisAngle(Y, deg);
+const yaw: (deg: number) => IAutoMovieQuaternion = (
+  deg: number,
+): IAutoMovieQuaternion => Quaternion.fromAxisAngle(Y, deg);
 
 /**
  * Rotation interpolation retains the short arc through the ordinary, opposite-hemisphere and near-parallel regimes.

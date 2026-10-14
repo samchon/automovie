@@ -27,13 +27,19 @@ const WALK: IAutoMovieGait = {
   limbs: [{ bone: "leftUpperLeg", phase: 0, duty: 0.5, amplitude: 25 }],
 };
 
-const range: (min: number, max: number) => IAutoMovieAngleRange = (min: number, max: number): IAutoMovieAngleRange => ({
+const range: (min: number, max: number) => IAutoMovieAngleRange = (
+  min: number,
+  max: number,
+): IAutoMovieAngleRange => ({
   min,
   max,
 });
 
 /** A cervical constraint: `lookAt` drives flexion and twist, never abduction. */
-const cervical: (flexion: IAutoMovieAngleRange | null, twist: IAutoMovieAngleRange | null) => IAutoMovieJointConstraint = (
+const cervical: (
+  flexion: IAutoMovieAngleRange | null,
+  twist: IAutoMovieAngleRange | null,
+) => IAutoMovieJointConstraint = (
   flexion: IAutoMovieAngleRange | null,
   twist: IAutoMovieAngleRange | null,
 ): IAutoMovieJointConstraint => ({ flexion, abduction: null, twist });
@@ -44,7 +50,12 @@ const S06: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>> = {
   head: cervical(range(-30, 30), range(-30, 30)),
 };
 
-const rigWith: (constraints: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>>, drop?: AutoMovieHumanoidBone | null) => IAutoMovieSkeleton = (
+const rigWith: (
+  constraints: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>
+  >,
+  drop?: AutoMovieHumanoidBone | null,
+) => IAutoMovieSkeleton = (
   constraints: Partial<
     Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>
   >,
@@ -55,17 +66,21 @@ const rigWith: (constraints: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJoi
     ...base,
     bones: base.bones
       .filter((bone: IAutoMovieBone): boolean => bone.bone !== drop)
-      .map((bone: IAutoMovieBone): IAutoMovieBone => ({
-        ...bone,
-        constraint: constraints[bone.bone] ?? bone.constraint,
-      })),
+      .map(
+        (bone: IAutoMovieBone): IAutoMovieBone => ({
+          ...bone,
+          constraint: constraints[bone.bone] ?? bone.constraint,
+        }),
+      ),
   };
 };
 
 /** Eyes at 1.6 m, the height every geometry below is measured from. */
 const EYE_HEIGHT: number = 1.6;
 
-const contextOf: (rig: IAutoMovieSkeleton | null) => IAutoMovieActorContext = (rig: IAutoMovieSkeleton | null): IAutoMovieActorContext => ({
+const contextOf: (rig: IAutoMovieSkeleton | null) => IAutoMovieActorContext = (
+  rig: IAutoMovieSkeleton | null,
+): IAutoMovieActorContext => ({
   skeleton: "skeleton-1",
   gaits: [WALK],
   position: { x: 0, y: 0, z: 0 },
@@ -76,12 +91,16 @@ const contextOf: (rig: IAutoMovieSkeleton | null) => IAutoMovieActorContext = (r
   ...(rig === null ? {} : { rig }),
 });
 
-const NODES: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
-  ["hero", { x: 0, y: 0, z: 0 }],
-]);
+const NODES: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([["hero", { x: 0, y: 0, z: 0 }]]);
 
 /** The pose one `lookAt` at an explicit point synthesises for this rig. */
-const aim: (rig: IAutoMovieSkeleton | null, point: IAutoMovieVector3) => IAutoMoviePose = (
+const aim: (
+  rig: IAutoMovieSkeleton | null,
+  point: IAutoMovieVector3,
+) => IAutoMoviePose = (
   rig: IAutoMovieSkeleton | null,
   point: IAutoMovieVector3,
 ): IAutoMoviePose => {
@@ -92,26 +111,36 @@ const aim: (rig: IAutoMovieSkeleton | null, point: IAutoMovieVector3) => IAutoMo
     start: 0,
     duration: 1,
   };
-  const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([
-    ["hero", contextOf(rig)],
-  ]);
+  const contexts: Map<string, IAutoMovieActorContext> = new Map<
+    string,
+    IAutoMovieActorContext
+  >([["hero", contextOf(rig)]]);
   return makeActorSynthesizer(contexts, NODES)(action, "hero")!.keyframes[0]!
     .pose;
 };
 
-const boneOf: (pose: IAutoMoviePose, bone: AutoMovieHumanoidBone) => IAutoMovieJointPose | undefined = (
+const boneOf: (
+  pose: IAutoMoviePose,
+  bone: AutoMovieHumanoidBone,
+) => IAutoMovieJointPose | undefined = (
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
 ): IAutoMovieJointPose | undefined =>
-  pose.joints.find((entry: IAutoMovieJointPose): boolean => entry.bone === bone);
+  pose.joints.find(
+    (entry: IAutoMovieJointPose): boolean => entry.bone === bone,
+  );
 
 /** Degrees of flexion the aim formula demands: `+` is a downward tilt. */
-const flexionFor: (dy: number, horizontal: number) => number = (dy: number, horizontal: number): number =>
-  (-Math.atan2(dy, horizontal) * 180) / Math.PI;
+const flexionFor: (dy: number, horizontal: number) => number = (
+  dy: number,
+  horizontal: number,
+): number => (-Math.atan2(dy, horizontal) * 180) / Math.PI;
 
 /** Degrees of twist the aim formula demands for a target off to the side. */
-const twistFor: (dx: number, dz: number) => number = (dx: number, dz: number): number =>
-  (Math.atan2(dx, dz) * 180) / Math.PI;
+const twistFor: (dx: number, dz: number) => number = (
+  dx: number,
+  dz: number,
+): number => (Math.atan2(dx, dz) * 180) / Math.PI;
 
 /** One metre ahead and 1.1 m below eye level: 47.726…° of downward aim. */
 const DESK: IAutoMovieVector3 = { x: 0, y: EYE_HEIGHT - 1.1, z: 1 };
@@ -151,7 +180,10 @@ export function test_perform_look_at_gaze_chain(): void {
     "the head takes its declared maximum and the neck takes the rest",
     namedFacts([
       ["ncloseHeadFlexion", (): boolean => nclose(head.flexion!, 30)],
-      ["ncloseNeckFlexion", (): boolean => nclose(neck.flexion!, required - 30)],
+      [
+        "ncloseNeckFlexion",
+        (): boolean => nclose(neck.flexion!, required - 30),
+      ],
     ]),
     { ncloseHeadFlexion: true, ncloseNeckFlexion: true },
   );
@@ -174,7 +206,9 @@ export function test_perform_look_at_gaze_chain(): void {
   const shallow: IAutoMoviePose = aim(rig, { x: 0, y: EYE_HEIGHT - 0.3, z: 1 });
   TestValidator.equals(
     "a gaze the head can hold stays a single-joint pose",
-    shallow.joints.map((entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone),
+    shallow.joints.map(
+      (entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone,
+    ),
     ["head"],
   );
   TestValidator.equals(
@@ -184,8 +218,14 @@ export function test_perform_look_at_gaze_chain(): void {
         "ncloseShallowJoints",
         (): boolean => nclose(shallow.joints[0]!.flexion!, flexionFor(-0.3, 1)),
       ],
-      ["shallowJointsAbduction", (): boolean => shallow.joints[0]!.abduction === null],
-      ["ncloseShallowJoints2", (): boolean => nclose(shallow.joints[0]!.twist!, 0)],
+      [
+        "shallowJointsAbduction",
+        (): boolean => shallow.joints[0]!.abduction === null,
+      ],
+      [
+        "ncloseShallowJoints2",
+        (): boolean => nclose(shallow.joints[0]!.twist!, 0),
+      ],
     ]),
     {
       ncloseShallowJoints: true,
@@ -200,7 +240,10 @@ export function test_perform_look_at_gaze_chain(): void {
   TestValidator.equals(
     "an upward gaze splits at the head's minimum, not its maximum",
     namedFacts([
-      ["ncloseBoneOfUp", (): boolean => nclose(boneOf(up, "head")!.flexion!, -30)],
+      [
+        "ncloseBoneOfUp",
+        (): boolean => nclose(boneOf(up, "head")!.flexion!, -30),
+      ],
       [
         "ncloseBoneOfUp2",
         (): boolean => nclose(boneOf(up, "neck")!.flexion!, upward + 30),
@@ -221,8 +264,14 @@ export function test_perform_look_at_gaze_chain(): void {
     "a 90 degree turn splits twist 30 + 60 across the chain",
     namedFacts([
       ["ncloseTwistFor", (): boolean => nclose(twistFor(1, 0), 90)],
-      ["ncloseBoneOfTurned", (): boolean => nclose(boneOf(turned, "head")!.twist!, 30)],
-      ["ncloseBoneOfTurned2", (): boolean => nclose(boneOf(turned, "neck")!.twist!, 60)],
+      [
+        "ncloseBoneOfTurned",
+        (): boolean => nclose(boneOf(turned, "head")!.twist!, 30),
+      ],
+      [
+        "ncloseBoneOfTurned2",
+        (): boolean => nclose(boneOf(turned, "neck")!.twist!, 60),
+      ],
     ]),
     {
       ncloseTwistFor: true,
@@ -233,8 +282,14 @@ export function test_perform_look_at_gaze_chain(): void {
   TestValidator.equals(
     "the axis that needed no help contributes nothing",
     namedFacts([
-      ["ncloseBoneOfTurned", (): boolean => nclose(boneOf(turned, "head")!.flexion!, 0)],
-      ["boneOfTurnedNeck", (): boolean => boneOf(turned, "neck")!.flexion === null],
+      [
+        "ncloseBoneOfTurned",
+        (): boolean => nclose(boneOf(turned, "head")!.flexion!, 0),
+      ],
+      [
+        "boneOfTurnedNeck",
+        (): boolean => boneOf(turned, "neck")!.flexion === null,
+      ],
       [
         "violationCountValidatePoseResultTurned",
         (): boolean => violationCount(validatePoseResult(turned, rig)) === 0,
@@ -252,16 +307,32 @@ export function test_perform_look_at_gaze_chain(): void {
     neck: cervical(range(-50, 60), range(-70, 70)),
     head: cervical(range(-30, 30), null),
   });
-  const rolled: IAutoMoviePose = aim(immobile, { x: Math.sqrt(3), y: EYE_HEIGHT, z: 1 });
+  const rolled: IAutoMoviePose = aim(immobile, {
+    x: Math.sqrt(3),
+    y: EYE_HEIGHT,
+    z: 1,
+  });
   TestValidator.equals(
     "an immobile head twist leaves the head at 0 and the neck at 60",
     namedFacts([
-      ["ncloseTwistForMath", (): boolean => nclose(twistFor(Math.sqrt(3), 1), 60)],
-      ["boneOfRolledHead", (): boolean => boneOf(rolled, "head")!.twist !== null && nclose(boneOf(rolled, "head")!.twist!, 0, 0)],
-      ["ncloseBoneOfRolled", (): boolean => nclose(boneOf(rolled, "neck")!.twist!, 60)],
+      [
+        "ncloseTwistForMath",
+        (): boolean => nclose(twistFor(Math.sqrt(3), 1), 60),
+      ],
+      [
+        "boneOfRolledHead",
+        (): boolean =>
+          boneOf(rolled, "head")!.twist !== null &&
+          nclose(boneOf(rolled, "head")!.twist!, 0, 0),
+      ],
+      [
+        "ncloseBoneOfRolled",
+        (): boolean => nclose(boneOf(rolled, "neck")!.twist!, 60),
+      ],
       [
         "violationCountValidatePoseResultRolled",
-        (): boolean => violationCount(validatePoseResult(rolled, immobile)) === 0,
+        (): boolean =>
+          violationCount(validatePoseResult(rolled, immobile)) === 0,
       ],
     ]),
     {
@@ -288,7 +359,8 @@ export function test_perform_look_at_gaze_chain(): void {
       ],
       [
         "ncloseBoneOfImpossible2",
-        (): boolean => nclose(boneOf(impossible, "head")!.flexion!, 30 + deficit),
+        (): boolean =>
+          nclose(boneOf(impossible, "head")!.flexion!, 30 + deficit),
       ],
       ["deficit", (): boolean => deficit > 0],
     ]),
@@ -308,7 +380,9 @@ export function test_perform_look_at_gaze_chain(): void {
   const rigless: IAutoMoviePose = aim(null, DESK);
   TestValidator.equals(
     "a rig-less context poses one bone",
-    rigless.joints.map((entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone),
+    rigless.joints.map(
+      (entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone,
+    ),
     ["head"],
   );
   TestValidator.equals(
@@ -318,8 +392,14 @@ export function test_perform_look_at_gaze_chain(): void {
         "ncloseRiglessJoints",
         (): boolean => nclose(rigless.joints[0]!.flexion!, required),
       ],
-      ["riglessJointsAbduction", (): boolean => rigless.joints[0]!.abduction === null],
-      ["ncloseRiglessJoints2", (): boolean => nclose(rigless.joints[0]!.twist!, 0)],
+      [
+        "riglessJointsAbduction",
+        (): boolean => rigless.joints[0]!.abduction === null,
+      ],
+      [
+        "ncloseRiglessJoints2",
+        (): boolean => nclose(rigless.joints[0]!.twist!, 0),
+      ],
     ]),
     {
       ncloseRiglessJoints: true,
@@ -333,13 +413,18 @@ export function test_perform_look_at_gaze_chain(): void {
   const posed: IAutoMoviePose = aim(neckless, DESK);
   TestValidator.equals(
     "a rig declaring no neck poses one bone",
-    posed.joints.map((entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone),
+    posed.joints.map(
+      (entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone,
+    ),
     ["head"],
   );
   TestValidator.equals(
     "a rig declaring no neck keeps the single-bone aim",
     namedFacts([
-      ["nclosePosedJoints", (): boolean => nclose(posed.joints[0]!.flexion!, required)],
+      [
+        "nclosePosedJoints",
+        (): boolean => nclose(posed.joints[0]!.flexion!, required),
+      ],
       ["nclosePosedJoints2", (): boolean => nclose(posed.joints[0]!.twist!, 0)],
     ]),
     { nclosePosedJoints: true, nclosePosedJoints2: true },
@@ -348,14 +433,17 @@ export function test_perform_look_at_gaze_chain(): void {
   // 9. a neck the head does not hang from carries nothing.
   const detached: IAutoMovieSkeleton = {
     ...rig,
-    bones: rig.bones.map((bone: IAutoMovieBone): IAutoMovieBone =>
-      bone.bone === "head" ? { ...bone, parent: "chest" } : bone,
+    bones: rig.bones.map(
+      (bone: IAutoMovieBone): IAutoMovieBone =>
+        bone.bone === "head" ? { ...bone, parent: "chest" } : bone,
     ),
   };
   const sideways: IAutoMoviePose = aim(detached, DESK);
   TestValidator.equals(
     "a head beside the neck poses one bone",
-    sideways.joints.map((entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone),
+    sideways.joints.map(
+      (entry: IAutoMovieJointPose): AutoMovieHumanoidBone => entry.bone,
+    ),
     ["head"],
   );
   TestValidator.predicate(

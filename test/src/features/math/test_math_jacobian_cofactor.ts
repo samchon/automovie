@@ -1,9 +1,9 @@
 import { cofactorAutoMovieJacobian } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieJacobianCofactor } from "../../../../packages/engine/src/math/IAutoMovieJacobianCofactor";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
-
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -35,12 +35,18 @@ export function test_math_jacobian_cofactor(): void {
   for (const [input, determinant, matrix] of cases) {
     const before: number[] = input.slice();
     const result: IAutoMovieJacobianCofactor = cofactorAutoMovieJacobian(input);
-    TestValidator.predicate("independent cofactor", equalGeometryTestValues(result.matrix, matrix));
+    TestValidator.predicate(
+      "independent cofactor",
+      equalGeometryTestValues(result.matrix, matrix),
+    );
     TestValidator.predicate(
       "independent determinant",
       nclose(result.determinant, determinant, 0),
     );
-    TestValidator.predicate("caller Jacobian unchanged", equalGeometryTestValues(input, before));
+    TestValidator.predicate(
+      "caller Jacobian unchanged",
+      equalGeometryTestValues(input, before),
+    );
     TestValidator.predicate("owned cofactor storage", result.matrix !== input);
   }
   const shear: number[] = cofactorAutoMovieJacobian(cases[2][0]).matrix;
@@ -50,11 +56,23 @@ export function test_math_jacobian_cofactor(): void {
     nclose(2 * transported[0] + transported[1], 0, 0),
   );
   const inputShear: number[] = cases[2][0];
-  const wrongDirection: number[] = [inputShear[0], inputShear[3], inputShear[6]];
+  const wrongDirection: number[] = [
+    inputShear[0],
+    inputShear[3],
+    inputShear[6],
+  ];
   const tangent: number[] = [inputShear[1], inputShear[4], inputShear[7]];
   TestValidator.predicate(
     "direction transport is a negative control",
-    !nclose(wrongDirection.reduce((sum: number, value: number, i: number): number => sum + value * tangent[i], 0), 0, 0),
+    !nclose(
+      wrongDirection.reduce(
+        (sum: number, value: number, i: number): number =>
+          sum + value * tangent[i],
+        0,
+      ),
+      0,
+      0,
+    ),
   );
   const sparse: number[] = new Array<number>(9);
   for (let index: number = 0; index < 9; index++)
@@ -82,16 +100,21 @@ export function test_math_jacobian_cofactor(): void {
     );
     TestValidator.predicate(
       "refusal preserves entries",
-      Array.from({ length: input.length }, (_: unknown, i: number): number => i).every((i: number): boolean =>
-        Object.is(input[i], before[i]),
-      ),
+      Array.from(
+        { length: input.length },
+        (_: unknown, i: number): number => i,
+      ).every((i: number): boolean => Object.is(input[i], before[i])),
     );
   }
-  const result: IAutoMovieJacobianCofactor = cofactorAutoMovieJacobian(identity);
+  const result: IAutoMovieJacobianCofactor =
+    cofactorAutoMovieJacobian(identity);
   result.matrix[0] = 99;
   TestValidator.predicate(
     "owned result cannot change recovery",
-    equalGeometryTestValues(cofactorAutoMovieJacobian(identity).matrix, identity),
+    equalGeometryTestValues(
+      cofactorAutoMovieJacobian(identity).matrix,
+      identity,
+    ),
   );
   const wide: IAutoMovieJacobianCofactor = cofactorAutoMovieJacobian([
     1e308, 0, 0, 0, 1e-308, 0, 0, 0, 1e308,

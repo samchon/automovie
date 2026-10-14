@@ -21,8 +21,14 @@ import { nclose, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named math function owns all synchronous assertions and calls portable Vector3 source without consumer installation, native build, process, browser, GPU or dynamic registration.
  */
 export function test_math_vector3_length_normalize(): void {
-  TestValidator.predicate("3-4-5 length", nclose(Vector3.length({ x: 3, y: 4, z: 0 }), 5, 0));
-  TestValidator.predicate("zero length", nclose(Vector3.length(Vector3.create()), 0, 0));
+  TestValidator.predicate(
+    "3-4-5 length",
+    nclose(Vector3.length({ x: 3, y: 4, z: 0 }), 5, 0),
+  );
+  TestValidator.predicate(
+    "zero length",
+    nclose(Vector3.length(Vector3.create()), 0, 0),
+  );
   TestValidator.predicate(
     "normalized vector is unit",
     nclose(Vector3.length(Vector3.normalize({ x: 3, y: 4, z: 0 })), 1),

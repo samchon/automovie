@@ -40,7 +40,10 @@ const HERO: IAutoMovieActorContext = {
 /** Three metres straight ahead: three whole cycles, 3.0 s of natural walk. */
 const EXIT: IAutoMovieVector3 = { x: 0, y: 0, z: 3 };
 
-const NODES: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const NODES: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["hero", { x: 0, y: 0, z: 0 }],
   ["exit", EXIT],
 ]);
@@ -50,7 +53,10 @@ const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
   NODES,
 );
 
-const walkTo: (duration: number | "auto", start?: number) => IAutoMovieActionCall = (
+const walkTo: (
+  duration: number | "auto",
+  start?: number,
+) => IAutoMovieActionCall = (
   duration: number | "auto",
   start: number = 0,
 ): IAutoMovieActionCall => ({
@@ -62,7 +68,9 @@ const walkTo: (duration: number | "auto", start?: number) => IAutoMovieActionCal
   duration,
 });
 
-const stepInPlace: (duration: number | "auto") => IAutoMovieActionCall = (duration: number | "auto"): IAutoMovieActionCall => ({
+const stepInPlace: (duration: number | "auto") => IAutoMovieActionCall = (
+  duration: number | "auto",
+): IAutoMovieActionCall => ({
   verb: "locomote",
   actor: "hero",
   gait: "walk",
@@ -73,8 +81,11 @@ const stepInPlace: (duration: number | "auto") => IAutoMovieActionCall = (durati
 });
 
 /** Where the travelling root ends up, in the actor's model space. */
-const arrival: (motion: IAutoMovieMotion) => number = (motion: IAutoMovieMotion): number => {
-  const last: IAutoMovieKeyframe = motion.keyframes[motion.keyframes.length - 1]!;
+const arrival: (motion: IAutoMovieMotion) => number = (
+  motion: IAutoMovieMotion,
+): number => {
+  const last: IAutoMovieKeyframe =
+    motion.keyframes[motion.keyframes.length - 1]!;
   return last.pose.root!.translation.z;
 };
 
@@ -116,8 +127,10 @@ export function test_perform_locomote_declared_duration(): void {
     "an explicit duration is the clip's span",
     nclose(declared.duration, 7.5),
   );
-  const compiled: IAutoMovieMotion = compilePerformance([walkTo(7.5, 2.5)], synth).performances
-    .hero!;
+  const compiled: IAutoMovieMotion = compilePerformance(
+    [walkTo(7.5, 2.5)],
+    synth,
+  ).performances.hero!;
   TestValidator.predicate(
     "the compiled performance ends at start + the declared duration",
     nclose(compiled.duration, 10),
@@ -158,7 +171,10 @@ export function test_perform_locomote_declared_duration(): void {
     namedFacts([
       ["ncloseQuickDuration", (): boolean => nclose(quick.duration, 1.5)],
       ["ncloseArrivalQuick", (): boolean => nclose(arrival(quick), 3)],
-      ["ncloseQuickGaitCycle", (): boolean => nclose(quick.gaitCycle!.period, 0.5)],
+      [
+        "ncloseQuickGaitCycle",
+        (): boolean => nclose(quick.gaitCycle!.period, 0.5),
+      ],
     ]),
     {
       ncloseQuickDuration: true,

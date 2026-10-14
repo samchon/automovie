@@ -1,5 +1,9 @@
 import { blendPoses, validateMotion } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMoviePose, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -35,7 +39,10 @@ export function test_perform_blend_rom(): void {
     [keyframe(0, overshot), keyframe(1, overshot)],
     1,
   );
-  const bad: IAutoMovieValidation = validateMotion({ motion: badMotion, skeleton: createSkeleton() });
+  const bad: IAutoMovieValidation = validateMotion({
+    motion: badMotion,
+    skeleton: createSkeleton(),
+  });
   TestValidator.equals("out-of-ROM blend fails validation", bad.success, false);
   TestValidator.predicate(
     "rom violation on the blended flexion axis",

@@ -23,7 +23,10 @@ import { qclose, qunit } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named math function runs these synchronous portable runtime calls without a consumer install, native build, process, browser, GPU or dynamic case registration.
  */
 export function test_math_quaternion_inverse(): void {
-  const y90: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const y90: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
   TestValidator.predicate(
     "q * inverse(q) → identity",
     qclose(

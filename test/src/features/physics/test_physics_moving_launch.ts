@@ -37,8 +37,10 @@ export function test_physics_moving_launch(): void {
 
   // 1. stationary → the static solve
   const still: IAutoMovieVector3 = { x: 7, y: 1, z: 2 };
-  const moving: NonNullable<ReturnType<typeof solveMovingLaunch>> = solveMovingLaunch(origin, (): IAutoMovieVector3 => still, 16)!;
-  const staticSol: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, still, 16)!;
+  const moving: NonNullable<ReturnType<typeof solveMovingLaunch>> =
+    solveMovingLaunch(origin, (): IAutoMovieVector3 => still, 16)!;
+  const staticSol: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, still, 16)!;
   TestValidator.predicate(
     "a stationary target reduces to the static solve",
     vclose(moving.velocity, staticSol.velocity, 1e-6) &&
@@ -47,21 +49,34 @@ export function test_physics_moving_launch(): void {
   TestValidator.predicate(
     "stationary launch independently satisfies displacement and requested speed",
     moving.hitTime > 0 &&
-      nclose(Math.hypot(moving.velocity.x, moving.velocity.y, moving.velocity.z), 16, 1e-6) &&
-      vclose({
-        x: moving.velocity.x * moving.hitTime,
-        y: moving.velocity.y * moving.hitTime - 9.81 * moving.hitTime ** 2 / 2,
-        z: moving.velocity.z * moving.hitTime,
-      }, { x: 7, y: -0.6, z: 2 }, 1e-6),
+      nclose(
+        Math.hypot(moving.velocity.x, moving.velocity.y, moving.velocity.z),
+        16,
+        1e-6,
+      ) &&
+      vclose(
+        {
+          x: moving.velocity.x * moving.hitTime,
+          y:
+            moving.velocity.y * moving.hitTime -
+            (9.81 * moving.hitTime ** 2) / 2,
+          z: moving.velocity.z * moving.hitTime,
+        },
+        { x: 7, y: -0.6, z: 2 },
+        1e-6,
+      ),
   );
 
   // 2. a target sliding downrange (+x at 3 m/s) is led onto the meeting point
-  const slide: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => ({
+  const slide: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => ({
     x: 6 + 3 * t,
     y: 1,
     z: 0,
   });
-  const lead: NonNullable<ReturnType<typeof solveMovingLaunch>> = solveMovingLaunch(origin, slide, 20)!;
+  const lead: NonNullable<ReturnType<typeof solveMovingLaunch>> =
+    solveMovingLaunch(origin, slide, 20)!;
   const meet: IAutoMovieVector3 = projectileAt(
     { origin, velocity: lead.velocity, gravity: GRAVITY },
     lead.hitTime,
@@ -72,11 +87,16 @@ export function test_physics_moving_launch(): void {
   );
   TestValidator.predicate(
     "the sliding intercept independently follows constant acceleration",
-    vclose({
-      x: lead.velocity.x * lead.hitTime,
-      y: 1.6 + lead.velocity.y * lead.hitTime - 9.81 * lead.hitTime ** 2 / 2,
-      z: lead.velocity.z * lead.hitTime,
-    }, slide(lead.hitTime), 1e-3),
+    vclose(
+      {
+        x: lead.velocity.x * lead.hitTime,
+        y:
+          1.6 + lead.velocity.y * lead.hitTime - (9.81 * lead.hitTime ** 2) / 2,
+        z: lead.velocity.z * lead.hitTime,
+      },
+      slide(lead.hitTime),
+      1e-3,
+    ),
   );
   TestValidator.predicate(
     "the intercept is ahead of the start",
@@ -84,7 +104,14 @@ export function test_physics_moving_launch(): void {
   );
 
   // 3. one iteration returns the best-so-far solve (an unsettled partial lead)
-  const partial: ReturnType<typeof solveMovingLaunch> = solveMovingLaunch(origin, slide, 20, GRAVITY, "direct", 1);
+  const partial: ReturnType<typeof solveMovingLaunch> = solveMovingLaunch(
+    origin,
+    slide,
+    20,
+    GRAVITY,
+    "direct",
+    1,
+  );
   TestValidator.predicate(
     "capped iterations still return a solve",
     partial !== null,
@@ -95,7 +122,9 @@ export function test_physics_moving_launch(): void {
   );
 
   // 4. a target that outruns the shot → out of range → null
-  const flee: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => ({
+  const flee: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => ({
     x: 40 + 30 * t,
     y: 1,
     z: 0,

@@ -27,7 +27,8 @@ export function test_physics_ballistic_non_finite_speed(): void {
     );
     TestValidator.predicate(
       `moving ${String(speed)} speed is null`,
-      solveMovingLaunch(origin, (): IAutoMovieVector3 => target, speed) === null,
+      solveMovingLaunch(origin, (): IAutoMovieVector3 => target, speed) ===
+        null,
     );
   }
 }

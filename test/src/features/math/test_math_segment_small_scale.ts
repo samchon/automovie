@@ -1,11 +1,13 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieClosestSegmentPoints } from "../../../../packages/engine/src/math/IAutoMovieClosestSegmentPoints";
-import { closestPointsBetweenSegments } from "../../../../packages/engine/src/math/closestPointsBetweenSegments";
-import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
 import { TestValidator } from "@nestia/e2e";
+
+import { IAutoMovieClosestSegmentPoints } from "../../../../packages/engine/src/math/IAutoMovieClosestSegmentPoints";
 import { closestPointOnSegmentXZ } from "../../../../packages/engine/src/math/closestPointOnSegmentXZ";
+import { closestPointsBetweenSegments } from "../../../../packages/engine/src/math/closestPointsBetweenSegments";
 import { pointSegmentDistance } from "../../../../packages/engine/src/math/pointSegmentDistance";
+import { segmentSegmentDistance } from "../../../../packages/engine/src/math/segmentSegmentDistance";
 import { nclose, vclose } from "../internal/predicates";
+
 /**
  * Orthogonal ten-micrometre segments have a one-micrometre interior gap.
  * A dimensionless parallel threshold must not replace that closest pair.
@@ -25,7 +27,12 @@ export function test_math_segment_small_scale(): void {
   const b: IAutoMovieVector3 = { x: 5e-6, y: 0, z: 0 };
   const c: IAutoMovieVector3 = { x: 0, y: -5e-6, z: 1e-6 };
   const d: IAutoMovieVector3 = { x: 0, y: 5e-6, z: 1e-6 };
-  const pair: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(a, b, c, d);
+  const pair: IAutoMovieClosestSegmentPoints = closestPointsBetweenSegments(
+    a,
+    b,
+    c,
+    d,
+  );
   TestValidator.predicate(
     `independent one-micrometre gap: ${JSON.stringify(pair)}`,
     nclose(pair.distance, 1e-6, 1e-15) &&

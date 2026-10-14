@@ -1,19 +1,25 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  IAutoMovieActorContext,
   IAutoMovieActionSynthesizer,
+  IAutoMovieActorContext,
   makeActorSynthesizer,
   resolvePose,
   sampleMotion,
 } from "@automovie/engine";
-import { IAutoMovieMotion, IAutoMovieReachAction, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieMotion,
+  IAutoMovieReachAction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, makePose } from "../internal/fixtures";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
 
-const ctx: (facingDeg: number) => IAutoMovieActorContext = (facingDeg: number): IAutoMovieActorContext => ({
+const ctx: (facingDeg: number) => IAutoMovieActorContext = (
+  facingDeg: number,
+): IAutoMovieActorContext => ({
   skeleton: "skeleton-1",
   gaits: [],
   position: { x: 1, y: 0, z: 2 }, // placed away from the origin
@@ -27,12 +33,17 @@ const ctx: (facingDeg: number) => IAutoMovieActorContext = (facingDeg: number): 
 // Each lever is placed so its model-space image (after undoing the actor's
 // facing) sits inside the 0.55 m arm reach for that facing: a fixed world
 // point maps to a different arm distance as the actor turns.
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["lever", { x: 1.35, y: 1.2, z: 2.25 }], // reachable facing 0
   ["lever90", { x: 1.2, y: 1.3, z: 1.7 }], // reachable facing 90
 ]);
 
-const reach: (overrides?: Partial<IAutoMovieReachAction>) => IAutoMovieReachAction = (
+const reach: (
+  overrides?: Partial<IAutoMovieReachAction>,
+) => IAutoMovieReachAction = (
   overrides: Partial<IAutoMovieReachAction> = {},
 ): IAutoMovieReachAction => ({
   verb: "reach",
@@ -47,7 +58,11 @@ const reach: (overrides?: Partial<IAutoMovieReachAction>) => IAutoMovieReachActi
 /**
  * Read the sampled left hand through humanoid clinical axes/rest frames, then rotate by actor facing about Y and add the literal placement. Contexts deliberately omit restFrames; the reach producer's default is the matching clinical frame. This numerical FK observation shares production kinematics, and does not render a hand.
  */
-const worldHand: (pose: ReturnType<typeof sampleMotion>["pose"], facingDeg: number, position: IAutoMovieVector3) => IAutoMovieVector3 = (
+const worldHand: (
+  pose: ReturnType<typeof sampleMotion>["pose"],
+  facingDeg: number,
+  position: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   pose: ReturnType<typeof sampleMotion>["pose"],
   facingDeg: number,
   position: IAutoMovieVector3,
@@ -57,7 +72,10 @@ const worldHand: (pose: ReturnType<typeof sampleMotion>["pose"], facingDeg: numb
     createSkeleton(),
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
-  ).find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "leftHand")!.worldPosition;
+  ).find(
+    (b: ReturnType<typeof resolvePose>[number]): boolean =>
+      b.bone === "leftHand",
+  )!.worldPosition;
   const f: number = (facingDeg * Math.PI) / 180;
   const cos: number = Math.cos(f);
   const sin: number = Math.sin(f);
@@ -86,7 +104,10 @@ const worldHand: (pose: ReturnType<typeof sampleMotion>["pose"], facingDeg: numb
 export function test_perform_reach_synthesis(): void {
   const lever: IAutoMovieVector3 = nodes.get("lever")!;
 
-  const s0: IAutoMovieActionSynthesizer = makeActorSynthesizer(new Map<string, IAutoMovieActorContext>([["hero", ctx(0)]]), nodes);
+  const s0: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    new Map<string, IAutoMovieActorContext>([["hero", ctx(0)]]),
+    nodes,
+  );
   const clip: IAutoMovieMotion | null = s0(reach(), "hero");
   TestValidator.predicate("reach produced a clip", clip !== null);
   if (clip === null) return;
@@ -103,8 +124,14 @@ export function test_perform_reach_synthesis(): void {
   );
 
   const lever90: IAutoMovieVector3 = nodes.get("lever90")!;
-  const s90: IAutoMovieActionSynthesizer = makeActorSynthesizer(new Map<string, IAutoMovieActorContext>([["hero", ctx(90)]]), nodes);
-  const turned: IAutoMovieMotion = s90(reach({ to: { kind: "node", node: "lever90" } }), "hero")!;
+  const s90: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    new Map<string, IAutoMovieActorContext>([["hero", ctx(90)]]),
+    nodes,
+  );
+  const turned: IAutoMovieMotion = s90(
+    reach({ to: { kind: "node", node: "lever90" } }),
+    "hero",
+  )!;
   TestValidator.predicate(
     "the held hand lands on the world target (facing 90)",
     vclose(
@@ -115,7 +142,9 @@ export function test_perform_reach_synthesis(): void {
   );
 
   const rigless: IAutoMovieActionSynthesizer = makeActorSynthesizer(
-    new Map<string, IAutoMovieActorContext>([["hero", { ...ctx(0), rig: undefined }]]),
+    new Map<string, IAutoMovieActorContext>([
+      ["hero", { ...ctx(0), rig: undefined }],
+    ]),
     nodes,
   );
   TestValidator.equals("no rig, no reach", rigless(reach(), "hero"), null);
@@ -134,7 +163,10 @@ export function test_perform_reach_synthesis(): void {
     "an auto-duration reach runs the default 0.6 s",
     namedFacts([
       ["auto", (): boolean => auto !== null],
-      ["ncloseAutoDuration", (): boolean => auto !== null && nclose(auto.duration, 0.6)],
+      [
+        "ncloseAutoDuration",
+        (): boolean => auto !== null && nclose(auto.duration, 0.6),
+      ],
     ]),
     { auto: true, ncloseAutoDuration: true },
   );

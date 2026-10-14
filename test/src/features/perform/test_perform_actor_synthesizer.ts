@@ -41,14 +41,23 @@ const ctx: IAutoMovieActorContext = {
   restPose: makePose([joint("spine", { flexion: 0 })]),
 };
 
-const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([["hero", ctx]]);
+const contexts: Map<string, IAutoMovieActorContext> = new Map<
+  string,
+  IAutoMovieActorContext
+>([["hero", ctx]]);
 
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["door", { x: 0, y: 0, z: 5 }],
   ["here", { x: 0, y: 0, z: 0 }],
 ]);
 
-const locomote: (gait: "walk" | "run" | "sprint" | "sneak" | "march", to: IAutoMovieActionTarget) => IAutoMovieActionCall = (
+const locomote: (
+  gait: "walk" | "run" | "sprint" | "sneak" | "march",
+  to: IAutoMovieActionTarget,
+) => IAutoMovieActionCall = (
   gait: "walk" | "run" | "sprint" | "sneak" | "march",
   to: IAutoMovieActionTarget,
 ): IAutoMovieActionCall => ({
@@ -60,7 +69,9 @@ const locomote: (gait: "walk" | "run" | "sprint" | "sneak" | "march", to: IAutoM
   duration: "auto",
 });
 
-const hold: (start: number) => IAutoMovieActionCall = (start: number): IAutoMovieActionCall => ({
+const hold: (start: number) => IAutoMovieActionCall = (
+  start: number,
+): IAutoMovieActionCall => ({
   verb: "hold",
   actor: "hero",
   start,
@@ -75,7 +86,9 @@ const gesture: IAutoMovieActionCall = {
   duration: "auto",
 };
 
-const emote: (duration: number | "auto") => IAutoMovieActionCall = (duration: number | "auto"): IAutoMovieActionCall => ({
+const emote: (duration: number | "auto") => IAutoMovieActionCall = (
+  duration: number | "auto",
+): IAutoMovieActionCall => ({
   verb: "emote",
   preset: "happy",
   intensity: 0.8,
@@ -84,7 +97,10 @@ const emote: (duration: number | "auto") => IAutoMovieActionCall = (duration: nu
   duration,
 });
 
-const lookAt: (to: IAutoMovieActionTarget, duration: number | "auto") => IAutoMovieActionCall = (
+const lookAt: (
+  to: IAutoMovieActionTarget,
+  duration: number | "auto",
+) => IAutoMovieActionCall = (
   to: IAutoMovieActionTarget,
   duration: number | "auto",
 ): IAutoMovieActionCall => ({
@@ -125,7 +141,10 @@ const door: IAutoMovieActionTarget = { kind: "node", node: "door" };
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns every synthesis, frame, sample and compile invocation with borrowed local maps and pure callback fixtures. Private action constructors register no extra cases and start no renderer, viewer, process or native artifact.
  */
 export function test_perform_actor_synthesizer(): void {
-  const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(contexts, nodes);
+  const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
+    contexts,
+    nodes,
+  );
 
   // 1. travel toward a resolvable destination
   const trip: IAutoMovieMotion | null = synth(locomote("walk", door), "hero");
@@ -155,8 +174,10 @@ export function test_perform_actor_synthesizer(): void {
     locomote("walk", { kind: "point", point: worldDest }),
     "hero",
   )!;
-  const finalRoot: IAutoMovieVector3 = sampleMotion(turnedTrip, turnedTrip.duration).pose.root!
-    .translation;
+  const finalRoot: IAutoMovieVector3 = sampleMotion(
+    turnedTrip,
+    turnedTrip.duration,
+  ).pose.root!.translation;
   const rendered: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
     finalRoot,
@@ -173,8 +194,8 @@ export function test_perform_actor_synthesizer(): void {
     locomote("walk", { kind: "point", point: rampDest }),
     "hero",
   )!;
-  const rampRoot: IAutoMovieVector3 = sampleMotion(rampTrip, rampTrip.duration).pose.root!
-    .translation;
+  const rampRoot: IAutoMovieVector3 = sampleMotion(rampTrip, rampTrip.duration)
+    .pose.root!.translation;
   TestValidator.predicate(
     "ramp locomotion arrives at the complete ground point",
     vclose(rampRoot, rampDest, 1e-9),
@@ -197,7 +218,10 @@ export function test_perform_actor_synthesizer(): void {
   TestValidator.equals("in-place is gait-keyed", inPlace!.id, "hero:walk");
 
   // 2b. destination at the actor's own spot → also steps in place
-  const here: IAutoMovieMotion | null = synth(locomote("walk", { kind: "node", node: "here" }), "hero");
+  const here: IAutoMovieMotion | null = synth(
+    locomote("walk", { kind: "node", node: "here" }),
+    "hero",
+  );
   TestValidator.equals("already-there steps in place", here!.id, "hero:walk");
   TestValidator.equals(
     "vertical-only ground travel is not silently treated as already there",
@@ -230,7 +254,10 @@ export function test_perform_actor_synthesizer(): void {
     "a postural gesture (bow, auto duration) synthesises a 1 s clip",
     namedFacts([
       ["bow", (): boolean => bow !== null],
-      ["ncloseBowDuration", (): boolean => bow !== null && nclose(bow.duration, 1)],
+      [
+        "ncloseBowDuration",
+        (): boolean => bow !== null && nclose(bow.duration, 1),
+      ],
     ]),
     { bow: true, ncloseBowDuration: true },
   );
@@ -242,7 +269,10 @@ export function test_perform_actor_synthesizer(): void {
     "an explicit gesture duration is honoured (a 2 s nod)",
     namedFacts([
       ["nod", (): boolean => nod !== null],
-      ["ncloseNodDuration", (): boolean => nod !== null && nclose(nod.duration, 2)],
+      [
+        "ncloseNodDuration",
+        (): boolean => nod !== null && nclose(nod.duration, 2),
+      ],
     ]),
     { nod: true, ncloseNodDuration: true },
   );
@@ -322,10 +352,8 @@ export function test_perform_actor_synthesizer(): void {
     nclose(synth(lookAt(door, "auto"), "hero")!.duration, 1),
   );
 
-  const performances: ReturnType<typeof compilePerformance>["performances"] = compilePerformance(
-    [locomote("walk", door), hold(6)],
-    synth,
-  ).performances;
+  const performances: ReturnType<typeof compilePerformance>["performances"] =
+    compilePerformance([locomote("walk", door), hold(6)], synth).performances;
   TestValidator.equals("one actor performed", Object.keys(performances), [
     "hero",
   ]);
@@ -340,21 +368,23 @@ export function test_perform_actor_synthesizer(): void {
     skeleton: "h",
     duration: 1,
     loop: false,
-    keyframes: [0, 1].map((time: number): IAutoMovieKeyframe => ({
-      time,
-      pose: {
-        skeleton: "h",
-        root: {
-          translation: { x: 0, y: 0, z: time },
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45 * time),
-          scale: { x: 1, y: 1, z: 1 },
+    keyframes: [0, 1].map(
+      (time: number): IAutoMovieKeyframe => ({
+        time,
+        pose: {
+          skeleton: "h",
+          root: {
+            translation: { x: 0, y: 0, z: time },
+            rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 45 * time),
+            scale: { x: 1, y: 1, z: 1 },
+          },
+          joints: [],
         },
-        joints: [],
-      },
-      expression: null,
-      easing: "linear" as const,
-      bezier: null,
-    })),
+        expression: null,
+        easing: "linear" as const,
+        bezier: null,
+      }),
+    ),
   };
   TestValidator.equals(
     "a missing/rootless preliminary motion has no dynamic performer frame",
@@ -366,11 +396,12 @@ export function test_perform_actor_synthesizer(): void {
     resolveActorWorldFrame(ctx, held!, 0),
     null,
   );
-  const liveFrame: NonNullable<ReturnType<typeof resolveActorWorldFrame>> = resolveActorWorldFrame(
-    { ...ctx, position: { x: 1, y: 0, z: 2 }, facingDeg: 90 },
-    rootMotion,
-    1,
-  )!;
+  const liveFrame: NonNullable<ReturnType<typeof resolveActorWorldFrame>> =
+    resolveActorWorldFrame(
+      { ...ctx, position: { x: 1, y: 0, z: 2 }, facingDeg: 90 },
+      rootMotion,
+      1,
+    )!;
   TestValidator.predicate(
     "staged facing carries root travel into world position",
     vclose(liveFrame.position, { x: 2, y: 0, z: 2 }, 1e-9),
@@ -384,22 +415,34 @@ export function test_perform_actor_synthesizer(): void {
     contexts,
     nodes,
     undefined,
-    (_actor: string, seconds: number): NonNullable<ReturnType<typeof resolveActorWorldFrame>> => ({
+    (
+      _actor: string,
+      seconds: number,
+    ): NonNullable<ReturnType<typeof resolveActorWorldFrame>> => ({
       position: { x: 0, y: 0, z: seconds },
       rotation: Quaternion.identity(),
       facingDeg: 0,
     }),
   )(lookAt(door, 1), "hero")!;
-  const movingStart: IAutoMovieJointPose = sampleMotion(movingLook, 0).pose.joints.find(
+  const movingStart: IAutoMovieJointPose = sampleMotion(
+    movingLook,
+    0,
+  ).pose.joints.find(
     (joint: IAutoMovieJointPose): boolean => joint.bone === "head",
   )!;
-  const movingEnd: IAutoMovieJointPose = sampleMotion(movingLook, 1).pose.joints.find(
+  const movingEnd: IAutoMovieJointPose = sampleMotion(
+    movingLook,
+    1,
+  ).pose.joints.find(
     (joint: IAutoMovieJointPose): boolean => joint.bone === "head",
   )!;
   TestValidator.equals(
     "lookAt samples the moving observer eye rather than its staged origin",
     namedFacts([
-      ["movingLookKeyframesLength", (): boolean => movingLook.keyframes.length > 2],
+      [
+        "movingLookKeyframesLength",
+        (): boolean => movingLook.keyframes.length > 2,
+      ],
       [
         "ncloseMovingStartFlexion",
         (): boolean =>

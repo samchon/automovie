@@ -39,7 +39,8 @@ export function test_physics_ballistic_vertical_first_contact(): void {
   //    rising  root = (20 − 14.2758537)/9.81 = 0.5835012 s  ← first contact
   //    falling root = (20 + 14.2758537)/9.81 = 3.4939708 s
   const overhead: IAutoMovieVector3 = { x: 0, y: 10, z: 0 };
-  const up: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY)!;
+  const up: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, overhead, 20, GRAVITY)!;
   TestValidator.predicate(
     "overhead hit time is the rising root (first contact)",
     nclose(up.hitTime, 0.5835012, 1e-4),
@@ -48,7 +49,10 @@ export function test_physics_ballistic_vertical_first_contact(): void {
     "the rising root is well before the descending re-crossing",
     namedFacts([
       ["upHitTime", (): boolean => up.hitTime < 1],
-      ["upHitTime2", (): boolean => up.hitTime < 1 && up.hitTime * 5 < 3.4939157],
+      [
+        "upHitTime2",
+        (): boolean => up.hitTime < 1 && up.hitTime * 5 < 3.4939157,
+      ],
     ]),
     { upHitTime: true, upHitTime2: true },
   );
@@ -72,7 +76,8 @@ export function test_physics_ballistic_vertical_first_contact(): void {
   //    Fired down (v=−6): disc = 6² − 2·9.81·(−4) = 114.48; √114.48 = 10.699533…
   //    → single positive root = (−6 + 10.699533)/9.81 = 0.4790553 s
   const below: IAutoMovieVector3 = { x: 0, y: -4, z: 0 };
-  const down: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(ORIGIN, below, 6, GRAVITY)!;
+  const down: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(ORIGIN, below, 6, GRAVITY)!;
   TestValidator.predicate(
     "a below target's direct arc fires straight down",
     vclose(down.velocity, { x: 0, y: -6, z: 0 }, 1e-9),

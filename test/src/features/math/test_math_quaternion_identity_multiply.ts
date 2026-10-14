@@ -22,7 +22,10 @@ import { qclose, qunit } from "../internal/predicates";
  */
 export function test_math_quaternion_identity_multiply(): void {
   const id: IAutoMovieQuaternion = Quaternion.identity();
-  const qY90: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
+  const qY90: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
 
   TestValidator.predicate(
     "zero-length axis → identity",

@@ -13,7 +13,11 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], parent: IAutoMovieBone["parent"], constraint: IAutoMovieBone["constraint"]) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -64,8 +68,9 @@ export function test_physics_impact_recoil_push_finite(): void {
   for (const [axis, value] of cases)
     TestValidator.predicate(
       `${axis} ${value} throws`,
-      throws((): ReturnType<typeof impactRecoil> =>
-        impactRecoil({ [axis]: value }, ["spine", "chest"], skeleton, 1),
+      throws(
+        (): ReturnType<typeof impactRecoil> =>
+          impactRecoil({ [axis]: value }, ["spine", "chest"], skeleton, 1),
       ),
     );
 

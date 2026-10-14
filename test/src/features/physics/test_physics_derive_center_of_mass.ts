@@ -1,17 +1,35 @@
 import { deriveCenterOfMass } from "@automovie/engine";
-import { AutoMoviePrimitiveShape, IAutoMovieTransform } from "@automovie/interface";
+import {
+  AutoMoviePrimitiveShape,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeProp, primitivePart } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
 
-const at: (x: number, y: number, z: number, s?: number) => IAutoMovieTransform = (x: number, y: number, z: number, s: number = 1): IAutoMovieTransform => ({
+const at: (
+  x: number,
+  y: number,
+  z: number,
+  s?: number,
+) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+  s: number = 1,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: s, y: s, z: s },
 });
 
-const unit: AutoMoviePrimitiveShape = { type: "box", width: 1, height: 1, depth: 1 };
+const unit: AutoMoviePrimitiveShape = {
+  type: "box",
+  width: 1,
+  height: 1,
+  depth: 1,
+};
 
 /**
  * `deriveCenterOfMass` is the volume-weighted centroid the engine falls back to

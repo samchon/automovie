@@ -33,26 +33,44 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
 export function test_physics_projectile_trajectory_timing(): void {
   TestValidator.predicate(
     "nan duration throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, Number.NaN, 30)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, Number.NaN, 30),
+    ),
   );
   TestValidator.predicate(
     "infinite duration throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, Infinity, 30)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, Infinity, 30),
+    ),
   );
   TestValidator.predicate(
     "zero duration throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, 0, 30)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, 0, 30),
+    ),
   );
   TestValidator.predicate(
     "nan fps throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, 1, Number.NaN)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, 1, Number.NaN),
+    ),
   );
   TestValidator.predicate(
     "infinite fps throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, 1, Infinity)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, 1, Infinity),
+    ),
   );
   TestValidator.predicate(
     "zero fps throws",
-    throws((): ReturnType<typeof projectileTrajectory> => projectileTrajectory("arrow", PROJECTILE, 1, 0)),
+    throws(
+      (): ReturnType<typeof projectileTrajectory> =>
+        projectileTrajectory("arrow", PROJECTILE, 1, 0),
+    ),
   );
 }

@@ -26,7 +26,9 @@ const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
  */
 export function test_physics_moving_launch_closest(): void {
   const speed: number = 20;
-  const accel: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => ({
+  const accel: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => ({
     x: 20 + 5 * t * t,
     y: 1,
     z: 0,
@@ -40,9 +42,15 @@ export function test_physics_moving_launch_closest(): void {
   const iterates: Array<{ hitTime: number; residual: number }> = [];
   for (let i: number = 0; i < 4; ++i) {
     const target: IAutoMovieVector3 = accel(guess);
-    const distanceSquared: number = (target.x - origin.x) ** 2 + (target.y - origin.y) ** 2 + (target.z - origin.z) ** 2;
+    const distanceSquared: number =
+      (target.x - origin.x) ** 2 +
+      (target.y - origin.y) ** 2 +
+      (target.z - origin.z) ** 2;
     const linear: number = speed ** 2 - 9.81 * (target.y - origin.y);
-    const hitTime: number = Math.sqrt(2 * distanceSquared / (linear + Math.sqrt(linear ** 2 - 9.81 ** 2 * distanceSquared)));
+    const hitTime: number = Math.sqrt(
+      (2 * distanceSquared) /
+        (linear + Math.sqrt(linear ** 2 - 9.81 ** 2 * distanceSquared)),
+    );
     iterates.push({
       hitTime,
       residual: Math.abs(hitTime - guess),
@@ -50,7 +58,12 @@ export function test_physics_moving_launch_closest(): void {
     guess = hitTime;
   }
 
-  const closest: (typeof iterates)[number] = iterates.reduce((a: (typeof iterates)[number], b: (typeof iterates)[number]): (typeof iterates)[number] => (b.residual < a.residual ? b : a));
+  const closest: (typeof iterates)[number] = iterates.reduce(
+    (
+      a: (typeof iterates)[number],
+      b: (typeof iterates)[number],
+    ): (typeof iterates)[number] => (b.residual < a.residual ? b : a),
+  );
   const last: (typeof iterates)[number] = iterates[iterates.length - 1]!;
   TestValidator.predicate(
     "the residual is non-monotone, the fixed point does not settle within four",
@@ -59,10 +72,18 @@ export function test_physics_moving_launch_closest(): void {
 
   // Capped at four iterates the moving-launch solve must be the closest iterate
   // (iterate 2, hitTime ~1.7355), NOT the last one visited (iterate 3, ~1.9894).
-  const led: ReturnType<typeof solveMovingLaunch> = solveMovingLaunch(origin, accel, speed, GRAVITY, "direct", 4);
+  const led: ReturnType<typeof solveMovingLaunch> = solveMovingLaunch(
+    origin,
+    accel,
+    speed,
+    GRAVITY,
+    "direct",
+    4,
+  );
   TestValidator.predicate(
     "the capped moving launch returns the closest iterate, not the last",
-    led !== null && nclose(led.hitTime, closest.hitTime, 1e-9) &&
+    led !== null &&
+      nclose(led.hitTime, closest.hitTime, 1e-9) &&
       !nclose(led.hitTime, last.hitTime, 1e-6),
   );
 }

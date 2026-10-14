@@ -1,10 +1,16 @@
-import { IAutoMovieImpactBody, suggestCollisionResponse } from "@automovie/engine";
+import {
+  IAutoMovieImpactBody,
+  suggestCollisionResponse,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/fixtures";
 import { nclose, vclose } from "../internal/predicates";
 
-const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBody = (mass: number, vx: number): IAutoMovieImpactBody => ({
+const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBody = (
+  mass: number,
+  vx: number,
+): IAutoMovieImpactBody => ({
   mass,
   velocity: { x: vx, y: 0, z: 0 },
   restitution: 0,
@@ -31,14 +37,15 @@ const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBody = (mass: number
  * @evidence contracts/testing.md#execution-ownership The named exported portable unit invokes the composer with the existing skeletal fixture and owns its assertions without hosts, rendered assets or dynamically registered cases.
  */
 export function test_physics_suggest_collision_response(): void {
-  const withChain: ReturnType<typeof suggestCollisionResponse> = suggestCollisionResponse({
-    a: bodyAt(2, 0),
-    b: bodyAt(2, -1),
-    normal: { x: 1, y: 0, z: 0 },
-    gainDegPerImpulse: 10,
-    chain: ["head"],
-    skeleton: createSkeleton(),
-  });
+  const withChain: ReturnType<typeof suggestCollisionResponse> =
+    suggestCollisionResponse({
+      a: bodyAt(2, 0),
+      b: bodyAt(2, -1),
+      normal: { x: 1, y: 0, z: 0 },
+      gainDegPerImpulse: 10,
+      chain: ["head"],
+      skeleton: createSkeleton(),
+    });
   TestValidator.predicate(
     "textbook normal impulse",
     vclose(withChain.impact.impulse, { x: 1, y: 0, z: 0 }),
@@ -58,11 +65,12 @@ export function test_physics_suggest_collision_response(): void {
     nclose(withChain.recoil?.joints[0]?.flexion ?? Number.NaN, 10),
   );
 
-  const noChain: ReturnType<typeof suggestCollisionResponse> = suggestCollisionResponse({
-    a: bodyAt(2, 0),
-    b: bodyAt(2, -1),
-    normal: { x: 1, y: 0, z: 0 },
-    gainDegPerImpulse: 10,
-  });
+  const noChain: ReturnType<typeof suggestCollisionResponse> =
+    suggestCollisionResponse({
+      a: bodyAt(2, 0),
+      b: bodyAt(2, -1),
+      normal: { x: 1, y: 0, z: 0 },
+      gainDegPerImpulse: 10,
+    });
   TestValidator.equals("no chain → no flinch", noChain.recoil, null);
 }

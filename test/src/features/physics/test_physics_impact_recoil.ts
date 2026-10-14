@@ -14,7 +14,11 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], parent: IAutoMovieBone["parent"], constraint: IAutoMovieBone["constraint"]) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+  constraint: IAutoMovieBone["constraint"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
   constraint: IAutoMovieBone["constraint"],
@@ -60,8 +64,12 @@ export function test_physics_impact_recoil(): void {
     skeleton,
     0.6,
   );
-  const spine: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "spine")!;
-  const chest: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "chest")!;
+  const spine: IAutoMovieJointPose = pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "spine",
+  )!;
+  const chest: IAutoMovieJointPose = pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === "chest",
+  )!;
 
   // 1. clamped to ROM at the contact joint; unclamped twist within range
   TestValidator.predicate(
@@ -88,14 +96,24 @@ export function test_physics_impact_recoil(): void {
   );
 
   // 2b. a push past the lower ROM bound clamps to the joint minimum
-  const back: ReturnType<typeof impactRecoil> = impactRecoil({ flexion: -200 }, ["spine"], skeleton, 1);
+  const back: ReturnType<typeof impactRecoil> = impactRecoil(
+    { flexion: -200 },
+    ["spine"],
+    skeleton,
+    1,
+  );
   TestValidator.predicate(
     "spine flexion clamped to ROM min −30",
     nclose(back.joints[0]!.flexion!, -30),
   );
 
   // 3. a bone not in the skeleton is unconstrained
-  const off: ReturnType<typeof impactRecoil> = impactRecoil({ abduction: 15 }, ["leftHand"], skeleton, 0.6);
+  const off: ReturnType<typeof impactRecoil> = impactRecoil(
+    { abduction: 15 },
+    ["leftHand"],
+    skeleton,
+    0.6,
+  );
   TestValidator.predicate(
     "unknown bone unclamped",
     nclose(off.joints[0]!.abduction!, 15),
@@ -147,7 +165,8 @@ export function test_physics_impact_recoil(): void {
       ["hipJoints0", (): boolean => hip.joints[0]!.flexion! < 120],
       [
         "hipJoints02",
-        (): boolean => hip.joints[0]!.flexion! < 120 && hip.joints[0]!.abduction! < 45,
+        (): boolean =>
+          hip.joints[0]!.flexion! < 120 && hip.joints[0]!.abduction! < 45,
       ],
     ]),
     { hipJoints0: true, hipJoints02: true },

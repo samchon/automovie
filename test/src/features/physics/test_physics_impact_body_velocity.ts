@@ -4,7 +4,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 
 const BODY: IAutoMovieImpactBody = {
   mass: 1,
@@ -44,22 +48,28 @@ export function test_physics_impact_body_velocity(): void {
 
   TestValidator.predicate(
     "body a non-finite velocity throws",
-    throws((): ReturnType<typeof resolveImpact> =>
-      resolveImpact(
-        { ...moving, velocity: v(Number.NaN, 0, 10) },
-        BODY,
-        normal,
-      ),
+    throws(
+      (): ReturnType<typeof resolveImpact> =>
+        resolveImpact(
+          { ...moving, velocity: v(Number.NaN, 0, 10) },
+          BODY,
+          normal,
+        ),
     ),
   );
   TestValidator.predicate(
     "body b non-finite velocity throws",
-    throws((): ReturnType<typeof resolveImpact> =>
-      resolveImpact(moving, { ...BODY, velocity: v(0, Infinity, 0) }, normal),
+    throws(
+      (): ReturnType<typeof resolveImpact> =>
+        resolveImpact(moving, { ...BODY, velocity: v(0, Infinity, 0) }, normal),
     ),
   );
 
-  const impact: ReturnType<typeof resolveImpact> = resolveImpact(moving, BODY, normal);
+  const impact: ReturnType<typeof resolveImpact> = resolveImpact(
+    moving,
+    BODY,
+    normal,
+  );
   TestValidator.predicate(
     "finite closing speed remains 10",
     nclose(impact.speed, 10),

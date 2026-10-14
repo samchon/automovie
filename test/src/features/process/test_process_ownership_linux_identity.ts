@@ -24,26 +24,69 @@ import { observeThrownValue } from "../internal/observeThrownValue";
  */
 export function test_process_ownership_linux_identity(): void {
   // Fields 3 through 21 are state plus 18 values; field 22 is start time.
-  const preceding: string = ["S", ...Array.from({ length: 18 }, (_: unknown, index: number): string => String(index + 1))].join(" ");
+  const preceding: string = [
+    "S",
+    ...Array.from({ length: 18 }, (_: unknown, index: number): string =>
+      String(index + 1),
+    ),
+  ].join(" ");
   const first: string = `10 (worker ) with spaces)) ${preceding} 9007199254740992 23 24`;
   const second: string = `10 (worker ) with spaces)) ${preceding} 9007199254740993 23 24`;
-  TestValidator.equals("exact first start tick", ProcessOwnershipUnit.linuxIdentity(" boot-a\n", first), "boot-a:9007199254740992");
-  TestValidator.equals("adjacent large start tick", ProcessOwnershipUnit.linuxIdentity("boot-a", second), "boot-a:9007199254740993");
-  TestValidator.equals("reboot changes identity", ProcessOwnershipUnit.linuxIdentity("boot-b", first), "boot-b:9007199254740992");
+  TestValidator.equals(
+    "exact first start tick",
+    ProcessOwnershipUnit.linuxIdentity(" boot-a\n", first),
+    "boot-a:9007199254740992",
+  );
+  TestValidator.equals(
+    "adjacent large start tick",
+    ProcessOwnershipUnit.linuxIdentity("boot-a", second),
+    "boot-a:9007199254740993",
+  );
+  TestValidator.equals(
+    "reboot changes identity",
+    ProcessOwnershipUnit.linuxIdentity("boot-b", first),
+    "boot-b:9007199254740992",
+  );
   for (const [boot, stat] of [
-    ["", first], ["boot-a", ""],
+    ["", first],
+    ["boot-a", ""],
     ["boot-a", `10 (worker) ${preceding}`],
     ["boot-a", `10 (worker) ${preceding} missing 23 24`],
   ] as const) {
-    const malformed: ReturnType<typeof observeThrownValue> = observeThrownValue((): string => ProcessOwnershipUnit.linuxIdentity(boot, stat));
-    TestValidator.predicate("malformed native identity refuses instead of publishing undefined ticks",
-      malformed.threw && malformed.error instanceof Error);
+    const malformed: ReturnType<typeof observeThrownValue> = observeThrownValue(
+      (): string => ProcessOwnershipUnit.linuxIdentity(boot, stat),
+    );
+    TestValidator.predicate(
+      "malformed native identity refuses instead of publishing undefined ticks",
+      malformed.threw && malformed.error instanceof Error,
+    );
   }
-  const missing: Error & { code: string } = Object.assign(new Error("record absent"), { code: "ENOENT" });
-  TestValidator.equals("missing native record", ProcessOwnershipUnit.readFailure(missing), null);
-  const denied: Error & { code: string } = Object.assign(new Error("access denied"), { code: "EACCES" });
-  for (const failure of [denied, new Error("unknown discovery failure"), null, undefined, "broken transport"]) {
-    const observed: ReturnType<typeof observeThrownValue> = observeThrownValue((): null => ProcessOwnershipUnit.readFailure(failure));
-    TestValidator.predicate("nonabsence failure stays unchanged", observed.threw && observed.error === failure);
+  const missing: Error & { code: string } = Object.assign(
+    new Error("record absent"),
+    { code: "ENOENT" },
+  );
+  TestValidator.equals(
+    "missing native record",
+    ProcessOwnershipUnit.readFailure(missing),
+    null,
+  );
+  const denied: Error & { code: string } = Object.assign(
+    new Error("access denied"),
+    { code: "EACCES" },
+  );
+  for (const failure of [
+    denied,
+    new Error("unknown discovery failure"),
+    null,
+    undefined,
+    "broken transport",
+  ]) {
+    const observed: ReturnType<typeof observeThrownValue> = observeThrownValue(
+      (): null => ProcessOwnershipUnit.readFailure(failure),
+    );
+    TestValidator.predicate(
+      "nonabsence failure stays unchanged",
+      observed.threw && observed.error === failure,
+    );
   }
 }

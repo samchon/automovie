@@ -13,7 +13,10 @@ const rest: IAutoMovieTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 };
-const bone: (name: IAutoMovieBone["bone"], parent: IAutoMovieBone["parent"]) => IAutoMovieBone = (
+const bone: (
+  name: IAutoMovieBone["bone"],
+  parent: IAutoMovieBone["parent"],
+) => IAutoMovieBone = (
   name: IAutoMovieBone["bone"],
   parent: IAutoMovieBone["parent"],
 ): IAutoMovieBone => ({ bone: name, parent, rest, constraint: null });
@@ -51,8 +54,9 @@ export function test_physics_impact_recoil_falloff(): void {
   for (const falloff of [Number.NaN, Infinity, -0.1, 1.1])
     TestValidator.predicate(
       `falloff ${falloff} throws`,
-      throws((): ReturnType<typeof impactRecoil> =>
-        impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, falloff),
+      throws(
+        (): ReturnType<typeof impactRecoil> =>
+          impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, falloff),
       ),
     );
 
@@ -64,12 +68,19 @@ export function test_physics_impact_recoil_falloff(): void {
   );
   TestValidator.predicate(
     "falloff zero stops at the next joint",
-    nclose(contactOnly.joints[0]!.flexion!, 10) && contactOnly.joints[1]!.flexion === null,
+    nclose(contactOnly.joints[0]!.flexion!, 10) &&
+      contactOnly.joints[1]!.flexion === null,
   );
 
-  const noLoss: ReturnType<typeof impactRecoil> = impactRecoil({ flexion: 10 }, ["spine", "chest"], skeleton, 1);
+  const noLoss: ReturnType<typeof impactRecoil> = impactRecoil(
+    { flexion: 10 },
+    ["spine", "chest"],
+    skeleton,
+    1,
+  );
   TestValidator.predicate(
     "falloff one preserves the push",
-    nclose(noLoss.joints[0]!.flexion!, 10) && nclose(noLoss.joints[1]!.flexion!, 10),
+    nclose(noLoss.joints[0]!.flexion!, 10) &&
+      nclose(noLoss.joints[1]!.flexion!, 10),
   );
 }

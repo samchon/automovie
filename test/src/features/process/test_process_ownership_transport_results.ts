@@ -24,24 +24,100 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls production decoders through the existing source-module bridge with value records and owns all assertions; no process or OS host is started and no cases are dynamically registered.
  */
 export function test_process_ownership_transport_results(): void {
-  const result: Parameters<typeof ProcessOwnershipUnit.windowsResult>[0] = { status: 0, stdout: " \"63927358885700106\"\n", stderr: "" };
-  TestValidator.equals("Windows exact birth stamp", ProcessOwnershipUnit.windowsResult(result), "63927358885700106");
-  TestValidator.equals("Windows absent identity", ProcessOwnershipUnit.windowsResult({ ...result, stdout: " null " }), null);
-  TestValidator.equals("Windows structured snapshot", ProcessOwnershipUnit.windowsResult({ ...result, stdout: '[{"pid":10,"parentPid":1,"createdAt":"100"}]' }), [
-    { pid: 10, parentPid: 1, createdAt: "100" },
-  ]);
-  TestValidator.predicate("malformed native payload refuses", throwsError((): unknown => ProcessOwnershipUnit.windowsResult({ ...result, stdout: "not-json" })));
+  const result: Parameters<typeof ProcessOwnershipUnit.windowsResult>[0] = {
+    status: 0,
+    stdout: ' "63927358885700106"\n',
+    stderr: "",
+  };
+  TestValidator.equals(
+    "Windows exact birth stamp",
+    ProcessOwnershipUnit.windowsResult(result),
+    "63927358885700106",
+  );
+  TestValidator.equals(
+    "Windows absent identity",
+    ProcessOwnershipUnit.windowsResult({ ...result, stdout: " null " }),
+    null,
+  );
+  TestValidator.equals(
+    "Windows structured snapshot",
+    ProcessOwnershipUnit.windowsResult({
+      ...result,
+      stdout: '[{"pid":10,"parentPid":1,"createdAt":"100"}]',
+    }),
+    [{ pid: 10, parentPid: 1, createdAt: "100" }],
+  );
+  TestValidator.predicate(
+    "malformed native payload refuses",
+    throwsError((): unknown =>
+      ProcessOwnershipUnit.windowsResult({ ...result, stdout: "not-json" }),
+    ),
+  );
   const spawnFailure: Error = new Error("native transport unavailable");
-  const failedSpawn: ReturnType<typeof observeThrownValue> = observeThrownValue((): unknown => ProcessOwnershipUnit.windowsResult({ ...result, error: spawnFailure, status: 7 }));
-  TestValidator.predicate("Windows keeps the spawn Error", failedSpawn.threw && failedSpawn.error === spawnFailure);
+  const failedSpawn: ReturnType<typeof observeThrownValue> = observeThrownValue(
+    (): unknown =>
+      ProcessOwnershipUnit.windowsResult({
+        ...result,
+        error: spawnFailure,
+        status: 7,
+      }),
+  );
+  TestValidator.predicate(
+    "Windows keeps the spawn Error",
+    failedSpawn.threw && failedSpawn.error === spawnFailure,
+  );
   for (const status of [1, 7, null])
-    TestValidator.predicate("Windows failed exit refuses", throwsError((): unknown => ProcessOwnershipUnit.windowsResult({ ...result, status, stderr: " host denied \n" }), "host denied"));
+    TestValidator.predicate(
+      "Windows failed exit refuses",
+      throwsError(
+        (): unknown =>
+          ProcessOwnershipUnit.windowsResult({
+            ...result,
+            status,
+            stderr: " host denied \n",
+          }),
+        "host denied",
+      ),
+    );
   for (const status of [0, 1]) {
-    TestValidator.equals("POSIX present date", ProcessOwnershipUnit.posixIdentity({ status, stdout: " Tue Oct 13 12:00:00 2026\n", stderr: "" }), "Tue Oct 13 12:00:00 2026");
-    TestValidator.equals("POSIX empty date", ProcessOwnershipUnit.posixIdentity({ status, stdout: " \n", stderr: "" }), null);
+    TestValidator.equals(
+      "POSIX present date",
+      ProcessOwnershipUnit.posixIdentity({
+        status,
+        stdout: " Tue Oct 13 12:00:00 2026\n",
+        stderr: "",
+      }),
+      "Tue Oct 13 12:00:00 2026",
+    );
+    TestValidator.equals(
+      "POSIX empty date",
+      ProcessOwnershipUnit.posixIdentity({ status, stdout: " \n", stderr: "" }),
+      null,
+    );
   }
-  const failedPosixSpawn: ReturnType<typeof observeThrownValue> = observeThrownValue((): string | null => ProcessOwnershipUnit.posixIdentity({ ...result, error: spawnFailure, status: 7 }));
-  TestValidator.predicate("POSIX keeps the spawn Error", failedPosixSpawn.threw && failedPosixSpawn.error === spawnFailure);
+  const failedPosixSpawn: ReturnType<typeof observeThrownValue> =
+    observeThrownValue((): string | null =>
+      ProcessOwnershipUnit.posixIdentity({
+        ...result,
+        error: spawnFailure,
+        status: 7,
+      }),
+    );
+  TestValidator.predicate(
+    "POSIX keeps the spawn Error",
+    failedPosixSpawn.threw && failedPosixSpawn.error === spawnFailure,
+  );
   for (const status of [2, 7, null])
-    TestValidator.predicate("POSIX failed exit refuses", throwsError((): string | null => ProcessOwnershipUnit.posixIdentity({ ...result, status, stderr: "ps unavailable" }), "ps unavailable"));
+    TestValidator.predicate(
+      "POSIX failed exit refuses",
+      throwsError(
+        (): string | null =>
+          ProcessOwnershipUnit.posixIdentity({
+            ...result,
+            status,
+            stderr: "ps unavailable",
+          }),
+        "ps unavailable",
+      ),
+    );
 }

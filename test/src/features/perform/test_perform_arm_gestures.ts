@@ -23,7 +23,11 @@ import { createSkeleton, makePose } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const bone: (b: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, t: IAutoMovieVector3) => IAutoMovieBone = (
+const bone: (
+  b: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  t: IAutoMovieVector3,
+) => IAutoMovieBone = (
   b: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   t: IAutoMovieVector3,
@@ -66,11 +70,17 @@ const ctx: IAutoMovieActorContext = {
   rig: RIG,
 };
 
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["exit", { x: 3, y: 1.2, z: 1 }], // far: a point extends the arm toward it
 ]);
 
-const gesture: (kind: IAutoMovieGestureAction["kind"], overrides?: Partial<IAutoMovieGestureAction>) => IAutoMovieGestureAction = (
+const gesture: (
+  kind: IAutoMovieGestureAction["kind"],
+  overrides?: Partial<IAutoMovieGestureAction>,
+) => IAutoMovieGestureAction = (
   kind: IAutoMovieGestureAction["kind"],
   overrides: Partial<IAutoMovieGestureAction> = {},
 ): IAutoMovieGestureAction => ({
@@ -82,12 +92,16 @@ const gesture: (kind: IAutoMovieGestureAction["kind"], overrides?: Partial<IAuto
   ...overrides,
 });
 
-const boneWorld: (pose: ReturnType<typeof sampleMotion>["pose"], b: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+const boneWorld: (
+  pose: ReturnType<typeof sampleMotion>["pose"],
+  b: AutoMovieHumanoidBone,
+) => IAutoMovieVector3 = (
   pose: ReturnType<typeof sampleMotion>["pose"],
   b: AutoMovieHumanoidBone,
 ): IAutoMovieVector3 =>
-  resolvePose(pose, RIG, HUMANOID_JOINT_AXES).find((x: ReturnType<typeof resolvePose>[number]): boolean => x.bone === b)!
-    .worldPosition;
+  resolvePose(pose, RIG, HUMANOID_JOINT_AXES).find(
+    (x: ReturnType<typeof resolvePose>[number]): boolean => x.bone === b,
+  )!.worldPosition;
 
 /**
  * Observe reference point/strike/reach envelopes, declared live target handling and clinical rest-frame selection on the unchanged two-arm fixture. The local bone observer uses HUMANOID_JOINT_AXES with omitted rest frames, as originally authored; it is a specific product FK consumer, not an independent physical or rendered-gesture oracle. No shot ROM gate runs here.
@@ -114,7 +128,10 @@ const boneWorld: (pose: ReturnType<typeof sampleMotion>["pose"], b: AutoMovieHum
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all synthesize/resolve/sample calls and the existing callback targets. Local readers and fixture constructors register no additional cases or continuing tasks and start no viewer, process or native artifact.
  */
 export function test_perform_arm_gestures(): void {
-  const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(new Map([["hero", ctx]]), nodes);
+  const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
+    new Map([["hero", ctx]]),
+    nodes,
+  );
 
   const point: IAutoMovieMotion | null = synth(
     gesture("point", { at: { kind: "node", node: "exit" } }),
@@ -123,8 +140,14 @@ export function test_perform_arm_gestures(): void {
   TestValidator.predicate("point produced a clip", point !== null);
   if (point === null) return;
   TestValidator.equals("rest → extend → hold", point.keyframes.length, 3);
-  const restHand: IAutoMovieVector3 = boneWorld(sampleMotion(point, 0).pose, "rightHand");
-  const pointedHand: IAutoMovieVector3 = boneWorld(sampleMotion(point, 1).pose, "rightHand");
+  const restHand: IAutoMovieVector3 = boneWorld(
+    sampleMotion(point, 0).pose,
+    "rightHand",
+  );
+  const pointedHand: IAutoMovieVector3 = boneWorld(
+    sampleMotion(point, 1).pose,
+    "rightHand",
+  );
   TestValidator.predicate(
     "the right hand extends toward the target (+x)",
     pointedHand.x > restHand.x + 0.1,
@@ -142,7 +165,10 @@ export function test_perform_arm_gestures(): void {
       strike.keyframes.length,
       3,
     );
-    const restFist: IAutoMovieVector3 = boneWorld(sampleMotion(strike, 0).pose, "rightHand");
+    const restFist: IAutoMovieVector3 = boneWorld(
+      sampleMotion(strike, 0).pose,
+      "rightHand",
+    );
     const peakFist: IAutoMovieVector3 = boneWorld(
       sampleMotion(strike, strike.duration * 0.4).pose,
       "rightHand",
@@ -249,11 +275,12 @@ export function test_perform_arm_gestures(): void {
     },
   );
 
-  const constantTarget: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    (): IAutoMovieVector3 => nodes.get("exit")!,
-  );
+  const constantTarget: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (): IAutoMovieVector3 => nodes.get("exit")!,
+    );
   const livePoint: IAutoMovieMotion = constantTarget(
     gesture("point", { at: disappearingBone }),
     "hero",
@@ -284,44 +311,80 @@ export function test_perform_arm_gestures(): void {
     },
     "hero",
   )!;
-  const jointsAt: (clip: IAutoMovieMotion, time: number) => IAutoMovieJointPose[] = (
+  const jointsAt: (
+    clip: IAutoMovieMotion,
+    time: number,
+  ) => IAutoMovieJointPose[] = (
     clip: NonNullable<ReturnType<typeof synth>>,
     time: number,
   ): IAutoMovieJointPose[] => sampleMotion(clip, time).pose.joints;
   TestValidator.predicate(
     "live point keeps the static rest/extend/hold phases",
-    test12ValuesClose([0, 0.5, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(livePoint, time)), [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(point, time))),
+    test12ValuesClose(
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(livePoint, time),
+      ),
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(point, time),
+      ),
+    ),
   );
   TestValidator.predicate(
     "live strike keeps the static rest/40%-peak/rest phases",
-    test12ValuesClose([0, 0.4, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(liveStrike, time)), [0, 0.4, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(strike!, time))),
+    test12ValuesClose(
+      [0, 0.4, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(liveStrike, time),
+      ),
+      [0, 0.4, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(strike!, time),
+      ),
+    ),
   );
   TestValidator.predicate(
     "live reach keeps the static rest/extend/hold phases",
-    test12ValuesClose([0, 0.5, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(liveReach, time)), [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] => jointsAt(staticReach, time))),
+    test12ValuesClose(
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(liveReach, time),
+      ),
+      [0, 0.5, 1].map((time: number): IAutoMovieJointPose[] =>
+        jointsAt(staticReach, time),
+      ),
+    ),
   );
 
-  const trackingTarget: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => ({
-      ...nodes.get("exit")!,
-      z: nodes.get("exit")!.z + seconds,
-    }),
-  );
+  const trackingTarget: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (
+        _target: IAutoMovieActionTarget,
+        seconds: number,
+      ): IAutoMovieVector3 => ({
+        ...nodes.get("exit")!,
+        z: nodes.get("exit")!.z + seconds,
+      }),
+    );
   const trackingPoint: IAutoMovieMotion = trackingTarget(
     gesture("point", { at: disappearingBone }),
     "hero",
   )!;
   TestValidator.predicate(
     "a held live point tracks target motion after extension",
-    !test12ValuesClose(jointsAt(trackingPoint, 0.5), jointsAt(trackingPoint, 1)),
+    !test12ValuesClose(
+      jointsAt(trackingPoint, 0.5),
+      jointsAt(trackingPoint, 1),
+    ),
   );
-  const dynamicThenMissing: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", ctx]]),
-    nodes,
-    (_target: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 | null => (seconds === 0 ? nodes.get("exit")! : null),
-  );
+  const dynamicThenMissing: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", ctx]]),
+      nodes,
+      (
+        _target: IAutoMovieActionTarget,
+        seconds: number,
+      ): IAutoMovieVector3 | null =>
+        seconds === 0 ? nodes.get("exit")! : null,
+    );
   TestValidator.equals(
     "a bone point refuses rather than holding a target that disappears mid-span",
     dynamicThenMissing(gesture("point", { at: disappearingBone }), "hero"),
@@ -348,10 +411,11 @@ export function test_perform_arm_gestures(): void {
     null,
   );
   // a rig whose right arm is incomplete cannot point (reachPose returns null)
-  const noRightArm: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, rig: createSkeleton() }]]), // fixture omits rightHand
-    nodes,
-  );
+  const noRightArm: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, rig: createSkeleton() }]]), // fixture omits rightHand
+      nodes,
+    );
   TestValidator.equals(
     "point with no right-arm chain → null",
     noRightArm(
@@ -372,7 +436,10 @@ export function test_perform_arm_gestures(): void {
   // Explicit empty tables ask for raw rest-relative solve semantics; omission
   // takes the clinical default. Only the existing elbow/default-abduction
   // observations below constrain these representations here.
-  const jointOf: (clip: ReturnType<typeof synth>, bone: AutoMovieHumanoidBone) => IAutoMovieJointPose | null = (
+  const jointOf: (
+    clip: ReturnType<typeof synth>,
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieJointPose | null = (
     clip: ReturnType<typeof synth>,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointPose | null =>
@@ -381,17 +448,22 @@ export function test_perform_arm_gestures(): void {
       : (clip.keyframes[clip.keyframes.length - 1]!.pose.joints.find(
           (j: IAutoMovieJointPose): boolean => j.bone === bone,
         ) ?? null);
-  const abdOf: (clip: ReturnType<typeof synth>) => number | null = (clip: ReturnType<typeof synth>): number | null =>
-    jointOf(clip, "rightUpperArm")?.abduction ?? null;
-  const clinical: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, restFrames: HUMANOID_REST_FRAME }]]),
-    nodes,
-  );
-  const rigSpace: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-    new Map([["hero", { ...ctx, restFrames: {} }]]),
-    nodes,
-  );
-  const pointAt: IAutoMovieGestureAction = gesture("point", { at: { kind: "node", node: "exit" } });
+  const abdOf: (clip: ReturnType<typeof synth>) => number | null = (
+    clip: ReturnType<typeof synth>,
+  ): number | null => jointOf(clip, "rightUpperArm")?.abduction ?? null;
+  const clinical: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, restFrames: HUMANOID_REST_FRAME }]]),
+      nodes,
+    );
+  const rigSpace: ReturnType<typeof makeActorSynthesizer> =
+    makeActorSynthesizer(
+      new Map([["hero", { ...ctx, restFrames: {} }]]),
+      nodes,
+    );
+  const pointAt: IAutoMovieGestureAction = gesture("point", {
+    at: { kind: "node", node: "exit" },
+  });
   const rigClip: IAutoMovieMotion | null = rigSpace(pointAt, "hero");
   const clinicalClip: IAutoMovieMotion | null = clinical(pointAt, "hero");
   const clinAbd: number | null = abdOf(clinicalClip);

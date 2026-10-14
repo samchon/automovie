@@ -21,9 +21,18 @@ import { qclose, vclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership The named math entry owns its synchronous assertions and directly calls portable runtime namespaces. It starts no process, browser or GPU, builds no native artifact and registers no cases dynamically.
  */
 export function test_math_quaternion_from_euler(): void {
-  const qX: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90);
-  const qY: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
-  const qZ: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 0 + 1 }, 90);
+  const qX: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 0, z: 0 },
+    90,
+  );
+  const qY: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    90,
+  );
+  const qZ: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 0, z: 0 + 1 },
+    90,
+  );
 
   // 1. single-axis parity + right-handed direction
   TestValidator.predicate(

@@ -1,9 +1,9 @@
 import { Quaternion } from "@automovie/engine/math/Quaternion";
 import { fitRigidMeshTransform } from "@automovie/engine/math/fitRigidMeshTransform";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { TestValidator } from "@nestia/e2e";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -22,13 +22,22 @@ import { nclose } from "../internal/predicates";
  */
 export function test_math_rigid_mesh_transform(): void {
   const source: number[] = [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3];
-  const apply: (reference: number[], target: number[]) => number[] = (reference: number[], target: number[]): number[] => {
-    const result: ReturnType<typeof fitRigidMeshTransform> = fitRigidMeshTransform({
-      reference,
-      target,
-      vertices: reference.filter((_: number, i: number): boolean => i % 3 === 0).map((_: number, i: number): number => i),
-    });
-    const { referenceCenter: a, targetCenter: b }: ReturnType<typeof fitRigidMeshTransform> = result;
+  const apply: (reference: number[], target: number[]) => number[] = (
+    reference: number[],
+    target: number[],
+  ): number[] => {
+    const result: ReturnType<typeof fitRigidMeshTransform> =
+      fitRigidMeshTransform({
+        reference,
+        target,
+        vertices: reference
+          .filter((_: number, i: number): boolean => i % 3 === 0)
+          .map((_: number, i: number): number => i),
+      });
+    const {
+      referenceCenter: a,
+      targetCenter: b,
+    }: ReturnType<typeof fitRigidMeshTransform> = result;
     return reference.flatMap((_: number, i: number): number[] => {
       if (i % 3 !== 0) return [];
       const p: IAutoMovieVector3 = Quaternion.rotateVector(result.rotation, {
@@ -52,18 +61,27 @@ export function test_math_rigid_mesh_transform(): void {
   for (const turn of turns) {
     const target: number[] = source.flatMap((_: number, i: number): number[] =>
       i % 3 === 0
-        ? turn(source[i], source[i + 1], source[i + 2]).map((v: number, k: number): number => v + k + 4)
+        ? turn(source[i], source[i + 1], source[i + 2]).map(
+            (v: number, k: number): number => v + k + 4,
+          )
         : [],
     );
     const saved: number[] = target.slice();
     TestValidator.predicate(
       "analytic proper motion",
-      apply(source, target).every((v: number, i: number): boolean => nclose(v, target[i], 1e-10)),
+      apply(source, target).every((v: number, i: number): boolean =>
+        nclose(v, target[i], 1e-10),
+      ),
     );
-    TestValidator.predicate("target ownership", equalGeometryTestValues(target, saved));
+    TestValidator.predicate(
+      "target ownership",
+      equalGeometryTestValues(target, saved),
+    );
   }
   // Centered symmetric axes make the best rotation identity under contraction.
-  const axes: number[] = [1, 0, 0, -1, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 3, 0, 0, -3];
+  const axes: number[] = [
+    1, 0, 0, -1, 0, 0, 0, 2, 0, 0, -2, 0, 0, 0, 3, 0, 0, -3,
+  ];
   TestValidator.predicate(
     "no fitted scale",
     apply(
@@ -83,23 +101,36 @@ export function test_math_rigid_mesh_transform(): void {
     [0, 0, 0, 1, 0, 0],
     [0, 0, 0, 1, 0, 0, 0, 2, 0],
   ]) {
-    const target: number[] = reference.map((v: number, i: number): number => v + (i % 3) + 2);
+    const target: number[] = reference.map(
+      (v: number, i: number): number => v + (i % 3) + 2,
+    );
     TestValidator.predicate(
       "rank-deficient translation",
-      apply(reference, target).every((v: number, i: number): boolean => nclose(v, target[i], 1e-10)),
+      apply(reference, target).every((v: number, i: number): boolean =>
+        nclose(v, target[i], 1e-10),
+      ),
     );
   }
-  const mirror: number[] = source.map((v: number, i: number): number => (i % 3 === 0 ? -v : v));
+  const mirror: number[] = source.map((v: number, i: number): number =>
+    i % 3 === 0 ? -v : v,
+  );
   TestValidator.predicate(
     "reflection is not a rigid rotation",
-    apply(source, mirror).some((v: number, i: number): boolean => Math.abs(v - mirror[i]) > 0.1),
+    apply(source, mirror).some(
+      (v: number, i: number): boolean => Math.abs(v - mirror[i]) > 0.1,
+    ),
   );
-  TestValidator.predicate("reference ownership", equalGeometryTestValues(source, snapshot));
+  TestValidator.predicate(
+    "reference ownership",
+    equalGeometryTestValues(source, snapshot),
+  );
   for (const scale of [1e-150, 1e150]) {
     const reference: number[] = source.map((v: number): number => v * scale);
     const target: number[] = source.flatMap((_: number, i: number): number[] =>
       i % 3 === 0
-        ? [-source[i + 1], source[i], source[i + 2]].map((v: number): number => v * scale)
+        ? [-source[i + 1], source[i], source[i + 2]].map(
+            (v: number): number => v * scale,
+          )
         : [],
     );
     TestValidator.predicate(

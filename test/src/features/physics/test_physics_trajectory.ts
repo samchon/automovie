@@ -38,11 +38,18 @@ export function test_physics_trajectory(): void {
     velocity: { x: 5, y: 8, z: 2 },
     gravity: { x: 0, y: -9.81, z: 0 },
   };
-  const clip: ReturnType<typeof projectileTrajectory> = projectileTrajectory("arrow", p, 1, 30);
+  const clip: ReturnType<typeof projectileTrajectory> = projectileTrajectory(
+    "arrow",
+    p,
+    1,
+    30,
+  );
 
   TestValidator.equals(
     "translation + rotation tracks on the node",
-    clip.tracks.map((t: IAutoMovieTrack): string => (t.channel.kind === "node" ? t.channel.path : "")),
+    clip.tracks.map((t: IAutoMovieTrack): string =>
+      t.channel.kind === "node" ? t.channel.path : "",
+    ),
     ["translation", "rotation"],
   );
   TestValidator.equals(
@@ -59,18 +66,22 @@ export function test_physics_trajectory(): void {
   // linear track returns the baked value exactly. Between samples the linear
   // interpolation of a parabola drifts, as it should.
   for (const t of [0, 0.3, 20 / 30, 1]) {
-    const sampled: number[] = sampleClip(clip, t).get("node:arrow:translation")!.value;
+    const sampled: number[] = sampleClip(clip, t).get(
+      "node:arrow:translation",
+    )!.value;
     TestValidator.predicate(
       `position at ${t.toFixed(3)}s matches constant acceleration`,
       vclose(
         { x: sampled[0]!, y: sampled[1]!, z: sampled[2]! },
-        { x: 5 * t, y: 1 + 8 * t - 9.81 * t * t / 2, z: 2 * t },
+        { x: 5 * t, y: 1 + 8 * t - (9.81 * t * t) / 2, z: 2 * t },
         1e-6,
       ),
     );
   }
 
-  const rotAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
+  const rotAt: (t: number) => IAutoMovieVector3 = (
+    t: number,
+  ): IAutoMovieVector3 => {
     const v: number[] = sampleClip(clip, t).get("node:arrow:rotation")!.value;
     return Quaternion.rotateVector(
       { x: v[0]!, y: v[1]!, z: v[2]!, w: v[3]! },
@@ -90,7 +101,8 @@ export function test_physics_trajectory(): void {
   // 4. end to end with the aim
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.2, z: 4 };
-  const sol: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, target, 16)!;
+  const sol: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, target, 16)!;
   const flight: ReturnType<typeof projectileTrajectory> = projectileTrajectory(
     "bolt",
     { origin, velocity: sol.velocity, gravity: p.gravity },

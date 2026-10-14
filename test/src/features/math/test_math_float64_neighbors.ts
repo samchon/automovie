@@ -2,8 +2,8 @@ import {
   adjacentAutoMovieFloat64,
   interpolateAutoMovieTrianglePoint,
 } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { throwsError, vclose } from "../internal/predicates";
 
@@ -42,7 +42,10 @@ export function test_math_float64_neighbors(): void {
   for (const value of [NaN, Infinity, -Infinity])
     TestValidator.predicate(
       "nonfinite admission",
-      throwsError((): number => adjacentAutoMovieFloat64(value, true), "representable"),
+      throwsError(
+        (): number => adjacentAutoMovieFloat64(value, true),
+        "representable",
+      ),
     );
   for (const [value, upper] of [
     [Number.MAX_VALUE, true],
@@ -50,7 +53,10 @@ export function test_math_float64_neighbors(): void {
   ] as const)
     TestValidator.predicate(
       "finite neighbour exhaustion",
-      throwsError((): number => adjacentAutoMovieFloat64(value, upper), "overflowing"),
+      throwsError(
+        (): number => adjacentAutoMovieFloat64(value, upper),
+        "overflowing",
+      ),
     );
   TestValidator.predicate(
     "largest finite inward neighbour remains finite",
@@ -81,7 +87,8 @@ export function test_math_float64_neighbors(): void {
     TestValidator.predicate(
       "invalid barycentric weights",
       throwsError(
-        (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points, weights),
+        (): IAutoMovieVector3 =>
+          interpolateAutoMovieTrianglePoint(points, weights),
         "seating",
       ),
     );
@@ -99,14 +106,16 @@ export function test_math_float64_neighbors(): void {
   TestValidator.predicate(
     "invalid point count",
     throwsError(
-      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points.slice(1), [1, 0, 0]),
+      (): IAutoMovieVector3 =>
+        interpolateAutoMovieTrianglePoint(points.slice(1), [1, 0, 0]),
       "seating",
     ),
   );
   TestValidator.predicate(
     "sparse point run cannot become an origin seat",
     throwsError(
-      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(new Array(3), [1, 0, 0]),
+      (): IAutoMovieVector3 =>
+        interpolateAutoMovieTrianglePoint(new Array(3), [1, 0, 0]),
       "seating",
     ),
   );
@@ -115,15 +124,19 @@ export function test_math_float64_neighbors(): void {
   TestValidator.predicate(
     "sparse coefficients refuse beside dense unit coefficients",
     throwsError(
-      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(points, sparseWeights),
+      (): IAutoMovieVector3 =>
+        interpolateAutoMovieTrianglePoint(points, sparseWeights),
       "seating",
     ),
   );
-  const largest: IAutoMovieVector3[] = Array.from({ length: 3 }, (): IAutoMovieVector3 => ({
-    x: Number.MAX_VALUE,
-    y: 0,
-    z: 0,
-  }));
+  const largest: IAutoMovieVector3[] = Array.from(
+    { length: 3 },
+    (): IAutoMovieVector3 => ({
+      x: Number.MAX_VALUE,
+      y: 0,
+      z: 0,
+    }),
+  );
   TestValidator.predicate(
     "largest finite weighted seat remains supported",
     vclose(interpolateAutoMovieTrianglePoint(largest, [1, 0, 0]), largest[0]),
@@ -131,7 +144,8 @@ export function test_math_float64_neighbors(): void {
   TestValidator.predicate(
     "rounded admitted coefficient cannot accept an overflowing seat",
     throwsError(
-      (): IAutoMovieVector3 => interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
+      (): IAutoMovieVector3 =>
+        interpolateAutoMovieTrianglePoint(largest, [1 + 2 ** -52, 0, 0]),
       "representable weighted coordinates",
     ),
   );

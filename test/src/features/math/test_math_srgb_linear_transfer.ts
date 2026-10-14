@@ -1,8 +1,8 @@
 import { linearColorToSrgbHex, srgbHexToLinearColor } from "@automovie/engine";
-import { TestValidator } from "@nestia/e2e";
 import type { IAutoMovieColor } from "@automovie/interface";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
+import { TestValidator } from "@nestia/e2e";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -46,13 +46,17 @@ export function test_math_srgb_linear_transfer(): void {
   const white: IAutoMovieColor = srgbHexToLinearColor("#ffffff");
   TestValidator.predicate(
     "black decodes to the linear origin",
-    equalGeometryTestValues({ r: black.r, g: black.g, b: black.b },
-    { r: 0, g: 0, b: 0 }),
+    equalGeometryTestValues(
+      { r: black.r, g: black.g, b: black.b },
+      { r: 0, g: 0, b: 0 },
+    ),
   );
   TestValidator.predicate(
     "white decodes to exact unity",
-    equalGeometryTestValues({ r: white.r, g: white.g, b: white.b },
-    { r: 1, g: 1, b: 1 }),
+    equalGeometryTestValues(
+      { r: white.r, g: white.g, b: white.b },
+      { r: 1, g: 1, b: 1 },
+    ),
   );
   TestValidator.equals(
     "the gamut ends re-encode to themselves",
@@ -97,7 +101,9 @@ export function test_math_srgb_linear_transfer(): void {
     nclose(0.04045 / 12.92, Math.pow((0.04045 + 0.055) / 1.055, 2.4), 1e-8),
   );
 
-  const grey: (component: number) => Pick<IAutoMovieColor, "r" | "g" | "b"> = (component: number): Pick<IAutoMovieColor, "r" | "g" | "b"> => ({
+  const grey: (component: number) => Pick<IAutoMovieColor, "r" | "g" | "b"> = (
+    component: number,
+  ): Pick<IAutoMovieColor, "r" | "g" | "b"> => ({
     r: component,
     g: component,
     b: component,
@@ -124,7 +130,9 @@ export function test_math_srgb_linear_transfer(): void {
     `${digits[value >> 4]}${digits[value & 0xf]}`;
   TestValidator.equals(
     "every channel value round-trips exactly",
-    Array.from({ length: 256 }, (_: unknown, value: number): string => byte(value)).filter((pair: string): boolean => {
+    Array.from({ length: 256 }, (_: unknown, value: number): string =>
+      byte(value),
+    ).filter((pair: string): boolean => {
       const swatch: string = `#${pair}${pair}${pair}`;
       return linearColorToSrgbHex(srgbHexToLinearColor(swatch)) !== swatch;
     }),
@@ -137,7 +145,10 @@ export function test_math_srgb_linear_transfer(): void {
     mixed.hex,
     "#7d828c",
   );
-  TestValidator.predicate("a six-digit swatch is opaque", typeof mixed.a === "number" && nclose(mixed.a, 1, 0));
+  TestValidator.predicate(
+    "a six-digit swatch is opaque",
+    typeof mixed.a === "number" && nclose(mixed.a, 1, 0),
+  );
 
   TestValidator.equals(
     "components outside the gamut clamp to its ends",

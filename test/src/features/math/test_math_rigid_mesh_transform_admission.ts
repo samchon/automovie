@@ -1,7 +1,7 @@
 import { fitRigidMeshTransform } from "@automovie/engine/math/fitRigidMeshTransform";
 import { TestValidator } from "@nestia/e2e";
-import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 
+import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -25,10 +25,12 @@ export function test_math_rigid_mesh_transform_admission(): void {
   const invalid: Parameters<typeof fitRigidMeshTransform>[0][] = [
     { ...valid, target: [0, 0, 0] },
     { ...valid, reference: [0], target: [0] },
-    ...[[], [0, 0], [-1], [2], [0.5], [NaN]].map((vertices: number[]): Parameters<typeof fitRigidMeshTransform>[0] => ({
-      ...valid,
-      vertices,
-    })),
+    ...[[], [0, 0], [-1], [2], [0.5], [NaN]].map(
+      (vertices: number[]): Parameters<typeof fitRigidMeshTransform>[0] => ({
+        ...valid,
+        vertices,
+      }),
+    ),
     { ...valid, reference: [NaN, 0, 0, 1, 0, 0] },
     { ...valid, target: [0, Infinity, 0, 1, 0, 0] },
     { ...valid, reference: new Array<number>(6) },
@@ -52,20 +54,29 @@ export function test_math_rigid_mesh_transform_admission(): void {
   for (const input of invalid)
     TestValidator.predicate(
       "invalid rigid fit refuses",
-      throwsError((): ReturnType<typeof fitRigidMeshTransform> => fitRigidMeshTransform(input), "Rigid fitting"),
+      throwsError(
+        (): ReturnType<typeof fitRigidMeshTransform> =>
+          fitRigidMeshTransform(input),
+        "Rigid fitting",
+      ),
     );
   TestValidator.predicate(
     "recovery centroid",
-    equalGeometryTestValues(fitRigidMeshTransform(valid).targetCenter,
-    { x: 0.5, y: 1, z: 0 }),
+    equalGeometryTestValues(fitRigidMeshTransform(valid).targetCenter, {
+      x: 0.5,
+      y: 1,
+      z: 0,
+    }),
   );
   TestValidator.predicate(
     "unused data is outside the correspondence",
-    equalGeometryTestValues(fitRigidMeshTransform({
-      reference: [1, 2, 3, NaN, NaN, NaN],
-      target: [4, 5, 6, NaN, NaN, NaN],
-      vertices: [0],
-    }).targetCenter,
-    { x: 4, y: 5, z: 6 }),
+    equalGeometryTestValues(
+      fitRigidMeshTransform({
+        reference: [1, 2, 3, NaN, NaN, NaN],
+        target: [4, 5, 6, NaN, NaN, NaN],
+        vertices: [0],
+      }).targetCenter,
+      { x: 4, y: 5, z: 6 },
+    ),
   );
 }

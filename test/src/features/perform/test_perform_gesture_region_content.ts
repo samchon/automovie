@@ -7,9 +7,9 @@ import {
   AutoMovieGestureKind,
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
-  IAutoMovieMotion,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +41,10 @@ const synth: IAutoMovieActionSynthesizer = (
   return null;
 };
 
-const gesture: (kind: AutoMovieGestureKind, region?: IAutoMovieActionCall["region"]) => IAutoMovieActionCall = (
+const gesture: (
+  kind: AutoMovieGestureKind,
+  region?: IAutoMovieActionCall["region"],
+) => IAutoMovieActionCall = (
   kind: AutoMovieGestureKind,
   region?: IAutoMovieActionCall["region"],
 ): IAutoMovieActionCall => ({
@@ -53,12 +56,32 @@ const gesture: (kind: AutoMovieGestureKind, region?: IAutoMovieActionCall["regio
   ...(region === undefined ? {} : { region }),
 });
 
-const jointsAt: (motion: IAutoMovieMotion, time: number) => { frame: IAutoMovieKeyframe; map: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> } = (motion: IAutoMovieMotion, time: number): { frame: IAutoMovieKeyframe; map: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> } => {
-  const frame: IAutoMovieKeyframe | undefined = motion.keyframes.find((k: IAutoMovieKeyframe): boolean => nclose(k.time, time));
+const jointsAt: (
+  motion: IAutoMovieMotion,
+  time: number,
+) => {
+  frame: IAutoMovieKeyframe;
+  map: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>;
+} = (
+  motion: IAutoMovieMotion,
+  time: number,
+): {
+  frame: IAutoMovieKeyframe;
+  map: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>;
+} => {
+  const frame: IAutoMovieKeyframe | undefined = motion.keyframes.find(
+    (k: IAutoMovieKeyframe): boolean => nclose(k.time, time),
+  );
   if (frame === undefined) throw new Error(`no keyframe at ${time}`);
   return {
     frame,
-    map: new Map(frame.pose.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j])),
+    map: new Map(
+      frame.pose.joints.map(
+        (
+          j: IAutoMovieJointPose,
+        ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+      ),
+    ),
   };
 };
 
@@ -88,15 +111,18 @@ const jointsAt: (motion: IAutoMovieMotion, time: number) => { frame: IAutoMovieK
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns six compile calls through its existing injected callback and direct stop readers. Helpers register no extra cases and start no viewer, process or native artifact.
  */
 export function test_perform_gesture_region_content(): void {
-  const nod: IAutoMovieMotion = compilePerformance([gesture("nod")], synth).performances.hero!;
+  const nod: IAutoMovieMotion = compilePerformance([gesture("nod")], synth)
+    .performances.hero!;
   const nodStop: ReturnType<typeof jointsAt> = jointsAt(nod, 0.25);
   TestValidator.predicate(
     "a lone nod still drives the head",
     nclose(nodStop.map.get("head")!.flexion!, 22),
   );
 
-  const crouch: IAutoMovieMotion = compilePerformance([gesture("crouch")], synth).performances
-    .hero!;
+  const crouch: IAutoMovieMotion = compilePerformance(
+    [gesture("crouch")],
+    synth,
+  ).performances.hero!;
   const crouchStop: ReturnType<typeof jointsAt> = jointsAt(crouch, 0.3);
   TestValidator.equals(
     "a lone crouch keeps its knee bend and spine lean",
@@ -107,7 +133,8 @@ export function test_perform_gesture_region_content(): void {
       ],
       [
         "ncloseCrouchStopGet2",
-        (): boolean => nclose(crouchStop.map.get("rightLowerLeg")!.flexion!, 65),
+        (): boolean =>
+          nclose(crouchStop.map.get("rightLowerLeg")!.flexion!, 65),
       ],
       [
         "ncloseCrouchStopGet3",
@@ -121,7 +148,8 @@ export function test_perform_gesture_region_content(): void {
     },
   );
 
-  const kick: IAutoMovieMotion = compilePerformance([gesture("kick")], synth).performances.hero!;
+  const kick: IAutoMovieMotion = compilePerformance([gesture("kick")], synth)
+    .performances.hero!;
   const kickStop: ReturnType<typeof jointsAt> = jointsAt(kick, 0.22);
   TestValidator.equals(
     "a lone kick keeps the leg snap and the spine counterbalance",
@@ -154,8 +182,10 @@ export function test_perform_gesture_region_content(): void {
     start: 0,
     duration: 1,
   };
-  const jump: IAutoMovieMotion = compilePerformance([gesture("jump"), emote], synth).performances
-    .hero!;
+  const jump: IAutoMovieMotion = compilePerformance(
+    [gesture("jump"), emote],
+    synth,
+  ).performances.hero!;
   const apex: ReturnType<typeof jointsAt> = jointsAt(jump, 0.58);
   TestValidator.equals(
     "a layered jump keeps its authored root at the apex",
@@ -185,14 +215,19 @@ export function test_perform_gesture_region_content(): void {
     { bothMapHas: true, bothMapHas2: true },
   );
 
-  const maskedKick: IAutoMovieMotion = compilePerformance([gesture("kick", "upperBody")], synth)
-    .performances.hero!;
+  const maskedKick: IAutoMovieMotion = compilePerformance(
+    [gesture("kick", "upperBody")],
+    synth,
+  ).performances.hero!;
   const maskedStop: ReturnType<typeof jointsAt> = jointsAt(maskedKick, 0.22);
   TestValidator.equals(
     "an explicit narrower region still masks the clip to its bones",
     namedFacts([
       ["maskedStopMapHas", (): boolean => maskedStop.map.has("spine")],
-      ["maskedStopMapHas2", (): boolean => !maskedStop.map.has("rightUpperLeg")],
+      [
+        "maskedStopMapHas2",
+        (): boolean => !maskedStop.map.has("rightUpperLeg"),
+      ],
     ]),
     { maskedStopMapHas: true, maskedStopMapHas2: true },
   );

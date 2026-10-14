@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose } from "../internal/nclose";
 
@@ -23,13 +24,22 @@ import { nclose } from "../internal/nclose";
 export function test_math_vector3_arithmetic(): void {
   const a: IAutoMovieVector3 = Vector3.create(1, 2, 3);
   const b: IAutoMovieVector3 = Vector3.create(4, 5, 6);
-  TestValidator.predicate("add", equalGeometryTestValues(Vector3.add(a, b), { x: 5, y: 7, z: 9 }));
-  TestValidator.predicate("subtract", equalGeometryTestValues(Vector3.subtract(b, a), {
-    x: 3,
-    y: 3,
-    z: 3,
-  }));
-  TestValidator.predicate("scale", equalGeometryTestValues(Vector3.scale(a, 2), { x: 2, y: 4, z: 6 }));
+  TestValidator.predicate(
+    "add",
+    equalGeometryTestValues(Vector3.add(a, b), { x: 5, y: 7, z: 9 }),
+  );
+  TestValidator.predicate(
+    "subtract",
+    equalGeometryTestValues(Vector3.subtract(b, a), {
+      x: 3,
+      y: 3,
+      z: 3,
+    }),
+  );
+  TestValidator.predicate(
+    "scale",
+    equalGeometryTestValues(Vector3.scale(a, 2), { x: 2, y: 4, z: 6 }),
+  );
   TestValidator.predicate("dot", nclose(Vector3.dot(a, b), 32, 0));
   TestValidator.predicate(
     "dot orthogonal is zero",

@@ -7,7 +7,11 @@ import { nclose, vclose } from "../internal/predicates";
 const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
 
 /** Where the projectile is at the solution's hit time. */
-const landing: (origin: IAutoMovieVector3, sol: NonNullable<ReturnType<typeof solveBallisticLaunch>>, gravity?: IAutoMovieVector3) => IAutoMovieVector3 = (
+const landing: (
+  origin: IAutoMovieVector3,
+  sol: NonNullable<ReturnType<typeof solveBallisticLaunch>>,
+  gravity?: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   origin: IAutoMovieVector3,
   sol: NonNullable<ReturnType<typeof solveBallisticLaunch>>,
   gravity: IAutoMovieVector3 = GRAVITY,
@@ -36,18 +40,24 @@ export function test_physics_ballistic(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
   const level: IAutoMovieVector3 = { x: 8, y: 1, z: 3 };
-  const direct: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, level, 14)!;
+  const direct: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, level, 14)!;
   TestValidator.predicate(
     "direct arc lands on the level target",
     vclose(landing(origin, direct), level, 1e-3),
   );
-  const launchSpeed: number = Math.hypot(direct.velocity.x, direct.velocity.y, direct.velocity.z);
+  const launchSpeed: number = Math.hypot(
+    direct.velocity.x,
+    direct.velocity.y,
+    direct.velocity.z,
+  );
   TestValidator.predicate(
     "launch speed matches the request",
     nclose(launchSpeed, 14, 1e-6) && Math.abs(launchSpeed - 14) < 1e-6,
   );
 
-  const high: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, level, 14, GRAVITY, "high")!;
+  const high: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, level, 14, GRAVITY, "high")!;
   TestValidator.predicate(
     "high arc lands on the same target",
     vclose(landing(origin, high), level, 1e-3),
@@ -73,7 +83,8 @@ export function test_physics_ballistic(): void {
   );
 
   const straight: IAutoMovieVector3 = { x: 5, y: 1, z: 5 };
-  const noG: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, straight, 10, { x: 0, y: 0, z: 0 })!;
+  const noG: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, straight, 10, { x: 0, y: 0, z: 0 })!;
   TestValidator.predicate(
     "zero gravity is a straight shot on target",
     vclose(landing(origin, noG, { x: 0, y: 0, z: 0 }), straight, 1e-6),
@@ -90,7 +101,8 @@ export function test_physics_ballistic(): void {
   );
 
   const overhead: IAutoMovieVector3 = { x: 0, y: 6, z: 0 };
-  const vertical: NonNullable<ReturnType<typeof solveBallisticLaunch>> = solveBallisticLaunch(origin, overhead, 12)!;
+  const vertical: NonNullable<ReturnType<typeof solveBallisticLaunch>> =
+    solveBallisticLaunch(origin, overhead, 12)!;
   TestValidator.predicate(
     "a purely vertical target lands",
     vclose(landing(origin, vertical), overhead, 1e-3),

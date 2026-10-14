@@ -1,16 +1,23 @@
-import type { IAutoMovieKeyframe, IAutoMovieActionCall, IAutoMovieMotion } from "@automovie/interface";
 import {
   IAutoMovieActionSynthesizer,
   compilePerformance,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieActionCall,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
 /** A gesture action: the only verb shape these scenarios need. */
-const gesture: (actor: string | string [ ], start: number, repeat?: number) => IAutoMovieActionCall = (
+const gesture: (
+  actor: string | string[],
+  start: number,
+  repeat?: number,
+) => IAutoMovieActionCall = (
   actor: string | string[],
   start: number,
   repeat?: number,
@@ -38,7 +45,9 @@ const synth: IAutoMovieActionSynthesizer = (
         1,
       );
 
-const times: (m: IAutoMovieMotion) => number [ ] = (m: IAutoMovieMotion): number[] => m.keyframes.map((k: IAutoMovieKeyframe) : number => k.time);
+const times: (m: IAutoMovieMotion) => number[] = (
+  m: IAutoMovieMotion,
+): number[] => m.keyframes.map((k: IAutoMovieKeyframe): number => k.time);
 
 /**
  * Observe timeline assembly through compilePerformance's injected content callback. The callback deliberately supplies fixed authored clips; actual actor/rig-specific synthesis is exercised elsewhere.
@@ -62,11 +71,17 @@ const times: (m: IAutoMovieMotion) => number [ ] = (m: IAutoMovieMotion): number
  */
 export function test_perform_compile(): void {
   // 1. empty
-  const empty: Record<string, IAutoMovieMotion> = compilePerformance([], synth).performances;
+  const empty: Record<string, IAutoMovieMotion> = compilePerformance(
+    [],
+    synth,
+  ).performances;
   TestValidator.equals("empty → no actors", Object.keys(empty).length, 0);
 
   // 2. single actor, single action at a start offset
-  const one: Record<string, IAutoMovieMotion> = compilePerformance([gesture("a", 0)], synth).performances;
+  const one: Record<string, IAutoMovieMotion> = compilePerformance(
+    [gesture("a", 0)],
+    synth,
+  ).performances;
   TestValidator.equals("one actor compiled", Object.keys(one), ["a"]);
   TestValidator.equals(
     "performance id names the actor",
@@ -76,7 +91,9 @@ export function test_perform_compile(): void {
   TestValidator.predicate("single cycle spans 1s", nclose(one.a!.duration, 1));
   TestValidator.predicate(
     "placed cycle times 0,1",
-    times(one.a!).every((t: number, i: number) : boolean => nclose(t, [0, 1][i]!)),
+    times(one.a!).every((t: number, i: number): boolean =>
+      nclose(t, [0, 1][i]!),
+    ),
   );
 
   // 3. unison + a skipped actor
@@ -86,7 +103,9 @@ export function test_perform_compile(): void {
   ).performances;
   TestValidator.equals(
     "unison fans to the non-skipped actors",
-    Object.keys(unison).sort((a: string, b: string) : number => a.localeCompare(b)),
+    Object.keys(unison).sort((a: string, b: string): number =>
+      a.localeCompare(b),
+    ),
     ["a", "b"],
   );
   TestValidator.equals(
@@ -96,38 +115,65 @@ export function test_perform_compile(): void {
   );
 
   // 4. repeat: >1 concatenates, =1 and undefined stay single
-  const repeated: IAutoMovieMotion = compilePerformance([gesture("r", 0, 2)], synth).performances
-    .r!;
+  const repeated: IAutoMovieMotion = compilePerformance(
+    [gesture("r", 0, 2)],
+    synth,
+  ).performances.r!;
   TestValidator.predicate(
     "repeat 2 doubles the duration",
     nclose(repeated.duration, 2),
   );
   TestValidator.predicate(
     "repeat 2 → times 0,1,2 (seam dropped)",
-    times(repeated).every((t: number, i: number) : boolean => nclose(t, [0, 1, 2][i]!)),
+    times(repeated).every((t: number, i: number): boolean =>
+      nclose(t, [0, 1, 2][i]!),
+    ),
   );
-  const once: IAutoMovieMotion = compilePerformance([gesture("o", 0, 1)], synth).performances.o!;
+  const once: IAutoMovieMotion = compilePerformance([gesture("o", 0, 1)], synth)
+    .performances.o!;
   TestValidator.predicate(
     "explicit repeat 1 stays a single cycle",
     nclose(once.duration, 1),
   );
 
   // 5. two actions, same actor, with a gap → arranged, hold across the gap
-  const gapped: IAutoMovieMotion = compilePerformance([gesture("g", 0), gesture("g", 2)], synth)
-    .performances.g!;
+  const gapped: IAutoMovieMotion = compilePerformance(
+    [gesture("g", 0), gesture("g", 2)],
+    synth,
+  ).performances.g!;
   TestValidator.predicate(
     "two clips + gap → times 0,1,2,3",
-    times(gapped).every((t: number, i: number) : boolean => nclose(t, [0, 1, 2, 3][i]!)),
+    times(gapped).every((t: number, i: number): boolean =>
+      nclose(t, [0, 1, 2, 3][i]!),
+    ),
   );
   TestValidator.predicate(
     "gapped duration is the last placement end",
     nclose(gapped.duration, 3),
   );
-  const reserved: Record<string, IAutoMovieMotion> = compilePerformance([gesture(["__proto__", "constructor", "toString"], 0)], synth).performances;
-  TestValidator.equals("all exact actor names remain own keys", Object.keys(reserved), ["__proto__", "constructor", "toString"]);
-  TestValidator.equals("performance record keeps its ordinary prototype", Object.getPrototypeOf(reserved), Object.prototype);
+  const reserved: Record<string, IAutoMovieMotion> = compilePerformance(
+    [gesture(["__proto__", "constructor", "toString"], 0)],
+    synth,
+  ).performances;
+  TestValidator.equals(
+    "all exact actor names remain own keys",
+    Object.keys(reserved),
+    ["__proto__", "constructor", "toString"],
+  );
+  TestValidator.equals(
+    "performance record keeps its ordinary prototype",
+    Object.getPrototypeOf(reserved),
+    Object.prototype,
+  );
   for (const actor of ["__proto__", "constructor", "toString"]) {
-    TestValidator.predicate(`actor ${actor} has an own clip`, Object.hasOwn(reserved, actor));
-    TestValidator.equals(`actor ${actor} keeps its identity`, reserved[actor]!.id, `perform:${actor}`);
+    TestValidator.predicate(
+      `actor ${actor} has an own clip`,
+      Object.hasOwn(reserved, actor),
+    );
+    TestValidator.equals(
+      `actor ${actor} keeps its identity`,
+      reserved[actor]!.id,
+      `perform:${actor}`,
+    );
   }
 }

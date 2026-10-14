@@ -4,10 +4,16 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y, z });
 const N: IAutoMovieVector3 = v(0, 0, 1); // contact normal, a → b (b sits ahead on +z)
 
-const body: (over: Partial<IAutoMovieImpactBody>) => IAutoMovieImpactBody = (over: Partial<IAutoMovieImpactBody>): IAutoMovieImpactBody => ({
+const body: (over: Partial<IAutoMovieImpactBody>) => IAutoMovieImpactBody = (
+  over: Partial<IAutoMovieImpactBody>,
+): IAutoMovieImpactBody => ({
   mass: 1,
   velocity: v(0, 0, 0),
   restitution: 0.2,
@@ -72,7 +78,10 @@ export function test_physics_impact(): void {
     "arrow ~stops (no rebound)",
     namedFacts([
       ["embVelocityAZ", (): boolean => emb.velocityA.z >= 0],
-      ["embVelocityAZ2", (): boolean => emb.velocityA.z >= 0 && emb.velocityA.z < 1],
+      [
+        "embVelocityAZ2",
+        (): boolean => emb.velocityA.z >= 0 && emb.velocityA.z < 1,
+      ],
     ]),
     { embVelocityAZ: true, embVelocityAZ2: true },
   );
@@ -80,7 +89,10 @@ export function test_physics_impact(): void {
     "heavy target barely moves",
     namedFacts([
       ["embVelocityBZ", (): boolean => emb.velocityB.z > 0],
-      ["embVelocityBZ2", (): boolean => emb.velocityB.z > 0 && emb.velocityB.z < 0.3],
+      [
+        "embVelocityBZ2",
+        (): boolean => emb.velocityB.z > 0 && emb.velocityB.z < 0.3,
+      ],
     ]),
     { embVelocityBZ: true, embVelocityBZ2: true },
   );
@@ -117,7 +129,11 @@ export function test_physics_impact(): void {
   TestValidator.equals("soft but moderate speed → embed", emb2.kind, "embed");
 
   // 4. deflect: already separating
-  const sep: ReturnType<typeof resolveImpact> = resolveImpact(body({ velocity: v(0, 0, -5) }), body({}), N);
+  const sep: ReturnType<typeof resolveImpact> = resolveImpact(
+    body({ velocity: v(0, 0, -5) }),
+    body({}),
+    N,
+  );
   TestValidator.equals("separating → deflect", sep.kind, "deflect");
   TestValidator.predicate("no impulse", nclose(sep.impulse.z, 0));
   TestValidator.predicate("velocity unchanged", nclose(sep.velocityA.z, -5));

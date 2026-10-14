@@ -1,12 +1,19 @@
 import {
-  IAutoMovieActorContext,
   IAutoMovieActionSynthesizer,
+  IAutoMovieActorContext,
   makeActorSynthesizer,
   resolvePose,
   sampleMotion,
   validateMotion,
 } from "@automovie/engine";
-import { IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieReactAction, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieReactAction,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, makePose } from "../internal/fixtures";
@@ -23,11 +30,17 @@ const baseCtx: IAutoMovieActorContext = {
   rig: createSkeleton(),
 };
 
-const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+const nodes: Map<string, IAutoMovieVector3> = new Map<
+  string,
+  IAutoMovieVector3
+>([
   ["attacker", { x: 0, y: 0, z: 2 }], // dead ahead of the actor (+Z)
 ]);
 
-const react: (force: number, overrides?: Partial<IAutoMovieReactAction>) => IAutoMovieReactAction = (
+const react: (
+  force: number,
+  overrides?: Partial<IAutoMovieReactAction>,
+) => IAutoMovieReactAction = (
   force: number,
   overrides: Partial<IAutoMovieReactAction> = {},
 ): IAutoMovieReactAction => ({
@@ -41,12 +54,16 @@ const react: (force: number, overrides?: Partial<IAutoMovieReactAction>) => IAut
 });
 
 /** Largest absolute flexion across a clip's keyframes. */
-const peakFlexion: (motion: IAutoMovieMotion | null) => number = (motion: IAutoMovieMotion | null): number =>
+const peakFlexion: (motion: IAutoMovieMotion | null) => number = (
+  motion: IAutoMovieMotion | null,
+): number =>
   motion === null
     ? 0
     : Math.max(
         ...motion.keyframes.flatMap((k: IAutoMovieKeyframe): number[] =>
-          k.pose.joints.map((j: IAutoMovieJointPose): number => Math.abs(j.flexion ?? 0)),
+          k.pose.joints.map((j: IAutoMovieJointPose): number =>
+            Math.abs(j.flexion ?? 0),
+          ),
         ),
       );
 
@@ -69,7 +86,10 @@ const peakFlexion: (motion: IAutoMovieMotion | null) => number = (motion: IAutoM
  */
 export function test_perform_react_synthesis(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();
-  const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(new Map<string, IAutoMovieActorContext>([["hero", baseCtx]]), nodes);
+  const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+    new Map<string, IAutoMovieActorContext>([["hero", baseCtx]]),
+    nodes,
+  );
 
   const hit: IAutoMovieMotion | null = synth(react(0.7), "hero");
   TestValidator.predicate("react produced a clip", hit !== null);
@@ -80,10 +100,13 @@ export function test_perform_react_synthesis(): void {
   TestValidator.predicate("the flinch actually deflects", peakFlexion(hit) > 1);
   const mid: ReturnType<typeof sampleMotion> = sampleMotion(hit, 0.16);
   const headFlex: number = Math.abs(
-    mid.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "head")?.flexion ?? 0,
+    mid.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "head")
+      ?.flexion ?? 0,
   );
   const spineFlex: number = Math.abs(
-    mid.pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === "spine")?.flexion ?? 0,
+    mid.pose.joints.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === "spine",
+    )?.flexion ?? 0,
   );
   TestValidator.predicate(
     "the head whips more than the spine (falloff down the chain)",
@@ -107,7 +130,10 @@ export function test_perform_react_synthesis(): void {
     true,
   );
 
-  const floored: IAutoMovieMotion | null = synth(react(0.6, { unbalance: true }), "hero");
+  const floored: IAutoMovieMotion | null = synth(
+    react(0.6, { unbalance: true }),
+    "hero",
+  );
   const upright: IAutoMovieMotion | null = synth(react(0.6), "hero");
   TestValidator.predicate(
     "an unbalancing blow flinches harder",
@@ -115,18 +141,26 @@ export function test_perform_react_synthesis(): void {
   );
 
   const rigless: IAutoMovieActionSynthesizer = makeActorSynthesizer(
-    new Map<string, IAutoMovieActorContext>([["hero", { ...baseCtx, rig: undefined }]]),
+    new Map<string, IAutoMovieActorContext>([
+      ["hero", { ...baseCtx, rig: undefined }],
+    ]),
     nodes,
   );
   TestValidator.equals("no rig, no flinch", rigless(react(0.7), "hero"), null);
 
   // 5. totality of the decomposition
-  const auto: IAutoMovieMotion | null = synth(react(0.5, { duration: "auto" }), "hero");
+  const auto: IAutoMovieMotion | null = synth(
+    react(0.5, { duration: "auto" }),
+    "hero",
+  );
   TestValidator.equals(
     "auto duration runs the default 0.5 s",
     namedFacts([
       ["auto", (): boolean => auto !== null],
-      ["ncloseAutoDuration", (): boolean => auto !== null && nclose(auto.duration, 0.5)],
+      [
+        "ncloseAutoDuration",
+        (): boolean => auto !== null && nclose(auto.duration, 0.5),
+      ],
     ]),
     { auto: true, ncloseAutoDuration: true },
   );
@@ -150,7 +184,10 @@ export function test_perform_react_synthesis(): void {
   );
 
   // 6. side hits lean away, proven through FK
-  const sideNodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+  const sideNodes: Map<string, IAutoMovieVector3> = new Map<
+    string,
+    IAutoMovieVector3
+  >([
     ["leftSource", { x: 2, y: 0, z: 0 }], // the actor's left (+X at facing 0)
     ["rightSource", { x: -2, y: 0, z: 0 }],
   ]);
@@ -165,7 +202,11 @@ export function test_perform_react_synthesis(): void {
     );
     if (flinch === null) throw new Error("side react must synthesize");
     const peak: ReturnType<typeof sampleMotion> = sampleMotion(flinch, 0.16);
-    const head: ReturnType<typeof resolvePose>[number] | undefined = resolvePose(peak.pose, rig).find((b: ReturnType<typeof resolvePose>[number]): boolean => b.bone === "head");
+    const head: ReturnType<typeof resolvePose>[number] | undefined =
+      resolvePose(peak.pose, rig).find(
+        (b: ReturnType<typeof resolvePose>[number]): boolean =>
+          b.bone === "head",
+      );
     if (head === undefined) throw new Error("head must resolve");
     return head.worldPosition.x;
   };
