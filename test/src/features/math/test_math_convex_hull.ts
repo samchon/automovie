@@ -10,15 +10,14 @@ import { namedFacts, nclose, vclose, throwsError } from "../internal/predicates"
 const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
- * The shared 2D convex hull over the XZ plane underpins support and balance, so
- * it must be deterministic and order-independent, and its point queries must be
- * exact against hand math.
+ * Planar hull construction and point queries retain the authored degenerate
+ * populations and hand-calculated horizontal distances.
  *
  * Scenarios:
  *
- * 1. A square with an interior point → hull is the four corners; the interior
- *    point is dropped.
- * 2. Duplicate points collapse; three collinear points collapse to two extremes;
+ * 1. A square with an interior point gives four hull vertices and the declared
+ *    interior/exterior distance behavior; individual hull coordinates are not asserted.
+ * 2. Duplicate points collapse; three collinear points give two hull vertices;
  *    one/zero points pass through; an equal-x column exercises the secondary
  *    sort key.
  * 3. PointInHull: inside true, outside false, a degenerate (<3-vertex) hull

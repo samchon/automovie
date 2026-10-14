@@ -3,8 +3,8 @@ import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { TestValidator } from "@nestia/e2e";
 import { qclose, qunit } from "../internal/predicates";
 /**
- * `Quaternion.normalize` rescales any quaternion to unit length, and degrades
- * gracefully on the degenerate zero quaternion rather than dividing by zero.
+ * Quaternion normalization retains finite nonzero directions at ordinary and
+ * extreme magnitudes and maps the exact zero quaternion to identity.
  *
  * Scenarios:
  *

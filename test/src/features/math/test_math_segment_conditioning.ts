@@ -3,6 +3,7 @@ import {
   segmentSegmentDistance,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
@@ -22,21 +23,26 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 6. Eberly's independent near-parallel examples retain the published zero
  *    gap and endpoint minimum rather than cancelling a determinant division.
  * 7. A rigid axis permutation and translation preserve a known skew minimum.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Executes segment witnesses and scalar separation across scale, near-parallel orientation, exact point degeneracy and arithmetic refusal, checking gaps, selected witnesses and owned collapsed results. Absolute span thresholds, cancelled interior minima or fabricated finite answers fail these cases.
+ * @evidence contracts/testing.md#independent-expectations Symmetric crossing projections give a scale/4 gap; parallel intervals and points give the authored endpoint distances. Two retained Eberly examples supply independently published near-parallel distances, and Float32 expectations use the represented gap. Finite tolerances permit rounded witnesses and do not certify exact contact or a distance lower bound.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves seven scales by five slopes by three orientations, parallel/contact/point cases, Float32 endpoints, collapsed ownership, nonfinite/overflow/underflow refusals, adjacent representable cases, two paper examples and a rigid frame. Nonunique witness tie selection belongs to the tie entry.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns each local loop and case and invokes portable segment source without consumer installation, native compilation, process/browser/GPU startup or dynamic registration.
  */
-export const test_math_segment_conditioning = (): void => {
+export function test_math_segment_conditioning(): void {
   for (const scale of [1e-200, 1e-100, 1e-6, 1e-3, 1, 1e100, 1e200]) {
-    const a = { x: -scale, y: 0, z: 0 };
-    const b = { x: scale, y: 0, z: 0 };
+    const a: IAutoMovieVector3 = { x: -scale, y: 0, z: 0 };
+    const b: IAutoMovieVector3 = { x: scale, y: 0, z: 0 };
     for (const slope of [1, 1e-2, 1e-8, 1e-12, 1e-100]) {
-      const gap = scale / 4;
-      const c = { x: -scale, y: -scale * slope, z: gap };
-      const d = { x: scale, y: scale * slope, z: gap };
+      const gap: number = scale / 4;
+      const c: IAutoMovieVector3 = { x: -scale, y: -scale * slope, z: gap };
+      const d: IAutoMovieVector3 = { x: scale, y: scale * slope, z: gap };
       for (const [p, q, r, s] of [
         [a, b, c, d],
         [b, a, c, d],
         [c, d, a, b],
       ]) {
-        const one = closestPointsBetweenSegments(p, q, r, s);
+        const one: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(p, q, r, s);
         TestValidator.predicate(
           `symmetric interior gap at ${scale}/${slope}`,
           nclose(one.distance, gap, gap * 1e-10) &&
@@ -45,10 +51,10 @@ export const test_math_segment_conditioning = (): void => {
       }
     }
   }
-  const v = (x: number, y = 0, z = 0) => ({ x, y, z });
-  const rigid = (point: ReturnType<typeof v>) =>
+  const v: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (x: number, y: number = 0, z: number = 0): IAutoMovieVector3 => ({ x, y, z });
+  const rigid: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     v(point.z + 8, point.x - 4, point.y + 2);
-  const transformed = closestPointsBetweenSegments(
+  const transformed: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
     rigid(v(-1)),
     rigid(v(1)),
     rigid(v(-1, -1e-8, 0.25)),
@@ -107,12 +113,12 @@ export const test_math_segment_conditioning = (): void => {
       ),
     );
   }
-  const represented = (point: ReturnType<typeof v>) => {
-    const xyz = new Float32Array([point.x, point.y, point.z]);
+  const represented: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+    const xyz: Float32Array = new Float32Array([point.x, point.y, point.z]);
     return v(xyz[0], xyz[1], xyz[2]);
   };
-  const gap = new Float32Array([1e-6])[0];
-  const one = closestPointsBetweenSegments(
+  const gap: number = new Float32Array([1e-6])[0];
+  const one: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
     represented(v(-5e-6)),
     represented(v(5e-6)),
     represented(v(0, -5e-6, 1e-6)),
@@ -124,50 +130,49 @@ export const test_math_segment_conditioning = (): void => {
       vclose(one.pointA, v(0), 1e-15) &&
       vclose(one.pointB, v(0, 0, gap), 1e-15),
   );
-  const origin = Object.freeze(v(0));
-  const result = closestPointsBetweenSegments(origin, origin, origin, origin);
+  const origin: Readonly<IAutoMovieVector3> = Object.freeze(v(0));
+  const result: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(origin, origin, origin, origin);
   result.pointA.x = 7;
   result.pointB.y = 8;
   TestValidator.predicate(
     "collapsed witnesses are independently owned",
-    origin.x === 0 &&
-      origin.y === 0 &&
-      closestPointsBetweenSegments(origin, origin, origin, origin).distance ===
-        0,
+    nclose(origin.x, 0, 0) &&
+      nclose(origin.y, 0, 0) &&
+      nclose(closestPointsBetweenSegments(origin, origin, origin, origin).distance, 0, 0),
   );
   for (const invalid of [NaN, Infinity])
     TestValidator.predicate(
       "nonfinite coordinates refuse",
       throwsError(
-        () => closestPointsBetweenSegments(v(invalid), v(0), v(0), v(1)),
+        (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(invalid), v(0), v(0), v(1)),
         "finite",
       ),
     );
   TestValidator.predicate(
     "overflowing differences refuse",
     throwsError(
-      () => closestPointsBetweenSegments(v(-1e308), v(1e308), v(0), v(0)),
+      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(-1e308), v(1e308), v(0), v(0)),
       "finite",
     ),
   );
   TestValidator.predicate(
     "nonzero first scaled span cannot collapse",
     throwsError(
-      () => closestPointsBetweenSegments(v(0), v(1e-200), v(1), v(2)),
+      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(0), v(1e-200), v(1), v(2)),
       "nonzero scaled span",
     ),
   );
   TestValidator.predicate(
     "nonzero second scaled span cannot collapse",
     throwsError(
-      () => closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-200)),
+      (): ReturnType<typeof closestPointsBetweenSegments> => closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-200)),
       "nonzero scaled span",
     ),
   );
   TestValidator.predicate(
     "finite components with unrepresentable norm refuse",
     throwsError(
-      () =>
+      (): ReturnType<typeof closestPointsBetweenSegments> =>
         closestPointsBetweenSegments(
           v(8e307, 8e307, 8e307),
           v(8e307, 8e307, 8e307),
@@ -192,14 +197,14 @@ export const test_math_segment_conditioning = (): void => {
   );
   TestValidator.predicate(
     "tiny positive first squared rank remains admitted",
-    closestPointsBetweenSegments(v(0), v(1e-160), v(1), v(2)).distance === 1,
+    nclose(closestPointsBetweenSegments(v(0), v(1e-160), v(1), v(2)).distance, 1, 0),
   );
   TestValidator.predicate(
     "tiny positive second squared rank remains admitted",
-    closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-160)).distance === 1,
+    nclose(closestPointsBetweenSegments(v(1), v(2), v(0), v(1e-160)).distance, 1, 0),
   );
   TestValidator.predicate(
     "valid pair recovers after refusals",
-    closestPointsBetweenSegments(v(0), v(1), v(0, 1), v(1, 1)).distance === 1,
+    nclose(closestPointsBetweenSegments(v(0), v(1), v(0, 1), v(1, 1)).distance, 1, 0),
   );
-};
+}

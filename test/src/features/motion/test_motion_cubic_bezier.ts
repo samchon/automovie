@@ -1,16 +1,7 @@
 import { cubicBezierEasing, ease } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
-
-const throws = (task: () => void): boolean => {
-  try {
-    task();
-    return false;
-  } catch {
-    return true;
-  }
-};
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
  * `cubicBezierEasing` solves the parametric Bézier `x(s)=t` (Newton with
@@ -37,8 +28,13 @@ const throws = (task: () => void): boolean => {
  *    bisection oracle (x(s)=4s³−6s²+3s, y(s)=3s²−2s³): t=0.5 → 0.5 exactly,
  *    t=0.51 → ≈0.6983 (the unconverged Newton was off by ~0.30), and the mirror
  *    t=0.49 → ≈0.3017.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls cubicBezierEasing and the named ease selector, checking identity/endpoint values, finite degenerate output, steep-curve inversions, clamping and named finite-input refusals. Unconverged Newton output near the stationary derivative or accepting nonfinite arguments fails these observations.
+ * @evidence contracts/testing.md#independent-expectations Equal X/Y controls define identity; the fixed endpoints define zero/one. For [1,0,0,1], x(s)=4s cubed-6s squared+3s and y(s)=3s squared-2s cubed give the retained .5/.6983/.3017 oracle values. The degenerate case checks only finite range, not inversion accuracy, and tolerances permit solver rounding.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves two identity samples, both endpoints, one degenerate-slope input, control-free cubicBezier selection, nonfinite progress and each control coordinate, exterior clamping and three steep-curve samples. CSS X-domain validation and finite Y overshoot are owned by motion admission.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns every inversion case and invokes portable scalar source with existing local observers, without consumer installation, native compilation, host startup or dynamic registration.
  */
-export const test_motion_cubic_bezier = (): void => {
+export function test_motion_cubic_bezier(): void {
   // 1. linear control points ≈ identity
   TestValidator.predicate(
     "linear bezier at 0.25",
@@ -60,13 +56,13 @@ export const test_motion_cubic_bezier = (): void => {
   );
 
   // 3. degenerate slope safeguard: result stays finite and in range
-  const degenerate = cubicBezierEasing([0, 0, 0, 0], 1e-4);
+  const degenerate: number = cubicBezierEasing([0, 0, 0, 0], 1e-4);
   TestValidator.equals(
     "degenerate slope stays finite & in [0,1]",
     namedFacts([
-      ["isFiniteDegenerate", () => Number.isFinite(degenerate)],
-      ["degenerate", () => degenerate >= 0],
-      ["degenerate2", () => degenerate <= 1],
+      ["isFiniteDegenerate", (): boolean => Number.isFinite(degenerate)],
+      ["degenerate", (): boolean => degenerate >= 0],
+      ["degenerate2", (): boolean => degenerate <= 1],
     ]),
     { isFiniteDegenerate: true, degenerate: true, degenerate2: true },
   );
@@ -80,15 +76,11 @@ export const test_motion_cubic_bezier = (): void => {
   // 5. invalid scalars reject; finite out-of-range progress still clamps
   TestValidator.predicate(
     "ease rejects nan progress",
-    throws(() => {
-      ease("linear", Number.NaN);
-    }),
+    throwsError((): number => ease("linear", Number.NaN), "easing progress must be finite"),
   );
   TestValidator.predicate(
     "bezier rejects nan progress",
-    throws(() => {
-      cubicBezierEasing([0, 0, 1, 1], Number.NaN);
-    }),
+    throwsError((): number => cubicBezierEasing([0, 0, 1, 1], Number.NaN), "easing progress must be finite"),
   );
   const invalidControls: [string, [number, number, number, number]][] = [
     ["x1", [Number.NaN, 0, 1, 1]],
@@ -99,9 +91,7 @@ export const test_motion_cubic_bezier = (): void => {
   for (const [name, control] of invalidControls)
     TestValidator.predicate(
       `bezier rejects non-finite ${name}`,
-      throws(() => {
-        cubicBezierEasing(control, 0.5);
-      }),
+      throwsError((): number => cubicBezierEasing(control, 0.5), "cubic bezier control points must be finite"),
     );
   TestValidator.predicate(
     "ease clamps finite low",
@@ -126,4 +116,4 @@ export const test_motion_cubic_bezier = (): void => {
     "steep curve mirror side (bisection oracle 0.3017)",
     nclose(cubicBezierEasing(steep, 0.49), 0.3017, 2e-3),
   );
-};
+}

@@ -7,34 +7,31 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
 
-const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
 
 /**
- * The exact clamped segment-segment solver (Ericson §5.1.9) replaces the old
- * four-endpoint approximation, which reported the true distance only when a
- * closest point happened to be an endpoint. The headline gain is the
- * interior-to-interior crossing: two segments passing through each other as an
- * X measured a full segment-width apart under the approximation while the real
- * distance is zero: the commonest self-intersection (a limb sweeping through a
- * torso), silently missed by a check that forces it as an error.
+ * Bounded segment witnesses retain independently calculated point, crossing,
+ * parallel and clamped-endpoint minima under the current constrained solver.
  *
- * Every hand-computed case below also pins one branch of the solver so the
- * clamp/degeneracy paths stay covered:
+ * Scenarios:
+ * 1. Both segments collapse exactly to points one unit apart.
+ * 2. The first segment is a point nearest the second segment's first endpoint.
+ * 3. The second segment is a point nearest the first segment's first endpoint.
+ * 4. An interior X-crossing has zero gap and both witnesses at the origin.
+ * 5. Parallel offset segments choose their earliest witnesses at a unit gap.
+ * 6. Separated collinear segments choose facing endpoints a unit apart.
+ * 7. A skew segment's bounded far endpoint gives the independently known sqrt(2) gap.
+ * 8. Reversing the separated pair keeps the facing-endpoint gap.
  *
- * 1. Both segments collapsed to points (`A ≤ ε && E ≤ ε`).
- * 2. First segment a point, projected onto the second (`A ≤ ε`).
- * 3. Second segment a point, projected onto the first (`E ≤ ε`).
- * 4. Interior X-crossing (non-parallel, `t` in range) → distance 0, both closest
- *    points at the origin, the case the approximation missed.
- * 5. Parallel offset (`denom = 0`) → `s` pinned to 0, exact gap.
- * 6. Colinear separated → `t < 0` clamped, `s` re-solved to 1 (clamp01 upper).
- * 7. Skew far end → `t > 1` clamped to the near end.
- * 8. Reversed colinear → `t > 1` with `s` re-solved below 0 (clamp01 lower).
+ * @evidence contracts/testing.md#behavioral-verification Queries closestPointsBetweenSegments on eight geometric configurations and checks both witnesses and their distance, including scalar-distance agreement at the interior crossing. Endpoint-only approximation, unbounded projection or wrong point degeneracy fails these assertions.
+ * @evidence contracts/testing.md#independent-expectations Authored axis coordinates give point gaps one/two, a shared-origin X crossing, parallel unit separation and the skew right-triangle gap sqrt(2). Witness coordinates are literal geometric expectations; tolerance permits binary64 rounding rather than certifying an exact-contact predicate.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves both/first/second collapsed spans, interior crossing, parallel offset, facing collinear endpoints, bounded skew endpoint and reversed collinear pair. Near-parallel conditioning, tiny spans, arithmetic refusals and nonunique overlap ties belong to companion entries.
+ * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all eight scopes and invokes portable witness/distance source without installing a consumer, compiling a native artifact, starting a process/browser/GPU or dynamically registering cases.
  */
-export const test_math_segment_segment_exact = (): void => {
+export function test_math_segment_segment_exact(): void {
   // 1. both points: the only pair is the two points themselves.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(0, 0, 0),
       v(1, 0, 0),
@@ -48,7 +45,7 @@ export const test_math_segment_segment_exact = (): void => {
   // 2. first segment a point (0,0,0), second [(2,0,0)-(2,0,2)]: closest on the
   // second is its near end (2,0,0), distance 2.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(0, 0, 0),
       v(2, 0, 0),
@@ -62,7 +59,7 @@ export const test_math_segment_segment_exact = (): void => {
   // 3. second segment a point (2,0,0), first [(0,0,0)-(0,0,2)]: closest on the
   // first is its near end (0,0,0), distance 2.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(0, 0, 2),
       v(2, 0, 0),
@@ -77,7 +74,7 @@ export const test_math_segment_segment_exact = (): void => {
   // [(0,0,-1)-(0,0,1)] pierce at the origin. s = t = 0.5, both points (0,0,0),
   // distance 0: the approximation returned 1 (every endpoint a unit away).
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(-1, 0, 0),
       v(1, 0, 0),
       v(0, 0, -1),
@@ -106,10 +103,9 @@ export const test_math_segment_segment_exact = (): void => {
     );
   }
 
-  // 5. parallel offset: two unit x-segments 1 apart in y. denom = 0 → s = 0,
-  // t = 0, distance 1.
+  // 5. Parallel unit X segments one unit apart choose their first endpoints.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -120,10 +116,9 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("parallel B", vclose(r.pointB, v(0, 1, 0)));
   }
 
-  // 6. colinear separated [(0,0,0)-(1,0,0)] and [(2,0,0)-(3,0,0)]: t = -2
-  // clamps to 0, s re-solves to 1 (clamp01 upper bound). Facing ends, gap 1.
+  // 6. Separated collinear intervals choose their facing endpoints, gap one.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(1, 0, 0),
       v(2, 0, 0),
@@ -138,7 +133,7 @@ export const test_math_segment_segment_exact = (): void => {
   // [(0.5,1,-2)-(0.5,1,-1)] whose infinite line is closest at z=0, past its far
   // end. t = 2 clamps to 1, s = 0.5. Points (0.5,0,0)-(0.5,1,-1), distance √2.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(0, 0, 0),
       v(1, 0, 0),
       v(0.5, 1, -2),
@@ -149,11 +144,9 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("skew B", vclose(r.pointB, v(0.5, 1, -1)));
   }
 
-  // 8. reversed colinear [(2,0,0)-(3,0,0)] and [(0,0,0)-(1,0,0)]: t = 2 clamps
-  // to 1, s = (B−C)/A = -1 clamps to 0 (clamp01 lower bound). Facing ends,
-  // gap 1.
+  // 8. The reversed collinear pair retains facing endpoints and a unit gap.
   {
-    const r = closestPointsBetweenSegments(
+    const r: ReturnType<typeof closestPointsBetweenSegments> = closestPointsBetweenSegments(
       v(2, 0, 0),
       v(3, 0, 0),
       v(0, 0, 0),
@@ -163,4 +156,4 @@ export const test_math_segment_segment_exact = (): void => {
     TestValidator.predicate("reversed A", vclose(r.pointA, v(2, 0, 0)));
     TestValidator.predicate("reversed B", vclose(r.pointB, v(1, 0, 0)));
   }
-};
+}
