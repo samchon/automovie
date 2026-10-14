@@ -18,3 +18,18 @@ Book chapter published free online by NVIDIA. Human takes numbers and methods, c
 ## What Human takes
 
 Specular constants (F0 0.028, white specular), the per-region roughness idea, and normal-map usage (`../techniques/skin-material.md`). Weyrich et al. 2006 itself was not read.
+
+## Sum-of-Gaussians skin profile (added; read from Figure 14-13, https://developer.download.nvidia.com/books/gpugems3/14fig13.jpg)
+
+The figure image carries the numbers that the page text omits. Each Gaussian is a 2D normalized Gaussian of variance v (mm²); the diffusion profile per channel is Σ wᵢ G(vᵢ, r). Grade: fitted by the authors to the three-layer Donner-Jensen profile for skin (derived).
+
+| Variance (mm²) | Red | Green | Blue |
+| --- | --- | --- | --- |
+| 0.0064 | 0.233 | 0.455 | 0.649 |
+| 0.0484 | 0.100 | 0.336 | 0.344 |
+| 0.187 | 0.118 | 0.198 | 0 |
+| 0.567 | 0.113 | 0.007 | 0.007 |
+| 1.99 | 0.358 | 0.004 | 0 |
+| 7.41 | 0.078 | 0 | 0 |
+
+Red scatters furthest (36 percent of its weight at variance 1.99 mm², standard deviation 1.4 mm), blue barely leaves the entry point. A per-channel radius for the viewer's `subsurfaceRadius` can be derived as the weighted standard deviation √(Σ wᵢ vᵢ): red 1.18 mm, green 0.26 mm, blue 0.16 mm (derived here, not in the chapter; each channel's weights sum to 1).
