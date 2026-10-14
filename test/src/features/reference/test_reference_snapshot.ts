@@ -2,7 +2,7 @@ import { createAutoMovieReferenceProvider } from "@automovie/mcp";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { referenceParser } from "../internal/referenceSourceModules";
+import { referenceParser } from "../internal/referenceParser";
 
 const { parseReference } = referenceParser;
 

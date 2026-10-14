@@ -4,7 +4,7 @@ import {
 } from "@automovie/mcp";
 import { TestValidator } from "@nestia/e2e";
 
-import { referenceErrors } from "../internal/referenceSourceModules";
+import { referenceErrors } from "../internal/referenceErrors";
 
 /**
  * The local command delivers the same provider result with a result-only stdout.

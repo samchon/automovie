@@ -14,19 +14,24 @@ type Heading = ParsedReference["headings"][number];
 /**
  * Parse syntax through trusted libraries, then select only original offsets.
  *
+ * The layer provider alone supplies observedRevision after hashing the same
+ * provider-owned byte copy, which it does not mutate before parsing. Ordinary
+ * file reads and syntax-injection callers omit it and hash their current bytes
+ * here. This private seam does not accept request-supplied revision authority.
  *
- * @evidence contracts/common.md#principled-implementation Fatal UTF-8 decode captures byte digest before asynchronous syntax work; trusted parser positions drive HTML comment masking, original coordinates, heading ancestry and explicit-anchor ambiguity.
+ * @evidence contracts/common.md#principled-implementation Fatal UTF-8 decode captures the source before asynchronous syntax work. Its revision is either hashed here or supplied by the sole layer caller from these same unchanged copied bytes; trusted parser positions drive HTML comment masking, original coordinates, heading ancestry and explicit-anchor ambiguity.
  * @evidence contracts/common.md#clear-and-simple-design One parsed snapshot owns source, revision and interval metadata reused by navigation and projection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Comment-like code is masked from HTML parsing, headings are not regenerated, and ambiguous or unsupported-depth anchors remain explicit rather than guessed.
  * @evidence contracts/common.md#meaningful-documentation The comment and snapshot members identify original UTF-16 offsets, parser-trusted positions and current-source identity; parse failures become sanitized parser refusals.
  * @evidence contracts/performance.md#efficient-algorithms For L source characters, A comments, H headings and T line starts, parsing and masked-text construction inspect the source and AST; line indexing is O(L), comment sorting is O(A log(A + 1)), heading projection selects comments in O(H log(A + 1) plus intersected comments and copied heading text), and heading coordinates cost O(H log(T + 1)). Arrays and text are rebuilt because each call admits a current source snapshot.
- * @evidence contracts/performance.md#reuse-equivalent-work One source revision, line-start array, comment population and heading ancestry serve every view of the same snapshot; no parse is cached across requests.
+ * @evidence contracts/performance.md#reuse-equivalent-work Layer parsing reuses the revision already calculated for the same provider-owned byte copy; other calls hash their own current bytes before awaiting syntax. One source revision, line-start array, comment population and heading ancestry serve every view of the resulting snapshot; no parse is cached across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The 8 MiB byte ceiling bounds input, while ASTs, masked text, decoded text and interval arrays coexist during parsing; returned closures retain source coordinate facts only for their snapshot lifetime.
  */
 export async function parseReference(
   file: string,
   bytes: Uint8Array,
   syntax: typeof parseReferenceSyntax = parseReferenceSyntax,
+  observedRevision: string | undefined = undefined,
 ): Promise<ParsedReference> {
   if (bytes.byteLength > MAX_SOURCE_BYTES)
     fail("RESOURCE_LIMIT", "Source exceeds the 8 MiB file limit.");
@@ -38,7 +43,7 @@ export async function parseReference(
   } catch {
     return fail("INVALID_UTF8", "Source is not valid UTF-8.");
   }
-  const revision: string = digest(bytes);
+  const revision: string = observedRevision ?? digest(bytes);
   const sourceBytes: number = bytes.byteLength;
   const { tree, Parser }: Awaited<ReturnType<typeof parseReferenceSyntax>> = await syntax(source).catch(() : never =>
     fail(

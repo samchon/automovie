@@ -32,7 +32,7 @@ import type {
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Oversized sources, duplicate inventory identities, stale revisions and oversized results refuse instead of truncating content or reflecting external exception text.
  * @evidence contracts/common.md#meaningful-documentation The comment states current-source reads and non-atomic continuation; classified failures carry provider-authored recovery text.
  * @evidence contracts/performance.md#efficient-algorithms A layer first copies and sorts the reader's F paths with O(F log F) string comparisons, then checks the 10,000-file ceiling; an injected over-limit list therefore still incurs copy and sort work. Admitted sources total at most 32 MiB and at most 100 page files are parsed. Repeated growing-page JSON serialization costs the sum of page-prefix sizes, quadratic in page length for equal-sized file indices; source parsing and reader I/O are additional delegated costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Within a layer request each copied file's digest is shared by continuation and its parse; no result is reused across independent current-source requests.
+ * @evidence contracts/performance.md#reuse-equivalent-work A layer request copies each reader result before the next read and records its digest once. The ordered layer revision and page parsing use that same digest of the provider-owned, unchanged byte copy; no request revision or reader-owned mutable buffer substitutes for this identity. Independent current-source requests reread and hash their own bytes rather than sharing prior results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources An admitted layer retains at most 10,000 paths and 32 MiB of copied source bytes plus a page's parsed outputs, current reader buffer and temporary JSON strings. These are not a bound on total transient allocation: the raw injected inventory is copied before its count check, path text has no aggregate ceiling, and parser structures coexist with source copies. Request locals become collectable on success or refusal; the provider closure retains only its caller-supplied reader and opens no handle or background task.
  */
 export function createAutoMovieReferenceProvider(
@@ -118,7 +118,7 @@ export function createAutoMovieReferenceProvider(
           for (let cursor: number = offset; cursor < limit; ++cursor) {
             const item: typeof files[number] = files[cursor];
             page.files.push(
-              indexReference(await parseReference(item.file, item.bytes)),
+              indexReference(await parseReference(item.file, item.bytes, undefined, item.revision)),
             );
             page.continuation =
               cursor + 1 < files.length

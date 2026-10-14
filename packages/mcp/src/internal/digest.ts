@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 /** Identify exact source bytes or the ordered layer revision declaration.
  *
  * @evidence contracts/common.md#principled-implementation Node's SHA-256 hashes the exact supplied string or byte sequence and returns lowercase hexadecimal identity.
- * @evidence contracts/common.md#clear-and-simple-design One digest helper serves byte revisions, ordered inventory identities and managed configuration checksums.
+ * @evidence contracts/common.md#clear-and-simple-design One digest helper serves exact source-byte revisions and ordered layer inventory identities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Hash input is caller-defined exact data, without fixture salts, fallback identities or mutation.
  * @evidence contracts/common.md#meaningful-documentation The input union and hexadecimal return expose identity representation; callers decide what bytes or structured text define equivalence.
  * @evidence contracts/performance.md#efficient-algorithms For N input bytes hashing costs O(N) with fixed hash state and a 64-character result.

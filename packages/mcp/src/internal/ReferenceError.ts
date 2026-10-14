@@ -14,7 +14,7 @@ export class ReferenceError extends Error {
   /** Keep the intentional refusal category beside source-free recovery guidance. */
   public constructor(
 
-    /** Stable category used by reference transports and configuration planning. */
+    /** Stable refusal category used by reference providers and transports. */
     public readonly code: string,
     message: string,
   ) {

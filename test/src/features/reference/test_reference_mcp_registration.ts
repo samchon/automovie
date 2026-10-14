@@ -28,10 +28,11 @@ type Registration = {
  *    The injected registration sink does not test the SDK's protocol implementation.
  * 3. A failed connection requests cleanup and preserves its original failure identity.
  * 4. Failed cleanup exposes both failures instead of claiming successful release.
+ * 5. Transport acquisition failure closes the constructed server without connecting.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual server construction, tool registration and startup dispatch run through injected capabilities; assertions pin all four request schemas, result transport markers, transfer on success and cleanup on connection failure.
+ * @evidence contracts/testing.md#behavioral-verification Actual server construction, tool registration and startup dispatch run through injected capabilities; assertions pin all four request schemas, result transport markers, transfer on success and cleanup after transport acquisition or connection failure.
  * @evidence contracts/testing.md#independent-expectations The four supported operation names and read-only hints are literal contract values. Failure objects and close counts are authored before startup, so omitted cleanup or replacing the original rejection fails independently; provider equality is supplementary transport parity rather than an independent parser oracle.
- * @evidence contracts/testing.md#distinguishing-cases Each tool admits valid arguments and refuses a request-time root; successful connection transfers without closing, stale reads set isError, failed connection closes once, and failed close preserves both error identities. This unit verifies requested cleanup, not native descriptor release or the SDK protocol itself.
+ * @evidence contracts/testing.md#distinguishing-cases Each tool admits valid arguments and refuses a request-time root; successful connection transfers without closing, stale reads set isError, failed transport acquisition never connects, acquisition and connection failures each close once, and failed close preserves both error identities. This unit verifies requested cleanup, not native descriptor release or the SDK protocol itself.
  * @evidence contracts/testing.md#execution-ownership The discoverable asynchronous unit owns every assertion and injects registration, connection and close capabilities without starting stdio, a process, a browser or a network host.
  */
 export async function test_reference_mcp_registration(): Promise<void> {
@@ -149,8 +150,34 @@ export async function test_reference_mcp_registration(): Promise<void> {
     JSON.parse(stale.content[0].text).error.code,
     "STALE_REFERENCE",
   );
-  connectionFailure = new Error("connection refused");
   const closeFailure: Error = new Error("cleanup refused");
+  const transportFailure: Error = new Error("transport acquisition refused");
+  connected = undefined;
+  for (const cleanup of [undefined, closeFailure]) {
+    cleanupFailure = cleanup;
+    const beforeCloses: number = closes;
+    let rejection: unknown = undefined;
+    try {
+      await startAutoMovieMcpServer("bound-root", "test-version", {
+        reader: async (): Promise<IAutoMovieReferenceReader> => reader,
+        server: (): typeof server => server,
+        transport: (): typeof transport => { throw transportFailure; },
+      });
+    } catch (error) {
+      rejection = error;
+    }
+    TestValidator.predicate("failed transport acquisition never connects", connected === undefined);
+    TestValidator.equals("failed transport acquisition requests one close", closes, beforeCloses + 1);
+    if (cleanup === undefined)
+      TestValidator.predicate("original transport failure propagates", rejection === transportFailure);
+    else {
+      TestValidator.predicate("failed acquisition cleanup exposes an aggregate", rejection instanceof AggregateError);
+      if (!(rejection instanceof AggregateError)) throw new Error("Expected both acquisition failures.");
+      TestValidator.predicate("aggregate preserves transport cause", rejection.cause === transportFailure && rejection.errors[0] === transportFailure);
+      TestValidator.predicate("aggregate preserves acquisition cleanup cause", rejection.errors.length === 2 && rejection.errors[1] === closeFailure);
+    }
+  }
+  connectionFailure = new Error("connection refused");
   for (const cleanup of [undefined, closeFailure]) {
     cleanupFailure = cleanup;
     const beforeCloses: number = closes;

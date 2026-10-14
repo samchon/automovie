@@ -6,7 +6,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as path from "node:path";
 
 import { createReferenceMemoryFileSystem } from "../internal/createReferenceMemoryFileSystem";
-import { referenceParser } from "../internal/referenceSourceModules";
+import { referenceParser } from "../internal/referenceParser";
 
 const { parseReference } = referenceParser;
 

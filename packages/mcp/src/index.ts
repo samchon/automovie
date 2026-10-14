@@ -10,7 +10,4 @@ export * from "./createAutoMovieMcpServer";
 export * from "./registerAutoMovieReferenceTools";
 export * from "./IAutoMovieMcpStartupRuntime";
 export * from "./startAutoMovieMcpServer";
-export * from "./autoMovieReferenceSchemas";
-export * from "./autoMovieReferenceRequestError";
-export * from "./parseAutoMovieReferenceRequest";
 export * from "./IAutoMovieReferenceCommandRuntime";
