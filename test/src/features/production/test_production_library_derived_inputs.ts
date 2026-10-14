@@ -1,7 +1,4 @@
-import type {
-  IAutoMovieAssetProvenance,
-  IAutoMovieDiagnostic,
-} from "@automovie/interface";
+import type { IAutoMovieDiagnostic } from "@automovie/interface";
 import type {
   IAutoMovieFingerprintField,
   IAutoMovieProductionContentInput,
@@ -10,61 +7,17 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
-import { productionModule, textDigest } from "./sourceStatusFixtures";
-
-interface IDerivedInputs {
-  artifacts: Readonly<Record<string, unknown>>;
-  fields: IAutoMovieFingerprintField[];
-  diagnostics: IAutoMovieDiagnostic[];
-  assets: IAutoMovieAssetProvenance[];
-  content: IAutoMovieProductionContentInput[];
-}
-
-const { readAutoMovieLibraryDerivedInputs } = loadSourceModule<{
-  readAutoMovieLibraryDerivedInputs(props: {
-    project: object;
-    enabled: boolean;
-  }): IDerivedInputs;
-}>(productionModule("readAutoMovieLibraryDerivedInputs.ts"));
-const { contentFingerprintFields } = loadSourceModule<{
-  contentFingerprintFields(
-    inputs: readonly IAutoMovieProductionContentInput[],
-  ): IAutoMovieFingerprintField[];
-}>(productionModule("productionBuildIdentity.ts"));
-const { productionAssetInventory } = loadSourceModule<{
-  productionAssetInventory(
-    manifestPath: string | undefined,
-    inputs: readonly IAutoMovieProductionContentInput[],
-    productionId: string,
-    graph: IAutoMovieProductionDesignGraph,
-    archetypes: unknown,
-  ): {
-    records: IAutoMovieAssetProvenance[];
-    diagnostics: IAutoMovieDiagnostic[];
-  };
-}>(productionModule("productionAssetInventory.ts"));
-const { inspectAutoMovieDerivedArtifacts } = loadSourceModule<{
-  inspectAutoMovieDerivedArtifacts(props: {
-    root: string;
-    manifestPath?: string;
-    externalAssetPaths?: readonly string[];
-  }): {
-    fingerprintFields: IAutoMovieFingerprintField[];
-    problems: Array<{
-      code: IAutoMovieDiagnostic["code"];
-      target: string;
-      path: string | null;
-      message: string;
-    }>;
-  };
-}>(productionModule("derivedArtifacts.ts"));
+import { readAutoMovieLibraryDerivedInputs } from "../../../../packages/production/src/production/readAutoMovieLibraryDerivedInputs";
+import { contentFingerprintFields } from "../../../../packages/production/src/production/productionBuildIdentity";
+import { productionAssetInventory } from "../../../../packages/production/src/production/productionAssetInventory";
+import { inspectAutoMovieDerivedArtifacts } from "../../../../packages/production/src/production/derivedArtifacts";
+import { textDigest } from "./sourceStatus/textDigest";
 
 /** A project root that does not exist, so its derivation root cannot resolve. */
-const ROOT = path.join(__dirname, "absent-derived-inputs-project");
-const LEDGER = "automovie/assets.json";
-const DERIVATIONS = "automovie/derived-artifacts.json";
-const WIND = "assets/sound/harbor-wind.ogg";
+const ROOT: string = path.join(__dirname, "absent-derived-inputs-project");
+const LEDGER: string = "automovie/assets.json";
+const DERIVATIONS: string = "automovie/derived-artifacts.json";
+const WIND: string = "assets/sound/harbor-wind.ogg";
 
 const GRAPH: IAutoMovieProductionDesignGraph = {
   production: null,
@@ -75,7 +28,7 @@ const GRAPH: IAutoMovieProductionDesignGraph = {
   acceptance: new Map(),
 };
 
-const contentOf = (): IAutoMovieProductionContentInput[] => [
+const contentOf: () => IAutoMovieProductionContentInput[] = (): IAutoMovieProductionContentInput[] => [
   {
     path: "src/spaces/hall.ts",
     source: true,
@@ -115,8 +68,8 @@ const contentOf = (): IAutoMovieProductionContentInput[] => [
 ];
 
 /**
- * A library's derived inputs are read once, the same way for its compile and
- * every later check.
+ * A library's derived inputs follow the same reading policy for its compile
+ * and every later check. Separate calls still observe mutable inputs again.
  *
  * The fields a library result is bound to are the declared content inventory
  * followed by the verified derivation closure, and the compile also receives
@@ -137,17 +90,34 @@ const contentOf = (): IAutoMovieProductionContentInput[] => [
  *    project errors.
  * 4. An asset inventory that fails after the content was read keeps the content
  *    fields and inventory, appends the unsafe field, and refuses with the cause.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Invokes the actual library derived-input reader with disabled, readable, unreadable and post-content asset-inventory failures, asserting no disabled reads, retained content/adopted assets and ordered unsafe identity/diagnostics while derivation inspection still contributes its refusal.
+ * @evidence contracts/testing.md#independent-expectations Literal zero reads, wind asset address, unsafe field and authored thrown messages independently specify key outcomes. Full fingerprint/assets/derivation comparisons reuse their canonical owners, so they establish composition/order rather than independent hashing or parser correctness.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all four scenarios, including failure before content acquisition versus after content exists, disabled access and readable inventory. Source execution and derived contribution JSON selection belong to adjacent library tests; manifest/derivation-inspection exceptions outside recovery are not asserted here.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_derived_inputs owns every callback and assertion. Its absent ROOT is queried by the real filesystem derivation inspector, making this host-dependent rather than a portable unit; it starts no process and writes no files. Host-layer relocation and the minimal project read-port type remain deferred integration work.
  */
-export const test_production_library_derived_inputs = (): void => {
-  let reads = 0;
-  const projectOf = (props: {
+export function test_production_library_derived_inputs(): void {
+  let reads: number = 0;
+  const projectOf: (props: {
     manifest?: { assetManifest?: string; derivedArtifactManifest?: string };
     contentInputs?: () => IAutoMovieProductionContentInput[];
     graph?: () => IAutoMovieProductionDesignGraph;
-  }) => {
-    const count =
+  }) => { root: string; productionId: string; archetypes: undefined;
+    manifest: () => { assetManifest?: string; derivedArtifactManifest?: string };
+    contentInputs: () => IAutoMovieProductionContentInput[];
+    graph: () => IAutoMovieProductionDesignGraph;
+  } = (props: {
+    manifest?: { assetManifest?: string; derivedArtifactManifest?: string };
+    contentInputs?: () => IAutoMovieProductionContentInput[];
+    graph?: () => IAutoMovieProductionDesignGraph;
+  }): { root: string; productionId: string; archetypes: undefined;
+    manifest: () => { assetManifest?: string; derivedArtifactManifest?: string };
+    contentInputs: () => IAutoMovieProductionContentInput[];
+    graph: () => IAutoMovieProductionDesignGraph;
+  } => {
+    const count: <T>(read: () => T) => () => T =
       <T>(read: () => T): (() => T) =>
-      () => {
+      (): T => {
         reads += 1;
         return read();
       };
@@ -155,9 +125,9 @@ export const test_production_library_derived_inputs = (): void => {
       root: ROOT,
       productionId: "harbor",
       archetypes: undefined,
-      manifest: count(() => props.manifest ?? {}),
+      manifest: count((): { assetManifest?: string; derivedArtifactManifest?: string } => props.manifest ?? {}),
       contentInputs: count(props.contentInputs ?? contentOf),
-      graph: count(props.graph ?? (() => GRAPH)),
+      graph: count(props.graph ?? ((): IAutoMovieProductionDesignGraph => GRAPH)),
     };
   };
 
@@ -182,18 +152,18 @@ export const test_production_library_derived_inputs = (): void => {
     },
   );
 
-  const content = contentOf();
-  const inventory = productionAssetInventory(
+  const content: IAutoMovieProductionContentInput[] = contentOf();
+  const inventory: ReturnType<typeof productionAssetInventory> = productionAssetInventory(
     LEDGER,
     content,
     "harbor",
     GRAPH,
     undefined,
   );
-  const readable = readAutoMovieLibraryDerivedInputs({
+  const readable: ReturnType<typeof readAutoMovieLibraryDerivedInputs> = readAutoMovieLibraryDerivedInputs({
     project: projectOf({
       manifest: { assetManifest: LEDGER },
-      contentInputs: () => content,
+      contentInputs: (): IAutoMovieProductionContentInput[] => content,
     }),
     enabled: true,
   });
@@ -210,17 +180,17 @@ export const test_production_library_derived_inputs = (): void => {
   );
   TestValidator.equals(
     "the adopted ledger record is carried",
-    readable.assets.map((asset) => asset.path),
+    readable.assets.map((asset: typeof readable.assets[number]): string => asset.path),
     [WIND],
   );
 
-  const derivation = inspectAutoMovieDerivedArtifacts({
+  const derivation: ReturnType<typeof inspectAutoMovieDerivedArtifacts> = inspectAutoMovieDerivedArtifacts({
     root: ROOT,
     manifestPath: DERIVATIONS,
     externalAssetPaths: [],
   });
-  const derivationRefusals = derivation.problems.map(
-    (problem): IAutoMovieDiagnostic => ({
+  const derivationRefusals: IAutoMovieDiagnostic[] = derivation.problems.map(
+    (problem: typeof derivation.problems[number]): IAutoMovieDiagnostic => ({
       code: problem.code,
       category: "error",
       phase: "project",
@@ -242,7 +212,7 @@ export const test_production_library_derived_inputs = (): void => {
           assetManifest: LEDGER,
           derivedArtifactManifest: DERIVATIONS,
         },
-        contentInputs: () => {
+        contentInputs: (): never => {
           throw new Error("Declared content root escapes the project.");
         },
       }),
@@ -271,14 +241,14 @@ export const test_production_library_derived_inputs = (): void => {
     derivationRefusals.length !== 0,
   );
 
-  const afterContent = contentOf();
+  const afterContent: IAutoMovieProductionContentInput[] = contentOf();
   TestValidator.equals(
     "an inventory failure after the content read keeps the content",
     readAutoMovieLibraryDerivedInputs({
       project: projectOf({
         manifest: { assetManifest: LEDGER },
-        contentInputs: () => afterContent,
-        graph: () => {
+        contentInputs: (): IAutoMovieProductionContentInput[] => afterContent,
+        graph: (): never => {
           throw new Error("Model recipe hall fails its schema.");
         },
       }),
@@ -301,4 +271,4 @@ export const test_production_library_derived_inputs = (): void => {
       content: afterContent,
     },
   );
-};
+}

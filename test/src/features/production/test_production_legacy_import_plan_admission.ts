@@ -7,7 +7,7 @@ import {
 } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 
-const plan = (): IAutoMovieLegacyImportPlan => {
+const plan: () => IAutoMovieLegacyImportPlan = (): IAutoMovieLegacyImportPlan => {
   const value: IAutoMovieLegacyImportPlan = {
     version: 1,
     fingerprint: "sha256:pending",
@@ -73,12 +73,12 @@ const plan = (): IAutoMovieLegacyImportPlan => {
   return value;
 };
 
-const clone = (): IAutoMovieLegacyImportPlan => structuredClone(plan());
+const clone: () => IAutoMovieLegacyImportPlan = (): IAutoMovieLegacyImportPlan => structuredClone(plan());
 
-const rejected = (
+const rejected: (mutate: (value: IAutoMovieLegacyImportPlan) => void) => boolean = (
   mutate: (value: IAutoMovieLegacyImportPlan) => void,
 ): boolean => {
-  const value = clone();
+  const value: IAutoMovieLegacyImportPlan = clone();
   mutate(value);
   try {
     assertAutoMovieLegacyImportPlan(value);
@@ -88,13 +88,27 @@ const rejected = (
   }
 };
 
-const refingerprint = (value: IAutoMovieLegacyImportPlan): void => {
+const refingerprint: (value: IAutoMovieLegacyImportPlan) => void = (value: IAutoMovieLegacyImportPlan): void => {
   value.fingerprint = fingerprintAutoMovieLegacyImportPlan(value);
 };
 
-/** Apply and reopen share complete legacy-plan semantic admission. */
-export const test_production_legacy_import_plan_admission = (): void => {
-  const current = plan();
+/**
+ * Apply and reopen share complete legacy-plan semantic admission.
+ *
+ * Scenarios:
+ *
+ * 1. The current plan is admitted by assertion and predicate with original object identity.
+ * 2. Negative/fractional/unsafe revision and stale semantic content refuse.
+ * 3. Schema version/extra/missing fields and inventory/baseline path, ordering, digest and presence refinements refuse even after refingerprinting.
+ * 4. A changed title with freshly recomputed complete identity is admitted.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual asserting/boolean legacy-plan admission on a current plan and every mutated neighbor, requiring exact admitted object identity or typed refusal. Refingerprinting invalid plans isolates semantic validation from stale-fingerprint refusal.
+ * @evidence contracts/testing.md#independent-expectations Literal safe-integer revision rules, src/generated/renders baseline order, nonnegative byte counts, digest spelling, relative-path and case-fold collision constraints determine each boolean expectation. The canonical fingerprint producer creates fixture identities, so this tests validation/staleness and not independent canonical hash bytes or live inventory authentication.
+ * @evidence contracts/testing.md#distinguishing-cases Retains valid revision zero, negative/fractional/unsafe revisions, stale/recomputed title twins, version/extra/missing schema fields, baseline presence/count/order, invalid inventory bytes/digests/path/order, case-fold duplicate paths and file/directory collisions. Real migration apply/rollback and on-disk byte confirmation belong to legacy import integration tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_legacy_import_plan_admission owns all four portable synchronous mutation groups and its private typed arrangement/assertion helpers. No inventory path is opened, migration applied or filesystem state changed.
+ */
+export function test_production_legacy_import_plan_admission(): void {
+  const current: IAutoMovieLegacyImportPlan = plan();
   const missingFingerprint: Partial<IAutoMovieLegacyImportPlan> = clone();
   delete missingFingerprint.fingerprint;
   TestValidator.equals(
@@ -108,19 +122,19 @@ export const test_production_legacy_import_plan_admission = (): void => {
   TestValidator.equals(
     "revision boundaries and stale content are refused",
     [
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.legacyRevision = -1;
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.legacyRevision = 0.5;
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.legacyRevision = Number.MAX_SAFE_INTEGER + 1;
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.productionDraft.title = "changed";
       }),
     ],
@@ -132,50 +146,50 @@ export const test_production_legacy_import_plan_admission = (): void => {
       isAutoMovieLegacyImportPlan({ ...clone(), version: 2 }),
       isAutoMovieLegacyImportPlan({ ...clone(), extra: true }),
       isAutoMovieLegacyImportPlan(missingFingerprint),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.rollbackBaseline[0]!.path = "generated";
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.rollbackBaseline[0]!.existed = false;
         value.rollbackBaseline[0]!.directories.push("src/nested");
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.inventory[1]!.bytes = -1;
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.inventory[1]!.digest = null;
         value.inventory[1]!.bytes = 0;
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.inventory[1]!.digest = "sha256:not-a-digest";
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.inventory[1]!.path = "C:automovie.json";
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.inventory.reverse();
         refingerprint(value);
       }),
-      rejected((value) => {
-        const first = { ...value.inventory[1]!, path: "A.json" };
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
+        const first: IAutoMovieLegacyImportPlan["inventory"][number] = { ...value.inventory[1]!, path: "A.json" };
         value.inventory = [first, { ...first, path: "a.json" }];
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.rollbackBaseline[0]!.files[0]!.path = "src/nested";
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.rollbackBaseline[0]!.files[0]!.path = "src/NESTED";
         refingerprint(value);
       }),
-      rejected((value) => {
+      rejected((value: IAutoMovieLegacyImportPlan): void => {
         value.rollbackBaseline = value.rollbackBaseline.slice(0, 2);
         refingerprint(value);
       }),
@@ -197,11 +211,11 @@ export const test_production_legacy_import_plan_admission = (): void => {
       true,
     ],
   );
-  const changed = clone();
+  const changed: IAutoMovieLegacyImportPlan = clone();
   changed.productionDraft.title = "Re-derived";
   refingerprint(changed);
   TestValidator.predicate(
     "a changed plan is admitted only with its recomputed complete identity",
     isAutoMovieLegacyImportPlan(changed),
   );
-};
+}

@@ -1,28 +1,10 @@
-import type { IAutoMovieBuildProjectOutput } from "@automovie/interface";
+import type { IAutoMovieDiagnostic } from "@automovie/interface";
+import type { IAutoMovieProductionEvidence } from "@automovie/evidence";
+import { compileAutoMovieLibrary } from "../../../../packages/production/src/production/compileAutoMovieLibrary";
 import { AutoMovieProductionInputRaceError } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import { createLibraryCompilationInput } from "../internal/createLibraryCompilationInput";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-type Input = Omit<
-  ReturnType<typeof createLibraryCompilationInput>["props"],
-  "input" | "currentAuthoringEvidence"
-> & {
-  input: { scope: "design" | "source" | "review" | "final" };
-  currentAuthoringEvidence?: ReturnType<
-    typeof createLibraryCompilationInput
-  >["props"]["currentAuthoringEvidence"];
-};
-const { compileAutoMovieLibrary } = loadSourceModule<{
-  compileAutoMovieLibrary(props: Input): IAutoMovieBuildProjectOutput;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/compileAutoMovieLibrary.ts",
-  ),
-);
 
 /**
  * A library answer remains tied to its acquired source and content identity.
@@ -33,11 +15,16 @@ const { compileAutoMovieLibrary } = loadSourceModule<{
  * 2. Source or verified content moving during evaluation prevents publication.
  * 3. A live observation that throws at confirmation becomes an input race;
  *    unrelated authority failures still propagate unchanged.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs actual library compilation through typed resident ports with absent live evidence, source/content movement and throwing fresh observation, requiring explicit input-race diagnostics and no publication/status. It also requires unrelated confirmation/publication errors to propagate by exact object identity.
+ * @evidence contracts/testing.md#independent-expectations Authored source/content mutations change acquired inputs and a missing/throwing fresh observer cannot attest currentness. Literal compile-input-changed, null commit/empty materialization and independently created error identities establish refusal; injected authority callbacks do not prove real filesystem locking.
+ * @evidence contracts/testing.md#distinguishing-cases Retains absent observer for read-only/publishing attempts, source/content/observation transitions, distinct non-race confirmation and publication failures and an authority input-race failure. Stable publication/read-only confirmation and malformed inputs belong to compilation_gates/refusal.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_compilation_currentness owns both missing-reader cases, all three transition cases and authority failures, including injected evaluator assertions. It performs portable synchronous protocol execution with no files written, source host or consumer installed.
  */
-export const test_production_library_compilation_currentness = (): void => {
+export function test_production_library_compilation_currentness(): void {
   for (const materialize of [false, true]) {
-    const attempt = createLibraryCompilationInput();
-    const result = compileAutoMovieLibrary({
+    const attempt: ReturnType<typeof createLibraryCompilationInput> = createLibraryCompilationInput();
+    const result: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary({
       ...attempt.props,
       materialize,
       currentAuthoringEvidence: undefined,
@@ -54,25 +41,25 @@ export const test_production_library_compilation_currentness = (): void => {
     TestValidator.predicate(
       "missing live reader is reported as an input race",
       result.diagnostics.some(
-        (diagnostic) => diagnostic.code === "compile-input-changed",
+        (diagnostic: IAutoMovieDiagnostic): boolean => diagnostic.code === "compile-input-changed",
       ),
     );
   }
   for (const transition of ["source", "content", "observation"] as const) {
-    const attempt = createLibraryCompilationInput();
-    const originalEvaluator = attempt.props.runtime.evaluateSource;
-    let moved = false;
-    const result = compileAutoMovieLibrary({
+    const attempt: ReturnType<typeof createLibraryCompilationInput> = createLibraryCompilationInput();
+    const originalEvaluator: typeof attempt.props.runtime.evaluateSource = attempt.props.runtime.evaluateSource;
+    let moved: boolean = false;
+    const result: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary({
       ...attempt.props,
-      currentAuthoringEvidence: () => {
+      currentAuthoringEvidence: (): IAutoMovieProductionEvidence => {
         if (moved && transition === "observation")
           throw new Error("Authoring observation is unavailable.");
         return attempt.state.evidence;
       },
       runtime: {
         ...attempt.props.runtime,
-        evaluateSource: (request) => {
-          const evaluated = originalEvaluator(request);
+        evaluateSource: (request: Parameters<typeof originalEvaluator>[0]): ReturnType<typeof originalEvaluator> => {
+          const evaluated: ReturnType<typeof originalEvaluator> = originalEvaluator(request);
           moved = true;
           if (transition === "source") attempt.state.source += "// changed\n";
           if (transition === "content")
@@ -103,12 +90,12 @@ export const test_production_library_compilation_currentness = (): void => {
     TestValidator.predicate(
       "changed acquisition has an explicit race diagnostic",
       result.diagnostics.some(
-        (diagnostic) => diagnostic.code === "compile-input-changed",
+        (diagnostic: IAutoMovieDiagnostic): boolean => diagnostic.code === "compile-input-changed",
       ),
     );
   }
-  const authority = createLibraryCompilationInput();
-  const confirmationFailure = new Error(
+  const authority: ReturnType<typeof createLibraryCompilationInput> = createLibraryCompilationInput();
+  const confirmationFailure: Error = new Error(
     "The root authority refused confirmation.",
   );
   authority.state.confirmationFailure = confirmationFailure;
@@ -137,10 +124,10 @@ export const test_production_library_compilation_currentness = (): void => {
   authority.state.publicationFailure = new AutoMovieProductionInputRaceError(
     "Another input won publication.",
   );
-  const raced = compileAutoMovieLibrary(authority.props);
+  const raced: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary(authority.props);
   TestValidator.equals(
     "authority race publishes no status",
     { success: raced.success, materialized: raced.materialized },
     { success: false, materialized: [] },
   );
-};
+}

@@ -1,20 +1,8 @@
 import type { IAutoMovieGeneratedManifest } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
+import { planAutoMovieGeneratedPublication } from "../../../../packages/production/src/production/planAutoMovieGeneratedPublication";
 
 import { createGeneratedPublicationReader } from "../internal/createGeneratedPublicationReader";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { planAutoMovieGeneratedPublication } = loadSourceModule<{
-  planAutoMovieGeneratedPublication(
-    props: ReturnType<typeof createGeneratedPublicationReader>,
-  ): Array<{ path: string; content: Uint8Array | string | null }>;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/planAutoMovieGeneratedPublication.ts",
-  ),
-);
 
 /**
  * Identical generation observations produce no candidate writes.
@@ -25,9 +13,14 @@ const { planAutoMovieGeneratedPublication } = loadSourceModule<{
  * 2. An empty member population with an identical manifest is also a no-op.
  * 3. Candidate and resident byte views with different offsets compare their
  *    own bytes rather than their backing buffers.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual publication planner for identical member/manifest bytes and an empty member population, asserting no writes plus exact observation order; byte views have different backing offsets to catch whole-buffer comparison.
+ * @evidence contracts/testing.md#independent-expectations Both selected views contain the literal sequence17/23/41 despite different surrounding bytes, and the serialized manifest equals resident UTF-8 bytes. Equal content and no retired members require an empty write plan independently of planner output.
+ * @evidence contracts/testing.md#distinguishing-cases Singleton and empty candidate populations retain final ownership observation, and distinct byte offsets distinguish view content from backing-buffer content; changes and reader failures belong to companion tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_production_generated_publication_current runs portable synchronous source policy through the existing typed reader fixture; it launches no consumer, native build or filesystem transaction.
  */
-export const test_production_generated_publication_current = (): void => {
-  const serializedManifest = "an exact admitted manifest\n";
+export function test_production_generated_publication_current(): void {
+  const serializedManifest: string = "an exact admitted manifest\n";
   const previous: IAutoMovieGeneratedManifest = {
     version: 1,
     builder: { packageVersion: "unit", protocolVersion: "1" },
@@ -41,9 +34,9 @@ export const test_production_generated_publication_current = (): void => {
       },
     ],
   };
-  const candidate = new Uint8Array([9, 17, 23, 41, 8]).subarray(1, 4);
-  const resident = new Uint8Array([17, 23, 41, 0]).subarray(0, 3);
-  const world = createGeneratedPublicationReader({
+  const candidate: Uint8Array = new Uint8Array([9, 17, 23, 41, 8]).subarray(1, 4);
+  const resident: Uint8Array = new Uint8Array([17, 23, 41, 0]).subarray(0, 3);
+  const world: ReturnType<typeof createGeneratedPublicationReader> = createGeneratedPublicationReader({
     previous,
     files: new Map([["ship", candidate]]),
     resident: new Map([["ship", resident]]),
@@ -60,7 +53,7 @@ export const test_production_generated_publication_current = (): void => {
     world.calls,
     ["resolve:ship", "exists:generated:ship", "read:ship", "manifest"],
   );
-  const empty = createGeneratedPublicationReader({
+  const empty: ReturnType<typeof createGeneratedPublicationReader> = createGeneratedPublicationReader({
     previous: { ...previous, files: [] },
     files: new Map(),
     resident: new Map(),
@@ -77,4 +70,4 @@ export const test_production_generated_publication_current = (): void => {
     empty.calls,
     ["manifest"],
   );
-};
+}

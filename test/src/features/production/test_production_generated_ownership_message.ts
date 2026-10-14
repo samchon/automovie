@@ -1,16 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
 import { namedFacts } from "../internal/predicates";
-import { productionModule } from "./sourceStatusFixtures";
-
-const { generatedOwnershipDiagnosticMessage } = loadSourceModule<{
-  generatedOwnershipDiagnosticMessage(props: {
-    actual: string | null;
-    expected: string;
-    repair: boolean;
-  }): string;
-}>(productionModule("generatedOwnershipDiagnosticMessage.ts"));
+import { generatedOwnershipDiagnosticMessage } from "../../../../packages/production/src/production/generatedOwnershipDiagnosticMessage";
 
 /**
  * A builder-owned digest mismatch names its output, its causes, and its remedy.
@@ -35,21 +26,26 @@ const { generatedOwnershipDiagnosticMessage } = loadSourceModule<{
  * 4. The repairing arm promises regeneration, the refusing arm directs to the
  *    scaffold compile command, and the two messages differ.
  * 5. An absent file renders its missing digest rather than inventing one.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual diagnostic formatter with repair/refuse and missing-byte observations, checking both digest values, both possible causes, protocol inclusion and mode-specific remedies. This observes product message output rather than grading authored prose.
+ * @evidence contracts/testing.md#independent-expectations Explicit actual/expected identities and the writable versus read-only caller contract determine required information; null is absence rather than a fabricated digest. Fragment checks allow unrelated wording changes and do not establish the physical cause of a mismatch.
+ * @evidence contracts/testing.md#distinguishing-cases Repairing and refusing modes share attribution while differing in remedy, and the absent-file neighbor retains null. Digest measurement and actual regeneration are owned by ownership inspection/publication tests.
+ * @evidence contracts/testing.md#execution-ownership The named synchronous test_production_generated_ownership_message imports the actual formatter and owns its direct product-output string cases, without filesystem reads/writes, a consumer install or a real host.
  */
-export const test_production_generated_ownership_message = (): void => {
-  const actual = "sha256:aaaa";
-  const expected = "sha256:bbbb";
-  const repair = generatedOwnershipDiagnosticMessage({
+export function test_production_generated_ownership_message(): void {
+  const actual: string = "sha256:aaaa";
+  const expected: string = "sha256:bbbb";
+  const repair: string = generatedOwnershipDiagnosticMessage({
     actual,
     expected,
     repair: true,
   });
-  const refuse = generatedOwnershipDiagnosticMessage({
+  const refuse: string = generatedOwnershipDiagnosticMessage({
     actual,
     expected,
     repair: false,
   });
-  const absent = generatedOwnershipDiagnosticMessage({
+  const absent: string = generatedOwnershipDiagnosticMessage({
     actual: null,
     expected,
     repair: false,
@@ -60,47 +56,47 @@ export const test_production_generated_ownership_message = (): void => {
     namedFacts([
       [
         "bothArmsCarryBothDigests",
-        () =>
+        (): boolean =>
           [repair, refuse].every(
-            (message) => message.includes(actual) && message.includes(expected),
+            (message: string): boolean => message.includes(actual) && message.includes(expected),
           ),
       ],
       [
         "bothArmsNameAnEdit",
-        () => [repair, refuse].every((message) => message.includes("edited")),
+        (): boolean => [repair, refuse].every((message: string): boolean => message.includes("edited")),
       ],
       [
         "bothArmsNameAnInputMove",
-        () =>
-          [repair, refuse].every((message) => message.includes("inputs moved")),
+        (): boolean =>
+          [repair, refuse].every((message: string): boolean => message.includes("inputs moved")),
       ],
       [
         "bothArmsNameTheProtocolAsAnInput",
-        () =>
-          [repair, refuse].every((message) =>
+        (): boolean =>
+          [repair, refuse].every((message: string): boolean =>
             message.includes("builder protocol"),
           ),
       ],
       [
         "neitherArmBlamesSourceAndDesignAlone",
-        () =>
+        (): boolean =>
           [repair, refuse].every(
-            (message) =>
+            (message: string): boolean =>
               message.includes("current source and design derive") === false,
           ),
       ],
       [
         "theRepairingArmPromisesRegeneration",
-        () => repair.includes("will regenerate"),
+        (): boolean => repair.includes("will regenerate"),
       ],
       [
         "theRefusingArmDirectsToCompile",
-        () => refuse.includes("scaffold compile command"),
+        (): boolean => refuse.includes("scaffold compile command"),
       ],
-      ["thetwoRemediesDiffer", () => repair !== refuse],
+      ["thetwoRemediesDiffer", (): boolean => repair !== refuse],
       [
         "anAbsentFileRendersItsMissingDigest",
-        () => absent.includes("Generated digest is null"),
+        (): boolean => absent.includes("Generated digest is null"),
       ],
     ]),
     {
@@ -115,4 +111,4 @@ export const test_production_generated_ownership_message = (): void => {
       anAbsentFileRendersItsMissingDigest: true,
     },
   );
-};
+}

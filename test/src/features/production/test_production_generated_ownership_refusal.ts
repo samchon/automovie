@@ -1,31 +1,18 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieDiagnostic,
   IAutoMovieGeneratedManifest,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-import path from "node:path";
 
 import { createGeneratedOwnershipReader } from "../internal/createGeneratedOwnershipReader";
-import { loadSourceModule } from "../internal/loadSourceModule";
 
-const { inspectAutoMovieGeneratedOwnership } = loadSourceModule<{
-  inspectAutoMovieGeneratedOwnership(props: {
-    project: ReturnType<typeof createGeneratedOwnershipReader>["project"];
-    listFiles: (root: string) => string[];
-    expected: IAutoMovieGeneratedManifest;
-    repairDeclaredFiles: boolean;
-  }): IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership.ts",
-  ),
-);
+import { inspectAutoMovieGeneratedOwnership } from "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership";
+import { AutoMovieGeneratedFileMissingError } from "../../../../packages/production/src/production/AutoMovieGeneratedFileMissingError";
 
-const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
-  `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+function digest(bytes: Uint8Array): string {
+  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+}
 
 /**
  * Ownership is established by exact bytes rather than a resident pathname.
@@ -36,9 +23,14 @@ const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
  * 2. A byte-identical retired member is stale owned output, whereas an edited,
  *    unreadable or undeclared extra always refuses both modes.
  * 3. Input and whole-manifest changes have separate diagnostic identities.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs ownership inspection against absent/changed expected bytes and prior extra entries, asserting exact code/severity populations and address preservation; catches adopting foreign bytes or removing a changed former output as owned.
+ * @evidence contracts/testing.md#independent-expectations Native SHA-256 of literal byte arrays defines current/prior identities; only byte equality with the prior manifest authorizes stale retirement, and typed missing observation alone means repairable absence.
+ * @evidence contracts/testing.md#distinguishing-cases Covers typed absence, tampered bytes, no manifest, byte-identical/edited/unreadable former output, undeclared bytes, stale input and full-manifest drift in both repair and lint modes; exact clean and unsafe expected reads have separate tests.
+ * @evidence contracts/testing.md#execution-ownership This exported portable unit directly imports the policy and uses the existing reader capability helper, with no native build, real host or dynamic case registration.
  */
-export const test_production_generated_ownership_refusal = (): void => {
-  const bytes = new Uint8Array([17, 23, 41]);
+export function test_production_generated_ownership_refusal(): void {
+  const bytes: Uint8Array = new Uint8Array([17, 23, 41]);
   const expected: IAutoMovieGeneratedManifest = {
     version: 1,
     builder: { packageVersion: "unit", protocolVersion: "1" },
@@ -53,26 +45,26 @@ export const test_production_generated_ownership_refusal = (): void => {
     ],
   };
   for (const repairDeclaredFiles of [false, true]) {
-    const category = repairDeclaredFiles ? "warning" : "error";
+    const category: "warning" | "error" = repairDeclaredFiles ? "warning" : "error";
     for (const read of [
-      () => new Uint8Array([42]),
+      (): Uint8Array => new Uint8Array([42]),
       (): Uint8Array => {
-        throw new Error("Owned output does not exist.");
+        throw new AutoMovieGeneratedFileMissingError("models/ship.json");
       },
     ]) {
-      const world = createGeneratedOwnershipReader({
+      const world: ReturnType<typeof createGeneratedOwnershipReader> = createGeneratedOwnershipReader({
         manifest: null,
         files: [],
         read,
       });
-      const diagnostics = inspectAutoMovieGeneratedOwnership({
+      const diagnostics: IAutoMovieDiagnostic[] = inspectAutoMovieGeneratedOwnership({
         ...world,
         expected,
         repairDeclaredFiles,
       });
       TestValidator.equals(
         "missing ownership and changed bytes are repairable",
-        diagnostics.map(({ code, category: value }) => ({
+        diagnostics.map(({ code, category: value }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category"> => ({
           code,
           category: value,
         })),
@@ -92,10 +84,10 @@ export const test_production_generated_ownership_refusal = (): void => {
         "generated/harbor/models/ship.json",
       );
     }
-    const empty = { ...expected, files: [] };
+    const empty: IAutoMovieGeneratedManifest = { ...expected, files: [] };
     for (const [kind, read] of [
-      ["current", () => bytes],
-      ["edited", () => new Uint8Array([42])],
+      ["current", (): Uint8Array => bytes],
+      ["edited", (): Uint8Array => new Uint8Array([42])],
       [
         "unreadable",
         (): Uint8Array => {
@@ -103,19 +95,19 @@ export const test_production_generated_ownership_refusal = (): void => {
         },
       ],
     ] as const) {
-      const world = createGeneratedOwnershipReader({
+      const world: ReturnType<typeof createGeneratedOwnershipReader> = createGeneratedOwnershipReader({
         manifest: expected,
         files: ["models/ship.json"],
         read,
       });
-      const diagnostics = inspectAutoMovieGeneratedOwnership({
+      const diagnostics: IAutoMovieDiagnostic[] = inspectAutoMovieGeneratedOwnership({
         ...world,
         expected: empty,
         repairDeclaredFiles,
       });
       TestValidator.equals(
         "only exact former output may be retired",
-        diagnostics.map(({ code, category: value }) => ({
+        diagnostics.map(({ code, category: value }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category"> => ({
           code,
           category: value,
         })),
@@ -131,10 +123,10 @@ export const test_production_generated_ownership_refusal = (): void => {
         ],
       );
     }
-    const unowned = createGeneratedOwnershipReader({
+    const unowned: ReturnType<typeof createGeneratedOwnershipReader> = createGeneratedOwnershipReader({
       manifest: empty,
       files: ["foreign.bin"],
-      read: () => bytes,
+      read: (): Uint8Array => bytes,
     });
     TestValidator.equals(
       "undeclared bytes cannot be adopted",
@@ -142,7 +134,7 @@ export const test_production_generated_ownership_refusal = (): void => {
         ...unowned,
         expected: empty,
         repairDeclaredFiles,
-      }).map(({ code, category }) => ({ code, category })),
+      }).map(({ code, category }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category"> => ({ code, category })),
       [{ code: "generated-unowned", category: "error" }],
     );
     TestValidator.equals(
@@ -150,10 +142,10 @@ export const test_production_generated_ownership_refusal = (): void => {
       unowned.reads,
       [],
     );
-    const stale = createGeneratedOwnershipReader({
+    const stale: ReturnType<typeof createGeneratedOwnershipReader> = createGeneratedOwnershipReader({
       manifest: { ...empty, inputFingerprint: digest(new Uint8Array([6])) },
       files: [],
-      read: () => bytes,
+      read: (): Uint8Array => bytes,
     });
     TestValidator.equals(
       "changed compile input reports both identities",
@@ -161,11 +153,11 @@ export const test_production_generated_ownership_refusal = (): void => {
         ...stale,
         expected: empty,
         repairDeclaredFiles,
-      }).map(({ code, category: value }) => ({ code, category: value })),
+      }).map(({ code, category: value }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category"> => ({ code, category: value })),
       [
         { code: "generated-stale", category },
         { code: "generated-manifest-stale", category },
       ],
     );
   }
-};
+}

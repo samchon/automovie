@@ -17,16 +17,21 @@ import { namedFacts } from "../internal/predicates";
  * 2. Empty and cross-branch payloads fail before completion.
  * 3. Material, instance, motion, and system branches receive one explicit
  *    unsupported-carrier refusal rather than completing through nested data.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual contribution diagnostics with map/model/space carriers and empty, cross-branch, unsupported and unknown owners, observing acceptance or the specific refusal population rather than executing source registration.
+ * @evidence contracts/testing.md#independent-expectations The shipped protocol maps maps to contexts, models to models and spaces to environments, requires a nonempty own carrier and forbids foreign carriers; the other four recognized branches lack standalone carriers. These are protocol expectations, not independently validated domain geometry.
+ * @evidence contracts/testing.md#distinguishing-cases Each supported nonempty carrier contrasts with empty completion, foreign payload and omitted optional contexts; unsupported recognized branches contrast with an unknown branch. Schema admission and carrier-domain validation belong to their own boundaries.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_production_library_contribution_contract directly calls portable synchronous branch policy using existing data fixtures, without evaluating a consumer source module or starting a host.
  */
-export const test_production_library_contribution_contract = (): void => {
-  const empty = (): IAutoMovieLibraryContribution => ({
+export function test_production_library_contribution_contract(): void {
+  const empty: () => IAutoMovieLibraryContribution = (): IAutoMovieLibraryContribution => ({
     environments: [],
     models: [],
     contexts: [],
   });
-  const map = empty();
+  const map: IAutoMovieLibraryContribution = empty();
   map.contexts = [analysisContext()];
-  const model = empty();
+  const model: IAutoMovieLibraryContribution = empty();
   model.models = [
     drawingBoxModel({
       id: "bench",
@@ -34,7 +39,7 @@ export const test_production_library_contribution_contract = (): void => {
       material: "wood",
     }),
   ];
-  const space = empty();
+  const space: IAutoMovieLibraryContribution = empty();
   space.environments = [rectangularBuilding()];
 
   TestValidator.equals(
@@ -42,7 +47,7 @@ export const test_production_library_contribution_contract = (): void => {
     namedFacts([
       [
         "supportedBranchesAcceptTheirOwnCarrier",
-        () =>
+        (): boolean =>
           autoMovieLibraryContributionDiagnostics("maps", map).length === 0 &&
           autoMovieLibraryContributionDiagnostics("models", model).length ===
             0 &&
@@ -50,34 +55,34 @@ export const test_production_library_contribution_contract = (): void => {
       ],
       [
         "supportedBranchesRefuseEmptyCompletion",
-        () =>
-          ["maps", "models", "spaces"].every((branch) =>
+        (): boolean =>
+          ["maps", "models", "spaces"].every((branch: string): boolean =>
             autoMovieLibraryContributionDiagnostics(branch, empty()).some(
-              (message) => message.includes("returned no"),
+              (message: string): boolean => message.includes("returned no"),
             ),
           ),
       ],
       [
         "crossBranchPayloadsAreRefused",
-        () =>
+        (): boolean =>
           autoMovieLibraryContributionDiagnostics("maps", {
             ...map,
             models: model.models,
-          }).some((message) => message.includes("belongs to the models")) &&
+          }).some((message: string): boolean => message.includes("belongs to the models")) &&
           autoMovieLibraryContributionDiagnostics("models", {
             ...model,
             environments: space.environments,
-          }).some((message) => message.includes("belongs to the spaces")) &&
+          }).some((message: string): boolean => message.includes("belongs to the spaces")) &&
           autoMovieLibraryContributionDiagnostics("spaces", {
             ...space,
             contexts: map.contexts,
-          }).some((message) => message.includes("belongs to the maps")),
+          }).some((message: string): boolean => message.includes("belongs to the maps")),
       ],
       [
         "unsupportedBranchesFailExplicitly",
-        () =>
-          ["materials", "instances", "motions", "systems"].every((branch) => {
-            const diagnostics = autoMovieLibraryContributionDiagnostics(
+        (): boolean =>
+          ["materials", "instances", "motions", "systems"].every((branch: string): boolean => {
+            const diagnostics: string[] = autoMovieLibraryContributionDiagnostics(
               branch,
               space,
             );
@@ -89,18 +94,18 @@ export const test_production_library_contribution_contract = (): void => {
       ],
       [
         "unknownBranchDoesNotBorrowAResultCarrier",
-        () =>
+        (): boolean =>
           autoMovieLibraryContributionDiagnostics("unknown", map)[0]?.includes(
             "not a recognized design owner",
           ) === true,
       ],
       [
         "omittedContextsReadAsEmpty",
-        () =>
+        (): boolean =>
           autoMovieLibraryContributionDiagnostics("maps", {
             environments: [],
             models: [],
-          }).some((message) => message.includes("returned no contexts")),
+          }).some((message: string): boolean => message.includes("returned no contexts")),
       ],
     ]),
     {
@@ -112,4 +117,4 @@ export const test_production_library_contribution_contract = (): void => {
       omittedContextsReadAsEmpty: true,
     },
   );
-};
+}

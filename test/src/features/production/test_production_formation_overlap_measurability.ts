@@ -10,11 +10,16 @@ import { createFormationFlatModel } from "../internal/createFormationFlatModel";
  * Scenarios:
  * 1. Accept units separated vertically by the original model lift.
  * 2. Preserve missing-runtime, empty-tier, flat geometry and mixed measurable-unit outcomes.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs actual overlap validation for vertically separate models and missing/empty/flat runtime carriers, checking that unsupported populations are omitted while a measurable packed unit still produces its finding.
+ * @evidence contracts/testing.md#independent-expectations A five-metre lift separates the authored two-metre posts; a zero-thickness plane supplies no filled vertical core. Missing runtimes and absent tiers supply no supported size, while ordinary tightly spaced posts remain measurable.
+ * @evidence contracts/testing.md#distinguishing-cases Measurable separated posts contrast with missing runtime, empty tiers and flat geometry, including a mixed shot where only its measurable unit answers. An empty result here is omission or sampled clearance, not proof that arbitrary geometry cannot overlap.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_production_formation_overlap_measurability owns synchronous CPU gate cases through existing fixture constructors and source imports, without mesh rendering or replacement of global implementations.
  */
-export const test_production_formation_overlap_measurability = (): void => {
-  const scenario = createFormationOverlapScenario();
-  const { post, row, codes } = scenario;
-  const wide = post({ id: "post", radius: 0.4 });
+export function test_production_formation_overlap_measurability(): void {
+  const scenario: ReturnType<typeof createFormationOverlapScenario> = createFormationOverlapScenario();
+  const { post, row, codes }: typeof scenario = scenario;
+  const wide: ReturnType<typeof post> = post({ id: "post", radius: 0.4 });
 
   TestValidator.equals(
     "units in one place at heights that never meet are accepted",
@@ -28,13 +33,13 @@ export const test_production_formation_overlap_measurability = (): void => {
     [],
   );
 
-  const flat = createFormationFlatModel(wide);
+  const flat: ReturnType<typeof createFormationFlatModel> = createFormationFlatModel(wide);
   TestValidator.equals(
     "a unit this shot cannot measure is left alone rather than measured against a guess",
     namedFacts([
       [
         "missingRuntime",
-        () =>
+        (): boolean =>
           codes({
             models: [],
             formations: [row({ spacing: 0.1 })],
@@ -42,7 +47,7 @@ export const test_production_formation_overlap_measurability = (): void => {
       ],
       [
         "noTierAtAll",
-        () =>
+        (): boolean =>
           codes({
             models: [wide],
             formations: [{ ...row({ spacing: 0.1 }), lod: [] }],
@@ -50,7 +55,7 @@ export const test_production_formation_overlap_measurability = (): void => {
       ],
       [
         "noColumnAtAll",
-        () =>
+        (): boolean =>
           codes({
             models: [flat],
             formations: [row({ spacing: 0.1, model: "flat" })],
@@ -58,7 +63,7 @@ export const test_production_formation_overlap_measurability = (): void => {
       ],
       [
         "oneMeasurableUnitStillAnswers",
-        () =>
+        (): boolean =>
           codes({
             models: [wide, flat],
             formations: [
@@ -77,4 +82,4 @@ export const test_production_formation_overlap_measurability = (): void => {
   );
 
 
-};
+}

@@ -14,13 +14,13 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** Files in the unit, how far apart they stand, and where it is staged. */
-const FILES = 3;
-const INTERVAL = 10;
-const ANCHOR_HEIGHT = 2;
+const FILES: number = 3;
+const INTERVAL: number = 10;
+const ANCHOR_HEIGHT: number = 2;
 
 /** The lattice's own extent, and how high its far corner stands. */
-const HALF = 20;
-const CORNER = 8;
+const HALF: number = 20;
+const CORNER: number = 8;
 
 /**
  * A rise whose relief no level and no single tilt can state.
@@ -32,7 +32,7 @@ const CORNER = 8;
  * asserts can be read off `8 (x + 20)(z + 20) / 1600` rather than out of the
  * interpolation under test.
  */
-const rise = (): IAutoMovieWorldSurface =>
+const rise: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldHeightfield({
     id: "rise",
     polygon: [
@@ -45,13 +45,13 @@ const rise = (): IAutoMovieWorldSurface =>
     spacing: { x: 2 * HALF, z: 2 * HALF },
     columns: 2,
     rows: 2,
-    height: (point) =>
+    height: (point: { x: number; z: number }): number =>
       (CORNER * (point.x + HALF) * (point.z + HALF)) / (4 * HALF * HALF),
     walkable: true,
   });
 
 /** The same relief, staged far enough away that no member of the unit is on it. */
-const elsewhere = (): IAutoMovieWorldSurface => ({
+const elsewhere: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface => ({
   ...rise(),
   id: "elsewhere",
   polygon: [
@@ -63,11 +63,11 @@ const elsewhere = (): IAutoMovieWorldSurface => ({
 });
 
 /** What the rise stands at, from its four stored corners alone. */
-const reliefAt = (x: number, z: number): number =>
+const reliefAt: (x: number, z: number) => number = (x: number, z: number): number =>
   (CORNER * (x + HALF) * (z + HALF)) / (4 * HALF * HALF);
 
 /** One rank of three, staged on the rise at the height its anchor stands at. */
-const design = (): IAutoMovieFormationDesign => ({
+const design: () => IAutoMovieFormationDesign = (): IAutoMovieFormationDesign => ({
   id: "rank",
   modelRecipe: "member",
   count: FILES,
@@ -85,13 +85,13 @@ const design = (): IAutoMovieFormationDesign => ({
 });
 
 /** The scene space a shot stages, carrying the world's own height rule. */
-const stagedSpace = (): IAutoMovieSpace => ({
+const stagedSpace: () => IAutoMovieSpace = (): IAutoMovieSpace => ({
   id: "field",
   surfaces: [
     {
       id: "rise",
       kind: "floor",
-      polygon: rise().polygon.map((point) => ({
+      polygon: rise().polygon.map((point: IAutoMovieWorldSurface["polygon"][number]): { x: number; y: number; z: number } => ({
         x: point.x,
         y: 0,
         z: point.z,
@@ -103,18 +103,18 @@ const stagedSpace = (): IAutoMovieSpace => ({
 });
 
 /** The unit as the gate reads it: a placement, with or without its terrain. */
-const placement = (
+const placement: (ground?: readonly IAutoMovieWorldSurface[]) => IAutoMovieFormationPlacement = (
   ground?: readonly IAutoMovieWorldSurface[],
 ): IAutoMovieFormationPlacement => ({
   ...design(),
   ...(ground === undefined ? {} : { ground }),
 });
 
-const codes = (ground?: readonly IAutoMovieWorldSurface[]): string[] =>
+const codes: (ground?: readonly IAutoMovieWorldSurface[]) => string[] = (ground?: readonly IAutoMovieWorldSurface[]): string[] =>
   validateAutoMovieFormationGround(
     { id: "opening" },
     { scene: { space: stagedSpace() }, formations: [placement(ground)] },
-  ).map((diagnostic) => diagnostic.code);
+  ).map((diagnostic: ReturnType<typeof validateAutoMovieFormationGround>[number]): string => diagnostic.code);
 
 /**
  * A sampled relief reaches the builder: the runtime a shot carries is placed
@@ -147,13 +147,18 @@ const codes = (ground?: readonly IAutoMovieWorldSurface[]): string[] =>
  *    stands a metre under a rise that is three metres high there. That is the
  *    pair the whole lattice path rests on — if the gate read the rule as a
  *    level, both would pass.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Materializes the same three-file formation with and without sampled terrain, asserting carried surface identity/count/kind, relief bounds/centroid and actual shot-ground admission/refusal with named unit and offending location.
+ * @evidence contracts/testing.md#independent-expectations The authored four-corner lattice gives 8*(x+20)*(z+20)/1600, hence heights one/two/three at x=-10/0/10 and z=0. These hand-derived heights and literal terrain/refusal identities distinguish relief from a flat anchor; no output snapshot supplies expected bounds.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps relevant and distant surfaces, grounded and empty-terrain compilation, the compatible flat answer, accepted relief and the below-ground far-file refusal. Ramp terrain, viewer regeneration and cue displacement have separate formation tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_formation_heightfield owns all portable numerical compilation and ground-gate cases; it generates no project, captures no visual frame and acquires no viewer/GPU or native host.
  */
-export const test_production_formation_heightfield = (): void => {
-  const grounded = materializeCompiledFormation({
+export function test_production_formation_heightfield(): void {
+  const grounded: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
     formation: design(),
     surfaces: [rise(), elsewhere()],
   });
-  const flat = materializeCompiledFormation({
+  const flat: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
     formation: design(),
     surfaces: [],
   });
@@ -161,10 +166,10 @@ export const test_production_formation_heightfield = (): void => {
   TestValidator.equals(
     "a compiled unit carries exactly the terrain that reaches its own footprint",
     namedFacts([
-      ["one", () => grounded.ground.length === 1],
-      ["theRise", () => grounded.ground[0]!.id === "rise"],
-      ["aLattice", () => grounded.ground[0]!.height.kind === "heightfield"],
-      ["noneAtAll", () => flat.ground.length === 0],
+      ["one", (): boolean => grounded.ground.length === 1],
+      ["theRise", (): boolean => grounded.ground[0]!.id === "rise"],
+      ["aLattice", (): boolean => grounded.ground[0]!.height.kind === "heightfield"],
+      ["noneAtAll", (): boolean => flat.ground.length === 0],
     ]),
     { one: true, theRise: true, aLattice: true, noneAtAll: true },
   );
@@ -175,21 +180,21 @@ export const test_production_formation_heightfield = (): void => {
       // Files at -10, 0 and 10 on z = 0, where the rise reads 1, 2 and 3.
       [
         "relief",
-        () =>
+        (): boolean =>
           nclose(reliefAt(-INTERVAL, 0), 1, 1e-12) &&
           nclose(reliefAt(0, 0), ANCHOR_HEIGHT, 1e-12) &&
           nclose(reliefAt(INTERVAL, 0), 3, 1e-12),
       ],
-      ["lowest", () => nclose(grounded.bounds.min.y, 1, 1e-9)],
-      ["highest", () => nclose(grounded.bounds.max.y, 3, 1e-9)],
+      ["lowest", (): boolean => nclose(grounded.bounds.min.y, 1, 1e-9)],
+      ["highest", (): boolean => nclose(grounded.bounds.max.y, 3, 1e-9)],
       // The anchor's own ground is the datum, so the middle file keeps exactly
       // the height the unit was staged at.
-      ["centroid", () => nclose(grounded.centroid.y, ANCHOR_HEIGHT, 1e-9)],
+      ["centroid", (): boolean => nclose(grounded.centroid.y, ANCHOR_HEIGHT, 1e-9)],
       // And with no terrain the same design compiles to the one height it
       // compiled to before a lattice could be stated.
       [
         "flatIsOneHeight",
-        () =>
+        (): boolean =>
           nclose(flat.bounds.min.y, ANCHOR_HEIGHT, 1e-12) &&
           nclose(flat.bounds.max.y, ANCHOR_HEIGHT, 1e-12),
       ],
@@ -209,21 +214,21 @@ export const test_production_formation_heightfield = (): void => {
     [],
   );
 
-  const sunk = validateAutoMovieFormationGround(
+  const sunk: ReturnType<typeof validateAutoMovieFormationGround> = validateAutoMovieFormationGround(
     { id: "opening" },
     { scene: { space: stagedSpace() }, formations: [placement()] },
   );
   TestValidator.equals(
     "the same unit placed flat is standing inside the rise, and is refused",
     namedFacts([
-      ["one", () => sunk.length === 1],
-      ["code", () => sunk[0]!.code === "engine-validation-failed"],
-      ["unit", () => sunk[0]!.message.startsWith("formation:rank ")],
+      ["one", (): boolean => sunk.length === 1],
+      ["code", (): boolean => sunk[0]!.code === "engine-validation-failed"],
+      ["unit", (): boolean => sunk[0]!.message.startsWith("formation:rank ")],
       // The far file, where the lattice reads three metres and the flat unit
       // stands at two.
-      ["place", () => sunk[0]!.message.includes(`(${INTERVAL}, 0)`)],
-      ["carried", () => sunk[0]!.message.includes("below the 3m")],
+      ["place", (): boolean => sunk[0]!.message.includes(`(${INTERVAL}, 0)`)],
+      ["carried", (): boolean => sunk[0]!.message.includes("below the 3m")],
     ]),
     { one: true, code: true, unit: true, place: true, carried: true },
   );
-};
+}

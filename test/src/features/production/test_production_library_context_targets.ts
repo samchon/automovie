@@ -14,8 +14,13 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 2. Encoded context ids use the same portable segment rule as publication.
  * 3. An unowned or multiply owned artifact fails instead of falling back to the
  *    aggregate target.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Projects library artifact paths through actual owner attribution, asserting the aggregate exception, environment/model/encoded-context ownership, optional-context omission and exact refusal of zero or multiple owners.
+ * @evidence contracts/testing.md#independent-expectations The authored index assigns all three artifact ids to library:spaces:docs/spaces/hall.md#hall, while library/index.json is library-wide. Encoding the slash as %2F determines the context filename independently of the lookup result.
+ * @evidence contracts/testing.md#distinguishing-cases Aggregate and three owned families contrast with an owner omitting contexts, an unowned context and duplicated ownership. Artifact bytes, source authentication and actual publication are outside this address-projection unit.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_production_library_context_targets directly invokes synchronous portable production attribution on an authored index, without filesystem reads, a build process or dynamic registration.
  */
-export const test_production_library_context_targets = (): void => {
+export function test_production_library_context_targets(): void {
   const index: IAutoMovieMaterializedLibrary = {
     version: 1,
     builder: "automovie.production.v1",
@@ -36,21 +41,21 @@ export const test_production_library_context_targets = (): void => {
       },
     ],
   };
-  const target = "library:spaces:docs/spaces/hall.md#hall";
+  const target: string = "library:spaces:docs/spaces/hall.md#hall";
 
   TestValidator.equals(
     "library artifact target projection is exact and fail closed",
     namedFacts([
       [
         "indexRemainsAggregate",
-        () =>
+        (): boolean =>
           JSON.stringify(
             autoMovieLibraryArtifactSourceTargets("library/index.json", index),
           ) === '["library"]',
       ],
       [
         "environmentKeepsOwner",
-        () =>
+        (): boolean =>
           autoMovieLibraryArtifactSourceTargets(
             "library/environments/hall.json",
             index,
@@ -58,7 +63,7 @@ export const test_production_library_context_targets = (): void => {
       ],
       [
         "modelKeepsOwner",
-        () =>
+        (): boolean =>
           autoMovieLibraryArtifactSourceTargets(
             "models/bench.json",
             index,
@@ -66,7 +71,7 @@ export const test_production_library_context_targets = (): void => {
       ],
       [
         "encodedContextKeepsOwner",
-        () =>
+        (): boolean =>
           autoMovieLibraryArtifactSourceTargets(
             "library/contexts/site%2Fentry.json",
             index,
@@ -74,8 +79,8 @@ export const test_production_library_context_targets = (): void => {
       ],
       [
         "ownerWithoutContextsStillOwnsItsModel",
-        () => {
-          const { contexts, ...withoutContexts } = index.owners[0]!;
+        (): boolean => {
+          const { contexts, ...withoutContexts }: IAutoMovieMaterializedLibrary["owners"][number] = index.owners[0]!;
           return (
             contexts !== undefined &&
             autoMovieLibraryArtifactSourceTargets("models/bench.json", {
@@ -87,9 +92,9 @@ export const test_production_library_context_targets = (): void => {
       ],
       [
         "unownedArtifactIsRefused",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof autoMovieLibraryArtifactSourceTargets> =>
               autoMovieLibraryArtifactSourceTargets(
                 "library/contexts/other.json",
                 index,
@@ -99,9 +104,9 @@ export const test_production_library_context_targets = (): void => {
       ],
       [
         "multiplyOwnedArtifactIsRefused",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): ReturnType<typeof autoMovieLibraryArtifactSourceTargets> =>
               autoMovieLibraryArtifactSourceTargets(
                 "library/contexts/site%2Fentry.json",
                 {
@@ -123,4 +128,4 @@ export const test_production_library_context_targets = (): void => {
       multiplyOwnedArtifactIsRefused: true,
     },
   );
-};
+}

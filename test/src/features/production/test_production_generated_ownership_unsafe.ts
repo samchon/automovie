@@ -1,31 +1,16 @@
 import type {
-  AutoMovieContentDigest,
-  IAutoMovieDiagnostic,
   IAutoMovieGeneratedManifest,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-import path from "node:path";
 
 import { createGeneratedOwnershipReader } from "../internal/createGeneratedOwnershipReader";
-import { loadSourceModule } from "../internal/loadSourceModule";
 
-const { inspectAutoMovieGeneratedOwnership } = loadSourceModule<{
-  inspectAutoMovieGeneratedOwnership(props: {
-    project: ReturnType<typeof createGeneratedOwnershipReader>["project"];
-    listFiles: (root: string) => string[];
-    expected: IAutoMovieGeneratedManifest;
-    repairDeclaredFiles: boolean;
-  }): IAutoMovieDiagnostic[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership.ts",
-  ),
-);
+import { inspectAutoMovieGeneratedOwnership } from "../../../../packages/production/src/production/inspectAutoMovieGeneratedOwnership";
 
-const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
-  `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+function digest(bytes: Uint8Array): string {
+  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+}
 
 /**
  * Unsafe member reads cannot be downgraded into a repairable digest mismatch.
@@ -34,8 +19,14 @@ const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
  * 1. An Error from the fenced reader retains its cause and exact member address.
  * 2. A non-Error refusal uses the unsafe-member diagnostic and skips tampering.
  * 3. Both cases remain errors in repairing builds and read-only lint alike.
+ * 4. A foreign failure containing missing-file words remains unsafe.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises the actual ownership policy with reader failures and asserts exact generated-path-outside findings in both repair and lint modes, catching failure messages downgraded into repairable missing bytes.
+ * @evidence contracts/testing.md#independent-expectations Only the project's dedicated missing identity proves absence; unrelated Error and non-Error values cannot authorize repairs. Literal member addresses and original Error text determine the expected diagnostic.
+ * @evidence contracts/testing.md#distinguishing-cases Covers ordinary Error, deceptive does-not-exist Error and non-Error failure across both severity modes while excluding tampered-output findings; refusal tests own typed absence and byte changes.
+ * @evidence contracts/testing.md#execution-ownership The exported portable unit directly imports the ownership owner and supplies its declared reader/listing capability through the existing fixture helper, starting no host/native artifact or dynamically registered cases.
  */
-export const test_production_generated_ownership_unsafe = (): void => {
+export function test_production_generated_ownership_unsafe(): void {
   const expected: IAutoMovieGeneratedManifest = {
     version: 1,
     builder: { packageVersion: "unit", protocolVersion: "1" },
@@ -51,14 +42,15 @@ export const test_production_generated_ownership_unsafe = (): void => {
   };
   const failures: readonly unknown[] = [
     new Error("The owned member is a link outside the root."),
+    new Error("Parent identity does not exist; observation is unsafe."),
     "unavailable",
   ];
   for (const repairDeclaredFiles of [false, true])
     for (const failure of failures) {
-      const world = createGeneratedOwnershipReader({
+      const world: ReturnType<typeof createGeneratedOwnershipReader> = createGeneratedOwnershipReader({
         manifest: expected,
         files: [],
-        read: () => {
+        read: (): Uint8Array => {
           throw failure;
         },
       });
@@ -84,4 +76,4 @@ export const test_production_generated_ownership_unsafe = (): void => {
         ],
       );
     }
-};
+}

@@ -15,9 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const FILES = 3;
-const RANKS = 4;
-const COUNT = FILES * RANKS;
+const FILES: number = 3;
+const RANKS: number = 4;
+const COUNT: number = FILES * RANKS;
 
 /** Ranks at `z` of 0, 3, 6 and 9; files at `x` of -2, 0 and 2. */
 const layout: IAutoMovieFormationDesign["layout"] = {
@@ -28,7 +28,7 @@ const layout: IAutoMovieFormationDesign["layout"] = {
 };
 
 /** One unit of twelve staged at a given height, with a promoted hero. */
-const unit = (height = 0): IAutoMovieFormationDesign => ({
+const unit: (height?: number) => IAutoMovieFormationDesign = (height: number = 0): IAutoMovieFormationDesign => ({
   id: "block",
   modelRecipe: "member",
   count: COUNT,
@@ -41,7 +41,7 @@ const unit = (height = 0): IAutoMovieFormationDesign => ({
 });
 
 /** The same unit as the gate sees it: placement plus the terrain under it. */
-const staged = (props: {
+const staged: (props: { height?: number; ground?: readonly IAutoMovieWorldSurface[] }) => IAutoMovieFormationPlacement = (props: {
   height?: number;
   ground?: readonly IAutoMovieWorldSurface[];
 }): IAutoMovieFormationPlacement => ({
@@ -55,7 +55,7 @@ const staged = (props: {
 });
 
 /** Terrain climbing half a metre for every metre of `z`, level in `x`. */
-const bank = (): IAutoMovieWorldSurface =>
+const bank: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldRamp({
     id: "bank",
     from: { x: 0, z: 0 },
@@ -74,7 +74,7 @@ const bank = (): IAutoMovieWorldSurface =>
  * ground it covers differ. A digest that carried a unit's placements but not
  * the ground it stands on would answer the same for both.
  */
-const wideBank = (): IAutoMovieWorldSurface =>
+const wideBank: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldRamp({
     id: "wide-bank",
     from: { x: 0, z: 0 },
@@ -86,7 +86,7 @@ const wideBank = (): IAutoMovieWorldSurface =>
   });
 
 /** Terrain far from the unit, which no member of it can ever stand on. */
-const elsewhere = (): IAutoMovieWorldSurface =>
+const elsewhere: () => IAutoMovieWorldSurface = (): IAutoMovieWorldSurface =>
   worldTerrain({
     id: "elsewhere",
     polygon: [
@@ -100,7 +100,7 @@ const elsewhere = (): IAutoMovieWorldSurface =>
   });
 
 /** A square staged floor at a stated level. */
-const flatSpace = (height: number): IAutoMovieSpace => ({
+const flatSpace: (height: number) => IAutoMovieSpace = (height: number): IAutoMovieSpace => ({
   id: "flat",
   surfaces: [
     {
@@ -120,7 +120,7 @@ const flatSpace = (height: number): IAutoMovieSpace => ({
 });
 
 /** A staged slope rising half a metre per metre of `z`, matching {@link bank}. */
-const slopedSpace = (): IAutoMovieSpace => ({
+const slopedSpace: () => IAutoMovieSpace = (): IAutoMovieSpace => ({
   id: "sloped",
   surfaces: [
     {
@@ -139,14 +139,14 @@ const slopedSpace = (): IAutoMovieSpace => ({
   walkable: ["ground"],
 });
 
-const refusals = (
+const refusals: (space: IAutoMovieSpace, formation: IAutoMovieFormationPlacement) => string[] = (
   space: IAutoMovieSpace,
   formation: IAutoMovieFormationPlacement,
 ): string[] =>
   validateAutoMovieFormationGround(
     { id: "opening" },
     { scene: { space }, formations: [formation] },
-  ).map((diagnostic) => diagnostic.message);
+  ).map((diagnostic: ReturnType<typeof validateAutoMovieFormationGround>[number]): string => diagnostic.message);
 
 /**
  * A compiled unit carries the ground it stands on, and the gate reads its
@@ -195,16 +195,21 @@ const refusals = (
  * 9. The headline: a unit on a staged slope is refused without terrain under it
  *    and accepted with it. Relief is what makes a crowd on real ground
  *    compilable at all, and the gate is what proves the relief arrived.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Materializes ramp-grounded formations and reads actual viewer slot regeneration, bounds/chunk/hero heights, terrain copies and digests, then exercises the real shot-ground gate for below/on/above/tolerated and relieved/flat twins.
+ * @evidence contracts/testing.md#independent-expectations The authored ranks at z=0/3/6/9 on a half-meter-per-meter bank yield heights 0/1.5/3/4.5 and centroid 2.25. Literal surface identities, error wording and digest equality/inequality supply discrete oracles; no production result is reused as an expected numerical height.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all nine scenarios: selected/copied terrain, global/chunk relief, regenerated slots, promoted hero, empty terrain, same placements with different ground identity, underground refusal, accepted clearance/tolerance and grounded slope admission. Sampled heightfields and moving cues have separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_formation_relief owns portable numerical materialization, slot regeneration and ground admission. Calling the viewer's slot adapter draws no pixels and supplies no visual, browser, GPU or native-host proof.
  */
-export const test_production_formation_relief = (): void => {
-  const terrain = [bank(), elsewhere()];
-  const compiled = materializeCompiledFormation({
+export function test_production_formation_relief(): void {
+  const terrain: IAutoMovieWorldSurface[] = [bank(), elsewhere()];
+  const compiled: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
     formation: unit(),
     surfaces: terrain,
   });
   TestValidator.equals(
     "a compiled unit carries the terrain reaching it and no more",
-    compiled.ground.map((surface) => surface.id),
+    compiled.ground.map((surface: IAutoMovieWorldSurface): string => surface.id),
     ["bank"],
   );
   TestValidator.predicate(
@@ -216,17 +221,17 @@ export const test_production_formation_relief = (): void => {
     "the compiled extent carries the relief instead of a flat slab",
     namedFacts([
       // Ranks at z of 0 and 9 on half a metre per metre: 0 through 4.5.
-      ["low", () => nclose(compiled.bounds.min.y, 0, 1e-9)],
-      ["high", () => nclose(compiled.bounds.max.y, 4.5, 1e-9)],
+      ["low", (): boolean => nclose(compiled.bounds.min.y, 0, 1e-9)],
+      ["high", (): boolean => nclose(compiled.bounds.max.y, 4.5, 1e-9)],
       // Four ranks of three, evenly weighted: the mean of 0, 1.5, 3 and 4.5.
-      ["centroid", () => nclose(compiled.centroid.y, 2.25, 1e-9)],
+      ["centroid", (): boolean => nclose(compiled.centroid.y, 2.25, 1e-9)],
       // Not the same number read twice: a unit's own extent comes from the
       // grounding pass's footprint while a chunk's comes from summarizing that
       // chunk's slot range, so relief reaching one and not the other is exactly
       // what these two facts disagreeing would say.
       [
         "chunkAgrees",
-        () =>
+        (): boolean =>
           compiled.chunks.length === 1 &&
           nclose(compiled.chunks[0]!.bounds.max.y, 4.5, 1e-9),
       ],
@@ -236,9 +241,9 @@ export const test_production_formation_relief = (): void => {
 
   TestValidator.predicate(
     "the viewer regenerates exactly the placement the builder materialized",
-    Array.from({ length: COUNT }, (_unused, slot) => slot).every((slot) => {
-      const drawn = regenerateFormationSlot(compiled, slot).position;
-      const rank = Math.floor(slot / FILES);
+    Array.from({ length: COUNT }, (_unused: unknown, slot: number): number => slot).every((slot: number): boolean => {
+      const drawn: ReturnType<typeof regenerateFormationSlot>["position"] = regenerateFormationSlot(compiled, slot).position;
+      const rank: number = Math.floor(slot / FILES);
       return (
         nclose(drawn.y, rank * 3 * 0.5, 1e-9) &&
         nclose(drawn.z, rank * 3, 1e-12)
@@ -251,25 +256,25 @@ export const test_production_formation_relief = (): void => {
     nclose(compiled.heroes[0]!.transform.translation.y, 4.5, 1e-9),
   );
 
-  const bare = materializeCompiledFormation({ formation: unit() });
+  const bare: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({ formation: unit() });
   TestValidator.equals(
     "a unit with no terrain declared compiles exactly as it did before",
     namedFacts([
-      ["empty", () => bare.ground.length === 0],
-      ["flatLow", () => bare.bounds.min.y === 0],
-      ["flatHigh", () => bare.bounds.max.y === 0],
+      ["empty", (): boolean => bare.ground.length === 0],
+      ["flatLow", (): boolean => nclose(bare.bounds.min.y, 0, 1e-12)],
+      ["flatHigh", (): boolean => nclose(bare.bounds.max.y, 0, 1e-12)],
       [
         "everyMember",
-        () =>
-          Array.from({ length: COUNT }, (_unused, slot) => slot).every(
-            (slot) => regenerateFormationSlot(bare, slot).position.y === 0,
+        (): boolean =>
+          Array.from({ length: COUNT }, (_unused: unknown, slot: number): number => slot).every(
+            (slot: number): boolean => nclose(regenerateFormationSlot(bare, slot).position.y, 0, 1e-12),
           ),
       ],
     ]),
     { empty: true, flatLow: true, flatHigh: true, everyMember: true },
   );
 
-  const relabelled = materializeCompiledFormation({
+  const relabelled: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
     formation: unit(),
     surfaces: [wideBank()],
   });
@@ -278,7 +283,7 @@ export const test_production_formation_relief = (): void => {
     namedFacts([
       [
         "reproduces",
-        () =>
+        (): boolean =>
           materializeCompiledFormation({ formation: unit(), surfaces: terrain })
             .digest === compiled.digest,
       ],
@@ -289,7 +294,7 @@ export const test_production_formation_relief = (): void => {
       // would still differ from it.
       [
         "standsIdentically",
-        () =>
+        (): boolean =>
           nclose(relabelled.bounds.max.y, compiled.bounds.max.y, 1e-12) &&
           nclose(relabelled.centroid.y, compiled.centroid.y, 1e-12) &&
           nclose(
@@ -298,7 +303,7 @@ export const test_production_formation_relief = (): void => {
             1e-12,
           ),
       ],
-      ["differsByItsGroundAlone", () => relabelled.digest !== compiled.digest],
+      ["differsByItsGroundAlone", (): boolean => relabelled.digest !== compiled.digest],
     ]),
     {
       reproduces: true,
@@ -307,18 +312,18 @@ export const test_production_formation_relief = (): void => {
     },
   );
 
-  const sunk = refusals(flatSpace(2), staged({}));
+  const sunk: string[] = refusals(flatSpace(2), staged({}));
   TestValidator.equals(
     "a unit staged under the floor its shot staged is refused, and told why",
     namedFacts([
-      ["one", () => sunk.length === 1],
-      ["names", () => sunk[0]!.startsWith("formation:block ")],
+      ["one", (): boolean => sunk.length === 1],
+      ["names", (): boolean => sunk[0]!.startsWith("formation:block ")],
       // One phrase, because the refusal states it as one: a second fact reading
       // the words after the ones the first already matched holds whenever the
       // first does.
       [
         "place",
-        () =>
+        (): boolean =>
           sunk[0]!.includes("at 0m, below the 2m the surface there stands at"),
       ],
     ]),
@@ -328,17 +333,17 @@ export const test_production_formation_relief = (): void => {
   TestValidator.equals(
     "standing on the staged floor and standing over it are both accepted",
     namedFacts([
-      ["on", () => refusals(flatSpace(2), staged({ height: 2 })).length === 0],
+      ["on", (): boolean => refusals(flatSpace(2), staged({ height: 2 })).length === 0],
       [
         "above",
-        () => refusals(flatSpace(2), staged({ height: 5 })).length === 0,
+        (): boolean => refusals(flatSpace(2), staged({ height: 5 })).length === 0,
       ],
       // Under it by less than the stated tolerance is still standing on it: a
       // gate refusing the last bits of two interpolations would refuse a unit
       // that was correct.
       [
         "withinTolerance",
-        () => refusals(flatSpace(2), staged({ height: 2 - 5e-4 })).length === 0,
+        (): boolean => refusals(flatSpace(2), staged({ height: 2 - 5e-4 })).length === 0,
       ],
     ]),
     { on: true, above: true, withinTolerance: true },
@@ -347,17 +352,17 @@ export const test_production_formation_relief = (): void => {
   TestValidator.equals(
     "a unit on a staged slope compiles only once its terrain relieves it",
     namedFacts([
-      ["flatIsRefused", () => refusals(slopedSpace(), staged({})).length === 1],
+      ["flatIsRefused", (): boolean => refusals(slopedSpace(), staged({})).length === 1],
       [
         "buriedRank",
-        () => refusals(slopedSpace(), staged({}))[0]!.includes("below the"),
+        (): boolean => refusals(slopedSpace(), staged({}))[0]!.includes("below the"),
       ],
       [
         "relievedIsAccepted",
-        () =>
+        (): boolean =>
           refusals(slopedSpace(), staged({ ground: [bank()] })).length === 0,
       ],
     ]),
     { flatIsRefused: true, buriedRank: true, relievedIsAccepted: true },
   );
-};
+}

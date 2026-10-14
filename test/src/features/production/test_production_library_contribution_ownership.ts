@@ -4,24 +4,13 @@ import {
   validateModel,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
+import type { IAutoMovieDiagnostic } from "@automovie/interface";
+import { admitAutoMovieLibraryContribution } from "../../../../packages/production/src/production/admitAutoMovieLibraryContribution";
 
 import { analysisContext } from "../internal/analysisFixtures";
 import { createLibraryContributionAdmissionInput } from "../internal/createLibraryContributionAdmissionInput";
 import { drawingBoxModel } from "../internal/drawingFixtures";
 import { rectangularBuilding } from "../internal/envelopeFixtures";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { admitAutoMovieLibraryContribution } = loadSourceModule<{
-  admitAutoMovieLibraryContribution(
-    props: ReturnType<typeof createLibraryContributionAdmissionInput>,
-  ): boolean;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/admitAutoMovieLibraryContribution.ts",
-  ),
-);
 
 /**
  * Library publication identities have one owner per complete compile attempt.
@@ -33,15 +22,20 @@ const { admitAutoMovieLibraryContribution } = loadSourceModule<{
  *    replace the first model or its owner.
  * 3. An empty intermediate contribution claims nothing and remains admissible;
  *    completion's nonempty branch contract is enforced by the source collector.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Checks fixture carriers with real engine validators, admits their first production owner, refuses a duplicate source in all three id domains and verifies the first model remains, then observes a no-claim empty intermediate result.
+ * @evidence contracts/testing.md#independent-expectations Each authored carrier id has one publishing source per compile attempt, so reusing those ids must retain three duplicate causes and cannot replace the first model reference. Empty intermediate data claims nothing; nonempty completion is a separate collector policy.
+ * @evidence contracts/testing.md#distinguishing-cases Valid first claims contrast with a later source carrying the same ids and an empty intermediate contribution; warning/error translation and unsupported branch carriers have separate entries. Real validators provide admission premises rather than an external geometric oracle.
+ * @evidence contracts/testing.md#execution-ownership The discoverable test_production_library_contribution_ownership owns synchronous portable validator/policy calls on existing fixtures, without a native artifact, source-evaluation host or dynamically registered cases.
  */
-export const test_production_library_contribution_ownership = (): void => {
-  const environment = rectangularBuilding();
-  const model = drawingBoxModel({
+export function test_production_library_contribution_ownership(): void {
+  const environment: ReturnType<typeof rectangularBuilding> = rectangularBuilding();
+  const model: ReturnType<typeof drawingBoxModel> = drawingBoxModel({
     id: "ship",
     shape: { type: "box", width: 1, height: 1, depth: 1 },
     material: "wood",
   });
-  const context = analysisContext();
+  const context: ReturnType<typeof analysisContext> = analysisContext();
   TestValidator.equals(
     "the arranged carriers are valid",
     [
@@ -51,7 +45,7 @@ export const test_production_library_contribution_ownership = (): void => {
     ],
     [true, true, true],
   );
-  const input = createLibraryContributionAdmissionInput({
+  const input: ReturnType<typeof createLibraryContributionAdmissionInput> = createLibraryContributionAdmissionInput({
     environments: [environment],
     models: [model],
     contexts: [context],
@@ -79,8 +73,8 @@ export const test_production_library_contribution_ownership = (): void => {
       input.registration.design,
     ],
   );
-  const replacement = { ...model, name: "a different candidate" };
-  const second = {
+  const replacement: typeof model = { ...model, name: "a different candidate" };
+  const second: typeof input = {
     ...input,
     source: "src/models/other.ts",
     registration: {
@@ -101,12 +95,12 @@ export const test_production_library_contribution_ownership = (): void => {
   );
   TestValidator.equals(
     "all three duplicate causes are retained",
-    input.diagnostics.map(({ code, category, path }) => ({
+    input.diagnostics.map(({ code, category, path }: IAutoMovieDiagnostic): Pick<IAutoMovieDiagnostic, "code" | "category" | "path"> => ({
       code,
       category,
       path,
     })),
-    Array.from({ length: 3 }, () => ({
+    Array.from({ length: 3 }, (): Pick<IAutoMovieDiagnostic, "code" | "category" | "path"> => ({
       code: "source-export-invalid" as const,
       category: "error" as const,
       path: second.source,
@@ -116,7 +110,7 @@ export const test_production_library_contribution_ownership = (): void => {
     "duplicate model never replaces the first",
     input.models.get(model.id) === model,
   );
-  const empty = createLibraryContributionAdmissionInput({
+  const empty: ReturnType<typeof createLibraryContributionAdmissionInput> = createLibraryContributionAdmissionInput({
     environments: [],
     models: [],
     contexts: [],
@@ -134,4 +128,4 @@ export const test_production_library_contribution_ownership = (): void => {
     },
     { admitted: true, owners: [0, 0, 0], diagnostics: [] },
   );
-};
+}

@@ -1,28 +1,12 @@
 import type { IAutoMovieLibraryBuildContext } from "@automovie/interface";
-import type { IAutoMovieMaterializedLibraryResult } from "@automovie/production";
+import type { buildLibrarySource } from "@automovie/production";
+import { evaluateAutoMovieLibraryOwners } from "../../../../packages/production/src/production/evaluateAutoMovieLibraryOwners";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-import path from "node:path";
 
 import { libraryCompletionBinding } from "../internal/createLibraryCompletionEvidence";
 import { createLibraryEvaluationInput } from "../internal/createLibraryEvaluationInput";
 import { drawingBoxModel } from "../internal/drawingFixtures";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { evaluateAutoMovieLibraryOwners } = loadSourceModule<{
-  evaluateAutoMovieLibraryOwners(
-    props: ReturnType<typeof createLibraryEvaluationInput>,
-  ): {
-    results: IAutoMovieMaterializedLibraryResult[];
-    registeredBy: ReadonlyMap<string, string>;
-    diagnostics: { code: string; path: string | null }[];
-  };
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/evaluateAutoMovieLibraryOwners.ts",
-  ),
-);
 
 /**
  * A library evaluation retains exact source lineage and first-owner semantics.
@@ -33,17 +17,22 @@ const { evaluateAutoMovieLibraryOwners } = loadSourceModule<{
  * 2. A later duplicate registration reports its own source and cannot replace
  *    the first contribution or its registered export.
  * 3. An empty source population never calls the reader or evaluator.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Evaluates selected library owners through typed injected read/evaluate seams, checks normalized source/context admission, exact read/evaluation order, retained contribution identity and first registration, duplicate-source attribution and an empty no-effect selection.
+ * @evidence contracts/testing.md#independent-expectations Node SHA-256 of literal LF source independently authenticates the CRLF reader's normalized text. Authored owner/source/export addresses, duplicate diagnostic codes and zero counts distinguish first-owner routing; the injected evaluator establishes coordinator behavior rather than executing actual authored Node modules.
+ * @evidence contracts/testing.md#distinguishing-cases Retains model/settings owners, missing context, normalized source bytes, duplicate payload and zero-payload settings registrations, source attribution/order and empty population. Reader refusal, invalid domain contributions and reservation after invalid data belong to evaluation_refusal.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_evaluation_ownership owns all portable synchronous cases and the assertions reached through its injected evaluator. It replaces no globals, writes no generated artifacts and starts no real source-module host or consumer.
  */
-export const test_production_library_evaluation_ownership = (): void => {
-  const owner = "docs/models/ship.md#ship";
-  const settings = "docs/settings/delivery.md#delivery";
-  const model = drawingBoxModel({
+export function test_production_library_evaluation_ownership(): void {
+  const owner: string = "docs/models/ship.md#ship";
+  const settings: string = "docs/settings/delivery.md#delivery";
+  const model: ReturnType<typeof drawingBoxModel> = drawingBoxModel({
     id: "ship",
     shape: { type: "box", width: 1, height: 1, depth: 1 },
     material: "wood",
   });
-  const contribution = { models: [model], environments: [], contexts: [] };
-  const contexts = new Map<string, IAutoMovieLibraryBuildContext>([
+  const contribution: ReturnType<typeof buildLibrarySource>["registrations"][number]["contribution"] = { models: [model], environments: [], contexts: [] };
+  const contexts: Map<string, IAutoMovieLibraryBuildContext> = new Map<string, IAutoMovieLibraryBuildContext>([
     [
       owner,
       {
@@ -65,11 +54,11 @@ export const test_production_library_evaluation_ownership = (): void => {
       },
     ],
   ]);
-  const sourceDigest =
+  const sourceDigest: string =
     `sha256:${createHash("sha256").update("export const ship = {};\n").digest("hex")}` as const;
   const reads: string[] = [];
   const evaluations: string[] = [];
-  const input = createLibraryEvaluationInput({
+  const input: ReturnType<typeof createLibraryEvaluationInput> = createLibraryEvaluationInput({
     sources: [
       "src/ship.ts",
       "src/delivery.ts",
@@ -87,11 +76,11 @@ export const test_production_library_evaluation_ownership = (): void => {
         sourceDigest,
       }),
     ],
-    readSource: (source) => {
+    readSource: (source: string): Uint8Array => {
       reads.push(source);
       return Buffer.from("export const ship = {};\r\n");
     },
-    evaluate: (request) => {
+    evaluate: (request: Parameters<typeof buildLibrarySource>[0]): ReturnType<typeof buildLibrarySource> => {
       evaluations.push(request.path);
       TestValidator.equals(
         "evaluator receives normalized source",
@@ -141,7 +130,7 @@ export const test_production_library_evaluation_ownership = (): void => {
       };
     },
   });
-  const result = evaluateAutoMovieLibraryOwners(input);
+  const result: ReturnType<typeof evaluateAutoMovieLibraryOwners> = evaluateAutoMovieLibraryOwners(input);
   TestValidator.equals(
     "each selected source is read and evaluated once in order",
     [reads, evaluations],
@@ -149,7 +138,7 @@ export const test_production_library_evaluation_ownership = (): void => {
   );
   TestValidator.equals(
     "only first owner and settings delivery become results",
-    result.results.map((item) => ({
+    result.results.map((item: typeof result.results[number]): { owner: string; source: string; digest: string } => ({
       owner: item.owner,
       source: item.source,
       digest: item.sourceDigest,
@@ -175,7 +164,7 @@ export const test_production_library_evaluation_ownership = (): void => {
   );
   TestValidator.equals(
     "duplicates are charged to their actual sources",
-    result.diagnostics.map(({ code, path: source }) => ({ code, source })),
+    result.diagnostics.map(({ code, path: source }: typeof result.diagnostics[number]): { code: typeof code; source: string | null } => ({ code, source })),
     [
       { code: "source-registration-mismatch", source: "src/duplicate.ts" },
       {
@@ -186,7 +175,7 @@ export const test_production_library_evaluation_ownership = (): void => {
   );
   reads.length = 0;
   evaluations.length = 0;
-  const empty = evaluateAutoMovieLibraryOwners({ ...input, sources: [] });
+  const empty: ReturnType<typeof evaluateAutoMovieLibraryOwners> = evaluateAutoMovieLibraryOwners({ ...input, sources: [] });
   TestValidator.equals(
     "empty selection has no effects",
     [
@@ -198,4 +187,4 @@ export const test_production_library_evaluation_ownership = (): void => {
     ],
     [0, 0, 0, 0, 0],
   );
-};
+}

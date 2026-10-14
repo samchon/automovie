@@ -1,38 +1,37 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieDerivedArtifactSource,
 } from "@automovie/interface";
 import { admitAutoMovieLibraryDerivedContribution } from "@automovie/production";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-const SOURCE = "src/library/plaza.ts";
-const EXPORT = "plaza";
-const ARTIFACT = "automovie/derived/plaza.json";
-const NOTES = "automovie/derived/notes.txt";
+const SOURCE: string = "src/library/plaza.ts";
+const EXPORT: string = "plaza";
+const ARTIFACT: string = "automovie/derived/plaza.json";
+const NOTES: string = "automovie/derived/notes.txt";
 
 /** SHA-256 of exact bytes in the contract's `sha256:<hex>` spelling. */
-const digest = (bytes: Uint8Array): AutoMovieContentDigest =>
+const digest: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
   `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 
 /** Project resident bytes the way a verified build context carries them. */
-const current = (bytes: Uint8Array): IAutoMovieDerivedArtifactSource => ({
+const current: (bytes: Uint8Array) => IAutoMovieDerivedArtifactSource = (bytes: Uint8Array): IAutoMovieDerivedArtifactSource => ({
   digest: digest(bytes),
   encoding: "utf8",
   content: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
 });
 
-const utf8 = (text: string): Uint8Array => Buffer.from(text, "utf8");
+const utf8: (text: string) => Uint8Array = (text: string): Uint8Array => Buffer.from(text, "utf8");
 
-const CONTRIBUTION = utf8('{"environments":[],"models":[]}');
+const CONTRIBUTION: Uint8Array = utf8('{"environments":[],"models":[]}');
 
 /** The admitted data tree, or the refusal's location and named selection. */
-const outcome = (props: {
+const outcome: (props: { derivedArtifact: string | null; build: boolean; derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>> }) => unknown = (props: {
   derivedArtifact: string | null;
   build: boolean;
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
 }): unknown => {
-  const result = admitAutoMovieLibraryDerivedContribution({
+  const result: ReturnType<typeof admitAutoMovieLibraryDerivedContribution> = admitAutoMovieLibraryDerivedContribution({
     source: SOURCE,
     exportName: EXPORT,
     ...props,
@@ -52,7 +51,7 @@ const outcome = (props: {
   };
 };
 
-const selectionRefused = {
+const selectionRefused: { code: string; category: string; phase: string; target: string; path: string; namesSelection: boolean } = {
   code: "source-export-invalid",
   category: "error",
   phase: "source",
@@ -94,10 +93,14 @@ const selectionRefused = {
  *    unchanged and the whole context untouched, and only an owner that selects
  *    that notes artifact as its contribution meets the syntax refusal at byte
  *    0.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs real derived-contribution admission for one selected artifact, checks its exact data tree or source/export/phase/category attribution, and verifies unrelated prose remains unchanged until selected. Stale bytes, inherited entries, competing build and unsupported encoding cannot masquerade as a current own UTF-8 contribution.
+ * @evidence contracts/testing.md#independent-expectations Node SHA-256 hashes authored bytes independently of admission; literal admitted trees and refusal fields identify the expected contract. Invalid 0x80 versus valid é separates replacing-decoder text from current byte identity, and the authored notes start with # so selected JSON refusal belongs at byte zero.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all six groups: current/build conflict, null/missing/inherited selection, base64, malformed/valid UTF-8 twins, stale digest and unrelated/selected prose with context immutability. Duplicate-member and nested syntax positions belong to derived_contribution_admission.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_derived_contribution_selection owns these portable synchronous byte-admission cases using in-memory artifacts and Node hashing; it reads/writes no project files, publishes no artifact and starts no source evaluator or host.
  */
-export const test_production_library_derived_contribution_selection =
-  (): void => {
-    const contexts = { [ARTIFACT]: current(CONTRIBUTION) };
+export function test_production_library_derived_contribution_selection(): void {
+    const contexts: Record<string, IAutoMovieDerivedArtifactSource> = { [ARTIFACT]: current(CONTRIBUTION) };
     TestValidator.equals(
       "only one own current UTF-8 selection without build is admitted",
       [
@@ -151,12 +154,12 @@ export const test_production_library_derived_contribution_selection =
       ],
     );
 
-    const malformed = Buffer.concat([
+    const malformed: Uint8Array = Buffer.concat([
       utf8('{"environments":[],"models":[],"note":"'),
       Uint8Array.of(0x80),
       utf8('"}'),
     ]);
-    const wellFormed = utf8('{"environments":[],"models":[],"note":"é"}');
+    const wellFormed: Uint8Array = utf8('{"environments":[],"models":[],"note":"é"}');
     TestValidator.equals(
       "text that does not reproduce the verified bytes is not current",
       [
@@ -195,17 +198,17 @@ export const test_production_library_derived_contribution_selection =
       ],
     );
 
-    const notes = current(
+    const notes: IAutoMovieDerivedArtifactSource = current(
       utf8('# Plaza notes\n{"models":1,"models":2} is prose here.\n'),
     );
-    const shared = { [ARTIFACT]: current(CONTRIBUTION), [NOTES]: notes };
-    const before = structuredClone(shared);
-    const admitted = outcome({
+    const shared: Record<string, IAutoMovieDerivedArtifactSource> = { [ARTIFACT]: current(CONTRIBUTION), [NOTES]: notes };
+    const before: typeof shared = structuredClone(shared);
+    const admitted: unknown = outcome({
       derivedArtifact: ARTIFACT,
       build: false,
       derivedArtifacts: shared,
     });
-    const notesSelected = admitAutoMovieLibraryDerivedContribution({
+    const notesSelected: ReturnType<typeof admitAutoMovieLibraryDerivedContribution> = admitAutoMovieLibraryDerivedContribution({
       source: SOURCE,
       exportName: EXPORT,
       derivedArtifact: NOTES,
@@ -232,4 +235,4 @@ export const test_production_library_derived_contribution_selection =
         notesSelected: [NOTES, true],
       },
     );
-  };
+}

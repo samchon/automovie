@@ -3,18 +3,18 @@ import { admitAutoMovieLibraryDerivedContribution } from "@automovie/production"
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-const SOURCE = "src/library/plaza.ts";
-const EXPORT = "plaza";
-const ARTIFACT = "automovie/derived/plaza.json";
+const SOURCE: string = "src/library/plaza.ts";
+const EXPORT: string = "plaza";
+const ARTIFACT: string = "automovie/derived/plaza.json";
 
 /** Project resident bytes the way a verified build context carries them. */
-const current = (bytes: Uint8Array): IAutoMovieDerivedArtifactSource => ({
+const current: (bytes: Uint8Array) => IAutoMovieDerivedArtifactSource = (bytes: Uint8Array): IAutoMovieDerivedArtifactSource => ({
   digest: `sha256:${createHash("sha256").update(bytes).digest("hex")}`,
   encoding: "utf8",
   content: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
 });
 
-const admit = (bytes: Uint8Array) =>
+const admit: (bytes: Uint8Array) => ReturnType<typeof admitAutoMovieLibraryDerivedContribution> = (bytes: Uint8Array): ReturnType<typeof admitAutoMovieLibraryDerivedContribution> =>
   admitAutoMovieLibraryDerivedContribution({
     source: SOURCE,
     exportName: EXPORT,
@@ -23,17 +23,17 @@ const admit = (bytes: Uint8Array) =>
     derivedArtifacts: { [ARTIFACT]: current(bytes) },
   });
 
-const utf8 = (text: string): Uint8Array => Buffer.from(text, "utf8");
+const utf8: (text: string) => Uint8Array = (text: string): Uint8Array => Buffer.from(text, "utf8");
 
 /** The admitted data tree, or the refusal reduced to its attribution facts. */
-const outcome = (
+const outcome: (bytes: Uint8Array, refusal?: { stage: string; offset: number; pointer: string; detail: string }) => unknown = (
   bytes: Uint8Array,
   refusal?: { stage: string; offset: number; pointer: string; detail: string },
 ): unknown => {
-  const result = admit(bytes);
+  const result: ReturnType<typeof admit> = admit(bytes);
   if (result.success) return { admitted: result.value };
-  const diagnostic = result.diagnostic;
-  const facts =
+  const diagnostic: typeof result.diagnostic = result.diagnostic;
+  const facts: string[] =
     refusal === undefined
       ? []
       : [
@@ -48,12 +48,12 @@ const outcome = (
     target: diagnostic.target,
     path: diagnostic.path,
     missing: facts.filter(
-      (fact) => diagnostic.message.includes(fact) === false,
+      (fact: string): boolean => diagnostic.message.includes(fact) === false,
     ),
   };
 };
 
-const refused = {
+const refused: { code: string; category: string; phase: string; target: string; path: string; missing: string[] } = {
   code: "source-export-invalid",
   category: "error",
   phase: "source",
@@ -91,9 +91,13 @@ const refused = {
  * 6. Scenario 1's text behind a UTF-8 byte order mark is refused at the syntax
  *    stage at byte 0: the resident bytes, not the decoded text, reach the
  *    ingress, and the shared ingress does not skip a leading mark.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises the real artifact admission path with exact authored UTF-8 bytes, requiring admitted trees or full source/artifact attribution and every stage/offset/pointer/detail fragment for duplicate and syntax refusals. A permissive last-wins parser or decoded-only ingress fails these checks.
+ * @evidence contracts/testing.md#independent-expectations Byte offsets 31/39 and pointers / or /models/0 are counted from literal ASCII JSON, while a UTF-8 BOM occupies the first byte position. Node SHA-256 authenticates independently authored bytes; literal trees and empty missing-fragment arrays are independent of returned parser data.
+ * @evidence contracts/testing.md#distinguishing-cases Retains all six groups: minimal/optional-context contributions, root duplicate, escaped-equivalent duplicate, nested duplicate with separate-object id twin, trailing comma and leading BOM. Selection ownership, encoding and stale-byte cases belong to derived_contribution_selection.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_derived_contribution_admission owns its three admitted and five refused portable synchronous cases. Its typed helpers register no dynamic tests, publish no artifacts and start no project evaluator, browser or process.
  */
-export const test_production_library_derived_contribution_admission =
-  (): void => {
+export function test_production_library_derived_contribution_admission(): void {
     TestValidator.equals(
       "unambiguous contributions are admitted as their exact data tree",
       [
@@ -149,4 +153,4 @@ export const test_production_library_derived_contribution_admission =
       ],
       [refused, refused, refused, refused, refused],
     );
-  };
+}

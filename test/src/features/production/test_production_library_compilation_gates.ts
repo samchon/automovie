@@ -1,25 +1,7 @@
-import type { IAutoMovieBuildProjectOutput } from "@automovie/interface";
+import { compileAutoMovieLibrary } from "../../../../packages/production/src/production/compileAutoMovieLibrary";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
 
 import { createLibraryCompilationInput } from "../internal/createLibraryCompilationInput";
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { compileAutoMovieLibrary } = loadSourceModule<{
-  compileAutoMovieLibrary(
-    props: Omit<
-      ReturnType<typeof createLibraryCompilationInput>["props"],
-      "input"
-    > & {
-      input: { scope: "design" | "source" | "review" | "final" };
-    },
-  ): IAutoMovieBuildProjectOutput;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/compileAutoMovieLibrary.ts",
-  ),
-);
 
 /**
  * Library gates acquire one identity and separate confirmation from publication.
@@ -31,10 +13,15 @@ const { compileAutoMovieLibrary } = loadSourceModule<{
  *    one complete candidate with the acquired revision and live guard.
  * 3. Reopening the same candidate through a read-only gate confirms currentness
  *    without repairing bytes or invoking publication again.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Runs the actual library compiler with typed resident project/runtime ports, checking design's no-evaluation/no-publication path, source/review/final complete candidate publication and read-only reopening with confirmation and unchanged input identity.
+ * @evidence contracts/testing.md#independent-expectations The fixture authority reports acquired revision four and committed revision nine, with literal evaluation/confirmation/listing counts and design-disabled derivation observations. Candidate-size/fingerprint agreement tests internal handoff consistency; no filesystem commit or independent digest oracle is claimed.
+ * @evidence contracts/testing.md#distinguishing-cases Retains design and all three executing scopes, complete nonempty candidate, created statuses and read-only reopening without publication. Source/content races, authority errors and invalid contribution/ownership cases belong to compilation_currentness/refusal.
+ * @evidence contracts/testing.md#execution-ownership The named test_production_library_compilation_gates owns the design case and all three loop scopes, including fixture callbacks. Publication is an in-memory authority observation; no project files are written and no actual source host or installed consumer runs.
  */
-export const test_production_library_compilation_gates = (): void => {
-  const design = createLibraryCompilationInput();
-  const designed = compileAutoMovieLibrary({
+export function test_production_library_compilation_gates(): void {
+  const design: ReturnType<typeof createLibraryCompilationInput> = createLibraryCompilationInput();
+  const designed: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary({
     ...design.props,
     input: { scope: "design" },
   });
@@ -62,8 +49,8 @@ export const test_production_library_compilation_gates = (): void => {
     },
   );
   for (const scope of ["source", "review", "final"] as const) {
-    const attempt = createLibraryCompilationInput();
-    const output = compileAutoMovieLibrary({
+    const attempt: ReturnType<typeof createLibraryCompilationInput> = createLibraryCompilationInput();
+    const output: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary({
       ...attempt.props,
       input: { scope },
     });
@@ -90,16 +77,16 @@ export const test_production_library_compilation_gates = (): void => {
     );
     TestValidator.equals(
       "new candidate statuses are created",
-      output.materialized.map((file) => file.status),
+      output.materialized.map((file: typeof output.materialized[number]): typeof file.status => file.status),
       Array.from(
         { length: output.materialized.length },
-        () => "created" as const,
+        (): "created" => "created" as const,
       ),
     );
     attempt.state.generated = attempt.state.committed![1];
     attempt.state.generatedBytes = attempt.state.committed![0];
     attempt.state.committed = null;
-    const readonly = compileAutoMovieLibrary({
+    const readonly: ReturnType<typeof compileAutoMovieLibrary> = compileAutoMovieLibrary({
       ...attempt.props,
       input: { scope },
       materialize: false,
@@ -127,4 +114,4 @@ export const test_production_library_compilation_gates = (): void => {
       output.builder.inputFingerprint,
     );
   }
-};
+}
