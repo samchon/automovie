@@ -1,14 +1,16 @@
 import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceEvaluationInputs } from "./IFilmCameraClearanceEvaluationInputs";
+import type { IFilmCameraClearanceSample } from "./IFilmCameraClearanceSample";
+import { test12ValuesClose } from "./test12ValuesClose";
 
 /** Run the original continuous numerical clearance and malformed clock assertions. */
 export function assertFilmCameraClearanceEvaluation(
   input: IFilmCameraClearanceEvaluationInputs,
 ): void {
-  const { identity, box, envelope, evaluate, throws } = input;
-  const boundary = evaluate({
-    samples: [0, 1].map((time) => ({
+  const { identity, box, envelope, evaluate, throws }: IFilmCameraClearanceEvaluationInputs = input;
+  const boundary: ReturnType<typeof evaluate> = evaluate({
+    samples: [0, 1].map((time: number): IFilmCameraClearanceSample => ({
       time,
       camera: identity(),
       obstacles: [{ node: "wall", bounds: box({ x: 0.2, y: 0, z: 0 }, 0.1) }],
@@ -19,11 +21,11 @@ export function assertFilmCameraClearanceEvaluation(
     boundary.status,
     "blocked",
   );
-  TestValidator.equals("boundary finding is addressed", boundary.findings, [
+  TestValidator.predicate("boundary finding is addressed", test12ValuesClose(boundary.findings, [
     { part: "body", obstacle: "wall", start: 0, end: 1 },
-  ]);
+  ]));
 
-  const midpoint = evaluate({
+  const midpoint: ReturnType<typeof evaluate> = evaluate({
     samples: [
       {
         time: 0,
@@ -42,7 +44,7 @@ export function assertFilmCameraClearanceEvaluation(
     midpoint.status,
     "blocked",
   );
-  const causalMidpoint = evaluate({
+  const causalMidpoint: ReturnType<typeof evaluate> = evaluate({
     samples: [
       {
         time: 0,
@@ -61,32 +63,32 @@ export function assertFilmCameraClearanceEvaluation(
       },
     ],
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "an off-clock causal key refines rather than replaces the fixed clock",
-    [
+    test12ValuesClose([
       causalMidpoint.status,
       causalMidpoint.intervals,
       causalMidpoint.sampleTimes,
     ],
-    ["blocked", 2, [0, 0.5, 1]],
+    ["blocked", 2, [0, 0.5, 1]]),
   );
 
-  const rigOnly = evaluate({
+  const rigOnly: ReturnType<typeof evaluate> = evaluate({
     envelope: envelope(
       { center: { x: 0, y: 3, z: 0 }, radius: 0.1 },
       { center: { x: 0, y: 0, z: 0 }, radius: 0.1 },
     ),
-    samples: [0, 1].map((time) => ({
+    samples: [0, 1].map((time: number): IFilmCameraClearanceSample => ({
       time,
       camera: identity(),
       obstacles: [{ node: "support", bounds: box({ x: 0, y: 0, z: 0 }) }],
     })),
   });
-  TestValidator.equals("rig-only collision is distinct", rigOnly.findings, [
+  TestValidator.predicate("rig-only collision is distinct", test12ValuesClose(rigOnly.findings, [
     { part: "parent-rig", obstacle: "support", start: 0, end: 1 },
-  ]);
+  ]));
 
-  const moving = evaluate({
+  const moving: ReturnType<typeof evaluate> = evaluate({
     samples: [
       {
         time: 0,
@@ -105,7 +107,7 @@ export function assertFilmCameraClearanceEvaluation(
     moving.status,
     "blocked",
   );
-  const skewMiss = evaluate({
+  const skewMiss: ReturnType<typeof evaluate> = evaluate({
     samples: [
       {
         time: 0,
@@ -133,7 +135,7 @@ export function assertFilmCameraClearanceEvaluation(
     "clear",
   );
 
-  const rotating = evaluate({
+  const rotating: ReturnType<typeof evaluate> = evaluate({
     envelope: envelope({ center: { x: 1, y: 0, z: 0 }, radius: 0.01 }),
     samples: [
       {
@@ -161,9 +163,9 @@ export function assertFilmCameraClearanceEvaluation(
     "blocked",
   );
 
-  const clear = evaluate();
-  const stale = evaluate({ currentRevision: "revision-8" });
-  const instant = evaluate({
+  const clear: ReturnType<typeof evaluate> = evaluate();
+  const stale: ReturnType<typeof evaluate> = evaluate({ currentRevision: "revision-8" });
+  const instant: ReturnType<typeof evaluate> = evaluate({
     duration: 0,
     samples: [
       {
@@ -173,7 +175,7 @@ export function assertFilmCameraClearanceEvaluation(
       },
     ],
   });
-  const instantContact = evaluate({
+  const instantContact: ReturnType<typeof evaluate> = evaluate({
     duration: 0,
     samples: [
       {
@@ -183,9 +185,9 @@ export function assertFilmCameraClearanceEvaluation(
       },
     ],
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "current, stale, and zero-duration contact reports stay distinct",
-    [
+    test12ValuesClose([
       [clear.status, clear.intervals, clear.findings.length],
       [stale.status, stale.intervals, stale.findings.length],
       [instant.status, instant.intervals, instant.findings.length],
@@ -200,17 +202,17 @@ export function assertFilmCameraClearanceEvaluation(
       ["stale", 0, 0],
       ["clear", 0, 0],
       ["blocked", 0, [{ part: "body", obstacle: "wall", start: 0, end: 0 }]],
-    ],
+    ]),
   );
 
   TestValidator.equals(
     "malformed evaluation inputs are refused",
     [
-      throws(() => evaluate({ sampleRate: 0 }), "sampleRate"),
-      throws(() => evaluate({ duration: -1 }), "duration"),
-      throws(() => evaluate({ samples: [] }), "fixed-clock"),
+      throws((): ReturnType<typeof evaluate> => evaluate({ sampleRate: 0 }), "sampleRate"),
+      throws((): ReturnType<typeof evaluate> => evaluate({ duration: -1 }), "duration"),
+      throws((): ReturnType<typeof evaluate> => evaluate({ samples: [] }), "fixed-clock"),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
@@ -220,7 +222,7 @@ export function assertFilmCameraClearanceEvaluation(
         "fixed-clock",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
@@ -231,7 +233,7 @@ export function assertFilmCameraClearanceEvaluation(
         "strict time order",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
@@ -242,7 +244,7 @@ export function assertFilmCameraClearanceEvaluation(
         "strict time order",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
@@ -253,7 +255,7 @@ export function assertFilmCameraClearanceEvaluation(
         "strict time order",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
@@ -264,9 +266,9 @@ export function assertFilmCameraClearanceEvaluation(
         "strict time order",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
-            samples: [0, 1].map((time) => ({
+            samples: [0, 1].map((time: number): IFilmCameraClearanceSample => ({
               time,
               camera: identity(),
               obstacles: [
@@ -283,9 +285,9 @@ export function assertFilmCameraClearanceEvaluation(
         "finite coordinates",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
-            samples: [0, 1].map((time) => ({
+            samples: [0, 1].map((time: number): IFilmCameraClearanceSample => ({
               time,
               camera: identity(),
               obstacles: [
@@ -302,9 +304,9 @@ export function assertFilmCameraClearanceEvaluation(
         "minimum",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
-            samples: [0, 1].map((time) => ({
+            samples: [0, 1].map((time: number): IFilmCameraClearanceSample => ({
               time,
               camera: identity(),
               obstacles: [
@@ -316,7 +318,7 @@ export function assertFilmCameraClearanceEvaluation(
         "duplicates",
       ),
       throws(
-        () =>
+        (): ReturnType<typeof evaluate> =>
           evaluate({
             samples: [
               {

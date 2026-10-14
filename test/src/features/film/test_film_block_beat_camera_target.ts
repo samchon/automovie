@@ -12,6 +12,7 @@ import { makeBlockingWrite, makeScriptWrite, makeStagingWrite } from "../interna
  * whose camera vocabulary cannot be compiled.
  *
  * Scenarios:
+ *
  * 1. Hero and coverage intents accept cameras, actors and set pieces as subjects.
  * 2. An absent subject is refused at the hero or coverage target path, with the
  *    accepted placement kinds stated in the message.

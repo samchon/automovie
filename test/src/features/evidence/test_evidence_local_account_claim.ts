@@ -24,6 +24,7 @@ type ITtscEvidenceGraphMarkdownReference = Extract<
  * A local obligation is covered by relevant H2s in the complete layer, while principles keep their per-unit checklist. Only AutoMovie's configuration output is examined; native evidence evaluation is outside this unit.
  *
  * Scenarios:
+ *
  * 1. An obligation emits ordinary coverage over authored and aggregate owners.
  * 2. Every stage controls activation while native review stays false, including a pilot exclusion.
  * 3. Film pilot, complete scope, reset, and other authored layers use their

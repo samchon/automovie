@@ -11,16 +11,22 @@ import { throwsError } from "../internal/predicates";
  * Final wording is a separate film-only stage between construction and shots.
  *
  * Scenarios:
+ *
  * 1. Blank and selected first layers remain valid without activating final.
  * 2. Each active final stage requires construction to reach evidence and is
  *    forbidden in other shapes.
  * 3. Film shots require final naturalness to reach evidence; brief shots retain
  *    their own completed parent.
- * 4. A film reset withdraws final and resets all construction branches together.
+ * 4. A film reset withdraws final and resets treatments, scripts and screenplays together.
  * 5. A library reset keeps its independent design/source pair, not film stages.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls validateAutoMovieProductionStages and observes admitted declarations and synchronous refusals across kind, parent and reset transitions, catching final screenplay activation outside films, premature shot activation or a partially reset dependency chain.
+ * @evidence contracts/testing.md#independent-expectations The declared stage contract admits a blank graph, begins a selected kind with settings or research, requires construction evidence before final work and final evidence before film shots, and resets the owning branches together. Literal transitions supply the expectations without reading dependency tables or claiming actual document coverage.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all five numbered groups, crossing film, brief and library with draft, evidence and review final stages, disabled and draft parents, brief shot independence, each unsynchronized film branch and a library source mismatch; receipt host identity is checked separately.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_evidence_production_naturalness_gates entry owns every declaration and refusal loop in-process and invokes the pure stage gate directly, without installing a production, creating files or starting native evaluation or a host.
  */
-export const test_evidence_production_naturalness_gates = (): void => {
-  const blank = createBlankAutoMovieProductionEvidence(
+export function test_evidence_production_naturalness_gates(): void {
+  const blank: IAutoMovieEvidenceConfigProps = createBlankAutoMovieProductionEvidence(
     "/production",
     "english",
   );
@@ -30,13 +36,13 @@ export const test_evidence_production_naturalness_gates = (): void => {
     validateAutoMovieProductionStages({ ...blank, kind, research: "draft" });
     TestValidator.predicate(
       "a selected kind begins with an authored foundation",
-      throwsError(() => validateAutoMovieProductionStages({ ...blank, kind })),
+      throwsError((): void => validateAutoMovieProductionStages({ ...blank, kind })),
     );
     for (const stage of ["draft", "evidence", "review"] as const)
       if (kind !== "film")
         TestValidator.predicate(
           "non-film shapes forbid final screenplay stages",
-          throwsError(() =>
+          throwsError((): void =>
             validateAutoMovieProductionStages({
               ...blank,
               kind,
@@ -61,7 +67,7 @@ export const test_evidence_production_naturalness_gates = (): void => {
     });
     TestValidator.predicate(
       "blank cannot activate final",
-      throwsError(() =>
+      throwsError((): void =>
         validateAutoMovieProductionStages({
           ...blank,
           naturalness: { screenplays: stage },
@@ -71,7 +77,7 @@ export const test_evidence_production_naturalness_gates = (): void => {
     for (const parent of ["disabled", "draft"] as const)
       TestValidator.predicate(
         "final waits for construction to reach evidence",
-        throwsError(() =>
+        throwsError((): void =>
           validateAutoMovieProductionStages({
             ...film,
             screenplays: parent,
@@ -87,7 +93,7 @@ export const test_evidence_production_naturalness_gates = (): void => {
     if (stage === "draft")
       TestValidator.predicate(
         "shots wait for final naturalness to reach evidence",
-        throwsError(() =>
+        throwsError((): void =>
           validateAutoMovieProductionStages({
             ...film,
             naturalness: { screenplays: stage },
@@ -104,7 +110,7 @@ export const test_evidence_production_naturalness_gates = (): void => {
   }
   TestValidator.predicate(
     "disabled final does not open film shots",
-    throwsError(() =>
+    throwsError((): void =>
       validateAutoMovieProductionStages({ ...film, shots: "draft" }),
     ),
   );
@@ -149,13 +155,13 @@ export const test_evidence_production_naturalness_gates = (): void => {
   for (const layer of ["treatments", "scripts", "screenplays"] as const)
     TestValidator.predicate(
       "film reset is synchronized",
-      throwsError(() =>
+      throwsError((): void =>
         validateAutoMovieProductionStages({ ...reset, [layer]: "review" }),
       ),
     );
   TestValidator.predicate(
     "film reset withdraws final",
-    throwsError(() =>
+    throwsError((): void =>
       validateAutoMovieProductionStages({
         ...reset,
         naturalness: { screenplays: "draft" },
@@ -185,11 +191,11 @@ export const test_evidence_production_naturalness_gates = (): void => {
   validateAutoMovieProductionStages(library);
   TestValidator.predicate(
     "library reset needs its matching source",
-    throwsError(() =>
+    throwsError((): void =>
       validateAutoMovieProductionStages({
         ...library,
         modelSources: "disabled",
       }),
     ),
   );
-};
+}

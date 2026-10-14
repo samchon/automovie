@@ -1,26 +1,33 @@
 import { morphFace } from "@automovie/engine";
-import { IAutoMovieFaceTemplate } from "@automovie/interface";
+import { type IAutoMovieFaceTemplate } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { makeFace } from "../internal/fixtures";
+import { nclose } from "../internal/predicates";
 
 /**
- * An empty parameter list returns the template's resting face unchanged, and as
- * a fresh array. morphFace must never alias the template's `positions`, or a
- * later morph would corrupt the shared template.
+ * An omitted-trait face returns the template's resting values in a distinct array.
  *
- * Scenario: zero parameters yield values equal to the template positions while
- * `result !== template.positions` (a copy, not the original).
+ * Scenarios:
+ *
+ * 1. An empty face and empty target map preserve [1, 2, 3] and return an array distinct from the supplied positions.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls morphFace with no authored traits and checks component count, all resting values and distinct array identity, detecting invented deformation or an aliased output while allowing a fresh copy.
+ * @evidence contracts/testing.md#independent-expectations The authored resting coordinates [1, 2, 3] are the neutral result under zero blendshape contributions; identity is compared directly and finite coordinates use nclose with 1e-12 tolerance. No product projection supplies expected values.
+ * @evidence contracts/testing.md#distinguishing-cases Owns the entirely empty trait and target case with a nonempty resting vertex; signed accumulation, mirrored sides and corrupt-target refusals belong to the other morphFace tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_face_morph_empty entry runs one portable engine call in-process using the existing empty makeFace record and starts no installation, process, browser or GPU.
  */
-export const test_face_morph_empty = (): void => {
+export function test_face_morph_empty(): void {
   const template: IAutoMovieFaceTemplate = {
     positions: [1, 2, 3],
     targets: {},
   };
-  const result = morphFace({ template, face: makeFace() });
-  TestValidator.equals("unchanged values", result, [1, 2, 3]);
+  const result: number[] = morphFace({ template, face: makeFace() });
+  const expected: readonly number[] = [1, 2, 3];
+  TestValidator.equals("unchanged component count", result.length, expected.length);
+  TestValidator.predicate("unchanged values", expected.every((value: number, index: number): boolean => nclose(result[index]!, value, 1e-12)));
   TestValidator.predicate(
     "a copy, not the template array",
     result !== template.positions,
   );
-};
+}

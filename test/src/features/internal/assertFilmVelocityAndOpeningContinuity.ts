@@ -8,6 +8,11 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndState,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieSceneNode,
+  IAutoMovieSkeleton,
+  IAutoMovieStageActor,
+  IAutoMovieStageCamera,
   IAutoMovieShotProgram,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,15 +26,16 @@ import {
   makeStagingWrite,
 } from "./filmFixtures";
 import { createSkeleton, joint, makePose } from "./fixtures";
-import { namedFacts, vclose } from "./predicates";
+import { namedFacts, nclose, vclose } from "./predicates";
+import { test12ValuesClose } from "./test12ValuesClose";
 
 /** Preserve the original velocity and complete opening handoff assertions and input order. */
 export function assertFilmVelocityAndOpeningContinuity(
   input: IFilmDefinedShotContinuityInputs,
 ): void {
-  const { rig, groundedStage, compileWalk, WALK } = input;
-  const velocityRig = createSkeleton();
-  const velocityFirst = compileWalk({
+  const { rig, groundedStage, compileWalk, WALK }: IFilmDefinedShotContinuityInputs = input;
+  const velocityRig: IAutoMovieSkeleton = createSkeleton();
+  const velocityFirst: ReturnType<typeof compileWalk> = compileWalk({
     id: "SB-VELOCITY-A",
     rig: velocityRig,
     stage: groundedStage,
@@ -40,16 +46,16 @@ export function assertFilmVelocityAndOpeningContinuity(
   TestValidator.equals(
     "a moving first shot produces incoming world velocity at its exact cut",
     namedFacts([
-      ["velocityFirstCompiled", () => velocityFirst.success],
+      ["velocityFirstCompiled", (): boolean => velocityFirst.success],
       [
         "velocityAtCut",
         // the success discriminant is restated so `continuity` is reachable:
         // the narrowing from the previous fact stops at this closure.
-        () =>
+        (): boolean =>
           velocityFirst.success &&
           vclose(
             velocityFirst.continuity.closing.actors.find(
-              (actor) => actor.node === "knightA",
+              (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
             )?.rootVelocity ?? { x: 0, y: 0, z: 0 },
             { x: 1, y: 0, z: 0 },
             1e-6,
@@ -59,10 +65,10 @@ export function assertFilmVelocityAndOpeningContinuity(
     { velocityFirstCompiled: true, velocityAtCut: true },
   );
   if (velocityFirst.success === false) return;
-  const velocityActor = velocityFirst.continuity.closing.actors.find(
-    (actor) => actor.node === "knightA",
+  const velocityActor: IAutoMovieBeatEndActorState = velocityFirst.continuity.closing.actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
   )!;
-  const velocitySecond = compileWalk({
+  const velocitySecond: ReturnType<typeof compileWalk> = compileWalk({
     id: "SB-VELOCITY-B",
     rig: velocityRig,
     stage: groundedStage,
@@ -77,12 +83,12 @@ export function assertFilmVelocityAndOpeningContinuity(
   TestValidator.equals(
     "the next auto stride consumes that velocity instead of fallback speed",
     namedFacts([
-      ["velocitySecondCompiled", () => velocitySecond.success],
+      ["velocitySecondCompiled", (): boolean => velocitySecond.success],
       [
         "strideCarriesVelocity",
         // the success discriminant is restated so `source` is reachable: the
         // narrowing from the previous fact stops at this closure.
-        () =>
+        (): boolean =>
           velocitySecond.success &&
           Vector3.length(
             sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
@@ -94,8 +100,8 @@ export function assertFilmVelocityAndOpeningContinuity(
     { velocitySecondCompiled: true, strideCarriesVelocity: true },
   );
 
-  const stage = makeStagingWrite();
-  const continuityBlocking = makeBlockingWrite({
+  const stage: ReturnType<typeof makeStagingWrite> = makeStagingWrite();
+  const continuityBlocking: ReturnType<typeof makeBlockingWrite> = makeBlockingWrite({
     actors: [
       { node: "knightA", beats: "continues the established walk" },
       { node: "knightB", beats: "rides the established mount" },
@@ -135,7 +141,7 @@ export function assertFilmVelocityAndOpeningContinuity(
     }),
     eventSamples: [],
   };
-  const priorPose = makePose([joint("leftLowerArm", { flexion: 30 })]);
+  const priorPose: ReturnType<typeof makePose> = makePose([joint("leftLowerArm", { flexion: 30 })]);
   const previous: IAutoMovieBeatEndState = {
     beat: "prior-beat",
     shot: "prior-shot",
@@ -181,7 +187,7 @@ export function assertFilmVelocityAndOpeningContinuity(
       },
     ],
   };
-  const contexts = new Map<string, IAutoMovieActorContext>([
+  const contexts: Map<string, IAutoMovieActorContext> = new Map<string, IAutoMovieActorContext>([
     [
       "knightA",
       {
@@ -196,11 +202,11 @@ export function assertFilmVelocityAndOpeningContinuity(
       },
     ],
   ]);
-  const nodes = new Map<string, IAutoMovieVector3>([
-    ...stage.actors.map((actor) => [actor.node, actor.position] as const),
-    ...stage.cameras.map((camera) => [camera.node, camera.position] as const),
+  const nodes: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>([
+    ...stage.actors.map((actor: IAutoMovieStageActor): readonly [string, IAutoMovieVector3] => [actor.node, actor.position] as const),
+    ...stage.cameras.map((camera: IAutoMovieStageCamera): readonly [string, IAutoMovieVector3] => [camera.node, camera.position] as const),
   ]);
-  const shot = defineShot("SB-CONTINUITY", {
+  const shot: ReturnType<typeof defineShot> = defineShot("SB-CONTINUITY", {
     scene: "scene-duel",
     contract: {
       beat: "beat-1",
@@ -216,17 +222,17 @@ export function assertFilmVelocityAndOpeningContinuity(
       events: [],
       reviewFrames: [{ id: "middle", time: 1, passes: ["beauty"] }],
     },
-    build: () => program,
+    build: (): IAutoMovieShotProgram => program,
   });
-  const compiled = compileDefinedShot({
+  const compiled: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
     shot,
     context: undefined,
     runtime: {
       synthesize: makeActorSynthesizer(contexts, nodes),
-      skeleton: (node) =>
+      skeleton: (node: string): IAutoMovieSkeleton | null =>
         node === "knightA" || node === "knightB" ? rig : null,
-      hasActorContext: (node) => node === "knightA",
-      gaits: (node) => (node === "knightA" ? ["walk"] : undefined),
+      hasActorContext: (node: string): boolean => node === "knightA",
+      gaits: (node: string): string[] | undefined => (node === "knightA" ? ["walk"] : undefined),
       frameFormat: { width: 1920, height: 1080 },
       previous,
     },
@@ -239,19 +245,19 @@ export function assertFilmVelocityAndOpeningContinuity(
         2,
       )}`,
     );
-  const openingActor = compiled.continuity.opening.actors.find(
-    (actor) => actor.node === "knightA",
+  const openingActor: IAutoMovieBeatEndActorState | undefined = compiled.continuity.opening.actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightA",
   );
-  const closingRider = compiled.continuity.closing.actors.find(
-    (actor) => actor.node === "knightB",
+  const closingRider: IAutoMovieBeatEndActorState | undefined = compiled.continuity.closing.actors.find(
+    (actor: IAutoMovieBeatEndActorState): boolean => actor.node === "knightB",
   );
-  const actual = {
-    sceneX: compiled.source.scene.nodes.find((node) => node.id === "knightA")
+  const actual: { sceneX: number | undefined; armFlexion: boolean | undefined; duration: number | undefined; gaitPhase: number | undefined; rootVelocityZ: number | undefined; footPlantX: number | undefined; mountParent: string | undefined } = {
+    sceneX: compiled.source.scene.nodes.find((node: IAutoMovieSceneNode): boolean => node.id === "knightA")
       ?.transform.translation.x,
     armFlexion: compiled.source.scene.nodes
-      .find((node) => node.id === "knightA")
+      .find((node: IAutoMovieSceneNode): boolean => node.id === "knightA")
       ?.pose?.joints.some(
-        (entry) => entry.bone === "leftLowerArm" && entry.flexion === 30,
+        (entry: ReturnType<typeof makePose>["joints"][number]): boolean => entry.bone === "leftLowerArm" && nclose(entry.flexion ?? Number.NaN, 30, 0),
       ),
     duration: compiled.source.motions[0]?.duration,
     gaitPhase: compiled.source.motions[0]?.gaitCycle?.phaseAt,
@@ -268,9 +274,8 @@ export function assertFilmVelocityAndOpeningContinuity(
     footPlantX: 3.1,
     mountParent: "knightA",
   };
-  TestValidator.equals(
+  TestValidator.predicate(
     "all prior simulation channels reach the next compiled opening",
-    expected,
-    actual,
+    test12ValuesClose(actual, expected),
   );
 }

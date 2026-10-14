@@ -14,20 +14,26 @@ import { throwsError } from "../internal/predicates";
  * describing a stronger obligation than the native evaluator receives.
  *
  * Scenarios:
+ *
  * 1. Every stage and both passes admit canonical single and multiple targets,
  *    scalar references, alternate document roots, and pilot-only audits.
  * 2. Claim and reference severity, exclusion, review, cardinality, target kind,
  *    host kind, and malformed target inventories cannot detach from that policy.
  * 3. Metadata-free native declarations retain their independently chosen policy.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls principle construction and local binding admission across both passes and all four stages, admitting canonical reference shapes and refusing changes to severity, exclusions, review, cardinality or selector ownership. This catches metadata that describes a stronger duty than its native claim actually enforces.
+ * @evidence contracts/testing.md#independent-expectations The local principle contract fixes per-heading H2 checklist coverage with no evidence exclusion, no companion review and no severity override; literal single/multiple flat documents and scalar/array representations are equivalent under that contract. Expected refusals are not reconstructed with a validator helper in the test.
+ * @evidence contracts/testing.md#distinguishing-cases Crosses eight pass/stage declarations with canonical variants, twenty-one reference mutations, claim policy mutations and a pilot-only audit, then removes binding metadata to permit an independently configured native twin. Host root/path normalization is covered separately.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_evidence_local_principle_policy entry owns its deterministic declaration loops and all mutations in-process, without evaluating resident prose, installing a consumer, compiling native code or starting a host.
  */
-export const test_evidence_local_principle_policy = (): void => {
-  const blank = createBlankAutoMovieProductionEvidence(
+export function test_evidence_local_principle_policy(): void {
+  const blank: ReturnType<typeof createBlankAutoMovieProductionEvidence> = createBlankAutoMovieProductionEvidence(
     "/production",
     "english",
   );
   for (const pass of ["construction", "naturalness"] as const)
     for (const stage of ["disabled", "draft", "evidence", "review"] as const) {
-      const props = {
+      const props: Parameters<typeof createAutoMovieProductionPrincipleClaim>[0] & { document: string } = {
         name: "one authored expression rule",
         document: "contracts/expression.md",
         files: [
@@ -41,14 +47,14 @@ export const test_evidence_local_principle_policy = (): void => {
         pass,
         populationScope: blank.populationScope,
       };
-      const claim = createAutoMovieProductionPrincipleClaim(props);
-      const graph = {
+      const claim: AutoMovieProductionContractClaim = createAutoMovieProductionPrincipleClaim(props);
+      const graph: typeof blank = {
         ...blank,
         screenplays: stage,
         naturalness: { screenplays: stage },
         claims: [claim],
       };
-      const reference = (
+      const reference: ITtscEvidenceGraphMarkdownReference = (
         claim.reference as ITtscEvidenceGraphMarkdownReference[]
       )[0]!;
       for (const valid of [
@@ -93,10 +99,10 @@ export const test_evidence_local_principle_policy = (): void => {
           { files: ["contracts/nested/rule.md"] },
         ];
       const mutations: Partial<AutoMovieProductionContractClaim>[] = [
-        ...referenceMutations.map((change) => ({
+        ...referenceMutations.map((change: Partial<ITtscEvidenceGraphMarkdownReference>): Partial<AutoMovieProductionContractClaim> => ({
           reference: [{ ...reference, ...change }],
         })),
-        ...(["off", 0, "warning", "error", 2] as const).map((severity) => ({
+        ...(["off", 0, "warning", "error", 2] as const).map((severity: AutoMovieProductionContractClaim["severity"]): Partial<AutoMovieProductionContractClaim> => ({
           severity,
         })),
         { name: undefined },
@@ -118,7 +124,7 @@ export const test_evidence_local_principle_policy = (): void => {
       for (const mutation of mutations)
         TestValidator.predicate(
           `refuse ${pass} ${stage} detached policy ${JSON.stringify(mutation)}`,
-          throwsError(() =>
+          throwsError((): void =>
             validateAutoMovieLocalContractClaims({
               ...graph,
               claims: [{ ...claim, ...mutation }],
@@ -126,11 +132,11 @@ export const test_evidence_local_principle_policy = (): void => {
           ),
         );
 
-      const scope = {
+      const scope: typeof blank.populationScope = {
         mode: "first-pilot" as const,
         partitionGroup: "001-first" as const,
       };
-      const audit = createAutoMovieProductionPrincipleClaim({
+      const audit: AutoMovieProductionContractClaim = createAutoMovieProductionPrincipleClaim({
         ...props,
         populationScope: scope,
         inapplicable: true,
@@ -140,7 +146,7 @@ export const test_evidence_local_principle_policy = (): void => {
         populationScope: scope,
         claims: [audit],
       });
-      const { autoMovieBinding: _binding, ...native } = claim;
+      const { autoMovieBinding: _binding, ...native }: AutoMovieProductionContractClaim = claim;
       validateAutoMovieLocalContractClaims({
         ...graph,
         claims: [
@@ -159,4 +165,4 @@ export const test_evidence_local_principle_policy = (): void => {
         ],
       });
     }
-};
+}

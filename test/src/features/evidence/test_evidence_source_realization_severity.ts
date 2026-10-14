@@ -6,6 +6,7 @@ import type { ITtscEvidenceGraphMarkdownReference } from "@ttsc/evidence";
  * Source realization retains native target selectors and cardinality while applying error severity without companion review requirements.
  *
  * Scenarios:
+ *
  * 1. File, H2 and H3 references retain ordered positive/negative selectors and structural policy in a new record.
  * 2. A frozen input remains unchanged and its selector array stays caller-owned.
  * 3. Empty selectors remain empty for the graph admission boundary to reject when active; the constructor creates no substitute target.

@@ -8,25 +8,24 @@ import {
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieSkeleton,
+  type IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const HEIGHT = 1.72;
+const HEIGHT: number = 1.72;
 
-const transform = (y: number) => ({
+const transform: (y: number) => IAutoMovieTransform = (y: number): IAutoMovieTransform => ({
   translation: { x: 0, y, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /**
- * A rig whose extreme joints sit well inside the figure, exactly as the
- * generated `stickman` does: the highest joint at 0.92 of the height and the
- * lowest at 0.24, with no foot bone and no head-top bone.
+ * Existing conventional fixture rig with its highest joint at 0.92 of the declared height and lowest at 0.24, without foot or head-top joints.
  */
-const skeleton = (): IAutoMovieSkeleton => ({
+const skeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   id: "probe-rig",
   bones: [
     {
@@ -62,7 +61,7 @@ const skeleton = (): IAutoMovieSkeleton => ({
   ],
 });
 
-const part = (
+const part: (id: string, attachedBone: IAutoMovieModelPart["attachedBone"], shape: Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"], y: number) => IAutoMovieModelPart = (
   id: string,
   attachedBone: IAutoMovieModelPart["attachedBone"],
   shape: Extract<
@@ -84,7 +83,7 @@ const part = (
  * legs hanging below `leftLowerLeg` and a head sphere above the head joint, so
  * the drawn extent runs 0 to `HEIGHT` while the joints span far less.
  */
-const model = (): IAutoMovieModel => ({
+const model: () => IAutoMovieModel = (): IAutoMovieModel => ({
   id: "probe-model",
   name: null,
   origin: "generated",
@@ -111,35 +110,28 @@ const model = (): IAutoMovieModel => ({
 });
 
 /**
- * What the camera frames is the figure, not the rig that animates it.
+ * Portable part bounds include geometry beyond the skeleton's extreme joints, which a subject-height consumer needs for full-body framing.
  *
- * The framing grammar solves distance and aim height from one number, so if
- * that number is the span between a rig's extreme joints the whole shot is
- * mis-sized. Rigs stop where animation needs them to: the generated `stickman`
- * has no foot bone and no head-top bone, and the geometry continues past both
- * ends. Measuring the drawn extent instead is what keeps `full` meaning "the
- * whole body with modest headroom" rather than "from the shins up".
- *
- * The oracle is the construction, not the engine: this model's parts are placed
- * so the drawn figure runs exactly 0 to 1.72 while the joints span 0.413 to
- * 1.582, and the framing bands below follow from `FRAMING_HEIGHT_FRACTION` and
- * `FRAMING_AIM_FRACTION` by arithmetic.
+ * The authored model places its floor at zero and crown at 1.72 metres, while the joints span 0.24 to 0.92 of that height. A local band calculation illustrates the consequence using the public framing fractions; it does not call the camera compiler or independently verify those fraction tables.
  *
  * Scenarios:
  *
  * 1. The rig measurement returns the joint span, 0.680 of the figure, and is
  *    documented as such rather than quietly corrected.
  * 2. The drawn extent returns the real figure: floor at 0, crown at 1.72.
- * 3. Framing solved from the joint span loses the top 27% of the actor, while the
- *    same `full` framing solved from the extent contains the whole figure. This
- *    is the defect and its repair stated as one comparison.
+ * 3. The local full-framing band derived from joint span excludes more than one quarter of the model's height, while the band derived from its part extent covers floor and crown.
  * 4. A model with no skeleton still measures, since a prop is framed too.
  * 5. A model with no parts measures nothing and returns null, leaving the caller's
  *    own fallback in charge instead of inventing a height.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls computeRestHeight and computeModelRestExtentY on the existing authored rig/parts and checks distinct joint and portable-geometry bounds, plus rigless and empty models, catching a height measurement based only on joints or a fabricated extent for no parts.
+ * @evidence contracts/testing.md#independent-expectations Summing the authored rig offsets gives a joint span of 0.68 times 1.72; the leg box's lower face is zero and the head sphere's crown is 1.72. The rigless two-metre box spans zero to two. Those independent construction values constrain the product outputs; the additional local band comparison uses public fractions and does not certify the camera compiler or imported appearance.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all five numbered cases: joint under-span, attached box/sphere extent, its local framing-band consequence, rigless box and no-parts null. Nonidentity transforms, malformed rigs, imported appearance and real viewer framing are outside these assertions or covered elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_subject_extent entry owns the existing conventional rig and primitive records and calls portable engine measurement in-process, without creating a new Human asset, installing a consumer or starting native compilation, a viewer or a GPU.
  */
-export const test_film_camera_subject_extent = (): void => {
-  const jointSpan = computeRestHeight(skeleton());
-  const extent = computeModelRestExtentY(model());
+export function test_film_camera_subject_extent(): void {
+  const jointSpan: number = computeRestHeight(skeleton());
+  const extent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(model());
 
   TestValidator.predicate(
     "the rig measurement is the joint span, not the figure",
@@ -148,37 +140,37 @@ export const test_film_camera_subject_extent = (): void => {
   TestValidator.equals(
     "the drawn extent is the figure, floor to crown",
     namedFacts([
-      ["extentMeasured", () => extent !== null],
+      ["extentMeasured", (): boolean => extent !== null],
       [
         "floorAtZero",
         // The null check is restated because the narrowing the first fact
         // performs does not reach inside this closure.
-        () => extent !== null && nclose(extent.min, 0, 1e-9),
+        (): boolean => extent !== null && nclose(extent.min, 0, 1e-9),
       ],
       [
         "crownAtHeight",
         // Same restated guard, for the same reason.
-        () => extent !== null && nclose(extent.max, HEIGHT, 1e-9),
+        (): boolean => extent !== null && nclose(extent.max, HEIGHT, 1e-9),
       ],
     ]),
     { extentMeasured: true, floorAtZero: true, crownAtHeight: true },
   );
 
   // The band a `full` shot shows, in world Y, given a base at the ground.
-  const band = (height: number): { low: number; high: number } => {
-    const visible = height * FRAMING_HEIGHT_FRACTION.full;
-    const aim = height * FRAMING_AIM_FRACTION.full;
+  const band: (height: number) => { low: number; high: number } = (height: number): { low: number; high: number } => {
+    const visible: number = height * FRAMING_HEIGHT_FRACTION.full;
+    const aim: number = height * FRAMING_AIM_FRACTION.full;
     return { low: aim - visible / 2, high: aim + visible / 2 };
   };
-  const fromJoints = band(jointSpan);
-  const fromExtent = band(extent?.max ?? 0);
+  const fromJoints: ReturnType<typeof band> = band(jointSpan);
+  const fromExtent: ReturnType<typeof band> = band(extent?.max ?? 0);
   TestValidator.equals(
     "framing from the joint span crops the actor's head, framing from the extent does not",
     namedFacts([
-      ["jointsCropTheCrown", () => fromJoints.high < HEIGHT],
-      ["extentHoldsTheCrown", () => fromExtent.high >= HEIGHT],
-      ["extentHoldsTheFloor", () => fromExtent.low <= 0],
-      ["cropIsAboutAQuarter", () => (HEIGHT - fromJoints.high) / HEIGHT > 0.25],
+      ["jointsCropTheCrown", (): boolean => fromJoints.high < HEIGHT],
+      ["extentHoldsTheCrown", (): boolean => fromExtent.high >= HEIGHT],
+      ["extentHoldsTheFloor", (): boolean => fromExtent.low <= 0],
+      ["cropIsAboutAQuarter", (): boolean => (HEIGHT - fromJoints.high) / HEIGHT > 0.25],
     ]),
     {
       jointsCropTheCrown: true,
@@ -195,21 +187,21 @@ export const test_film_camera_subject_extent = (): void => {
     ],
     skeleton: null,
   };
-  const propExtent = computeModelRestExtentY(prop);
+  const propExtent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(prop);
   TestValidator.equals(
     "a rigless prop measures from its own geometry",
     namedFacts([
-      ["propMeasured", () => propExtent !== null],
+      ["propMeasured", (): boolean => propExtent !== null],
       [
         "propFloorAtZero",
         // The null check is restated because the narrowing the first fact
         // performs does not reach inside this closure.
-        () => propExtent !== null && nclose(propExtent.min, 0, 1e-9),
+        (): boolean => propExtent !== null && nclose(propExtent.min, 0, 1e-9),
       ],
       [
         "propCrownAtTwo",
         // Same restated guard, for the same reason.
-        () => propExtent !== null && nclose(propExtent.max, 2, 1e-9),
+        (): boolean => propExtent !== null && nclose(propExtent.max, 2, 1e-9),
       ],
     ]),
     { propMeasured: true, propFloorAtZero: true, propCrownAtTwo: true },
@@ -219,4 +211,4 @@ export const test_film_camera_subject_extent = (): void => {
     computeModelRestExtentY({ ...model(), parts: [] }),
     null,
   );
-};
+}

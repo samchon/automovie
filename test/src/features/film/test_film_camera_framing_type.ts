@@ -17,7 +17,7 @@ const CAMERA: IAutoMovieCamera = {
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 };
 
-const frame = (
+const frame: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAction = (
   framing: IAutoMovieCameraAction["framing"],
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -29,21 +29,27 @@ const frame = (
   on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
 });
 
-const SUBJECT = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
+const SUBJECT: Parameters<typeof compileCameraMove>[0]["entries"][number]["subject"] = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
 
 /**
  * Camera framing names index the deterministic height and aim lookup tables.
  * Unknown names must fail before `undefined` fractions can turn into NaN camera
  * keys.
  *
- * Scenario: a forged framing name throws instead of compiling malformed camera
- * key values.
+ * Scenarios:
+ *
+ * 1. The forged macro framing refuses with an Error naming the unknown framing and authored token.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove with macro outside the supported framing union and requires its named unknown-framing Error, catching lookup of an undefined aim fraction followed by malformed camera keys.
+ * @evidence contracts/testing.md#independent-expectations Macro is outside the interface's wide/full/medium/close vocabulary; the literal error fragments identify framing admission rather than another camera failure, without deriving an expected clip from compiler output.
+ * @evidence contracts/testing.md#distinguishing-cases Owns a forged framing beside supported static motion and valid lens/subject data; forged moves and supported camera paths have separate tests. Untyped property-coercion failures are outside this string case.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_framing_type entry owns one direct numeric compiler refusal and observes its Error through throwsError without a viewer, GPU, native artifact or installed consumer.
  */
-export const test_film_camera_framing_type = (): void => {
+export function test_film_camera_framing_type(): void {
   TestValidator.predicate(
     "unknown camera framing rejects",
     throwsError(
-      () =>
+      (): ReturnType<typeof compileCameraMove> =>
         compileCameraMove({
           clipId: "clip",
           camera: CAMERA,
@@ -53,4 +59,4 @@ export const test_film_camera_framing_type = (): void => {
       ["unknown camera framing", "macro"],
     ),
   );
-};
+}

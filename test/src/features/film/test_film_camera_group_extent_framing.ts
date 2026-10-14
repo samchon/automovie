@@ -10,15 +10,15 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** One figure's height, and the point a `wide` frame aims at on it. */
-const HEIGHT = 1.7;
-const AIM = HEIGHT * FRAMING_AIM_FRACTION.wide;
+const HEIGHT: number = 1.7;
+const AIM: number = HEIGHT * FRAMING_AIM_FRACTION.wide;
 
 /**
  * A 90 degree vertical field of view, so `tan(fovY / 2) = 1` and every distance
  * below is half its visible span. Staged straight back along +Z from the aim
  * point, so the staged bearing is +Z and the solved key's z IS the distance.
  */
-const camera = (): IAutoMovieCamera => ({
+const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
   id: "cam",
   transform: {
     translation: { x: 0, y: AIM, z: 10 },
@@ -42,11 +42,11 @@ const WIDE: IAutoMovieCameraAction = {
 };
 
 /** How far back the solve stood the camera from its subject's aim point. */
-const framedDistance = (
+const framedDistance: (subject: IAutoMovieFramedSubject, aspect?: number) => number = (
   subject: IAutoMovieFramedSubject,
   aspect?: number,
 ): number => {
-  const clip = compileCameraMove({
+  const clip: ReturnType<typeof compileCameraMove> = compileCameraMove({
     clipId: "clip",
     camera: camera(),
     entries: [{ action: WIDE, subject }],
@@ -64,19 +64,19 @@ const FIGURE: IAutoMovieFramedSubject = {
 };
 
 /** The same place, occupied by a mass `radius * 2` meters across. */
-const crowd = (radius: number): IAutoMovieFramedSubject => ({
+const crowd: (radius: number) => IAutoMovieFramedSubject = (radius: number): IAutoMovieFramedSubject => ({
   ...FIGURE,
   radius,
 });
 
 /** What the frame must show, as a multiple of the subject's own size. */
-const SHOWN = FRAMING_HEIGHT_FRACTION.wide;
+const SHOWN: number = FRAMING_HEIGHT_FRACTION.wide;
 
 /** The vertical fit alone: the whole solve before a subject could be wide. */
-const VERTICAL = (HEIGHT * SHOWN) / 2;
+const VERTICAL: number = (HEIGHT * SHOWN) / 2;
 
 /** The horizontal fit for a mass `radius * 2` across, on a frame `aspect` wide. */
-const horizontal = (radius: number, aspect = 1): number =>
+const horizontal: (radius: number, aspect?: number) => number = (radius: number, aspect: number = 1): number =>
   (radius * 2 * SHOWN) / 2 / aspect;
 
 /**
@@ -98,24 +98,27 @@ const horizontal = (radius: number, aspect = 1): number =>
  *
  * 1. One figure is the vertical fit exactly, with or without a raster, and a
  *    subject that states a zero radius is that same figure: the shot that
- *    existed before a subject could be wide is byte-for-byte the shot it is
- *    now.
+ *    existed before a subject could be wide retains the same measured distance.
  * 2. A crowd at that same place frames further back than the figure, at the
  *    distance its width demands.
  * 3. A crowd twice as wide frames twice as far back again, so the solve tracks the
  *    extent rather than merely noticing that one was present.
  * 4. A wider delivery raster brings the same crowd closer, because the frame
  *    itself got wider; a raster that describes nothing (absent, zero) falls
- *    back to the square frame, the widest subject any raster of that height
- *    could fail to hold.
+ *    back to the square-frame assumption.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove on figure and crowd subjects and reads the solved position key, checking vertical, horizontal, growth, and delivery-aspect distance behavior.
+ * @evidence contracts/testing.md#independent-expectations The 90-degree pinhole fixture has unit half-angle tangent; the literal 3.4, 80, and 160 metre distances independently anchor the declared four-span wide framing, alongside arithmetic using the exported framing fraction.
+ * @evidence contracts/testing.md#distinguishing-cases Zero radius preserves the figure distance; radii 20 and 40 distinguish width-sensitive framing from a fixed figure distance; 16:9 distinguishes aspect-aware fitting, and absent versus zero aspect checks the square fallback.
+ * @evidence contracts/testing.md#execution-ownership Runs synchronous camera compilation on local records without a renderer, filesystem, clocks, process state, or replacement of product dependencies; this observes the solved distance, not rendered enclosure or the complete clip.
  */
-export const test_film_camera_group_extent_framing = (): void => {
+export function test_film_camera_group_extent_framing(): void {
   TestValidator.equals(
     "one body is framed from its height alone, exactly as before",
     namedFacts([
-      ["figure", () => nclose(framedDistance(FIGURE), VERTICAL)],
-      ["rasterIrrelevant", () => nclose(framedDistance(FIGURE, 16 / 9), 3.4)],
-      ["zeroRadius", () => nclose(framedDistance(crowd(0)), VERTICAL)],
+      ["figure", (): boolean => nclose(framedDistance(FIGURE), VERTICAL)],
+      ["rasterIrrelevant", (): boolean => nclose(framedDistance(FIGURE, 16 / 9), 3.4)],
+      ["zeroRadius", (): boolean => nclose(framedDistance(crowd(0)), VERTICAL)],
     ]),
     { figure: true, rasterIrrelevant: true, zeroRadius: true },
   );
@@ -123,9 +126,9 @@ export const test_film_camera_group_extent_framing = (): void => {
   TestValidator.equals(
     "a crowd is framed from the width of the crowd",
     namedFacts([
-      ["furtherThanTheFigure", () => framedDistance(crowd(20)) > VERTICAL],
-      ["oracle", () => nclose(framedDistance(crowd(20)), horizontal(20))],
-      ["eighty", () => nclose(framedDistance(crowd(20)), 80)],
+      ["furtherThanTheFigure", (): boolean => framedDistance(crowd(20)) > VERTICAL],
+      ["oracle", (): boolean => nclose(framedDistance(crowd(20)), horizontal(20))],
+      ["eighty", (): boolean => nclose(framedDistance(crowd(20)), 80)],
     ]),
     { furtherThanTheFigure: true, oracle: true, eighty: true },
   );
@@ -133,9 +136,9 @@ export const test_film_camera_group_extent_framing = (): void => {
   TestValidator.equals(
     "a crowd that grows is framed further back still",
     namedFacts([
-      ["grew", () => framedDistance(crowd(40)) > framedDistance(crowd(20))],
-      ["oracle", () => nclose(framedDistance(crowd(40)), horizontal(40))],
-      ["twiceAsFar", () => nclose(framedDistance(crowd(40)), 160)],
+      ["grew", (): boolean => framedDistance(crowd(40)) > framedDistance(crowd(20))],
+      ["oracle", (): boolean => nclose(framedDistance(crowd(40)), horizontal(40))],
+      ["twiceAsFar", (): boolean => nclose(framedDistance(crowd(40)), 160)],
     ]),
     { grew: true, oracle: true, twiceAsFar: true },
   );
@@ -145,19 +148,19 @@ export const test_film_camera_group_extent_framing = (): void => {
     namedFacts([
       [
         "wideRasterComesCloser",
-        () => framedDistance(crowd(20), 16 / 9) < framedDistance(crowd(20)),
+        (): boolean => framedDistance(crowd(20), 16 / 9) < framedDistance(crowd(20)),
       ],
       [
         "wideRasterOracle",
-        () => nclose(framedDistance(crowd(20), 16 / 9), horizontal(20, 16 / 9)),
+        (): boolean => nclose(framedDistance(crowd(20), 16 / 9), horizontal(20, 16 / 9)),
       ],
       [
         "stillFurtherThanTheFigure",
-        () => framedDistance(crowd(20), 16 / 9) > VERTICAL,
+        (): boolean => framedDistance(crowd(20), 16 / 9) > VERTICAL,
       ],
       [
         "noRasterIsSquare",
-        () => nclose(framedDistance(crowd(20), 0), framedDistance(crowd(20))),
+        (): boolean => nclose(framedDistance(crowd(20), 0), framedDistance(crowd(20))),
       ],
     ]),
     {
@@ -167,4 +170,4 @@ export const test_film_camera_group_extent_framing = (): void => {
       noRasterIsSquare: true,
     },
   );
-};
+}

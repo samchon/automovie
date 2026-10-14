@@ -1,30 +1,24 @@
 import { TestValidator } from "@nestia/e2e";
-import type { ITtscEvidenceGraphClaim } from "@ttsc/evidence";
-import path from "node:path";
+import type { ITtscEvidenceGraphClaim, ITtscEvidenceGraphReference } from "@ttsc/evidence";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const projection = loadSourceModule<{
-  projectAutoMovieNativeClaims: (
-    claims: readonly ITtscEvidenceGraphClaim[],
-  ) => ITtscEvidenceGraphClaim[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/evidence/src/projectAutoMovieNativeClaims.ts",
-  ),
-);
+import { projectAutoMovieNativeClaims } from "../../../../packages/evidence/src/projectAutoMovieNativeClaims";
 
 /**
  * A native extension cannot reinstall companion requirements through a scalar
  * TypeScript target. Projection keeps its coverage and cardinality unchanged.
  *
  * Scenarios:
+ *
  * 1. A frozen scalar native declaration asking for review emits the same
  *    source relationship with requireReview false and leaves its input intact.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls projectAutoMovieNativeClaims with a frozen scalar TypeScript reference and checks complete output structure plus the unchanged input review flag, catching an array-only projection or mutation of the submitted companion requirement.
+ * @evidence contracts/testing.md#independent-expectations The authored claim's selectors, symbol depths and cardinality flags must remain unchanged while the product's companion-removal policy makes requireReview false; the literal expected record derives from that policy and supplied input, without invoking the projector for an oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Owns a scalar source reference with review requested and frozen records; mixed reference arrays and empty claim populations belong to test_evidence_native_claim_projection, and empty reference arrays to the separate boundary test.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_evidence_native_scalar_companion_removal entry directly imports the source function and owns one portable projection, requiring no consumer installation, native compilation or running host.
  */
-export const test_evidence_native_scalar_companion_removal = (): void => {
-  const reference = Object.freeze({
+export function test_evidence_native_scalar_companion_removal(): void {
+  const reference: Readonly<Extract<ITtscEvidenceGraphReference, { type: "typescript" }>> = Object.freeze({
     type: "typescript" as const,
     root: "src",
     files: ["**/*.ts", "!index.ts"],
@@ -43,7 +37,7 @@ export const test_evidence_native_scalar_companion_removal = (): void => {
   });
   TestValidator.equals(
     "extension retains its relationship",
-    projection.projectAutoMovieNativeClaims([claim]),
+    projectAutoMovieNativeClaims([claim]),
     [{ ...claim, reference: { ...reference, requireReview: false } }],
   );
   TestValidator.equals(
@@ -51,4 +45,4 @@ export const test_evidence_native_scalar_companion_removal = (): void => {
     reference.requireReview,
     true,
   );
-};
+}

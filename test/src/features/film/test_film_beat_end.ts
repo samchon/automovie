@@ -1,5 +1,7 @@
 import { Quaternion, resolveBeatEnd } from "@automovie/engine";
 import {
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieBeatEndState,
   IAutoMovieMotion,
   IAutoMovieScene,
   IAutoMovieShot,
@@ -16,18 +18,18 @@ import {
 } from "../internal/fixtures";
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
-const transform = (
+const transform: (translation: IAutoMovieTransform["translation"], rotation?: IAutoMovieTransform["rotation"]) => IAutoMovieTransform = (
   translation: IAutoMovieTransform["translation"],
-  rotation = IDENTITY_TRANSFORM.rotation,
+  rotation: IAutoMovieTransform["rotation"] = IDENTITY_TRANSFORM.rotation,
 ): IAutoMovieTransform => ({
   translation,
   rotation,
   scale: { x: 1, y: 1, z: 1 },
 });
 
-const rootAt = (
+const rootAt: (translation: IAutoMovieTransform["translation"], yaw?: number) => IAutoMovieTransform = (
   translation: IAutoMovieTransform["translation"],
-  yaw = 0,
+  yaw: number = 0,
 ): IAutoMovieTransform =>
   transform(translation, Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw));
 
@@ -114,13 +116,23 @@ const shot: IAutoMovieShot = {
 };
 
 /**
- * Beat-end snapshots are the concrete forward-state behind `getBeatEnd`: they
- * sample performed actors at shot end, fold pose root motion into world-space
- * transforms, preserve held actors, and fail loudly when a referenced clip was
- * not provided.
+ * Beat-end snapshots sample performed actors at shot end, fold pose root motion into world-space transforms, preserve held actors, and refuse a referenced clip that was not supplied.
+ *
+ * Scenarios:
+ *
+ * 1. A performed hero samples one second after its offset, folds two metres of root travel and ninety degrees of yaw into staged state, and clears the pose root while retaining its bone.
+ * 2. A held guard retains its staged position and one-joint pose.
+ * 3. An unperformed crowd node samples its scene motion at shot time and clamps to its last joint pose.
+ * 4. A resting unperformed extra retains null motion and pose; all actors remain in scene order under the supplied beat and shot ids.
+ * 5. A referenced walk missing from the supplied motions throws its named missing-motion Error.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatEnd and checks actor order, ids, local clocks, folded translation/facing, held and clamped pose fields and missing-motion refusal, catching offset loss, double-applied pose root or omission of unperformed nodes.
+ * @evidence contracts/testing.md#independent-expectations The hero's staged x=10 plus authored root x=2 gives x=12, and a ninety-degree Y turn maps forward Z to positive X. Literal held positions and final head twist 20 supply the other expectations without product sampling; finite coordinates, clocks and twist use the shared tolerances.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts performed motion, explicitly held performance, scene-level motion and a resting node in one ordered snapshot, plus a missing motion; loop phases, velocities, plants, mounts and baked object authority are covered by adjacent beat-end tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_film_beat_end entry owns its literal scene, shot and missing-motion case and calls the engine in-process, with existing numerical fixtures and no installation, native artifact, process or render host.
  */
-export const test_film_beat_end = (): void => {
-  const end = resolveBeatEnd({
+export function test_film_beat_end(): void {
+  const end: IAutoMovieBeatEndState = resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot,
@@ -130,11 +142,11 @@ export const test_film_beat_end = (): void => {
   TestValidator.equals("shot id", end.shot, "shot:beat-1");
   TestValidator.equals(
     "actors stay in scene order",
-    end.actors.map((a) => a.node),
+    end.actors.map((a: IAutoMovieBeatEndActorState): string => a.node),
     ["hero", "guard", "crowd", "extra"],
   );
 
-  const hero = end.actors[0]!;
+  const hero: IAutoMovieBeatEndActorState = end.actors[0]!;
   TestValidator.equals("hero motion id", hero.motion, "walk");
   TestValidator.predicate("hero local time", nclose(hero.localTime, 1));
   TestValidator.predicate(
@@ -152,7 +164,7 @@ export const test_film_beat_end = (): void => {
     "leftLowerLeg",
   );
 
-  const guard = end.actors[1]!;
+  const guard: IAutoMovieBeatEndActorState = end.actors[1]!;
   TestValidator.equals("guard is held", guard.motion, null);
   TestValidator.predicate(
     "guard stays at staged position",
@@ -160,21 +172,21 @@ export const test_film_beat_end = (): void => {
   );
   TestValidator.equals("guard held pose remains", guard.pose?.joints.length, 1);
 
-  const crowd = end.actors[2]!;
+  const crowd: IAutoMovieBeatEndActorState = end.actors[2]!;
   TestValidator.equals("scene-level motion is sampled", crowd.motion, "idle");
   TestValidator.predicate("crowd local time", nclose(crowd.localTime, 2));
   TestValidator.equals(
     "crowd clip clamps to last pose",
-    crowd.pose?.joints[0],
+    { bone: crowd.pose?.joints[0]?.bone, flexion: crowd.pose?.joints[0]?.flexion, abduction: crowd.pose?.joints[0]?.abduction },
     {
       bone: "head",
       flexion: null,
       abduction: null,
-      twist: 20,
     },
   );
+  TestValidator.predicate("crowd clip clamps to last twist", nclose(crowd.pose?.joints[0]?.twist ?? Number.NaN, 20));
 
-  const extra = end.actors[3]!;
+  const extra: IAutoMovieBeatEndActorState = end.actors[3]!;
   TestValidator.equals(
     "unperformed rest actor keeps no motion",
     extra.motion,
@@ -189,9 +201,9 @@ export const test_film_beat_end = (): void => {
   TestValidator.predicate(
     "missing motion throws",
     throwsError(
-      () =>
+      (): IAutoMovieBeatEndState =>
         resolveBeatEnd({ beat: "beat-1", scene, shot, motions: [idleMotion] }),
       'motion "walk" was not provided',
     ),
   );
-};
+}

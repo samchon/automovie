@@ -1,9 +1,9 @@
 import type { IAutoMovieShotContract } from "@automovie/interface";
 
 /** Preserve the existing facade camera contract and required subject. */
-export const createFilmFacadeContract = (
+export function createFilmFacadeContract(
   NODE: string,
-): IAutoMovieShotContract => ({
+): IAutoMovieShotContract { return ({
   id: "shot-facade",
   beat: "beat",
   source: { module: "src/shots/facade.ts", export: "shot" },
@@ -18,4 +18,4 @@ export const createFilmFacadeContract = (
   },
   events: [],
   reviewFrames: [{ id: "mid", time: 1, passes: ["beauty"] }],
-});
+}); }

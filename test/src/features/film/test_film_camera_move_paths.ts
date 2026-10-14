@@ -1,5 +1,5 @@
-import { Vector3, compileCameraMove } from "@automovie/engine";
-import { IAutoMovieCamera, IAutoMovieCameraAction } from "@automovie/interface";
+import { IAutoMovieFramedSubject, compileCameraMove } from "@automovie/engine";
+import { IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, vclose } from "../internal/predicates";
@@ -17,9 +17,9 @@ const CAMERA: IAutoMovieCamera = {
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 };
 
-const frame = (
+const frame: (move: IAutoMovieCameraAction["move"], start?: number, duration?: number | "auto") => IAutoMovieCameraAction = (
   move: IAutoMovieCameraAction["move"],
-  start = 0,
+  start: number = 0,
   duration: number | "auto" = "auto",
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -48,26 +48,34 @@ const frame = (
  *    earlier key instead of minting a zero-width span.
  * 5. A camera staged exactly on the aim point falls back to the +Z bearing.
  * 6. No entries → no clip (`null`).
+ * 7. Truck movement ends screen-left at fixed depth, keeps an animated
+ *    subject's endpoint shift, and has a defined lateral fallback for a
+ *    vertical staged bearing.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove for orbit, follow, truck, static, colliding start times, and empty entries, observing key counts, selected positions, orbit radius/easing, and fallback bearings.
+ * @evidence contracts/testing.md#independent-expectations A two-metre full subject at 90-degree FOV gives the fixed 1.15 metre distance and one-metre aim. Euclidean Math.hypot and atan2 measure orbit radius and angle independently; literal follow and truck endpoints follow the authored one-metre subject translation and framing grammar.
+ * @evidence contracts/testing.md#distinguishing-cases Orbit mid-arc speed exceeds both ends, animated follow differs from static follow, later same-time framing replaces the earlier one, and vertical or zero staged bearings must return defined positions. Empty entries must yield null rather than a fabricated clip.
+ * @evidence contracts/testing.md#execution-ownership Uses synchronous compilation and a local pure subject-position callback through the product seam; no renderer, filesystem, clock, process state, or dependency replacement is involved. Selected numerical keys do not prove rendered interpolation between them.
  */
-export const test_film_camera_move_paths = (): void => {
-  const subject = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
-  const orbit = compileCameraMove({
+export function test_film_camera_move_paths(): void {
+  const subject: IAutoMovieFramedSubject = { base: { x: 0, y: 0, z: 0 }, height: 2, at: null };
+  const orbit: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [{ action: frame("orbit"), subject }],
     shotDuration: 2,
   })!;
   TestValidator.equals("orbit keys", orbit.tracks[0]!.times.length, 9);
-  const aim = { x: 0, y: 1, z: 0 };
-  for (let k = 0; k < 9; ++k) {
-    const pos = {
+  const aim: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+  for (let k: number = 0; k < 9; ++k) {
+    const pos: IAutoMovieVector3 = {
       x: orbit.tracks[0]!.values[k * 3]!,
       y: orbit.tracks[0]!.values[k * 3 + 1]!,
       z: orbit.tracks[0]!.values[k * 3 + 2]!,
     };
     TestValidator.predicate(
       `orbit key ${k} keeps the framed distance`,
-      nclose(Vector3.length(Vector3.subtract(pos, aim)), 1.15, 1e-6),
+      nclose(Math.hypot(pos.x - aim.x, pos.y - aim.y, pos.z - aim.z), 1.15, 1e-6),
     );
   }
   TestValidator.predicate(
@@ -77,33 +85,36 @@ export const test_film_camera_move_paths = (): void => {
 
   // the swept angle eases in/out: consecutive keys turn slowly at the ends and
   // faster through the mid-arc (a reveal orbit, not a constant-rate turntable).
-  const ang = (k: number): number =>
+  const ang: (k: number) => number = (k: number): number =>
     Math.atan2(
       orbit.tracks[0]!.values[k * 3]! - aim.x,
       orbit.tracks[0]!.values[k * 3 + 2]! - aim.z,
     );
-  const step = (a: number, b: number): number => Math.abs(ang(b) - ang(a));
+  const step: (a: number, b: number) => number = (a: number, b: number): number => Math.abs(ang(b) - ang(a));
+  TestValidator.predicate("orbit sweeps forty-five degrees", nclose(step(0, 8), Math.PI / 4));
   TestValidator.equals(
     "orbit eases: the mid-arc turns faster than either end",
     namedFacts([
-      ["fasterThanOpening", () => step(3, 4) > step(0, 1) + 1e-6],
-      ["fasterThanClosing", () => step(3, 4) > step(7, 8) + 1e-6],
+      ["fasterThanOpening", (): boolean => step(3, 4) > step(0, 1) + 1e-6],
+      ["fasterThanClosing", (): boolean => step(3, 4) > step(7, 8) + 1e-6],
     ]),
     { fasterThanOpening: true, fasterThanClosing: true },
   );
 
-  const marching = {
+  const marching: IAutoMovieFramedSubject = {
     base: { x: 0, y: 0, z: 0 },
     height: 2,
-    at: (t: number) => ({ x: t, y: 0, z: 0 }),
+    at: (t: number): IAutoMovieVector3 => ({ x: t, y: 0, z: 0 }),
   };
-  const follow = compileCameraMove({
+  const follow: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [{ action: frame("follow", 0, 1), subject: marching }],
     shotDuration: 2,
   })!;
   TestValidator.equals("follow keys", follow.tracks[0]!.times.length, 5);
+  for (let k: number = 0; k < 5; ++k)
+    TestValidator.predicate(`follow key ${k} tracks the quarter-second subject position`, nclose(follow.tracks[0]!.times[k]!, k / 4) && nclose(follow.tracks[0]!.values[k * 3]!, k / 4));
   TestValidator.predicate(
     "follow starts on the subject",
     nclose(follow.tracks[0]!.values[0]!, 0),
@@ -113,7 +124,7 @@ export const test_film_camera_move_paths = (): void => {
     nclose(follow.tracks[0]!.values[12]!, 1),
   );
 
-  const held = compileCameraMove({
+  const held: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [{ action: frame("follow"), subject }],
@@ -121,11 +132,11 @@ export const test_film_camera_move_paths = (): void => {
   })!;
   TestValidator.equals(
     "static-subject follow holds",
-    held.tracks[0]!.times,
-    [0],
+    { length: held.tracks[0]!.times.length, atZero: nclose(held.tracks[0]!.times[0]!, 0) },
+    { length: 1, atZero: true },
   );
 
-  const truck = compileCameraMove({
+  const truck: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [{ action: frame("truck", 0, 2), subject }],
@@ -139,9 +150,9 @@ export const test_film_camera_move_paths = (): void => {
   TestValidator.equals(
     "truck finishes screen-left while holding staged depth",
     namedFacts([
-      ["ncloseTruckTracks", () => nclose(truck.tracks[0]!.values[24]!, -1.15)],
-      ["ncloseTruckTracks2", () => nclose(truck.tracks[0]!.values[25]!, 1)],
-      ["ncloseTruckTracks3", () => nclose(truck.tracks[0]!.values[26]!, 1.15)],
+      ["ncloseTruckTracks", (): boolean => nclose(truck.tracks[0]!.values[24]!, -1.15)],
+      ["ncloseTruckTracks2", (): boolean => nclose(truck.tracks[0]!.values[25]!, 1)],
+      ["ncloseTruckTracks3", (): boolean => nclose(truck.tracks[0]!.values[26]!, 1.15)],
     ]),
     {
       ncloseTruckTracks: true,
@@ -149,7 +160,7 @@ export const test_film_camera_move_paths = (): void => {
       ncloseTruckTracks3: true,
     },
   );
-  const movingTruck = compileCameraMove({
+  const movingTruck: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [{ action: frame("truck", 0, 1), subject: marching }],
@@ -159,7 +170,7 @@ export const test_film_camera_move_paths = (): void => {
     "truck keeps tracking an animated subject",
     nclose(movingTruck.tracks[0]!.values[24]!, -0.15),
   );
-  const verticalTruck = compileCameraMove({
+  const verticalTruck: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: {
       ...CAMERA,
@@ -176,15 +187,15 @@ export const test_film_camera_move_paths = (): void => {
     namedFacts([
       [
         "ncloseVerticalTruckTracks",
-        () => nclose(verticalTruck.tracks[0]!.values[24]!, -1.15),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[24]!, -1.15),
       ],
       [
         "ncloseVerticalTruckTracks2",
-        () => nclose(verticalTruck.tracks[0]!.values[25]!, 2.15),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[25]!, 2.15),
       ],
       [
         "ncloseVerticalTruckTracks3",
-        () => nclose(verticalTruck.tracks[0]!.values[26]!, 0),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[26]!, 0),
       ],
     ]),
     {
@@ -194,7 +205,7 @@ export const test_film_camera_move_paths = (): void => {
     },
   );
 
-  const abutted = compileCameraMove({
+  const abutted: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: [
@@ -208,8 +219,8 @@ export const test_film_camera_move_paths = (): void => {
   })!;
   TestValidator.equals(
     "same-instant keys collapse to the later framing",
-    abutted.tracks[0]!.times,
-    [0],
+    { length: abutted.tracks[0]!.times.length, atZero: nclose(abutted.tracks[0]!.times[0]!, 0) },
+    { length: 1, atZero: true },
   );
   TestValidator.predicate(
     // Height-2 framing sits at y = 1; the height-1 framing aims at y = 0.5
@@ -218,7 +229,7 @@ export const test_film_camera_move_paths = (): void => {
     abutted.tracks[0]!.values[1]! < 0.8,
   );
 
-  const onAim = compileCameraMove({
+  const onAim: NonNullable<ReturnType<typeof compileCameraMove>> = compileCameraMove({
     clipId: "clip",
     camera: {
       ...CAMERA,
@@ -249,4 +260,4 @@ export const test_film_camera_move_paths = (): void => {
     }),
     null,
   );
-};
+}

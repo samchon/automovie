@@ -6,37 +6,31 @@ import {
   validateAutoMovieLocalContractClaims,
 } from "@automovie/evidence";
 import { TestValidator } from "@nestia/e2e";
-import type { ITtscEvidenceGraphClaim } from "@ttsc/evidence";
-import path from "node:path";
+import type { ITtscEvidenceGraphClaim, ITtscEvidenceGraphMarkdownReference, ITtscEvidenceGraphReference } from "@ttsc/evidence";
 
-import { loadSourceModule } from "../internal/loadSourceModule";
-
-const { projectAutoMovieNativeClaims } = loadSourceModule<{
-  projectAutoMovieNativeClaims: (
-    claims: Readonly<NonNullable<IAutoMovieEvidenceConfigProps["claims"]>>,
-  ) => ITtscEvidenceGraphClaim[];
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/evidence/src/projectAutoMovieNativeClaims.ts",
-  ),
-);
+import { projectAutoMovieNativeClaims } from "../../../../packages/evidence/src/projectAutoMovieNativeClaims";
 
 /**
  * Native evaluation must not erase the declaration a manifest still consumes.
  *
  * Scenarios:
+ *
  * 1. Admitted principle and population-account claims lose binding metadata and
  *    companion requirements while retaining every structural relationship.
  * 2. Mixed error/warning references retain selectors and structural policy without companion requirements.
  * 3. Frozen declarations and empty populations remain unchanged by projection.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Admits local obligation and principle claims then calls projectAutoMovieNativeClaims with those and a mixed native claim, checking claim order, removal of binding metadata, every remaining field and unchanged submitted data. This detects dropped selectors or cardinality, retained companion requirements and mutation of manifest inputs.
+ * @evidence contracts/testing.md#independent-expectations The contract preserves authored fields except autoMovieBinding and makes requireReview false on each reference; expectations derive from the original frozen declarations and that single stated transformation, not from another projector. JSON comparison observes serializable input content, while direct identity assertions require fresh claim records.
+ * @evidence contracts/testing.md#distinguishing-cases Covers admitted aggregate and per-unit local claims, a native TypeScript host with error and warning Markdown references, frozen records and array, and no claims; scalar native references and empty reference arrays are separate boundary tests.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_evidence_native_claim_projection entry owns construction, local admission and projection checks in-process through typed product imports, without installing a consumer, compiling native code, reading project files or starting a host.
  */
-export const test_evidence_native_claim_projection = (): void => {
-  const blank = createBlankAutoMovieProductionEvidence(
+export function test_evidence_native_claim_projection(): void {
+  const blank: IAutoMovieEvidenceConfigProps = createBlankAutoMovieProductionEvidence(
     "/production",
     "english",
   );
-  const props = {
+  const props: Parameters<typeof createAutoMovieProductionObligationClaim>[0] = {
     name: "local obligation",
     account: "accounts/models/local.md",
     document: "contracts/obligations-models.md",
@@ -44,15 +38,15 @@ export const test_evidence_native_claim_projection = (): void => {
     stage: "review" as const,
     populationScope: blank.populationScope,
   };
-  const account = createAutoMovieProductionObligationClaim(props);
-  const principle = createAutoMovieProductionPrincipleClaim({
+  const account: ReturnType<typeof createAutoMovieProductionObligationClaim> = createAutoMovieProductionObligationClaim(props);
+  const principle: ReturnType<typeof createAutoMovieProductionPrincipleClaim> = createAutoMovieProductionPrincipleClaim({
     ...props,
     name: "local principle",
     document: "contracts/principles-models.md",
     files: ["models/**/*.md"],
     symbol: ["h2", "h3", "h4"],
   });
-  const structural = {
+  const structural: ITtscEvidenceGraphMarkdownReference = {
     type: "markdown" as const,
     root: "docs",
     files: ["models/**/*.md"],
@@ -71,21 +65,21 @@ export const test_evidence_native_claim_projection = (): void => {
       { ...structural, severity: "warning", requireReview: true },
     ],
   };
-  const claims = [account, principle, native];
+  const claims: NonNullable<IAutoMovieEvidenceConfigProps["claims"]> = [account, principle, native];
   validateAutoMovieLocalContractClaims({ ...blank, models: "review", claims });
-  const before = JSON.stringify(claims);
+  const before: string = JSON.stringify(claims);
   for (const claim of claims) Object.freeze(claim);
   Object.freeze(claims);
-  const projected = projectAutoMovieNativeClaims(claims);
-  const compare = (left: string, right: string): number =>
+  const projected: ITtscEvidenceGraphClaim[] = projectAutoMovieNativeClaims(claims);
+  const compare: (left: string, right: string) => number = (left: string, right: string): number =>
     left < right ? -1 : left > right ? 1 : 0;
   TestValidator.equals(
     "claim order",
-    projected.map((claim) => claim.name),
+    projected.map((claim: ITtscEvidenceGraphClaim): string | undefined => claim.name),
     [props.name, "local principle", "rendered realization"],
   );
   for (const [index, claim] of claims.entries()) {
-    const output = projected[index]!;
+    const output: ITtscEvidenceGraphClaim = projected[index]!;
     TestValidator.equals(
       "native metadata is absent",
       Reflect.has(output, "autoMovieBinding"),
@@ -93,7 +87,7 @@ export const test_evidence_native_claim_projection = (): void => {
     );
     TestValidator.predicate("projection owns a new record", output !== claim);
     for (const key of Object.keys(claim).filter(
-      (key) => key !== "autoMovieBinding",
+      (key: string): boolean => key !== "autoMovieBinding",
     ))
       TestValidator.equals(
         `native field ${key} is retained`,
@@ -102,14 +96,14 @@ export const test_evidence_native_claim_projection = (): void => {
           ? (Array.isArray(claim.reference)
               ? claim.reference
               : [claim.reference]
-            ).map((reference) => ({ ...reference, requireReview: false }))
+            ).map((reference: ITtscEvidenceGraphReference): ITtscEvidenceGraphReference => ({ ...reference, requireReview: false }))
           : Reflect.get(claim, key),
       );
     TestValidator.equals(
       "no additional fields",
       Object.keys(output).sort(compare),
       Object.keys(claim)
-        .filter((key) => key !== "autoMovieBinding")
+        .filter((key: string): boolean => key !== "autoMovieBinding")
         .sort(compare),
     );
   }
@@ -131,4 +125,4 @@ export const test_evidence_native_claim_projection = (): void => {
     projectAutoMovieNativeClaims([]),
     [],
   );
-};
+}

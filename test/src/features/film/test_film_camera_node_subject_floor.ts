@@ -10,20 +10,21 @@ import type {
   IAutoMovieFormationDesign,
   IAutoMovieModel,
   IAutoMovieShotContract,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 
-const NODE = "civic/entry-canopy";
+const NODE: string = "civic/entry-canopy";
 
 /** The deck hangs 8 m above the element origin and is 4 m tall. */
-const FLOOR = 8;
-const HEIGHT = 4;
+const FLOOR: number = 8;
+const HEIGHT: number = 4;
 /** Keep this vertical-floor fixture outside every solved camera's near plane. */
-const THICKNESS = 0.2;
+const THICKNESS: number = 0.2;
 
-const transform = (x: number, y: number, z: number) => ({
+const transform: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -36,7 +37,7 @@ const transform = (x: number, y: number, z: number) => ({
  * lowered `<environment>/<element>` set piece looks like whenever the part is
  * not authored around its own origin.
  */
-const canopy = (): IAutoMovieModel => ({
+const canopy: () => IAutoMovieModel = (): IAutoMovieModel => ({
   id: "canopy-model",
   name: null,
   origin: "generated",
@@ -64,7 +65,7 @@ const canopy = (): IAutoMovieModel => ({
   asset: null,
 });
 
-const camera = (): IAutoMovieCamera => ({
+const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
   id: "cam",
   transform: transform(0, 2, 40),
   fovY: 40,
@@ -73,7 +74,7 @@ const camera = (): IAutoMovieCamera => ({
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 });
 
-const action = (
+const action: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAction = (
   framing: IAutoMovieCameraAction["framing"],
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -86,11 +87,10 @@ const action = (
 });
 
 /**
- * The camera `performShot` solves for a subject standing at `base`: its framed
- * base is the placement raised by the model's drawn floor, which is the whole
- * point of this fixture.
+ * Compile a camera from an explicitly supplied framed base. The test chooses
+ * the measured floor itself; this helper does not call performShot.
  */
-const solve = (
+const solve: (framing: IAutoMovieCameraAction["framing"], baseY: number) => IAutoMovieClip | null = (
   framing: IAutoMovieCameraAction["framing"],
   baseY: number,
 ): IAutoMovieClip | null =>
@@ -107,7 +107,7 @@ const solve = (
     aspect: 16 / 9,
   });
 
-const contract = (): IAutoMovieShotContract => ({
+const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract => ({
   id: "shot-canopy",
   beat: "beat",
   source: { module: "src/shots/canopy.ts", export: "shot" },
@@ -128,7 +128,7 @@ const contract = (): IAutoMovieShotContract => ({
  * Grade the contract for one staged model under one solved camera, and report
  * what the builder found at each of the three contract samples.
  */
-const grade = (
+const grade: (model: IAutoMovieModel | null, cameraMotion: IAutoMovieClip | null) => { samples: number; resolved: number[]; readable: number[]; refused: boolean } = (
   model: IAutoMovieModel | null,
   cameraMotion: IAutoMovieClip | null,
 ): {
@@ -137,7 +137,7 @@ const grade = (
   readable: number[];
   refused: boolean;
 } => {
-  const result = realizeShotContract({
+  const result: ReturnType<typeof realizeShotContract> = realizeShotContract({
     contract: contract(),
     production: null,
     frameFormat: { width: 1920, height: 1080 },
@@ -180,43 +180,29 @@ const grade = (
   });
   return {
     samples: result.realization.camera.length,
-    resolved: result.realization.camera.map((entry) => entry.resolvedSubjects),
-    readable: result.realization.camera.map((entry) => entry.readableSubjects),
+    resolved: result.realization.camera.map((entry: ReturnType<typeof realizeShotContract>["realization"]["camera"][number]): number => entry.resolvedSubjects),
+    readable: result.realization.camera.map((entry: ReturnType<typeof realizeShotContract>["realization"]["camera"][number]): number => entry.readableSubjects),
     refused: result.diagnostics.length !== 0,
   };
 };
 
 /** Every contract sample found the one required subject readable. */
-const allRead = (graded: ReturnType<typeof grade>): boolean =>
+const allRead: (graded: ReturnType<typeof grade>) => boolean = (graded: ReturnType<typeof grade>): boolean =>
   graded.samples === 3 &&
-  graded.resolved.every((count) => count === 1) &&
-  graded.readable.every((count) => count === 1) &&
+  graded.resolved.every((count: number): boolean => count === 1) &&
+  graded.readable.every((count: number): boolean => count === 1) &&
   graded.refused === false;
 
 /**
- * A required node subject is graded on the segment its geometry actually fills,
+ * A required node subject is graded on the box its geometry actually fills,
  * not on one hanging off its node origin.
  *
- * The framing solve and the contract check are meant to read one subject.
- * `performShot` raises a node's framed base by the drawn floor of its model's
- * rest extent, because that extent is model-space and a building element's
- * origin is where the building was placed rather than where its geometry
- * starts. The check dropped that floor and measured a segment from the origin
- * upward, so a canopy authored 8 m up was framed at 8 m and graded at 0 m; the
- * disagreement was exactly the floor, 8.000 m on this fixture.
- *
- * That is not a stricter check but an unsatisfiable one. Aiming lower to catch
- * the graded segment carries the geometry out of frame, so no camera an author
- * could write passes, and the diagnostic names neither height. `wide` hides it,
- * showing four subject heights and so holding both the deck and the empty air
- * beneath it, which is why the defect survives the one shot size a first probe
- * tries.
- *
- * The oracle is the framing arithmetic rather than the engine's output: with
- * `FRAMING_HEIGHT_FRACTION` and `FRAMING_AIM_FRACTION`, a `full` shot shows
- * 1.15 subject heights centred on 0.5 h, so its visible band is 7.7 m … 12.3 m
- * around a deck at 8 … 12 m and an origin-based segment at 0 … 4 m is well
- * below its lower edge.
+ * The authored box has a floor 8 metres above the node origin. Compilation
+ * receives that floor explicitly, while realizeShotContract independently
+ * measures the compiled model. Agreement must persist at each sampled time;
+ * a close camera aimed at the origin is the negative twin. This composition
+ * does not exercise performShot's selection of the framed base or prove any
+ * rendered view, complete enclosure, or occlusion result.
  *
  * Scenarios:
  *
@@ -231,40 +217,45 @@ const allRead = (graded: ReturnType<typeof grade>): boolean =>
  *    the floor made the two sides agree; it did not make readability
  *    unconditional.
  * 4. A model drawn from its own origin upward has a zero floor, so its grade is
- *    exactly what it always was. The correction reaches only the subjects whose
- *    geometry never stood where it was being graded.
+ *    readable under a camera aimed at that origin.
  * 5. A node with no model keeps the stand-in span measured from the placement
  *    itself: neither a rig span nor `DEFAULT_SUBJECT_HEIGHT` states a floor, so
  *    there is none to carry and a camera framed on the placement still reads.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Measures the canopy's model-space floor and composes compileCameraMove with realizeShotContract to check one required node at the contract's opening, review, and closing samples.
+ * @evidence contracts/testing.md#independent-expectations The fixture's four-metre box is centred ten metres above the origin, independently giving the 8..12 extent. Fixed readability counts and diagnostics expectations follow the deliberately matched or mismatched camera floor, not a reused grader result.
+ * @evidence contracts/testing.md#distinguishing-cases All four shot sizes must read the raised model; close framing on floor zero must resolve but fail to read it. A grounded model and an absent compiled model distinguish carried geometric floors from zero-floor and stand-in behavior.
+ * @evidence contracts/testing.md#execution-ownership Uses local model, scene, camera, and contract records in synchronous engine operations without a renderer, filesystem, process state, clocks, or dependency replacement; the test checks sampled numerical grading and diagnostics only.
  */
-export const test_film_camera_node_subject_floor = (): void => {
-  const framings = ["wide", "full", "medium", "close"] as const;
-  const model = canopy();
+export function test_film_camera_node_subject_floor(): void {
+  const framings: readonly ["wide", "full", "medium", "close"] = ["wide", "full", "medium", "close"];
+  const model: IAutoMovieModel = canopy();
+  const extent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(model);
 
   TestValidator.equals(
     "the fixture draws its deck eight metres above the node origin",
-    computeModelRestExtentY(model),
-    { min: FLOOR, max: FLOOR + HEIGHT },
+    { present: extent !== null, keys: extent === null ? [] : Object.keys(extent).sort(), min: extent !== null && nclose(extent.min, FLOOR), max: extent !== null && nclose(extent.max, FLOOR + HEIGHT) },
+    { present: true, keys: ["max", "min"], min: true, max: true },
   );
 
   TestValidator.equals(
     "every shot size grades the canopy readable at every sample",
     namedFacts(
-      framings.map((framing) => [
+      framings.map((framing: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
         framing,
-        () => allRead(grade(model, solve(framing, FLOOR))),
+        (): boolean => allRead(grade(model, solve(framing, FLOOR))),
       ]),
     ),
     { wide: true, full: true, medium: true, close: true },
   );
 
-  const misaimed = grade(model, solve("close", 0));
+  const misaimed: ReturnType<typeof grade> = grade(model, solve("close", 0));
   TestValidator.equals(
     "a camera aimed at the placement still fails to read the raised deck",
     namedFacts([
-      ["resolvedEverySample", () => misaimed.resolved.every((c) => c === 1)],
-      ["readAtNoSample", () => misaimed.readable.every((c) => c === 0)],
-      ["refused", () => misaimed.refused],
+      ["resolvedEverySample", (): boolean => misaimed.resolved.every((c: number): boolean => c === 1)],
+      ["readAtNoSample", (): boolean => misaimed.readable.every((c: number): boolean => c === 0)],
+      ["refused", (): boolean => misaimed.refused],
     ]),
     { resolvedEverySample: true, readAtNoSample: true, refused: true },
   );
@@ -277,8 +268,8 @@ export const test_film_camera_node_subject_floor = (): void => {
   TestValidator.equals(
     "a model standing on its origin has a zero floor and an unchanged grade",
     namedFacts([
-      ["zeroFloor", () => computeModelRestExtentY(grounded)?.min === 0],
-      ["readable", () => allRead(grade(grounded, solve("close", 0)))],
+      ["zeroFloor", (): boolean => nclose(computeModelRestExtentY(grounded)?.min ?? Number.NaN, 0)],
+      ["readable", (): boolean => allRead(grade(grounded, solve("close", 0)))],
     ]),
     { zeroFloor: true, readable: true },
   );
@@ -288,4 +279,4 @@ export const test_film_camera_node_subject_floor = (): void => {
     allRead(grade(null, solve("full", 0))),
     true,
   );
-};
+}
