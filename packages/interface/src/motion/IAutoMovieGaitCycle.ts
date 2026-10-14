@@ -14,7 +14,7 @@ export interface IAutoMovieGaitCycle {
   period: number;
 
   /**
-   * Cycle phase at the motion's local `t = 0`, seconds in `[0, period)`. A fresh bake is `0`; composition offsets shift it (an arranged segment starting at `s` carries `phaseAt = (0 - s) mod period` so the composite's own clock still lands on the segment's true stride phase).
+   * Cycle phase at the motion's local `t = 0`, seconds in `[0, period)`. A bake wraps its supplied phase seed, defaulting to `0`; arranging a segment starting at `s` shifts that seed to `phaseAt = (seed - s) mod period` so the composite's own clock still lands on the segment's stride phase.
    */
   phaseAt: number;
 }

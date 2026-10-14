@@ -6,7 +6,7 @@ import { AutoMovieEasing } from "./AutoMovieEasing";
  *
  * @evidence contracts/common.md#principled-implementation A phase-shifted cycle divides at duty into stance and swing, each interpolating between opposite signed amplitudes about neutral; gaitLimbFlexion wraps phase, requires finite parameters and duty strictly between zero and one, and applies separate easing to the two intervals.
  * @evidence contracts/common.md#clear-and-simple-design One row drives one bone axis, defaulting to flexion, while gaitMotion folds different axes of a bone into one joint and refuses repeated bone-axis rows rather than overwriting them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Creature names do not select footfall timing or joint limits; phase and duty express the timing, neutral offsets express asymmetric joint use, and the resulting motion still faces the skeleton's range-of-motion validation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Creature names do not select footfall timing or joint limits; phase and duty express nominal stance/swing timing without proving foot contact, and the resulting motion still faces the skeleton's range-of-motion validation. Finite cubic y controls may overshoot the amplitude endpoints; direct gait evaluation leaves CSS x-control admission to its caller.
  * @evidence contracts/common.md#meaningful-documentation Gives phase turns and wrapping, open duty bounds, degree amplitude and neutral, default axis and linear easing, cubic control ownership and the per-phase fallback when controls are absent.
  * @author Samchon
  */
@@ -25,35 +25,35 @@ export interface IAutoMovieGaitLimb {
   phase: number;
 
   /**
-   * Fraction of the stride the limb spends in **stance** (planted, pushing the body back) versus **swing** (lifted, recovering forward), in `(0, 1)`. A walk has a high duty (long ground contact); a gallop a low one.
+   * Fraction of the stride assigned to nominal **stance** versus **swing**, in `(0, 1)`. These intervals shape the joint oscillation; they do not constrain a resolved foot to the ground. A walk commonly uses a longer nominal stance fraction than a gallop.
    */
   duty: number;
 
-  /** Finite signed peak swing on axis, in degrees, about neutral. */
+  /** Finite signed oscillation endpoint on axis, in degrees, about neutral; cubic easing may overshoot it. */
   amplitude: number;
 
   /**
-   * Easing used while the limb is in stance (planted, pushing back). Omitted means `"linear"`, preserving the original sawtooth.
+   * Easing used during the nominal stance interval. Omitted means `"linear"`, preserving the original sawtooth.
    */
   stanceEasing?: AutoMovieEasing;
 
   /**
-   * Cubic stance controls `[x1, y1, x2, y2]`; x values lie in `[0, 1]` and all values are finite. Missing controls make cubicBezier use linear ease.
+   * Cubic stance controls `[x1, y1, x2, y2]`; callers must supply x values in `[0, 1]` and finite values throughout. Direct gait evaluation checks used controls for finiteness but does not check their x range. Missing controls make cubicBezier use linear ease; finite y controls may overshoot.
    */
   stanceBezier?: [number, number, number, number] | null;
 
   /**
-   * Easing used while the limb is in swing (recovering forward). Omitted means `"linear"`, preserving the original sawtooth.
+   * Easing used during the nominal swing interval. Omitted means `"linear"`, preserving the original sawtooth.
    */
   swingEasing?: AutoMovieEasing;
 
   /**
-   * Cubic swing controls `[x1, y1, x2, y2]`; x values lie in `[0, 1]` and all values are finite. Missing controls make cubicBezier use linear ease.
+   * Cubic swing controls `[x1, y1, x2, y2]`; callers must supply x values in `[0, 1]` and finite values throughout. Direct gait evaluation checks used controls for finiteness but does not check their x range. Missing controls make cubicBezier use linear ease; finite y controls may overshoot.
    */
   swingBezier?: [number, number, number, number] | null;
 
   /**
-   * Center the swing oscillates around (degrees), default `0`. A symmetric limb (a hip, a shoulder) leaves this unset and swings `±amplitude` about zero; a limb that only bends one way needs a nonzero center to keep the whole swing on the anatomical side. A knee, whose flexion ROM is `[0, 150]°` and cannot hyperextend, walks with e.g. `{ neutral: 25, amplitude: 18 }` so its swing stays in `[7, 43]°` instead of crossing zero: the offset the ROM validator forces once you try to bend a knee at all.
+   * Center the swing oscillates around (degrees), default `0`. With bounded easing, a symmetric limb swings between `±amplitude` about zero, while a one-sided joint can use a nonzero center. For a knee with flexion ROM `[0, 150]°`, `{ neutral: 25, amplitude: 18 }` and default linear easing produce `[7, 43]°`; cubic y overshoot can exceed those endpoints, and the selected skeleton's ROM remains a separate constraint.
    */
   neutral?: number;
 }
