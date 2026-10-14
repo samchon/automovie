@@ -51,12 +51,12 @@ export namespace IAutoMovieHumanIdentity {
     /**
      * Cervicale height: the most prominent spinous process of the seventh cervical vertebra to the standing surface, millimetres. It places the root of the neck.
      */
-    cervicaleHeight: number & tags.Minimum<300> & tags.Maximum<2200>;
+    cervicaleHeight: number & tags.Minimum<250> & tags.Maximum<2200>;
 
     /**
      * Acromial height: the right acromion, the point of the shoulder, to the standing surface, millimetres. It places the shoulder joints.
      */
-    acromialHeight: number & tags.Minimum<280> & tags.Maximum<2150>;
+    acromialHeight: number & tags.Minimum<200> & tags.Maximum<2150>;
 
     /**
      * Biacromial breadth: between the two acromia, a bony breadth, millimetres. Shoulder breadth carries most of the sex difference in the shoulder-to-hip ratio.
@@ -81,17 +81,17 @@ export namespace IAutoMovieHumanIdentity {
     /**
      * Chest circumference at the most anterior point of the chest, the bust in women, at the maximum of quiet respiration, millimetres.
      */
-    chestCircumference: number & tags.Minimum<250> & tags.Maximum<2000>;
+    chestCircumference: number & tags.Minimum<180> & tags.Maximum<2000>;
 
     /**
      * Waist circumference at the natural waist, the narrowest level between the ribs and the iliac crests, millimetres. This is the waist of attractiveness studies; ANSUR II measures its waist at the navel instead, which is not comparable.
      */
-    waistCircumference: number & tags.Minimum<200> & tags.Maximum<2200>;
+    waistCircumference: number & tags.Minimum<180> & tags.Maximum<2200>;
 
     /**
      * Buttock circumference at the maximum posterior protrusion of the buttocks, standing, millimetres.
      */
-    buttockCircumference: number & tags.Minimum<250> & tags.Maximum<2200>;
+    buttockCircumference: number & tags.Minimum<200> & tags.Maximum<2200>;
 
     /** The left arm, from the shoulder to the fingertips. */
     leftArm: IArm;

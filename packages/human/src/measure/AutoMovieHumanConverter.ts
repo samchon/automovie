@@ -110,7 +110,7 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
         acromialHeight: lengths.acromialHeight - spinalLoss,
         biacromialBreadth: lengths.biacromialBreadth,
         bicristalBreadth: lengths.bicristalBreadth,
-        hipBreadth: girths.hipBreadth,
+        hipBreadth: lengths.hipBreadth,
         neckCircumference: girths.neckCircumference,
         chestCircumference: girths.chestCircumference,
         waistCircumference: girths.waistCircumference,

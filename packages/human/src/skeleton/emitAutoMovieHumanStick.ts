@@ -38,7 +38,7 @@ const COLOURS: Record<"axial" | "left" | "right", [number, number, number]> = {
 /**
  * Emit the stick figure of a skeleton: one capsule per bone from its joint centre to its tail, and a sphere marker at every joint centre, each rigidly attached to its bone.
  *
- * This is the stick stage of Human's output, superseded part by part by the skin from #2795 on. Every bone of the skeleton is drawn, fingers, thumbs, toes, eyes and jaw included, so proportions and joint placement can be judged in the viewer. Capsules shorter than two radii shrink their radius to a third of their length, so every capsule keeps a positive body. Bone-local frames equal the model frame at rest, so a part's transform is its offset from the joint centre and the rotation that turns the capsule's local +Y onto the bone.
+ * This is the stick stage of Human's output, superseded part by part by the skin stages. Every bone of the skeleton is drawn, fingers, thumbs, toes, eyes and jaw included, so proportions and joint placement can be judged in the viewer. Capsules shorter than two radii shrink their radius to a third of their length, so every capsule keeps a positive body. Bone-local frames equal the model frame at rest, so a part's transform is its offset from the joint centre and the rotation that turns the capsule's local +Y onto the bone.
  *
  * @param skeleton Resolved skeleton in the rest pose
  * @param stature Stature, millimetres, which sizes the sticks

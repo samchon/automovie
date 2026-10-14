@@ -102,6 +102,17 @@ From Gray 1918 surface anatomy (`../sources/gray-1918.md`), conventional for a l
 
 `AutoMovieHumanoidBone` has one clavicle bone (`leftShoulder`) and no scapula, so scapular protraction, elevation and upward rotation must be expressed by the shoulder bone; the inferior angle and vertebral border must still move on the rib cage. The spine has four torso bones for 24 vertebrae, so lumbar lordosis and thoracic kyphosis are distributed over `spine`, `chest` and `upperChest` as rest rotations. The rest frame is a T-pose with the shoulders at 90 deg abduction, while every landmark above is measured with the arms hanging; de Leva notes acromion-radiale is markedly shorter with the arm abducted 90 deg, because the acromion moves toward the radiale.
 
+## As built in #2793
+
+- The skeleton reads only the identity. Joint centres are solved in the anthropometric posture and the upper arm and everything below it turn 90 deg about the shoulder centre into the T-pose; the clavicle and acromion stay, because `HUMANOID_REST_FRAME` puts the whole 90 deg on the upper arm. Measuring then lowers the arm by the same conversion, so every identity length measures back exactly.
+- de Leva's landmark offsets are scaled with their segment (fractions of the pooled ANSUR mean segment) so they reach children.
+- Hara's leg length is solved from the same equation's vertical term with the hip centre height, so no ASIS height measurement is needed; ASIS lateral position is 0.41 of bicristal breadth (Hara's inter-spine relation inverted at the ANSUR mean leg lengths). The inversion fails below about 300 mm leg length, which is why the bicristal ratio is used.
+- Trunk levels are fractions of the mid-hip-to-cervicale span (sexes pooled): omphalion 0.245 (`spine`), xiphion 0.617 from de Leva's upper-trunk share (`chest`), axilla 0.703 (`upperChest`, conventional), suprasternale 0.876, iliocristale 0.263.
+- Head joint at subnasale level (3DFN sn-gn / n-gn 0.567 of face height), a conventional reading of the dens and atlas lying near the hard palate; jaw bone at Mehl's centre of rotation 0.264 face heights below a condyle on the Frankfort plane.
+- Fingers: middle knuckle at de Leva's 0.459 of wrist-to-fingertip, phalanges 2:1:1 from Bridgman's equal pads, index 0.905 of the middle finger from Snyder; ring 0.95 and little 0.80 conventional (no source). Thumb metacarpal length solved so the adducted tip reaches the index PIP (Gray, Bridgman).
+- Legs stand vertically below the hip centres with parallel feet (canonical rest stance), not ANSUR's heels-together stance; no measured height changes.
+- Engine finding: with the engine's default axes, positive hip flexion swings a +Z-facing thigh backward (checked numerically with `resolvePose`), while the engine's gestures assume forward. Human declares hip flexion about -X; the declaration is emitted once #2807 lands.
+
 ## Open questions
 
 - Why de Leva's thigh (HJC to KJC, 422 mm men) is 20 mm longer than our ANSUR-derived 402 mm: different knee centre definition, different population, or a trochanterion-to-hip-centre offset that is not purely vertical.

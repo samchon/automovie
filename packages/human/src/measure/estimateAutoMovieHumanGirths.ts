@@ -19,14 +19,13 @@ interface IRegression {
 }
 
 /**
- * Adult girths and the soft-tissue hip breadth, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58, on stature, BMI and age. Waist is ANSUR's navel waist, used only to carry the natural waist's response; biceps is the flexed girth, whose stature and BMI slopes stand in for the relaxed upper arm; forearm is the flexed girth at the elbow crease. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
+ * Adult girths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58, on stature, BMI and age. Waist is ANSUR's navel waist, used only to carry the natural waist's response; biceps is the flexed girth, whose stature and BMI slopes stand in for the relaxed upper arm; forearm is the flexed girth at the elbow crease. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
  */
 const ANSUR_II: Record<
   | "neck"
   | "chest"
   | "waist"
   | "buttock"
-  | "hipBreadth"
   | "biceps"
   | "forearm"
   | "wrist"
@@ -50,10 +49,6 @@ const ANSUR_II: Record<
   buttock: {
     female: { intercept: -88.5, stature: 0.3939, bmi: 18.32, age: 0.05 },
     male: { intercept: -96.6, stature: 0.377, bmi: 16.96, age: -0.52 },
-  },
-  hipBreadth: {
-    female: { intercept: -25.7, stature: 0.1443, bmi: 5.59, age: 0.07 },
-    male: { intercept: -14.9, stature: 0.1345, bmi: 4.59, age: -0.09 },
   },
   biceps: {
     female: { intercept: -46.9, stature: 0.0965, bmi: 7.45, age: 0.19 },
@@ -136,11 +131,11 @@ const ADULT_FROM: [number, number] = [17.75, 20];
 const REFERENCE_AGE: number = 19.5;
 
 /**
- * Girths and soft-tissue hip breadth of one person.
+ * Girths of one person.
  *
  * Adults take our ANSUR II regressions on stature, BMI and age, so adiposity reaches each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4). The natural waist takes the navel waist's response scaled to the late-adolescent natural-waist-to-hip ratio, because ANSUR measures no natural waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
  *
- * Children take the adult girths at 19.5 years for the same BMI and scale them by the NHANES growth of the waist (chest, buttock, hip breadth) or of the upper arm (limbs and neck) and by stature over the median stature for age. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
+ * Children take the adult girths at 19.5 years for the same BMI and scale them by the NHANES growth of the waist (chest and buttock) or of the upper arm (limbs and neck) and by stature over the median stature for age. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
  *
  * @param context Resolved person
  * @returns Body girths and the girths of one arm and one leg
@@ -176,7 +171,6 @@ export function estimateAutoMovieHumanGirths(
     chestCircumference: girth("chest"),
     waistCircumference: girth("naturalWaist"),
     buttockCircumference: girth("buttock"),
-    hipBreadth: girth("hipBreadth"),
     arm: {
       upperArmCircumference: girth("upperArm"),
       forearmCircumference: girth("forearm"),
@@ -208,9 +202,6 @@ export namespace estimateAutoMovieHumanGirths {
     /** Buttock circumference. */
     buttockCircumference: number;
 
-    /** Soft-tissue hip breadth. */
-    hipBreadth: number;
-
     /** Girths of one arm. */
     arm: Pick<
       IAutoMovieHumanIdentity.IArm,
@@ -231,7 +222,6 @@ interface IGirths {
   chest: number;
   naturalWaist: number;
   buttock: number;
-  hipBreadth: number;
   upperArm: number;
   forearm: number;
   wrist: number;
@@ -287,7 +277,6 @@ function adultGirths(
     chest: fit("chest"),
     naturalWaist: naturalPerNavel * fit("waist") * waistAgeing,
     buttock: fit("buttock"),
-    hipBreadth: fit("hipBreadth"),
     upperArm:
       read(NHANES_ARM, atAge) +
       biceps.stature *
@@ -337,7 +326,6 @@ function childGirths(
     chest: reference.chest * trunk,
     naturalWaist: read(NATURAL_WAIST_TO_HIP, age) * buttock,
     buttock,
-    hipBreadth: reference.hipBreadth * trunk,
     upperArm: reference.upperArm * limb,
     forearm: reference.forearm * limb,
     wrist: reference.wrist * limb,
