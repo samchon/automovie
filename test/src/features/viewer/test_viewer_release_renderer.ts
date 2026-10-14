@@ -1,7 +1,15 @@
-import {releaseViewerRenderer,releaseMountedViewer,renderCrossDissolveFrames,renderFadeToBlackFrame,readAutoMovieFilmDisplayTextureResidency} from "@automovie/viewer";
-import {TestValidator} from "@nestia/e2e";
+import {
+  readAutoMovieFilmDisplayTextureResidency,
+  releaseMountedViewer,
+  releaseViewerRenderer,
+  renderCrossDissolveFrames,
+  renderFadeToBlackFrame,
+} from "@automovie/viewer";
+import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
-import {createDisplayCompositionRenderer} from "../internal/createDisplayCompositionRenderer";
+
+import { createDisplayCompositionRenderer } from "../internal/createDisplayCompositionRenderer";
+
 /**
  * Renderer release closes the CPU Texture copies retained by both beauty compositors. Actual disposal events and requested lifecycle order are observed through the existing composition port; canvas antialiasing and physical GPU retirement are unobserved.
  *
@@ -18,31 +26,204 @@ import {createDisplayCompositionRenderer} from "../internal/createDisplayComposi
  * @evidence contracts/testing.md#execution-ownership This named unit entry uses the existing orchestration fact host plus real CPU-side Three resources and their own listeners, starting no native renderer/browser/process/GPU and adding no driver; fixture-local callback assignments record requests rather than replacing a foreign SDK instance method.
  */
 export function test_viewer_release_renderer(): void {
-  const used: ReturnType<typeof createDisplayCompositionRenderer>=createDisplayCompositionRenderer();let disposed: number=0;
-  used.renderer.dispose=(): void =>{disposed++;};
-  renderCrossDissolveFrames(used.renderer,(): undefined =>undefined,(): undefined =>undefined,.5);
-  renderFadeToBlackFrame(used.renderer,(): undefined =>undefined,.5);
-  let copiesDisposed: number=0;for(const copy of used.copied)copy.addEventListener("dispose",(): void =>{copiesDisposed++;});
-  releaseViewerRenderer(used.renderer);TestValidator.equals("all five observed source copies receive disposal events",copiesDisposed,5);TestValidator.equals("renderer release",disposed,1);
-  const previous: THREE.FramebufferTexture | undefined=used.copied[1];renderCrossDissolveFrames(used.renderer,(): undefined =>undefined,(): undefined =>undefined,.5);TestValidator.predicate("fresh post-release copy",used.copied.at(-2)!==previous);releaseViewerRenderer(used.renderer);
-  const unused: ReturnType<typeof createDisplayCompositionRenderer>=createDisplayCompositionRenderer();unused.renderer.dispose=(): void =>{disposed++;};releaseViewerRenderer(unused.renderer);TestValidator.equals("unused renderer still releases",disposed,3);
-  const failed: ReturnType<typeof createDisplayCompositionRenderer>=createDisplayCompositionRenderer(),first: Error=new Error("dissolve release"),second: Error=new Error("fade release"),third: Error=new Error("renderer release");
-  renderCrossDissolveFrames(failed.renderer,(): undefined =>undefined,(): undefined =>undefined,.5);renderFadeToBlackFrame(failed.renderer,(): undefined =>undefined,.5);
-  let releases: number=0;for(const copy of new Set(failed.copied))copy.addEventListener("dispose",(): void =>{releases++;});
-  failed.copied[1]!.addEventListener("dispose",(): void =>{throw first;});failed.copied[4]!.addEventListener("dispose",(): void =>{throw second;});failed.renderer.dispose=(): void =>{releases++;throw third;};
-  let aggregate:unknown;try{releaseViewerRenderer(failed.renderer);}catch(error){aggregate=error;}
-  TestValidator.predicate("all independent release failures remain visible",aggregate instanceof AggregateError&&aggregate.errors.length===3&&aggregate.errors[0]===first&&aggregate.errors[1]===second&&aggregate.errors[2]===third);
-  TestValidator.equals("failed release attempts independent owners without claiming its copies freed",{releases,residency:readAutoMovieFilmDisplayTextureResidency(failed.renderer)},{releases:6,residency:[{owner:"film-fade",width:64,height:32,copies:3},{owner:"film-dissolve",width:64,height:32,copies:3}]});
-  let repeated: unknown; try { releaseViewerRenderer(failed.renderer); } catch (error) { repeated = error; }
-  TestValidator.predicate("repeated compositor retirement preserves the original ordered causes",
-    repeated instanceof AggregateError && repeated.errors.length === 3 && repeated.errors[0] === first && repeated.errors[1] === second && repeated.errors[2] === third);
-  TestValidator.equals("repeat does not retry copied Texture disposal, while the raw renderer API remains requested", releases, 7);
-  const single: ReturnType<typeof createDisplayCompositionRenderer>=createDisplayCompositionRenderer();single.renderer.dispose=(): void =>{throw third;};let singleFailure:unknown;try{releaseViewerRenderer(single.renderer);}catch(error){singleFailure=error;}TestValidator.predicate("single renderer error preserves identity",singleFailure===third);
-  const mounted: ReturnType<typeof createDisplayCompositionRenderer>=createDisplayCompositionRenderer(),scene: THREE.Scene=new THREE.Scene(),light: THREE.DirectionalLight=new THREE.DirectionalLight(),target: THREE.WebGLRenderTarget=new THREE.WebGLRenderTarget(4,4),order:string[]=[];light.shadow.map=target;scene.add(light);
-  target.addEventListener("dispose",(): void =>{order.push("shadow");});mounted.renderer.dispose=(): void =>{order.push("renderer");};
-  releaseMountedViewer(mounted.renderer,scene,(): void =>{order.push("stop");});TestValidator.equals("shadow disposal event precedes the renderer disposal request",order,["stop","shadow","renderer"]);TestValidator.equals("mounted shadow slot is retired",light.shadow.map,null);
-  const failedTarget: THREE.WebGLRenderTarget=new THREE.WebGLRenderTarget(4,4);light.shadow.map=failedTarget;failedTarget.addEventListener("dispose",(): void =>{order.push("shadow failure");throw second;});mounted.renderer.dispose=(): void =>{order.push("renderer failure");throw third;};
-  aggregate=undefined;try{releaseMountedViewer(mounted.renderer,scene,(): void =>{order.push("stop failure");throw first;});}catch(error){aggregate=error;}
-  TestValidator.predicate("mounted independent failures stay in lifecycle order",aggregate instanceof AggregateError&&aggregate.errors.length===3&&aggregate.errors[0]===first&&aggregate.errors[1]===second&&aggregate.errors[2]===third);
-  TestValidator.equals("failure cannot skip later mounted owners",order.slice(-3),["stop failure","shadow failure","renderer failure"]);TestValidator.equals("failed mounted shadow retirement clears slot",light.shadow.map,null);
+  const used: ReturnType<typeof createDisplayCompositionRenderer> =
+    createDisplayCompositionRenderer();
+  let disposed: number = 0;
+  used.renderer.dispose = (): void => {
+    disposed++;
+  };
+  renderCrossDissolveFrames(
+    used.renderer,
+    (): undefined => undefined,
+    (): undefined => undefined,
+    0.5,
+  );
+  renderFadeToBlackFrame(used.renderer, (): undefined => undefined, 0.5);
+  let copiesDisposed: number = 0;
+  for (const copy of used.copied)
+    copy.addEventListener("dispose", (): void => {
+      copiesDisposed++;
+    });
+  releaseViewerRenderer(used.renderer);
+  TestValidator.equals(
+    "all five observed source copies receive disposal events",
+    copiesDisposed,
+    5,
+  );
+  TestValidator.equals("renderer release", disposed, 1);
+  const previous: THREE.FramebufferTexture | undefined = used.copied[1];
+  renderCrossDissolveFrames(
+    used.renderer,
+    (): undefined => undefined,
+    (): undefined => undefined,
+    0.5,
+  );
+  TestValidator.predicate(
+    "fresh post-release copy",
+    used.copied.at(-2) !== previous,
+  );
+  releaseViewerRenderer(used.renderer);
+  const unused: ReturnType<typeof createDisplayCompositionRenderer> =
+    createDisplayCompositionRenderer();
+  unused.renderer.dispose = (): void => {
+    disposed++;
+  };
+  releaseViewerRenderer(unused.renderer);
+  TestValidator.equals("unused renderer still releases", disposed, 3);
+  const failed: ReturnType<typeof createDisplayCompositionRenderer> =
+      createDisplayCompositionRenderer(),
+    first: Error = new Error("dissolve release"),
+    second: Error = new Error("fade release"),
+    third: Error = new Error("renderer release");
+  renderCrossDissolveFrames(
+    failed.renderer,
+    (): undefined => undefined,
+    (): undefined => undefined,
+    0.5,
+  );
+  renderFadeToBlackFrame(failed.renderer, (): undefined => undefined, 0.5);
+  let releases: number = 0;
+  for (const copy of new Set(failed.copied))
+    copy.addEventListener("dispose", (): void => {
+      releases++;
+    });
+  failed.copied[1]!.addEventListener("dispose", (): void => {
+    throw first;
+  });
+  failed.copied[4]!.addEventListener("dispose", (): void => {
+    throw second;
+  });
+  failed.renderer.dispose = (): void => {
+    releases++;
+    throw third;
+  };
+  let aggregate: unknown;
+  try {
+    releaseViewerRenderer(failed.renderer);
+  } catch (error) {
+    aggregate = error;
+  }
+  TestValidator.predicate(
+    "all independent release failures remain visible",
+    aggregate instanceof AggregateError &&
+      aggregate.errors.length === 3 &&
+      aggregate.errors[0] === first &&
+      aggregate.errors[1] === second &&
+      aggregate.errors[2] === third,
+  );
+  TestValidator.equals(
+    "failed release attempts independent owners without claiming its copies freed",
+    {
+      releases,
+      residency: readAutoMovieFilmDisplayTextureResidency(failed.renderer),
+    },
+    {
+      releases: 6,
+      residency: [
+        { owner: "film-fade", width: 64, height: 32, copies: 3 },
+        { owner: "film-dissolve", width: 64, height: 32, copies: 3 },
+      ],
+    },
+  );
+  let repeated: unknown;
+  try {
+    releaseViewerRenderer(failed.renderer);
+  } catch (error) {
+    repeated = error;
+  }
+  TestValidator.predicate(
+    "repeated compositor retirement preserves the original ordered causes",
+    repeated instanceof AggregateError &&
+      repeated.errors.length === 3 &&
+      repeated.errors[0] === first &&
+      repeated.errors[1] === second &&
+      repeated.errors[2] === third,
+  );
+  TestValidator.equals(
+    "repeat does not retry copied Texture disposal, while the raw renderer API remains requested",
+    releases,
+    7,
+  );
+  const single: ReturnType<typeof createDisplayCompositionRenderer> =
+    createDisplayCompositionRenderer();
+  single.renderer.dispose = (): void => {
+    throw third;
+  };
+  let singleFailure: unknown;
+  try {
+    releaseViewerRenderer(single.renderer);
+  } catch (error) {
+    singleFailure = error;
+  }
+  TestValidator.predicate(
+    "single renderer error preserves identity",
+    singleFailure === third,
+  );
+  const mounted: ReturnType<typeof createDisplayCompositionRenderer> =
+      createDisplayCompositionRenderer(),
+    scene: THREE.Scene = new THREE.Scene(),
+    light: THREE.DirectionalLight = new THREE.DirectionalLight(),
+    target: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(4, 4),
+    order: string[] = [];
+  light.shadow.map = target;
+  scene.add(light);
+  target.addEventListener("dispose", (): void => {
+    order.push("shadow");
+  });
+  mounted.renderer.dispose = (): void => {
+    order.push("renderer");
+  };
+  releaseMountedViewer(mounted.renderer, scene, (): void => {
+    order.push("stop");
+  });
+  TestValidator.equals(
+    "shadow disposal event precedes the renderer disposal request",
+    order,
+    ["stop", "shadow", "renderer"],
+  );
+  TestValidator.equals(
+    "mounted shadow slot is retired",
+    light.shadow.map,
+    null,
+  );
+  const failedTarget: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(
+    4,
+    4,
+  );
+  light.shadow.map = failedTarget;
+  failedTarget.addEventListener("dispose", (): void => {
+    order.push("shadow failure");
+    throw second;
+  });
+  mounted.renderer.dispose = (): void => {
+    order.push("renderer failure");
+    throw third;
+  };
+  aggregate = undefined;
+  try {
+    releaseMountedViewer(mounted.renderer, scene, (): void => {
+      order.push("stop failure");
+      throw first;
+    });
+  } catch (error) {
+    aggregate = error;
+  }
+  TestValidator.predicate(
+    "mounted independent failures stay in lifecycle order",
+    aggregate instanceof AggregateError &&
+      aggregate.errors.length === 3 &&
+      aggregate.errors[0] === first &&
+      aggregate.errors[1] === second &&
+      aggregate.errors[2] === third,
+  );
+  TestValidator.equals(
+    "failure cannot skip later mounted owners",
+    order.slice(-3),
+    ["stop failure", "shadow failure", "renderer failure"],
+  );
+  TestValidator.equals(
+    "failed mounted shadow retirement clears slot",
+    light.shadow.map,
+    null,
+  );
 }

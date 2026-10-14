@@ -14,7 +14,10 @@ const CAMERA: Parameters<typeof projectToNdc>[0] = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-const projected: (camera: THREE.PerspectiveCamera, point: THREE.Vector3) => THREE.Vector3 = (
+const projected: (
+  camera: THREE.PerspectiveCamera,
+  point: THREE.Vector3,
+) => THREE.Vector3 = (
   camera: THREE.PerspectiveCamera,
   point: THREE.Vector3,
 ): THREE.Vector3 => point.clone().project(camera);
@@ -33,7 +36,12 @@ const projected: (camera: THREE.PerspectiveCamera, point: THREE.Vector3) => THRE
  * @evidence contracts/testing.md#execution-ownership The named unit invokes portable crop resolution and native camera math directly using Three metadata objects. It starts no renderer, browser or GPU, and all predicate callbacks execute locally without extra registration.
  */
 export function test_viewer_delivery_crop(): void {
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(90, 2, 1, 10);
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    90,
+    2,
+    1,
+    10,
+  );
   camera.updateProjectionMatrix();
   const original: THREE.Matrix4Tuple = camera.projectionMatrix.toArray();
   applyAutoMovieDeliveryCrop(camera, undefined);
@@ -47,8 +55,12 @@ export function test_viewer_delivery_crop(): void {
   const explicit: THREE.Matrix4Tuple = camera.projectionMatrix.toArray();
   TestValidator.predicate(
     "omitted and explicit whole crops preserve the original matrix",
-    omitted.every((value: number, index: number): boolean => nclose(value, original[index]!, 0)) &&
-      explicit.every((value: number, index: number): boolean => nclose(value, original[index]!, 0)) &&
+    omitted.every((value: number, index: number): boolean =>
+      nclose(value, original[index]!, 0),
+    ) &&
+      explicit.every((value: number, index: number): boolean =>
+        nclose(value, original[index]!, 0),
+      ) &&
       readAutoMovieDeliveryCrop(camera) === undefined,
   );
   camera.setViewOffset(2, 1, 0, 0, 2, 1);
@@ -65,11 +77,14 @@ export function test_viewer_delivery_crop(): void {
     bottom: 0.9,
   };
   applyAutoMovieDeliveryCrop(camera, crop);
-  const observedCrop: IAutoMovieDeliveryCrop | undefined = readAutoMovieDeliveryCrop(camera);
+  const observedCrop: IAutoMovieDeliveryCrop | undefined =
+    readAutoMovieDeliveryCrop(camera);
   TestValidator.predicate(
     "the renderer exposes the same crop to downstream culling and LOD",
-    observedCrop !== undefined && nclose(observedCrop.left, crop.left) &&
-      nclose(observedCrop.top, crop.top) && nclose(observedCrop.right, crop.right) &&
+    observedCrop !== undefined &&
+      nclose(observedCrop.left, crop.left) &&
+      nclose(observedCrop.top, crop.top) &&
+      nclose(observedCrop.right, crop.right) &&
       nclose(observedCrop.bottom, crop.bottom),
   );
   const point: THREE.Vector3 = new THREE.Vector3(0.5, 0.25, -2);
@@ -83,8 +98,10 @@ export function test_viewer_delivery_crop(): void {
   );
   TestValidator.predicate(
     "off-axis viewer projection equals engine crop projection",
-    nclose(actual.x, 0.25) && nclose(actual.y, 0.15625) &&
-      nclose(expected.ndcX, 0.25) && nclose(expected.ndcY, 0.15625),
+    nclose(actual.x, 0.25) &&
+      nclose(actual.y, 0.15625) &&
+      nclose(expected.ndcX, 0.25) &&
+      nclose(expected.ndcY, 0.15625),
   );
 
   applyAutoMovieDeliveryCrop(camera, {
@@ -98,11 +115,13 @@ export function test_viewer_delivery_crop(): void {
     namedFacts([
       [
         "left",
-        (): boolean => nclose(projected(camera, new THREE.Vector3(0, 0, -2)).x, -1),
+        (): boolean =>
+          nclose(projected(camera, new THREE.Vector3(0, 0, -2)).x, -1),
       ],
       [
         "right",
-        (): boolean => nclose(projected(camera, new THREE.Vector3(4, 0, -2)).x, 1),
+        (): boolean =>
+          nclose(projected(camera, new THREE.Vector3(4, 0, -2)).x, 1),
       ],
     ]),
     { left: true, right: true },
@@ -118,13 +137,14 @@ export function test_viewer_delivery_crop(): void {
         bottom: 1,
       }),
     ) &&
-      throwsError((): IAutoMovieDeliveryCrop =>
-        resolveAutoMovieDeliveryCrop({
-          left: 0,
-          top: Number.POSITIVE_INFINITY,
-          right: 1,
-          bottom: 1,
-        }),
+      throwsError(
+        (): IAutoMovieDeliveryCrop =>
+          resolveAutoMovieDeliveryCrop({
+            left: 0,
+            top: Number.POSITIVE_INFINITY,
+            right: 1,
+            bottom: 1,
+          }),
       ),
   );
 }
