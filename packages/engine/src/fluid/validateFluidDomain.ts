@@ -16,35 +16,28 @@ import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES
 import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
+/** Closed boundary vocabulary read by the four edge checks; module-owned constant-size lookup with no mutation after construction. */
 const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
 
-const EDGES = ["xMin", "xMax", "zMin", "zMax"] as const;
+/** Every solver edge, visited in diagnostic order without building per-domain key lists. */
+const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = ["xMin", "xMax", "zMin", "zMax"];
 
 /**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
- * A domain which survives this pass can be integrated by `simulateFluidDomain`
- * without the solver second-guessing its input: the arrays hold one value per
- * cell, no depth is negative or deeper than the design depth the Courant
- * number was checked against, no source, drain or spray sits on solid matter,
- * and the explicit step is stable. A domain that fails is refused with the
- * path of every offending field, never clamped, because a clamped basin is a
- * basin whose author was told nothing and whose frames changed anyway.
+ * For a structurally typed domain, checks schema/id, safe positive grid counts, finite authored scalars, count budgets, per-cell array lengths/values, boundary vocabulary, nonsolid source/drain/spray sites, activity windows and sibling identities. Initial depths must lie in [0, referenceDepth], and solid cells must start dry. Violations retain field paths and authored values; inputs are not modified.
  *
- * Stability is judged only once its five inputs are finite and positive, so a
- * broken step, gravity, design depth or cell size is named at its own field
- * rather than also as an instability; with valid inputs, a Courant number that
- * overflows to infinity is refused like any other above one.
+ * The Courant comparison runs only when its five authored inputs are finite and positive. A computed value above one, including Infinity, is refused; derived NaN is missed by that comparison. Admission also does not bound finite area, damping, clock, flow accumulation or spray-index products, and later water depth may exceed referenceDepth. It does not certify every derived solver/surface/spray result or perform general unknown-object shape admission.
  *
- * @evidence contracts/common.md#principled-implementation Applies the explicit gravity-wave Courant bound `dt·sqrt(g·H)·sqrt(1/dx² + 1/dz²) <= 1` from `fluidCourantNumber` at the declared design depth, and pins every field the solver indexes or divides by to the range the integrator assumes, relying on the validator, not the solver, to reject inconsistent records.
+ * @evidence contracts/common.md#principled-implementation Checks authored scalar domains, indexed-array cardinality and population/site constraints before callers integrate. The design-depth Courant expression is rejected only when greater than one; representable intermediate arithmetic, future depth stability and valid object structure remain premises rather than guarantees of this pass.
  * @evidence contracts/common.md#clear-and-simple-design One linear pass per field group with private helpers for integer, length, budget, identity, cell-site and activity-window rules; finite intervals use the shared `validateRange` and blank ids the collector's `nonEmpty`, so no range or blank rule is restated here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No value is clamped or defaulted; budgets are the named `FLUID_MAX_*` constants, and the cell budget compares a finite product rather than a safe integer so a lattice too large to count exactly is still refused.
- * @evidence contracts/common.md#meaningful-documentation States what an accepted domain guarantees the solver, that failures carry every offending path, and when stability is judged, including the overflowing Courant number.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the declared cells plus sources, drains and sprays, each visited once, with id sets giving constant-time duplicate checks; the cell budget is checked before nothing else depends on it, because each per-cell array must be read once anyway to name its bad entries.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No authored value is clamped or defaulted; named budgets apply uniformly. A broken referenceDepth uses Infinity only as the depth-check ceiling to avoid repeated dependent findings. Finite cell products past the budget are refused even outside safe-integer precision, while the derived-NaN Courant bypass remains unresolved.
+ * @evidence contracts/common.md#meaningful-documentation Gives the field groups checked, path/value preservation, typed-object premise and the derived arithmetic/depth limits that admission leaves to consumers.
+ * @evidence contracts/performance.md#efficient-algorithms Time is linear in actual bed/depth/solid array lengths, source/drain/spray counts and id text, even when declared counts are invalid or over budget. Full array scans name bad entries after cardinality/budget findings; id sets avoid sibling rescans, and findings plus distinct ids determine temporary/result storage.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single validation pass per call; nothing is shared across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the collector and id sets die with the call, and the returned violations, at most a few per declared field, belong to the caller.
  */
-export const validateFluidDomain = (props: {
+export const validateFluidDomain: (props: { domain: IAutoMovieFluidDomain }) => IAutoMovieValidation = (props: {
   domain: IAutoMovieFluidDomain;
 }): IAutoMovieValidation => {
   const domain: IAutoMovieFluidDomain = props.domain;
@@ -105,8 +98,8 @@ export const validateFluidDomain = (props: {
   positive(out, `${root}.solver.referenceDepth`, "reference depth", solver.referenceDepth);
   integer(out, `${root}.solver.maxSteps`, "max steps", solver.maxSteps, 1, FLUID_MAX_STEPS);
 
-  // Judged only when every input is usable, so a broken input is named once at
-  // its own field; with usable inputs an overflow to infinity is unstable too.
+  // Bad authored operands are reported at their fields. Infinity exceeds this
+  // comparison, but NaN from extreme finite intermediates currently bypasses it.
   const courant: number = fluidCourantNumber(domain);
   if (
     [
@@ -234,8 +227,8 @@ export const validateFluidDomain = (props: {
         "spray seed must be a safe integer",
         spray.seed,
       );
-    // Measured with `Vector3.length`, as `sampleFluidSpray` normalizes it, so a
-    // finite axis whose squared length under- or overflows is still a direction.
+    // Match the sampler's norm helper, including its hypot fallback for failed
+    // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
     if (
       !Number.isFinite(axis.x) ||
@@ -254,16 +247,16 @@ export const validateFluidDomain = (props: {
   return out.toValidation();
 };
 
-/** A finite scalar strictly above zero. */
-const positive = (
+/** Append the shared finite, open-lower-bound range finding; scalar work has the diagnostic conversion costs of validateRange and mutates only the borrowed collector. */
+const positive: (out: ViolationCollector, path: string, label: string, value: number) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
   value: number,
 ): void => validateRange(value, path, 0, Infinity, label, out.items, false);
 
-/** A safe integer inside `[min, max]`. */
-const integer = (
+/** Require a safe integer inside inclusive bounds; one constant-work predicate appends at most one finding without clamping. */
+const integer: (out: ViolationCollector, path: string, label: string, value: number, min: number, max: number) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -280,8 +273,8 @@ const integer = (
     );
 };
 
-/** A cell-indexed array whose length must equal the lattice's cell count. */
-const length = (
+/** Compare actual length with the computed cell count, appending at most one finding even for an unusable count; no array is traversed or resized here. */
+const length: (out: ViolationCollector, path: string, label: string, actual: number, cells: number) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -297,8 +290,8 @@ const length = (
     );
 };
 
-/** A declared collection that must stay inside its budget. */
-const count = (
+/** Append one range finding and overshoot when an actual collection length exceeds its named budget; constant scalar work leaves the collection unchanged. */
+const count: (out: ViolationCollector, path: string, label: string, actual: number, budget: number) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -315,8 +308,8 @@ const count = (
     );
 };
 
-/** A non-empty id that has not already been used by a sibling. */
-const identity = (
+/** Check blank text and sibling duplication, then add the exact id to the call-owned set. Text trimming/hashing scales with id length; blank siblings receive blank findings without duplicate findings. */
+const identity: (out: ViolationCollector, path: string, label: string, id: string, seen: Set<string>) => void = (
   out: ViolationCollector,
   path: string,
   label: string,
@@ -329,8 +322,8 @@ const identity = (
   seen.add(id);
 };
 
-/** A cell index pair that lands inside the lattice and not on solid matter. */
-const site = (
+/** Check each safe integer coordinate before reading solidity; an in-grid solid site appends a separate finding. Constant work borrows the domain and collector without retaining them. */
+const site: (out: ViolationCollector, path: string, domain: IAutoMovieFluidDomain, column: number, row: number) => void = (
   out: ViolationCollector,
   path: string,
   domain: IAutoMovieFluidDomain,
@@ -359,12 +352,12 @@ const site = (
     );
 };
 
-/** Whether one lattice index is an in-range cell coordinate. */
-const inside = (value: number, limit: number): boolean =>
+/** Constant-work safe-index predicate used before solidity lookup; the limit is the authored count and is admitted separately. No state is retained. */
+const inside: (value: number, limit: number) => boolean = (value: number, limit: number): boolean =>
   Number.isSafeInteger(value) && value >= 0 && value < limit;
 
-/** An activity window whose end, when given, is strictly after its start. */
-const window = (
+/** Check finite nonnegative endpoints and strict end-after-start ordering; null end is unbounded. Scalar checks append their own findings without mutating the window or repeating ordering errors for non-finite endpoints. */
+const window: (out: ViolationCollector, path: string, start: number, end: number | null) => void = (
   out: ViolationCollector,
   path: string,
   start: number,

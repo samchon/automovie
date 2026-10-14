@@ -15,6 +15,7 @@ import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 
+/** Closed authoring labels for water bindings; the module owns this fixed lookup and no solver behavior is selected by kind. */
 const FEATURE_KINDS: ReadonlySet<string> = new Set([
   "pond",
   "channel",
@@ -24,6 +25,7 @@ const FEATURE_KINDS: ReadonlySet<string> = new Set([
   "other",
 ]);
 
+/** Accepted mode strings; lowerWaterFeature owns their clock interpretation, while this fixed module lookup only admits vocabulary. */
 const FEATURE_MODES: ReadonlySet<string> = new Set([
   "static",
   "flowing",
@@ -31,38 +33,25 @@ const FEATURE_MODES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Validate the bindings that make independent fluid domains a building's water
- * features.
+ * Validate bindings between independent fluid domains and a building's water features.
  *
- * This is the seam, and it is deliberately one-directional: the architecture
- * record knows nothing about fluid, and the fluid record knows nothing about
- * architecture. The feature is the only place the two names meet, so this is
- * the only place their agreement can be checked: that the cited space is a
- * real logical space of the cited building, that every rim boundary really
- * bounds that space rather than some other room, that the cited domain exists
- * and is itself valid, and that the lattice actually sits inside the basin
- * instead of overhanging a room the author never meant to flood.
+ * Joins a feature's environment, space, rim and domain ids without adding architecture fields to fluid domains. The supplied environment must already be structurally admitted; space and boundary maps resolve duplicate ids last-wins without validating those environment identities here. Rim membership uses the boundary's spaces list, and material checks reject blank ids without resolving a material catalogue.
  *
- * Every supplied domain is validated with `validateFluidDomain`, cited or not,
- * and its violations are re-pathed to `$input.domains[i]`; duplicate domain
- * ids are refused and the last one with an id is the one features resolve to.
+ * Every supplied domain is validated with validateFluidDomain, cited or not, and violations are re-pathed to $input.domains[i]. Duplicate domain ids are refused; features resolve both domain and validation verdict from the last record with that id.
  *
- * A basin declared as a purely semantic container (a logical space that states
- * no volume at all) is not geometrically checked: there is no volume to check
- * against, and inventing one would be the design deciding a fact the author
- * did not state. Neither is a domain that already failed its own validation:
- * an unusable grid has no lattice to place, and reporting where its cells fell
- * would be a second answer derived from the first bad one.
+ * A volume-less root basin and a domain rejected by validateFluidDomain skip geometry. Other bindings test cell centres at origin.y + bed against the root/descendant spaces using builtSpaceContainsPoint's numerical tolerances. The test does not measure the full cell footprint or water height.
  *
- * @evidence contracts/common.md#principled-implementation Resolves every cited name through id maps of the environment and the supplied domains, checks rim membership through each boundary's own `spaces`, and tests lattice cell centres at bed height for containment in the basin subtree, using only the corner cells for a convex basin, where a rectangle's corners decide containment exactly, and every cell otherwise.
+ * A root with one convex cell selects only the four corner bed points. Arbitrary interior bed elevations need not lie in their convex hull, so this shortcut misses an interior excursion such as the existing 3-by-3 centre-bed regression. The exhaustive branch checks every bed point for other root spellings; neither branch certifies all future solved surfaces fit the basin.
+ *
+ * @evidence contracts/common.md#principled-implementation Resolves supplied ids through maps, checks boundary membership, and applies shared space containment to selected bed centres in the basin subtree. A convex root selects corners, but varying bed height breaks the assumed planar rectangle and can leave interior violations undetected; shared containment also retains its binary64 and tolerance limits.
  * @evidence contracts/common.md#clear-and-simple-design The binding validator owns only cross-record agreement; domain soundness is delegated to `validateFluidDomain` and re-pathed rather than re-worded, and geometry to the shared space predicates, so each rule has one owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Volume-less basins and unsound domains are skipped for geometry as stated rules with reasons, not to silence a fixture, and no kind, mode or environment is special-cased beyond the interface's closed vocabularies.
- * @evidence contracts/common.md#meaningful-documentation States the one-directional seam, every agreement checked, how domains are validated and re-pathed and which duplicate wins, and the two geometry skips with their reasons.
- * @evidence contracts/performance.md#efficient-algorithms Id maps make each name lookup constant time, each domain is validated once per call in time linear in its lattice, and the basin subtree is resolved once per feature before the cell walk, so geometry costs the corner cells or all cells times the subtree's spaces rather than also rescanning every space per cell.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Volume-less roots and rejected domains skip geometry by explicit policy, with no fixture-specific exceptions. The convex-corner shortcut keeps a disproven premise for arbitrary bed heights and remains a pending behavioral correction; it is not an exact containment certificate.
+ * @evidence contracts/common.md#meaningful-documentation Gives binding checks, environment/material admission limits, duplicate resolution and domain re-pathing, geometry skips and the precise bed-centre/corner coverage gap.
+ * @evidence contracts/performance.md#efficient-algorithms Maps require O(spaces + boundaries + domains) entries before domain validation and feature/rim walks; each rim membership check scans the cited boundary's spaces list, and id/text handling adds string costs. Per measured feature, subtree indexing/filtering scans all spaces; K selected points then scan descendant volumes with their plane/triangle costs. K is four corner visits or all cells, with per-row span allocation in the exhaustive branch. Domain scans use actual array and flow lengths even for over-budget records.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one call each domain is validated once and its verdict reused by every feature that cites it; across calls nothing is shared, so the production layer, which calls this once per environment with every declared domain, re-validates and re-reports each domain per environment that binds water, a duplication left to that orchestration.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the maps, sets and collector die with the call, and the returned violations belong to the caller.
  */
-export const validateWaterFeatures = (props: {
+export const validateWaterFeatures: (props: { environment: IAutoMovieBuiltEnvironment; features: IAutoMovieWaterFeature[]; domains: IAutoMovieFluidDomain[] }) => IAutoMovieValidation = (props: {
   environment: IAutoMovieBuiltEnvironment;
   features: IAutoMovieWaterFeature[];
   domains: IAutoMovieFluidDomain[];
@@ -233,11 +222,8 @@ export const validateWaterFeatures = (props: {
         environment,
         space: feature.space,
         domain,
-        // One convex cell is decided exactly by the lattice's own corners; a
-        // basin written as several cells, or as a boundary shell, is not
-        // convex, and there the corners only say the ends of the lattice are
-        // somewhere in the room while its middle may stand over the notch
-        // between two of them, or over an atrium void cut through the basin.
+        // Root convexity currently chooses the corner shortcut. Interior bed
+        // heights can still leave that root; other spellings take the full walk.
         exhaustive: builtSpaceIsConvex(space) === false,
       });
       if (stray !== null)
@@ -256,19 +242,11 @@ export const validateWaterFeatures = (props: {
 /**
  * The first bed point of the lattice standing outside the basin, or `null`.
  *
- * The points measured are cell centres, because that is where the water is:
- * the free surface carries one vertex per cell at its centre, so the drawn
- * water never reaches past the outermost centres and a rim half a cell wide is
- * not flooded by arithmetic nobody authored. A point is inside when the basin
- * space or any space below it contains it, the same fold
- * `builtEnvironmentContainsPoint` applies, with the subtree resolved once.
+ * Measures origin plus each selected cell centre's X/Z and authored bed Y, not the depth-shifted water surface or cell footprint. A point is accepted when any root/descendant volume accepts it; subtree membership is built once and volume predicates retain their own numerical limits.
  *
- * `exhaustive` walks every cell; otherwise only the corner cells are measured,
- * which decides a rectangle against a single convex region exactly. The
- * caller pays the full walk exactly when the basin is not convex, and only for
- * a domain whose own cell budget has already been enforced.
+ * `exhaustive` walks row-major cells; otherwise two endpoints per axis produce four visits, repeating endpoints on singleton axes. Arbitrary bed heights invalidate the corner branch's full-lattice inference. The caller supplies a domain admitted by validateFluidDomain; per-call sets/span arrays become collectible on return, while the returned stray point belongs to the caller. Work is subtree construction plus selected points times volume-predicate cost; exhaustive column spans are rebuilt per row.
  */
-const strayCell = (props: {
+const strayCell: (props: { environment: IAutoMovieBuiltEnvironment; space: string; domain: IAutoMovieFluidDomain; exhaustive: boolean }) => IAutoMovieVector3 | null = (props: {
   environment: IAutoMovieBuiltEnvironment;
   space: string;
   domain: IAutoMovieFluidDomain;
@@ -282,7 +260,8 @@ const strayCell = (props: {
   const basin: IAutoMovieBuiltSpace[] = props.environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => included.has(space.id),
   );
-  const span = (length: number): number[] =>
+  /** Allocate all indices or the two endpoints of one admitted axis; the row loop calls this again for each column span, so arrays are not shared across rows. */
+  const span: (length: number) => number[] = (length: number): number[] =>
     props.exhaustive
       ? Array.from({ length }, (_: unknown, at: number): number => at)
       : [0, length - 1];

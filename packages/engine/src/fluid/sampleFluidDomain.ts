@@ -6,23 +6,21 @@ import {
 import { simulateFluidDomain } from "./simulateFluidDomain";
 
 /**
- * Sample a fluid domain at a shot second, snapping down to its fixed step.
+ * Sample a fluid domain at a shot second using its fixed-step clock.
  *
- * The snap is what makes playback frame-rate independent: captures at 24 and
- * 30 fps read the same integrated state whenever they land inside the same
- * step, instead of each integrating a different number of times. A negative
- * second reads step 0, and a second whose step is past `solver.maxSteps`
- * throws from `simulateFluidDomain`, as does a non-finite second here.
+ * The selected step is `floor(max(time, 0) / fixedStepSeconds + 1e-9)`. The step-fraction allowance can advance a time just before a boundary as well as compensate division roundoff; this is not an unconditional floor of the original quotient. Equivalent converted steps use the same stateless solve regardless of playback frame rate.
  *
- * @evidence contracts/common.md#principled-implementation Floors `time / fixedStepSeconds` with a `1e-9` step-fraction allowance, so a frame time that lands on a step boundary but rounds just below it in binary still reads that step rather than the one before.
+ * A finite negative second reads step 0 for an admitted domain. Non-finite time throws here, while an invalid or over-budget converted step throws from `simulateFluidDomain`. Domain admission and the integrator's numerical limits still apply.
+ *
+ * @evidence contracts/common.md#principled-implementation Rejects non-finite time, clamps finite negative time to zero, then floors the quotient plus 1e-9. The allowance shifts each representable boundary slightly earlier, so matching converted steps select the same state without asserting exact floor semantics or cross-host identity.
  * @evidence contracts/common.md#clear-and-simple-design Owns only the second-to-step conversion and delegates the solve to `simulateFluidDomain`, so a seek by step and a seek by second share one integrator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The `1e-9` allowance is a fraction of one step absorbing binary rounding of the division, far below any frame interval; negative time is clamped to the start as the domain's state before it runs, and no domain or frame rate is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the snap direction and why it gives frame-rate independence, and what a negative, non-finite and over-budget second each do.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Constant work before delegating; the integration cost is answered on `simulateFluidDomain`.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The fixed 1e-9 step-fraction allowance and negative-time clamp are explicit clock policy for all domains; the allowance is not a measured error bound and may change a genuinely pre-boundary sample.
+ * @evidence contracts/common.md#meaningful-documentation Gives the exact conversion formula, pre-boundary allowance, frame-rate-independent step selection, caller admission and negative/non-finite/over-budget behavior.
+ * @evidence contracts/performance.md#efficient-algorithms Conversion takes constant work; replay costs O(cells + faces + step * (cells + faces + sources + drains)) time and O(cells + faces) storage, including allocation and final copying at step zero.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shares nothing across calls; the stateless replay and its cost are answered on `simulateFluidDomain`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned state is the integrator's fresh record.
  */
-export const sampleFluidDomain = (
+export const sampleFluidDomain: (domain: IAutoMovieFluidDomain, time: number) => IAutoMovieFluidState = (
   domain: IAutoMovieFluidDomain,
   time: number,
 ): IAutoMovieFluidState => {

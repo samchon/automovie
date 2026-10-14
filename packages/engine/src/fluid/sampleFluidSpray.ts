@@ -10,50 +10,35 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { seededValue } from "../math/seededValue";
 
+/** Domain salts separate the three seeded component samples without retaining a random stream. */
 const JITTER_X: number = 0x73707278;
+/** Y component salt used with the same emitter seed and spawn index. */
 const JITTER_Y: number = 0x73707279;
+/** Z component salt used with the same emitter seed and spawn index. */
 const JITTER_Z: number = 0x7370727a;
 
 /**
  * Sample the decorative spray of a fluid domain at one solved state.
  *
- * Spray is the garnish, not the water: a jet's mist and the curtain at the foot
- * of a water wall read as motion without ever entering or leaving the
- * conserved depth field, which is why the mass balance stays a statement about
- * the solver alone.
+ * Decorative particles do not change depths or volume ledgers. The supplied state and domain must have matching ids; that check alone does not establish state provenance, array layout or finite fields.
  *
- * A particle's whole life is a function of the emitter seed and its spawn
- * index, so seeking to a time reproduces exactly the set that playing straight
- * through would have shown. Particle `i` is launched at `i / rate` seconds from
- * the free surface above the emitter's cell, then follows the ballistic arc
- * `p = p₀ + d·speed·age − ½·g·age²·ŷ` for `lifetime` seconds, where `d` is the
- * unit emitter axis plus seeded jitter of up to `spread` per component,
- * renormalized.
+ * Particle i has nominal birth i / rate and age time - i / rate. Its position is `p0 + direction * speed * age - gravity * age² / 2 * y`, where p0 is the emitter cell's free surface in the supplied current state, shared by all its particles. Historical spawn heights are not reconstructed. Direction normalizes the axis, adds seeded per-component jitter scaled by spread, then normalizes again.
  *
- * The live set is bounded twice. Distance thins it deterministically by keeping
- * every `1 + floor(cameraDistance / lodDistance)`-th index, so a fountain seen
- * from across a courtyard costs a fraction of the same fountain seen from its
- * rim, and the hard `maxParticles` cap then keeps the newest survivors.
- * Particles are returned per emitter in declaration order and, within one
- * emitter, in spawn order. Both bounds are enforced here rather than trusted to
- * the renderer, so the CPU reference and any GPU projection agree on how many
- * particles exist.
+ * LOD keeps spawn indices divisible by `1 + floor(max(cameraDistance, 0) / lodDistance)`; the maxParticles cap then keeps the newest survivors. This assumes representable live-window and stride arithmetic.
  *
- * Throws when the state was not solved from this domain, because the nozzle
- * stands at the free surface and a foreign state puts every jet at a depth
- * that lattice never had, and when the camera distance is not a real number,
- * which would otherwise thin the live set to nothing and read as a fountain
- * that stopped. A negative distance thins nothing.
+ * Particles are returned per emitter in declaration order and, for representable indices, in increasing spawn order. LOD and caps are applied in the CPU sample; this does not prove GPU display agreement.
  *
- * @evidence contracts/common.md#principled-implementation Closed-form ballistic motion from a seeded spawn index, so a particle's position is a pure function of emitter, index and the state's snapped time; the axis is normalized with `Vector3.length`, which stays exact for finite axes whose squared length would under- or overflow, matching the validator's direction rule.
- * @evidence contracts/common.md#clear-and-simple-design The public function owns the domain and distance checks, a private `emit` owns one emitter's live window, LOD stride and cap, and `jitter` owns the launch direction; spray never touches the depth field the solver conserves.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The near-end clamp of a negative distance is stated with its reason, the cap is a declared field, and no emitter, domain or distance is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the ballistic law and the launch direction, both live-set bounds, the output order, and each refusal with its reason.
- * @evidence contracts/performance.md#efficient-algorithms Each emitter walks only multiples of its LOD stride, newest first, and stops at its cap, so the work per emitter is at most `min(maxParticles, live / stride) + 1` particles regardless of how long its history or how far the camera; total work is linear in the returned particles plus the emitter count.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call derives its particles from the state and the emitters alone and caches nothing, which is what keeps a seek identical to playback.
+ * Throws for a mismatched state domain id or non-finite camera distance. Negative distance uses the nearest LOD, and omitted distance defaults to zero. Caller-run domain admission remains required; finite authored fields do not prove finite/safe spawn indices, finite stride or ballistic arithmetic, or a finite nonzero jitter norm. Those derived values are not checked here.
+ *
+ * @evidence contracts/common.md#principled-implementation Uses seeded index jitter and closed-form ballistic age, with nozzle height from the current supplied depth rather than spawn history. Vector3.length avoids many square overflow/underflow cases through Math.hypot fallback, but a finite axis can still have an unrepresentable norm; index, jitter and position arithmetic have no separate finite gate.
+ * @evidence contracts/common.md#clear-and-simple-design The public function owns domain-id and distance checks, emit owns one emitter's live window/LOD/cap, and jitter owns direction; decorative sampling does not mutate the solver's depth field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Negative distance is clamped to the nearest LOD and age is clamped at zero after rounded spawn-window arithmetic. These apply uniformly rather than selecting fixtures; unsafe/non-finite index and direction outcomes remain unresolved, and the age clamp is not a complete lifetime-error bound.
+ * @evidence contracts/common.md#meaningful-documentation Gives the ballistic law, current-state nozzle choice, seeded direction, LOD/cap/order, exact identity and distance checks, caller admission and unchecked derived-value limits.
+ * @evidence contracts/performance.md#efficient-algorithms Each emitter jumps directly between kept stride multiples newest-first, stops after maxParticles appends and reverses only those survivors. With admitted integer caps, work/storage are O(emitters + returned particles) and O(returned particles), bounded by summed caps even when floating-point indices lose progress; correctness of distinct live indices still requires representable arithmetic.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work No cross-call cache or random stream is owned; unchanged domain, full state and camera distance reproduce this operation order, while equal step/id alone does not prove those mutable inputs equivalent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned sample owns at most `maxParticles` particles per emitter, and the per-emitter scratch list dies with the call.
  */
-export const sampleFluidSpray = (props: {
+export const sampleFluidSpray: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState; cameraDistance?: number }) => IAutoMovieFluidSpraySample = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
   /** Camera distance in metres driving LOD thinning; defaults to `0`. */
@@ -77,8 +62,10 @@ export const sampleFluidSpray = (props: {
   return { step: state.step, time, particles };
 };
 
-/** Append one emitter's live, LOD-thinned, capped particles in spawn order. */
-const emit = (props: {
+/**
+ * Append one emitter's newest stride-selected survivors, reversing the local list for increasing index order when indices are representable. The nozzle uses the current state's depth; age/window products and ballistic values are not validated. One axis norm/nozzle is shared within the emitter, and admitted maxParticles bounds appends even if unsafe integer subtraction stops advancing. Scratch storage becomes collectible on return; appended particles belong to the caller's output list.
+ */
+const emit: (props: { domain: IAutoMovieFluidDomain; state: IAutoMovieFluidState; spray: IAutoMovieFluidSpray; time: number; cameraDistance: number; particles: IAutoMovieFluidSprayParticle[] }) => void = (props: {
   domain: IAutoMovieFluidDomain;
   state: IAutoMovieFluidState;
   spray: IAutoMovieFluidSpray;
@@ -94,10 +81,8 @@ const emit = (props: {
     y: domain.grid.origin.y + domain.bed[cell]! + props.state.depth[cell]!,
     z: domain.grid.origin.z + (spray.row + 0.5) * domain.grid.cellZ,
   };
-  // Clamped at the near end so a caller that hands back a signed depth rather
-  // than a distance thins nothing instead of everything: an unclamped negative
-  // gives a stride of zero, and `index % 0` is NaN, which silently rejects
-  // every particle and reads as "the fountain stopped".
+  // Negative distance uses the nearest LOD. Without clamping it could produce
+  // a nonpositive stride; the finite quotient can still overflow here.
   const stride: number =
     1 + Math.floor(Math.max(0, props.cameraDistance) / spray.lodDistance);
   const newest: number = Math.floor(props.time * spray.rate);
@@ -118,9 +103,8 @@ const emit = (props: {
     index -= stride
   ) {
     if (collected.length === spray.maxParticles) break;
-    // `oldest < index <= time·rate` is the exact integer statement of "alive
-    // for less than `lifetime`", so aliveness needs no second test; the clamp
-    // only absorbs a rounding ulp in `floor(time·rate)`.
+    // The rounded integer window approximates birth <= time < birth + lifetime.
+    // Clamp negative computed age; there is no second lifetime or finite check.
     const age: number = Math.max(0, props.time - index / spray.rate);
     const direction: IAutoMovieVector3 = jitter(spray, axis, axisLength, index);
     collected.push({
@@ -142,8 +126,10 @@ const emit = (props: {
     props.particles.push(collected[at]!);
 };
 
-/** The unit launch direction of one particle: the unit jet axis plus seeded jitter. */
-const jitter = (
+/**
+ * Normalize the axis using the per-emitter borrowed norm, add three domain-salted seeded components, then normalize the result. Constant scalar work allocates one direction with no random-stream state. A finite nonzero axis norm and finite nonzero jitter norm are premises, not checks made here; invalid derived norms can yield nonunit or non-finite directions.
+ */
+const jitter: (spray: IAutoMovieFluidSpray, axis: IAutoMovieVector3, axisLength: number, index: number) => IAutoMovieVector3 = (
   spray: IAutoMovieFluidSpray,
   axis: IAutoMovieVector3,
   axisLength: number,
