@@ -1,6 +1,6 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
-import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "../assembly/IAutoMovieHumanBodyNativeSubcutaneousSource";
 
+import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "../assembly/IAutoMovieHumanBodyNativeSubcutaneousSource";
 import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInput";
 
 /**

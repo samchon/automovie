@@ -1,12 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBoneTransform } from "../../../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
-import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
 import type { IAutoMovieHumanBodySourcePublicPoseJoint } from "./IAutoMovieHumanBodySourcePublicPoseJoint";
+import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import type { IAutoMovieHumanBodySourceSite } from "./IAutoMovieHumanBodySourceSite";
 import { hasHumanBodySourceLocalGoal } from "./hasHumanBodySourceLocalGoal";
 import { readHumanBodySourceAxis } from "./readHumanBodySourceAxis";
@@ -38,7 +42,9 @@ export function resolveHumanBodySourceAxes(
           parent.posed.rotation,
           Quaternion.inverse(parent.rest.rotation),
         );
-  const carry: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+  const carry: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     parent === undefined
       ? { ...point }
       : Vector3.add(
@@ -61,7 +67,9 @@ export function resolveHumanBodySourceAxes(
           (one: IAutoMovieJointPose): boolean =>
             one.bone === joint.bone &&
             joint.supportedAxes.some(
-              (axis: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number]): boolean => one[axis] !== null && one[axis] !== undefined,
+              (
+                axis: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number],
+              ): boolean => one[axis] !== null && one[axis] !== undefined,
             ),
         )
       )
@@ -90,12 +98,19 @@ export function resolveHumanBodySourceAxes(
     }
     const projection: IAutoMovieHumanBodySourceProjection | undefined =
       joint.reference ??
-      node.projections.find((one: IAutoMovieHumanBodySourceProjection): boolean => one.bone === joint.bone);
+      node.projections.find(
+        (one: IAutoMovieHumanBodySourceProjection): boolean =>
+          one.bone === joint.bone,
+      );
     if (projection === undefined)
       throw new Error(
         "Anatomical public pose lacks its same-node projection: " + node.id,
       );
-    const publicTurn: IAutoMovieQuaternion = readHumanBodySourcePublicPose(joint, input, used);
+    const publicTurn: IAutoMovieQuaternion = readHumanBodySourcePublicPose(
+      joint,
+      input,
+      used,
+    );
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       projection.rotation,
       Quaternion.multiply(publicTurn, Quaternion.inverse(projection.rotation)),
@@ -103,7 +118,10 @@ export function resolveHumanBodySourceAxes(
     const origin: IAutoMovieVector3 =
       projection.site === undefined
         ? Vector3.create(0, 0, 0)
-        : node.sites.find((one: IAutoMovieHumanBodySourceSite): boolean => one.id === projection.site)!.position;
+        : node.sites.find(
+            (one: IAutoMovieHumanBodySourceSite): boolean =>
+              one.id === projection.site,
+          )!.position;
     const moved: IAutoMovieVector3 = Vector3.add(
       node.rest.position,
       Quaternion.rotateVector(
@@ -129,7 +147,10 @@ export function resolveHumanBodySourceAxes(
     const delta: number =
       readHumanBodySourceAxis(node.id, axis, input, used) - axis.neutral;
     if (axis.kind === "rotation") {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(axis.direction, delta);
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        axis.direction,
+        delta,
+      );
       const origin: IAutoMovieVector3 = axis.origin ?? Vector3.create(0, 0, 0);
       translation = Vector3.add(
         translation,

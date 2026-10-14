@@ -2,8 +2,8 @@ import typia from "typia";
 
 import type { AutoMovieHumanBodyPartId } from "../identity/AutoMovieHumanBodyPartId";
 import { HUMAN_BODY_REGION_PART_RESOLVERS } from "./HUMAN_BODY_REGION_PART_RESOLVERS";
-import type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyGeneratedAnatomy";
 import type { IAutoMovieHumanBodyAnatomicalUnavailable } from "./IAutoMovieHumanBodyAnatomicalUnavailable";
+import type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyGeneratedAnatomy";
 import type { IAutoMovieHumanBodyPartResolution } from "./IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "./IAutoMovieHumanBodyRegionPartsInput";
 
@@ -24,7 +24,10 @@ import type { IAutoMovieHumanBodyRegionPartsInput } from "./IAutoMovieHumanBodyR
 export function assembleHumanBodyGeneratedAnatomy(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): IAutoMovieHumanBodyGeneratedAnatomy {
-  const answered: Map<AutoMovieHumanBodyPartId, IAutoMovieHumanBodyPartResolution> = new Map();
+  const answered: Map<
+    AutoMovieHumanBodyPartId,
+    IAutoMovieHumanBodyPartResolution
+  > = new Map();
   for (const resolve of HUMAN_BODY_REGION_PART_RESOLVERS)
     for (const part of resolve(input)) {
       if (answered.has(part.id))
@@ -39,14 +42,26 @@ export function assembleHumanBodyGeneratedAnatomy(
     },
     parts: typia.assertEquals<IAutoMovieHumanBodyGeneratedAnatomy["parts"]>(
       Object.fromEntries(
-        typia.reflect.literals<AutoMovieHumanBodyPartId>().map((id: AutoMovieHumanBodyPartId): [AutoMovieHumanBodyPartId, IAutoMovieHumanBodyPartResolution | IAutoMovieHumanBodyAnatomicalUnavailable<AutoMovieHumanBodyPartId>] => [
-          id,
-          answered.get(id) ?? {
-            id,
-            status: "unavailable",
-            reason: "geometry-not-validated",
-          },
-        ]),
+        typia.reflect
+          .literals<AutoMovieHumanBodyPartId>()
+          .map(
+            (
+              id: AutoMovieHumanBodyPartId,
+            ): [
+              AutoMovieHumanBodyPartId,
+              (
+                | IAutoMovieHumanBodyPartResolution
+                | IAutoMovieHumanBodyAnatomicalUnavailable<AutoMovieHumanBodyPartId>
+              ),
+            ] => [
+              id,
+              answered.get(id) ?? {
+                id,
+                status: "unavailable",
+                reason: "geometry-not-validated",
+              },
+            ],
+          ),
       ),
     ),
   };

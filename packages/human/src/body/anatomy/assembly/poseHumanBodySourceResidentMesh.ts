@@ -1,5 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBoneTransform } from "../../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
@@ -30,17 +34,26 @@ export function poseHumanBodySourceResidentMesh(
   member: string,
   refuse: (reason: string) => never,
 ): IAutoMovieMesh {
-  const transforms: (IAutoMovieHumanBodyBoneTransform & { rotation: IAutoMovieQuaternion })[] = binding.bones.map((bone: AutoMovieHumanBodyBoneId): IAutoMovieHumanBodyBoneTransform & { rotation: IAutoMovieQuaternion } => {
-    const transform: IAutoMovieHumanBodyBoneTransform | undefined = rig.bones.get(bone);
-    if (transform === undefined) refuse("source-bone-unavailable:" + bone);
-    return {
-      ...transform!,
-      rotation: Quaternion.multiply(
-        transform!.posed.rotation,
-        Quaternion.inverse(transform!.rest.rotation),
-      ),
-    };
-  });
+  const transforms: (IAutoMovieHumanBodyBoneTransform & {
+    rotation: IAutoMovieQuaternion;
+  })[] = binding.bones.map(
+    (
+      bone: AutoMovieHumanBodyBoneId,
+    ): IAutoMovieHumanBodyBoneTransform & {
+      rotation: IAutoMovieQuaternion;
+    } => {
+      const transform: IAutoMovieHumanBodyBoneTransform | undefined =
+        rig.bones.get(bone);
+      if (transform === undefined) refuse("source-bone-unavailable:" + bone);
+      return {
+        ...transform!,
+        rotation: Quaternion.multiply(
+          transform!.posed.rotation,
+          Quaternion.inverse(transform!.rest.rotation),
+        ),
+      };
+    },
+  );
   // Original binding rows remain source data, including bookkeeping
   // ordinals that no triangle references. Admit every row before selecting
   // resident geometry so malformed unused bindings cannot disappear.
@@ -61,9 +74,7 @@ export function poseHumanBodySourceResidentMesh(
       sum += weight;
     }
     if (Math.abs(sum - 1) > 1e-8)
-      refuse(
-        "source-weights-do-not-sum-to-one:" + member + "/" + vertex,
-      );
+      refuse("source-weights-do-not-sum-to-one:" + member + "/" + vertex);
     const sourceNormal: readonly number[] = sourceNormals.slice(
       vertex * 3,
       vertex * 3 + 3,
@@ -74,13 +85,15 @@ export function poseHumanBodySourceResidentMesh(
     )
       refuse("source-direction-unavailable:" + member + "/" + vertex);
   }
-  const resident: IHumanBodySourceResidentMesh = createHumanBodySourceResidentMesh(
-    mesh,
-    geometricNormals,
-  );
+  const resident: IHumanBodySourceResidentMesh =
+    createHumanBodySourceResidentMesh(mesh, geometricNormals);
   const positions: number[] = [];
   const normals: number[] = [];
-  for (let vertex: number = 0; vertex < resident.sourceVertices.length; vertex++) {
+  for (
+    let vertex: number = 0;
+    vertex < resident.sourceVertices.length;
+    vertex++
+  ) {
     const originalVertex: number = resident.sourceVertices[vertex];
     const offset: number = vertex * 3;
     const source: IAutoMovieVector3 = {
@@ -107,10 +120,10 @@ export function poseHumanBodySourceResidentMesh(
         !Number.isFinite(weight) ||
         weight < 0
       )
-        refuse(
-          "invalid-source-weight:" + member + "/" + originalVertex,
-        );
-      const transform: IAutoMovieHumanBodyBoneTransform & { rotation: IAutoMovieQuaternion } = transforms[bone];
+        refuse("invalid-source-weight:" + member + "/" + originalVertex);
+      const transform: IAutoMovieHumanBodyBoneTransform & {
+        rotation: IAutoMovieQuaternion;
+      } = transforms[bone];
       const placed: IAutoMovieVector3 = Vector3.add(
         Quaternion.rotateVector(
           transform.rotation,
@@ -130,10 +143,7 @@ export function poseHumanBodySourceResidentMesh(
     }
     if (Math.abs(sum - 1) > 1e-8)
       refuse(
-        "source-weights-do-not-sum-to-one:" +
-          member +
-          "/" +
-          originalVertex,
+        "source-weights-do-not-sum-to-one:" + member + "/" + originalVertex,
       );
     const length: number = Math.hypot(direction.x, direction.y, direction.z);
     if (

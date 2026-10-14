@@ -1,12 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import type { IHumanBodyAtlasParts } from "./IHumanBodyAtlasParts";
-import type { IHumanBodyAtlasPartsInput } from "./IHumanBodyAtlasPartsInput";
+import type { IAutoMovieHumanBodyBoneTransform } from "../../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IAutoMovieHumanBodyBoneWorldRest } from "../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { IAutoMovieHumanBodyAtlasPartResource } from "./IAutoMovieHumanBodyAtlasPartResource";
 import type { IAutoMovieHumanBodyAtlasRegistration } from "./IAutoMovieHumanBodyAtlasRegistration";
-import type { IAutoMovieHumanBodyBoneWorldRest } from "../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
-import type { IAutoMovieHumanBodyBoneTransform } from "../../structures/rig/IAutoMovieHumanBodyBoneTransform";
+import type { IHumanBodyAtlasParts } from "./IHumanBodyAtlasParts";
+import type { IHumanBodyAtlasPartsInput } from "./IHumanBodyAtlasPartsInput";
 import { isHumanBodyAtlasSourceRecorded } from "./isHumanBodyAtlasSourceRecorded";
 
 /**
@@ -33,7 +36,9 @@ export function createHumanBodyAtlasParts(
     };
     if (seen.has(id)) refuse("duplicate-part-selection");
     seen.add(id);
-    const matches: IAutoMovieHumanBodyAtlasPartResource[] = (input.basis.anatomicalCandidates ?? []).filter(
+    const matches: IAutoMovieHumanBodyAtlasPartResource[] = (
+      input.basis.anatomicalCandidates ?? []
+    ).filter(
       (part: IAutoMovieHumanBodyAtlasPartResource): boolean => part.id === id,
     );
     if (matches.length !== 1)
@@ -44,7 +49,8 @@ export function createHumanBodyAtlasParts(
       !/^[a-fA-F0-9]{64}$/.test(resource.compiledMeshSha256)
     )
       refuse("source-provenance-or-rights-unrecorded");
-    const registration: IAutoMovieHumanBodyAtlasRegistration = resource.registration;
+    const registration: IAutoMovieHumanBodyAtlasRegistration =
+      resource.registration;
     if (registration.basis !== input.basis.id) refuse("basis-not-registered");
     if (registration.protocol.trim() === "")
       refuse("registration-protocol-unrecorded");
@@ -69,7 +75,8 @@ export function createHumanBodyAtlasParts(
       Math.abs(Math.hypot(...Object.values(frame.rotation)) - 1) > 1e-9
     )
       refuse("invalid-reference-frame");
-    const carry: IAutoMovieHumanBodyBoneTransform | undefined = input.transforms.get(registration.bone);
+    const carry: IAutoMovieHumanBodyBoneTransform | undefined =
+      input.transforms.get(registration.bone);
     if (carry === undefined)
       refuse("attachment-transform-unavailable:" + registration.bone);
     if (resource.mesh.skin !== null) refuse("source-mesh-must-be-rigid");
@@ -77,7 +84,10 @@ export function createHumanBodyAtlasParts(
       carry!.posed.rotation,
       Quaternion.inverse(frame.rotation),
     );
-    const move: (values: number[], point: boolean) => number[] = (values: number[], point: boolean): number[] => {
+    const move: (values: number[], point: boolean) => number[] = (
+      values: number[],
+      point: boolean,
+    ): number[] => {
       const output: number[] = [];
       for (let at: number = 0; at < values.length; at += 3) {
         const value: IAutoMovieVector3 = {

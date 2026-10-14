@@ -1,13 +1,17 @@
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanConstructionFailure } from "../../../common/structures/IAutoMovieHumanConstructionFailure";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
-import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
-import type { IHumanBodyLayerObservation } from "./IHumanBodyLayerObservation";
 import type { IAutoMovieHumanBodyLayerThicknessField } from "./IAutoMovieHumanBodyLayerThicknessField";
 import type { IHumanBodyLayerConstruction } from "./IHumanBodyLayerConstruction";
+import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
+import type { IHumanBodyLayerObservation } from "./IHumanBodyLayerObservation";
 import { createHumanBodyLayerConstruction } from "./createHumanBodyLayerConstruction";
 
 /**
@@ -36,27 +40,46 @@ export function appendHumanBodyLayers(
   const observations: IHumanBodyLayerObservation[] = [];
   const failures: IAutoMovieHumanConstructionFailure[] = [];
   for (const [index, surface] of basis.surfaces.entries()) {
-    const field: IAutoMovieHumanBodyLayerThicknessField | undefined = surface.layerThickness;
+    const field: IAutoMovieHumanBodyLayerThicknessField | undefined =
+      surface.layerThickness;
     if (field === undefined) continue;
-    const exterior: IHumanBodyLayerExterior | undefined = exteriors?.get(surface.id);
+    const exterior: IHumanBodyLayerExterior | undefined = exteriors?.get(
+      surface.id,
+    );
     if (exteriors !== undefined && exterior === undefined)
-      throw new Error("Final layer exterior missing for native surface: " + surface.id);
-    const material: IAutoMovieMaterial | undefined = build.model.materials.find((finish: IAutoMovieMaterial): boolean => finish.id === surface.regions[0].material);
+      throw new Error(
+        "Final layer exterior missing for native surface: " + surface.id,
+      );
+    const material: IAutoMovieMaterial | undefined = build.model.materials.find(
+      (finish: IAutoMovieMaterial): boolean =>
+        finish.id === surface.regions[0].material,
+    );
     if (material === undefined)
-      throw new Error("Native layer inspection needs the resident source skin finish: " + surface.id);
-    const layer: IHumanBodyLayerConstruction = createHumanBodyLayerConstruction({
-      basis: basis.id,
-      surface: surface.id,
-      instance: instance ?? build.evaluatedDocument.id,
-      material,
-      positions: exterior === undefined ? build.posedSurfaces[index].positions :
-        exterior.originVertices.flatMap((vertex: number): number[] => exterior.mesh.positions.slice(vertex * 3, vertex * 3 + 3)),
-      indices: surface.indices,
-      field,
-      exterior,
-      nativeSource: basis.anatomicalAssembly?.nativeSubcutaneous?.surface === surface.id
-        ? basis.anatomicalAssembly.nativeSubcutaneous : undefined,
-    });
+      throw new Error(
+        "Native layer inspection needs the resident source skin finish: " +
+          surface.id,
+      );
+    const layer: IHumanBodyLayerConstruction = createHumanBodyLayerConstruction(
+      {
+        basis: basis.id,
+        surface: surface.id,
+        instance: instance ?? build.evaluatedDocument.id,
+        material,
+        positions:
+          exterior === undefined
+            ? build.posedSurfaces[index].positions
+            : exterior.originVertices.flatMap((vertex: number): number[] =>
+                exterior.mesh.positions.slice(vertex * 3, vertex * 3 + 3),
+              ),
+        indices: surface.indices,
+        field,
+        exterior,
+        nativeSource:
+          basis.anatomicalAssembly?.nativeSubcutaneous?.surface === surface.id
+            ? basis.anatomicalAssembly.nativeSubcutaneous
+            : undefined,
+      },
+    );
     parts.push(...layer.parts);
     materials.push(layer.material);
     observations.push(layer.observation);
@@ -66,7 +89,10 @@ export function appendHumanBodyLayers(
   const model: IAutoMovieModel = { ...build.model, parts, materials };
   const validation: ReturnType<typeof validateModel> = validateModel({ model });
   if (!validation.success)
-    throw new Error("Constructed body skin layers are not a valid resident model: " + JSON.stringify(validation));
+    throw new Error(
+      "Constructed body skin layers are not a valid resident model: " +
+        JSON.stringify(validation),
+    );
   return {
     ...build,
     model,

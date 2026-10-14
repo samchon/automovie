@@ -1,14 +1,17 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { AutoMovieHumanBodyBoneId } from "../../identity/AutoMovieHumanBodyBoneId";
 import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
 import type { IAutoMovieHumanBodySourceJointAxis } from "./IAutoMovieHumanBodySourceJointAxis";
-import type { IAutoMovieHumanBodySourcePublicPoseJoint } from "./IAutoMovieHumanBodySourcePublicPoseJoint";
-import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
 import type { IAutoMovieHumanBodySourcePelvicRhythm } from "./IAutoMovieHumanBodySourcePelvicRhythm";
-import type { IAutoMovieHumanBodySourceToeBase } from "./IAutoMovieHumanBodySourceToeBase";
+import type { IAutoMovieHumanBodySourceProjection } from "./IAutoMovieHumanBodySourceProjection";
+import type { IAutoMovieHumanBodySourcePublicPoseJoint } from "./IAutoMovieHumanBodySourcePublicPoseJoint";
 import type { IAutoMovieHumanBodySourceRig } from "./IAutoMovieHumanBodySourceRig";
+import type { IAutoMovieHumanBodySourceToeBase } from "./IAutoMovieHumanBodySourceToeBase";
 import { readHumanBodySourceProfile } from "./readHumanBodySourceProfile";
 
 /**
@@ -34,7 +37,10 @@ export function assertHumanBodySourceRig(
   const bones: Set<string> = new Set<string>();
   const projections: Set<string> = new Set<string>();
   const toeProjections: Set<string> = new Set<string>();
-  const frame: (one: IAutoMovieHumanBodyBoneWorldRest, address: string) => void = (
+  const frame: (
+    one: IAutoMovieHumanBodyBoneWorldRest,
+    address: string,
+  ) => void = (
     one: IAutoMovieHumanBodyBoneWorldRest,
     address: string,
   ): void => {
@@ -65,7 +71,10 @@ export function assertHumanBodySourceRig(
       new Set(base.goal.supportedAxes).size !==
         base.goal.supportedAxes.length ||
       base.goal.supportedAxes.some(
-        (one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number]): boolean => one !== "flexion" && one !== "abduction" && one !== "twist",
+        (
+          one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number],
+        ): boolean =>
+          one !== "flexion" && one !== "abduction" && one !== "twist",
       )
     )
       throw new Error(
@@ -154,7 +163,10 @@ export function assertHumanBodySourceRig(
       if (
         new Set(joint.supportedAxes).size !== joint.supportedAxes.length ||
         joint.supportedAxes.some(
-          (one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number]): boolean => one !== "flexion" && one !== "abduction" && one !== "twist",
+          (
+            one: IAutoMovieHumanBodySourcePublicPoseJoint["supportedAxes"][number],
+          ): boolean =>
+            one !== "flexion" && one !== "abduction" && one !== "twist",
         )
       )
         throw new Error(
@@ -163,7 +175,10 @@ export function assertHumanBodySourceRig(
         );
       const reference: IAutoMovieHumanBodySourceProjection | undefined =
         joint.reference ??
-        node.projections.find((one: IAutoMovieHumanBodySourceProjection): boolean => one.bone === joint.bone);
+        node.projections.find(
+          (one: IAutoMovieHumanBodySourceProjection): boolean =>
+            one.bone === joint.bone,
+        );
       if (
         reference === undefined ||
         reference.bone !== joint.bone ||
@@ -177,7 +192,11 @@ export function assertHumanBodySourceRig(
         { position: node.rest.position, rotation: reference.rotation },
         node.id + ".clinicalReference",
       );
-      const output: IAutoMovieHumanBodySourceProjection | undefined = node.projections.find((one: IAutoMovieHumanBodySourceProjection): boolean => one.bone === joint.bone);
+      const output: IAutoMovieHumanBodySourceProjection | undefined =
+        node.projections.find(
+          (one: IAutoMovieHumanBodySourceProjection): boolean =>
+            one.bone === joint.bone,
+        );
       if (
         output !== undefined &&
         joint.reference !== undefined &&
@@ -211,7 +230,11 @@ export function assertHumanBodySourceRig(
       frame(node.joint.frame, node.id + ".joint");
     if (node.joint.kind === "toe-ray") {
       const joint: typeof node.joint = node.joint;
-      const base: IAutoMovieHumanBodySourceToeBase | undefined = rig.toeBases?.find((one: IAutoMovieHumanBodySourceToeBase): boolean => one.side === joint.base);
+      const base: IAutoMovieHumanBodySourceToeBase | undefined =
+        rig.toeBases?.find(
+          (one: IAutoMovieHumanBodySourceToeBase): boolean =>
+            one.side === joint.base,
+        );
       if (base === undefined || !bones.has(base.parent) || node.parent === null)
         throw new Error(
           "Source proximal toe needs its preceding actual foot and common MTP account: " +
@@ -315,12 +338,15 @@ export function assertHumanBodySourceRig(
     }
     bones.add(node.id);
   }
-  const pelvis: IAutoMovieHumanBodySourcePelvicRhythm | undefined = rig.pelvicRhythm;
+  const pelvis: IAutoMovieHumanBodySourcePelvicRhythm | undefined =
+    rig.pelvicRhythm;
   if (
     pelvis !== undefined &&
     (new Set(pelvis.members).size !== pelvis.members.length ||
       !pelvis.members.includes(pelvis.pelvis) ||
-      pelvis.members.some((bone: AutoMovieHumanBodyBoneId): boolean => !bones.has(bone)) ||
+      pelvis.members.some(
+        (bone: AutoMovieHumanBodyBoneId): boolean => !bones.has(bone),
+      ) ||
       pelvis.account.trim().length === 0)
   )
     throw new Error(

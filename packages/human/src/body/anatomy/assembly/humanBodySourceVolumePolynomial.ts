@@ -43,7 +43,8 @@ export function humanBodySourceVolumePolynomial(
     );
     const [da, db, dc]: number[][] = vertices.map((vertex: number): number[] =>
       [0, 1, 2].map(
-        (axis: number): number => delta[3 * vertex + axis] - delta[3 * origin + axis],
+        (axis: number): number =>
+          delta[3 * vertex + axis] - delta[3 * origin + axis],
       ),
     );
     const terms: number[] = [

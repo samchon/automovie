@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodySourceRig } from "../articulation/rig/IAutoMovieHumanBodySourceRig";
 import type { IAutoMovieHumanBodyExteriorBinding } from "../binding/IAutoMovieHumanBodyExteriorBinding";
-import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
 import type { IAutoMovieHumanBodyNativeSubcutaneousSource } from "./IAutoMovieHumanBodyNativeSubcutaneousSource";
+import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
 
 /**
  * One registered anatomical source graph and its coarse tissue geometry.

@@ -23,59 +23,85 @@ export function carryHumanBodySourceFields(
   parts: readonly IAutoMovieHumanBodySourcePart[],
   carry: (positions: readonly number[]) => number[],
 ): readonly IAutoMovieHumanBodySourcePart[] {
-  return parts.map((part: IAutoMovieHumanBodySourcePart): IAutoMovieHumanBodySourcePart => {
-    const carrySurface: (surface: IAutoMovieHumanBodySourcePartSurface) => IAutoMovieHumanBodySourcePartSurface = (
-      surface: IAutoMovieHumanBodySourcePartSurface,
-    ): IAutoMovieHumanBodySourcePartSurface => {
-      const positions: number[] = carry(surface.mesh.positions);
-      // Source directions remain archival data here. The resident owner
-      // computes geometric normals after selecting actual triangle vertices;
-      // an unused source ordinal has no incident normal to compute.
-      return { ...surface, mesh: { ...surface.mesh, positions } };
-    };
-    const surfaces: IAutoMovieHumanBodySourcePart["surfaces"] = [
-      carrySurface(part.surfaces[0]),
-      ...part.surfaces.slice(1).map(carrySurface),
-    ];
-    const baseline: Map<string, number[]> = new Map(
-      surfaces.map((surface: IAutoMovieHumanBodySourcePartSurface): [string, number[]] => [surface.id, surface.mesh.positions]),
-    );
-    const shapeFields: IAutoMovieHumanBodySourceShapeField[] | undefined = part.shapeFields?.map((field: IAutoMovieHumanBodySourceShapeField): IAutoMovieHumanBodySourceShapeField => ({
-      ...field,
-      domainAccount:
-        field.domainAccount.trim() === ""
-          ? field.domainAccount
-          : field.domainAccount +
-            "; authored linear endpoint retargeting to the evaluated rest exterior; source coefficient interval retained as a computational domain, clinical and clearance support not established",
-      surfaces: field.surfaces.map((member: IAutoMovieHumanBodySourceSurfaceShapeField): IAutoMovieHumanBodySourceSurfaceShapeField => {
-        const surface: IAutoMovieHumanBodySourcePartSurface | undefined = part.surfaces.find(
-          (candidate: IAutoMovieHumanBodySourcePartSurface): boolean => candidate.id === member.member,
+  return parts.map(
+    (part: IAutoMovieHumanBodySourcePart): IAutoMovieHumanBodySourcePart => {
+      const carrySurface: (
+        surface: IAutoMovieHumanBodySourcePartSurface,
+      ) => IAutoMovieHumanBodySourcePartSurface = (
+        surface: IAutoMovieHumanBodySourcePartSurface,
+      ): IAutoMovieHumanBodySourcePartSurface => {
+        const positions: number[] = carry(surface.mesh.positions);
+        // Source directions remain archival data here. The resident owner
+        // computes geometric normals after selecting actual triangle vertices;
+        // an unused source ordinal has no incident normal to compute.
+        return { ...surface, mesh: { ...surface.mesh, positions } };
+      };
+      const surfaces: IAutoMovieHumanBodySourcePart["surfaces"] = [
+        carrySurface(part.surfaces[0]),
+        ...part.surfaces.slice(1).map(carrySurface),
+      ];
+      const baseline: Map<string, number[]> = new Map(
+        surfaces.map(
+          (
+            surface: IAutoMovieHumanBodySourcePartSurface,
+          ): [string, number[]] => [surface.id, surface.mesh.positions],
+        ),
+      );
+      const shapeFields: IAutoMovieHumanBodySourceShapeField[] | undefined =
+        part.shapeFields?.map(
+          (
+            field: IAutoMovieHumanBodySourceShapeField,
+          ): IAutoMovieHumanBodySourceShapeField => ({
+            ...field,
+            domainAccount:
+              field.domainAccount.trim() === ""
+                ? field.domainAccount
+                : field.domainAccount +
+                  "; authored linear endpoint retargeting to the evaluated rest exterior; source coefficient interval retained as a computational domain, clinical and clearance support not established",
+            surfaces: field.surfaces.map(
+              (
+                member: IAutoMovieHumanBodySourceSurfaceShapeField,
+              ): IAutoMovieHumanBodySourceSurfaceShapeField => {
+                const surface:
+                  | IAutoMovieHumanBodySourcePartSurface
+                  | undefined = part.surfaces.find(
+                  (candidate: IAutoMovieHumanBodySourcePartSurface): boolean =>
+                    candidate.id === member.member,
+                );
+                if (surface === undefined)
+                  throw new Error(
+                    "Source exterior field has no matching member: " +
+                      part.id +
+                      "/" +
+                      member.member,
+                  );
+                assertHumanBodySourceSurfaceShapeField(
+                  member,
+                  surface.mesh.positions.length / 3,
+                );
+                const endpoint: number[] = carry(
+                  surface.mesh.positions.map(
+                    (value: number, at: number): number =>
+                      value + member.displacements[at],
+                  ),
+                );
+                const neutral: number[] = baseline.get(member.member)!;
+                const carried: IAutoMovieHumanBodySourceSurfaceShapeField = {
+                  ...member,
+                  displacements: endpoint.map(
+                    (value: number, at: number): number => value - neutral[at],
+                  ),
+                };
+                assertHumanBodySourceSurfaceShapeField(
+                  carried,
+                  neutral.length / 3,
+                );
+                return carried;
+              },
+            ),
+          }),
         );
-        if (surface === undefined)
-          throw new Error(
-            "Source exterior field has no matching member: " +
-              part.id +
-              "/" +
-              member.member,
-          );
-        assertHumanBodySourceSurfaceShapeField(
-          member,
-          surface.mesh.positions.length / 3,
-        );
-        const endpoint: number[] = carry(
-          surface.mesh.positions.map(
-            (value: number, at: number): number => value + member.displacements[at],
-          ),
-        );
-        const neutral: number[] = baseline.get(member.member)!;
-        const carried: IAutoMovieHumanBodySourceSurfaceShapeField = {
-          ...member,
-          displacements: endpoint.map((value: number, at: number): number => value - neutral[at]),
-        };
-        assertHumanBodySourceSurfaceShapeField(carried, neutral.length / 3);
-        return carried;
-      }),
-    }));
-    return { ...part, surfaces, shapeFields };
-  });
+      return { ...part, surfaces, shapeFields };
+    },
+  );
 }

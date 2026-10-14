@@ -1,4 +1,7 @@
-import type { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { float32MeshBuffers } from "../../../common/mesh/float32MeshBuffers";
 import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
@@ -29,41 +32,57 @@ export function finalizeHumanBodySourceQuantities(
   sourceParts: readonly IAutoMovieHumanBodySourcePart[],
   outputParts: IAutoMovieModel["parts"],
 ): readonly IHumanBodySourceQuantityReading[] {
-  const actual: Map<string, IAutoMovieModelPart> = new Map(outputParts.map((part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [part.id, part]));
+  const actual: Map<string, IAutoMovieModelPart> = new Map(
+    outputParts.map(
+      (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
+        part.id,
+        part,
+      ],
+    ),
+  );
   let compartments: Map<string, SourceCompartment> | undefined;
-  return readings.map((reading: IHumanBodySourceQuantityReading): IHumanBodySourceQuantityReading => {
-    if (reading.input.kind === "observed")
-      return { ...reading, finalFloat32Millilitres: null };
-    if (compartments === undefined) {
-      compartments = new Map();
-      for (const source of sourceParts)
-        for (const binding of source.quantityBindings ?? [])
-          if (!compartments.has(binding.path))
-            compartments.set(binding.path, { source, binding });
-    }
-    const compartment: SourceCompartment | undefined = compartments.get(reading.path);
-    if (compartment === undefined)
-      throw new Error(
-        "Final quantity has no source compartment: " + reading.path,
+  return readings.map(
+    (
+      reading: IHumanBodySourceQuantityReading,
+    ): IHumanBodySourceQuantityReading => {
+      if (reading.input.kind === "observed")
+        return { ...reading, finalFloat32Millilitres: null };
+      if (compartments === undefined) {
+        compartments = new Map();
+        for (const source of sourceParts)
+          for (const binding of source.quantityBindings ?? [])
+            if (!compartments.has(binding.path))
+              compartments.set(binding.path, { source, binding });
+      }
+      const compartment: SourceCompartment | undefined = compartments.get(
+        reading.path,
       );
-    const { source, binding }: SourceCompartment = compartment;
-    let volume: number = 0;
-    for (const member of binding.members) {
-      const part: IAutoMovieModelPart | undefined = actual.get("anatomical-source:" + source.id + "/" + member);
-      if (part === undefined || part.geometry.type !== "mesh")
+      if (compartment === undefined)
         throw new Error(
-          "Final quantity has no emitted source mesh: " +
-            reading.path +
-            "/" +
-            member,
+          "Final quantity has no source compartment: " + reading.path,
         );
-      const buffers: ReturnType<typeof float32MeshBuffers> = float32MeshBuffers(part.geometry.mesh, part.id);
-      volume += readHumanBodySourceBoundaryVolume({
-        ...part.geometry.mesh,
-        positions: Array.from(buffers.positions),
-        indices: Array.from(buffers.indices),
-      });
-    }
-    return { ...reading, finalFloat32Millilitres: volume * 1e6 };
-  });
+      const { source, binding }: SourceCompartment = compartment;
+      let volume: number = 0;
+      for (const member of binding.members) {
+        const part: IAutoMovieModelPart | undefined = actual.get(
+          "anatomical-source:" + source.id + "/" + member,
+        );
+        if (part === undefined || part.geometry.type !== "mesh")
+          throw new Error(
+            "Final quantity has no emitted source mesh: " +
+              reading.path +
+              "/" +
+              member,
+          );
+        const buffers: ReturnType<typeof float32MeshBuffers> =
+          float32MeshBuffers(part.geometry.mesh, part.id);
+        volume += readHumanBodySourceBoundaryVolume({
+          ...part.geometry.mesh,
+          positions: Array.from(buffers.positions),
+          indices: Array.from(buffers.indices),
+        });
+      }
+      return { ...reading, finalFloat32Millilitres: volume * 1e6 };
+    },
+  );
 }

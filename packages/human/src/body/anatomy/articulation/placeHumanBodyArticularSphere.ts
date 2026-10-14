@@ -34,8 +34,10 @@ export function placeHumanBodyArticularSphere<
 } {
   if (!Number.isFinite(input.radiusMetres) || input.radiusMetres <= 0)
     throw new Error("An articular-head radius must be finite and positive.");
-  const posed: IAutoMovieVector3 | undefined = input.bones.find((entry: IAutoMovieHumanBodyBuild["bones"][number]): boolean => entry.bone === input.bone)?.posed
-    .position;
+  const posed: IAutoMovieVector3 | undefined = input.bones.find(
+    (entry: IAutoMovieHumanBodyBuild["bones"][number]): boolean =>
+      entry.bone === input.bone,
+  )?.posed.position;
   if (
     posed === undefined ||
     ![posed.x, posed.y, posed.z].every(Number.isFinite)

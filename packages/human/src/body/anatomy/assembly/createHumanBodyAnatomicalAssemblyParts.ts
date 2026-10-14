@@ -1,20 +1,20 @@
 import type { IAutoMovieColor, IAutoMovieMesh } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import { isHumanBodyAtlasSourceRecorded } from "../atlas/isHumanBodyAtlasSourceRecorded";
 import { createHumanBodyExteriorFollower } from "../binding/createHumanBodyExteriorFollower";
-import type { IAutoMovieHumanBodySourceRigResult } from "../articulation/rig/IAutoMovieHumanBodySourceRigResult";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "./IAutoMovieHumanBodyAnatomicalAssembly";
-import type { IHumanBodyAnatomicalAssemblyParts } from "./IHumanBodyAnatomicalAssemblyParts";
-import type { IHumanBodyAnatomicalAssemblyPartsInput } from "./IHumanBodyAnatomicalAssemblyPartsInput";
 import type { IAutoMovieHumanBodySourcePart } from "./IAutoMovieHumanBodySourcePart";
 import type { IAutoMovieHumanBodySourcePartAttachment } from "./IAutoMovieHumanBodySourcePartAttachment";
 import type { IAutoMovieHumanBodySourceVertexBinding } from "./IAutoMovieHumanBodySourceVertexBinding";
+import type { IHumanBodyAnatomicalAssemblyParts } from "./IHumanBodyAnatomicalAssemblyParts";
+import type { IHumanBodyAnatomicalAssemblyPartsInput } from "./IHumanBodyAnatomicalAssemblyPartsInput";
 import type { IHumanBodySourceShapeResult } from "./IHumanBodySourceShapeResult";
 import { carryHumanBodyNeutralSourceRig } from "./carryHumanBodyNeutralSourceRig";
 import { carryHumanBodySourceFields } from "./carryHumanBodySourceFields";
-import { poseHumanBodySourceResidentMesh } from "./poseHumanBodySourceResidentMesh";
 import { dataSourceShapes } from "./dataSourceShapes";
 import { finalizeHumanBodySourceQuantities } from "./finalizeHumanBodySourceQuantities";
+import { poseHumanBodySourceResidentMesh } from "./poseHumanBodySourceResidentMesh";
 
 /** Each assembly and consumer-owned neutral exterior has one compiled follower. */
 const FOLLOWERS: WeakMap<
@@ -26,12 +26,18 @@ function followerOf(
   assembly: IAutoMovieHumanBodyAnatomicalAssembly,
   neutral: readonly number[],
 ): ReturnType<typeof createHumanBodyExteriorFollower> {
-  let exteriors: WeakMap<readonly number[], ReturnType<typeof createHumanBodyExteriorFollower>> | undefined = FOLLOWERS.get(assembly);
+  let exteriors:
+    | WeakMap<
+        readonly number[],
+        ReturnType<typeof createHumanBodyExteriorFollower>
+      >
+    | undefined = FOLLOWERS.get(assembly);
   if (exteriors === undefined) {
     exteriors = new WeakMap();
     FOLLOWERS.set(assembly, exteriors);
   }
-  let follower: ReturnType<typeof createHumanBodyExteriorFollower> | undefined = exteriors.get(neutral);
+  let follower: ReturnType<typeof createHumanBodyExteriorFollower> | undefined =
+    exteriors.get(neutral);
   if (follower === undefined) {
     follower = createHumanBodyExteriorFollower(
       neutral,
@@ -64,7 +70,8 @@ export function createHumanBodyAnatomicalAssemblyParts(
     materials: [],
     quantities: [],
   };
-  const assembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined = input.basis.anatomicalAssembly;
+  const assembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined =
+    input.basis.anatomicalAssembly;
   if (assembly === undefined) return output;
   if (
     assembly.basis !== input.basis.id ||
@@ -83,7 +90,8 @@ export function createHumanBodyAnatomicalAssemblyParts(
   // and keeps the exact channel rule.
   const neutral: readonly number[] =
     input.exteriorRestReference?.neutral ?? input.basis.surfaces[0].positions;
-  const restSkin: readonly number[] = input.exteriorRestReference?.evaluated ?? input.restSkin;
+  const restSkin: readonly number[] =
+    input.exteriorRestReference?.evaluated ?? input.restSkin;
   if (
     input.exteriorRestReference !== undefined &&
     assembly.mode !== "neutral-only"
@@ -94,7 +102,11 @@ export function createHumanBodyAnatomicalAssemblyParts(
   const registeredToNeutral: boolean = Object.values(assembly.shape).every(
     (weight: number): boolean => weight === 0,
   );
-  if (Object.values(assembly.shape).some((weight: number): boolean => !Number.isFinite(weight)))
+  if (
+    Object.values(assembly.shape).some(
+      (weight: number): boolean => !Number.isFinite(weight),
+    )
+  )
     throw new Error("Anatomical source assembly shape is not registered.");
   let shaped: boolean = false;
   if (registeredToNeutral) {
@@ -123,9 +135,13 @@ export function createHumanBodyAnatomicalAssemblyParts(
   // neutral skin they were registered to; on the registered skin nothing moves.
   let follow: ((points: readonly number[]) => number[]) | undefined;
   if (shaped) {
-    const displacement: number[] = restSkin.map((value: number, at: number): number => value - neutral[at]);
-    const follower: ReturnType<typeof createHumanBodyExteriorFollower> = followerOf(assembly, neutral);
-    follow = (points: readonly number[]): number[] => follower(points, displacement);
+    const displacement: number[] = restSkin.map(
+      (value: number, at: number): number => value - neutral[at],
+    );
+    const follower: ReturnType<typeof createHumanBodyExteriorFollower> =
+      followerOf(assembly, neutral);
+    follow = (points: readonly number[]): number[] =>
+      follower(points, displacement);
   }
   // An absolute source target is solved after its baseline and linear field
   // enter the evaluated exterior. Warping a solved mesh afterwards would
@@ -156,8 +172,14 @@ export function createHumanBodyAnatomicalAssemblyParts(
       refuse("source-qualification-or-geometry-unavailable");
     if (
       part.tissue === "skeletal-muscle" &&
-      (!part.attachments.some((attachment: IAutoMovieHumanBodySourcePartAttachment): boolean => attachment.role === "origin") ||
-        !part.attachments.some((attachment: IAutoMovieHumanBodySourcePartAttachment): boolean => attachment.role === "insertion"))
+      (!part.attachments.some(
+        (attachment: IAutoMovieHumanBodySourcePartAttachment): boolean =>
+          attachment.role === "origin",
+      ) ||
+        !part.attachments.some(
+          (attachment: IAutoMovieHumanBodySourcePartAttachment): boolean =>
+            attachment.role === "insertion",
+        ))
     )
       refuse("muscle-origin-or-insertion-unregistered");
     if (part.tissue !== "bone" && part.attachments.length === 0)

@@ -53,7 +53,10 @@ export function createHumanBodyExteriorFollower(
   const size: number[] = [0, 1, 2].map(
     (axis: number): number => Math.floor((high[axis] - low[axis]) / cell) + 1,
   );
-  const cellOf: (value: number, axis: number) => number = (value: number, axis: number): number =>
+  const cellOf: (value: number, axis: number) => number = (
+    value: number,
+    axis: number,
+  ): number =>
     Math.min(
       size[axis] - 1,
       Math.max(0, Math.floor((value - low[axis]) / cell)),
@@ -69,11 +72,11 @@ export function createHumanBodyExteriorFollower(
     if (bucket === undefined) buckets.set(key, [vertex]);
     else bucket.push(vertex);
   }
-  const remembered: WeakMap<readonly number[], [Int32Array, Float64Array]> = new WeakMap<
-    readonly number[],
-    [Int32Array, Float64Array]
-  >();
-  const search: (points: readonly number[]) => [Int32Array, Float64Array] = (points: readonly number[]): [Int32Array, Float64Array] => {
+  const remembered: WeakMap<readonly number[], [Int32Array, Float64Array]> =
+    new WeakMap<readonly number[], [Int32Array, Float64Array]>();
+  const search: (points: readonly number[]) => [Int32Array, Float64Array] = (
+    points: readonly number[],
+  ): [Int32Array, Float64Array] => {
     const total: number = points.length / 3;
     const chosen: Int32Array = new Int32Array(total * neighbours);
     const weights: Float64Array = new Float64Array(total * neighbours);
@@ -131,7 +134,8 @@ export function createHumanBodyExteriorFollower(
                   (skin[vertex * 3 + 2] - z) ** 2;
                 if (found === neighbours && squared >= distance[found - 1])
                   continue;
-                let slot: number = found < neighbours ? found++ : neighbours - 1;
+                let slot: number =
+                  found < neighbours ? found++ : neighbours - 1;
                 while (slot > 0 && distance[slot - 1] > squared) {
                   distance[slot] = distance[slot - 1];
                   nearest[slot] = nearest[slot - 1];
@@ -145,9 +149,7 @@ export function createHumanBodyExteriorFollower(
       let sum: number = 0;
       for (let slot: number = 0; slot < found; slot++) {
         const weight: number =
-          distance[slot] === 0
-            ? Infinity
-            : distance[slot] ** (-power / 2);
+          distance[slot] === 0 ? Infinity : distance[slot] ** (-power / 2);
         weights[point * neighbours + slot] = weight;
         chosen[point * neighbours + slot] = nearest[slot];
         sum += weight;
@@ -172,10 +174,18 @@ export function createHumanBodyExteriorFollower(
     }
     return [chosen, weights];
   };
-  return (points: readonly number[], displacement: readonly number[]): number[] => {
+  return (
+    points: readonly number[],
+    displacement: readonly number[],
+  ): number[] => {
     if (points.length % 3 !== 0 || !points.every(Number.isFinite))
-      throw new Error("Exterior follower points must be finite complete metre triples.");
-    if (displacement.length !== skin.length || !displacement.every(Number.isFinite))
+      throw new Error(
+        "Exterior follower points must be finite complete metre triples.",
+      );
+    if (
+      displacement.length !== skin.length ||
+      !displacement.every(Number.isFinite)
+    )
       throw new Error(
         "Skin displacement does not address this skin's vertices.",
       );

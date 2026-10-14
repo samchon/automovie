@@ -19,8 +19,10 @@ import type { IAutoMovieHumanBodyFootMeasurements } from "./IAutoMovieHumanBodyF
 export function resolveHumanBodyHindfootParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const left: IAutoMovieHumanBodyFootMeasurements | undefined = input.targets?.leftLowerLimb?.foot;
-  const right: IAutoMovieHumanBodyFootMeasurements | undefined = input.targets?.rightLowerLimb?.foot;
+  const left: IAutoMovieHumanBodyFootMeasurements | undefined =
+    input.targets?.leftLowerLimb?.foot;
+  const right: IAutoMovieHumanBodyFootMeasurements | undefined =
+    input.targets?.rightLowerLimb?.foot;
   return [
     humanBodyUnavailablePart("leftTalus", left?.talus, "missing-bone-landmark"),
     humanBodyUnavailablePart(

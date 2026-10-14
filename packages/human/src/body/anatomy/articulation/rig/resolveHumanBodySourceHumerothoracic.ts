@@ -1,14 +1,18 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { humanBodyShoulderReaches } from "../../../basis/humanBodyShoulderReaches";
 import { humanBodyShoulderTtRotation } from "../../../basis/humanBodyShoulderTtRotation";
+import type { IAutoMovieHumanBodyShoulderPose } from "../../../structures/IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanBodyBoneTransform } from "../../../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
-import type { IAutoMovieHumanBodyShoulderPose } from "../../../structures/IAutoMovieHumanBodyShoulderPose";
 import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
-import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import type { IAutoMovieHumanBodySourceHumerothoracicJoint } from "./IAutoMovieHumanBodySourceHumerothoracicJoint";
+import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import { hasHumanBodySourceLocalGoal } from "./hasHumanBodySourceLocalGoal";
 import { resolveHumanBodySourceAxes } from "./resolveHumanBodySourceAxes";
 
@@ -37,15 +41,23 @@ export function resolveHumanBodySourceHumerothoracic(
       "Anatomical TT resolution needs a registered girdle parent: " + node.id,
     );
   const joint: IAutoMovieHumanBodySourceHumerothoracicJoint = node.joint;
-  const internal: boolean = hasHumanBodySourceLocalGoal(node.id, joint.localAxes, input);
+  const internal: boolean = hasHumanBodySourceLocalGoal(
+    node.id,
+    joint.localAxes,
+    input,
+  );
   if (internal && joint.localAxes !== undefined) {
     if (
-      input.shoulders.some((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === joint.neutral.bone) ||
+      input.shoulders.some(
+        (one: IAutoMovieHumanBodyShoulderPose): boolean =>
+          one.bone === joint.neutral.bone,
+      ) ||
       (input.authoredPose ?? input.pose).some(
         (one: IAutoMovieJointPose): boolean =>
           one.bone === joint.neutral.bone &&
           [one.flexion, one.abduction, one.twist].some(
-            (value: number | null | undefined): boolean => value !== null && value !== undefined,
+            (value: number | null | undefined): boolean =>
+              value !== null && value !== undefined,
           ),
       )
     )
@@ -64,14 +76,17 @@ export function resolveHumanBodySourceHumerothoracic(
     );
   }
   const target: IAutoMovieHumanBodyShoulderPose =
-    input.shoulders.find((one: IAutoMovieHumanBodyShoulderPose): boolean => one.bone === joint.neutral.bone) ??
-    joint.neutral;
+    input.shoulders.find(
+      (one: IAutoMovieHumanBodyShoulderPose): boolean =>
+        one.bone === joint.neutral.bone,
+    ) ?? joint.neutral;
   if (
     (input.authoredPose ?? input.pose).some(
       (one: IAutoMovieJointPose): boolean =>
         one.bone === target.bone &&
         [one.flexion, one.abduction, one.twist].some(
-          (value: number | null | undefined): boolean => value !== undefined && value !== null,
+          (value: number | null | undefined): boolean =>
+            value !== undefined && value !== null,
         ),
     )
   )
@@ -101,7 +116,10 @@ export function resolveHumanBodySourceHumerothoracic(
     humanBodyShoulderTtRotation(target),
     Quaternion.inverse(humanBodyShoulderTtRotation(joint.neutral)),
   );
-  const delta: IAutoMovieQuaternion = Quaternion.multiply(thoraxDelta, relative);
+  const delta: IAutoMovieQuaternion = Quaternion.multiply(
+    thoraxDelta,
+    relative,
+  );
   return {
     position: Vector3.add(
       pivot,

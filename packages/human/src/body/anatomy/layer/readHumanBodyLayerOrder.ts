@@ -27,18 +27,26 @@ export function readHumanBodyLayerOrder(
 ): IAutoMovieHumanConstructionClearanceReading[] {
   if (!Number.isFinite(input.toleranceMetres) || input.toleranceMetres < 0)
     throw new Error("Layer order needs a finite nonnegative tolerance.");
-  const rounded: (mesh: IAutoMovieMesh) => IAutoMovieMesh = (mesh: IAutoMovieMesh): IAutoMovieMesh => ({
+  const rounded: (mesh: IAutoMovieMesh) => IAutoMovieMesh = (
+    mesh: IAutoMovieMesh,
+  ): IAutoMovieMesh => ({
     ...mesh,
     positions: mesh.positions.map(Math.fround),
   });
   if (input.references.length === 0)
     throw new Error("Layer order needs at least one reference sheet.");
-  const sheets: ReturnType<typeof createAutoMovieSignedMeshQuery>[] = input.references.map((reference: IHumanBodyLayerReference): ReturnType<typeof createAutoMovieSignedMeshQuery> =>
-    createAutoMovieSignedMeshQuery(rounded(reference.mesh), {
-      boundary: "open",
-    }),
-  );
-  const against: string = input.references.map((reference: IHumanBodyLayerReference): string => reference.name).join("+");
+  const sheets: ReturnType<typeof createAutoMovieSignedMeshQuery>[] =
+    input.references.map(
+      (
+        reference: IHumanBodyLayerReference,
+      ): ReturnType<typeof createAutoMovieSignedMeshQuery> =>
+        createAutoMovieSignedMeshQuery(rounded(reference.mesh), {
+          boundary: "open",
+        }),
+    );
+  const against: string = input.references
+    .map((reference: IHumanBodyLayerReference): string => reference.name)
+    .join("+");
   const readings: IAutoMovieHumanConstructionClearanceReading[] = [];
   for (const part of input.model.parts) {
     if (
@@ -77,7 +85,9 @@ export function readHumanBodyLayerOrder(
     if (
       positions.length === 0 ||
       positions.length % 3 !== 0 ||
-      !positions.every((value: number): boolean => Number.isFinite(Math.fround(value)))
+      !positions.every((value: number): boolean =>
+        Number.isFinite(Math.fround(value)),
+      )
     )
       throw new Error(
         "Layer order needs complete finite Float32 subject positions: " +
@@ -93,7 +103,9 @@ export function readHumanBodyLayerOrder(
       let signed: number | null = null;
       let nearest: number = Infinity;
       for (const sheet of sheets) {
-        const hit: ReturnType<ReturnType<typeof createAutoMovieSignedMeshQuery>> = sheet(point);
+        const hit: ReturnType<
+          ReturnType<typeof createAutoMovieSignedMeshQuery>
+        > = sheet(point);
         if (hit.boundary || hit.distance >= nearest) continue;
         nearest = hit.distance;
         signed = hit.signedDistance;

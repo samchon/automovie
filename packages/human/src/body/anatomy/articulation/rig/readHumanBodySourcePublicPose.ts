@@ -1,5 +1,8 @@
 import { jointToQuaternion } from "@automovie/engine";
-import type { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodySourcePublicPoseJoint } from "./IAutoMovieHumanBodySourcePublicPoseJoint";
 import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
@@ -25,7 +28,9 @@ export function readHumanBodySourcePublicPose(
   input: IAutoMovieHumanBodySourceRigInput,
   used: Set<string>,
 ): IAutoMovieQuaternion {
-  const goal: IAutoMovieJointPose | undefined = input.pose.find((one: IAutoMovieJointPose): boolean => one.bone === joint.bone);
+  const goal: IAutoMovieJointPose | undefined = input.pose.find(
+    (one: IAutoMovieJointPose): boolean => one.bone === joint.bone,
+  );
   for (const axis of joint.supportedAxes)
     if (goal?.[axis] !== undefined && goal[axis] !== null)
       used.add(`public-pose.${joint.bone}.${axis}`);

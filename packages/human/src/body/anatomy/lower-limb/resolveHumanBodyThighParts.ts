@@ -20,9 +20,12 @@ import type { IAutoMovieHumanBodyThighMeasurements } from "./IAutoMovieHumanBody
 export function resolveHumanBodyThighParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const left: IAutoMovieHumanBodyThighMeasurements | undefined = input.targets?.leftLowerLimb?.thigh;
-  const right: IAutoMovieHumanBodyThighMeasurements | undefined = input.targets?.rightLowerLimb?.thigh;
-  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
+  const left: IAutoMovieHumanBodyThighMeasurements | undefined =
+    input.targets?.leftLowerLimb?.thigh;
+  const right: IAutoMovieHumanBodyThighMeasurements | undefined =
+    input.targets?.rightLowerLimb?.thigh;
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
   return [
     humanBodyUnavailablePart("leftFemur", left?.femur, "missing-bone-landmark"),
     humanBodyUnavailablePart(

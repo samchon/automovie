@@ -1,5 +1,5 @@
-import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
 import type { IAutoMovieHumanBodyNativeSubcutaneousQualification } from "../../export/IAutoMovieHumanBodyNativeSubcutaneousQualification";
+import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
 
 /**
  * Native layer observations of one evaluated skin, separate from face admission. Counts and native ordinals survive root placement; geometry lives in the actual model parts rather than a second unplaced coordinate record.
@@ -14,7 +14,8 @@ import type { IAutoMovieHumanBodyNativeSubcutaneousQualification } from "../../e
  * @author Samchon
  */
 export interface IHumanBodyLayerObservation extends Omit<
-  IHumanBodyLayerSurfaces, "normals" | "dermis" | "fascia"
+  IHumanBodyLayerSurfaces,
+  "normals" | "dermis" | "fascia"
 > {
   /** Exact source basis whose native thickness arrays were consumed. */
   basis: string;

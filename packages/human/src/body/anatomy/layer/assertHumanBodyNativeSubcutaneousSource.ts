@@ -1,4 +1,7 @@
-import { autoMovieRenderDigest, SHA256_DIGEST_PATTERN } from "@automovie/engine";
+import {
+  SHA256_DIGEST_PATTERN,
+  autoMovieRenderDigest,
+} from "@automovie/engine";
 
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../assembly/IAutoMovieHumanBodyAnatomicalAssembly";
@@ -20,20 +23,47 @@ import type { IAutoMovieHumanBodyLayerThicknessField } from "./IAutoMovieHumanBo
 export function assertHumanBodyNativeSubcutaneousSource(
   basis: IAutoMovieHumanBodyBasis,
 ): void {
-  const assembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined = basis.anatomicalAssembly;
-  const source: IAutoMovieHumanBodyNativeSubcutaneousSource | undefined = assembly?.nativeSubcutaneous;
+  const assembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined =
+    basis.anatomicalAssembly;
+  const source: IAutoMovieHumanBodyNativeSubcutaneousSource | undefined =
+    assembly?.nativeSubcutaneous;
   if (source === undefined) return;
   if (
-    assembly!.parts.some((part: IAutoMovieHumanBodySourcePart): boolean => part.id === source.id) ||
-    source.id !== "subcutaneousAdipose" || source.tissue !== "adipose" ||
-    [source.surface, source.fieldFileUri, source.bindingAccount, source.qualification].some((value: string): boolean => value.trim() === "") ||
-    [source.fieldFileSha256, source.producerSha256, source.inputViewSha256, source.receiptSha256].some((value: string): boolean => !/^[a-f0-9]{64}$/.test(value)) ||
+    assembly!.parts.some(
+      (part: IAutoMovieHumanBodySourcePart): boolean => part.id === source.id,
+    ) ||
+    source.id !== "subcutaneousAdipose" ||
+    source.tissue !== "adipose" ||
+    [
+      source.surface,
+      source.fieldFileUri,
+      source.bindingAccount,
+      source.qualification,
+    ].some((value: string): boolean => value.trim() === "") ||
+    [
+      source.fieldFileSha256,
+      source.producerSha256,
+      source.inputViewSha256,
+      source.receiptSha256,
+    ].some((value: string): boolean => !/^[a-f0-9]{64}$/.test(value)) ||
     !SHA256_DIGEST_PATTERN.test(source.fieldDigest)
-  ) throw new Error("Native subcutaneous source needs one logical owner and complete explicit field provenance.");
-  const matches: IAutoMovieHumanBodyBasis["surfaces"] = basis.surfaces.filter((surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean => surface.id === source.surface);
-  const field: IAutoMovieHumanBodyLayerThicknessField | undefined = matches[0]?.layerThickness;
+  )
+    throw new Error(
+      "Native subcutaneous source needs one logical owner and complete explicit field provenance.",
+    );
+  const matches: IAutoMovieHumanBodyBasis["surfaces"] = basis.surfaces.filter(
+    (surface: IAutoMovieHumanBodyBasis["surfaces"][number]): boolean =>
+      surface.id === source.surface,
+  );
+  const field: IAutoMovieHumanBodyLayerThicknessField | undefined =
+    matches[0]?.layerThickness;
   if (
-    matches.length !== 1 || field === undefined || field.basis !== basis.id ||
+    matches.length !== 1 ||
+    field === undefined ||
+    field.basis !== basis.id ||
     autoMovieRenderDigest(JSON.stringify(field)) !== source.fieldDigest
-  ) throw new Error("Native subcutaneous source does not address this exact registered skin field.");
+  )
+    throw new Error(
+      "Native subcutaneous source does not address this exact registered skin field.",
+    );
 }

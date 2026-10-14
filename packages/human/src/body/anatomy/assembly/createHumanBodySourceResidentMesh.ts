@@ -33,7 +33,10 @@ export function createHumanBodySourceResidentMesh(
     throw new Error(
       "Source resident geometry needs finite complete positions and its separate anatomical binding.",
     );
-  const aligned: (values: readonly number[] | null | undefined, width: number) => void = (
+  const aligned: (
+    values: readonly number[] | null | undefined,
+    width: number,
+  ) => void = (
     values: readonly number[] | null | undefined,
     width: number,
   ): void => {
@@ -74,7 +77,11 @@ export function createHumanBodySourceResidentMesh(
   if (mesh.physicalVertices !== undefined)
     resolveAutoMovieMeshPhysicalVertices(mesh);
   const indices: number[] =
-    mesh.indices ?? Array.from({ length: count }, (_: unknown, vertex: number): number => vertex);
+    mesh.indices ??
+    Array.from(
+      { length: count },
+      (_: unknown, vertex: number): number => vertex,
+    );
   if (
     indices.length === 0 ||
     indices.length % 3 !== 0 ||
@@ -103,12 +110,17 @@ export function createHumanBodySourceResidentMesh(
       sourceVertexCount: count,
     };
   }
-  const selected: (values: readonly number[], width: number) => number[] = (values: readonly number[], width: number): number[] =>
+  const selected: (values: readonly number[], width: number) => number[] = (
+    values: readonly number[],
+    width: number,
+  ): number[] =>
     sourceVertices.flatMap((source: number): number[] =>
       values.slice(source * width, (source + 1) * width),
     );
   const positions: number[] = selected(mesh.positions, 3);
-  const triangles: number[] = indices.map((source: number): number => resident[source]);
+  const triangles: number[] = indices.map(
+    (source: number): number => resident[source],
+  );
   const output: IAutoMovieMesh = {
     ...mesh,
     positions,
@@ -129,7 +141,8 @@ export function createHumanBodySourceResidentMesh(
           physicalVertices: {
             sources: mesh.physicalVertices.sources,
             vertices: sourceVertices.map(
-              (source: number): number | null => mesh.physicalVertices!.vertices[source],
+              (source: number): number | null =>
+                mesh.physicalVertices!.vertices[source],
             ),
           },
         }),

@@ -33,7 +33,8 @@ export function createHumanBodySubcutaneousShell(
       values.every(Number.isFinite),
     ) ||
     indices.some(
-      (index: number): boolean => !Number.isSafeInteger(index) || index < 0 || index >= count,
+      (index: number): boolean =>
+        !Number.isSafeInteger(index) || index < 0 || index >= count,
     )
   )
     throw new Error(

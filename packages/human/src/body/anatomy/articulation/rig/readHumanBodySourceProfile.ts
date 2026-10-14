@@ -18,7 +18,8 @@ export function readHumanBodySourceProfile(
   axis: IAutoMovieHumanBodySourceJointAxis,
   value: number,
 ): number {
-  const knots: readonly IAutoMovieHumanBodySourceMotionKnot[] | undefined = axis.profile;
+  const knots: readonly IAutoMovieHumanBodySourceMotionKnot[] | undefined =
+    axis.profile;
   if (knots === undefined) {
     if (axis.driver.unit !== (axis.kind === "rotation" ? "degrees" : "metres"))
       throw new Error(
@@ -34,7 +35,10 @@ export function readHumanBodySourceProfile(
     throw new Error(
       "Source joint driver exceeds its recorded profile: " + axis.id,
     );
-  const exact: IAutoMovieHumanBodySourceMotionKnot | undefined = knots.find((knot: IAutoMovieHumanBodySourceMotionKnot): boolean => knot.input === value);
+  const exact: IAutoMovieHumanBodySourceMotionKnot | undefined = knots.find(
+    (knot: IAutoMovieHumanBodySourceMotionKnot): boolean =>
+      knot.input === value,
+  );
   if (exact !== undefined) return exact.output;
   for (let at: number = 1; at < knots.length; at++)
     if (value < knots[at].input) {

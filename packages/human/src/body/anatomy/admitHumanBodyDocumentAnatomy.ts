@@ -40,11 +40,15 @@ export function admitHumanBodyDocumentAnatomy(
   const bindings: Map<string, RegisteredQuantityBinding[]> = new Map();
   for (const part of source?.parts ?? [])
     for (const binding of part.quantityBindings ?? []) {
-      const registered: RegisteredQuantityBinding[] = bindings.get(binding.path) ?? [];
+      const registered: RegisteredQuantityBinding[] =
+        bindings.get(binding.path) ?? [];
       registered.push({ part, binding });
       bindings.set(binding.path, registered);
     }
-  const walk: (node: unknown, at: string) => void = (node: unknown, at: string): void => {
+  const walk: (node: unknown, at: string) => void = (
+    node: unknown,
+    at: string,
+  ): void => {
     // a scalar choice such as a phalangeal pattern describes an
     // ungenerated part as much as a measurement does
     if (typeof node !== "object" || node === null)
@@ -71,13 +75,24 @@ export function admitHumanBodyDocumentAnatomy(
         binding.members.length === 0 ||
         new Set(binding.members).size !== binding.members.length ||
         binding.members.some(
-          (member: string): boolean => !part.surfaces.some((surface: IAutoMovieHumanBodySourcePart["surfaces"][number]): boolean => surface.id === member),
+          (member: string): boolean =>
+            !part.surfaces.some(
+              (
+                surface: IAutoMovieHumanBodySourcePart["surfaces"][number],
+              ): boolean => surface.id === member,
+            ),
         )
       )
         throw new Error(`source-volume-binding-unavailable:anatomy.${at}`);
       if (
         (node as Record<string, unknown>).kind === "target" &&
-        !part.shapeFields?.some((field: NonNullable<IAutoMovieHumanBodySourcePart["shapeFields"]>[number]): boolean => field.id === binding.field)
+        !part.shapeFields?.some(
+          (
+            field: NonNullable<
+              IAutoMovieHumanBodySourcePart["shapeFields"]
+            >[number],
+          ): boolean => field.id === binding.field,
+        )
       )
         throw new Error(`source-shape-field-unavailable:anatomy.${at}`);
       return;
@@ -86,9 +101,11 @@ export function admitHumanBodyDocumentAnatomy(
       throw new Error(
         `acquisition-not-registered:anatomy.${at} (posture, plane and site)`,
       );
-    const bound: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number] | undefined = HUMAN_BODY_EXTERIOR_TARGETS.find(
-      (target: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number]): boolean => target.path === at,
-    );
+    const bound: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number] | undefined =
+      HUMAN_BODY_EXTERIOR_TARGETS.find(
+        (target: (typeof HUMAN_BODY_EXTERIOR_TARGETS)[number]): boolean =>
+          target.path === at,
+      );
     if (bound !== undefined) {
       if (Object.hasOwn(shape, bound.channel))
         throw new Error(
@@ -103,7 +120,11 @@ export function admitHumanBodyDocumentAnatomy(
       )
     )
       return;
-    const gap: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number] | undefined = HUMAN_BODY_EXTERIOR_GAPS.find((one: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number]): boolean => one.path === at);
+    const gap: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number] | undefined =
+      HUMAN_BODY_EXTERIOR_GAPS.find(
+        (one: (typeof HUMAN_BODY_EXTERIOR_GAPS)[number]): boolean =>
+          one.path === at,
+      );
     if (gap !== undefined)
       throw new Error(`${gap.reason}:anatomy.${at} ${gap.detail}`);
     throw new Error(

@@ -2,8 +2,8 @@ import type { AutoMovieHumanBodyAnatomicalUnavailableReason } from "../generated
 import type { IAutoMovieHumanBodyPartResolution } from "../generated/IAutoMovieHumanBodyPartResolution";
 import type { IAutoMovieHumanBodyRegionPartsInput } from "../generated/IAutoMovieHumanBodyRegionPartsInput";
 import { humanBodyUnavailablePart } from "../generated/humanBodyUnavailablePart";
-import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyToeMeasurements";
 import type { IAutoMovieHumanBodyFootMeasurements } from "./IAutoMovieHumanBodyFootMeasurements";
+import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyToeMeasurements";
 
 /**
  * Answer each side's midfoot and toe bones with the current region generator's unavailable reports.
@@ -21,13 +21,20 @@ import type { IAutoMovieHumanBodyFootMeasurements } from "./IAutoMovieHumanBodyF
 export function resolveHumanBodyForefootParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-bone-landmark";
-  const toe: (request: IAutoMovieHumanBodyToeMeasurements | undefined) => "anatomical-variant-absent" | "missing-bone-landmark" = (request: IAutoMovieHumanBodyToeMeasurements | undefined): "anatomical-variant-absent" | "missing-bone-landmark" =>
+  const bone: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-bone-landmark";
+  const toe: (
+    request: IAutoMovieHumanBodyToeMeasurements | undefined,
+  ) => "anatomical-variant-absent" | "missing-bone-landmark" = (
+    request: IAutoMovieHumanBodyToeMeasurements | undefined,
+  ): "anatomical-variant-absent" | "missing-bone-landmark" =>
     request?.phalangealPattern === "biphalangeal"
       ? ("anatomical-variant-absent" as const)
       : bone;
-  const left: IAutoMovieHumanBodyFootMeasurements | undefined = input.targets?.leftLowerLimb?.foot;
-  const right: IAutoMovieHumanBodyFootMeasurements | undefined = input.targets?.rightLowerLimb?.foot;
+  const left: IAutoMovieHumanBodyFootMeasurements | undefined =
+    input.targets?.leftLowerLimb?.foot;
+  const right: IAutoMovieHumanBodyFootMeasurements | undefined =
+    input.targets?.rightLowerLimb?.foot;
   return [
     humanBodyUnavailablePart("leftNavicular", left?.midfoot?.navicular, bone),
     humanBodyUnavailablePart("rightNavicular", right?.midfoot?.navicular, bone),
@@ -100,51 +107,56 @@ export function resolveHumanBodyForefootParts(
         ["Fourth", "fourthToe"],
         ["Fifth", "fifthToe"],
       ] as const
-    ).flatMap(([ordinal, key]: readonly ["Second" | "Third" | "Fourth" | "Fifth", "secondToe" | "thirdToe" | "fourthToe" | "fifthToe"]): IAutoMovieHumanBodyPartResolution[] => {
-      const l: IAutoMovieHumanBodyToeMeasurements | undefined = left?.[key];
-      const r: IAutoMovieHumanBodyToeMeasurements | undefined = right?.[key];
-      return [
-        humanBodyUnavailablePart(
-          `left${ordinal}ToeMetatarsal`,
-          l?.metatarsal,
-          toe(l),
-        ),
-        humanBodyUnavailablePart(
-          `right${ordinal}ToeMetatarsal`,
-          r?.metatarsal,
-          toe(r),
-        ),
-        humanBodyUnavailablePart(
-          `left${ordinal}ToeProximalPhalanx`,
-          l?.proximalPhalanx,
-          toe(l),
-        ),
-        humanBodyUnavailablePart(
-          `right${ordinal}ToeProximalPhalanx`,
-          r?.proximalPhalanx,
-          toe(r),
-        ),
-        humanBodyUnavailablePart(
-          `left${ordinal}ToeMiddlePhalanx`,
-          l?.middlePhalanx,
-          toe(l),
-        ),
-        humanBodyUnavailablePart(
-          `right${ordinal}ToeMiddlePhalanx`,
-          r?.middlePhalanx,
-          toe(r),
-        ),
-        humanBodyUnavailablePart(
-          `left${ordinal}ToeDistalPhalanx`,
-          l?.distalPhalanx,
-          toe(l),
-        ),
-        humanBodyUnavailablePart(
-          `right${ordinal}ToeDistalPhalanx`,
-          r?.distalPhalanx,
-          toe(r),
-        ),
-      ];
-    }),
+    ).flatMap(
+      ([ordinal, key]: readonly [
+        "Second" | "Third" | "Fourth" | "Fifth",
+        "secondToe" | "thirdToe" | "fourthToe" | "fifthToe",
+      ]): IAutoMovieHumanBodyPartResolution[] => {
+        const l: IAutoMovieHumanBodyToeMeasurements | undefined = left?.[key];
+        const r: IAutoMovieHumanBodyToeMeasurements | undefined = right?.[key];
+        return [
+          humanBodyUnavailablePart(
+            `left${ordinal}ToeMetatarsal`,
+            l?.metatarsal,
+            toe(l),
+          ),
+          humanBodyUnavailablePart(
+            `right${ordinal}ToeMetatarsal`,
+            r?.metatarsal,
+            toe(r),
+          ),
+          humanBodyUnavailablePart(
+            `left${ordinal}ToeProximalPhalanx`,
+            l?.proximalPhalanx,
+            toe(l),
+          ),
+          humanBodyUnavailablePart(
+            `right${ordinal}ToeProximalPhalanx`,
+            r?.proximalPhalanx,
+            toe(r),
+          ),
+          humanBodyUnavailablePart(
+            `left${ordinal}ToeMiddlePhalanx`,
+            l?.middlePhalanx,
+            toe(l),
+          ),
+          humanBodyUnavailablePart(
+            `right${ordinal}ToeMiddlePhalanx`,
+            r?.middlePhalanx,
+            toe(r),
+          ),
+          humanBodyUnavailablePart(
+            `left${ordinal}ToeDistalPhalanx`,
+            l?.distalPhalanx,
+            toe(l),
+          ),
+          humanBodyUnavailablePart(
+            `right${ordinal}ToeDistalPhalanx`,
+            r?.distalPhalanx,
+            toe(r),
+          ),
+        ];
+      },
+    ),
   ];
 }

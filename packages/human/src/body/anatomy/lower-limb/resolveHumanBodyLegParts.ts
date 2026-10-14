@@ -20,9 +20,12 @@ import type { IAutoMovieHumanBodyLegMeasurements } from "./IAutoMovieHumanBodyLe
 export function resolveHumanBodyLegParts(
   input: IAutoMovieHumanBodyRegionPartsInput,
 ): readonly IAutoMovieHumanBodyPartResolution[] {
-  const left: IAutoMovieHumanBodyLegMeasurements | undefined = input.targets?.leftLowerLimb?.leg;
-  const right: IAutoMovieHumanBodyLegMeasurements | undefined = input.targets?.rightLowerLimb?.leg;
-  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason = "missing-tissue-boundary";
+  const left: IAutoMovieHumanBodyLegMeasurements | undefined =
+    input.targets?.leftLowerLimb?.leg;
+  const right: IAutoMovieHumanBodyLegMeasurements | undefined =
+    input.targets?.rightLowerLimb?.leg;
+  const muscle: AutoMovieHumanBodyAnatomicalUnavailableReason =
+    "missing-tissue-boundary";
   return [
     humanBodyUnavailablePart("leftTibia", left?.tibia, "missing-bone-landmark"),
     humanBodyUnavailablePart(

@@ -1,5 +1,5 @@
-import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 import type { IAutoMovieHumanBodyLayerThicknessField } from "./IAutoMovieHumanBodyLayerThicknessField";
+import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 
 /**
  * One evaluated body skin and the thickness field that layers it.

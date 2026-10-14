@@ -1,5 +1,9 @@
 import { tessellateToMesh, validateModel } from "@automovie/engine";
-import type { IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { placeMeshPreservingFaces } from "../../../common/mesh/placeMeshPreservingFaces";
 import type { IAutoMovieHumanBodyArticularCandidate } from "../generated/IAutoMovieHumanBodyArticularCandidate";
@@ -37,21 +41,23 @@ export function createHumanBodyArticularCandidateModel(
     id: props.id,
     name: props.name,
     origin: "imported",
-    parts: props.inspection.candidates.map((head: IAutoMovieHumanBodyArticularCandidate): IAutoMovieModelPart => ({
-      id: head.part + "/head-candidate",
-      name: head.part + " target head candidate",
-      geometry: {
-        type: "primitive",
-        shape: { type: "sphere", radius: head.radiusMetres },
-      },
-      material: material.id,
-      attachedBone: null,
-      transform: {
-        translation: { ...head.center },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
-    })),
+    parts: props.inspection.candidates.map(
+      (head: IAutoMovieHumanBodyArticularCandidate): IAutoMovieModelPart => ({
+        id: head.part + "/head-candidate",
+        name: head.part + " target head candidate",
+        geometry: {
+          type: "primitive",
+          shape: { type: "sphere", radius: head.radiusMetres },
+        },
+        material: material.id,
+        attachedBone: null,
+        transform: {
+          translation: { ...head.center },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+      }),
+    ),
     materials: [material],
     skeleton: null,
     body: null,
@@ -64,20 +70,22 @@ export function createHumanBodyArticularCandidateModel(
     throw new Error(
       "Invalid articular candidate dimensions: " + JSON.stringify(dimensions),
     );
-  model.parts = model.parts.map((part: IAutoMovieModelPart, index: number): IAutoMovieModelPart => ({
-    ...part,
-    geometry: {
-      type: "mesh",
-      mesh: placeMeshPreservingFaces(
-        tessellateToMesh({
-          type: "sphere",
-          radius: props.inspection.candidates[index].radiusMetres,
-        }),
-        { translation: props.inspection.candidates[index].center },
-      ),
-    },
-    transform: null,
-  }));
+  model.parts = model.parts.map(
+    (part: IAutoMovieModelPart, index: number): IAutoMovieModelPart => ({
+      ...part,
+      geometry: {
+        type: "mesh",
+        mesh: placeMeshPreservingFaces(
+          tessellateToMesh({
+            type: "sphere",
+            radius: props.inspection.candidates[index].radiusMetres,
+          }),
+          { translation: props.inspection.candidates[index].center },
+        ),
+      },
+      transform: null,
+    }),
+  );
   const validation: ReturnType<typeof validateModel> = validateModel({ model });
   if (!validation.success)
     throw new Error(

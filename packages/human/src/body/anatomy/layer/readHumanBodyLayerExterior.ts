@@ -1,5 +1,8 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
-import type { IAutoMovieMeshPhysicalSource, IAutoMovieMeshPhysicalVertices } from "@automovie/interface";
+import type {
+  IAutoMovieMeshPhysicalSource,
+  IAutoMovieMeshPhysicalVertices,
+} from "@automovie/interface";
 
 import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 import type { IHumanBodyLayerExteriorInput } from "./IHumanBodyLayerExteriorInput";
@@ -24,7 +27,9 @@ export function readHumanBodyLayerExterior(
     input.domain.trim().length === 0 ||
     input.meshes.length === 0 ||
     input.samples.length === 0 ||
-    input.samples.some((sample: number): boolean => !Number.isSafeInteger(sample) || sample < 0)
+    input.samples.some(
+      (sample: number): boolean => !Number.isSafeInteger(sample) || sample < 0,
+    )
   )
     throw new Error(
       "Layer exterior needs actual skin meshes, one physical domain and native body sample IDs.",
@@ -34,7 +39,8 @@ export function readHumanBodyLayerExterior(
   const indices: number[] = [];
   for (const mesh of input.meshes) {
     resolveAutoMovieMeshPhysicalVertices(mesh);
-    const physical: IAutoMovieMeshPhysicalVertices | undefined = mesh.physicalVertices;
+    const physical: IAutoMovieMeshPhysicalVertices | undefined =
+      mesh.physicalVertices;
     if (
       physical === undefined ||
       mesh.indices === null ||
@@ -44,31 +50,33 @@ export function readHumanBodyLayerExterior(
       throw new Error(
         "Layer exterior needs indexed skin parts with actual physical registration.",
       );
-    const vertices: number[] = physical.vertices.map((reference: number | null, vertex: number): number => {
-      const source: IAutoMovieMeshPhysicalSource | undefined =
-        reference === null ? undefined : physical.sources[reference];
-      if (source === undefined || source.domain !== input.domain)
-        throw new Error(
-          "Layer exterior skin samples must belong to the selected physical domain.",
-        );
-      let slot: number | undefined = slots.get(source.id);
-      if (slot === undefined) {
-        slot = positions.length / 3;
-        slots.set(source.id, slot);
-        positions.push(...mesh.positions.slice(vertex * 3, vertex * 3 + 3));
-      } else if (
-        [0, 1, 2].some(
-          (axis: number): boolean =>
-            positions[slot! * 3 + axis] !== mesh.positions[vertex * 3 + axis],
+    const vertices: number[] = physical.vertices.map(
+      (reference: number | null, vertex: number): number => {
+        const source: IAutoMovieMeshPhysicalSource | undefined =
+          reference === null ? undefined : physical.sources[reference];
+        if (source === undefined || source.domain !== input.domain)
+          throw new Error(
+            "Layer exterior skin samples must belong to the selected physical domain.",
+          );
+        let slot: number | undefined = slots.get(source.id);
+        if (slot === undefined) {
+          slot = positions.length / 3;
+          slots.set(source.id, slot);
+          positions.push(...mesh.positions.slice(vertex * 3, vertex * 3 + 3));
+        } else if (
+          [0, 1, 2].some(
+            (axis: number): boolean =>
+              positions[slot! * 3 + axis] !== mesh.positions[vertex * 3 + axis],
+          )
         )
-      )
-        throw new Error(
-          "Layer exterior aliases disagree on actual performed coordinates for sample " +
-            source.id +
-            ".",
-        );
-      return slot;
-    });
+          throw new Error(
+            "Layer exterior aliases disagree on actual performed coordinates for sample " +
+              source.id +
+              ".",
+          );
+        return slot;
+      },
+    );
     for (const vertex of mesh.indices) {
       if (
         !Number.isSafeInteger(vertex) ||
@@ -79,14 +87,16 @@ export function readHumanBodyLayerExterior(
       indices.push(vertices[vertex]);
     }
   }
-  const originVertices: number[] = input.samples.map((sample: number): number => {
-    const slot: number | undefined = slots.get(sample);
-    if (slot === undefined)
-      throw new Error(
-        "Layer exterior omits native body sample " + sample + ".",
-      );
-    return slot;
-  });
+  const originVertices: number[] = input.samples.map(
+    (sample: number): number => {
+      const slot: number | undefined = slots.get(sample);
+      if (slot === undefined)
+        throw new Error(
+          "Layer exterior omits native body sample " + sample + ".",
+        );
+      return slot;
+    },
+  );
   return {
     mesh: { positions, indices, normals: null, uvs: null, skin: null },
     originVertices,

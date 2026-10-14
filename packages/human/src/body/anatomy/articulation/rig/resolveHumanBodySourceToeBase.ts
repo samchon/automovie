@@ -29,7 +29,11 @@ export function resolveHumanBodySourceToeBase(
     parent.posed.rotation,
     Quaternion.inverse(parent.rest.rotation),
   );
-  const local: IAutoMovieQuaternion = readHumanBodySourcePublicPose(base.goal, input, used);
+  const local: IAutoMovieQuaternion = readHumanBodySourcePublicPose(
+    base.goal,
+    input,
+    used,
+  );
   return {
     rest: base.rest,
     posed: {

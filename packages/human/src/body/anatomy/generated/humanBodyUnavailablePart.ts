@@ -28,8 +28,10 @@ export function humanBodyUnavailablePart<Id extends string>(
 }
 
 function observed(node: unknown): boolean {
-  return typeof node === "object" &&
+  return (
+    typeof node === "object" &&
     node !== null &&
     ((node as Record<string, unknown>).kind === "observed" ||
-      Object.values(node).some(observed));
+      Object.values(node).some(observed))
+  );
 }

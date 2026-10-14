@@ -1,8 +1,8 @@
 import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 
+import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 import type { IHumanBodyLayerSurfaces } from "./IHumanBodyLayerSurfaces";
 import type { IHumanBodyLayerSurfacesInput } from "./IHumanBodyLayerSurfacesInput";
-import type { IHumanBodyLayerExterior } from "./IHumanBodyLayerExterior";
 
 /**
  * Derive the dermal and fascial faces of a body from its skin.
@@ -36,7 +36,8 @@ export function createHumanBodyLayerSurfaces(
     indices.length === 0 ||
     !positions.every(Number.isFinite) ||
     indices.some(
-      (index: number): boolean => !Number.isSafeInteger(index) || index < 0 || index >= count,
+      (index: number): boolean =>
+        !Number.isSafeInteger(index) || index < 0 || index >= count,
     )
   )
     throw new Error("Layer surfaces need a nonempty finite indexed skin.");
@@ -47,20 +48,50 @@ export function createHumanBodyLayerSurfaces(
   )
     throw new Error("Layer thickness must be finite and nonnegative.");
   const exterior: IHumanBodyLayerExterior | undefined = input.exterior;
-  const queryPositions: readonly number[] = exterior?.mesh.positions ?? positions;
+  const queryPositions: readonly number[] =
+    exterior?.mesh.positions ?? positions;
   const queryIndices: readonly number[] = exterior?.mesh.indices ?? indices;
   const queryCount: number = queryPositions.length / 3;
-  const origins: readonly number[] = exterior?.originVertices ?? Array.from({ length: count }, (_: unknown, vertex: number): number => vertex);
+  const origins: readonly number[] =
+    exterior?.originVertices ??
+    Array.from(
+      { length: count },
+      (_: unknown, vertex: number): number => vertex,
+    );
   if (
-    queryPositions.length % 3 !== 0 || queryIndices.length === 0 ||
-    queryIndices.length % 3 !== 0 || !queryPositions.every(Number.isFinite) ||
-    queryIndices.some((vertex: number): boolean => !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= queryCount) ||
-    origins.length !== count || origins.some((vertex: number, native: number): boolean =>
-      !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= queryCount ||
-      [0, 1, 2].some((axis: number): boolean => queryPositions[vertex * 3 + axis] !== positions[native * 3 + axis])) ||
+    queryPositions.length % 3 !== 0 ||
+    queryIndices.length === 0 ||
+    queryIndices.length % 3 !== 0 ||
+    !queryPositions.every(Number.isFinite) ||
+    queryIndices.some(
+      (vertex: number): boolean =>
+        !Number.isSafeInteger(vertex) || vertex < 0 || vertex >= queryCount,
+    ) ||
+    origins.length !== count ||
+    origins.some(
+      (vertex: number, native: number): boolean =>
+        !Number.isSafeInteger(vertex) ||
+        vertex < 0 ||
+        vertex >= queryCount ||
+        [0, 1, 2].some(
+          (axis: number): boolean =>
+            queryPositions[vertex * 3 + axis] !== positions[native * 3 + axis],
+        ),
+    ) ||
     (exterior !== undefined && exterior.mesh.indices === null)
-  ) throw new Error("Layer exterior must carry exact native origins in a finite indexed common frame.");
-  const areaOf: (surface: readonly number[], at: number, triangles?: readonly number[]) => number[] = (surface: readonly number[], at: number, triangles: readonly number[] = indices): number[] => {
+  )
+    throw new Error(
+      "Layer exterior must carry exact native origins in a finite indexed common frame.",
+    );
+  const areaOf: (
+    surface: readonly number[],
+    at: number,
+    triangles?: readonly number[],
+  ) => number[] = (
+    surface: readonly number[],
+    at: number,
+    triangles: readonly number[] = indices,
+  ): number[] => {
     const [a, b, c]: number[] = [
       triangles[at] * 3,
       triangles[at + 1] * 3,
@@ -82,8 +113,13 @@ export function createHumanBodyLayerSurfaces(
       u[0] * v[1] - u[1] * v[0],
     ];
   };
-  const queryNormals: number[] = new Array<number>(queryPositions.length).fill(0);
-  const incident: Set<number>[] = Array.from({ length: queryCount }, (): Set<number> => new Set<number>());
+  const queryNormals: number[] = new Array<number>(queryPositions.length).fill(
+    0,
+  );
+  const incident: Set<number>[] = Array.from(
+    { length: queryCount },
+    (): Set<number> => new Set<number>(),
+  );
   for (let at: number = 0; at < queryIndices.length; at += 3) {
     const area: number[] = areaOf(queryPositions, at, queryIndices);
     if (!area.every(Number.isFinite))
@@ -95,21 +131,29 @@ export function createHumanBodyLayerSurfaces(
     }
   }
   for (let at: number = 0; at < queryNormals.length; at += 3) {
-    const length: number = Math.hypot(queryNormals[at], queryNormals[at + 1], queryNormals[at + 2]);
+    const length: number = Math.hypot(
+      queryNormals[at],
+      queryNormals[at + 1],
+      queryNormals[at + 2],
+    );
     if (!(length > 0) || !Number.isFinite(length))
       throw new Error(
         "Skin vertex " + at / 3 + " has no finite area-weighted normal.",
       );
-    for (let axis: number = 0; axis < 3; axis++) queryNormals[at + axis] /= length;
+    for (let axis: number = 0; axis < 3; axis++)
+      queryNormals[at + axis] /= length;
   }
-  const normals: number[] = origins.flatMap((vertex: number): number[] => queryNormals.slice(vertex * 3, vertex * 3 + 3));
-  const cast: ReturnType<typeof createAutoMovieMeshRayCaster> = createAutoMovieMeshRayCaster({
-    positions: [...queryPositions],
-    normals: queryNormals,
-    indices: [...queryIndices],
-    uvs: null,
-    skin: null,
-  });
+  const normals: number[] = origins.flatMap((vertex: number): number[] =>
+    queryNormals.slice(vertex * 3, vertex * 3 + 3),
+  );
+  const cast: ReturnType<typeof createAutoMovieMeshRayCaster> =
+    createAutoMovieMeshRayCaster({
+      positions: [...queryPositions],
+      normals: queryNormals,
+      indices: [...queryIndices],
+      uvs: null,
+      skin: null,
+    });
   const dermis: number[] = new Array<number>(positions.length);
   const fascia: number[] = new Array<number>(positions.length);
   let beyondReachVertices: number = 0;

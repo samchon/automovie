@@ -28,33 +28,39 @@ export function readHumanBodySourceAxis(
   input: IAutoMovieHumanBodySourceRigInput,
   used: Set<string>,
 ): number {
-  const direct: IAutoMovieHumanBodySourceJointGoal | undefined = input.goals.find(
-    (goal: IAutoMovieHumanBodySourceJointGoal): boolean => goal.bone === bone && goal.axis === axis.id,
-  );
+  const direct: IAutoMovieHumanBodySourceJointGoal | undefined =
+    input.goals.find(
+      (goal: IAutoMovieHumanBodySourceJointGoal): boolean =>
+        goal.bone === bone && goal.axis === axis.id,
+    );
   const driver: AutoMovieHumanBodySourceDriver = axis.driver;
   let authored: number | undefined;
   if (driver.kind === "public-pose") {
     authored =
-      input.pose.find((goal: IAutoMovieJointPose): boolean => goal.bone === driver.bone)?.[driver.axis] ??
-      undefined;
+      input.pose.find(
+        (goal: IAutoMovieJointPose): boolean => goal.bone === driver.bone,
+      )?.[driver.axis] ?? undefined;
     if (authored !== undefined)
       used.add(`public-pose.${driver.bone}.${driver.axis}`);
   } else if (driver.kind === "public-shoulder") {
-    authored = input.shoulders.find((goal: IAutoMovieHumanBodyShoulderPose): boolean => goal.bone === driver.bone)?.[
-      driver.axis
-    ];
+    authored = input.shoulders.find(
+      (goal: IAutoMovieHumanBodyShoulderPose): boolean =>
+        goal.bone === driver.bone,
+    )?.[driver.axis];
     if (authored !== undefined)
       used.add(`public-shoulder.${driver.bone}.${driver.axis}`);
   } else if (driver.kind === "public-toe") {
-    authored = input.toes?.find((goal: IAutoMovieHumanBodyToePose): boolean => goal.bone === driver.bone)?.[
-      driver.axis
-    ];
+    authored = input.toes?.find(
+      (goal: IAutoMovieHumanBodyToePose): boolean => goal.bone === driver.bone,
+    )?.[driver.axis];
     if (authored !== undefined)
       used.add(`public-toe.${driver.bone}.${driver.axis}`);
   } else {
-    const goal: IAutoMovieHumanBodySourceJointGoal | undefined = input.goals.find(
-      (one: IAutoMovieHumanBodySourceJointGoal): boolean => one.bone === driver.bone && one.axis === driver.axis,
-    );
+    const goal: IAutoMovieHumanBodySourceJointGoal | undefined =
+      input.goals.find(
+        (one: IAutoMovieHumanBodySourceJointGoal): boolean =>
+          one.bone === driver.bone && one.axis === driver.axis,
+      );
     if (goal !== undefined) {
       if (goal.unit !== driver.unit)
         throw new Error(

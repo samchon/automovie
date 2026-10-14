@@ -50,27 +50,30 @@ export function measureHumanBodySpheresSkinClearance(input: {
 }): SphereClearance[] {
   if (input.skins.length === 0)
     throw new Error("Internal components need at least one connected skin.");
-  const spheres: SphereState[] = input.spheres.map((sphere: (typeof input.spheres)[number]): SphereState => {
-    if (
-      sphere.id.trim() === "" ||
-      !Number.isFinite(sphere.radiusMetres) ||
-      sphere.radiusMetres <= 0 ||
-      ![sphere.center.x, sphere.center.y, sphere.center.z].every(
-        Number.isFinite,
+  const spheres: SphereState[] = input.spheres.map(
+    (sphere: (typeof input.spheres)[number]): SphereState => {
+      if (
+        sphere.id.trim() === "" ||
+        !Number.isFinite(sphere.radiusMetres) ||
+        sphere.radiusMetres <= 0 ||
+        ![sphere.center.x, sphere.center.y, sphere.center.z].every(
+          Number.isFinite,
+        )
       )
-    )
-      throw new Error(
-        "An internal sphere needs an id, finite centre and positive radius in metres.",
-      );
-    return {
-      ...sphere,
-      point: [sphere.center.x, sphere.center.y, sphere.center.z],
-      squared: Infinity,
-      interiors: 0,
-    };
-  });
+        throw new Error(
+          "An internal sphere needs an id, finite centre and positive radius in metres.",
+        );
+      return {
+        ...sphere,
+        point: [sphere.center.x, sphere.center.y, sphere.center.z],
+        squared: Infinity,
+        interiors: 0,
+      };
+    },
+  );
   for (const skin of input.skins) {
-    const solid: ReturnType<typeof humanBodyCappedSurface> = humanBodyCappedSurface(skin.positions, skin.indices);
+    const solid: ReturnType<typeof humanBodyCappedSurface> =
+      humanBodyCappedSurface(skin.positions, skin.indices);
     solid.assertValid();
     const positions: number[] = solid.closed.positions;
     const indices: number[] = solid.closed.indices!;
@@ -87,22 +90,29 @@ export function measureHumanBodySpheresSkinClearance(input: {
     for (const sphere of spheres)
       if (solid.contains(sphere.point)) sphere.interiors++;
   }
-  return spheres.map(({ id, radiusMetres, squared, interiors }: SphereState): SphereClearance => {
-    if (interiors > 1)
-      throw new Error(
-        "An internal component cannot occupy overlapping skin solids: " + id,
-      );
-    const nearestMetres: number = Math.sqrt(squared);
-    return {
+  return spheres.map(
+    ({
       id,
-      centerInside: interiors === 1,
-      nearestMetres,
-      clearanceMetres:
-        interiors === 1
-          ? nearestMetres - radiusMetres
-          : -nearestMetres - radiusMetres,
-    };
-  });
+      radiusMetres,
+      squared,
+      interiors,
+    }: SphereState): SphereClearance => {
+      if (interiors > 1)
+        throw new Error(
+          "An internal component cannot occupy overlapping skin solids: " + id,
+        );
+      const nearestMetres: number = Math.sqrt(squared);
+      return {
+        id,
+        centerInside: interiors === 1,
+        nearestMetres,
+        clearanceMetres:
+          interiors === 1
+            ? nearestMetres - radiusMetres
+            : -nearestMetres - radiusMetres,
+      };
+    },
+  );
 }
 
 /** Squared distance to a triangle's face, or its nearest edge when outside. */
@@ -112,11 +122,22 @@ function pointTriangleSquaredDistance(
   b: number[],
   c: number[],
 ): number {
-  const subtract: (left: number[], right: number[]) => number[] = (left: number[], right: number[]): number[] =>
+  const subtract: (left: number[], right: number[]) => number[] = (
+    left: number[],
+    right: number[],
+  ): number[] =>
     left.map((value: number, axis: number): number => value - right[axis]);
-  const dot: (left: number[], right: number[]) => number = (left: number[], right: number[]): number =>
-    left.reduce((sum: number, value: number, axis: number): number => sum + value * right[axis], 0);
-  const squared: (vector: number[]) => number = (vector: number[]): number => dot(vector, vector);
+  const dot: (left: number[], right: number[]) => number = (
+    left: number[],
+    right: number[],
+  ): number =>
+    left.reduce(
+      (sum: number, value: number, axis: number): number =>
+        sum + value * right[axis],
+      0,
+    );
+  const squared: (vector: number[]) => number = (vector: number[]): number =>
+    dot(vector, vector);
   const ab: number[] = subtract(b, a);
   const ac: number[] = subtract(c, a);
   const ap: number[] = subtract(point, a);
@@ -132,11 +153,15 @@ function pointTriangleSquaredDistance(
   const towardC: number = (aa * pb - cross * pa) / divisor;
   if (towardB >= 0 && towardC >= 0 && towardB + towardC <= 1) {
     const projected: number[] = a.map(
-      (value: number, axis: number): number => value + towardB * ab[axis] + towardC * ac[axis],
+      (value: number, axis: number): number =>
+        value + towardB * ab[axis] + towardC * ac[axis],
     );
     return squared(subtract(point, projected));
   }
-  const edge: (start: number[], end: number[]) => number = (start: number[], end: number[]): number => {
+  const edge: (start: number[], end: number[]) => number = (
+    start: number[],
+    end: number[],
+  ): number => {
     const direction: number[] = subtract(end, start);
     const length: number = squared(direction);
     const t: number = Math.min(
@@ -146,7 +171,9 @@ function pointTriangleSquaredDistance(
     return squared(
       subtract(
         point,
-        start.map((value: number, axis: number): number => value + t * direction[axis]),
+        start.map(
+          (value: number, axis: number): number => value + t * direction[axis],
+        ),
       ),
     );
   };

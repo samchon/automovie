@@ -28,30 +28,75 @@ export function carryHumanBodyNeutralSourceRig(
   rig: IAutoMovieHumanBodySourceRigResult,
   carry: (positions: readonly number[]) => number[],
 ): IAutoMovieHumanBodySourceRigResult {
-  const frames: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform][] = [...rig.bones];
-  const sourceSites: SourceSite[] = [...rig.sites].flatMap(([bone, sites]: [AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>]): SourceSite[] =>
-    [...sites].map(([id, position]: [string, IAutoMovieVector3]): SourceSite => ({ bone, id, position })),
+  const frames: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform][] =
+    [...rig.bones];
+  const sourceSites: SourceSite[] = [...rig.sites].flatMap(
+    ([bone, sites]: [
+      AutoMovieHumanBodyBoneId,
+      ReadonlyMap<string, IAutoMovieVector3>,
+    ]): SourceSite[] =>
+      [...sites].map(
+        ([id, position]: [string, IAutoMovieVector3]): SourceSite => ({
+          bone,
+          id,
+          position,
+        }),
+      ),
   );
   const points: IAutoMovieVector3[] = [
-    ...frames.map(([, frame]: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform]): IAutoMovieVector3 => frame.rest.position),
+    ...frames.map(
+      ([, frame]: [
+        AutoMovieHumanBodyBoneId,
+        IAutoMovieHumanBodyBoneTransform,
+      ]): IAutoMovieVector3 => frame.rest.position,
+    ),
     ...sourceSites.map((site: SourceSite): IAutoMovieVector3 => site.position),
   ];
-  const moved: number[] = carry(points.flatMap((point: IAutoMovieVector3): number[] => [point.x, point.y, point.z]));
-  const pointAt: (index: number) => IAutoMovieVector3 = (index: number): IAutoMovieVector3 => ({
+  const moved: number[] = carry(
+    points.flatMap((point: IAutoMovieVector3): number[] => [
+      point.x,
+      point.y,
+      point.z,
+    ]),
+  );
+  const pointAt: (index: number) => IAutoMovieVector3 = (
+    index: number,
+  ): IAutoMovieVector3 => ({
     x: moved[index * 3],
     y: moved[index * 3 + 1],
     z: moved[index * 3 + 2],
   });
   const bones: IAutoMovieHumanBodySourceRigResult["bones"] = new Map(
-    frames.map(([bone, frame]: [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform], at: number): [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform] => {
-      const rest: IAutoMovieHumanBodyBoneWorldRest = { ...frame.rest, position: pointAt(at) };
-      return [bone, { ...frame, rest, posed: rest }];
-    }),
+    frames.map(
+      (
+        [bone, frame]: [
+          AutoMovieHumanBodyBoneId,
+          IAutoMovieHumanBodyBoneTransform,
+        ],
+        at: number,
+      ): [AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform] => {
+        const rest: IAutoMovieHumanBodyBoneWorldRest = {
+          ...frame.rest,
+          position: pointAt(at),
+        };
+        return [bone, { ...frame, rest, posed: rest }];
+      },
+    ),
   );
-  const sites: Map<AutoMovieHumanBodyBoneId, Map<string, IAutoMovieVector3>> = new Map<
+  const sites: Map<
     AutoMovieHumanBodyBoneId,
     Map<string, IAutoMovieVector3>
-  >([...rig.sites].map(([bone]: [AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>]): [AutoMovieHumanBodyBoneId, Map<string, IAutoMovieVector3>] => [bone, new Map()]));
+  > = new Map<AutoMovieHumanBodyBoneId, Map<string, IAutoMovieVector3>>(
+    [...rig.sites].map(
+      ([bone]: [
+        AutoMovieHumanBodyBoneId,
+        ReadonlyMap<string, IAutoMovieVector3>,
+      ]): [AutoMovieHumanBodyBoneId, Map<string, IAutoMovieVector3>] => [
+        bone,
+        new Map(),
+      ],
+    ),
+  );
   sourceSites.forEach((site: SourceSite, at: number): void => {
     sites.get(site.bone)!.set(site.id, pointAt(frames.length + at));
   });

@@ -48,16 +48,24 @@ export function readHumanBodySourceBoundaryVolume(
       const a: number = vertices[k];
       const b: number = vertices[(k + 1) % 3];
       const key: string = Math.min(a, b) + ":" + Math.max(a, b);
-      const incidence: { count: number; orientation: number } = edges.get(key) ?? { count: 0, orientation: 0 };
+      const incidence: { count: number; orientation: number } = edges.get(
+        key,
+      ) ?? { count: 0, orientation: 0 };
       incidence.count++;
       incidence.orientation += a < b ? 1 : -1;
       edges.set(key, incidence);
     }
     const [a, b, c]: number[][] = vertices.map((vertex: number): number[] =>
-      [0, 1, 2].map((axis: number): number => positions[3 * vertex + axis] - origin[axis]),
+      [0, 1, 2].map(
+        (axis: number): number => positions[3 * vertex + axis] - origin[axis],
+      ),
     );
-    const ab: number[] = b.map((value: number, axis: number): number => value - a[axis]);
-    const ac: number[] = c.map((value: number, axis: number): number => value - a[axis]);
+    const ab: number[] = b.map(
+      (value: number, axis: number): number => value - a[axis],
+    );
+    const ac: number[] = c.map(
+      (value: number, axis: number): number => value - a[axis],
+    );
     const normal: number[] = [
       ab[1] * ac[2] - ab[2] * ac[1],
       ab[2] * ac[0] - ab[0] * ac[2],

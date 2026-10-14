@@ -1,13 +1,16 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBoneTransform } from "../../../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
 import type { AutoMovieHumanBodyBoneId } from "../../identity/AutoMovieHumanBodyBoneId";
-import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import type { IAutoMovieHumanBodySourceBoneNode } from "./IAutoMovieHumanBodySourceBoneNode";
-import type { IAutoMovieHumanBodySourceSite } from "./IAutoMovieHumanBodySourceSite";
 import type { IAutoMovieHumanBodySourcePelvicRhythm } from "./IAutoMovieHumanBodySourcePelvicRhythm";
+import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
+import type { IAutoMovieHumanBodySourceSite } from "./IAutoMovieHumanBodySourceSite";
 
 /**
  * Apply the existing hips-only rhythm on the same resolved graph before sites and public projections are read.
@@ -30,16 +33,26 @@ export function applyHumanBodySourcePelvicRhythm(
   if (!Number.isFinite(tilt))
     throw new Error("Anatomical pelvic rhythm needs finite degrees.");
   if (tilt === 0) return;
-  const registration: IAutoMovieHumanBodySourcePelvicRhythm | undefined = input.rig.pelvicRhythm;
+  const registration: IAutoMovieHumanBodySourcePelvicRhythm | undefined =
+    input.rig.pelvicRhythm;
   if (registration === undefined)
     throw new Error(
       "Anatomical source lacks the requested pelvic rhythm registration.",
     );
-  const at: (id: AutoMovieHumanBodyBoneId, siteId: string) => IAutoMovieVector3 = (id: AutoMovieHumanBodyBoneId, siteId: string): IAutoMovieVector3 => {
-    const frame: IAutoMovieHumanBodyBoneWorldRest | undefined = bones.get(id)?.posed;
+  const at: (
+    id: AutoMovieHumanBodyBoneId,
+    siteId: string,
+  ) => IAutoMovieVector3 = (
+    id: AutoMovieHumanBodyBoneId,
+    siteId: string,
+  ): IAutoMovieVector3 => {
+    const frame: IAutoMovieHumanBodyBoneWorldRest | undefined =
+      bones.get(id)?.posed;
     const site: IAutoMovieHumanBodySourceSite | undefined = input.rig.nodes
       .find((one: IAutoMovieHumanBodySourceBoneNode): boolean => one.id === id)
-      ?.sites.find((one: IAutoMovieHumanBodySourceSite): boolean => one.id === siteId);
+      ?.sites.find(
+        (one: IAutoMovieHumanBodySourceSite): boolean => one.id === siteId,
+      );
     if (frame === undefined || site === undefined)
       throw new Error(
         "Anatomical pelvic rhythm lacks its registered hip site: " +
@@ -52,8 +65,14 @@ export function applyHumanBodySourcePelvicRhythm(
       Quaternion.rotateVector(frame.rotation, site.position),
     );
   };
-  const left: IAutoMovieVector3 = at(registration.leftHipBone, registration.leftHipSite);
-  const right: IAutoMovieVector3 = at(registration.rightHipBone, registration.rightHipSite);
+  const left: IAutoMovieVector3 = at(
+    registration.leftHipBone,
+    registration.leftHipSite,
+  );
+  const right: IAutoMovieVector3 = at(
+    registration.rightHipBone,
+    registration.rightHipSite,
+  );
   const line: IAutoMovieVector3 = Vector3.subtract(left, right);
   if (
     ![line.x, line.y, line.z].every(Number.isFinite) ||
@@ -64,8 +83,14 @@ export function applyHumanBodySourcePelvicRhythm(
     );
   // The existing hips primitive stands for the whole pelvic ring, not one
   // sacral mesh. Its actual members share the same turn while thighs/trunk stay.
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(Vector3.normalize(line), tilt);
-  const updates: Map<AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform> = new Map();
+  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    Vector3.normalize(line),
+    tilt,
+  );
+  const updates: Map<
+    AutoMovieHumanBodyBoneId,
+    IAutoMovieHumanBodyBoneTransform
+  > = new Map();
   for (const id of registration.members) {
     const bone: IAutoMovieHumanBodyBoneTransform | undefined = bones.get(id);
     if (bone === undefined)

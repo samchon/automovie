@@ -1,5 +1,10 @@
-import type { IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieMeshPhysicalSource, IAutoMovieModelPart } from "@automovie/interface";
 import { autoMovieRenderDigest } from "@automovie/engine";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieMeshPhysicalSource,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { humanPhysicalSourceDomain } from "../../../common/basis/humanPhysicalSourceDomain";
 import type { IAutoMovieHumanConstructionFailure } from "../../../common/structures/IAutoMovieHumanConstructionFailure";
@@ -28,19 +33,44 @@ export function createHumanBodyLayerConstruction(
   input: IHumanBodyLayerConstructionInput,
 ): IHumanBodyLayerConstruction {
   if (input.field.basis !== input.basis || input.surface.trim() === "")
-    throw new Error("Native layer construction needs its exact basis and surface.");
-  if (input.nativeSource !== undefined && (input.nativeSource.surface !== input.surface ||
-      input.nativeSource.fieldDigest !== autoMovieRenderDigest(JSON.stringify(input.field))))
-    throw new Error("Native subcutaneous construction needs its registered field and actual surface.");
+    throw new Error(
+      "Native layer construction needs its exact basis and surface.",
+    );
+  if (
+    input.nativeSource !== undefined &&
+    (input.nativeSource.surface !== input.surface ||
+      input.nativeSource.fieldDigest !==
+        autoMovieRenderDigest(JSON.stringify(input.field)))
+  )
+    throw new Error(
+      "Native subcutaneous construction needs its registered field and actual surface.",
+    );
   const surfaces: IHumanBodyLayerSurfaces = createHumanBodyLayerSurfaces(input);
   const count: number = input.positions.length / 3;
   const domains: string[] = ["dermal", "fascial"].map((sheet: string): string =>
-    humanPhysicalSourceDomain(input.instance, JSON.stringify([input.basis, input.surface, sheet])),
+    humanPhysicalSourceDomain(
+      input.instance,
+      JSON.stringify([input.basis, input.surface, sheet]),
+    ),
   );
-  const shell: IAutoMovieMesh = createHumanBodySubcutaneousShell(surfaces, input.indices);
+  const shell: IAutoMovieMesh = createHumanBodySubcutaneousShell(
+    surfaces,
+    input.indices,
+  );
   shell.physicalVertices = {
-    sources: domains.flatMap((domain: string): IAutoMovieMeshPhysicalSource[] => Array.from({ length: count }, (_: unknown, id: number): IAutoMovieMeshPhysicalSource => ({ domain, id }))),
-    vertices: Array.from({ length: count * 2 }, (_: unknown, id: number): number => id),
+    sources: domains.flatMap((domain: string): IAutoMovieMeshPhysicalSource[] =>
+      Array.from(
+        { length: count },
+        (_: unknown, id: number): IAutoMovieMeshPhysicalSource => ({
+          domain,
+          id,
+        }),
+      ),
+    ),
+    vertices: Array.from(
+      { length: count * 2 },
+      (_: unknown, id: number): number => id,
+    ),
   };
   const outer: number[] = [];
   const inner: number[] = [];
@@ -50,12 +80,24 @@ export function createHumanBodyLayerConstruction(
   }
   const rim: number[] = shell.indices!.slice(input.indices.length * 2);
   const populations: number[][] = [outer, inner, rim];
-  const names: readonly ["dermal-face", "fascial-face", "subcutaneous-rim"] = ["dermal-face", "fascial-face", "subcutaneous-rim"];
-  const prefix: string = input.nativeSource === undefined ? "skin-layer:" + input.surface + ":" :
-    "native-subcutaneous:" + input.nativeSource.id + "/" + input.surface + "/";
-  const meshes: IAutoMovieMesh[] = populations.map((indices: number[]): IAutoMovieMesh =>
-    indices.length === 0 ? { ...shell, indices: [] } :
-      createHumanBodySourceResidentMesh({ ...shell, indices }).mesh,
+  const names: readonly ["dermal-face", "fascial-face", "subcutaneous-rim"] = [
+    "dermal-face",
+    "fascial-face",
+    "subcutaneous-rim",
+  ];
+  const prefix: string =
+    input.nativeSource === undefined
+      ? "skin-layer:" + input.surface + ":"
+      : "native-subcutaneous:" +
+        input.nativeSource.id +
+        "/" +
+        input.surface +
+        "/";
+  const meshes: IAutoMovieMesh[] = populations.map(
+    (indices: number[]): IAutoMovieMesh =>
+      indices.length === 0
+        ? { ...shell, indices: [] }
+        : createHumanBodySourceResidentMesh({ ...shell, indices }).mesh,
   );
   const material: IAutoMovieMaterial = {
     id: "skin-layer:" + input.surface + ":inspection",
@@ -69,19 +111,35 @@ export function createHumanBodyLayerConstruction(
     doubleSided: input.material.doubleSided,
   };
   const failures: IAutoMovieHumanConstructionFailure[] = [];
-  for (const key of ["beyondReachVertices", "unmeasuredReachVertices", "invertedTriangles", "dermalInvertedTriangles"] as const)
+  for (const key of [
+    "beyondReachVertices",
+    "unmeasuredReachVertices",
+    "invertedTriangles",
+    "dermalInvertedTriangles",
+  ] as const)
     if (surfaces[key] !== 0)
-      failures.push({ owner: "body-layer:" + input.surface, cause: key + ": " + surfaces[key] });
-  const { dermis, fascia, normals, ...observations }: IHumanBodyLayerSurfaces = surfaces;
+      failures.push({
+        owner: "body-layer:" + input.surface,
+        cause: key + ": " + surfaces[key],
+      });
+  const { dermis, fascia, normals, ...observations }: IHumanBodyLayerSurfaces =
+    surfaces;
   return {
-    parts: meshes.flatMap((mesh: IAutoMovieMesh, index: number): IAutoMovieModelPart[] => mesh.indices!.length === 0 ? [] : [{
-      id: prefix + names[index],
-      name: names[index],
-      geometry: { type: "mesh", mesh },
-      material: material.id,
-      attachedBone: null,
-      transform: null,
-    }]),
+    parts: meshes.flatMap(
+      (mesh: IAutoMovieMesh, index: number): IAutoMovieModelPart[] =>
+        mesh.indices!.length === 0
+          ? []
+          : [
+              {
+                id: prefix + names[index],
+                name: names[index],
+                geometry: { type: "mesh", mesh },
+                material: material.id,
+                attachedBone: null,
+                transform: null,
+              },
+            ],
+    ),
     material,
     observation: {
       ...observations,
@@ -90,25 +148,45 @@ export function createHumanBodyLayerConstruction(
       nativeVertices: count,
       nativeTriangles: input.indices.length / 3,
       fieldQualification: input.field.qualification,
-      subcutaneousShellParts: names.flatMap((name: (typeof names)[number], index: number): string[] => populations[index].length === 0 ? [] :
-        [prefix + name]),
-      ...(input.nativeSource === undefined ? {} : { nativeSubcutaneous: {
-        basis: input.basis,
-        instance: input.instance,
-        source: structuredClone(input.nativeSource),
-        exteriorDigest: autoMovieRenderDigest(JSON.stringify({
-          positions: input.exterior?.mesh.positions ?? input.positions,
-          indices: input.exterior?.mesh.indices ?? input.indices,
-        })),
-        anchors: structuredClone(input.field.anchors),
-        fieldQualification: input.field.qualification,
-        members: meshes.flatMap((mesh: IAutoMovieMesh, index: number): IAutoMovieHumanBodyNativeSubcutaneousQualification["members"][number][] => mesh.indices!.length === 0 ? [] : [{
-          id: prefix + names[index],
-          role: names[index],
-          meshDigest: autoMovieRenderDigest(JSON.stringify(mesh)),
-        }]),
-        clinical: "unavailable" as const,
-      } }),
+      subcutaneousShellParts: names.flatMap(
+        (name: (typeof names)[number], index: number): string[] =>
+          populations[index].length === 0 ? [] : [prefix + name],
+      ),
+      ...(input.nativeSource === undefined
+        ? {}
+        : {
+            nativeSubcutaneous: {
+              basis: input.basis,
+              instance: input.instance,
+              source: structuredClone(input.nativeSource),
+              exteriorDigest: autoMovieRenderDigest(
+                JSON.stringify({
+                  positions: input.exterior?.mesh.positions ?? input.positions,
+                  indices: input.exterior?.mesh.indices ?? input.indices,
+                }),
+              ),
+              anchors: structuredClone(input.field.anchors),
+              fieldQualification: input.field.qualification,
+              members: meshes.flatMap(
+                (
+                  mesh: IAutoMovieMesh,
+                  index: number,
+                ): IAutoMovieHumanBodyNativeSubcutaneousQualification["members"][number][] =>
+                  mesh.indices!.length === 0
+                    ? []
+                    : [
+                        {
+                          id: prefix + names[index],
+                          role: names[index],
+                          meshDigest: autoMovieRenderDigest(
+                            JSON.stringify(mesh),
+                          ),
+                        },
+                      ],
+              ),
+              clinical: "unavailable" as const,
+            },
+          }),
     },
     admission: { accepted: failures.length === 0, failures },
   };

@@ -4,16 +4,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyShoulderPose } from "../../../structures/IAutoMovieHumanBodyShoulderPose";
 import type { AutoMovieHumanBodyToeBone } from "../../../structures/rig/AutoMovieHumanBodyToeBone";
 import type { IAutoMovieHumanBodyBoneTransform } from "../../../structures/rig/IAutoMovieHumanBodyBoneTransform";
 import type { IAutoMovieHumanBodyBoneWorldRest } from "../../../structures/rig/IAutoMovieHumanBodyBoneWorldRest";
-import type { IAutoMovieHumanBodyShoulderPose } from "../../../structures/IAutoMovieHumanBodyShoulderPose";
 import type { AutoMovieHumanBodyBoneId } from "../../identity/AutoMovieHumanBodyBoneId";
 import type { AutoMovieHumanBodySide } from "../../identity/AutoMovieHumanBodySide";
 import type { IAutoMovieHumanBodySourceRigInput } from "./IAutoMovieHumanBodySourceRigInput";
 import type { IAutoMovieHumanBodySourceRigResult } from "./IAutoMovieHumanBodySourceRigResult";
-import type { IAutoMovieHumanBodySourceToeBase } from "./IAutoMovieHumanBodySourceToeBase";
 import type { IAutoMovieHumanBodySourceSite } from "./IAutoMovieHumanBodySourceSite";
+import type { IAutoMovieHumanBodySourceToeBase } from "./IAutoMovieHumanBodySourceToeBase";
 import { applyHumanBodySourcePelvicRhythm } from "./applyHumanBodySourcePelvicRhythm";
 import { assertHumanBodySourceRig } from "./assertHumanBodySourceRig";
 import { projectHumanBodySourceFrame } from "./projectHumanBodySourceFrame";
@@ -66,27 +66,29 @@ export function resolveHumanBodySourceRig(
       );
     shoulderRows.add(goal.bone);
   }
-  const bones: Map<AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform> = new Map<
+  const bones: Map<AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform> =
+    new Map<AutoMovieHumanBodyBoneId, IAutoMovieHumanBodyBoneTransform>();
+  const sites: Map<
     AutoMovieHumanBodyBoneId,
-    IAutoMovieHumanBodyBoneTransform
-  >();
-  const sites: Map<AutoMovieHumanBodyBoneId, ReadonlyMap<string, IAutoMovieVector3>> = new Map<
+    ReadonlyMap<string, IAutoMovieVector3>
+  > = new Map<
     AutoMovieHumanBodyBoneId,
     ReadonlyMap<string, IAutoMovieVector3>
   >();
-  const projections: Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform> = new Map<
+  const projections: Map<
     AutoMovieHumanoidBone,
     IAutoMovieHumanBodyBoneTransform
-  >();
-  const toeProjections: Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform> = new Map<
+  > = new Map<AutoMovieHumanoidBone, IAutoMovieHumanBodyBoneTransform>();
+  const toeProjections: Map<
     AutoMovieHumanBodyToeBone,
     IAutoMovieHumanBodyBoneTransform
-  >();
-  const toeBases: Map<AutoMovieHumanBodySide, IAutoMovieHumanBodyBoneTransform> = new Map<
+  > = new Map<AutoMovieHumanBodyToeBone, IAutoMovieHumanBodyBoneTransform>();
+  const toeBases: Map<
     AutoMovieHumanBodySide,
     IAutoMovieHumanBodyBoneTransform
-  >();
-  const toeRows: Set<AutoMovieHumanBodyToeBone> = new Set<AutoMovieHumanBodyToeBone>();
+  > = new Map<AutoMovieHumanBodySide, IAutoMovieHumanBodyBoneTransform>();
+  const toeRows: Set<AutoMovieHumanBodyToeBone> =
+    new Set<AutoMovieHumanBodyToeBone>();
   for (const goal of input.toes ?? []) {
     if (
       toeRows.has(goal.bone) ||
@@ -99,10 +101,13 @@ export function resolveHumanBodySourceRig(
     toeRows.add(goal.bone);
   }
   for (const node of input.rig.nodes) {
-    const parent: IAutoMovieHumanBodyBoneTransform | undefined = node.parent === null ? undefined : bones.get(node.parent);
+    const parent: IAutoMovieHumanBodyBoneTransform | undefined =
+      node.parent === null ? undefined : bones.get(node.parent);
     let posed: IAutoMovieHumanBodyBoneWorldRest;
     if (node.joint.kind === "humerothoracic") {
-      const thorax: IAutoMovieHumanBodyBoneTransform | undefined = bones.get(node.joint.thorax);
+      const thorax: IAutoMovieHumanBodyBoneTransform | undefined = bones.get(
+        node.joint.thorax,
+      );
       if (thorax === undefined)
         throw new Error(
           "Anatomical TT source lacks its resolved thorax: " + node.id,
@@ -124,9 +129,11 @@ export function resolveHumanBodySourceRig(
         for (const axis of ["plane", "elevation", "axialRotation"])
           used.add(`public-shoulder.${node.joint.neutral.bone}.${axis}`);
     } else if (node.joint.kind === "toe-ray") {
-      const definition: IAutoMovieHumanBodySourceToeBase | undefined = input.rig.toeBases?.find(
-        (one: IAutoMovieHumanBodySourceToeBase): boolean => node.joint.kind === "toe-ray" && one.side === node.joint.base,
-      );
+      const definition: IAutoMovieHumanBodySourceToeBase | undefined =
+        input.rig.toeBases?.find(
+          (one: IAutoMovieHumanBodySourceToeBase): boolean =>
+            node.joint.kind === "toe-ray" && one.side === node.joint.base,
+        );
       const foot: IAutoMovieHumanBodyBoneTransform | undefined =
         definition === undefined ? undefined : bones.get(definition.parent);
       if (
@@ -138,7 +145,9 @@ export function resolveHumanBodySourceRig(
           "Source toe ray needs its actual metatarsal and common foot frame: " +
             node.id,
         );
-      let base: IAutoMovieHumanBodyBoneTransform | undefined = toeBases.get(definition.side);
+      let base: IAutoMovieHumanBodyBoneTransform | undefined = toeBases.get(
+        definition.side,
+      );
       if (base === undefined) {
         base = resolveHumanBodySourceToeBase(definition, foot, input, used);
         toeBases.set(definition.side, base);
@@ -156,9 +165,13 @@ export function resolveHumanBodySourceRig(
     bones.set(node.id, result);
   }
   for (const definition of input.rig.toeBases ?? []) {
-    let base: IAutoMovieHumanBodyBoneTransform | undefined = toeBases.get(definition.side);
+    let base: IAutoMovieHumanBodyBoneTransform | undefined = toeBases.get(
+      definition.side,
+    );
     if (base === undefined) {
-      const parent: IAutoMovieHumanBodyBoneTransform | undefined = bones.get(definition.parent);
+      const parent: IAutoMovieHumanBodyBoneTransform | undefined = bones.get(
+        definition.parent,
+      );
       if (parent === undefined)
         throw new Error(
           "Source aggregate toe frame lacks its actual foot: " +
@@ -172,7 +185,10 @@ export function resolveHumanBodySourceRig(
   applyHumanBodySourcePelvicRhythm(input, bones);
   for (const node of input.rig.nodes) {
     const posed: IAutoMovieHumanBodyBoneWorldRest = bones.get(node.id)!.posed;
-    const resolved: Map<string, IAutoMovieVector3> = new Map<string, IAutoMovieVector3>();
+    const resolved: Map<string, IAutoMovieVector3> = new Map<
+      string,
+      IAutoMovieVector3
+    >();
     for (const site of node.sites)
       resolved.set(
         site.id,
@@ -186,7 +202,10 @@ export function resolveHumanBodySourceRig(
       const local: IAutoMovieVector3 =
         projection.site === undefined
           ? Vector3.create(0, 0, 0)
-          : node.sites.find((one: IAutoMovieHumanBodySourceSite): boolean => one.id === projection.site)!.position;
+          : node.sites.find(
+              (one: IAutoMovieHumanBodySourceSite): boolean =>
+                one.id === projection.site,
+            )!.position;
       projections.set(projection.bone, {
         rest: projectHumanBodySourceFrame(
           node.rest,
@@ -200,7 +219,10 @@ export function resolveHumanBodySourceRig(
       const local: IAutoMovieVector3 =
         projection.site === undefined
           ? Vector3.create(0, 0, 0)
-          : node.sites.find((one: IAutoMovieHumanBodySourceSite): boolean => one.id === projection.site)!.position;
+          : node.sites.find(
+              (one: IAutoMovieHumanBodySourceSite): boolean =>
+                one.id === projection.site,
+            )!.position;
       toeProjections.set(projection.bone, {
         rest: projectHumanBodySourceFrame(
           node.rest,

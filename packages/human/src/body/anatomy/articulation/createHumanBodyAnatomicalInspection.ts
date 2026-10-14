@@ -4,10 +4,10 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "../assembly/IAutoMovieHumanBodyAnatomicalAssembly";
-import type { IAutoMovieHumanBodyArticularCandidate } from "../generated/IAutoMovieHumanBodyArticularCandidate";
 import type { IAutoMovieHumanBodyAnatomicalInspection } from "../generated/IAutoMovieHumanBodyAnatomicalInspection";
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyArticularCandidate } from "../generated/IAutoMovieHumanBodyArticularCandidate";
 import { createHumanBodyFemoralHeadsFromAnatomicalMeasurements } from "../lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
 
 /**
@@ -25,25 +25,29 @@ import { createHumanBodyHumeralHeadsFromAnatomicalMeasurements } from "../should
  */
 export function createHumanBodyAnatomicalInspection(
   input: IAutoMovieHumanBodyBasis,
-): (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyAnatomicalInspection {
+): (
+  document: IAutoMovieHumanBodyBasisDocument,
+) => IAutoMovieHumanBodyAnatomicalInspection {
   const basis: string = input.id;
-  const anatomicalAssembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined = structuredClone(input.anatomicalAssembly);
-  const build: (document: IAutoMovieHumanBodyBasisDocument) => IAutoMovieHumanBodyBuild = createHumanBodyBasisBuilder(input);
+  const anatomicalAssembly: IAutoMovieHumanBodyAnatomicalAssembly | undefined =
+    structuredClone(input.anatomicalAssembly);
+  const build: (
+    document: IAutoMovieHumanBodyBasisDocument,
+  ) => IAutoMovieHumanBodyBuild = createHumanBodyBasisBuilder(input);
   let reference: IAutoMovieHumanBodyBuild | undefined;
   return (
     inputDocument: IAutoMovieHumanBodyBasisDocument,
   ): IAutoMovieHumanBodyAnatomicalInspection => {
-    const document: IAutoMovieHumanBodyBasisDocument = admitHumanBodyBasisDocument(
-      inputDocument,
-      anatomicalAssembly,
-    );
+    const document: IAutoMovieHumanBodyBasisDocument =
+      admitHumanBodyBasisDocument(inputDocument, anatomicalAssembly);
     if (document.basis !== basis)
       throw new Error(
         "Body document basis must match the compiled reference: " + basis,
       );
     // admission has refused observed radii: no acquisition centre or posture
     // is registered for an imaged head
-    const targets: IAutoMovieHumanBodyAnatomicalMeasurements | undefined = document.anatomy;
+    const targets: IAutoMovieHumanBodyAnatomicalMeasurements | undefined =
+      document.anatomy;
     if (targets === undefined)
       throw new Error("missing-anatomical-input:articular-head-radius");
     reference ??= build({
@@ -52,7 +56,14 @@ export function createHumanBodyAnatomicalInspection(
       basis,
       shape: {},
     });
-    const heads: (ReturnType<typeof createHumanBodyHumeralHeadsFromAnatomicalMeasurements>[number] | ReturnType<typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements>[number])[] = [
+    const heads: (
+      | ReturnType<
+          typeof createHumanBodyHumeralHeadsFromAnatomicalMeasurements
+        >[number]
+      | ReturnType<
+          typeof createHumanBodyFemoralHeadsFromAnatomicalMeasurements
+        >[number]
+    )[] = [
       ...createHumanBodyHumeralHeadsFromAnatomicalMeasurements({
         measurements: targets,
         bones: reference.bones,
@@ -69,25 +80,29 @@ export function createHumanBodyAnatomicalInspection(
       reference: { basis, evaluation: "neutral-reference" },
       requested: structuredClone(targets),
       skin: { status: "unavailable", reason: "geometry-not-validated" },
-      candidates: heads.map((head: (typeof heads)[number]): IAutoMovieHumanBodyArticularCandidate => ({
-        part:
-          head.bone === "leftUpperArm"
-            ? "leftHumerus"
-            : head.bone === "rightUpperArm"
-              ? "rightHumerus"
-              : head.bone === "leftUpperLeg"
-                ? "leftFemur"
-                : "rightFemur",
-        bone: head.bone,
-        center: { ...head.center },
-        radiusMetres: head.radiusMetres,
-        source: "target",
-        registration: "reference-rig-only",
-        partResolution: {
-          status: "unavailable",
-          reason: "geometry-not-validated",
-        },
-      })),
+      candidates: heads.map(
+        (
+          head: (typeof heads)[number],
+        ): IAutoMovieHumanBodyArticularCandidate => ({
+          part:
+            head.bone === "leftUpperArm"
+              ? "leftHumerus"
+              : head.bone === "rightUpperArm"
+                ? "rightHumerus"
+                : head.bone === "leftUpperLeg"
+                  ? "leftFemur"
+                  : "rightFemur",
+          bone: head.bone,
+          center: { ...head.center },
+          radiusMetres: head.radiusMetres,
+          source: "target",
+          registration: "reference-rig-only",
+          partResolution: {
+            status: "unavailable",
+            reason: "geometry-not-validated",
+          },
+        }),
+      ),
     };
   };
 }

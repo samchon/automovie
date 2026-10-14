@@ -43,13 +43,18 @@ export function dataSourceShapes(
     path: string,
   ) => void,
 ): IHumanBodySourceShapeResult {
-  const meshes: Map<IAutoMovieHumanBodySourcePart["id"], ReadonlyMap<string, IAutoMovieMesh>> = new Map<
+  const meshes: Map<
+    IAutoMovieHumanBodySourcePart["id"],
+    ReadonlyMap<string, IAutoMovieMesh>
+  > = new Map<
     IAutoMovieHumanBodySourcePart["id"],
     ReadonlyMap<string, IAutoMovieMesh>
   >();
   const readings: IHumanBodySourceQuantityReading[] = [];
   if (anatomy === undefined) return { meshes, readings };
-  const record: (path: string) => IAutoMovieHumanBodyAnatomicalVolume | undefined = (
+  const record: (
+    path: string,
+  ) => IAutoMovieHumanBodyAnatomicalVolume | undefined = (
     path: string,
   ): IAutoMovieHumanBodyAnatomicalVolume | undefined => {
     if (
@@ -96,7 +101,10 @@ export function dataSourceShapes(
   };
   const paths: Set<string> = new Set<string>();
   for (const part of assembly.parts) {
-    const owned: Map<string, IAutoMovieMesh> = new Map<string, IAutoMovieMesh>();
+    const owned: Map<string, IAutoMovieMesh> = new Map<
+      string,
+      IAutoMovieMesh
+    >();
     let solvedField: string | undefined;
     let solvedCoefficient: number | undefined;
     for (const binding of part.quantityBindings ?? []) {
@@ -106,7 +114,9 @@ export function dataSourceShapes(
             binding.path,
         );
       paths.add(binding.path);
-      const input: IAutoMovieHumanBodyAnatomicalVolume | undefined = record(binding.path);
+      const input: IAutoMovieHumanBodyAnatomicalVolume | undefined = record(
+        binding.path,
+      );
       if (input === undefined) continue;
       if (
         binding.sourceProtocol.trim() === "" ||
@@ -135,9 +145,11 @@ export function dataSourceShapes(
           "Source compartment needs registered union/cavity membership before a multi-boundary volume target can be solved: " +
             binding.path,
         );
-      const field: IAutoMovieHumanBodySourceShapeField | undefined = part.shapeFields?.find(
-        (candidate: IAutoMovieHumanBodySourceShapeField): boolean => candidate.id === binding.field,
-      );
+      const field: IAutoMovieHumanBodySourceShapeField | undefined =
+        part.shapeFields?.find(
+          (candidate: IAutoMovieHumanBodySourceShapeField): boolean =>
+            candidate.id === binding.field,
+        );
       if (
         field === undefined ||
         field.domainAccount.trim() === "" ||
@@ -157,60 +169,80 @@ export function dataSourceShapes(
           "Source part needs a registered coupled solve for independent quantity fields: " +
             part.id,
         );
-      const selected: SourceFieldMember[] = binding.members.map((member: string): SourceFieldMember => {
-        const surface: IAutoMovieHumanBodySourcePartSurface | undefined = part.surfaces.find(
-          (candidate: IAutoMovieHumanBodySourcePartSurface): boolean => candidate.id === member,
-        );
-        const delta: IAutoMovieHumanBodySourceSurfaceShapeField | undefined = field.surfaces.find(
-          (candidate: IAutoMovieHumanBodySourceSurfaceShapeField): boolean => candidate.member === member,
-        );
-        if (surface === undefined || delta === undefined)
-          throw new Error(
-            "Source volume shape field/member or held attachment is invalid: " +
-              binding.path +
-              "/" +
-              member,
+      const selected: SourceFieldMember[] = binding.members.map(
+        (member: string): SourceFieldMember => {
+          const surface: IAutoMovieHumanBodySourcePartSurface | undefined =
+            part.surfaces.find(
+              (candidate: IAutoMovieHumanBodySourcePartSurface): boolean =>
+                candidate.id === member,
+            );
+          const delta: IAutoMovieHumanBodySourceSurfaceShapeField | undefined =
+            field.surfaces.find(
+              (
+                candidate: IAutoMovieHumanBodySourceSurfaceShapeField,
+              ): boolean => candidate.member === member,
+            );
+          if (surface === undefined || delta === undefined)
+            throw new Error(
+              "Source volume shape field/member or held attachment is invalid: " +
+                binding.path +
+                "/" +
+                member,
+            );
+          assertHumanBodySourceSurfaceShapeField(
+            delta,
+            surface.mesh.positions.length / 3,
           );
-        assertHumanBodySourceSurfaceShapeField(
-          delta,
-          surface.mesh.positions.length / 3,
-        );
-        return { surface, delta };
-      });
+          return { surface, delta };
+        },
+      );
       if (
-        new Set(field.surfaces.map((member: IAutoMovieHumanBodySourceSurfaceShapeField): string => member.member)).size !==
-          field.surfaces.length ||
+        new Set(
+          field.surfaces.map(
+            (member: IAutoMovieHumanBodySourceSurfaceShapeField): string =>
+              member.member,
+          ),
+        ).size !== field.surfaces.length ||
         field.surfaces.some(
-          (member: IAutoMovieHumanBodySourceSurfaceShapeField): boolean => !binding.members.includes(member.member),
+          (member: IAutoMovieHumanBodySourceSurfaceShapeField): boolean =>
+            !binding.members.includes(member.member),
         )
       )
         throw new Error(
           "Source volume field must declare every affected member in its compartment scope: " +
             binding.path,
         );
-      const shape: (coefficient: number) => Map<string, IAutoMovieMesh> = (coefficient: number): Map<string, IAutoMovieMesh> =>
+      const shape: (coefficient: number) => Map<string, IAutoMovieMesh> = (
+        coefficient: number,
+      ): Map<string, IAutoMovieMesh> =>
         new Map(
-          selected.map(({ surface, delta }: SourceFieldMember): [string, IAutoMovieMesh] => [
-            surface.id,
-            {
-              ...structuredClone(surface.mesh),
-              positions: surface.mesh.positions.map(
-                (value: number, at: number): number => value + coefficient * delta.displacements[at],
-              ),
-            },
-          ]),
+          selected.map(
+            ({
+              surface,
+              delta,
+            }: SourceFieldMember): [string, IAutoMovieMesh] => [
+              surface.id,
+              {
+                ...structuredClone(surface.mesh),
+                positions: surface.mesh.positions.map(
+                  (value: number, at: number): number =>
+                    value + coefficient * delta.displacements[at],
+                ),
+              },
+            ],
+          ),
         );
       const polynomial: [number, number, number, number] = [0, 0, 0, 0];
       for (const { surface, delta } of selected) {
         readHumanBodySourceBoundaryVolume(surface.mesh);
-        const coefficients: [number, number, number, number] = humanBodySourceVolumePolynomial(
-          surface.mesh,
-          delta.displacements,
-        );
+        const coefficients: [number, number, number, number] =
+          humanBodySourceVolumePolynomial(surface.mesh, delta.displacements);
         for (let degree: number = 0; degree < 4; degree++)
           polynomial[degree] += coefficients[degree];
       }
-      const volume: (coefficient: number) => number = (coefficient: number): number =>
+      const volume: (coefficient: number) => number = (
+        coefficient: number,
+      ): number =>
         ((polynomial[3] * coefficient + polynomial[2]) * coefficient +
           polynomial[1]) *
           coefficient +
@@ -233,7 +265,9 @@ export function dataSourceShapes(
             binding.path,
         );
       const increasing: boolean = highVolume > lowVolume;
-      const derivative: (coefficient: number) => number = (coefficient: number): number =>
+      const derivative: (coefficient: number) => number = (
+        coefficient: number,
+      ): number =>
         (3 * polynomial[3] * coefficient + 2 * polynomial[2]) * coefficient +
         polynomial[1];
       const critical: number | undefined =
@@ -268,11 +302,13 @@ export function dataSourceShapes(
       let measuredFloat32: number = 0;
       for (const [member, mesh] of result) {
         mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
-        const resident: IAutoMovieMesh = createHumanBodySourceResidentMesh(mesh).mesh;
-        const float32: ReturnType<typeof float32MeshBuffers> = float32MeshBuffers(
-          resident,
-          "source-volume:" + binding.path + "/" + member,
-        );
+        const resident: IAutoMovieMesh =
+          createHumanBodySourceResidentMesh(mesh).mesh;
+        const float32: ReturnType<typeof float32MeshBuffers> =
+          float32MeshBuffers(
+            resident,
+            "source-volume:" + binding.path + "/" + member,
+          );
         measured += readHumanBodySourceBoundaryVolume(mesh);
         measuredFloat32 += readHumanBodySourceBoundaryVolume({
           ...resident,
@@ -285,7 +321,8 @@ export function dataSourceShapes(
         Number.EPSILON *
         Math.max(target, measured) *
         selected.reduce(
-          (sum: number, entry: SourceFieldMember): number => sum + entry.surface.mesh.indices!.length,
+          (sum: number, entry: SourceFieldMember): number =>
+            sum + entry.surface.mesh.indices!.length,
           0,
         );
       if (Math.abs(measured - target) > arithmeticBound)
