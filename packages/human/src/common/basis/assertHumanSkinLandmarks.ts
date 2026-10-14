@@ -22,7 +22,9 @@ export function assertHumanSkinLandmarks(
       throw new Error(
         `The basis ${basis.id} names a skin landmark after an inherited property: ${name}`,
       );
-    const surface: IAutoMovieHumanSkinLandmarkHolder["surfaces"][number] | undefined = basis.surfaces[point.surface];
+    const surface:
+      | IAutoMovieHumanSkinLandmarkHolder["surfaces"][number]
+      | undefined = basis.surfaces[point.surface];
     if (
       surface === undefined ||
       !Number.isInteger(point.vertex) ||

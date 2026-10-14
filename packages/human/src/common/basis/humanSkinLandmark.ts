@@ -19,7 +19,10 @@ export function humanSkinLandmark(
   basis: Pick<IAutoMovieHumanSkinLandmarkHolder, "id" | "skinLandmarks">,
   name: string,
 ): IAutoMovieHumanSkinLandmark {
-  const point: IAutoMovieHumanSkinLandmark | undefined = findHumanSkinLandmark(basis, name);
+  const point: IAutoMovieHumanSkinLandmark | undefined = findHumanSkinLandmark(
+    basis,
+    name,
+  );
   if (point === undefined)
     throw new Error(`The basis ${basis.id} declares no skin landmark ${name}.`);
   return point;

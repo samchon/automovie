@@ -22,7 +22,13 @@ import type { IHumanSkinBindingAdmission } from "./IHumanSkinBindingAdmission";
 export function assertHumanSkinBinding(
   input: IHumanSkinBindingAdmission,
 ): void {
-  const { binding, vertices, declared, surface, description }: IHumanSkinBindingAdmission = input;
+  const {
+    binding,
+    vertices,
+    declared,
+    surface,
+    description,
+  }: IHumanSkinBindingAdmission = input;
   const invalid: () => never = (): never => {
     throw new Error(
       `${description} needs four declared-joint influences with nonnegative weights per vertex: ${surface}`,

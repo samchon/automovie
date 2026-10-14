@@ -34,8 +34,14 @@ export function createHumanBasisRegion(
   colors?: readonly number[],
   physical?: IHumanPhysicalSampleRegistration,
 ) => IAutoMovieMesh {
-  const { sources, indices, uvs }: ReturnType<typeof humanBasisRegionCorners> = humanBasisRegionCorners(region);
-  return (positions: readonly number[], normals: readonly number[], colors?: readonly number[], physical?: IHumanPhysicalSampleRegistration): IAutoMovieMesh => {
+  const { sources, indices, uvs }: ReturnType<typeof humanBasisRegionCorners> =
+    humanBasisRegionCorners(region);
+  return (
+    positions: readonly number[],
+    normals: readonly number[],
+    colors?: readonly number[],
+    physical?: IHumanPhysicalSampleRegistration,
+  ): IAutoMovieMesh => {
     if (
       physical !== undefined &&
       (physical.domain.trim().length === 0 ||
@@ -47,7 +53,9 @@ export function createHumanBasisRegion(
       throw new Error(
         "Human region physical registration needs an instance domain and dense canonical samples aligned with its connected surface.",
       );
-    const gather: (values: readonly number[]) => number[] = (values: readonly number[]): number[] => {
+    const gather: (values: readonly number[]) => number[] = (
+      values: readonly number[],
+    ): number[] => {
       const output: number[] = new Array<number>(sources.length * 3);
       for (let i: number = 0; i < sources.length; i++)
         for (let axis: number = 0; axis < 3; axis++)
@@ -65,11 +73,17 @@ export function createHumanBasisRegion(
         ? {}
         : {
             physicalVertices: {
-              sources: sources.map((source: number): import("@automovie/interface").IAutoMovieMeshPhysicalSource => ({
-                domain: physical.domain,
-                id: physical.samples[source],
-              })),
-              vertices: sources.map((_: number, vertex: number): number => vertex),
+              sources: sources.map(
+                (
+                  source: number,
+                ): import("@automovie/interface").IAutoMovieMeshPhysicalSource => ({
+                  domain: physical.domain,
+                  id: physical.samples[source],
+                }),
+              ),
+              vertices: sources.map(
+                (_: number, vertex: number): number => vertex,
+              ),
             },
           }),
     };

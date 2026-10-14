@@ -18,7 +18,8 @@ export function humanSkinRegion(
   basis: Pick<IAutoMovieHumanSkinRegionHolder, "id" | "skinRegions">,
   name: string,
 ): IAutoMovieHumanSkinRegion {
-  const regions: IAutoMovieHumanSkinRegionHolder["skinRegions"] = basis.skinRegions;
+  const regions: IAutoMovieHumanSkinRegionHolder["skinRegions"] =
+    basis.skinRegions;
   const region: IAutoMovieHumanSkinRegion | undefined =
     regions !== undefined && Object.hasOwn(regions, name)
       ? regions[name]

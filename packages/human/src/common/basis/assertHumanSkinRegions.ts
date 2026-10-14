@@ -20,13 +20,16 @@ import type { IAutoMovieHumanSkinRegionHolder } from "./IAutoMovieHumanSkinRegio
 export function assertHumanSkinRegions(
   basis: IAutoMovieHumanSkinRegionHolder,
 ): void {
-  const regions: NonNullable<IAutoMovieHumanSkinRegionHolder["skinRegions"]> = basis.skinRegions ?? {};
+  const regions: NonNullable<IAutoMovieHumanSkinRegionHolder["skinRegions"]> =
+    basis.skinRegions ?? {};
   for (const [name, region] of Object.entries(regions)) {
     if (name in Object.prototype)
       throw new Error(
         `The basis ${basis.id} names a skin region after an inherited property: ${name}`,
       );
-    const surface: IAutoMovieHumanSkinRegionHolder["surfaces"][number] | undefined = basis.surfaces[region.surface];
+    const surface:
+      | IAutoMovieHumanSkinRegionHolder["surfaces"][number]
+      | undefined = basis.surfaces[region.surface];
     if (surface === undefined)
       throw new Error(
         `The skin region ${name} of ${basis.id} is not on a declared surface.`,
@@ -53,10 +56,16 @@ export function assertHumanSkinRegions(
   for (const [name, right] of Object.entries(regions)) {
     if (!name.endsWith("-right")) continue;
     const mirror: string = `${name.slice(0, -"-right".length)}-left`;
-    const left: NonNullable<IAutoMovieHumanSkinRegionHolder["skinRegions"]>[string] | undefined = Object.hasOwn(regions, mirror) ? regions[mirror] : undefined;
+    const left:
+      | NonNullable<IAutoMovieHumanSkinRegionHolder["skinRegions"]>[string]
+      | undefined = Object.hasOwn(regions, mirror)
+      ? regions[mirror]
+      : undefined;
     if (left === undefined || left.surface !== right.surface) continue;
     const held: Set<number> = new Set(right.vertices);
-    const shared: number | undefined = left.vertices.find((vertex: number): boolean => held.has(vertex));
+    const shared: number | undefined = left.vertices.find(
+      (vertex: number): boolean => held.has(vertex),
+    );
     if (shared !== undefined)
       throw new Error(
         `The skin regions ${name} and ${mirror} of ${basis.id} share vertex ${shared}.`,

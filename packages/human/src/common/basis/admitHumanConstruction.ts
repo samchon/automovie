@@ -30,7 +30,10 @@ export function admitHumanConstruction(
   const failures: IAutoMovieHumanConstructionAdmission["failures"] = [];
   const clearances: IAutoMovieHumanConstructionClearanceReading[] = [];
   const parts: IAutoMovieHumanConstructionPartReading[] = [];
-  const report: (owner: string, error: unknown) => void = (owner: string, error: unknown): void => {
+  const report: (owner: string, error: unknown) => void = (
+    owner: string,
+    error: unknown,
+  ): void => {
     failures.push({
       owner,
       cause: error instanceof Error ? error.message : String(error),

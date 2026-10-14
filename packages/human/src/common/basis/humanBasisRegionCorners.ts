@@ -35,7 +35,10 @@ export function humanBasisRegionCorners(
   const indices: number[] = [];
   const uvs: number[] | null = region.uvs === null ? null : [];
   region.indices.forEach((source: number, corner: number): void => {
-    const uv: number[] | undefined = region.uvs?.slice(corner * 2, corner * 2 + 2);
+    const uv: number[] | undefined = region.uvs?.slice(
+      corner * 2,
+      corner * 2 + 2,
+    );
     const key: string = `${source}/${uv?.join(",") ?? ""}`;
     let index: number | undefined = vertices.get(key);
     if (index === undefined) {
