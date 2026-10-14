@@ -18,7 +18,21 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 export function resolvePortraitNoseShape(
   input: IPortraitNoseShape,
 ): IPortraitNoseShape & { cavityOffset: number[] } {
-  const shape: { cavityOffset: number[]; widthScale: number; depthScale?: number; tipProjection: number; alarProjection: number; nostrilWidthScale: number; nostrilHeightScale: number; nostrilRise: number; nostrilTilt: number; cavityContraction: number; rimSupport: number; rimRoundness: number; blendReach: number; } = { ...input, cavityOffset: [...input.cavityOffset] };
+  const shape: {
+    cavityOffset: number[];
+    widthScale: number;
+    depthScale?: number;
+    tipProjection: number;
+    alarProjection: number;
+    nostrilWidthScale: number;
+    nostrilHeightScale: number;
+    nostrilRise: number;
+    nostrilTilt: number;
+    cavityContraction: number;
+    rimSupport: number;
+    rimRoundness: number;
+    blendReach: number;
+  } = { ...input, cavityOffset: [...input.cavityOffset] };
   if (
     [
       shape.widthScale,

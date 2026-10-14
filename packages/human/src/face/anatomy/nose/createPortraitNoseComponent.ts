@@ -1,4 +1,8 @@
-import type { IPortraitComponentHost as ImportedIPortraitComponentHost, IControlMesh as ImportedIControlMesh } from "@automovie/human";
+import type {
+  IControlMesh as ImportedIControlMesh,
+  IPortraitComponentHost as ImportedIPortraitComponentHost,
+} from "@automovie/human";
+
 import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { appendPortraitNostrils } from "./appendPortraitNostrils";
@@ -31,10 +35,21 @@ export function createPortraitNoseComponent(
   inputShape: IPortraitNoseShape,
 ): IPortraitComponent {
   const socket: IPortraitNoseSocket = resolvePortraitNoseSocket(inputSocket);
-  const shape: IPortraitNoseShape & { cavityOffset: number[]; } = resolvePortraitNoseShape(inputShape);
+  const shape: IPortraitNoseShape & { cavityOffset: number[] } =
+    resolvePortraitNoseShape(inputShape);
   return {
     id: "nose",
-    fit: (host: ImportedIPortraitComponentHost): { constraints: { vertex: number; target: number[]; reach: number; }[]; cutFaces: number[]; attach: (cage: ImportedIControlMesh, _adapted: number[][], region: (id: string, material: string) => number) => { openings: never[]; finish: () => never[]; }; } => {
+    fit: (
+      host: ImportedIPortraitComponentHost,
+    ): {
+      constraints: { vertex: number; target: number[]; reach: number }[];
+      cutFaces: number[];
+      attach: (
+        cage: ImportedIControlMesh,
+        _adapted: number[][],
+        region: (id: string, material: string) => number,
+      ) => { openings: never[]; finish: () => never[] };
+    } => {
       const supportIds: readonly number[] = socket.supportPlane ?? [];
       const scaled: boolean = (shape.depthScale ?? 1) !== 1;
       if (
@@ -45,17 +60,23 @@ export function createPortraitNoseComponent(
         )
       )
         throw new Error("Nasal support plane must name resident skin datums.");
-      const support: (point: readonly number[]) => number = createPortraitNasalSupport(
-        scaled ? supportIds.map((id: number): number[] => host.positions[id]) : [],
-        shape.depthScale,
-      );
+      const support: (point: readonly number[]) => number =
+        createPortraitNasalSupport(
+          scaled
+            ? supportIds.map((id: number): number[] => host.positions[id])
+            : [],
+          shape.depthScale,
+        );
       // One depth evaluator owns both exterior targets and pre-fit aperture
       // samples; the lining later reads the actual fitted rim, so it cannot
       // retain a stale basis.
       const depth: (point: number[]) => number = (point: number[]): number =>
         support(point) + portraitNoseDepth(point, socket, shape);
-      const openings: number[][][] = socket.nostrils.map((ordinals: number[]): number[][] =>
-        ordinals.map((i: number): number[] => host.indices.slice(3 * i, 3 * i + 3)),
+      const openings: number[][][] = socket.nostrils.map(
+        (ordinals: number[]): number[][] =>
+          ordinals.map((i: number): number[] =>
+            host.indices.slice(3 * i, 3 * i + 3),
+          ),
       );
       // Width scales the nose about its midline where the nasal structures
       // lie and fades to identity toward the attachment boundary. A jump from
@@ -72,12 +93,20 @@ export function createPortraitNoseComponent(
       const free: number[][] =
         shape.widthScale === 1
           ? []
-          : host.positions.filter((_p: number[], id: number): boolean => !pinned.has(id));
-      const clearance: (point: number[]) => number = (point: number[]): number =>
+          : host.positions.filter(
+              (_p: number[], id: number): boolean => !pinned.has(id),
+            );
+      const clearance: (point: number[]) => number = (
+        point: number[],
+      ): number =>
         free.length === 0
           ? Infinity
           : Math.min(
-              ...free.map((q: number[]): number => Math.hypot(...point.map((v: number, i: number): number => v - q[i]))),
+              ...free.map((q: number[]): number =>
+                Math.hypot(
+                  ...point.map((v: number, i: number): number => v - q[i]),
+                ),
+              ),
             );
       const widening: (id: number) => number = (id: number): number => {
         const t: number =
@@ -97,7 +126,9 @@ export function createPortraitNoseComponent(
       }
       const rimDelta: Map<number, number[]> = new Map<number, number[]>();
       for (const faces of openings) {
-        const ids: number[] = orderCutPatchBoundary(faces).map((edge: { a: number; b: number; }): number => edge.a);
+        const ids: number[] = orderCutPatchBoundary(faces).map(
+          (edge: { a: number; b: number }): number => edge.a,
+        );
         const fitted: number[][] = fitPortraitNostrilRim(
           ids.map((id: number): number[] => [
             host.positions[id][0],
@@ -113,8 +144,11 @@ export function createPortraitNoseComponent(
         );
         const center: number[] = [0, 1, 2].map(
           (axis: number): number =>
-            ids.reduce((sum: number, id: number): number => sum + host.positions[id][axis], 0) /
-            ids.length,
+            ids.reduce(
+              (sum: number, id: number): number =>
+                sum + host.positions[id][axis],
+              0,
+            ) / ids.length,
         );
         // Rotate about the fitted opening centre, including the nasal volume
         // edit. The rim and its lining must use the same anatomical frame.
@@ -167,7 +201,9 @@ export function createPortraitNoseComponent(
             weight: number = 0;
           for (const [rimId, delta] of rimDelta) {
             const distance: number = Math.hypot(
-              ...host.positions[id].map((v: number, i: number): number => v - host.positions[rimId][i]),
+              ...host.positions[id].map(
+                (v: number, i: number): number => v - host.positions[rimId][i],
+              ),
             );
             nearest = Math.min(nearest, distance);
             const w: number = 1 / Math.max(distance * distance, 1e-12);
@@ -180,17 +216,29 @@ export function createPortraitNoseComponent(
           const target: number[] = targets.get(id)!;
           targets.set(
             id,
-            target.map((v: number, i: number): number => v + (fade * sum[i]) / weight),
+            target.map(
+              (v: number, i: number): number => v + (fade * sum[i]) / weight,
+            ),
           );
         }
       return {
-        constraints: [...targets].map(([vertex, target]: [number, number[]]): { vertex: number; target: number[]; reach: number; } => ({
-          vertex,
-          target,
-          reach: shape.blendReach,
-        })),
+        constraints: [...targets].map(
+          ([vertex, target]: [number, number[]]): {
+            vertex: number;
+            target: number[];
+            reach: number;
+          } => ({
+            vertex,
+            target,
+            reach: shape.blendReach,
+          }),
+        ),
         cutFaces: socket.nostrils.flat(),
-        attach: (cage: ImportedIControlMesh, _adapted: number[][], region: (id: string, material: string) => number): { openings: never[]; finish: () => never[]; } => {
+        attach: (
+          cage: ImportedIControlMesh,
+          _adapted: number[][],
+          region: (id: string, material: string) => number,
+        ): { openings: never[]; finish: () => never[] } => {
           // The exterior skin and the vestibular lining share the actual
           // fitted rim ids, so an aperture edit moves both together.
           appendPortraitNostrils(

@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import { normalizedRim } from "./normalizedRim";
 
@@ -18,7 +18,9 @@ import { normalizedRim } from "./normalizedRim";
  *
  * @author Samchon
  */
-export const portraitNostrilRimNormal: (local: ReturnType<typeof normalizedRim>["local"]) => ImportedIAutoMovieVector3 = (
+export const portraitNostrilRimNormal: (
+  local: ReturnType<typeof normalizedRim>["local"],
+) => ImportedIAutoMovieVector3 = (
   local: ReturnType<typeof normalizedRim>["local"],
 ): ImportedIAutoMovieVector3 => {
   let normal: ImportedIAutoMovieVector3 = Vector3.create();

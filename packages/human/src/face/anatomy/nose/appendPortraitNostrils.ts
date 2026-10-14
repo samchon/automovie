@@ -27,15 +27,27 @@ export function appendPortraitNostrils(
   const { positions, indices, groups }: IControlMesh = cage;
   const offset: number[] = portraitNasalCavityOffset(shape);
   for (const faces of nostrilFaces) {
-    const boundary: { a: number; b: number; }[] = orderCutPatchBoundary(faces);
-    const ids: number[] = [...new Set(boundary.flatMap((edge: { a: number; b: number; }): number[] => [edge.a, edge.b]))];
+    const boundary: { a: number; b: number }[] = orderCutPatchBoundary(faces);
+    const ids: number[] = [
+      ...new Set(
+        boundary.flatMap((edge: { a: number; b: number }): number[] => [
+          edge.a,
+          edge.b,
+        ]),
+      ),
+    ];
     const center: number[] = [0, 1, 2].map(
       (axis: number): number =>
-        ids.reduce((sum: number, id: number): number => sum + positions[id][axis], 0) / ids.length,
+        ids.reduce(
+          (sum: number, id: number): number => sum + positions[id][axis],
+          0,
+        ) / ids.length,
     );
     // A near support ring retains the aperture edge through subdivision before
     // the lining travels to its contracted deep ring and recessed floor.
-    const rings: Map<number, number>[] = [new Map(ids.map((id: number): [number, number] => [id, id]))];
+    const rings: Map<number, number>[] = [
+      new Map(ids.map((id: number): [number, number] => [id, id])),
+    ];
     for (const fraction of [shape.rimSupport, 1]) {
       const ring: Map<number, number> = new Map<number, number>();
       for (const id of ids) {
@@ -53,7 +65,9 @@ export function appendPortraitNostrils(
       rings.push(ring);
     }
     const floor: number = positions.length;
-    positions.push(center.map((value: number, axis: number): number => value + offset[axis]));
+    positions.push(
+      center.map((value: number, axis: number): number => value + offset[axis]),
+    );
     for (const edge of boundary) {
       for (let ring: number = 0; ring < rings.length - 1; ring++) {
         const a: number = rings[ring].get(edge.a)!,

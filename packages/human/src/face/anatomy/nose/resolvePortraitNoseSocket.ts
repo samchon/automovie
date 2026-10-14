@@ -27,7 +27,9 @@ export function resolvePortraitNoseSocket(
     !Number.isFinite(input.alarOffset) ||
     input.alarOffset < 0 ||
     radii.length !== 3 ||
-    radii.some((radius: number): boolean => !Number.isFinite(radius) || radius <= 0)
+    radii.some(
+      (radius: number): boolean => !Number.isFinite(radius) || radius <= 0,
+    )
   )
     throw new Error(
       "Nasal socket centres must be finite, the alar offset nonnegative and every influence radius positive.",

@@ -20,20 +20,27 @@ export function createPortraitNasalSupport(
   if (scale === 1) return (): number => 0;
   if (
     points.length !== 3 ||
-    points.some((p: readonly number[]): boolean => p.length !== 3 || !p.every(Number.isFinite))
+    points.some(
+      (p: readonly number[]): boolean =>
+        p.length !== 3 || !p.every(Number.isFinite),
+    )
   )
     throw new Error(
       "Nasal depth scaling requires three finite skin support points.",
     );
   const origin: number[] = [...points[0]];
   const size: number = Math.max(
-    ...points.flatMap((p: readonly number[]): number[] => p.map((v: number, i: number): number => Math.abs(v - origin[i]))),
+    ...points.flatMap((p: readonly number[]): number[] =>
+      p.map((v: number, i: number): number => Math.abs(v - origin[i])),
+    ),
   );
   if (!Number.isFinite(size) || size === 0)
     throw new Error("Nasal support plane needs a finite nonzero extent.");
   const [u, v]: number[][] = points
     .slice(1)
-    .map((p: readonly number[]): number[] => p.map((value: number, i: number): number => (value - origin[i]) / size));
+    .map((p: readonly number[]): number[] =>
+      p.map((value: number, i: number): number => (value - origin[i]) / size),
+    );
   const determinant: number = u[0] * v[1] - u[1] * v[0];
   if (Math.abs(determinant) <= 1e-10)
     throw new Error(

@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import { normalizedRim } from "./normalizedRim";
 import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
@@ -25,15 +25,28 @@ export function resizePortraitNostrilRim(
   if (
     points.length < 3 ||
     points.some(
-      (point: number[]): boolean => point.length !== 3 || !point.every(Number.isFinite),
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
     ) ||
-    ![width, height].every((value: number): boolean => Number.isFinite(value) && value > 0)
+    ![width, height].every(
+      (value: number): boolean => Number.isFinite(value) && value > 0,
+    )
   )
     throw new Error(
       "Nasal aperture sizing needs finite rim points and positive factors.",
     );
-  if (width === 1 && height === 1) return points.map((point: number[]): number[] => [...point]);
-  const { scale, center, local }: { scale: number; normalized: number[][]; center: number[]; local: ImportedIAutoMovieVector3[]; } = normalizedRim(points);
+  if (width === 1 && height === 1)
+    return points.map((point: number[]): number[] => [...point]);
+  const {
+    scale,
+    center,
+    local,
+  }: {
+    scale: number;
+    normalized: number[][];
+    center: number[];
+    local: ImportedIAutoMovieVector3[];
+  } = normalizedRim(points);
   const normal: ImportedIAutoMovieVector3 = portraitNostrilRimNormal(local);
   const guide: ImportedIAutoMovieVector3 =
     normal.y === 0 && normal.z === 0
@@ -43,18 +56,20 @@ export function resizePortraitNostrilRim(
     Vector3.subtract(guide, Vector3.scale(normal, Vector3.dot(guide, normal))),
   );
   const along: ImportedIAutoMovieVector3 = Vector3.cross(normal, across);
-  const output: number[][] = local.map((point: ImportedIAutoMovieVector3): number[] => {
-    const resized: ImportedIAutoMovieVector3 = Vector3.add(
-      point,
-      Vector3.add(
-        Vector3.scale(across, (width - 1) * Vector3.dot(point, across)),
-        Vector3.scale(along, (height - 1) * Vector3.dot(point, along)),
-      ),
-    );
-    return [resized.x, resized.y, resized.z].map(
-      (value: number, axis: number): number => (center[axis] + value) * scale,
-    );
-  });
+  const output: number[][] = local.map(
+    (point: ImportedIAutoMovieVector3): number[] => {
+      const resized: ImportedIAutoMovieVector3 = Vector3.add(
+        point,
+        Vector3.add(
+          Vector3.scale(across, (width - 1) * Vector3.dot(point, across)),
+          Vector3.scale(along, (height - 1) * Vector3.dot(point, along)),
+        ),
+      );
+      return [resized.x, resized.y, resized.z].map(
+        (value: number, axis: number): number => (center[axis] + value) * scale,
+      );
+    },
+  );
   if (output.some((point: number[]): boolean => !point.every(Number.isFinite)))
     throw new Error(
       "The resized nasal rim exceeds its representable coordinate range.",

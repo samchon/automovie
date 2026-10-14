@@ -1,5 +1,5 @@
-import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
 
 import { normalizedRim } from "./normalizedRim";
 import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
@@ -24,19 +24,36 @@ export function fitPortraitNostrilRim(
     !Number.isFinite(amount) ||
     amount < 0 ||
     amount > 1 ||
-    points.some((point: number[]): boolean => point.length !== 3 || !point.every(Number.isFinite))
+    points.some(
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
+    )
   )
     throw new Error(
       "Nasal rim fitting needs finite three-dimensional points and a blend in [0,1].",
     );
-  if (amount === 0) return points.map((point: number[]): number[] => [...point]);
-  const { scale, normalized, center, local }: { scale: number; normalized: number[][]; center: number[]; local: ImportedIAutoMovieVector3[]; } = normalizedRim(points);
+  if (amount === 0)
+    return points.map((point: number[]): number[] => [...point]);
+  const {
+    scale,
+    normalized,
+    center,
+    local,
+  }: {
+    scale: number;
+    normalized: number[][];
+    center: number[];
+    local: ImportedIAutoMovieVector3[];
+  } = normalizedRim(points);
   const normal: ImportedIAutoMovieVector3 = portraitNostrilRimNormal(local);
   let chord: ImportedIAutoMovieVector3 = Vector3.create(0, 0, 0),
     longest: number = 0;
   for (let i: number = 0; i < local.length; i++)
     for (let j: number = i + 1; j < local.length; j++) {
-      const delta: ImportedIAutoMovieVector3 = Vector3.subtract(local[j], local[i]);
+      const delta: ImportedIAutoMovieVector3 = Vector3.subtract(
+        local[j],
+        local[i],
+      );
       const planar: ImportedIAutoMovieVector3 = Vector3.subtract(
         delta,
         Vector3.scale(normal, Vector3.dot(delta, normal)),
@@ -49,10 +66,12 @@ export function fitPortraitNostrilRim(
     }
   const u: ImportedIAutoMovieVector3 = Vector3.normalize(chord);
   const v: ImportedIAutoMovieVector3 = Vector3.cross(normal, u);
-  const projected: number[][] = local.map((point: ImportedIAutoMovieVector3): number[] => [
-    Vector3.dot(point, u),
-    Vector3.dot(point, v),
-  ]);
+  const projected: number[][] = local.map(
+    (point: ImportedIAutoMovieVector3): number[] => [
+      Vector3.dot(point, u),
+      Vector3.dot(point, v),
+    ],
+  );
   let xx: number = 0,
     xy: number = 0,
     yy: number = 0;
@@ -68,8 +87,12 @@ export function fitPortraitNostrilRim(
     x * cos + y * sin,
     -x * sin + y * cos,
   ]);
-  const radiusX: number = Math.max(...principal.map((point: number[]): number => Math.abs(point[0])));
-  const radiusY: number = Math.max(...principal.map((point: number[]): number => Math.abs(point[1])));
+  const radiusX: number = Math.max(
+    ...principal.map((point: number[]): number => Math.abs(point[0])),
+  );
+  const radiusY: number = Math.max(
+    ...principal.map((point: number[]): number => Math.abs(point[1])),
+  );
   const distances: number[] = [0];
   for (let i: number = 0; i < principal.length; i++) {
     const a: number[] = principal[i],
@@ -80,28 +103,40 @@ export function fitPortraitNostrilRim(
     principal[0][1] / radiusY,
     principal[0][0] / radiusX,
   );
-  const major: ImportedIAutoMovieVector3 = Vector3.add(Vector3.scale(u, cos), Vector3.scale(v, sin));
-  const minor: ImportedIAutoMovieVector3 = Vector3.add(Vector3.scale(u, -sin), Vector3.scale(v, cos));
-  const ellipse: number[][] = points.map((_point: number[], i: number): number[] => {
-    const t: number =
-      phase + (2 * Math.PI * distances[i]) / distances[distances.length - 1];
-    const point: ImportedIAutoMovieVector3 = Vector3.add(
-      Vector3.scale(major, radiusX * Math.cos(t)),
-      Vector3.scale(minor, radiusY * Math.sin(t)),
-    );
-    return [point.x, point.y, point.z];
-  });
+  const major: ImportedIAutoMovieVector3 = Vector3.add(
+    Vector3.scale(u, cos),
+    Vector3.scale(v, sin),
+  );
+  const minor: ImportedIAutoMovieVector3 = Vector3.add(
+    Vector3.scale(u, -sin),
+    Vector3.scale(v, cos),
+  );
+  const ellipse: number[][] = points.map(
+    (_point: number[], i: number): number[] => {
+      const t: number =
+        phase + (2 * Math.PI * distances[i]) / distances[distances.length - 1];
+      const point: ImportedIAutoMovieVector3 = Vector3.add(
+        Vector3.scale(major, radiusX * Math.cos(t)),
+        Vector3.scale(minor, radiusY * Math.sin(t)),
+      );
+      return [point.x, point.y, point.z];
+    },
+  );
   const drift: number[] = [0, 1, 2].map(
     (axis: number): number =>
-      ellipse.reduce((sum: number, point: number[]): number => sum + point[axis], 0) / ellipse.length,
+      ellipse.reduce(
+        (sum: number, point: number[]): number => sum + point[axis],
+        0,
+      ) / ellipse.length,
   );
-  const output: number[][] = normalized.map((point: number[], i: number): number[] =>
-    point.map(
-      (value: number, axis: number): number =>
-        (value * (1 - amount) +
-          amount * (center[axis] + ellipse[i][axis] - drift[axis])) *
-        scale,
-    ),
+  const output: number[][] = normalized.map(
+    (point: number[], i: number): number[] =>
+      point.map(
+        (value: number, axis: number): number =>
+          (value * (1 - amount) +
+            amount * (center[axis] + ellipse[i][axis] - drift[axis])) *
+          scale,
+      ),
   );
   if (output.some((point: number[]): boolean => !point.every(Number.isFinite)))
     throw new Error(

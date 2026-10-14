@@ -11,7 +11,11 @@
  * @evidence contracts/performance.md#reuse-equivalent-work No sampling result is memoized or duplicate boundary-fitting logic introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean escapes and the borrowed footprint is not retained.
  */
-export const portraitNostrilContains: (x: number, y: number, footprint: { x: number; y: number; width: number; height: number; }) => boolean = (
+export const portraitNostrilContains: (
+  x: number,
+  y: number,
+  footprint: { x: number; y: number; width: number; height: number },
+) => boolean = (
   x: number,
   y: number,
   footprint: {
