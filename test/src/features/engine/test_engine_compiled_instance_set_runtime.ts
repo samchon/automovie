@@ -1,9 +1,13 @@
 import {
   AUTOMOVIE_INSTANCE_CHUNK_SIZE,
-  materializeCompiledInstanceSet,
   canonicalizeAutoMovieJson,
+  materializeCompiledInstanceSet,
 } from "@automovie/engine";
-import { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceChunk, IAutoMovieCompiledFormationLod, IAutoMovieCompiledInstancePrototype,
+import {
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieInstanceChunk,
   IAutoMovieInstanceSetDesign,
   IAutoMovieModelRecipe,
   IAutoMovieWorldRoute,
@@ -11,12 +15,19 @@ import { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceChunk, IAutoMovieCompi
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { summarizeCompiledSlotChunks } from "../../../../packages/engine/src/populationRuntime/summarizeCompiledSlotChunks";
+import {
+  namedFacts,
+  nclose,
+  throwsError,
+  vclose,
+} from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /** One chunk plus one member in a single row, one metre apart along x. */
-const row: (overrides?: Partial<IAutoMovieInstanceSetDesign>) => IAutoMovieInstanceSetDesign = (
+const row: (
+  overrides?: Partial<IAutoMovieInstanceSetDesign>,
+) => IAutoMovieInstanceSetDesign = (
   overrides: Partial<IAutoMovieInstanceSetDesign> = {},
 ): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
@@ -45,7 +56,10 @@ const lane: IAutoMovieWorldRoute = {
 };
 
 /** A tree declaring a hero tier and a near tier of itself. */
-const recipes: Map<string, IAutoMovieModelRecipe> = new Map<string, IAutoMovieModelRecipe>([
+const recipes: Map<string, IAutoMovieModelRecipe> = new Map<
+  string,
+  IAutoMovieModelRecipe
+>([
   [
     "tree",
     {
@@ -99,34 +113,46 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
  */
 export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.
-  const compiled: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
-    instanceSet: row(),
-    world: { routes: [] },
-    recipes,
-    projectionRadii: new Map([["tree", 1.5]]),
-  });
+  const compiled: IAutoMovieCompiledInstanceSet =
+    materializeCompiledInstanceSet({
+      instanceSet: row(),
+      world: { routes: [] },
+      recipes,
+      projectionRadii: new Map([["tree", 1.5]]),
+    });
   const [first, last]: IAutoMovieInstanceChunk[] = compiled.chunks;
   TestValidator.equals(
     "one member past a chunk compiles to two exact chunks",
     namedFacts([
-      ["two", () : boolean => compiled.chunks.length === 2],
-      ["firstRange", () : boolean => first!.start === 0 && first!.count === 1_024],
+      ["two", (): boolean => compiled.chunks.length === 2],
+      [
+        "firstRange",
+        (): boolean => first!.start === 0 && first!.count === 1_024,
+      ],
       [
         "firstBounds",
-        () : boolean =>
+        (): boolean =>
           vclose(first!.bounds.min, { x: -512, y: 0, z: 0 }, 0) &&
           vclose(first!.bounds.max, { x: 511, y: 0, z: 0 }, 0),
       ],
       [
         "firstCentroid",
-        () : boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
       ],
-      ["lastRange", () : boolean => last!.start === 1_024 && last!.count === 1],
-      ["lastBounds", () : boolean => vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) && vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0)],
-      ["lastCentroid", () : boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
+      ["lastRange", (): boolean => last!.start === 1_024 && last!.count === 1],
+      [
+        "lastBounds",
+        (): boolean =>
+          vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) &&
+          vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0),
+      ],
+      [
+        "lastCentroid",
+        (): boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0),
+      ],
       [
         "totalCentroid",
-        () : boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
     ]),
     {
@@ -145,12 +171,21 @@ export function test_engine_compiled_instance_set_runtime(): void {
   TestValidator.equals(
     "a set without a table keeps the base recipe's tiers and radius",
     namedFacts([
-      ["noTable", () : boolean => Object.hasOwn(compiled, "prototypes") === false],
+      [
+        "noTable",
+        (): boolean => Object.hasOwn(compiled, "prototypes") === false,
+      ],
       [
         "tiers",
-        () : boolean => compiled.lod.map((item: IAutoMovieCompiledFormationLod) : "hero" | "near" | "far" => item.tier).join(",") === "hero,near",
+        (): boolean =>
+          compiled.lod
+            .map(
+              (item: IAutoMovieCompiledFormationLod): "hero" | "near" | "far" =>
+                item.tier,
+            )
+            .join(",") === "hero,near",
       ],
-      ["radius", () : boolean => nclose(compiled.projectionRadius, 1.5, 0)],
+      ["radius", (): boolean => nclose(compiled.projectionRadius, 1.5, 0)],
     ]),
     { noTable: true, tiers: true, radius: true },
   );
@@ -171,46 +206,56 @@ export function test_engine_compiled_instance_set_runtime(): void {
       ["shrub", 0.25],
     ]),
   });
-  const [base, tall, short]: IAutoMovieCompiledInstancePrototype[] = tabled.prototypes!;
+  const [base, tall, short]: IAutoMovieCompiledInstancePrototype[] =
+    tabled.prototypes!;
   TestValidator.equals(
     "a declared table compiles with the default first at weight one",
     namedFacts([
       [
         "order",
-        () : boolean =>
-          tabled.prototypes!.map((prototype: IAutoMovieCompiledInstancePrototype) : string => prototype.id).join(",") ===
-          "default,tall,short",
+        (): boolean =>
+          tabled
+            .prototypes!.map(
+              (prototype: IAutoMovieCompiledInstancePrototype): string =>
+                prototype.id,
+            )
+            .join(",") === "default,tall,short",
       ],
       [
         "weights",
-        () : boolean => nclose(base!.weight, 1, 0) && nclose(tall!.weight, 2, 0) && nclose(short!.weight, 1, 0),
+        (): boolean =>
+          nclose(base!.weight, 1, 0) &&
+          nclose(tall!.weight, 2, 0) &&
+          nclose(short!.weight, 1, 0),
       ],
       [
         "recipes",
-        () : boolean =>
+        (): boolean =>
           base!.modelRecipe === "tree" &&
           tall!.modelRecipe === "tall-tree" &&
           short!.modelRecipe === "shrub",
       ],
       [
         "undeclaredDrawsNear",
-        () : boolean =>
+        (): boolean =>
           tall!.lod.length === 1 &&
           tall!.lod[0]!.tier === "near" &&
           tall!.lod[0]!.recipe === "tall-tree",
       ],
       [
         "ownRadii",
-        () : boolean =>
+        (): boolean =>
           nclose(base!.projectionRadius, 1.5, 0) &&
           nclose(tall!.projectionRadius, 3, 0) &&
           nclose(short!.projectionRadius, 0.25, 0),
       ],
-      ["largest", () : boolean => nclose(tabled.projectionRadius, 3, 0)],
+      ["largest", (): boolean => nclose(tabled.projectionRadius, 3, 0)],
       [
         "baseTiers",
-        () : boolean =>
-          tabled.lod.map((item: IAutoMovieCompiledFormationLod) : string => item.recipe).join(",") === "tree-hero,tree",
+        (): boolean =>
+          tabled.lod
+            .map((item: IAutoMovieCompiledFormationLod): string => item.recipe)
+            .join(",") === "tree-hero,tree",
       ],
     ]),
     {
@@ -238,26 +283,29 @@ export function test_engine_compiled_instance_set_runtime(): void {
     namedFacts([
       [
         "snapshot",
-        () : boolean =>
+        (): boolean =>
           along.route !== null &&
           along.route !== lane &&
           along.route.waypoints !== lane.waypoints &&
-          along.route.waypoints.every((point: { x: number; z: number }, index: number): boolean => point !== lane.waypoints[index]) &&
+          along.route.waypoints.every(
+            (point: { x: number; z: number }, index: number): boolean =>
+              point !== lane.waypoints[index],
+          ) &&
           test12ValuesClose(along.route, lane) &&
           along.route.waypoints.length === 2 &&
           along.route.id === "lane",
       ],
-      ["localRecordsNone", () : boolean => compiled.route === null],
+      ["localRecordsNone", (): boolean => compiled.route === null],
       [
         "layoutCopied",
-        () : boolean =>
+        (): boolean =>
           along.layout !== alongDesign.layout &&
           test12ValuesClose(along.layout, alongDesign.layout) &&
           along.layout.kind === "along-route",
       ],
       [
         "variationCopied",
-        () : boolean =>
+        (): boolean =>
           along.variation !== alongDesign.variation &&
           along.variation.scale !== alongDesign.variation.scale &&
           along.variation.palette !== alongDesign.variation.palette &&
@@ -280,9 +328,9 @@ export function test_engine_compiled_instance_set_runtime(): void {
     namedFacts([
       [
         "unavailable",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieCompiledInstanceSet =>
+            (): IAutoMovieCompiledInstanceSet =>
               materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: { routes: [] },
@@ -292,9 +340,9 @@ export function test_engine_compiled_instance_set_runtime(): void {
       ],
       [
         "zeroLength",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieCompiledInstanceSet =>
+            (): IAutoMovieCompiledInstanceSet =>
               materializeCompiledInstanceSet({
                 instanceSet: alongDesign,
                 world: {
@@ -325,10 +373,10 @@ export function test_engine_compiled_instance_set_runtime(): void {
   TestValidator.equals(
     "the digest is the Node digest of the record and defaults compile a bare record",
     namedFacts([
-      ["node", () : boolean => digest === nodeDigest(core)],
+      ["node", (): boolean => digest === nodeDigest(core)],
       [
         "repeatable",
-        () : boolean =>
+        (): boolean =>
           materializeCompiledInstanceSet({
             instanceSet: row(),
             world: { routes: [] },
@@ -338,7 +386,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
       ],
       [
         "seed",
-        () : boolean =>
+        (): boolean =>
           materializeCompiledInstanceSet({
             instanceSet: row({ seed: 4 }),
             world: { routes: [] },
@@ -348,12 +396,12 @@ export function test_engine_compiled_instance_set_runtime(): void {
       ],
       [
         "bareTier",
-        () : boolean =>
+        (): boolean =>
           bare.lod.length === 1 &&
           bare.lod[0]!.tier === "near" &&
           bare.lod[0]!.recipe === "tree",
       ],
-      ["bareRadius", () : boolean => nclose(bare.projectionRadius, 0.5, 0)],
+      ["bareRadius", (): boolean => nclose(bare.projectionRadius, 0.5, 0)],
     ]),
     {
       node: true,
@@ -364,18 +412,35 @@ export function test_engine_compiled_instance_set_runtime(): void {
     },
   );
   const visits: number[] = [];
-  const folded: ReturnType<typeof summarizeCompiledSlotChunks> = summarizeCompiledSlotChunks(5, 2, (slot: number): { x: number; y: number; z: number } => {
-    visits.push(slot);
-    return { x: slot, y: 2 * slot, z: -slot };
-  });
-  TestValidator.equals("one actual position evaluation per slot in order", visits, [0, 1, 2, 3, 4]);
-  TestValidator.predicate("whole placement-point summary", () : boolean =>
-    vclose(folded.summary.bounds.min, { x: 0, y: 0, z: -4 }, 0) &&
-    vclose(folded.summary.bounds.max, { x: 4, y: 8, z: 0 }, 0) &&
-    vclose(folded.summary.centroid, { x: 2, y: 4, z: -2 }, 1e-12));
-  TestValidator.predicate("partial final chunk and independent chunk means", () : boolean =>
-    folded.chunks.length === 3 && folded.chunks[2]!.start === 4 && folded.chunks[2]!.count === 1 &&
-    vclose(folded.chunks[0]!.centroid, { x: 0.5, y: 1, z: -0.5 }, 1e-12) &&
-    vclose(folded.chunks[1]!.centroid, { x: 2.5, y: 5, z: -2.5 }, 1e-12) &&
-    vclose(folded.chunks[2]!.centroid, { x: 4, y: 8, z: -4 }, 1e-12));
+  const folded: ReturnType<typeof summarizeCompiledSlotChunks> =
+    summarizeCompiledSlotChunks(
+      5,
+      2,
+      (slot: number): { x: number; y: number; z: number } => {
+        visits.push(slot);
+        return { x: slot, y: 2 * slot, z: -slot };
+      },
+    );
+  TestValidator.equals(
+    "one actual position evaluation per slot in order",
+    visits,
+    [0, 1, 2, 3, 4],
+  );
+  TestValidator.predicate(
+    "whole placement-point summary",
+    (): boolean =>
+      vclose(folded.summary.bounds.min, { x: 0, y: 0, z: -4 }, 0) &&
+      vclose(folded.summary.bounds.max, { x: 4, y: 8, z: 0 }, 0) &&
+      vclose(folded.summary.centroid, { x: 2, y: 4, z: -2 }, 1e-12),
+  );
+  TestValidator.predicate(
+    "partial final chunk and independent chunk means",
+    (): boolean =>
+      folded.chunks.length === 3 &&
+      folded.chunks[2]!.start === 4 &&
+      folded.chunks[2]!.count === 1 &&
+      vclose(folded.chunks[0]!.centroid, { x: 0.5, y: 1, z: -0.5 }, 1e-12) &&
+      vclose(folded.chunks[1]!.centroid, { x: 2.5, y: 5, z: -2.5 }, 1e-12) &&
+      vclose(folded.chunks[2]!.centroid, { x: 4, y: 8, z: -4 }, 1e-12),
+  );
 }

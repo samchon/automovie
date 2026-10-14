@@ -1,7 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
+
+import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 import { namedFacts, qclose, vclose } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
-import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
 const COUNT: number = 2_000;
 
@@ -73,7 +74,6 @@ export function test_engine_instance_transform_axes(): void {
     { heading: true, headingThenOffset: true },
   );
 
-
   // 8. Per-axis scale.
   const perAxis: ReturnType<typeof slots> = slots(
     crowd({
@@ -106,16 +106,20 @@ export function test_engine_instance_transform_axes(): void {
         "independentAxes",
         (): boolean =>
           perAxis.filter(
-            (member: (typeof perAxis)[number]): boolean => member.scale3!.x - 1 !== member.scale3!.y - 2,
+            (member: (typeof perAxis)[number]): boolean =>
+              member.scale3!.x - 1 !== member.scale3!.y - 2,
           ).length >
           COUNT * 0.9,
       ],
       [
         "uniformRepeats",
         (): boolean =>
-          uniform.every(
-            (member: (typeof uniform)[number]): boolean =>
-              vclose(member.scale3!, { x: member.scale, y: member.scale, z: member.scale }, 0),
+          uniform.every((member: (typeof uniform)[number]): boolean =>
+            vclose(
+              member.scale3!,
+              { x: member.scale, y: member.scale, z: member.scale },
+              0,
+            ),
           ),
       ],
     ]),

@@ -2,14 +2,10 @@ import {
   applyAutoMovieInteriorAcousticResponse,
   deriveAutoMovieInteriorAcousticResponse,
 } from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-import {
-  nclose,
-} from "../internal/predicates";
+import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
+import { nclose } from "../internal/predicates";
 
 /**
  * Material absorption changes the derived T60 and the complete bounded impulse tail on the existing 100 Hz kernel clock.
@@ -24,9 +20,15 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh requests and returned CPU sample arrays through the existing canonical fixture; it opens no file, native solver, codec/audio device, renderer, browser or GPU and replaces no foreign method.
  */
 export function test_engine_interior_acoustic_material_tail(): void {
-  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
+  const {
+    digest,
+    profile,
+    request,
+  }: ReturnType<typeof createInteriorAcousticTestInputs> =
+    createInteriorAcousticTestInputs();
 
-  const reflective: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const reflective: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -34,7 +36,8 @@ export function test_engine_interior_acoustic_material_tail(): void {
       profile,
     });
 
-  const absorptive: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const absorptive: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -43,42 +46,53 @@ export function test_engine_interior_acoustic_material_tail(): void {
     });
 
   if (reflective.status !== "available" || absorptive.status !== "available")
-      throw new Error("positive material twins unexpectedly lacked responses");
+    throw new Error("positive material twins unexpectedly lacked responses");
 
-  const reflectivePcm: ReturnType<typeof applyAutoMovieInteriorAcousticResponse> = applyAutoMovieInteriorAcousticResponse({
-      samples: Float32Array.from([1, 0]),
-      channels: 1,
-      sampleRate: 100,
-      response: reflective,
-    });
+  const reflectivePcm: ReturnType<
+    typeof applyAutoMovieInteriorAcousticResponse
+  > = applyAutoMovieInteriorAcousticResponse({
+    samples: Float32Array.from([1, 0]),
+    channels: 1,
+    sampleRate: 100,
+    response: reflective,
+  });
 
-  const absorptivePcm: ReturnType<typeof applyAutoMovieInteriorAcousticResponse> = applyAutoMovieInteriorAcousticResponse({
-      samples: Float32Array.from([1, 0]),
-      channels: 1,
-      sampleRate: 100,
-      response: absorptive,
-    });
+  const absorptivePcm: ReturnType<
+    typeof applyAutoMovieInteriorAcousticResponse
+  > = applyAutoMovieInteriorAcousticResponse({
+    samples: Float32Array.from([1, 0]),
+    channels: 1,
+    sampleRate: 100,
+    response: absorptive,
+  });
 
-  const tailEnergy: (pcm: Float32Array) => number = (pcm: Float32Array): number =>
-      pcm.slice(1).reduce((sum: number, sample: number): number => sum + Math.abs(sample), 0);
+  const tailEnergy: (pcm: Float32Array) => number = (
+    pcm: Float32Array,
+  ): number =>
+    pcm
+      .slice(1)
+      .reduce(
+        (sum: number, sample: number): number => sum + Math.abs(sample),
+        0,
+      );
 
   TestValidator.equals(
-      "material absorption changes both the Sabine result and the audible bounded tail",
-      {
-        reflectiveT60: nclose(reflective.reverberationTimeSeconds!, 0.805),
-        absorptiveT60: nclose(absorptive.reverberationTimeSeconds!, 0.20125),
-        ordered:
-          reflective.reverberationTimeSeconds! >
-          absorptive.reverberationTimeSeconds!,
-        longerTail: reflectivePcm.length > absorptivePcm.length,
-        greaterTailEnergy: tailEnergy(reflectivePcm) > tailEnergy(absorptivePcm),
-      },
-      {
-        reflectiveT60: true,
-        absorptiveT60: true,
-        ordered: true,
-        longerTail: true,
-        greaterTailEnergy: true,
-      },
-    );
+    "material absorption changes both the Sabine result and the audible bounded tail",
+    {
+      reflectiveT60: nclose(reflective.reverberationTimeSeconds!, 0.805),
+      absorptiveT60: nclose(absorptive.reverberationTimeSeconds!, 0.20125),
+      ordered:
+        reflective.reverberationTimeSeconds! >
+        absorptive.reverberationTimeSeconds!,
+      longerTail: reflectivePcm.length > absorptivePcm.length,
+      greaterTailEnergy: tailEnergy(reflectivePcm) > tailEnergy(absorptivePcm),
+    },
+    {
+      reflectiveT60: true,
+      absorptiveT60: true,
+      ordered: true,
+      longerTail: true,
+      greaterTailEnergy: true,
+    },
+  );
 }

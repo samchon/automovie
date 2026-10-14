@@ -1,21 +1,23 @@
 import { importedNodeClipToAutoMovieMotion } from "@automovie/engine";
 import type {
   IAutoMovieClip,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
   IAutoMovieSkeleton,
   IAutoMovieTrack,
-  IAutoMovieKeyframe,
-  IAutoMovieJointPose,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
-import { importedNodeMotionTestRotation as rotation } from "../internal/importedNodeMotionTestRotation";
 import { importedNodeMotionTestClip as clip } from "../internal/importedNodeMotionTestClip";
-import { importedNodeMotionTestSkeleton as skeleton } from "../internal/importedNodeMotionTestSkeleton";
 import { importedNodeMotionTestRestRelativeInput } from "../internal/importedNodeMotionTestRestRelativeInput";
+import { importedNodeMotionTestRotation as rotation } from "../internal/importedNodeMotionTestRotation";
+import { importedNodeMotionTestSkeleton as skeleton } from "../internal/importedNodeMotionTestSkeleton";
+import { nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const mapping: Parameters<typeof importedNodeClipToAutoMovieMotion>[0]["mapping"] = [
+const mapping: Parameters<
+  typeof importedNodeClipToAutoMovieMotion
+>[0]["mapping"] = [
   { node: "spine-node", bone: "spine" as const },
   { node: "pelvis-node", bone: "hips" as const },
 ];
@@ -40,45 +42,52 @@ const mapping: Parameters<typeof importedNodeClipToAutoMovieMotion>[0]["mapping"
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh clip/skeleton records through the extracted existing canonical fixtures, preserving array order and mapping identities. It opens no importer process, filesystem, renderer, browser or GPU and replaces no foreign method or production consumer.
  */
 export function test_engine_imported_node_motion(): void {
-  const motion: ReturnType<typeof importedNodeClipToAutoMovieMotion> = importedNodeClipToAutoMovieMotion({
-    clip: clip(),
-    sourceSkeleton: skeleton(),
-    mapping,
-    motionId: "native-clinical",
-  });
+  const motion: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
+    importedNodeClipToAutoMovieMotion({
+      clip: clip(),
+      sourceSkeleton: skeleton(),
+      mapping,
+      motionId: "native-clinical",
+    });
   TestValidator.predicate(
     "the authored key-time union becomes clinical source motion",
     test12ValuesClose(
-    {
-      id: motion.id,
-      skeleton: motion.skeleton,
-      times: motion.keyframes.map((keyframe: IAutoMovieKeyframe): number => keyframe.time),
-      rootX: motion.keyframes[1]!.pose.root?.translation.x,
-      spineFlexion: nclose(
-        motion.keyframes[1]!.pose.joints.find(
-          (joint: IAutoMovieJointPose): boolean => joint.bone === "spine",
-        )!.flexion!,
-        90,
-      ),
-      easing: motion.keyframes.map((keyframe: IAutoMovieKeyframe): IAutoMovieKeyframe["easing"] => keyframe.easing),
-    },
-    {
-      id: "native-clinical",
-      skeleton: "source-rig",
-      times: [0, 0.5, 1],
-      rootX: 1,
-      spineFlexion: true,
-      easing: ["linear", "linear", "linear"],
-    },
+      {
+        id: motion.id,
+        skeleton: motion.skeleton,
+        times: motion.keyframes.map(
+          (keyframe: IAutoMovieKeyframe): number => keyframe.time,
+        ),
+        rootX: motion.keyframes[1]!.pose.root?.translation.x,
+        spineFlexion: nclose(
+          motion.keyframes[1]!.pose.joints.find(
+            (joint: IAutoMovieJointPose): boolean => joint.bone === "spine",
+          )!.flexion!,
+          90,
+        ),
+        easing: motion.keyframes.map(
+          (keyframe: IAutoMovieKeyframe): IAutoMovieKeyframe["easing"] =>
+            keyframe.easing,
+        ),
+      },
+      {
+        id: "native-clinical",
+        skeleton: "source-rig",
+        times: [0, 0.5, 1],
+        rootX: 1,
+        spineFlexion: true,
+        easing: ["linear", "linear", "linear"],
+      },
     ),
   );
 
-  const reordered: ReturnType<typeof importedNodeClipToAutoMovieMotion> = importedNodeClipToAutoMovieMotion({
-    clip: clip(),
-    sourceSkeleton: skeleton(),
-    mapping: [...mapping].reverse(),
-    motionId: "native-clinical",
-  });
+  const reordered: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
+    importedNodeClipToAutoMovieMotion({
+      clip: clip(),
+      sourceSkeleton: skeleton(),
+      mapping: [...mapping].reverse(),
+      motionId: "native-clinical",
+    });
   TestValidator.predicate(
     "mapping input order does not change canonical joint output",
     test12ValuesClose(reordered, motion),
@@ -444,20 +453,23 @@ export function test_engine_imported_node_motion(): void {
     { rotationOnlyRoot: null, noHipsRoot: null, characterized: 3 },
   );
 
-  const neutral: ReturnType<typeof importedNodeClipToAutoMovieMotion> = importedNodeClipToAutoMovieMotion(importedNodeMotionTestRestRelativeInput(mapping));
+  const neutral: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
+    importedNodeClipToAutoMovieMotion(
+      importedNodeMotionTestRestRelativeInput(mapping),
+    );
   TestValidator.predicate(
     "absolute imported node TRS is normalized against the source rest pose",
     test12ValuesClose(
-    {
-      root: neutral.keyframes[0]!.pose.root?.translation,
-      spine: neutral.keyframes[0]!.pose.joints.find(
-        (joint: IAutoMovieJointPose): boolean => joint.bone === "spine",
-      ),
-    },
-    {
-      root: { x: 0, y: 0, z: 0 },
-      spine: { bone: "spine", flexion: 0, abduction: 0, twist: 0 },
-    },
+      {
+        root: neutral.keyframes[0]!.pose.root?.translation,
+        spine: neutral.keyframes[0]!.pose.joints.find(
+          (joint: IAutoMovieJointPose): boolean => joint.bone === "spine",
+        ),
+      },
+      {
+        root: { x: 0, y: 0, z: 0 },
+        spine: { bone: "spine", flexion: 0, abduction: 0, twist: 0 },
+      },
     ),
   );
 }

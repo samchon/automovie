@@ -1,13 +1,16 @@
 import { materializeCompiledInstanceSet } from "@automovie/engine";
 import type { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 import { namedFacts, nclose } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
-import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
 const COUNT: number = 2_000;
 /** Share of members that selected each prototype id. */
-const shares: (members: ReadonlyArray<{ prototype?: string }>) => Record<string, number> = (
+const shares: (
+  members: ReadonlyArray<{ prototype?: string }>,
+) => Record<string, number> = (
   members: ReadonlyArray<{ prototype?: string }>,
 ): Record<string, number> => {
   const counts: Record<string, number> = {};
@@ -16,10 +19,14 @@ const shares: (members: ReadonlyArray<{ prototype?: string }>) => Record<string,
     counts[id] = (counts[id] ?? 0) + 1;
   }
   return Object.fromEntries(
-    Object.entries(counts).map(([id, count]: [string, number]): [string, number] => [id, count / members.length]),
+    Object.entries(counts).map(
+      ([id, count]: [string, number]): [string, number] => [
+        id,
+        count / members.length,
+      ],
+    ),
   );
 };
-
 
 /**
  * A two-thousand-member weighted table accounts for the default once through both direct and compiled instance regeneration. Proportions and recipe ownership keep the original statistical bounds.
@@ -52,20 +59,35 @@ export function test_engine_instance_prototype_distribution(): void {
   TestValidator.equals(
     "a weighted table is chosen in proportion to its weights",
     namedFacts([
-      ["default", (): boolean => nclose(tableShares.default!, 0.25, 0.04) && Math.abs(tableShares.default! - 0.25) < 0.04],
-      ["tall", (): boolean => nclose(tableShares.tall!, 0.5, 0.04) && Math.abs(tableShares.tall! - 0.5) < 0.04],
-      ["short", (): boolean => nclose(tableShares.short!, 0.25, 0.04) && Math.abs(tableShares.short! - 0.25) < 0.04],
+      [
+        "default",
+        (): boolean =>
+          nclose(tableShares.default!, 0.25, 0.04) &&
+          Math.abs(tableShares.default! - 0.25) < 0.04,
+      ],
+      [
+        "tall",
+        (): boolean =>
+          nclose(tableShares.tall!, 0.5, 0.04) &&
+          Math.abs(tableShares.tall! - 0.5) < 0.04,
+      ],
+      [
+        "short",
+        (): boolean =>
+          nclose(tableShares.short!, 0.25, 0.04) &&
+          Math.abs(tableShares.short! - 0.25) < 0.04,
+      ],
       [
         "recipeFollowsPrototype",
         (): boolean =>
           chosen.every(
-            (member: (typeof chosen)[number]): boolean => member.modelRecipe === recipeOf[member.prototype!],
+            (member: (typeof chosen)[number]): boolean =>
+              member.modelRecipe === recipeOf[member.prototype!],
           ),
       ],
     ]),
     { default: true, tall: true, short: true, recipeFollowsPrototype: true },
   );
-
 
   // 4. The same table from a design compiles the default in once.
   const design: IAutoMovieInstanceSetDesign = {
@@ -82,10 +104,11 @@ export function test_engine_instance_prototype_distribution(): void {
     seed: 12_345,
     variation: crowd().variation,
   };
-  const compiled: ReturnType<typeof materializeCompiledInstanceSet> = materializeCompiledInstanceSet({
-    instanceSet: design,
-    world: { routes: [] },
-  });
+  const compiled: ReturnType<typeof materializeCompiledInstanceSet> =
+    materializeCompiledInstanceSet({
+      instanceSet: design,
+      world: { routes: [] },
+    });
   const compiledShares: ReturnType<typeof shares> = shares(slots(compiled));
   TestValidator.equals(
     "a compiled table regenerates with the default counted once",
@@ -93,15 +116,33 @@ export function test_engine_instance_prototype_distribution(): void {
       [
         "table",
         (): boolean =>
-          compiled.prototypes!.map((prototype: NonNullable<typeof compiled.prototypes>[number]): string => prototype.id).join(",") ===
-          "default,tall,short",
+          compiled
+            .prototypes!.map(
+              (
+                prototype: NonNullable<typeof compiled.prototypes>[number],
+              ): string => prototype.id,
+            )
+            .join(",") === "default,tall,short",
       ],
-      ["default", (): boolean => nclose(compiledShares.default!, 0.25, 0.04) && Math.abs(compiledShares.default! - 0.25) < 0.04],
-      ["tall", (): boolean => nclose(compiledShares.tall!, 0.5, 0.04) && Math.abs(compiledShares.tall! - 0.5) < 0.04],
-      ["short", (): boolean => nclose(compiledShares.short!, 0.25, 0.04) && Math.abs(compiledShares.short! - 0.25) < 0.04],
+      [
+        "default",
+        (): boolean =>
+          nclose(compiledShares.default!, 0.25, 0.04) &&
+          Math.abs(compiledShares.default! - 0.25) < 0.04,
+      ],
+      [
+        "tall",
+        (): boolean =>
+          nclose(compiledShares.tall!, 0.5, 0.04) &&
+          Math.abs(compiledShares.tall! - 0.5) < 0.04,
+      ],
+      [
+        "short",
+        (): boolean =>
+          nclose(compiledShares.short!, 0.25, 0.04) &&
+          Math.abs(compiledShares.short! - 0.25) < 0.04,
+      ],
     ]),
     { table: true, default: true, tall: true, short: true },
   );
-
-
 }

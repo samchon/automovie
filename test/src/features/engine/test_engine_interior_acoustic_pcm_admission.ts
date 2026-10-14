@@ -2,17 +2,11 @@ import {
   applyAutoMovieInteriorAcousticResponse,
   deriveAutoMovieInteriorAcousticResponse,
 } from "@automovie/engine";
-import type {
-  IAutoMovieProductionAcousticResponse,
-} from "@automovie/interface";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-import {
-  throwsError,
-} from "../internal/predicates";
+import type { IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
+import { throwsError } from "../internal/predicates";
 
 /**
  * PCM clock, shape and path-specific facts refuse their invalid boundaries while the response basis remains supported.
@@ -27,9 +21,15 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh requests, buffers and refusal callbacks through the existing canonical fixture; it opens no file, codec/audio device, native solver, renderer, browser or GPU and replaces no foreign method.
  */
 export function test_engine_interior_acoustic_pcm_admission(): void {
-  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
+  const {
+    digest,
+    profile,
+    request,
+  }: ReturnType<typeof createInteriorAcousticTestInputs> =
+    createInteriorAcousticTestInputs();
 
-  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -37,7 +37,8 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       profile,
     });
 
-  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -53,200 +54,206 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
     ["available", "available"],
   );
 
-  const availableSame: Extract<IAutoMovieProductionAcousticResponse, { status: "available" }> = same as Extract<
-      IAutoMovieProductionAcousticResponse,
-      { status: "available" }
-    >;
+  const availableSame: Extract<
+    IAutoMovieProductionAcousticResponse,
+    { status: "available" }
+  > = same as Extract<
+    IAutoMovieProductionAcousticResponse,
+    { status: "available" }
+  >;
 
-  const availableAcross: Extract<IAutoMovieProductionAcousticResponse, { status: "available" }> = across as Extract<
-      IAutoMovieProductionAcousticResponse,
-      { status: "available" }
-    >;
+  const availableAcross: Extract<
+    IAutoMovieProductionAcousticResponse,
+    { status: "available" }
+  > = across as Extract<
+    IAutoMovieProductionAcousticResponse,
+    { status: "available" }
+  >;
 
   TestValidator.equals(
-      "PCM application refuses invalid clocks, shapes, and path-specific facts",
-      {
-        fractionalChannels: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1.5,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "positive integer",
-        ),
-        zeroChannels: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 0,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "positive integer",
-        ),
-        fractionalRate: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100.5,
-              response: availableSame,
-            }),
-          "sample rate",
-        ),
-        zeroRate: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 0,
-              response: availableSame,
-            }),
-          "sample rate",
-        ),
-        incompleteFrame: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: Float32Array.from([1]),
-              channels: 2,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "complete frames",
-        ),
-        emptyPcm: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: new Float32Array(),
-              channels: 1,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "must not be empty",
-        ),
-        nanSample: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: Float32Array.from([Number.NaN]),
-              channels: 1,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "samples must be finite",
-        ),
-        positiveInfinitySample: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: Float32Array.from([Number.POSITIVE_INFINITY]),
-              channels: 1,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "samples must be finite",
-        ),
-        negativeInfinitySample: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: Float32Array.from([Number.NEGATIVE_INFINITY]),
-              channels: 1,
-              sampleRate: 100,
-              response: availableSame,
-            }),
-          "samples must be finite",
-        ),
-        nullTransmission: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableAcross, transmissionGain: null },
-            }),
-          "transmission gain",
-        ),
-        negativeTransmission: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableAcross, transmissionGain: -1 },
-            }),
-          "transmission gain",
-        ),
-        excessTransmission: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableAcross, transmissionGain: 2 },
-            }),
-          "transmission gain",
-        ),
-        nullReverberation: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: {
-                ...availableSame,
-                reverberationTimeSeconds: null,
-              },
-            }),
-          "reverberation time",
-        ),
-        zeroReverberation: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableSame, reverberationTimeSeconds: 0 },
-            }),
-          "reverberation time",
-        ),
-        nullRatio: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableSame, directToDiffuseRatio: null },
-            }),
-          "direct-to-diffuse ratio",
-        ),
-        zeroRatio: throwsError(
-          (): Float32Array =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: { ...availableSame, directToDiffuseRatio: 0 },
-            }),
-          "direct-to-diffuse ratio",
-        ),
-      },
-      {
-        fractionalChannels: true,
-        zeroChannels: true,
-        fractionalRate: true,
-        zeroRate: true,
-        incompleteFrame: true,
-        emptyPcm: true,
-        nanSample: true,
-        positiveInfinitySample: true,
-        negativeInfinitySample: true,
-        nullTransmission: true,
-        negativeTransmission: true,
-        excessTransmission: true,
-        nullReverberation: true,
-        zeroReverberation: true,
-        nullRatio: true,
-        zeroRatio: true,
-      },
-    );
+    "PCM application refuses invalid clocks, shapes, and path-specific facts",
+    {
+      fractionalChannels: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1.5,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "positive integer",
+      ),
+      zeroChannels: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 0,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "positive integer",
+      ),
+      fractionalRate: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100.5,
+            response: availableSame,
+          }),
+        "sample rate",
+      ),
+      zeroRate: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 0,
+            response: availableSame,
+          }),
+        "sample rate",
+      ),
+      incompleteFrame: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: Float32Array.from([1]),
+            channels: 2,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "complete frames",
+      ),
+      emptyPcm: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: new Float32Array(),
+            channels: 1,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "must not be empty",
+      ),
+      nanSample: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: Float32Array.from([Number.NaN]),
+            channels: 1,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "samples must be finite",
+      ),
+      positiveInfinitySample: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: Float32Array.from([Number.POSITIVE_INFINITY]),
+            channels: 1,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "samples must be finite",
+      ),
+      negativeInfinitySample: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: Float32Array.from([Number.NEGATIVE_INFINITY]),
+            channels: 1,
+            sampleRate: 100,
+            response: availableSame,
+          }),
+        "samples must be finite",
+      ),
+      nullTransmission: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableAcross, transmissionGain: null },
+          }),
+        "transmission gain",
+      ),
+      negativeTransmission: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableAcross, transmissionGain: -1 },
+          }),
+        "transmission gain",
+      ),
+      excessTransmission: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableAcross, transmissionGain: 2 },
+          }),
+        "transmission gain",
+      ),
+      nullReverberation: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: {
+              ...availableSame,
+              reverberationTimeSeconds: null,
+            },
+          }),
+        "reverberation time",
+      ),
+      zeroReverberation: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableSame, reverberationTimeSeconds: 0 },
+          }),
+        "reverberation time",
+      ),
+      nullRatio: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableSame, directToDiffuseRatio: null },
+          }),
+        "direct-to-diffuse ratio",
+      ),
+      zeroRatio: throwsError(
+        (): Float32Array =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: { ...availableSame, directToDiffuseRatio: 0 },
+          }),
+        "direct-to-diffuse ratio",
+      ),
+    },
+    {
+      fractionalChannels: true,
+      zeroChannels: true,
+      fractionalRate: true,
+      zeroRate: true,
+      incompleteFrame: true,
+      emptyPcm: true,
+      nanSample: true,
+      positiveInfinitySample: true,
+      negativeInfinitySample: true,
+      nullTransmission: true,
+      negativeTransmission: true,
+      excessTransmission: true,
+      nullReverberation: true,
+      zeroReverberation: true,
+      nullRatio: true,
+      zeroRatio: true,
+    },
+  );
 }

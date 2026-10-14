@@ -2,9 +2,7 @@ import {
   deriveAutoMovieSoundPropagation,
   renderProductionSound,
 } from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
+import { TestValidator } from "@nestia/e2e";
 
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
@@ -21,9 +19,16 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh profiles, plans and both native PCM outputs through the existing fixture; no filesystem, codec/audio device, native solver, renderer, browser or GPU is used and no foreign method is replaced.
  */
 export function test_engine_sound_propagation_spectral_mix(): void {
-  const { profile, eventPlan, firstAudibleFrame, adjacentEnergy }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
+  const {
+    profile,
+    eventPlan,
+    firstAudibleFrame,
+    adjacentEnergy,
+  }: ReturnType<typeof createSoundPropagationTestInputs> =
+    createSoundPropagationTestInputs();
 
-  const zero: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
+  const zero: ReturnType<typeof deriveAutoMovieSoundPropagation> =
+    deriveAutoMovieSoundPropagation({
       distanceMeters: 0,
       emissionFrame: 2,
       segmentEndFrame: 7,
@@ -32,23 +37,25 @@ export function test_engine_sound_propagation_spectral_mix(): void {
       profile: { ...profile(), spectral: { kind: "none" } },
     });
 
-  const unfiltered: ReturnType<typeof renderProductionSound> = renderProductionSound({
+  const unfiltered: ReturnType<typeof renderProductionSound> =
+    renderProductionSound({
       plan: eventPlan({ ...zero, highFrequencyGain: 1 }),
     });
 
-  const absorbed: ReturnType<typeof renderProductionSound> = renderProductionSound({
+  const absorbed: ReturnType<typeof renderProductionSound> =
+    renderProductionSound({
       plan: eventPlan({ ...zero, highFrequencyGain: 0.05 }),
     });
 
   const first: number = firstAudibleFrame(unfiltered.pcm) * 2;
 
   TestValidator.equals(
-      "declared spectral absorption filters the complete event including its transient",
-      {
-        firstTransientFalls: absorbed.pcm[first]! < unfiltered.pcm[first]!,
-        adjacentEnergyFalls:
-          adjacentEnergy(absorbed.pcm) < adjacentEnergy(unfiltered.pcm),
-      },
-      { firstTransientFalls: true, adjacentEnergyFalls: true },
-    );
+    "declared spectral absorption filters the complete event including its transient",
+    {
+      firstTransientFalls: absorbed.pcm[first]! < unfiltered.pcm[first]!,
+      adjacentEnergyFalls:
+        adjacentEnergy(absorbed.pcm) < adjacentEnergy(unfiltered.pcm),
+    },
+    { firstTransientFalls: true, adjacentEnergyFalls: true },
+  );
 }

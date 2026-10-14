@@ -3,17 +3,11 @@ import {
   applyAutoMovieInteriorAcousticResponse,
   deriveAutoMovieInteriorAcousticResponse,
 } from "@automovie/engine";
-import type {
-  IAutoMovieAcousticResponseProfile,
-} from "@automovie/interface";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-import {
-  throwsError,
-} from "../internal/predicates";
+import type { IAutoMovieAcousticResponseProfile } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
+import { throwsError } from "../internal/predicates";
 
 /**
  * Unavailable analysis, revision mismatch and malformed room inputs are refused before a response can be consumed.
@@ -28,9 +22,15 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh room requests, a two-sample CPU buffer and local callbacks through the existing canonical fixture; it opens no file, solver process, audio device, renderer, browser or GPU and replaces no foreign method.
  */
 export function test_engine_interior_acoustic_derivation_admission(): void {
-  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
+  const {
+    digest,
+    profile,
+    request,
+  }: ReturnType<typeof createInteriorAcousticTestInputs> =
+    createInteriorAcousticTestInputs();
 
-  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: null,
       inputRevision: digest,
@@ -41,118 +41,120 @@ export function test_engine_interior_acoustic_derivation_admission(): void {
   const dry: Float32Array = Float32Array.from([1, 0]);
 
   TestValidator.equals(
-      "unavailable response and mismatched revisions are refused",
-      {
-        unavailable: throwsError(
-          (): ReturnType<typeof applyAutoMovieInteriorAcousticResponse> =>
-            applyAutoMovieInteriorAcousticResponse({
-              samples: dry,
-              channels: 1,
-              sampleRate: 100,
-              response: unresolved,
-            }),
-          "unsupported",
-        ),
-        revision: throwsError(
-          (): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =>
-            deriveAutoMovieInteriorAcousticResponse({
-              sourceSpace: "room-a",
-              listenerSpace: "room-a",
-              inputRevision:
-                "sha256:2222222222222222222222222222222222222222222222222222222222222222" as string,
-              request: request(),
-              profile,
-            }),
-          "revision",
-        ),
-      },
-      { unavailable: true, revision: true },
-    );
+    "unavailable response and mismatched revisions are refused",
+    {
+      unavailable: throwsError(
+        (): ReturnType<typeof applyAutoMovieInteriorAcousticResponse> =>
+          applyAutoMovieInteriorAcousticResponse({
+            samples: dry,
+            channels: 1,
+            sampleRate: 100,
+            response: unresolved,
+          }),
+        "unsupported",
+      ),
+      revision: throwsError(
+        (): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =>
+          deriveAutoMovieInteriorAcousticResponse({
+            sourceSpace: "room-a",
+            listenerSpace: "room-a",
+            inputRevision:
+              "sha256:2222222222222222222222222222222222222222222222222222222222222222" as string,
+            request: request(),
+            profile,
+          }),
+        "revision",
+      ),
+    },
+    { unavailable: true, revision: true },
+  );
 
   function derive(
-      values: Partial<{
-        sourceSpace: string | null;
-        listenerSpace: string | null;
-        inputRevision: string;
-        request: IAutoMovieAcousticRequest | null;
-        profile: IAutoMovieAcousticResponseProfile;
-      }> = {},
-    ): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> {
-      return deriveAutoMovieInteriorAcousticResponse({
-        sourceSpace: "room-a",
-        listenerSpace: "room-a",
-        inputRevision: digest,
-        request: request(),
-        profile,
-        ...values,
-      });
+    values: Partial<{
+      sourceSpace: string | null;
+      listenerSpace: string | null;
+      inputRevision: string;
+      request: IAutoMovieAcousticRequest | null;
+      profile: IAutoMovieAcousticResponseProfile;
+    }> = {},
+  ): ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> {
+    return deriveAutoMovieInteriorAcousticResponse({
+      sourceSpace: "room-a",
+      listenerSpace: "room-a",
+      inputRevision: digest,
+      request: request(),
+      profile,
+      ...values,
+    });
   }
 
   TestValidator.equals(
-      "room-response derivation refuses every unresolved or malformed input boundary",
-      {
-        blankProfile: throwsError(
-          (): ReturnType<typeof derive> => derive({ profile: { ...profile, id: " " } }),
-          "id must not be blank",
-        ),
-        badRevision: throwsError(
-          (): ReturnType<typeof derive> =>
-            derive({
-              inputRevision: "not-a-digest" as string,
-            }),
-          "SHA-256",
-        ),
-        otherOutdoorEndpoint:
-          derive({ sourceSpace: null, listenerSpace: "room-a", request: null })
-            .status === "unsupported",
-        missingAnalysis: derive({ request: null }).status === "not-run",
-        unsupportedSolver: throwsError(
-          (): ReturnType<typeof derive> =>
-            derive({
-              profile: {
-                ...profile,
-                solver: "other",
-              } as unknown as IAutoMovieAcousticResponseProfile,
-            }),
-          "solver is unsupported",
-        ),
-        subjectMismatch: throwsError(
-          (): ReturnType<typeof derive> => derive({ request: { ...request(), subject: "room-b" } }),
-          "does not match source space",
-        ),
-        missingSource:
-          derive({ request: { ...request(), sources: [] } }).status ===
-          "unsupported",
-        missingReceiver:
-          derive({ request: { ...request(), receivers: [] } }).status ===
-          "unsupported",
-        coincident: throwsError(
-          (): ReturnType<typeof derive> =>
-            derive({
-              request: {
-                ...request(),
-                receivers: [{ id: "listener", position: { x: 0, y: 0, z: 0 } }],
-              },
-            }),
-          "inverse square law has no value",
-        ),
-        noPartition:
+    "room-response derivation refuses every unresolved or malformed input boundary",
+    {
+      blankProfile: throwsError(
+        (): ReturnType<typeof derive> =>
+          derive({ profile: { ...profile, id: " " } }),
+        "id must not be blank",
+      ),
+      badRevision: throwsError(
+        (): ReturnType<typeof derive> =>
           derive({
-            listenerSpace: "room-b",
-            request: { ...request(), partitions: [] },
-          }).status === "unsupported",
-      },
-      {
-        blankProfile: true,
-        badRevision: true,
-        otherOutdoorEndpoint: true,
-        missingAnalysis: true,
-        unsupportedSolver: true,
-        subjectMismatch: true,
-        missingSource: true,
-        missingReceiver: true,
-        coincident: true,
-        noPartition: true,
-      },
-    );
+            inputRevision: "not-a-digest" as string,
+          }),
+        "SHA-256",
+      ),
+      otherOutdoorEndpoint:
+        derive({ sourceSpace: null, listenerSpace: "room-a", request: null })
+          .status === "unsupported",
+      missingAnalysis: derive({ request: null }).status === "not-run",
+      unsupportedSolver: throwsError(
+        (): ReturnType<typeof derive> =>
+          derive({
+            profile: {
+              ...profile,
+              solver: "other",
+            } as unknown as IAutoMovieAcousticResponseProfile,
+          }),
+        "solver is unsupported",
+      ),
+      subjectMismatch: throwsError(
+        (): ReturnType<typeof derive> =>
+          derive({ request: { ...request(), subject: "room-b" } }),
+        "does not match source space",
+      ),
+      missingSource:
+        derive({ request: { ...request(), sources: [] } }).status ===
+        "unsupported",
+      missingReceiver:
+        derive({ request: { ...request(), receivers: [] } }).status ===
+        "unsupported",
+      coincident: throwsError(
+        (): ReturnType<typeof derive> =>
+          derive({
+            request: {
+              ...request(),
+              receivers: [{ id: "listener", position: { x: 0, y: 0, z: 0 } }],
+            },
+          }),
+        "inverse square law has no value",
+      ),
+      noPartition:
+        derive({
+          listenerSpace: "room-b",
+          request: { ...request(), partitions: [] },
+        }).status === "unsupported",
+    },
+    {
+      blankProfile: true,
+      badRevision: true,
+      otherOutdoorEndpoint: true,
+      missingAnalysis: true,
+      unsupportedSolver: true,
+      subjectMismatch: true,
+      missingSource: true,
+      missingReceiver: true,
+      coincident: true,
+      noPartition: true,
+    },
+  );
 }

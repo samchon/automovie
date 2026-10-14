@@ -4,9 +4,13 @@ import {
   resolveAutoMovieDrawingFeature,
 } from "@automovie/engine";
 import {
-  type IAutoMovieBuiltElement, type IAutoMovieDrawing, type IAutoMovieDrawingDimension, type IAutoMovieDrawingGap, type IAutoMovieDrawingPoint,
+  type IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawing,
+  type IAutoMovieDrawingDimension,
   IAutoMovieDrawingFeature,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieDrawingPoint,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,11 +19,7 @@ import {
   drawingPlace,
   drawingView,
 } from "../internal/drawingFixtures";
-import {
-  namedFacts,
-  nclose,
-  vclose,
-} from "../internal/predicates";
+import { namedFacts, nclose, vclose } from "../internal/predicates";
 import { test02DrawingAnnotationIdentity } from "../internal/test02DrawingAnnotationIdentity";
 import { test02DrawingAnnotationOrder } from "../internal/test02DrawingAnnotationOrder";
 import { test02DrawingAnnotationStaleness } from "../internal/test02DrawingAnnotationStaleness";
@@ -74,7 +74,9 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_drawing_annotation_resolution(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const feature: (overrides: Partial<IAutoMovieDrawingFeature>) => IAutoMovieDrawingFeature = (
+  const feature: (
+    overrides: Partial<IAutoMovieDrawingFeature>,
+  ) => IAutoMovieDrawingFeature = (
     overrides: Partial<IAutoMovieDrawingFeature>,
   ): IAutoMovieDrawingFeature => ({
     element: "north-wall",
@@ -84,10 +86,14 @@ export function test_drawing_annotation_resolution(): void {
     count: null,
     ...overrides,
   });
-  const resolve: (overrides: Partial<IAutoMovieDrawingFeature>, where?: IAutoMovieBuiltEnvironment) => IAutoMovieDrawingFeatureResolution = (
+  const resolve: (
+    overrides: Partial<IAutoMovieDrawingFeature>,
+    where?: IAutoMovieBuiltEnvironment,
+  ) => IAutoMovieDrawingFeatureResolution = (
     overrides: Partial<IAutoMovieDrawingFeature>,
     where: IAutoMovieBuiltEnvironment = environment,
-  ) : IAutoMovieDrawingFeatureResolution => resolveAutoMovieDrawingFeature(where, feature(overrides));
+  ): IAutoMovieDrawingFeatureResolution =>
+    resolveAutoMovieDrawingFeature(where, feature(overrides));
 
   // 1. Every family resolves where the fixture puts it.
   TestValidator.equals(
@@ -95,8 +101,11 @@ export function test_drawing_annotation_resolution(): void {
     namedFacts([
       [
         "the wall has 8 welded corners and the first is its origin corner",
-        () : boolean => {
-          const corner: IAutoMovieDrawingFeatureResolution = resolve({ kind: "vertex", index: 0 });
+        (): boolean => {
+          const corner: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "vertex",
+            index: 0,
+          });
           return (
             corner.count === 8 &&
             corner.status === "resolved" &&
@@ -107,7 +116,7 @@ export function test_drawing_annotation_resolution(): void {
       ],
       [
         "the last corner is the far top corner of the same box",
-        () : boolean =>
+        (): boolean =>
           vclose(resolve({ kind: "vertex", index: 7 }).point!, {
             x: 6,
             y: 3,
@@ -116,8 +125,11 @@ export function test_drawing_annotation_resolution(): void {
       ],
       [
         "the wall has 18 welded edges and the first runs through its thickness",
-        () : boolean => {
-          const edge: IAutoMovieDrawingFeatureResolution = resolve({ kind: "edge", index: 0 });
+        (): boolean => {
+          const edge: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "edge",
+            index: 0,
+          });
           return (
             edge.count === 18 &&
             vclose(edge.point!, { x: 0, y: 0, z: 0.1 }) &&
@@ -127,15 +139,21 @@ export function test_drawing_annotation_resolution(): void {
       ],
       [
         "the wall face probe reports twelve triangles and no direction",
-        () : boolean => {
-          const face: IAutoMovieDrawingFeatureResolution = resolve({ kind: "face", index: 0 });
+        (): boolean => {
+          const face: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "face",
+            index: 0,
+          });
           return face.count === 12 && face.direction === null;
         },
       ],
       [
         "the centroid of a box is the centre of the box",
-        () : boolean => {
-          const centre: IAutoMovieDrawingFeatureResolution = resolve({ kind: "centroid", index: 0 });
+        (): boolean => {
+          const centre: IAutoMovieDrawingFeatureResolution = resolve({
+            kind: "centroid",
+            index: 0,
+          });
           return (
             centre.count === 1 &&
             vclose(centre.point!, { x: 3, y: 1.5, z: 0.1 })
@@ -144,25 +162,36 @@ export function test_drawing_annotation_resolution(): void {
       ],
       [
         "each local axis resolves to the element's own origin and direction",
-        () : boolean =>
+        (): boolean =>
           (
             [
               [0, { x: 1, y: 0, z: 0 }],
               [1, { x: 0, y: 1, z: 0 }],
               [2, { x: 0, y: 0, z: 1 }],
             ] as const
-          ).every(([index, direction]: readonly [0, { readonly x: 1; readonly y: 0; readonly z: 0; }] | readonly [1, { readonly x: 0; readonly y: 1; readonly z: 0; }] | readonly [2, { readonly x: 0; readonly y: 0; readonly z: 1; }]) : boolean => {
-            const axis: IAutoMovieDrawingFeatureResolution = resolve({ kind: "axis", index });
-            return (
-              axis.count === 3 &&
-              vclose(axis.point!, { x: 3, y: 1.5, z: 0.1 }) &&
-              vclose(axis.direction!, direction)
-            );
-          }),
+          ).every(
+            ([index, direction]:
+              | readonly [0, { readonly x: 1; readonly y: 0; readonly z: 0 }]
+              | readonly [1, { readonly x: 0; readonly y: 1; readonly z: 0 }]
+              | readonly [
+                  2,
+                  { readonly x: 0; readonly y: 0; readonly z: 1 },
+                ]): boolean => {
+              const axis: IAutoMovieDrawingFeatureResolution = resolve({
+                kind: "axis",
+                index,
+              });
+              return (
+                axis.count === 3 &&
+                vclose(axis.point!, { x: 3, y: 1.5, z: 0.1 }) &&
+                vclose(axis.direction!, direction)
+              );
+            },
+          ),
       ],
       [
         "a named part resolves the same geometry as the whole element",
-        () : boolean =>
+        (): boolean =>
           vclose(
             resolve({ kind: "vertex", index: 7, part: "wall-body" }).point!,
             { x: 6, y: 3, z: 0.2 },
@@ -191,10 +220,13 @@ export function test_drawing_annotation_resolution(): void {
     }),
   );
 
-  const dimensioned: (where: IAutoMovieBuiltEnvironment, measure: "page" | "world") => IAutoMovieDrawing = (
+  const dimensioned: (
     where: IAutoMovieBuiltEnvironment,
     measure: "page" | "world",
-  ) : IAutoMovieDrawing =>
+  ) => IAutoMovieDrawing = (
+    where: IAutoMovieBuiltEnvironment,
+    measure: "page" | "world",
+  ): IAutoMovieDrawing =>
     deriveAutoMovieDrawing({
       environment: where,
       view: drawingView({
@@ -248,11 +280,12 @@ export function test_drawing_annotation_resolution(): void {
     namedFacts([
       [
         "level",
-        () : boolean => nclose(dimensioned(environment, "page").dimensions[0]!.value!, 6),
+        (): boolean =>
+          nclose(dimensioned(environment, "page").dimensions[0]!.value!, 6),
       ],
       [
         "sloped",
-        () : boolean =>
+        (): boolean =>
           nclose(
             deriveAutoMovieDrawing({
               environment,
@@ -308,14 +341,18 @@ export function test_drawing_annotation_resolution(): void {
   });
   TestValidator.equals(
     "a stale end at either side makes the whole dimension stale with its reason",
-    broken.dimensions.map((dimension: IAutoMovieDrawingDimension) : (string | number | IAutoMovieDrawingPoint | null)[] => [
-      dimension.id,
-      dimension.status,
-      dimension.from,
-      dimension.to,
-      dimension.value,
-      dimension.reason,
-    ]),
+    broken.dimensions.map(
+      (
+        dimension: IAutoMovieDrawingDimension,
+      ): (string | number | IAutoMovieDrawingPoint | null)[] => [
+        dimension.id,
+        dimension.status,
+        dimension.from,
+        dimension.to,
+        dimension.value,
+        dimension.reason,
+      ],
+    ),
     [
       [
         "left-end-gone",
@@ -356,10 +393,16 @@ export function test_drawing_annotation_resolution(): void {
   TestValidator.equals(
     "a sheet with a note says it sized the anchor and not the lettering",
     [
-      before.gaps.find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "note-text-extent")?.status,
+      before.gaps.find(
+        (gap: IAutoMovieDrawingGap): boolean =>
+          gap.subject === "note-text-extent",
+      )?.status,
       // Every note on this one is stale, so no text was set and there is no
       // unmeasured run of glyphs to declare.
-      broken.gaps.some((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "note-text-extent"),
+      broken.gaps.some(
+        (gap: IAutoMovieDrawingGap): boolean =>
+          gap.subject === "note-text-extent",
+      ),
     ],
     ["unsupported", false],
   );
@@ -368,15 +411,17 @@ export function test_drawing_annotation_resolution(): void {
   test02DrawingAnnotationIdentity(environment, feature);
 }
 
-
 /** The same design with the wall moved half a metre along the plan. */
-const movedWall: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const movedWall: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  elements: environment.elements.map((element: IAutoMovieBuiltElement) : IAutoMovieBuiltElement =>
-    element.id === "north-wall"
-      ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
-      : element,
+  elements: environment.elements.map(
+    (element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
+      element.id === "north-wall"
+        ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
+        : element,
   ),
 });

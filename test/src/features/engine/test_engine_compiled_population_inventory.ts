@@ -6,16 +6,20 @@ import {
   worldRamp,
 } from "@automovie/engine";
 import {
-  type IAutoMovieCompiledFormation, type IAutoMovieCompiledInstanceSet, type IAutoMovieWorldSurface,
+  type IAutoMovieCompiledFormation,
+  type IAutoMovieCompiledInstanceSet,
   IAutoMovieFormationDesign,
   IAutoMovieInstanceSetDesign,
+  type IAutoMovieWorldSurface,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const unit: (id: string) => IAutoMovieFormationDesign = (id: string): IAutoMovieFormationDesign => ({
+const unit: (id: string) => IAutoMovieFormationDesign = (
+  id: string,
+): IAutoMovieFormationDesign => ({
   id,
   modelRecipe: "member",
   count: 4,
@@ -32,7 +36,9 @@ const unit: (id: string) => IAutoMovieFormationDesign = (id: string): IAutoMovie
   heroOverrides: [],
 });
 
-const grove: (id: string) => IAutoMovieInstanceSetDesign = (id: string): IAutoMovieInstanceSetDesign => ({
+const grove: (id: string) => IAutoMovieInstanceSetDesign = (
+  id: string,
+): IAutoMovieInstanceSetDesign => ({
   id,
   modelRecipe: "tree",
   count: 3,
@@ -80,36 +86,47 @@ export function test_engine_compiled_population_inventory(): void {
     ["member", 0.75],
     ["tree", 2],
   ]);
-  const formations: Readonly<Record<string, IAutoMovieCompiledFormation>> = materializeCompiledFormationInventory({
-    formations: new Map([
-      ["b", unit("b")],
-      ["B", unit("B")],
-      ["a", unit("a")],
-    ]),
-    projectionRadii: radii,
-    surfaces: [field],
-  });
-  const world: { routes: never[]; instanceSets: IAutoMovieInstanceSetDesign[]; } = {
+  const formations: Readonly<Record<string, IAutoMovieCompiledFormation>> =
+    materializeCompiledFormationInventory({
+      formations: new Map([
+        ["b", unit("b")],
+        ["B", unit("B")],
+        ["a", unit("a")],
+      ]),
+      projectionRadii: radii,
+      surfaces: [field],
+    });
+  const world: {
+    routes: never[];
+    instanceSets: IAutoMovieInstanceSetDesign[];
+  } = {
     routes: [],
     instanceSets: [grove("y"), grove("X"), grove("x")],
   };
-  const instanceSets: Readonly<Record<string, IAutoMovieCompiledInstanceSet>> = materializeCompiledInstanceSetInventory({
-    world,
-    projectionRadii: radii,
-  });
+  const instanceSets: Readonly<Record<string, IAutoMovieCompiledInstanceSet>> =
+    materializeCompiledInstanceSetInventory({
+      world,
+      projectionRadii: radii,
+    });
 
   TestValidator.equals(
     "compiled populations are keyed in code-unit order",
     namedFacts([
-      ["formationKeys", () : boolean => Object.keys(formations).join(",") === "B,a,b"],
+      [
+        "formationKeys",
+        (): boolean => Object.keys(formations).join(",") === "B,a,b",
+      ],
       [
         "instanceSetKeys",
-        () : boolean => Object.keys(instanceSets).join(",") === "X,x,y",
+        (): boolean => Object.keys(instanceSets).join(",") === "X,x,y",
       ],
-      ["terrainPassedThrough", () : boolean => formations.a!.ground.length === 1],
+      [
+        "terrainPassedThrough",
+        (): boolean => formations.a!.ground.length === 1,
+      ],
       [
         "radiiPassedThrough",
-        () : boolean =>
+        (): boolean =>
           nclose(formations.a!.projectionRadius, 0.75, 0) &&
           nclose(instanceSets.x!.projectionRadius, 2, 0),
       ],
@@ -123,7 +140,8 @@ export function test_engine_compiled_population_inventory(): void {
   );
   TestValidator.predicate(
     "an inventory formation is the formation kernel's record",
-    test12ValuesClose(formations.B,
+    test12ValuesClose(
+      formations.B,
       materializeCompiledFormation({
         formation: unit("B"),
         projectionRadii: radii,
@@ -133,7 +151,8 @@ export function test_engine_compiled_population_inventory(): void {
   );
   TestValidator.predicate(
     "an inventory instance set is the instance-set kernel's record",
-    test12ValuesClose(instanceSets.X,
+    test12ValuesClose(
+      instanceSets.X,
       materializeCompiledInstanceSet({
         instanceSet: grove("X"),
         world,
@@ -146,21 +165,21 @@ export function test_engine_compiled_population_inventory(): void {
     namedFacts([
       [
         "noFormations",
-        () : boolean =>
+        (): boolean =>
           Object.keys(
             materializeCompiledFormationInventory({ formations: new Map() }),
           ).length === 0,
       ],
       [
         "noInstanceSetsKey",
-        () : boolean =>
+        (): boolean =>
           Object.keys(
             materializeCompiledInstanceSetInventory({ world: { routes: [] } }),
           ).length === 0,
       ],
       [
         "emptyInstanceSets",
-        () : boolean =>
+        (): boolean =>
           Object.keys(
             materializeCompiledInstanceSetInventory({
               world: { routes: [], instanceSets: [] },

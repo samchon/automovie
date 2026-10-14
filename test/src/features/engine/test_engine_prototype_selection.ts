@@ -12,14 +12,33 @@ interface IChoice {
 }
 
 /** Preserve the authored prototype identity, recipe spelling and scalar weight. */
-const choice: (id: string, weight: number) => IChoice = (id: string, weight: number): IChoice => ({
+const choice: (id: string, weight: number) => IChoice = (
+  id: string,
+  weight: number,
+): IChoice => ({
   id,
   modelRecipe: `${id}-recipe`,
   weight,
 });
 
 /** A grove drawing from `prototypes`, or from its base recipe without them. */
-const grove: (prototypes?: IChoice[], seed?: number) => { id: string; seed: number; modelRecipe: string; prototypes: IChoice[] | undefined } = (prototypes?: IChoice[], seed: number = 31): { id: string; seed: number; modelRecipe: string; prototypes: IChoice[] | undefined } => ({
+const grove: (
+  prototypes?: IChoice[],
+  seed?: number,
+) => {
+  id: string;
+  seed: number;
+  modelRecipe: string;
+  prototypes: IChoice[] | undefined;
+} = (
+  prototypes?: IChoice[],
+  seed: number = 31,
+): {
+  id: string;
+  seed: number;
+  modelRecipe: string;
+  prototypes: IChoice[] | undefined;
+} => ({
   id: "grove",
   seed,
   modelRecipe: "oak",
@@ -27,14 +46,23 @@ const grove: (prototypes?: IChoice[], seed?: number) => { id: string; seed: numb
 });
 
 /** The choice each of the first `count` slots draws by weight. */
-const draws: (source: ReturnType<typeof grove>, count?: number) => IChoice[] = (source: ReturnType<typeof grove>, count: number = SLOTS): IChoice[] =>
-  Array.from({ length: count }, (_: unknown, slot: number): IChoice =>
-    selectInstancePrototype(source, slot, undefined),
+const draws: (source: ReturnType<typeof grove>, count?: number) => IChoice[] = (
+  source: ReturnType<typeof grove>,
+  count: number = SLOTS,
+): IChoice[] =>
+  Array.from(
+    { length: count },
+    (_: unknown, slot: number): IChoice =>
+      selectInstancePrototype(source, slot, undefined),
   );
 
 /** Observe one prototype's frequency without predicting any individual draw. */
-const share: (drawn: readonly IChoice[], id: string) => number = (drawn: readonly IChoice[], id: string): number =>
-  drawn.filter((value: IChoice): boolean => value.id === id).length / drawn.length;
+const share: (drawn: readonly IChoice[], id: string) => number = (
+  drawn: readonly IChoice[],
+  id: string,
+): number =>
+  drawn.filter((value: IChoice): boolean => value.id === id).length /
+  drawn.length;
 
 /**
  * One instance slot draws its prototype by the weights its table declares, or
@@ -85,7 +113,10 @@ export function test_engine_prototype_selection(): void {
       ],
       [
         "loneEntry",
-        (): boolean => draws(grove([lone])).every((value: IChoice): boolean => value === lone),
+        (): boolean =>
+          draws(grove([lone])).every(
+            (value: IChoice): boolean => value === lone,
+          ),
       ],
     ]),
     { baseRecipe: true, loneEntry: true },
@@ -97,7 +128,9 @@ export function test_engine_prototype_selection(): void {
   const skipped: IChoice[] = draws(
     grove([choice("a", 1), choice("z", 0), choice("c", 1)]),
   );
-  const twin: IChoice[] = draws(grove([choice("a", 1), choice("z", 1), choice("c", 1)]));
+  const twin: IChoice[] = draws(
+    grove([choice("a", 1), choice("z", 1), choice("c", 1)]),
+  );
   const leadingZero: IChoice[] = draws(grove([choice("z", 0), choice("b", 1)]));
   const allZero: IChoice[] = draws(
     grove([choice("x", 0), choice("y", 0), choice("z", 0)]),
@@ -108,17 +141,47 @@ export function test_engine_prototype_selection(): void {
   TestValidator.equals(
     "a slot draws by the declared weights and never by a zero weight",
     namedFacts([
-      ["shareA", (): boolean => { const value: number = share(weighted, "a"); return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04; }],
-      ["shareB", (): boolean => { const value: number = share(weighted, "b"); return nclose(value, 0.5, 0.04) && Math.abs(value - 0.5) < 0.04; }],
-      ["shareC", (): boolean => { const value: number = share(weighted, "c"); return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04; }],
+      [
+        "shareA",
+        (): boolean => {
+          const value: number = share(weighted, "a");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
+      [
+        "shareB",
+        (): boolean => {
+          const value: number = share(weighted, "b");
+          return nclose(value, 0.5, 0.04) && Math.abs(value - 0.5) < 0.04;
+        },
+      ],
+      [
+        "shareC",
+        (): boolean => {
+          const value: number = share(weighted, "c");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
       ["zeroNeverDrawn", (): boolean => nclose(share(skipped, "z"), 0, 0)],
-      ["zeroTwinDrawn", (): boolean => { const value: number = share(twin, "z"); return nclose(value, 1 / 3, 0.04) && Math.abs(value - 1 / 3) < 0.04; }],
-      ["leadingZeroNeverDrawn", (): boolean => nclose(share(leadingZero, "z"), 0, 0)],
+      [
+        "zeroTwinDrawn",
+        (): boolean => {
+          const value: number = share(twin, "z");
+          return nclose(value, 1 / 3, 0.04) && Math.abs(value - 1 / 3) < 0.04;
+        },
+      ],
+      [
+        "leadingZeroNeverDrawn",
+        (): boolean => nclose(share(leadingZero, "z"), 0, 0),
+      ],
       ["allZeroTakesLast", (): boolean => nclose(share(allZero, "z"), 1, 0)],
       [
         "scaleInvariant",
         (): boolean =>
-          quadrupled.every((value: IChoice, slot: number): boolean => value.id === weighted[slot]!.id),
+          quadrupled.every(
+            (value: IChoice, slot: number): boolean =>
+              value.id === weighted[slot]!.id,
+          ),
       ],
     ]),
     {
@@ -141,13 +204,19 @@ export function test_engine_prototype_selection(): void {
     namedFacts([
       [
         "repeatable",
-        (): boolean => again.every((value: IChoice, slot: number): boolean => value.id === weighted[slot]!.id),
+        (): boolean =>
+          again.every(
+            (value: IChoice, slot: number): boolean =>
+              value.id === weighted[slot]!.id,
+          ),
       ],
       [
         "seedMatters",
         (): boolean =>
-          reseeded.filter((value: IChoice, slot: number): boolean => value.id !== again[slot]!.id)
-            .length >
+          reseeded.filter(
+            (value: IChoice, slot: number): boolean =>
+              value.id !== again[slot]!.id,
+          ).length >
           SLOTS / 2,
       ],
     ]),
@@ -165,7 +234,8 @@ export function test_engine_prototype_selection(): void {
       ],
       [
         "namedDefault",
-        (): boolean => selectInstancePrototype(grove(), 3, "default").id === "default",
+        (): boolean =>
+          selectInstancePrototype(grove(), 3, "default").id === "default",
       ],
       [
         "missingRefuses",

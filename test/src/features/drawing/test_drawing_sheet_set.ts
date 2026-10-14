@@ -6,10 +6,18 @@ import {
   measureAutoMovieQuantities,
 } from "@automovie/engine";
 import {
-  type IAutoMovieBuiltElement, type IAutoMovieDrawingGap, type IAutoMovieDrawingLine, type IAutoMovieDrawingOpeningMark, type IAutoMovieDrawingRegion, type IAutoMovieDrawingSchedule, type IAutoMovieDrawingScheduleRow, type IAutoMovieQuantityFinding, type IAutoMovieQuantityReport,
+  type IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
   IAutoMovieDrawing,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieDrawingLine,
+  type IAutoMovieDrawingOpeningMark,
+  type IAutoMovieDrawingRegion,
+  type IAutoMovieDrawingSchedule,
+  type IAutoMovieDrawingScheduleRow,
   IAutoMovieDrawingView,
+  type IAutoMovieQuantityFinding,
+  type IAutoMovieQuantityReport,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,25 +82,46 @@ export function test_drawing_sheet_set(): void {
     environment,
     subject: "opening",
   });
-  const quantities: IAutoMovieQuantityReport = measureAutoMovieQuantities({ environment });
-  const total: (report: IAutoMovieQuantityReport, subject: string) => number = (report: typeof quantities, subject: string): number =>
-    report.findings.find((finding: IAutoMovieQuantityFinding) : boolean => finding.subject === subject)!.total;
+  const quantities: IAutoMovieQuantityReport = measureAutoMovieQuantities({
+    environment,
+  });
+  const total: (report: IAutoMovieQuantityReport, subject: string) => number = (
+    report: typeof quantities,
+    subject: string,
+  ): number =>
+    report.findings.find(
+      (finding: IAutoMovieQuantityFinding): boolean =>
+        finding.subject === subject,
+    )!.total;
 
   // 1. Six questions asked of one design.
   TestValidator.predicate(
     "every sheet answers for the one environment and the convention it declared",
     test12ValuesClose(
-      views.map(([name, view]: [string, IAutoMovieDrawingView]) : (string | number)[] => [
-        name,
-        sheets[name]!.environment,
-        sheets[name]!.view,
-        sheets[name]!.projection,
-        sheets[name]!.discipline,
-        sheets[name]!.scale,
-        view.scale,
-      ]),
+      views.map(
+        ([name, view]: [string, IAutoMovieDrawingView]): (
+          | string
+          | number
+        )[] => [
+          name,
+          sheets[name]!.environment,
+          sheets[name]!.view,
+          sheets[name]!.projection,
+          sheets[name]!.discipline,
+          sheets[name]!.scale,
+          view.scale,
+        ],
+      ),
       [
-        ["floor-plan", "atelier", "floor-plan", "plan", "architectural", 50, 50],
+        [
+          "floor-plan",
+          "atelier",
+          "floor-plan",
+          "plan",
+          "architectural",
+          50,
+          50,
+        ],
         [
           "ceiling-plan",
           "atelier",
@@ -112,7 +141,15 @@ export function test_drawing_sheet_set(): void {
           50,
           50,
         ],
-        ["section-a", "atelier", "section-a", "section", "architectural", 50, 50],
+        [
+          "section-a",
+          "atelier",
+          "section-a",
+          "section",
+          "architectural",
+          50,
+          50,
+        ],
         [
           "services-plan",
           "atelier",
@@ -131,37 +168,64 @@ export function test_drawing_sheet_set(): void {
     [
       environment.openings.length,
       schedule.total,
-      schedule.rows.reduce((sum: number, row: IAutoMovieDrawingScheduleRow) : number => sum + row.count, 0),
+      schedule.rows.reduce(
+        (sum: number, row: IAutoMovieDrawingScheduleRow): number =>
+          sum + row.count,
+        0,
+      ),
       total(quantities, "opening-count"),
-      ...views.map(([name]: [string, IAutoMovieDrawingView]) : number => sheets[name]!.openings.length),
+      ...views.map(
+        ([name]: [string, IAutoMovieDrawingView]): number =>
+          sheets[name]!.openings.length,
+      ),
     ],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
   );
   TestValidator.equals(
     "every sheet marks the openings the schedule lists, by the schedule's own ids",
-    views.map(([name]: [string, IAutoMovieDrawingView]) : string[] => sheets[name]!.openings.map((mark: IAutoMovieDrawingOpeningMark) : string => mark.opening)),
-    views.map(() : string[] => ["front-door", "oculus", "vent"]),
+    views.map(([name]: [string, IAutoMovieDrawingView]): string[] =>
+      sheets[name]!.openings.map(
+        (mark: IAutoMovieDrawingOpeningMark): string => mark.opening,
+      ),
+    ),
+    views.map((): string[] => ["front-door", "oculus", "vent"]),
   );
 
   // 3. One added door reaches every artifact at once.
   const extended: IAutoMovieBuiltEnvironment = withSideDoor(environment);
-  const extendedSheets: Record<string, IAutoMovieDrawing> = derive(extended, views);
-  const extendedSchedule: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({
-    environment: extended,
-    subject: "opening",
-  });
-  const extendedQuantities: IAutoMovieQuantityReport = measureAutoMovieQuantities({
-    environment: extended,
-  });
+  const extendedSheets: Record<string, IAutoMovieDrawing> = derive(
+    extended,
+    views,
+  );
+  const extendedSchedule: IAutoMovieDrawingSchedule =
+    deriveAutoMovieDrawingSchedule({
+      environment: extended,
+      subject: "opening",
+    });
+  const extendedQuantities: IAutoMovieQuantityReport =
+    measureAutoMovieQuantities({
+      environment: extended,
+    });
   TestValidator.predicate(
     "authoring one door adds one door to the plan, the schedule and the take-off",
     test12ValuesClose(
       [
-        extendedSheets["floor-plan"]!.openings.map((mark: IAutoMovieDrawingOpeningMark) : string => mark.opening),
+        extendedSheets["floor-plan"]!.openings.map(
+          (mark: IAutoMovieDrawingOpeningMark): string => mark.opening,
+        ),
         extendedSchedule.total,
         extendedSchedule.rows
-          .filter((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "door")
-          .map((row: IAutoMovieDrawingScheduleRow) : (string | number | null)[] => [row.mark, row.width, row.height, row.count]),
+          .filter(
+            (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "door",
+          )
+          .map(
+            (row: IAutoMovieDrawingScheduleRow): (string | number | null)[] => [
+              row.mark,
+              row.width,
+              row.height,
+              row.count,
+            ],
+          ),
         total(extendedQuantities, "opening-count"),
       ],
       [
@@ -182,11 +246,12 @@ export function test_drawing_sheet_set(): void {
     namedFacts([
       [
         "before",
-        () : boolean => nclose(total(quantities, "opening-area"), 1.89 + Math.PI * 0.09),
+        (): boolean =>
+          nclose(total(quantities, "opening-area"), 1.89 + Math.PI * 0.09),
       ],
       [
         "after",
-        () : boolean =>
+        (): boolean =>
           nclose(
             total(extendedQuantities, "opening-area"),
             1.89 + Math.PI * 0.09 + 2.1,
@@ -197,13 +262,18 @@ export function test_drawing_sheet_set(): void {
   );
 
   // 4. One moved wall, and only the sheets that draw it.
-  const movedSheets: Record<string, IAutoMovieDrawing> = derive(movedWall(environment), views);
+  const movedSheets: Record<string, IAutoMovieDrawing> = derive(
+    movedWall(environment),
+    views,
+  );
   TestValidator.equals(
     "moving one wall moves every sheet that draws it and no sheet that does not",
-    views.map(([name]: [string, IAutoMovieDrawingView]) : (string | boolean)[] => [
-      name,
-      movedSheets[name]!.digest !== sheets[name]!.digest,
-    ]),
+    views.map(
+      ([name]: [string, IAutoMovieDrawingView]): (string | boolean)[] => [
+        name,
+        movedSheets[name]!.digest !== sheets[name]!.digest,
+      ],
+    ),
     [
       ["floor-plan", true],
       // The ceiling plan looks up from 3.05 m and the section keeps what lies
@@ -220,21 +290,36 @@ export function test_drawing_sheet_set(): void {
     ],
   );
 
-  const facadeSpan: (drawing: IAutoMovieDrawing, owner: string) => { min: number; max: number; } = (drawing: IAutoMovieDrawing, owner: string) : { min: number; max: number; } =>
+  const facadeSpan: (
+    drawing: IAutoMovieDrawing,
+    owner: string,
+  ) => { min: number; max: number } = (
+    drawing: IAutoMovieDrawing,
+    owner: string,
+  ): { min: number; max: number } =>
     autoMovieDrawingRange(
       drawing.lines
-        .filter((line: IAutoMovieDrawingLine) : boolean => line.owner === owner)
-        .flatMap((line: IAutoMovieDrawingLine) : number[] => [line.from.x, line.to.x]),
+        .filter((line: IAutoMovieDrawingLine): boolean => line.owner === owner)
+        .flatMap((line: IAutoMovieDrawingLine): number[] => [
+          line.from.x,
+          line.to.x,
+        ]),
     );
   TestValidator.predicate(
     "the leaf hung on the facade moves on the elevation exactly as its wall does",
-    (() : boolean => {
+    ((): boolean => {
       // The leaf is the wall's child, so the wall's half metre is the leaf's;
       // the elevation's page right axis runs against world x, so both ends of
       // its span move by -0.5. The void the leaf fills does not move with it,
       // because a boundary's face is its own record and not the element's.
-      const before: { min: number; max: number; } = facadeSpan(sheets["north-elevation"]!, "door-leaf");
-      const after: { min: number; max: number; } = facadeSpan(movedSheets["north-elevation"]!, "door-leaf");
+      const before: { min: number; max: number } = facadeSpan(
+        sheets["north-elevation"]!,
+        "door-leaf",
+      );
+      const after: { min: number; max: number } = facadeSpan(
+        movedSheets["north-elevation"]!,
+        "door-leaf",
+      );
       return (
         nclose(before.min, -1.95) &&
         nclose(before.max, -1.05) &&
@@ -249,16 +334,20 @@ export function test_drawing_sheet_set(): void {
     "the finish plan fills the room its boundaries agree on and the ceiling names none",
     test12ValuesClose(
       [
-        sheets["finish-plan"]!.regions.map((region: IAutoMovieDrawingRegion) : (string | number | null)[] => [
-          region.space,
-          region.finish,
-          region.area,
-        ]),
-        sheets["ceiling-plan"]!.regions.map((region: IAutoMovieDrawingRegion) : (string | number | null)[] => [
-          region.space,
-          region.finish,
-          region.area,
-        ]),
+        sheets["finish-plan"]!.regions.map(
+          (region: IAutoMovieDrawingRegion): (string | number | null)[] => [
+            region.space,
+            region.finish,
+            region.area,
+          ],
+        ),
+        sheets["ceiling-plan"]!.regions.map(
+          (region: IAutoMovieDrawingRegion): (string | number | null)[] => [
+            region.space,
+            region.finish,
+            region.area,
+          ],
+        ),
         sheets["north-elevation"]!.regions.length,
       ],
       [[["hall", "plaster", 60]], [["roof-deck", null, 60]], 0],
@@ -269,40 +358,46 @@ export function test_drawing_sheet_set(): void {
     namedFacts([
       [
         "a finish plan says it cannot hatch a build-up it was never handed",
-        () : boolean =>
+        (): boolean =>
           sheets["finish-plan"]!.gaps.find(
-            (gap: IAutoMovieDrawingGap) : boolean => gap.subject === "material-build-up",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "material-build-up",
           )?.status === "unsupported",
       ],
       [
         "a services plan says it draws no network, only the elements it filtered",
-        () : boolean =>
+        (): boolean =>
           sheets["services-plan"]!.gaps.find(
-            (gap: IAutoMovieDrawingGap) : boolean => gap.subject === "service-network",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "service-network",
           )?.status === "unsupported",
       ],
       [
         "the schedule says it knows a door's size and not its performance",
-        () : boolean =>
-          schedule.gaps.find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "opening-performance")
-            ?.status === "unsupported",
+        (): boolean =>
+          schedule.gaps.find(
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "opening-performance",
+          )?.status === "unsupported",
       ],
       [
         "the take-off says no material and no cut waste can be taken off yet",
-        () : boolean =>
+        (): boolean =>
           ["material-quantity", "pattern-cut-waste"].every(
-            (subject: string) : boolean =>
-              quantities.gaps.find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === subject)?.status ===
-              "unsupported",
+            (subject: string): boolean =>
+              quantities.gaps.find(
+                (gap: IAutoMovieDrawingGap): boolean => gap.subject === subject,
+              )?.status === "unsupported",
           ),
       ],
       [
         "every sheet declares that it classifies depth rather than occlusion",
-        () : boolean =>
+        (): boolean =>
           views.every(
-            ([name]: [string, IAutoMovieDrawingView]) : boolean =>
+            ([name]: [string, IAutoMovieDrawingView]): boolean =>
               sheets[name]!.gaps.find(
-                (gap: IAutoMovieDrawingGap) : boolean => gap.subject === "hidden-line-removal",
+                (gap: IAutoMovieDrawingGap): boolean =>
+                  gap.subject === "hidden-line-removal",
               )?.status === "unsupported",
           ),
       ],
@@ -319,8 +414,11 @@ export function test_drawing_sheet_set(): void {
   // 6. The sidecar of each sheet.
   TestValidator.predicate(
     "every sheet serializes as a sidecar of its own digest and one environment",
-    views.every(([name, view]: [string, IAutoMovieDrawingView]) : boolean => {
-      const svg: string = autoMovieDrawingToSvg({ drawing: sheets[name]!, view });
+    views.every(([name, view]: [string, IAutoMovieDrawingView]): boolean => {
+      const svg: string = autoMovieDrawingToSvg({
+        drawing: sheets[name]!,
+        view,
+      });
       return (
         svg.includes('data-automovie-environment="atelier"') &&
         svg.includes(`data-automovie-view="${name}"`) &&
@@ -334,9 +432,10 @@ export function test_drawing_sheet_set(): void {
   test02DrawingSheetOperation(environment, views, facadeSpan);
 }
 
-
 /** The six views one revision is asked for, in the order the case reads them. */
-const sheetViews: () => Array<[string, IAutoMovieDrawingView]> = (): Array<[string, IAutoMovieDrawingView]> => [
+const sheetViews: () => Array<[string, IAutoMovieDrawingView]> = (): Array<
+  [string, IAutoMovieDrawingView]
+> => [
   ["floor-plan", drawingView({ id: "floor-plan" })],
   [
     "ceiling-plan",
@@ -381,7 +480,10 @@ const sheetViews: () => Array<[string, IAutoMovieDrawingView]> = (): Array<[stri
 ];
 
 /** Every view of one revision, keyed by the name the case calls it. */
-const derive: (environment: IAutoMovieBuiltEnvironment, views: ReadonlyArray<[string, IAutoMovieDrawingView]>) => Record<string, IAutoMovieDrawing> = (
+const derive: (
+  environment: IAutoMovieBuiltEnvironment,
+  views: ReadonlyArray<[string, IAutoMovieDrawingView]>,
+) => Record<string, IAutoMovieDrawing> = (
   environment: IAutoMovieBuiltEnvironment,
   views: ReadonlyArray<[string, IAutoMovieDrawingView]>,
 ): Record<string, IAutoMovieDrawing> => {
@@ -397,7 +499,9 @@ const derive: (environment: IAutoMovieBuiltEnvironment, views: ReadonlyArray<[st
  * Placed at x 4.5..5.5 so it clears the front door and the oculus: two voids
  * that touch are one void authored twice, and the design refuses that.
  */
-const withSideDoor: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const withSideDoor: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
@@ -421,13 +525,16 @@ const withSideDoor: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuilt
 });
 
 /** The same design with the wall moved half a metre along the plan. */
-const movedWall: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const movedWall: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  elements: environment.elements.map((element: IAutoMovieBuiltElement) : IAutoMovieBuiltElement =>
-    element.id === "north-wall"
-      ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
-      : element,
+  elements: environment.elements.map(
+    (element: IAutoMovieBuiltElement): IAutoMovieBuiltElement =>
+      element.id === "north-wall"
+        ? { ...element, transform: drawingPlace(3.5, 1.5, 0.1) }
+        : element,
   ),
 });

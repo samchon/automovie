@@ -3,15 +3,18 @@ import {
   deriveAutoMovieDrawingSchedule,
 } from "@automovie/engine";
 import {
-  type IAutoMovieBuiltOpening, type IAutoMovieDrawingGap, type IAutoMovieDrawingOpeningMark, type IAutoMovieDrawingSchedule, type IAutoMovieDrawingScheduleRow, type IAutoMovieModel,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieBuiltOpening,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieDrawingOpeningMark,
+  type IAutoMovieDrawingSchedule,
+  type IAutoMovieDrawingScheduleRow,
+  type IAutoMovieModel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingEnvironment, drawingView } from "../internal/drawingFixtures";
-import {
-  throwsError,
-} from "../internal/predicates";
+import { throwsError } from "../internal/predicates";
 import { test02DrawingOpeningGeometry } from "../internal/test02DrawingOpeningGeometry";
 import { test02DrawingOpeningTypes } from "../internal/test02DrawingOpeningTypes";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
@@ -70,7 +73,11 @@ export function test_drawing_opening_schedule(): void {
       schedule.environment,
       schedule.subject,
       schedule.total,
-      schedule.rows.reduce((sum: number, row: IAutoMovieDrawingScheduleRow) : number => sum + row.count, 0),
+      schedule.rows.reduce(
+        (sum: number, row: IAutoMovieDrawingScheduleRow): number =>
+          sum + row.count,
+        0,
+      ),
       environment.openings.length,
     ],
     [1, "automovie.drawing-schedule.v1", "atelier", "opening", 3, 3, 3],
@@ -78,70 +85,71 @@ export function test_drawing_opening_schedule(): void {
   TestValidator.equals(
     "the plan marks exactly the openings the schedule lists",
     deriveAutoMovieDrawing({ environment, view: drawingView() })
-      .openings.map((mark: IAutoMovieDrawingOpeningMark) : string => mark.opening)
+      .openings.map(
+        (mark: IAutoMovieDrawingOpeningMark): string => mark.opening,
+      )
       .sort(byText),
-    schedule.rows.flatMap((row: IAutoMovieDrawingScheduleRow) : string[] => row.members).sort(byText),
+    schedule.rows
+      .flatMap((row: IAutoMovieDrawingScheduleRow): string[] => row.members)
+      .sort(byText),
   );
 
   // 2-3. Basis, sizes and marks.
   TestValidator.predicate(
     "each type is scheduled at the size the design proves, and says which",
-    test12ValuesClose(
-      schedule.rows,
-      [
-        {
-          mark: "door-01",
-          kind: "door",
-          model: "leaf",
-          width: 0.9,
-          height: 2.1,
-          count: 1,
-          members: ["front-door"],
-          omittedMembers: 0,
-          basis: "profile",
-          place: {
-            kind: "opening",
-            building: "unit-a",
-            boundary: "north",
-            separates: ["hall"],
-          },
+    test12ValuesClose(schedule.rows, [
+      {
+        mark: "door-01",
+        kind: "door",
+        model: "leaf",
+        width: 0.9,
+        height: 2.1,
+        count: 1,
+        members: ["front-door"],
+        omittedMembers: 0,
+        basis: "profile",
+        place: {
+          kind: "opening",
+          building: "unit-a",
+          boundary: "north",
+          separates: ["hall"],
         },
-        {
-          mark: "vent-01",
-          kind: "vent",
-          model: null,
-          width: null,
-          height: null,
-          count: 1,
-          members: ["vent"],
-          omittedMembers: 0,
-          basis: "unmeasured",
-          place: {
-            kind: "opening",
-            building: "unit-a",
-            boundary: "north",
-            separates: ["hall"],
-          },
+      },
+      {
+        mark: "vent-01",
+        kind: "vent",
+        model: null,
+        width: null,
+        height: null,
+        count: 1,
+        members: ["vent"],
+        omittedMembers: 0,
+        basis: "unmeasured",
+        place: {
+          kind: "opening",
+          building: "unit-a",
+          boundary: "north",
+          separates: ["hall"],
         },
-        {
-          mark: "window-01",
-          kind: "window",
-          model: null,
-          width: 0.6,
-          height: 0.6,
-          count: 1,
-          members: ["oculus"],
-          omittedMembers: 0,
-          basis: "profile",
-          place: {
-            kind: "opening",
-            building: "unit-a",
-            boundary: "north",
-            separates: ["hall"],
-          },
+      },
+      {
+        mark: "window-01",
+        kind: "window",
+        model: null,
+        width: 0.6,
+        height: 0.6,
+        count: 1,
+        members: ["oculus"],
+        omittedMembers: 0,
+        basis: "profile",
+        place: {
+          kind: "opening",
+          building: "unit-a",
+          boundary: "north",
+          separates: ["hall"],
         },
-      ],
-    ),
+      },
+    ]),
   );
   TestValidator.predicate(
     "an opening with no void is scheduled from its leaf, and labelled as the leaf",
@@ -149,7 +157,9 @@ export function test_drawing_opening_schedule(): void {
       deriveAutoMovieDrawingSchedule({
         environment: withoutDoorProfile(environment),
         subject: "opening",
-      }).rows.find((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "door"),
+      }).rows.find(
+        (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "door",
+      ),
       {
         mark: "door-01",
         kind: "door",
@@ -173,7 +183,10 @@ export function test_drawing_opening_schedule(): void {
   );
   TestValidator.equals(
     "the schedule declares what it could not measure and what it never models",
-    schedule.gaps.map((gap: IAutoMovieDrawingGap) : string[] => [gap.subject, gap.status]),
+    schedule.gaps.map((gap: IAutoMovieDrawingGap): string[] => [
+      gap.subject,
+      gap.status,
+    ]),
     [
       ["opening-geometry", "not-run"],
       // `opening-location` used to sit here, saying the place had to be read
@@ -188,7 +201,9 @@ export function test_drawing_opening_schedule(): void {
       deriveAutoMovieDrawingSchedule({
         environment: withoutDoorProfile(externalLeaf(environment)),
         subject: "opening",
-      }).rows.find((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "door"),
+      }).rows.find(
+        (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "door",
+      ),
       {
         mark: "door-01",
         kind: "door",
@@ -213,7 +228,9 @@ export function test_drawing_opening_schedule(): void {
     deriveAutoMovieDrawingSchedule({
       environment: withoutDoorProfile(emptyLeaf(environment)),
       subject: "opening",
-    }).rows.find((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "door")?.basis,
+    }).rows.find(
+      (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "door",
+    )?.basis,
     "unmeasured",
   );
 
@@ -222,7 +239,9 @@ export function test_drawing_opening_schedule(): void {
   const bounded: IAutoMovieDrawingScheduleRow = deriveAutoMovieDrawingSchedule({
     environment: many,
     subject: "opening",
-  }).rows.find((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "port")!;
+  }).rows.find(
+    (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "port",
+  )!;
   TestValidator.equals(
     "a type with more occurrences than the bound names some and counts the rest",
     [
@@ -241,8 +260,18 @@ export function test_drawing_opening_schedule(): void {
     "types of one kind are marked in the canonical order the schedule declares",
     test12ValuesClose(
       varied.rows
-        .filter((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "door")
-        .map((row: IAutoMovieDrawingScheduleRow) : (string | number | null)[] => [row.mark, row.model, row.width, row.height, row.basis]),
+        .filter(
+          (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "door",
+        )
+        .map(
+          (row: IAutoMovieDrawingScheduleRow): (string | number | null)[] => [
+            row.mark,
+            row.model,
+            row.width,
+            row.height,
+            row.basis,
+          ],
+        ),
       // Ordered by model, then width, then height, then basis: the leaf-backed
       // pair first because "leaf" precedes an absent model, the measured pair
       // split by where each size came from, then the model-less voids by size.
@@ -259,8 +288,16 @@ export function test_drawing_opening_schedule(): void {
     "an unmeasured type is ordered before a measured one of the same kind",
     test12ValuesClose(
       varied.rows
-        .filter((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "vent")
-        .map((row: IAutoMovieDrawingScheduleRow) : (string | number | null)[] => [row.mark, row.width, row.basis]),
+        .filter(
+          (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "vent",
+        )
+        .map(
+          (row: IAutoMovieDrawingScheduleRow): (string | number | null)[] => [
+            row.mark,
+            row.width,
+            row.basis,
+          ],
+        ),
       [
         ["vent-01", null, "unmeasured"],
         ["vent-02", 0.5, "profile"],
@@ -269,10 +306,18 @@ export function test_drawing_opening_schedule(): void {
   );
   TestValidator.equals(
     "the total still counts every opening the design declares",
-    [varied.total, varied.rows.reduce((sum: number, row: IAutoMovieDrawingScheduleRow) : number => sum + row.count, 0)],
+    [
+      varied.total,
+      varied.rows.reduce(
+        (sum: number, row: IAutoMovieDrawingScheduleRow): number =>
+          sum + row.count,
+        0,
+      ),
+    ],
     [8, 8],
   );
-  const reversed: IAutoMovieBuiltEnvironment = test02DrawingOpeningTypes(environment);
+  const reversed: IAutoMovieBuiltEnvironment =
+    test02DrawingOpeningTypes(environment);
   TestValidator.equals(
     "the order the design authored its openings in does not reach the schedule",
     deriveAutoMovieDrawingSchedule({
@@ -291,22 +336,32 @@ export function test_drawing_opening_schedule(): void {
       { id: "vent-b", kind: "vent", boundary: "parapet", fill: null },
     ],
   };
-  const spreadVents: (openings: IAutoMovieBuiltEnvironment["openings"]) => IAutoMovieDrawingSchedule = (openings: IAutoMovieBuiltEnvironment["openings"]) : IAutoMovieDrawingSchedule =>
+  const spreadVents: (
+    openings: IAutoMovieBuiltEnvironment["openings"],
+  ) => IAutoMovieDrawingSchedule = (
+    openings: IAutoMovieBuiltEnvironment["openings"],
+  ): IAutoMovieDrawingSchedule =>
     deriveAutoMovieDrawingSchedule({
       environment: { ...spread, openings },
       subject: "opening",
     });
   TestValidator.equals(
     "a type row stands where its first member by id stands, in any authored order",
-    [spread.openings, [...spread.openings].reverse()].map((openings: IAutoMovieBuiltOpening[]) : (string | boolean | string[] | null)[] => {
-      const scheduled: IAutoMovieDrawingSchedule = spreadVents(openings);
-      const vents: IAutoMovieDrawingScheduleRow = scheduled.rows.find((row: IAutoMovieDrawingScheduleRow) : boolean => row.kind === "vent")!;
-      return [
-        vents.members,
-        vents.place?.kind === "opening" ? vents.place.boundary : null,
-        scheduled.digest === spreadVents(spread.openings).digest,
-      ];
-    }),
+    [spread.openings, [...spread.openings].reverse()].map(
+      (
+        openings: IAutoMovieBuiltOpening[],
+      ): (string | boolean | string[] | null)[] => {
+        const scheduled: IAutoMovieDrawingSchedule = spreadVents(openings);
+        const vents: IAutoMovieDrawingScheduleRow = scheduled.rows.find(
+          (row: IAutoMovieDrawingScheduleRow): boolean => row.kind === "vent",
+        )!;
+        return [
+          vents.members,
+          vents.place?.kind === "opening" ? vents.place.boundary : null,
+          scheduled.digest === spreadVents(spread.openings).digest,
+        ];
+      },
+    ),
     [
       [["vent", "vent-b"], "north", true],
       [["vent", "vent-b"], "north", true],
@@ -328,7 +383,7 @@ export function test_drawing_opening_schedule(): void {
   TestValidator.predicate(
     "an invalid design is refused before anything is scheduled",
     throwsError(
-      () : IAutoMovieDrawingSchedule =>
+      (): IAutoMovieDrawingSchedule =>
         deriveAutoMovieDrawingSchedule({
           environment: { ...environment, units: "foot" as unknown as "meter" },
           subject: "opening",
@@ -338,77 +393,98 @@ export function test_drawing_opening_schedule(): void {
   );
 }
 
-const byText: (left: string, right: string) => number = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
+const byText: (left: string, right: string) => number = (
+  left: string,
+  right: string,
+): number => (left < right ? -1 : left > right ? 1 : 0);
 
 /** The same design with the front door's own void removed. */
-const withoutDoorProfile: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const withoutDoorProfile: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  openings: environment.openings.map((opening: IAutoMovieBuiltOpening) : IAutoMovieBuiltOpening =>
-    opening.id === "front-door"
-      ? {
-          id: opening.id,
-          kind: opening.kind,
-          boundary: opening.boundary,
-          fill: opening.fill,
-        }
-      : opening,
+  openings: environment.openings.map(
+    (opening: IAutoMovieBuiltOpening): IAutoMovieBuiltOpening =>
+      opening.id === "front-door"
+        ? {
+            id: opening.id,
+            kind: opening.kind,
+            boundary: opening.boundary,
+            fill: opening.fill,
+          }
+        : opening,
   ),
 });
 
 /** The same design with the leaf's geometry owned by the builder. */
-const externalLeaf: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const externalLeaf: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  models: environment.models.filter((model: IAutoMovieModel) : boolean => model.id !== "leaf"),
+  models: environment.models.filter(
+    (model: IAutoMovieModel): boolean => model.id !== "leaf",
+  ),
   modelReferences: ["leaf"],
 });
 
 /** The same design with the leaf carrying vertices and no triangle. */
-const emptyLeaf: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const emptyLeaf: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
-  models: environment.models.map((model: IAutoMovieModel) : IAutoMovieModel =>
-    model.id === "leaf"
-      ? {
-          ...model,
-          parts: [
-            {
-              ...model.parts[0]!,
-              geometry: {
-                type: "mesh" as const,
-                mesh: {
-                  positions: [0, 0, 0, 1, 0, 0, 0, 0, 1],
-                  normals: null,
-                  uvs: null,
-                  indices: [],
-                  skin: null,
+  models: environment.models.map(
+    (model: IAutoMovieModel): IAutoMovieModel =>
+      model.id === "leaf"
+        ? {
+            ...model,
+            parts: [
+              {
+                ...model.parts[0]!,
+                geometry: {
+                  type: "mesh" as const,
+                  mesh: {
+                    positions: [0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    normals: null,
+                    uvs: null,
+                    indices: [],
+                    skin: null,
+                  },
                 },
               },
-            },
-          ],
-        }
-      : model,
+            ],
+          }
+        : model,
   ),
 });
 
 /** The same design plus `count` identical openings of one new kind. */
-const manyPorts: (environment: IAutoMovieBuiltEnvironment, count: number) => IAutoMovieBuiltEnvironment = (
+const manyPorts: (
+  environment: IAutoMovieBuiltEnvironment,
+  count: number,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
   count: number,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
   openings: [
     ...environment.openings,
-    ...Array.from({ length: count }, (_: unknown, index: number) : { id: string; kind: string; boundary: string; fill: null; } => ({
-      id: `port-${String(index).padStart(2, "0")}`,
-      kind: "port",
-      boundary: "north",
-      fill: null,
-    })),
+    ...Array.from(
+      { length: count },
+      (
+        _: unknown,
+        index: number,
+      ): { id: string; kind: string; boundary: string; fill: null } => ({
+        id: `port-${String(index).padStart(2, "0")}`,
+        kind: "port",
+        boundary: "north",
+        fill: null,
+      }),
+    ),
   ],
 });

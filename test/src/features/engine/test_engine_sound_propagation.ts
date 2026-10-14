@@ -2,14 +2,10 @@ import {
   deriveAutoMovieSoundPropagation,
   renderProductionSound,
 } from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-import {
-  nclose,
-} from "../internal/predicates";
+import { TestValidator } from "@nestia/e2e";
 
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
+import { nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
@@ -25,9 +21,15 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh profiles/plans and returned native PCM through the existing fixture, with no file/codec/audio-device operation, native solver, renderer, browser or GPU and no foreign-method replacement.
  */
 export function test_engine_sound_propagation(): void {
-  const { profile, eventPlan, firstAudibleFrame }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
+  const {
+    profile,
+    eventPlan,
+    firstAudibleFrame,
+  }: ReturnType<typeof createSoundPropagationTestInputs> =
+    createSoundPropagationTestInputs();
 
-  const carried: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
+  const carried: ReturnType<typeof deriveAutoMovieSoundPropagation> =
+    deriveAutoMovieSoundPropagation({
       distanceMeters: 20,
       emissionFrame: 2,
       segmentEndFrame: 3,
@@ -37,17 +39,18 @@ export function test_engine_sound_propagation(): void {
     });
 
   TestValidator.equals(
-      "declared propagation keeps emission separate from cross-cut arrival",
-      {
-        arrival: carried.arrivalFrame,
-        boundary: carried.boundary,
-        gain: nclose(carried.distanceGain, 0.2),
-        high: nclose(carried.highFrequencyGain!, 0.1),
-      },
-      { arrival: 4, boundary: "carried-across-cut", gain: true, high: true },
-    );
+    "declared propagation keeps emission separate from cross-cut arrival",
+    {
+      arrival: carried.arrivalFrame,
+      boundary: carried.boundary,
+      gain: nclose(carried.distanceGain, 0.2),
+      high: nclose(carried.highFrequencyGain!, 0.1),
+    },
+    { arrival: 4, boundary: "carried-across-cut", gain: true, high: true },
+  );
 
-  const zero: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
+  const zero: ReturnType<typeof deriveAutoMovieSoundPropagation> =
+    deriveAutoMovieSoundPropagation({
       distanceMeters: 0,
       emissionFrame: 2,
       segmentEndFrame: 7,
@@ -57,8 +60,8 @@ export function test_engine_sound_propagation(): void {
     });
 
   TestValidator.predicate(
-      "zero distance is exact and an explicit no-spectral choice stays null",
-      test12ValuesClose(
+    "zero distance is exact and an explicit no-spectral choice stays null",
+    test12ValuesClose(
       {
         arrival: zero.arrivalFrame,
         gain: zero.distanceGain,
@@ -77,10 +80,11 @@ export function test_engine_sound_propagation(): void {
         boundary: "inside-segment",
         legacyBytes: true,
       },
-      ),
-    );
+    ),
+  );
 
-  const trimmed: ReturnType<typeof deriveAutoMovieSoundPropagation> = deriveAutoMovieSoundPropagation({
+  const trimmed: ReturnType<typeof deriveAutoMovieSoundPropagation> =
+    deriveAutoMovieSoundPropagation({
       distanceMeters: 20,
       emissionFrame: 2,
       segmentEndFrame: 3,
@@ -90,23 +94,30 @@ export function test_engine_sound_propagation(): void {
     });
 
   TestValidator.predicate(
-      "the authored trim decision yields silence while carry starts at arrival",
-      test12ValuesClose(
+    "the authored trim decision yields silence while carry starts at arrival",
+    test12ValuesClose(
       {
         trim: ((): { audibleFrame: number; aligned: boolean } => {
-          const rendered: ReturnType<typeof renderProductionSound> = renderProductionSound({ plan: eventPlan(trimmed) });
+          const rendered: ReturnType<typeof renderProductionSound> =
+            renderProductionSound({ plan: eventPlan(trimmed) });
           return {
             audibleFrame: firstAudibleFrame(rendered.pcm),
             aligned: rendered.analysis.eventAlignment[0]!.passed,
           };
         })(),
-        carry: ((): { startsAtArrival: boolean; sampleFrames: number; expectedSeconds: number; aligned: boolean } => {
-          const rendered: ReturnType<typeof renderProductionSound> = renderProductionSound({ plan: eventPlan(carried) });
+        carry: ((): {
+          startsAtArrival: boolean;
+          sampleFrames: number;
+          expectedSeconds: number;
+          aligned: boolean;
+        } => {
+          const rendered: ReturnType<typeof renderProductionSound> =
+            renderProductionSound({ plan: eventPlan(carried) });
           return {
-            startsAtArrival:
-              firstAudibleFrame(rendered.pcm) === 19_200,
+            startsAtArrival: firstAudibleFrame(rendered.pcm) === 19_200,
             sampleFrames: rendered.analysis.sampleFrames,
-            expectedSeconds: rendered.analysis.eventAlignment[0]!.expectedSeconds,
+            expectedSeconds:
+              rendered.analysis.eventAlignment[0]!.expectedSeconds,
             aligned: rendered.analysis.eventAlignment[0]!.passed,
           };
         })(),
@@ -120,6 +131,6 @@ export function test_engine_sound_propagation(): void {
           aligned: true,
         },
       },
-      ),
-    );
+    ),
+  );
 }

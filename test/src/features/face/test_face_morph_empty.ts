@@ -24,8 +24,17 @@ export function test_face_morph_empty(): void {
   };
   const result: number[] = morphFace({ template, face: makeFace() });
   const expected: readonly number[] = [1, 2, 3];
-  TestValidator.equals("unchanged component count", result.length, expected.length);
-  TestValidator.predicate("unchanged values", expected.every((value: number, index: number): boolean => nclose(result[index]!, value, 1e-12)));
+  TestValidator.equals(
+    "unchanged component count",
+    result.length,
+    expected.length,
+  );
+  TestValidator.predicate(
+    "unchanged values",
+    expected.every((value: number, index: number): boolean =>
+      nclose(result[index]!, value, 1e-12),
+    ),
+  );
   TestValidator.predicate(
     "a copy, not the template array",
     result !== template.positions,

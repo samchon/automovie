@@ -1,12 +1,12 @@
-import { readPlaygroundViewerPublishedSource as read } from "../../../../packages/playground/src/viewer/readPlaygroundViewerPublishedSource";
 import { TestValidator } from "@nestia/e2e";
 
+import { readPlaygroundViewerPublishedSource as read } from "../../../../packages/playground/src/viewer/readPlaygroundViewerPublishedSource";
 
-
-
-type State = { inputs: Record<string, string>; revision: string; error?: string };
-
-
+type State = {
+  inputs: Record<string, string>;
+  revision: string;
+  error?: string;
+};
 
 /**
  * A producer publication lock refuses new source admission while the completed receipt remains held. Unlocking refreshes membership that witnessed a lock; a transaction starting during that refresh also refuses admission.
@@ -24,14 +24,50 @@ type State = { inputs: Record<string, string>; revision: string; error?: string 
  */
 export function test_viewer_publication_admission(): void {
   for (const scenario of [
-    { locks: [true], marker: "missing", refreshes: 0, refused: true, fail: false },
-    { locks: [false, false], marker: "missing", refreshes: 0, refused: false, fail: false },
-    { locks: [false, false], marker: "producer-lock-digest", refreshes: 1, refused: false, fail: false },
-    { locks: [false, true], marker: "producer-lock-digest", refreshes: 1, refused: true, fail: false },
-    { locks: [false], marker: "producer-lock-digest", refreshes: 1, refused: false, fail: true },
+    {
+      locks: [true],
+      marker: "missing",
+      refreshes: 0,
+      refused: true,
+      fail: false,
+    },
+    {
+      locks: [false, false],
+      marker: "missing",
+      refreshes: 0,
+      refused: false,
+      fail: false,
+    },
+    {
+      locks: [false, false],
+      marker: "producer-lock-digest",
+      refreshes: 1,
+      refused: false,
+      fail: false,
+    },
+    {
+      locks: [false, true],
+      marker: "producer-lock-digest",
+      refreshes: 1,
+      refused: true,
+      fail: false,
+    },
+    {
+      locks: [false],
+      marker: "producer-lock-digest",
+      refreshes: 1,
+      refused: false,
+      fail: true,
+    },
   ]) {
-    const initial: State = { inputs: { publication: scenario.marker }, revision: "held" };
-    const published: State = { inputs: { publication: "missing" }, revision: "completed" };
+    const initial: State = {
+      inputs: { publication: scenario.marker },
+      revision: "held",
+    };
+    const published: State = {
+      inputs: { publication: "missing" },
+      revision: "completed",
+    };
     let current: State = initial;
     let refreshes: number = 0;
     let lockReads: number = 0;
@@ -40,18 +76,47 @@ export function test_viewer_publication_admission(): void {
     let result: State | undefined;
     try {
       result = read({
-        current: () : State => current, lockInput: "publication",
-        locked: () : boolean => scenario.locks[lockReads++]!,
-        refresh: () : void => { ++refreshes; if (scenario.fail) throw failure; current = published; },
+        current: (): State => current,
+        lockInput: "publication",
+        locked: (): boolean => scenario.locks[lockReads++]!,
+        refresh: (): void => {
+          ++refreshes;
+          if (scenario.fail) throw failure;
+          current = published;
+        },
       });
-    } catch (error) { caught = error; }
-    TestValidator.equals("publication refresh count", refreshes, scenario.refreshes);
-    TestValidator.equals("held receipt stays untouched", initial, { inputs: { publication: scenario.marker }, revision: "held" });
-    TestValidator.predicate("refresh failure identity", scenario.fail ? caught === failure : caught === undefined);
+    } catch (error) {
+      caught = error;
+    }
+    TestValidator.equals(
+      "publication refresh count",
+      refreshes,
+      scenario.refreshes,
+    );
+    TestValidator.equals("held receipt stays untouched", initial, {
+      inputs: { publication: scenario.marker },
+      revision: "held",
+    });
+    TestValidator.predicate(
+      "refresh failure identity",
+      scenario.fail ? caught === failure : caught === undefined,
+    );
     if (!scenario.fail) {
-      TestValidator.equals("publication refusal", result?.error !== undefined, scenario.refused);
-      TestValidator.equals("source revision owner", result?.revision, refreshes ? "completed" : "held");
-      if (!scenario.refused) TestValidator.predicate("completed receipt identity", result === current);
+      TestValidator.equals(
+        "publication refusal",
+        result?.error !== undefined,
+        scenario.refused,
+      );
+      TestValidator.equals(
+        "source revision owner",
+        result?.revision,
+        refreshes ? "completed" : "held",
+      );
+      if (!scenario.refused)
+        TestValidator.predicate(
+          "completed receipt identity",
+          result === current,
+        );
     }
   }
 }

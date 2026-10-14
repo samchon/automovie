@@ -31,9 +31,15 @@ export function test_face_morph_apply(): void {
     face: makeFace({ eyes: { left: { size: 0.5 } }, jaw: { width: -1 } }),
   });
   const expected: readonly number[] = [0.7, 2.2, 0, -1, 1, 0.3];
-  TestValidator.equals("output component count", result.length, expected.length);
+  TestValidator.equals(
+    "output component count",
+    result.length,
+    expected.length,
+  );
   TestValidator.predicate(
     "accumulated signed morph",
-    expected.every((value: number, index: number): boolean => nclose(result[index]!, value, 1e-12)),
+    expected.every((value: number, index: number): boolean =>
+      nclose(result[index]!, value, 1e-12),
+    ),
   );
 }

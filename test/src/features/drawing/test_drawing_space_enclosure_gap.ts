@@ -1,5 +1,5 @@
-import type { IAutoMovieDrawingGap } from "@automovie/interface";
 import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import type { IAutoMovieDrawingGap } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingEnvironment } from "../internal/drawingFixtures";
@@ -27,22 +27,28 @@ import { namedFacts } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership Uses the existing local drawing fixture and synchronous schedule derivation with no artifact publication, renderer, process, clock, global replacement or additional test host. Its observations do not reproduce historical production failures or certify enclosure completeness.
  */
 export function test_drawing_space_enclosure_gap(): void {
-  const gapOf: (subject: "space" | "opening" | "connector") => IAutoMovieDrawingGap | null = (subject: "space" | "opening" | "connector") : IAutoMovieDrawingGap | null =>
+  const gapOf: (
+    subject: "space" | "opening" | "connector",
+  ) => IAutoMovieDrawingGap | null = (
+    subject: "space" | "opening" | "connector",
+  ): IAutoMovieDrawingGap | null =>
     deriveAutoMovieDrawingSchedule({
       environment: drawingEnvironment(),
       subject,
-    }).gaps.find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "space-enclosure") ?? null;
+    }).gaps.find(
+      (gap: IAutoMovieDrawingGap): boolean => gap.subject === "space-enclosure",
+    ) ?? null;
 
   const enclosure: IAutoMovieDrawingGap | null = gapOf("space");
 
   TestValidator.equals(
     "a room schedule declares what it says about the boundaries around a room",
     namedFacts([
-      ["a room owes the gap", () : boolean => enclosure !== null],
+      ["a room owes the gap", (): boolean => enclosure !== null],
       // This declaration distinguishes missing product derivation from author input.
-      ["as unsupported", () : boolean => enclosure?.status === "unsupported"],
-      ["an opening owes none", () : boolean => gapOf("opening") === null],
-      ["a connector owes none", () : boolean => gapOf("connector") === null],
+      ["as unsupported", (): boolean => enclosure?.status === "unsupported"],
+      ["an opening owes none", (): boolean => gapOf("opening") === null],
+      ["a connector owes none", (): boolean => gapOf("connector") === null],
     ]),
     {
       "a room owes the gap": true,

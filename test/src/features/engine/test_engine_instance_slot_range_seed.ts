@@ -1,7 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
+
+import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 import { namedFacts, nclose } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
-import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
 const COUNT: number = 2_000;
 
@@ -38,18 +39,27 @@ export function test_engine_instance_slot_range_seed(): void {
       [
         "scaleRange",
         (): boolean =>
-          members.every((member: (typeof members)[number]): boolean => member.scale >= 0.5 && member.scale <= 1.5),
+          members.every(
+            (member: (typeof members)[number]): boolean =>
+              member.scale >= 0.5 && member.scale <= 1.5,
+          ),
       ],
       [
         "traitRange",
         (): boolean =>
           members.every(
-            (member: (typeof members)[number]): boolean => member.traits.lean! >= -1 && member.traits.lean! <= 1,
+            (member: (typeof members)[number]): boolean =>
+              member.traits.lean! >= -1 && member.traits.lean! <= 1,
           ),
       ],
       [
         "everyPaletteEntry",
-        (): boolean => new Set(members.map((member: (typeof members)[number]): string => member.palette)).size === 3,
+        (): boolean =>
+          new Set(
+            members.map(
+              (member: (typeof members)[number]): string => member.palette,
+            ),
+          ).size === 3,
       ],
       [
         "zeroWidth",
@@ -64,7 +74,8 @@ export function test_engine_instance_slot_range_seed(): void {
         "seedMatters",
         (): boolean =>
           members.filter(
-            (member: (typeof members)[number], slot: number): boolean => member.scale !== reseeded[slot]!.scale,
+            (member: (typeof members)[number], slot: number): boolean =>
+              member.scale !== reseeded[slot]!.scale,
           ).length >
           COUNT * 0.9,
       ],
@@ -77,6 +88,4 @@ export function test_engine_instance_slot_range_seed(): void {
       seedMatters: true,
     },
   );
-
-
 }

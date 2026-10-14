@@ -1,19 +1,32 @@
+import {
+  AutoMovieHumanoidBone,
+  AutoMoviePrimitiveShape,
+  type IAutoMovieBone,
+  type IAutoMovieModel,
+  type IAutoMovieModelPart,
+  type IAutoMovieSkeleton,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
 import { STICKMAN_ARCHETYPE } from "../../../../packages/archetypes/src/STICKMAN_ARCHETYPE";
+import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 import { resolvePose } from "../../../../packages/engine/src/kinematics/resolvePose";
 import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { type IAutoMovieModel, type IAutoMovieModelPart, type IAutoMovieVector3, type IAutoMovieSkeleton, type IAutoMovieBone, AutoMoviePrimitiveShape, AutoMovieHumanoidBone } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, vclose } from "../internal/predicates";
-import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
-import type { IAutoMovieResolvedBone } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedBone";
 
 /** The figure every case below reads, and the three numbers that shape it. */
 const HEIGHT: number = 2;
 const HEAD_RADIUS: number = 0.2;
 const LIMB_RADIUS: number = 0.1;
 
-const built: (parameters: { height: number; headRadius: number; limbRadius: number; }) => IAutoMovieArchetypeGeometry = (parameters: {
+const built: (parameters: {
+  height: number;
+  headRadius: number;
+  limbRadius: number;
+}) => IAutoMovieArchetypeGeometry = (parameters: {
   height: number;
   headRadius: number;
   limbRadius: number;
@@ -30,12 +43,18 @@ const figure: IAutoMovieArchetypeGeometry = built({
   limbRadius: LIMB_RADIUS,
 });
 
-const skeleton: IAutoMovieSkeleton = figure.skeleton as NonNullable<IAutoMovieModel["skeleton"]>;
+const skeleton: IAutoMovieSkeleton = figure.skeleton as NonNullable<
+  IAutoMovieModel["skeleton"]
+>;
 
-const boneOf: (name: string) => IAutoMovieBone | undefined = (name: string): IAutoMovieBone | undefined =>
+const boneOf: (name: string) => IAutoMovieBone | undefined = (
+  name: string,
+): IAutoMovieBone | undefined =>
   skeleton.bones.find((entry: IAutoMovieBone): boolean => entry.bone === name);
 
-const partOf: (id: string) => IAutoMovieModelPart | undefined = (id: string): IAutoMovieModelPart | undefined =>
+const partOf: (id: string) => IAutoMovieModelPart | undefined = (
+  id: string,
+): IAutoMovieModelPart | undefined =>
   figure.parts.find((part: IAutoMovieModelPart): boolean => part.id === id);
 
 /** Read one existing primitive part's shape, throwing if it draws something else. */
@@ -49,8 +68,9 @@ const shapeOf: (id: string) => AutoMoviePrimitiveShape = (
 };
 
 /** Where one bone rests relative to its parent. */
-const restOf: (name: string) => IAutoMovieVector3 = (name: string): IAutoMovieVector3 =>
-  boneOf(name)!.rest.translation;
+const restOf: (name: string) => IAutoMovieVector3 = (
+  name: string,
+): IAutoMovieVector3 => boneOf(name)!.rest.translation;
 
 /**
  * Every bone's parent, in the order the builder lists them.
@@ -127,28 +147,43 @@ export function test_archetypes_stickman_rig(): void {
   TestValidator.equals(
     "the skeleton is the declared thirteen bones on the parents that make a body",
     namedFacts([
-      ["declared", (): boolean => STICKMAN_ARCHETYPE.bones.length === PARENTAGE.length],
+      [
+        "declared",
+        (): boolean => STICKMAN_ARCHETYPE.bones.length === PARENTAGE.length,
+      ],
       [
         "declaredOrder",
         (): boolean =>
           STICKMAN_ARCHETYPE.bones.join(",") ===
-          PARENTAGE.map(([name]: readonly [string, string | null]): string => name).join(","),
+          PARENTAGE.map(
+            ([name]: readonly [string, string | null]): string => name,
+          ).join(","),
       ],
       ["id", (): boolean => skeleton.id === "figure-rig"],
       [
         "builtOrder",
         (): boolean =>
-          skeleton.bones.map((entry: IAutoMovieBone): string => entry.bone).join(",") ===
-          PARENTAGE.map(([name]: readonly [string, string | null]): string => name).join(","),
+          skeleton.bones
+            .map((entry: IAutoMovieBone): string => entry.bone)
+            .join(",") ===
+          PARENTAGE.map(
+            ([name]: readonly [string, string | null]): string => name,
+          ).join(","),
       ],
       [
         "parentage",
         (): boolean =>
-          PARENTAGE.every(([name, parent]: readonly [string, string | null]): boolean => boneOf(name)?.parent === parent),
+          PARENTAGE.every(
+            ([name, parent]: readonly [string, string | null]): boolean =>
+              boneOf(name)?.parent === parent,
+          ),
       ],
       [
         "unconstrained",
-        (): boolean => skeleton.bones.every((entry: IAutoMovieBone): boolean => entry.constraint === null),
+        (): boolean =>
+          skeleton.bones.every(
+            (entry: IAutoMovieBone): boolean => entry.constraint === null,
+          ),
       ],
     ]),
     {
@@ -177,12 +212,18 @@ export function test_archetypes_stickman_rig(): void {
               ["leftUpperLeg", "rightUpperLeg"],
               ["leftLowerLeg", "rightLowerLeg"],
             ] as const
-          ).every(([left, right]: readonly ["leftUpperArm", "rightUpperArm"] | readonly ["leftLowerArm", "rightLowerArm"] | readonly ["leftHand", "rightHand"] | readonly ["leftUpperLeg", "rightUpperLeg"] | readonly ["leftLowerLeg", "rightLowerLeg"]): boolean =>
-            vclose(restOf(right), {
-              x: -restOf(left).x,
-              y: restOf(left).y,
-              z: restOf(left).z,
-            }),
+          ).every(
+            ([left, right]:
+              | readonly ["leftUpperArm", "rightUpperArm"]
+              | readonly ["leftLowerArm", "rightLowerArm"]
+              | readonly ["leftHand", "rightHand"]
+              | readonly ["leftUpperLeg", "rightUpperLeg"]
+              | readonly ["leftLowerLeg", "rightLowerLeg"]): boolean =>
+              vclose(restOf(right), {
+                x: -restOf(left).x,
+                y: restOf(left).y,
+                z: restOf(left).z,
+              }),
           ),
       ],
       // And the arms really do leave the axis, or the mirror above would hold
@@ -202,16 +243,24 @@ export function test_archetypes_stickman_rig(): void {
       [
         "order",
         (): boolean =>
-          figure.parts.map((part: IAutoMovieModelPart): string => part.id).join(",") === PART_IDS.join(","),
+          figure.parts
+            .map((part: IAutoMovieModelPart): string => part.id)
+            .join(",") === PART_IDS.join(","),
       ],
       [
         "bones",
         (): boolean =>
-          PART_BONES.every(([id, bone]: readonly [string, string]): boolean => partOf(id)?.attachedBone === bone),
+          PART_BONES.every(
+            ([id, bone]: readonly [string, string]): boolean =>
+              partOf(id)?.attachedBone === bone,
+          ),
       ],
       [
         "material",
-        (): boolean => figure.parts.every((part: IAutoMovieModelPart): boolean => part.material === "body"),
+        (): boolean =>
+          figure.parts.every(
+            (part: IAutoMovieModelPart): boolean => part.material === "body",
+          ),
       ],
     ]),
     { count: true, order: true, bones: true, material: true },
@@ -236,7 +285,8 @@ export function test_archetypes_stickman_rig(): void {
       ],
       [
         "head",
-        (): boolean => head.type === "sphere" && nclose(head.radius, HEAD_RADIUS),
+        (): boolean =>
+          head.type === "sphere" && nclose(head.radius, HEAD_RADIUS),
       ],
       [
         "upperArm",
@@ -245,7 +295,8 @@ export function test_archetypes_stickman_rig(): void {
       ],
       [
         "shin",
-        (): boolean => shin.type === "capsule" && nclose(shin.radius, LIMB_RADIUS),
+        (): boolean =>
+          shin.type === "capsule" && nclose(shin.radius, LIMB_RADIUS),
       ],
     ]),
     {
@@ -298,39 +349,109 @@ export function test_archetypes_stickman_rig(): void {
     },
   );
 
-  TestValidator.equals("signals remain advertised", STICKMAN_ARCHETYPE.capabilities.join(","), "signal");
+  TestValidator.equals(
+    "signals remain advertised",
+    STICKMAN_ARCHETYPE.capabilities.join(","),
+    "signal",
+  );
   for (const height of [0.5, 2, 3])
     for (const headRadius of [0.05, 0.5])
       for (const limbRadius of [0.01, 0.25]) {
-        const parameters: {height:number;headRadius:number;limbRadius:number} = {height,headRadius,limbRadius};
+        const parameters: {
+          height: number;
+          headRadius: number;
+          limbRadius: number;
+        } = { height, headRadius, limbRadius };
         const geometry: IAutoMovieArchetypeGeometry = built(parameters);
         const radius: number = STICKMAN_ARCHETYPE.projectionRadius(parameters);
-        for (const angle of [0,43,-67]) {
-          const bones: IAutoMovieResolvedBone[] = resolvePose({skeleton: geometry.skeleton!.id,root:null,joints:geometry.skeleton!.bones.map((bone: IAutoMovieBone): { bone: AutoMovieHumanoidBone; flexion: number; abduction: number; twist: number; } => ({bone:bone.bone,flexion:angle,abduction:angle,twist:-angle/2}))},geometry.skeleton!);
+        for (const angle of [0, 43, -67]) {
+          const bones: IAutoMovieResolvedBone[] = resolvePose(
+            {
+              skeleton: geometry.skeleton!.id,
+              root: null,
+              joints: geometry.skeleton!.bones.map(
+                (
+                  bone: IAutoMovieBone,
+                ): {
+                  bone: AutoMovieHumanoidBone;
+                  flexion: number;
+                  abduction: number;
+                  twist: number;
+                } => ({
+                  bone: bone.bone,
+                  flexion: angle,
+                  abduction: angle,
+                  twist: -angle / 2,
+                }),
+              ),
+            },
+            geometry.skeleton!,
+          );
           for (const part of geometry.parts) {
-            const bone: IAutoMovieResolvedBone = bones.find((candidate: IAutoMovieResolvedBone): boolean => candidate.bone === part.attachedBone)!;
-            if (part.geometry.type !== "primitive") throw new Error("stickman enclosure fixture requires primitives");
+            const bone: IAutoMovieResolvedBone = bones.find(
+              (candidate: IAutoMovieResolvedBone): boolean =>
+                candidate.bone === part.attachedBone,
+            )!;
+            if (part.geometry.type !== "primitive")
+              throw new Error("stickman enclosure fixture requires primitives");
             const shape: AutoMoviePrimitiveShape = part.geometry.shape;
-            const world: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => {
-              const placed: IAutoMovieVector3 = part.transform === null ? point : Vector3.add(part.transform.translation,Quaternion.rotateVector(part.transform.rotation,point));
-              return Vector3.add(bone.worldPosition,Quaternion.rotateVector(bone.worldRotation,placed));
+            const world: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+              point: IAutoMovieVector3,
+            ): IAutoMovieVector3 => {
+              const placed: IAutoMovieVector3 =
+                part.transform === null
+                  ? point
+                  : Vector3.add(
+                      part.transform.translation,
+                      Quaternion.rotateVector(part.transform.rotation, point),
+                    );
+              return Vector3.add(
+                bone.worldPosition,
+                Quaternion.rotateVector(bone.worldRotation, placed),
+              );
             };
-            const check: (point: IAutoMovieVector3, padding: number) => void = (point:IAutoMovieVector3,padding:number):void => {
-              const position:IAutoMovieVector3=world(point);
-              const distance:number=Math.hypot(position.x,position.y,position.z)+padding;
-              TestValidator.predicate(`model-root enclosure ${height}/${headRadius}/${limbRadius}/${angle}/${part.id}`, Number.isFinite(radius)&&distance<=radius+1e-12);
+            const check: (point: IAutoMovieVector3, padding: number) => void = (
+              point: IAutoMovieVector3,
+              padding: number,
+            ): void => {
+              const position: IAutoMovieVector3 = world(point);
+              const distance: number =
+                Math.hypot(position.x, position.y, position.z) + padding;
+              TestValidator.predicate(
+                `model-root enclosure ${height}/${headRadius}/${limbRadius}/${angle}/${part.id}`,
+                Number.isFinite(radius) && distance <= radius + 1e-12,
+              );
             };
-            if(shape.type === "box")
-              for(const x of [-shape.width/2,shape.width/2])
-                for(const y of [-shape.height/2,shape.height/2])
-                  for(const z of [-shape.depth/2,shape.depth/2]) check({x,y,z},0);
-            else if(shape.type === "sphere") check({x:0,y:0,z:0},shape.radius);
-            else if(shape.type === "capsule") {
-              check({x:0,y:-shape.height/2,z:0},shape.radius);
-              check({x:0,y:shape.height/2,z:0},shape.radius);
-            } else throw new Error("stickman enclosure fixture lacks a primitive oracle");
+            if (shape.type === "box")
+              for (const x of [-shape.width / 2, shape.width / 2])
+                for (const y of [-shape.height / 2, shape.height / 2])
+                  for (const z of [-shape.depth / 2, shape.depth / 2])
+                    check({ x, y, z }, 0);
+            else if (shape.type === "sphere")
+              check({ x: 0, y: 0, z: 0 }, shape.radius);
+            else if (shape.type === "capsule") {
+              check({ x: 0, y: -shape.height / 2, z: 0 }, shape.radius);
+              check({ x: 0, y: shape.height / 2, z: 0 }, shape.radius);
+            } else
+              throw new Error(
+                "stickman enclosure fixture lacks a primitive oracle",
+              );
           }
         }
       }
-  TestValidator.predicate("unreadable height keeps readable head dimension in placeholder", Number.isFinite(STICKMAN_ARCHETYPE.projectionRadius({height:"tall",headRadius:HEAD_RADIUS,limbRadius:LIMB_RADIUS})) && STICKMAN_ARCHETYPE.projectionRadius({height:"tall",headRadius:HEAD_RADIUS,limbRadius:LIMB_RADIUS}) >= HEAD_RADIUS);
+  TestValidator.predicate(
+    "unreadable height keeps readable head dimension in placeholder",
+    Number.isFinite(
+      STICKMAN_ARCHETYPE.projectionRadius({
+        height: "tall",
+        headRadius: HEAD_RADIUS,
+        limbRadius: LIMB_RADIUS,
+      }),
+    ) &&
+      STICKMAN_ARCHETYPE.projectionRadius({
+        height: "tall",
+        headRadius: HEAD_RADIUS,
+        limbRadius: LIMB_RADIUS,
+      }) >= HEAD_RADIUS,
+  );
 }

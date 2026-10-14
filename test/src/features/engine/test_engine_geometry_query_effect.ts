@@ -33,7 +33,11 @@ const RECIPE: IAutoMovieEffectRecipe = {
 };
 
 /** A ten-metre cube of fog centred on the origin, active from 1 s to 3 s. */
-const effect: (id: string, start: number, end: number) => IAutoMovieCompiledEffect = (
+const effect: (
+  id: string,
+  start: number,
+  end: number,
+) => IAutoMovieCompiledEffect = (
   id: string,
   start: number,
   end: number,
@@ -61,7 +65,12 @@ const TURNED_AWAY: IAutoMovieQuaternion = {
   w: Math.cos(Math.PI / 8),
 };
 
-const subject: (id: string, x: number, y: number, z: number) => IAutoMovieSceneNode = (
+const subject: (
+  id: string,
+  x: number,
+  y: number,
+  z: number,
+) => IAutoMovieSceneNode = (
   id: string,
   x: number,
   y: number,
@@ -99,44 +108,44 @@ function storm(
   } = {},
 ): IAutoMovieCompiledShotSource {
   return {
-  eventSamples: [],
-  scene: {
-    id: "storm-scene",
-    name: null,
-    nodes: SUBJECTS,
-    cameras: [
-      {
-        id: "cam",
-        transform: {
-          translation: props.camera ?? { x: 0, y: 0, z: 10 },
-          rotation: props.rotation ?? FACING_NEGATIVE_Z,
-          scale: { x: 1, y: 1, z: 1 },
+    eventSamples: [],
+    scene: {
+      id: "storm-scene",
+      name: null,
+      nodes: SUBJECTS,
+      cameras: [
+        {
+          id: "cam",
+          transform: {
+            translation: props.camera ?? { x: 0, y: 0, z: 10 },
+            rotation: props.rotation ?? FACING_NEGATIVE_Z,
+            scale: { x: 1, y: 1, z: 1 },
+          },
+          fovY: 60,
+          near: 0.1,
+          far: props.far ?? 100,
+          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
         },
-        fovY: 60,
-        near: 0.1,
-        far: props.far ?? 100,
-        depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-      },
-    ],
-    lights: [],
-  },
-  motions: [],
-  shot: {
-    id: "storm",
-    name: null,
-    scene: "storm-scene",
-    camera: props.cameraId ?? "cam",
-    cameraMotion: null,
-    performances: [],
-    objectMotions: [],
-    duration: 4,
-  },
-  models: [{ ...createModel(null), id: "prop" }],
-  formations: [],
-  instanceSets: [],
-  formationMotions: [],
-  formationSlotMotions: [],
-  effects: props.effects ?? [effect("gust", 1, 3)],
+      ],
+      lights: [],
+    },
+    motions: [],
+    shot: {
+      id: "storm",
+      name: null,
+      scene: "storm-scene",
+      camera: props.cameraId ?? "cam",
+      cameraMotion: null,
+      performances: [],
+      objectMotions: [],
+      duration: 4,
+    },
+    models: [{ ...createModel(null), id: "prop" }],
+    formations: [],
+    instanceSets: [],
+    formationMotions: [],
+    formationSlotMotions: [],
+    effects: props.effects ?? [effect("gust", 1, 3)],
   };
 }
 
@@ -149,23 +158,24 @@ function measure(
   shot: IAutoMovieCompiledShotSource = storm(),
   production: typeof PRODUCTION | null = PRODUCTION,
 ): Record<string, number | string | boolean> {
-  const result: ReturnType<typeof measureAutoMovieGeometry> = measureAutoMovieGeometry({
-    request: {
-      query: "effect",
-      zone: "haze",
-      shot: "storm",
-      time: 2,
-      ...request,
-    },
-    design: {
-      production,
-      world: null,
-      formations: new Map(),
-      shots: new Map(),
-    },
-    compiled: new Map([["storm", shot]]),
-    timeline: null,
-  });
+  const result: ReturnType<typeof measureAutoMovieGeometry> =
+    measureAutoMovieGeometry({
+      request: {
+        query: "effect",
+        zone: "haze",
+        shot: "storm",
+        time: 2,
+        ...request,
+      },
+      design: {
+        production,
+        world: null,
+        formations: new Map(),
+        shots: new Map(),
+      },
+      compiled: new Map([["storm", shot]]),
+      timeline: null,
+    });
   if (result.kind !== "measurement")
     throw new Error("a measurement was expected");
   return result.values;
@@ -203,8 +213,11 @@ function measure(
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local recipes, compiled records and query callbacks through the existing model fixture. It opens no file, render host, browser or GPU; caller-established compiled freshness and valid cue bounds remain premises rather than native compilation observations.
  */
 export function test_engine_geometry_query_effect(): void {
-  const reference: ReturnType<typeof sampleCompiledEffect> = sampleCompiledEffect(effect("gust", 1, 3), 2, 10);
-  const inside: ReturnType<typeof measure> = measure({ subjects: SUBJECTS.map((node: IAutoMovieSceneNode): string => node.id) });
+  const reference: ReturnType<typeof sampleCompiledEffect> =
+    sampleCompiledEffect(effect("gust", 1, 3), 2, 10);
+  const inside: ReturnType<typeof measure> = measure({
+    subjects: SUBJECTS.map((node: IAutoMovieSceneNode): string => node.id),
+  });
   const count: number = reference.particles.length;
   TestValidator.equals(
     "an effect query composes the sampled stream with hand geometry",
@@ -216,20 +229,34 @@ export function test_engine_geometry_query_effect(): void {
       ],
       [
         "sampledTime",
-        (): boolean => nclose(inside.sampledTime as number, 2, 0) && inside.representativeFrame === 48,
+        (): boolean =>
+          nclose(inside.sampledTime as number, 2, 0) &&
+          inside.representativeFrame === 48,
       ],
-      ["cap", (): boolean => inside.particleCap === 100 && nclose(inside.intensity as number, 1, 0)],
-      ["density", (): boolean => nclose(inside.density as number, count / 1_000, 1e-15)],
+      [
+        "cap",
+        (): boolean =>
+          inside.particleCap === 100 &&
+          nclose(inside.intensity as number, 1, 0),
+      ],
+      [
+        "density",
+        (): boolean => nclose(inside.density as number, count / 1_000, 1e-15),
+      ],
       [
         "opacity",
         (): boolean =>
           nclose(inside.minimumOpacity as number, 0.2, 1e-15) &&
           nclose(inside.maximumOpacity as number, 0.6, 1e-15),
       ],
-      ["cameraDistance", (): boolean => nclose(inside.cameraDistance as number, 10, 0)],
+      [
+        "cameraDistance",
+        (): boolean => nclose(inside.cameraDistance as number, 10, 0),
+      ],
       [
         "crossing",
-        (): boolean => nclose(inside.cameraIntersectionLength as number, 10, 1e-12),
+        (): boolean =>
+          nclose(inside.cameraIntersectionLength as number, 10, 1e-12),
       ],
       [
         "risk",
@@ -244,7 +271,10 @@ export function test_engine_geometry_query_effect(): void {
         "subjects",
         (): boolean => inside.subjectCount === 7 && inside.subjectsInside === 1,
       ],
-      ["digest", (): boolean => inside.effectDigest === `sha256:${"e".repeat(64)}`],
+      [
+        "digest",
+        (): boolean => inside.effectDigest === `sha256:${"e".repeat(64)}`,
+      ],
     ]),
     {
       sampledParticles: true,
@@ -288,16 +318,24 @@ export function test_engine_geometry_query_effect(): void {
       [
         "besideAndParallel",
         (): boolean =>
-          nclose(measure({}, storm({ camera: { x: 7, y: 0, z: 10 } }))
-            .cameraIntersectionLength as number, 0, 0),
+          nclose(
+            measure({}, storm({ camera: { x: 7, y: 0, z: 10 } }))
+              .cameraIntersectionLength as number,
+            0,
+            0,
+          ),
       ],
       [
         "lookingAway",
         (): boolean =>
-          nclose(measure(
-            {},
-            storm({ camera: { x: 7, y: 0, z: 10 }, rotation: TURNED_AWAY }),
-          ).cameraIntersectionLength as number, 0, 0),
+          nclose(
+            measure(
+              {},
+              storm({ camera: { x: 7, y: 0, z: 10 }, rotation: TURNED_AWAY }),
+            ).cameraIntersectionLength as number,
+            0,
+            0,
+          ),
       ],
     ]),
     {
@@ -370,7 +408,8 @@ export function test_engine_geometry_query_effect(): void {
         "absentCamera",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({}, storm({ cameraId: "gone" })),
+            (): ReturnType<typeof measure> =>
+              measure({}, storm({ cameraId: "gone" })),
             'Shot "storm" has no current compiled camera "gone"',
           ),
       ],
@@ -400,7 +439,8 @@ export function test_engine_geometry_query_effect(): void {
         "repeatedSubjects",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ subjects: ["inside", "inside"] }),
+            (): ReturnType<typeof measure> =>
+              measure({ subjects: ["inside", "inside"] }),
             "at most 256 unique compiled scene-node ids",
           ),
       ],

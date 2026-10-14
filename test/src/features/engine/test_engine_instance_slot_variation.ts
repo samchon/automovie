@@ -1,7 +1,11 @@
-import { instanceSlot, type IAutoMovieInstanceSetPlacement } from "@automovie/engine";
+import {
+  type IAutoMovieInstanceSetPlacement,
+  instanceSlot,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
+
 import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
+import { namedFacts, throwsError } from "../internal/predicates";
 
 const LEGACY_KEYS: readonly string[] = [
   "facingDeg",
@@ -18,7 +22,6 @@ const keysOf: (value: object) => string[] = (value: object): string[] =>
   Object.keys(value).sort((left: string, right: string): number =>
     left < right ? -1 : left > right ? 1 : 0,
   );
-
 
 /**
  * Legacy omission and each enhanced feature preserve their admitted output shape; explicit members select the declared prototype and refuse an unavailable identity.
@@ -109,9 +112,15 @@ export function test_engine_instance_slot_variation(): void {
   TestValidator.equals(
     "only a set declaring an enhanced feature carries the enhanced fields",
     namedFacts([
-      ["legacyKeys", (): boolean => keysOf(legacy).join(",") === LEGACY_KEYS.join(",")],
+      [
+        "legacyKeys",
+        (): boolean => keysOf(legacy).join(",") === LEGACY_KEYS.join(","),
+      ],
       ...enhanced.map(
-        ([name, placement]: [string, IAutoMovieInstanceSetPlacement]): readonly [string, () => boolean] =>
+        ([name, placement]: [
+          string,
+          IAutoMovieInstanceSetPlacement,
+        ]): readonly [string, () => boolean] =>
           [
             name,
             (): boolean =>
@@ -135,9 +144,10 @@ export function test_engine_instance_slot_variation(): void {
     },
   );
 
-
   // 5. Explicit prototype selection.
-  const named: (prototype: string) => ReturnType<typeof crowd> = (prototype: string): ReturnType<typeof crowd> =>
+  const named: (prototype: string) => ReturnType<typeof crowd> = (
+    prototype: string,
+  ): ReturnType<typeof crowd> =>
     crowd({
       count: 1,
       prototypes: table.prototypes,
@@ -159,19 +169,19 @@ export function test_engine_instance_slot_variation(): void {
     namedFacts([
       [
         "named",
-        (): boolean => instanceSlot(named("short"), 0).modelRecipe === "short-body",
+        (): boolean =>
+          instanceSlot(named("short"), 0).modelRecipe === "short-body",
       ],
       [
         "missing",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(named("ghost"), 0),
+            (): ReturnType<typeof instanceSlot> =>
+              instanceSlot(named("ghost"), 0),
             'slot 0 references missing prototype "ghost"',
           ),
       ],
     ]),
     { named: true, missing: true },
   );
-
-
 }

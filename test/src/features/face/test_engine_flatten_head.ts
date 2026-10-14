@@ -1,5 +1,8 @@
 import { flattenHead } from "@automovie/engine";
-import { type AutoMovieHeadParameterName, type IAutoMovieHead } from "@automovie/interface";
+import {
+  type AutoMovieHeadParameterName,
+  type IAutoMovieHead,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -32,11 +35,18 @@ export function test_engine_flatten_head(): void {
     jawWidth: -0.7,
     chinProject: -0.3,
   };
-  const result: Partial<Record<AutoMovieHeadParameterName, number>> = flattenHead(doc);
+  const result: Partial<Record<AutoMovieHeadParameterName, number>> =
+    flattenHead(doc);
   TestValidator.equals(
     "grouped leaves map to exactly the flat morph names",
-    Object.keys(result).sort((left: string, right: string): number => Number(left > right) - Number(left < right)),
-    Object.keys(expected).sort((left: string, right: string): number => Number(left > right) - Number(left < right)),
+    Object.keys(result).sort(
+      (left: string, right: string): number =>
+        Number(left > right) - Number(left < right),
+    ),
+    Object.keys(expected).sort(
+      (left: string, right: string): number =>
+        Number(left > right) - Number(left < right),
+    ),
   );
   for (const [name, weight] of Object.entries(expected))
     TestValidator.predicate(

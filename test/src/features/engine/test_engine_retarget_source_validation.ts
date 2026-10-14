@@ -1,21 +1,29 @@
-import { retargetHumanoidMotion, IAutoMovieRetargetContactProps } from "@automovie/engine";
+import {
+  IAutoMovieRetargetContactProps,
+  retargetHumanoidMotion,
+} from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
-  IAutoMovieMotion,
   IAutoMovieKeyframe,
+  IAutoMovieMotion,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../internal/predicates";
 
-const range: (max: number) => IAutoMovieJointConstraint = (max: number): IAutoMovieJointConstraint => ({
+const range: (max: number) => IAutoMovieJointConstraint = (
+  max: number,
+): IAutoMovieJointConstraint => ({
   flexion: { min: -max, max },
   abduction: { min: -180, max: 180 },
   twist: { min: -180, max: 180 },
 });
 
-const skeleton: (id: string, flexionMax: number) => IAutoMovieSkeleton = (id: string, flexionMax: number): IAutoMovieSkeleton => ({
+const skeleton: (id: string, flexionMax: number) => IAutoMovieSkeleton = (
+  id: string,
+  flexionMax: number,
+): IAutoMovieSkeleton => ({
   id,
   bones: [
     {
@@ -41,22 +49,27 @@ const skeleton: (id: string, flexionMax: number) => IAutoMovieSkeleton = (id: st
   ],
 });
 
-const motion: (flexion: number, times?: number [ ]) => IAutoMovieMotion = (flexion: number, times: number[] = [0, 1]): IAutoMovieMotion => ({
+const motion: (flexion: number, times?: number[]) => IAutoMovieMotion = (
+  flexion: number,
+  times: number[] = [0, 1],
+): IAutoMovieMotion => ({
   id: "source-motion",
   skeleton: "source-rig",
   duration: 1,
   loop: false,
-  keyframes: times.map((time: number): IAutoMovieKeyframe => ({
-    time,
-    pose: {
-      skeleton: "source-rig",
-      root: null,
-      joints: [{ bone: "leftUpperArm", flexion, abduction: 0, twist: 0 }],
-    },
-    expression: null,
-    easing: "linear",
-    bezier: null,
-  })),
+  keyframes: times.map(
+    (time: number): IAutoMovieKeyframe => ({
+      time,
+      pose: {
+        skeleton: "source-rig",
+        root: null,
+        joints: [{ bone: "leftUpperArm", flexion, abduction: 0, twist: 0 }],
+      },
+      expression: null,
+      easing: "linear",
+      bezier: null,
+    }),
+  ),
   gaitCycle: null,
 });
 
@@ -82,12 +95,13 @@ export function test_engine_retarget_source_validation(): void {
   const source: IAutoMovieSkeleton = skeleton("source-rig", 30);
   const target: IAutoMovieSkeleton = skeleton("target-rig", 180);
 
-  const accepted: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: motion(20),
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const accepted: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: motion(20),
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   TestValidator.equals(
     "source-valid motion reaches target conversion",
     {
@@ -97,12 +111,13 @@ export function test_engine_retarget_source_validation(): void {
     { validation: { success: true }, target: "target-rig" },
   );
 
-  const sourceRomFailure: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: motion(60),
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const sourceRomFailure: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: motion(60),
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   TestValidator.equals(
     "source ROM failure is not laundered through a wider target ROM",
     {
@@ -116,12 +131,13 @@ export function test_engine_retarget_source_validation(): void {
     { refused: true, located: true },
   );
 
-  const sourceClockFailure: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({
-    motion: motion(20, [0.75, 0.5]),
-    source,
-    target,
-    contacts: { enabled: false },
-  });
+  const sourceClockFailure: ReturnType<typeof retargetHumanoidMotion> =
+    retargetHumanoidMotion({
+      motion: motion(20, [0.75, 0.5]),
+      source,
+      target,
+      contacts: { enabled: false },
+    });
   TestValidator.equals(
     "source temporal failure remains located on the source clip",
     {
@@ -135,19 +151,74 @@ export function test_engine_retarget_source_validation(): void {
     { refused: true, located: true },
   );
   const hand: NonNullable<IAutoMovieRetargetContactProps["hands"]>[number] = {
-    hand: "leftHand", upper: "leftUpperArm", lower: "leftLowerArm", start: 0, end: 1,
+    hand: "leftHand",
+    upper: "leftUpperArm",
+    lower: "leftLowerArm",
+    start: 0,
+    end: 1,
   };
-  const cases: { contacts: IAutoMovieRetargetContactProps; path: string; kind: "range" | "temporal" }[] = [
-    ...[Number.NaN, Number.POSITIVE_INFINITY, -0.01].map((tolerance: number): (typeof cases)[number] => ({ contacts: { tolerance }, path: "$input.contacts.tolerance", kind: "range" })),
-    ...[Number.NaN, Number.NEGATIVE_INFINITY].map((groundY: number): (typeof cases)[number] => ({ contacts: { groundY }, path: "$input.contacts.groundY", kind: "range" })),
-    ...[Number.NaN, -0.01, 1.01].map((start: number): (typeof cases)[number] => ({ contacts: { hands: [{ ...hand, start }] }, path: "$input.contacts.hands[0].start", kind: "range" })),
-    ...[Number.NaN, -0.01, 1.01].map((end: number): (typeof cases)[number] => ({ contacts: { hands: [{ ...hand, end }] }, path: "$input.contacts.hands[0].end", kind: "range" })),
-    { contacts: { hands: [{ ...hand, start: 0.8, end: 0.2 }] }, path: "$input.contacts.hands[0].end", kind: "temporal" },
+  const cases: {
+    contacts: IAutoMovieRetargetContactProps;
+    path: string;
+    kind: "range" | "temporal";
+  }[] = [
+    ...[Number.NaN, Number.POSITIVE_INFINITY, -0.01].map(
+      (tolerance: number): (typeof cases)[number] => ({
+        contacts: { tolerance },
+        path: "$input.contacts.tolerance",
+        kind: "range",
+      }),
+    ),
+    ...[Number.NaN, Number.NEGATIVE_INFINITY].map(
+      (groundY: number): (typeof cases)[number] => ({
+        contacts: { groundY },
+        path: "$input.contacts.groundY",
+        kind: "range",
+      }),
+    ),
+    ...[Number.NaN, -0.01, 1.01].map(
+      (start: number): (typeof cases)[number] => ({
+        contacts: { hands: [{ ...hand, start }] },
+        path: "$input.contacts.hands[0].start",
+        kind: "range",
+      }),
+    ),
+    ...[Number.NaN, -0.01, 1.01].map((end: number): (typeof cases)[number] => ({
+      contacts: { hands: [{ ...hand, end }] },
+      path: "$input.contacts.hands[0].end",
+      kind: "range",
+    })),
+    {
+      contacts: { hands: [{ ...hand, start: 0.8, end: 0.2 }] },
+      path: "$input.contacts.hands[0].end",
+      kind: "temporal",
+    },
   ];
   for (const entry of cases) {
-    const result: ReturnType<typeof retargetHumanoidMotion> = retargetHumanoidMotion({ motion: motion(20), source, target, contacts: entry.contacts });
-    TestValidator.equals(`contact policy refuses ${entry.path}`, { nullMotion: result.motion === null, located: hasViolation(result.validation, entry.kind, entry.path) }, { nullMotion: true, located: true });
+    const result: ReturnType<typeof retargetHumanoidMotion> =
+      retargetHumanoidMotion({
+        motion: motion(20),
+        source,
+        target,
+        contacts: entry.contacts,
+      });
+    TestValidator.equals(
+      `contact policy refuses ${entry.path}`,
+      {
+        nullMotion: result.motion === null,
+        located: hasViolation(result.validation, entry.kind, entry.path),
+      },
+      { nullMotion: true, located: true },
+    );
   }
-  for (const contacts of [{ enabled: false, tolerance: Number.NaN, hands: [{ ...hand, start: -1 }] }, { tolerance: 0, groundY: 0, hands: [{ ...hand, start: 1, end: 1 }] }])
-    TestValidator.predicate("unused disabled policy and inclusive zero-tolerance boundary remain valid", (): boolean => retargetHumanoidMotion({ motion: motion(20), source, target, contacts }).motion !== null);
+  for (const contacts of [
+    { enabled: false, tolerance: Number.NaN, hands: [{ ...hand, start: -1 }] },
+    { tolerance: 0, groundY: 0, hands: [{ ...hand, start: 1, end: 1 }] },
+  ])
+    TestValidator.predicate(
+      "unused disabled policy and inclusive zero-tolerance boundary remain valid",
+      (): boolean =>
+        retargetHumanoidMotion({ motion: motion(20), source, target, contacts })
+          .motion !== null,
+    );
 }

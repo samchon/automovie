@@ -17,15 +17,53 @@ import { synchronizeHumanBuild } from "../../../../packages/human/build/synchron
  * @evidence contracts/testing.md#execution-ownership The synchronous discoverable test_package_build_file_publication entry owns the seven table rows and their typed effects; it invokes the actual portable orchestration function without installing a consumer, building an artifact or starting a filesystem/compiler/browser/GPU host.
  */
 export function test_package_build_file_publication(): void {
-  const old: { file: string; digest: string; }[] = [{ file: "same.js", digest: "equal" }, { file: "changed.js", digest: "old" }, { file: "obsolete.js", digest: "unused" }];
-  const next: { file: string; digest: string; }[] = [{ file: "same.js", digest: "equal" }, { file: "changed.js", digest: "new" }, { file: "added.js", digest: "addition" }];
+  const old: { file: string; digest: string }[] = [
+    { file: "same.js", digest: "equal" },
+    { file: "changed.js", digest: "old" },
+    { file: "obsolete.js", digest: "unused" },
+  ];
+  const next: { file: string; digest: string }[] = [
+    { file: "same.js", digest: "equal" },
+    { file: "changed.js", digest: "new" },
+    { file: "added.js", digest: "addition" },
+  ];
   for (const scenario of [
-    { previous: [], next, source: "staged", expected: ["write:same.js", "write:changed.js", "write:added.js"], fail: "" },
+    {
+      previous: [],
+      next,
+      source: "staged",
+      expected: ["write:same.js", "write:changed.js", "write:added.js"],
+      fail: "",
+    },
     { previous: old, next: old, source: "staged", expected: [], fail: "" },
-    { previous: old, next, source: "staged", expected: ["write:changed.js", "write:added.js", "remove:obsolete.js"], fail: "" },
-    { previous: old, next, source: "staged", expected: ["write:changed.js"], fail: "write:changed.js" },
-    { previous: old, next, source: "staged", expected: ["write:changed.js", "write:added.js", "remove:obsolete.js"], fail: "remove:obsolete.js" },
-    { previous: old, next: [], source: undefined, expected: ["remove:same.js", "remove:changed.js", "remove:obsolete.js"], fail: "" },
+    {
+      previous: old,
+      next,
+      source: "staged",
+      expected: ["write:changed.js", "write:added.js", "remove:obsolete.js"],
+      fail: "",
+    },
+    {
+      previous: old,
+      next,
+      source: "staged",
+      expected: ["write:changed.js"],
+      fail: "write:changed.js",
+    },
+    {
+      previous: old,
+      next,
+      source: "staged",
+      expected: ["write:changed.js", "write:added.js", "remove:obsolete.js"],
+      fail: "remove:obsolete.js",
+    },
+    {
+      previous: old,
+      next: [],
+      source: undefined,
+      expected: ["remove:same.js", "remove:changed.js", "remove:obsolete.js"],
+      fail: "",
+    },
     { previous: old, next, source: "staged", expected: [], fail: "inventory" },
   ]) {
     const observed: string[] = [];
@@ -35,23 +73,30 @@ export function test_package_build_file_publication(): void {
       if (effect === scenario.fail) throw failure;
     };
     const host: IHumanBuildFileHost = {
-      files: (directory: string) : { file: string; digest: string; }[] => {
+      files: (directory: string): { file: string; digest: string }[] => {
         if (scenario.fail === "inventory") throw failure;
         return directory === "published" ? scenario.previous : scenario.next;
       },
-      replace: (source: string, output: string, file: string) : void => {
+      replace: (source: string, output: string, file: string): void => {
         TestValidator.equals("staged byte authority", source, "staged");
         TestValidator.equals("stable output root", output, "published");
         perform("write:" + file);
       },
-      remove: (output: string, file: string) : void => {
+      remove: (output: string, file: string): void => {
         TestValidator.equals("obsolete membership owner", output, "published");
         perform("remove:" + file);
       },
     };
     let caught: unknown;
-    try { synchronizeHumanBuild(host, scenario.source, "published"); } catch (error) { caught = error; }
+    try {
+      synchronizeHumanBuild(host, scenario.source, "published");
+    } catch (error) {
+      caught = error;
+    }
     TestValidator.equals("file effect order", observed, scenario.expected);
-    TestValidator.predicate("original effect failure", scenario.fail ? caught === failure : caught === undefined);
+    TestValidator.predicate(
+      "original effect failure",
+      scenario.fail ? caught === failure : caught === undefined,
+    );
   }
 }

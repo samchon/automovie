@@ -1,8 +1,13 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieDrawing, IAutoMovieDrawingGap, IAutoMovieDrawingView } from "@automovie/interface";
 import {
   autoMovieDrawingToSvg,
   deriveAutoMovieDrawing,
 } from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawing,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingView,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -122,7 +127,10 @@ export function test_drawing_svg_sidecar(): void {
       },
     ],
   });
-  const drawing: IAutoMovieDrawing = deriveAutoMovieDrawing({ environment, view });
+  const drawing: IAutoMovieDrawing = deriveAutoMovieDrawing({
+    environment,
+    view,
+  });
   const svg: string = autoMovieDrawingToSvg({ drawing, view });
   const lines: string[] = svg.split("\n");
 
@@ -147,7 +155,7 @@ export function test_drawing_svg_sidecar(): void {
   TestValidator.equals(
     "a cut line is placed by the scale and the flip, and says what drew it",
     lines.find(
-      (line: string) : boolean =>
+      (line: string): boolean =>
         line.includes('data-owner="north-wall"') &&
         line.includes('data-role="cut"'),
     ),
@@ -163,7 +171,7 @@ export function test_drawing_svg_sidecar(): void {
     namedFacts([
       [
         "the four roles carry the four authored weights",
-        () : boolean =>
+        (): boolean =>
           (
             [
               ["cut", "0.500"],
@@ -171,34 +179,42 @@ export function test_drawing_svg_sidecar(): void {
               ["overhead", "0.180"],
               ["hidden", "0.130"],
             ] as const
-          ).every(([role, weight]: readonly ["cut", "0.500"] | readonly ["projected", "0.250"] | readonly ["overhead", "0.180"] | readonly ["hidden", "0.130"]) : boolean =>
-            lines.some(
-              (line: string) : boolean =>
-                line.includes(`data-role="${role}"`) &&
-                line.includes(`stroke-width="${weight}"`),
-            ),
+          ).every(
+            ([role, weight]:
+              | readonly ["cut", "0.500"]
+              | readonly ["projected", "0.250"]
+              | readonly ["overhead", "0.180"]
+              | readonly ["hidden", "0.130"]): boolean =>
+              lines.some(
+                (line: string): boolean =>
+                  line.includes(`data-role="${role}"`) &&
+                  line.includes(`stroke-width="${weight}"`),
+              ),
           ),
       ],
       [
         "overhead and hidden dash and cut and projected do not",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.includes('data-role="overhead"') &&
               line.includes('stroke-dasharray="3.000,1.500"'),
           ) &&
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.includes('data-role="hidden"') &&
               line.includes('stroke-dasharray="1.000,1.000"'),
           ) &&
           lines
             .filter(
-              (line: string) : boolean =>
+              (line: string): boolean =>
                 line.includes('data-role="cut"') ||
                 line.includes('data-role="projected"'),
             )
-            .every((line: string) : boolean => line.includes("stroke-dasharray") === false),
+            .every(
+              (line: string): boolean =>
+                line.includes("stroke-dasharray") === false,
+            ),
       ],
     ]),
     {
@@ -213,9 +229,9 @@ export function test_drawing_svg_sidecar(): void {
     namedFacts([
       [
         "a region names its space, cell, kind, finish and exact area",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <polygon class="automovie-region"') &&
               line.includes('data-space="hall"') &&
               line.includes('data-cell="hall-cell"') &&
@@ -226,9 +242,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a measured opening is drawn as its own void outline",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <polygon class="automovie-opening"') &&
               line.includes('data-opening="oculus"') &&
               line.includes('data-basis="profile"') &&
@@ -238,9 +254,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "an opening nothing proves is still carried, as an empty marker",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <g class="automovie-opening"') &&
               line.includes('data-opening="vent"') &&
               line.includes('data-basis="none"') &&
@@ -250,9 +266,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a resolved dimension carries its measure and its value",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <line class="automovie-dimension"') &&
               line.includes('data-id="wall-length"') &&
               line.includes('data-status="resolved"') &&
@@ -262,9 +278,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a stale dimension carries its reason and no geometry",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <g class="automovie-dimension"') &&
               line.includes('data-id="lost"') &&
               line.includes('data-status="stale"') &&
@@ -274,9 +290,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a resolved note emits its id, text height and text element closure",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <text class="automovie-annotation"') &&
               line.includes('data-id="note"') &&
               line.includes('font-size="2.500"') &&
@@ -285,8 +301,8 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a note containing markup is escaped into text, not into markup",
-        () : boolean =>
-          lines.some((line: string) : boolean =>
+        (): boolean =>
+          lines.some((line: string): boolean =>
             line.includes(
               ">blockwork &lt;&quot;fair-faced&quot;&gt; &amp; sealed</text>",
             ),
@@ -294,9 +310,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a stale note emits a group with its id and stale status",
-        () : boolean =>
+        (): boolean =>
           lines.some(
-            (line: string) : boolean =>
+            (line: string): boolean =>
               line.startsWith('  <g class="automovie-annotation"') &&
               line.includes('data-id="lost-note"') &&
               line.includes('data-status="stale"'),
@@ -304,10 +320,10 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "every gap the drawing declared reaches the sheet",
-        () : boolean =>
-          drawing.gaps.every((gap: IAutoMovieDrawingGap) : boolean =>
+        (): boolean =>
+          drawing.gaps.every((gap: IAutoMovieDrawingGap): boolean =>
             lines.some(
-              (line: string) : boolean =>
+              (line: string): boolean =>
                 line.startsWith('  <g class="automovie-gap"') &&
                 line.includes(`data-subject="${gap.subject}"`) &&
                 line.includes(`data-status="${gap.status}"`),
@@ -316,7 +332,8 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "an apostrophe in a declared reason is escaped rather than closing an attribute",
-        () : boolean => lines.some((line: string) : boolean => line.includes("&apos;")),
+        (): boolean =>
+          lines.some((line: string): boolean => line.includes("&apos;")),
       ],
     ]),
     {
@@ -355,9 +372,9 @@ export function test_drawing_svg_sidecar(): void {
     namedFacts([
       [
         "another view's pen is refused rather than silently applied",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : string =>
+            (): string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: drawingView({ id: "some-other-view" }),
@@ -367,9 +384,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a zero stroke weight is refused at the role that carries it",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : string =>
+            (): string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -382,9 +399,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a non-finite stroke weight is refused",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : string =>
+            (): string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -397,9 +414,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a negative dash is refused at the role that carries it",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : string =>
+            (): string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, {
@@ -412,9 +429,9 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a zero text height is refused",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : string =>
+            (): string =>
               autoMovieDrawingToSvg({
                 drawing,
                 view: withStyle(view, { ...drawingStyle(), textHeight: 0 }),
@@ -424,7 +441,7 @@ export function test_drawing_svg_sidecar(): void {
       ],
       [
         "a solid pen with no dash at all is accepted",
-        () : boolean =>
+        (): boolean =>
           autoMovieDrawingToSvg({
             drawing,
             view: withStyle(view, {
@@ -446,7 +463,10 @@ export function test_drawing_svg_sidecar(): void {
 }
 
 /** The same view holding a different pen. */
-const withStyle: (view: IAutoMovieDrawingView, style: IAutoMovieDrawingView["style"]) => IAutoMovieDrawingView = (
+const withStyle: (
+  view: IAutoMovieDrawingView,
+  style: IAutoMovieDrawingView["style"],
+) => IAutoMovieDrawingView = (
   view: IAutoMovieDrawingView,
   style: IAutoMovieDrawingView["style"],
 ): IAutoMovieDrawingView => ({ ...view, style });

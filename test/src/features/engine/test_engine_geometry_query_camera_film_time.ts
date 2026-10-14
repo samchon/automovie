@@ -12,11 +12,16 @@ import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/createModel";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+
 /** A 200 by 100 frame: aspect two, 24 frames per second, no crop. */
 const production: Pick<IAutoMovieProductionDesign, "frameFormat"> = {
   frameFormat: { width: 200, height: 100, fps: 24, colorSpace: "srgb" },
 };
-const root: (id: string, z: number, x?: number) => IAutoMovieSceneNode = (id: string, z: number, x: number = 0): IAutoMovieSceneNode => ({
+const root: (id: string, z: number, x?: number) => IAutoMovieSceneNode = (
+  id: string,
+  z: number,
+  x: number = 0,
+): IAutoMovieSceneNode => ({
   id,
   model: "prop",
   transform: {
@@ -32,7 +37,9 @@ const root: (id: string, z: number, x?: number) => IAutoMovieSceneNode = (id: st
  * view, so a root `depth` metres ahead maps `x` to `x / (2 * depth)` across the
  * frame and `y` to `y / depth` up it.
  */
-const look: (cameraId?: string) => IAutoMovieCompiledShotSource = (cameraId: string = "cam"): IAutoMovieCompiledShotSource => ({
+const look: (cameraId?: string) => IAutoMovieCompiledShotSource = (
+  cameraId: string = "cam",
+): IAutoMovieCompiledShotSource => ({
   eventSamples: [],
   scene: {
     id: "look-scene",
@@ -148,27 +155,32 @@ function measure(props: {
     "id" | "fps" | "totalFrames" | "segments"
   > | null;
 }): Record<string, number | string | boolean> {
-  const result: ReturnType<typeof measureAutoMovieGeometry> = measureAutoMovieGeometry({
-    request: props.request,
-    design: {
-      production:
-        props.production === undefined ? production : props.production,
-      world: null,
-      formations: new Map(),
-      shots: props.contracts ?? new Map([["look", contract]]),
-    },
-    compiled: props.compiled ?? new Map([["look", look()]]),
-    timeline:
-      props.timeline === undefined
-        ? timeline([OPENING, CLOSING])
-        : props.timeline,
-  });
+  const result: ReturnType<typeof measureAutoMovieGeometry> =
+    measureAutoMovieGeometry({
+      request: props.request,
+      design: {
+        production:
+          props.production === undefined ? production : props.production,
+        world: null,
+        formations: new Map(),
+        shots: props.contracts ?? new Map([["look", contract]]),
+      },
+      compiled: props.compiled ?? new Map([["look", look()]]),
+      timeline:
+        props.timeline === undefined
+          ? timeline([OPENING, CLOSING])
+          : props.timeline,
+    });
   if (result.kind !== "measurement")
     throw new Error("a measurement was expected");
   return result.values;
 }
 
-const camera: (subjects: string[], time?: number, shot?: string) => AutoMovieGeometryQuery = (
+const camera: (
+  subjects: string[],
+  time?: number,
+  shot?: string,
+) => AutoMovieGeometryQuery = (
   subjects: string[],
   time: number = 1,
   shot: string = "look",
@@ -179,7 +191,9 @@ const camera: (subjects: string[], time?: number, shot?: string) => AutoMovieGeo
   subjects,
 });
 
-const at: (value: { frame: number } | { seconds: number }) => AutoMovieGeometryQuery = (
+const at: (
+  value: { frame: number } | { seconds: number },
+) => AutoMovieGeometryQuery = (
   value: { frame: number } | { seconds: number },
 ): AutoMovieGeometryQuery => ({
   query: "film-time",
@@ -222,13 +236,16 @@ export function test_engine_geometry_query_camera_film_time(): void {
   const framed: ReturnType<typeof measure> = measure({
     request: camera(["front", "wide", "behind", "distant", "absent"]),
   });
-  const nothing: ReturnType<typeof measure> = measure({ request: camera(["absent"]) });
+  const nothing: ReturnType<typeof measure> = measure({
+    request: camera(["absent"]),
+  });
   TestValidator.equals(
     "a camera query counts projected subject roots by hand geometry",
     namedFacts([
       [
         "requested",
-        (): boolean => framed.requestedSubjects === 5 && framed.missingSubjects === 1,
+        (): boolean =>
+          framed.requestedSubjects === 5 && framed.missingSubjects === 1,
       ],
       ["resolved", (): boolean => framed.resolvedSubjectRootPoints === 4],
       [
@@ -244,7 +261,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
       ],
       [
         "margin",
-        (): boolean => nclose(framed.minimumRootPointMargin as number, -0.5, 1e-12),
+        (): boolean =>
+          nclose(framed.minimumRootPointMargin as number, -0.5, 1e-12),
       ],
       [
         "occlusion",
@@ -279,7 +297,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "absentShot",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front"], 1, "gone") }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], 1, "gone") }),
             'Shot "gone" is not current compiled output',
           ),
       ],
@@ -287,7 +306,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "absentContract",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front"]), contracts: new Map() }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"]), contracts: new Map() }),
             'Shot "look" is not current compiled output',
           ),
       ],
@@ -295,7 +315,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "late",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front"], 5) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], 5) }),
             'Camera sample time 5 is outside shot "look" duration 0..4',
           ),
       ],
@@ -303,7 +324,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "early",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front"], -1) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"], -1) }),
             "Camera sample time -1 is outside",
           ),
       ],
@@ -319,7 +341,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "repeated",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front", "front"]) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front", "front"]) }),
             "non-empty list of unique compiled scene-node ids",
           ),
       ],
@@ -339,7 +362,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "noProduction",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: camera(["front"]), production: null }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: camera(["front"]), production: null }),
             "requires current production frame format",
           ),
       ],
@@ -356,9 +380,15 @@ export function test_engine_geometry_query_camera_film_time(): void {
     },
   );
 
-  const dissolve: ReturnType<typeof measure> = measure({ request: at({ frame: 20 }) });
-  const halfSecond: ReturnType<typeof measure> = measure({ request: at({ seconds: 0.5 }) });
-  const last: ReturnType<typeof measure> = measure({ request: at({ frame: 47 }) });
+  const dissolve: ReturnType<typeof measure> = measure({
+    request: at({ frame: 20 }),
+  });
+  const halfSecond: ReturnType<typeof measure> = measure({
+    request: at({ seconds: 0.5 }),
+  });
+  const last: ReturnType<typeof measure> = measure({
+    request: at({ frame: 47 }),
+  });
   TestValidator.equals(
     "a film time resolves to the segment that owns its frame",
     namedFacts([
@@ -420,7 +450,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "offGrid",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ frame: 1.5 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 1.5 }) }),
             unresolved,
           ),
       ],
@@ -428,7 +459,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "offGridSeconds",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ seconds: 1 / 48 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ seconds: 1 / 48 }) }),
             unresolved,
           ),
       ],
@@ -436,7 +468,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "beforeFirst",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ frame: -1 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: -1 }) }),
             unresolved,
           ),
       ],
@@ -444,7 +477,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "pastLast",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ frame: 48 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 48 }) }),
             unresolved,
           ),
       ],
@@ -452,7 +486,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "notExact",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ frame: 2 ** 60 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 2 ** 60 }) }),
             unresolved,
           ),
       ],
@@ -481,7 +516,8 @@ export function test_engine_geometry_query_camera_film_time(): void {
         "noTimeline",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ request: at({ frame: 0 }), timeline: null }),
+            (): ReturnType<typeof measure> =>
+              measure({ request: at({ frame: 0 }), timeline: null }),
             "Film-time measurement requires the canonical film timeline of the current compile",
           ),
       ],

@@ -1,5 +1,11 @@
-import type { IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieDrawingSchedule, IAutoMovieDrawingScheduleRow } from "@automovie/interface";
 import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
+import type {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingSchedule,
+  IAutoMovieDrawingScheduleRow,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingEnvironment } from "../internal/drawingFixtures";
@@ -35,42 +41,58 @@ import { namedFacts, throwsError } from "../internal/predicates";
  */
 export function test_drawing_subject_location(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const scheduleOf: (subject: "space" | "opening" | "connector") => IAutoMovieDrawingSchedule = (subject: "space" | "opening" | "connector") : IAutoMovieDrawingSchedule =>
+  const scheduleOf: (
+    subject: "space" | "opening" | "connector",
+  ) => IAutoMovieDrawingSchedule = (
+    subject: "space" | "opening" | "connector",
+  ): IAutoMovieDrawingSchedule =>
     deriveAutoMovieDrawingSchedule({ environment, subject });
 
   const openings: IAutoMovieDrawingSchedule = scheduleOf("opening");
   const connectors: IAutoMovieDrawingSchedule = scheduleOf("connector");
-  TestValidator.equals("authored subject populations cannot vanish", [openings.rows.length, connectors.rows.length, scheduleOf("space").rows.length], [3, 2, 3]);
+  TestValidator.equals(
+    "authored subject populations cannot vanish",
+    [
+      openings.rows.length,
+      connectors.rows.length,
+      scheduleOf("space").rows.length,
+    ],
+    [3, 2, 3],
+  );
 
   TestValidator.equals(
     "an opening is located by the separation it is cut into",
     namedFacts([
       [
         "every row states an opening place",
-        () : boolean => openings.rows.every((row: IAutoMovieDrawingScheduleRow) : boolean => row.place?.kind === "opening"),
+        (): boolean =>
+          openings.rows.every(
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
+              row.place?.kind === "opening",
+          ),
       ],
       [
         "naming its host boundary",
-        () : boolean =>
+        (): boolean =>
           openings.rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "opening" && row.place.boundary === "north",
           ),
       ],
       [
         "and the regions that boundary joins",
-        () : boolean =>
+        (): boolean =>
           openings.rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "opening" &&
               row.place.separates.join() === "hall",
           ),
       ],
       [
         "and the building unit those regions belong to",
-        () : boolean =>
+        (): boolean =>
           openings.rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "opening" && row.place.building === "unit-a",
           ),
       ],
@@ -78,9 +100,11 @@ export function test_drawing_subject_location(): void {
       // anyone who only checks that the status stopped being wrong.
       [
         "and owes no location gap",
-        () : boolean =>
-          openings.gaps.some((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "opening-location") ===
-          false,
+        (): boolean =>
+          openings.gaps.some(
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "opening-location",
+          ) === false,
       ],
     ]),
     {
@@ -97,34 +121,39 @@ export function test_drawing_subject_location(): void {
     namedFacts([
       [
         "every row states a connector place",
-        () : boolean => connectors.rows.every((row: IAutoMovieDrawingScheduleRow) : boolean => row.place?.kind === "connector"),
+        (): boolean =>
+          connectors.rows.every(
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
+              row.place?.kind === "connector",
+          ),
       ],
       // Both ends, ascending. The fixture's runs are two-ended, so this states
       // the pair; the derivation reads landings the same way, which is what
       // makes a lift serving four floors report four rather than two.
       [
         "naming both of its stops",
-        () : boolean =>
+        (): boolean =>
           connectors.rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "connector" &&
               row.place.stops.join() === "hall,roof-deck",
           ),
       ],
       [
         "and the building unit they belong to",
-        () : boolean =>
+        (): boolean =>
           connectors.rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "connector" &&
               row.place.building === "unit-a",
           ),
       ],
       [
         "and owes no location gap",
-        () : boolean =>
+        (): boolean =>
           connectors.gaps.some(
-            (gap: IAutoMovieDrawingGap) : boolean => gap.subject === "connector-location",
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === "connector-location",
           ) === false,
       ],
     ]),
@@ -141,16 +170,19 @@ export function test_drawing_subject_location(): void {
     namedFacts([
       [
         "every room row is discriminated as a space",
-        () : boolean =>
-          scheduleOf("space").rows.every((row: IAutoMovieDrawingScheduleRow) : boolean => row.place?.kind === "space"),
+        (): boolean =>
+          scheduleOf("space").rows.every(
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
+              row.place?.kind === "space",
+          ),
       ],
       // The union's cost, if it had one, would land here: a variant that lost a
       // field would still satisfy every assertion above.
       [
         "and still carries what a room answers with",
-        () : boolean =>
+        (): boolean =>
           scheduleOf("space").rows.every(
-            (row: IAutoMovieDrawingScheduleRow) : boolean =>
+            (row: IAutoMovieDrawingScheduleRow): boolean =>
               row.place?.kind === "space" &&
               typeof row.place.building === "string" &&
               Array.isArray(row.place.contents) &&
@@ -171,12 +203,15 @@ export function test_drawing_subject_location(): void {
   TestValidator.predicate(
     "a boundary that cites no region is refused before a schedule sees it",
     throwsError(
-      () : IAutoMovieDrawingSchedule =>
+      (): IAutoMovieDrawingSchedule =>
         deriveAutoMovieDrawingSchedule({
           environment: {
             ...environment,
-            boundaries: environment.boundaries.map((boundary: IAutoMovieBuiltBoundary) : IAutoMovieBuiltBoundary =>
-              boundary.id === "north" ? { ...boundary, spaces: [] } : boundary,
+            boundaries: environment.boundaries.map(
+              (boundary: IAutoMovieBuiltBoundary): IAutoMovieBuiltBoundary =>
+                boundary.id === "north"
+                  ? { ...boundary, spaces: [] }
+                  : boundary,
             ),
           },
           subject: "opening",

@@ -125,8 +125,7 @@ export function test_archetypes_registry(): void {
       ],
       [
         "cased",
-        (): boolean =>
-          cased.size === 2 && cased.get("Figure")?.id === "Figure",
+        (): boolean => cased.size === 2 && cased.get("Figure")?.id === "Figure",
       ],
     ]),
     { repeated: true, cased: true },

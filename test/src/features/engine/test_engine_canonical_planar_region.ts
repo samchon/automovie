@@ -1,5 +1,6 @@
 import {
-  type IAutoMovieFootprintRing, type IAutoMovieRegionTriangulation,
+  type IAutoMovieFootprintRing,
+  type IAutoMovieRegionTriangulation,
   autoMoviePlanarRegionFailure,
   footprintConvexPieces,
   footprintRing,
@@ -11,13 +12,13 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const square: { x: number; y: number; }[] = [
+const square: { x: number; y: number }[] = [
   { x: 0, y: 0 },
   { x: 4, y: 0 },
   { x: 4, y: 4 },
   { x: 0, y: 4 },
 ];
-const crossing: { x: number; y: number; }[] = [
+const crossing: { x: number; y: number }[] = [
   { x: 0, y: 0 },
   { x: 4, y: 4 },
   { x: 0, y: 4 },
@@ -78,15 +79,26 @@ export function test_engine_canonical_planar_region(): void {
     ),
   );
 
-  const failure: string | null = autoMoviePlanarRegionFailure({ outer: crossing });
+  const failure: string | null = autoMoviePlanarRegionFailure({
+    outer: crossing,
+  });
   TestValidator.equals(
     "the canonical boundary names a self-crossing ring",
     typeof failure === "string" && failure.includes("crosses itself"),
     true,
   );
-  const footprint: { outer: IAutoMovieFootprintRing; holes: never[]; } = {
+  const footprint: { outer: IAutoMovieFootprintRing; holes: never[] } = {
     outer: footprintRing(
-      crossing.map((point: { x: number; y: number; }) : { x: number; y: number; z: number; } => ({ x: point.x, y: 0, z: point.y })),
+      crossing.map(
+        (point: {
+          x: number;
+          y: number;
+        }): { x: number; y: number; z: number } => ({
+          x: point.x,
+          y: 0,
+          z: point.y,
+        }),
+      ),
     ),
     holes: [],
   };
@@ -94,18 +106,28 @@ export function test_engine_canonical_planar_region(): void {
     "constructors refuse the same defect while the query-safe footprint returns no invented pieces",
     {
       procedural: throwsError(
-        () : IAutoMovieRegionTriangulation => triangulateAutoMovieRegion({ outer: crossing }),
+        (): IAutoMovieRegionTriangulation =>
+          triangulateAutoMovieRegion({ outer: crossing }),
         "crosses itself",
       ),
       drawing: throwsError(
-        () : [number, number, number][] => triangulateAutoMoviePolygon(crossing),
+        (): [number, number, number][] => triangulateAutoMoviePolygon(crossing),
         "crosses itself",
       ),
       footprint: footprintConvexPieces(footprint).length,
       staleArea: footprintConvexPieces({
         outer: {
           ...footprintRing(
-            square.map((point: { x: number; y: number; }) : { x: number; y: number; z: number; } => ({ x: point.x, y: 0, z: point.y })),
+            square.map(
+              (point: {
+                x: number;
+                y: number;
+              }): { x: number; y: number; z: number } => ({
+                x: point.x,
+                y: 0,
+                z: point.y,
+              }),
+            ),
           ),
           doubleArea: 0,
         },
@@ -236,7 +258,8 @@ export function test_engine_canonical_planar_region(): void {
   TestValidator.equals(
     "drawing retains its established short-ring diagnostic",
     throwsError(
-      () : [number, number, number][] => triangulateAutoMoviePolygon(square.slice(0, 2)),
+      (): [number, number, number][] =>
+        triangulateAutoMoviePolygon(square.slice(0, 2)),
       "needs at least 3 corners to triangulate",
     ),
     true,
@@ -245,7 +268,7 @@ export function test_engine_canonical_planar_region(): void {
   // An L of 4 x 4 less its 2 x 2 upper-right quarter has area 12. A clipper
   // that took the clockwise ring's convex corners for reflex ones would clip
   // the reflex corner as an ear, covering the missing quarter.
-  const ell: { x: number; y: number; }[] = [
+  const ell: { x: number; y: number }[] = [
     { x: 0, y: 0 },
     { x: 4, y: 0 },
     { x: 4, y: 2 },
@@ -253,24 +276,30 @@ export function test_engine_canonical_planar_region(): void {
     { x: 2, y: 4 },
     { x: 0, y: 4 },
   ];
-  const tiling: (ring: { x: number; y: number; }[]) => number[] = (ring: typeof ell) : number[] =>
-    triangulateAutoMoviePolygon(ring).map(([a, b, c]: [number, number, number]) : number => {
-      const p: { x: number; y: number; } = ring[a]!;
-      const q: { x: number; y: number; } = ring[b]!;
-      const r: { x: number; y: number; } = ring[c]!;
-      return ((q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x)) / 2;
-    });
+  const tiling: (ring: { x: number; y: number }[]) => number[] = (
+    ring: typeof ell,
+  ): number[] =>
+    triangulateAutoMoviePolygon(ring).map(
+      ([a, b, c]: [number, number, number]): number => {
+        const p: { x: number; y: number } = ring[a]!;
+        const q: { x: number; y: number } = ring[b]!;
+        const r: { x: number; y: number } = ring[c]!;
+        return ((q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x)) / 2;
+      },
+    );
   TestValidator.predicate(
     "either winding of a concave ring has four counter-clockwise triangles totaling its area",
     test12ValuesClose(
-      [ell, [...ell].reverse()].map((ring: { x: number; y: number; }[]) : (number | boolean)[] => {
-        const areas: number[] = tiling(ring);
-        return [
-          areas.length,
-          areas.every((area: number) : boolean => area > 0),
-          areas.reduce((sum: number, area: number) : number => sum + area, 0),
-        ];
-      }),
+      [ell, [...ell].reverse()].map(
+        (ring: { x: number; y: number }[]): (number | boolean)[] => {
+          const areas: number[] = tiling(ring);
+          return [
+            areas.length,
+            areas.every((area: number): boolean => area > 0),
+            areas.reduce((sum: number, area: number): number => sum + area, 0),
+          ];
+        },
+      ),
       [
         [4, true, 12],
         [4, true, 12],

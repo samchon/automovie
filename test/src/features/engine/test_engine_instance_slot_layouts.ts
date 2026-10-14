@@ -1,7 +1,19 @@
-import { instanceSlot, type IAutoMovieInstanceSetPlacement } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieInstanceSetPlacement,
+  instanceSlot,
+} from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { INSTANCE_SLOT_TEST_ROAD as road } from "../internal/INSTANCE_SLOT_TEST_ROAD";
+import { instanceSlotTestExplicit } from "../internal/instanceSlotTestExplicit";
+import { instanceSlotTestLattice } from "../internal/instanceSlotTestLattice";
+import { instanceSlotTestOnRoad as onRoad } from "../internal/instanceSlotTestOnRoad";
+import { instanceSlotTestPlacement as placement } from "../internal/instanceSlotTestPlacement";
+import { instanceSlotTestScatter as scatter } from "../internal/instanceSlotTestScatter";
 import {
   namedFacts,
   nclose,
@@ -9,12 +21,6 @@ import {
   throwsError,
   vclose,
 } from "../internal/predicates";
-import { instanceSlotTestPlacement as placement } from "../internal/instanceSlotTestPlacement";
-import { INSTANCE_SLOT_TEST_ROAD as road } from "../internal/INSTANCE_SLOT_TEST_ROAD";
-import { instanceSlotTestOnRoad as onRoad } from "../internal/instanceSlotTestOnRoad";
-import { instanceSlotTestScatter as scatter } from "../internal/instanceSlotTestScatter";
-import { instanceSlotTestLattice } from "../internal/instanceSlotTestLattice";
-import { instanceSlotTestExplicit } from "../internal/instanceSlotTestExplicit";
 
 /**
  * One instance member stands where its layout law puts it, from the compiled
@@ -72,7 +78,8 @@ export function test_engine_instance_slot_layouts(): void {
       ],
       [
         "node",
-        (): boolean => instanceSlot(grid, 4).node === "instance:trees:slot:000004",
+        (): boolean =>
+          instanceSlot(grid, 4).node === "instance:trees:slot:000004",
       ],
     ]),
     { firstColumn: true, secondRowMiddle: true, node: true },
@@ -108,11 +115,13 @@ export function test_engine_instance_slot_layouts(): void {
   // 3. Scatter stays in its disk; the heading only rotates it.
   const level: IAutoMovieVector3[] = Array.from(
     { length: 64 },
-    (_: unknown, slot: number): IAutoMovieVector3 => instanceSlot(scatter(0), slot).position,
+    (_: unknown, slot: number): IAutoMovieVector3 =>
+      instanceSlot(scatter(0), slot).position,
   );
   const turned: IAutoMovieVector3[] = Array.from(
     { length: 64 },
-    (_: unknown, slot: number): IAutoMovieVector3 => instanceSlot(scatter(90), slot).position,
+    (_: unknown, slot: number): IAutoMovieVector3 =>
+      instanceSlot(scatter(90), slot).position,
   );
   TestValidator.equals(
     "a scatter member stays inside its radius and turns about the anchor",
@@ -121,7 +130,8 @@ export function test_engine_instance_slot_layouts(): void {
         "insideRadius",
         (): boolean =>
           level.every(
-            (point: IAutoMovieVector3): boolean => Math.hypot(point.x - 3, point.z - 4) <= 5 + 1e-12,
+            (point: IAutoMovieVector3): boolean =>
+              Math.hypot(point.x - 3, point.z - 4) <= 5 + 1e-12,
           ),
       ],
       [
@@ -140,15 +150,24 @@ export function test_engine_instance_slot_layouts(): void {
   );
 
   // 4. Explicit members.
-  const quarterAboutX: IAutoMovieQuaternion = { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
-  const explicit: IAutoMovieInstanceSetPlacement = instanceSlotTestExplicit(quarterAboutX);
+  const quarterAboutX: IAutoMovieQuaternion = {
+    x: Math.SQRT1_2,
+    y: 0,
+    z: 0,
+    w: Math.SQRT1_2,
+  };
+  const explicit: IAutoMovieInstanceSetPlacement =
+    instanceSlotTestExplicit(quarterAboutX);
   const oak: ReturnType<typeof instanceSlot> = instanceSlot(explicit, 0);
   const elm: ReturnType<typeof instanceSlot> = instanceSlot(explicit, 1);
   TestValidator.equals(
     "an explicit member keeps what it states and a sibling keeps the set's values",
     namedFacts([
       ["node", (): boolean => oak.node === "instance:trees:oak"],
-      ["position", (): boolean => vclose(oak.position, { x: 11, y: 2, z: 3 }, 1e-12)],
+      [
+        "position",
+        (): boolean => vclose(oak.position, { x: 11, y: 2, z: 3 }, 1e-12),
+      ],
       ["rotation", (): boolean => qclose(oak.rotation!, quarterAboutX, 1e-12)],
       ["scale", (): boolean => vclose(oak.scale3!, { x: 2, y: 3, z: 4 }, 0)],
       ["palette", (): boolean => oak.palette === "#aa0000"],
@@ -285,12 +304,18 @@ export function test_engine_instance_slot_layouts(): void {
       [
         "pastCount",
         (): boolean =>
-          throwsError((): ReturnType<typeof instanceSlot> => instanceSlot(grid, 6), "slot 6 is outside 0..5"),
+          throwsError(
+            (): ReturnType<typeof instanceSlot> => instanceSlot(grid, 6),
+            "slot 6 is outside 0..5",
+          ),
       ],
       [
         "negative",
         (): boolean =>
-          throwsError((): ReturnType<typeof instanceSlot> => instanceSlot(grid, -1), "slot -1 is outside 0..5"),
+          throwsError(
+            (): ReturnType<typeof instanceSlot> => instanceSlot(grid, -1),
+            "slot -1 is outside 0..5",
+          ),
       ],
       [
         "fractional",
@@ -305,7 +330,8 @@ export function test_engine_instance_slot_layouts(): void {
         "routeMissing",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(onRoad({ route: null }), 0),
+            (): ReturnType<typeof instanceSlot> =>
+              instanceSlot(onRoad({ route: null }), 0),
             unavailable,
           ),
       ],
@@ -313,7 +339,8 @@ export function test_engine_instance_slot_layouts(): void {
         "routeRenamed",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(onRoad({ route: { ...road, id: "lane" } }), 0),
+            (): ReturnType<typeof instanceSlot> =>
+              instanceSlot(onRoad({ route: { ...road, id: "lane" } }), 0),
             unavailable,
           ),
       ],

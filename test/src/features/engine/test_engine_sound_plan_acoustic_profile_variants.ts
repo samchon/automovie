@@ -1,9 +1,5 @@
-import {
-  deriveProductionSoundPlan,
-} from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
+import { deriveProductionSoundPlan } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
 
 import { createSoundPropagationTestInputs } from "../internal/audio/createSoundPropagationTestInputs";
 
@@ -20,9 +16,16 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh planner inputs/results through the existing fixture, with no asset read, decoder, native solver/audio device, renderer, browser or GPU and no foreign-method replacement.
  */
 export function test_engine_sound_plan_acoustic_profile_variants(): void {
-  const { digest, minimalTimeline, minimalContract, minimalCompiled }: ReturnType<typeof createSoundPropagationTestInputs> = createSoundPropagationTestInputs();
+  const {
+    digest,
+    minimalTimeline,
+    minimalContract,
+    minimalCompiled,
+  }: ReturnType<typeof createSoundPropagationTestInputs> =
+    createSoundPropagationTestInputs();
 
-  const derivedPlan: ReturnType<typeof deriveProductionSoundPlan> = deriveProductionSoundPlan({
+  const derivedPlan: ReturnType<typeof deriveProductionSoundPlan> =
+    deriveProductionSoundPlan({
       timeline: minimalTimeline(),
       contracts: new Map([["shot", minimalContract()]]),
       compiled: new Map([["shot", minimalCompiled()]]),
@@ -33,7 +36,8 @@ export function test_engine_sound_plan_acoustic_profile_variants(): void {
       },
     });
 
-  const providerlessPlan: ReturnType<typeof deriveProductionSoundPlan> = deriveProductionSoundPlan({
+  const providerlessPlan: ReturnType<typeof deriveProductionSoundPlan> =
+    deriveProductionSoundPlan({
       timeline: minimalTimeline(),
       contracts: new Map([["shot", minimalContract()]]),
       compiled: new Map([["shot", minimalCompiled()]]),
@@ -48,17 +52,17 @@ export function test_engine_sound_plan_acoustic_profile_variants(): void {
     });
 
   TestValidator.equals(
-  "derived and providerless acoustic profiles retain their declared variants",
-  {
-  derivedProfile: derivedPlan.acousticProfile?.kind,
-  providerlessProfile:
-          providerlessPlan.acousticProfile?.kind === "adopted-response"
-            ? providerlessPlan.acousticProfile.provider
-            : "wrong"
-  },
-  {
-  derivedProfile: "derived-room-analysis",
-  providerlessProfile: undefined
-  }
+    "derived and providerless acoustic profiles retain their declared variants",
+    {
+      derivedProfile: derivedPlan.acousticProfile?.kind,
+      providerlessProfile:
+        providerlessPlan.acousticProfile?.kind === "adopted-response"
+          ? providerlessPlan.acousticProfile.provider
+          : "wrong",
+    },
+    {
+      derivedProfile: "derived-room-analysis",
+      providerlessProfile: undefined,
+    },
   );
 }

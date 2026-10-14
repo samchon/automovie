@@ -52,10 +52,11 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns caller-local formation runtimes, maps and query callbacks through the existing canonical fixtures; it opens no file, render host, browser or GPU and does not mutate installed consumers or replace foreign methods.
  */
 export function test_engine_geometry_query_formation(): void {
-  const grounded: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
-    formation: unit(),
-    surfaces: WORLD.surfaces,
-  });
+  const grounded: ReturnType<typeof materializeCompiledFormation> =
+    materializeCompiledFormation({
+      formation: unit(),
+      surfaces: WORLD.surfaces,
+    });
   const march: Map<string, IAutoMovieCompiledShotSource> = new Map([
     ["march", compiledShot({ id: "march", runtime: grounded })],
   ]);
@@ -83,16 +84,22 @@ export function test_engine_geometry_query_formation(): void {
     },
   );
 
-  const raisedDesign: ReturnType<typeof unit> = unit({ anchor: { x: 0, y: groundAt(0) + 1, z: 0 } });
-  const raised: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
-    formation: raisedDesign,
-    surfaces: WORLD.surfaces,
+  const raisedDesign: ReturnType<typeof unit> = unit({
+    anchor: { x: 0, y: groundAt(0) + 1, z: 0 },
   });
-  const boggedDesign: ReturnType<typeof unit> = unit({ anchor: { x: 100, y: 0, z: 0 } });
-  const bogged: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
-    formation: boggedDesign,
-    surfaces: WORLD.surfaces,
+  const raised: ReturnType<typeof materializeCompiledFormation> =
+    materializeCompiledFormation({
+      formation: raisedDesign,
+      surfaces: WORLD.surfaces,
+    });
+  const boggedDesign: ReturnType<typeof unit> = unit({
+    anchor: { x: 100, y: 0, z: 0 },
   });
+  const bogged: ReturnType<typeof materializeCompiledFormation> =
+    materializeCompiledFormation({
+      formation: boggedDesign,
+      surfaces: WORLD.surfaces,
+    });
   TestValidator.equals(
     "a unit off its ground is reported and a removed member is not",
     namedFacts([
@@ -162,9 +169,15 @@ export function test_engine_geometry_query_formation(): void {
       ],
       [
         "chunks",
-        (): boolean => onGround.chunkCount === 1 && onGround.participatingShots === 1,
+        (): boolean =>
+          onGround.chunkCount === 1 && onGround.participatingShots === 1,
       ],
-      ["extent", (): boolean => nclose(onGround.width as number, 4, 0) && nclose(onGround.depth as number, 3, 0)],
+      [
+        "extent",
+        (): boolean =>
+          nclose(onGround.width as number, 4, 0) &&
+          nclose(onGround.depth as number, 3, 0),
+      ],
       [
         "centroid",
         (): boolean =>
@@ -188,7 +201,10 @@ export function test_engine_geometry_query_formation(): void {
           nclose(onGround.depthSpacingScale as number, 1, 0) &&
           nclose(onGround.facingDeg as number, 0, 0),
       ],
-      ["routeClearance", (): boolean => nclose(onGround.routeClearance as number, 10 - 4, 0)],
+      [
+        "routeClearance",
+        (): boolean => nclose(onGround.routeClearance as number, 10 - 4, 0),
+      ],
       [
         "identity",
         (): boolean =>
@@ -198,7 +214,11 @@ export function test_engine_geometry_query_formation(): void {
       [
         "distance",
         (): boolean =>
-          nclose(onGround.nearestDistance as number, onGround.farthestDistance as number, 0) &&
+          nclose(
+            onGround.nearestDistance as number,
+            onGround.farthestDistance as number,
+            0,
+          ) &&
           nclose(
             onGround.nearestDistance as number,
             Math.hypot(0, 5.75 - 6, 1.5 - 20),
@@ -259,15 +279,23 @@ export function test_engine_geometry_query_formation(): void {
       [
         "noRoutes",
         (): boolean =>
-          nclose(measure({ compiled: march, world: { ...WORLD, routes: [] } })
-            .routeClearance as number, 0, 0),
+          nclose(
+            measure({ compiled: march, world: { ...WORLD, routes: [] } })
+              .routeClearance as number,
+            0,
+            0,
+          ),
       ],
       [
         "noWorld",
         (): boolean => {
-          const measured: ReturnType<typeof measure> = measure({ compiled: march, world: null });
+          const measured: ReturnType<typeof measure> = measure({
+            compiled: march,
+            world: null,
+          });
           return (
-            nclose(measured.routeClearance as number, 0, 0) && measured.groundViolations === 3
+            nclose(measured.routeClearance as number, 0, 0) &&
+            measured.groundViolations === 3
           );
         },
       ],
@@ -289,7 +317,9 @@ export function test_engine_geometry_query_formation(): void {
       ],
       [
         "twoParticipating",
-        (): boolean => twoShots.participatingShots === 2 && nclose(twoShots.sampledTime as number, 1, 0),
+        (): boolean =>
+          twoShots.participatingShots === 2 &&
+          nclose(twoShots.sampledTime as number, 1, 0),
       ],
       ["performedBanner", (): boolean => twoShots.heroVisible === 1],
     ]),
@@ -304,10 +334,11 @@ export function test_engine_geometry_query_formation(): void {
 
   const unmaterialized: string =
     'Formation "unit" is not fully materialized in every current participating shot';
-  const other: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
-    formation: unit({ seed: 2 }),
-    surfaces: WORLD.surfaces,
-  });
+  const other: ReturnType<typeof materializeCompiledFormation> =
+    materializeCompiledFormation({
+      formation: unit({ seed: 2 }),
+      surfaces: WORLD.surfaces,
+    });
   TestValidator.equals(
     "a formation query refuses what no current shot answers",
     namedFacts([
@@ -315,7 +346,8 @@ export function test_engine_geometry_query_formation(): void {
         "missing",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, formation: "ghost" }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, formation: "ghost" }),
             'Formation "ghost" does not exist',
           ),
       ],
@@ -347,7 +379,10 @@ export function test_engine_geometry_query_formation(): void {
       [
         "noCompiledShot",
         (): boolean =>
-          throwsError((): ReturnType<typeof measure> => measure({ compiled: new Map() }), unmaterialized),
+          throwsError(
+            (): ReturnType<typeof measure> => measure({ compiled: new Map() }),
+            unmaterialized,
+          ),
       ],
       [
         "digestsDisagree",
@@ -371,7 +406,8 @@ export function test_engine_geometry_query_formation(): void {
         "countDisagrees",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, design: unit({ count: 7 }) }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, design: unit({ count: 7 }) }),
             unmaterialized,
           ),
       ],
@@ -398,7 +434,8 @@ export function test_engine_geometry_query_formation(): void {
         "notParticipating",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, shot: "elsewhere" }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, shot: "elsewhere" }),
             'Shot "elsewhere" does not participate in formation "unit". Select one of march.',
           ),
       ],
@@ -406,7 +443,8 @@ export function test_engine_geometry_query_formation(): void {
         "late",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, time: 5 }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, time: 5 }),
             'Formation sample time 5 is outside current shot "march"',
           ),
       ],
@@ -414,7 +452,8 @@ export function test_engine_geometry_query_formation(): void {
         "early",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, time: -1 }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, time: -1 }),
             'Formation sample time -1 is outside current shot "march"',
           ),
       ],
@@ -442,7 +481,8 @@ export function test_engine_geometry_query_formation(): void {
         "noProduction",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof measure> => measure({ compiled: march, production: null }),
+            (): ReturnType<typeof measure> =>
+              measure({ compiled: march, production: null }),
             "Formation measurement requires current production frame format. Restore production design and compile.",
           ),
       ],

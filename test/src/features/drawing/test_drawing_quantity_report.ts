@@ -1,15 +1,17 @@
+import { measureAutoMovieQuantities } from "@automovie/engine";
 import {
-  measureAutoMovieQuantities,
-} from "@automovie/engine";
-import {
-  type AutoMovieQuantityBasis, type AutoMovieQuantitySubject, type AutoMovieQuantityUnit, type IAutoMovieDrawingGap, type IAutoMovieQuantityContributor, type IAutoMovieQuantityFinding, type IAutoMovieQuantityReport,
+  type AutoMovieQuantityBasis,
+  type AutoMovieQuantitySubject,
+  type AutoMovieQuantityUnit,
   IAutoMovieBuiltEnvironment,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieQuantityContributor,
+  type IAutoMovieQuantityFinding,
+  type IAutoMovieQuantityReport,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  drawingEnvironment,
-} from "../internal/drawingFixtures";
+import { drawingEnvironment } from "../internal/drawingFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { test02DrawingQuantityGeometry } from "../internal/test02DrawingQuantityGeometry";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
@@ -53,9 +55,15 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  */
 export function test_drawing_quantity_report(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
-  const report: IAutoMovieQuantityReport = measureAutoMovieQuantities({ environment });
-  const finding: (subject: string) => IAutoMovieQuantityFinding = (subject: string) : IAutoMovieQuantityFinding =>
-    report.findings.find((entry: IAutoMovieQuantityFinding) : boolean => entry.subject === subject)!;
+  const report: IAutoMovieQuantityReport = measureAutoMovieQuantities({
+    environment,
+  });
+  const finding: (subject: string) => IAutoMovieQuantityFinding = (
+    subject: string,
+  ): IAutoMovieQuantityFinding =>
+    report.findings.find(
+      (entry: IAutoMovieQuantityFinding): boolean => entry.subject === subject,
+    )!;
 
   // 1-2. Every subject, at the fixture's own dimensions.
   TestValidator.equals(
@@ -66,63 +74,72 @@ export function test_drawing_quantity_report(): void {
   TestValidator.predicate(
     "areas, lengths and counts are the fixture's own arithmetic",
     test12ValuesClose(
-    report.findings.map((entry: IAutoMovieQuantityFinding) : (number | AutoMovieQuantitySubject | AutoMovieQuantityUnit | AutoMovieQuantityBasis)[] => [
-      entry.subject,
-      entry.unit,
-      entry.total,
-      entry.owners,
-      entry.basis,
-    ]),
-    [
-      ["space-floor-area", "m2", 60, 1, "exact"],
-      ["space-volume", "m3", 210, 2, "approximate"],
-      // 0.9 x 2.1 plus a circle of radius 0.3.
-      ["opening-area", "m2", 2.172743, 2, "exact"],
-      // The square root of 13, plus a 3-4-5 ramp.
-      ["connector-length", "m", 8.605551, 2, "exact"],
-      ["element-count", "count", 6, 6, "exact"],
-      ["opening-count", "count", 3, 3, "exact"],
-      ["model-occurrence-count", "count", 5, 4, "exact"],
-    ],
+      report.findings.map(
+        (
+          entry: IAutoMovieQuantityFinding,
+        ): (
+          | number
+          | AutoMovieQuantitySubject
+          | AutoMovieQuantityUnit
+          | AutoMovieQuantityBasis
+        )[] => [
+          entry.subject,
+          entry.unit,
+          entry.total,
+          entry.owners,
+          entry.basis,
+        ],
+      ),
+      [
+        ["space-floor-area", "m2", 60, 1, "exact"],
+        ["space-volume", "m3", 210, 2, "approximate"],
+        // 0.9 x 2.1 plus a circle of radius 0.3.
+        ["opening-area", "m2", 2.172743, 2, "exact"],
+        // The square root of 13, plus a 3-4-5 ramp.
+        ["connector-length", "m", 8.605551, 2, "exact"],
+        ["element-count", "count", 6, 6, "exact"],
+        ["opening-count", "count", 3, 3, "exact"],
+        ["model-occurrence-count", "count", 5, 4, "exact"],
+      ],
     ),
   );
   TestValidator.predicate(
     "a logical volume states an approximation where an exact area states none",
     test12ValuesClose(
-    [
-      finding("space-volume").approximation !== null,
-      finding("space-floor-area").approximation,
-      finding("space-volume").contributors,
-    ],
-    [
-      true,
-      null,
       [
-        { owner: "hall", value: 180 },
-        { owner: "roof-deck", value: 30 },
+        finding("space-volume").approximation !== null,
+        finding("space-floor-area").approximation,
+        finding("space-volume").contributors,
       ],
-    ],
+      [
+        true,
+        null,
+        [
+          { owner: "hall", value: 180 },
+          { owner: "roof-deck", value: 30 },
+        ],
+      ],
     ),
   );
   TestValidator.predicate(
     "owners are ordered by what they cost, then by their own id",
     test12ValuesClose(
-    [
-      finding("connector-length").contributors,
-      finding("model-occurrence-count").contributors,
-    ],
-    [
       [
-        { owner: "service-ramp", value: 5 },
-        { owner: "roof-stair", value: 3.605551 },
+        finding("connector-length").contributors,
+        finding("model-occurrence-count").contributors,
       ],
       [
-        { owner: "slab", value: 2 },
-        { owner: "beam", value: 1 },
-        { owner: "leaf", value: 1 },
-        { owner: "wall", value: 1 },
+        [
+          { owner: "service-ramp", value: 5 },
+          { owner: "roof-stair", value: 3.605551 },
+        ],
+        [
+          { owner: "slab", value: 2 },
+          { owner: "beam", value: 1 },
+          { owner: "leaf", value: 1 },
+          { owner: "wall", value: 1 },
+        ],
       ],
-    ],
     ),
   );
   TestValidator.equals(
@@ -130,20 +147,26 @@ export function test_drawing_quantity_report(): void {
     namedFacts([
       [
         "oculus",
-        () : boolean =>
+        (): boolean =>
           nclose(
             finding("opening-area").contributors.find(
-              (entry: IAutoMovieQuantityContributor) : boolean => entry.owner === "oculus",
+              (entry: IAutoMovieQuantityContributor): boolean =>
+                entry.owner === "oculus",
             )!.value,
             Math.PI * 0.09,
           ),
       ],
       [
         "frontDoor",
-        () : boolean =>
-          nclose(finding("opening-area").contributors.find(
-            (entry: IAutoMovieQuantityContributor) : boolean => entry.owner === "front-door",
-          )!.value, 1.89, 0),
+        (): boolean =>
+          nclose(
+            finding("opening-area").contributors.find(
+              (entry: IAutoMovieQuantityContributor): boolean =>
+                entry.owner === "front-door",
+            )!.value,
+            1.89,
+            0,
+          ),
       ],
     ]),
     { oculus: true, frontDoor: true },
@@ -153,33 +176,41 @@ export function test_drawing_quantity_report(): void {
   const bounded: IAutoMovieQuantityFinding = measureAutoMovieQuantities({
     environment,
     maxContributors: 2,
-  }).findings.find((entry: IAutoMovieQuantityFinding) : boolean => entry.subject === "element-count")!;
+  }).findings.find(
+    (entry: IAutoMovieQuantityFinding): boolean =>
+      entry.subject === "element-count",
+  )!;
   TestValidator.predicate(
     "the bound names two owners, counts the other four, and still totals six",
     test12ValuesClose(
-    [
-      bounded.total,
-      bounded.owners,
-      bounded.contributors.map((entry: IAutoMovieQuantityContributor) : string => entry.owner),
-      bounded.omittedOwners,
-      bounded.omittedValue,
-    ],
-    [6, 6, ["beam", "building"], 4, 4],
+      [
+        bounded.total,
+        bounded.owners,
+        bounded.contributors.map(
+          (entry: IAutoMovieQuantityContributor): string => entry.owner,
+        ),
+        bounded.omittedOwners,
+        bounded.omittedValue,
+      ],
+      [6, 6, ["beam", "building"], 4, 4],
     ),
   );
   TestValidator.predicate(
     "the default bound leaves nothing out of a building this small",
     test12ValuesClose(
-    report.findings.map((entry: IAutoMovieQuantityFinding) : number[] => [entry.omittedOwners, entry.omittedValue]),
-    [
-      [0, 0],
-      [0, 0],
-      [0, 0],
-      [0, 0],
-      [0, 0],
-      [0, 0],
-      [0, 0],
-    ],
+      report.findings.map((entry: IAutoMovieQuantityFinding): number[] => [
+        entry.omittedOwners,
+        entry.omittedValue,
+      ]),
+      [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+      ],
     ),
   );
   TestValidator.equals(
@@ -195,25 +226,34 @@ export function test_drawing_quantity_report(): void {
   TestValidator.predicate(
     "a design with no openings reports a zero over zero owners, not a hole",
     test12ValuesClose(
-    bare.findings
-      .filter((entry: IAutoMovieQuantityFinding) : boolean => entry.subject.startsWith("opening-"))
-      .map((entry: IAutoMovieQuantityFinding) : (number | AutoMovieQuantitySubject)[] => [
-        entry.subject,
-        entry.total,
-        entry.owners,
-        entry.contributors.length,
-      ]),
-    [
-      ["opening-area", 0, 0, 0],
-      ["opening-count", 0, 0, 0],
-    ],
+      bare.findings
+        .filter((entry: IAutoMovieQuantityFinding): boolean =>
+          entry.subject.startsWith("opening-"),
+        )
+        .map(
+          (
+            entry: IAutoMovieQuantityFinding,
+          ): (number | AutoMovieQuantitySubject)[] => [
+            entry.subject,
+            entry.total,
+            entry.owners,
+            entry.contributors.length,
+          ],
+        ),
+      [
+        ["opening-area", 0, 0, 0],
+        ["opening-count", 0, 0, 0],
+      ],
     ),
   );
 
   // 5. Gaps.
   TestValidator.equals(
     "the report names every take-off the design cannot support",
-    report.gaps.map((gap: IAutoMovieDrawingGap) : string[] => [gap.subject, gap.status]),
+    report.gaps.map((gap: IAutoMovieDrawingGap): string[] => [
+      gap.subject,
+      gap.status,
+    ]),
     [
       ["developed-surface-area", "unsupported"],
       ["material-quantity", "unsupported"],
@@ -225,7 +265,9 @@ export function test_drawing_quantity_report(): void {
   );
   TestValidator.equals(
     "an opening-free design reports no opening-area gap",
-    bare.gaps.some((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "opening-area"),
+    bare.gaps.some(
+      (gap: IAutoMovieDrawingGap): boolean => gap.subject === "opening-area",
+    ),
     false,
   );
   const unbounded: IAutoMovieQuantityReport = measureAutoMovieQuantities({
@@ -234,15 +276,19 @@ export function test_drawing_quantity_report(): void {
   TestValidator.predicate(
     "a cell nothing bounds contributes nothing and is reported as not run",
     test12ValuesClose(
-    [
-      unbounded.findings.find((entry: IAutoMovieQuantityFinding) : boolean => entry.subject === "space-volume")!
-        .total,
-      unbounded.gaps.find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "unbounded-space-cell")
-        ?.status,
-    ],
-    // The hall's 180 and the deck's 30 still measure; the open cell adds
-    // nothing rather than adding a horizon.
-    [210, "not-run"],
+      [
+        unbounded.findings.find(
+          (entry: IAutoMovieQuantityFinding): boolean =>
+            entry.subject === "space-volume",
+        )!.total,
+        unbounded.gaps.find(
+          (gap: IAutoMovieDrawingGap): boolean =>
+            gap.subject === "unbounded-space-cell",
+        )?.status,
+      ],
+      // The hall's 180 and the deck's 30 still measure; the open cell adds
+      // nothing rather than adding a horizon.
+      [210, "not-run"],
     ),
   );
 
@@ -255,36 +301,38 @@ export function test_drawing_quantity_report(): void {
     namedFacts([
       [
         "a fractional contributor bound is refused",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieQuantityReport =>
+            (): IAutoMovieQuantityReport =>
               measureAutoMovieQuantities({ environment, maxContributors: 1.5 }),
             "must be a positive safe integer",
           ),
       ],
       [
         "a zero contributor bound is refused",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieQuantityReport =>
+            (): IAutoMovieQuantityReport =>
               measureAutoMovieQuantities({ environment, maxContributors: 0 }),
             "must be a positive safe integer",
           ),
       ],
       [
         "a bound of one is accepted and names exactly one owner",
-        () : boolean =>
+        (): boolean =>
           measureAutoMovieQuantities({
             environment,
             maxContributors: 1,
-          }).findings.find((entry: IAutoMovieQuantityFinding) : boolean => entry.subject === "element-count")!
-            .contributors.length === 1,
+          }).findings.find(
+            (entry: IAutoMovieQuantityFinding): boolean =>
+              entry.subject === "element-count",
+          )!.contributors.length === 1,
       ],
       [
         "an invalid design is refused before anything is measured",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieQuantityReport =>
+            (): IAutoMovieQuantityReport =>
               measureAutoMovieQuantities({
                 environment: { ...environment, version: 2 as unknown as 1 },
               }),
@@ -302,7 +350,9 @@ export function test_drawing_quantity_report(): void {
 }
 
 /** The same design with every opening removed. */
-const withoutOpenings: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const withoutOpenings: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({ ...environment, openings: [] });
 
@@ -313,7 +363,9 @@ const withoutOpenings: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBu
  * is a real authoring mistake and the one case a cross-section and a volume
  * both have to decline rather than answer.
  */
-const unboundedCell: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const unboundedCell: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,

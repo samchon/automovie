@@ -1,5 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
-import { type AutoMovieCommand, readAutoMovieCommandArguments } from "automovie";
+import {
+  type AutoMovieCommand,
+  readAutoMovieCommandArguments,
+} from "automovie";
 
 import { throwsError } from "../internal/predicates";
 

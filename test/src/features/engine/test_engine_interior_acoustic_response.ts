@@ -1,14 +1,8 @@
-import {
-  deriveAutoMovieInteriorAcousticResponse,
-} from "@automovie/engine";
-import {
-  TestValidator,
-} from "@nestia/e2e";
-import {
-  nclose,
-} from "../internal/predicates";
+import { deriveAutoMovieInteriorAcousticResponse } from "@automovie/engine";
+import { TestValidator } from "@nestia/e2e";
 
 import { createInteriorAcousticTestInputs } from "../internal/audio/createInteriorAcousticTestInputs";
+import { nclose } from "../internal/predicates";
 
 /**
  * Room identities select shared Sabine results, outdoor copying, adopted outcomes and unresolved gaps.
@@ -23,9 +17,15 @@ import { createInteriorAcousticTestInputs } from "../internal/audio/createInteri
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh requests and response records through the existing canonical fixture; it opens no file, adopted-response decoder, native solver/audio device, renderer, browser or GPU and replaces no foreign method.
  */
 export function test_engine_interior_acoustic_response(): void {
-  const { digest, profile, request }: ReturnType<typeof createInteriorAcousticTestInputs> = createInteriorAcousticTestInputs();
+  const {
+    digest,
+    profile,
+    request,
+  }: ReturnType<typeof createInteriorAcousticTestInputs> =
+    createInteriorAcousticTestInputs();
 
-  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -33,7 +33,8 @@ export function test_engine_interior_acoustic_response(): void {
       profile,
     });
 
-  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -42,34 +43,35 @@ export function test_engine_interior_acoustic_response(): void {
     });
 
   TestValidator.equals(
-      "same-room and cross-room paths consume the shared Sabine analysis",
-      {
-        sameStatus: same.status,
-        samePath: same.status === "available" ? same.path : null,
-        reverberation:
-          same.status === "available"
-            ? nclose(same.reverberationTimeSeconds!, 0.322)
-            : false,
-        ratio: same.status === "available" && same.directToDiffuseRatio! > 0,
-        acrossStatus: across.status,
-        acrossPath: across.status === "available" ? across.path : null,
-        transmission:
-          across.status === "available"
-            ? nclose(across.transmissionGain!, 0.1)
-            : false,
-      },
-      {
-        sameStatus: "available",
-        samePath: "same-room",
-        reverberation: true,
-        ratio: true,
-        acrossStatus: "available",
-        acrossPath: "different-room",
-        transmission: true,
-      },
-    );
+    "same-room and cross-room paths consume the shared Sabine analysis",
+    {
+      sameStatus: same.status,
+      samePath: same.status === "available" ? same.path : null,
+      reverberation:
+        same.status === "available"
+          ? nclose(same.reverberationTimeSeconds!, 0.322)
+          : false,
+      ratio: same.status === "available" && same.directToDiffuseRatio! > 0,
+      acrossStatus: across.status,
+      acrossPath: across.status === "available" ? across.path : null,
+      transmission:
+        across.status === "available"
+          ? nclose(across.transmissionGain!, 0.1)
+          : false,
+    },
+    {
+      sameStatus: "available",
+      samePath: "same-room",
+      reverberation: true,
+      ratio: true,
+      acrossStatus: "available",
+      acrossPath: "different-room",
+      transmission: true,
+    },
+  );
 
-  const outdoor: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const outdoor: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: null,
       listenerSpace: null,
       inputRevision: digest,
@@ -77,7 +79,8 @@ export function test_engine_interior_acoustic_response(): void {
       profile,
     });
 
-  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const unresolved: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: null,
       inputRevision: digest,
@@ -85,7 +88,8 @@ export function test_engine_interior_acoustic_response(): void {
       profile,
     });
 
-  const adopted: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const adopted: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-b",
       inputRevision: digest,
@@ -103,17 +107,18 @@ export function test_engine_interior_acoustic_response(): void {
     });
 
   TestValidator.equals(
-      "outdoor, unresolved, and adopted-byte paths stay distinct",
-      {
-        outdoor: outdoor.status === "available" ? outdoor.path : null,
-        unresolved:
-          unresolved.status === "unsupported" ? unresolved.path : "wrong",
-        adopted: adopted.status,
-      },
-      { outdoor: "outdoor", unresolved: null, adopted: "not-run" },
-    );
+    "outdoor, unresolved, and adopted-byte paths stay distinct",
+    {
+      outdoor: outdoor.status === "available" ? outdoor.path : null,
+      unresolved:
+        unresolved.status === "unsupported" ? unresolved.path : "wrong",
+      adopted: adopted.status,
+    },
+    { outdoor: "outdoor", unresolved: null, adopted: "not-run" },
+  );
 
-  const gap: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> = deriveAutoMovieInteriorAcousticResponse({
+  const gap: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
+    deriveAutoMovieInteriorAcousticResponse({
       sourceSpace: "room-a",
       listenerSpace: "room-a",
       inputRevision: digest,
@@ -122,8 +127,8 @@ export function test_engine_interior_acoustic_response(): void {
     });
 
   TestValidator.equals(
-      "a room without a bounded diffuse result remains unsupported",
-      gap.status,
-      "unsupported",
-    );
+    "a room without a bounded diffuse result remains unsupported",
+    gap.status,
+    "unsupported",
+  );
 }

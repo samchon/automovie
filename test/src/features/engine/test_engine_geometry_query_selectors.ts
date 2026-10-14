@@ -1,5 +1,8 @@
+import type {
+  IAutoMovieGeometrySelector,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import type { IAutoMovieGeometrySelector, IAutoMovieVector3 } from "@automovie/interface";
 
 import { GEOMETRY_SELECTOR_TEST_WORLD as WORLD } from "../internal/GEOMETRY_SELECTOR_TEST_WORLD";
 import type { IGeometrySelectorTestActorExtra } from "../internal/IGeometrySelectorTestActorExtra";
@@ -49,29 +52,41 @@ export function test_engine_geometry_query_selectors(): void {
       [
         "points",
         (): boolean =>
-          nclose(meters({
-            query: "distance",
-            from: point(0, 0, 0),
-            to: point(3, 4, 12),
-          }), 13, 0),
+          nclose(
+            meters({
+              query: "distance",
+              from: point(0, 0, 0),
+              to: point(3, 4, 12),
+            }),
+            13,
+            0,
+          ),
       ],
       [
         "landmark",
         (): boolean =>
-          nclose(meters({
-            query: "distance",
-            from: { kind: "landmark", landmark: "well" },
-            to: point(0, 0, 0),
-          }), 10, 0),
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "landmark", landmark: "well" },
+              to: point(0, 0, 0),
+            }),
+            10,
+            0,
+          ),
       ],
       [
         "actorRoot",
         (): boolean =>
-          nclose(meters({
-            query: "distance",
-            from: { kind: "actor", actor: "crate" },
-            to: point(1, 5, 6),
-          }), 5, 0),
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "actor", actor: "crate" },
+              to: point(1, 5, 6),
+            }),
+            5,
+            0,
+          ),
       ],
       [
         "turnedScaledBone",
@@ -118,11 +133,15 @@ export function test_engine_geometry_query_selectors(): void {
       [
         "pathStart",
         (): boolean =>
-          nclose(meters({
-            query: "distance",
-            from: { kind: "actor", actor: "cart" },
-            to: point(0, 0, 0),
-          }), 0, 0),
+          nclose(
+            meters({
+              query: "distance",
+              from: { kind: "actor", actor: "cart" },
+              to: point(0, 0, 0),
+            }),
+            0,
+            0,
+          ),
       ],
     ]),
     {
@@ -136,7 +155,10 @@ export function test_engine_geometry_query_selectors(): void {
     },
   );
 
-  const actor: (name: string, extra?: IGeometrySelectorTestActorExtra) => Extract<IAutoMovieGeometrySelector, { kind: "actor" }> = (
+  const actor: (
+    name: string,
+    extra?: IGeometrySelectorTestActorExtra,
+  ) => Extract<IAutoMovieGeometrySelector, { kind: "actor" }> = (
     name: string,
     extra: IGeometrySelectorTestActorExtra = {},
   ): Extract<IAutoMovieGeometrySelector, { kind: "actor" }> => ({
@@ -314,8 +336,15 @@ export function test_engine_geometry_query_selectors(): void {
     },
   );
 
-  const ground: (x: number, z: number, world?: typeof WORLD | null) => ReturnType<typeof ask> = (x: number, z: number, world: typeof WORLD | null = WORLD): ReturnType<typeof ask> =>
-    ask({ query: "ground", point: { x, z } }, world);
+  const ground: (
+    x: number,
+    z: number,
+    world?: typeof WORLD | null,
+  ) => ReturnType<typeof ask> = (
+    x: number,
+    z: number,
+    world: typeof WORLD | null = WORLD,
+  ): ReturnType<typeof ask> => ask({ query: "ground", point: { x, z } }, world);
   TestValidator.equals(
     "ground answers the first containing surface or none",
     namedFacts([
@@ -370,10 +399,30 @@ export function test_engine_geometry_query_selectors(): void {
     { slope: true, ledge: true, nothing: true, noWorld: true },
   );
 
-  const walker: ReturnType<typeof values> = values({ query: "pose", actor: "walker", shot: "a", time: 1 });
-  const statue: ReturnType<typeof values> = values({ query: "pose", actor: "statue", shot: "a", time: 0 });
-  const idle: ReturnType<typeof values> = values({ query: "pose", actor: "idle", shot: "a", time: 0 });
-  const crate: ReturnType<typeof values> = values({ query: "pose", actor: "crate", shot: "a", time: 0 });
+  const walker: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "walker",
+    shot: "a",
+    time: 1,
+  });
+  const statue: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "statue",
+    shot: "a",
+    time: 0,
+  });
+  const idle: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "idle",
+    shot: "a",
+    time: 0,
+  });
+  const crate: ReturnType<typeof values> = values({
+    query: "pose",
+    actor: "crate",
+    shot: "a",
+    time: 0,
+  });
   TestValidator.equals(
     "a pose query reports the performed or held root and joints",
     namedFacts([
@@ -395,22 +444,30 @@ export function test_engine_geometry_query_selectors(): void {
       [
         "statue",
         (): boolean =>
-          statue.held === true && statue.jointCount === 1 && nclose(statue.rootX as number, 3, 0),
+          statue.held === true &&
+          statue.jointCount === 1 &&
+          nclose(statue.rootX as number, 3, 0),
       ],
       [
         "idle",
-        (): boolean => idle.held === true && idle.jointCount === 0 && nclose(idle.rootX as number, 4, 0),
+        (): boolean =>
+          idle.held === true &&
+          idle.jointCount === 0 &&
+          nclose(idle.rootX as number, 4, 0),
       ],
       [
         "crate",
         (): boolean =>
-          crate.held === true && crate.jointCount === 0 && nclose(crate.rootY as number, 2, 0),
+          crate.held === true &&
+          crate.jointCount === 0 &&
+          nclose(crate.rootY as number, 2, 0),
       ],
       [
         "late",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof values> => values({ query: "pose", actor: "crate", shot: "a", time: 5 }),
+            (): ReturnType<typeof values> =>
+              values({ query: "pose", actor: "crate", shot: "a", time: 5 }),
             'Actor sample time 5 is outside shot "a" duration 0..4',
           ),
       ],

@@ -1,11 +1,16 @@
-import { formationSlotRecord } from "../../../../packages/engine/src/formationSlotRecord";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { formationSlotRecord } from "../../../../packages/engine/src/formationSlotRecord";
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
-const UNIT: Parameters<typeof formationSlotRecord>[0] = { id: "levy", modelRecipe: "member", facingDeg: 30, seed: 42 };
+const UNIT: Parameters<typeof formationSlotRecord>[0] = {
+  id: "levy",
+  modelRecipe: "member",
+  facingDeg: 30,
+  seed: 42,
+};
 const AT: IAutoMovieVector3 = { x: 1, y: 2.5, z: -3 };
 
 /**
@@ -61,7 +66,11 @@ export function test_engine_formation_slot_record(): void {
     ),
   );
 
-  const recordPhase: (unit: typeof UNIT, slot: number, member: { actor: string | null; position: typeof AT }) => number = (
+  const recordPhase: (
+    unit: typeof UNIT,
+    slot: number,
+    member: { actor: string | null; position: typeof AT },
+  ) => number = (
     unit: typeof UNIT,
     slot: number,
     member: { actor: string | null; position: typeof AT },
@@ -83,7 +92,8 @@ export function test_engine_formation_slot_record(): void {
       ],
       [
         "neighbourDiffers",
-        (): boolean => recordPhase(UNIT, 8, { actor: null, position: AT }) !== phase,
+        (): boolean =>
+          recordPhase(UNIT, 8, { actor: null, position: AT }) !== phase,
       ],
       [
         "seedDiffers",
@@ -96,10 +106,14 @@ export function test_engine_formation_slot_record(): void {
       [
         "unmovedByTheRest",
         (): boolean =>
-          nclose(recordPhase({ ...UNIT, modelRecipe: "other", facingDeg: 90 }, 7, {
-            actor: "banner",
-            position: { x: 9, y: 9, z: 9 },
-          }), phase, 0),
+          nclose(
+            recordPhase({ ...UNIT, modelRecipe: "other", facingDeg: 90 }, 7, {
+              actor: "banner",
+              position: { x: 9, y: 9, z: 9 },
+            }),
+            phase,
+            0,
+          ),
       ],
       ["unitInterval", (): boolean => phase >= 0 && phase < 1],
     ]),

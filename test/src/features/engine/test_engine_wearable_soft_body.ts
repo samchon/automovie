@@ -6,21 +6,20 @@ import {
   validateSoftBodyDomain,
 } from "@automovie/engine";
 import type {
-  IAutoMovieSoftBodyDomain,
   IAutoMovieSoftAnchor,
+  IAutoMovieSoftBodyDomain,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
-
-import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBodyTestDomain";
-import { wearableSoftBodyTestBone as bone } from "../internal/wearableSoftBodyTestBone";
 import { wearableSoftBodyTestActorFrame as actorFrame } from "../internal/wearableSoftBodyTestActorFrame";
 import { wearableSoftBodyTestAdmission } from "../internal/wearableSoftBodyTestAdmission";
+import { wearableSoftBodyTestBone as bone } from "../internal/wearableSoftBodyTestBone";
 import { wearableSoftBodyTestBoundaries } from "../internal/wearableSoftBodyTestBoundaries";
 import { wearableSoftBodyTestCapsuleEscape } from "../internal/wearableSoftBodyTestCapsuleEscape";
+import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBodyTestDomain";
 
 /**
  * Moving attachments and shared capsules follow one fixed-step pose snapshot.
@@ -56,44 +55,45 @@ import { wearableSoftBodyTestCapsuleEscape } from "../internal/wearableSoftBodyT
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns fresh domains, primary-motion snapshots and solver arrays; extracted assertion owners receive the same existing records in original order. It opens no file/native simulator, renderer, browser/GPU or production host and replaces no foreign method.
  */
 export function test_engine_wearable_soft_body(): void {
-  const solved: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
-    domain: domain(),
-    step: 1,
-    frames: [actorFrame(0, 0), actorFrame(1, 1)],
-    subjectIndex: 0,
-    maxSubjects: 1,
-  });
-  const again: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
-    domain: domain(),
-    step: 1,
-    frames: [actorFrame(0, 0), actorFrame(1, 1)],
-    subjectIndex: 0,
-    maxSubjects: 1,
-  });
+  const solved: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
+    simulateAutoMovieWearableSoftBody({
+      domain: domain(),
+      step: 1,
+      frames: [actorFrame(0, 0), actorFrame(1, 1)],
+      subjectIndex: 0,
+      maxSubjects: 1,
+    });
+  const again: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
+    simulateAutoMovieWearableSoftBody({
+      domain: domain(),
+      step: 1,
+      frames: [actorFrame(0, 0), actorFrame(1, 1)],
+      subjectIndex: 0,
+      maxSubjects: 1,
+    });
   TestValidator.predicate(
     "wearable cloth follows its current bone, leaves the current capsule, and reports cost",
     test12ValuesClose(
-    {
-      anchorX: solved.state.positions[0],
-      capsuleDistance: nclose(Math.abs(solved.state.positions[5]!), 0.25),
-      contacts: solved.state.contacts,
-      budget: solved.budget,
-      deterministic:
-        test12ValuesClose(solved.state, again.state),
-    },
-    {
-      anchorX: 1,
-      capsuleDistance: true,
-      contacts: 1,
-      budget: {
-        subjectIndex: 0,
-        maxSubjects: 1,
-        anchorsPerStep: 1,
-        capsulesPerStep: 1,
-        boundaryRecords: 4,
+      {
+        anchorX: solved.state.positions[0],
+        capsuleDistance: nclose(Math.abs(solved.state.positions[5]!), 0.25),
+        contacts: solved.state.contacts,
+        budget: solved.budget,
+        deterministic: test12ValuesClose(solved.state, again.state),
       },
-      deterministic: true,
-    },
+      {
+        anchorX: 1,
+        capsuleDistance: true,
+        contacts: 1,
+        budget: {
+          subjectIndex: 0,
+          maxSubjects: 1,
+          anchorsPerStep: 1,
+          capsulesPerStep: 1,
+          boundaryRecords: 4,
+        },
+        deterministic: true,
+      },
     ),
   );
 
@@ -105,23 +105,27 @@ export function test_engine_wearable_soft_body(): void {
     },
     colliders: [],
   };
-  const coupled: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
-    domain: coupledDomain,
-    step: 1,
-    frames: [actorFrame(0, 0), actorFrame(1, 1)],
-    subjectIndex: 0,
-    maxSubjects: 1,
-  });
+  const coupled: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
+    simulateAutoMovieWearableSoftBody({
+      domain: coupledDomain,
+      step: 1,
+      frames: [actorFrame(0, 0), actorFrame(1, 1)],
+      subjectIndex: 0,
+      maxSubjects: 1,
+    });
   TestValidator.predicate(
     "nonzero structural stiffness transfers a moving anchor to the free particle",
     test12ValuesClose(
-    {
-      anchorX: coupled.state.positions[0],
-      freeParticleMoved: coupled.state.positions[3]! > 0.5,
-      // Full projection of the 0.5 m rest link from the anchor at (1, 1).
-      freeParticleX: nclose(coupled.state.positions[3]!, 1 - 1 / Math.sqrt(5)),
-    },
-    { anchorX: 1, freeParticleMoved: true, freeParticleX: true },
+      {
+        anchorX: coupled.state.positions[0],
+        freeParticleMoved: coupled.state.positions[3]! > 0.5,
+        // Full projection of the 0.5 m rest link from the anchor at (1, 1).
+        freeParticleX: nclose(
+          coupled.state.positions[3]!,
+          1 - 1 / Math.sqrt(5),
+        ),
+      },
+      { anchorX: 1, freeParticleMoved: true, freeParticleX: true },
     ),
   );
 
@@ -134,17 +138,19 @@ export function test_engine_wearable_soft_body(): void {
   TestValidator.predicate(
     "the legacy static path retains its exact rest state",
     test12ValuesClose(
-    simulateSoftBody(staticDomain, 1).positions,
-    staticDomain.rest,
+      simulateSoftBody(staticDomain, 1).positions,
+      staticDomain.rest,
     ),
   );
 
   const invalidAnchor: IAutoMovieSoftBodyDomain = {
     ...domain(),
-    anchors: domain().anchors.map((anchor: IAutoMovieSoftAnchor): IAutoMovieSoftAnchor => ({
-      ...anchor,
-      position: { x: 0, y: 1, z: 0 },
-    })),
+    anchors: domain().anchors.map(
+      (anchor: IAutoMovieSoftAnchor): IAutoMovieSoftAnchor => ({
+        ...anchor,
+        position: { x: 0, y: 1, z: 0 },
+      }),
+    ),
   };
   const invalidCapsule: IAutoMovieSoftBodyDomain = {
     ...domain(),
@@ -157,7 +163,8 @@ export function test_engine_wearable_soft_body(): void {
       },
     ],
   };
-  const embeddedMovingCapsule: ReturnType<typeof validateSoftBodyDomain> = validateSoftBodyDomain({ domain: domain() });
+  const embeddedMovingCapsule: ReturnType<typeof validateSoftBodyDomain> =
+    validateSoftBodyDomain({ domain: domain() });
   TestValidator.equals(
     "validation refuses contradictory bindings but never invents an origin capsule",
     {
@@ -258,7 +265,8 @@ export function test_engine_wearable_soft_body(): void {
         "unit length",
       ),
       unresolvedStatic: throwsError(
-        (): ReturnType<typeof simulateSoftBody> => simulateSoftBody(domain(), 1),
+        (): ReturnType<typeof simulateSoftBody> =>
+          simulateSoftBody(domain(), 1),
         "resolved moving boundaries",
       ),
       missingAnchorBoundary: throwsError(
@@ -339,67 +347,76 @@ export function test_engine_wearable_soft_body(): void {
     bone("hips", 10, 0),
     bone("head", 10, 1),
   ];
-  const farCapsule: ReturnType<typeof simulateAutoMovieWearableSoftBody> = simulateAutoMovieWearableSoftBody({
-    domain: capsuleOnly,
-    step: 0,
-    frames: [farCapsuleFrame],
-    subjectIndex: 0,
-    maxSubjects: 1,
-  });
+  const farCapsule: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
+    simulateAutoMovieWearableSoftBody({
+      domain: capsuleOnly,
+      step: 0,
+      frames: [farCapsuleFrame],
+      subjectIndex: 0,
+      maxSubjects: 1,
+    });
   TestValidator.predicate(
     "node anchors, capsule-only boundaries, and named state inputs remain explicit",
     test12ValuesClose(
-    {
-      nodeAnchor: simulateAutoMovieWearableSoftBody({
-        domain: nodeDomain,
-        step: 0,
-        frames: [nodeFrame],
-        subjectIndex: 0,
-        maxSubjects: 1,
-      }).state.positions[0],
-      capsuleOnly: simulateAutoMovieWearableSoftBody({
-        domain: capsuleOnly,
-        step: 0,
-        frames: [actorFrame(0, 0)],
-        subjectIndex: 0,
-        maxSubjects: 1,
-      }).budget,
-      namedState: simulateAutoMovieWearableSoftBody({
-        domain: {
-          ...domain(),
-          states: [{ id: "draped", anchors: [] }],
-        },
-        step: 0,
-        frames: [actorFrame(0, 0)],
-        subjectIndex: 0,
-        maxSubjects: 1,
-        state: "draped",
-      }).state.step,
-      farCapsuleContacts: farCapsule.state.contacts,
-      farCapsulePositionsUnchanged:
-        test12ValuesClose(farCapsule.state.positions, capsuleOnly.rest),
-    },
-    {
-      nodeAnchor: 1.25,
-      capsuleOnly: {
-        subjectIndex: 0,
-        maxSubjects: 1,
-        anchorsPerStep: 0,
-        capsulesPerStep: 1,
-        boundaryRecords: 1,
+      {
+        nodeAnchor: simulateAutoMovieWearableSoftBody({
+          domain: nodeDomain,
+          step: 0,
+          frames: [nodeFrame],
+          subjectIndex: 0,
+          maxSubjects: 1,
+        }).state.positions[0],
+        capsuleOnly: simulateAutoMovieWearableSoftBody({
+          domain: capsuleOnly,
+          step: 0,
+          frames: [actorFrame(0, 0)],
+          subjectIndex: 0,
+          maxSubjects: 1,
+        }).budget,
+        namedState: simulateAutoMovieWearableSoftBody({
+          domain: {
+            ...domain(),
+            states: [{ id: "draped", anchors: [] }],
+          },
+          step: 0,
+          frames: [actorFrame(0, 0)],
+          subjectIndex: 0,
+          maxSubjects: 1,
+          state: "draped",
+        }).state.step,
+        farCapsuleContacts: farCapsule.state.contacts,
+        farCapsulePositionsUnchanged: test12ValuesClose(
+          farCapsule.state.positions,
+          capsuleOnly.rest,
+        ),
       },
-      namedState: 0,
-      farCapsuleContacts: 0,
-      farCapsulePositionsUnchanged: true,
-    },
+      {
+        nodeAnchor: 1.25,
+        capsuleOnly: {
+          subjectIndex: 0,
+          maxSubjects: 1,
+          anchorsPerStep: 0,
+          capsulesPerStep: 1,
+          boundaryRecords: 1,
+        },
+        namedState: 0,
+        farCapsuleContacts: 0,
+        farCapsulePositionsUnchanged: true,
+      },
     ),
   );
 
-  wearableSoftBodyTestAdmission(staticDomain, nodeDomain, capsuleOnly, nodeFrame);
+  wearableSoftBodyTestAdmission(
+    staticDomain,
+    nodeDomain,
+    capsuleOnly,
+    nodeFrame,
+  );
   wearableSoftBodyTestBoundaries(staticDomain);
   wearableSoftBodyTestCapsuleEscape(capsuleOnly);
 }
 
 /** Observe only successful admission; this does not synthesize missing capsule geometry. */
-const clean: (validation: IAutoMovieValidation) => boolean = (validation: IAutoMovieValidation): boolean =>
-  validation.success === true;
+const clean: (validation: IAutoMovieValidation) => boolean = (
+  validation: IAutoMovieValidation,
+): boolean => validation.success === true;

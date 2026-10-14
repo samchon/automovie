@@ -1,20 +1,28 @@
-import { PRIMITIVE_PROP_ARCHETYPE } from "../../../../packages/archetypes/src/PRIMITIVE_PROP_ARCHETYPE";
-import type { IAutoMovieArchetypeParameterPlan } from "../../../../packages/archetypes/src/IAutoMovieArchetypeParameterPlan";
-import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
-import type { IAutoMovieArchetypeRefusal } from "../../../../packages/archetypes/src/IAutoMovieArchetypeRefusal";
-import { type IAutoMovieModelPart, AutoMoviePrimitiveShape } from "@automovie/interface";
+import {
+  AutoMoviePrimitiveShape,
+  type IAutoMovieModelPart,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import type { IAutoMovieArchetypeGeometry } from "../../../../packages/archetypes/src/IAutoMovieArchetypeGeometry";
+import type { IAutoMovieArchetypeParameterPlan } from "../../../../packages/archetypes/src/IAutoMovieArchetypeParameterPlan";
+import type { IAutoMovieArchetypeRefusal } from "../../../../packages/archetypes/src/IAutoMovieArchetypeRefusal";
+import { PRIMITIVE_PROP_ARCHETYPE } from "../../../../packages/archetypes/src/PRIMITIVE_PROP_ARCHETYPE";
 import { namedFacts, nclose } from "../internal/predicates";
 
 /** One accepted parameter map, as the design gate would have handed it over. */
 type IParameters = Readonly<Record<string, number | string | boolean>>;
 
 /** The bounding sphere the archetype states for one parameter map. */
-const radiusOf: (parameters: Readonly<Record<string, string | number | boolean>>) => number = (parameters: IParameters): number =>
+const radiusOf: (
+  parameters: Readonly<Record<string, string | number | boolean>>,
+) => number = (parameters: IParameters): number =>
   PRIMITIVE_PROP_ARCHETYPE.projectionRadius(parameters);
 
 /** The single primitive shape the archetype builds for one parameter map. */
-const shapeOf: (parameters: Readonly<Record<string, string | number | boolean>>) => AutoMoviePrimitiveShape = (
+const shapeOf: (
+  parameters: Readonly<Record<string, string | number | boolean>>,
+) => AutoMoviePrimitiveShape = (
   parameters: IParameters,
 ): Extract<IAutoMovieModelPart["geometry"], { type: "primitive" }>["shape"] => {
   const geometry: IAutoMovieArchetypeGeometry = PRIMITIVE_PROP_ARCHETYPE.build({
@@ -33,15 +41,19 @@ const shapeOf: (parameters: Readonly<Record<string, string | number | boolean>>)
  *
  * A capsule, a cylinder and a cone take the same two dimensions, so measuring all three from one pair is what separates the capsule's formula from the cylinder/cone formula: a capsule reaches its radius past each cap, a cylinder and a cone reach the corner of their own silhouette, and nothing about the pair itself distinguishes them.
  */
-const SHAFT: { radius: number; height: number; } = { radius: 3, height: 8 };
+const SHAFT: { radius: number; height: number } = { radius: 3, height: 8 };
 
 /**
  * A box whose three dimensions are all different, so none can stand for another.
  */
-const BOX: { width: number; height: number; depth: number; } = { width: 2, height: 3, depth: 6 };
+const BOX: { width: number; height: number; depth: number } = {
+  width: 2,
+  height: 3,
+  depth: 6,
+};
 
 /** A plane whose two dimensions differ for the same reason. */
-const PLANE: { width: number; depth: number; } = { width: 6, depth: 8 };
+const PLANE: { width: number; depth: number } = { width: 6, depth: 8 };
 
 /**
  * Build supported primitive props and check their root-centered radius estimates and ordinary output records.
@@ -60,22 +72,45 @@ const PLANE: { width: number; depth: number; } = { width: 6, depth: 8 };
  */
 export function test_archetypes_primitive_prop_geometry(): void {
   for (const shape of ["constructor", "toString", "__proto__", "unsupported"]) {
-    const plan: IAutoMovieArchetypeParameterPlan = PRIMITIVE_PROP_ARCHETYPE.plan({ shape });
-    TestValidator.equals(`unsupported shape ${shape} refuses instead of inherited lookup`, plan.refusals.map((refusal: IAutoMovieArchetypeRefusal): string => refusal.code), ["model-parameter-invalid"]);
+    const plan: IAutoMovieArchetypeParameterPlan =
+      PRIMITIVE_PROP_ARCHETYPE.plan({ shape });
+    TestValidator.equals(
+      `unsupported shape ${shape} refuses instead of inherited lookup`,
+      plan.refusals.map(
+        (refusal: IAutoMovieArchetypeRefusal): string => refusal.code,
+      ),
+      ["model-parameter-invalid"],
+    );
   }
-  TestValidator.equals("ordinary box dimensions remain admitted", PRIMITIVE_PROP_ARCHETYPE.plan({ shape: "box" }).required, ["shape", "width", "height", "depth"]);
+  TestValidator.equals(
+    "ordinary box dimensions remain admitted",
+    PRIMITIVE_PROP_ARCHETYPE.plan({ shape: "box" }).required,
+    ["shape", "width", "height", "depth"],
+  );
   TestValidator.equals(
     "each shape's bound follows its formula, including the shared cylinder/cone result",
     namedFacts([
-      ["sphere", (): boolean => nclose(radiusOf({ shape: "sphere", radius: 2 }), 2)],
+      [
+        "sphere",
+        (): boolean => nclose(radiusOf({ shape: "sphere", radius: 2 }), 2),
+      ],
       // A capsule is a shaft with a hemisphere on each end, so it reaches its
       // radius past half its height: 3 + 4.
-      ["capsule", (): boolean => nclose(radiusOf({ shape: "capsule", ...SHAFT }), 7)],
+      [
+        "capsule",
+        (): boolean => nclose(radiusOf({ shape: "capsule", ...SHAFT }), 7),
+      ],
       // A cylinder reaches the corner of its silhouette: hypot(3, 4).
-      ["cylinder", (): boolean => nclose(radiusOf({ shape: "cylinder", ...SHAFT }), 5)],
+      [
+        "cylinder",
+        (): boolean => nclose(radiusOf({ shape: "cylinder", ...SHAFT }), 5),
+      ],
       ["cone", (): boolean => nclose(radiusOf({ shape: "cone", ...SHAFT }), 5)],
       // Half the diagonal of the rectangle: hypot(6, 8) / 2.
-      ["plane", (): boolean => nclose(radiusOf({ shape: "plane", ...PLANE }), 5)],
+      [
+        "plane",
+        (): boolean => nclose(radiusOf({ shape: "plane", ...PLANE }), 5),
+      ],
       // Half the diagonal of the box: hypot(2, 3, 6) / 2.
       ["box", (): boolean => nclose(radiusOf({ shape: "box", ...BOX }), 3.5)],
       // The three that take the same pair answer three different numbers, so
@@ -105,11 +140,19 @@ export function test_archetypes_primitive_prop_geometry(): void {
     "a dimension nobody can read measures as zero rather than as nothing at all",
     namedFacts([
       ["absent", (): boolean => nclose(radiusOf({ shape: "sphere" }), 0, 0)],
-      ["notANumber", (): boolean => nclose(radiusOf({ shape: "sphere", radius: "big" }), 0, 0)],
+      [
+        "notANumber",
+        (): boolean =>
+          nclose(radiusOf({ shape: "sphere", radius: "big" }), 0, 0),
+      ],
       [
         "notFinite",
         (): boolean =>
-          nclose(radiusOf({ shape: "sphere", radius: Number.POSITIVE_INFINITY }), 0, 0),
+          nclose(
+            radiusOf({ shape: "sphere", radius: Number.POSITIVE_INFINITY }),
+            0,
+            0,
+          ),
       ],
       // And a partly readable map keeps the part it can read, rather than
       // discarding the whole bound.
@@ -149,19 +192,26 @@ export function test_archetypes_primitive_prop_geometry(): void {
       ],
       [
         "sphere",
-        (): boolean => shapeOf({ shape: "sphere", radius: 2 }).type === "sphere",
+        (): boolean =>
+          shapeOf({ shape: "sphere", radius: 2 }).type === "sphere",
       ],
       [
         "sphereRadius",
         (): boolean => {
-          const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "sphere", radius: 2 });
+          const shape: AutoMoviePrimitiveShape = shapeOf({
+            shape: "sphere",
+            radius: 2,
+          });
           return shape.type === "sphere" && nclose(shape.radius, 2, 0);
         },
       ],
       [
         "capsule",
         (): boolean => {
-          const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "capsule", ...SHAFT });
+          const shape: AutoMoviePrimitiveShape = shapeOf({
+            shape: "capsule",
+            ...SHAFT,
+          });
           return (
             shape.type === "capsule" &&
             nclose(shape.radius, SHAFT.radius, 0) &&
@@ -172,7 +222,10 @@ export function test_archetypes_primitive_prop_geometry(): void {
       [
         "cylinder",
         (): boolean => {
-          const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "cylinder", ...SHAFT });
+          const shape: AutoMoviePrimitiveShape = shapeOf({
+            shape: "cylinder",
+            ...SHAFT,
+          });
           return (
             shape.type === "cylinder" &&
             nclose(shape.radius, SHAFT.radius, 0) &&
@@ -183,7 +236,10 @@ export function test_archetypes_primitive_prop_geometry(): void {
       [
         "cone",
         (): boolean => {
-          const shape: AutoMoviePrimitiveShape = shapeOf({ shape: "cone", ...SHAFT });
+          const shape: AutoMoviePrimitiveShape = shapeOf({
+            shape: "cone",
+            ...SHAFT,
+          });
           return (
             shape.type === "cone" &&
             nclose(shape.radius, SHAFT.radius, 0) &&
@@ -218,7 +274,10 @@ export function test_archetypes_primitive_prop_geometry(): void {
       ["noLocalTransform", (): boolean => built.parts[0]!.transform === null],
       // An archetype with no skeleton accepts no attachment, which is what the
       // empty bone list states.
-      ["declaresNoBones", (): boolean => PRIMITIVE_PROP_ARCHETYPE.bones.length === 0],
+      [
+        "declaresNoBones",
+        (): boolean => PRIMITIVE_PROP_ARCHETYPE.bones.length === 0,
+      ],
     ]),
     {
       one: true,

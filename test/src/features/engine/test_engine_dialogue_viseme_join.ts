@@ -1,5 +1,6 @@
 import {
-  type IAutoMovieDialogueExpressionLayers, type IAutoMovieDialogueVisemeCompilation,
+  type IAutoMovieDialogueExpressionLayers,
+  type IAutoMovieDialogueVisemeCompilation,
   joinAutoMovieDialogueVisemes,
   sampleAutoMovieDialogueExpression,
 } from "@automovie/engine";
@@ -52,11 +53,12 @@ const visemes: IAutoMovieProductionViseme[] = [
  * @evidence contracts/testing.md#execution-ownership Uses local timing/binding/expression records and synchronous pure APIs with existing throwsError and structural numeric comparator, without audio, scene/actor application, clocks, global replacement or a new host. Fixture timing does not authenticate final audio bytes, prove lip synchrony, or certify production pipeline wiring.
  */
 export function test_engine_dialogue_viseme_join(): void {
-  const compiled: IAutoMovieDialogueVisemeCompilation = joinAutoMovieDialogueVisemes({
-    line: line(),
-    bindings: [{ speaker: "narrator", actor: "actor" }],
-    visemes,
-  });
+  const compiled: IAutoMovieDialogueVisemeCompilation =
+    joinAutoMovieDialogueVisemes({
+      line: line(),
+      bindings: [{ speaker: "narrator", actor: "actor" }],
+      visemes,
+    });
   if (compiled.timeline === null)
     throw new Error("positive dialogue join unexpectedly produced no timeline");
   TestValidator.equals(
@@ -87,37 +89,47 @@ export function test_engine_dialogue_viseme_join(): void {
     intensity: 0.75,
     blendshapes: null,
   };
-  const active: IAutoMovieDialogueExpressionLayers = sampleAutoMovieDialogueExpression({
-    timeline: compiled.timeline,
-    frame: 13,
-    authored,
-  });
-  const gapAfterSeek: IAutoMovieDialogueExpressionLayers = sampleAutoMovieDialogueExpression({
-    timeline: compiled.timeline,
-    frame: 16,
-    authored,
-  });
-  const activeAgain: IAutoMovieDialogueExpressionLayers = sampleAutoMovieDialogueExpression({
-    timeline: compiled.timeline,
-    frame: 13,
-    authored,
-  });
-  TestValidator.predicate("sampling leaves authored expression values unchanged", test12ValuesClose(authored, { preset: "sad", intensity: 0.75, blendshapes: null }));
+  const active: IAutoMovieDialogueExpressionLayers =
+    sampleAutoMovieDialogueExpression({
+      timeline: compiled.timeline,
+      frame: 13,
+      authored,
+    });
+  const gapAfterSeek: IAutoMovieDialogueExpressionLayers =
+    sampleAutoMovieDialogueExpression({
+      timeline: compiled.timeline,
+      frame: 16,
+      authored,
+    });
+  const activeAgain: IAutoMovieDialogueExpressionLayers =
+    sampleAutoMovieDialogueExpression({
+      timeline: compiled.timeline,
+      frame: 13,
+      authored,
+    });
+  TestValidator.predicate(
+    "sampling leaves authored expression values unchanged",
+    test12ValuesClose(authored, {
+      preset: "sad",
+      intensity: 0.75,
+      blendshapes: null,
+    }),
+  );
   TestValidator.predicate(
     "mouth-only sampling preserves authored emotion and arbitrary seek",
     test12ValuesClose(
-    {
-      active,
-      gapAfterSeek,
-      activeAgain,
-      sameAuthoredObject: active.authored === authored,
-    },
-    {
-      active: { authored, mouth: { preset: "aa", intensity: 1 } },
-      gapAfterSeek: { authored, mouth: { preset: "neutral", intensity: 0 } },
-      activeAgain: { authored, mouth: { preset: "aa", intensity: 1 } },
-      sameAuthoredObject: true,
-    },
+      {
+        active,
+        gapAfterSeek,
+        activeAgain,
+        sameAuthoredObject: active.authored === authored,
+      },
+      {
+        active: { authored, mouth: { preset: "aa", intensity: 1 } },
+        gapAfterSeek: { authored, mouth: { preset: "neutral", intensity: 0 } },
+        activeAgain: { authored, mouth: { preset: "aa", intensity: 1 } },
+        sameAuthoredObject: true,
+      },
     ),
   );
 
@@ -154,7 +166,7 @@ export function test_engine_dialogue_viseme_join(): void {
     "corrupt final timing and invalid sampling are refused",
     {
       absentTiming: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinAutoMovieDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
@@ -163,7 +175,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "final-byte viseme timing",
       ),
       overlap: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinAutoMovieDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
@@ -175,7 +187,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "overlaps",
       ),
       badFrame: throwsError(
-        () : IAutoMovieDialogueExpressionLayers =>
+        (): IAutoMovieDialogueExpressionLayers =>
           sampleAutoMovieDialogueExpression({
             timeline: compiled.timeline!,
             frame: -1,
@@ -187,11 +199,15 @@ export function test_engine_dialogue_viseme_join(): void {
     { absentTiming: true, overlap: true, badFrame: true },
   );
 
-  const joinWith: (props: { line?: IAutoMovieProductionDialogueLine; visemes?: IAutoMovieProductionViseme[]; actor?: string; }) => IAutoMovieDialogueVisemeCompilation = (props: {
+  const joinWith: (props: {
     line?: IAutoMovieProductionDialogueLine;
     visemes?: IAutoMovieProductionViseme[];
     actor?: string;
-  }) : IAutoMovieDialogueVisemeCompilation =>
+  }) => IAutoMovieDialogueVisemeCompilation = (props: {
+    line?: IAutoMovieProductionDialogueLine;
+    visemes?: IAutoMovieProductionViseme[];
+    actor?: string;
+  }): IAutoMovieDialogueVisemeCompilation =>
     joinAutoMovieDialogueVisemes({
       line: props.line ?? line(),
       bindings: [
@@ -206,19 +222,21 @@ export function test_engine_dialogue_viseme_join(): void {
     "every malformed line and viseme boundary is refused at the join",
     {
       blankActor: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation => joinWith({ actor: " " }),
+        (): IAutoMovieDialogueVisemeCompilation => joinWith({ actor: " " }),
         "must not be blank",
       ),
       fractionalLineStart: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation => joinWith({ line: { ...line(), startFrame: 10.5 } }),
+        (): IAutoMovieDialogueVisemeCompilation =>
+          joinWith({ line: { ...line(), startFrame: 10.5 } }),
         "invalid range",
       ),
       fractionalLineEnd: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation => joinWith({ line: { ...line(), endFrame: 19.5 } }),
+        (): IAutoMovieDialogueVisemeCompilation =>
+          joinWith({ line: { ...line(), endFrame: 19.5 } }),
         "invalid range",
       ),
       negativeLineStart: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             line: { ...line(), startFrame: -1 },
             visemes: [
@@ -228,11 +246,12 @@ export function test_engine_dialogue_viseme_join(): void {
         "invalid range",
       ),
       reversedLine: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation => joinWith({ line: { ...line(), endFrame: 10 } }),
+        (): IAutoMovieDialogueVisemeCompilation =>
+          joinWith({ line: { ...line(), endFrame: 10 } }),
         "invalid range",
       ),
       fractionalVisemeStart: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             visemes: [
               { phoneme: "a", viseme: "aa", startFrame: 10.5, endFrame: 12 },
@@ -241,7 +260,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "outside or overlaps",
       ),
       fractionalVisemeEnd: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             visemes: [
               { phoneme: "a", viseme: "aa", startFrame: 10, endFrame: 12.5 },
@@ -250,7 +269,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "outside or overlaps",
       ),
       emptyViseme: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             visemes: [
               { phoneme: "a", viseme: "aa", startFrame: 12, endFrame: 12 },
@@ -259,7 +278,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "outside or overlaps",
       ),
       beyondLine: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             visemes: [
               { phoneme: "a", viseme: "aa", startFrame: 19, endFrame: 21 },
@@ -268,7 +287,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "outside or overlaps",
       ),
       unsupportedViseme: throwsError(
-        () : IAutoMovieDialogueVisemeCompilation =>
+        (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
             visemes: [
               {
@@ -282,7 +301,7 @@ export function test_engine_dialogue_viseme_join(): void {
         "unsupported mouth target",
       ),
       fractionalSample: throwsError(
-        () : IAutoMovieDialogueExpressionLayers =>
+        (): IAutoMovieDialogueExpressionLayers =>
           sampleAutoMovieDialogueExpression({
             timeline: compiled.timeline!,
             frame: 1.5,

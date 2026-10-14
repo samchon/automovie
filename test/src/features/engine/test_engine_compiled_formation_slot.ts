@@ -1,36 +1,42 @@
-import type { IAutoMovieCompiledFormation, IAutoMovieFormationSlot, IAutoMovieWorldSurface, IAutoMovieFormationDesign } from "@automovie/interface";
 import {
   compiledFormationSlot,
   formationSlot,
   materializeCompiledFormation,
   worldRamp,
 } from "@automovie/engine";
+import type {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationDesign,
+  IAutoMovieFormationSlot,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /** Thirty dressed members in five files, two of them promoted to heroes. */
-const unit: () => IAutoMovieFormationDesign = (): IAutoMovieFormationDesign => ({
-  id: "levy",
-  modelRecipe: "member",
-  count: 30,
-  layout: {
-    kind: "line",
-    files: 5,
-    ranks: 6,
-    spacing: { lateral: 2, depth: 3 },
-    dressing: { lateral: 0.3, depth: 0.2 },
-  },
-  anchor: { x: 4, y: 1, z: 2 },
-  facingDeg: 30,
-  seed: 42,
-  capabilities: [],
-  heroOverrides: [
-    { slot: 7, actor: "captain" },
-    { slot: 22, actor: "standard" },
-  ],
-});
+const unit: () => IAutoMovieFormationDesign =
+  (): IAutoMovieFormationDesign => ({
+    id: "levy",
+    modelRecipe: "member",
+    count: 30,
+    layout: {
+      kind: "line",
+      files: 5,
+      ranks: 6,
+      spacing: { lateral: 2, depth: 3 },
+      dressing: { lateral: 0.3, depth: 0.2 },
+    },
+    anchor: { x: 4, y: 1, z: 2 },
+    facingDeg: 30,
+    seed: 42,
+    capabilities: [],
+    heroOverrides: [
+      { slot: 7, actor: "captain" },
+      { slot: 22, actor: "standard" },
+    ],
+  });
 
 /** A bank rising half a metre per metre toward +z under the whole unit. */
 const bank: IAutoMovieWorldSurface = worldRamp({
@@ -76,48 +82,62 @@ export function test_engine_compiled_formation_slot(): void {
     formation: design,
     surfaces: [bank],
   });
-  const regenerated: IAutoMovieFormationSlot[] = Array.from({ length: design.count }, (_: unknown, slot: number) : IAutoMovieFormationSlot =>
-    compiledFormationSlot(compiled, slot),
+  const regenerated: IAutoMovieFormationSlot[] = Array.from(
+    { length: design.count },
+    (_: unknown, slot: number): IAutoMovieFormationSlot =>
+      compiledFormationSlot(compiled, slot),
   );
 
   TestValidator.predicate(
     "a compiled member is the member the grounded design places",
     test12ValuesClose(
       regenerated,
-      Array.from({ length: design.count }, (_: unknown, slot: number) : IAutoMovieFormationSlot =>
-        formationSlot({ ...design, ground: compiled.ground }, slot),
+      Array.from(
+        { length: design.count },
+        (_: unknown, slot: number): IAutoMovieFormationSlot =>
+          formationSlot({ ...design, ground: compiled.ground }, slot),
       ),
     ),
   );
 
-  TestValidator.predicate("every compiled member stands on the independently authored bank y=z/2", regenerated.length === 30 && regenerated.every((member: IAutoMovieFormationSlot): boolean => nclose(member.position.y, member.position.z / 2, 1e-9)));
-  const upTheBank: IAutoMovieFormationSlot = regenerated.reduce((highest: IAutoMovieFormationSlot, member: IAutoMovieFormationSlot) : IAutoMovieFormationSlot =>
-    member.position.z > highest.position.z ? member : highest,
+  TestValidator.predicate(
+    "every compiled member stands on the independently authored bank y=z/2",
+    regenerated.length === 30 &&
+      regenerated.every((member: IAutoMovieFormationSlot): boolean =>
+        nclose(member.position.y, member.position.z / 2, 1e-9),
+      ),
+  );
+  const upTheBank: IAutoMovieFormationSlot = regenerated.reduce(
+    (
+      highest: IAutoMovieFormationSlot,
+      member: IAutoMovieFormationSlot,
+    ): IAutoMovieFormationSlot =>
+      member.position.z > highest.position.z ? member : highest,
   );
   TestValidator.equals(
     "a compiled member keeps its identity and stands on its terrain",
     namedFacts([
       [
         "hero",
-        () : boolean =>
+        (): boolean =>
           regenerated[7]!.node === "captain" &&
           regenerated[7]!.actor === "captain",
       ],
       [
         "anonymous",
-        () : boolean =>
+        (): boolean =>
           regenerated[3]!.node === "formation:levy:slot:000003" &&
           regenerated[3]!.actor === null,
       ],
       [
         "onTheBank",
-        () : boolean =>
+        (): boolean =>
           compiled.ground.length === 1 &&
           upTheBank.position.y > design.anchor.y + 1,
       ],
       [
         "flatWithoutTerrain",
-        () : boolean =>
+        (): boolean =>
           nclose(
             formationSlot(design, upTheBank.slot).position.y,
             design.anchor.y,
@@ -126,21 +146,21 @@ export function test_engine_compiled_formation_slot(): void {
       ],
       [
         "designHero",
-        () : boolean =>
+        (): boolean =>
           formationSlot(design, 7).node === "captain" &&
           formationSlot(design, 7).actor === "captain",
       ],
       [
         "designAnonymous",
-        () : boolean =>
+        (): boolean =>
           formationSlot(design, 3).node === "formation:levy:slot:000003" &&
           formationSlot(design, 3).actor === null,
       ],
       [
         "outside",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieFormationSlot => compiledFormationSlot(compiled, 30),
+            (): IAutoMovieFormationSlot => compiledFormationSlot(compiled, 30),
             'Formation "levy" slot 30 is outside 0..29',
           ),
       ],

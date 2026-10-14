@@ -23,26 +23,64 @@ export function test_package_build_file_replacement(): void {
     { fail: ["reserve"], steps: ["reserve"] },
     { fail: ["release"], steps: ["reserve", "release", "discard"] },
     { fail: ["copy"], steps: ["reserve", "release", "copy", "discard"] },
-    { fail: ["publish"], steps: ["reserve", "release", "copy", "publish", "discard"] },
-    { fail: ["discard"], steps: ["reserve", "release", "copy", "publish", "discard"] },
-    { fail: ["copy", "discard"], steps: ["reserve", "release", "copy", "discard"] },
+    {
+      fail: ["publish"],
+      steps: ["reserve", "release", "copy", "publish", "discard"],
+    },
+    {
+      fail: ["discard"],
+      steps: ["reserve", "release", "copy", "publish", "discard"],
+    },
+    {
+      fail: ["copy", "discard"],
+      steps: ["reserve", "release", "copy", "discard"],
+    },
   ]) {
     const observed: string[] = [];
-    const errors: Map<string, Error> = new Map(scenario.fail.map((name: string) : [string, Error] => [name, new Error(name)]));
+    const errors: Map<string, Error> = new Map(
+      scenario.fail.map((name: string): [string, Error] => [
+        name,
+        new Error(name),
+      ]),
+    );
     const effect: (name: string) => void = (name: string): void => {
       observed.push(name);
       const error: Error | undefined = errors.get(name);
       if (error) throw error;
     };
     const host: IHumanBuildFileReplacement = {
-      reserve: () : () => void => { effect("reserve"); return () : void => effect("release"); },
-      copy: () : void => effect("copy"), publish: () : void => effect("publish"), discard: () : void => effect("discard"),
+      reserve: (): (() => void) => {
+        effect("reserve");
+        return (): void => effect("release");
+      },
+      copy: (): void => effect("copy"),
+      publish: (): void => effect("publish"),
+      discard: (): void => effect("discard"),
     };
     let caught: unknown;
-    try { replaceHumanBuildFile(host); } catch (error) { caught = error; }
-    const failures: unknown[] = caught instanceof AggregateError ? caught.errors : caught === undefined ? [] : [caught];
+    try {
+      replaceHumanBuildFile(host);
+    } catch (error) {
+      caught = error;
+    }
+    const failures: unknown[] =
+      caught instanceof AggregateError
+        ? caught.errors
+        : caught === undefined
+          ? []
+          : [caught];
     TestValidator.equals("replacement effect order", observed, scenario.steps);
-    TestValidator.equals("replacement failure count", failures.length, scenario.fail.length);
-    TestValidator.predicate("replacement failure identity", failures.every((error: unknown, index: number) : boolean => error === errors.get(scenario.fail[index]!)));
+    TestValidator.equals(
+      "replacement failure count",
+      failures.length,
+      scenario.fail.length,
+    );
+    TestValidator.predicate(
+      "replacement failure identity",
+      failures.every(
+        (error: unknown, index: number): boolean =>
+          error === errors.get(scenario.fail[index]!),
+      ),
+    );
   }
 }

@@ -1,8 +1,10 @@
 import { deriveAutoMovieDrawingSchedule } from "@automovie/engine";
 import {
-  type IAutoMovieDrawingGap, type IAutoMovieDrawingSchedule, type IAutoMovieDrawingScheduleRow,
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
+  type IAutoMovieDrawingGap,
+  type IAutoMovieDrawingSchedule,
+  type IAutoMovieDrawingScheduleRow,
   IAutoMovieDrawingSpacePlace,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -60,19 +62,36 @@ export function test_drawing_space_schedule(): void {
       schedule.subject,
       schedule.total,
       schedule.rows.length,
-      schedule.rows.reduce((sum: number, row: IAutoMovieDrawingScheduleRow) : number => sum + row.count, 0),
+      schedule.rows.reduce(
+        (sum: number, row: IAutoMovieDrawingScheduleRow): number =>
+          sum + row.count,
+        0,
+      ),
       environment.spaces.length,
     ],
     ["space", 3, 3, 3, 3],
   );
   TestValidator.equals(
     "every declared zone is named once, by the id the design gave it",
-    schedule.rows.flatMap((row: IAutoMovieDrawingScheduleRow) : string[] => row.members).sort(byText),
+    schedule.rows
+      .flatMap((row: IAutoMovieDrawingScheduleRow): string[] => row.members)
+      .sort(byText),
     ["hall", "roof-deck", "site"],
   );
 
   // 2. A room is located.
-  const hall: { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } = row(schedule, "hall");
+  const hall: {
+    place: IAutoMovieDrawingSpacePlace | null;
+    mark: string;
+    kind: string;
+    model: string | null;
+    width: number | null;
+    height: number | null;
+    count: number;
+    members: string[];
+    omittedMembers: number;
+    basis: "profile" | "fill" | "unmeasured";
+  } = row(schedule, "hall");
   TestValidator.predicate(
     "a room is scheduled at the size of its own declared volume",
     test12ValuesClose(
@@ -84,37 +103,45 @@ export function test_drawing_space_schedule(): void {
   );
   TestValidator.predicate(
     "a room states where it is, what is in it, and what reaches it",
-    test12ValuesClose(
-      hall.place,
-      {
-        kind: "space",
-        building: "unit-a",
-        parent: "site",
-        declared: {
-          min: { x: 0, y: 0, z: 0 },
-          max: { x: 10, y: 3, z: 6 },
-        },
-        // The footing hangs 0.7 below the floor the cell starts at, so the
-        // contents leave the cell downwards. The cell says how far the room
-        // reaches; this says where its content is.
-        content: {
-          min: { x: 0, y: -0.7, z: 0 },
-          max: { x: 10, y: 3, z: 6 },
-        },
-        fidelity: "exact",
-        contents: [
-          "atelier/door-leaf",
-          "atelier/floor-slab",
-          "atelier/footing",
-          "atelier/north-wall",
-        ],
-        omittedContents: 0,
-        adjacent: ["roof-deck"],
-        connectors: ["roof-stair", "service-ramp"],
+    test12ValuesClose(hall.place, {
+      kind: "space",
+      building: "unit-a",
+      parent: "site",
+      declared: {
+        min: { x: 0, y: 0, z: 0 },
+        max: { x: 10, y: 3, z: 6 },
       },
-    ),
+      // The footing hangs 0.7 below the floor the cell starts at, so the
+      // contents leave the cell downwards. The cell says how far the room
+      // reaches; this says where its content is.
+      content: {
+        min: { x: 0, y: -0.7, z: 0 },
+        max: { x: 10, y: 3, z: 6 },
+      },
+      fidelity: "exact",
+      contents: [
+        "atelier/door-leaf",
+        "atelier/floor-slab",
+        "atelier/footing",
+        "atelier/north-wall",
+      ],
+      omittedContents: 0,
+      adjacent: ["roof-deck"],
+      connectors: ["roof-stair", "service-ramp"],
+    }),
   );
-  const deck: { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } = row(schedule, "roof-deck");
+  const deck: {
+    place: IAutoMovieDrawingSpacePlace | null;
+    mark: string;
+    kind: string;
+    model: string | null;
+    width: number | null;
+    height: number | null;
+    count: number;
+    members: string[];
+    omittedMembers: number;
+    basis: "profile" | "fill" | "unmeasured";
+  } = row(schedule, "roof-deck");
   TestValidator.predicate(
     "the deck reports its cell and its contents separately",
     test12ValuesClose(
@@ -133,7 +160,18 @@ export function test_drawing_space_schedule(): void {
   );
 
   // 3. A zone that states no volume.
-  const site: { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } = row(schedule, "site");
+  const site: {
+    place: IAutoMovieDrawingSpacePlace | null;
+    mark: string;
+    kind: string;
+    model: string | null;
+    width: number | null;
+    height: number | null;
+    count: number;
+    members: string[];
+    omittedMembers: number;
+    basis: "profile" | "fill" | "unmeasured";
+  } = row(schedule, "site");
   TestValidator.equals(
     "a purely semantic container is unmeasured rather than zero-sized",
     [
@@ -158,7 +196,10 @@ export function test_drawing_space_schedule(): void {
   );
   TestValidator.equals(
     "the schedule says which zones it could not bound, and never prints a zero",
-    schedule.gaps.map((gap: IAutoMovieDrawingGap) : string[] => [gap.subject, gap.status]),
+    schedule.gaps.map((gap: IAutoMovieDrawingGap): string[] => [
+      gap.subject,
+      gap.status,
+    ]),
     [
       // `space-enclosure` states the other half of what a room row omits: the
       // fit-out gap covers what stands IN a room, this covers what encloses it.
@@ -171,7 +212,10 @@ export function test_drawing_space_schedule(): void {
   TestValidator.predicate(
     "the unbounded zone is counted in the gap rather than described as empty",
     schedule.gaps
-      .find((gap: IAutoMovieDrawingGap) : boolean => gap.subject === "space-geometry")!
+      .find(
+        (gap: IAutoMovieDrawingGap): boolean =>
+          gap.subject === "space-geometry",
+      )!
       .reason.startsWith("1 space(s) state no volume"),
   );
 
@@ -180,7 +224,18 @@ export function test_drawing_space_schedule(): void {
     environment: withExtraLeaves(environment, 11),
     subject: "space",
   });
-  const crowdedHall: { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } = row(crowded, "hall")!;
+  const crowdedHall: {
+    place: IAutoMovieDrawingSpacePlace | null;
+    mark: string;
+    kind: string;
+    model: string | null;
+    width: number | null;
+    height: number | null;
+    count: number;
+    members: string[];
+    omittedMembers: number;
+    basis: "profile" | "fill" | "unmeasured";
+  } = row(crowded, "hall")!;
   TestValidator.equals(
     "a crowded zone names the bound's worth and counts the rest",
     [
@@ -204,8 +259,14 @@ export function test_drawing_space_schedule(): void {
   TestValidator.equals(
     "identical rooms are separate rows, marked in an order the design cannot set",
     twinned.rows
-      .filter((candidate: IAutoMovieDrawingScheduleRow) : boolean => candidate.kind === "cell")
-      .map((candidate: IAutoMovieDrawingScheduleRow) : (string | string[])[] => [candidate.mark, candidate.members]),
+      .filter(
+        (candidate: IAutoMovieDrawingScheduleRow): boolean =>
+          candidate.kind === "cell",
+      )
+      .map((candidate: IAutoMovieDrawingScheduleRow): (string | string[])[] => [
+        candidate.mark,
+        candidate.members,
+      ]),
     [
       ["cell-01", ["cell-east"]],
       ["cell-02", ["cell-west"]],
@@ -250,15 +311,25 @@ export function test_drawing_space_schedule(): void {
   // 7. Opening and connector place kinds have no obsolete location gap.
   TestValidator.equals(
     "an opening and a connector now state a place, and owe no gap for it",
-    (["opening", "connector"] as const).map((subject: "opening" | "connector") : boolean[] => {
-      const other: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule({ environment, subject });
-      return [
-        other.rows.every((candidate: IAutoMovieDrawingScheduleRow) : boolean => candidate.place?.kind === subject),
-        // The gap this replaced. It said the location had to be read from the
-        // design; the design is where the derivation now reads it from.
-        other.gaps.some((gap: IAutoMovieDrawingGap) : boolean => gap.subject === `${subject}-location`),
-      ];
-    }),
+    (["opening", "connector"] as const).map(
+      (subject: "opening" | "connector"): boolean[] => {
+        const other: IAutoMovieDrawingSchedule = deriveAutoMovieDrawingSchedule(
+          { environment, subject },
+        );
+        return [
+          other.rows.every(
+            (candidate: IAutoMovieDrawingScheduleRow): boolean =>
+              candidate.place?.kind === subject,
+          ),
+          // The gap this replaced. It said the location had to be read from the
+          // design; the design is where the derivation now reads it from.
+          other.gaps.some(
+            (gap: IAutoMovieDrawingGap): boolean =>
+              gap.subject === `${subject}-location`,
+          ),
+        ];
+      },
+    ),
     [
       [true, false],
       [true, false],
@@ -266,16 +337,44 @@ export function test_drawing_space_schedule(): void {
   );
 }
 
-const byText: (left: string, right: string) => number = (left: string, right: string): number =>
-  left < right ? -1 : left > right ? 1 : 0;
+const byText: (left: string, right: string) => number = (
+  left: string,
+  right: string,
+): number => (left < right ? -1 : left > right ? 1 : 0);
 
 /** The one row a zone owns, since a room schedule gives each zone its own. */
-const row: (schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>, space: string) => { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } = (
+const row: (
   schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>,
   space: string,
-) : { place: IAutoMovieDrawingSpacePlace | null; mark: string; kind: string; model: string | null; width: number | null; height: number | null; count: number; members: string[]; omittedMembers: number; basis: "profile" | "fill" | "unmeasured"; } => {
-  const found: IAutoMovieDrawingScheduleRow = schedule.rows.find((candidate: IAutoMovieDrawingScheduleRow) : boolean =>
-    candidate.members.includes(space),
+) => {
+  place: IAutoMovieDrawingSpacePlace | null;
+  mark: string;
+  kind: string;
+  model: string | null;
+  width: number | null;
+  height: number | null;
+  count: number;
+  members: string[];
+  omittedMembers: number;
+  basis: "profile" | "fill" | "unmeasured";
+} = (
+  schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>,
+  space: string,
+): {
+  place: IAutoMovieDrawingSpacePlace | null;
+  mark: string;
+  kind: string;
+  model: string | null;
+  width: number | null;
+  height: number | null;
+  count: number;
+  members: string[];
+  omittedMembers: number;
+  basis: "profile" | "fill" | "unmeasured";
+} => {
+  const found: IAutoMovieDrawingScheduleRow = schedule.rows.find(
+    (candidate: IAutoMovieDrawingScheduleRow): boolean =>
+      candidate.members.includes(space),
   )!;
   // Narrowed here rather than at every read. `place` is a discriminated union
   // since an opening and a connector gained their own locations, and a room row
@@ -289,7 +388,10 @@ const row: (schedule: ReturnType<typeof deriveAutoMovieDrawingSchedule>, space: 
 };
 
 /** The same design with one more logical space under the building root. */
-const withSpace: (environment: IAutoMovieBuiltEnvironment, space: IAutoMovieBuiltSpace) => IAutoMovieBuiltEnvironment = (
+const withSpace: (
+  environment: IAutoMovieBuiltEnvironment,
+  space: IAutoMovieBuiltSpace,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
   space: IAutoMovieBuiltSpace,
 ): IAutoMovieBuiltEnvironment => ({
@@ -297,9 +399,10 @@ const withSpace: (environment: IAutoMovieBuiltEnvironment, space: IAutoMovieBuil
   spaces: [...environment.spaces, space],
 });
 
-
 /** The same design with two rooms alike in every scheduled column. */
-const twinRooms: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnvironment = (
+const twinRooms: (
+  environment: IAutoMovieBuiltEnvironment,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
@@ -325,24 +428,44 @@ const twinRooms: (environment: IAutoMovieBuiltEnvironment) => IAutoMovieBuiltEnv
 });
 
 /** The same design with `count` more staged leaves standing in the hall. */
-const withExtraLeaves: (environment: IAutoMovieBuiltEnvironment, count: number) => IAutoMovieBuiltEnvironment = (
+const withExtraLeaves: (
+  environment: IAutoMovieBuiltEnvironment,
+  count: number,
+) => IAutoMovieBuiltEnvironment = (
   environment: IAutoMovieBuiltEnvironment,
   count: number,
 ): IAutoMovieBuiltEnvironment => ({
   ...environment,
   elements: [
     ...environment.elements,
-    ...Array.from({ length: count }, (_: unknown, index: number) : { id: string; kind: string; parent: string; transform: { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; }; model: string; space: string; } => ({
-      id: `crate-${String(index).padStart(2, "0")}`,
-      kind: "prop",
-      parent: "shell",
-      transform: {
-        translation: { x: 1 + index * 0.1, y: 0.5, z: 1 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
-      model: "leaf",
-      space: "hall",
-    })),
+    ...Array.from(
+      { length: count },
+      (
+        _: unknown,
+        index: number,
+      ): {
+        id: string;
+        kind: string;
+        parent: string;
+        transform: {
+          translation: { x: number; y: number; z: number };
+          rotation: { x: number; y: number; z: number; w: number };
+          scale: { x: number; y: number; z: number };
+        };
+        model: string;
+        space: string;
+      } => ({
+        id: `crate-${String(index).padStart(2, "0")}`,
+        kind: "prop",
+        parent: "shell",
+        transform: {
+          translation: { x: 1 + index * 0.1, y: 0.5, z: 1 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        model: "leaf",
+        space: "hall",
+      }),
+    ),
   ],
 });

@@ -1,11 +1,15 @@
 import {
   AUTOMOVIE_FORMATION_CHUNK_SIZE,
-  materializeCompiledFormation,
   canonicalizeAutoMovieJson,
+  materializeCompiledFormation,
   productionRuntimeModelId,
   worldRamp,
 } from "@automovie/engine";
-import { IAutoMovieCompiledFormation, IAutoMovieFormationChunk, IAutoMovieCompiledFormationHero, IAutoMovieCompiledFormationLod,
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledFormationHero,
+  IAutoMovieCompiledFormationLod,
+  IAutoMovieFormationChunk,
   IAutoMovieFormationDesign,
   IAutoMovieModelRecipe,
   IAutoMovieWorldSurface,
@@ -27,7 +31,9 @@ import {
  * File `slot` stands at `x = slot - 512`, so the rank spans -512 to 512 and the
  * first chunk ends one metre short of the last member.
  */
-const column: (overrides?: Partial<IAutoMovieFormationDesign>) => IAutoMovieFormationDesign = (
+const column: (
+  overrides?: Partial<IAutoMovieFormationDesign>,
+) => IAutoMovieFormationDesign = (
   overrides: Partial<IAutoMovieFormationDesign> = {},
 ): IAutoMovieFormationDesign => ({
   id: "column",
@@ -51,7 +57,11 @@ const column: (overrides?: Partial<IAutoMovieFormationDesign>) => IAutoMovieForm
   ...overrides,
 });
 
-const recipe: (id: string, lod: IAutoMovieModelRecipe["lod"], parameters?: IAutoMovieModelRecipe["parameters"]) => IAutoMovieModelRecipe = (
+const recipe: (
+  id: string,
+  lod: IAutoMovieModelRecipe["lod"],
+  parameters?: IAutoMovieModelRecipe["parameters"],
+) => IAutoMovieModelRecipe = (
   id: string,
   lod: IAutoMovieModelRecipe["lod"],
   parameters: IAutoMovieModelRecipe["parameters"] = { height: 1.8 },
@@ -67,7 +77,10 @@ const recipe: (id: string, lod: IAutoMovieModelRecipe["lod"], parameters?: IAuto
 });
 
 /** A declared hero tier, a near tier of the base recipe, and a far tier nobody declared. */
-const tiered: () => Map<string, IAutoMovieModelRecipe> = (): Map<string, IAutoMovieModelRecipe> =>
+const tiered: () => Map<string, IAutoMovieModelRecipe> = (): Map<
+  string,
+  IAutoMovieModelRecipe
+> =>
   new Map([
     [
       "member",
@@ -85,7 +98,12 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
   `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
 
 /** A flat rectangle from one ground-plan point to another, `width` across. */
-const strip: (id: string, from: { x: number; z: number; }, to: { x: number; z: number; }, width: number) => IAutoMovieWorldSurface = (
+const strip: (
+  id: string,
+  from: { x: number; z: number },
+  to: { x: number; z: number },
+  width: number,
+) => IAutoMovieWorldSurface = (
   id: string,
   from: { x: number; z: number },
   to: { x: number; z: number },
@@ -130,48 +148,60 @@ const strip: (id: string, from: { x: number; z: number; }, to: { x: number; z: n
  */
 export function test_engine_compiled_formation_runtime(): void {
   // 1. Chunks.
-  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({ formation: column() });
+  const compiled: IAutoMovieCompiledFormation = materializeCompiledFormation({
+    formation: column(),
+  });
   const [first, last]: IAutoMovieFormationChunk[] = compiled.chunks;
   TestValidator.equals(
     "one member past a chunk compiles to two exact chunks",
     namedFacts([
-      ["two", () : boolean => compiled.chunks.length === 2],
+      ["two", (): boolean => compiled.chunks.length === 2],
       [
         "firstRange",
-        () : boolean =>
+        (): boolean =>
           first!.index === 0 && first!.start === 0 && first!.count === 1_024,
       ],
-      ["firstAnonymous", () : boolean => first!.anonymousCount === 1_023],
+      ["firstAnonymous", (): boolean => first!.anonymousCount === 1_023],
       [
         "firstBounds",
-        () : boolean =>
+        (): boolean =>
           vclose(first!.bounds.min, { x: -512, y: 0, z: 0 }, 0) &&
           vclose(first!.bounds.max, { x: 511, y: 0, z: 0 }, 0),
       ],
       [
         "firstCentroid",
-        () : boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(first!.centroid, { x: -0.5, y: 0, z: 0 }, 1e-9),
       ],
       [
         "lastRange",
-        () : boolean => last!.index === 1 && last!.start === 1_024 && last!.count === 1,
+        (): boolean =>
+          last!.index === 1 && last!.start === 1_024 && last!.count === 1,
       ],
-      ["lastAnonymous", () : boolean => last!.anonymousCount === 0],
-      ["lastBounds", () : boolean => vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) && vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0)],
-      ["lastCentroid", () : boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0)],
+      ["lastAnonymous", (): boolean => last!.anonymousCount === 0],
+      [
+        "lastBounds",
+        (): boolean =>
+          vclose(last!.bounds.min, { x: 512, y: 0, z: 0 }, 0) &&
+          vclose(last!.bounds.max, { x: 512, y: 0, z: 0 }, 0),
+      ],
+      [
+        "lastCentroid",
+        (): boolean => vclose(last!.centroid, { x: 512, y: 0, z: 0 }, 0),
+      ],
       [
         "total",
-        () : boolean => compiled.count === 1_025 && compiled.anonymousCount === 1_023,
+        (): boolean =>
+          compiled.count === 1_025 && compiled.anonymousCount === 1_023,
       ],
       [
         "totalBounds",
-        () : boolean =>
+        (): boolean =>
           nclose(compiled.bounds.min.x, -512, 0) &&
           nclose(compiled.bounds.max.x, 512, 0),
       ],
       [
         "totalCentroid",
-        () : boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
+        (): boolean => vclose(compiled.centroid, { x: 0, y: 0, z: 0 }, 1e-9),
       ],
     ]),
     {
@@ -199,12 +229,14 @@ export function test_engine_compiled_formation_runtime(): void {
     namedFacts([
       [
         "order",
-        () : boolean =>
-          compiled.heroes.map((hero: IAutoMovieCompiledFormationHero) : string => hero.actor).join(",") === "front,rear",
+        (): boolean =>
+          compiled.heroes
+            .map((hero: IAutoMovieCompiledFormationHero): string => hero.actor)
+            .join(",") === "front,rear",
       ],
       [
         "front",
-        () : boolean =>
+        (): boolean =>
           vclose(
             compiled.heroes[0]!.transform.translation,
             { x: -512, y: 0, z: 0 },
@@ -213,7 +245,7 @@ export function test_engine_compiled_formation_runtime(): void {
       ],
       [
         "rear",
-        () : boolean =>
+        (): boolean =>
           vclose(
             compiled.heroes[1]!.transform.translation,
             { x: 512, y: 0, z: 0 },
@@ -222,7 +254,7 @@ export function test_engine_compiled_formation_runtime(): void {
       ],
       [
         "unturned",
-        () : boolean =>
+        (): boolean =>
           qclose(
             compiled.heroes[0]!.transform.rotation,
             { x: 0, y: 0, z: 0, w: 1 },
@@ -231,12 +263,12 @@ export function test_engine_compiled_formation_runtime(): void {
       ],
       [
         "unitScale",
-        () : boolean =>
+        (): boolean =>
           vclose(compiled.heroes[0]!.transform.scale, { x: 1, y: 1, z: 1 }, 0),
       ],
       [
         "quarter",
-        () : boolean =>
+        (): boolean =>
           qclose(
             turned.heroes[0]!.transform.rotation,
             { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
@@ -260,34 +292,46 @@ export function test_engine_compiled_formation_runtime(): void {
     formation: column(),
     recipes,
   });
-  const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation({
-    formation: column(),
-    recipes: new Map([
-      ["member", recipe("member", [], { height: Number.NaN })],
-    ]),
-  });
+  const unencodable: IAutoMovieCompiledFormation = materializeCompiledFormation(
+    {
+      formation: column(),
+      recipes: new Map([
+        ["member", recipe("member", [], { height: Number.NaN })],
+      ]),
+    },
+  );
   TestValidator.equals(
     "anonymous tiers drop the hero tier and bind each recipe digest",
     namedFacts([
       [
         "tiers",
-        () : boolean => withTiers.lod.map((item: IAutoMovieCompiledFormationLod) : "hero" | "near" | "far" => item.tier).join(",") === "near,far",
+        (): boolean =>
+          withTiers.lod
+            .map(
+              (item: IAutoMovieCompiledFormationLod): "hero" | "near" | "far" =>
+                item.tier,
+            )
+            .join(",") === "near,far",
       ],
       [
         "nearDigest",
-        () : boolean =>
+        (): boolean =>
           withTiers.lod[0]!.recipeDigest === nodeDigest(recipes.get("member")),
       ],
       [
         "models",
-        () : boolean =>
-          withTiers.lod.map((item: IAutoMovieCompiledFormationLod): string => item.model).join() === "automovie:model:member,automovie:model:member-far" && withTiers.lod.every(
-            (item: IAutoMovieCompiledFormationLod) : boolean => item.model === productionRuntimeModelId(item.recipe),
+        (): boolean =>
+          withTiers.lod
+            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
+            .join() === "automovie:model:member,automovie:model:member-far" &&
+          withTiers.lod.every(
+            (item: IAutoMovieCompiledFormationLod): boolean =>
+              item.model === productionRuntimeModelId(item.recipe),
           ),
       ],
       [
         "defaultTier",
-        () : boolean =>
+        (): boolean =>
           compiled.lod.length === 1 &&
           compiled.lod[0]!.tier === "near" &&
           compiled.lod[0]!.maxDistance === null &&
@@ -295,7 +339,7 @@ export function test_engine_compiled_formation_runtime(): void {
       ],
       [
         "unencodable",
-        () : boolean =>
+        (): boolean =>
           unencodable.lod.length === 1 &&
           unencodable.lod[0]!.recipe === "member",
       ],
@@ -310,7 +354,10 @@ export function test_engine_compiled_formation_runtime(): void {
   );
 
   // 4. Radius.
-  const radius: (radii: ReadonlyArray<readonly [string, number]>, tierRecipes?: ReadonlyMap<string, IAutoMovieModelRecipe>) => number = (
+  const radius: (
+    radii: ReadonlyArray<readonly [string, number]>,
+    tierRecipes?: ReadonlyMap<string, IAutoMovieModelRecipe>,
+  ) => number = (
     radii: ReadonlyArray<readonly [string, number]>,
     tierRecipes: ReadonlyMap<string, IAutoMovieModelRecipe> = recipes,
   ): number =>
@@ -324,21 +371,29 @@ export function test_engine_compiled_formation_runtime(): void {
     namedFacts([
       [
         "largest",
-        () : boolean =>
-          nclose(radius([
-            ["member", 0.4],
-            ["member-far", 1.2],
-          ]), 1.2, 0),
+        (): boolean =>
+          nclose(
+            radius([
+              ["member", 0.4],
+              ["member-far", 1.2],
+            ]),
+            1.2,
+            0,
+          ),
       ],
-      ["borrowsBase", () : boolean => nclose(radius([["member", 0.4]]), 0.4, 0)],
-      ["halfMetre", () : boolean => nclose(radius([]), 0.5, 0)],
+      ["borrowsBase", (): boolean => nclose(radius([["member", 0.4]]), 0.4, 0)],
+      ["halfMetre", (): boolean => nclose(radius([]), 0.5, 0)],
       [
         "centimetreFloor",
-        () : boolean =>
-          nclose(radius(
-            [["member", 0.001]],
-            new Map([["member", recipe("member", [])]]),
-          ), 0.01, 0),
+        (): boolean =>
+          nclose(
+            radius(
+              [["member", 0.001]],
+              new Map([["member", recipe("member", [])]]),
+            ),
+            0.01,
+            0,
+          ),
       ],
     ]),
     {
@@ -350,8 +405,18 @@ export function test_engine_compiled_formation_runtime(): void {
   );
 
   // 5. Terrain snapshot. The rank's footprint is x in [-512, 512] at z = 0.
-  const under: IAutoMovieWorldSurface = strip("under", { x: -600, z: 0 }, { x: 600, z: 0 }, 2);
-  const alsoUnder: IAutoMovieWorldSurface = strip("also-under", { x: -10, z: 0 }, { x: 10, z: 0 }, 2);
+  const under: IAutoMovieWorldSurface = strip(
+    "under",
+    { x: -600, z: 0 },
+    { x: 600, z: 0 },
+    2,
+  );
+  const alsoUnder: IAutoMovieWorldSurface = strip(
+    "also-under",
+    { x: -10, z: 0 },
+    { x: 10, z: 0 },
+    2,
+  );
   const grounded: IAutoMovieCompiledFormation = materializeCompiledFormation({
     formation: column(),
     surfaces: [
@@ -368,13 +433,14 @@ export function test_engine_compiled_formation_runtime(): void {
     namedFacts([
       [
         "reaching",
-        () : boolean =>
-          grounded.ground.map((surface: IAutoMovieWorldSurface) : string => surface.id).join(",") ===
-          "also-under,under",
+        (): boolean =>
+          grounded.ground
+            .map((surface: IAutoMovieWorldSurface): string => surface.id)
+            .join(",") === "also-under,under",
       ],
       [
         "levelSummary",
-        () : boolean =>
+        (): boolean =>
           vclose(grounded.bounds.min, compiled.bounds.min, 0) &&
           vclose(grounded.bounds.max, compiled.bounds.max, 0),
       ],
@@ -384,25 +450,31 @@ export function test_engine_compiled_formation_runtime(): void {
 
   // 6. Digest.
   const { digest, ...core }: IAutoMovieCompiledFormation = compiled;
-  const { digest: groundedDigest, ...groundedCore }: IAutoMovieCompiledFormation = grounded;
+  const {
+    digest: groundedDigest,
+    ...groundedCore
+  }: IAutoMovieCompiledFormation = grounded;
   TestValidator.equals(
     "the digest is the Node digest of the record and follows its input",
     namedFacts([
-      ["node", () : boolean => digest === nodeDigest(core)],
-      ["nodeGrounded", () : boolean => groundedDigest === nodeDigest(groundedCore)],
+      ["node", (): boolean => digest === nodeDigest(core)],
+      [
+        "nodeGrounded",
+        (): boolean => groundedDigest === nodeDigest(groundedCore),
+      ],
       [
         "repeatable",
-        () : boolean =>
+        (): boolean =>
           materializeCompiledFormation({ formation: column() }).digest ===
           digest,
       ],
       [
         "seed",
-        () : boolean =>
+        (): boolean =>
           materializeCompiledFormation({ formation: column({ seed: 12 }) })
             .digest !== digest,
       ],
-      ["terrain", () : boolean => groundedDigest !== digest],
+      ["terrain", (): boolean => groundedDigest !== digest],
     ]),
     {
       node: true,
@@ -417,13 +489,13 @@ export function test_engine_compiled_formation_runtime(): void {
   TestValidator.equals(
     "defaults compile a bare record and a hero outside the unit refuses",
     namedFacts([
-      ["noTerrain", () : boolean => compiled.ground.length === 0],
-      ["halfMetre", () : boolean => nclose(compiled.projectionRadius, 0.5, 0)],
+      ["noTerrain", (): boolean => compiled.ground.length === 0],
+      ["halfMetre", (): boolean => nclose(compiled.projectionRadius, 0.5, 0)],
       [
         "heroOutside",
-        () : boolean =>
+        (): boolean =>
           throwsError(
-            () : IAutoMovieCompiledFormation =>
+            (): IAutoMovieCompiledFormation =>
               materializeCompiledFormation({
                 formation: column({
                   count: 2,

@@ -24,44 +24,50 @@ const slope: ReturnType<typeof worldRamp> = worldRamp({
   walkable: true,
 });
 
-const formation: ReturnType<typeof materializeCompiledFormation> = materializeCompiledFormation({
-  formation: {
-    id: "unit",
-    modelRecipe: "member",
-    count: 12,
-    layout: {
-      kind: "line",
-      files: 4,
-      ranks: 3,
-      spacing: { lateral: 1, depth: 1 },
+const formation: ReturnType<typeof materializeCompiledFormation> =
+  materializeCompiledFormation({
+    formation: {
+      id: "unit",
+      modelRecipe: "member",
+      count: 12,
+      layout: {
+        kind: "line",
+        files: 4,
+        ranks: 3,
+        spacing: { lateral: 1, depth: 1 },
+      },
+      anchor: { x: 0, y: 1, z: 1 },
+      facingDeg: 0,
+      seed: 5,
+      capabilities: [],
+      heroOverrides: [{ slot: 2, actor: "leader" }],
     },
-    anchor: { x: 0, y: 1, z: 1 },
-    facingDeg: 0,
-    seed: 5,
-    capabilities: [],
-    heroOverrides: [{ slot: 2, actor: "leader" }],
-  },
-  surfaces: [slope],
-});
+    surfaces: [slope],
+  });
 
 /** A crowd whose design table, default excluded, is tall 2 and short 1. */
-const crowd: ReturnType<typeof materializeCompiledInstanceSet> = materializeCompiledInstanceSet({
-  instanceSet: {
-    id: "crowd",
-    modelRecipe: "body",
-    prototypes: [
-      { id: "tall", modelRecipe: "tall-body", weight: 2 },
-      { id: "short", modelRecipe: "short-body", weight: 1 },
-    ],
-    count: COUNT,
-    layout: { kind: "grid", rows: 50, columns: 40, spacing: { x: 1, z: 1 } },
-    anchor: { x: 0, y: 0, z: 0 },
-    facingDeg: 0,
-    seed: 99,
-    variation: { scale: { min: 1, max: 1 }, palette: ["#ffffff"], traits: [] },
-  },
-  world: { routes: [] },
-});
+const crowd: ReturnType<typeof materializeCompiledInstanceSet> =
+  materializeCompiledInstanceSet({
+    instanceSet: {
+      id: "crowd",
+      modelRecipe: "body",
+      prototypes: [
+        { id: "tall", modelRecipe: "tall-body", weight: 2 },
+        { id: "short", modelRecipe: "short-body", weight: 1 },
+      ],
+      count: COUNT,
+      layout: { kind: "grid", rows: 50, columns: 40, spacing: { x: 1, z: 1 } },
+      anchor: { x: 0, y: 0, z: 0 },
+      facingDeg: 0,
+      seed: 99,
+      variation: {
+        scale: { min: 1, max: 1 },
+        palette: ["#ffffff"],
+        traits: [],
+      },
+    },
+    world: { routes: [] },
+  });
 
 /**
  * A shot source's deterministic helpers answer from the compiled runtime the
@@ -93,31 +99,47 @@ const crowd: ReturnType<typeof materializeCompiledInstanceSet> = materializeComp
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit borrows the module-owned compiled fixtures and owns fresh oracle/result arrays; it invokes no production compiler host, filesystem, native renderer, browser or GPU and replaces no foreign method.
  */
 export function test_engine_source_oracle(): void {
-  const oracle: ReturnType<typeof createAutoMovieSourceOracle> = createAutoMovieSourceOracle({
-    world: { surfaces: [slope] },
-    formationRuntime: { unit: formation },
-    instanceSetRuntime: { crowd },
-  });
-  const members: ReturnType<typeof instanceSlot>[] = Array.from({ length: COUNT }, (_: unknown, slot: number): ReturnType<typeof instanceSlot> =>
-    oracle.instanceSlot("crowd", slot),
+  const oracle: ReturnType<typeof createAutoMovieSourceOracle> =
+    createAutoMovieSourceOracle({
+      world: { surfaces: [slope] },
+      formationRuntime: { unit: formation },
+      instanceSetRuntime: { crowd },
+    });
+  const members: ReturnType<typeof instanceSlot>[] = Array.from(
+    { length: COUNT },
+    (_: unknown, slot: number): ReturnType<typeof instanceSlot> =>
+      oracle.instanceSlot("crowd", slot),
   );
   const share: (prototype: string) => number = (prototype: string): number =>
-    members.filter((member: ReturnType<typeof instanceSlot>): boolean => member.prototype === prototype).length / COUNT;
+    members.filter(
+      (member: ReturnType<typeof instanceSlot>): boolean =>
+        member.prototype === prototype,
+    ).length / COUNT;
 
   TestValidator.predicate(
     "the source oracle's formation members are the compiled record's",
     test12ValuesClose(
-    Array.from({ length: 12 }, (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> => oracle.formationSlot("unit", slot)),
-    Array.from({ length: 12 }, (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
-      compiledFormationSlot(formation, slot),
-    ),
+      Array.from(
+        { length: 12 },
+        (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
+          oracle.formationSlot("unit", slot),
+      ),
+      Array.from(
+        { length: 12 },
+        (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
+          compiledFormationSlot(formation, slot),
+      ),
     ),
   );
   TestValidator.predicate(
     "the source oracle's instance members are the compiled set's",
     test12ValuesClose(
-    members,
-    Array.from({ length: COUNT }, (_: unknown, slot: number): ReturnType<typeof instanceSlot> => instanceSlot(crowd, slot)),
+      members,
+      Array.from(
+        { length: COUNT },
+        (_: unknown, slot: number): ReturnType<typeof instanceSlot> =>
+          instanceSlot(crowd, slot),
+      ),
     ),
   );
 
@@ -127,7 +149,11 @@ export function test_engine_source_oracle(): void {
       [
         "distance",
         (): boolean =>
-          nclose(oracle.distance({ x: 1, y: 2, z: 3 }, { x: 4, y: 6, z: 15 }), 13, 0),
+          nclose(
+            oracle.distance({ x: 1, y: 2, z: 3 }, { x: 4, y: 6, z: 15 }),
+            13,
+            0,
+          ),
       ],
       [
         "groundOnSlope",
@@ -137,22 +163,52 @@ export function test_engine_source_oracle(): void {
         "groundOverNothing",
         (): boolean => nclose(oracle.groundHeight({ x: 100, z: 100 }), 0, 0),
       ],
-      ["heroNamed", (): boolean => oracle.formationSlot("unit", 2).node === "leader"],
+      [
+        "heroNamed",
+        (): boolean => oracle.formationSlot("unit", 2).node === "leader",
+      ],
       [
         "membersFollowSlope",
         (): boolean =>
-          Array.from({ length: 12 }, (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
-            oracle.formationSlot("unit", slot),
-          ).some((member: ReturnType<typeof compiledFormationSlot>): boolean => Math.abs(member.position.y - 1) > 0.3),
+          Array.from(
+            { length: 12 },
+            (
+              _: unknown,
+              slot: number,
+            ): ReturnType<typeof compiledFormationSlot> =>
+              oracle.formationSlot("unit", slot),
+          ).some(
+            (member: ReturnType<typeof compiledFormationSlot>): boolean =>
+              Math.abs(member.position.y - 1) > 0.3,
+          ),
       ],
-      ["default", (): boolean => { const value: number = share("default"); return nclose(value, .25, .04) && Math.abs(value - .25) < .04; }],
-      ["tall", (): boolean => { const value: number = share("tall"); return nclose(value, .5, .04) && Math.abs(value - .5) < .04; }],
-      ["short", (): boolean => { const value: number = share("short"); return nclose(value, .25, .04) && Math.abs(value - .25) < .04; }],
+      [
+        "default",
+        (): boolean => {
+          const value: number = share("default");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
+      [
+        "tall",
+        (): boolean => {
+          const value: number = share("tall");
+          return nclose(value, 0.5, 0.04) && Math.abs(value - 0.5) < 0.04;
+        },
+      ],
+      [
+        "short",
+        (): boolean => {
+          const value: number = share("short");
+          return nclose(value, 0.25, 0.04) && Math.abs(value - 0.25) < 0.04;
+        },
+      ],
       [
         "unknownFormation",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof compiledFormationSlot> => oracle.formationSlot("missing", 0),
+            (): ReturnType<typeof compiledFormationSlot> =>
+              oracle.formationSlot("missing", 0),
             'Formation "missing" is unavailable.',
           ),
       ],
@@ -160,7 +216,8 @@ export function test_engine_source_oracle(): void {
         "inheritedFormation",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof compiledFormationSlot> => oracle.formationSlot("toString", 0),
+            (): ReturnType<typeof compiledFormationSlot> =>
+              oracle.formationSlot("toString", 0),
             'Formation "toString" is unavailable.',
           ),
       ],
@@ -168,7 +225,8 @@ export function test_engine_source_oracle(): void {
         "unknownInstanceSet",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => oracle.instanceSlot("missing", 0),
+            (): ReturnType<typeof instanceSlot> =>
+              oracle.instanceSlot("missing", 0),
             'Instance set "missing" is unavailable.',
           ),
       ],
@@ -176,7 +234,8 @@ export function test_engine_source_oracle(): void {
         "inheritedInstanceSet",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => oracle.instanceSlot("constructor", 0),
+            (): ReturnType<typeof instanceSlot> =>
+              oracle.instanceSlot("constructor", 0),
             'Instance set "constructor" is unavailable.',
           ),
       ],

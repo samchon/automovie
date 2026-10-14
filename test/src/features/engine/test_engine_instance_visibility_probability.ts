@@ -1,7 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
+
+import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 import { namedFacts, nclose } from "../internal/predicates";
 import { sampleInstanceVariationSlots as slots } from "../internal/sampleInstanceVariationSlots";
-import { createInstanceVariationPlacement as crowd } from "../internal/createInstanceVariationPlacement";
 
 const COUNT: number = 2_000;
 
@@ -19,7 +20,9 @@ const COUNT: number = 2_000;
  */
 export function test_engine_instance_visibility_probability(): void {
   // 6. Visibility.
-  const visibleShare: (visibleProbability?: number) => number = (visibleProbability?: number): number => {
+  const visibleShare: (visibleProbability?: number) => number = (
+    visibleProbability?: number,
+  ): number => {
     const shown: ReturnType<typeof slots> = slots(
       crowd({
         variation: {
@@ -31,21 +34,26 @@ export function test_engine_instance_visibility_probability(): void {
           : {}),
       }),
     );
-    return shown.filter((member: (typeof shown)[number]): boolean => member.visible === true).length / COUNT;
+    return (
+      shown.filter(
+        (member: (typeof shown)[number]): boolean => member.visible === true,
+      ).length / COUNT
+    );
   };
   TestValidator.equals(
     "a visibility probability is the share of members shown",
     namedFacts([
       ["never", (): boolean => nclose(visibleShare(0), 0, 0)],
       ["always", (): boolean => nclose(visibleShare(1), 1, 0)],
-      ["some", (): boolean => {
-        const share: number = visibleShare(0.3);
-        return nclose(share, 0.3, 0.04) && Math.abs(share - 0.3) < 0.04;
-      }],
+      [
+        "some",
+        (): boolean => {
+          const share: number = visibleShare(0.3);
+          return nclose(share, 0.3, 0.04) && Math.abs(share - 0.3) < 0.04;
+        },
+      ],
       ["absent", (): boolean => nclose(visibleShare(), 1, 0)],
     ]),
     { never: true, always: true, some: true, absent: true },
   );
-
-
 }

@@ -24,51 +24,199 @@ export async function test_package_build_publication(): Promise<void> {
     steps: string[];
     errors: string[];
   }[] = [
-    { previous: false, failures: [], steps: ["stage", "node", "browser", "install", "discard"], errors: [] },
-    { previous: true, failures: [], steps: ["stage", "node", "browser", "backup", "install", "remove", "discard"], errors: [] },
-    { previous: true, failures: ["stage"], steps: ["stage"], errors: ["stage"] },
-    { previous: true, failures: ["node"], steps: ["stage", "node", "discard"], errors: ["node"] },
-    { previous: true, failures: ["browser"], steps: ["stage", "node", "browser", "discard"], errors: ["browser"] },
-    { previous: true, failures: ["backup"], steps: ["stage", "node", "browser", "backup", "discard"], errors: ["backup"] },
-    { previous: false, failures: ["install"], steps: ["stage", "node", "browser", "install", "restore", "discard"], errors: ["install"] },
-    { previous: true, failures: ["install"], steps: ["stage", "node", "browser", "backup", "install", "restore", "remove", "discard"], errors: ["install"] },
-    { previous: true, failures: ["install", "restore"], steps: ["stage", "node", "browser", "backup", "install", "restore", "discard"], errors: ["install", "restore"] },
-    { previous: true, failures: ["remove"], steps: ["stage", "node", "browser", "backup", "install", "remove", "discard"], errors: ["remove"] },
-    { previous: false, failures: ["discard"], steps: ["stage", "node", "browser", "install", "discard"], errors: ["discard"] },
-    { previous: true, failures: ["node", "discard"], steps: ["stage", "node", "discard"], errors: ["node", "discard"] },
-    { previous: true, failures: ["install", "remove"], steps: ["stage", "node", "browser", "backup", "install", "restore", "remove", "discard"], errors: ["install", "remove"] },
-    { previous: false, failures: ["install", "restore"], steps: ["stage", "node", "browser", "install", "restore", "discard"], errors: ["install", "restore"] },
+    {
+      previous: false,
+      failures: [],
+      steps: ["stage", "node", "browser", "install", "discard"],
+      errors: [],
+    },
+    {
+      previous: true,
+      failures: [],
+      steps: [
+        "stage",
+        "node",
+        "browser",
+        "backup",
+        "install",
+        "remove",
+        "discard",
+      ],
+      errors: [],
+    },
+    {
+      previous: true,
+      failures: ["stage"],
+      steps: ["stage"],
+      errors: ["stage"],
+    },
+    {
+      previous: true,
+      failures: ["node"],
+      steps: ["stage", "node", "discard"],
+      errors: ["node"],
+    },
+    {
+      previous: true,
+      failures: ["browser"],
+      steps: ["stage", "node", "browser", "discard"],
+      errors: ["browser"],
+    },
+    {
+      previous: true,
+      failures: ["backup"],
+      steps: ["stage", "node", "browser", "backup", "discard"],
+      errors: ["backup"],
+    },
+    {
+      previous: false,
+      failures: ["install"],
+      steps: ["stage", "node", "browser", "install", "restore", "discard"],
+      errors: ["install"],
+    },
+    {
+      previous: true,
+      failures: ["install"],
+      steps: [
+        "stage",
+        "node",
+        "browser",
+        "backup",
+        "install",
+        "restore",
+        "remove",
+        "discard",
+      ],
+      errors: ["install"],
+    },
+    {
+      previous: true,
+      failures: ["install", "restore"],
+      steps: [
+        "stage",
+        "node",
+        "browser",
+        "backup",
+        "install",
+        "restore",
+        "discard",
+      ],
+      errors: ["install", "restore"],
+    },
+    {
+      previous: true,
+      failures: ["remove"],
+      steps: [
+        "stage",
+        "node",
+        "browser",
+        "backup",
+        "install",
+        "remove",
+        "discard",
+      ],
+      errors: ["remove"],
+    },
+    {
+      previous: false,
+      failures: ["discard"],
+      steps: ["stage", "node", "browser", "install", "discard"],
+      errors: ["discard"],
+    },
+    {
+      previous: true,
+      failures: ["node", "discard"],
+      steps: ["stage", "node", "discard"],
+      errors: ["node", "discard"],
+    },
+    {
+      previous: true,
+      failures: ["install", "remove"],
+      steps: [
+        "stage",
+        "node",
+        "browser",
+        "backup",
+        "install",
+        "restore",
+        "remove",
+        "discard",
+      ],
+      errors: ["install", "remove"],
+    },
+    {
+      previous: false,
+      failures: ["install", "restore"],
+      steps: ["stage", "node", "browser", "install", "restore", "discard"],
+      errors: ["install", "restore"],
+    },
   ];
   for (const scenario of scenarios) {
     const observed: string[] = [];
-    const effects: Map<string, Error> = new Map(scenario.failures.map((name: string) : [string, Error] => [name, new Error(name)]));
+    const effects: Map<string, Error> = new Map(
+      scenario.failures.map((name: string): [string, Error] => [
+        name,
+        new Error(name),
+      ]),
+    );
     const step: (name: string) => void = (name: string): void => {
       observed.push(name);
       const failure: Error | undefined = effects.get(name);
       if (failure) throw failure;
     };
-    const useStage: (stage: string, name: string) => void = (stage: string, name: string): void => {
-      TestValidator.equals("effects retain this build's stage", stage, "owned-output");
+    const useStage: (stage: string, name: string) => void = (
+      stage: string,
+      name: string,
+    ): void => {
+      TestValidator.equals(
+        "effects retain this build's stage",
+        stage,
+        "owned-output",
+      );
       step(name);
     };
     const host: IHumanBuildHost = {
-      createStage: () : string => { step("stage"); return "owned-output"; },
-      compile: async (stage: string, pass: "node" | "browser") : Promise<void> => { useStage(stage, pass); },
-      hasPrevious: () : boolean => scenario.previous,
-      backup: (stage: string) : void => useStage(stage, "backup"),
-      install: (stage: string) : void => useStage(stage, "install"),
-      restore: (stage: string) : void => useStage(stage, "restore"),
-      removeBackup: (stage: string) : void => useStage(stage, "remove"),
-      discardStage: (stage: string) : void => useStage(stage, "discard"),
+      createStage: (): string => {
+        step("stage");
+        return "owned-output";
+      },
+      compile: async (
+        stage: string,
+        pass: "node" | "browser",
+      ): Promise<void> => {
+        useStage(stage, pass);
+      },
+      hasPrevious: (): boolean => scenario.previous,
+      backup: (stage: string): void => useStage(stage, "backup"),
+      install: (stage: string): void => useStage(stage, "install"),
+      restore: (stage: string): void => useStage(stage, "restore"),
+      removeBackup: (stage: string): void => useStage(stage, "remove"),
+      discardStage: (stage: string): void => useStage(stage, "discard"),
     };
     let failure: unknown;
-    try { await runHumanBuild(host); } catch (error) { failure = error; }
-    const errors: unknown[] = failure instanceof AggregateError ? failure.errors : failure === undefined ? [] : [failure];
+    try {
+      await runHumanBuild(host);
+    } catch (error) {
+      failure = error;
+    }
+    const errors: unknown[] =
+      failure instanceof AggregateError
+        ? failure.errors
+        : failure === undefined
+          ? []
+          : [failure];
     TestValidator.equals("build effect order", observed, scenario.steps);
-    TestValidator.equals("reported build failure count", errors.length, scenario.errors.length);
+    TestValidator.equals(
+      "reported build failure count",
+      errors.length,
+      scenario.errors.length,
+    );
     TestValidator.predicate(
       "original build failures survive",
-      errors.every((error: unknown, index: number) : boolean => error === effects.get(scenario.errors[index])),
+      errors.every(
+        (error: unknown, index: number): boolean =>
+          error === effects.get(scenario.errors[index]),
+      ),
     );
   }
 }
