@@ -31,8 +31,8 @@ import type { IHumanFacePeriocularMappingReading } from "./structures/IHumanFace
  * @evidence contracts/common.md#clear-and-simple-design The existing local-world publication and crossing owners read the same geometry as shell/part census; witness provenance stays original.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing legacy material stays unknown and observational mapping results add no new physical tolerance/admission rule.
  * @evidence contracts/common.md#meaningful-documentation The prose distinguishes Float64 material areas, local Float32/TRS spatial crossings and source witness ownership.
- * @evidence contracts/performance.md#efficient-algorithms Completed source/offset crossing scans dominate, including engine broad-phase candidate pairs; witness collection grows with actual hits.
- * @evidence contracts/performance.md#reuse-equivalent-work A prior same-band source reading reuses unchanged material/skin results while current outer/inner/between crossings remain actual queries.
+ * @evidence contracts/performance.md#efficient-algorithms Structured topology is allocated even with explicit conforming indices. Three offset crossing queries and an optional skin query dominate; candidate pair counts can grow quadratically in faces. Witness vertex and source-triangle lists are deduplicated and sorted, adding O(K log K) work for each collected population.
+ * @evidence contracts/performance.md#reuse-equivalent-work A supplied sourceReading skips material signs and skin crossings and shares its sampled source-triangle array. The caller must keep source positions, material coordinates and incidence unchanged; no local equivalence check is performed. Outer, inner and between-sheet crossings are always recomputed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned readings own counts/witness arrays and may borrow supplied frame/seat records; per-call mesh/hit tables expire without retained tasks.
  */
 export function readHumanFacePeriocularMapping(

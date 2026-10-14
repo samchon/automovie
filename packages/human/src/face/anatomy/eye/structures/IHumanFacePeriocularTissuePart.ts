@@ -42,6 +42,7 @@ export interface IHumanFacePeriocularTissuePart {
   fit: IHumanFacePeriocularTissueFit;
 
   /** Actual optional mapping observation; never a replacement admission verdict.
+   *
    * @evidence contracts/common.md#principled-implementation An optional callback reads the original emitted band's material/source/offset mapping observations.
    * @evidence contracts/common.md#clear-and-simple-design The tissue producer memoizes the actual reading while retaining its shared band/geometry for part lifetime.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts This callback supplies no replacement admission verdict or fabricated second geometry query.

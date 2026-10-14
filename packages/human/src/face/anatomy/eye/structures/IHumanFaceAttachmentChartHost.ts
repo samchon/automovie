@@ -16,6 +16,7 @@ import type { IHumanFaceSkinSeat } from "../../skin/IHumanFaceSkinSeat";
  */
 export interface IHumanFaceAttachmentChartHost {
   /** Dimensionless chart coordinates of one registered host-view vertex.
+   *
    * @evidence contracts/common.md#principled-implementation A registered host-view vertex names its dimensionless material location.
    * @evidence contracts/common.md#clear-and-simple-design The concrete chart reader's ordinal table owns lookup and coordinate copies.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent source vertex refuses instead of choosing a nearby chart point.
@@ -27,6 +28,7 @@ export interface IHumanFaceAttachmentChartHost {
   coordinate(vertex: number): [number, number];
 
   /** Material coordinate of a source-owned attachment on one actual host triangle.
+   *
    * @evidence contracts/common.md#principled-implementation Actual host-triangle barycentric weights interpolate the source material coordinate.
    * @evidence contracts/common.md#clear-and-simple-design The chart reader owns original seat admission before coordinate evaluation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No metric distance, nearest UV or topology replacement supplies this material point.
@@ -38,6 +40,7 @@ export interface IHumanFaceAttachmentChartHost {
   coordinateAt(point: IAutoMovieHumanFaceAttachmentPoint): [number, number];
 
   /** Exact resident attachment for a registered station vertex, without a UV round trip.
+   *
    * @evidence contracts/common.md#principled-implementation A registered vertex returns its exact resident source corner attachment.
    * @evidence contracts/common.md#clear-and-simple-design The concrete reader owns source incidence rather than round-tripping through UV.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing incidence refuses without approximate chart lookup.
@@ -49,6 +52,7 @@ export interface IHumanFaceAttachmentChartHost {
   vertexSeat(vertex: number): IHumanFaceSkinSeat;
 
   /** Validated original attachment, retaining source triangle identity and weights.
+   *
    * @evidence contracts/common.md#principled-implementation A source continuation retains its original triangle identity and complete admitted weights.
    * @evidence contracts/common.md#clear-and-simple-design The concrete reader validates and copies the supplied source attachment.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamp or nearest attachment can replace invalid weights or an absent host triangle.
@@ -60,6 +64,7 @@ export interface IHumanFaceAttachmentChartHost {
   sourceSeat(point: IAutoMovieHumanFaceAttachmentPoint): IHumanFaceSkinSeat;
 
   /** Actual skin triangle and barycentric weights; points outside the disk refuse.
+   *
    * @evidence contracts/common.md#principled-implementation A dimensionless material point selects an actual source triangle and barycentric seat.
    * @evidence contracts/common.md#clear-and-simple-design The chart reader owns location and original disk-domain admission.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside points refuse rather than expanding or snapping the disk.
