@@ -23,8 +23,13 @@ import { namedFacts } from "../internal/predicates";
  *    the code-unit order keeps them ordered.
  * 4. A full sort of mixed-case filenames matches the hand-written code-unit oracle
  *    (not the output of any locale-sensitive comparator).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual code-unit comparator for all three outcomes, ASCII case distinction, distinct NFC/NFD spellings and a complete seven-name sort.
+ * @evidence contracts/testing.md#independent-expectations Literal -1/0/1 outcomes and the hand-written filename order follow UTF-16 unit values; the precomposed and decomposed strings are constructed from distinct code units without a locale oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts less/greater/equal, uppercase/lowercase, Unicode-equivalent distinct encodings and mixed punctuation/name prefixes; arbitrary non-string runtime inputs are outside the typed comparator contract.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous portable string inputs and invokes the real comparator through the runner; it changes no host locale, calls no collation service and asserts no production filename policy beyond this ordering law.
  */
-export const test_text_compare_code_units = (): void => {
+export function test_text_compare_code_units(): void {
   // 1. the three outcomes
   TestValidator.equals(
     "a lesser string yields -1",
@@ -52,22 +57,22 @@ export const test_text_compare_code_units = (): void => {
   // 3. distinct Unicode-equivalent forms compare non-zero (localeCompare = 0).
   // Built from char codes so the two are runtime-distinct `string` values, not
   // literal types the checker would flag as a never-equal comparison.
-  const nfcCafe = `caf${String.fromCharCode(0x00e9)}`; // precomposed U+00E9
-  const nfdCafe = `cafe${String.fromCharCode(0x0301)}`; // e + combining U+0301
+  const nfcCafe: string = `caf${String.fromCharCode(0x00e9)}`; // precomposed U+00E9
+  const nfdCafe: string = `cafe${String.fromCharCode(0x0301)}`; // e + combining U+0301
   TestValidator.equals(
     "distinct Unicode-equivalent strings are ordered, not equal",
     namedFacts([
-      ["nfcCafeNfdCafe", () => nfcCafe !== nfdCafe],
+      ["nfcCafeNfdCafe", (): boolean => nfcCafe !== nfdCafe],
       [
         "compareCodeUnitsNfcCafeNfdCafe",
-        () => nfcCafe !== nfdCafe && compareCodeUnits(nfcCafe, nfdCafe) !== 0,
+        (): boolean => nfcCafe !== nfdCafe && compareCodeUnits(nfcCafe, nfdCafe) !== 0,
       ],
     ]),
     { nfcCafeNfdCafe: true, compareCodeUnitsNfcCafeNfdCafe: true },
   );
 
   // 4. a full sort matches the hand-written code-unit oracle
-  const names = [
+  const names: string[] = [
     "Beat10.json",
     "beat2.json",
     "BEAT1.json",
@@ -89,4 +94,4 @@ export const test_text_compare_code_units = (): void => {
       "beat2.json",
     ],
   );
-};
+}

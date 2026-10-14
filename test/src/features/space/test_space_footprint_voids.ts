@@ -114,7 +114,7 @@ const spaceOf: (surface: IAutoMovieSurface) => IAutoMovieSpace = (surface: IAuto
   walkable: [surface.id],
 });
 
-/** Twice the plan area of one convex piece, by the shoelace formula. */
+/** Plan area of one convex piece, by the shoelace formula. */
 const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
   piece: readonly IAutoMovieVector3[],
 ): number =>
@@ -169,12 +169,9 @@ const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
  *     the slab, a patch with no area is no face at all, and the take-off
  *     subtracts the void from the floor area somebody orders against.
  * 14. An admitted positive thin band survives decomposition. An independently
- *     specified dyadic L has normalized area three in either winding, so a hull
+ *     specified dyadic L has normalized area three in its authored winding, so a hull
  *     replacement or dropped band cannot hide behind a broad absolute tolerance.
- * 15. A ring that crosses itself has no region to be decomposed into, and none is
- *     invented for it: both readings stay finite and deterministic, and
- *     validation refuses the ring rather than letting either of them stand for
- *     a shape nobody wrote.
+ * 15. Validation refuses a crossing ring; its decomposition contains only finite points and its containment query returns a boolean. These assertions do not require an empty decomposition or compare repeated readings.
  *
  * @evidence contracts/testing.md#behavioral-verification Footprint membership, support/ground outputs, convex-piece area and emitted surface triangles exercise actual region readers and consumers; the dyadic thin L catches both hull-filled notches and dropped positive slabs.
  * @evidence contracts/testing.md#independent-expectations Authored rectangles give plate area 64-16=48 and thin L area three times its binary-exact width. Shoelace sums check the actual decomposition, while downstream membership and emitted triangle probes establish the asserted local void cases rather than universal polygon exactness.
@@ -280,7 +277,7 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "every query built on containment reads the void as nothing",
     namedFacts([
-      ["heightOverTheArm", (): boolean => heightAt(holedSpace, 4, 1) === 3],
+      ["heightOverTheArm", (): boolean => nclose(heightAt(holedSpace, 4, 1) ?? NaN, 3, 0)],
       ["heightOverTheVoid", (): boolean => heightAt(holedSpace, 4, 4) === null],
       ["walkableOverTheArm", (): boolean => isWalkable(holedSpace, 4, 1)],
       ["walkableOverTheVoid", (): boolean => isWalkable(holedSpace, 4, 4) === false],
@@ -290,8 +287,8 @@ export function test_space_footprint_voids(): void {
           supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
           2,
       ],
-      ["groundOverTheArm", (): boolean => spaceGround(holedSpace)(4, 1) === 3],
-      ["groundOverTheVoid", (): boolean => spaceGround(holedSpace, -1)(4, 4) === -1],
+      ["groundOverTheArm", (): boolean => nclose(spaceGround(holedSpace)(4, 1), 3, 0)],
+      ["groundOverTheVoid", (): boolean => nclose(spaceGround(holedSpace, -1)(4, 4), -1, 0)],
     ]),
     {
       heightOverTheArm: true,

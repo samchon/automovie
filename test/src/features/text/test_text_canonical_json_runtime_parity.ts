@@ -41,9 +41,14 @@ import { createHash } from "node:crypto";
  * 4. A refused value throws one error class whether it is reached through the
  *    engine or through the production name Node services import, while an
  *    unrelated `TypeError` is not that class.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls actual engine canonicalization/pure hashing and production byte/hash exports, checking exact canonical text, UTF-8 lengths, digest agreement, omitted/changed members and shared domain-error classification.
+ * @evidence contracts/testing.md#independent-expectations Three literal standard SHA-256 vectors and thirteen hand-written canonical/byte-length cases provide external expectations; Node crypto independently checks the engine hash, while the production hash and Node oracle share that crypto implementation.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves block/padding boundaries, multibyte and astral strings, non-ASCII member order, nested numbers including negative zero/exponent, omitted/changed members and Date/NaN versus unrelated TypeError refusals; cycles/accessors and all refusal categories are not exercised here.
+ * @evidence contracts/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine/production export paths are compared in one runtime, without launching a browser or proving every runtime independently.
  */
-export const test_text_canonical_json_runtime_parity = (): void => {
-  const nodeDigest = (text: string): `sha256:${string}` =>
+export function test_text_canonical_json_runtime_parity(): void {
+  const nodeDigest: (text: string) => `sha256:${string}` = (text: string): `sha256:${string}` =>
     `sha256:${createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex")}`;
 
   TestValidator.equals(
@@ -95,27 +100,27 @@ export const test_text_canonical_json_runtime_parity = (): void => {
   ];
   TestValidator.equals(
     "every case is arranged at its intended UTF-8 byte length",
-    cases.map((item) => Buffer.byteLength(item.text, "utf8")),
-    cases.map((item) => item.bytes),
+    cases.map((item: typeof cases[number]): number => Buffer.byteLength(item.text, "utf8")),
+    cases.map((item: typeof cases[number]): number => item.bytes),
   );
   TestValidator.equals(
     "the engine text is the hand-written canonical text",
-    cases.map((item) => canonicalizeAutoMovieJson(item.value)),
-    cases.map((item) => item.text),
+    cases.map((item: typeof cases[number]): string => canonicalizeAutoMovieJson(item.value)),
+    cases.map((item: typeof cases[number]): string => item.text),
   );
   TestValidator.equals(
     "the pure engine digest equals node:crypto over the hand-written bytes",
-    cases.map((item) =>
+    cases.map((item: typeof cases[number]): string =>
       autoMovieRenderDigest(canonicalizeAutoMovieJson(item.value)),
     ),
-    cases.map((item) => nodeDigest(item.text)),
+    cases.map((item: typeof cases[number]): string => nodeDigest(item.text)),
   );
   TestValidator.equals(
     "the Node production digest equals node:crypto over the hand-written bytes",
-    cases.map((item) =>
+    cases.map((item: typeof cases[number]): string =>
       digestAutoMovieBytes(canonicalAutoMovieJsonBytes(item.value)),
     ),
-    cases.map((item) => nodeDigest(item.text)),
+    cases.map((item: typeof cases[number]): string => nodeDigest(item.text)),
   );
 
   TestValidator.equals(
@@ -133,7 +138,7 @@ export const test_text_canonical_json_runtime_parity = (): void => {
     { text: '{"B":1,"Z":3,"a":2,"ä":4}', omitted: true, changed: false },
   );
 
-  const refusal = (task: () => unknown): unknown => {
+  const refusal: (task: () => unknown) => unknown = (task: () => unknown): unknown => {
     try {
       task();
       return null;
@@ -141,8 +146,8 @@ export const test_text_canonical_json_runtime_parity = (): void => {
       return error;
     }
   };
-  const engineRefusal = refusal(() => canonicalizeAutoMovieJson(new Date(0)));
-  const productionRefusal = refusal(() =>
+  const engineRefusal: unknown = refusal((): string => canonicalizeAutoMovieJson(new Date(0)));
+  const productionRefusal: unknown = refusal((): string =>
     productionCanonicalizeAutoMovieJson(Number.NaN),
   );
   TestValidator.equals(
@@ -160,4 +165,4 @@ export const test_text_canonical_json_runtime_parity = (): void => {
     ],
     [true, true, "non-plain-container", "unsupported-value", false],
   );
-};
+}

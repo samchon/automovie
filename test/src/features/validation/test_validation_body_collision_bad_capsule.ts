@@ -1,5 +1,6 @@
 import {
   IAutoMovieCollisionActor,
+  IAutoMovieBodyCollisionResult,
   detectBodyCollision,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -8,7 +9,7 @@ import { staticActor } from "../internal/collision";
 import { hasViolation } from "../internal/predicates";
 
 /** Two actors whose hips→spine capsules overlap at the origin. */
-const overlapping = () => ({
+const overlapping: () => { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = (): { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } => ({
   a: staticActor({
     node: "A",
     a: { x: 0, y: 0, z: 0 },
@@ -23,7 +24,7 @@ const overlapping = () => ({
   }),
 });
 
-const withCapsule = (
+const withCapsule: (actor: IAutoMovieCollisionActor, capsule: IAutoMovieCollisionActor["capsules"][number]) => IAutoMovieCollisionActor = (
   actor: IAutoMovieCollisionActor,
   capsule: IAutoMovieCollisionActor["capsules"][number],
 ): IAutoMovieCollisionActor => ({ ...actor, capsules: [capsule] });
@@ -42,17 +43,21 @@ const withCapsule = (
  *
  * Scenarios:
  *
- * 1. Well-formed overlap still warns (the geometry genuinely intersects).
+ * 1. Well-formed overlap succeeds and emits contact events.
  * 2. An endpoint bone absent from the rig fails with a type violation: the overlap
  *    is no longer silently dropped.
  * 3. Non-distinct endpoints fail with a type violation.
  * 4. A non-positive radius fails with a range violation.
- * 5. Both actors malformed: violations name each actor's capsule; no events or
- *    response are emitted.
+ * 5. Both actors malformed: violations name each actor's capsule and the response is null.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises capsule admission through detectBodyCollision, checking a valid overlap's success and events, located structural failures for absent endpoints, repeated endpoints and bad radius, no events for the absent-bone run, and both actors' findings with a null response.
+ * @evidence contracts/testing.md#independent-expectations Identical unit centerlines with positive radii must intersect; an absent head cannot resolve on the two-bone fixture, hips-to-hips lacks distinct endpoints, and radius -1 is outside the finite positive domain. Explicit kind/path checks distinguish structural refusal from generic failure; the sanity case does not itself assert warning severity.
+ * @evidence contracts/testing.md#distinguishing-cases A valid control, three independent malformed capsule fields, and faults on both actors guard against silent overlap loss and first-actor-only admission. Detached endpoints have a separate totality test; zero/non-finite radii and multiple capsules are outside this case.
+ * @evidence contracts/testing.md#execution-ownership The named test_validation_body_collision_bad_capsule entry uses portable admission and sampled collision arithmetic with shared staticActor fixtures, without a host or dynamically registered cases.
  */
-export const test_validation_body_collision_bad_capsule = (): void => {
+export function test_validation_body_collision_bad_capsule(): void {
   // 1. sanity: the well-formed geometry overlaps, so a real warning exists.
-  const clean = detectBodyCollision(overlapping());
+  const clean: IAutoMovieBodyCollisionResult = detectBodyCollision(overlapping());
   TestValidator.equals(
     "well-formed overlap warns (success stays true, warning-only)",
     clean.validation.success,
@@ -64,8 +69,8 @@ export const test_validation_body_collision_bad_capsule = (): void => {
   );
 
   // 2. bone off the rig: previously a silent success, now an error.
-  const badBone = overlapping();
-  const nan = detectBodyCollision({
+  const badBone: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...badBone,
     a: withCapsule(badBone.a, { from: "head", to: "spine", radius: 0.5 }),
   });
@@ -81,8 +86,8 @@ export const test_validation_body_collision_bad_capsule = (): void => {
   );
 
   // 3. non-distinct endpoints.
-  const same = overlapping();
-  const distinct = detectBodyCollision({
+  const same: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const distinct: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...same,
     a: withCapsule(same.a, { from: "hips", to: "hips", radius: 0.5 }),
   });
@@ -97,8 +102,8 @@ export const test_validation_body_collision_bad_capsule = (): void => {
   );
 
   // 4. non-positive radius.
-  const badRadius = overlapping();
-  const radius = detectBodyCollision({
+  const badRadius: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const radius: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...badRadius,
     a: withCapsule(badRadius.a, { from: "hips", to: "spine", radius: -1 }),
   });
@@ -109,8 +114,8 @@ export const test_validation_body_collision_bad_capsule = (): void => {
   );
 
   // 5. both actors malformed: every fault reported, nothing sampled.
-  const both = overlapping();
-  const pair = detectBodyCollision({
+  const both: { a: IAutoMovieCollisionActor; b: IAutoMovieCollisionActor } = overlapping();
+  const pair: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...both,
     a: withCapsule(both.a, { from: "head", to: "spine", radius: 0.5 }),
     b: withCapsule(both.b, { from: "hips", to: "hips", radius: 0.5 }),
@@ -125,4 +130,4 @@ export const test_validation_body_collision_bad_capsule = (): void => {
     hasViolation(pair.validation, "type", ".b.capsules[0]"),
   );
   TestValidator.equals("no response when malformed", pair.response, null);
-};
+}

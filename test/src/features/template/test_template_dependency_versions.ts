@@ -12,8 +12,13 @@ import { TestValidator } from "@nestia/e2e";
  *    dependency resolves from its declared catalog, including YAML aliases.
  * 2. Exact runtime graphs strip caret or tilde markers while an already exact
  *    range remains exact; compiler and evidence tools retain their ranges.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveAutoMovieTemplateDependencyVersions and compares the complete returned table, detecting an omitted or misowned dependency, changed workspace range, missed scalar alias, or caret and tilde stripping applied to the wrong dependency group.
+ * @evidence contracts/testing.md#independent-expectations The expected table is written from the supplied workspace package ranges and literal catalog entries; only the three documented fixed-runtime entries lose a leading caret or tilde. Distinct external version numbers identify catalog mapping mistakes without reading generated versions or resolver output.
+ * @evidence contracts/testing.md#distinguishing-cases One complete document covers all twelve workspace ranges and eighteen external mappings, shared aliases, caret and tilde exact conversion, an already exact runtime version, and preserved compiler and evidence ranges. Missing or malformed YAML and ownership refusals belong to test_template_catalog_resolution.
+ * @evidence contracts/testing.md#execution-ownership The discoverable exported test_template_dependency_versions entry resolves caller-supplied text in-process and asserts one returned record; it reads no workspace file, installs no generated consumer and starts no process or native host.
  */
-export const test_template_dependency_versions = (): void => {
+export function test_template_dependency_versions(): void {
   const packages: IAutoMovieWorkspacePackageVersions = {
     archetypes: "^2.0.0",
     cli: "^2.0.0",
@@ -28,7 +33,7 @@ export const test_template_dependency_versions = (): void => {
     template: "^2.0.0",
     viewer: "^2.0.0",
   };
-  const workspace = `catalogs:
+  const workspace: string = `catalogs:
   samchon:
     ttsc: &tools ^1.0.0
     "@ttsc/lint": *tools
@@ -79,4 +84,4 @@ export const test_template_dependency_versions = (): void => {
       typescript: "^3.0.0",
     },
   );
-};
+}

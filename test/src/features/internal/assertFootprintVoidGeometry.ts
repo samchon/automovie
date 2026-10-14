@@ -232,7 +232,7 @@ export const assertFootprintVoidGeometry: (props: IFootprintVoidGeometryProps) =
       ["theFaceCarriesTheVoid", (): boolean => face.polygon.holes.length === 1],
       [
         "aCrateOverAnArmBears",
-        (): boolean => propSupportGap({ face, bounds: crate(1, 4) }) === 0,
+        (): boolean => nclose(propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
       ],
       [
         "aCrateOverTheAtriumBearsOnNothing",

@@ -9,12 +9,12 @@ import {
   surfaceHeightAt,
   validateSpace,
 } from "@automovie/engine";
-import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
+import { IAutoMovieSpace, IAutoMovieSurface, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const v = (x: number, z: number, y = 0) => ({ x, y, z });
+const v: (x: number, z: number, y?: number) => IAutoMovieVector3 = (x: number, z: number, y: number = 0): IAutoMovieVector3 => ({ x, y, z });
 
 const floor: IAutoMovieSurface = {
   id: "floor",
@@ -85,8 +85,13 @@ const space: IAutoMovieSpace = {
  *     `validateSpace` refuses one, so this is what a hand-built patch reaching
  *     a renderer answers: wrong in a way a reader can see, instead of a number
  *     that poisons every arithmetic downstream of it.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls raw/prepared surface membership and height/walkability queries, asserting flat/ramp heights, topmost and tie selection, void/no-go nulls, zero-span ramp fallback, bowtie refusal, independent prepared footprint lifetime after source rebinding, and malformed heightfield fallback plus validation failure.
+ * @evidence contracts/testing.md#independent-expectations The stated ramp rises 2 over 4 X units, giving 2 at x=8 and 1.5 at x=7; deck height 1 exceeds floor 0 and an equal-height tie preserves authored order. A symmetric bowtie has zero signed area; replacing a 10-square ring with a unit ring changes containment at (5,5). A stored lattice sample remains 1 while missing samples fall back to 0. These geometric/data facts are independent of returned queries.
+ * @evidence contracts/testing.md#distinguishing-cases Ten groups cover flat/sloped/perpendicular height, absence, blocked top, equal-height tie, degenerate ramp, invalid ring, prepared snapshot and short lattice. The prepared path receives selected parity checks rather than every raw case; concavity, holes, full height-rule admission and non-finite arithmetic belong to separate tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_space_height_queries entry exercises portable query and admission semantics with local records; it uses no renderer, host or dynamically registered cases and makes no visible terrain claim.
  */
-export const test_space_height_queries = (): void => {
+export function test_space_height_queries(): void {
   TestValidator.predicate(
     "flat patch height",
     nclose(heightAt(space, 1, 1)!, 0),
@@ -134,7 +139,7 @@ export const test_space_height_queries = (): void => {
   );
   TestValidator.equals("walkable on floor", isWalkable(space, 1, 1), true);
 
-  const prepared = prepareSpace(space);
+  const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
   TestValidator.equals(
     "prepared surfaceAt reuses the same topmost decision",
     surfaceAt(space, 3, 3, prepared)!.id,
@@ -180,7 +185,7 @@ export const test_space_height_queries = (): void => {
   );
 
   const snapshot: IAutoMovieSurface = { ...floor };
-  const preparedSnapshot = prepareSurface(snapshot);
+  const preparedSnapshot: ReturnType<typeof prepareSurface> = prepareSurface(snapshot);
   snapshot.polygon = [v(0, 0), v(1, 0), v(1, 1), v(0, 1)];
   TestValidator.equals(
     "default surfaceContains rebuilds after surface mutation",
@@ -211,11 +216,11 @@ export const test_space_height_queries = (): void => {
   TestValidator.equals(
     "a lattice missing its own samples reads zero rather than NaN",
     namedFacts([
-      ["theStoredSample", () => surfaceHeightAt(short, 0, 0) === 1],
-      ["theMissingOnes", () => surfaceHeightAt(short, 10, 10) === 0],
+      ["theStoredSample", (): boolean => nclose(surfaceHeightAt(short, 0, 0), 1, 0)],
+      ["theMissingOnes", (): boolean => nclose(surfaceHeightAt(short, 10, 10), 0, 0)],
       [
         "andTheValidatorRefusesIt",
-        () =>
+        (): boolean =>
           validateSpace({ space: { ...space, surfaces: [short] } }).success ===
           false,
       ],
@@ -226,4 +231,4 @@ export const test_space_height_queries = (): void => {
       andTheValidatorRefusesIt: true,
     },
   );
-};
+}

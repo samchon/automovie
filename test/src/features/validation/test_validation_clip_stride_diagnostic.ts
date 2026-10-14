@@ -8,11 +8,11 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /** A clip carrying one track, whose payload the caller states. */
-const clip = (
+const clip: (channel: Record<string, unknown>, times: number[], values: number[], interpolation?: string) => unknown = (
   channel: Record<string, unknown>,
   times: number[],
   values: number[],
-  interpolation = "linear",
+  interpolation: string = "linear",
 ): unknown => ({
   id: "c",
   name: null,
@@ -21,17 +21,17 @@ const clip = (
   tracks: [{ channel, times, values, interpolation }],
 });
 
-const NODE = (path: string): Record<string, unknown> => ({
+const NODE: (path: string) => Record<string, unknown> = (path: string): Record<string, unknown> => ({
   kind: "node",
   node: "n",
   path,
 });
 
-const faultOn = (value: unknown): IAutoMovieConstraintViolation => {
+const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (value: unknown): IAutoMovieConstraintViolation => {
   const violations: IAutoMovieConstraintViolation[] = [];
   validateClipArtifact(value, "$input.clip", violations);
-  const found = violations.find(
-    (item) => item.path === "$input.clip.tracks[0].values",
+  const found: IAutoMovieConstraintViolation | undefined = violations.find(
+    (item: IAutoMovieConstraintViolation): boolean => item.path === "$input.clip.tracks[0].values",
   );
   if (found === undefined)
     throw new Error("the payload under test must be refused at `values`");
@@ -39,14 +39,14 @@ const faultOn = (value: unknown): IAutoMovieConstraintViolation => {
 };
 
 /** Every fragment appears in the gate's message. */
-const says = (value: unknown, fragments: string[]): boolean => {
-  const { expected } = faultOn(value);
-  return fragments.every((fragment) => expected.includes(fragment));
+const says: (value: unknown, fragments: string[]) => boolean = (value: unknown, fragments: string[]): boolean => {
+  const { expected }: IAutoMovieConstraintViolation = faultOn(value);
+  return fragments.every((fragment: string): boolean => expected.includes(fragment));
 };
 
 /** The S-05 trajectory that could not converge: 67 keyframes, 195 values. */
-const S05_TIMES = Array.from({ length: 67 }, (_, i) => i);
-const S05_VALUES = Array.from({ length: 195 }, () => 0);
+const S05_TIMES: number[] = Array.from({ length: 67 }, (_: unknown, i: number): number => i);
+const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
 
 /**
  * The clip-shape faults state the arithmetic that would satisfy them.
@@ -85,10 +85,15 @@ const S05_VALUES = Array.from({ length: 195 }, () => 0);
  * 5. The non-triplet `cubicspline` stride states the division it failed.
  * 6. The width fault, reachable only on a WHOLE stride, states the total the
  *    payload must hold beside the width it got.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Exercises artifact admission and sampleClip's refusal of malformed dense tracks, asserting the values-field location, actionable arithmetic fragments, and compact length payload rather than merely checking that an error exists.
+ * @evidence contracts/testing.md#independent-expectations Hand arithmetic gives 67*3=201 and 67*9=603; 3/2 is fractional, 2/1 is not a cubic triplet, and translation width 4/2=2 must be 3. A weights channel has no prescribed width. The substring oracle permits other diagnostic wording and does not assert a full violation population.
+ * @evidence contracts/testing.md#distinguishing-cases Six cases separate nonintegral stride, sampler parity, unknown weights width, cubic tripling, cubic divisibility, and integral-but-wrong width. Valid interpolation and other malformed shapes belong to the clip-shape contract tests.
+ * @evidence contracts/testing.md#execution-ownership The named test_validation_clip_stride_diagnostic entry runs portable admission and sampling directly; it does not replay the historical commitShot session or start a production host, and owns no dynamically registered cases.
  */
-export const test_validation_clip_stride_diagnostic = (): void => {
+export function test_validation_clip_stride_diagnostic(): void {
   // 1. the reproduction, with every number the author needed.
-  const uneven = clip(NODE("translation"), S05_TIMES, S05_VALUES);
+  const uneven: unknown = clip(NODE("translation"), S05_TIMES, S05_VALUES);
   TestValidator.predicate(
     "the stride fault names the counts, the width, and the target length",
     says(uneven, [
@@ -108,28 +113,28 @@ export const test_validation_clip_stride_diagnostic = (): void => {
   TestValidator.predicate(
     "the sampler's throw carries the same numbers",
     throwsError(
-      () => sampleClip(uneven as IAutoMovieClip, 0),
+      (): ReturnType<typeof sampleClip> => sampleClip(uneven as IAutoMovieClip, 0),
       ["keyframe count 67", "195 does not", "values must hold 201"],
     ),
   );
 
   // 3. a channel that fixes no width claims none.
-  const weights = clip(NODE("weights"), [0, 1], [0, 0, 1]);
-  const weightsFault = faultOn(weights);
+  const weights: unknown = clip(NODE("weights"), [0, 1], [0, 0, 1]);
+  const weightsFault: IAutoMovieConstraintViolation = faultOn(weights);
   TestValidator.equals(
     "a weights track states the counts and no invented width",
     namedFacts([
       [
         "weightsFaultExpectedIncludes",
-        () => weightsFault.expected.includes("keyframe count 2"),
+        (): boolean => weightsFault.expected.includes("keyframe count 2"),
       ],
       [
         "weightsFaultExpectedIncludes2",
-        () => weightsFault.expected.includes("3 does not"),
+        (): boolean => weightsFault.expected.includes("3 does not"),
       ],
       [
         "weightsFaultExpectedIncludes3",
-        () => !weightsFault.expected.includes("per keyframe"),
+        (): boolean => !weightsFault.expected.includes("per keyframe"),
       ],
     ]),
     {
@@ -165,4 +170,4 @@ export const test_validation_clip_stride_diagnostic = (): void => {
       "4 values / 2 times must be 6",
     ]),
   );
-};
+}

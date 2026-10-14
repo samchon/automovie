@@ -1,16 +1,18 @@
 import { Quaternion, affordanceSupportContacts } from "@automovie/engine";
 import {
   IAutoMovieAffordance,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
   IAutoMovieTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError, vclose } from "../internal/predicates";
 
-const IDENTITY = { x: 0, y: 0, z: 0, w: 1 };
-const UNIT = { x: 1, y: 1, z: 1 };
+const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-const SQUARE = [
+const SQUARE: IAutoMovieVector3[] = [
   { x: -0.5, y: 0, z: -0.5 },
   { x: 0.5, y: 0, z: -0.5 },
   { x: 0.5, y: 0, z: 0.5 },
@@ -33,8 +35,13 @@ const SQUARE = [
  *    the same world point as y = 0.
  * 3. A `handle` (point-like) throws: support contacts only come from a stack-top.
  * 4. A stack-top with `extent: null` throws: nothing to rest on.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls affordanceSupportContacts and asserts one transformed point per extent corner, the expected world coordinates, ignored extent Y, and explicit misuse errors for a handle or missing extent.
+ * @evidence contracts/testing.md#independent-expectations A positive 90-degree Y rotation sends (x,z) to (z,-x), so parent translation gives (2+z,0.5,1-x). These hand coordinates and error fragments are independent of the returned contacts; tolerance-based vectors permit ordinary quaternion rounding.
+ * @evidence contracts/testing.md#distinguishing-cases The square, nonzero corner Y, point-like kind and absent extent separate valid rigid placement from ignored-height and refusal branches. Both transforms use unit scale; non-unit scale, tilted affordance frames and actual toppling judgment are outside this helper test.
+ * @evidence contracts/testing.md#execution-ownership The named test_space_affordance_contacts entry exercises portable quaternion/vector contact derivation directly, without a renderer or wired support host and with no dynamically registered cases.
  */
-export const test_space_affordance_contacts = (): void => {
+export function test_space_affordance_contacts(): void {
   const top: IAutoMovieAffordance = {
     id: "top",
     kind: "stack-top",
@@ -51,19 +58,19 @@ export const test_space_affordance_contacts = (): void => {
     scale: UNIT,
   };
 
-  const contacts = affordanceSupportContacts({
+  const contacts: IAutoMovieVector3[] = affordanceSupportContacts({
     affordance: top,
     parentWorld,
   });
   TestValidator.equals("one contact per extent corner", contacts.length, 4);
-  SQUARE.forEach((corner, i) => {
+  SQUARE.forEach((corner: IAutoMovieVector3, i: number): void => {
     TestValidator.predicate(
       `corner ${i} lands at the yawed world point`,
       vclose(contacts[i]!, { x: 2 + corner.z, y: 0.5, z: 1 - corner.x }),
     );
   });
 
-  const lofted = affordanceSupportContacts({
+  const lofted: IAutoMovieVector3[] = affordanceSupportContacts({
     affordance: { ...top, extent: [{ x: 0.5, y: 7, z: 0.5 }, ...SQUARE] },
     parentWorld,
   });
@@ -75,7 +82,7 @@ export const test_space_affordance_contacts = (): void => {
   TestValidator.predicate(
     "a point-like kind throws",
     throwsError(
-      () =>
+      (): IAutoMovieVector3[] =>
         affordanceSupportContacts({
           affordance: { ...top, kind: "handle", extent: null },
           parentWorld,
@@ -86,7 +93,7 @@ export const test_space_affordance_contacts = (): void => {
   TestValidator.predicate(
     "a stack-top without an extent throws",
     throwsError(
-      () =>
+      (): IAutoMovieVector3[] =>
         affordanceSupportContacts({
           affordance: { ...top, extent: null },
           parentWorld,
@@ -94,4 +101,4 @@ export const test_space_affordance_contacts = (): void => {
       ["has no extent"],
     ),
   );
-};
+}

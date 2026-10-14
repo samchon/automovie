@@ -84,8 +84,8 @@ const bothAccept: (value: unknown) => boolean = (value: unknown): boolean =>
  *    by design (the gate names the legal set, `channelKey` reports that it can
  *    build no key), so the equivalence is asserted on the refusal, not on the
  *    words.
- * 4. Negative twins, one property away from each refusal above: a single keyframe
- *    (which orders nothing and needs no stride), a width-4 rotation track, a
+ * 4. Supported controls: a single keyframe
+ *    (which needs no ordering between keys), a width-4 rotation track, a
  *    width-3 `cubicspline` track at stride 9, a variable-width `weights` track,
  *    and `loop: true` all validate clean and sample.
  * 5. The one deliberate asymmetry: the gate is STRICTER about the clip's own
@@ -97,12 +97,11 @@ const bothAccept: (value: unknown) => boolean = (value: unknown): boolean =>
  *    lookup, and still refuses on the sampler's side.
  * 7. Fixed widths come only from own table keys; weights, prototype spellings
  *    and nonstring keys yield undefined without key coercion.
- * 8. Sparse resident track/time/value arrays refuse the missing slot at its exact
- *    path on both sides, while the ordinary dense translation twin still samples.
+ * 8. Sparse resident track/time/value arrays produce a located gate finding and a sampler throw, while the ordinary dense translation twin still samples.
  *
  * @evidence contracts/testing.md#behavioral-verification Actual artifact findings and sampler outcomes compare the shared track/loop contract while direct width outputs catch inherited lookup values or key-coercion throws; supported adjacent tracks remain readable.
  * @evidence contracts/testing.md#independent-expectations Node TRS dimensions, quaternion width four, glTF cubic triplets, finite strictly increasing time and boolean looping define the expected payload laws. Variable morph-target weights have no fixed width, and prototype/object keys declare no channel dimension.
- * @evidence contracts/testing.md#distinguishing-cases Preserve each shape refusal and its supported twin, zero-duration asymmetry and malformed channels, adding prototype/object-key lookup and sparse numeric slots beside dense translation/quaternion and variable weights.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves the stated shape refusals and selected supported single-keyframe, quaternion, cubic and variable-weight controls, plus zero-duration asymmetry, malformed channels, prototype/object-key lookup and sparse slots beside dense translation. Each invalid field has a located refusal check; the supported controls do not independently pair every malformed input or assert sampled numerical values.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_clip_shape_contract; the exported function owns all gate/sampler/width assertions with authored records, without installing a clip player, native artifact or browser/GPU host.
  */
 export function test_validation_clip_shape_contract(): void {
@@ -250,7 +249,7 @@ export function test_validation_clip_shape_contract(): void {
     { refusedAtOpacity$input: true, samplerThrowsOpacityUnknown: true },
   );
 
-  // 4. NEGATIVE TWINS: one property away from each refusal above
+  // 4. Supported controls for the shared shape contract.
   TestValidator.predicate(
     "a single keyframe orders nothing and still reads",
     bothAccept(track({ times: [0], values: [0, 0, 0] })),
