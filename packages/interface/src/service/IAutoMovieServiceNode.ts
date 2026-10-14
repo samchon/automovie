@@ -20,7 +20,7 @@ export interface IAutoMovieServiceNode {
   id: string;
 
   /**
-   * Computational family; it selects which validations apply, not a catalogue.
+   * Semantic equipment role, checked against the closed vocabulary. Current node/port admission applies the same rules to every role; `kind` supplies no inferred geometry, load or operating state.
    */
   kind: AutoMovieServiceNodeKind;
 
@@ -33,7 +33,7 @@ export interface IAutoMovieServiceNode {
   /** World position in metres. */
   position: IAutoMovieVector3;
 
-  /** Typed connection points this node offers, one per system it touches. */
+  /** Typed connection points this node offers; several may belong to the same system. */
   ports: IAutoMovieServicePort[];
 
   /**

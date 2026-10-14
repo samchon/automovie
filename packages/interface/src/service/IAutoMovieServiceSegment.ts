@@ -5,9 +5,9 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * The centre line is authored in world metres because that is what a clash is measured in, and the radius is what turns that line into the volume the run actually occupies. A run that leaves the space it started in is expected to name the sleeve it went through, which is the only way a wall can be shown to have been drilled on purpose.
  *
- * @evidence contracts/common.md#principled-implementation A world-meter polyline joins exact compatible port endpoints and its positive radius supplies swept clash bounds, while square-meter section and cited penetrations satisfy system and boundary admission.
+ * @evidence contracts/common.md#principled-implementation A world-meter polyline joins compatible ports within the gate's 1e-6 metre endpoint tolerance. Positive radius supplies swept clash bounds; declared section matches nonnull port sections within the existing 1e-9 square-metre tolerance, and sleeve references undergo fit and crossing checks.
  * @evidence contracts/common.md#clear-and-simple-design Route geometry and its two-port topology stay together, with boundary-owned sleeves referenced rather than embedded into each run.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoints must coincide with ports and declared crossings must resolve; axis-aligned swept clash bounds are conservative and do not claim a hydraulic or exact cylindrical-intersection solver.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint and section tolerances are explicit. Crossings inspect route vertices rather than every point of a leg, and shared-node run pairs are exempt from clash comparison; axis-aligned swept bounds do not establish exact cylindrical separation or hydraulic performance.
  * @evidence contracts/common.md#meaningful-documentation Defines system and direction-compatible ports, world route endpoints, positive radius/section and sleeve references.
  * @author Samchon
  */
@@ -29,7 +29,7 @@ export interface IAutoMovieServiceSegment {
   to: string;
 
   /**
-   * World centre line in metres, including both endpoints. The first point must coincide with the `from` port and the last with the `to` port.
+   * World centre line in metres with at least two finite points. Its endpoints must lie within 1e-6 metres of their ports; consecutive points must be farther apart than 1e-9 metres. Vertex-based crossing checks do not prove continuous containment along every leg.
    */
   route: IAutoMovieVector3[];
 
