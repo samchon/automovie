@@ -7,13 +7,14 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import type {
-  Buffer as GLTFBuffer,
   Document,
+  Buffer as GLTFBuffer,
   Material,
   Node,
   Primitive,
   Scene,
-} from "@gltf-transform/core" with { "resolution-mode": "import" };
+} from "@gltf-transform/core";
+
 import { loadModelGltfCore } from "./loadModelGltfCore";
 
 /**
@@ -29,19 +30,21 @@ import { loadModelGltfCore } from "./loadModelGltfCore";
  *
  * @evidence contracts/common.md#principled-implementation glTF nodes carry the represented rest hierarchy and transforms, while accessors and metallic-roughness materials carry the emitted static surface facts. Engine tessellation and indexed normal accumulation supply geometry; Float32/Uint32 conversion assumes validated representable inputs. The documented alpha difference and omitted skin, texture and extension fields prevent claiming complete live-viewer equivalence.
  * @evidence contracts/common.md#clear-and-simple-design Materials, bones and parts are visited in dependency order, with helpers for material conversion, geometry, part transforms, indexed normals and bone-rest transforms. The Node entry exposes this exporter, and its callers receive bytes without file writing; the serializer is loaded only when export is requested.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The deferred import is a load-time boundary, not a patch of the serializer, and no model, part or material id is special-cased; every rule applies to the field it reads.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Deferred SDK loading is a load-time boundary, not a patch of the serializer, and no model, part or material id is special-cased; every rule applies to the field it reads.
  * @evidence contracts/common.md#meaningful-documentation The doc names the validated-model premise, emitted hierarchy and attributes, material defaults and alpha difference, omitted capabilities, Float32/Uint32 conversion, reference refusals and serializer failure boundary. Callers get static GLB bytes rather than a validated visual delivery or animation.
  * @evidence contracts/performance.md#efficient-algorithms Local work visits M materials, B bones, P parts and their V attribute elements plus I triangle indices, using maps for expected constant-time reference lookup and linear indexed normal accumulation. Typed arrays, document objects and the serialized binary coexist during writing; the SDK's graph bookkeeping and serialization add their own work and allocations, so neither a total linear bound nor a fixed peak multiplier is asserted. Input and output size have no independent quota here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes one caller-owned model into fresh bytes; the module loader's cache already shares the deferred `@gltf-transform/core` module across calls, and no export result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The pending module import or binary write can retain the invocation, document, maps and typed arrays until settlement; this function adds no timeout or cancellation. After settlement it keeps no result cache or persistent document handle, while the module loader retains the loaded serializer and the caller owns the returned bytes. No output file is opened.
  * @author Samchon
  */
-export const exportModelToGLB: (model: IAutoMovieModel) => Promise<Uint8Array> = async (
+export const exportModelToGLB: (
+  model: IAutoMovieModel,
+) => Promise<Uint8Array> = async (
   model: IAutoMovieModel,
 ): Promise<Uint8Array> => {
-  // The deferred ES module loader fixes the SDK namespace/type graph across
-  // CommonJS and NodeNext consumers without eager SDK initialization.
-  const gltf: typeof import("@gltf-transform/core", { with: { "resolution-mode": "import" } }) = await loadModelGltfCore();
+  // The deferred CommonJS loader shares the SDK's supported require branch
+  // and its nominal declaration graph without eager SDK initialization.
+  const gltf: typeof import("@gltf-transform/core") = await loadModelGltfCore();
   const doc: Document = new gltf.Document();
   const buffer: GLTFBuffer = doc.createBuffer();
   const scene: Scene = doc.createScene(model.name ?? model.id);
@@ -101,7 +104,10 @@ export const exportModelToGLB: (model: IAutoMovieModel) => Promise<Uint8Array> =
 /**
  * Convert one material with authored alpha mode or an opacity-derived default, default mask cutoff 0.5, and authored sidedness. Base alpha multiplies authored alpha by opacity, which differs from the live viewer's opacity-only rule.
  */
-const toMaterial: (doc: Document, m: IAutoMovieMaterial) => Material = (doc: Document, m: IAutoMovieMaterial): Material => {
+const toMaterial: (doc: Document, m: IAutoMovieMaterial) => Material = (
+  doc: Document,
+  m: IAutoMovieMaterial,
+): Material => {
   const alphaMode: "opaque" | "mask" | "blend" =
     m.alphaMode ?? (m.opacity < 1 ? "blend" : "opaque");
   const material: Material = doc
@@ -116,7 +122,11 @@ const toMaterial: (doc: Document, m: IAutoMovieMaterial) => Material = (doc: Doc
     .setRoughnessFactor(m.roughness)
     .setDoubleSided(m.doubleSided === true)
     .setAlphaMode(
-      alphaMode === "blend" ? "BLEND" : alphaMode === "mask" ? "MASK" : "OPAQUE",
+      alphaMode === "blend"
+        ? "BLEND"
+        : alphaMode === "mask"
+          ? "MASK"
+          : "OPAQUE",
     );
   if (alphaMode === "mask") material.setAlphaCutoff(m.alphaCutoff ?? 0.5);
   if (m.emissive !== null)
@@ -125,7 +135,11 @@ const toMaterial: (doc: Document, m: IAutoMovieMaterial) => Material = (doc: Doc
 };
 
 /** One primitive holding a part's tessellated or authored geometry. */
-const toPrimitive: (doc: Document, buffer: GLTFBuffer, part: IAutoMovieModelPart) => Primitive = (
+const toPrimitive: (
+  doc: Document,
+  buffer: GLTFBuffer,
+  part: IAutoMovieModelPart,
+) => Primitive = (
   doc: Document,
   buffer: GLTFBuffer,
   part: IAutoMovieModelPart,
@@ -164,10 +178,7 @@ const toPrimitive: (doc: Document, buffer: GLTFBuffer, part: IAutoMovieModelPart
         .setArray(new Float32Array(geometry.normals))
         .setBuffer(buffer),
     );
-  if (
-    part.geometry.type === "mesh" &&
-    part.geometry.mesh.colors !== undefined
-  )
+  if (part.geometry.type === "mesh" && part.geometry.mesh.colors !== undefined)
     prim.setAttribute(
       "COLOR_0",
       doc
@@ -188,7 +199,10 @@ const toPrimitive: (doc: Document, buffer: GLTFBuffer, part: IAutoMovieModelPart
 };
 
 /** Apply a part's translation, rotation and scale to its node; `null` is identity. */
-const setTRS: (node: Node, t: IAutoMovieTransform | null) => Node = (node: Node, t: IAutoMovieTransform | null): Node => {
+const setTRS: (node: Node, t: IAutoMovieTransform | null) => Node = (
+  node: Node,
+  t: IAutoMovieTransform | null,
+): Node => {
   if (t === null) return node;
   return node
     .setTranslation([t.translation.x, t.translation.y, t.translation.z])
@@ -199,10 +213,10 @@ const setTRS: (node: Node, t: IAutoMovieTransform | null) => Node = (node: Node,
 /**
  * Accumulate each indexed triangle's unnormalized cross product onto its three vertices, then normalize each sum to obtain area-weighted smooth normals. Vertices with no area keep zero normals; validated indices and representable numeric inputs are assumed.
  */
-const computeSmoothNormals: (positions: number[], indices: number[]) => number[] = (
+const computeSmoothNormals: (
   positions: number[],
   indices: number[],
-): number[] => {
+) => number[] = (positions: number[], indices: number[]): number[] => {
   const normals: number[] = new Array<number>(positions.length).fill(0);
   for (let i: number = 0; i + 2 < indices.length; i += 3) {
     const a: number = indices[i]! * 3;
@@ -240,7 +254,10 @@ const computeSmoothNormals: (positions: number[], indices: number[]) => number[]
 /**
  * Apply bone-rest translation and rotation with unit scale, matching engine forward kinematics and the live viewer. Part nodes retain their own scale through `setTRS`.
  */
-const setBoneRest: (node: Node, bone: IAutoMovieBone) => Node = (node: Node, bone: IAutoMovieBone): Node =>
+const setBoneRest: (node: Node, bone: IAutoMovieBone) => Node = (
+  node: Node,
+  bone: IAutoMovieBone,
+): Node =>
   node
     .setTranslation([
       bone.rest.translation.x,
