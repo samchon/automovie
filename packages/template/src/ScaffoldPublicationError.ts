@@ -1,6 +1,5 @@
 import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
 
-
 /**
  * Error thrown when a scaffold publication did not complete, carrying the receipt of the observed file effects for recovery.
  *
@@ -18,7 +17,6 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
 export class ScaffoldPublicationError extends Error {
   /** Receipt of the publication that did not complete. */
   public readonly receipt: IScaffoldPublicationReceipt;
-
 
   /** @param receipt Receipt whose status is not `completed`. */
   public constructor(receipt: IScaffoldPublicationReceipt) {

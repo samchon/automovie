@@ -1,13 +1,13 @@
-import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import * as fs from "node:fs";
+
 import { type IScaffoldFileSnapshot } from "./IScaffoldFileSnapshot";
+import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
 import { assertOrdinarySingleLinkFile } from "./assertOrdinarySingleLinkFile";
-import { writtenVersion } from "./writtenVersion";
 import { assertScaffoldOwnership } from "./assertScaffoldOwnership";
 import { captureScaffoldFile } from "./captureScaffoldFile";
-import * as fs from "node:fs";
 import { combineScaffoldFailures } from "./combineScaffoldFailures";
-import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
-
+import { writtenVersion } from "./writtenVersion";
 
 /**
  * Replace one existing ordinary single-link scaffold file in place.
@@ -22,7 +22,12 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @evidence contracts/performance.md#reuse-equivalent-work Replacement is an effect that repeats per request; snapshots are fresh observations and no previous successful write is reused.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The owner attempts writer and temporary resident descriptor close on every exit, combining close failures with earlier failures; failed close leaves actual release unproven. Readback storage is bounded by file bytes and released with the call.
  */
-export const overwriteScaffoldFile: (props: { base: IScaffoldPhysicalDirectory; bytes: Uint8Array; existing: IScaffoldFileSnapshot; parent: IScaffoldPhysicalDirectory; }) => ScaffoldFilePublicationOutcome = (props: {
+export const overwriteScaffoldFile: (props: {
+  base: IScaffoldPhysicalDirectory;
+  bytes: Uint8Array;
+  existing: IScaffoldFileSnapshot;
+  parent: IScaffoldPhysicalDirectory;
+}) => ScaffoldFilePublicationOutcome = (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
   existing: IScaffoldFileSnapshot;
@@ -117,11 +122,14 @@ export const overwriteScaffoldFile: (props: { base: IScaffoldPhysicalDirectory; 
       });
 };
 
-
 /**
  * Verify a held descriptor against its captured pathname generation: the pathname still names the snapshot's file, the descriptor still shows `expectedWritten`, and a fresh pathname open shows the same written state.
  */
-const assertScaffoldFileDescriptor: (snapshot: IScaffoldFileSnapshot, descriptor: number, expectedWritten: string) => void = (
+const assertScaffoldFileDescriptor: (
+  snapshot: IScaffoldFileSnapshot,
+  descriptor: number,
+  expectedWritten: string,
+) => void = (
   snapshot: IScaffoldFileSnapshot,
   descriptor: number,
   expectedWritten: string,
@@ -165,11 +173,12 @@ const assertScaffoldFileDescriptor: (snapshot: IScaffoldFileSnapshot, descriptor
         });
 };
 
-
 /**
  * Recapture a snapshot's pathname while this operation holds descriptors on it and require the same file and written state. The change time is left out: Windows advances it whenever any handle opens the path, including this module's own verification opens, while identity, size, and modification time still move only on a real change.
  */
-const assertOpenedScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => IScaffoldFileSnapshot = (
+const assertOpenedScaffoldFileSnapshot: (
+  snapshot: IScaffoldFileSnapshot,
+) => IScaffoldFileSnapshot = (
   snapshot: IScaffoldFileSnapshot,
 ): IScaffoldFileSnapshot => {
   const current: IScaffoldFileSnapshot = captureScaffoldFile(snapshot.path);
@@ -183,11 +192,12 @@ const assertOpenedScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => ISc
   return current;
 };
 
-
 /**
  * Require the exact captured generation, change time included, after every descriptor of this operation has closed.
  */
-const assertScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => void = (snapshot: IScaffoldFileSnapshot): void => {
+const assertScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => void = (
+  snapshot: IScaffoldFileSnapshot,
+): void => {
   const current: IScaffoldFileSnapshot = captureScaffoldFile(snapshot.path);
   if (
     current.identity !== snapshot.identity ||
@@ -198,9 +208,13 @@ const assertScaffoldFileSnapshot: (snapshot: IScaffoldFileSnapshot) => void = (s
     );
 };
 
-
 /** Write `bytes` from offset 0 through `descriptor`, then flush it. */
-const writeScaffoldDescriptor: (descriptor: number, target: string, bytes: Uint8Array, progress: { bytesWritten: number; }) => void = (
+const writeScaffoldDescriptor: (
+  descriptor: number,
+  target: string,
+  bytes: Uint8Array,
+  progress: { bytesWritten: number },
+) => void = (
   descriptor: number,
   target: string,
   bytes: Uint8Array,
@@ -223,13 +237,12 @@ const writeScaffoldDescriptor: (descriptor: number, target: string, bytes: Uint8
   fs.fsyncSync(descriptor);
 };
 
-
 /** Read the whole file back through `descriptor` and require `bytes` exactly. */
-const assertScaffoldDescriptorBytes: (descriptor: number, target: string, bytes: Uint8Array) => void = (
+const assertScaffoldDescriptorBytes: (
   descriptor: number,
   target: string,
   bytes: Uint8Array,
-): void => {
+) => void = (descriptor: number, target: string, bytes: Uint8Array): void => {
   const readback: Buffer = Buffer.alloc(bytes.byteLength);
   let offset: number = 0;
   while (offset < readback.length) {

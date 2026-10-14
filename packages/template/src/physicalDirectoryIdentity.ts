@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
-import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
+import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
 /**
  * Derive a directory's physical identity from an opened descriptor.
@@ -15,10 +15,10 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
  * @evidence contracts/performance.md#reuse-equivalent-work A descriptor observation cannot be substituted by cached pathname identity when verifying a current capture.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One descriptor receives a close attempt in finally before return; successful return proves close completed, while a close error leaves release unproven and currently supersedes an earlier inspection error. No descriptor reference is cached.
  */
-export const physicalDirectoryIdentity: (absolute: string, status: fs.BigIntStats) => string = (
+export const physicalDirectoryIdentity: (
   absolute: string,
   status: fs.BigIntStats,
-): string => {
+) => string = (absolute: string, status: fs.BigIntStats): string => {
   const descriptor: number = fs.openSync(absolute, fs.constants.O_RDONLY);
   try {
     const opened: fs.BigIntStats = fs.fstatSync(descriptor, { bigint: true });

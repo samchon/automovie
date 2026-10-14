@@ -14,7 +14,10 @@ const SCAFFOLD: string = resolve(HERE, "../scaffold");
  * every other instruction it ships.
  */
 const SHARED: readonly (readonly [string, string])[] = [
-  [".agents/skills/3d-modeling/SKILL.md", ".agents/skills/3d-modeling/SKILL.md"],
+  [
+    ".agents/skills/3d-modeling/SKILL.md",
+    ".agents/skills/3d-modeling/SKILL.md",
+  ],
   [".agents/skills/contracts/common.md", ".agents/skills/contracts/common.md"],
 ];
 

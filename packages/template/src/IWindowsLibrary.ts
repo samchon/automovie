@@ -1,7 +1,7 @@
-import { type IWindowsFileInformation } from "./IWindowsFileInformation";
-import { type IBoundParentStatus } from "./IBoundParentStatus";
 import { type LibraryHandle, type TypeObject } from "koffi";
 
+import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type IWindowsFileInformation } from "./IWindowsFileInformation";
 
 /**
  * The kernel32 and ntdll entry points the Windows adapter needs.

@@ -1,6 +1,5 @@
 import type * as fs from "node:fs";
 
-
 /**
  * Physical identity of a file or directory, formatted `<device>:<inode>` from a bigint stat.
  *
@@ -17,5 +16,6 @@ import type * as fs from "node:fs";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each stat is a separate observation of the file system, and identity checks exist to observe change, so caching a result would defeat them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A pure formatter that returns a string and keeps nothing.
  */
-export const scaffoldPhysicalIdentity: (status: fs.BigIntStats) => string = (status: fs.BigIntStats): string =>
-  `${status.dev}:${status.ino}`;
+export const scaffoldPhysicalIdentity: (status: fs.BigIntStats) => string = (
+  status: fs.BigIntStats,
+): string => `${status.dev}:${status.ino}`;

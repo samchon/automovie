@@ -1,12 +1,12 @@
-import { type IWindowsLibrary } from "./IWindowsLibrary";
-import { nativeError } from "./nativeError";
-import { type IWindowsFileInformation } from "./IWindowsFileInformation";
-import { type IBoundParentStatus } from "./IBoundParentStatus";
-import { FILE_ATTRIBUTE_DIRECTORY } from "./FILE_ATTRIBUTE_DIRECTORY";
 import koffi, { type LibraryHandle, type TypeObject } from "koffi";
 
-const FILE_BEGIN: number = 0;
+import { FILE_ATTRIBUTE_DIRECTORY } from "./FILE_ATTRIBUTE_DIRECTORY";
+import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type IWindowsFileInformation } from "./IWindowsFileInformation";
+import { type IWindowsLibrary } from "./IWindowsLibrary";
+import { nativeError } from "./nativeError";
 
+const FILE_BEGIN: number = 0;
 
 /** Two 32-bit halves of a Windows `FILETIME`. */
 interface IWindowsFileTime {
@@ -15,7 +15,6 @@ interface IWindowsFileTime {
 }
 
 let windowsLibrary: IWindowsLibrary | undefined;
-
 
 /**
  * Bind kernel32 and ntdll once, on first use.
@@ -83,7 +82,10 @@ const createWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary => {
       nFileIndexLow: "uint32_t",
     },
   );
-  const getFileInformation: (handle: unknown, information: Record<string, unknown>) => boolean = kernel.func(
+  const getFileInformation: (
+    handle: unknown,
+    information: Record<string, unknown>,
+  ) => boolean = kernel.func(
     "__stdcall",
     "GetFileInformationByHandle",
     "bool",
@@ -95,7 +97,13 @@ const createWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary => {
   const transferCount: ReturnType<typeof koffi.out> = koffi.out(
     koffi.pointer("uint32_t"),
   );
-  const writeFileNative: (handle: unknown, source: Buffer, length: number, written: number[], overlapped: null) => boolean = kernel.func("__stdcall", "WriteFile", "bool", [
+  const writeFileNative: (
+    handle: unknown,
+    source: Buffer,
+    length: number,
+    written: number[],
+    overlapped: null,
+  ) => boolean = kernel.func("__stdcall", "WriteFile", "bool", [
     handleType,
     "void *",
     "uint32_t",
@@ -108,7 +116,13 @@ const createWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary => {
     written: number[],
     overlapped: null,
   ) => boolean;
-  const readFileNative: (handle: unknown, target: Buffer, length: number, read: number[], overlapped: null) => boolean = kernel.func("__stdcall", "ReadFile", "bool", [
+  const readFileNative: (
+    handle: unknown,
+    target: Buffer,
+    length: number,
+    read: number[],
+    overlapped: null,
+  ) => boolean = kernel.func("__stdcall", "ReadFile", "bool", [
     handleType,
     "void *",
     "uint32_t",
@@ -121,19 +135,28 @@ const createWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary => {
     read: number[],
     overlapped: null,
   ) => boolean;
-  const setFilePointerNative: (handle: unknown, distance: bigint, newPointer: null, method: number) => boolean = kernel.func(
-    "__stdcall",
-    "SetFilePointerEx",
-    "bool",
-    [handleType, "int64_t", "void *", "uint32_t"],
-  ) as (
+  const setFilePointerNative: (
+    handle: unknown,
+    distance: bigint,
+    newPointer: null,
+    method: number,
+  ) => boolean = kernel.func("__stdcall", "SetFilePointerEx", "bool", [
+    handleType,
+    "int64_t",
+    "void *",
+    "uint32_t",
+  ]) as (
     handle: unknown,
     distance: bigint,
     newPointer: null,
     method: number,
   ) => boolean;
-  const dword: (value: unknown) => number = (value: unknown): number => Number(value) >>> 0;
-  const readInformation: (handle: unknown, label: string) => Record<string, unknown> = (
+  const dword: (value: unknown) => number = (value: unknown): number =>
+    Number(value) >>> 0;
+  const readInformation: (
+    handle: unknown,
+    label: string,
+  ) => Record<string, unknown> = (
     handle: unknown,
     label: string,
   ): Record<string, unknown> => {
@@ -156,7 +179,9 @@ const createWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary => {
   };
   // Formatted like `scaffoldPhysicalIdentity`: Node's Windows `fstat` reports
   // the volume serial number as `dev` and the file index as `ino`.
-  const identityOf: (information: Record<string, unknown>) => string = (information: Record<string, unknown>): string => {
+  const identityOf: (information: Record<string, unknown>) => string = (
+    information: Record<string, unknown>,
+  ): string => {
     const volume: bigint = BigInt(dword(information.dwVolumeSerialNumber));
     const fileIndex: bigint =
       (BigInt(dword(information.nFileIndexHigh)) << 32n) |

@@ -1,7 +1,6 @@
 import { type IAutoMovieCatalogVersionProps } from "./IAutoMovieCatalogVersionProps";
 import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogVersionResolver";
 
-
 /**
  * Read one dependency specifier from a pnpm workspace catalog.
  *
@@ -19,9 +18,9 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single lookup has nothing to share; repeated lookups belong on one resolver.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed document becomes unreachable when the call returns, and no handle is opened.
  */
-export const resolveAutoMovieCatalogVersion: (props: IAutoMovieCatalogVersionProps) => string = (
+export const resolveAutoMovieCatalogVersion: (
   props: IAutoMovieCatalogVersionProps,
-): string =>
+) => string = (props: IAutoMovieCatalogVersionProps): string =>
   createAutoMovieCatalogVersionResolver(props.workspace)(
     props.catalog,
     props.dependency,

@@ -1,13 +1,10 @@
 import type { IScaffoldPosixConstants } from "./IScaffoldPosixConstants";
 
-
 /** Generic Linux UAPI open flag: https://github.com/torvalds/linux/blob/master/include/uapi/asm-generic/fcntl.h. */
 const LINUX_O_CLOEXEC: number = 1 << 19;
 
-
 /** Darwin open flag: https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/fcntl.h. */
 const DARWIN_O_CLOEXEC: number = 0x01000000;
-
 
 /**
  * Resolve the running POSIX system's open flags before binding libc. Native constants take precedence; missing required flags refuse rather than becoming zero. Linux and Android use the generic Linux close-on-exec bit and Darwin uses its XNU bit when Node omits it. Other systems without that native bit refuse.

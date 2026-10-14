@@ -1,11 +1,11 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+
 import { type IScaffoldFileSnapshot } from "./IScaffoldFileSnapshot";
 import { assertOrdinarySingleLinkFile } from "./assertOrdinarySingleLinkFile";
 import { physicalVersion } from "./physicalVersion";
-import { writtenVersion } from "./writtenVersion";
-import * as fs from "node:fs";
-import * as path from "node:path";
 import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
-
+import { writtenVersion } from "./writtenVersion";
 
 /**
  * Capture one existing ordinary single-link file through its pathname.
@@ -18,7 +18,9 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
  * @evidence contracts/performance.md#reuse-equivalent-work Each snapshot is a new pathname observation, so a previous snapshot is not reused as current ownership.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar snapshot fields escape; lstat opens no retained descriptor in this owner.
  */
-export const captureScaffoldFile: (file: string) => IScaffoldFileSnapshot = (file: string): IScaffoldFileSnapshot => {
+export const captureScaffoldFile: (file: string) => IScaffoldFileSnapshot = (
+  file: string,
+): IScaffoldFileSnapshot => {
   const absolute: string = path.resolve(file);
   const status: fs.BigIntStats = fs.lstatSync(absolute, { bigint: true });
   assertOrdinarySingleLinkFile(status, absolute);

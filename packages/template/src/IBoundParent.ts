@@ -1,6 +1,7 @@
-import { type ICreateResult } from "./ICreateResult";
-import { type IBoundParentStatus } from "./IBoundParentStatus";
 import { type IBoundChild } from "./IBoundChild";
+import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type ICreateResult } from "./ICreateResult";
+
 /**
  * A parent directory handle held for one publication.
  *

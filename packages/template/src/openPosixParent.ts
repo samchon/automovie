@@ -1,16 +1,16 @@
-import type { IScaffoldPosixConstants } from "./IScaffoldPosixConstants";
-import { resolveScaffoldPosixConstants } from "./resolveScaffoldPosixConstants";
-import { type IBoundParent } from "./IBoundParent";
-import { nativeError } from "./nativeError";
-import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
-import { type ICreateResult } from "./ICreateResult";
-import { type IBoundParentStatus } from "./IBoundParentStatus";
-import { type IBoundChild } from "./IBoundChild";
-import { type IBoundChildStatus } from "./IBoundChildStatus";
 import koffi, { type LibraryHandle } from "koffi";
 import * as fs from "node:fs";
-import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
+import { type IBoundChild } from "./IBoundChild";
+import { type IBoundChildStatus } from "./IBoundChildStatus";
+import { type IBoundParent } from "./IBoundParent";
+import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type ICreateResult } from "./ICreateResult";
+import type { IScaffoldPosixConstants } from "./IScaffoldPosixConstants";
+import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
+import { nativeError } from "./nativeError";
+import { resolveScaffoldPosixConstants } from "./resolveScaffoldPosixConstants";
+import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
 /**
  * Open one POSIX directory with directory, no-follow and close-on-exec flags; create and reopen children relative to its held descriptor, which the publication coordinator closes.
@@ -23,7 +23,9 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
  * @evidence contracts/performance.md#reuse-equivalent-work The libc binding record is reused for one process ABI; parent and child opens remain separate effects and are never shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned parent owns one descriptor until its coordinator closes it; child descriptors are transferred in create/reopen results, and the lazy libc binding lasts for the process.
  */
-export const openPosixParent: (parentPath: string) => IBoundParent = (parentPath: string): IBoundParent => {
+export const openPosixParent: (parentPath: string) => IBoundParent = (
+  parentPath: string,
+): IBoundParent => {
   const library: IPosixLibrary = loadPosixLibrary();
   const flags: IScaffoldPosixConstants = library.constants;
   const descriptor: number = library.open(
@@ -60,7 +62,9 @@ export const openPosixParent: (parentPath: string) => IBoundParent = (parentPath
       return {
         error: nativeError("unable to create scaffold child", code),
         reason:
-          code === koffi.os.errno.EEXIST ? "target-competitor" : "create-failed",
+          code === koffi.os.errno.EEXIST
+            ? "target-competitor"
+            : "create-failed",
         status: "refused",
       };
     },
@@ -86,7 +90,9 @@ export const openPosixParent: (parentPath: string) => IBoundParent = (parentPath
     },
   };
 };
-const posixChild: (descriptor: number) => IBoundChild = (descriptor: number): IBoundChild => ({
+const posixChild: (descriptor: number) => IBoundChild = (
+  descriptor: number,
+): IBoundChild => ({
   close: (): void => fs.closeSync(descriptor),
   read: (
     target: Buffer,
@@ -113,7 +119,6 @@ const posixChild: (descriptor: number) => IBoundChild = (descriptor: number): IB
   ): number => fs.writeSync(descriptor, source, offset, length, position),
 });
 
-
 /** The libc entry points and open flags the POSIX adapter needs. */
 interface IPosixLibrary {
   constants: IScaffoldPosixConstants;
@@ -128,13 +133,15 @@ interface IPosixLibrary {
 
 let posixLibrary: IPosixLibrary | undefined;
 
-
 /** Bind `open` and `openat` from the running process once, on first use. */
 const loadPosixLibrary: () => IPosixLibrary = (): IPosixLibrary =>
   (posixLibrary ??= createPosixLibrary());
 
 const createPosixLibrary: () => IPosixLibrary = (): IPosixLibrary => {
-  const constants: IScaffoldPosixConstants = resolveScaffoldPosixConstants(process.platform, fs.constants);
+  const constants: IScaffoldPosixConstants = resolveScaffoldPosixConstants(
+    process.platform,
+    fs.constants,
+  );
   const library: LibraryHandle = koffi.load(null);
   return {
     constants,
@@ -146,4 +153,3 @@ const createPosixLibrary: () => IPosixLibrary = (): IPosixLibrary => {
     ) as IPosixLibrary["openat"],
   };
 };
-

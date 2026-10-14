@@ -1,17 +1,17 @@
-import { type IBoundParent } from "./IBoundParent";
-import { type IWindowsLibrary } from "./IWindowsLibrary";
-import { loadWindowsLibrary } from "./loadWindowsLibrary";
-import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
-import { nativeError } from "./nativeError";
-import { type ICreateResult } from "./ICreateResult";
-import { type IBoundParentStatus } from "./IBoundParentStatus";
-import { type IBoundChild } from "./IBoundChild";
-import { type IBoundChildStatus } from "./IBoundChildStatus";
-import { type IWindowsFileInformation } from "./IWindowsFileInformation";
-import { FILE_ATTRIBUTE_DIRECTORY } from "./FILE_ATTRIBUTE_DIRECTORY";
 import koffi, { type TypeObject } from "koffi";
 import * as path from "node:path";
 
+import { FILE_ATTRIBUTE_DIRECTORY } from "./FILE_ATTRIBUTE_DIRECTORY";
+import { type IBoundChild } from "./IBoundChild";
+import { type IBoundChildStatus } from "./IBoundChildStatus";
+import { type IBoundParent } from "./IBoundParent";
+import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type ICreateResult } from "./ICreateResult";
+import { type IWindowsFileInformation } from "./IWindowsFileInformation";
+import { type IWindowsLibrary } from "./IWindowsLibrary";
+import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
+import { loadWindowsLibrary } from "./loadWindowsLibrary";
+import { nativeError } from "./nativeError";
 
 /** Result of one `NtCreateFile` call: a handle on success, else the NTSTATUS. */
 interface IWindowsOpenedChild {
@@ -75,7 +75,6 @@ const ERROR_NOT_A_REPARSE_POINT: number = 4390;
 
 const STATUS_OBJECT_NAME_COLLISION: number = 0xc0000035 | 0;
 
-
 /**
  * Open a Windows directory without following its final reparse point and return held-parent child operations; the publication coordinator owns closing the parent and each child.
  *
@@ -87,7 +86,9 @@ const STATUS_OBJECT_NAME_COLLISION: number = 0xc0000035 | 0;
  * @evidence contracts/performance.md#reuse-equivalent-work The native ABI bindings are shared through the lazy loader, while every parent and child HANDLE represents a separate unshared open effect.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parent HANDLE and returned child HANDLEs transfer to the publication coordinator for closing; native errors before a child exists retain no child handle.
  */
-export const openWindowsParent: (parentPath: string) => IBoundParent = (parentPath: string): IBoundParent => {
+export const openWindowsParent: (parentPath: string) => IBoundParent = (
+  parentPath: string,
+): IBoundParent => {
   const windows: IWindowsLibrary = loadWindowsLibrary();
   const raw: unknown = windows.createFile(
     path.toNamespacedPath(parentPath),
@@ -110,7 +111,10 @@ export const openWindowsParent: (parentPath: string) => IBoundParent = (parentPa
       );
     throw nativeError("unable to open scaffold parent", code);
   }
-  const openChild: (childName: string, disposition: number) => IWindowsOpenedChild = (
+  const openChild: (
+    childName: string,
+    disposition: number,
+  ) => IWindowsOpenedChild = (
     childName: string,
     disposition: number,
   ): IWindowsOpenedChild => {
@@ -211,10 +215,10 @@ export const openWindowsParent: (parentPath: string) => IBoundParent = (parentPa
   };
 };
 
-const windowsChild: (windows: IWindowsLibrary, handle: unknown) => IBoundChild = (
+const windowsChild: (
   windows: IWindowsLibrary,
   handle: unknown,
-): IBoundChild => {
+) => IBoundChild = (windows: IWindowsLibrary, handle: unknown): IBoundChild => {
   const seek: (position: number) => void = (position: number): void => {
     if (windows.setFilePointer(handle, position) === false)
       throw nativeError(
@@ -292,11 +296,10 @@ const windowsChild: (windows: IWindowsLibrary, handle: unknown) => IBoundChild =
   };
 };
 
-
 /** Null, or `INVALID_HANDLE_VALUE` (all bits set) at the handle's width. */
-const invalidWindowsHandle: (handle: unknown, handleType: TypeObject) => boolean = (
+const invalidWindowsHandle: (
   handle: unknown,
   handleType: TypeObject,
-): boolean =>
+) => boolean = (handle: unknown, handleType: TypeObject): boolean =>
   handle === null ||
   BigInt.asIntN(koffi.sizeof(handleType) * 8, koffi.address(handle)) === -1n;

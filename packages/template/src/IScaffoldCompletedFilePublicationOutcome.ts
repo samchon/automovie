@@ -16,7 +16,6 @@ export interface IScaffoldCompletedFilePublicationOutcome {
    */
   parentIdentity: string;
 
-
   /** Discriminator: the file is complete. */
   status: "completed";
 }

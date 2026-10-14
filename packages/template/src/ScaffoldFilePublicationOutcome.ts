@@ -1,6 +1,7 @@
 import { type IScaffoldCompletedFilePublicationOutcome } from "./IScaffoldCompletedFilePublicationOutcome";
-import { type IScaffoldRefusedFilePublicationOutcome } from "./IScaffoldRefusedFilePublicationOutcome";
 import { type IScaffoldPartialFilePublicationOutcome } from "./IScaffoldPartialFilePublicationOutcome";
+import { type IScaffoldRefusedFilePublicationOutcome } from "./IScaffoldRefusedFilePublicationOutcome";
+
 /**
  * Outcome a one-file publisher reports for one candidate entry.
  *

@@ -1,4 +1,5 @@
 import { type IBoundChildStatus } from "./IBoundChildStatus";
+
 /**
  * One child opened relative to a held parent, driven through whatever the platform hands back: a POSIX descriptor served by `node:fs`, or a Windows HANDLE served by kernel32. Node's own C runtime does not share descriptor tables with `ucrtbase.dll`, so a Windows handle is never lowered to a CRT descriptor; every byte, flush, inspection, and close goes through the handle itself.
  *

@@ -1,7 +1,8 @@
-import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
-import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
-import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
 import { type IScaffoldCompletedPublication } from "./IScaffoldCompletedPublication";
+import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
+import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
+import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
+
 /**
  * Publish a candidate in order through a one-file publisher and report the exact effect.
  *
@@ -20,7 +21,10 @@ import { type IScaffoldCompletedPublication } from "./IScaffoldCompletedPublicat
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function holds no descriptor; it retains the planned entries and one completed record per finished file in the returned receipt, bounded by the candidate length, and releases nothing because the caller owns the receipt.
  * @author Samchon
  */
-export const publishScaffoldCandidate: (props: { candidate: readonly IScaffoldPublicationEntry[]; publish: (entry: IScaffoldPublicationEntry) => ScaffoldFilePublicationOutcome; }) => IScaffoldPublicationReceipt = (props: {
+export const publishScaffoldCandidate: (props: {
+  candidate: readonly IScaffoldPublicationEntry[];
+  publish: (entry: IScaffoldPublicationEntry) => ScaffoldFilePublicationOutcome;
+}) => IScaffoldPublicationReceipt = (props: {
   candidate: readonly IScaffoldPublicationEntry[];
   publish: (entry: IScaffoldPublicationEntry) => ScaffoldFilePublicationOutcome;
 }): IScaffoldPublicationReceipt => {

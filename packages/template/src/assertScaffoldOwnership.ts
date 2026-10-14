@@ -2,7 +2,6 @@ import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
 import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
 import { inside } from "./inside";
 
-
 /**
  * Require captured root and parent generations and physical containment before a scaffold write; a changed generation or escaped real path throws.
  *
@@ -14,7 +13,10 @@ import { inside } from "./inside";
  * @evidence contracts/performance.md#reuse-equivalent-work Ownership is reobserved for each write boundary; previously cached captures do not cache the current verdict.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Successful capture returns only after its temporary close completes; native close failures propagate through this gate without a release claim. No descriptor or cross-call state is acquired here.
  */
-export const assertScaffoldOwnership: (base: IScaffoldPhysicalDirectory, parent: IScaffoldPhysicalDirectory) => void = (
+export const assertScaffoldOwnership: (
+  base: IScaffoldPhysicalDirectory,
+  parent: IScaffoldPhysicalDirectory,
+) => void = (
   base: IScaffoldPhysicalDirectory,
   parent: IScaffoldPhysicalDirectory,
 ): void => {

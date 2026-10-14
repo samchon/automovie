@@ -1,8 +1,8 @@
-import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
-import { physicalDirectoryIdentity } from "./physicalDirectoryIdentity";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { physicalDirectoryIdentity } from "./physicalDirectoryIdentity";
 
 /**
  * Capture one ordinary directory, refusing a symbolic link or junction.
@@ -15,7 +15,9 @@ import * as path from "node:path";
  * @evidence contracts/performance.md#reuse-equivalent-work A fresh capture is needed for each revalidation; prior filesystem observations cannot prove current identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources physicalDirectoryIdentity attempts descriptor close in finally and must finish that close before this capture returns its three strings; failure propagates without proving native release, and no handle enters the returned record.
  */
-export const captureScaffoldPhysicalDirectory: (directory: string) => IScaffoldPhysicalDirectory = (
+export const captureScaffoldPhysicalDirectory: (
+  directory: string,
+) => IScaffoldPhysicalDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
   const absolute: string = path.resolve(directory);

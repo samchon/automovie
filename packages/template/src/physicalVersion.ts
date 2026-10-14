@@ -1,6 +1,6 @@
-import { writtenVersion } from "./writtenVersion";
 import * as fs from "node:fs";
 
+import { writtenVersion } from "./writtenVersion";
 
 /**
  * `writtenVersion` plus the change time, which a rename also moves.
@@ -13,5 +13,6 @@ import * as fs from "node:fs";
  * @evidence contracts/performance.md#reuse-equivalent-work Each input stat is an independent observation; formatting shares the written-key implementation but caches no observation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned generation string belongs to the snapshot owner and no descriptor or task is acquired.
  */
-export const physicalVersion: (status: fs.BigIntStats) => string = (status: fs.BigIntStats): string =>
-  `${writtenVersion(status)}:${status.ctimeNs}`;
+export const physicalVersion: (status: fs.BigIntStats) => string = (
+  status: fs.BigIntStats,
+): string => `${writtenVersion(status)}:${status.ctimeNs}`;

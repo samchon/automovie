@@ -1,4 +1,5 @@
 import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
+
 /**
  * One completed entry and the parent directory generation that received it.
  *
@@ -14,7 +15,6 @@ import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
 export interface IScaffoldCompletedPublication {
   /** Planned entry whose bytes passed final readback. */
   entry: IScaffoldPublicationEntry;
-
 
   /** Identity of the captured parent directory containing the file. */
   parentIdentity: string;

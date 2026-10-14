@@ -1,6 +1,6 @@
-import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
 import * as path from "node:path";
 
+import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
 
 /**
  * Validate a rendered file map and freeze it as a publication candidate, before any directory or file is touched.
@@ -20,7 +20,10 @@ import * as path from "node:path";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned candidate retains each file's bytes as a frozen array owned by the caller; the collision map is local and released on return, and no handle is opened.
  * @author Samchon
  */
-export const planScaffoldPublication: (props: { files: Readonly<Record<string, string>>; root: string; }) => readonly IScaffoldPublicationEntry[] = (props: {
+export const planScaffoldPublication: (props: {
+  files: Readonly<Record<string, string>>;
+  root: string;
+}) => readonly IScaffoldPublicationEntry[] = (props: {
   files: Readonly<Record<string, string>>;
   root: string;
 }): readonly IScaffoldPublicationEntry[] => {
@@ -51,11 +54,13 @@ export const planScaffoldPublication: (props: { files: Readonly<Record<string, s
   return Object.freeze(entries);
 };
 
-
 /**
  * Throw when two entries name the same target, ignoring case, or when one entry's target is an ancestor directory of another's.
  */
-const assertDistinctScaffoldTargets: (root: string, entries: readonly IScaffoldPublicationEntry[]) => void = (
+const assertDistinctScaffoldTargets: (
+  root: string,
+  entries: readonly IScaffoldPublicationEntry[],
+) => void = (
   root: string,
   entries: readonly IScaffoldPublicationEntry[],
 ): void => {
@@ -82,10 +87,15 @@ const assertDistinctScaffoldTargets: (root: string, entries: readonly IScaffoldP
     }
 };
 
-const scaffoldPathCollision: (first: IScaffoldPublicationEntry, second: IScaffoldPublicationEntry) => Error = (
+const scaffoldPathCollision: (
+  first: IScaffoldPublicationEntry,
+  second: IScaffoldPublicationEntry,
+) => Error = (
   first: IScaffoldPublicationEntry,
   second: IScaffoldPublicationEntry,
 ): Error =>
   new Error(`scaffold paths collide: ${first.relative}, ${second.relative}`);
 
-const canonicalScaffoldPath: (value: string) => string = (value: string): string => value.toLowerCase();
+const canonicalScaffoldPath: (value: string) => string = (
+  value: string,
+): string => value.toLowerCase();

@@ -1,8 +1,7 @@
 import { type IScaffoldPublicationOptions } from "./IScaffoldPublicationOptions";
-import { publishFiles } from "./publishFiles";
-import { ScaffoldPublicationError } from "./ScaffoldPublicationError";
 import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
-
+import { ScaffoldPublicationError } from "./ScaffoldPublicationError";
+import { publishFiles } from "./publishFiles";
 
 /**
  * Write a path-to-text map under `location` and return the absolute paths written, sorted by UTF-16 code unit.
@@ -23,7 +22,11 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
  * @evidence contracts/performance.md#bound-retention-and-release-resources The receipt is released when the function returns unless it travels inside the thrown error; only the path array is returned, and `publishFiles` owns every descriptor.
  * @author Samchon
  */
-export const writeFiles: (location: string, files: Record<string, string>, options?: IScaffoldPublicationOptions) => string[] = (
+export const writeFiles: (
+  location: string,
+  files: Record<string, string>,
+  options?: IScaffoldPublicationOptions,
+) => string[] = (
   location: string,
   files: Record<string, string>,
   options?: IScaffoldPublicationOptions,

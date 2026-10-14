@@ -1,13 +1,13 @@
-import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
-import { assertScaffoldOwnership } from "./assertScaffoldOwnership";
+import * as path from "node:path";
+
 import { type IScaffoldFileSnapshot } from "./IScaffoldFileSnapshot";
+import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
+import { assertScaffoldOwnership } from "./assertScaffoldOwnership";
 import { captureScaffoldFile } from "./captureScaffoldFile";
 import { missingPath } from "./missingPath";
 import { overwriteScaffoldFile } from "./overwriteScaffoldFile";
-import * as path from "node:path";
 import { publishNativeScaffoldFile } from "./publishNativeScaffoldFile";
-import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
-
 
 /**
  * Write one scaffold file into a captured parent directory and report the effect.
@@ -32,7 +32,13 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call writes one file and re-observes it, which is an effect that must not be shared; directory captures it receives are reused by the caller's cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Replacement delegates writer and resident descriptors to overwriteScaffoldFile, while creation delegates handles to publishNativeScaffoldFile; both attempt release on every outcome and preserve close errors without promising release after a failed close. This dispatch retains no handle itself.
  */
-export const writeScaffoldFile: (props: { base: IScaffoldPhysicalDirectory; bytes: Uint8Array; force: boolean; parent: IScaffoldPhysicalDirectory; target: string; }) => ScaffoldFilePublicationOutcome = (props: {
+export const writeScaffoldFile: (props: {
+  base: IScaffoldPhysicalDirectory;
+  bytes: Uint8Array;
+  force: boolean;
+  parent: IScaffoldPhysicalDirectory;
+  target: string;
+}) => ScaffoldFilePublicationOutcome = (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
   force: boolean;

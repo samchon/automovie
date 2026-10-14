@@ -16,10 +16,8 @@ export interface IScaffoldPublicationEntry {
   /** UTF-8 bytes of the file content, fixed before any mutation begins. */
   bytes: readonly number[];
 
-
   /** Map key exactly as authored, used in error messages and receipts. */
   relative: string;
-
 
   /**
    * Absolute target that lexically stays below the candidate root; links are checked only when its parent directory is captured.

@@ -1,11 +1,11 @@
-import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
-import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
-import { missingPath } from "./missingPath";
-import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
-import { captureEmptyScaffoldPhysicalDirectory } from "./captureEmptyScaffoldPhysicalDirectory";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
+import { captureEmptyScaffoldPhysicalDirectory } from "./captureEmptyScaffoldPhysicalDirectory";
+import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
+import { missingPath } from "./missingPath";
 
 /**
  * Create or capture the scaffold root, qualifying the nearest existing directory and every missing level created below it.
@@ -24,7 +24,9 @@ import * as path from "node:path";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call captures the current file-system state that the caller is about to rely on, so an earlier capture is not equivalent; `publishFiles` calls this once per publication.
  * @evidence contracts/performance.md#bound-retention-and-release-resources physicalDirectoryIdentity attempts close for each capture and propagates close failures; successful captures own only strings. This walk keeps a call-local list bounded by missing path depth, while created directories intentionally remain after later refusal.
  */
-export const ensureScaffoldBaseDirectory: (directory: string) => IScaffoldPhysicalDirectory = (
+export const ensureScaffoldBaseDirectory: (
+  directory: string,
+) => IScaffoldPhysicalDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
   const absolute: string = path.resolve(directory);

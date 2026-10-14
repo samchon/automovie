@@ -1,5 +1,6 @@
 import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
 import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
+
 /**
  * The entry where publication stopped and its non-completed outcome.
  *
@@ -15,7 +16,6 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
 export interface IScaffoldPublicationFailure {
   /** Planned entry where publication stopped. */
   entry: IScaffoldPublicationEntry;
-
 
   /** Refusal before target-file mutation or an incomplete file effect observed at that entry. */
   outcome: Exclude<ScaffoldFilePublicationOutcome, { status: "completed" }>;

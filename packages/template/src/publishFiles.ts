@@ -1,17 +1,17 @@
-import { type IScaffoldPublicationOptions } from "./IScaffoldPublicationOptions";
+import * as fs from "node:fs";
 import * as path from "node:path";
+
 import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
-import { ensureScaffoldFileDirectory } from "./ensureScaffoldFileDirectory";
-import { writeScaffoldFile } from "./writeScaffoldFile";
 import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
+import { type IScaffoldPublicationOptions } from "./IScaffoldPublicationOptions";
 import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt";
 import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
-import { planScaffoldPublication } from "./planScaffoldPublication";
-import { publishScaffoldCandidate } from "./publishScaffoldCandidate";
 import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
 import { ensureScaffoldBaseDirectory } from "./ensureScaffoldBaseDirectory";
-import * as fs from "node:fs";
-
+import { ensureScaffoldFileDirectory } from "./ensureScaffoldFileDirectory";
+import { planScaffoldPublication } from "./planScaffoldPublication";
+import { publishScaffoldCandidate } from "./publishScaffoldCandidate";
+import { writeScaffoldFile } from "./writeScaffoldFile";
 
 /**
  * Write a path-to-text map under `location` and return a receipt naming every completed file and the first entry that did not complete.
@@ -34,7 +34,11 @@ import * as fs from "node:fs";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The call-local cache contains one capture per candidate directory; the emptiness probe attempts close in finally, while file adapters attempt every acquired handle's release and report failures. No close-error outcome proves release, and the receipt retains candidate bytes for its caller.
  * @author Samchon
  */
-export const publishFiles: (location: string, files: Record<string, string>, options?: IScaffoldPublicationOptions) => IScaffoldPublicationReceipt = (
+export const publishFiles: (
+  location: string,
+  files: Record<string, string>,
+  options?: IScaffoldPublicationOptions,
+) => IScaffoldPublicationReceipt = (
   location: string,
   files: Record<string, string>,
   options?: IScaffoldPublicationOptions,
@@ -51,13 +55,11 @@ export const publishFiles: (location: string, files: Record<string, string>, opt
     ): ScaffoldFilePublicationOutcome => {
       try {
         session ??= openScaffoldPublicationSession(root, force);
-        const parent: IScaffoldPhysicalDirectory = ensureScaffoldFileDirectory(
-          {
-            base: session.base,
-            cache: session.directories,
-            directory: path.dirname(entry.target),
-          },
-        );
+        const parent: IScaffoldPhysicalDirectory = ensureScaffoldFileDirectory({
+          base: session.base,
+          cache: session.directories,
+          directory: path.dirname(entry.target),
+        });
         return writeScaffoldFile({
           base: session.base,
           bytes: Uint8Array.from(entry.bytes),
@@ -76,7 +78,6 @@ export const publishFiles: (location: string, files: Record<string, string>, opt
   });
 };
 
-
 /** Captured root and descendant directories for one `publishFiles` call. */
 interface IScaffoldPublicationSession {
   base: IScaffoldPhysicalDirectory;
@@ -86,7 +87,10 @@ interface IScaffoldPublicationSession {
 /**
  * Create or capture the root and, without `force`, refuse one that already has an entry. Runs on the first file so an empty candidate touches nothing.
  */
-const openScaffoldPublicationSession: (root: string, force: boolean) => IScaffoldPublicationSession = (
+const openScaffoldPublicationSession: (
+  root: string,
+  force: boolean,
+) => IScaffoldPublicationSession = (
   root: string,
   force: boolean,
 ): IScaffoldPublicationSession => {
@@ -104,7 +108,9 @@ const openScaffoldPublicationSession: (root: string, force: boolean) => IScaffol
   };
 };
 
-const hasDirectoryEntry: (directory: string) => boolean = (directory: string): boolean => {
+const hasDirectoryEntry: (directory: string) => boolean = (
+  directory: string,
+): boolean => {
   const listing: fs.Dir = fs.opendirSync(directory);
   try {
     return listing.readSync() !== null;

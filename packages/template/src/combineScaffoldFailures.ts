@@ -19,11 +19,11 @@ class ScaffoldCleanupError extends AggregateError {}
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call wraps two distinct failures of one operation; there is no result another call could share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned aggregate holds references to the combined failures only for as long as the caller keeps it; the function owns no handle or other state.
  */
-export const combineScaffoldFailures: (first: unknown, second: unknown, resource: string) => unknown = (
+export const combineScaffoldFailures: (
   first: unknown,
   second: unknown,
   resource: string,
-): unknown =>
+) => unknown = (first: unknown, second: unknown, resource: string): unknown =>
   first === undefined
     ? second
     : new ScaffoldCleanupError(

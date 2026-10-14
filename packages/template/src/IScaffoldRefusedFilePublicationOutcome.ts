@@ -14,12 +14,10 @@ export interface IScaffoldRefusedFilePublicationOutcome {
   /** Original native or validation error, kept for the caller. */
   error: unknown;
 
-
   /**
    * Why this attempt changed no file: `parent-changed` when a missing or invalid requested parent could not be opened, or its held directory identity differed; `target-competitor` when the name was already occupied, and `create-failed` for any other failure before this attempt created a slot or truncated an existing resident.
    */
   reason: "create-failed" | "parent-changed" | "target-competitor";
-
 
   /** Discriminator: this attempt created or rewrote no target file. */
   status: "refused";

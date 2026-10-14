@@ -14,10 +14,8 @@ export interface IAutoMovieCatalogVersionProps {
   /** Catalog name, a direct child of the top-level `catalogs` mapping. */
   catalog: string;
 
-
   /** Dependency name, a direct child of the requested catalog. */
   dependency: string;
-
 
   /** Complete `pnpm-workspace.yaml` text. */
   workspace: string;

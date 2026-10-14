@@ -9,6 +9,8 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Separate errors are separate observations and this scalar predicate caches no result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The supplied error is read for the call and no handle or retained state is acquired.
  */
-export const missingPath: (error: unknown) => boolean = (error: unknown): boolean =>
+export const missingPath: (error: unknown) => boolean = (
+  error: unknown,
+): boolean =>
   (error as NodeJS.ErrnoException).code === "ENOENT" ||
   (error as NodeJS.ErrnoException).code === "ENOTDIR";

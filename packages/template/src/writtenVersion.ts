@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
-import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
+import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 
 /**
  * Identity, size, and modification time: the part of a stat a writer moves.
@@ -13,5 +13,7 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
  * @evidence contracts/performance.md#reuse-equivalent-work The formatter reuses shared physical identity formatting but does not cache a stat or previous generation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fresh key string escapes; the function holds no file handle or retained cache.
  */
-export const writtenVersion: (status: fs.BigIntStats) => string = (status: fs.BigIntStats): string =>
+export const writtenVersion: (status: fs.BigIntStats) => string = (
+  status: fs.BigIntStats,
+): string =>
   `${scaffoldPhysicalIdentity(status)}:${status.size}:${status.mtimeNs}`;

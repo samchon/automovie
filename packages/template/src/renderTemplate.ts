@@ -16,7 +16,10 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call renders one distinct text; `renderScaffoldEntries` calls it once per file content and once per path.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function builds one output string and retains nothing after returning.
  */
-export const renderTemplate: (content: string, variables: Readonly<Record<string, string>>) => string = (
+export const renderTemplate: (
+  content: string,
+  variables: Readonly<Record<string, string>>,
+) => string = (
   content: string,
   variables: Readonly<Record<string, string>>,
 ): string => {

@@ -1,12 +1,12 @@
-import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
-import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
-import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
-import { missingPath } from "./missingPath";
-import { captureEmptyScaffoldPhysicalDirectory } from "./captureEmptyScaffoldPhysicalDirectory";
-import { inside } from "./inside";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
+import { captureEmptyScaffoldPhysicalDirectory } from "./captureEmptyScaffoldPhysicalDirectory";
+import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
+import { inside } from "./inside";
+import { missingPath } from "./missingPath";
 
 /**
  * Resolve, creating where missing, every directory between the captured root and `directory`, and return the capture of `directory`.
@@ -27,7 +27,11 @@ import * as path from "node:path";
  * @evidence contracts/performance.md#reuse-equivalent-work A level captured for an earlier file of the same publication is reused from `props.cache` when its absolute path matches, and equivalence is proved by revalidating its identity and real path before use; a changed level throws rather than being recaptured.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's cache grows by one scalar capture per distinct candidate directory and holds no descriptor; identity helpers attempt close before returning, propagating close errors without proving release. Created directories are not removed on a later failure.
  */
-export const ensureScaffoldFileDirectory: (props: { base: IScaffoldPhysicalDirectory; cache: Map<string, IScaffoldPhysicalDirectory>; directory: string; }) => IScaffoldPhysicalDirectory = (props: {
+export const ensureScaffoldFileDirectory: (props: {
+  base: IScaffoldPhysicalDirectory;
+  cache: Map<string, IScaffoldPhysicalDirectory>;
+  directory: string;
+}) => IScaffoldPhysicalDirectory = (props: {
   base: IScaffoldPhysicalDirectory;
   cache: Map<string, IScaffoldPhysicalDirectory>;
   directory: string;

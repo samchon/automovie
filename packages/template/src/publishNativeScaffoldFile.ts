@@ -1,15 +1,14 @@
-import { type IBoundParent } from "./IBoundParent";
-import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
-import { type ICreateResult } from "./ICreateResult";
 import { type IBoundChild } from "./IBoundChild";
 import { type IBoundChildStatus } from "./IBoundChildStatus";
-import { openWindowsParent } from "./openWindowsParent";
-import { openPosixParent } from "./openPosixParent";
+import { type IBoundParent } from "./IBoundParent";
 import { type IBoundParentStatus } from "./IBoundParentStatus";
+import { type ICreateResult } from "./ICreateResult";
 import { type IScaffoldParentPublicationRequest } from "./IScaffoldParentPublicationRequest";
-import { combineScaffoldFailures } from "./combineScaffoldFailures";
 import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOutcome";
-
+import { ScaffoldParentChangedError } from "./ScaffoldParentChangedError";
+import { combineScaffoldFailures } from "./combineScaffoldFailures";
+import { openPosixParent } from "./openPosixParent";
+import { openWindowsParent } from "./openWindowsParent";
 
 /**
  * Create one new scaffold file relative to a held parent directory handle and report the effect.
@@ -29,7 +28,9 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call is an exclusive create whose effect must not be shared; only the loaded Koffi library bindings are kept, and they are stateless function handles.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function owns at most three native handles, the parent, the created child, and one resident reopen; each receives a close attempt on success and on every failure path before return, and a failed close is reported with the earlier failure rather than claiming release; the readback buffer is released with the call, and the module keeps only one lazily loaded binding set per platform.
  */
-export const publishNativeScaffoldFile: (request: IScaffoldParentPublicationRequest) => ScaffoldFilePublicationOutcome = (
+export const publishNativeScaffoldFile: (
+  request: IScaffoldParentPublicationRequest,
+) => ScaffoldFilePublicationOutcome = (
   request: IScaffoldParentPublicationRequest,
 ): ScaffoldFilePublicationOutcome => {
   if (
@@ -157,18 +158,26 @@ export const publishNativeScaffoldFile: (request: IScaffoldParentPublicationRequ
       });
 };
 
-
 /** Close the parent after `failure`, keeping both errors if the close fails. */
-const closeAfterFailure: (parent: IBoundParent, failure: unknown) => unknown = (parent: IBoundParent, failure: unknown): unknown => {
+const closeAfterFailure: (parent: IBoundParent, failure: unknown) => unknown = (
+  parent: IBoundParent,
+  failure: unknown,
+): unknown => {
   try {
     parent.close();
     return failure;
   } catch (closeError) {
-    return combineScaffoldFailures(failure, closeError, "scaffold parent close");
+    return combineScaffoldFailures(
+      failure,
+      closeError,
+      "scaffold parent close",
+    );
   }
 };
 
-const openBoundParent: (request: IScaffoldParentPublicationRequest) => IBoundParent = (
+const openBoundParent: (
+  request: IScaffoldParentPublicationRequest,
+) => IBoundParent = (
   request: IScaffoldParentPublicationRequest,
 ): IBoundParent => {
   const parent: IBoundParent =
@@ -203,11 +212,14 @@ const openBoundParent: (request: IScaffoldParentPublicationRequest) => IBoundPar
   }
 };
 
-
 /**
  * Reopen `childName` relative to the held parent and require the same ordinary single-link file generation, attempting to close the reopened handle on every outcome and preserving close failures.
  */
-const assertBoundResident: (parent: IBoundParent, childName: string, expectedVersion: string) => void = (
+const assertBoundResident: (
+  parent: IBoundParent,
+  childName: string,
+  expectedVersion: string,
+) => void = (
   parent: IBoundParent,
   childName: string,
   expectedVersion: string,
@@ -236,13 +248,12 @@ const assertBoundResident: (parent: IBoundParent, childName: string, expectedVer
   if (failure !== undefined) throw nativeFailure(failure);
 };
 
-
 /** Read the whole file back through `child` and require `bytes` exactly. */
-const assertChildBytes: (child: IBoundChild, childName: string, bytes: Buffer) => void = (
+const assertChildBytes: (
   child: IBoundChild,
   childName: string,
   bytes: Buffer,
-): void => {
+) => void = (child: IBoundChild, childName: string, bytes: Buffer): void => {
   const readback: Buffer = Buffer.alloc(bytes.length);
   let offset: number = 0;
   while (offset < readback.length) {
@@ -260,10 +271,10 @@ const assertChildBytes: (child: IBoundChild, childName: string, bytes: Buffer) =
     throw new Error(`scaffold file changed during readback: ${childName}`);
 };
 
-const assertOrdinarySingleLink: (status: IBoundChildStatus, childName: string) => void = (
+const assertOrdinarySingleLink: (
   status: IBoundChildStatus,
   childName: string,
-): void => {
+) => void = (status: IBoundChildStatus, childName: string): void => {
   if (status.link || status.regular === false || status.links !== 1n)
     throw new Error(
       `scaffold file is not one ordinary single-link file: ${childName}`,

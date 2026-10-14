@@ -1,6 +1,7 @@
 import { type IScaffoldCompletedPublication } from "./IScaffoldCompletedPublication";
-import { type IScaffoldPublicationFailure } from "./IScaffoldPublicationFailure";
 import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
+import { type IScaffoldPublicationFailure } from "./IScaffoldPublicationFailure";
+
 /**
  * Everything observed while publishing one candidate.
  *
@@ -19,14 +20,11 @@ export interface IScaffoldPublicationReceipt {
   /** Entries completed before publication stopped, in candidate order. */
   completed: readonly IScaffoldCompletedPublication[];
 
-
   /** Entry where publication stopped, or `null` when every entry completed. */
   failure: IScaffoldPublicationFailure | null;
 
-
   /** The whole candidate in publication order, attempted or not. */
   planned: readonly IScaffoldPublicationEntry[];
-
 
   /**
    * `completed` when every entry completed, `refused` when the first entry was refused before any target file changed, and `partial` otherwise. Prepared directories and existing competitors are not described by this status.

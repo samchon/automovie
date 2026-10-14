@@ -15,26 +15,20 @@ export interface IScaffoldPosixConstants {
   /** Close the descriptor when a new program image is executed. */
   O_CLOEXEC: number;
 
-
   /** Create the child when its directory slot is absent. */
   O_CREAT: number;
-
 
   /** Require the parent descriptor to name a directory. */
   O_DIRECTORY: number;
 
-
   /** Refuse a child slot that already exists alongside O_CREAT. */
   O_EXCL: number;
-
 
   /** Refuse a symbolic link at the final opened component. */
   O_NOFOLLOW: number;
 
-
   /** Open the parent or verification child for reading only. */
   O_RDONLY: number;
-
 
   /** Open the newly created child for writing and readback. */
   O_RDWR: number;

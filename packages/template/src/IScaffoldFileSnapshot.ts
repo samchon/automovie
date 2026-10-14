@@ -1,4 +1,3 @@
-
 /**
  * Captured pathname generation of one existing ordinary single-link file.
  *
@@ -18,14 +17,11 @@ export interface IScaffoldFileSnapshot {
    */
   identity: string;
 
-
   /** Absolute pathname whose resident was captured. */
   path: string;
 
-
   /** `written` plus the change time. */
   version: string;
-
 
   /** Identity, size, and modification time: what a writer of the file moves. */
   written: string;

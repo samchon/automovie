@@ -1,6 +1,5 @@
 import * as path from "node:path";
 
-
 /**
  * Whether a resolved target is the root or a lexical descendant under the current platform's path rules.
  *
@@ -12,7 +11,10 @@ import * as path from "node:path";
  * @evidence contracts/performance.md#reuse-equivalent-work The pure path predicate has no request coordination or filesystem cache; callers supply the actual lexical or real paths.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary relative string lives only for the call and no filesystem handle is opened.
  */
-export const inside: (root: string, target: string) => boolean = (root: string, target: string): boolean => {
+export const inside: (root: string, target: string) => boolean = (
+  root: string,
+  target: string,
+): boolean => {
   const relative: string = path.relative(root, target);
   return (
     relative.length === 0 ||

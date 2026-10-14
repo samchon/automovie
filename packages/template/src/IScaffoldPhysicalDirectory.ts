@@ -1,4 +1,3 @@
-
 /**
  * One ordinary directory captured by physical identity, so later steps can prove they still operate on the same directory rather than on whatever its path names now.
  *
@@ -17,10 +16,8 @@ export interface IScaffoldPhysicalDirectory {
    */
   identity: string;
 
-
   /** Absolute lexical path of the directory. */
   path: string;
-
 
   /**
    * Native real path, compared against the scaffold root's to refuse a directory that a link or junction places outside it.

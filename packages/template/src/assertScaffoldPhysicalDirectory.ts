@@ -1,7 +1,6 @@
 import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
 import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
 
-
 /**
  * Require that a captured directory's path still names the same ordinary directory with the same real path.
  *
@@ -16,9 +15,9 @@ import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirec
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function exists to observe the file system again, so a cached answer would remove the check it performs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Successful recapture completes its descriptor close before comparison; a close failure propagates and proves no release. This assertion retains only the call-local current record and owns no additional handle.
  */
-export const assertScaffoldPhysicalDirectory: (ownership: IScaffoldPhysicalDirectory) => void = (
+export const assertScaffoldPhysicalDirectory: (
   ownership: IScaffoldPhysicalDirectory,
-): void => {
+) => void = (ownership: IScaffoldPhysicalDirectory): void => {
   const current: IScaffoldPhysicalDirectory = captureScaffoldPhysicalDirectory(
     ownership.path,
   );

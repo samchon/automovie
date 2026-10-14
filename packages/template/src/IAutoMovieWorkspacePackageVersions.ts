@@ -16,34 +16,26 @@ export interface IAutoMovieWorkspacePackageVersions {
   /** Range of `@automovie/archetypes`. */
   archetypes: string;
 
-
   /** Range of `automovie`, the command-line package. */
   cli: string;
-
 
   /** Range of `@automovie/engine`. */
   engine: string;
 
-
   /** Range of `@automovie/human`. */
   human: string;
-
 
   /** Range of `@automovie/ingest`. */
   ingest: string;
 
-
   /** Range of `@automovie/interface`. */
   interface: string;
-
 
   /** Range of `@automovie/render`. */
   render: string;
 
-
   /** Range of `@automovie/template`. */
   template: string;
-
 
   /** Range of `@automovie/viewer`. */
   viewer: string;

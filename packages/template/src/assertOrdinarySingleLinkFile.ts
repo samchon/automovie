@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 
-
 /**
  * Admission for the in-place rewrite: a regular file, not a symbolic link, that exactly one directory entry names, because the rewrite changes the inode every other name would show.
  *
@@ -12,10 +11,10 @@ import * as fs from "node:fs";
  * @evidence contracts/performance.md#reuse-equivalent-work Fresh stats remain distinct filesystem observations; admission does not cache an earlier verdict.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The predicate owns only the supplied stat reference and opens no descriptor or retained task.
  */
-export const assertOrdinarySingleLinkFile: (status: fs.BigIntStats, file: string) => void = (
+export const assertOrdinarySingleLinkFile: (
   status: fs.BigIntStats,
   file: string,
-): void => {
+) => void = (status: fs.BigIntStats, file: string): void => {
   if (
     status.isSymbolicLink() ||
     status.isFile() === false ||

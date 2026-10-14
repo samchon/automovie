@@ -1,10 +1,10 @@
+import * as fs from "node:fs";
+
 import { type IScaffoldPhysicalDirectory } from "./IScaffoldPhysicalDirectory";
+import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
 import { captureScaffoldPhysicalDirectory } from "./captureScaffoldPhysicalDirectory";
 import { physicalDirectoryIdentity } from "./physicalDirectoryIdentity";
 import { physicalVersion } from "./physicalVersion";
-import { assertScaffoldPhysicalDirectory } from "./assertScaffoldPhysicalDirectory";
-import * as fs from "node:fs";
-
 
 /**
  * Capture a directory this module just created and require it to be empty.
@@ -17,7 +17,9 @@ import * as fs from "node:fs";
  * @evidence contracts/performance.md#reuse-equivalent-work The inspection cannot reuse an earlier empty answer because another process can change the directory between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each identity helper attempts its own descriptor close before returning; a failed close aborts qualification without proving release. The entry array is call-local and only the completed capture transfers to the caller.
  */
-export const captureEmptyScaffoldPhysicalDirectory: (directory: string) => IScaffoldPhysicalDirectory = (
+export const captureEmptyScaffoldPhysicalDirectory: (
+  directory: string,
+) => IScaffoldPhysicalDirectory = (
   directory: string,
 ): IScaffoldPhysicalDirectory => {
   const ownership: IScaffoldPhysicalDirectory =

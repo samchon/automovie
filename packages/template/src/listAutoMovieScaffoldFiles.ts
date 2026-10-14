@@ -1,7 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-
 /**
  * Directory names the scaffold never ships, whatever a host leaves there: a generated project installs its own dependencies and builds its own caches, so anything under these names is a working artifact of whoever ran a tool inside the scaffold directory.
  */
@@ -11,13 +10,11 @@ const UNSHIPPED_DIRECTORIES: ReadonlySet<string> = new Set([
   "node_modules",
 ]);
 
-
 /**
  * Compiler outputs, which are never authored scaffold inputs. Every executable scaffold source is TypeScript, and a generated project's loader would prefer an emitted `.js` next to its `.ts`, so an earlier local compilation must not ship its modules, maps, declarations, or build info.
  */
 const UNSHIPPED_FILES: RegExp =
   /(?:\.(?:c|m)?js(?:\.map)?|\.d\.(?:c|m)?ts|\.tsbuildinfo)$/u;
-
 
 /**
  * List every shipped file under `root`, as root-relative paths with the host's separator, in a deterministic order.
@@ -35,7 +32,9 @@ const UNSHIPPED_FILES: RegExp =
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call lists the directory as it is on disk now, and `renderScaffold` calls it once per render.
  * @evidence contracts/performance.md#bound-retention-and-release-resources `readdirSync` opens and closes each directory before returning, the recursion depth equals the scaffold's directory depth, and only the result array is retained, holding one string per shipped file.
  */
-export const listAutoMovieScaffoldFiles: (root: string) => string[] = (root: string): string[] => {
+export const listAutoMovieScaffoldFiles: (root: string) => string[] = (
+  root: string,
+): string[] => {
   const out: string[] = [];
   const walk: (dir: string) => void = (dir: string): void => {
     const entries: fs.Dirent[] = fs

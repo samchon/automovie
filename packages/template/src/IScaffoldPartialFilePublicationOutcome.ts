@@ -18,14 +18,11 @@ export interface IScaffoldPartialFilePublicationOutcome {
    */
   bytesWritten: number;
 
-
   /** Original native or validation error, kept for the caller. */
   error: unknown;
 
-
   /** Identity of the captured parent directory containing the partial slot. */
   parentIdentity: string;
-
 
   /** Discriminator: a slot exists with incomplete or unverified content. */
   status: "partial";

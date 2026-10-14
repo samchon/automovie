@@ -9,5 +9,7 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Every failed native call receives its own error; effectful calls and their failures are never shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The receiver owns the returned error and its lifetime; this formatter opens no native resource.
  */
-export const nativeError: (message: string, code: number) => Error = (message: string, code: number): Error =>
-  new Error(`${message} (native code ${code})`);
+export const nativeError: (message: string, code: number) => Error = (
+  message: string,
+  code: number,
+): Error => new Error(`${message} (native code ${code})`);
