@@ -13,8 +13,7 @@ import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/in
  * 1. Non-finite flexion/abduction/twist values throw.
  * 2. Non-finite custom axis components throw.
  * 3. A valid custom axis still composes as before.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Passes nonfinite joint/axis inputs and invalid bases to direct composition, asserting explicit failures and valid30-degree custom-axis rotation; silently emitting nonfinite quaternions or accepting collinear bases fails.
  * @evidence contracts/testing.md#independent-expectations Finite nonzero orthogonal axes and finite authored angles are the supported premise. A half-angle sine/cosine quaternion for Y30 defines the valid expectation; invalid inputs are chosen independently of any generated output.
  * @evidence contracts/testing.md#distinguishing-cases Keeps NaN flexion, positive-infinite abduction, negative-infinite twist, nonfinite/zero/collinear/oblique axes, ordinary and scaled orthogonal bases; default/mixed order and inverse decomposition are separate entries.

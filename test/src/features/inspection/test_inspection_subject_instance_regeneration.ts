@@ -20,7 +20,7 @@ interface IMemberFacts {
   scale: IAutoMovieVector3 | undefined;
 }
 
-/** Sixty-four scattered trees drawing two prototypes, per-axis scale and a seeded tilt. */
+/** Sixty-four scattered trees drawing the base and two declared variants, with per-axis scale and a seeded tilt. */
 const orchard: () => IAutoMovieInstanceSetDesign = (): IAutoMovieInstanceSetDesign => ({
   id: "orchard",
   modelRecipe: "tree",
@@ -94,8 +94,7 @@ const hedge: () => IAutoMovieInstanceSetDesign = (): IAutoMovieInstanceSetDesign
  *    neighbour's regenerated place or scale.
  * 5. A hand-edited set whose palette is empty refuses description with the
  *    regenerator's refusal, while its twin with a swatch is described.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Describes every scattered/grid slot and checks discrete identity plus exact finite coordinate parity with the compiled regenerator; a neighboring transform, lost per-axis scale or divergent empty-palette admission fails.
  * @evidence contracts/testing.md#independent-expectations Slot comparisons intentionally test consumer parity with instanceSlot, so a defect shared by both paths can pass. The independent quarter-turn quaternion and distinct-neighbor assertions supplement that oracle; zero-tolerance predicates preserve the existing exact regenerated-value requirement.
  * @evidence contracts/testing.md#distinguishing-cases Keeps all 64 varied members and 12 uniform-scale members, prototype/model identity, heading, neighbor placement/scale discrimination and empty-palette refusal with a swatch twin; malformed addresses and other layouts belong to instances.
@@ -136,7 +135,7 @@ export function test_inspection_subject_instance_regeneration(): void {
 
   TestValidator.predicate(
     "a varied member is described as its compiled set regenerates it",
-    Array.from({ length: trees.count }, (_: unknown, slot: number): boolean => {
+    trees.count === 64 && Array.from({ length: trees.count }, (_: unknown, slot: number): boolean => {
       const member: IAutoMovieInstanceSlot = instanceSlot(trees, slot);
       return sameMemberFacts(described(trees, slot), {
         id: member.node,
@@ -151,7 +150,7 @@ export function test_inspection_subject_instance_regeneration(): void {
 
   TestValidator.predicate(
     "a plain member is described with its regenerated place and one scale",
-    Array.from(
+    shrubs.count === 12 && Array.from(
       { length: shrubs.count },
       (_: unknown, slot: number): boolean => {
         const member: IAutoMovieInstanceSlot = instanceSlot(shrubs, slot);

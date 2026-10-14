@@ -10,16 +10,16 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoM
  *
  * Scenarios:
  *
- * 1. Translation and mesh-coordinate differences at exactly `1e-6` remain
- *    unchanged.
+ * 1. Translation at `1e-6` and a mesh coordinate authored as `1 + 1e-6` remain
+ *    unchanged; binary64 subtraction makes the latter difference slightly below
+ *    the nominal boundary.
  * 2. The same differences just above the boundary become moved and reshaped.
  * 3. Opposite signs of the same unit quaternion are unchanged.
  * 4. Degenerate zero quaternions fall back to component comparison without
  *    producing NaN.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Diffs moved and resized authored subjects on and above the inclusive tolerance, testing unit-quaternion sign equivalence and zero-quaternion component fallback; an exclusive boundary or NaN-producing orientation comparison fails.
- * @evidence contracts/testing.md#independent-expectations Literal coordinate differences at 1e-6 and 1.01 times that threshold define the classifications; q and minus q represent one rotation, while a zero quaternion has no unit-rotation interpretation. Expected subject ids come from authored model/element identities.
+ * @evidence contracts/testing.md#independent-expectations Authored translation differences at 1e-6 and 1.01 times that threshold define the classifications; the mesh's 1 + tolerance subtraction is rounded, so exact inclusivity is pinned by translation and zero-quaternion components. q and minus q represent one rotation, while a zero quaternion has no unit-rotation interpretation. Expected subject ids come from authored model/element identities; no visual equivalence is established.
  * @evidence contracts/testing.md#distinguishing-cases Keeps boundary/above-boundary geometry and translation, opposite unit signs, zero-quaternion boundary twins and changed part-array length; malformed tolerance refusal belongs to structural_diff.
  * @evidence contracts/testing.md#execution-ownership This exported runner entry invokes portable diff source over in-memory mesh records, with no rendered image or graphics context; classification assertions do not establish visual equivalence at that tolerance.
  */

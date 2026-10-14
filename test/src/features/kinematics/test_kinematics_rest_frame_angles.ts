@@ -33,22 +33,20 @@ import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kin
  * 2. Feeding `jointToQuaternion` a clinical angle with a frame equals feeding it
  *    the pre-converted rig angle with no frame.
  * 3. `decompose(jointToQuaternion(c, axes, f), axes, f)` round-trips the clinical
- *    angles, including the gimbal case (abduction at the rig's ±90°).
+ *    angles, including the positive gimbal case (rig abduction +90°).
  * 4. `resolvePose` threads the frame: a clinical pose resolved with the humanoid
  *    frames lands the hand where the pre-converted rig pose does without them.
  * 5. `reachPose` threads the frame: the raw rig-space answer must now be asked for
  *    explicitly with an empty table. Each frame's pose lands the hand on the
  *    target when read in its own space, and the elbow's hinge angle is
- *    identical across frames because the target distance alone sets it. The two
- *    SHOULDER solutions are not a fixed offset apart: the solver picks its
- *    swivel by ROM legality, judged in the declared space, so a frame selects a
- *    different exact solution rather than renaming one (#1345).
+ *    identical across frames because the target distance alone sets it. The
+ *    solver scores shoulder swivel in the declared frame; this case observes
+ *    contact and hinge agreement, not whether the shoulder candidates differ.
  * 6. Omitting `restFrames` takes the canonical humanoid frame rather than raw rig
  *    space, so the arm verbs and the reach oracle answer one rig in ONE space
  *    (#1346). The negative twin is scenario 5's explicit `{}`, which still
  *    produces the rig-space angles a caller with its own convention needs.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Exercises affine angle conversion and threads rest frames through composition, inverse, FK and reach, checking converted coordinates, contact, hinge agreement and the default table; a dropped frame or wrong neutral/sign fails.
  * @evidence contracts/testing.md#independent-expectations The authored sign minus1/neutral 90 frame fixes rig minus60 from clinical 150 and its inverse. Literal angle recovery supplements shared forward/inverse parity; FK/reach comparisons can miss shared geometric defects and do not independently establish clinical ranges. Default parity preserves exact scalar values via zero-tolerance predicates.
  * @evidence contracts/testing.md#distinguishing-cases Keeps null/absent frame, mirrored nonzero neutral, ordinary/gimbal inverse, explicit raw versus framed FK/reach, common hinge angle and omitted-table behavior; malformed axes/domains and illegal-pose gate cases are separate entries.

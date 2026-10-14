@@ -26,8 +26,7 @@ const withRightHand: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => {
  *
  * 1. A complete right-arm chain still solves for the valid `"right"` side.
  * 2. An unknown side value returns `null` instead of solving the right arm.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls reachPose with a complete right chain and an erased-union center string, checking nonnull versus null; accidentally treating every nonleft string as right fails.
  * @evidence contracts/testing.md#independent-expectations The supported side set is left/right, so center is invalid independently of solver output. A conventional fixture and reachable target supply the valid neighbor; a nonnull check here does not establish its hand contact or ROM legality.
  * @evidence contracts/testing.md#distinguishing-cases Keeps a valid right side and the unsupported-center negative twin with the same skeleton/target; geometric contact, shell boundaries and ROM admission are owned by reach/reach_rom.

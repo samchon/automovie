@@ -17,16 +17,13 @@ const at: (rs: IAutoMovieResolvedBone[], b: AutoMovieHumanoidBone) => IAutoMovie
 };
 
 /**
- * A pose's optional root transform places the whole character in the world: it
- * seeds the hierarchy walk, so it offsets every resolved bone uniformly. Pins
- * that planting or translating the model root moves the entire skeleton
- * together.
+ * A pose's root translation seeds the hierarchy walk. This pure-translation
+ * fixture checks that both the hips and a lower-arm descendant move with it.
  *
  * Scenario: a root translation of (+1,0,0) shifts every bone's world position
  * by +1 on X: hips from (0,1,0) to (1,1,0), and the leftLowerArm from
  * (0.5,1.4,0) to (1.5,1.4,0).
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Applies a plus-X root translation and checks both root and descendant world positions; ignoring the root or applying it twice fails.
  * @evidence contracts/testing.md#independent-expectations Authored rest hips(0,1,0) and lower-arm(0.5,1.4,0) plus root(1,0,0) determine the two literal expected positions without consulting an unshifted FK result.
  * @evidence contracts/testing.md#distinguishing-cases This pure translation complements untransformed rest and rotated-parent entries; it does not independently check arbitrary root rotation/scale or every descendant.

@@ -15,12 +15,11 @@ import { type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSu
  *    member-sized change array.
  * 2. Reassigning one explicit instance from the default to an alternate
  *    prototype reports one reshaped set with one changed selection.
- * 3. Added or removed slots contribute their absolute count to the prototype
- *    selection-change total.
+ * 3. One added slot contributes one to the prototype selection-change total;
+ *    removal is not exercised here.
  * 4. A missing explicit prototype and a degenerate weighted table remain
  *    deterministic diff inputs rather than crashing aggregate comparison.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Diffs authored prototype geometry and compact selections, checking exact aggregate fan-out and the absence of individual instance records; expanding one reusable reshape into thousands of records or miscounting reassigned slots fails.
  * @evidence contracts/testing.md#independent-expectations The fixture explicitly places one element and 2392 slots on one model, so both changed prototype records have those literal populations; explicit choices and added-slot count independently determine selection changes without copying diff output.
  * @evidence contracts/testing.md#distinguishing-cases Keeps prototype/part fan-out, a single explicit reassignment, added membership, missing explicit selection, zero weights and a legacy no-LOD set; tolerance and seeded distribution semantics have separate entries.

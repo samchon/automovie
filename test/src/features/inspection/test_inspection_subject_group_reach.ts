@@ -13,15 +13,10 @@ import { type IAutoMovieSubjectDescription, type IAutoMovieBuiltSpace, type IAut
 /**
  * A walk that knows no key reaches every element, and names none it cannot open.
  *
- * A transform-only group is an authored element with an identity, a kind, a
- * parent and a logical space, but the surface answered "does not exist" for it,
- * and that refusal did not stay inside the group. A space lists the elements it
- * claims, so a reviewer opening a room was handed ids that opened nothing: on
- * the scaffold's own `ExampleBuilding`, 6 of the 32 ids its spaces name refused,
- * both unit roots among them, and the elements underneath those roots appeared
- * at the top of the index as though they hung from nothing. Opening the group
- * closes both halves at once, and afterwards that building answers 30 of 30
- * elements from 2 index roots with no refusal.
+ * A transform-only group has an authored identity, kind, parent and logical
+ * space. A space or element can name it as a member even though the compiled
+ * scene carries no drawn node for it, so the description surface must resolve
+ * that address before a reviewer can descend to its drawn children.
  *
  * A group states its place the way the engine already states it, since
  * `builtEnvironmentPlacementBounds` answers `null` for a transform-only group
@@ -36,12 +31,11 @@ import { type IAutoMovieSubjectDescription, type IAutoMovieBuiltSpace, type IAut
  *    and a root group reports no owner.
  * 3. Every id a space names opens, which is the defect stated from the side a
  *    reviewer meets it.
- * 4. A walk from the index reaches all seven elements, including the two the
+ * 4. A walk from the index reaches all seven elements, including the four the
  *    builder draws nothing for.
  * 5. The enumeration carries the groups too, so a flat survey is not smaller
  *    than the building.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Validates and inspects a seven-element hierarchy, opening model-less groups and walking only exposed space/root/member links; refusing a transform-only group, dropping drawn descendants or exposing an unopenable member fails.
  * @evidence contracts/testing.md#independent-expectations The authored parent/space links determine exact owners, root membership and null unstaged geometry; unreached ids are taken from that input hierarchy rather than the description census. Validation acceptance checks this fixture, not every building topology.
  * @evidence contracts/testing.md#distinguishing-cases Keeps a claimed group with a drawn child, empty group, claimed and unclaimed roots, space descent, complete enumeration and missing-id refusal; crowded paging is owned by member_paging.

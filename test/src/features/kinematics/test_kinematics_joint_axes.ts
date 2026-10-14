@@ -14,8 +14,7 @@ import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/in
  * 2. Flexion rotates about local X.
  * 3. Abduction rotates about local Z.
  * 4. Twist rotates about local Y.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Converts undriven/zero joints and separate 90-degree flexion, abduction and twist, checking rotation against literal Cartesian quaternions; an axis swap or failure to preserve identity fails.
  * @evidence contracts/testing.md#independent-expectations Identity is (0,0,0,1); a quarter-turn has half-angle sine/cosine sqrt(1/2) on exactly the declared X/Z/Y axis. Expected rotations do not call the product quaternion constructor or composition owner.
  * @evidence contracts/testing.md#distinguishing-cases Keeps null and explicit-zero triples plus each individually driven default axis; mixed order, custom bases and malformed inputs belong to neighboring entries.

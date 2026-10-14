@@ -36,14 +36,14 @@ const localOf: (pose: Parameters<typeof resolvePose>[0], bone: string, jointAxes
  *    flexion about X (and is NOT the about-Y rotation, the negative twin).
  * 2. Passing an axes override rotates about the given axis: flexion under the
  *    humanoid arm basis is a rotation about Y.
- * 3. `HUMANOID_JOINT_AXES` remaps the whole arm chain (flexion→Y, abduction→Z,
- *    twist→X) and omits legs/spine (which therefore fall back to the default).
+ * 3. The sampled `leftUpperArm` entry in `HUMANOID_JOINT_AXES` is Y/Z/X,
+ *    while `leftUpperLeg` and `spine` entries are absent. Other table rows are
+ *    not enumerated by this test.
  * 4. `resolvePose` with the table remaps an arm joint (leftUpperArm flexion ⇒
  *    about Y) but leaves a leg joint (leftUpperLeg, absent from the table ⇒
  *    about X) on the default basis; omitting the table reproduces the default
  *    for the same arm joint.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm override, omitted leg/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
  * @evidence contracts/testing.md#independent-expectations Authored unit Cartesian axes fix expected directions, and a local independent half-angle formula supplies 40/45-degree quaternions without calling product quaternion construction. The table's names are a conventional engine rig mapping, not independently measured anatomy.
  * @evidence contracts/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm table entries, omitted leg/spine and FK with/without the table; composition order and malformed custom axes are separate entries.

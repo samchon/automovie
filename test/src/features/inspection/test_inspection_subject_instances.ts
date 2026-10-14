@@ -22,8 +22,7 @@ import { type IAutoMovieModel, type IAutoMovieSubjectArtifact, type IAutoMovieSu
  *    model and preserves the authored transform.
  * 4. Missing routes, zero-length routes, missing prototypes, malformed
  *    addresses, and out-of-range slots fail explicitly.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Opens compact sets and individual members, checking bounded summaries, last-slot access, selected prototype, world placement and explicit malformed-law failures; wrong slot addressing or lost authored TRS fails.
  * @evidence contracts/testing.md#independent-expectations A centered 65-slot unit row spans minus/plus32, while the explicit quarter-turn maps local (7,1,2) plus anchor to (12,1,-7) and transforms the authored prototype box. These coordinates and identities are derived from input geometry; the other layout cases check finite placement only, not their complete distribution law.
  * @evidence contracts/testing.md#distinguishing-cases Keeps 64-item summary/65th access, scatter/lattice/explicit/route placements, prototype selection, repeated route point, malformed/outside addresses, missing/zero route and missing prototype; seeded parity and repeated pages have separate entries.
@@ -165,7 +164,7 @@ export function test_inspection_subject_instances(): void {
     "every compiled layout regenerates a finite addressable world placement",
     placements.map((description: IAutoMovieSubjectDescription): { id: string; finite: boolean; model: string | null; owner: string | null; }  => ({
       id: description.id,
-      finite: Object.values(description.transform!.translation).every(
+      finite: Object.keys(description.transform!.translation).length === 3 && Object.values(description.transform!.translation).every(
         Number.isFinite,
       ),
       model: description.model,

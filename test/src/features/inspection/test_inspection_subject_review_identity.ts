@@ -23,8 +23,7 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectReviewTarget, typ
  *    structurally ineligible as delivery evidence.
  * 3. A missing subject fails through the shared compiled-subject resolver
  *    rather than producing an empty review unit.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Resolves four structural subject review targets and asserts exact identity, revision, owner/placement/prototype links and inspection-only authority; substituting another role or admitting a missing subject fails.
  * @evidence contracts/testing.md#independent-expectations Literal authored subject addresses and revision define the expected four records, rather than calling another resolver for the expected array. Filtering formation units cannot hide a wrong role because the full four-record equality still fails on a missing entry; formation review is outside this structural population.
  * @evidence contracts/testing.md#distinguishing-cases Keeps reusable prototype, placed part, compact member and logical space, with their distinct nullable ownership links and missing-id refusal; production parity separately owns the negative delivery-evidence type consumer.

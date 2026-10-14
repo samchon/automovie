@@ -5,15 +5,14 @@ import { qunit } from "../internal/qunit";
 import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
 /**
  * When more than one axis is articulated, `jointToQuaternion` composes them in
- * the documented order (twist ∘ abduction ∘ flexion), and the product is always
- * a unit quaternion (a pure rotation, no scaling). The order matters because
+ * the default proximal order (twist ∘ abduction ∘ flexion), and this test's
+ * product remains a unit quaternion within its numerical tolerance. Order matters because
  * quaternion multiplication does not commute.
  *
  * Scenario: a joint with flexion 90° and twist 90° must equal multiplying the
  * twist quaternion onto the flexion quaternion in that order, and the combined
  * rotation must remain unit-norm.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Composes simultaneous X-flexion and Y-twist quarter-turns and checks orientation plus unit norm; reversing the noncommuting product changes Z's sign and fails.
  * @evidence contracts/testing.md#independent-expectations Hand expansion of Y90 times X90 gives (0.5,0.5,-0.5,0.5), with squared norm1; no expected quaternion is produced by the multiplication or axis-angle implementation under test.
  * @evidence contracts/testing.md#distinguishing-cases This mixed noncommuting case distinguishes product order while preserving unit length; null, zero, individual axes, overrides and malformed operands belong to their dedicated entries rather than being silently inferred here.

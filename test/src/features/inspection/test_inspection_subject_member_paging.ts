@@ -12,17 +12,9 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectMemberSummary, ty
 /**
  * Membership beyond the first page is still addressable.
  *
- * The sample limit exists for a real reason — one authored field of roof slate
- * is 2,392 members, and a query a reviewer calls in a loop must not hand back
- * 2,392 strings. What it lacked was any way past it: a summary reported
- * `omitted` and there was nothing to ask next, so descent through membership
- * stopped at the limit no matter how much was below it.
- *
- * That is survivable until one node owns nearly everything, which is what a
- * building is. Measured on the `#1954` campaign's medieval manor: 989 elements,
- * a flat hierarchy of one root with 988 direct children, so descending from the
- * building named 64 and reported 924 omitted. Nothing was lost — the subject
- * census is uncapped and still returned all 989 — but the tree had no way down.
+ * A bounded first-page summary must expose later members through an offset.
+ * This fixture owns 150 children and 150 compact slots, enough to cross the
+ * declared page limit twice without depending on an external production.
  *
  * The page is a rank into the sorted whole rather than a cursor token, because
  * the order is already deterministic and code-unit stable, so the same rank
@@ -42,8 +34,7 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectMemberSummary, ty
  *    a different order than it reports.
  * 5. The whole-inventory census is untouched: every summary it builds starts at
  *    the first member, and it still names every subject.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Walks multiple child and compact-instance pages, asserting total, stable sorted ids, uniqueness and termination; a skipped/overlapping page, incorrect omitted count or census cap fails.
  * @evidence contracts/testing.md#independent-expectations The fixture declares 150 zero-padded child ids and 150 slots, independently fixing complete membership and code-unit order. The imported limit states the paging contract; this case does not independently justify that limit's performance policy.
  * @evidence contracts/testing.md#distinguishing-cases Keeps first and later pages, past-end empty output, negative/fractional rank refusal, compact-slot regeneration and unchanged first-page whole census; model geometry and hierarchy reach are separate entries.
@@ -143,6 +134,7 @@ export function test_inspection_subject_member_paging(): void {
         (): boolean  =>
           throwsError((): IAutoMovieSubjectDescription  =>
             describeAutoMovieSubject(artifact, root, { memberOffset: -1 }),
+            "Subject member offset must be a whole number of members from the first",
           ),
       ],
       [
@@ -150,6 +142,7 @@ export function test_inspection_subject_member_paging(): void {
         (): boolean  =>
           throwsError((): IAutoMovieSubjectDescription  =>
             describeAutoMovieSubject(artifact, root, { memberOffset: 1.5 }),
+            "Subject member offset must be a whole number of members from the first",
           ),
       ],
     ]),

@@ -3,6 +3,7 @@ import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
 import { aimRotation } from "../../../../packages/engine/src/kinematics/aimRotation";
 import { TestValidator } from "@nestia/e2e";
 import { qclose } from "../internal/qclose";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -89,7 +90,7 @@ export function test_kinematics_aim_rotation(): void {
   );
 
   // 6. deadzone-free: a 0.05° off-axis target (inside the old identity deadzone)
-  //    is aimed at EXACTLY. from = −Z, to = 0.05° rotated toward +X: rotating
+  //    is aimed within the vector predicate's tolerance. from = −Z, to = 0.05° rotated toward +X: rotating
   //    `from` by the result must land on `to` (x = sin 0.05° ≈ 8.7e-4 ≠ 0, which
   //    the old cos > 0.999999 snap would have left at 0).
   const from: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
@@ -107,7 +108,7 @@ export function test_kinematics_aim_rotation(): void {
     const turned: IAutoMovieVector3 = Quaternion.rotateVector(aimRotation(X, { x: 1, y: slope, z: 0 }), X);
     TestValidator.predicate(
       "every representable nonzero turn remains active below former sine thresholds",
-      Math.abs(turned.y - slope) <= Math.abs(slope) * 1e-14,
+      nclose(turned.y, slope, Math.abs(slope) * 1e-14),
     );
   }
 }

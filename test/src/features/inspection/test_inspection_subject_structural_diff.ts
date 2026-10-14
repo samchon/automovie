@@ -24,8 +24,7 @@ import { type IAutoMovieSubjectArtifact, type IAutoMovieSubjectDiff, type IAutoM
  * 4. One compact set changed in both anchor and layout appears in both moved
  *    and reshaped categories.
  * 5. Invalid negative and non-finite tolerances are rejected.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Diffs authored revisions and checks disjoint add/remove, independent move/reshape, stable summaries and tolerance refusal; conflating reusable geometry with placement or omitting environment-only models fails.
  * @evidence contracts/testing.md#independent-expectations Explicit before/after ids, translated chair, changed height and unchanged model fix the expected categories and revision labels; changing both compact anchor and spacing independently requires both categories. The literal default tolerance is checked through a scalar predicate, not diff-generated expected output.
  * @evidence contracts/testing.md#distinguishing-cases Keeps additions/removals, simultaneous element move and prototype reshape, unchanged subjects, environment-only ownership, a doubly changed set, newly added-set fan-out and negative/infinite tolerance; exact inclusive boundaries are owned by diff_tolerance.

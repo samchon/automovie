@@ -14,8 +14,7 @@ import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/
  * 1. Non-finite quaternion components throw.
  * 2. Non-finite custom joint-axis components throw.
  * 3. A valid quaternion and axis basis still decomposes normally.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls the inverse with malformed quaternion/axis values and checks explicit error fragments, then observes 25-degree twist for ordinary and nonunit orthogonal bases; nonfinite propagation or failed normalization is caught without rounding away angular error.
  * @evidence contracts/testing.md#independent-expectations Finite orthogonal input is the supported boundary premise, whereas NaN/infinity, zero, collinear and oblique axes violate it; the authored Y25 input defines the expected twist. Axis-angle construction is shared engine math, so this is not an independent proof of that constructor.
  * @evidence contracts/testing.md#distinguishing-cases Keeps NaN/infinite quaternion components, infinite axis, zero/collinear/nonorthogonal axes, a valid input and scaled orthogonal twin; mixed rotations and Euler branch choices are owned elsewhere.

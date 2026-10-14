@@ -30,8 +30,7 @@ import { type IAutoMovieResolvedBone } from "../../../../packages/engine/src/kin
  * 3. A clinical pose resolved with the frames equals the pre-converted rig pose
  *    resolved without them (left clinical 180 ≡ rig 90; right clinical 180 ≡
  *    rig −90), tying the semantics back to the raw rig articulation.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Resolves rest, raised and lowered poses for both authored arm chains, checking equal clinical commands move both hands in the intended vertical direction and match explicit per-side rig angles; an incorrect sign/neutral mapping fails.
  * @evidence contracts/testing.md#independent-expectations A horizontal plus/minus-X chain and right-hand Z rotation independently imply the vertical direction; the authored 0.29+0.26 metre chain exceeds the 0.3 threshold. Raw-versus-framed comparisons additionally check conversion parity but cannot independently validate shared FK or living-body motion capacity.
  * @evidence contracts/testing.md#distinguishing-cases Keeps both sides at rest and clinical 180/0 endpoints, with explicit raw left 90/right minus90 twins; ROM admission, pathological chains and target solving are owned by other kinematics entries.

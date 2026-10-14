@@ -68,18 +68,19 @@ const withElbow: (constraint: IAutoMovieJointConstraint) => IAutoMovieSkeleton =
  *
  * The analytic solve used to articulate the mid joint as a free swing,
  * `aimRotation(localFore, localGoal)`, which generically decomposes into
- * abduction and twist. An elbow declares those axes immobile, so the pose was
- * illegal BY CONSTRUCTION, and the bend plane came from a conventional
- * world-down pole instead of the declared elbow hinge. This CPU regression
+ * abduction and twist. The default elbow holds abduction immobile, while the
+ * hinge-only solve also leaves its allowed twist unused. A free swing can
+ * therefore violate the gate even while placing the hand. This CPU regression
  * does not independently measure living-knee or elbow mechanics. On the canonical humanoid
  * under the engine's own `DEFAULT_HUMANOID_ROM`, exactly one of eight targets
  * came back ROM-clean and that one was the rest pose itself, while a grid
  * search proved valid poses exist for five of the seven failures.
  *
  * The expectations here are taken from the CONTRACT, never from what the solver
- * emits: an elbow's immobile axes must read exactly `0` because that is what
- * `IAutoMovieJointConstraint` means by a `null` axis, the hand must land on the
- * target because that is what an IK solve is for, and the verdict is
+ * emits: an elbow's immobile abduction must read exactly `0` because that is
+ * what a `null` constraint axis means, and a flexion-only hinge also supplies
+ * zero twist even though the default elbow ROM allows twist. The hand must
+ * land on the target because that is what an IK solve is for, and the verdict is
  * `validatePose`'s own, so the solver cannot grade itself by a kinder rule than
  * its gate.
  *
@@ -89,7 +90,7 @@ const withElbow: (constraint: IAutoMovieJointConstraint) => IAutoMovieSkeleton =
  *    accepts with zero violations, and the hand lands within 1e-4 m.
  * 2. The hinge invariant, which is the mechanism rather than the symptom: the
  *    elbow's abduction and twist are EXACTLY zero for every one of those poses,
- *    so the axes an elbow does not have carry no rotation at all.
+ *    so neither the held abduction axis nor the unused twist carries rotation.
  * 3. The two targets the existence search could not settle are also clean, so the
  *    fix is not scoped to the rows that had a witness.
  * 4. Boundary, the rest-pose target: the identity articulation, zero violations,
@@ -99,11 +100,10 @@ const withElbow: (constraint: IAutoMovieJointConstraint) => IAutoMovieSkeleton =
  * 6. NEGATIVE TWIN: a fused elbow (`flexion` pinned to `[0, 0]`) cannot reach a
  *    target off its one span, so the verdict is still a refusal with the
  *    flexion axis named. The gate did not become permissive.
- */
-/**
- * @evidence contracts/testing.md#behavioral-verification Solves authored arm targets then checks actual pose-gate acceptance, hand contact, immobile elbow coordinates and fused-elbow refusal; an unconstrained lower-joint swing or a solver that bypasses its ROM gate fails.
- * @evidence contracts/testing.md#independent-expectations Fixture lengths fix the 0.55-metre shell and ray projection, literal targets fix contact, and null constraint axes require zero. The actual gate supplies integration parity, not an independent physiological oracle; historical search witnesses explain targets but do not certify human clinical capacity or global solver completeness.
- * @evidence contracts/testing.md#distinguishing-cases Keeps five historically witnessed and two previously unsettled targets, exact held-axis zero, rest identity/neutral, out-of-shell clamping and a fused-elbow negative twin naming flexion; malformed side/topology and isolated chain degeneracies are separate entries.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Solves authored arm targets then checks actual pose-gate acceptance, hand contact, flexion-only elbow coordinates and fused-elbow refusal; an unconstrained lower-joint swing or a solver that bypasses its ROM gate fails.
+ * @evidence contracts/testing.md#independent-expectations Fixture lengths fix the 0.55-metre shell and ray projection, literal targets fix contact, null abduction requires zero and the hinge construction requires unused twist zero. The actual gate supplies integration parity, not an independent physiological oracle; historical search witnesses explain targets but do not certify human clinical capacity or global solver completeness.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps five historically witnessed and two previously unsettled targets, exact held-abduction and unused-twist zero, rest identity/neutral, out-of-shell clamping and a fused-elbow negative twin naming flexion; malformed side/topology and isolated chain degeneracies are separate entries.
  * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry directly imports reach, FK and pose-result validation source with a code-authored skeleton; no viewer, GPU, primary clinical experiment or Human asset is run.
  */
 export function test_kinematics_reach_rom(): void {

@@ -22,8 +22,7 @@ const rest: { translation: { x: number; y: number; z: number; }; rotation: { x: 
  *
  * Scenario A (rootless): `spine`→`hips` and `chest`→`spine`, but no `hips`
  * root. Scenario B (cycle): `spine`→`chest` and `chest`→`spine`.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Resolves and indexes rootless and cyclic parent graphs, asserting empty outputs rather than a crash or fabricated pose; entering an unreachable component or infinitely traversing a cycle fails.
  * @evidence contracts/testing.md#independent-expectations Every declared bone has a nonnull parent and neither fixture has an entry root, so the root-seeded traversal reaches no bones. Literal zero cardinality is independent of both product traversals, whose agreement alone would be a weaker oracle.
  * @evidence contracts/testing.md#distinguishing-cases Keeps unresolved-parent rootlessness and a two-node cycle; valid complete hierarchies and a valid-root-plus-orphan mixture are owned by resolve_rest/resolve_orphan. This checks partial-return semantics, not validation acceptance of malformed rigs.

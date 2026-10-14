@@ -61,10 +61,9 @@ const chain: (overrides: { midOffset?: IAutoMovieVector3; endOffset?: IAutoMovie
  *    candidate can never outrank a legal one. `clinicalDeviation` is the
  *    squared distance from the engine's zero-angle convention, not measured
  *    anatomical effort or energy.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Solves a conventional isolated hinge chain, checking hinge-only deltas, endpoint clamps, degenerate refusal and scoring outputs; an off-axis lower rotation or a malformed candidate scoring as usable fails.
- * @evidence contracts/testing.md#independent-expectations Segment lengths 0.3/0.25 imply the shell 0.05..0.55 and straight/folded hinge rotations. Authored interval excess 20+12 equals 32, and squared coordinates 3/4/12 sum 169; these are scalar geometry/policy checks, not measured anatomical energy or range.
+ * @evidence contracts/testing.md#independent-expectations Segment lengths 0.3/0.25 imply the shell 0.05..0.55 and straight/folded hinge rotations. Authored interval excess 20+12 equals 32, and squared coordinates 3/4/12 sum 169. This isolated case observes lower-rotation components and score, not effector contact or the scorer's candidate ordering; full reach tests supplement contact. These are scalar geometry/policy checks, not measured anatomical energy or range.
  * @evidence contracts/testing.md#distinguishing-cases Keeps reachable/far/near targets, parallel hinge, zero mid/end/hinge/root-target degeneracies, unconstrained/constrained/nonfinite scores and deviation; reachPose owns full skeleton and ROM selection integration.
  * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry owns its local chain and deliberately supplied score callback, an ordinary supported input rather than a foreign monkeypatch; actual source runs with no renderer, native build or host.
  */

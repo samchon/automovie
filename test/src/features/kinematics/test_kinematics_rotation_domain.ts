@@ -20,8 +20,7 @@ import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/
  * 3. A negative sign and nonzero clinical neutral retain their original conversion.
  * 4. A +180 endpoint and a positive full-turn alias remain admitted by their exact ranges.
  * 5. Omitted and null domains preserve the principal inverse; an impossible held-axis domain remains outside its range.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Inverts known single-axis rotations with constrained distal/proximal charts, checking held zeros, exact legal endpoints, periodic aliases and an impossible domain without clipping; returning only the principal wrong-range chart fails.
  * @evidence contracts/testing.md#independent-expectations Authored 125-degree rotations, the 55-degree principal branch, sign minus1/neutral 20 yielding minus105 and 30 plus360 yielding 390 independently determine scalar expectations. Forward orientation replay is additional shared-math parity, not proof of every quaternion constructor or physiological interval.
  * @evidence contracts/testing.md#distinguishing-cases Keeps both handedness signs, distal flexion/proximal abduction, omitted/null domain, mirrored neutral, plus/minus180 quaternion endpoints, full-turn range and unavailable held-axis chart; general mixed/gimbal and malformed bases have separate entries.

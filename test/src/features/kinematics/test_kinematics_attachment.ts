@@ -24,9 +24,9 @@ import { vclose } from "../internal/vclose";
  *
  * Scenarios:
  *
- * 1. Rest parent, identity offset → child root lands exactly on the chest's world
- *    position, identity rotation, offset scale passed through as a copy that
- *    the caller can change without changing the attachment.
+ * 1. Rest parent and identity offset place the child on the chest within the
+ *    scalar predicate tolerance. Rotation w is one and scale x is two;
+ *    mutating returned scale x leaves the authored offset unchanged.
  * 2. A non-identity offset translation is placed in the bone's frame and added to
  *    the bone world position.
  * 3. Rotating the parent's root yaws the whole rig: the child inherits the bone's
@@ -36,9 +36,9 @@ import { vclose } from "../internal/vclose";
  * 5. A clinical-space parent pose resolves through the supplied engine rest-frame
  *    table, so its attachment matches the numerical framed hand rather than raw
  *    rig-space FK. No displayed hand is observed by this CPU case.
-  *
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls resolveAttachment on resolved bone poses, asserting contact transforms and mutating output scale to catch aliasing back into the authored attachment.
- * @evidence contracts/testing.md#independent-expectations Rest chest height is the authored sum 1+0.2+0.2 metres and Y90 maps the offset 0.1Z to 0.1X, yielding (0.1,1.45,0) without product-generated expected FK. Framed-hand replay is shared-path parity and cannot independently prove FK or clinical capacity.
+ * @evidence contracts/testing.md#independent-expectations Rest chest height is the authored sum 1+0.2+0.2 metres and Y90 maps the offset 0.1Z to 0.1X, yielding (0.1,1.45,0) without product-generated expected FK. Rotation assertions sample w rather than all quaternion components, and framed-hand replay is shared-path parity that cannot independently prove FK or clinical capacity.
  * @evidence contracts/testing.md#distinguishing-cases Covers rest/nonidentity offsets, root rotation, absent bone, clinical-space posing and returned scale ownership; skeleton topology tests own unreachable hierarchies.
  * @evidence contracts/testing.md#execution-ownership This discoverable CPU kinematics entry directly imports numerical product source and code fixtures, with no real process, browser, GPU or native build.
  */

@@ -6,6 +6,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/namedFacts";
 import { vclose } from "../internal/vclose";
+import { nclose } from "../internal/nclose";
 import { type IAutoMovieQuaternion } from "../../../../packages/interface/src/index";
 import { type IAutoMovieResolvedJointAngles } from "../../../../packages/engine/src/kinematics/IAutoMovieResolvedJointAngles";
 const DEFAULT_AXES: IAutoMovieJointAxes = {
@@ -27,7 +28,7 @@ const PROBES: IAutoMovieVector3[] = [
   { x: 0.4, y: -0.7, z: 0.55 },
 ];
 
-/** Same rotation iff both send every probe vector to the same place. */
+/** Compare both rotations' action on every fixed probe within 1e-4 per coordinate. */
 const rotationsMatch: (q: ReturnType<typeof jointToQuaternion>, r: ReturnType<typeof jointToQuaternion>) => boolean = (
   q: ReturnType<typeof jointToQuaternion>,
   r: ReturnType<typeof jointToQuaternion>,
@@ -52,10 +53,9 @@ const rotationsMatch: (q: ReturnType<typeof jointToQuaternion>, r: ReturnType<ty
  *    exercising the handedness correction: same match.
  * 3. Gimbal lock: abduction at exactly ±90° (flexion folds into twist) still
  *    round-trips, and the recovered abduction is ±90 with flexion pinned to 0.
- * 4. Pure-axis recovery reads the exact clinical angle back: a 40° flexion
- *    decomposes to flexion 40, abduction 0, twist 0 (arm basis).
- */
-/**
+ * 4. Pure-axis recovery reads a 40° flexion back as (40, 0, 0) in the arm
+ *    basis within the existing strict 1e-4 degree component tolerances.
+ *
  * @evidence contracts/testing.md#behavioral-verification Decomposes and recomposes rotations under both handed axis bases, comparing their action on probe vectors and recovered pure/gimbal coordinates; wrong handedness or lost gimbal orientation fails.
  * @evidence contracts/testing.md#independent-expectations Authored angle triples and the gimbal convention define coordinate expectations, but forward/inverse round trips share jointToQuaternion and Quaternion.rotateVector and can miss coordinated errors. The pure-axis coordinate check supplies a known value without proving every rotation convention independently.
  * @evidence contracts/testing.md#distinguishing-cases Keeps six pure/mixed triples under both bases, positive/negative90 gimbals and pure40 recovery; invalid scalar/axis admission and constrained alternate charts have separate entries.
@@ -92,12 +92,12 @@ export function test_kinematics_decompose_joint(): void {
     TestValidator.equals(
       `gimbal ${abduction}° pins flexion 0, keeps abduction`,
       namedFacts([
-        ["backFlexion", (): boolean  => back.flexion === 0],
+        ["backFlexion", (): boolean  => nclose(back.flexion, 0, 0)],
         [
           "absAbsBack",
           (): boolean  =>
-            back.flexion === 0 &&
-            Math.abs(Math.abs(back.abduction) - 90) < 1e-6,
+            nclose(back.flexion, 0, 0) &&
+            nclose(Math.abs(back.abduction), 90, 1e-6) && Math.abs(Math.abs(back.abduction) - 90) < 1e-6,
         ],
       ]),
       { backFlexion: true, absAbsBack: true },
@@ -116,9 +116,9 @@ export function test_kinematics_decompose_joint(): void {
   TestValidator.equals(
     "a pure 40° flexion decomposes back to (40, 0, 0)",
     namedFacts([
-      ["MathAbsPure", (): boolean  => Math.abs(pure.flexion - 40) < 1e-4],
-      ["MathAbsPure2", (): boolean  => Math.abs(pure.abduction) < 1e-4],
-      ["MathAbsPure3", (): boolean  => Math.abs(pure.twist) < 1e-4],
+      ["MathAbsPure", (): boolean  => nclose(pure.flexion, 40, 1e-4) && Math.abs(pure.flexion - 40) < 1e-4],
+      ["MathAbsPure2", (): boolean  => nclose(pure.abduction, 0, 1e-4) && Math.abs(pure.abduction) < 1e-4],
+      ["MathAbsPure3", (): boolean  => nclose(pure.twist, 0, 1e-4) && Math.abs(pure.twist) < 1e-4],
     ]),
     { MathAbsPure: true, MathAbsPure2: true, MathAbsPure3: true },
   );

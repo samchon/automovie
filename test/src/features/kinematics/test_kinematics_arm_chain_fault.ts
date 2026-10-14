@@ -74,26 +74,21 @@ const spanAt: (skeleton: IAutoMovieSkeleton, flexion: number) => number = (skele
 const SWEEP: number[] = [0, 15, 30, 60, 90, 150];
 
 /**
- * The arm kinematics assume the VRM T-pose rest convention, and a rig that
- * rests otherwise loses its elbow entirely (#1346).
+ * The humanoid arm axes cannot bend a forearm whose rest offset is parallel
+ * to the declared elbow flexion axis (#1346).
  *
  * `HUMANOID_JOINT_AXES` maps the arm's `flexion` onto local **+Y** because a
  * T-pose arm points along local X, so flexion swings it sagittally instead of
  * rolling it. Applied to an arm that HANGS along local −Y, that same table
- * names the bone's own long axis: elbow flexion becomes a roll, the hand does
- * not move at all, and the arm is a rigid stick. Nothing refused such a rig.
- * `forge` accepted it, no validator inspects a rest direction, and `getReach`
- * answered `reachable: true` with a pose that loaded abduction and twist onto
- * axes the rig declared immobile, because on that rig those were the only axes
- * that could bend the arm at all.
+ * names the bone's own long axis: elbow flexion becomes a roll and does not
+ * change the hand's position relative to the elbow. This case diagnoses that
+ * rest geometry at reach use rather than testing an authoring or harness gate.
  *
  * The refusal belongs at the point of USE, not at authoring time: the humanoid
  * bone enum is the only vocabulary the surface has, so a retargeted quadruped's
- * front legs ride the arm chains and legitimately rest along −Y. A blanket
- * `forge` refusal would forbid every quadruped, including the one the benchmark
- * corpus shipped successfully. The test is therefore rig-shaped rather than a
- * convention sniff: is the elbow's flexion axis parallel to the forearm's rest
- * direction?
+ * front legs can ride the arm chains and rest along −Y. The test therefore asks
+ * a geometric question: is the elbow's flexion axis parallel to the forearm's
+ * rest direction? It does not establish acceptance of any production rig.
  *
  * The expected spans below are hand-computed, not sampled from the code: an
  * elbow rolling about the forearm's own axis cannot change the shoulder-to-hand
@@ -109,7 +104,7 @@ const SWEEP: number[] = [0, 15, 30, 60, 90, 150];
  *    every angle and falls from `0.600000` to `0.160026`, so the sweep itself
  *    is a working measurement rather than a constant.
  * 3. `armChainFault` names the arms-down rig's elbow, and returns `null` for the
- *    T-pose rig: the diagnosis matches the measurement on both sides.
+ *    T-pose rig: the diagnosis matches both measured right-arm geometries.
  * 4. `reachPose` refuses the arms-down rig rather than returning a pose whose bend
  *    rides axes the rig declares immobile, and still solves the T-pose rig.
  * 5. Boundary, per SIDE not per rig: a rig with one arm T-posed and the other
@@ -125,7 +120,7 @@ const SWEEP: number[] = [0, 15, 30, 60, 90, 150];
  *    rig rather than solving offsets that are not one chain.
  * 9. A finite diagonal forearm remains nonparallel to the hinge even when its
  *    Euclidean length exceeds binary64, so normalization cannot collapse it.
-  *
+ *
  * @evidence contracts/testing.md#behavioral-verification Calls armChainFault, reachPose and forward kinematics, checking unbendable diagnosis versus valid T-pose reach and refusing misparented offsets outside the elbow frame.
  * @evidence contracts/testing.md#independent-expectations The arms-down span is 0.32+0.28 metres and the T-pose sweep follows the law of cosines; returned fault side/bone/reason identify the geometric cause.
  * @evidence contracts/testing.md#distinguishing-cases Covers both sides, conforming/unbendable twins, missing hand, collapsed/large finite forearms, missing/zero axes and broken parenting; reach tests own general targets and ROM gates.
@@ -163,7 +158,7 @@ export function test_kinematics_arm_chain_fault(): void {
     { ncloseSpanAtOut: true, ncloseSpanAtOut2: true },
   );
 
-  // 3. the diagnosis agrees with the measurement on both sides
+  // 3. the diagnosis agrees with both measured right-arm geometries
   const fault: IAutoMovieArmChainFault | null = armChainFault(down, "right");
   TestValidator.equals(
     "the arms-down rig is faulted, at its elbow, with a reason that says why",

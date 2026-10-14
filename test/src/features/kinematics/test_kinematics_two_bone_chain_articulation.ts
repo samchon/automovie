@@ -54,10 +54,9 @@ const leg: (overrides: { upper?: IAutoMovieVector3; lower?: IAutoMovieVector3; e
  *    the chain's two bend branches, so they do not produce the same answer.
  * 4. Degenerate: a zero-length upper segment, a zero-length lower segment, and a
  *    target coincident with the chain root each return `null`.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Solves an isolated two-bone chain and checks unit deltas, pole-parallel fallback, different explicit bend-normal branches and degenerate null returns; invalid-length fabrication or lost branch sign fails.
- * @evidence contracts/testing.md#independent-expectations A rotation's squared component norm is1, and opposite declared bend normals must distinguish the two branches for this noncollinear fixture. The case checks solvability/norm/branch discrimination rather than an independent end-contact oracle, which full reach/FK tests supplement.
+ * @evidence contracts/testing.md#independent-expectations A unit rotation has component Euclidean norm 1, and opposite declared bend normals must distinguish the two branches for this noncollinear fixture. The case checks solvability/norm/branch discrimination rather than an independent end-contact oracle, which prepared contact tests supplement; arm reach uses a different hinge solver.
  * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary and pole-parallel targets, both signed bend normals, zero upper/lower segment and root-coincident target; scalar shell clamping and hinge-specific ROM choices belong to their own entries.
  * @evidence contracts/testing.md#execution-ownership This exported runner entry directly invokes portable chain source and owns the conventional 0.3/0.25-metre local record; it requires no Human asset, native solver, browser or GPU.
  */
@@ -127,6 +126,8 @@ export function test_kinematics_two_bone_chain_articulation(): void {
         (): boolean  =>
           plus !== null &&
           minus !== null &&
+          Number.isFinite(plus.upper.x) &&
+          Number.isFinite(minus.upper.x) &&
           !nclose(plus.upper.x, minus.upper.x, 1e-6),
       ],
     ]),

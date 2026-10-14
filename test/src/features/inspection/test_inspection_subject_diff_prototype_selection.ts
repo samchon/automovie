@@ -6,6 +6,7 @@ import { IAutoMovieCompiledInstanceSet, IAutoMovieSubjectDiff } from "@automovie
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/namedFacts";
 import { throwsError } from "../internal/throwsError";
+import { nclose } from "../internal/nclose";
 import { subjectInspectionArtifact } from "../internal/subjectInspectionArtifact";
 import { subjectInspectionModel } from "../internal/subjectInspectionModel";
 import { type IAutoMovieSubjectArtifact, type IAutoMovieModel, type IAutoMovieSubjectChange } from "../../../../packages/interface/src/index";
@@ -178,8 +179,7 @@ const prototypeChanges: (before: IAutoMovieCompiledInstanceSet, after: IAutoMovi
  * 5. A prototype table holding an unreadable entry fails the diff through the
  *    weighted draw and through an explicit member's lookup alike, instead of
  *    being counted as a missing prototype.
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Compares aggregate prototype counts and reseeded selection changes with regenerated slots, then checks that only missing names are tolerated while unreadable table entries propagate failures; wrong fallback ownership or swallowed draw errors fails.
  * @evidence contracts/testing.md#independent-expectations Explicit missing-name transitions and the authored 1:2:1 weights provide independent expectations; slot-by-slot and reseed comparisons are cross-consumer parity with instanceSlot and cannot independently prove that shared generator's random law. The 0.04 share margin is this fixed-seed sampling assertion, not population validation.
  * @evidence contracts/testing.md#distinguishing-cases Keeps 24 incremental slots, the 2000-member share check, 200 reseeded slots, present-to-missing and distinct/equal missing identities, plus malformed weighted and explicit tables; geometry fan-out and numeric tolerance are separate entries.
@@ -226,9 +226,9 @@ export function test_inspection_subject_diff_prototype_selection(): void {
         "everyMemberCounted",
         (): boolean  => crowd.default + crowd.tall + crowd.short === 2_000,
       ],
-      ["defaultShare", (): boolean  => Math.abs(crowd.default / 2_000 - 0.25) < 0.04],
-      ["tallShare", (): boolean  => Math.abs(crowd.tall / 2_000 - 0.5) < 0.04],
-      ["shortShare", (): boolean  => Math.abs(crowd.short / 2_000 - 0.25) < 0.04],
+      ["defaultShare", (): boolean  => nclose(crowd.default / 2_000, 0.25, 0.04) && Math.abs(crowd.default / 2_000 - 0.25) < 0.04],
+      ["tallShare", (): boolean  => nclose(crowd.tall / 2_000, 0.5, 0.04) && Math.abs(crowd.tall / 2_000 - 0.5) < 0.04],
+      ["shortShare", (): boolean  => nclose(crowd.short / 2_000, 0.25, 0.04) && Math.abs(crowd.short / 2_000 - 0.25) < 0.04],
       [
         "reseeded",
         (): boolean  =>

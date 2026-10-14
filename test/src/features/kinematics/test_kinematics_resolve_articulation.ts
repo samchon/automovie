@@ -26,8 +26,7 @@ const at: (rs: IAutoMovieResolvedBone[], b: AutoMovieHumanoidBone) => IAutoMovie
  * becomes Y90, and its child the leftUpperArm, whose rest offset is the local
  * +X vector (0.2,0,0), swings a quarter turn to −Z, so its world position moves
  * from (0.2,1.4,0) at rest to (0,1.4,−0.2).
- */
-/**
+ *
  * @evidence contracts/testing.md#behavioral-verification Resolves a chest quarter-turn and checks its local rotation plus a child's displaced world position; rotating only the parent record without carrying its subtree fails.
  * @evidence contracts/testing.md#independent-expectations Right-hand Y90 maps the authored plus-X 0.2 offset to minus-Z 0.2 while preserving chest height 1.4. The local quaternion is independently stated by half-angle components, without using the product constructor as expected output.
  * @evidence contracts/testing.md#distinguishing-cases This nonidentity-parent case complements unarticulated rest and root-translation entries; it does not establish every bone/order, scale propagation or malformed graph behavior.
