@@ -51,7 +51,7 @@ Read each applicable sibling document in full before acting:
 - [Production delivery decisions](configuration.md) explains the delivery, repaint, dialogue, and simulation fields of the design record; read it before source authorship.
 - [Upstream revision](upstream-revision.md) repairs the earliest parent exposed by a child and preserves the child until coherent resumption.
 
-Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, stages, and fingerprints belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
+Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, and stages belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
 
 ## Ownership and consequence
 

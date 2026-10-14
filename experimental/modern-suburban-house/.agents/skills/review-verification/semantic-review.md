@@ -1,6 +1,6 @@
 # Semantic evidence inspection
 
-The authoring agent performs this inspection over its own complete evidence population. The evidence builder owns structural validation; it never decides semantic truth. Mechanical tooling may locate rows and report diagnostics and alarms. A generator, codemod, formatter, or bulk rewrite must never create, complete, paraphrase, or normalize a semantic reason.
+The authoring agent performs this inspection over its own complete evidence population. The evidence builder owns structural validation; it never decides semantic truth. Tooling may locate rows and report structural diagnostics. A generator, codemod, formatter, or bulk rewrite must never create, complete, paraphrase, or normalize a semantic reason.
 
 Read the [conformance owner map](../evidence-graph/conformance.md) before repairing a semantic or structural evidence failure.
 
@@ -61,9 +61,9 @@ Before completing the inspection, reread the current population on both axes:
 - one exact target across its complete host population;
 - one complete host across its exact target set.
 
-For each axis, exchange predicates and dependent clauses with the nearest siblings. Review alarms may report repeated frames, copied target questions, repeated n-grams, slot-normalized skeletons, uniform lengths, or high review-to-body ratios. These are inputs that trigger complete literal inspection, never scores, sampling instructions, or semantic verdicts.
+For each axis, read every host against its exact target and compare the claimed facts with the actual declaration, document, consumers, and required observations. Resolve meaning through that direct inspection.
 
-When the audit confirms a reusable frame, report the affected target and host population, a reproducible membership rule, every matching member, and the target-specific falsifier or literal comparison that the frame failed to establish. Sweep the entire class and require a fresh literal inspection. Paraphrasing, synonym replacement, noun substitution, and new fingerprints do not repair it. Repeated terminology passes only when each exact target question, host-specific literal support, and target-specific falsifier was independently established.
+When inspection finds an unsupported claim, report the affected target and host population, every affected member, and the concrete fact or comparison that is missing or false. Repair the earliest owner and repeat the complete inspection. Rewording alone cannot repair a missing implementation or observation.
 
 ## Acceptance matrix
 
@@ -82,8 +82,7 @@ Use these cases when reviewing the harness or a production's completed evidence 
 | Generic rows with exact attachment addresses                                   | Fail because attachment correctness cannot satisfy semantic independence.                                                          |
 | A tool creates semantic reasons and reports their inspection complete          | Fail because generated prose cannot establish the author's literal relationship inspection.                                        |
 | Metadata rewrite changes any protected authored byte                           | Fail before semantic judgment; restore the protected projection and restart from the immutable basis.                              |
-| Loud repetition alarms with exact independent findings                         | Pass only after both complete axes establish the literal host facts and target-specific falsifiers; alarm volume is not a verdict. |
 | Honest similarity                                                              | Pass only when both axes establish distinct literal host facts and target-specific falsifiers.                                     |
 | Target, host, population, or semantic-row edit after judgment                  | Invalidate the judgment and restart from a new immutable basis.                                                                    |
 
-Run the complete matrix without companion rows or fingerprints. Metadata cannot decide the semantic result. A harness passes only when identical inputs produce identical alarm membership and every semantic verdict still comes from the author's literal inspection.
+Run the complete matrix through the author's direct inspection of the actual host, target, and observations. Structural metadata cannot decide semantic truth.

@@ -14,7 +14,7 @@ Read the applicable sibling in full before acting:
 - [Live viewing](live-viewing.md) owns creating and running a source view when visual authoring needs one.
 - [Offline measurements](measurements.md) owns current-source building drawings, placement queries, and texture-scale validation.
 - [Debugging](debugging.md) owns diagnostics-first correction across ownership, derived artifacts, compile, inspection, capture, and render.
-- [Recording authored work](recording-work.md) owns coherent staging, commit boundaries, messages, and strict text checks; read it before committing production work.
+- [Recording authored work](recording-work.md) owns coherent staging, commit boundaries, messages, and UTF-8 verification; read it before committing production work.
 
 Use engine queries for structural questions. When the task needs a visual observation, follow [Live viewing](live-viewing.md) before creating a view or capture path. Source and presentation tooling are authored for that task rather than supplied as scaffold stubs.
 

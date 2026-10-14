@@ -40,11 +40,11 @@ Use Git history to preserve earlier observations, candidate comparisons, selecti
 
 ## Evidence review
 
-Follow [Rendered realization review](../evidence-graph/staging.md#rendered-realization-review) for the source relationships that require current pixels or playback. Their configured warning leaves an observation unpaid while permitting its first source compile and capture. Structural and nonvisual relationships still block on errors; a warning is neither a reviewed output nor final acceptance. Open the exact required views or intervals before writing their review, then complete the observations and final review required by the declared work.
+Follow [Rendered realization review](../evidence-graph/staging.md#rendered-realization-review) for the source relationships that require current pixels or playback and their structural relationship policy. Open every exact required view or interval, compare the authored promise with the actual output, repair defects at their true owners, and repeat affected observations before completing the declared work. Structural coverage, a stored reason, and a successful capture call cannot replace that inspection.
 
-Start a layer's evidence review only after that layer is in `review`. Missing or stale review diagnostics are the worklist, not permission to bulk-fill fingerprints. Complete [Independent semantic review](semantic-review.md) for every acknowledgement, exclusion, review, and population account. It owns the prose-before-fingerprint transaction, literal target and host pass, both population axes, repair, and post-edit invalidation.
+Complete [Semantic evidence inspection](semantic-review.md) for every acknowledgement, exclusion, and population account at the layer's completion boundary. It owns direct target and host reading, both population axes, repair, and post-edit invalidation. Structural metadata cannot perform this inspection for the author.
 
-For a citation, read the complete target scope and host with necessary upstream context, decide whether the host truly realizes or depends on the target, repair any disagreement, then write a review sentence naming the facts or behavior compared. Append the builder-issued fingerprint only as the second step of the transaction.
+For a citation, read the complete target scope and host with necessary upstream context, decide whether the host truly realizes or depends on the target, repair any disagreement, then state the facts or behavior compared in the host's acknowledgement or exclusion.
 
 For a principle item, read the item in full and reread the complete selected H2, H3, or H4 host with its necessary parent and descendant context, asking only that question of that unit. Repair that unit if it fails. One item receives one check on every selected unit; do not reuse a review sentence across items or units.
 
@@ -52,15 +52,13 @@ For an obligation item, read the complete target and its actual authored H2 or s
 
 Apply the same obligation review to shared and production-local targets. The live `manifest.localBindings` identifies eligible hosts, contract `targets`, and authored `population`; `localAudits` identifies first-pilot audits. [Production-specific claims](../evidence-graph/staging.md#production-specific-claims) owns migration.
 
-At the start and end of an evidence Self-Review, read `readAutoMovieProductionEvidence(...).reviewAlarms`. A repeated reason frame is a prompt to exchange the sentences across sibling hosts and reread each relationship; a literal target Review question in a reason requires replacing that paste with the host-specific comparison result. These alarms are observations, not corpus-tuned rejection thresholds or automatic verdicts. Confirm `questionPasteChecked` is true so a missing target population cannot masquerade as a clean question-paste pass, resolve every sound finding, and restart the complete review round after any edit.
+At the start and end of an evidence Self-Review, read the complete selected declarations and their exact targets. Compare every claim with its actual implementation, consumers, and required observations. Collect findings together, repair their earliest owners, and restart the complete round after an edit.
 
 Trace direct treatment coverage at every script and construction-screenplay file, H2, H3, and H4 host. Then verify exact script-file lineage and same-depth script-to-construction-screenplay lineage. For each selected naturalness pass, compare the complete final population with construction and verify exact file and same-depth unit lineage, frozen content, naturalness answers, and audience-language performance. A parent citation cannot stand in for a missing child relationship, and a generated index cannot stand in for the authored unit that owns it.
 
 For an exclusion, read the target and complete claim population, find the actual owner or concrete scope fact that makes the target absent, and remove the exclusion when the production owes missing work. “Checked,” “confirmed,” and “not applicable” do not record a review.
 
-A fingerprint covers its selected target and descendants, excluding evidence comments. Child changes expire ancestor reviews. Never invent, copy, or mechanically refresh a fingerprint.
-
-A fingerprint establishes only which cited text a recorded statement addresses. It does not prove an observation occurred. Read every exact required image, interval, subject view, and complete-population result against the current source basis before accepting a visual relationship.
+Read every exact required image, interval, subject view, and complete-population result against the current source basis before accepting a visual relationship. Actual source, compile, artifact, and revision identities locate the observation; they do not prove that it occurred or decide its meaning.
 
 For a film or brief, judge the models the actual delivery consumes. Unused source cannot substitute for missing delivered content.
 

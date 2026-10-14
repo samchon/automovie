@@ -14,7 +14,7 @@ Keep construction independently auditable and unchanged by an expression-only ed
 
 Read the complete annotation-free construction screenplay in its declared audience language before editing. Read by delivery group and scene continuity, perform dialogue and narration aloud when present, and judge eligible language beside the unchanged action, sound, silence, transition, scene-entry, and closure context that gives it meaning. Do not score mechanical action-line cadence as prose naturalness, and do not begin from a phrase blacklist, an AI-authorship detector, a count, or isolated sentences.
 
-Use counts or diagnostics only to locate passages after a literal reading has established a possible defect. A number never proves awkwardness, authorship, or compliance. Preserve deliberate form, dialect, period language, ritual, refrain, procedural repetition, documentary flatness, and production-specific audiovisual grammar when the work owns them.
+Locate a possible expression defect through complete contextual reading and audience-language performance. Preserve deliberate form, dialect, period language, ritual, refrain, procedural repetition, documentary flatness, and production-specific audiovisual grammar when the work owns them.
 
 ## Revision procedure
 

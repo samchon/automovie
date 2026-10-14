@@ -16,6 +16,6 @@ An interesting fact with no production consequence stays in `.wiki`. A direct pr
 
 ## Gate
 
-Begin an enabled ledger with `research: "draft"`. Complete the selected evidence set and uncertainty audit before `evidence`. Research may reach `review` before settings exists. Before settings begins, research must already be in `review`; once settings participates in evidence, every research H2 must support at least one settings H2. The relationship requires review fingerprints only when settings itself reaches `review`.
+Begin an enabled ledger with `research: "draft"`. Complete the selected evidence set and uncertainty audit before `evidence`. Research may complete at `evidence` or compatible `review` before settings exists. Before settings begins, research must already be complete; once settings participates in evidence, every research H2 must support at least one settings H2. Read each relationship directly against the research source and its consuming settings decision.
 
 When later evidence changes or contradicts a used source, update the research owner, its interpreting settings decision, every dependent specialist or narrative unit, and the affected reviews.
