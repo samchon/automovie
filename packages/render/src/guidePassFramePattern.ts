@@ -1,7 +1,7 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+
 import { framePattern } from "./framePattern";
 import { passExtension } from "./guidePassesInternal/passExtension";
-
 
 /**
  * The ffmpeg `-i` input pattern matching every `guidePassFrameName` of one pass, such as `frame_%05d.depth.png`.
@@ -17,7 +17,11 @@ import { passExtension } from "./guidePassesInternal/passExtension";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pattern string goes straight into an ffmpeg argument list owned by the caller; this function starts no ffmpeg process and keeps no reference.
  * @author Samchon
  */
-export const guidePassFramePattern: (pass: AutoMovieGuidePass, ext?: string, pad?: number) => string = (
+export const guidePassFramePattern: (
+  pass: AutoMovieGuidePass,
+  ext?: string,
+  pad?: number,
+) => string = (
   pass: AutoMovieGuidePass,
   ext: string = "png",
   pad: number = 5,

@@ -1,14 +1,16 @@
-import { autoMovieRenderDigest, compareAutoMovieRenderIds } from "@automovie/engine";
+import {
+  autoMovieRenderDigest,
+  compareAutoMovieRenderIds,
+} from "@automovie/engine";
 import { IAutoMovieRenderBudget } from "@automovie/interface";
-import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget";
+
 import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
 import { IAutoMovieRenderBudgetEvidence } from "./IAutoMovieRenderBudgetEvidence";
-
+import { selectAutoMovieRenderBudget } from "./selectAutoMovieRenderBudget";
 
 const STATUS_ORDER: Readonly<
   Record<IAutoMovieRenderBudgetAssessment["status"], number>
 > = { within: 0, incomplete: 1, "not-run": 2, over: 3 };
-
 
 /**
  * Fold caller-supplied assessments into one tier's budget-evidence value. This reducer writes no publication and verifies no report provenance or rendered population.
@@ -26,9 +28,9 @@ const STATUS_ORDER: Readonly<
  * @evidence contracts/performance.md#bound-retention-and-release-resources The output retains the sorted assessment array and tier list; sorting copies the input array and opens no file, encoder or renderer resource.
  */
 export const autoMovieRenderBudgetEvidence: (props: {
-    tier: string;
-    budgets: readonly IAutoMovieRenderBudget[] | undefined;
-    assessments: readonly IAutoMovieRenderBudgetAssessment[];
+  tier: string;
+  budgets: readonly IAutoMovieRenderBudget[] | undefined;
+  assessments: readonly IAutoMovieRenderBudgetAssessment[];
 }) => IAutoMovieRenderBudgetEvidence = (props: {
   /** Quality tier the job targeted. */
   tier: string;
@@ -37,21 +39,31 @@ export const autoMovieRenderBudgetEvidence: (props: {
   /** One assessment per shot; order is normalized here. */
   assessments: readonly IAutoMovieRenderBudgetAssessment[];
 }): IAutoMovieRenderBudgetEvidence => {
-  const shots: IAutoMovieRenderBudgetAssessment[] = [...props.assessments].sort((left: IAutoMovieRenderBudgetAssessment, right: IAutoMovieRenderBudgetAssessment): number =>
-    compareAutoMovieRenderIds(left.shot, right.shot),
+  const shots: IAutoMovieRenderBudgetAssessment[] = [...props.assessments].sort(
+    (
+      left: IAutoMovieRenderBudgetAssessment,
+      right: IAutoMovieRenderBudgetAssessment,
+    ): number => compareAutoMovieRenderIds(left.shot, right.shot),
   );
   const status: IAutoMovieRenderBudgetAssessment["status"] =
     shots.length === 0
       ? "not-run"
       : shots.reduce<IAutoMovieRenderBudgetAssessment["status"]>(
-          (worst: IAutoMovieRenderBudgetAssessment["status"], shot: IAutoMovieRenderBudgetAssessment): IAutoMovieRenderBudgetAssessment["status"] =>
+          (
+            worst: IAutoMovieRenderBudgetAssessment["status"],
+            shot: IAutoMovieRenderBudgetAssessment,
+          ): IAutoMovieRenderBudgetAssessment["status"] =>
             STATUS_ORDER[shot.status] > STATUS_ORDER[worst]
               ? shot.status
               : worst,
           "within",
         );
   const declaredTiers: string[] = [
-    ...new Set((props.budgets ?? []).map((budget: IAutoMovieRenderBudget): string => budget.tier)),
+    ...new Set(
+      (props.budgets ?? []).map(
+        (budget: IAutoMovieRenderBudget): string => budget.tier,
+      ),
+    ),
   ].sort(compareAutoMovieRenderIds);
   return {
     version: 1,
@@ -67,12 +79,21 @@ export const autoMovieRenderBudgetEvidence: (props: {
         tier: props.tier,
         declaredTiers,
         status,
-        shots: shots.map((shot: IAutoMovieRenderBudgetAssessment): [string, IAutoMovieRenderBudgetAssessment["status"], string | null, string | null] => [
-          shot.shot,
-          shot.status,
-          shot.report?.digest ?? null,
-          shot.target?.digest ?? null,
-        ]),
+        shots: shots.map(
+          (
+            shot: IAutoMovieRenderBudgetAssessment,
+          ): [
+            string,
+            IAutoMovieRenderBudgetAssessment["status"],
+            string | null,
+            string | null,
+          ] => [
+            shot.shot,
+            shot.status,
+            shot.report?.digest ?? null,
+            shot.target?.digest ?? null,
+          ],
+        ),
       }),
     ),
   };

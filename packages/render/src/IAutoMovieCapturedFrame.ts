@@ -1,9 +1,3 @@
-
-
-
-
-
-
 /**
  * One captured frame artifact.
  *

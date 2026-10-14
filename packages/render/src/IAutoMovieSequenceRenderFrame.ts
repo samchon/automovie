@@ -1,9 +1,3 @@
-
-
-
-
-
-
 /**
  * A sequence frame sample ready for a render host.
  *

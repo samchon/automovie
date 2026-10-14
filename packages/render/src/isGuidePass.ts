@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
-import { AUTOMOVIE_GUIDE_PASSES } from "./AUTOMOVIE_GUIDE_PASSES";
 
+import { AUTOMOVIE_GUIDE_PASSES } from "./AUTOMOVIE_GUIDE_PASSES";
 
 /**
  * Whether a string names a guide pass, narrowing it to `AutoMovieGuidePass`.
@@ -16,5 +16,7 @@ import { AUTOMOVIE_GUIDE_PASSES } from "./AUTOMOVIE_GUIDE_PASSES";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The six-name list is a module constant shared by all calls, and the membership test allocates nothing per call, so retention is fixed at that list.
  * @author Samchon
  */
-export const isGuidePass: (value: string) => value is AutoMovieGuidePass = (value: string): value is AutoMovieGuidePass =>
+export const isGuidePass: (value: string) => value is AutoMovieGuidePass = (
+  value: string,
+): value is AutoMovieGuidePass =>
   (AUTOMOVIE_GUIDE_PASSES as readonly string[]).includes(value);

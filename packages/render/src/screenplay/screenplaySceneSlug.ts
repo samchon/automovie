@@ -15,7 +15,12 @@ import type { IAutoMovieScenePayload } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work This small formatter keeps no memo table; the consuming traversal owns whether a scene heading is requested once or repeatedly.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned heading is the only retained value and contains no reference to the scene payload or host resources.
  */
-export const screenplaySceneSlug: (payload: Pick<IAutoMovieScenePayload, "interiorExterior" | "location" | "timeOfDay">) => string = (
+export const screenplaySceneSlug: (
+  payload: Pick<
+    IAutoMovieScenePayload,
+    "interiorExterior" | "location" | "timeOfDay"
+  >,
+) => string = (
   payload: Pick<
     IAutoMovieScenePayload,
     "interiorExterior" | "location" | "timeOfDay"

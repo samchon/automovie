@@ -18,7 +18,10 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned array of N numbers is the caller's and nothing else is retained; N is bounded only by the caller's duration and rate, and a count past the engine's array limit throws a `RangeError`.
  * @author Samchon
  */
-export const frameTimes: (fps: number, durationSeconds: number) => number[] = (fps: number, durationSeconds: number): number[] => {
+export const frameTimes: (fps: number, durationSeconds: number) => number[] = (
+  fps: number,
+  durationSeconds: number,
+): number[] => {
   if (
     Number.isFinite(fps) === false ||
     Number.isFinite(durationSeconds) === false ||

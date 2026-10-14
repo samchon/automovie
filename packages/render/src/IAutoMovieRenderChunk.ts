@@ -1,7 +1,6 @@
 import { IAutoMovieGuidePassOutput } from "./guidePasses";
 import { IAutoMovieSequenceRenderFrame } from "./sequenceRenderPlan";
 
-
 /**
  * One independently renderable slice of a sequence render: a contiguous range of the whole plan's output frames with its own frame directory, paths and encoder invocation.
  *

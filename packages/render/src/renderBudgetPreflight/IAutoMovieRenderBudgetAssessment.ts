@@ -1,5 +1,9 @@
-import { IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieSemanticMask } from "@automovie/interface";
-
+import {
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 
 /**
  * One caller-supplied shot's measured inventory and explicit budget assessment, without proving an actual draw or automatic render-job gate.

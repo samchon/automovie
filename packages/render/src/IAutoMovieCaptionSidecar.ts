@@ -1,6 +1,5 @@
 import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry";
 
-
 /**
  * The per-beat caption track of one sequence render: the machine-readable sidecar a guide-frame consumer reads next to the captured frames.
  *

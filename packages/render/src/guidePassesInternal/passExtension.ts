@@ -1,6 +1,5 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-
 /**
  * Append the pass tag to an extension; beauty uses the untagged extension.
  * Both frame-name and encoder-pattern producers use this same spelling.
@@ -13,5 +12,8 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Formatting one extension does not coordinate requests; the callers share the rule rather than a cache keyed by short strings.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned extension retains only string data; the formatter keeps no pass history and opens no output file.
  */
-export const passExtension: (pass: AutoMovieGuidePass, ext: string) => string = (pass: AutoMovieGuidePass, ext: string): string =>
+export const passExtension: (
+  pass: AutoMovieGuidePass,
+  ext: string,
+) => string = (pass: AutoMovieGuidePass, ext: string): string =>
   pass === "beauty" ? ext : `${pass}.${ext}`;

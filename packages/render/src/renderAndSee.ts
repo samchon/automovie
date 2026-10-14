@@ -1,9 +1,6 @@
-import { renderVideo } from "./renderVideo";
 import type { IAutoMovieRenderAndSeeRequest } from "./IAutoMovieRenderAndSeeRequest";
 import type { IAutoMovieRenderAndSeeResult } from "./IAutoMovieRenderAndSeeResult";
-
-
-
+import { renderVideo } from "./renderVideo";
 
 /**
  * Render a clip and return the encoded output plus explicit frame artifacts. The function still performs only deterministic orchestration over injected host I/O; its value is the metadata contract that lets an agent inspect what was captured without guessing paths or sample times.
@@ -16,7 +13,9 @@ import type { IAutoMovieRenderAndSeeResult } from "./IAutoMovieRenderAndSeeResul
  * @evidence contracts/performance.md#reuse-equivalent-work This wrapper performs one effectful render per invocation; the returned artifact can be retained by its caller but an equal spec does not authorize sharing host I/O.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned artifact owns its metadata arrays while host adapters own written files and running work; failures propagate from renderVideo without acquiring additional resources.
  */
-export const renderAndSee: (request: IAutoMovieRenderAndSeeRequest) => Promise<IAutoMovieRenderAndSeeResult> = async (
+export const renderAndSee: (
+  request: IAutoMovieRenderAndSeeRequest,
+) => Promise<IAutoMovieRenderAndSeeResult> = async (
   request: IAutoMovieRenderAndSeeRequest,
 ): Promise<IAutoMovieRenderAndSeeResult> => ({
   spec: { ...request.spec },

@@ -1,4 +1,3 @@
-
 /**
  * One caption span: the output frames `[frameStart, frameEnd)` during which one beat's shot is live, with that beat's shot caption and enclosing scene slug.
  *

@@ -1,6 +1,3 @@
-
-
-
 /**
  * The plan for stitching encoded chunk videos back into one video with ffmpeg's concat demuxer and stream copy.
  *

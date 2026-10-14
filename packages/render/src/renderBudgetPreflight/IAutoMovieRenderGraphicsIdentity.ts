@@ -1,6 +1,3 @@
-
-
-
 /**
  * What a capture host reports about the graphics context it drew through.
  *

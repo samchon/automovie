@@ -1,6 +1,5 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-
 /**
  * Where one guide pass writes its frames inside a frame directory, as
  * `planGuidePassOutputs` plans it.

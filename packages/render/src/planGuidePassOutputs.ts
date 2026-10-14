@@ -1,9 +1,9 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+
 import type { IAutoMovieGuidePassOutput } from "./IAutoMovieGuidePassOutput";
-import { normalizeGuidePasses } from "./normalizeGuidePasses";
 import { guidePassFrameName } from "./guidePassFrameName";
 import { guidePassFramePattern } from "./guidePassFramePattern";
-
+import { normalizeGuidePasses } from "./normalizeGuidePasses";
 
 /**
  * Plan where each requested pass writes its frames inside one frame directory: one capture per pass per frame, at pass-tagged paths.
@@ -20,9 +20,9 @@ import { guidePassFramePattern } from "./guidePassFramePattern";
  * @author Samchon
  */
 export const planGuidePassOutputs: (props: {
-    frameDir: string;
-    frameCount: number;
-    passes: readonly string[];
+  frameDir: string;
+  frameCount: number;
+  passes: readonly string[];
 }) => IAutoMovieGuidePassOutput[] = (props: {
   /** Directory where the render's frame files are written. */
   frameDir: string;

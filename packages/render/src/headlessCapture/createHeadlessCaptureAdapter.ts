@@ -1,11 +1,11 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
 import { guidePassFrameName, normalizeGuidePasses } from "../guidePasses";
-import type { IAutoMovieHeadlessLocator } from "./IAutoMovieHeadlessLocator";
-import type { IAutoMovieHeadlessCaptureOptions } from "./IAutoMovieHeadlessCaptureOptions";
-import type { IAutoMovieHeadlessCaptureSession } from "./IAutoMovieHeadlessCaptureSession";
 import { AutoMovieHeadlessCaptureError } from "./AutoMovieHeadlessCaptureError";
 import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptureErrorCode";
+import type { IAutoMovieHeadlessCaptureOptions } from "./IAutoMovieHeadlessCaptureOptions";
+import type { IAutoMovieHeadlessCaptureSession } from "./IAutoMovieHeadlessCaptureSession";
+import type { IAutoMovieHeadlessLocator } from "./IAutoMovieHeadlessLocator";
 
 /**
  * Open a capture session over a Playwright-like page and return its
@@ -31,7 +31,9 @@ import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptu
  * @evidence contracts/performance.md#bound-retention-and-release-resources The session closures retain options, page and folded passes for as long as the session is held; close delegates page-resource release but does not clear those JavaScript references. Under the required non-overlapping captures, at most one screenshot buffer is in flight, becoming collectable after its awaited write; the writer may independently retain bytes or files. This adapter adds no timeout, cancellation or automatic failure teardown.
  * @author Samchon
  */
-export const createHeadlessCaptureAdapter: (options: IAutoMovieHeadlessCaptureOptions) => Promise<IAutoMovieHeadlessCaptureSession> = async (
+export const createHeadlessCaptureAdapter: (
+  options: IAutoMovieHeadlessCaptureOptions,
+) => Promise<IAutoMovieHeadlessCaptureSession> = async (
   options: IAutoMovieHeadlessCaptureOptions,
 ): Promise<IAutoMovieHeadlessCaptureSession> => {
   const seekFunction: string = options.seekFunction ?? "__afSeek";
@@ -132,7 +134,9 @@ export const createHeadlessCaptureAdapter: (options: IAutoMovieHeadlessCaptureOp
 };
 
 /** Fold repeated passes and refuse an empty or unknown list as `pass-hook`. */
-const foldPasses: (requested: readonly AutoMovieGuidePass[]) => readonly AutoMovieGuidePass[] = (
+const foldPasses: (
+  requested: readonly AutoMovieGuidePass[],
+) => readonly AutoMovieGuidePass[] = (
   requested: readonly AutoMovieGuidePass[],
 ): readonly AutoMovieGuidePass[] => {
   let passes: AutoMovieGuidePass[];
@@ -165,14 +169,21 @@ const isPageFunction: (name: string) => boolean = (name: string): boolean =>
  * Page-side call of the global `name` with `value`. It reads only its argument
  * because the host serializes it into the page.
  */
-const callPageFunction: (arg: { name: string; value: unknown }) => void = (arg: { name: string; value: unknown }): void => {
+const callPageFunction: (arg: {
+  name: string;
+  value: unknown;
+}) => void = (arg: { name: string; value: unknown }): void => {
   (globalThis as unknown as Record<string, (value: unknown) => void>)[
     arg.name
   ]!(arg.value);
 };
 
 /** Run one page call, rethrowing any failure as a capture error with `code`. */
-const guardCapture: <T>(code: AutoMovieHeadlessCaptureErrorCode, message: string, task: () => Promise<T>) => Promise<T> = async <T>(
+const guardCapture: <T>(
+  code: AutoMovieHeadlessCaptureErrorCode,
+  message: string,
+  task: () => Promise<T>,
+) => Promise<T> = async <T>(
   code: AutoMovieHeadlessCaptureErrorCode,
   message: string,
   task: () => Promise<T>,

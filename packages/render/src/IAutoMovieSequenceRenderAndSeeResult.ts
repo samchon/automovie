@@ -1,8 +1,6 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+
 import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult";
-
-
-
 
 /**
  * JSON-friendly sequence render artifact.

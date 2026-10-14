@@ -1,7 +1,22 @@
-import { type IAutoMovieRenderTextureResidency, IAutoMovieRenderTextureSource, autoMovieRenderTextureDigest, autoMovieRenderSubjectOfCompiledShot, deriveAutoMovieSemanticMask, evaluateAutoMovieRenderBudget, measureAutoMovieRenderInventory, sealAutoMovieRenderTarget } from "@automovie/engine";
-import { IAutoMovieCompiledShotSource, IAutoMovieRenderBudget, IAutoMovieRenderTargetAsset, IAutoMovieRenderTargetRenderer, IAutoMovieRenderTargetSettings } from "@automovie/interface";
-import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
+import {
+  type IAutoMovieRenderTextureResidency,
+  IAutoMovieRenderTextureSource,
+  autoMovieRenderSubjectOfCompiledShot,
+  autoMovieRenderTextureDigest,
+  deriveAutoMovieSemanticMask,
+  evaluateAutoMovieRenderBudget,
+  measureAutoMovieRenderInventory,
+  sealAutoMovieRenderTarget,
+} from "@automovie/engine";
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderTargetAsset,
+  IAutoMovieRenderTargetRenderer,
+  IAutoMovieRenderTargetSettings,
+} from "@automovie/interface";
 
+import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssessment";
 
 /**
  * Measure one caller-supplied compiled shot against an explicitly supplied budget, renderer identity, settings, assets and decoded texture/residency facts. The subject feeds both mask ownership and inventory measurement; the sealed target names those supplied inputs rather than proving that a renderer drew a frame.
@@ -19,14 +34,14 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
  * @evidence contracts/performance.md#bound-retention-and-release-resources The assessment retains the inventory, mask, report and sealed target until its caller discards them; it neither acquires the renderer nor owns texture allocation or host tasks.
  */
 export const assessAutoMovieRenderBudget: (props: {
-    compiled: IAutoMovieCompiledShotSource;
-    shot: string;
-    budget: IAutoMovieRenderBudget | null;
-    renderer: IAutoMovieRenderTargetRenderer | null;
-    settings: IAutoMovieRenderTargetSettings;
-    assets: readonly IAutoMovieRenderTargetAsset[];
-    textures?: readonly IAutoMovieRenderTextureSource[];
-    textureResidency?: IAutoMovieRenderTextureResidency;
+  compiled: IAutoMovieCompiledShotSource;
+  shot: string;
+  budget: IAutoMovieRenderBudget | null;
+  renderer: IAutoMovieRenderTargetRenderer | null;
+  settings: IAutoMovieRenderTargetSettings;
+  assets: readonly IAutoMovieRenderTargetAsset[];
+  textures?: readonly IAutoMovieRenderTextureSource[];
+  textureResidency?: IAutoMovieRenderTextureResidency;
 }) => IAutoMovieRenderBudgetAssessment = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
@@ -57,30 +72,52 @@ export const assessAutoMovieRenderBudget: (props: {
       target: null,
     };
   try {
-    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> = autoMovieRenderSubjectOfCompiledShot({
-      compiled: props.compiled,
-      textures: props.textures,
-      textureResidency: props.textureResidency,
-    });
-    const mask: ReturnType<typeof deriveAutoMovieSemanticMask> = deriveAutoMovieSemanticMask(subject);
-    const targetBase: ReturnType<typeof sealAutoMovieRenderTarget> = sealAutoMovieRenderTarget({
-      renderer: props.renderer,
-      settings: props.settings,
-      assets: props.assets,
-    });
-    const inventory: ReturnType<typeof measureAutoMovieRenderInventory> = measureAutoMovieRenderInventory({ subject, mask, settings: targetBase.settings });
-    const required: Set<string> = new Set(inventory.textures.flatMap((row: (typeof inventory.textures)[number]): string[] => row.assets ?? (row.asset === null ? [] : [row.asset])));
-    const target: ReturnType<typeof sealAutoMovieRenderTarget> = sealAutoMovieRenderTarget({ renderer: props.renderer, settings: targetBase.settings,
-      assets: props.assets, textureDigest: autoMovieRenderTextureDigest(
-        (props.textures ?? []).filter((source: IAutoMovieRenderTextureSource): boolean => required.has(source.asset)), props.textureResidency,
+    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> =
+      autoMovieRenderSubjectOfCompiledShot({
+        compiled: props.compiled,
+        textures: props.textures,
+        textureResidency: props.textureResidency,
+      });
+    const mask: ReturnType<typeof deriveAutoMovieSemanticMask> =
+      deriveAutoMovieSemanticMask(subject);
+    const targetBase: ReturnType<typeof sealAutoMovieRenderTarget> =
+      sealAutoMovieRenderTarget({
+        renderer: props.renderer,
+        settings: props.settings,
+        assets: props.assets,
+      });
+    const inventory: ReturnType<typeof measureAutoMovieRenderInventory> =
+      measureAutoMovieRenderInventory({
+        subject,
+        mask,
+        settings: targetBase.settings,
+      });
+    const required: Set<string> = new Set(
+      inventory.textures.flatMap(
+        (row: (typeof inventory.textures)[number]): string[] =>
+          row.assets ?? (row.asset === null ? [] : [row.asset]),
       ),
-    });
-    const report: ReturnType<typeof evaluateAutoMovieRenderBudget> = evaluateAutoMovieRenderBudget({
-      inventory,
-      budget: props.budget,
-      mask,
-      target,
-    });
+    );
+    const target: ReturnType<typeof sealAutoMovieRenderTarget> =
+      sealAutoMovieRenderTarget({
+        renderer: props.renderer,
+        settings: targetBase.settings,
+        assets: props.assets,
+        textureDigest: autoMovieRenderTextureDigest(
+          (props.textures ?? []).filter(
+            (source: IAutoMovieRenderTextureSource): boolean =>
+              required.has(source.asset),
+          ),
+          props.textureResidency,
+        ),
+      });
+    const report: ReturnType<typeof evaluateAutoMovieRenderBudget> =
+      evaluateAutoMovieRenderBudget({
+        inventory,
+        budget: props.budget,
+        mask,
+        target,
+      });
     return {
       shot: props.shot,
       status: report.status,

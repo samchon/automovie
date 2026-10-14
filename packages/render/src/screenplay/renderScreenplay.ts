@@ -29,7 +29,9 @@ import { screenplaySceneSlug } from "./screenplaySceneSlug";
  * @evidence contracts/performance.md#reuse-equivalent-work One child index and one beat-name index serve the complete document walk; no header, beat or scene is re-indexed for each descendant.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, line arrays and recursion state are local to the serialization, and only the resulting screenplay string escapes with no file or renderer handle.
  */
-export const renderScreenplay: (script: IAutoMovieScript) => string = (script: IAutoMovieScript): string => {
+export const renderScreenplay: (script: IAutoMovieScript) => string = (
+  script: IAutoMovieScript,
+): string => {
   if (script.beats.length === 0)
     throw new Error("script has no beats: there is no screenplay to render");
 
@@ -38,7 +40,9 @@ export const renderScreenplay: (script: IAutoMovieScript) => string = (script: I
   return renderTree(script, tree);
 };
 
-const renderFlat: (script: IAutoMovieScript) => string = (script: IAutoMovieScript): string => {
+const renderFlat: (script: IAutoMovieScript) => string = (
+  script: IAutoMovieScript,
+): string => {
   const lines: string[] = [
     `LOGLINE: ${script.logline}`,
     `THEME: ${script.theme}`,
@@ -49,11 +53,21 @@ const renderFlat: (script: IAutoMovieScript) => string = (script: IAutoMovieScri
   return `${lines.join("\n")}\n`;
 };
 
-const renderTree: (script: IAutoMovieScript, tree: IAutoMovieScriptNode[]) => string = (
+const renderTree: (
+  script: IAutoMovieScript,
+  tree: IAutoMovieScriptNode[],
+) => string = (
   script: IAutoMovieScript,
   tree: IAutoMovieScriptNode[],
 ): string => {
-  const beatNames: Map<string, string> = new Map(script.beats.map((beat: IAutoMovieScript["beats"][number]): [string, string] => [beat.id, beat.name]));
+  const beatNames: Map<string, string> = new Map(
+    script.beats.map(
+      (beat: IAutoMovieScript["beats"][number]): [string, string] => [
+        beat.id,
+        beat.name,
+      ],
+    ),
+  );
   const children: Map<string | null, IAutoMovieScriptNode[]> = new Map();
   for (const node of tree) {
     const list: IAutoMovieScriptNode[] = children.get(node.parent) ?? [];
@@ -62,7 +76,9 @@ const renderTree: (script: IAutoMovieScript, tree: IAutoMovieScriptNode[]) => st
   }
 
   const lines: string[] = [];
-  const walk: (node: IAutoMovieScriptNode) => void = (node: IAutoMovieScriptNode): void => {
+  const walk: (node: IAutoMovieScriptNode) => void = (
+    node: IAutoMovieScriptNode,
+  ): void => {
     switch (node.kind) {
       case "intent":
         lines.push(
@@ -84,7 +100,8 @@ const renderTree: (script: IAutoMovieScript, tree: IAutoMovieScriptNode[]) => st
         lines.push("", `[${node.payload.rationale}]`);
         break;
       case "beat": {
-        const name: string = beatNames.get(node.payload.beat) ?? node.payload.beat;
+        const name: string =
+          beatNames.get(node.payload.beat) ?? node.payload.beat;
         lines.push("", `BEAT, ${name}`, node.payload.direction);
         for (const line of node.payload.dialogue)
           lines.push(...dialogueLines(line));
@@ -100,7 +117,9 @@ const renderTree: (script: IAutoMovieScript, tree: IAutoMovieScriptNode[]) => st
   return `${lines.join("\n")}\n`;
 };
 
-const dialogueLines: (line: IAutoMovieDialogueLine) => string[] = (line: IAutoMovieDialogueLine): string[] => {
+const dialogueLines: (line: IAutoMovieDialogueLine) => string[] = (
+  line: IAutoMovieDialogueLine,
+): string[] => {
   const anchor: string = line.anchor === null ? "" : `[t=${line.anchor}s] `;
   return [
     `${" ".repeat(16)}${line.speaker.toUpperCase()}`,

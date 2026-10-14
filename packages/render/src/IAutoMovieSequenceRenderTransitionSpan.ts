@@ -1,9 +1,5 @@
 import { IAutoMovieTransition } from "@automovie/interface";
 
-
-
-
-
 /**
  * Incoming transition span on the output clock.
  *

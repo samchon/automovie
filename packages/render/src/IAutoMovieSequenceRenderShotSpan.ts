@@ -1,9 +1,5 @@
 import { IAutoMovieTrim } from "@automovie/interface";
 
-
-
-
-
 /**
  * A shot entry resolved onto the sequence output clock.
  *

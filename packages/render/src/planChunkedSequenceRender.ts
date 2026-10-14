@@ -1,13 +1,20 @@
 import { AutoMovieGuidePass, IAutoMovieRenderSpec } from "@automovie/interface";
-import { guidePassFramePattern, normalizeGuidePasses, planGuidePassOutputs } from "./guidePasses";
+
+import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
+import type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan";
+import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
 import { ffmpegArgs } from "./ffmpegArgs";
 import { frameName } from "./frameName";
 import { framePattern } from "./framePattern";
-import { IAutoMovieSequenceRenderFrame, IAutoMovieSequenceRenderPlan } from "./sequenceRenderPlan";
-import type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan";
-import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
-import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
-
+import {
+  guidePassFramePattern,
+  normalizeGuidePasses,
+  planGuidePassOutputs,
+} from "./guidePasses";
+import {
+  IAutoMovieSequenceRenderFrame,
+  IAutoMovieSequenceRenderPlan,
+} from "./sequenceRenderPlan";
 
 /**
  * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently renderable chunks and the plan to concatenate them.
@@ -28,10 +35,10 @@ import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifes
  * @author Samchon
  */
 export const planChunkedSequenceRender: (props: {
-    plan: IAutoMovieSequenceRenderPlan;
-    spec: IAutoMovieRenderSpec;
-    chunkFrames: number;
-    passes?: readonly string[];
+  plan: IAutoMovieSequenceRenderPlan;
+  spec: IAutoMovieRenderSpec;
+  chunkFrames: number;
+  passes?: readonly string[];
 }) => IAutoMovieRenderChunkPlan = (props: {
   /** The whole-sequence render manifest to split. */
   plan: IAutoMovieSequenceRenderPlan;
@@ -166,22 +173,23 @@ export const planChunkedSequenceRender: (props: {
   };
 };
 
-
 /** The path's last segment, after the final `/` or `\`. */
 const baseName: (path: string) => string = (path: string): string =>
   path.slice(Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
-
 /**
  * Escape one concat-demuxer entry for its single-quoted file line. A quoted string cannot contain `'`, so each apostrophe closes the quote, emits an escaped quote, and reopens it (`'` becomes `'\''`), the grammar ffmpeg's `av_get_token` parses.
  */
-const escapeConcatEntry: (name: string) => string = (name: string): string => name.replace(/'/g, "'\\''");
-
+const escapeConcatEntry: (name: string) => string = (name: string): string =>
+  name.replace(/'/g, "'\\''");
 
 /**
  * Insert a `.<label>` tag before the output's extension, or append it when the basename has none. The extension dot is searched only within the basename, so a dotted directory such as `out.v2/render` tags the file, not the directory.
  */
-const taggedOutput: (output: string, label: string) => string = (output: string, label: string): string => {
+const taggedOutput: (output: string, label: string) => string = (
+  output: string,
+  label: string,
+): string => {
   const dot: number = output.lastIndexOf(".");
   const separator: number = Math.max(
     output.lastIndexOf("/"),

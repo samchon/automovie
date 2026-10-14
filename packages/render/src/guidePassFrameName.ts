@@ -1,7 +1,7 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
+
 import { frameName } from "./frameName";
 import { passExtension } from "./guidePassesInternal/passExtension";
-
 
 /**
  * File name of one frame of one pass: `beauty` keeps the plain `frameName` spelling (`frame_00042.png`), and every other pass inserts its name before the extension (`frame_00042.depth.png`).
@@ -17,7 +17,12 @@ import { passExtension } from "./guidePassesInternal/passExtension";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each frame name is a new string the capture writer uses as a path once; nothing about the pass or index is cached, and no file is opened here.
  * @author Samchon
  */
-export const guidePassFrameName: (index: number, pass: AutoMovieGuidePass, ext?: string, pad?: number) => string = (
+export const guidePassFrameName: (
+  index: number,
+  pass: AutoMovieGuidePass,
+  ext?: string,
+  pad?: number,
+) => string = (
   index: number,
   pass: AutoMovieGuidePass,
   ext: string = "png",

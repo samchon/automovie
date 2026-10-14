@@ -1,5 +1,7 @@
-import { IAutoMovieCaptionEntry, IAutoMovieCaptionSidecar } from "./captionSidecar";
-
+import {
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+} from "./captionSidecar";
 
 /**
  * Slice a caption sidecar to one chunk's window `[frameStart, frameEnd)`, with spans clipped to the window and re-based to chunk-local frame indices.
@@ -15,7 +17,11 @@ import { IAutoMovieCaptionEntry, IAutoMovieCaptionSidecar } from "./captionSidec
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function retains nothing; the returned sidecar, owned by the caller, holds exactly the K overlapping spans as new objects and never aliases the input's spans.
  * @author Samchon
  */
-export const sliceCaptionSidecar: (sidecar: IAutoMovieCaptionSidecar, frameStart: number, frameEnd: number) => IAutoMovieCaptionSidecar = (
+export const sliceCaptionSidecar: (
+  sidecar: IAutoMovieCaptionSidecar,
+  frameStart: number,
+  frameEnd: number,
+) => IAutoMovieCaptionSidecar = (
   sidecar: IAutoMovieCaptionSidecar,
   frameStart: number,
   frameEnd: number,
@@ -55,14 +61,17 @@ export const sliceCaptionSidecar: (sidecar: IAutoMovieCaptionSidecar, frameStart
   };
 };
 
-
 /** The window's exclusive end, clamped to the sidecar's frame count. */
-const clampWindowEnd: (frameEnd: number, frameCount: number) => number = (frameEnd: number, frameCount: number): number =>
-  frameEnd < frameCount ? frameEnd : frameCount;
-
+const clampWindowEnd: (frameEnd: number, frameCount: number) => number = (
+  frameEnd: number,
+  frameCount: number,
+): number => (frameEnd < frameCount ? frameEnd : frameCount);
 
 /** Index of the first span whose exclusive end exceeds `frame`, by bisection. */
-const firstSpanEndingAfter: (entries: readonly IAutoMovieCaptionEntry[], frame: number) => number = (
+const firstSpanEndingAfter: (
+  entries: readonly IAutoMovieCaptionEntry[],
+  frame: number,
+) => number = (
   entries: readonly IAutoMovieCaptionEntry[],
   frame: number,
 ): number => {

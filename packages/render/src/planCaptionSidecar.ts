@@ -1,11 +1,23 @@
-import { IAutoMoviePlaybackSample, IAutoMoviePlaybackTimeline, playbackCursor, sequenceTimeline } from "@automovie/engine";
-import { IAutoMovieScript, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackTimeline,
+  playbackCursor,
+  sequenceTimeline,
+} from "@automovie/engine";
+import {
+  IAutoMovieScript,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
+
 import { IAutoMovieBeatCaption } from "./caption/IAutoMovieBeatCaption";
 import { beatCaptions } from "./caption/beatCaptions";
-import { IAutoMovieCaptionEntry, IAutoMovieCaptionSidecar } from "./captionSidecar";
+import {
+  IAutoMovieCaptionEntry,
+  IAutoMovieCaptionSidecar,
+} from "./captionSidecar";
 import { frameTimes } from "./frameTimes";
 import { shotBeat } from "./shotBeat";
-
 
 /**
  * Plan the caption sidecar of one sequence render: which beat's shot is live at every output frame, grouped into spans, each joined to its beat's caption and enclosing scene slug.
@@ -24,10 +36,10 @@ import { shotBeat } from "./shotBeat";
  * @author Samchon
  */
 export const planCaptionSidecar: (props: {
-    script: IAutoMovieScript;
-    sequence: IAutoMovieSequence;
-    shots: IAutoMovieShot[];
-    fps: number;
+  script: IAutoMovieScript;
+  sequence: IAutoMovieSequence;
+  shots: IAutoMovieShot[];
+  fps: number;
 }) => IAutoMovieCaptionSidecar = (props: {
   /** The script whose screenplay tree carries captions and scene slugs. */
   script: IAutoMovieScript;

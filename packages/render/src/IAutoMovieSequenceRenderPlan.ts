@@ -1,9 +1,6 @@
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
 import type { IAutoMovieSequenceRenderShotSpan } from "./IAutoMovieSequenceRenderShotSpan";
 import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan";
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-
-
-
 
 /**
  * Public sequence render manifest: editorial timeline, transition spans, frame samples, output paths, and encoder args in one deterministic artifact.

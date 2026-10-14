@@ -1,8 +1,3 @@
-
-
-
-
-
 /**
  * Host I/O for rendering a clip. Scheduling remains deterministic while the caller owns capture, encoding and cleanup of files, sessions and processes.
  *

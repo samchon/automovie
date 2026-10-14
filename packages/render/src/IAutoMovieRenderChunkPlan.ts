@@ -1,8 +1,7 @@
-import { IAutoMovieSequenceRenderPlan } from "./sequenceRenderPlan";
 import type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
-import type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";
 import type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
-
+import type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";
+import { IAutoMovieSequenceRenderPlan } from "./sequenceRenderPlan";
 
 /**
  * A long sequence render split into independently renderable chunks plus the plan to reassemble them.

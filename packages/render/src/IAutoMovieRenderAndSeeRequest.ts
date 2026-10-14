@@ -1,9 +1,6 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+
 import { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
-
-
-
-
 
 /**
  * Host-supplied request for rendering a clip and returning inspectable artifacts.

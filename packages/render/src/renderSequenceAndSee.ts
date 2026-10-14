@@ -1,10 +1,7 @@
-import { planSequenceRender } from "./planSequenceRender";
 import type { IAutoMovieSequenceRenderAndSeeRequest } from "./IAutoMovieSequenceRenderAndSeeRequest";
 import type { IAutoMovieSequenceRenderAndSeeResult } from "./IAutoMovieSequenceRenderAndSeeResult";
+import { planSequenceRender } from "./planSequenceRender";
 import { renderSequenceVideo } from "./renderSequenceVideo";
-
-
-
 
 /**
  * Build a sequence render manifest, execute it through host adapters, and return an artifact an agent can inspect without recomputing the cut.
@@ -17,7 +14,9 @@ import { renderSequenceVideo } from "./renderSequenceVideo";
  * @evidence contracts/performance.md#reuse-equivalent-work The manifest produced once is shared by capture and the returned artifact, ensuring inspection uses the same resolution that drove rendering.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the result envelope is added to the retained manifest and frame records; frame files, capture sessions and encoder lifetimes stay with the supplied host adapters.
  */
-export const renderSequenceAndSee: (request: IAutoMovieSequenceRenderAndSeeRequest) => Promise<IAutoMovieSequenceRenderAndSeeResult> = async (
+export const renderSequenceAndSee: (
+  request: IAutoMovieSequenceRenderAndSeeRequest,
+) => Promise<IAutoMovieSequenceRenderAndSeeResult> = async (
   request: IAutoMovieSequenceRenderAndSeeRequest,
 ): Promise<IAutoMovieSequenceRenderAndSeeResult> => {
   const plan: ReturnType<typeof planSequenceRender> = planSequenceRender({

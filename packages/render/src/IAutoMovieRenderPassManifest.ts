@@ -1,6 +1,5 @@
 import { AutoMovieGuidePass } from "@automovie/interface";
 
-
 /**
  * One guide pass's whole-timeline walk order across the chunks: how a host visits every frame of the pass without a video concatenation.
  *

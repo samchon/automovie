@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
-import { isGuidePass } from "./isGuidePass";
 
+import { isGuidePass } from "./isGuidePass";
 
 /**
  * Validate a requested pass list and fold repeats, keeping each pass at its first position.
@@ -16,13 +16,16 @@ import { isGuidePass } from "./isGuidePass";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen-set is local and released on return; the returned list, owned by the caller, holds at most six passes.
  * @author Samchon
  */
-export const normalizeGuidePasses: (passes: readonly string[]) => AutoMovieGuidePass[] = (
+export const normalizeGuidePasses: (
+  passes: readonly string[],
+) => AutoMovieGuidePass[] = (
   passes: readonly string[],
 ): AutoMovieGuidePass[] => {
   const seen: Set<AutoMovieGuidePass> = new Set();
   const normalized: AutoMovieGuidePass[] = [];
   for (const pass of passes) {
-    if (isGuidePass(pass) === false) throw new Error(`unknown guide pass "${pass}"`);
+    if (isGuidePass(pass) === false)
+      throw new Error(`unknown guide pass "${pass}"`);
     if (seen.has(pass)) continue;
     seen.add(pass);
     normalized.push(pass);

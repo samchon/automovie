@@ -1,8 +1,5 @@
 import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame";
 
-
-
-
 /**
  * The outcome of a render: encoded video plus frame metadata an agent can inspect without inferring paths from the ffmpeg pattern.
  *

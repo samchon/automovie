@@ -1,10 +1,7 @@
+import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
 import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
 import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
-import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
 import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderResult";
-
-
-
 
 /**
  * Render a prepared sequence manifest: capture each resolved frame sample in order, then encode the planned frame sequence with the planned ffmpeg args. This is the sequence-level analogue of `renderVideo`, but the capture host gets sequence semantics rather than only a clip-local second.
@@ -17,7 +14,10 @@ import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderR
  * @evidence contracts/performance.md#reuse-equivalent-work The sequence plan is reused unchanged for every capture and the result rather than rebuilt per frame; distinct capture effects are awaited separately.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No browser or process is opened here; the host owns those and frame-file cleanup. Result frames and the referenced plan remain reachable until the caller releases the artifact.
  */
-export const renderSequenceVideo: (plan: IAutoMovieSequenceRenderPlan, adapters: IAutoMovieSequenceRenderAdapters) => Promise<IAutoMovieSequenceRenderResult> = async (
+export const renderSequenceVideo: (
+  plan: IAutoMovieSequenceRenderPlan,
+  adapters: IAutoMovieSequenceRenderAdapters,
+) => Promise<IAutoMovieSequenceRenderResult> = async (
   plan: IAutoMovieSequenceRenderPlan,
   adapters: IAutoMovieSequenceRenderAdapters,
 ): Promise<IAutoMovieSequenceRenderResult> => {
@@ -27,7 +27,10 @@ export const renderSequenceVideo: (plan: IAutoMovieSequenceRenderPlan, adapters:
       ...frame,
       path: await adapters.captureFrame(frame, plan),
     });
-  const output: string = await adapters.encode(plan.ffmpegArgs, plan.outputPath);
+  const output: string = await adapters.encode(
+    plan.ffmpegArgs,
+    plan.outputPath,
+  );
   return {
     output,
     frameCount: frames.length,

@@ -46,14 +46,14 @@ import { shotBeat } from "./shotBeat";
  * @author Samchon
  */
 export const planPoseKeypointSidecar: (props: {
-    sequence: IAutoMovieSequence;
-    shots: IAutoMovieShot[];
-    scenes: readonly IAutoMovieScene[];
-    motions: readonly IAutoMovieMotion[];
-    skeletons: readonly IAutoMovieSkeleton[];
-    fps: number;
-    aspect?: number;
-    crop?: IAutoMovieDeliveryCrop;
+  sequence: IAutoMovieSequence;
+  shots: IAutoMovieShot[];
+  scenes: readonly IAutoMovieScene[];
+  motions: readonly IAutoMovieMotion[];
+  skeletons: readonly IAutoMovieSkeleton[];
+  fps: number;
+  aspect?: number;
+  crop?: IAutoMovieDeliveryCrop;
 }) => IAutoMoviePoseKeypointSidecar = (props: {
   /** The cut being rendered. */
   sequence: IAutoMovieSequence;
@@ -133,9 +133,7 @@ export const planPoseKeypointSidecar: (props: {
       // sequenceTimeline already threw for any entry whose shot was not
       // provided, so every cursor sample names a known shot.
       const shot: IAutoMovieShot = shotById.get(sample.shot)!;
-      let staging: IShotStaging | null | undefined = stagingByShot.get(
-        shot.id,
-      );
+      let staging: IShotStaging | null | undefined = stagingByShot.get(shot.id);
       if (staging === undefined) {
         staging = stageShot(shot, sceneById);
         stagingByShot.set(shot.id, staging);
@@ -144,9 +142,7 @@ export const planPoseKeypointSidecar: (props: {
         frame,
         beat: shotBeat(sample.shot),
         actors:
-          staging === null
-            ? []
-            : actorsAt(shot, staging, sample.time, lookups),
+          staging === null ? [] : actorsAt(shot, staging, sample.time, lookups),
       };
     },
   );
@@ -174,7 +170,10 @@ interface IShotStaging {
 }
 
 /** Resolve a shot's scene and camera, or null when either is missing. */
-const stageShot: (shot: IAutoMovieShot, sceneById: ReadonlyMap<string, IAutoMovieScene>) => IShotStaging | null = (
+const stageShot: (
+  shot: IAutoMovieShot,
+  sceneById: ReadonlyMap<string, IAutoMovieScene>,
+) => IShotStaging | null = (
   shot: IAutoMovieShot,
   sceneById: ReadonlyMap<string, IAutoMovieScene>,
 ): IShotStaging | null => {
@@ -198,7 +197,12 @@ const stageShot: (shot: IAutoMovieShot, sceneById: ReadonlyMap<string, IAutoMovi
 };
 
 /** Project every resolvable performing actor of one shot at a shot-local instant. */
-const actorsAt: (shot: IAutoMovieShot, staging: IShotStaging, time: number, lookups: IPoseLookups) => IAutoMoviePoseKeypointActor[] = (
+const actorsAt: (
+  shot: IAutoMovieShot,
+  staging: IShotStaging,
+  time: number,
+  lookups: IPoseLookups,
+) => IAutoMoviePoseKeypointActor[] = (
   shot: IAutoMovieShot,
   staging: IShotStaging,
   time: number,
@@ -267,7 +271,12 @@ const actorsAt: (shot: IAutoMovieShot, staging: IShotStaging, time: number, look
  * divide, so the frustum half-height and aspect, which only scale the
  * discarded `ndcX` and `ndcY`, are passed as 1.
  */
-const cameraDepth: (camera: IAutoMovieCamera, cameraMotion: IAutoMovieShot["cameraMotion"], time: number, point: IAutoMovieVector3) => number = (
+const cameraDepth: (
+  camera: IAutoMovieCamera,
+  cameraMotion: IAutoMovieShot["cameraMotion"],
+  time: number,
+  point: IAutoMovieVector3,
+) => number = (
   camera: IAutoMovieCamera,
   cameraMotion: IAutoMovieShot["cameraMotion"],
   time: number,

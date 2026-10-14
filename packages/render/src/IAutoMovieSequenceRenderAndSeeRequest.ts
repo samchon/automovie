@@ -1,8 +1,10 @@
-import { IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
+
 import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRenderAdapters";
-
-
-
 
 /**
  * Host-supplied request for building a sequence manifest and rendering it.

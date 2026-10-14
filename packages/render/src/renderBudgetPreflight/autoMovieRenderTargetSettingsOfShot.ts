@@ -1,5 +1,7 @@
-import { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings } from "@automovie/interface";
-
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieRenderTargetSettings,
+} from "@automovie/interface";
 
 /**
  * Project intended renderer settings from one compiled shot and caller-supplied target dimensions.
@@ -17,11 +19,11 @@ import { IAutoMovieCompiledShotSource, IAutoMovieRenderTargetSettings } from "@a
  * @evidence contracts/performance.md#bound-retention-and-release-resources The settings record contains only scalar values, so no compiled geometry, GPU allocation or host session is retained.
  */
 export const autoMovieRenderTargetSettingsOfShot: (props: {
-    compiled: IAutoMovieCompiledShotSource;
-    width: number;
-    height: number;
-    pixelRatio: number;
-    delivery: IAutoMovieRenderTargetSettings["toneMapping"];
+  compiled: IAutoMovieCompiledShotSource;
+  width: number;
+  height: number;
+  pixelRatio: number;
+  delivery: IAutoMovieRenderTargetSettings["toneMapping"];
 }) => IAutoMovieRenderTargetSettings = (props: {
   /** Fully builder-owned shot artifact. */
   compiled: IAutoMovieCompiledShotSource;
@@ -34,8 +36,14 @@ export const autoMovieRenderTargetSettingsOfShot: (props: {
   /** The delivery's own tone mapping, for a scene that declares none. */
   delivery: IAutoMovieRenderTargetSettings["toneMapping"];
 }): IAutoMovieRenderTargetSettings => {
-  const environment: IAutoMovieCompiledShotSource["scene"]["environment"] | null = props.compiled.scene.environment ?? null;
-  const shadows: NonNullable<IAutoMovieCompiledShotSource["scene"]["environment"]>["shadows"] | null =
+  const environment:
+    | IAutoMovieCompiledShotSource["scene"]["environment"]
+    | null = props.compiled.scene.environment ?? null;
+  const shadows:
+    | NonNullable<
+        IAutoMovieCompiledShotSource["scene"]["environment"]
+      >["shadows"]
+    | null =
     environment !== null && environment.shadows.enabled
       ? environment.shadows
       : null;

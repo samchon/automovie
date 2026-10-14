@@ -1,6 +1,5 @@
 import type { IAutoMovieCaptionSidecar } from "./IAutoMovieCaptionSidecar";
 
-
 /**
  * Serialize a caption sidecar for the host to write: two-space indented JSON in declaration order, followed by one newline.
  *
@@ -13,6 +12,7 @@ import type { IAutoMovieCaptionSidecar } from "./IAutoMovieCaptionSidecar";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The only allocation is the returned string, owned by the caller, and no handle or task is opened.
  * @author Samchon
  */
-export const renderCaptionSidecar: (sidecar: IAutoMovieCaptionSidecar) => string = (
+export const renderCaptionSidecar: (
   sidecar: IAutoMovieCaptionSidecar,
-): string => `${JSON.stringify(sidecar, null, 2)}\n`;
+) => string = (sidecar: IAutoMovieCaptionSidecar): string =>
+  `${JSON.stringify(sidecar, null, 2)}\n`;

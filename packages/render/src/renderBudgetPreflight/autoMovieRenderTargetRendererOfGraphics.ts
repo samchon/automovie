@@ -1,6 +1,6 @@
 import { IAutoMovieRenderTargetRenderer } from "@automovie/interface";
-import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity";
 
+import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity";
 
 /**
  * Read a capture host's graphics probe as a render-target renderer identity, or
@@ -21,7 +21,9 @@ import { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIden
  * @evidence contracts/performance.md#reuse-equivalent-work The projection reads the supplied probe once and retains no cache; identical device names alone cannot authorize sharing actual render effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only three string references escape in a new record; the projection holds no graphics context, browser session or process resource.
  */
-export const autoMovieRenderTargetRendererOfGraphics: (graphics: IAutoMovieRenderGraphicsIdentity | null | undefined) => IAutoMovieRenderTargetRenderer | null = (
+export const autoMovieRenderTargetRendererOfGraphics: (
+  graphics: IAutoMovieRenderGraphicsIdentity | null | undefined,
+) => IAutoMovieRenderTargetRenderer | null = (
   graphics: IAutoMovieRenderGraphicsIdentity | null | undefined,
 ): IAutoMovieRenderTargetRenderer | null =>
   graphics === null || graphics === undefined
@@ -32,6 +34,7 @@ export const autoMovieRenderTargetRendererOfGraphics: (graphics: IAutoMovieRende
         device: blankAs(graphics.renderer, "unknown"),
       };
 
-
-const blankAs: (value: string, fallback: string) => string = (value: string, fallback: string): string =>
-  value.trim().length === 0 ? fallback : value;
+const blankAs: (value: string, fallback: string) => string = (
+  value: string,
+  fallback: string,
+): string => (value.trim().length === 0 ? fallback : value);

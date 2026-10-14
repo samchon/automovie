@@ -1,6 +1,5 @@
 import { IAutoMovieRenderBudget } from "@automovie/interface";
 
-
 /**
  * Select the budget a render job targets, or `null` when the production
  * declared none for this tier.
@@ -17,8 +16,13 @@ import { IAutoMovieRenderBudget } from "@automovie/interface";
  * @evidence contracts/performance.md#reuse-equivalent-work The selected budget is returned by reference rather than copied; callers retain its declared identity and no lookup cache can become stale after a caller mutation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No array or module state is retained by the selector; the returned budget remains owned by the caller that supplied the declarations.
  */
-export const selectAutoMovieRenderBudget: (budgets: readonly IAutoMovieRenderBudget[] | undefined, tier: string) => IAutoMovieRenderBudget | null = (
+export const selectAutoMovieRenderBudget: (
+  budgets: readonly IAutoMovieRenderBudget[] | undefined,
+  tier: string,
+) => IAutoMovieRenderBudget | null = (
   budgets: readonly IAutoMovieRenderBudget[] | undefined,
   tier: string,
 ): IAutoMovieRenderBudget | null =>
-  (budgets ?? []).find((budget: IAutoMovieRenderBudget): boolean => budget.tier === tier) ?? null;
+  (budgets ?? []).find(
+    (budget: IAutoMovieRenderBudget): boolean => budget.tier === tier,
+  ) ?? null;

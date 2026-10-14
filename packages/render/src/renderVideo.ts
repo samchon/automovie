@@ -1,12 +1,10 @@
 import { IAutoMovieRenderSpec } from "@automovie/interface";
+
+import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
+import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
 import { ffmpegArgs } from "./ffmpegArgs";
 import { framePattern } from "./framePattern";
 import { frameTimes } from "./frameTimes";
-import type { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
-import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
-
-
-
 
 /**
  * Render a clip of `durationSeconds` into a video, deterministically: compute the frame schedule, capture each frame through the host adapter at its exact `t = i / fps`, then encode the sequence with the pinned ffmpeg args.
@@ -21,7 +19,13 @@ import type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
  * @evidence contracts/performance.md#reuse-equivalent-work Captures are effectful operations and cannot be shared solely because two timestamps match; this call captures its requested sequence once and returns metadata for caller reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns frame files, encoder tasks and their cleanup on success or failure; this function retains O(F) paths and times until the result is discarded and acquires no native handle itself.
  */
-export const renderVideo: (spec: IAutoMovieRenderSpec, durationSeconds: number, dir: string, outputPath: string, adapters: IAutoMovieRenderAdapters) => Promise<IAutoMovieRenderResult> = async (
+export const renderVideo: (
+  spec: IAutoMovieRenderSpec,
+  durationSeconds: number,
+  dir: string,
+  outputPath: string,
+  adapters: IAutoMovieRenderAdapters,
+) => Promise<IAutoMovieRenderResult> = async (
   spec: IAutoMovieRenderSpec,
   durationSeconds: number,
   dir: string,
@@ -44,11 +48,16 @@ export const renderVideo: (spec: IAutoMovieRenderSpec, durationSeconds: number, 
     output,
     frameCount: frames.length,
     times,
-    frames: frames.map((path: string, index: number): IAutoMovieRenderResult["frames"][number] => ({
-      index,
-      timeSeconds: times[index]!,
-      path,
-    })),
+    frames: frames.map(
+      (
+        path: string,
+        index: number,
+      ): IAutoMovieRenderResult["frames"][number] => ({
+        index,
+        timeSeconds: times[index]!,
+        path,
+      }),
+    ),
     frameDir: dir,
     inputPattern,
     ffmpegArgs: args,

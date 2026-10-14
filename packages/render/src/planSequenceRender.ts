@@ -1,16 +1,22 @@
-import { IAutoMoviePlaybackTimeline, playbackCursor, sequenceTimeline } from "@automovie/engine";
-import { IAutoMovieRenderSpec, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMoviePlaybackTimeline,
+  playbackCursor,
+  sequenceTimeline,
+} from "@automovie/engine";
+import {
+  IAutoMovieRenderSpec,
+  IAutoMovieSequence,
+  IAutoMovieShot,
+} from "@automovie/interface";
+
+import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
+import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
+import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan";
 import { ffmpegArgs } from "./ffmpegArgs";
 import { frameName } from "./frameName";
 import { framePattern } from "./framePattern";
 import { frameTimes } from "./frameTimes";
 import { renderPathStem } from "./renderPathStem";
-import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenceRenderTransitionSpan";
-import type { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
-import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
-
-
-
 
 /**
  * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
@@ -24,11 +30,11 @@ import type { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPla
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned plan retains shot-span and frame metadata proportional to the output schedule; the temporary cursor and timeline are released on return, and planning opens no host resource.
  */
 export const planSequenceRender: (props: {
-    sequence: IAutoMovieSequence;
-    shots: IAutoMovieShot[];
-    spec: IAutoMovieRenderSpec;
-    frameDir?: string;
-    outputPath?: string;
+  sequence: IAutoMovieSequence;
+  shots: IAutoMovieShot[];
+  spec: IAutoMovieRenderSpec;
+  frameDir?: string;
+  outputPath?: string;
 }) => IAutoMovieSequenceRenderPlan = (props: {
   /** Sequence being rendered. */
   sequence: IAutoMovieSequence;
@@ -50,8 +56,14 @@ export const planSequenceRender: (props: {
       `render spec target "${props.spec.target}" must equal sequence "${props.sequence.id}"`,
     );
 
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(props.sequence, props.shots);
-  const times: number[] = frameTimes(props.spec.frameFormat.fps, timeline.runtime);
+  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+    props.sequence,
+    props.shots,
+  );
+  const times: number[] = frameTimes(
+    props.spec.frameFormat.fps,
+    timeline.runtime,
+  );
   if (times.length === 0)
     throw new Error(
       `planSequenceRender requires at least one frame; fps ${props.spec.frameFormat.fps} and duration ${timeline.runtime} produced zero frames`,
@@ -68,15 +80,19 @@ export const planSequenceRender: (props: {
     durationSeconds: timeline.runtime,
     frameCount: times.length,
     times,
-    shots: timeline.entries.map((entry: IAutoMoviePlaybackTimeline["entries"][number]): IAutoMovieSequenceRenderPlan["shots"][number] => ({
-      entry: entry.entry,
-      shot: entry.shot,
-      start: entry.start,
-      end: entry.start + entry.played,
-      played: entry.played,
-      offset: entry.offset,
-      trim: props.sequence.shots[entry.entry]!.trim,
-    })),
+    shots: timeline.entries.map(
+      (
+        entry: IAutoMoviePlaybackTimeline["entries"][number],
+      ): IAutoMovieSequenceRenderPlan["shots"][number] => ({
+        entry: entry.entry,
+        shot: entry.shot,
+        start: entry.start,
+        end: entry.start + entry.played,
+        played: entry.played,
+        offset: entry.offset,
+        trim: props.sequence.shots[entry.entry]!.trim,
+      }),
+    ),
     transitionSpans: transitionSpans(props.sequence, timeline),
     frames: frameSamples(props.sequence, timeline, times, frameDir),
     frameDir,
@@ -88,58 +104,72 @@ export const planSequenceRender: (props: {
   };
 };
 
-
-
-const transitionSpans: (sequence: IAutoMovieSequence, timeline: IAutoMoviePlaybackTimeline) => IAutoMovieSequenceRenderTransitionSpan[] = (
+const transitionSpans: (
+  sequence: IAutoMovieSequence,
+  timeline: IAutoMoviePlaybackTimeline,
+) => IAutoMovieSequenceRenderTransitionSpan[] = (
   sequence: IAutoMovieSequence,
   timeline: IAutoMoviePlaybackTimeline,
 ): IAutoMovieSequenceRenderTransitionSpan[] =>
-  timeline.entries.flatMap((entry: IAutoMoviePlaybackTimeline["entries"][number]): IAutoMovieSequenceRenderTransitionSpan[] => {
-    const transition: IAutoMovieSequence["shots"][number]["transition"] = sequence.shots[entry.entry]!.transition;
-    if (transition === null) return [];
-    const outgoing: IAutoMoviePlaybackTimeline["entries"][number] = timeline.entries[entry.entry - 1]!;
-    return [
-      {
-        entry: entry.entry,
-        from: outgoing.shot,
-        to: entry.shot,
-        kind: transition.kind,
-        start: entry.start,
-        end: entry.start + transition.duration,
-        duration: transition.duration,
-      },
-    ];
-  });
-
-
-
+  timeline.entries.flatMap(
+    (
+      entry: IAutoMoviePlaybackTimeline["entries"][number],
+    ): IAutoMovieSequenceRenderTransitionSpan[] => {
+      const transition: IAutoMovieSequence["shots"][number]["transition"] =
+        sequence.shots[entry.entry]!.transition;
+      if (transition === null) return [];
+      const outgoing: IAutoMoviePlaybackTimeline["entries"][number] =
+        timeline.entries[entry.entry - 1]!;
+      return [
+        {
+          entry: entry.entry,
+          from: outgoing.shot,
+          to: entry.shot,
+          kind: transition.kind,
+          start: entry.start,
+          end: entry.start + transition.duration,
+          duration: transition.duration,
+        },
+      ];
+    },
+  );
 
 /**
  * Resolve every output frame in one forward sweep. Frame times come from {@link frameTimes} (`i / fps`, strictly increasing), so a single {@link playbackCursor} walks the timeline once, O(frames + entries) instead of a per-frame scan, landing on the same live entry a per-frame resolve would, so the samples are byte-identical.
  */
-const frameSamples: (sequence: IAutoMovieSequence, timeline: IAutoMoviePlaybackTimeline, times: number[], frameDir: string) => IAutoMovieSequenceRenderFrame[] = (
+const frameSamples: (
+  sequence: IAutoMovieSequence,
+  timeline: IAutoMoviePlaybackTimeline,
+  times: number[],
+  frameDir: string,
+) => IAutoMovieSequenceRenderFrame[] = (
   sequence: IAutoMovieSequence,
   timeline: IAutoMoviePlaybackTimeline,
   times: number[],
   frameDir: string,
 ): IAutoMovieSequenceRenderFrame[] => {
-  const cursor: ReturnType<typeof playbackCursor> = playbackCursor(sequence, timeline);
-  return times.map((time: number, index: number): IAutoMovieSequenceRenderFrame => {
-    const sample: ReturnType<typeof cursor> = cursor(time);
-    return {
-      index,
-      timeSeconds: time,
-      path: `${frameDir}/${frameName(index)}`,
-      shot: sample.shot,
-      shotTimeSeconds: sample.time,
-      blend:
-        sample.blend === null
-          ? null
-          : {
-              shot: sample.blend.shot,
-              shotTimeSeconds: sample.blend.time,
-              alpha: sample.blend.alpha,
-            },
-    };
-  });
+  const cursor: ReturnType<typeof playbackCursor> = playbackCursor(
+    sequence,
+    timeline,
+  );
+  return times.map(
+    (time: number, index: number): IAutoMovieSequenceRenderFrame => {
+      const sample: ReturnType<typeof cursor> = cursor(time);
+      return {
+        index,
+        timeSeconds: time,
+        path: `${frameDir}/${frameName(index)}`,
+        shot: sample.shot,
+        shotTimeSeconds: sample.time,
+        blend:
+          sample.blend === null
+            ? null
+            : {
+                shot: sample.blend.shot,
+                shotTimeSeconds: sample.blend.time,
+                alpha: sample.blend.alpha,
+              },
+      };
+    },
+  );
 };

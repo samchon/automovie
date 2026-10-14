@@ -1,10 +1,6 @@
 import { IAutoMovieSequenceRenderFrame } from "./IAutoMovieSequenceRenderFrame";
 import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
 
-
-
-
-
 /**
  * The outcome of rendering a sequence through injected host I/O.
  *
