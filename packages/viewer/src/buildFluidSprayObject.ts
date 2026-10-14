@@ -1,18 +1,14 @@
 import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import * as THREE from "three";
 import type { IAutoMovieFluidSprayObject } from "./IAutoMovieFluidSprayObject.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Project one bounded spray sample into a `three.js` point cloud.
  *
- * The engine has already applied the emitter's hard cap and its distance
- * thinning, so the viewer uploads exactly the particles the reference sample
- * declared and never invents a particle of its own. Spray is a `THREE.Points`,
- * which the structural guide passes hide by design: mist is decoration and must
- * not colour a segmentation mask or read as geometry in a depth pass.
+ * The Engine's admitted sample supplies the capped and distance-thinned particle population. Structural guide passes hide this Points node because decorative mist does not represent solid mask/depth geometry.
  *
- * The default PointsMaterial uses normal blending, one fixed point size and
- * opacity. Uploaded `aSize` and `aAge` require a supplied shader to affect beauty.
+ * The default PointsMaterial uses normal blending, one fixed point size and opacity. Uploaded `aSize` and `aAge` require a supplied shader to affect beauty.
  *
  * @evidence contracts/common.md#principled-implementation The engine's admitted capped sample supplies each particle's position, size and age ratio. The builder copies those values to Float32 attributes, computes bounds from positions and hides empty samples; it does not enforce the cap or domain itself.
  * @evidence contracts/common.md#clear-and-simple-design A single Points node projects the sample; particle generation and thinning remain in the engine, while structural passes decide whether points contribute to their documented quantity.
@@ -20,7 +16,7 @@ import type { IAutoMovieFluidSprayObject } from "./IAutoMovieFluidSprayObject.js
  * @evidence contracts/common.md#meaningful-documentation The comment states engine population authority, structural-pass role and the stock material's limitations. Material props identify conditional ownership; count reports the upload length rather than observed visible particles.
  * @evidence contracts/performance.md#efficient-algorithms Upload builds three arrays and Float32 attributes and scans bounds, all linear in particle count. These complete copies match a complete replacement sample rather than a sparse-update protocol.
  * @evidence contracts/performance.md#reuse-equivalent-work Points, geometry identity and material persist across updates; each supplied sample rebuilds buffers and bounds. Matching step metadata is not used as a cache key for particle equivalence.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches the node and disposes its owned geometry and optional default material; a supplied material stays borrowed. Disposal is sequential and not memoized, and does not refuse later updates. Engine sampling bounds population, but this viewer type imposes no byte cap; current callers are tests rather than a production spray scene host.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches the node and disposes owned geometry and the optional default material; supplied material stays borrowed. Each invocation independently attempts geometry then default material; ordered causes follow the existing reporter, including its unresolved diagnostic-coercion limit. Disposal remains unmemoized and later updates remain admitted. Engine sampling bounds population but this type imposes no byte cap, and public events are not physical GPU release proof. Maintained callers are tests rather than a production spray scene host.
  *
  * @author Samchon
  */
@@ -72,8 +68,10 @@ export const buildFluidSprayObject: (props: { sample: IAutoMovieFluidSpraySample
     object: points,
     update: upload,
     dispose: (): void => {
-      geometry.dispose();
-      if (owned) material.dispose();
+      reportAutoMovieResourceRetirement([
+        (): void => { geometry.dispose(); },
+        (): void => { if (owned) material.dispose(); },
+      ]);
     },
     count: (): number => count,
   };
