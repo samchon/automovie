@@ -1,29 +1,13 @@
-import type { AutoMovieContentDigest } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import path from "node:path";
-
-import { loadSourceModule } from "../internal/loadSourceModule";
+import { assertProductionRenderDialogueRuntimeIdentity } from "../../../../packages/production/src/production/assertProductionRenderDialogueRuntimeIdentity";
 import { namedFacts, throwsError } from "../internal/predicates";
 
-const digest = (digit: string): AutoMovieContentDigest =>
-  `sha256:${digit.repeat(64)}`;
-
-const unit = loadSourceModule<{
-  assertProductionRenderDialogueRuntimeIdentity: (props: {
-    boundary: string;
-    expected: unknown;
-    observed: unknown;
-  }) => AutoMovieContentDigest | null;
-}>(
-  path.resolve(
-    __dirname,
-    "../../../../packages/production/src/production/productionRenderDialogueRuntimeIdentity.ts",
-  ),
-);
+function digest(digit: string): string {
+  return `sha256:${digit.repeat(64)}`;
+}
 
 /**
- * Planned dialogue identity and the final-byte capture observation are one
- * render invariant at preflight, every layer/pass, and publication preview.
+ * Supplied planned and observed dialogue identities are compared at the named boundary.
  *
  * Scenarios:
  *
@@ -33,12 +17,16 @@ const unit = loadSourceModule<{
  *    fail closed without printing an untrusted value.
  * 3. A missing or malformed planned identity is stale rather than silently
  *    interpreted as a dialogue-free plan.
- * 4. Empty boundary context is refused so every failure can identify where it
- *    prevented bytes from entering a frame, chunk, or publication.
+ * 4. Empty boundary context is refused so each comparison failure identifies
+ *    the supplied caller context.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls the maintained comparison directly and observes returned values and contextual refusals; matching voiced and explicit silent observations remain accepted while invalid or differing values refuse.
+ * @evidence contracts/testing.md#independent-expectations Literal SHA-256 syntax, distinct repeated hex digits and explicit null/missing values define expected equality and silence independently; assertions also require the named context and omission of malformed observed secrets. No byte-origin or live-pipeline enforcement is proven.
+ * @evidence contracts/testing.md#distinguishing-cases Matching digest/null pairs neighbor different digest, null mismatch, missing, nonstring and malformed observations; missing/malformed plans, hidden dialogue and whitespace-only context pin remaining refusal branches. Native capture and final publication belong to their owners.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit imports its canonical source directly and owns every enumerated case; it starts no capture host, replaces no global and installs no application consumer.
  */
-export const test_production_render_dialogue_runtime_identity = (): void => {
-  const { assertProductionRenderDialogueRuntimeIdentity } = unit;
-  const expected = digest("a");
+export function test_production_render_dialogue_runtime_identity(): void {
+  const expected: string = digest("a");
   TestValidator.equals(
     "matching voiced and silent captures preserve their exact planned identity",
     [
@@ -56,8 +44,8 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
     [expected, null],
   );
 
-  const secret = "credential-bearing-observed-value";
-  const captureRefusals = [
+  const secret: string = "credential-bearing-observed-value";
+  const captureRefusals: { name: string; refused: boolean; secretAbsent: boolean; exactCanonicalMismatch: boolean }[] = [
     {
       name: "different",
       observed: digest("b"),
@@ -67,7 +55,7 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
     { name: "missing", observed: undefined, message: "omitted" },
     { name: "non-string", observed: 7, message: "invalid" },
     { name: "malformed", observed: secret, message: "invalid" },
-  ].map(({ name, observed, message }) => {
+  ].map(({ name, observed, message }: { name: string; observed: unknown; message: string }): { name: string; refused: boolean; secretAbsent: boolean; exactCanonicalMismatch: boolean } => {
     let caught: unknown;
     try {
       assertProductionRenderDialogueRuntimeIdentity({
@@ -96,7 +84,7 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
   TestValidator.equals(
     "every untrusted observed identity fails closed at its named capture boundary",
     captureRefusals,
-    ["different", "null", "missing", "non-string", "malformed"].map((name) => ({
+    ["different", "null", "missing", "non-string", "malformed"].map((name: string): { name: string; refused: boolean; secretAbsent: boolean; exactCanonicalMismatch: boolean } => ({
       name,
       refused: true,
       secretAbsent: true,
@@ -109,9 +97,9 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
     namedFacts([
       [
         "missing",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): string | null =>
               assertProductionRenderDialogueRuntimeIdentity({
                 boundary: "stored render plan",
                 expected: undefined,
@@ -122,9 +110,9 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
       ],
       [
         "malformed",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): string | null =>
               assertProductionRenderDialogueRuntimeIdentity({
                 boundary: "stored render plan",
                 expected: "sha256:short",
@@ -135,9 +123,9 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
       ],
       [
         "hiddenDialogue",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): string | null =>
               assertProductionRenderDialogueRuntimeIdentity({
                 boundary: "silent guide pass",
                 expected: null,
@@ -148,9 +136,9 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
       ],
       [
         "emptyBoundary",
-        () =>
+        (): boolean =>
           throwsError(
-            () =>
+            (): string | null =>
               assertProductionRenderDialogueRuntimeIdentity({
                 boundary: " ",
                 expected,
@@ -167,4 +155,4 @@ export const test_production_render_dialogue_runtime_identity = (): void => {
       emptyBoundary: true,
     },
   );
-};
+}
