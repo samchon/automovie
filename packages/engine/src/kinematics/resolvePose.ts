@@ -57,7 +57,17 @@ import { jointToQuaternion } from "./jointToQuaternion";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the articulation map is local to the call and the returned bones, one per reachable bone, are owned by the caller.
  * @author Samchon
  */
-export const resolvePose = (
+export const resolvePose: (
+  pose: IAutoMoviePose,
+  skeleton: IAutoMovieSkeleton,
+  jointAxes?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
+    | undefined,
+  restFrames?:
+    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
+    | undefined,
+  topology?: IAutoMovieSkeletonTopology,
+) => IAutoMovieResolvedBone[] = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
@@ -76,7 +86,11 @@ export const resolvePose = (
 
   // The walk receives the bone object directly (the children map already holds
   // it), so there is no name→bone lookup during the descent.
-  const walk = (
+  const walk: (
+    bone: IAutoMovieBone,
+    parentWorldRot: IAutoMovieQuaternion,
+    parentWorldPos: IAutoMovieVector3,
+  ) => void = (
     bone: IAutoMovieBone,
     parentWorldRot: IAutoMovieQuaternion,
     parentWorldPos: IAutoMovieVector3,

@@ -4,6 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
@@ -12,7 +13,11 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
 
 type AutoMovieClinicalAxis = "flexion" | "abduction" | "twist";
 
-const readAngle = (
+const readAngle: (
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  axis: AutoMovieClinicalAxis,
+  frame: IAutoMovieAxisFrame | undefined,
+) => number = (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
   axis: AutoMovieClinicalAxis,
   frame: IAutoMovieRestFrame[AutoMovieClinicalAxis] | undefined,
@@ -68,7 +73,11 @@ const readAngle = (
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned quaternion.
  * @author Samchon
  */
-export const jointToQuaternion = (
+export const jointToQuaternion: (
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  axes?: IAutoMovieJointAxes,
+  frame?: IAutoMovieRestFrame | undefined,
+) => IAutoMovieQuaternion = (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,

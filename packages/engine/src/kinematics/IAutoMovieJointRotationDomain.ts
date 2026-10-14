@@ -1,4 +1,4 @@
-import type {
+import {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
 } from "@automovie/interface";

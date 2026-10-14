@@ -31,7 +31,10 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned set, at most one entry per bone.
  * @author Samchon
  */
-export const reachableBoneNames = (
+export const reachableBoneNames: (
+  skeleton: IAutoMovieSkeleton,
+  topology?: IAutoMovieSkeletonTopology,
+) => Set<AutoMovieHumanoidBone> = (
   skeleton: IAutoMovieSkeleton,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
 ): Set<AutoMovieHumanoidBone> => new Set(topology.reachableBones);

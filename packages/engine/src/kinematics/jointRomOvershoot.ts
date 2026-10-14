@@ -29,7 +29,10 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one `ViolationCollector` holding at most four violations for the duration of the call; it is unreachable after the sum returns, and nothing is retained.
  * @author Samchon
  */
-export const jointRomOvershoot = (
+export const jointRomOvershoot: (
+  joint: IAutoMovieJointPose,
+  constraint: IAutoMovieJointConstraint | null,
+) => number = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
 ): number => {
