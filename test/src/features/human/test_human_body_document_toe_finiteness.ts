@@ -21,17 +21,37 @@ import { nclose } from "../internal/nclose";
  */
 export function test_human_body_document_toe_finiteness(): void {
   const document: IAutoMovieHumanBodyBasisDocument = {
-    id: "toe-document", name: "Toe document", basis: "toe-basis", shape: {},
+    id: "toe-document",
+    name: "Toe document",
+    basis: "toe-basis",
+    shape: {},
     toes: [{ bone: "leftHalluxProximal", flexion: -5, abduction: 0 }],
   };
-  TestValidator.predicate("admission preserves input identity", admitHumanBodyBasisDocument(document) === document);
-  const restored: IAutoMovieHumanBodyBasisDocument = parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(document));
-  TestValidator.predicate("finite toe coordinates round-trip", restored.toes?.length === 1 && restored.toes[0].bone === "leftHalluxProximal" && nclose(restored.toes[0].flexion, -5, 0) && nclose(restored.toes[0].abduction!, 0, 0));
+  TestValidator.predicate(
+    "admission preserves input identity",
+    admitHumanBodyBasisDocument(document) === document,
+  );
+  const restored: IAutoMovieHumanBodyBasisDocument =
+    parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(document));
+  TestValidator.predicate(
+    "finite toe coordinates round-trip",
+    restored.toes?.length === 1 &&
+      restored.toes[0].bone === "leftHalluxProximal" &&
+      nclose(restored.toes[0].flexion, -5, 0) &&
+      nclose(restored.toes[0].abduction!, 0, 0),
+  );
   const omitted: IAutoMovieHumanBodyBasisDocument = {
-    ...document, toes: [{ bone: "leftHalluxProximal", flexion: 0 }],
+    ...document,
+    toes: [{ bone: "leftHalluxProximal", flexion: 0 }],
   };
-  const restoredOmission: IAutoMovieHumanBodyBasisDocument = parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(omitted));
-  TestValidator.predicate("omitted abduction round-trips", restoredOmission.toes?.length === 1 && nclose(restoredOmission.toes[0].flexion, 0, 0) && restoredOmission.toes[0].abduction === undefined);
+  const restoredOmission: IAutoMovieHumanBodyBasisDocument =
+    parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(omitted));
+  TestValidator.predicate(
+    "omitted abduction round-trips",
+    restoredOmission.toes?.length === 1 &&
+      nclose(restoredOmission.toes[0].flexion, 0, 0) &&
+      restoredOmission.toes[0].abduction === undefined,
+  );
   for (const coordinate of ["flexion", "abduction"] as const)
     for (const value of [NaN, Infinity, -Infinity]) {
       const invalid: IAutoMovieHumanBodyBasisDocument = {
@@ -41,6 +61,9 @@ export function test_human_body_document_toe_finiteness(): void {
       TestValidator.error("nonfinite toe " + coordinate, (): void => {
         serializeHumanBodyBasisDocument(invalid);
       });
-      TestValidator.predicate("refusal preserves supplied scalar", Object.is(invalid.toes![0][coordinate], value));
+      TestValidator.predicate(
+        "refusal preserves supplied scalar",
+        Object.is(invalid.toes![0][coordinate], value),
+      );
     }
 }

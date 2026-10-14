@@ -2,8 +2,8 @@ import { Quaternion, rotationBetween } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createHumanBodyUnderwearNormalLinearizer } from "../../../../packages/human/src/body/basis/createHumanBodyUnderwearNormalLinearizer";
 import type { IHumanBodyUnderwearSurfaceEvaluation } from "../../../../packages/human/src/body/basis/IHumanBodyUnderwearSurfaceEvaluation";
+import { createHumanBodyUnderwearNormalLinearizer } from "../../../../packages/human/src/body/basis/createHumanBodyUnderwearNormalLinearizer";
 import { areaWeightedNormals } from "../../../../packages/human/src/common/mesh/areaWeightedNormals";
 import { nclose } from "../internal/nclose";
 
@@ -24,30 +24,71 @@ export function test_human_underwear_normal_small_turn(): void {
   const points: number[] = [0, 0, 0, 1, 0, 0, 0, 1, 0];
   const normals: number[] = [0, 0, 1, 0, 0, 1, 0, 0, 1];
   const indices: number[] = [0, 1, 2];
-  const read: ReturnType<typeof createHumanBodyUnderwearNormalLinearizer> = createHumanBodyUnderwearNormalLinearizer({
-    points, normals, indices, offsetMetres: 0, sourceVertices: [0, 1, 2],
-  });
+  const read: ReturnType<typeof createHumanBodyUnderwearNormalLinearizer> =
+    createHumanBodyUnderwearNormalLinearizer({
+      points,
+      normals,
+      indices,
+      offsetMetres: 0,
+      sourceVertices: [0, 1, 2],
+    });
   function evaluation(base: number[]): IHumanBodyUnderwearSurfaceEvaluation {
     const fitted: number[] = areaWeightedNormals(base, indices);
-    const direction: IAutoMovieVector3 = { x: fitted[0], y: fitted[1], z: fitted[2] };
-    const transported: IAutoMovieVector3 = Quaternion.rotateVector(rotationBetween({ x: 0, y: 0, z: 1 }, direction), { x: 0, y: 0, z: 1 });
-    const length: number = Math.hypot(transported.x, transported.y, transported.z);
-    const unit: number[] = [transported.x / length, transported.y / length, transported.z / length];
-    return { base, positions: [...base], normals: [...unit, ...unit, ...unit], fieldResidualMetres: 0, violations: [], geometryAccepted: false };
+    const direction: IAutoMovieVector3 = {
+      x: fitted[0],
+      y: fitted[1],
+      z: fitted[2],
+    };
+    const transported: IAutoMovieVector3 = Quaternion.rotateVector(
+      rotationBetween({ x: 0, y: 0, z: 1 }, direction),
+      { x: 0, y: 0, z: 1 },
+    );
+    const length: number = Math.hypot(
+      transported.x,
+      transported.y,
+      transported.z,
+    );
+    const unit: number[] = [
+      transported.x / length,
+      transported.y / length,
+      transported.z / length,
+    ];
+    return {
+      base,
+      positions: [...base],
+      normals: [...unit, ...unit, ...unit],
+      fieldResidualMetres: 0,
+      violations: [],
+      geometryAccepted: false,
+    };
   }
   for (const height of [0, 1e-13, 1e-12, 0.125]) {
     const base: number[] = [...points];
     base[8] = height;
     const result: ReturnType<typeof read> = read(evaluation(base));
-    TestValidator.equals("regular normal derivative is available", result.unavailable.length, 0);
+    TestValidator.equals(
+      "regular normal derivative is available",
+      result.unavailable.length,
+      0,
+    );
     const expectedScale: number = (1 + height * height) ** -1.5;
     for (const derivatives of result.derivatives) {
       const actual: number[] | undefined = derivatives.get(8);
-      TestValidator.predicate("triangle normal derivative at height " + height, actual !== undefined && nclose(actual[0], 0, 1e-10) && nclose(actual[1], -expectedScale, 1e-10) && nclose(actual[2], -height * expectedScale, 1e-10));
+      TestValidator.predicate(
+        "triangle normal derivative at height " + height,
+        actual !== undefined &&
+          nclose(actual[0], 0, 1e-10) &&
+          nclose(actual[1], -expectedScale, 1e-10) &&
+          nclose(actual[2], -height * expectedScale, 1e-10),
+      );
     }
   }
   const antiparallel: number[] = [...points];
   antiparallel[7] = -1;
   const refused: ReturnType<typeof read> = read(evaluation(antiparallel));
-  TestValidator.equals("antiparallel derivative is unavailable at all vertices", refused.unavailable.length, 3);
+  TestValidator.equals(
+    "antiparallel derivative is unavailable at all vertices",
+    refused.unavailable.length,
+    3,
+  );
 }
