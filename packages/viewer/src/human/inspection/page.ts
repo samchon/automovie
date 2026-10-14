@@ -13,38 +13,38 @@ import type { ConnectedBodyResult } from "@automovie/human/body/runtime/Connecte
 import type { ConnectedFaceRequest } from "@automovie/human/face/runtime/ConnectedFaceRequest";
 import type { ConnectedFaceResult } from "@automovie/human/face/runtime/ConnectedFaceResult";
 import * as THREE from "three";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
+import { HumanViewerGpuContextLostError } from "./HumanViewerGpuContextLostError.js";
 import { HumanViewerMixedCompileError } from "./HumanViewerMixedCompileError.js";
+import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChangedError.js";
 import type { HumanViewerStage } from "./HumanViewerStage.js";
 import type { IHumanViewerComposition } from "./IHumanViewerComposition.js";
 import type { IHumanViewerResident } from "./IHumanViewerResident.js";
 import { addHumanViewerCalibration } from "./addHumanViewerCalibration.js";
-import { assertHumanViewerFrame } from "./assertHumanViewerFrame.js";
 import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue.js";
 import { announceHumanViewerAddress } from "./announceHumanViewerAddress.js";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility.js";
+import { assertHumanViewerFrame } from "./assertHumanViewerFrame.js";
 import { assertHumanViewerSingleCompile } from "./assertHumanViewerSingleCompile.js";
 import { buildHumanViewerBodyResident } from "./buildHumanViewerBodyResident.js";
 import { buildHumanViewerFaceResident } from "./buildHumanViewerFaceResident.js";
 import { checkHumanViewerCandidateSource } from "./checkHumanViewerCandidateSource.js";
 import { createHumanViewerCache } from "./createHumanViewerCache.js";
+import { createHumanViewerDisplaySave } from "./createHumanViewerDisplaySave.js";
+import { createHumanViewerGpuDisplay } from "./createHumanViewerGpuDisplay.js";
 import { createHumanViewerNumericalPort } from "./createHumanViewerNumericalPort.js";
 import { createHumanViewerSpans } from "./createHumanViewerSpans.js";
 import { createHumanViewerViewportHost } from "./createHumanViewerViewportHost.js";
 import { createHumanViewerWorkReporter } from "./createHumanViewerWorkReporter.js";
-import { createHumanViewerDisplaySave } from "./createHumanViewerDisplaySave.js";
-import { createHumanViewerGpuDisplay } from "./createHumanViewerGpuDisplay.js";
-import { HumanViewerGpuContextLostError } from "./HumanViewerGpuContextLostError.js";
-import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChangedError.js";
 import { frameHumanViewerAddress } from "./frameHumanViewerAddress.js";
 import { humanViewerProtocol } from "./humanViewerProtocol.js";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress.js";
+import { readHumanViewerCameraAddress } from "./readHumanViewerCameraAddress.js";
 import { readHumanViewerCompiles } from "./readHumanViewerCompiles.js";
 import { readHumanViewerPng } from "./readHumanViewerPng.js";
-import { readHumanViewerCameraAddress } from "./readHumanViewerCameraAddress.js";
 import { readHumanViewerShowCatalogue } from "./readHumanViewerShowCatalogue.js";
 import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame.js";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
@@ -109,7 +109,8 @@ let completedStatus = "";
 /** Native restoration repairs a graphics refusal, never a source refusal. */
 let graphicsStatusFailed = false;
 const gpuDisplay = createHumanViewerGpuDisplay({
-  canvas, display,
+  canvas,
+  display,
   redraw: () => {
     if (current === undefined) return;
     // Context restoration recreates shadow storage while each viewport keeps
@@ -117,7 +118,10 @@ const gpuDisplay = createHumanViewerGpuDisplay({
     active.setShadows(current.shadows);
     active.finish();
     const gl = renderer.getContext();
-    if (gl.isContextLost()) throw new HumanViewerGpuContextLostError("The display GPU context is still lost.");
+    if (gl.isContextLost())
+      throw new HumanViewerGpuContextLostError(
+        "The display GPU context is still lost.",
+      );
     assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
     if (graphicsStatusFailed) {
       status.textContent = completedStatus;
@@ -126,20 +130,40 @@ const gpuDisplay = createHumanViewerGpuDisplay({
     announceHumanViewerAddress(current, active);
     displaySave.changed();
   },
-  failed: (message) => parent.postMessage({ type: "human:error", error: message }, location.origin),
+  failed: (message) =>
+    parent.postMessage(
+      { type: "human:error", error: message },
+      location.origin,
+    ),
 });
 const displaySave = createHumanViewerDisplaySave({
-  canvas, renderer, stage: () => active, address: () => changingDisplay ? undefined : current,
+  canvas,
+  renderer,
+  stage: () => active,
+  address: () => (changingDisplay ? undefined : current),
   revision: () => catalogue.revision,
-  composition: () => composition, photo: reference,
+  composition: () => composition,
+  photo: reference,
   retain: gpuDisplay.retain,
 });
 addEventListener("message", (event: MessageEvent<unknown>) => {
-  if (event.origin !== location.origin || event.source !== parent || residentCapture) return;
+  if (
+    event.origin !== location.origin ||
+    event.source !== parent ||
+    residentCapture
+  )
+    return;
   const value = event.data;
-  if (value !== null && typeof value === "object" && "type" in value && value.type === "human:committed" &&
-      "session" in value && typeof value.session === "string" &&
-      "generation" in value && typeof value.generation === "number")
+  if (
+    value !== null &&
+    typeof value === "object" &&
+    "type" in value &&
+    value.type === "human:committed" &&
+    "session" in value &&
+    typeof value.session === "string" &&
+    "generation" in value &&
+    typeof value.generation === "number"
+  )
     displaySave.commit(value.session, value.generation);
 });
 addEventListener("pagehide", displaySave.dispose, { once: true });
@@ -191,7 +215,10 @@ const buildResident = (
 };
 
 async function show(address: HumanViewerAddress): Promise<void> {
-  if (renderer.getContext().isContextLost()) throw new HumanViewerGpuContextLostError("The display GPU context is lost.");
+  if (renderer.getContext().isContextLost())
+    throw new HumanViewerGpuContextLostError(
+      "The display GPU context is lost.",
+    );
   await residents.settleRetirements();
   spans.reset();
   workingDocument = address.doc;
@@ -213,7 +240,9 @@ async function show(address: HumanViewerAddress): Promise<void> {
     (entry) => entry.id === address.doc,
   );
   if (selected === undefined) {
-    const rejected = catalogue.rejected.find((entry) => entry.id === address.doc);
+    const rejected = catalogue.rejected.find(
+      (entry) => entry.id === address.doc,
+    );
     throw new Error(rejected?.reason ?? `Unknown document: ${address.doc}`);
   }
   const operation = address.operation ?? "preview";
@@ -229,49 +258,55 @@ async function show(address: HumanViewerAddress): Promise<void> {
     resident = await buildResident(selected, address.ao, operation);
   }
   try {
-  active = resident.stage;
-  // A rig left from an earlier show must not enter this show's framing.
-  addHumanViewerCalibration(resident.group, false);
-  work("draw");
-  resizeHumanViewerFrame(address.size, display, canvas, resident.resize);
-  // The stage pairs renderer size with camera projection before fitting.
-  active.fitView();
-  applyHumanViewerVisibility(active, address);
-  frameHumanViewerAddress(active, resident.group, address);
-  addHumanViewerCalibration(resident.group, address.calibrate);
-  active.finish();
-  composition = await showHumanViewerReference({
-    address,
-    stage: active,
-    display,
-    canvas,
-    reference,
-    landmarks: document.querySelector<SVGSVGElement>("#landmarks")!,
-  });
-  const gl = renderer.getContext();
-  if (gl.isContextLost()) throw new HumanViewerGpuContextLostError("The GPU context was lost before the candidate display completed.");
-  assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
-  const completedAddress = readHumanViewerCameraAddress(address, active);
-  let completedText = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
-  if (resident.admission !== undefined)
-    completedText += ` | Construction draft: ${resident.admission.accepted ? "accepted" : "refused"}, ${resident.admission.failures.length} admission failures`;
-  // Only a completed display may evict the previous displayed resident.
-  if (created) residents.set(key, resident);
-  current = completedAddress;
-  shownKey = key;
-  status.textContent = completedText;
-  completedStatus = completedText;
-  graphicsStatusFailed = false;
+    active = resident.stage;
+    // A rig left from an earlier show must not enter this show's framing.
+    addHumanViewerCalibration(resident.group, false);
+    work("draw");
+    resizeHumanViewerFrame(address.size, display, canvas, resident.resize);
+    // The stage pairs renderer size with camera projection before fitting.
+    active.fitView();
+    applyHumanViewerVisibility(active, address);
+    frameHumanViewerAddress(active, resident.group, address);
+    addHumanViewerCalibration(resident.group, address.calibrate);
+    active.finish();
+    composition = await showHumanViewerReference({
+      address,
+      stage: active,
+      display,
+      canvas,
+      reference,
+      landmarks: document.querySelector<SVGSVGElement>("#landmarks")!,
+    });
+    const gl = renderer.getContext();
+    if (gl.isContextLost())
+      throw new HumanViewerGpuContextLostError(
+        "The GPU context was lost before the candidate display completed.",
+      );
+    assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
+    const completedAddress = readHumanViewerCameraAddress(address, active);
+    let completedText = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
+    if (resident.admission !== undefined)
+      completedText += ` | Construction draft: ${resident.admission.accepted ? "accepted" : "refused"}, ${resident.admission.failures.length} admission failures`;
+    // Only a completed display may evict the previous displayed resident.
+    if (created) residents.set(key, resident);
+    current = completedAddress;
+    shownKey = key;
+    status.textContent = completedText;
+    completedStatus = completedText;
+    graphicsStatusFailed = false;
   } catch (cause) {
     return createAutoMovieResourceRetirement(
-      created ? [resident.release] : [], { error: cause },
+      created ? [resident.release] : [],
+      { error: cause },
     )();
   }
   // The completed candidate is now the retained display even if old cleanup fails.
   await createAutoMovieResourceRetirement([
     () => displaySave.changed(),
     () => work("idle"),
-    () => { if (!residentCapture) numerical.persist(); },
+    () => {
+      if (!residentCapture) numerical.persist();
+    },
     () => residents.settleRetirements(),
   ])();
 }
@@ -294,25 +329,39 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
       try {
         await show(address);
       } catch (cause) {
-        await createAutoMovieResourceRetirement([() => {
-        if (current === previous && previous !== undefined && prior !== undefined) {
-          current = previous;
-          shownKey = priorKey;
-          composition = priorComposition;
-          active = prior.stage;
-          resizeHumanViewerFrame(previous.size, display, canvas, prior.resize);
-          display.style.cssText = displayStyle;
-          reference.style.cssText = referenceStyle;
-          if (referenceSource === null) reference.removeAttribute("src");
-          else reference.setAttribute("src", referenceSource);
-          landmarks.innerHTML = landmarkMarkup;
-          landmarks.style.cssText = landmarkStyle;
-          applyHumanViewerVisibility(active, previous);
-          frameHumanViewerAddress(active, prior.group, previous);
-          addHumanViewerCalibration(prior.group, previous.calibrate);
-          if (!renderer.getContext().isContextLost()) active.finish();
-        }
-        }], { error: cause })();
+        await createAutoMovieResourceRetirement(
+          [
+            () => {
+              if (
+                current === previous &&
+                previous !== undefined &&
+                prior !== undefined
+              ) {
+                current = previous;
+                shownKey = priorKey;
+                composition = priorComposition;
+                active = prior.stage;
+                resizeHumanViewerFrame(
+                  previous.size,
+                  display,
+                  canvas,
+                  prior.resize,
+                );
+                display.style.cssText = displayStyle;
+                reference.style.cssText = referenceStyle;
+                if (referenceSource === null) reference.removeAttribute("src");
+                else reference.setAttribute("src", referenceSource);
+                landmarks.innerHTML = landmarkMarkup;
+                landmarks.style.cssText = landmarkStyle;
+                applyHumanViewerVisibility(active, previous);
+                frameHumanViewerAddress(active, prior.group, previous);
+                addHumanViewerCalibration(prior.group, previous.calibrate);
+                if (!renderer.getContext().isContextLost()) active.finish();
+              }
+            },
+          ],
+          { error: cause },
+        )();
       } finally {
         changingDisplay = false;
         if (current !== undefined && current !== previous) {
@@ -322,7 +371,8 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
       }
     })
     .then(() => {
-      if (current === undefined) throw new Error("No model has been displayed.");
+      if (current === undefined)
+        throw new Error("No model has been displayed.");
     });
   queue = next.catch((error: unknown) => {
     graphicsStatusFailed = error instanceof HumanViewerGpuContextLostError;
@@ -363,7 +413,9 @@ async function main(): Promise<void> {
   await checkHumanViewerCandidateSource();
   if (restoring) {
     try {
-      await apply(parseHumanViewerAddress(location.hash, catalogue.documents[0]?.id));
+      await apply(
+        parseHumanViewerAddress(location.hash, catalogue.documents[0]?.id),
+      );
     } catch (error) {
       await numerical.authority();
       restoreError = error instanceof Error ? error.message : String(error);
@@ -380,39 +432,56 @@ async function main(): Promise<void> {
     }
     // A source/realm failure still refuses generation publication. A rejected
     // document alone leaves a ready empty bridge and its explicit cause.
-    assertHumanViewerSingleCompile(readHumanViewerCompiles(), await numerical.authority(), catalogue.revision);
+    assertHumanViewerSingleCompile(
+      readHumanViewerCompiles(),
+      await numerical.authority(),
+      catalogue.revision,
+    );
     await checkHumanViewerCandidateSource();
   }
   addEventListener("hashchange", () => {
-    void apply(parseHumanViewerAddress(location.hash, catalogue.documents[0]?.id));
+    void apply(
+      parseHumanViewerAddress(location.hash, catalogue.documents[0]?.id),
+    );
   });
   Object.assign(window, {
     __humanViewer: {
       show: apply,
-      parts: () => current === undefined ? [] : active.observe.parts(),
+      parts: () => (current === undefined ? [] : active.observe.parts()),
       renderer: () => {
         const gl = renderer.getContext();
         const device = gl.getExtension("WEBGL_debug_renderer_info");
-        return String(gl.getParameter(device?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER));
+        return String(
+          gl.getParameter(device?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER),
+        );
       },
       revision: () => catalogue.revision,
       builds: numerical.builds,
       buildMs: numerical.buildMs,
       spans: () => spans.snapshot(),
       address: () => {
-        if (current === undefined) throw new Error("No model has been displayed.");
+        if (current === undefined)
+          throw new Error("No model has been displayed.");
         return current;
       },
       admission: () => residents.get(shownKey)?.admission ?? null,
       rigReading: () => residents.get(shownKey)?.rigReading,
       exportConstruction: async () => {
         const address = current;
-        if (address === undefined) throw new Error("No model has been displayed.");
-        const selected = catalogue.documents.find((entry) => entry.id === address.doc);
+        if (address === undefined)
+          throw new Error("No model has been displayed.");
+        const selected = catalogue.documents.find(
+          (entry) => entry.id === address.doc,
+        );
         const resident = residents.get(shownKey);
-        if (selected?.domain !== "person" || address.operation !== "construct" ||
-            resident?.exportConstruction === undefined)
-          throw new Error("Static construction export requires the displayed paired Person construction.");
+        if (
+          selected?.domain !== "person" ||
+          address.operation !== "construct" ||
+          resident?.exportConstruction === undefined
+        )
+          throw new Error(
+            "Static construction export requires the displayed paired Person construction.",
+          );
         try {
           return await resident.exportConstruction();
         } finally {
@@ -421,7 +490,8 @@ async function main(): Promise<void> {
       },
       periocularMappings: () => residents.get(shownKey)?.periocularMappings,
       png: () => {
-        if (current === undefined) throw new Error("No model has been displayed.");
+        if (current === undefined)
+          throw new Error("No model has been displayed.");
         const png = readHumanViewerPng({
           stage: active,
           renderer,
@@ -438,24 +508,37 @@ async function main(): Promise<void> {
           await residents.settleRetirements();
           return evicted;
         });
-        queue = next.then(() => undefined).catch((error: unknown) => {
-          status.textContent = error instanceof Error ? error.message : String(error);
-        });
+        queue = next
+          .then(() => undefined)
+          .catch((error: unknown) => {
+            status.textContent =
+              error instanceof Error ? error.message : String(error);
+          });
         return next;
       },
     },
   });
-  parent.postMessage({
-    type: "human:ready",
-    ...(current === undefined ? {} : {
-      address: serializeHumanViewerAddress(current),
-      parts: active.observe.parts(),
-    }),
-    restoreError,
-  }, location.origin);
+  parent.postMessage(
+    {
+      type: "human:ready",
+      ...(current === undefined
+        ? {}
+        : {
+            address: serializeHumanViewerAddress(current),
+            parts: active.observe.parts(),
+          }),
+      restoreError,
+    },
+    location.origin,
+  );
   // Complete gestures before publishing their actual camera for restoration.
   const finishOrbit = (): void => {
-    if (current === undefined || changingDisplay || renderer.getContext().isContextLost()) return;
+    if (
+      current === undefined ||
+      changingDisplay ||
+      renderer.getContext().isContextLost()
+    )
+      return;
     active.finish();
     current = readHumanViewerCameraAddress(current, active);
     announceHumanViewerAddress(current, active);
@@ -476,7 +559,8 @@ void main().catch((error: unknown) => {
     {
       type: "human:error",
       error: status.textContent,
-      restart: error instanceof HumanViewerMixedCompileError ||
+      restart:
+        error instanceof HumanViewerMixedCompileError ||
         error instanceof HumanViewerNodeSourceChangedError,
     },
     location.origin,

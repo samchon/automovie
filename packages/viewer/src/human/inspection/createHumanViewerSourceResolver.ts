@@ -2,7 +2,15 @@ import fs from "node:fs";
 import path from "node:path";
 
 /** Extensions a source import may omit, in Vite's probing order for TypeScript sources. */
-const EXTENSIONS: readonly string[] = [".ts", ".mts", ".tsx", ".js", ".mjs", ".jsx", ".json"];
+const EXTENSIONS: readonly string[] = [
+  ".ts",
+  ".mts",
+  ".tsx",
+  ".js",
+  ".mjs",
+  ".jsx",
+  ".json",
+];
 
 /** Emitted extensions an import may name for a TypeScript source. */
 const EMITTED: Readonly<Record<string, readonly string[]>> = {
@@ -32,11 +40,16 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
 } {
   const normalize: (file: string) => string = (file: string): string =>
     path.resolve(file).replaceAll("\\", "/");
-  const spelling: (name: string) => string = (name: string): string => process.platform === "win32" ? name.toLowerCase() : name;
-  const rootList: string[] = roots.map((root: string): string => normalize(root) + "/");
+  const spelling: (name: string) => string = (name: string): string =>
+    process.platform === "win32" ? name.toLowerCase() : name;
+  const rootList: string[] = roots.map(
+    (root: string): string => normalize(root) + "/",
+  );
   /** Entries keyed by the platform's lexical name policy. */
   const listings: Map<string, Map<string, fs.Dirent>> = new Map();
-  const list: (directory: string) => Map<string, fs.Dirent> | null = (directory: string): Map<string, fs.Dirent> | null => {
+  const list: (directory: string) => Map<string, fs.Dirent> | null = (
+    directory: string,
+  ): Map<string, fs.Dirent> | null => {
     const key: string = spelling(directory);
     const kept: Map<string, fs.Dirent> | undefined = listings.get(key);
     if (kept !== undefined) return kept;
@@ -44,7 +57,10 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
       const entries: Map<string, fs.Dirent> = new Map(
         fs
           .readdirSync(directory, { withFileTypes: true })
-          .map((entry: fs.Dirent): readonly [string, fs.Dirent] => [spelling(entry.name), entry] as const),
+          .map(
+            (entry: fs.Dirent): readonly [string, fs.Dirent] =>
+              [spelling(entry.name), entry] as const,
+          ),
       );
       listings.set(key, entries);
       return entries;
@@ -53,12 +69,16 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
     }
   };
   /** The path as the listings spell it, or null when a part is missing or is a link. */
-  const canonical: (file: string, kind: "file" | "directory") => string | null = (
+  const canonical: (
+    file: string,
+    kind: "file" | "directory",
+  ) => string | null = (
     file: string,
     kind: "file" | "directory",
   ): string | null => {
-    const root: string | undefined = rootList.find((candidate: string): boolean =>
-      spelling(file).startsWith(spelling(candidate)),
+    const root: string | undefined = rootList.find(
+      (candidate: string): boolean =>
+        spelling(file).startsWith(spelling(candidate)),
     );
     if (root === undefined) return null;
     let current: string = root.slice(0, -1);
@@ -67,7 +87,9 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
       .split("/")
       .filter((part: string): boolean => part !== "");
     for (let index: number = 0; index < parts.length; ++index) {
-      const entry: fs.Dirent | undefined = list(current)?.get(spelling(parts[index]));
+      const entry: fs.Dirent | undefined = list(current)?.get(
+        spelling(parts[index]),
+      );
       if (entry === undefined || entry.isSymbolicLink()) return null;
       const last: boolean = index === parts.length - 1;
       if (
@@ -82,7 +104,9 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
     }
     return current;
   };
-  const resolveFile: (target: string) => string | null = (target: string): string | null => {
+  const resolveFile: (target: string) => string | null = (
+    target: string,
+  ): string | null => {
     const direct: string | null = canonical(target, "file");
     if (direct !== null) return direct;
     for (const extension of EXTENSIONS) {
@@ -99,7 +123,10 @@ export function createHumanViewerSourceResolver(roots: readonly string[]): {
     }
     if (canonical(target, "directory") !== null)
       for (const extension of EXTENSIONS) {
-        const found: string | null = canonical(target + "/index" + extension, "file");
+        const found: string | null = canonical(
+          target + "/index" + extension,
+          "file",
+        );
         if (found !== null) return found;
       }
     return null;

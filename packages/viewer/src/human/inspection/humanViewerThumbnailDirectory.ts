@@ -9,5 +9,6 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical revision-prefix naming is shared by file lookup and pruning, without a second naming cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a short returned name survives, and no directory is created, opened or retained.
  */
-export const humanViewerThumbnailDirectory: (revision: string) => string = (revision: string): string =>
-  revision.slice(0, 16);
+export const humanViewerThumbnailDirectory: (revision: string) => string = (
+  revision: string,
+): string => revision.slice(0, 16);

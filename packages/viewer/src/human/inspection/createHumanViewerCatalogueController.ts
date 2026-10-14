@@ -24,15 +24,19 @@ export function createHumanViewerCatalogueController(
   settleInputs: () => Promise<IHumanViewerCatalogue>;
   settleDocument: (doc: string) => Promise<IHumanViewerCatalogue>;
 } {
-  const { source }: Pick<ICreateHumanViewerCatalogueControllerProps, "source"> = props;
-  const republish: () => void = createHumanViewerCatalogueRepublish((): void => {
-    props.publish(source.catalogue());
-  });
-  const admission: ReturnType<typeof createHumanViewerAdmission> = createHumanViewerAdmission({
-    page: props.page,
-    admit: props.admit,
-    changed: republish,
-  });
+  const { source }: Pick<ICreateHumanViewerCatalogueControllerProps, "source"> =
+    props;
+  const republish: () => void = createHumanViewerCatalogueRepublish(
+    (): void => {
+      props.publish(source.catalogue());
+    },
+  );
+  const admission: ReturnType<typeof createHumanViewerAdmission> =
+    createHumanViewerAdmission({
+      page: props.page,
+      admit: props.admit,
+      changed: republish,
+    });
   source.admitWith(admission.of, admission.peek);
   source.sidecarsChanged(republish);
   return {
@@ -40,34 +44,49 @@ export function createHumanViewerCatalogueController(
     retry: (trigger: string): void => {
       const released: number = admission.retry();
       if (released !== 0)
-        console.log(`ADMISSION RETRY ${new Date().toISOString()} ${released} waiting; ${trigger}`);
+        console.log(
+          `ADMISSION RETRY ${new Date().toISOString()} ${released} waiting; ${trigger}`,
+        );
       republish();
     },
     readDocument: (doc: string): IHumanViewerCatalogue => source.catalogue(doc),
     settleInputs: (): Promise<IHumanViewerCatalogue> => {
       admission.retry();
-      return settleHumanViewerInputs(
-        (): IHumanViewerCatalogue => {
-          const inventory: IHumanViewerCatalogue = source.catalogue(undefined, true);
-          props.publish(inventory);
-          return inventory;
-        },
-        [source.sidecars, source.views, admission],
-      );
+      return settleHumanViewerInputs((): IHumanViewerCatalogue => {
+        const inventory: IHumanViewerCatalogue = source.catalogue(
+          undefined,
+          true,
+        );
+        props.publish(inventory);
+        return inventory;
+      }, [source.sidecars, source.views, admission]);
     },
     settleDocument: (doc: string): Promise<IHumanViewerCatalogue> => {
       admission.retry(doc);
-      const stem: string | null = doc.startsWith("file:") ? doc.slice(5).split("/")[0] : null;
-      const files: string[] = stem === null ? [] : [
-        stem + ".basis.json.gz", stem + ".person.json.gz",
-        stem + ".head.json.gz", stem + ".body.json.gz",
-      ];
+      const stem: string | null = doc.startsWith("file:")
+        ? doc.slice(5).split("/")[0]
+        : null;
+      const files: string[] =
+        stem === null
+          ? []
+          : [
+              stem + ".basis.json.gz",
+              stem + ".person.json.gz",
+              stem + ".head.json.gz",
+              stem + ".body.json.gz",
+            ];
       return settleHumanViewerInputs(
         (): IHumanViewerCatalogue => source.catalogue(doc),
         [
-          { busy: (): boolean => source.sidecars.busy(files), settled: (): Promise<void> => source.sidecars.settled(files) },
+          {
+            busy: (): boolean => source.sidecars.busy(files),
+            settled: (): Promise<void> => source.sidecars.settled(files),
+          },
           ...(source.hasOwnInput(doc) ? [] : [source.views]),
-          { busy: (): boolean => admission.busy(doc), settled: (): Promise<void> => admission.settled(doc) },
+          {
+            busy: (): boolean => admission.busy(doc),
+            settled: (): Promise<void> => admission.settled(doc),
+          },
         ],
       ).then((selected: IHumanViewerCatalogue): IHumanViewerCatalogue => {
         props.publish(source.catalogue());

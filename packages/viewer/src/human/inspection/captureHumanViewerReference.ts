@@ -29,6 +29,7 @@ export function captureHumanViewerReference(props: {
     toDataURL: (type: string) => string;
   };
 }): string {
-  const out: ReturnType<typeof props.create> = composeHumanViewerReference(props);
+  const out: ReturnType<typeof props.create> =
+    composeHumanViewerReference(props);
   return out.toDataURL("image/png");
 }

@@ -37,7 +37,8 @@ export function createHumanViewerAdmission(
   const requests: Map<string, Promise<void>> = new Map();
   /** Why a document whose admission could not be judged now waits. */
   const unavailable: () => string = (): string => {
-    const page: ReturnType<ICreateHumanViewerAdmissionProps["page"]> = props.page();
+    const page: ReturnType<ICreateHumanViewerAdmissionProps["page"]> =
+      props.page();
     return page.state === "starting"
       ? `awaiting admission: the viewer page is starting (${page.reason}); asked again when a viewer frame loads`
       : "awaiting admission: no viewer frame has loaded the current source; asked again when one loads";
@@ -45,17 +46,27 @@ export function createHumanViewerAdmission(
   return {
     /** Read the current verdict without starting unrelated document work. */
     peek: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
-      const kept: IHumanViewerKeyedAdmission | undefined = verdicts.get(entry.id);
+      const kept: IHumanViewerKeyedAdmission | undefined = verdicts.get(
+        entry.id,
+      );
       if (kept?.key === entry.key) return kept.admission;
-      const held: IHumanViewerKeyedAdmission | undefined = waiting.get(entry.id);
+      const held: IHumanViewerKeyedAdmission | undefined = waiting.get(
+        entry.id,
+      );
       if (held?.key === entry.key) return held.admission;
-      return { state: "pending", reason: "awaiting admission by the viewer page" };
+      return {
+        state: "pending",
+        reason: "awaiting admission by the viewer page",
+      };
     },
     /** The verdict for this entry at its key, starting the page's admission when none exists. */
     of: (entry: IHumanViewerCatalogueEntry): IHumanViewerAdmission => {
-      const kept: IHumanViewerKeyedAdmission | undefined = verdicts.get(entry.id);
+      const kept: IHumanViewerKeyedAdmission | undefined = verdicts.get(
+        entry.id,
+      );
       if (kept !== undefined && kept.key === entry.key) return kept.admission;
-      const page: ReturnType<ICreateHumanViewerAdmissionProps["page"]> = props.page();
+      const page: ReturnType<ICreateHumanViewerAdmissionProps["page"]> =
+        props.page();
       // A failed page never admits anything: the document is refused with the
       // cause until the viewer is restarted, instead of pending forever.
       if (page.state === "failed")
@@ -63,34 +74,42 @@ export function createHumanViewerAdmission(
           state: "refused",
           reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.ts ensure`,
         };
-      const held: IHumanViewerKeyedAdmission | undefined = waiting.get(entry.id);
+      const held: IHumanViewerKeyedAdmission | undefined = waiting.get(
+        entry.id,
+      );
       if (held !== undefined && held.key === entry.key) return held.admission;
       if (asking.get(entry.id) !== entry.key) {
         asking.set(entry.id, entry.key);
         waiting.delete(entry.id);
         const request: Promise<void> = props
           .admit(entry.domain, JSON.stringify(entry.document), entry.basis)
-          .then((reply: Awaited<ReturnType<ICreateHumanViewerAdmissionProps["admit"]>>): IHumanViewerAdmissionOutcome => {
-            if (
-              typeof reply.available !== "boolean" ||
-              (reply.reason !== null && typeof reply.reason !== "string")
-            )
-              throw new Error(
-                "The viewer returned an incompatible admission envelope",
-              );
-            return !reply.available
-              ? {
-                  verdict: false,
-                  admission: { state: "pending", reason: unavailable() },
-                }
-              : {
-                  verdict: true,
-                  admission:
-                    reply.reason === null
-                      ? { state: "admitted", reason: null }
-                      : { state: "refused", reason: reply.reason },
-                };
-          })
+          .then(
+            (
+              reply: Awaited<
+                ReturnType<ICreateHumanViewerAdmissionProps["admit"]>
+              >,
+            ): IHumanViewerAdmissionOutcome => {
+              if (
+                typeof reply.available !== "boolean" ||
+                (reply.reason !== null && typeof reply.reason !== "string")
+              )
+                throw new Error(
+                  "The viewer returned an incompatible admission envelope",
+                );
+              return !reply.available
+                ? {
+                    verdict: false,
+                    admission: { state: "pending", reason: unavailable() },
+                  }
+                : {
+                    verdict: true,
+                    admission:
+                      reply.reason === null
+                        ? { state: "admitted", reason: null }
+                        : { state: "refused", reason: reply.reason },
+                  };
+            },
+          )
           .catch(
             (error: unknown): IHumanViewerAdmissionOutcome => ({
               verdict: false,
@@ -143,7 +162,8 @@ export function createHumanViewerAdmission(
     },
 
     /** Whether any task remains globally, or the document's latest registered request remains; older same-document tasks may still run. */
-    busy: (doc?: string): boolean => doc === undefined ? inFlight.size !== 0 : requests.has(doc),
+    busy: (doc?: string): boolean =>
+      doc === undefined ? inFlight.size !== 0 : requests.has(doc),
 
     /** Await all in-flight tasks globally, or successive latest registered requests for one document; the selected branch does not await displaced older requests. */
     settled: async (doc?: string): Promise<void> => {
@@ -164,7 +184,10 @@ export function createHumanViewerAdmission(
       waiting: waiting.size,
       reasons: [
         ...new Set(
-          [...waiting.values()].map((held: IHumanViewerKeyedAdmission): string => held.admission.reason ?? ""),
+          [...waiting.values()].map(
+            (held: IHumanViewerKeyedAdmission): string =>
+              held.admission.reason ?? "",
+          ),
         ),
       ],
     }),

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
 
+import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
 import type { ICreateHumanViewerGenerationWindowsProps } from "./ICreateHumanViewerGenerationWindowsProps.js";
 import type { IHumanViewerGenerationWindow } from "./IHumanViewerGenerationWindow.js";
 
@@ -31,7 +31,10 @@ export function createHumanViewerGenerationWindows(
   closeAll: () => void;
   holding: () => number;
 } {
-  const open: Map<string, IHumanViewerGenerationWindow> = new Map<string, IHumanViewerGenerationWindow>();
+  const open: Map<string, IHumanViewerGenerationWindow> = new Map<
+    string,
+    IHumanViewerGenerationWindow
+  >();
   const labels: Map<string, string | null> = new Map<string, string | null>();
   function remember(token: string, label: string | null): void {
     labels.set(token, label);
@@ -45,9 +48,13 @@ export function createHumanViewerGenerationWindows(
     open: (): string => {
       const token: string = randomUUID();
       let close: (label: string | null) => void = (): void => {};
-      const closed: Promise<string | null> = new Promise<string | null>((resolve: (value: string | null | PromiseLike<string | null>) => void): void => {
-        close = resolve;
-      });
+      const closed: Promise<string | null> = new Promise<string | null>(
+        (
+          resolve: (value: string | null | PromiseLike<string | null>) => void,
+        ): void => {
+          close = resolve;
+        },
+      );
       open.set(token, { dirty: false, closed, close });
       props.gate.hold();
       return token;
@@ -66,11 +73,14 @@ export function createHumanViewerGenerationWindows(
       }
       open.delete(token);
       remember(token, label);
-      reportAutoMovieResourceRetirement([
-        (): void => props.gate.release(),
-        (): void => window.close(label),
-        props.closed,
-      ], failure);
+      reportAutoMovieResourceRetirement(
+        [
+          (): void => props.gate.release(),
+          (): void => window.close(label),
+          props.closed,
+        ],
+        failure,
+      );
     },
 
     /** A file some build reads was edited: every open window's code may be behind. */
@@ -102,10 +112,15 @@ export function createHumanViewerGenerationWindows(
         remember(token, null);
       }
       reportAutoMovieResourceRetirement([
-        ...windows.flatMap(([, window]: [string, IHumanViewerGenerationWindow]): (() => void)[] => [
-          (): void => props.gate.release(),
-          (): void => window.close(null),
-        ]),
+        ...windows.flatMap(
+          ([, window]: [
+            string,
+            IHumanViewerGenerationWindow,
+          ]): (() => void)[] => [
+            (): void => props.gate.release(),
+            (): void => window.close(null),
+          ],
+        ),
         props.closed,
       ]);
     },

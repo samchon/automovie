@@ -9,19 +9,27 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Compilation authority is checked from this health snapshot without memoizing nullable causes across source changes.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The selector borrows parsed health data and returns only its cause string/null, retaining no transport or generation resources.
  */
-export function humanViewerCandidateSourceError(health: unknown): string | null {
+export function humanViewerCandidateSourceError(
+  health: unknown,
+): string | null {
   if (health === null || typeof health !== "object" || Array.isArray(health))
     throw new Error("The viewer health has no source authority");
   if ("compilation" in health && health.compilation !== undefined) {
     const compilation: unknown = health.compilation;
-    if (compilation !== null && typeof compilation === "object" &&
-        !Array.isArray(compilation) && "error" in compilation &&
-        (compilation.error === null || typeof compilation.error === "string"))
+    if (
+      compilation !== null &&
+      typeof compilation === "object" &&
+      !Array.isArray(compilation) &&
+      "error" in compilation &&
+      (compilation.error === null || typeof compilation.error === "string")
+    )
       return compilation.error;
     throw new Error("The viewer health has an incompatible compilation report");
   }
-  if ("sourceError" in health &&
-      (health.sourceError === null || typeof health.sourceError === "string"))
+  if (
+    "sourceError" in health &&
+    (health.sourceError === null || typeof health.sourceError === "string")
+  )
     return health.sourceError;
   throw new Error("The viewer health has no legacy source authority");
 }

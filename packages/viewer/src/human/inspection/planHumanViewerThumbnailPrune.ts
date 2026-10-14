@@ -1,6 +1,5 @@
 import { humanViewerThumbnailDirectory } from "./humanViewerThumbnailDirectory.js";
 
-
 /**
  * Choose which revision directories of the thumbnail folder to delete when the display source changes. The current revision's directory and the newest older one stay: the older one lets a gallery keep showing last-good pictures, dimmed, until the new revision draws its own. Other supplied directories become deletion candidates; flat files are outside this directory-only list. Names only: the caller deletes, and nothing outside the thumbnail folder is named. The numerical result cache is keyed by document and is never pruned here.
  *
@@ -17,10 +16,16 @@ export function planHumanViewerThumbnailPrune(
   revision: string,
 ): string[] {
   const keep: string = humanViewerThumbnailDirectory(revision);
-  const previous: typeof entries[number] | undefined = entries
-    .filter((entry: typeof entries[number]): boolean => entry.name !== keep)
-    .sort((a: typeof entries[number], b: typeof entries[number]): number => b.mtimeMs - a.mtimeMs)[0];
+  const previous: (typeof entries)[number] | undefined = entries
+    .filter((entry: (typeof entries)[number]): boolean => entry.name !== keep)
+    .sort(
+      (a: (typeof entries)[number], b: (typeof entries)[number]): number =>
+        b.mtimeMs - a.mtimeMs,
+    )[0];
   return entries
-    .filter((entry: typeof entries[number]): boolean => entry.name !== keep && entry !== previous)
-    .map((entry: typeof entries[number]): string => entry.name);
+    .filter(
+      (entry: (typeof entries)[number]): boolean =>
+        entry.name !== keep && entry !== previous,
+    )
+    .map((entry: (typeof entries)[number]): string => entry.name);
 }

@@ -20,7 +20,10 @@ export function humanViewerStorage(
   root: string,
   value: string | undefined,
 ): string {
-  const within: (directory: string, file: string) => boolean = (directory: string, file: string): boolean => {
+  const within: (directory: string, file: string) => boolean = (
+    directory: string,
+    file: string,
+  ): boolean => {
     const relative: string = path.relative(directory, file);
     return (
       relative === "" ||

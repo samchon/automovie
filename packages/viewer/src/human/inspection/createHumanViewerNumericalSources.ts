@@ -2,8 +2,8 @@ import type {
   IAutoMovieHumanBodyBasis,
   IAutoMovieHumanFaceBasis,
 } from "@automovie/human";
-import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 import type { createConnectedPersonRuntime } from "@automovie/human/human/runtime/createConnectedPersonRuntime";
+import { readConnectedFaceAsset } from "@automovie/viewer/human/common/assets/readConnectedFaceAsset";
 
 import { fetchHumanViewerCandidateGeneration } from "./fetchHumanViewerCandidateGeneration.js";
 import { fetchHumanViewerPublishedGeneration } from "./fetchHumanViewerPublishedGeneration.js";
@@ -26,8 +26,16 @@ import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime.js";
  */
 export function createHumanViewerNumericalSources(origin: string = ""): {
   face: (basis: string) => Promise<IAutoMovieHumanFaceBasis>;
-  body: (basis: string) => ReturnType<typeof fetchHumanViewerCandidateGeneration> | Promise<IAutoMovieHumanBodyBasis>;
-  person: (basis: string) => ReturnType<typeof fetchHumanViewerCandidateGeneration> | Promise<Parameters<typeof createConnectedPersonRuntime>[0]>;
+  body: (
+    basis: string,
+  ) =>
+    | ReturnType<typeof fetchHumanViewerCandidateGeneration>
+    | Promise<IAutoMovieHumanBodyBasis>;
+  person: (
+    basis: string,
+  ) =>
+    | ReturnType<typeof fetchHumanViewerCandidateGeneration>
+    | Promise<Parameters<typeof createConnectedPersonRuntime>[0]>;
 } {
   const tokens: typeof humanViewerBasisTokens = humanViewerBasisTokens;
   const pairs: Map<
@@ -43,38 +51,67 @@ export function createHumanViewerNumericalSources(origin: string = ""): {
   const paired: (basis: string) => boolean = (basis: string): boolean =>
     basis.startsWith(tokens.publishedGeneration + "@") ||
     basis.startsWith(tokens.candidateGeneration + ":");
-  const pair: (basis: string) => ReturnType<typeof fetchHumanViewerCandidateGeneration> = (basis: string): ReturnType<typeof fetchHumanViewerCandidateGeneration> =>
-    humanViewerResidentRuntime(pairs, basis, (): ReturnType<typeof fetchHumanViewerCandidateGeneration> =>
-      basis.startsWith(tokens.publishedGeneration + "@")
-        ? fetchHumanViewerPublishedGeneration(basis, origin)
-        : fetchHumanViewerCandidateGeneration(basis, origin),
+  const pair: (
+    basis: string,
+  ) => ReturnType<typeof fetchHumanViewerCandidateGeneration> = (
+    basis: string,
+  ): ReturnType<typeof fetchHumanViewerCandidateGeneration> =>
+    humanViewerResidentRuntime(
+      pairs,
+      basis,
+      (): ReturnType<typeof fetchHumanViewerCandidateGeneration> =>
+        basis.startsWith(tokens.publishedGeneration + "@")
+          ? fetchHumanViewerPublishedGeneration(basis, origin)
+          : fetchHumanViewerCandidateGeneration(basis, origin),
     );
   return {
     face: (basis: string): Promise<IAutoMovieHumanFaceBasis> =>
-      humanViewerResidentRuntime(faces, basis, (): Promise<IAutoMovieHumanFaceBasis> =>
-        readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-          read: (): Promise<Response> => fetch(origin + humanViewerBasisUrl("face", basis)),
-        }),
+      humanViewerResidentRuntime(
+        faces,
+        basis,
+        (): Promise<IAutoMovieHumanFaceBasis> =>
+          readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
+            read: (): Promise<Response> =>
+              fetch(origin + humanViewerBasisUrl("face", basis)),
+          }),
       ),
-    body: (basis: string): ReturnType<typeof fetchHumanViewerCandidateGeneration> | Promise<IAutoMovieHumanBodyBasis> =>
+    body: (
+      basis: string,
+    ):
+      | ReturnType<typeof fetchHumanViewerCandidateGeneration>
+      | Promise<IAutoMovieHumanBodyBasis> =>
       paired(basis)
         ? pair(basis)
-        : humanViewerResidentRuntime(bodies, basis, (): Promise<IAutoMovieHumanBodyBasis> =>
-            basis.startsWith(tokens.publishedGenerationBody + "@")
-              ? fetchHumanViewerPublishedGenerationBody(basis, origin)
-              : readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-                  read: (): Promise<Response> => fetch(origin + humanViewerBasisUrl("body", basis)),
-                }),
+        : humanViewerResidentRuntime(
+            bodies,
+            basis,
+            (): Promise<IAutoMovieHumanBodyBasis> =>
+              basis.startsWith(tokens.publishedGenerationBody + "@")
+                ? fetchHumanViewerPublishedGenerationBody(basis, origin)
+                : readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
+                    read: (): Promise<Response> =>
+                      fetch(origin + humanViewerBasisUrl("body", basis)),
+                  }),
           ),
-    person: (basis: string): ReturnType<typeof fetchHumanViewerCandidateGeneration> | Promise<Parameters<typeof createConnectedPersonRuntime>[0]> =>
+    person: (
+      basis: string,
+    ):
+      | ReturnType<typeof fetchHumanViewerCandidateGeneration>
+      | Promise<Parameters<typeof createConnectedPersonRuntime>[0]> =>
       paired(basis)
         ? pair(basis)
-        : humanViewerResidentRuntime(people, basis, (): Promise<Parameters<typeof createConnectedPersonRuntime>[0]> =>
-            basis.startsWith(tokens.published + "@")
-              ? fetchHumanViewerPublishedPair(basis, origin)
-              : readConnectedFaceAsset<
-                  Parameters<typeof createConnectedPersonRuntime>[0]
-                >({ read: (): Promise<Response> => fetch(origin + humanViewerBasisUrl("person", basis)) }),
+        : humanViewerResidentRuntime(
+            people,
+            basis,
+            (): Promise<Parameters<typeof createConnectedPersonRuntime>[0]> =>
+              basis.startsWith(tokens.published + "@")
+                ? fetchHumanViewerPublishedPair(basis, origin)
+                : readConnectedFaceAsset<
+                    Parameters<typeof createConnectedPersonRuntime>[0]
+                  >({
+                    read: (): Promise<Response> =>
+                      fetch(origin + humanViewerBasisUrl("person", basis)),
+                  }),
           ),
   };
 }

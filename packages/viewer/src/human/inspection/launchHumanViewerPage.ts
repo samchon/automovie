@@ -1,8 +1,8 @@
 import { type Browser, type CDPSession, type Page, chromium } from "playwright";
 
-import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage.js";
-import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
 import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
+import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage.js";
 
 /**
  * Launch headless Chromium requesting GPU use through ANGLE and open the one resident page. A browser that is still connected is reused, so a page whose renderer exited is replaced without starting another browser. Heap readings use a CDP session of their own, so they never wait behind capture calls on the page's session. The downstream renderer-text policy can accept a generic fallback; actual hardware and display operation require independent observation. Failed page/session acquisition closes the new page and only a browser acquired by this invocation, preserving cleanup causes.
@@ -29,25 +29,35 @@ export async function launchHumanViewerPage(
         });
   let page: Page | undefined;
   try {
-  page = await browser.newPage({
-    viewport: { width: 1160, height: 930 },
-    deviceScaleFactor: 1,
-  });
-  const selected: Page = page;
-  const heapSession: CDPSession = await selected.context().newCDPSession(selected);
-  return {
-    browser,
-    page: selected,
-    readHeap: (): Promise<IHumanViewerHeapUsage> => heapSession.send("Runtime.getHeapUsage"),
-    readLiveHeap: async (): Promise<IHumanViewerHeapUsage> => {
-      await heapSession.send("HeapProfiler.collectGarbage");
-      return heapSession.send("Runtime.getHeapUsage");
-    },
-  };
+    page = await browser.newPage({
+      viewport: { width: 1160, height: 930 },
+      deviceScaleFactor: 1,
+    });
+    const selected: Page = page;
+    const heapSession: CDPSession = await selected
+      .context()
+      .newCDPSession(selected);
+    return {
+      browser,
+      page: selected,
+      readHeap: (): Promise<IHumanViewerHeapUsage> =>
+        heapSession.send("Runtime.getHeapUsage"),
+      readLiveHeap: async (): Promise<IHumanViewerHeapUsage> => {
+        await heapSession.send("HeapProfiler.collectGarbage");
+        return heapSession.send("Runtime.getHeapUsage");
+      },
+    };
   } catch (error) {
-    return createAutoMovieResourceRetirement([
-      async (): Promise<void> => { if (page !== undefined) await page.close(); },
-      async (): Promise<void> => { if (!borrowed) await browser.close(); },
-    ], { error })();
+    return createAutoMovieResourceRetirement(
+      [
+        async (): Promise<void> => {
+          if (page !== undefined) await page.close();
+        },
+        async (): Promise<void> => {
+          if (!borrowed) await browser.close();
+        },
+      ],
+      { error },
+    )();
   }
 }

@@ -38,14 +38,19 @@ export function* encodeHumanViewerPreviewChunks(
     entry === undefined ||
     typeof entry === "function" ||
     typeof entry === "symbol";
-  const prepare: (entry: unknown, key: string) => unknown = (entry: unknown, key: string): unknown => {
+  const prepare: (entry: unknown, key: string) => unknown = (
+    entry: unknown,
+    key: string,
+  ): unknown => {
     if (
       entry !== null &&
       (typeof entry === "object" ||
         typeof entry === "function" ||
         typeof entry === "bigint")
     ) {
-      const json: IHumanViewerJsonConvertible["toJSON"] = (entry as IHumanViewerJsonConvertible).toJSON;
+      const json: IHumanViewerJsonConvertible["toJSON"] = (
+        entry as IHumanViewerJsonConvertible
+      ).toJSON;
       if (typeof json === "function") return json.call(entry, key);
     }
     return entry;
@@ -156,7 +161,10 @@ export function* encodeHumanViewerPreviewChunks(
         yield "{";
         let first: boolean = true;
         for (const key of Object.keys(object)) {
-          const item: unknown = prepare((object as Record<string, unknown>)[key], key);
+          const item: unknown = prepare(
+            (object as Record<string, unknown>)[key],
+            key,
+          );
           if (omitted(item)) continue;
           if (!first) yield ",";
           first = false;

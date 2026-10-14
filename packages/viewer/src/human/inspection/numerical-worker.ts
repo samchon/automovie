@@ -2,11 +2,13 @@
  * Checked Node numerical process isolated from the browser renderer. Each domain lazily shares its current basis/runtime promise, replacing the cache entry when basis identity changes. Product runtimes evaluate numerical requests; original models cross advanced IPC and the lossless HTTP codec, while reference photographs remain display inputs.
  */
 import { createConnectedBodyRuntime } from "@automovie/human/body/runtime/createConnectedBodyRuntime";
-import { createConnectedBodyGenerationRuntime } from "@automovie/human/human/runtime/createConnectedBodyGenerationRuntime";
 import { createConnectedFaceRuntime } from "@automovie/human/face/runtime/createConnectedFaceRuntime";
+import { createConnectedBodyGenerationRuntime } from "@automovie/human/human/runtime/createConnectedBodyGenerationRuntime";
 import { createConnectedPersonRuntime } from "@automovie/human/human/runtime/createConnectedPersonRuntime";
 import { describeConnectedPersonFaceProgress } from "@automovie/human/human/runtime/describeConnectedPersonFaceProgress";
 
+import type { HumanViewerNumericalMessage } from "./HumanViewerNumericalMessage.js";
+import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js";
 import type { IHumanViewerNumericalProgress } from "./IHumanViewerNumericalProgress.js";
 import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest.js";
 import type { IHumanViewerPersistenceCommand } from "./IHumanViewerPersistenceCommand.js";
@@ -17,41 +19,71 @@ import { createHumanViewerPersistence } from "./createHumanViewerPersistence.js"
 import { humanViewerProtocol } from "./humanViewerProtocol.js";
 import { humanViewerResidentRuntime } from "./humanViewerResidentRuntime.js";
 import { readHumanViewerNodeAuthority } from "./readHumanViewerNodeAuthority.js";
-import type { IHumanViewerNodeWorkerData } from "./IHumanViewerNodeWorkerData.js";
-import type { HumanViewerNumericalMessage } from "./HumanViewerNumericalMessage.js";
 
-if (process.send === undefined) throw new Error("The numerical entry requires its owned process IPC channel.");
+if (process.send === undefined)
+  throw new Error(
+    "The numerical entry requires its owned process IPC channel.",
+  );
 const send = process.send.bind(process);
 const port = {
-  postMessage: (message: HumanViewerNumericalMessage): void => { send(message); },
+  postMessage: (message: HumanViewerNumericalMessage): void => {
+    send(message);
+  },
 };
-const startup = await new Promise<IHumanViewerNodeWorkerData>((resolve, reject) => {
-  process.once("message", (value: unknown) => {
-    try {
-      if (value === null || typeof value !== "object" ||
-          !("type" in value) || value.type !== "initialize" ||
-          !("input" in value) || value.input === null || typeof value.input !== "object")
-        throw new Error("The checked numerical process requires its explicit host initialization.");
-      const input = value.input;
-      if (!("origin" in input) || typeof input.origin !== "string" ||
-          !("revision" in input) || typeof input.revision !== "string" ||
-          !("entry" in input) || typeof input.entry !== "string" ||
-          !("inputs" in input) || input.inputs === null || typeof input.inputs !== "object")
-        throw new Error("Node initialization has no original source, entry or input witness.");
-      const inputs: Record<string, string> = {};
-      for (const [file, digest] of Object.entries(input.inputs)) {
-        if (typeof digest !== "string") throw new Error("A Node input witness must retain its byte digest.");
-        inputs[file] = digest;
+const startup = await new Promise<IHumanViewerNodeWorkerData>(
+  (resolve, reject) => {
+    process.once("message", (value: unknown) => {
+      try {
+        if (
+          value === null ||
+          typeof value !== "object" ||
+          !("type" in value) ||
+          value.type !== "initialize" ||
+          !("input" in value) ||
+          value.input === null ||
+          typeof value.input !== "object"
+        )
+          throw new Error(
+            "The checked numerical process requires its explicit host initialization.",
+          );
+        const input = value.input;
+        if (
+          !("origin" in input) ||
+          typeof input.origin !== "string" ||
+          !("revision" in input) ||
+          typeof input.revision !== "string" ||
+          !("entry" in input) ||
+          typeof input.entry !== "string" ||
+          !("inputs" in input) ||
+          input.inputs === null ||
+          typeof input.inputs !== "object"
+        )
+          throw new Error(
+            "Node initialization has no original source, entry or input witness.",
+          );
+        const inputs: Record<string, string> = {};
+        for (const [file, digest] of Object.entries(input.inputs)) {
+          if (typeof digest !== "string")
+            throw new Error(
+              "A Node input witness must retain its byte digest.",
+            );
+          inputs[file] = digest;
+        }
+        resolve({
+          origin: input.origin,
+          revision: input.revision,
+          entry: input.entry,
+          inputs,
+        });
+      } catch (cause) {
+        reject(cause instanceof Error ? cause : new Error(String(cause)));
       }
-      resolve({ origin: input.origin, revision: input.revision, entry: input.entry, inputs });
-    } catch (cause) {
-      reject(cause instanceof Error ? cause : new Error(String(cause)));
-    }
-  });
-  // The checked entry has installed its startup receiver before the host sends
-  // data. This handshake is not numerical readiness or source qualification.
-  send("initialize");
-});
+    });
+    // The checked entry has installed its startup receiver before the host sends
+    // data. This handshake is not numerical readiness or source qualification.
+    send("initialize");
+  },
+);
 const authority = readHumanViewerNodeAuthority(startup);
 // Public checked Node loading has its own source authority, not a browser stamp.
 port.postMessage({
@@ -72,8 +104,8 @@ const person = new Map<
   Promise<ReturnType<typeof createConnectedPersonRuntime>>
 >();
 const sources = createHumanViewerNumericalSources(startup.origin);
-const persistence = createHumanViewerPersistence((value) =>
-  port.postMessage(value),
+const persistence = createHumanViewerPersistence(
+  (value) => port.postMessage(value),
   startup.origin,
 );
 // Remember identities that produced a model; failed unproductive runtimes lose their cache entry.
@@ -121,7 +153,9 @@ const evaluate = async (
       return;
     }
     if (input.operation === "exportConstruction" && domain !== "person")
-      throw new Error("Construction asset inspection requires the paired person runtime.");
+      throw new Error(
+        "Construction asset inspection requires the paired person runtime.",
+      );
     const requestStarted = performance.now();
     let previousCompletion = requestStarted;
     relayProgress = (stage) => {
@@ -183,9 +217,7 @@ const evaluate = async (
             ? face.get(identity)
             : body.get(identity);
     if (input.operation === "construct" && constructionOwner === undefined)
-      throw new Error(
-        "Construction requires the loaded product runtime.",
-      );
+      throw new Error("Construction requires the loaded product runtime.");
     const previewRequest = {
       ...input,
       operation: "preview" as const,
@@ -193,34 +225,39 @@ const evaluate = async (
     };
     const value =
       input.operation === "exportConstruction"
-        ? await (await person.get(identity)!)(
+        ? await (
+            await person.get(identity)!
+          )(
             { operation: "exportConstruction", document: input.document },
             observeProgress,
           )
         : constructionOwner !== undefined
-        ? domain === "person"
-          ? await (
-              await person.get(identity)!
-            )(
-              { operation: "construct", document: input.document },
-              observeProgress,
-            )
-          : domain === "face" ? await (
-              await face.get(identity)!
-            )({
-              operation: "construct",
-              document: input.document,
-              occlusion: input.occlusion,
-            })
-          : await (await body.get(identity)!)({
-              operation: "construct",
-              document: input.document,
-            })
-        : domain === "person"
-          ? await (
-              await person.get(identity)!
-            )(previewRequest, observeProgress)
-          : await runtime(previewRequest);
+          ? domain === "person"
+            ? await (
+                await person.get(identity)!
+              )(
+                { operation: "construct", document: input.document },
+                observeProgress,
+              )
+            : domain === "face"
+              ? await (
+                  await face.get(identity)!
+                )({
+                  operation: "construct",
+                  document: input.document,
+                  occlusion: input.occlusion,
+                })
+              : await (
+                  await body.get(identity)!
+                )({
+                  operation: "construct",
+                  document: input.document,
+                })
+          : domain === "person"
+            ? await (
+                await person.get(identity)!
+              )(previewRequest, observeProgress)
+            : await runtime(previewRequest);
     productive.add(identity);
     if (data.cache !== undefined && value.operation === "preview")
       persistence.stage({ ...data.cache, id, value });
@@ -242,6 +279,9 @@ const evaluate = async (
 };
 
 let serial: Promise<void> = Promise.resolve();
-process.on("message", (data: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand) => {
-  serial = serial.then(() => evaluate(data));
-});
+process.on(
+  "message",
+  (data: IHumanViewerNumericalRequest | IHumanViewerPersistenceCommand) => {
+    serial = serial.then(() => evaluate(data));
+  },
+);

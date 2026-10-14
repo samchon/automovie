@@ -19,23 +19,39 @@ import type { IHumanShotContext } from "./IHumanShotContext.js";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Launch creates a distinct owned process effect and does not share another client's server simply because port text matches.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Native close removes signals and ends the log; partial acquisition attempts child/log cleanup independently, failed identity capture can leave uncertain child lifetime and forwarding buffers have no independent cap/backpressure policy here.
  */
-export function launchHumanViewerServer(context: IHumanShotContext): ChildProcess {
+export function launchHumanViewerServer(
+  context: IHumanShotContext,
+): ChildProcess {
   fs.mkdirSync(context.storage, { recursive: true });
-  const log: fs.WriteStream = fs.createWriteStream(context.logFile, { flags: "a" });
+  const log: fs.WriteStream = fs.createWriteStream(context.logFile, {
+    flags: "a",
+  });
   let owned: ChildProcess | undefined;
   try {
-    owned = spawn(process.execPath, [path.join(context.directory, "human-viewer-launcher.ts")], {
-      cwd: path.join(context.root, "packages/playground"),
-      windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    owned = spawn(
+      process.execPath,
+      [path.join(context.directory, "human-viewer-launcher.ts")],
+      {
+        cwd: path.join(context.root, "packages/playground"),
+        windowsHide: true,
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
     const child: ChildProcess = owned;
-    function stop(): void { ProcessOwnership.stopChild(child); }
+    function stop(): void {
+      ProcessOwnership.stopChild(child);
+    }
     log.once("error", (error: Error): void => {
       console.error(error);
-      try { stop(); } catch (cause) { console.error(cause); }
+      try {
+        stop();
+      } catch (cause) {
+        console.error(cause);
+      }
     });
-    child.once("error", (error: Error): void => { console.error(error); });
+    child.once("error", (error: Error): void => {
+      console.error(error);
+    });
     ProcessOwnership.own(child);
     log.write(
       `\n=== ${new Date().toISOString()} human-shot ${context.command} starts server.ts on port ${context.port} (client pid ${process.pid}, server pid ${child.pid})\n`,
@@ -46,19 +62,31 @@ export function launchHumanViewerServer(context: IHumanShotContext): ChildProces
     };
     child.stdout!.on("data", forward);
     child.stderr!.on("data", forward);
-    child.once("close", (code: number | null, signal: NodeJS.Signals | null): void => {
-      process.off("SIGINT", stop);
-      process.off("SIGTERM", stop);
-      log.end(`=== ${new Date().toISOString()} server exited with code ${code} signal ${signal}\n`);
-    });
+    child.once(
+      "close",
+      (code: number | null, signal: NodeJS.Signals | null): void => {
+        process.off("SIGINT", stop);
+        process.off("SIGTERM", stop);
+        log.end(
+          `=== ${new Date().toISOString()} server exited with code ${code} signal ${signal}\n`,
+        );
+      },
+    );
     process.once("SIGINT", stop);
     process.once("SIGTERM", stop);
     return child;
   } catch (error) {
-    reportAutoMovieResourceRetirement([
-      (): void => { if (owned !== undefined) ProcessOwnership.stopChild(owned); },
-      (): void => { log.destroy(); },
-    ], { error });
+    reportAutoMovieResourceRetirement(
+      [
+        (): void => {
+          if (owned !== undefined) ProcessOwnership.stopChild(owned);
+        },
+        (): void => {
+          log.destroy();
+        },
+      ],
+      { error },
+    );
     throw error;
   }
 }

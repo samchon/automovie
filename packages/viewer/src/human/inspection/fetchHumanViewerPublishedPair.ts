@@ -32,10 +32,12 @@ export async function fetchHumanViewerPublishedPair(
   );
   return {
     face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
-      read: (): Promise<Response> => fetch(origin + "/basis/face?digest=" + face),
+      read: (): Promise<Response> =>
+        fetch(origin + "/basis/face?digest=" + face),
     }),
     body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
-      read: (): Promise<Response> => fetch(origin + "/basis/body?digest=" + body),
+      read: (): Promise<Response> =>
+        fetch(origin + "/basis/body?digest=" + body),
     }),
   };
 }

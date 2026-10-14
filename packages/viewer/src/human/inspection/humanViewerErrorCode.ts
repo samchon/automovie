@@ -14,10 +14,10 @@ export function humanViewerErrorCode(error: unknown): string | null {
   for (let depth: number = 0; depth < 8; ++depth) {
     if (typeof current !== "object" || current === null) return null;
     try {
-    const code: unknown = "code" in current ? current.code : undefined;
-    if (typeof code === "string") return code;
-    if (!("cause" in current)) return null;
-    current = current.cause;
+      const code: unknown = "code" in current ? current.code : undefined;
+      if (typeof code === "string") return code;
+      if (!("cause" in current)) return null;
+      current = current.cause;
     } catch {
       return null;
     }

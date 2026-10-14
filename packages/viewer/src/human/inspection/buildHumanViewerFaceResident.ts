@@ -1,7 +1,7 @@
 import { createConnectedFaceViewport } from "@automovie/viewer/human/face/createConnectedFaceViewport";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type * as THREE from "three";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IBuildHumanViewerFaceResidentProps } from "./IBuildHumanViewerFaceResidentProps.js";
 import type { IHumanViewerResident } from "./IHumanViewerResident.js";
 import { measureHumanViewerResidentBytes } from "./measureHumanViewerResidentBytes.js";
@@ -55,12 +55,16 @@ export async function buildHumanViewerFaceResident(
       release,
       bytes: measureHumanViewerResidentBytes(
         group,
-        model.frame.witnesses.flatMap((witness: Model["frame"]["witnesses"][number]): (ArrayLike<number | null> | null | undefined)[] => [
-          witness.positions,
-          witness.normals,
-          witness.indices,
-          witness.uvs,
-        ]),
+        model.frame.witnesses.flatMap(
+          (
+            witness: Model["frame"]["witnesses"][number],
+          ): (ArrayLike<number | null> | null | undefined)[] => [
+            witness.positions,
+            witness.normals,
+            witness.indices,
+            witness.uvs,
+          ],
+        ),
       ),
     };
   } catch (error) {

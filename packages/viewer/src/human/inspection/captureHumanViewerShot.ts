@@ -19,7 +19,8 @@ export async function captureHumanViewerShot(
   context: IHumanShotContext,
 ): Promise<void> {
   const response: Response = await retryHumanViewerFetch(
-    (): Promise<Response> => fetch(context.origin + "/" + context.command + "?" + context.query),
+    (): Promise<Response> =>
+      fetch(context.origin + "/" + context.command + "?" + context.query),
     {
       attempts: 3,
       pause: (ms: number): Promise<undefined> =>
@@ -43,7 +44,9 @@ export async function captureHumanViewerShot(
   );
   // Parent traversal is a complete path component, not an ordinary name
   // beginning with two dots. Both boundaries use the same platform relation.
-  const within: (directory: string) => boolean = (directory: string): boolean => {
+  const within: (directory: string) => boolean = (
+    directory: string,
+  ): boolean => {
     const relative: string = path.relative(directory, filename);
     return (
       relative === "" ||

@@ -13,8 +13,13 @@ import { parseHumanViewerLight } from "./parseHumanViewerLight.js";
  * @evidence contracts/performance.md#reuse-equivalent-work Bookmarks and HTTP requests share one parser and therefore the same protocol field admission.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned arrays and strings belong to the address caller and acquire no viewport or source-window lifetime.
  */
-export function parseHumanViewerAddress(input: string, defaultDocument?: string): HumanViewerAddress {
-  const fields: URLSearchParams = new URLSearchParams(input.replace(/^[#?]/, ""));
+export function parseHumanViewerAddress(
+  input: string,
+  defaultDocument?: string,
+): HumanViewerAddress {
+  const fields: URLSearchParams = new URLSearchParams(
+    input.replace(/^[#?]/, ""),
+  );
   const allowed: readonly string[] = [
     "doc",
     "operation",
@@ -51,7 +56,12 @@ export function parseHumanViewerAddress(input: string, defaultDocument?: string)
     throw new Error(`Unknown view: ${view}`);
   if (!(humanViewerChoices.passes as readonly string[]).includes(pass))
     throw new Error(`Unknown pass: ${pass}`);
-  const number: (key: string, fallback: number, min: number, max: number) => number = (
+  const number: (
+    key: string,
+    fallback: number,
+    min: number,
+    max: number,
+  ) => number = (
     key: string,
     fallback: number,
     min: number,
@@ -115,17 +125,20 @@ export function parseHumanViewerAddress(input: string, defaultDocument?: string)
   if (ref !== null && !["split", "overlay", "swipe"].includes(ref))
     throw new Error("Unknown reference mode");
   const doc: string | undefined = fields.get("doc") ?? defaultDocument;
-  if (doc === undefined || doc.trim() === "") throw new Error("doc must name a published document");
+  if (doc === undefined || doc.trim() === "")
+    throw new Error("doc must name a published document");
   const parts: string | null = fields.get("parts");
   if (
     parts !== null &&
-    (parts === "" || parts.split(",").some((part: string): boolean => part.trim() === ""))
+    (parts === "" ||
+      parts.split(",").some((part: string): boolean => part.trim() === ""))
   )
     throw new Error("parts must contain mesh names");
   const hide: string | null = fields.get("hide");
   if (
     hide !== null &&
-    (hide === "" || hide.split(",").some((part: string): boolean => part.trim() === ""))
+    (hide === "" ||
+      hide.split(",").some((part: string): boolean => part.trim() === ""))
   )
     throw new Error("hide must contain mesh names");
   return {

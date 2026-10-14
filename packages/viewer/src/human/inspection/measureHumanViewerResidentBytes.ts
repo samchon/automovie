@@ -16,7 +16,9 @@ export function measureHumanViewerResidentBytes(
   arrays: readonly (ArrayLike<number | null> | null | undefined)[],
 ): number {
   let bytes: number = 0;
-  const count: (array: ArrayLike<number | null> | null | undefined) => void = (array: ArrayLike<number | null> | null | undefined): void => {
+  const count: (array: ArrayLike<number | null> | null | undefined) => void = (
+    array: ArrayLike<number | null> | null | undefined,
+  ): void => {
     if (array === null || array === undefined) return;
     bytes += ArrayBuffer.isView(array) ? array.byteLength : array.length * 8;
   };

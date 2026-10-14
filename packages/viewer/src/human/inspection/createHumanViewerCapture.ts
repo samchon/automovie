@@ -3,10 +3,10 @@ import { HumanViewerStartingError } from "./HumanViewerStartingError.js";
 import type { ICreateHumanViewerCaptureProps } from "./ICreateHumanViewerCaptureProps.js";
 import type { IHumanViewerBuildRecord } from "./IHumanViewerBuildRecord.js";
 import type { IHumanViewerCaptureStatus } from "./IHumanViewerCaptureStatus.js";
+import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 import type { IHumanViewerDomainBuild } from "./IHumanViewerDomainBuild.js";
 import type { IHumanViewerLastRender } from "./IHumanViewerLastRender.js";
 import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
-import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 import { describeHumanViewerCapture } from "./describeHumanViewerCapture.js";
 import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
 import { readHumanViewerCapture } from "./readHumanViewerCapture.js";
@@ -36,7 +36,9 @@ export function createHumanViewerCapture(
   let phases: IHumanViewerPhases = {};
   let lastRender: IHumanViewerLastRender | null = null;
   const lastBuild: Record<string, IHumanViewerDomainBuild | undefined> = {};
-  const builds: Record<string, IHumanViewerBuildRecord> = Object.create(null) as Record<string, IHumanViewerBuildRecord>;
+  const builds: Record<string, IHumanViewerBuildRecord> = Object.create(
+    null,
+  ) as Record<string, IHumanViewerBuildRecord>;
   let pendingEditAt: number | null = null;
   return {
     capture: async (address: HumanViewerAddress): Promise<Buffer> => {
@@ -53,12 +55,15 @@ export function createHumanViewerCapture(
         throw new HumanViewerStartingError(
           "No source generation is ready (" + props.startup() + "), retry",
         );
-      const inventory: ReturnType<ICreateHumanViewerCaptureProps["inventory"]> = props.inventory();
+      const inventory: ReturnType<ICreateHumanViewerCaptureProps["inventory"]> =
+        props.inventory();
       const selectedRevision: string = props.readyRevision();
       const started: number = performance.now();
-      const shownDomain: IHumanViewerCatalogueEntry["domain"] | undefined = inventory.documents.find(
-        (entry: IHumanViewerCatalogueEntry): boolean => entry.id === address.doc,
-      )?.domain;
+      const shownDomain: IHumanViewerCatalogueEntry["domain"] | undefined =
+        inventory.documents.find(
+          (entry: IHumanViewerCatalogueEntry): boolean =>
+            entry.id === address.doc,
+        )?.domain;
       // Room for the build's transient copies is made before it starts.
       // Transport failure is owned by the capture lifetime, without a deadline.
       const stages: ICreateHumanViewerCaptureProps["stages"] = props.stages;
@@ -66,16 +71,25 @@ export function createHumanViewerCapture(
         await stages.run(
           "room",
           address.doc,
-          (): Promise<void> => props.lifetime.run((): Promise<void> => props.makeRoom(shownDomain)),
+          (): Promise<void> =>
+            props.lifetime.run(
+              (): Promise<void> => props.makeRoom(shownDomain),
+            ),
         );
-      const result: Awaited<ReturnType<typeof readHumanViewerCapture>> = await stages.run(
-        "page",
-        address.doc,
-        (): ReturnType<typeof readHumanViewerCapture> =>
-          props.lifetime.run((): ReturnType<typeof readHumanViewerCapture> =>
-            readHumanViewerCapture(props.page(), address, props.pageRevision()),
-          ),
-      );
+      const result: Awaited<ReturnType<typeof readHumanViewerCapture>> =
+        await stages.run(
+          "page",
+          address.doc,
+          (): ReturnType<typeof readHumanViewerCapture> =>
+            props.lifetime.run(
+              (): ReturnType<typeof readHumanViewerCapture> =>
+                readHumanViewerCapture(
+                  props.page(),
+                  address,
+                  props.pageRevision(),
+                ),
+            ),
+        );
       if (shownDomain !== undefined) props.learnRoom(shownDomain);
       if (props.readyRevision() !== selectedRevision)
         throw new Error(
@@ -85,31 +99,41 @@ export function createHumanViewerCapture(
       await stages.run(
         "trim",
         address.doc,
-        (): Promise<void> => props.lifetime.run((): Promise<void> => props.trim()),
+        (): Promise<void> =>
+          props.lifetime.run((): Promise<void> => props.trim()),
       );
       if (props.readyRevision() !== selectedRevision)
-        throw new Error("Source changed during capture; the mixed revision was discarded");
+        throw new Error(
+          "Source changed during capture; the mixed revision was discarded",
+        );
       const decoded: number = performance.now();
       const bytes: Buffer = Buffer.from(result.png.split(",")[1], "base64");
-      const completedEditAt: number | null = selectedRevision === props.inventory().revision ? pendingEditAt : null;
-      const reading: ReturnType<typeof describeHumanViewerCapture> = describeHumanViewerCapture({
-        doc: address.doc,
-        ao: address.ao,
-        built: result.built,
-        buildMs: result.buildMs,
-        showMs: result.showMs,
-        pngMs: result.pngMs,
-        spans: result.spans,
-        started,
-        waited: result.waited,
-        decoded,
-        finished: performance.now(),
-        wallTime: Date.now(),
-        pendingEditAt: completedEditAt,
-      });
+      const completedEditAt: number | null =
+        selectedRevision === props.inventory().revision ? pendingEditAt : null;
+      const reading: ReturnType<typeof describeHumanViewerCapture> =
+        describeHumanViewerCapture({
+          doc: address.doc,
+          ao: address.ao,
+          built: result.built,
+          buildMs: result.buildMs,
+          showMs: result.showMs,
+          pngMs: result.pngMs,
+          spans: result.spans,
+          started,
+          waited: result.waited,
+          decoded,
+          finished: performance.now(),
+          wallTime: Date.now(),
+          pendingEditAt: completedEditAt,
+        });
       phases = reading.phases;
-      const known: Set<string> = new Set<string>(inventory.documents.map((entry: IHumanViewerCatalogueEntry): string => entry.id));
-      for (const id of Object.keys(builds)) if (!known.has(id)) delete builds[id];
+      const known: Set<string> = new Set<string>(
+        inventory.documents.map(
+          (entry: IHumanViewerCatalogueEntry): string => entry.id,
+        ),
+      );
+      for (const id of Object.keys(builds))
+        if (!known.has(id)) delete builds[id];
       if (
         reading.lastBuild !== null &&
         reading.build !== null &&
@@ -119,7 +143,8 @@ export function createHumanViewerCapture(
         builds[address.doc] = reading.build;
       }
       lastRender = reading.lastRender;
-      if (completedEditAt !== null && pendingEditAt === completedEditAt) pendingEditAt = null;
+      if (completedEditAt !== null && pendingEditAt === completedEditAt)
+        pendingEditAt = null;
       return bytes;
     },
 

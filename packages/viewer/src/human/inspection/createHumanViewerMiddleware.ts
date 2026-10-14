@@ -1,5 +1,4 @@
 import type { HumanViewerMiddleware } from "./HumanViewerMiddleware.js";
-
 import type { ICreateHumanViewerMiddlewareProps } from "./ICreateHumanViewerMiddlewareProps.js";
 import { serveHumanViewerCapture } from "./serveHumanViewerCapture.js";
 import { serveHumanViewerData } from "./serveHumanViewerData.js";
@@ -21,7 +20,11 @@ import { serveHumanViewerNumerical } from "./serveHumanViewerNumerical.js";
 export function createHumanViewerMiddleware(
   props: ICreateHumanViewerMiddlewareProps,
 ): HumanViewerMiddleware {
-  return (request: Parameters<HumanViewerMiddleware>[0], response: Parameters<HumanViewerMiddleware>[1], next: Parameters<HumanViewerMiddleware>[2]): void => {
+  return (
+    request: Parameters<HumanViewerMiddleware>[0],
+    response: Parameters<HumanViewerMiddleware>[1],
+    next: Parameters<HumanViewerMiddleware>[2],
+  ): void => {
     const url: URL = new URL(request.url ?? "/", props.origin);
     const json: (value: unknown) => void = (value: unknown): void => {
       response.setHeader("Content-Type", "application/json");
@@ -31,12 +34,33 @@ export function createHumanViewerMiddleware(
     if (url.pathname === "/source-events")
       return props.sourceEvents.subscribe(response);
     if (url.pathname === "/display") return props.display(request, response);
-    if (serveHumanViewerNumerical({ url, request, response, service: props.numerical })) return;
-    if (serveHumanViewerGeneration({ ...props.generation, url, response, json })) return;
+    if (
+      serveHumanViewerNumerical({
+        url,
+        request,
+        response,
+        service: props.numerical,
+      })
+    )
+      return;
+    if (
+      serveHumanViewerGeneration({ ...props.generation, url, response, json })
+    )
+      return;
     if (url.pathname === "/heap")
       return serveHumanViewerHeap({ ...props.heap, response, json });
-    if (serveHumanViewerData({ ...props.data(), url, request, response, json })) return;
-    if (serveHumanViewerCapture({ ...props.capture, url, request, response, json })) return;
+    if (serveHumanViewerData({ ...props.data(), url, request, response, json }))
+      return;
+    if (
+      serveHumanViewerCapture({
+        ...props.capture,
+        url,
+        request,
+        response,
+        json,
+      })
+    )
+      return;
     if (props.pages(url.pathname, response)) return;
     next();
   };

@@ -29,8 +29,10 @@ export async function fetchHumanViewerPublishedGenerationBody(
     humanViewerBasisTokens.publishedGenerationBody,
     1,
   );
-  const view: IAutoMovieHumanPersonBodyView = await readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
-    read: (): Promise<Response> => fetch(origin + "/basis/person/body?digest=" + body),
-  });
+  const view: IAutoMovieHumanPersonBodyView =
+    await readConnectedFaceAsset<IAutoMovieHumanPersonBodyView>({
+      read: (): Promise<Response> =>
+        fetch(origin + "/basis/person/body?digest=" + body),
+    });
   return view.body;
 }

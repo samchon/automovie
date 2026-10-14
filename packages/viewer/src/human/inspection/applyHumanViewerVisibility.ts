@@ -26,8 +26,11 @@ export function applyHumanViewerVisibility(
     Partial<Pick<HumanViewerAddress, "shadows" | "light">>,
 ): void {
   const names: Set<string> = new Set<string>(stage.observe.parts());
-  const unknown: string[] = [...address.parts, ...address.hide].filter((name: string): boolean => !names.has(name));
-  if (unknown.length !== 0) throw new Error("Unknown mesh: " + unknown.join(","));
+  const unknown: string[] = [...address.parts, ...address.hide].filter(
+    (name: string): boolean => !names.has(name),
+  );
+  if (unknown.length !== 0)
+    throw new Error("Unknown mesh: " + unknown.join(","));
   const light: HumanViewerAddress["light"] = address.light ?? null;
   if (stage.setLightDirection === undefined) {
     if (light !== null)

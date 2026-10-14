@@ -35,7 +35,10 @@ export function createHumanViewerResidentTrim(
   /** The page heap when the current capture started. */
   let started: number = 0;
   /** Release page residents while the sum plus `extra` exceeds `bound`; returns how many were released. */
-  const release: (extra: number, bound: number) => Promise<IHumanViewerResidentRelease> = async (
+  const release: (
+    extra: number,
+    bound: number,
+  ) => Promise<IHumanViewerResidentRelease> = async (
     extra: number,
     bound: number,
   ): Promise<IHumanViewerResidentRelease> => {
@@ -50,17 +53,24 @@ export function createHumanViewerResidentTrim(
     }
     return { evicted, ...reading };
   };
-  const sum: (collect: boolean) => Promise<IHumanViewerResidentHeapSum> = async (
+  const sum: (
+    collect: boolean,
+  ) => Promise<IHumanViewerResidentHeapSum> = async (
     collect: boolean,
   ): Promise<IHumanViewerResidentHeapSum> => {
-    const [page, workers]: [Awaited<ReturnType<ICreateHumanViewerResidentTrimProps["page"]>>, Awaited<ReturnType<ICreateHumanViewerResidentTrimProps["workers"]>>] = await Promise.all([
-      props.page(collect),
-      props.workers(collect),
-    ]);
+    const [page, workers]: [
+      Awaited<ReturnType<ICreateHumanViewerResidentTrimProps["page"]>>,
+      Awaited<ReturnType<ICreateHumanViewerResidentTrimProps["workers"]>>,
+    ] = await Promise.all([props.page(collect), props.workers(collect)]);
     return {
       page: page.usedSize,
       workers: workers.reduce(
-        (total: number, worker: Awaited<ReturnType<ICreateHumanViewerResidentTrimProps["workers"]>>[number]): number => total + worker.usage.usedSize,
+        (
+          total: number,
+          worker: Awaited<
+            ReturnType<ICreateHumanViewerResidentTrimProps["workers"]>
+          >[number],
+        ): number => total + worker.usage.usedSize,
         0,
       ),
     };
@@ -71,11 +81,15 @@ export function createHumanViewerResidentTrim(
       const reading: IHumanViewerResidentHeapSum = await sum(false);
       started = reading.page;
       if (reading.page + reading.workers + room[domain] > props.limit) {
-        const made: IHumanViewerResidentRelease = await release(room[domain], props.limit);
+        const made: IHumanViewerResidentRelease = await release(
+          room[domain],
+          props.limit,
+        );
         started = made.page;
         // The cheap reading includes garbage; a collection alone usually
         // makes the room, which is not worth a line.
-        const short: boolean = made.page + made.workers + room[domain] > props.limit;
+        const short: boolean =
+          made.page + made.workers + room[domain] > props.limit;
         if (made.evicted !== 0 || short)
           console.log(
             `RESIDENT ROOM ${new Date().toISOString()} ${domain} estimated headroom ${Math.round(room[domain] / 1e6)} MB; released ` +

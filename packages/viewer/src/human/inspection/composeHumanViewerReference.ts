@@ -1,5 +1,5 @@
-import { drawHumanViewerReference } from "./drawHumanViewerReference.js";
 import { type IHumanViewerReferenceContext } from "./IHumanViewerReferenceContext.js";
+import { drawHumanViewerReference } from "./drawHumanViewerReference.js";
 import { layoutHumanViewerReference } from "./layoutHumanViewerReference.js";
 
 /**
@@ -13,27 +13,45 @@ import { layoutHumanViewerReference } from "./layoutHumanViewerReference.js";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowed canvas/photo contents and requested composition can change, so this owner does not cache output by surface identity alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The factory-created surface transfers to the caller on success; missing 2D context refuses, and temporary references retain no input photograph or filesystem handle after return.
  */
-export function composeHumanViewerReference<Surface extends {
-  width: number;
-  height: number;
-  getContext: (kind: "2d") => IHumanViewerReferenceContext | null;
-}>(props: {
-  composition: { mode: "split" | "overlay" | "swipe"; opacity: number; size: number };
+export function composeHumanViewerReference<
+  Surface extends {
+    width: number;
+    height: number;
+    getContext: (kind: "2d") => IHumanViewerReferenceContext | null;
+  },
+>(props: {
+  composition: {
+    mode: "split" | "overlay" | "swipe";
+    opacity: number;
+    size: number;
+  };
   photo: { naturalWidth: number; naturalHeight: number };
   landmarks: { x: number; y: number; group: string }[];
   render: unknown;
   create: () => Surface;
 }): Surface {
-  const { composition, photo }: Pick<typeof props, "composition" | "photo"> = props;
-  const layout: ReturnType<typeof layoutHumanViewerReference> = layoutHumanViewerReference(
-    composition.mode, composition.size, composition.opacity,
-    { width: photo.naturalWidth, height: photo.naturalHeight }, props.landmarks,
-  );
+  const { composition, photo }: Pick<typeof props, "composition" | "photo"> =
+    props;
+  const layout: ReturnType<typeof layoutHumanViewerReference> =
+    layoutHumanViewerReference(
+      composition.mode,
+      composition.size,
+      composition.opacity,
+      { width: photo.naturalWidth, height: photo.naturalHeight },
+      props.landmarks,
+    );
   const out: Surface = props.create();
   out.width = layout.width;
   out.height = layout.height;
   const context: IHumanViewerReferenceContext | null = out.getContext("2d");
-  if (context === null) throw new Error("A 2D surface is required to compose the reference");
-  drawHumanViewerReference(context, layout.layers, { render: props.render, photo }, layout.markers, layout.markerRadius);
+  if (context === null)
+    throw new Error("A 2D surface is required to compose the reference");
+  drawHumanViewerReference(
+    context,
+    layout.layers,
+    { render: props.render, photo },
+    layout.markers,
+    layout.markerRadius,
+  );
   return out;
 }

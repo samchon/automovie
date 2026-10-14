@@ -14,15 +14,28 @@ import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevis
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads must observe the current filesystem; this adapter does not memoize path resolution or source bytes across edit batches.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter retains only the resolved root string; synchronous filesystem calls own no open descriptor or source buffer beyond the invocation.
  */
-export function createNodeHumanViewerResolveIo(root: string): ICreateHumanViewerRevisionsProps["io"] {
+export function createNodeHumanViewerResolveIo(
+  root: string,
+): ICreateHumanViewerRevisionsProps["io"] {
   const actualRoot: string = fs.realpathSync.native(root);
-  const owned: (file: string) => string | undefined = (file: string): string | undefined => {
+  const owned: (file: string) => string | undefined = (
+    file: string,
+  ): string | undefined => {
     let resolved: string;
-    try { resolved = fs.realpathSync.native(file); }
-    catch { return undefined; }
+    try {
+      resolved = fs.realpathSync.native(file);
+    } catch {
+      return undefined;
+    }
     const relative: string = path.relative(actualRoot, resolved);
-    if (relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative))
-      throw new Error("A source graph input resolves outside its physical checkout: " + file);
+    if (
+      relative === ".." ||
+      relative.startsWith(".." + path.sep) ||
+      path.isAbsolute(relative)
+    )
+      throw new Error(
+        "A source graph input resolves outside its physical checkout: " + file,
+      );
     return resolved;
   };
   return {
@@ -34,7 +47,9 @@ export function createNodeHumanViewerResolveIo(root: string): ICreateHumanViewer
       const resolved: string | undefined = owned(file);
       if (resolved === undefined) return undefined;
       try {
-        return fs.statSync(resolved).isFile() ? fs.readFileSync(resolved, "utf8") : undefined;
+        return fs.statSync(resolved).isFile()
+          ? fs.readFileSync(resolved, "utf8")
+          : undefined;
       } catch {
         return undefined;
       }

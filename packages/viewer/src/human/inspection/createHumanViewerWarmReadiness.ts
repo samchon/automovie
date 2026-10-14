@@ -40,7 +40,12 @@ export function createHumanViewerWarmReadiness(
         return;
       }
       // A matching revision string admits this callback even after a later same-revision notification.
-      (options.later ?? ((run: () => void, ms: number): void => { setTimeout(run, ms); }))((): void => {
+      (
+        options.later ??
+        ((run: () => void, ms: number): void => {
+          setTimeout(run, ms);
+        })
+      )((): void => {
         if (source !== revision) return;
         settled = revision;
         admit();

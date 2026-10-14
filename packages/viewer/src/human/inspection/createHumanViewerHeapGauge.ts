@@ -37,7 +37,8 @@ export function createHumanViewerHeapGauge(
       if (reading) return;
       reading = true;
       const selectedEpoch: number = epoch;
-      void Promise.resolve().then(read)
+      void Promise.resolve()
+        .then(read)
         .then((usage: IHumanViewerHeapUsage): void => {
           heap.last = usage;
           heap.unavailable = null;

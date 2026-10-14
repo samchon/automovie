@@ -14,33 +14,40 @@ export function createHumanViewerCaptureLifetime(): {
   fail: (error: Error, physicalSettled?: boolean) => void;
   renew: () => void;
 } {
-  const pending: Set<(error: Error) => void> = new Set<(error: Error) => void>();
+  const pending: Set<(error: Error) => void> = new Set<
+    (error: Error) => void
+  >();
   let failure: Error | null = null;
   let settled: boolean = false;
   return {
     run: async <Value>(operation: () => Promise<Value>): Promise<Value> => {
       if (failure !== null) throw failure;
-      return new Promise<Value>((resolve: (value: Value | PromiseLike<Value>) => void, reject: (reason?: unknown) => void): void => {
-        let dispatched: boolean = false;
-        pending.add(reject);
-        void Promise.resolve()
-          .then((): Promise<Value> => {
-            if (failure !== null) throw failure;
-            dispatched = true;
-            return operation();
-          })
-          .then((value: Value): void => {
-            pending.delete(reject);
-            if (failure !== null) reject(failure);
-            else resolve(value);
-          })
-          .catch((error: unknown): void => {
-            // A disconnected transport can reject while its renderer still runs.
-            if (dispatched && failure !== null && !settled) return;
-            pending.delete(reject);
-            reject(error);
-          });
-      });
+      return new Promise<Value>(
+        (
+          resolve: (value: Value | PromiseLike<Value>) => void,
+          reject: (reason?: unknown) => void,
+        ): void => {
+          let dispatched: boolean = false;
+          pending.add(reject);
+          void Promise.resolve()
+            .then((): Promise<Value> => {
+              if (failure !== null) throw failure;
+              dispatched = true;
+              return operation();
+            })
+            .then((value: Value): void => {
+              pending.delete(reject);
+              if (failure !== null) reject(failure);
+              else resolve(value);
+            })
+            .catch((error: unknown): void => {
+              // A disconnected transport can reject while its renderer still runs.
+              if (dispatched && failure !== null && !settled) return;
+              pending.delete(reject);
+              reject(error);
+            });
+        },
+      );
     },
     fail: (error: Error, physicalSettled: boolean = true): void => {
       failure = error;

@@ -34,7 +34,10 @@ export function planHumanViewerSheet(
       text === "*" && name === "subject"
         ? documents.filter((id: string): boolean => !id.startsWith("body:"))
         : text.split(",");
-    if (values.length === 0 || values.some((value: string): boolean => value.trim() === ""))
+    if (
+      values.length === 0 ||
+      values.some((value: string): boolean => value.trim() === "")
+    )
       throw new Error("An axis requires values");
     if (cells.length * values.length > 512)
       throw new Error("A sheet may contain at most 512 cells");

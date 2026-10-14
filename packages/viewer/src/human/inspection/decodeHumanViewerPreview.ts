@@ -12,34 +12,44 @@ import { isHumanViewerPreviewProjection } from "./isHumanViewerPreviewProjection
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parsing temporarily retains JSON arrays and their typed replacements; returned model arrays remain with the resident owner and this stateless codec retains no separate payload cache.
  */
 export function decodeHumanViewerPreview(text: string): unknown {
-  const value: unknown = JSON.parse(text, (_key: string, entry: unknown): unknown => {
-    if (entry === null || typeof entry !== "object" || !("$array" in entry))
-      return entry;
-    if (
-      !("values" in entry) || !Array.isArray(entry.values) ||
-      !entry.values.every(
-        (element: unknown): element is number =>
-          typeof element === "number" && Number.isFinite(element),
-      )
-    )
-      throw new Error("Invalid cached geometry array");
-    if (entry.$array === "Float32") {
-      if (!entry.values.every((element: number): boolean => Number.isFinite(Math.fround(element))))
-        throw new Error("Cached geometry exceeds Float32 range");
-      return new Float32Array(entry.values);
-    }
-    if (entry.$array === "Uint32") {
+  const value: unknown = JSON.parse(
+    text,
+    (_key: string, entry: unknown): unknown => {
+      if (entry === null || typeof entry !== "object" || !("$array" in entry))
+        return entry;
       if (
+        !("values" in entry) ||
+        !Array.isArray(entry.values) ||
         !entry.values.every(
-          (element: number): boolean =>
-            Number.isInteger(element) && element >= 0 && element <= 0xffffffff,
+          (element: unknown): element is number =>
+            typeof element === "number" && Number.isFinite(element),
         )
       )
-        throw new Error("Invalid cached geometry index");
-      return new Uint32Array(entry.values);
-    }
-    throw new Error("Unknown cached array kind");
-  });
+        throw new Error("Invalid cached geometry array");
+      if (entry.$array === "Float32") {
+        if (
+          !entry.values.every((element: number): boolean =>
+            Number.isFinite(Math.fround(element)),
+          )
+        )
+          throw new Error("Cached geometry exceeds Float32 range");
+        return new Float32Array(entry.values);
+      }
+      if (entry.$array === "Uint32") {
+        if (
+          !entry.values.every(
+            (element: number): boolean =>
+              Number.isInteger(element) &&
+              element >= 0 &&
+              element <= 0xffffffff,
+          )
+        )
+          throw new Error("Invalid cached geometry index");
+        return new Uint32Array(entry.values);
+      }
+      throw new Error("Unknown cached array kind");
+    },
+  );
   if (!isHumanViewerPreviewProjection(value))
     throw new Error("Invalid numerical preview cache");
   return value;

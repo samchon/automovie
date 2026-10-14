@@ -12,7 +12,11 @@ import type { IHumanViewerCaptureStage } from "./IHumanViewerCaptureStage.js";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one current record remains until its matching run settles; no observer timer or historical stage collection is retained.
  */
 export function createHumanViewerStageWatch(): {
-  run: <Value>(name: string, doc: string, work: () => Promise<Value>) => Promise<Value>;
+  run: <Value>(
+    name: string,
+    doc: string,
+    work: () => Promise<Value>,
+  ) => Promise<Value>;
   progress: () => void;
   current: () => IHumanViewerCaptureStage | null;
 } {

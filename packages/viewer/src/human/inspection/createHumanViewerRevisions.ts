@@ -28,7 +28,9 @@ export function createHumanViewerRevisions(
   current: () => IHumanViewerRevisions;
   reaches: (file: string) => boolean;
   reached: () => string[];
-  changed: (files: readonly string[]) => { moved: (keyof IHumanViewerRevisions)[] };
+  changed: (files: readonly string[]) => {
+    moved: (keyof IHumanViewerRevisions)[];
+  };
 } {
   const texts: Map<string, string | undefined> = new Map();
   const present: Map<string, boolean> = new Map();
@@ -44,7 +46,9 @@ export function createHumanViewerRevisions(
       return texts.get(file);
     },
   };
-  const digest: (files: readonly string[]) => string = (files: readonly string[]): string => {
+  const digest: (files: readonly string[]) => string = (
+    files: readonly string[],
+  ): string => {
     const hash: ReturnType<typeof createHash> = createHash("sha256");
     for (const file of files) {
       hash.update(file.slice(props.root.length));
@@ -55,44 +59,66 @@ export function createHumanViewerRevisions(
     return hash.digest("hex");
   };
   let reached: Set<string> = new Set();
-  const checkedScope: ICreateHumanViewerRevisionsProps["checkedInputs"] = props.checkedInputs;
-  const checkedRoots: string[] = checkedScope?.directories.map((directory: string): string => directory.replaceAll("\\", "/").replace(/\/$/, "") + "/") ?? [];
-  const checkedFiles: Set<string> = new Set(checkedScope?.files.map((file: string): string => file.replaceAll("\\", "/")) ?? []);
+  const checkedScope: ICreateHumanViewerRevisionsProps["checkedInputs"] =
+    props.checkedInputs;
+  const checkedRoots: string[] =
+    checkedScope?.directories.map(
+      (directory: string): string =>
+        directory.replaceAll("\\", "/").replace(/\/$/, "") + "/",
+    ) ?? [];
+  const checkedFiles: Set<string> = new Set(
+    checkedScope?.files.map((file: string): string =>
+      file.replaceAll("\\", "/"),
+    ) ?? [],
+  );
   const compute: () => IHumanViewerRevisions = (): IHumanViewerRevisions => {
     consulted = new Set();
     try {
-    const graph: (entries: readonly string[]) => string[] = (entries: readonly string[]): string[] =>
-      [
-        ...new Set([
-          ...collectHumanViewerImports({ entries, root: props.root, io }),
-          ...props.extra,
-        ]),
-      ].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
-    const browser: string[] = graph(props.entries.browser);
-    const face: string[] = graph(props.entries.face);
-    const body: string[] = graph(props.entries.body);
-    const person: string[] = graph(props.entries.person);
-    const checked: ReturnType<typeof readHumanViewerNodeInputs> = checkedScope === undefined ? {} : readHumanViewerNodeInputs(
-      props.root, checkedScope.directories, checkedScope.files,
-    );
-    // A missing dependency still has a resolution candidate. Keep that path
-    // watched so its repair can recover the failed source generation.
-    reached = new Set([
-      ...browser,
-      ...face,
-      ...body,
-      ...person,
-      ...present.keys(),
-      ...Object.keys(checked).map((file: string): string => file.replaceAll("\\", "/")),
-    ]);
-    return {
-      browser: createHash("sha256")
-        .update(digest(browser) + props.bases() + (checkedScope === undefined ? "" : JSON.stringify(checked)))
-        .digest("hex"),
-      face: digest(face),
-      body: digest(body),
-      person: digest(person),
-    };
+      const graph: (entries: readonly string[]) => string[] = (
+        entries: readonly string[],
+      ): string[] =>
+        [
+          ...new Set([
+            ...collectHumanViewerImports({ entries, root: props.root, io }),
+            ...props.extra,
+          ]),
+        ].sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
+      const browser: string[] = graph(props.entries.browser);
+      const face: string[] = graph(props.entries.face);
+      const body: string[] = graph(props.entries.body);
+      const person: string[] = graph(props.entries.person);
+      const checked: ReturnType<typeof readHumanViewerNodeInputs> =
+        checkedScope === undefined
+          ? {}
+          : readHumanViewerNodeInputs(
+              props.root,
+              checkedScope.directories,
+              checkedScope.files,
+            );
+      // A missing dependency still has a resolution candidate. Keep that path
+      // watched so its repair can recover the failed source generation.
+      reached = new Set([
+        ...browser,
+        ...face,
+        ...body,
+        ...person,
+        ...present.keys(),
+        ...Object.keys(checked).map((file: string): string =>
+          file.replaceAll("\\", "/"),
+        ),
+      ]);
+      return {
+        browser: createHash("sha256")
+          .update(
+            digest(browser) +
+              props.bases() +
+              (checkedScope === undefined ? "" : JSON.stringify(checked)),
+          )
+          .digest("hex"),
+        face: digest(face),
+        body: digest(body),
+        person: digest(person),
+      };
     } finally {
       for (const file of texts.keys())
         if (!consulted.has(file)) texts.delete(file);
@@ -102,8 +128,11 @@ export function createHumanViewerRevisions(
   return {
     current: (): IHumanViewerRevisions => current,
     /** Whether an import dependency or checked-loader input, including a new source member, can move admission authority. */
-    reaches: (file: string): boolean => reached.has(file) || checkedFiles.has(file) ||
-      (checkedRoots.some((root: string): boolean => file.startsWith(root)) && /\.(?:ts|mts|cts|js|mjs|cjs|json|glsl|wgsl)$/.test(file)),
+    reaches: (file: string): boolean =>
+      reached.has(file) ||
+      checkedFiles.has(file) ||
+      (checkedRoots.some((root: string): boolean => file.startsWith(root)) &&
+        /\.(?:ts|mts|cts|js|mjs|cjs|json|glsl|wgsl)$/.test(file)),
     /** Every file any graph reaches, as of the last computation. */
     reached: (): string[] => [...reached],
     changed: (
@@ -114,7 +143,10 @@ export function createHumanViewerRevisions(
       const next: IHumanViewerRevisions = compute();
       const moved: (keyof IHumanViewerRevisions)[] = (
         Object.keys(next) as (keyof IHumanViewerRevisions)[]
-      ).filter((key: keyof IHumanViewerRevisions): boolean => next[key] !== current[key]);
+      ).filter(
+        (key: keyof IHumanViewerRevisions): boolean =>
+          next[key] !== current[key],
+      );
       current = next;
       return { moved };
     },

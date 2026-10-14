@@ -1,18 +1,18 @@
 import type { ConsoleMessage, Page } from "playwright";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { HumanViewerWork } from "./HumanViewerWork.js";
+import type { ICreateHumanViewerResidencyProps } from "./ICreateHumanViewerResidencyProps.js";
 import type { IHumanViewerHeapUsage } from "./IHumanViewerHeapUsage.js";
 import type { IHumanViewerResidentPage } from "./IHumanViewerResidentPage.js";
 import type { IHumanViewerWindow } from "./IHumanViewerWindow.js";
-import type { ICreateHumanViewerResidencyProps } from "./ICreateHumanViewerResidencyProps.js";
+import type { IHumanViewerWorkerHeap } from "./IHumanViewerWorkerHeap.js";
 import { launchHumanViewerPage } from "./launchHumanViewerPage.js";
 import { observeHumanViewerRendererTarget } from "./observeHumanViewerRendererTarget.js";
 import { readHumanViewerWork } from "./readHumanViewerWork.js";
 import { readHumanViewerWorkerHeaps } from "./readHumanViewerWorkerHeaps.js";
 import { routeHumanViewerConsole } from "./routeHumanViewerConsole.js";
 import { watchHumanViewerMainFrame } from "./watchHumanViewerMainFrame.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
-import type { IHumanViewerWorkerHeap } from "./IHumanViewerWorkerHeap.js";
 
 /**
  * Own the resident browser, mutable frame identity and renderer recovery. Before renewing failed dispatch ownership, recovery awaits the failed Page's public close completion; refusal keeps that owner unknown and prevents replacement. Public Page/CDP completion is not independent OS/GPU kernel termination proof. Readiness and heap readers follow the current resident; shutdown withdraws recovery and late openings close their acquired browser.
@@ -63,10 +63,12 @@ export function createHumanViewerResidency(
   let pageWait: string | null = null;
   let work: HumanViewerWork | null = null;
   /** Heap readings of the resident page; the readers are bound once the page exists. */
-  let readHeap: () => Promise<IHumanViewerHeapUsage> = (): Promise<IHumanViewerHeapUsage> =>
-    Promise.reject(new Error("No page yet"));
-  let readLiveHeap: () => Promise<IHumanViewerHeapUsage> = (): Promise<IHumanViewerHeapUsage> =>
-    Promise.reject(new Error("No page yet"));
+  let readHeap: () => Promise<IHumanViewerHeapUsage> =
+    (): Promise<IHumanViewerHeapUsage> =>
+      Promise.reject(new Error("No page yet"));
+  let readLiveHeap: () => Promise<IHumanViewerHeapUsage> =
+    (): Promise<IHumanViewerHeapUsage> =>
+      Promise.reject(new Error("No page yet"));
   /** The open page, its browser and heap readers; null before the first one opens. */
   let resident: IHumanViewerResidentPage | null = null;
   /** Detach the current page's renderer observer. */
@@ -78,9 +80,11 @@ export function createHumanViewerResidency(
 
   /** Resolves once the first page of this server is ready, whichever opening made it so. */
   let announceFirstReady: () => void = (): void => {};
-  const firstReady: Promise<undefined> = new Promise<undefined>((resolve: (value: undefined) => void): void => {
-    announceFirstReady = (): void => resolve(undefined);
-  });
+  const firstReady: Promise<undefined> = new Promise<undefined>(
+    (resolve: (value: undefined) => void): void => {
+      announceFirstReady = (): void => resolve(undefined);
+    },
+  );
 
   /**
    * Open the resident page and wait for its first source generation. A fresh browser is launched when asked or when the current one is gone; otherwise the connected browser is reused. The first opening reports startup phases; a replacement reports through `pageWait`. Every page gets the same observers, so a replacement fails, reloads and reports exactly as the first one did. A page that fails while it waits is left to the recovery that replaces it: its opening returns without error, since it is no longer the page the server serves.
@@ -109,21 +113,36 @@ export function createHumanViewerResidency(
         recoverResidentPage(opened, cause, physicalSettled),
     });
     if (closed) {
-      return createAutoMovieResourceRetirement([stopRenderer, async (): Promise<void> => { await opened.browser.close(); }], { error: new Error("The resident page owner closed during observation.") })();
+      return createAutoMovieResourceRetirement(
+        [
+          stopRenderer,
+          async (): Promise<void> => {
+            await opened.browser.close();
+          },
+        ],
+        {
+          error: new Error(
+            "The resident page owner closed during observation.",
+          ),
+        },
+      )();
     }
     // A Vite full reload replaces the host page and its committed generation:
     // until a new generation is ready nothing can draw, which captures and
     // admissions report instead of waiting on a page that lost its handle.
-    const stopMainFrame: () => void = watchHumanViewerMainFrame(opened.page, (): void => {
-      if (closed || resident !== opened) return;
-      if (readyRevision === "") return;
-      readyRevision = "";
-      // The reloaded page's candidates opened their holds over requests the
-      // reload ended; the windows close with them, never proven.
-      pageWait = `the page reloaded at ${new Date().toISOString()}; waiting for a source generation`;
-      console.log("PAGE RELOADED " + pageWait);
-      props.publish();
-    });
+    const stopMainFrame: () => void = watchHumanViewerMainFrame(
+      opened.page,
+      (): void => {
+        if (closed || resident !== opened) return;
+        if (readyRevision === "") return;
+        readyRevision = "";
+        // The reloaded page's candidates opened their holds over requests the
+        // reload ended; the windows close with them, never proven.
+        pageWait = `the page reloaded at ${new Date().toISOString()}; waiting for a source generation`;
+        console.log("PAGE RELOADED " + pageWait);
+        props.publish();
+      },
+    );
     function pageError(error: Error): void {
       if (closed || resident !== opened) return;
       errors.push(error.message);
@@ -142,29 +161,41 @@ export function createHumanViewerResidency(
         error: (cause: string): void => {
           errors = [cause];
         },
-        displayError: (cause: string): void => { displayError = cause; },
-        displayRecovered: (): void => { displayError = undefined; },
+        displayError: (cause: string): void => {
+          displayError = cause;
+        },
+        displayRecovered: (): void => {
+          displayError = undefined;
+        },
         ready: (line: string): void => {
           const [revision, label]: string[] = line.split(" ");
           errors = [];
           displayError = undefined;
           pageRevision = revision;
           readyRevision =
-            label === undefined || label === "-" ? "unproven " + revision : label;
+            label === undefined || label === "-"
+              ? "unproven " + revision
+              : label;
           pageWait = null;
           console.log(
             `GENERATION READY ${new Date().toISOString()} ${readyRevision.slice(0, 21)}` +
-              (readyRevision === props.inventory().revision ? " (current)" : " (stale)"),
+              (readyRevision === props.inventory().revision
+                ? " (current)"
+                : " (stale)"),
           );
           // Only code proven to be the current revision warms thumbnails.
           if (readyRevision === props.inventory().revision)
             props.sourceReady(readyRevision);
           // A ready generation can admit the inputs still pending.
-          props.retryAdmissions("generation " + revision.slice(0, 12) + " ready");
+          props.retryAdmissions(
+            "generation " + revision.slice(0, 12) + " ready",
+          );
         },
         admission: (): void => props.retryAdmissions("a viewer frame loaded"),
         restart: (reason: string): void =>
-          console.log(`CANDIDATE RESTART ${new Date().toISOString()} ${reason}`),
+          console.log(
+            `CANDIDATE RESTART ${new Date().toISOString()} ${reason}`,
+          ),
         firstAddress: (reason: string): void =>
           console.log(
             `CANDIDATE FIRST ADDRESS ${new Date().toISOString()} ${reason}`,
@@ -179,8 +210,12 @@ export function createHumanViewerResidency(
     stopRenderer = createAutoMovieResourceRetirement([
       rendererObserver,
       stopMainFrame,
-      (): void => { opened.page.off("pageerror", pageError); },
-      (): void => { opened.page.off("console", pageConsole); },
+      (): void => {
+        opened.page.off("pageerror", pageError);
+      },
+      (): void => {
+        opened.page.off("console", pageConsole);
+      },
     ]);
     if (first) props.phase("loading the page");
     await opened.page.goto(props.origin + "/view?resident=1#ao=off", {
@@ -242,10 +277,14 @@ export function createHumanViewerResidency(
     void (async (): Promise<void> => {
       // A hung observer cannot skip asking the page to close. Only the page's
       // public completion permits dispatch renewal; it is not kernel proof.
-      const closingPage: Promise<void> = Promise.resolve().then((): Promise<void> => failed.page.close());
-      void Promise.resolve().then((): Promise<void> => stopFailed()).catch((error: unknown): void => {
-        console.error("FAILED PAGE OBSERVER RETIREMENT", error);
-      });
+      const closingPage: Promise<void> = Promise.resolve().then(
+        (): Promise<void> => failed.page.close(),
+      );
+      void Promise.resolve()
+        .then((): Promise<void> => stopFailed())
+        .catch((error: unknown): void => {
+          console.error("FAILED PAGE OBSERVER RETIREMENT", error);
+        });
       await closingPage;
       // Public Page close completed; release logical holds without claiming kernel exit.
       props.lifetime.fail(new Error(cause), true);
@@ -276,7 +315,9 @@ export function createHumanViewerResidency(
   }
 
   const retire: () => Promise<void> = createAutoMovieResourceRetirement([
-    async (): Promise<void> => { if (resident !== null) await resident.browser.close(); },
+    async (): Promise<void> => {
+      if (resident !== null) await resident.browser.close();
+    },
     (): Promise<void> => stopRenderer(),
   ]);
 

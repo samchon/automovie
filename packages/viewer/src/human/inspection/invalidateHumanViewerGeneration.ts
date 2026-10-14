@@ -21,7 +21,8 @@ export function invalidateHumanViewerGeneration<
   reset: () => void,
   invalidate: (module: Module) => void,
 ): void {
-  const prefix: string = sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
+  const prefix: string =
+    sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
   reset();
   for (const module of modules) {
     if (module.id === null) continue;

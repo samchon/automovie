@@ -1,3 +1,5 @@
+import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
+
 /**
  * Retain the latest completed bitmap while the display's own WebGL context is lost. Native context events, rather than elapsed time, own the transition. The original viewport/model/camera remain resident and redraw after Three restores its context. Only this display's image URLs and listeners are owned. Pending decodes have no independent count cap; disposal revokes their URLs immediately and stale completions cannot republish a disposed display.
  *
@@ -24,7 +26,8 @@ export function createHumanViewerGpuDisplay(props: {
   const retained: HTMLImageElement = document.createElement("img");
   retained.alt = "Last completed display while graphics recover";
   retained.hidden = true;
-  retained.style.cssText = "position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none";
+  retained.style.cssText =
+    "position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none";
   props.display.append(retained);
   let url: string | undefined;
   const pending: Set<string> = new Set();
@@ -47,18 +50,25 @@ export function createHumanViewerGpuDisplay(props: {
     align();
     retained.hidden = url === undefined;
     props.canvas.style.pointerEvents = "none";
-    props.failed(url === undefined ? "The GPU context is lost before a completed bitmap was decoded." :
-      "The display GPU context is lost; the last completed screen is retained.");
+    props.failed(
+      url === undefined
+        ? "The GPU context is lost before a completed bitmap was decoded."
+        : "The display GPU context is lost; the last completed screen is retained.",
+    );
   };
   const restored: () => void = (): void => {
     try {
       props.redraw();
-      release?.(); release = undefined;
+      release?.();
+      release = undefined;
       unavailable = false;
       retained.hidden = true;
       props.canvas.style.pointerEvents = pointerEvents;
     } catch (cause) {
-      props.failed("The restored GPU could not redraw the retained model: " + String(cause));
+      props.failed(
+        "The restored GPU could not redraw the retained model: " +
+          String(cause),
+      );
       return;
     }
     props.recovered?.();
@@ -74,18 +84,24 @@ export function createHumanViewerGpuDisplay(props: {
       const next: string = URL.createObjectURL(blob);
       pending.add(next);
       candidate.src = next;
-      void Promise.resolve().then((): Promise<void> => candidate.decode()).then((): void => {
-        pending.delete(next);
-        if (disposed || mine !== ticket) { URL.revokeObjectURL(next); return; }
-        const previous: string | undefined = url;
-        url = next;
-        retained.src = next;
-        retained.hidden = !unavailable;
-        if (previous !== undefined) URL.revokeObjectURL(previous);
-      }).catch((): void => {
-        pending.delete(next);
-        if (url !== next) URL.revokeObjectURL(next);
-      });
+      void Promise.resolve()
+        .then((): Promise<void> => candidate.decode())
+        .then((): void => {
+          pending.delete(next);
+          if (disposed || mine !== ticket) {
+            URL.revokeObjectURL(next);
+            return;
+          }
+          const previous: string | undefined = url;
+          url = next;
+          retained.src = next;
+          retained.hidden = !unavailable;
+          if (previous !== undefined) URL.revokeObjectURL(previous);
+        })
+        .catch((): void => {
+          pending.delete(next);
+          if (url !== next) URL.revokeObjectURL(next);
+        });
     },
     dispose: (): void => {
       if (disposed) {
@@ -102,13 +118,25 @@ export function createHumanViewerGpuDisplay(props: {
       pending.clear();
       try {
         reportAutoMovieResourceRetirement([
-          (): void => { unfreeze?.(); },
-          (): void => { if (unavailable) props.canvas.style.pointerEvents = pointerEvents; },
-          (): void => props.canvas.removeEventListener("webglcontextlost", lost),
-          (): void => props.canvas.removeEventListener("webglcontextrestored", restored),
+          (): void => {
+            unfreeze?.();
+          },
+          (): void => {
+            if (unavailable) props.canvas.style.pointerEvents = pointerEvents;
+          },
+          (): void =>
+            props.canvas.removeEventListener("webglcontextlost", lost),
+          (): void =>
+            props.canvas.removeEventListener("webglcontextrestored", restored),
           (): void => window.removeEventListener("resize", align),
-          (): void => { if (published !== undefined) URL.revokeObjectURL(published); },
-          ...decoding.map((owned: string): (() => void) => (): void => URL.revokeObjectURL(owned)),
+          (): void => {
+            if (published !== undefined) URL.revokeObjectURL(published);
+          },
+          ...decoding.map(
+            (owned: string): (() => void) =>
+              (): void =>
+                URL.revokeObjectURL(owned),
+          ),
           (): void => retained.remove(),
         ]);
       } catch (error) {
@@ -118,4 +146,3 @@ export function createHumanViewerGpuDisplay(props: {
     },
   };
 }
-import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";

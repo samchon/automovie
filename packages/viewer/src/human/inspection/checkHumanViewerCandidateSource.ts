@@ -15,7 +15,9 @@ import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceErr
 export async function checkHumanViewerCandidateSource(): Promise<void> {
   const response: Response = await fetch("/health");
   if (!response.ok)
-    throw new Error(`Candidate source health request failed (${response.status})`);
+    throw new Error(
+      `Candidate source health request failed (${response.status})`,
+    );
   const health: unknown = await response.json();
   assertHumanViewerSource(humanViewerCandidateSourceError(health));
 }

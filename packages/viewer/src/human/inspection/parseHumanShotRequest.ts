@@ -24,7 +24,8 @@ export function parseHumanShotRequest(args: readonly string[]): {
 } {
   const command: string | undefined = args[0];
   if (
-    command === undefined || ![
+    command === undefined ||
+    ![
       "ensure",
       "status",
       "stop",

@@ -20,7 +20,10 @@ export function collectHumanViewerImports(props: {
   root: string;
   io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo;
 }): string[] {
-  const code: Map<string, string | undefined> = new Map<string, string | undefined>();
+  const code: Map<string, string | undefined> = new Map<
+    string,
+    string | undefined
+  >();
   const resolutionInputs: Set<string> = new Set<string>();
   const io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo = {
     exists: props.io.exists,
@@ -30,7 +33,10 @@ export function collectHumanViewerImports(props: {
       return code.get(file);
     },
   };
-  const resolution: { root: string; io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo } = { root: props.root, io };
+  const resolution: {
+    root: string;
+    io: IHumanViewerResolveIo & IHumanViewerRevisionReadIo;
+  } = { root: props.root, io };
   const seen: Set<string> = new Set<string>();
   const pending: string[] = [...props.entries];
   while (pending.length !== 0) {
@@ -38,28 +44,65 @@ export function collectHumanViewerImports(props: {
     if (seen.has(file)) continue;
     seen.add(file);
     const text: string | undefined = io.read(file);
-    if (text === undefined || !/\.(?:ts|mts|cts|tsx|js|mjs|cjs|jsx)$/.test(file)) continue;
-    const source: ts.SourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+    if (
+      text === undefined ||
+      !/\.(?:ts|mts|cts|tsx|js|mjs|cjs|jsx)$/.test(file)
+    )
+      continue;
+    const source: ts.SourceFile = ts.createSourceFile(
+      file,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+    );
     function add(value: ts.Node | undefined): void {
       if (value === undefined || !ts.isStringLiteralLike(value)) return;
-      const target: string | null = resolveHumanViewerImport(value.text, file, resolution);
+      const target: string | null = resolveHumanViewerImport(
+        value.text,
+        file,
+        resolution,
+      );
       if (target !== null && !seen.has(target)) pending.push(target);
     }
     function visit(node: ts.Node): void {
-      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) add(node.moduleSpecifier);
-      else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) add(node.moduleReference.expression);
-      else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) add(node.argument.literal);
-      else if (ts.isCallExpression(node) &&
-               (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-                (ts.isIdentifier(node.expression) && node.expression.text === "require"))) add(node.arguments[0]);
-      else if (ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "URL") {
+      if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
+        add(node.moduleSpecifier);
+      else if (
+        ts.isImportEqualsDeclaration(node) &&
+        ts.isExternalModuleReference(node.moduleReference)
+      )
+        add(node.moduleReference.expression);
+      else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument))
+        add(node.argument.literal);
+      else if (
+        ts.isCallExpression(node) &&
+        (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+          (ts.isIdentifier(node.expression) &&
+            node.expression.text === "require"))
+      )
+        add(node.arguments[0]);
+      else if (
+        ts.isNewExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === "URL"
+      ) {
         const base: ts.Expression | undefined = node.arguments?.[1];
-        if (base !== undefined && ts.isPropertyAccessExpression(base) && base.name.text === "url" &&
-            ts.isMetaProperty(base.expression) && base.expression.keywordToken === ts.SyntaxKind.ImportKeyword && base.expression.name.text === "meta") add(node.arguments?.[0]);
+        if (
+          base !== undefined &&
+          ts.isPropertyAccessExpression(base) &&
+          base.name.text === "url" &&
+          ts.isMetaProperty(base.expression) &&
+          base.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
+          base.expression.name.text === "meta"
+        )
+          add(node.arguments?.[0]);
       }
       ts.forEachChild(node, visit);
     }
     visit(source);
   }
-  return [...new Set<string>([...seen, ...resolutionInputs])].sort((left: string, right: string): number => left < right ? -1 : left > right ? 1 : 0);
+  return [...new Set<string>([...seen, ...resolutionInputs])].sort(
+    (left: string, right: string): number =>
+      left < right ? -1 : left > right ? 1 : 0,
+  );
 }

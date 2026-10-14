@@ -20,7 +20,12 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each lane retains at most limit waiting entries plus one actual unsettled task; settled or cancelled waiting entries remove abort listeners, one bulk wakeup may remain pending and this adapter has no separate shutdown/cancel-all seam.
  */
 export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps): {
-  run: <T>(label: string, task: () => Promise<T>, lane?: HumanViewerLane, signal?: AbortSignal) => Promise<T>;
+  run: <T>(
+    label: string,
+    task: () => Promise<T>,
+    lane?: HumanViewerLane,
+    signal?: AbortSignal,
+  ) => Promise<T>;
   status: () => IHumanViewerQueueStatus;
 } {
   if (!Number.isInteger(props.limit) || props.limit < 1)
@@ -68,7 +73,12 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps): {
     else if (lines.bulk.length !== 0 && !timer) {
       // Only gated bulk work waits: look again when the quiet period can end.
       timer = true;
-      (props.later ?? ((run: () => void, ms: number): void => { setTimeout(run, ms); }))(
+      (
+        props.later ??
+        ((run: () => void, ms: number): void => {
+          setTimeout(run, ms);
+        })
+      )(
         (): void => {
           timer = false;
           drain();
@@ -92,49 +102,54 @@ export function createHumanViewerQueue(props: ICreateHumanViewerQueueProps): {
           ),
         );
       if (lane !== "bulk") foregroundAt = props.now();
-      return new Promise<T>((resolve: (value: T | PromiseLike<T>) => void, reject: (error: unknown) => void): void => {
-        let started: boolean = false;
-        let cancelled: boolean = false;
-        const entry: IEntry = {
-          label,
-          start: async (): Promise<void> => {
-            started = true;
-            const start: number = props.now();
-            running = { label, start };
-            let failed: boolean = true;
-            try {
-              signal?.throwIfAborted();
-              const result: T = await task();
-              if (!cancelled) {
-                resolve(result);
-                failed = false;
+      return new Promise<T>(
+        (
+          resolve: (value: T | PromiseLike<T>) => void,
+          reject: (error: unknown) => void,
+        ): void => {
+          let started: boolean = false;
+          let cancelled: boolean = false;
+          const entry: IEntry = {
+            label,
+            start: async (): Promise<void> => {
+              started = true;
+              const start: number = props.now();
+              running = { label, start };
+              let failed: boolean = true;
+              try {
+                signal?.throwIfAborted();
+                const result: T = await task();
+                if (!cancelled) {
+                  resolve(result);
+                  failed = false;
+                }
+              } catch (error) {
+                reject(error);
+              } finally {
+                signal?.removeEventListener("abort", abort);
+                if (lane !== "bulk") foregroundAt = props.now();
+                last = { label, ms: props.now() - start, failed };
+                running = null;
+                drain();
               }
-            } catch (error) {
-              reject(error);
-            } finally {
-              signal?.removeEventListener("abort", abort);
-              if (lane !== "bulk") foregroundAt = props.now();
-              last = { label, ms: props.now() - start, failed };
-              running = null;
+            },
+          };
+          const abort: () => void = (): void => {
+            cancelled = true;
+            reject(signal!.reason);
+            if (!started) {
+              // A not-started entry still belongs to exactly this lane.
+              lines[lane].splice(lines[lane].indexOf(entry), 1);
+              signal!.removeEventListener("abort", abort);
               drain();
             }
-          },
-        };
-        const abort: () => void = (): void => {
-          cancelled = true;
-          reject(signal!.reason);
-          if (!started) {
-            // A not-started entry still belongs to exactly this lane.
-            lines[lane].splice(lines[lane].indexOf(entry), 1);
-            signal!.removeEventListener("abort", abort);
-            drain();
-          }
-        };
-        lines[lane].push(entry);
-        signal?.addEventListener("abort", abort, { once: true });
-        if (signal?.aborted) abort();
-        else drain();
-      });
+          };
+          lines[lane].push(entry);
+          signal?.addEventListener("abort", abort, { once: true });
+          if (signal?.aborted) abort();
+          else drain();
+        },
+      );
     },
     status: (): IHumanViewerQueueStatus => ({
       waiting: {

@@ -1,6 +1,5 @@
 import type { IHumanViewerLandmarkSurface } from "./IHumanViewerLandmarkSurface.js";
 
-
 /**
  * Draw the observed landmarks of the photograph on the page's SVG overlay, in the same capture pixels that `layoutHumanViewerReference` and the PNG capture use, so the screen and a saved frame mark identical positions. The overlay is shown only when the address asked for landmarks and a photograph is displayed; otherwise it is emptied and hidden. Markers carry their group name and no path or image data.
  *

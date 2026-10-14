@@ -2,11 +2,11 @@ import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
-import { createConnectedBodyViewport } from "@automovie/viewer/human/body/createConnectedBodyViewport";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IConnectedBodyConstructionExportResult } from "@automovie/human/body/runtime/IConnectedBodyConstructionExportResult";
+import { createConnectedBodyViewport } from "@automovie/viewer/human/body/createConnectedBodyViewport";
 import type * as THREE from "three";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IBuildHumanViewerBodyResidentProps } from "./IBuildHumanViewerBodyResidentProps.js";
 import type { IHumanViewerResident } from "./IHumanViewerResident.js";
 import { collectHumanViewerBodyArrays } from "./collectHumanViewerBodyArrays.js";
@@ -62,10 +62,11 @@ export async function buildHumanViewerBodyResident<
       stage,
       admission: construction?.admission,
       rigReading: construction?.model.rigReading,
-      exportConstruction: async (): Promise<IConnectedBodyConstructionExportResult> => ({
-        operation: "exportConstruction",
-        ...(await publishedStage.exportConstruction(props.document)),
-      }),
+      exportConstruction:
+        async (): Promise<IConnectedBodyConstructionExportResult> => ({
+          operation: "exportConstruction",
+          ...(await publishedStage.exportConstruction(props.document)),
+        }),
       resize: props.host.resize,
       group,
       release,

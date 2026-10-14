@@ -15,7 +15,10 @@ export function createHumanViewerSpans(now: () => number): {
   add: (name: string, ms: number) => void;
   snapshot: () => Record<string, number>;
 } {
-  let totals: Record<string, number> = Object.create(null) as Record<string, number>;
+  let totals: Record<string, number> = Object.create(null) as Record<
+    string,
+    number
+  >;
   return {
     /** Start a new capture with no recorded stage. */
     reset: (): void => {

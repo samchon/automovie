@@ -17,8 +17,15 @@ export function isHumanViewerPreviewProjection(
   operation: "preview";
   model: object;
 } {
-  return value !== null && typeof value === "object" && !Array.isArray(value) &&
-    "operation" in value && value.operation === "preview" &&
-    "model" in value && value.model !== null && typeof value.model === "object" &&
-    !Array.isArray(value.model);
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    "operation" in value &&
+    value.operation === "preview" &&
+    "model" in value &&
+    value.model !== null &&
+    typeof value.model === "object" &&
+    !Array.isArray(value.model)
+  );
 }

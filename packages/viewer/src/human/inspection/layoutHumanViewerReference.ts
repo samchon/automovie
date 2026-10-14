@@ -2,7 +2,6 @@ import type { IHumanViewerReferenceBox } from "./IHumanViewerReferenceBox.js";
 import type { IHumanViewerReferenceLayer } from "./IHumanViewerReferenceLayer.js";
 import type { IHumanViewerReferenceMarker } from "./IHumanViewerReferenceMarker.js";
 
-
 /**
  * The pixel layout of a capture that shows a reference photograph beside or over the render. The display page draws the photograph as a DOM layer above the canvas, so the canvas alone never contains it. This layout is the same composition in pixels, so a PNG captured for `ref` shows what the page shows. Units are capture pixels. The photograph is fitted inside its square cell without cropping, centred, as CSS `object-fit: contain` places it. `split` widens the capture to two cells with the render left and the photograph right. `overlay` draws the photograph over the render at opacity `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows the photograph only right of the `opacity` fraction of the width. Landmarks are observed on the photograph in unit image coordinates, so each marker lands inside the photograph's fitted box, whichever mode places it. The plan reads no image bytes and records no file name or path.
  *
@@ -40,21 +39,30 @@ export function layoutHumanViewerReference(
   const scale: number = Math.min(size / photo.width, size / photo.height);
   const w: number = photo.width * scale;
   const h: number = photo.height * scale;
-  const fitted: (left: number) => IHumanViewerReferenceBox = (left: number): IHumanViewerReferenceBox => ({
+  const fitted: (left: number) => IHumanViewerReferenceBox = (
+    left: number,
+  ): IHumanViewerReferenceBox => ({
     x: left + (size - w) / 2,
     y: (size - h) / 2,
     w,
     h,
   });
   const cell: IHumanViewerReferenceBox = { x: 0, y: 0, w: size, h: size };
-  const place: (left: number) => { markers: IHumanViewerReferenceMarker[]; markerRadius: number } = (left: number): { markers: IHumanViewerReferenceMarker[]; markerRadius: number } => {
+  const place: (left: number) => {
+    markers: IHumanViewerReferenceMarker[];
+    markerRadius: number;
+  } = (
+    left: number,
+  ): { markers: IHumanViewerReferenceMarker[]; markerRadius: number } => {
     const box: IHumanViewerReferenceBox = fitted(left);
     return {
-      markers: landmarks.map((point: typeof landmarks[number]): IHumanViewerReferenceMarker => ({
-        x: box.x + point.x * box.w,
-        y: box.y + point.y * box.h,
-        group: point.group,
-      })),
+      markers: landmarks.map(
+        (point: (typeof landmarks)[number]): IHumanViewerReferenceMarker => ({
+          x: box.x + point.x * box.w,
+          y: box.y + point.y * box.h,
+          group: point.group,
+        }),
+      ),
       markerRadius: Math.max(2, size * 0.004),
     };
   };

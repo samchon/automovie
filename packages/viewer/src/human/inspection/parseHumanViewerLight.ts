@@ -18,14 +18,19 @@ export function parseHumanViewerLight(
   const fields: string[] = value.split(",");
   if (
     fields.length !== 4 ||
-    !humanViewerChoices.lights.some((name: typeof humanViewerChoices.lights[number]): boolean => name === fields[0])
+    !humanViewerChoices.lights.some(
+      (name: (typeof humanViewerChoices.lights)[number]): boolean =>
+        name === fields[0],
+    )
   )
     throw new Error(
       "light requires key, fill or rim and three direction components",
     );
   const direction: number[] = fields
     .slice(1)
-    .map((field: string): number => (field.trim() === "" ? NaN : Number(field)));
+    .map((field: string): number =>
+      field.trim() === "" ? NaN : Number(field),
+    );
   const magnitude: number = Math.hypot(...direction);
   if (!Number.isFinite(magnitude) || magnitude === 0)
     throw new Error("light requires a finite nonzero direction");

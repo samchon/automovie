@@ -1,5 +1,6 @@
 import { Worker } from "node:worker_threads";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { ICreateHumanViewerRevisionsWorkerProps } from "./ICreateHumanViewerRevisionsWorkerProps.js";
 import type { IHumanViewerMovedDomains } from "./IHumanViewerMovedDomains.js";
 import type { IHumanViewerRevisions } from "./IHumanViewerRevisions.js";
@@ -7,7 +8,6 @@ import type { IHumanViewerRevisionsChange } from "./IHumanViewerRevisionsChange.
 import type { IHumanViewerRevisionsReply } from "./IHumanViewerRevisionsReply.js";
 import type { IHumanViewerRevisionsWorkerInit } from "./IHumanViewerRevisionsWorkerInit.js";
 import { createHumanViewerRevisions } from "./createHumanViewerRevisions.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
 /**
  * The server's revision owner. The first digests are computed here while the server starts, before it listens, so the first catalogue has them; every later edit batch is computed by the worker module (`revisions-worker.ts`) on a thread of its own, so the event loop keeps answering requests while edits arrive. Batches are answered in the order they were sent; `current` and `reaches` read the last answer and never wait. A worker that fails or exits refuses every batch after it with that cause. The checked input scope is transferred unchanged to that worker and stays with the existing Node witness reader. Source reach includes dynamic additions in those checked roots, even when no executed module imports the new file. Close rejects queued requests and awaits actual worker termination; unref only controls process liveness and does not release a running worker.
@@ -28,7 +28,8 @@ export function createHumanViewerRevisionsWorker(
   changed: (files: string[]) => Promise<IHumanViewerMovedDomains>;
   close: () => Promise<void>;
 } {
-  const first: ReturnType<typeof createHumanViewerRevisions> = createHumanViewerRevisions(props);
+  const first: ReturnType<typeof createHumanViewerRevisions> =
+    createHumanViewerRevisions(props);
   let current: IHumanViewerRevisions = first.current();
   let reached: Set<string> = new Set(first.reached());
   const init: IHumanViewerRevisionsWorkerInit = {
@@ -54,7 +55,9 @@ export function createHumanViewerRevisionsWorker(
         error: failure.message,
       });
   };
-  const message: (reply: IHumanViewerRevisionsReply) => void = (reply: IHumanViewerRevisionsReply): void => {
+  const message: (reply: IHumanViewerRevisionsReply) => void = (
+    reply: IHumanViewerRevisionsReply,
+  ): void => {
     waiting.shift()?.(reply);
   };
   const exit: (code: number) => void = (code: number): void => {
@@ -64,7 +67,9 @@ export function createHumanViewerRevisionsWorker(
   worker.on("error", fail);
   worker.on("exit", exit);
   const retire: () => Promise<void> = createAutoMovieResourceRetirement([
-    async (): Promise<void> => { await worker.terminate(); },
+    async (): Promise<void> => {
+      await worker.terminate();
+    },
     (): void => {
       worker.off("message", message);
       worker.off("error", fail);
@@ -76,24 +81,31 @@ export function createHumanViewerRevisionsWorker(
     current: (): IHumanViewerRevisions => current,
 
     /** Whether a graph dependency or dynamically added checked-loader input can change source admission. */
-    reaches: (file: string): boolean => reached.has(file) || first.reaches(file),
+    reaches: (file: string): boolean =>
+      reached.has(file) || first.reaches(file),
 
     /** Compute the digests after an edit batch on the worker and name the moved domains. */
     changed: async (files: string[]): Promise<IHumanViewerMovedDomains> => {
       if (failure !== null) throw failure;
-      const reply: IHumanViewerRevisionsReply = await new Promise<IHumanViewerRevisionsReply>((resolve: (reply: IHumanViewerRevisionsReply) => void, reject: (error: unknown) => void): void => {
-        const change: IHumanViewerRevisionsChange = {
-          files,
-          bases: props.bases(),
-        };
-        waiting.push(resolve);
-        try {
-          worker.postMessage(change);
-        } catch (error) {
-          waiting.splice(waiting.indexOf(resolve), 1);
-          reject(error);
-        }
-      });
+      const reply: IHumanViewerRevisionsReply =
+        await new Promise<IHumanViewerRevisionsReply>(
+          (
+            resolve: (reply: IHumanViewerRevisionsReply) => void,
+            reject: (error: unknown) => void,
+          ): void => {
+            const change: IHumanViewerRevisionsChange = {
+              files,
+              bases: props.bases(),
+            };
+            waiting.push(resolve);
+            try {
+              worker.postMessage(change);
+            } catch (error) {
+              waiting.splice(waiting.indexOf(resolve), 1);
+              reject(error);
+            }
+          },
+        );
       if (reply.error !== null)
         throw new Error("Revision digests failed: " + reply.error);
       if (failure !== null) throw failure;

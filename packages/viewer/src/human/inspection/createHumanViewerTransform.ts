@@ -21,7 +21,8 @@ export function createHumanViewerTransform<Result>(
   watchChange: (id: string, change: IHumanViewerWatchChange) => void;
   closeBundle: () => void;
 } {
-  const prefix: string = sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
+  const prefix: string =
+    sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
   return {
     name: "human-viewer-typia",
     enforce: "pre" as const,

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 
-import { drawHumanViewerFrame } from "./drawHumanViewerFrame.js";
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
 import type { IConnectedBodyViewportHost } from "../body/IConnectedBodyViewportHost.js";
+import { drawHumanViewerFrame } from "./drawHumanViewerFrame.js";
 
 /**
  * The host a product viewport is created with: the page's one WebGL renderer behind a facade that keeps each viewport's color, tone and shadow settings of its own, so residents sharing the renderer never see each other's settings. The facade has no animation loop, since captures always finish a frame on demand. `resize` calls the viewport's latest resize observer and `release` independently attempts the orbit controls the viewport created, awaiting one shared completion and retaining every failure. The host borrows the page renderer and never disposes it or ends its context.
@@ -20,10 +20,17 @@ export function createHumanViewerViewportHost(
   canvas: HTMLCanvasElement,
   renderer: THREE.WebGLRenderer,
   loader: THREE.TextureLoader,
-): { props: Omit<IConnectedBodyViewportHost<unknown>, "worker">; resize: () => void; release: () => Promise<void> } {
+): {
+  props: Omit<IConnectedBodyViewportHost<unknown>, "worker">;
+  resize: () => void;
+  release: () => Promise<void>;
+} {
   const controls: OrbitControls[] = [];
   let resize: () => void = (): void => {};
-  const settings: Parameters<typeof drawHumanViewerFrame>[0] & { toneMapping: THREE.ToneMapping; shadowMap: { type: THREE.ShadowMapType } } = {
+  const settings: Parameters<typeof drawHumanViewerFrame>[0] & {
+    toneMapping: THREE.ToneMapping;
+    shadowMap: { type: THREE.ShadowMapType };
+  } = {
     outputColorSpace: THREE.SRGBColorSpace as string,
     toneMapping: THREE.LinearToneMapping as THREE.ToneMapping,
     toneMappingExposure: 1,
@@ -66,7 +73,8 @@ export function createHumanViewerViewportHost(
         drawHumanViewerFrame(settings, renderer, (): void =>
           renderer.render(scene, camera),
         ),
-      getContext: (): ReturnType<THREE.WebGLRenderer["getContext"]> => renderer.getContext(),
+      getContext: (): ReturnType<THREE.WebGLRenderer["getContext"]> =>
+        renderer.getContext(),
     },
     orbit: (camera: THREE.PerspectiveCamera): OrbitControls => {
       const orbit: OrbitControls = new OrbitControls(camera, canvas);
@@ -79,16 +87,24 @@ export function createHumanViewerViewportHost(
         if (resize === observer) resize = (): void => {};
       };
     },
-    loadTexture: (asset: string): Promise<THREE.Texture> => loader.loadAsync(asset),
+    loadTexture: (asset: string): Promise<THREE.Texture> =>
+      loader.loadAsync(asset),
   };
   return {
     props,
     resize: (): void => resize(),
     release: createAutoMovieResourceRetirement([
-      (): void => { resize = (): void => {}; },
-      (): Promise<void> => createAutoMovieResourceRetirement(
-        controls.map((control: OrbitControls): (() => void) => (): void => control.dispose()),
-      )(),
+      (): void => {
+        resize = (): void => {};
+      },
+      (): Promise<void> =>
+        createAutoMovieResourceRetirement(
+          controls.map(
+            (control: OrbitControls): (() => void) =>
+              (): void =>
+                control.dispose(),
+          ),
+        )(),
     ]),
   };
 }

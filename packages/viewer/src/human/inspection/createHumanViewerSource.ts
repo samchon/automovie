@@ -2,14 +2,16 @@
  * Disk input and import-graph ownership for the resident viewer. The host creates this once; refreshBases updates the external input digests before the import graph receives a change. Catalogue reads share that same basis identity memo so thumbnails and numerical requests use one cache authority.
  */
 import fs from "node:fs";
-import path from "node:path";
 import { createRequire } from "node:module";
+import path from "node:path";
 
+import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
+import type { IHumanViewerExampleSources } from "./IHumanViewerExampleSources.js";
 import type { IHumanViewerFaceDocumentsMemo } from "./IHumanViewerFaceDocumentsMemo.js";
 import type { IHumanViewerGenerationFiles } from "./IHumanViewerGenerationFiles.js";
 import type { IHumanViewerInputFileRead } from "./IHumanViewerInputFileRead.js";
-import type { HumanViewerBodyExamples } from "./HumanViewerBodyExamples.js";
-import type { IHumanViewerExampleSources } from "./IHumanViewerExampleSources.js";
+import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js";
 import type { IReadHumanViewerCatalogueProps } from "./IReadHumanViewerCatalogueProps.js";
 import { createHumanViewerBasisMemo } from "./createHumanViewerBasisMemo.js";
 import { createHumanViewerRevisionsWorker } from "./createHumanViewerRevisionsWorker.js";
@@ -17,10 +19,8 @@ import { createHumanViewerSidecarFacts } from "./createHumanViewerSidecarFacts.j
 import { createNodeHumanViewerResolveIo } from "./createNodeHumanViewerResolveIo.js";
 import { humanViewerStorage } from "./humanViewerStorage.js";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.js";
-import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration.js";
 import { readHumanViewerNodeInputs } from "./readHumanViewerNodeInputs.js";
-import type { IHumanViewerNodeInputScope } from "./IHumanViewerNodeInputScope.js";
-import { createAutoMovieResourceRetirement } from "../../createAutoMovieResourceRetirement.js";
+import { readHumanViewerPublishedGeneration } from "./readHumanViewerPublishedGeneration.js";
 
 /**
  * Open the published input and source revision owners for one server directory. The host refreshes basis versions before publishing a source edit batch; catalogue readers share that memo and the graph's current domain digests. Application-owned paths and factories supply every named example. The repository ships no basis or person generation; published ones are files an operator places in the ignored storage's `published` directory. One checked-loader scope feeds both numerical startup witnesses and the browser admission revision; checked-project edits outside a numerical entry's dependency graph leave that model key intact. Imported barrels can make otherwise unrelated files part of that graph. File identity memoization uses mtime/size stamps, which can collide after an in-place rewrite that preserves both values; this adapter does not certify a fresh byte digest in that case. Close retires the revision worker and waits for already-started sidecar reads after withdrawing catalogue notifications.
@@ -52,13 +52,19 @@ export function createHumanViewerSource(
   revisions: ReturnType<typeof createHumanViewerRevisionsWorker>;
   watched: string[];
   numericalInputs: () => ReturnType<typeof readHumanViewerNodeInputs>;
-  catalogue: (selectedDoc?: string, admitAll?: boolean) => ReturnType<typeof readHumanViewerCatalogue>;
+  catalogue: (
+    selectedDoc?: string,
+    admitAll?: boolean,
+  ) => ReturnType<typeof readHumanViewerCatalogue>;
   hasOwnInput: (doc: string) => boolean;
   refreshBases: () => void;
   sidecarsChanged: (listener: () => void) => void;
   sidecars: ReturnType<typeof createHumanViewerSidecarFacts>;
   views: ReturnType<typeof createHumanViewerSidecarFacts>;
-  admitWith: (judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>, peek?: NonNullable<IReadHumanViewerCatalogueProps["admission"]>) => void;
+  admitWith: (
+    judge: NonNullable<IReadHumanViewerCatalogueProps["admission"]>,
+    peek?: NonNullable<IReadHumanViewerCatalogueProps["admission"]>,
+  ) => void;
   close: () => Promise<void>;
 } {
   const root: string = path.resolve(directory, "../../../../..");
@@ -77,24 +83,31 @@ export function createHumanViewerSource(
   };
   /** The published one-skin person generation views, read off the request path. */
   /** The source owner's subject people on the published generation. */
-  const { subjectPeopleFile, documentsFile, bodyExamplesFile, cameraPosesFile }: IHumanViewerExampleSources = exampleSources;
+  const {
+    subjectPeopleFile,
+    documentsFile,
+    bodyExamplesFile,
+    cameraPosesFile,
+  }: IHumanViewerExampleSources = exampleSources;
   const generationFiles: IHumanViewerGenerationFiles = {
     head: path.join(publishedDirectory, "person.head.json.gz"),
     body: path.join(publishedDirectory, "person.body.json.gz"),
   };
   const inputsDirectory: string = path.join(storage, "inputs");
-  const slash: (file: string) => string = (file: string): string => file.replaceAll("\\", "/");
+  const slash: (file: string) => string = (file: string): string =>
+    file.replaceAll("\\", "/");
   const rootPath: string = slash(root);
   const human: (file: string) => string = (file: string): string =>
     `${rootPath}/packages/human/src/${file}`;
   /** Digest and identity of a large input file, recomputed only when it changes on disk. */
-  const basisOf: ReturnType<typeof createHumanViewerBasisMemo> = createHumanViewerBasisMemo({
-    stamp: (file: string): string => {
-      const stat: fs.Stats = fs.statSync(file);
-      return `${stat.mtimeMs}:${stat.size}`;
-    },
-    read: (file: string): Buffer => fs.readFileSync(file),
-  });
+  const basisOf: ReturnType<typeof createHumanViewerBasisMemo> =
+    createHumanViewerBasisMemo({
+      stamp: (file: string): string => {
+        const stat: fs.Stats = fs.statSync(file);
+        return `${stat.mtimeMs}:${stat.size}`;
+      },
+      read: (file: string): Buffer => fs.readFileSync(file),
+    });
   /** Each input file's entries, kept while the file and what it depends on are unchanged. */
   const inputsMemo: Map<string, IHumanViewerInputFileRead> = new Map();
   /** The face documents, kept while the subject list, face basis and face source are unchanged. */
@@ -108,24 +121,38 @@ export function createHumanViewerSource(
       .map((file: string): string => basisOf(file).digest)
       .join("");
   let bases: string = basisDigest();
-  const watched: string[] = ["human", "engine", "interface", "viewer", "playground"].map(
-    (name: string): string => path.join(root, "packages", name, "src"),
-  );
+  const watched: string[] = [
+    "human",
+    "engine",
+    "interface",
+    "viewer",
+    "playground",
+  ].map((name: string): string => path.join(root, "packages", name, "src"));
   watched.push(directory, applicationDirectory);
-  const numericalRequire: ReturnType<typeof createRequire> = createRequire(path.join(directory, "numerical-worker.ts"));
+  const numericalRequire: ReturnType<typeof createRequire> = createRequire(
+    path.join(directory, "numerical-worker.ts"),
+  );
   const checkedInputs: IHumanViewerNodeInputScope = {
     directories: [...watched],
     files: [
-      "pnpm-lock.yaml", "pnpm-workspace.yaml", "config/tsconfig.json",
-      "packages/playground/package.json", "packages/playground/tsconfig.json",
-      path.join(applicationDirectory, "tsconfig.json"), "packages/playground/lint.config.ts",
-      "packages/viewer/tsconfig.json", "packages/viewer/lint.config.ts",
-      numericalRequire.resolve("ttsc/register"), numericalRequire.resolve("ttsc/package.json"),
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "config/tsconfig.json",
+      "packages/playground/package.json",
+      "packages/playground/tsconfig.json",
+      path.join(applicationDirectory, "tsconfig.json"),
+      "packages/playground/lint.config.ts",
+      "packages/viewer/tsconfig.json",
+      "packages/viewer/lint.config.ts",
+      numericalRequire.resolve("ttsc/register"),
+      numericalRequire.resolve("ttsc/package.json"),
       numericalRequire.resolve("devalue"),
-      ...["human", "engine", "interface", "viewer", "playground"].flatMap((name: string): string[] => [
-        path.join(root, "packages", name, "package.json"),
-        path.join(root, "packages", name, "tsconfig.json"),
-      ]),
+      ...["human", "engine", "interface", "viewer", "playground"].flatMap(
+        (name: string): string[] => [
+          path.join(root, "packages", name, "package.json"),
+          path.join(root, "packages", name, "tsconfig.json"),
+        ],
+      ),
     ].map((file: string): string => path.resolve(root, file)),
   };
   watched.push(...checkedInputs.files);
@@ -133,88 +160,110 @@ export function createHumanViewerSource(
   // admission digest also includes the complete checked Node byte/membership
   // witness, so a checked project edit can renew a candidate without changing
   // unrelated face, body or person computation-cache keys.
-  const revisions: ReturnType<typeof createHumanViewerRevisionsWorker> = createHumanViewerRevisionsWorker({
-    checkedInputs,
-    root: rootPath,
-    entries: {
-      browser: [
-        ...["page.ts", "numerical-worker.ts"].map((name: string): string => `${slash(directory)}/${name}`),
-        ...["host.ts", "scene.html", "view.html"].map((name: string): string => `${slash(applicationDirectory)}/${name}`),
-      ],
-      face: [
-        human("face/runtime/createConnectedFaceRuntime.ts"),
-      ],
-      body: [
-        human("body/runtime/createConnectedBodyRuntime.ts"),
-        human("human/runtime/createConnectedBodyGenerationRuntime.ts"),
-      ],
-      person: [
-        human("human/runtime/createConnectedPersonRuntime.ts"),
-      ],
-    },
-    extra: [
-      "pnpm-lock.yaml",
-      "config/tsconfig.json",
-      "packages/human/tsconfig.json",
-      "packages/viewer/tsconfig.json",
-      "packages/human/package.json",
-      "packages/playground/package.json",
-      "packages/viewer/package.json",
-    ].map((file: string): string => `${rootPath}/${file}`),
-    bases: (): string => bases,
-    io: createNodeHumanViewerResolveIo(root),
-    worker: path.join(directory, "revisions-worker.ts"),
-  });
+  const revisions: ReturnType<typeof createHumanViewerRevisionsWorker> =
+    createHumanViewerRevisionsWorker({
+      checkedInputs,
+      root: rootPath,
+      entries: {
+        browser: [
+          ...["page.ts", "numerical-worker.ts"].map(
+            (name: string): string => `${slash(directory)}/${name}`,
+          ),
+          ...["host.ts", "scene.html", "view.html"].map(
+            (name: string): string => `${slash(applicationDirectory)}/${name}`,
+          ),
+        ],
+        face: [human("face/runtime/createConnectedFaceRuntime.ts")],
+        body: [
+          human("body/runtime/createConnectedBodyRuntime.ts"),
+          human("human/runtime/createConnectedBodyGenerationRuntime.ts"),
+        ],
+        person: [human("human/runtime/createConnectedPersonRuntime.ts")],
+      },
+      extra: [
+        "pnpm-lock.yaml",
+        "config/tsconfig.json",
+        "packages/human/tsconfig.json",
+        "packages/viewer/tsconfig.json",
+        "packages/human/package.json",
+        "packages/playground/package.json",
+        "packages/viewer/package.json",
+      ].map((file: string): string => `${rootPath}/${file}`),
+      bases: (): string => bases,
+      io: createNodeHumanViewerResolveIo(root),
+      worker: path.join(directory, "revisions-worker.ts"),
+    });
   // Candidate sidecars are read off the request path; when one becomes known
   // the host republishes its catalogue through the registered listener.
   let sidecarListener: () => void = (): void => {};
   // The host binds the page's admission once its page exists.
   let admission: IReadHumanViewerCatalogueProps["admission"];
   let peekAdmission: IReadHumanViewerCatalogueProps["admission"];
-  const sidecars: ReturnType<typeof createHumanViewerSidecarFacts> = createHumanViewerSidecarFacts({
-    stamp: (name: string): string => {
-      const stat: fs.Stats = fs.statSync(path.join(inputsDirectory, name));
-      return `${stat.mtimeMs}:${stat.size}`;
-    },
-    stream: (name: string): fs.ReadStream => fs.createReadStream(path.join(inputsDirectory, name)),
-    changed: (): void => sidecarListener(),
-    kind: (name: string): "person" | "view" | "basis" =>
-      name.endsWith(".person.json.gz")
-        ? "person"
-        : name.endsWith(".head.json.gz") || name.endsWith(".body.json.gz")
-          ? "view"
-          : "basis",
-  });
-  const views: ReturnType<typeof createHumanViewerSidecarFacts> = createHumanViewerSidecarFacts({
-    stamp: (file: string): string => {
-      const stat: fs.Stats = fs.statSync(file);
-      return `${stat.mtimeMs}:${stat.size}`;
-    },
-    stream: (file: string): fs.ReadStream => fs.createReadStream(file),
-    changed: (): void => sidecarListener(),
-    kind: (): "view" => "view",
-  });
-  const generation: () => ReturnType<typeof readHumanViewerPublishedGeneration> = (): ReturnType<typeof readHumanViewerPublishedGeneration> =>
+  const sidecars: ReturnType<typeof createHumanViewerSidecarFacts> =
+    createHumanViewerSidecarFacts({
+      stamp: (name: string): string => {
+        const stat: fs.Stats = fs.statSync(path.join(inputsDirectory, name));
+        return `${stat.mtimeMs}:${stat.size}`;
+      },
+      stream: (name: string): fs.ReadStream =>
+        fs.createReadStream(path.join(inputsDirectory, name)),
+      changed: (): void => sidecarListener(),
+      kind: (name: string): "person" | "view" | "basis" =>
+        name.endsWith(".person.json.gz")
+          ? "person"
+          : name.endsWith(".head.json.gz") || name.endsWith(".body.json.gz")
+            ? "view"
+            : "basis",
+    });
+  const views: ReturnType<typeof createHumanViewerSidecarFacts> =
+    createHumanViewerSidecarFacts({
+      stamp: (file: string): string => {
+        const stat: fs.Stats = fs.statSync(file);
+        return `${stat.mtimeMs}:${stat.size}`;
+      },
+      stream: (file: string): fs.ReadStream => fs.createReadStream(file),
+      changed: (): void => sidecarListener(),
+      kind: (): "view" => "view",
+    });
+  const generation: () => ReturnType<
+    typeof readHumanViewerPublishedGeneration
+  > = (): ReturnType<typeof readHumanViewerPublishedGeneration> =>
     readHumanViewerPublishedGeneration({
       files: {
         head: path.relative(root, generationFiles.head).replaceAll("\\", "/"),
         body: path.relative(root, generationFiles.body).replaceAll("\\", "/"),
       },
-      exists: (view: "head" | "body"): boolean => fs.existsSync(generationFiles[view]),
-      facts: (view: "head" | "body"): ReturnType<typeof views.facts> => views.facts(generationFiles[view]),
+      exists: (view: "head" | "body"): boolean =>
+        fs.existsSync(generationFiles[view]),
+      facts: (view: "head" | "body"): ReturnType<typeof views.facts> =>
+        views.facts(generationFiles[view]),
     });
   /** An owned sidecar selects its own authority; the input owner still checks every required member and basis identity. */
   const hasOwnInput: (doc: string) => boolean = (doc: string): boolean => {
     if (!doc.startsWith("file:")) return false;
     const stem: string = doc.slice(5).split("/")[0];
     if (!/^[A-Za-z0-9._-]+$/.test(stem)) return false;
-    return [".basis.json.gz", ".person.json.gz", ".head.json.gz", ".body.json.gz"]
-      .some((suffix: string): boolean => fs.existsSync(path.join(inputsDirectory, stem + suffix)));
+    return [
+      ".basis.json.gz",
+      ".person.json.gz",
+      ".head.json.gz",
+      ".body.json.gz",
+    ].some((suffix: string): boolean =>
+      fs.existsSync(path.join(inputsDirectory, stem + suffix)),
+    );
   };
-  const catalogue: (selectedDoc?: string, admitAll?: boolean) => ReturnType<typeof readHumanViewerCatalogue> = (selectedDoc?: string, admitAll: boolean = false): ReturnType<typeof readHumanViewerCatalogue> =>
+  const catalogue: (
+    selectedDoc?: string,
+    admitAll?: boolean,
+  ) => ReturnType<typeof readHumanViewerCatalogue> = (
+    selectedDoc?: string,
+    admitAll: boolean = false,
+  ): ReturnType<typeof readHumanViewerCatalogue> =>
     readHumanViewerCatalogue({
       exampleSources,
-      bodyExamples: JSON.parse(fs.readFileSync(bodyExamplesFile, "utf8")) as HumanViewerBodyExamples,
+      bodyExamples: JSON.parse(
+        fs.readFileSync(bodyExamplesFile, "utf8"),
+      ) as HumanViewerBodyExamples,
       selectedDoc,
       independentInput: selectedDoc !== undefined && hasOwnInput(selectedDoc),
       basisFiles,
@@ -227,7 +276,8 @@ export function createHumanViewerSource(
       revisions: revisions.current(),
       sidecar: sidecars.facts,
       generation,
-      admission: selectedDoc !== undefined || admitAll ? admission : peekAdmission,
+      admission:
+        selectedDoc !== undefined || admitAll ? admission : peekAdmission,
     });
   return {
     root,
@@ -243,7 +293,12 @@ export function createHumanViewerSource(
     slash,
     revisions,
     watched,
-    numericalInputs: (): ReturnType<typeof readHumanViewerNodeInputs> => readHumanViewerNodeInputs(root, checkedInputs.directories, checkedInputs.files),
+    numericalInputs: (): ReturnType<typeof readHumanViewerNodeInputs> =>
+      readHumanViewerNodeInputs(
+        root,
+        checkedInputs.directories,
+        checkedInputs.files,
+      ),
     catalogue,
     hasOwnInput,
     refreshBases: (): void => {
@@ -265,7 +320,9 @@ export function createHumanViewerSource(
         faceMemo.value = null;
       },
       revisions.close,
-      async (): Promise<void> => { await Promise.all([sidecars.settled(), views.settled()]); },
+      async (): Promise<void> => {
+        await Promise.all([sidecars.settled(), views.settled()]);
+      },
     ]),
     /** Bind the page owner's document admission. */
     admitWith: (

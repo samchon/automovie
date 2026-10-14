@@ -31,7 +31,10 @@ export function createHumanViewerWorkReporter(
 ) => void {
   let stagePhase: HumanViewerWork["phase"] = "idle";
   let stageAt: number = 0;
-  return (phase: HumanViewerWork["phase"], completed?: IHumanViewerNumericalProgress): void => {
+  return (
+    phase: HumanViewerWork["phase"],
+    completed?: IHumanViewerNumericalProgress,
+  ): void => {
     const at: number = performance.now();
     if (UNMEASURED.has(stagePhase)) spans.add(stagePhase + "Ms", at - stageAt);
     stagePhase = phase;

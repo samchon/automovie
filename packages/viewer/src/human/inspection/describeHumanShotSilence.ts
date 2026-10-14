@@ -19,7 +19,9 @@ export function describeHumanShotSilence(
   context: IHumanShotContext,
   refused: boolean,
 ): IHumanViewerSilence {
-  const saved: ReturnType<typeof readHumanViewerRecord> = readHumanViewerRecord(context.record);
+  const saved: ReturnType<typeof readHumanViewerRecord> = readHumanViewerRecord(
+    context.record,
+  );
   return describeHumanViewerSilence({
     refused,
     port: context.port,

@@ -17,11 +17,16 @@ export function assertHumanViewerSingleCompile(
   worker: IHumanViewerNodeAuthority,
   revision: string,
 ): void {
-  if (new Set(page).size > 1 || worker.revision !== revision ||
-      worker.loader !== "ttsc/register" || Object.keys(worker.inputs).length === 0)
+  if (
+    new Set(page).size > 1 ||
+    worker.revision !== revision ||
+    worker.loader !== "ttsc/register" ||
+    Object.keys(worker.inputs).length === 0
+  )
     throw new HumanViewerMixedCompileError(
       "The source generation was replaced during display: the page ran compiles " +
         page.join(", ") +
-        " and the Node realm reports source " + worker.revision,
+        " and the Node realm reports source " +
+        worker.revision,
     );
 }

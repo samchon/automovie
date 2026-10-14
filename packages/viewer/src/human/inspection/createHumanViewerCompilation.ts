@@ -38,7 +38,9 @@ export function createHumanViewerCompilation(
   // that keeps changing each ran slower and all but the last were discarded.
   let running: Promise<unknown> = Promise.resolve();
   /** The generation of the current epoch, starting its compile when needed. */
-  const current: () => Promise<Record<string, string>> = (): Promise<Record<string, string>> => {
+  const current: () => Promise<Record<string, string>> = (): Promise<
+    Record<string, string>
+  > => {
     if (generation !== undefined) return generation;
     const selectedEpoch: number = epoch;
     const compiled: Promise<Record<string, string> | null> = running
@@ -48,19 +50,23 @@ export function createHumanViewerCompilation(
         selectedEpoch === epoch ? compile() : null,
       );
     running = compiled;
-    const started: Promise<Record<string, string>> = compiled.then((files: Record<string, string> | null): Record<string, string> | Promise<Record<string, string>> => {
-      if (files === null) {
-        if (generation === started) generation = undefined;
-        return current();
-      }
-      names.set(files, now() + "#" + ++sequence);
-      if (selectedEpoch === epoch) {
-        good = files;
-        goodAt = now();
-        report({ error: null, goodAt });
-      }
-      return files;
-    });
+    const started: Promise<Record<string, string>> = compiled.then(
+      (
+        files: Record<string, string> | null,
+      ): Record<string, string> | Promise<Record<string, string>> => {
+        if (files === null) {
+          if (generation === started) generation = undefined;
+          return current();
+        }
+        names.set(files, now() + "#" + ++sequence);
+        if (selectedEpoch === epoch) {
+          good = files;
+          goodAt = now();
+          report({ error: null, goodAt });
+        }
+        return files;
+      },
+    );
     generation = started;
     return started;
   };
@@ -70,7 +76,9 @@ export function createHumanViewerCompilation(
     ): Promise<IHumanViewerCompiledSource | undefined> => {
       const selectedEpoch: number = epoch;
       const started: Promise<Record<string, string>> = current();
-      const named: (files: Record<string, string>) => IHumanViewerCompiledSource | undefined = (
+      const named: (
+        files: Record<string, string>,
+      ) => IHumanViewerCompiledSource | undefined = (
         files: Record<string, string>,
       ): IHumanViewerCompiledSource | undefined =>
         files[file] === undefined

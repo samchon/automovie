@@ -17,7 +17,10 @@ export function createHumanViewerThumbnailStore(
   disk: IHumanViewerThumbnailDisk,
   folder: string,
   join: (...parts: string[]) => string,
-): { prune: (revision: string) => void; stale: (file: string, revision: string) => string | null } {
+): {
+  prune: (revision: string) => void;
+  stale: (file: string, revision: string) => string | null;
+} {
   return {
     /** Remove every revision directory except the current one and the newest older one. */
     prune: (revision: string): void => {
@@ -36,9 +39,22 @@ export function createHumanViewerThumbnailStore(
       const current: string = humanViewerThumbnailDirectory(revision);
       const older: string | undefined = disk
         .directories(folder)
-        .filter((entry: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number]): boolean => entry.name !== current)
-        .sort((a: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number], b: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number]): number => b.mtimeMs - a.mtimeMs)
-        .map((entry: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number]): string => join(folder, entry.name, name))
+        .filter(
+          (
+            entry: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number],
+          ): boolean => entry.name !== current,
+        )
+        .sort(
+          (
+            a: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number],
+            b: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number],
+          ): number => b.mtimeMs - a.mtimeMs,
+        )
+        .map(
+          (
+            entry: ReturnType<IHumanViewerThumbnailDisk["directories"]>[number],
+          ): string => join(folder, entry.name, name),
+        )
         .find((candidate: string): boolean => disk.exists(candidate));
       return older ?? null;
     },

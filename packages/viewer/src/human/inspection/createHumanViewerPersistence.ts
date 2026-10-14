@@ -1,5 +1,5 @@
-import type { IHumanViewerPersistenceJob } from "./IHumanViewerPersistenceJob.js";
 import type { IHumanViewerNumericalPersistenceMessage } from "./IHumanViewerNumericalPersistenceMessage.js";
+import type { IHumanViewerPersistenceJob } from "./IHumanViewerPersistenceJob.js";
 import { encodeHumanViewerPreviewChunks } from "./encodeHumanViewerPreviewChunks.js";
 
 /**
@@ -46,9 +46,11 @@ export function createHumanViewerPersistence(
         // Eight codec pieces bound uninterrupted serialization to about
         // 512 Ki UTF-16 units without changing the serialized representation.
         if (++count % 8 === 0)
-          await new Promise<undefined>((resolve: (value: undefined) => void): void => {
-            setTimeout((): void => resolve(undefined), 0);
-          });
+          await new Promise<undefined>(
+            (resolve: (value: undefined) => void): void => {
+              setTimeout((): void => resolve(undefined), 0);
+            },
+          );
       }
       abort.signal.throwIfAborted();
       const blob: Blob = new Blob(pieces, { type: "application/json" });

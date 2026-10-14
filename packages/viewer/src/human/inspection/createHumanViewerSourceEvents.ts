@@ -1,4 +1,5 @@
 import type { ServerResponse } from "node:http";
+
 import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
 
 /**
@@ -15,7 +16,11 @@ import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResource
 export function createHumanViewerSourceEvents(
   revision: () => string,
   error?: () => string | undefined,
-): { subscribe: (response: ServerResponse) => void; publish: () => void; close: () => void } {
+): {
+  subscribe: (response: ServerResponse) => void;
+  publish: () => void;
+  close: () => void;
+} {
   const clients: Set<ServerResponse> = new Set();
   const message: () => string = (): string =>
     `data: ${JSON.stringify({ revision: revision(), error: error?.() })}\n\n`;
@@ -26,7 +31,9 @@ export function createHumanViewerSourceEvents(
       response.setHeader("Cache-Control", "no-store");
       response.flushHeaders();
       clients.add(response);
-      response.once("close", (): void => { clients.delete(response); });
+      response.once("close", (): void => {
+        clients.delete(response);
+      });
       response.write(message());
     },
     /** The source publication owner calls this after its catalogue is updated. */
@@ -38,7 +45,11 @@ export function createHumanViewerSourceEvents(
     close: (): void => {
       const owned: ServerResponse[] = [...clients];
       clients.clear();
-      reportAutoMovieResourceRetirement(owned.map((response: ServerResponse): (() => void) => (): void => { response.end(); }));
+      reportAutoMovieResourceRetirement(
+        owned.map((response: ServerResponse): (() => void) => (): void => {
+          response.end();
+        }),
+      );
     },
   };
 }

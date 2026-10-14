@@ -31,34 +31,46 @@ export function createHumanViewerDisplaySave(props: {
   return createViewerDisplaySave({
     canvas: props.canvas,
     retain: props.retain,
-    observe: (): ReturnType<Parameters<typeof createViewerDisplaySave>[0]["observe"]> => {
+    observe: (): ReturnType<
+      Parameters<typeof createViewerDisplaySave>[0]["observe"]
+    > => {
       const requestedAddress: HumanViewerAddress | undefined = props.address();
       if (requestedAddress === undefined) return undefined;
-      const gl: ReturnType<THREE.WebGLRenderer["getContext"]> = props.renderer.getContext();
-      if (gl.isContextLost()) throw new Error("The displayed GPU frame is unavailable for saving.");
+      const gl: ReturnType<THREE.WebGLRenderer["getContext"]> =
+        props.renderer.getContext();
+      if (gl.isContextLost())
+        throw new Error("The displayed GPU frame is unavailable for saving.");
       const stage: HumanViewerStage = props.stage();
       stage.finish();
       if (gl.isContextLost() || gl.getError() !== gl.NO_ERROR)
         throw new Error("The displayed GPU frame is unavailable for saving.");
       return {
-        revision: props.revision(), renderer: String(stage.renderer()),
+        revision: props.revision(),
+        renderer: String(stage.renderer()),
         address: readHumanViewerCameraAddress(requestedAddress, stage),
-        requestedAddress, camera: stage.observe.camera(),
+        requestedAddress,
+        camera: stage.observe.camera(),
       };
     },
     paint: (surface: HTMLCanvasElement): void => {
       const composition: IHumanViewerComposition | null = props.composition();
       if (composition !== null) {
         composeHumanViewerReference({
-          composition, photo: props.photo, landmarks: composition.landmarks,
-          render: props.canvas, create: (): HTMLCanvasElement => surface,
+          composition,
+          photo: props.photo,
+          landmarks: composition.landmarks,
+          render: props.canvas,
+          create: (): HTMLCanvasElement => surface,
         });
         return;
       }
       surface.width = props.canvas.width;
       surface.height = props.canvas.height;
       const context: CanvasRenderingContext2D | null = surface.getContext("2d");
-      if (context === null) throw new Error("A 2D surface is required to retain the completed display.");
+      if (context === null)
+        throw new Error(
+          "A 2D surface is required to retain the completed display.",
+        );
       context.drawImage(props.canvas, 0, 0);
     },
   });

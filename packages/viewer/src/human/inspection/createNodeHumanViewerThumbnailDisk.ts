@@ -24,14 +24,25 @@ export function createNodeHumanViewerThumbnailDisk(
   join: (...parts: string[]) => string,
 ): IHumanViewerThumbnailDisk {
   return {
-    directories: (folder: string): ReturnType<IHumanViewerThumbnailDisk["directories"]> =>
+    directories: (
+      folder: string,
+    ): ReturnType<IHumanViewerThumbnailDisk["directories"]> =>
       fs.existsSync(folder)
-        ? fs.readdirSync(folder, { withFileTypes: true }).filter((entry: { name: string; isDirectory(): boolean }): boolean => entry.isDirectory()).map((entry: { name: string }): { name: string; mtimeMs: number } => ({
-            name: entry.name,
-            mtimeMs: fs.statSync(join(folder, entry.name)).mtimeMs,
-          }))
+        ? fs
+            .readdirSync(folder, { withFileTypes: true })
+            .filter(
+              (entry: { name: string; isDirectory(): boolean }): boolean =>
+                entry.isDirectory(),
+            )
+            .map(
+              (entry: { name: string }): { name: string; mtimeMs: number } => ({
+                name: entry.name,
+                mtimeMs: fs.statSync(join(folder, entry.name)).mtimeMs,
+              }),
+            )
         : [],
     exists: (file: string): boolean => fs.existsSync(file),
-    remove: (target: string): void => fs.rmSync(target, { recursive: true, force: true }),
+    remove: (target: string): void =>
+      fs.rmSync(target, { recursive: true, force: true }),
   };
 }

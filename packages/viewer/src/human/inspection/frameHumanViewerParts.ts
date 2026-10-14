@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import {isHumanObservationAuxiliary} from "../common/observation/isHumanObservationAuxiliary.js";
+
+import { isHumanObservationAuxiliary } from "../common/observation/isHumanObservationAuxiliary.js";
 
 /**
  * Frame selected resident mesh subtrees from world-space geometry in metres, preserving numerical documents. World matrices update before precise bounding; missing names, empty selections and collapsed geometry refuse. Auxiliary mesh roots are skipped, but Three expandByObject recursively includes descendants of a selected mesh, which may include auxiliary children. Overlapping selected subtrees can revisit vertices. This is distinct from renderer visibility, layers and frustum admission.
@@ -22,7 +23,11 @@ export function frameHumanViewerParts(
   root.updateWorldMatrix(true, true);
   root.traverse((object: THREE.Object3D): void => {
     const mesh: THREE.Mesh = object as THREE.Mesh;
-    if (!mesh.isMesh || isHumanObservationAuxiliary(mesh) || (selected.size !== 0 && !selected.has(mesh.name)))
+    if (
+      !mesh.isMesh ||
+      isHumanObservationAuxiliary(mesh) ||
+      (selected.size !== 0 && !selected.has(mesh.name))
+    )
       return;
     found.add(mesh.name);
     bounds.expandByObject(mesh, true);

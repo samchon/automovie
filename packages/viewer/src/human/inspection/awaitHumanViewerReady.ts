@@ -18,28 +18,41 @@ export async function awaitHumanViewerReady(
   context: IHumanShotContext,
   owned: ChildProcess | undefined,
 ): Promise<void> {
-  let probe: Awaited<ReturnType<typeof probeHumanViewer>> = await probeHumanViewer(context);
+  let probe: Awaited<ReturnType<typeof probeHumanViewer>> =
+    await probeHumanViewer(context);
   while (!probe.health?.ready) {
-    if (owned !== undefined &&
-        (owned.exitCode !== null || owned.signalCode !== null))
+    if (
+      owned !== undefined &&
+      (owned.exitCode !== null || owned.signalCode !== null)
+    )
       throw new Error(
         `The owned viewer exited with code ${owned.exitCode} signal ${owned.signalCode} before readiness; its output is in ${context.logFile}`,
       );
-    if (probe.health?.sourceError !== null &&
-        probe.health?.sourceError !== undefined)
+    if (
+      probe.health?.sourceError !== null &&
+      probe.health?.sourceError !== undefined
+    )
       throw new Error(
         `The viewer reported a startup/source failure: ${probe.health.sourceError}; output is in ${context.logFile}`,
       );
-    await new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-      setTimeout((): void => resolve(undefined), 200);
-    });
+    await new Promise<undefined>(
+      (resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
+        setTimeout((): void => resolve(undefined), 200);
+      },
+    );
     probe = await probeHumanViewer(context);
   }
   console.log(JSON.stringify(probe.health));
   // The final health response can arrive after the child already exited.
   // Match the existing post-ready exit completion without awaiting a past event.
-  if (owned !== undefined && owned.exitCode === null && owned.signalCode === null)
-    await new Promise<undefined>((resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
-      owned.once("exit", (): void => resolve(undefined));
-    });
+  if (
+    owned !== undefined &&
+    owned.exitCode === null &&
+    owned.signalCode === null
+  )
+    await new Promise<undefined>(
+      (resolve: (value: undefined | PromiseLike<undefined>) => void): void => {
+        owned.once("exit", (): void => resolve(undefined));
+      },
+    );
 }

@@ -1,6 +1,6 @@
+import { humanCaptureCameraPosition } from "@automovie/viewer/human/common/observation/humanCaptureCameraPosition";
 import type * as THREE from "three";
 
-import { humanCaptureCameraPosition } from "@automovie/viewer/human/common/observation/humanCaptureCameraPosition";
 import type { HumanViewerAddress } from "./HumanViewerAddress.js";
 import type { HumanViewerStage } from "./HumanViewerStage.js";
 import { frameHumanViewerParts } from "./frameHumanViewerParts.js";
@@ -25,7 +25,10 @@ export function frameHumanViewerAddress(
     address.frame === null &&
     (address.parts.length !== 0 || address.zoom !== 1)
   ) {
-    const box: ReturnType<typeof frameHumanViewerParts> = frameHumanViewerParts(group, address.parts);
+    const box: ReturnType<typeof frameHumanViewerParts> = frameHumanViewerParts(
+      group,
+      address.parts,
+    );
     stage.observe.frame({
       center: box.center,
       radius: box.radius / address.zoom,
@@ -42,11 +45,17 @@ export function frameHumanViewerAddress(
       pitch: address.pitch,
     });
   if (address.look !== null) {
-    const [yaw, pitch, distance, x, y, z, fov]: NonNullable<HumanViewerAddress["look"]> = address.look;
+    const [yaw, pitch, distance, x, y, z, fov]: NonNullable<
+      HumanViewerAddress["look"]
+    > = address.look;
     stage.observe.look({
-      position: humanCaptureCameraPosition(
-        { yaw, pitch, distance, target: [x, y, z], fov },
-      ),
+      position: humanCaptureCameraPosition({
+        yaw,
+        pitch,
+        distance,
+        target: [x, y, z],
+        fov,
+      }),
       target: [x, y, z],
       fov,
     });

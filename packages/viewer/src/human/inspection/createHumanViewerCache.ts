@@ -31,19 +31,30 @@ export function createHumanViewerCache<Value>(
   const retirements: Set<IHumanViewerCacheRetirement<Value>> = new Set();
   let total: number = 0;
   let retiringBytes: number = 0;
-  const retire: (value: Value, bytes: number) => void = (value: Value, bytes: number): void => {
+  const retire: (value: Value, bytes: number) => void = (
+    value: Value,
+    bytes: number,
+  ): void => {
     retiringBytes += bytes;
-    const completion: Promise<void> = createAutoMovieResourceRetirement([async (): Promise<void> => {
-      await dispose(value);
-    }])();
-    const retirement: IHumanViewerCacheRetirement<Value> = { value, bytes, completion };
+    const completion: Promise<void> = createAutoMovieResourceRetirement([
+      async (): Promise<void> => {
+        await dispose(value);
+      },
+    ])();
+    const retirement: IHumanViewerCacheRetirement<Value> = {
+      value,
+      bytes,
+      completion,
+    };
     retirements.add(retirement);
-    void completion.then((): void => {
-      retirements.delete(retirement);
-      retiringBytes -= bytes;
-    }).catch((error: unknown): void => {
-      retirement.failure = { error };
-    });
+    void completion
+      .then((): void => {
+        retirements.delete(retirement);
+        retiringBytes -= bytes;
+      })
+      .catch((error: unknown): void => {
+        retirement.failure = { error };
+      });
   };
   const remove: (key: string) => void = (key: string): void => {
     const value: Value = entries.get(key)!;
@@ -103,9 +114,14 @@ export function createHumanViewerCache<Value>(
     settleRetirements: async (): Promise<void> => {
       while (retirements.size !== 0)
         await createAutoMovieResourceRetirement(
-          [...retirements].map((retirement: IHumanViewerCacheRetirement<Value>): (() => Promise<void>) => retirement.failure === undefined
-            ? (): Promise<void> => retirement.completion
-            : createAutoMovieResourceRetirement([], retirement.failure)),
+          [...retirements].map(
+            (
+              retirement: IHumanViewerCacheRetirement<Value>,
+            ): (() => Promise<void>) =>
+              retirement.failure === undefined
+                ? (): Promise<void> => retirement.completion
+                : createAutoMovieResourceRetirement([], retirement.failure),
+          ),
         )();
     },
     /** Selected plus pending or failed retirement array bytes; not a physical GPU or collection reading. */

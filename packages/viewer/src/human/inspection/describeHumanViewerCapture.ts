@@ -1,6 +1,6 @@
-import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
 import type { IHumanViewerCaptureStatus } from "./IHumanViewerCaptureStatus.js";
 import type { IHumanViewerDomainBuild } from "./IHumanViewerDomainBuild.js";
+import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
 
 /**
  * Project actual capture measurements into health telemetry. Server monotonic timestamps form durations; wall-clock time locates builds and source edits. A GPU cache hit contributes zero numerical build time even when the worker still remembers the preceding document's build duration.
@@ -42,7 +42,10 @@ export function describeHumanViewerCapture(props: {
     otherMs: Math.max(
       0,
       props.showMs -
-        Object.values(props.spans ?? {}).reduce((sum: number, ms: number): number => sum + ms, 0),
+        Object.values(props.spans ?? {}).reduce(
+          (sum: number, ms: number): number => sum + ms,
+          0,
+        ),
     ),
     decodeMs: props.finished - props.decoded,
   };

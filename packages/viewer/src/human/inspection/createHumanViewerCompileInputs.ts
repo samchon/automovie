@@ -20,9 +20,12 @@ export function createHumanViewerCompileInputs(
   compiled: (keys: readonly string[]) => void;
   affects: (file: string, event: string) => boolean;
 } {
-  const source: string = normalizeHumanViewerCompilePath(path.join(human, "src")) + "/";
+  const source: string =
+    normalizeHumanViewerCompilePath(path.join(human, "src")) + "/";
   const root: string = normalizeHumanViewerCompilePath(human) + "/";
-  const configs: Set<string> = new Set(extra.map(normalizeHumanViewerCompilePath));
+  const configs: Set<string> = new Set(
+    extra.map(normalizeHumanViewerCompilePath),
+  );
   let read: Set<string> | null = null;
   return {
     /** Record the files the last successful compile read, already normalized by the compile process. */

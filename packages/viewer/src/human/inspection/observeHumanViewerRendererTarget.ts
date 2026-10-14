@@ -24,28 +24,45 @@ const RENDER_PROCESS_GONE: string = "Render process gone.";
 export async function observeHumanViewerRendererTarget(
   options: IHumanViewerRendererTargetOptions,
 ): Promise<() => Promise<void>> {
-  const session: CDPSession = await options.page.context().newCDPSession(options.page as Page);
+  const session: CDPSession = await options.page
+    .context()
+    .newCDPSession(options.page as Page);
   let root: CDPSession | undefined;
   let targetId: string = "";
   let gone: boolean = false;
-  const failed: (cause: string, physicalSettled: boolean) => void = (cause: string, physicalSettled: boolean): void => {
+  const failed: (cause: string, physicalSettled: boolean) => void = (
+    cause: string,
+    physicalSettled: boolean,
+  ): void => {
     gone = true;
     options.failed(cause, physicalSettled);
   };
-  const inspectorDetached: (event: IHumanViewerInspectorDetached) => void = (event: IHumanViewerInspectorDetached): void => {
+  const inspectorDetached: (event: IHumanViewerInspectorDetached) => void = (
+    event: IHumanViewerInspectorDetached,
+  ): void => {
     if (event.reason === RENDER_PROCESS_GONE)
       failed("Resident GPU renderer exited (" + event.reason + ")", true);
   };
-  const inspectorCrashed: () => void = (): void => failed("Resident GPU renderer crashed", true);
-  const crashed: (event: IHumanViewerTargetEvent) => void = (event: IHumanViewerTargetEvent): void => {
-    if (event.targetId === targetId) failed("Resident GPU renderer crashed", true);
+  const inspectorCrashed: () => void = (): void =>
+    failed("Resident GPU renderer crashed", true);
+  const crashed: (event: IHumanViewerTargetEvent) => void = (
+    event: IHumanViewerTargetEvent,
+  ): void => {
+    if (event.targetId === targetId)
+      failed("Resident GPU renderer crashed", true);
   };
-  const destroyed: (event: IHumanViewerTargetEvent) => void = (event: IHumanViewerTargetEvent): void => {
-    if (event.targetId === targetId) failed("Resident GPU renderer destroyed", true);
+  const destroyed: (event: IHumanViewerTargetEvent) => void = (
+    event: IHumanViewerTargetEvent,
+  ): void => {
+    if (event.targetId === targetId)
+      failed("Resident GPU renderer destroyed", true);
   };
-  const pageCrash: () => void = (): void => failed("Resident GPU page crashed", true);
-  const pageClose: () => void = (): void => failed("Resident GPU page closed", true);
-  const disconnected: () => void = (): void => failed("Resident GPU browser disconnected", true);
+  const pageCrash: () => void = (): void =>
+    failed("Resident GPU page crashed", true);
+  const pageClose: () => void = (): void =>
+    failed("Resident GPU page closed", true);
+  const disconnected: () => void = (): void =>
+    failed("Resident GPU browser disconnected", true);
   const remove: () => void = (): void => {
     session.off("Inspector.detached", inspectorDetached);
     session.off("Inspector.targetCrashed", inspectorCrashed);
@@ -57,11 +74,18 @@ export async function observeHumanViewerRendererTarget(
   };
   const retire: () => Promise<void> = createAutoMovieResourceRetirement([
     remove,
-    async (): Promise<void> => { if (root !== undefined && options.browser.isConnected()) await root.detach(); },
-    async (): Promise<void> => { if (!gone && options.browser.isConnected()) await session.detach(); },
+    async (): Promise<void> => {
+      if (root !== undefined && options.browser.isConnected())
+        await root.detach();
+    },
+    async (): Promise<void> => {
+      if (!gone && options.browser.isConnected()) await session.detach();
+    },
   ]);
   try {
-    const info: { targetInfo: { targetId: string } } = await session.send("Target.getTargetInfo");
+    const info: { targetInfo: { targetId: string } } = await session.send(
+      "Target.getTargetInfo",
+    );
     targetId = info.targetInfo.targetId;
     session.on("Inspector.detached", inspectorDetached);
     session.on("Inspector.targetCrashed", inspectorCrashed);

@@ -32,7 +32,10 @@ export function createHumanViewerSidecarFacts(
   const reading: Map<string, string> = new Map();
   const inFlight: Set<Promise<void>> = new Set();
   const requests: Map<string, Promise<void>> = new Map();
-  const read: (file: string, stamp: string) => Promise<IHumanViewerSidecarFacts> = async (
+  const read: (
+    file: string,
+    stamp: string,
+  ) => Promise<IHumanViewerSidecarFacts> = async (
     file: string,
     stamp: string,
   ): Promise<IHumanViewerSidecarFacts> => {
@@ -52,7 +55,8 @@ export function createHumanViewerSidecarFacts(
       failure: null,
     };
     try {
-      const kind: ReturnType<ICreateHumanViewerSidecarFactsProps["kind"]> = props.kind(file);
+      const kind: ReturnType<ICreateHumanViewerSidecarFactsProps["kind"]> =
+        props.kind(file);
       if (kind === "person")
         facts.packet = readHumanViewerPersonSidecar(await gunzipAsync(bytes));
       else if (kind === "view")
@@ -110,16 +114,21 @@ export function createHumanViewerSidecarFacts(
     },
 
     /** Whether any read remains globally, or a selected path's latest registered read remains; displaced older reads may still run. */
-    busy: (files?: readonly string[]): boolean => files === undefined ? inFlight.size !== 0 : files.some((file: string): boolean => requests.has(file)),
+    busy: (files?: readonly string[]): boolean =>
+      files === undefined
+        ? inFlight.size !== 0
+        : files.some((file: string): boolean => requests.has(file)),
 
     /** Await all in-flight reads globally, or successive latest registered reads for selected paths; displaced reads may remain and completion need not publish facts. */
     settled: async (files?: readonly string[]): Promise<void> => {
       if (files !== undefined) {
         while (files.some((file: string): boolean => requests.has(file)))
-          await Promise.all(files.flatMap((file: string): Promise<void>[] => {
-            const request: Promise<void> | undefined = requests.get(file);
-            return request === undefined ? [] : [request];
-          }));
+          await Promise.all(
+            files.flatMap((file: string): Promise<void>[] => {
+              const request: Promise<void> | undefined = requests.get(file);
+              return request === undefined ? [] : [request];
+            }),
+          );
         return;
       }
       while (inFlight.size !== 0) await Promise.all([...inFlight]);

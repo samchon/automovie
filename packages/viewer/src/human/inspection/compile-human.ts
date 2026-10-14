@@ -28,10 +28,15 @@ try {
       path.resolve(human, file).replaceAll("\\", "/");
     const files: Record<string, string> = Object.fromEntries(
       Object.entries(result.typescript as Record<string, string>).map(
-        ([file, source]: [string, string]): [string, string] => [absolute(file), source],
+        ([file, source]: [string, string]): [string, string] => [
+          absolute(file),
+          source,
+        ],
       ),
     );
-    const graph: IHumanViewerCompileGraph | undefined = result.graph as IHumanViewerCompileGraph | undefined;
+    const graph: IHumanViewerCompileGraph | undefined = result.graph as
+      | IHumanViewerCompileGraph
+      | undefined;
     const watch: string[] = [
       ...new Set(
         [

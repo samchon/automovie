@@ -22,7 +22,11 @@ const CHANGE_MESSAGES: readonly string[] = [
  * @evidence contracts/performance.md#reuse-equivalent-work All consumers share the same refusal wording list, but each supplied error is classified independently without replaying a prior result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The list is fixed module data and each call retains no error, page handle or retry timer.
  */
-export const isHumanViewerGenerationChange: (error: unknown) => boolean = (error: unknown): boolean => {
+export const isHumanViewerGenerationChange: (error: unknown) => boolean = (
+  error: unknown,
+): boolean => {
   const text: string = error instanceof Error ? error.message : String(error);
-  return CHANGE_MESSAGES.some((message: string): boolean => text.includes(message));
+  return CHANGE_MESSAGES.some((message: string): boolean =>
+    text.includes(message),
+  );
 };

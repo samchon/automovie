@@ -1,5 +1,5 @@
-import type { IHumanViewerHealthSources } from "./IHumanViewerHealthSources.js";
 import type { IHumanViewerHealth } from "./IHumanViewerHealth.js";
+import type { IHumanViewerHealthSources } from "./IHumanViewerHealthSources.js";
 import { humanViewerProtocol } from "./humanViewerProtocol.js";
 
 /**
@@ -13,11 +13,15 @@ import { humanViewerProtocol } from "./humanViewerProtocol.js";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Health is a current request-time snapshot across mutable owners, so a prior answer under the same source revision is not equivalent current state.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The answer borrows status data without acquiring runtime handles; HTTP serialization owns its transient result and each source owner keeps its own resource lifetime.
  */
-export function assembleHumanViewerHealth(sources: IHumanViewerHealthSources): IHumanViewerHealth {
-  const inventory: ReturnType<IHumanViewerHealthSources["inventory"]> = sources.inventory();
+export function assembleHumanViewerHealth(
+  sources: IHumanViewerHealthSources,
+): IHumanViewerHealth {
+  const inventory: ReturnType<IHumanViewerHealthSources["inventory"]> =
+    sources.inventory();
   const readyRevision: string = sources.readyRevision();
   const renderer: string = sources.renderer();
-  const compilation: ReturnType<IHumanViewerHealthSources["sourceStatus"]> = sources.sourceStatus();
+  const compilation: ReturnType<IHumanViewerHealthSources["sourceStatus"]> =
+    sources.sourceStatus();
   const errors: string[] = sources.errors();
   return {
     service: "automovie-human-viewer",

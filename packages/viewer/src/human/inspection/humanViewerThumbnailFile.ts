@@ -5,8 +5,8 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 
 import type { IHumanViewerThumbnailInventory } from "./IHumanViewerThumbnailInventory.js";
-import { parseHumanViewerAddress } from "./parseHumanViewerAddress.js";
 import { humanViewerThumbnailDirectory } from "./humanViewerThumbnailDirectory.js";
+import { parseHumanViewerAddress } from "./parseHumanViewerAddress.js";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress.js";
 
 const hash: (bytes: string) => string = (bytes: string): string =>
@@ -31,9 +31,13 @@ export function humanViewerThumbnailFile(
   try {
     const fields: URLSearchParams = new URLSearchParams(search);
     fields.delete("lane");
-    const address: ReturnType<typeof parseHumanViewerAddress> = parseHumanViewerAddress(fields.toString(), inventory.documents[0]?.id);
-    const document: IHumanViewerThumbnailInventory["documents"][number] | undefined = inventory.documents.find(
-      (entry: IHumanViewerThumbnailInventory["documents"][number]): boolean => entry.id === address.doc,
+    const address: ReturnType<typeof parseHumanViewerAddress> =
+      parseHumanViewerAddress(fields.toString(), inventory.documents[0]?.id);
+    const document:
+      | IHumanViewerThumbnailInventory["documents"][number]
+      | undefined = inventory.documents.find(
+      (entry: IHumanViewerThumbnailInventory["documents"][number]): boolean =>
+        entry.id === address.doc,
     );
     // A frame carrying a reference photograph never reaches the disk cache.
     if (document === undefined || address.ref !== null) return null;

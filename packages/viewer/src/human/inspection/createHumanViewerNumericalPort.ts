@@ -3,19 +3,19 @@ import type { ConnectedFaceResult } from "@automovie/human/face/runtime/Connecte
 import type { HumanResidentPort } from "@automovie/viewer/human/common/HumanResidentPort";
 
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue.js";
+import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChangedError.js";
 import type { ICreateHumanViewerNumericalPortProps } from "./ICreateHumanViewerNumericalPortProps.js";
-import type { IHumanViewerPendingAdmission } from "./IHumanViewerPendingAdmission.js";
-import type { IHumanViewerPendingBuild } from "./IHumanViewerPendingBuild.js";
-import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview.js";
-import { humanViewerProtocol } from "./humanViewerProtocol.js";
-import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken.js";
-import { createHumanViewerNumericalEndpoint } from "./createHumanViewerNumericalEndpoint.js";
 import type { IHumanViewerNodeAuthority } from "./IHumanViewerNodeAuthority.js";
 import type { IHumanViewerNumericalEndpoint } from "./IHumanViewerNumericalEndpoint.js";
 import type { IHumanViewerNumericalRequest } from "./IHumanViewerNumericalRequest.js";
+import type { IHumanViewerPendingAdmission } from "./IHumanViewerPendingAdmission.js";
+import type { IHumanViewerPendingBuild } from "./IHumanViewerPendingBuild.js";
 import { assertHumanViewerSingleCompile } from "./assertHumanViewerSingleCompile.js";
+import { createHumanViewerNumericalEndpoint } from "./createHumanViewerNumericalEndpoint.js";
+import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview.js";
+import { humanViewerProtocol } from "./humanViewerProtocol.js";
 import { readHumanViewerCompiles } from "./readHumanViewerCompiles.js";
-import { HumanViewerNodeSourceChangedError } from "./HumanViewerNodeSourceChangedError.js";
+import { readHumanViewerFrameToken } from "./readHumanViewerFrameToken.js";
 
 type Result = ConnectedFaceResult | ConnectedBodyResult;
 
@@ -35,8 +35,15 @@ type Result = ConnectedFaceResult | ConnectedBodyResult;
 export function createHumanViewerNumericalPort(
   props: ICreateHumanViewerNumericalPortProps,
 ): {
-  admit: (domain: string, document: string, basis: string) => Promise<string | null>;
-  port: <Input, Output>(selected: HumanViewerCatalogue["documents"][number], ao: boolean) => HumanResidentPort<Input, Output>;
+  admit: (
+    domain: string,
+    document: string,
+    basis: string,
+  ) => Promise<string | null>;
+  port: <Input, Output>(
+    selected: HumanViewerCatalogue["documents"][number],
+    ao: boolean,
+  ) => HumanResidentPort<Input, Output>;
   pending: () => number;
   builds: () => number;
   buildMs: () => number;
@@ -46,7 +53,8 @@ export function createHumanViewerNumericalPort(
   dispose: () => void;
 } {
   const { work, spans }: ICreateHumanViewerNumericalPortProps = props;
-  let worker: IHumanViewerNumericalEndpoint = createHumanViewerNumericalEndpoint();
+  let worker: IHumanViewerNumericalEndpoint =
+    createHumanViewerNumericalEndpoint();
   const pending: Map<number, IHumanViewerPendingBuild> = new Map();
   const admissions: Map<number, IHumanViewerPendingAdmission> = new Map();
   let sequence: number = 0;
@@ -55,12 +63,20 @@ export function createHumanViewerNumericalPort(
   let persistence: unknown = null;
   const token: string | null = readHumanViewerFrameToken(location.search);
   /** Actual Node authority, announced only after its checked modules loaded. */
-  let announceCompiles: (authority: IHumanViewerNodeAuthority) => void = (): void => {};
+  let announceCompiles: (
+    authority: IHumanViewerNodeAuthority,
+  ) => void = (): void => {};
   let rejectCompiles: (error: Error) => void = (): void => {};
-  let workerCompiles: Promise<IHumanViewerNodeAuthority> = new Promise<IHumanViewerNodeAuthority>((resolve: (authority: IHumanViewerNodeAuthority) => void, reject: (error: Error) => void): void => {
-    announceCompiles = resolve;
-    rejectCompiles = reject;
-  });
+  let workerCompiles: Promise<IHumanViewerNodeAuthority> =
+    new Promise<IHumanViewerNodeAuthority>(
+      (
+        resolve: (authority: IHumanViewerNodeAuthority) => void,
+        reject: (error: Error) => void,
+      ): void => {
+        announceCompiles = resolve;
+        rejectCompiles = reject;
+      },
+    );
   // Observed so an early worker failure is not an unhandled rejection.
   workerCompiles.catch((): undefined => undefined);
   /** The browser source the first actual checked realm was bound to. */
@@ -82,7 +98,11 @@ export function createHumanViewerNumericalPort(
   };
   const observe: () => void = (): void => {
     const endpoint: IHumanViewerNumericalEndpoint = worker;
-    worker.onmessage = ({ data }: Parameters<NonNullable<IHumanViewerNumericalEndpoint["onmessage"]>>[0]): void => {
+    worker.onmessage = ({
+      data,
+    }: Parameters<
+      NonNullable<IHumanViewerNumericalEndpoint["onmessage"]>
+    >[0]): void => {
       if (endpoint !== worker || disposed) return;
       if ("type" in data && data.type === "progress") {
         if (pending.has(data.id)) work("build", data);
@@ -101,26 +121,33 @@ export function createHumanViewerNumericalPort(
             );
           if (initialRevision !== undefined)
             assertHumanViewerSingleCompile(
-              readHumanViewerCompiles(), data.authority, initialRevision,
+              readHumanViewerCompiles(),
+              data.authority,
+              initialRevision,
             );
           initialRevision ??= data.authority.revision;
           announceCompiles(data.authority);
         } catch (cause) {
-          sourceRefusal = cause instanceof Error ? cause : new Error(String(cause));
+          sourceRefusal =
+            cause instanceof Error ? cause : new Error(String(cause));
           fail(sourceRefusal);
           endpoint.terminate();
         }
         return;
       }
       if ("type" in data) return;
-      const admission: IHumanViewerPendingAdmission | undefined = admissions.get(data.id);
+      const admission: IHumanViewerPendingAdmission | undefined =
+        admissions.get(data.id);
       if (admission !== undefined) {
         admissions.delete(data.id);
-        if (data.admission === true && data.reason !== undefined) admission.resolve(data.reason);
+        if (data.admission === true && data.reason !== undefined)
+          admission.resolve(data.reason);
         else admission.reject(new Error(data.error));
         return;
       }
-      const request: IHumanViewerPendingBuild | undefined = pending.get(data.id);
+      const request: IHumanViewerPendingBuild | undefined = pending.get(
+        data.id,
+      );
       pending.delete(data.id);
       if (request === undefined) return;
       work("numeric-reply");
@@ -128,42 +155,54 @@ export function createHumanViewerNumericalPort(
         ++builds;
         buildMs = data.buildMs ?? 0;
         request.resolve(data.value);
-      } else request.reject(new Error(data.error ?? "The Node numerical reply has no result."));
+      } else
+        request.reject(
+          new Error(data.error ?? "The Node numerical reply has no result."),
+        );
     };
     worker.onerror = (error: ErrorEvent): void => {
       if (endpoint !== worker || disposed) return;
-      const message: string = "The numerical worker failed: " +
+      const message: string =
+        "The numerical worker failed: " +
         (error.message || "it could not load its modules");
-      fail(error.error instanceof HumanViewerNodeSourceChangedError
-        ? error.error
-        : new Error(
-          message,
-          { cause: error.error },
-        ));
+      fail(
+        error.error instanceof HumanViewerNodeSourceChangedError
+          ? error.error
+          : new Error(message, { cause: error.error }),
+      );
     };
   };
   observe();
   /** Install synchronously so concurrent new requests share one checked startup. */
-  const acquire: () => Promise<IHumanViewerNumericalEndpoint> = (): Promise<IHumanViewerNumericalEndpoint> => {
-    if (sourceRefusal !== null) return Promise.reject(sourceRefusal);
-    if (workerFailure !== null && (disposed || initialRevision === undefined))
-      return Promise.reject(workerFailure);
-    if (workerFailure !== null) {
-      worker.terminate();
-      workerFailure = null;
-      workerCompiles = new Promise<IHumanViewerNodeAuthority>((resolve: (authority: IHumanViewerNodeAuthority) => void, reject: (error: Error) => void): void => {
-        announceCompiles = resolve;
-        rejectCompiles = reject;
-      });
-      workerCompiles.catch((): undefined => undefined);
-      worker = createHumanViewerNumericalEndpoint();
-      observe();
-    }
-    const endpoint: IHumanViewerNumericalEndpoint = worker;
-    return workerCompiles.then((): IHumanViewerNumericalEndpoint => endpoint);
-  };
+  const acquire: () => Promise<IHumanViewerNumericalEndpoint> =
+    (): Promise<IHumanViewerNumericalEndpoint> => {
+      if (sourceRefusal !== null) return Promise.reject(sourceRefusal);
+      if (workerFailure !== null && (disposed || initialRevision === undefined))
+        return Promise.reject(workerFailure);
+      if (workerFailure !== null) {
+        worker.terminate();
+        workerFailure = null;
+        workerCompiles = new Promise<IHumanViewerNodeAuthority>(
+          (
+            resolve: (authority: IHumanViewerNodeAuthority) => void,
+            reject: (error: Error) => void,
+          ): void => {
+            announceCompiles = resolve;
+            rejectCompiles = reject;
+          },
+        );
+        workerCompiles.catch((): undefined => undefined);
+        worker = createHumanViewerNumericalEndpoint();
+        observe();
+      }
+      const endpoint: IHumanViewerNumericalEndpoint = worker;
+      return workerCompiles.then((): IHumanViewerNumericalEndpoint => endpoint);
+    };
   /** A settled old readiness promise cannot dispatch through a replacement. */
-  const dispatch: (endpoint: IHumanViewerNumericalEndpoint, message: IHumanViewerNumericalRequest) => void = (
+  const dispatch: (
+    endpoint: IHumanViewerNumericalEndpoint,
+    message: IHumanViewerNumericalRequest,
+  ) => void = (
     endpoint: IHumanViewerNumericalEndpoint,
     message: IHumanViewerNumericalRequest,
   ): void => {
@@ -180,23 +219,33 @@ export function createHumanViewerNumericalPort(
       basis: string,
     ): Promise<string | null> => {
       if (domain !== "face" && domain !== "body" && domain !== "person")
-        return Promise.reject(new Error("Document admission needs an existing numerical domain."));
+        return Promise.reject(
+          new Error("Document admission needs an existing numerical domain."),
+        );
       return acquire().then(
-        (endpoint: IHumanViewerNumericalEndpoint): Promise<string | null> => new Promise<string | null>((resolve: (reason: string | null) => void, reject: (error: Error) => void): void => {
-          const id: number = ++sequence;
-          admissions.set(id, { resolve, reject });
-          try {
-            dispatch(endpoint, {
-              id,
-              domain,
-              basis,
-              input: { document, operation: "admit" },
-            });
-          } catch (cause) {
-            admissions.delete(id);
-            reject(cause instanceof Error ? cause : new Error(String(cause)));
-          }
-        }),
+        (endpoint: IHumanViewerNumericalEndpoint): Promise<string | null> =>
+          new Promise<string | null>(
+            (
+              resolve: (reason: string | null) => void,
+              reject: (error: Error) => void,
+            ): void => {
+              const id: number = ++sequence;
+              admissions.set(id, { resolve, reject });
+              try {
+                dispatch(endpoint, {
+                  id,
+                  domain,
+                  basis,
+                  input: { document, operation: "admit" },
+                });
+              } catch (cause) {
+                admissions.delete(id);
+                reject(
+                  cause instanceof Error ? cause : new Error(String(cause)),
+                );
+              }
+            },
+          ),
       );
     },
     /** A product worker port for one catalogue document. */
@@ -226,21 +275,54 @@ export function createHumanViewerNumericalPort(
           if (persistedId !== undefined && workerFailure === null && !disposed)
             worker.postMessage({ persistence: "discard", id: persistedId });
         },
-        postMessage: ({ id, input }: Parameters<HumanResidentPort<Input, Output>["postMessage"]>[0]): void => {
+        postMessage: ({
+          id,
+          input,
+        }: Parameters<
+          HumanResidentPort<Input, Output>["postMessage"]
+        >[0]): void => {
           if (stopped) return;
-          if (typeof input !== "object" || input === null ||
-              !("document" in input) || typeof input.document !== "string") {
-            transport.onmessage?.({ data: { id, success: false, error: "A numerical request needs its original document text." } });
+          if (
+            typeof input !== "object" ||
+            input === null ||
+            !("document" in input) ||
+            typeof input.document !== "string"
+          ) {
+            transport.onmessage?.({
+              data: {
+                id,
+                success: false,
+                error: "A numerical request needs its original document text.",
+              },
+            });
             return;
           }
           const inputDocument: string = input.document;
-          const operation: unknown = "operation" in input ? input.operation : undefined;
-          if (operation !== undefined && operation !== "preview" &&
-              operation !== "construct" && operation !== "exportConstruction" && operation !== "admit") {
-            transport.onmessage?.({ data: { id, success: false, error: "The numerical viewport received an unsupported operation." } });
+          const operation: unknown =
+            "operation" in input ? input.operation : undefined;
+          if (
+            operation !== undefined &&
+            operation !== "preview" &&
+            operation !== "construct" &&
+            operation !== "exportConstruction" &&
+            operation !== "admit"
+          ) {
+            transport.onmessage?.({
+              data: {
+                id,
+                success: false,
+                error:
+                  "The numerical viewport received an unsupported operation.",
+              },
+            });
             return;
           }
-          const inputOperation: "preview" | "construct" | "exportConstruction" | "admit" | undefined = operation;
+          const inputOperation:
+            | "preview"
+            | "construct"
+            | "exportConstruction"
+            | "admit"
+            | undefined = operation;
           const key: string = selected.key + (ao ? "-ao" : "-direct");
           // A catalogue digest authorizes only its actual immutable document.
           // Changed requests still build normally but cannot read or write
@@ -261,11 +343,13 @@ export function createHumanViewerNumericalPort(
             }
           }
           const build: () => Promise<Result> = (): Promise<Result> =>
-            spans.measure(
-              "workerMs",
-              async (): Promise<Result> => {
-                const endpoint: IHumanViewerNumericalEndpoint = await acquire();
-                return new Promise<Result>((resolve: (value: Result) => void, reject: (error: Error) => void): void => {
+            spans.measure("workerMs", async (): Promise<Result> => {
+              const endpoint: IHumanViewerNumericalEndpoint = await acquire();
+              return new Promise<Result>(
+                (
+                  resolve: (value: Result) => void,
+                  reject: (error: Error) => void,
+                ): void => {
                   if (stopped) {
                     reject(new Error("The numerical connection was released"));
                     return;
@@ -295,17 +379,23 @@ export function createHumanViewerNumericalPort(
                         occlusion: ao,
                       },
                       cache:
-                        cacheable && token !== null ? { key, token } : undefined,
+                        cacheable && token !== null
+                          ? { key, token }
+                          : undefined,
                     });
                   } catch (cause) {
-                    pending.get(workerId)!.reject(
-                      cause instanceof Error ? cause : new Error(String(cause)),
-                    );
+                    pending
+                      .get(workerId)!
+                      .reject(
+                        cause instanceof Error
+                          ? cause
+                          : new Error(String(cause)),
+                      );
                     pending.delete(workerId);
                   }
-                });
-              },
-            );
+                },
+              );
+            });
           void (async (): Promise<void> => {
             // The persisted codec owns admitted previews only. Construction
             // and its explicit static export carry their complete admission
@@ -314,7 +404,8 @@ export function createHumanViewerNumericalPort(
               typeof input === "object" &&
               input !== null &&
               "operation" in input &&
-              (input.operation === "construct" || input.operation === "exportConstruction")
+              (input.operation === "construct" ||
+                input.operation === "exportConstruction")
             ) {
               const value: Result = await build();
               if (stopped) return;
@@ -326,8 +417,10 @@ export function createHumanViewerNumericalPort(
             }
             work("cache-read");
             const cached: Response | undefined = cacheable
-              ? await spans.measure("cacheReadMs", (): Promise<Response> =>
-                  fetch(`/cache/${key}`, { signal: abort.signal }),
+              ? await spans.measure(
+                  "cacheReadMs",
+                  (): Promise<Response> =>
+                    fetch(`/cache/${key}`, { signal: abort.signal }),
                 )
               : undefined;
             let value: Result;
