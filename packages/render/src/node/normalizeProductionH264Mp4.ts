@@ -30,7 +30,9 @@ import { sampleOptions } from "./sampleOptions";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call rewrites the bytes it is handed and keeps no result; equal inputs give byte-identical output that a caller may store.
  * @evidence contracts/performance.md#bound-retention-and-release-resources During verification the input parse and its copied buffer, source sample views, output sample payloads and boxes, serialized output, and output probe's copied buffer and tables can coexist. Their sizes depend on the uncapped input bytes, sample count and box structure; an exact peak ratio is not established. These objects become collectable when their calls finish, and this function retains only the returned array through its caller, with no handle or background task.
  */
-export const normalizeProductionH264Mp4: (bytes: Uint8Array) => Uint8Array = (bytes: Uint8Array): Uint8Array => {
+export const normalizeProductionH264Mp4: (bytes: Uint8Array) => Uint8Array = (
+  bytes: Uint8Array,
+): Uint8Array => {
   const source: { file: ReturnType<typeof createFile>; movie: Movie } =
     parseMp4(bytes);
   const track: Track | undefined = source.movie.videoTracks[0];

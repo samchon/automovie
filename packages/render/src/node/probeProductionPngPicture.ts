@@ -21,7 +21,9 @@ import { residentPngJs } from "./residentPngJs";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call probes the bytes it was handed and caches nothing; a picture is probed once per deliverable.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The chunk list retains views of caller-owned bytes during the call, and decoder pixel and scanline buffers coexist transiently. They become eligible for collection after return; the result holds only scalar metadata and no file handle or task is opened.
  */
-export const probeProductionPngPicture: (bytes: Uint8Array) => IAutoMovieProductionPngPicture = (
+export const probeProductionPngPicture: (
+  bytes: Uint8Array,
+) => IAutoMovieProductionPngPicture = (
   bytes: Uint8Array,
 ): IAutoMovieProductionPngPicture => {
   const chunks: IPngChunk[] = parsePngChunks(bytes);
@@ -111,7 +113,9 @@ const PNG_COLOR_MODELS: Readonly<Record<number, AutoMovieProductionPngColor>> =
   };
 
 /** Split a PNG datastream into chunks whose payloads view `bytes`, refusing every framing defect by name. */
-const parsePngChunks: (bytes: Uint8Array) => IPngChunk[] = (bytes: Uint8Array): IPngChunk[] => {
+const parsePngChunks: (bytes: Uint8Array) => IPngChunk[] = (
+  bytes: Uint8Array,
+): IPngChunk[] => {
   const signature: readonly number[] = [
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   ];
@@ -136,8 +140,13 @@ const parsePngChunks: (bytes: Uint8Array) => IPngChunk[] = (bytes: Uint8Array): 
     );
     if (/^[A-Za-z]{4}$/.test(type) === false)
       throw new Error(`PNG chunk type "${type}" is not four ASCII letters.`);
-    if (crc32(bytes.subarray(cursor + 4, cursor + 8 + length)) !== readUint32(bytes, cursor + 8 + length))
-      throw new Error(`PNG ${type} chunk CRC does not match its type and payload.`);
+    if (
+      crc32(bytes.subarray(cursor + 4, cursor + 8 + length)) !==
+      readUint32(bytes, cursor + 8 + length)
+    )
+      throw new Error(
+        `PNG ${type} chunk CRC does not match its type and payload.`,
+      );
     chunks.push({
       type,
       data: bytes.subarray(cursor + 8, cursor + 8 + length),
@@ -151,7 +160,10 @@ const parsePngChunks: (bytes: Uint8Array) => IPngChunk[] = (bytes: Uint8Array): 
 };
 
 /** The one chunk of `type`, or undefined; a repeated chunk is refused. */
-const uniquePngChunk: (chunks: readonly IPngChunk[], type: string) => IPngChunk | undefined = (
+const uniquePngChunk: (
+  chunks: readonly IPngChunk[],
+  type: string,
+) => IPngChunk | undefined = (
   chunks: readonly IPngChunk[],
   type: string,
 ): IPngChunk | undefined => {
@@ -166,7 +178,9 @@ const uniquePngChunk: (chunks: readonly IPngChunk[], type: string) => IPngChunk 
 };
 
 /** The `pHYs` pixel aspect, or square when the chunk is absent. */
-const pngPixelAspect: (data: Uint8Array | undefined) => IAutoMovieProductionPngPicture["pixelAspect"] = (
+const pngPixelAspect: (
+  data: Uint8Array | undefined,
+) => IAutoMovieProductionPngPicture["pixelAspect"] = (
   data: Uint8Array | undefined,
 ): IAutoMovieProductionPngPicture["pixelAspect"] => {
   if (data === undefined) return { kind: "square" };
@@ -183,7 +197,9 @@ const pngPixelAspect: (data: Uint8Array | undefined) => IAutoMovieProductionPngP
 };
 
 /** Refuse an `iCCP` payload without a 1-79 byte profile name and compression method 0. */
-const assertPngProfileName: (data: Uint8Array) => void = (data: Uint8Array): void => {
+const assertPngProfileName: (data: Uint8Array) => void = (
+  data: Uint8Array,
+): void => {
   const separator: number = data.indexOf(0);
   if (
     separator <= 0 ||
@@ -197,7 +213,10 @@ const assertPngProfileName: (data: Uint8Array) => void = (data: Uint8Array): voi
 };
 
 /** The big-endian unsigned 32-bit integer at `offset` of `bytes`. */
-const readUint32: (bytes: Uint8Array, offset: number) => number = (bytes: Uint8Array, offset: number): number =>
+const readUint32: (bytes: Uint8Array, offset: number) => number = (
+  bytes: Uint8Array,
+  offset: number,
+): number =>
   new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(
     offset,
     false,

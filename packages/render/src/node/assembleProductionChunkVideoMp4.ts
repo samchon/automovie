@@ -36,7 +36,16 @@ import { sampleDescription } from "./sampleDescription";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call reads its chunk iterator once and shares no result across calls; a caller that assembles the same chunks twice receives byte-identical output but must cache it itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The first clip remains referenced for comparison and singleton return, and each appended sample keeps an output payload copy plus a view of its source chunk. Parsed boxes and tables, serialized output and the output probe's copied bytes can coexist during verification. Bytes, samples, descriptions and boxes are uncapped here, and no exact peak ratio is established; invocation-local objects become collectable after completion or refusal, while the returned array belongs to the caller. No native handle or background task is opened.
  */
-export const assembleProductionChunkVideoMp4: (props: { chunks: Iterable<Uint8Array>; frameFormat: { fps: number; frameRate?: IAutoMovieProductionFrameRate; height: number; width: number; }; totalFrames: number; }) => Uint8Array = (props: {
+export const assembleProductionChunkVideoMp4: (props: {
+  chunks: Iterable<Uint8Array>;
+  frameFormat: {
+    fps: number;
+    frameRate?: IAutoMovieProductionFrameRate;
+    height: number;
+    width: number;
+  };
+  totalFrames: number;
+}) => Uint8Array = (props: {
   /** Encoded chunk MP4s in play order, read once. */
   chunks: Iterable<Uint8Array>;
 
@@ -70,7 +79,9 @@ export const assembleProductionChunkVideoMp4: (props: { chunks: Iterable<Uint8Ar
   let reference: IProductionRenditionClip | undefined;
   let referenceDescription: ReturnType<typeof sampleDescription> | undefined;
   let opening: IProductionRenditionClip | undefined;
-  let assembly: { file: ReturnType<typeof createFile>; track: number } | undefined;
+  let assembly:
+    | { file: ReturnType<typeof createFile>; track: number }
+    | undefined;
   let frame: number = 0;
   let index: number = 0;
   for (const bytes of props.chunks) {
@@ -78,8 +89,9 @@ export const assembleProductionChunkVideoMp4: (props: { chunks: Iterable<Uint8Ar
       bytes,
       `Render chunk ${index}`,
     );
-    const description: ReturnType<typeof sampleDescription> =
-      sampleDescription(clip.samples[0]!);
+    const description: ReturnType<typeof sampleDescription> = sampleDescription(
+      clip.samples[0]!,
+    );
     reference ??= clip;
     referenceDescription ??= description;
     if (

@@ -38,7 +38,11 @@ import { sampleDescription } from "./sampleDescription";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The proof runs once per delivery validation over caller-held bytes and has no result another request could reuse; the plan it reads is built per call because the proof must not trust a writer's earlier plan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed feature, the parsed clips and their sample tables are held only until return, and the function retains nothing and opens no handle or task.
  */
-export const assertProductionFeatureUsesRenditionClips: (props: { feature: Uint8Array; timeline: IAutoMovieFilmTimeline; clips: ReadonlyMap<string, Uint8Array> }) => void = (props: {
+export const assertProductionFeatureUsesRenditionClips: (props: {
+  feature: Uint8Array;
+  timeline: IAutoMovieFilmTimeline;
+  clips: ReadonlyMap<string, Uint8Array>;
+}) => void = (props: {
   /** Delivered feature MP4 whose first video track is checked. */
   feature: Uint8Array;
 
@@ -168,7 +172,9 @@ const sampleMismatchRecord: (props: {
 });
 
 /** Parser-visible dependency and redundancy flags of one sample. */
-const sampleFlagRecord: (sample: Sample) => Record<string, unknown> = (sample: Sample): Record<string, unknown> => ({
+const sampleFlagRecord: (sample: Sample) => Record<string, unknown> = (
+  sample: Sample,
+): Record<string, unknown> => ({
   isSync: sample.is_sync,
   isLeading: sample.is_leading,
   dependsOn: sample.depends_on,

@@ -33,7 +33,11 @@ type PixelAspectBox = InstanceType<typeof BoxParser.box.pasp>;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads one parsed file its caller owns and returns a fresh record, and no caller reads the same track twice.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record holds copies of the brand list, matrix and edit list, not parser objects; the parsed file stays owned by the caller and nothing is opened.
  */
-export const probeVideoTrack: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => IAutoMovieProductionVideoProbe = (
+export const probeVideoTrack: (
+  bytes: Uint8Array,
+  file: ReturnType<typeof createFile>,
+  track: Track,
+) => IAutoMovieProductionVideoProbe = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -59,7 +63,9 @@ export const probeVideoTrack: (bytes: Uint8Array, file: ReturnType<typeof create
   const sampleDuration: number = first.duration;
   if (
     sampleDuration <= 0 ||
-    samples.some((sample: Sample): boolean => sample.duration !== sampleDuration)
+    samples.some(
+      (sample: Sample): boolean => sample.duration !== sampleDuration,
+    )
   )
     throw new Error(
       "MP4 video samples do not use one constant deterministic frame duration.",
@@ -170,12 +176,16 @@ export const probeVideoTrack: (bytes: Uint8Array, file: ReturnType<typeof create
       mediaTimescale: track.timescale,
       movieDuration: track.movie_duration,
       mediaDuration: track.duration,
-      edits: (track.edits ?? []).map((edit: Entry): IAutoMovieProductionVideoProbe["presentation"]["edits"][number] => ({
-        segmentDuration: edit.segment_duration,
-        mediaTime: edit.media_time,
-        mediaRateInteger: edit.media_rate_integer,
-        mediaRateFraction: edit.media_rate_fraction,
-      })),
+      edits: (track.edits ?? []).map(
+        (
+          edit: Entry,
+        ): IAutoMovieProductionVideoProbe["presentation"]["edits"][number] => ({
+          segmentDuration: edit.segment_duration,
+          mediaTime: edit.media_time,
+          mediaRateInteger: edit.media_rate_integer,
+          mediaRateFraction: edit.media_rate_fraction,
+        }),
+      ),
     },
     samples: {
       count: samples.length,

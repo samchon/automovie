@@ -18,8 +18,8 @@ import { residentMp4Box } from "./residentMp4Box";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned file holds the copied buffer and the parsed box tree until the caller drops it; on refusal everything is local and collectable, and no handle or task is opened.
  */
 export const parseProductionMp4Output: (bytes: Uint8Array) => {
-    file: ReturnType<typeof createFile>;
-    movie: Movie;
+  file: ReturnType<typeof createFile>;
+  movie: Movie;
 } = (
   bytes: Uint8Array,
 ): { file: ReturnType<typeof createFile>; movie: Movie } => {

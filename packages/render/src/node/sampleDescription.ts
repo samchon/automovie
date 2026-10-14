@@ -21,8 +21,8 @@ import type { IsoFileOptions, Sample } from "mp4box";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned object references the parser's box array, so it keeps the parsed sample entry alive for as long as the caller holds it; nothing else is retained or opened.
  */
 export const sampleDescription: (sample: Sample) => {
-    type: IsoFileOptions["type"];
-    boxes: NonNullable<IsoFileOptions["description_boxes"]>;
+  type: IsoFileOptions["type"];
+  boxes: NonNullable<IsoFileOptions["description_boxes"]>;
 } = (
   sample: Sample,
 ): {

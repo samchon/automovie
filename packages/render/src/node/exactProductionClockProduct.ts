@@ -11,10 +11,10 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time product of two numbers is cheaper to recompute than any cache lookup, and each caller forms different products.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned BigInt is the caller's value, and the function holds no state or handle.
  */
-export const exactProductionClockProduct: (left: number, right: number) => bigint = (
+export const exactProductionClockProduct: (
   left: number,
   right: number,
-): bigint => {
+) => bigint = (left: number, right: number): bigint => {
   if (
     Number.isSafeInteger(left) === false ||
     left <= 0 ||

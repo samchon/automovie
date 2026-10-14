@@ -3,8 +3,8 @@ import {
   resolveProductionFrameRate,
 } from "@automovie/engine";
 import type {
-  IAutoMovieFilmTimelineSegment,
   IAutoMovieFilmTimeline,
+  IAutoMovieFilmTimelineSegment,
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
@@ -29,18 +29,20 @@ import { sampleDescription } from "./sampleDescription";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned plan holds every parsed clip record, and through them every clip's bytes and parse, until the caller drops it; nothing else is retained or opened.
  */
 export const productionRenditionVideoPlan: (props: {
-    timeline: IAutoMovieFilmTimeline;
-    clips: ReadonlyMap<string, Uint8Array>;
+  timeline: IAutoMovieFilmTimeline;
+  clips: ReadonlyMap<string, Uint8Array>;
 }) => {
-    parsed: Array<IProductionRenditionClip & {
-        segment: IAutoMovieFilmTimelineSegment;
-    }>;
-    first: IProductionRenditionClip & {
-        segment: IAutoMovieFilmTimelineSegment;
-    };
-    description: ReturnType<typeof sampleDescription>;
-    sampleDuration: number;
-    mediaDuration: number;
+  parsed: Array<
+    IProductionRenditionClip & {
+      segment: IAutoMovieFilmTimelineSegment;
+    }
+  >;
+  first: IProductionRenditionClip & {
+    segment: IAutoMovieFilmTimelineSegment;
+  };
+  description: ReturnType<typeof sampleDescription>;
+  sampleDuration: number;
+  mediaDuration: number;
 } = (props: {
   /** Current film timeline whose segments the clips realize. */
   timeline: IAutoMovieFilmTimeline;
@@ -49,7 +51,9 @@ export const productionRenditionVideoPlan: (props: {
   clips: ReadonlyMap<string, Uint8Array>;
 }): {
   /** Parsed clips in timeline order, each with its segment. */
-  parsed: Array<IProductionRenditionClip & { segment: IAutoMovieFilmTimelineSegment }>;
+  parsed: Array<
+    IProductionRenditionClip & { segment: IAutoMovieFilmTimelineSegment }
+  >;
 
   /** The first clip, whose clock, raster and configuration the others share. */
   first: IProductionRenditionClip & { segment: IAutoMovieFilmTimelineSegment };
@@ -71,7 +75,9 @@ export const productionRenditionVideoPlan: (props: {
   > = props.timeline.segments.map(
     (
       segment: IAutoMovieFilmTimelineSegment,
-    ): IProductionRenditionClip & { segment: IAutoMovieFilmTimelineSegment } => {
+    ): IProductionRenditionClip & {
+      segment: IAutoMovieFilmTimelineSegment;
+    } => {
       if (
         segment.transitionIn.kind !== "cut" ||
         segment.transitionOut.kind !== "cut"

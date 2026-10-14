@@ -19,11 +19,11 @@ import { sampleOptions } from "./sampleOptions";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The output file keeps a copy of every payload in its media box and, through mp4box's sample records, a view of the clip bytes; both live until the caller drops the file, so the clip's bytes stay reachable for that long and no handle or task is opened.
  */
 export const appendLosslessVideoClip: (props: {
-    file: ReturnType<typeof createFile>;
-    track: number;
-    clip: IProductionRenditionClip;
-    frame: number;
-    sampleDuration: number;
+  file: ReturnType<typeof createFile>;
+  track: number;
+  clip: IProductionRenditionClip;
+  frame: number;
+  sampleDuration: number;
 }) => number = (props: {
   /** Output file whose track receives the samples. */
   file: ReturnType<typeof createFile>;

@@ -21,7 +21,10 @@ import { sampleDescription } from "./sampleDescription";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call admits one clip handed to it, and the returned record is itself what the splice paths share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record keeps the caller's bytes, the probe, the parser's track and sample table, and through them the parse with its copy of the bytes, until the caller drops it; the frame-index array is released on return.
  */
-export const parseProductionRenditionClip: (bytes: Uint8Array, label: string) => IProductionRenditionClip = (
+export const parseProductionRenditionClip: (
+  bytes: Uint8Array,
+  label: string,
+) => IProductionRenditionClip = (
   bytes: Uint8Array,
   label: string,
 ): IProductionRenditionClip => {

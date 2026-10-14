@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 import type { IsoFileOptions, Movie, Sample, Track, createFile } from "mp4box";
 
-import { exactProductionClockProduct } from "./exactProductionClockProduct";
 import { addProductionMp4Sample } from "./addProductionMp4Sample";
+import { exactProductionClockProduct } from "./exactProductionClockProduct";
 import { parseMp4 } from "./parseMp4";
 import { parseProductionMp4Output } from "./parseProductionMp4Output";
 import { probeParsedProductionVideoMp4 } from "./probeParsedProductionVideoMp4";
@@ -34,8 +34,8 @@ import { trimProductionAudioPresentation } from "./trimProductionAudioPresentati
  * @evidence contracts/performance.md#bound-retention-and-release-resources The copied input parses, source sample views, output sample payloads and boxes, serialized output, and output probe's copied buffer and tables can coexist during verification. The audio admission parse is temporary to its probe; the copy parse stays referenced by this call. Input bytes, samples and boxes are uncapped, and no exact peak ratio is established; after return only the returned array is retained by the caller, with no handle or background task.
  */
 export const muxProductionFeatureMp4: (props: {
-    video: Uint8Array;
-    audio: Uint8Array;
+  video: Uint8Array;
+  audio: Uint8Array;
 }) => Uint8Array = (props: {
   /** Single-track H.264 video MP4. */
   video: Uint8Array;
@@ -55,8 +55,9 @@ export const muxProductionFeatureMp4: (props: {
     });
   if (audioProbe.kind !== "audio")
     throw new Error("Feature mux requires an audio-mix MP4 audio track.");
-  const audio: { file: ReturnType<typeof createFile>; movie: Movie } =
-    parseMp4(props.audio);
+  const audio: { file: ReturnType<typeof createFile>; movie: Movie } = parseMp4(
+    props.audio,
+  );
   const videoTrack: Track = video.movie.videoTracks[0]!;
   const audioTrack: Track = audio.movie.audioTracks[0]!;
   if (
@@ -120,11 +121,11 @@ export const muxProductionFeatureMp4: (props: {
 
 /** Add one track mirroring `track` to `output` and copy every sample into it. */
 const copyTrack: (props: {
-    output: ReturnType<typeof createFile>;
-    source: ReturnType<typeof createFile>;
-    bytes: Uint8Array;
-    track: Track;
-    name: string;
+  output: ReturnType<typeof createFile>;
+  source: ReturnType<typeof createFile>;
+  bytes: Uint8Array;
+  track: Track;
+  name: string;
 }) => number = (props: {
   output: ReturnType<typeof createFile>;
   source: ReturnType<typeof createFile>;

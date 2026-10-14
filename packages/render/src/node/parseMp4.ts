@@ -18,8 +18,8 @@ import { residentMp4Box } from "./residentMp4Box";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned file holds a copied input buffer, parsed boxes and expanded sample tables for its caller-owned lifetime; source bytes and parser error arrays can coexist during the call. None of these input-dependent populations has an admission cap here, and the parser opens no file handle or background task.
  */
 export const parseMp4: (bytes: Uint8Array) => {
-    file: ReturnType<typeof createFile>;
-    movie: Movie;
+  file: ReturnType<typeof createFile>;
+  movie: Movie;
 } = (
   bytes: Uint8Array,
 ): { file: ReturnType<typeof createFile>; movie: Movie } => {

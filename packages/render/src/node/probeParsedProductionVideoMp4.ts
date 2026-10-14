@@ -21,12 +21,18 @@ import { probeVideoTrack } from "./probeVideoTrack";
  * @evidence contracts/performance.md#reuse-equivalent-work Taking the parse as an argument lets a caller that already parsed the bytes, such as the feature mux or the clip parser, reuse that parse instead of parsing again; equivalence holds because the caller passes the parse of the same `bytes`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing; the parse stays the caller's and the returned record holds no parser object.
  */
-export const probeParsedProductionVideoMp4: (bytes: Uint8Array, parsed: {
+export const probeParsedProductionVideoMp4: (
+  bytes: Uint8Array,
+  parsed: {
     file: ReturnType<typeof createFile>;
     movie: Movie;
-}) => Extract<IAutoMovieProductionMediaProbe, {
+  },
+) => Extract<
+  IAutoMovieProductionMediaProbe,
+  {
     kind: "video";
-}> = (
+  }
+> = (
   bytes: Uint8Array,
   parsed: { file: ReturnType<typeof createFile>; movie: Movie },
 ): Extract<IAutoMovieProductionMediaProbe, { kind: "video" }> => {

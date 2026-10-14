@@ -47,7 +47,11 @@ import { sampleDescription } from "./sampleDescription";
  */
 export const conformProductionVisualDeliveryVideoMp4: (props: {
   timeline: IAutoMovieFilmTimeline;
-  sources: ReadonlyArray<{ occurrence: string; lane: "deterministic" | "repainted"; bytes: Uint8Array }>;
+  sources: ReadonlyArray<{
+    occurrence: string;
+    lane: "deterministic" | "repainted";
+    bytes: Uint8Array;
+  }>;
 }) => Uint8Array = (props: {
   /** Current cut-only film timeline the sources must cover exactly. */
   timeline: IAutoMovieFilmTimeline;

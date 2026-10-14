@@ -16,7 +16,17 @@ import type { sampleDescription } from "./sampleDescription";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call opens a distinct output file for one writer invocation, so no two calls produce interchangeable results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned file object is the caller's and holds the track, the referenced source description boxes and every sample later appended to it until the caller drops it; it opens no OS handle or task.
  */
-export const openLosslessVideoTrack: (props: { label: string; name: string; timescale: number; sampleDuration: number; frames: number; description: ReturnType<typeof sampleDescription>; width: number; height: number; language: string; }) => { file: ReturnType<typeof createFile>; track: number } = (props: {
+export const openLosslessVideoTrack: (props: {
+  label: string;
+  name: string;
+  timescale: number;
+  sampleDuration: number;
+  frames: number;
+  description: ReturnType<typeof sampleDescription>;
+  width: number;
+  height: number;
+  language: string;
+}) => { file: ReturnType<typeof createFile>; track: number } = (props: {
   /** Subject of the clock-range refusal, such as `Assembled chunk video`. */
   label: string;
 

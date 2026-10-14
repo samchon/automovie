@@ -13,7 +13,11 @@ import type { Sample, Track, createFile } from "mp4box";
  * @evidence contracts/performance.md#reuse-equivalent-work Returns the parser-owned sample table for the caller's subsequent reading instead of fetching it again. Each invocation rebuilds the file-wide media ranges, including separate video and audio readings of one feature; no range cache or prior residency verdict is shared across those calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The range array of M entries lives for the call; the returned sample array is the parser's own and stays owned by `file`, and no handle or task is opened.
  */
-export const verifySampleStorage: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => Sample[] = (
+export const verifySampleStorage: (
+  bytes: Uint8Array,
+  file: ReturnType<typeof createFile>,
+  track: Track,
+) => Sample[] = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -33,7 +37,11 @@ export const verifySampleStorage: (bytes: Uint8Array, file: ReturnType<typeof cr
       "MP4 sample table does not map every declared sample to non-empty resident bytes.",
     );
   const ranges: Array<{ start: number; end: number }> = file.mdats.map(
-    (box: { start?: number; hdr_size?: number; size: number }): { start: number; end: number } => ({
+    (box: {
+      start?: number;
+      hdr_size?: number;
+      size: number;
+    }): { start: number; end: number } => ({
       start: box.start! + box.hdr_size!,
       end: box.start! + box.size,
     }),
@@ -52,10 +60,14 @@ export const verifySampleStorage: (bytes: Uint8Array, file: ReturnType<typeof cr
 };
 
 /** Whether `[start, end)` lies inside the last of the sorted `ranges` starting at or before `start`. */
-const resident: (ranges: ReadonlyArray<{
+const resident: (
+  ranges: ReadonlyArray<{
     start: number;
     end: number;
-}>, start: number, end: number) => boolean = (
+  }>,
+  start: number,
+  end: number,
+) => boolean = (
   ranges: ReadonlyArray<{ start: number; end: number }>,
   start: number,
   end: number,

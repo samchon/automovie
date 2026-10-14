@@ -19,7 +19,9 @@ import type { Sample, createFile } from "mp4box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each sample yields its own record, which is cheaper to build than to look up.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record shares the sample's `subsamples` array by reference, so the writer that keeps the record keeps that array; nothing else is retained.
  */
-export const sampleOptions: (sample: Sample) => NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]> = (
+export const sampleOptions: (
+  sample: Sample,
+) => NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]> = (
   sample: Sample,
 ): NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]> => ({
   duration: sample.duration,

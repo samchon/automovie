@@ -34,7 +34,10 @@ import { productionRenditionVideoPlan } from "./productionRenditionVideoPlan";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call conforms one timeline from caller-held bytes and keeps no cache; equal inputs give byte-identical output, which a caller may store.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Input parses and copied buffers, source sample views, output payload copies and fragment boxes, serialized output and its verification parse can coexist. Bytes, samples, descriptions and boxes are uncapped here and no peak multiplier is established. Invocation-local references become collectable after completion or refusal; the caller retains the returned bytes, with no acquired OS handle or task.
  */
-export const conformProductionRenditionVideoMp4: (props: { timeline: IAutoMovieFilmTimeline; clips: ReadonlyMap<string, Uint8Array> }) => Uint8Array = (props: {
+export const conformProductionRenditionVideoMp4: (props: {
+  timeline: IAutoMovieFilmTimeline;
+  clips: ReadonlyMap<string, Uint8Array>;
+}) => Uint8Array = (props: {
   /** Current cut-only film timeline the clips must cover exactly. */
   timeline: IAutoMovieFilmTimeline;
 

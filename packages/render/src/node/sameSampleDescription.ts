@@ -22,7 +22,10 @@ import { serializeDescriptionBox } from "./serializeDescriptionBox";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A verdict depends on the boxes' current contents, and the identity short cut already avoids the repeated work callers would otherwise cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The serialized arrays are temporaries of one box pair and nothing is retained or opened.
  */
-export const sameSampleDescription: (left: ReturnType<typeof sampleDescription>, right: ReturnType<typeof sampleDescription>) => boolean = (
+export const sameSampleDescription: (
+  left: ReturnType<typeof sampleDescription>,
+  right: ReturnType<typeof sampleDescription>,
+) => boolean = (
   left: ReturnType<typeof sampleDescription>,
   right: ReturnType<typeof sampleDescription>,
 ): boolean =>

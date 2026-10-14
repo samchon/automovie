@@ -20,7 +20,10 @@ import type { Sample } from "mp4box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call addresses a different sample, and a view is cheaper to create than any cache lookup.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A returned view retains the whole source buffer until every holder drops it, including mp4box's sample record after `addSample`; a fallback copy retains only the sample's bytes; nothing else is held.
  */
-export const sampleBytes: (bytes: Uint8Array, sample: Sample) => Uint8Array<ArrayBuffer> = (
+export const sampleBytes: (
+  bytes: Uint8Array,
+  sample: Sample,
+) => Uint8Array<ArrayBuffer> = (
   bytes: Uint8Array,
   sample: Sample,
 ): Uint8Array<ArrayBuffer> => {
@@ -31,7 +34,9 @@ export const sampleBytes: (bytes: Uint8Array, sample: Sample) => Uint8Array<Arra
     sample.size < 0 ||
     sample.offset + sample.size > bytes.byteLength
   )
-    throw new Error(`MP4 sample ${sample.number} lies outside its source bytes.`);
+    throw new Error(
+      `MP4 sample ${sample.number} lies outside its source bytes.`,
+    );
   const buffer: ArrayBufferLike = bytes.buffer;
   return buffer instanceof ArrayBuffer
     ? new Uint8Array(buffer, bytes.byteOffset + sample.offset, sample.size)

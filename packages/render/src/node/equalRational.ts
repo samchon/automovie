@@ -16,7 +16,12 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time comparison of four numbers coordinates no work worth sharing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The temporary BigInt values die with the call, and nothing is retained or opened.
  */
-export const equalRational: (leftNumerator: number, leftDenominator: number, rightNumerator: number, rightDenominator: number) => boolean = (
+export const equalRational: (
+  leftNumerator: number,
+  leftDenominator: number,
+  rightNumerator: number,
+  rightDenominator: number,
+) => boolean = (
   leftNumerator: number,
   leftDenominator: number,
   rightNumerator: number,

@@ -38,12 +38,15 @@ import { verifySampleStorage } from "./verifySampleStorage";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed MP4 bytes and tables, decoded PNG pixels or decoded caption text coexist with their format-specific work until invocation-local references become collectable. Caption results retain their text and cue strings; media records copy track and description facts whose input-dependent lists are uncapped here. No file handle or task is opened, and return does not assert immediate garbage collection.
  */
 export const probeProductionRenderedMedia: (props: {
-    kind: IAutoMovieProductionDeliverable["kind"];
-    mediaType: string;
-    bytes: Uint8Array;
-}) => Exclude<IAutoMovieProductionMediaProbe, {
+  kind: IAutoMovieProductionDeliverable["kind"];
+  mediaType: string;
+  bytes: Uint8Array;
+}) => Exclude<
+  IAutoMovieProductionMediaProbe,
+  {
     kind: "semantic-mask" | "sound-evidence";
-}> = (props: {
+  }
+> = (props: {
   /** Deliverable kind the bytes were published as. */
   kind: IAutoMovieProductionDeliverable["kind"];
 
@@ -156,9 +159,12 @@ export const probeProductionRenderedMedia: (props: {
 };
 
 /** Read caption bytes as WebVTT, refusing every defect with the cue it names. */
-const probeWebVtt: (bytes: Uint8Array) => Extract<IAutoMovieProductionMediaProbe, {
+const probeWebVtt: (bytes: Uint8Array) => Extract<
+  IAutoMovieProductionMediaProbe,
+  {
     kind: "webvtt";
-}> = (
+  }
+> = (
   bytes: Uint8Array,
 ): Extract<IAutoMovieProductionMediaProbe, { kind: "webvtt" }> => {
   let text: string;
@@ -199,7 +205,9 @@ const probeWebVtt: (bytes: Uint8Array) => Extract<IAutoMovieProductionMediaProbe
       throw new Error(
         `WebVTT cue ${cues.length + 1} contains another timing line without a blank separator. Separate every cue block.`,
       );
-    if (payload.some((line: string): boolean => line.trim().length > 0) === false)
+    if (
+      payload.some((line: string): boolean => line.trim().length > 0) === false
+    )
       throw new Error(
         `WebVTT cue ${cues.length + 1} has no non-empty payload. Add observable caption text after its timing line.`,
       );
@@ -237,7 +245,11 @@ const probeWebVtt: (bytes: Uint8Array) => Extract<IAutoMovieProductionMediaProbe
 };
 
 /** Read one parsed Opus track into the audio probe record. */
-const probeAudioTrack: (bytes: Uint8Array, file: ReturnType<typeof createFile>, track: Track) => IAutoMovieProductionAudioProbe = (
+const probeAudioTrack: (
+  bytes: Uint8Array,
+  file: ReturnType<typeof createFile>,
+  track: Track,
+) => IAutoMovieProductionAudioProbe = (
   bytes: Uint8Array,
   file: ReturnType<typeof createFile>,
   track: Track,
@@ -276,22 +288,26 @@ const probeAudioTrack: (bytes: Uint8Array, file: ReturnType<typeof createFile>, 
       mediaTimescale: track.timescale,
       movieDuration: track.movie_duration,
       mediaDuration: track.duration,
-      edits: (track.edits ?? []).map((edit: Entry): IAutoMovieProductionAudioProbe["timebase"]["edits"][number] => ({
-        segmentDuration: edit.segment_duration,
-        mediaTime: edit.media_time,
-        mediaRateInteger: edit.media_rate_integer,
-        mediaRateFraction: edit.media_rate_fraction,
-      })),
+      edits: (track.edits ?? []).map(
+        (
+          edit: Entry,
+        ): IAutoMovieProductionAudioProbe["timebase"]["edits"][number] => ({
+          segmentDuration: edit.segment_duration,
+          mediaTime: edit.media_time,
+          mediaRateInteger: edit.media_rate_integer,
+          mediaRateFraction: edit.media_rate_fraction,
+        }),
+      ),
     },
     sampleEntry,
   };
 };
 
 /** Run the Opus profile, prefixing its refusal with the container's label. */
-const assertProductionAudioProfile: (audio: IAutoMovieProductionAudioProbe, label: string) => void = (
+const assertProductionAudioProfile: (
   audio: IAutoMovieProductionAudioProbe,
   label: string,
-): void => {
+) => void = (audio: IAutoMovieProductionAudioProbe, label: string): void => {
   try {
     assertProductionOpusProfile(audio);
   } catch (error) {
@@ -303,8 +319,8 @@ const assertProductionAudioProfile: (audio: IAutoMovieProductionAudioProbe, labe
 
 /** The start and end, in milliseconds, of one `start --> end [settings]` cue timing line. */
 const parseWebVttCue: (line: string) => {
-    start: number;
-    end: number;
+  start: number;
+  end: number;
 } = (line: string): { start: number; end: number } => {
   const delimiterCount: number = line.split("-->").length - 1;
   const match: RegExpExecArray | null =
@@ -324,10 +340,11 @@ const parseWebVttCue: (line: string) => {
 };
 
 /** Milliseconds of a WebVTT timestamp the cue-timing pattern already admitted. */
-const webVttTimestampMilliseconds: (value: string) => number = (value: string): number => {
-  const match: RegExpExecArray = /^(?:(\d{2,}):)?([0-5]\d):([0-5]\d)\.(\d{3})$/u.exec(
-    value,
-  )!;
+const webVttTimestampMilliseconds: (value: string) => number = (
+  value: string,
+): number => {
+  const match: RegExpExecArray =
+    /^(?:(\d{2,}):)?([0-5]\d):([0-5]\d)\.(\d{3})$/u.exec(value)!;
   const hours: number = match[1] === undefined ? 0 : Number(match[1]);
   return (
     ((hours * 60 + Number(match[2])) * 60 + Number(match[3])) * 1_000 +

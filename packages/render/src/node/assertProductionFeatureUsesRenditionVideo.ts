@@ -33,7 +33,10 @@ import { sampleDescription } from "./sampleDescription";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A proof compares two caller-held byte arrays once and offers no result another call could share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Both parsed files and their sample tables are released on return, and the function opens no handle or task.
  */
-export const assertProductionFeatureUsesRenditionVideo: (props: { feature: Uint8Array; renditionVideo: Uint8Array }) => void = (props: {
+export const assertProductionFeatureUsesRenditionVideo: (props: {
+  feature: Uint8Array;
+  renditionVideo: Uint8Array;
+}) => void = (props: {
   /** Feature MP4 whose first video track is checked. */
   feature: Uint8Array;
 
@@ -101,7 +104,10 @@ export const assertProductionFeatureUsesRenditionVideo: (props: { feature: Uint8
 };
 
 /** Whether two tracks share the display matrix and the edit list. */
-const sameTrackPresentation: (left: Track, right: Track) => boolean = (left: Track, right: Track): boolean => {
+const sameTrackPresentation: (left: Track, right: Track) => boolean = (
+  left: Track,
+  right: Track,
+): boolean => {
   const rightMatrix: number[] = Array.from(right.matrix);
   return (
     Array.from(left.matrix).every(
@@ -111,7 +117,10 @@ const sameTrackPresentation: (left: Track, right: Track) => boolean = (left: Tra
 };
 
 /** Whether two samples share duration, both clock times and every flag. */
-const sameSampleTiming: (left: Sample, right: Sample) => boolean = (left: Sample, right: Sample): boolean =>
+const sameSampleTiming: (left: Sample, right: Sample) => boolean = (
+  left: Sample,
+  right: Sample,
+): boolean =>
   left.duration === right.duration &&
   left.cts === right.cts &&
   left.dts === right.dts &&

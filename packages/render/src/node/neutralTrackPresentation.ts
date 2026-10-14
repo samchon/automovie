@@ -24,10 +24,10 @@ import { equalRational } from "./equalRational";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges one track once, cheaper than any cached verdict.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains no reference to the track and opens nothing.
  */
-export const neutralTrackPresentation: (track: Track, presentationStart: number) => boolean = (
+export const neutralTrackPresentation: (
   track: Track,
   presentationStart: number,
-): boolean => {
+) => boolean = (track: Track, presentationStart: number): boolean => {
   if (
     Array.from(track.matrix).some(
       (value: number, index: number): boolean =>

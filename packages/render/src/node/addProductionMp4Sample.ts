@@ -28,7 +28,9 @@ export function addProductionMp4Sample(
   file: ReturnType<typeof createFile>,
   track: number,
   bytes: Uint8Array<ArrayBuffer>,
-  options: NonNullable<Parameters<ReturnType<typeof createFile>["addSample"]>[2]>,
+  options: NonNullable<
+    Parameters<ReturnType<typeof createFile>["addSample"]>[2]
+  >,
 ): void {
   const sample: Sample | undefined = file.addSample(track, bytes, options);
   const fragment: InstanceType<typeof BoxParser.box.moof> | undefined =
@@ -44,7 +46,9 @@ export function addProductionMp4Sample(
     run.sample_count !== 1 ||
     run.sample_flags.length !== 1
   )
-    throw new Error("MP4 sample append requires one existing track and one sample fragment.");
+    throw new Error(
+      "MP4 sample append requires one existing track and one sample fragment.",
+    );
   run.version = sample.cts < sample.dts ? 1 : 0;
   run.sample_flags[0] =
     ((sample.is_leading << 26) |
@@ -52,17 +56,23 @@ export function addProductionMp4Sample(
       (sample.is_depended_on << 22) |
       (sample.has_redundancy << 20) |
       (Number(!sample.is_sync) << 16) |
-      sample.degradation_priority) >>> 0;
+      sample.degradation_priority) >>>
+    0;
   if (sample.subsamples === undefined || sample.subsamples.length === 0) return;
   if (sample.subsamples.length > 65_535)
-    throw new Error("MP4 sample subsample count exceeds its unsigned 16-bit field.");
-  const payload: Uint8Array = new Uint8Array(10 + sample.subsamples.length * 10);
+    throw new Error(
+      "MP4 sample subsample count exceeds its unsigned 16-bit field.",
+    );
+  const payload: Uint8Array = new Uint8Array(
+    10 + sample.subsamples.length * 10,
+  );
   const fields: DataView = new DataView(payload.buffer);
   fields.setUint32(0, 1);
   fields.setUint32(4, 1);
   fields.setUint16(8, sample.subsamples.length);
   for (let index: number = 0; index < sample.subsamples.length; ++index) {
-    const part: NonNullable<Sample["subsamples"]>[number] = sample.subsamples[index]!;
+    const part: NonNullable<Sample["subsamples"]>[number] =
+      sample.subsamples[index]!;
     const offset: number = 10 + index * 10;
     fields.setUint32(offset, part.size);
     fields.setUint8(offset + 4, part.priority);

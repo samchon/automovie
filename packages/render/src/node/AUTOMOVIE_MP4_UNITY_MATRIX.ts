@@ -11,6 +11,4 @@ import type { IAutoMovieProductionVideoProbe } from "@automovie/interface";
  */
 export const AUTOMOVIE_MP4_UNITY_MATRIX: Readonly<
   IAutoMovieProductionVideoProbe["trackMatrix"]
-> = [
-  65_536, 0, 0, 0, 65_536, 0, 0, 0, 1_073_741_824,
-];
+> = [65_536, 0, 0, 0, 65_536, 0, 0, 0, 1_073_741_824];

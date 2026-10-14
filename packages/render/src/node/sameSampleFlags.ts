@@ -14,7 +14,10 @@ import type { Sample } from "mp4box";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compares one sample pair once, so no earlier result applies.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The two JSON strings are temporaries and nothing is retained or opened.
  */
-export const sameSampleFlags: (left: Sample, right: Sample) => boolean = (left: Sample, right: Sample): boolean =>
+export const sameSampleFlags: (left: Sample, right: Sample) => boolean = (
+  left: Sample,
+  right: Sample,
+): boolean =>
   left.is_sync === right.is_sync &&
   left.is_leading === right.is_leading &&
   left.depends_on === right.depends_on &&

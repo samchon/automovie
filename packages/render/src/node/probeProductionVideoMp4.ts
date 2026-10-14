@@ -16,9 +16,12 @@ import { probeParsedProductionVideoMp4 } from "./probeParsedProductionVideoMp4";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A caller that also needs the parse calls `parseProductionMp4Output` and `probeParsedProductionVideoMp4` itself; this entry point serves callers that hold only bytes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parse, including its copy of the bytes, is dropped on return, and the returned record holds no parser object.
  */
-export const probeProductionVideoMp4: (bytes: Uint8Array) => Extract<IAutoMovieProductionMediaProbe, {
+export const probeProductionVideoMp4: (bytes: Uint8Array) => Extract<
+  IAutoMovieProductionMediaProbe,
+  {
     kind: "video";
-}> = (
+  }
+> = (
   bytes: Uint8Array,
 ): Extract<IAutoMovieProductionMediaProbe, { kind: "video" }> =>
   probeParsedProductionVideoMp4(bytes, parseProductionMp4Output(bytes));
