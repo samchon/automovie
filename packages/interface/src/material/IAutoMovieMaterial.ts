@@ -99,7 +99,7 @@ export interface IAutoMovieMaterial {
   clearcoat?: number;
 
   /**
-   * Anisotropic specular lobe, which stretches highlights along one surface direction. The direction lies in the tangent frame of texture coordinates UV0, so a surface needs UV0 for it; when a normal map is bound, the viewer derives that frame from the normal map's transformed coordinates. Omitted, the specular lobe is isotropic.
+   * Anisotropic specular lobe, which stretches highlights along one surface direction. The direction lies in the tangent frame of texture coordinates UV0, so every part citing the material must be a mesh with UV0, which tessellated primitives do not emit; when a normal map is bound, the viewer derives that frame from the normal map's transformed coordinates. Omitted, the specular lobe is isotropic.
    */
   anisotropy?: {
     /** Strength in `[0, 1]`; zero is isotropic. */
