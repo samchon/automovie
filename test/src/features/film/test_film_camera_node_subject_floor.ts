@@ -24,7 +24,11 @@ const HEIGHT: number = 4;
 /** Keep this vertical-floor fixture outside every solved camera's near plane. */
 const THICKNESS: number = 0.2;
 
-const transform: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const transform: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -74,7 +78,9 @@ const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
   depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
 });
 
-const action: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAction = (
+const action: (
+  framing: IAutoMovieCameraAction["framing"],
+) => IAutoMovieCameraAction = (
   framing: IAutoMovieCameraAction["framing"],
 ): IAutoMovieCameraAction => ({
   verb: "frame",
@@ -90,7 +96,10 @@ const action: (framing: IAutoMovieCameraAction["framing"]) => IAutoMovieCameraAc
  * Compile a camera from an explicitly supplied framed base. The test chooses
  * the measured floor itself; this helper does not call performShot.
  */
-const solve: (framing: IAutoMovieCameraAction["framing"], baseY: number) => IAutoMovieClip | null = (
+const solve: (
+  framing: IAutoMovieCameraAction["framing"],
+  baseY: number,
+) => IAutoMovieClip | null = (
   framing: IAutoMovieCameraAction["framing"],
   baseY: number,
 ): IAutoMovieClip | null =>
@@ -128,7 +137,15 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract => ({
  * Grade the contract for one staged model under one solved camera, and report
  * what the builder found at each of the three contract samples.
  */
-const grade: (model: IAutoMovieModel | null, cameraMotion: IAutoMovieClip | null) => { samples: number; resolved: number[]; readable: number[]; refused: boolean } = (
+const grade: (
+  model: IAutoMovieModel | null,
+  cameraMotion: IAutoMovieClip | null,
+) => {
+  samples: number;
+  resolved: number[];
+  readable: number[];
+  refused: boolean;
+} = (
   model: IAutoMovieModel | null,
   cameraMotion: IAutoMovieClip | null,
 ): {
@@ -180,14 +197,28 @@ const grade: (model: IAutoMovieModel | null, cameraMotion: IAutoMovieClip | null
   });
   return {
     samples: result.realization.camera.length,
-    resolved: result.realization.camera.map((entry: ReturnType<typeof realizeShotContract>["realization"]["camera"][number]): number => entry.resolvedSubjects),
-    readable: result.realization.camera.map((entry: ReturnType<typeof realizeShotContract>["realization"]["camera"][number]): number => entry.readableSubjects),
+    resolved: result.realization.camera.map(
+      (
+        entry: ReturnType<
+          typeof realizeShotContract
+        >["realization"]["camera"][number],
+      ): number => entry.resolvedSubjects,
+    ),
+    readable: result.realization.camera.map(
+      (
+        entry: ReturnType<
+          typeof realizeShotContract
+        >["realization"]["camera"][number],
+      ): number => entry.readableSubjects,
+    ),
     refused: result.diagnostics.length !== 0,
   };
 };
 
 /** Every contract sample found the one required subject readable. */
-const allRead: (graded: ReturnType<typeof grade>) => boolean = (graded: ReturnType<typeof grade>): boolean =>
+const allRead: (graded: ReturnType<typeof grade>) => boolean = (
+  graded: ReturnType<typeof grade>,
+): boolean =>
   graded.samples === 3 &&
   graded.resolved.every((count: number): boolean => count === 1) &&
   graded.readable.every((count: number): boolean => count === 1) &&
@@ -228,23 +259,43 @@ const allRead: (graded: ReturnType<typeof grade>) => boolean = (graded: ReturnTy
  * @evidence contracts/testing.md#execution-ownership Uses local model, scene, camera, and contract records in synchronous engine operations without a renderer, filesystem, process state, clocks, or dependency replacement; the test checks sampled numerical grading and diagnostics only.
  */
 export function test_film_camera_node_subject_floor(): void {
-  const framings: readonly ["wide", "full", "medium", "close"] = ["wide", "full", "medium", "close"];
+  const framings: readonly ["wide", "full", "medium", "close"] = [
+    "wide",
+    "full",
+    "medium",
+    "close",
+  ];
   const model: IAutoMovieModel = canopy();
-  const extent: ReturnType<typeof computeModelRestExtentY> = computeModelRestExtentY(model);
+  const extent: ReturnType<typeof computeModelRestExtentY> =
+    computeModelRestExtentY(model);
 
   TestValidator.equals(
     "the fixture draws its deck eight metres above the node origin",
-    { present: extent !== null, keys: extent === null ? [] : Object.keys(extent).sort(), min: extent !== null && nclose(extent.min, FLOOR), max: extent !== null && nclose(extent.max, FLOOR + HEIGHT) },
+    {
+      present: extent !== null,
+      keys:
+        extent === null
+          ? []
+          : Object.keys(extent).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      min: extent !== null && nclose(extent.min, FLOOR),
+      max: extent !== null && nclose(extent.max, FLOOR + HEIGHT),
+    },
     { present: true, keys: ["max", "min"], min: true, max: true },
   );
 
   TestValidator.equals(
     "every shot size grades the canopy readable at every sample",
     namedFacts(
-      framings.map((framing: IAutoMovieCameraAction["framing"]): [string, () => boolean] => [
-        framing,
-        (): boolean => allRead(grade(model, solve(framing, FLOOR))),
-      ]),
+      framings.map(
+        (
+          framing: IAutoMovieCameraAction["framing"],
+        ): [string, () => boolean] => [
+          framing,
+          (): boolean => allRead(grade(model, solve(framing, FLOOR))),
+        ],
+      ),
     ),
     { wide: true, full: true, medium: true, close: true },
   );
@@ -253,8 +304,14 @@ export function test_film_camera_node_subject_floor(): void {
   TestValidator.equals(
     "a camera aimed at the placement still fails to read the raised deck",
     namedFacts([
-      ["resolvedEverySample", (): boolean => misaimed.resolved.every((c: number): boolean => c === 1)],
-      ["readAtNoSample", (): boolean => misaimed.readable.every((c: number): boolean => c === 0)],
+      [
+        "resolvedEverySample",
+        (): boolean => misaimed.resolved.every((c: number): boolean => c === 1),
+      ],
+      [
+        "readAtNoSample",
+        (): boolean => misaimed.readable.every((c: number): boolean => c === 0),
+      ],
       ["refused", (): boolean => misaimed.refused],
     ]),
     { resolvedEverySample: true, readAtNoSample: true, refused: true },
@@ -268,7 +325,11 @@ export function test_film_camera_node_subject_floor(): void {
   TestValidator.equals(
     "a model standing on its origin has a zero floor and an unchanged grade",
     namedFacts([
-      ["zeroFloor", (): boolean => nclose(computeModelRestExtentY(grounded)?.min ?? Number.NaN, 0)],
+      [
+        "zeroFloor",
+        (): boolean =>
+          nclose(computeModelRestExtentY(grounded)?.min ?? Number.NaN, 0),
+      ],
       ["readable", (): boolean => allRead(grade(grounded, solve("close", 0)))],
     ]),
     { zeroFloor: true, readable: true },

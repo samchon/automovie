@@ -1,18 +1,10 @@
 import {
-  compileCameraMove,
   computeModelRestExtent,
   framedBoxOf,
-  intersectsPerspectiveFrustumBox,
-  nodeSubjectBox,
   nodeSubjectExtent,
-  realizeShotContract,
-  resolveCameraAt,
 } from "@automovie/engine";
 import type {
-  IAutoMovieCamera,
-  IAutoMovieCameraAction,
   IAutoMovieClip,
-  IAutoMovieFormationDesign,
   IAutoMovieModel,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -21,8 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmCameraClearanceBox } from "../internal/IFilmCameraClearanceBox";
 import type { IFilmFacadeGrade } from "../internal/IFilmFacadeGrade";
-import type { IFilmFacadeSubject } from "../internal/IFilmFacadeSubject";
-import { createFilmFacadeContract } from "../internal/createFilmFacadeContract";
+import { createFilmCameraWidthFixture } from "../internal/createFilmCameraWidthFixture";
 import { createFilmFacadeTransform as transform } from "../internal/createFilmFacadeTransform";
 import { createFilmFacadeYaw as yaw } from "../internal/createFilmFacadeYaw";
 import { performFilmFacade } from "../internal/performFilmFacade";
@@ -40,180 +31,10 @@ const ASPECT: number = 16 / 9;
 const HALF_Y: number = Math.tan(((FOV_Y / 2) * Math.PI) / 180);
 const HALF_X: number = HALF_Y * ASPECT;
 
-/**
- * A facade authored the way a building element is: the element origin sits
- * where the building was placed, and the wall runs outward from it. `offset` is
- * where the slab's centre lands, so `offset - WIDTH / 2` is the near end of the
- * mass in model space.
- */
-const facade: (id: string, offset: number) => IAutoMovieModel = (id: string, offset: number): IAutoMovieModel => ({
-  id,
-  name: null,
-  origin: "generated",
-  parts: [
-    {
-      id: "wall",
-      name: null,
-      geometry: {
-        type: "primitive",
-        shape: { type: "box", width: WIDTH, height: HEIGHT, depth: DEPTH },
-      },
-      material: null,
-      attachedBone: null,
-      transform: transform(offset, HEIGHT / 2, 0),
-    },
-  ],
-  skeleton: null,
-  body: null,
-  materials: [],
-  asset: null,
+const { facade, meshFacade, worldBox, solve, grade, framesPoint, solvedDistance }: ReturnType<typeof createFilmCameraWidthFixture> = createFilmCameraWidthFixture({
+  node: NODE, width: WIDTH, height: HEIGHT, depth: DEPTH,
+  fovY: FOV_Y, aspect: ASPECT, halfY: HALF_Y,
 });
-
-/**
- * The same wall delivered as an ingested mesh rather than as a primitive. Its
- * eight corners are the box's, which is enough for an extent: the measurement
- * reads vertices either way, and this is the arm a generated primitive never
- * exercises.
- */
-const meshFacade: (id: string, offset: number) => IAutoMovieModel = (id: string, offset: number): IAutoMovieModel => {
-  const corners: number[] = [];
-  for (const x of [-WIDTH / 2, WIDTH / 2])
-    for (const y of [-HEIGHT / 2, HEIGHT / 2])
-      for (const z of [-DEPTH / 2, DEPTH / 2]) corners.push(x, y, z);
-  return {
-    ...facade(id, offset),
-    parts: [
-      {
-        ...facade(id, offset).parts[0]!,
-        geometry: {
-          type: "mesh",
-          mesh: {
-            positions: corners,
-            normals: null,
-            uvs: null,
-            indices: null,
-            skin: null,
-          },
-        },
-      },
-    ],
-  };
-};
-
-const camera: () => IAutoMovieCamera = (): IAutoMovieCamera => ({
-  id: "cam",
-  transform: transform(0, 2, 200),
-  fovY: FOV_Y,
-  near: 0.1,
-  far: 1000,
-  depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-});
-
-const action: IAutoMovieCameraAction = {
-  verb: "frame",
-  actor: "cam",
-  start: 0,
-  duration: "auto",
-  framing: "full",
-  move: "static",
-  on: { kind: "node", node: NODE },
-};
-
-/** The world box a node subject is framed and graded from, both sides alike. */
-const worldBox: (model: IAutoMovieModel, placement: IAutoMovieTransform) => ReturnType<typeof nodeSubjectBox> = (model: IAutoMovieModel, placement: IAutoMovieTransform): ReturnType<typeof nodeSubjectBox> =>
-  nodeSubjectBox(
-    placement,
-    nodeSubjectExtent(computeModelRestExtent(model), null),
-  );
-
-/** Compile the one-entry move a `full` framing on this subject produces. */
-const solve: (subject: IFilmFacadeSubject) => IAutoMovieClip = (subject: IFilmFacadeSubject): IAutoMovieClip =>
-  compileCameraMove({
-    clipId: "clip",
-    camera: camera(),
-    entries: [{ action, subject: { ...subject, at: null } }],
-    shotDuration: 2,
-    aspect: ASPECT,
-  })!;
-
-/** Grade the contract for one staged model under one solved camera. */
-const grade: (model: IAutoMovieModel, placement: IAutoMovieTransform, cameraMotion: IAutoMovieClip) => IFilmFacadeGrade = (
-  model: IAutoMovieModel,
-  placement: IAutoMovieTransform,
-  cameraMotion: IAutoMovieClip,
-): IFilmFacadeGrade => {
-  const result: ReturnType<typeof realizeShotContract> = realizeShotContract({
-    contract: createFilmFacadeContract(NODE),
-    production: null,
-    frameFormat: { width: 1920, height: 1080 },
-    world: null,
-    formations: new Map<string, IAutoMovieFormationDesign>(),
-    compiled: {
-      eventSamples: [],
-      scene: {
-        id: "scene",
-        name: null,
-        nodes: [
-          {
-            id: NODE,
-            model: model.id,
-            transform: placement,
-            pose: null,
-            motion: null,
-          },
-        ],
-        cameras: [camera()],
-        lights: [],
-      },
-      motions: [],
-      shot: {
-        id: "shot-facade",
-        name: null,
-        scene: "scene",
-        camera: "cam",
-        duration: 2,
-        performances: [],
-        objectMotions: [],
-        cameraMotion,
-      },
-      models: [model],
-    },
-    collisions: [],
-  });
-  return {
-    readable: result.realization.camera.map((entry: ReturnType<typeof realizeShotContract>["realization"]["camera"][number]): number => entry.readableSubjects),
-    refused: result.diagnostics.length !== 0,
-  };
-};
-
-/** Whether the delivered frame at t=0 holds a 10 cm probe at `point`. */
-const framesPoint: (cameraMotion: IAutoMovieClip, point: IAutoMovieVector3) => boolean = (
-  cameraMotion: IAutoMovieClip,
-  point: IAutoMovieVector3,
-): boolean =>
-  intersectsPerspectiveFrustumBox({
-    camera: resolveCameraAt(camera().transform, cameraMotion, "cam", 0),
-    min: { x: point.x - 0.05, y: point.y - 0.05, z: point.z - 0.05 },
-    max: { x: point.x + 0.05, y: point.y + 0.05, z: point.z + 0.05 },
-    near: camera().near,
-    far: camera().far,
-    halfY: HALF_Y,
-    aspect: ASPECT,
-  });
-
-/** How far the compiled move's first key stands from the framing's aim point. */
-const solvedDistance: (cameraMotion: IAutoMovieClip, aim: IAutoMovieVector3) => number = (
-  cameraMotion: IAutoMovieClip,
-  aim: IAutoMovieVector3,
-): number => {
-  const eye: IAutoMovieVector3 = resolveCameraAt(
-    camera().transform,
-    cameraMotion,
-    "cam",
-    0,
-  ).position;
-  return Math.hypot(eye.x - aim.x, eye.y - aim.y, eye.z - aim.z);
-};
 
 /**
  * A required node subject is framed and graded on the width its geometry
@@ -264,17 +85,51 @@ const solvedDistance: (cameraMotion: IAutoMovieClip, aim: IAutoMovieVector3) => 
 export function test_film_camera_node_subject_width(): void {
   const model: IAutoMovieModel = facade("facade-model", WIDTH / 2);
   const origin: IAutoMovieTransform = transform(0, 0, 0);
-  const extent: ReturnType<typeof computeModelRestExtent> = computeModelRestExtent(model);
+  const extent: ReturnType<typeof computeModelRestExtent> =
+    computeModelRestExtent(model);
 
   // 1. the fixture draws what it claims.
   TestValidator.equals(
     "the fixture draws a sixty metre facade two metres thick",
-    { present: extent !== null, keys: extent === null ? [] : Object.keys(extent).sort(), minKeys: extent === null ? [] : Object.keys(extent.min).sort(), maxKeys: extent === null ? [] : Object.keys(extent.max).sort(), min: extent !== null && vclose(extent.min, { x: 0, y: 0, z: -DEPTH / 2 }), max: extent !== null && vclose(extent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }) },
-    { present: true, keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      present: extent !== null,
+      keys:
+        extent === null
+          ? []
+          : Object.keys(extent).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      minKeys:
+        extent === null
+          ? []
+          : Object.keys(extent.min).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      maxKeys:
+        extent === null
+          ? []
+          : Object.keys(extent.max).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      min: extent !== null && vclose(extent.min, { x: 0, y: 0, z: -DEPTH / 2 }),
+      max:
+        extent !== null &&
+        vclose(extent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }),
+    },
+    {
+      present: true,
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
 
   // 2. restated for the framing grammar.
-  const measured: ReturnType<typeof framedBoxOf> = framedBoxOf(worldBox(model, origin));
+  const measured: ReturnType<typeof framedBoxOf> = framedBoxOf(
+    worldBox(model, origin),
+  );
   const RADIUS: number = Math.hypot(WIDTH, DEPTH) / 2;
   TestValidator.equals(
     "the framed box centres on the mass and carries its half diagonal",
@@ -288,7 +143,10 @@ export function test_film_camera_node_subject_width(): void {
         "radiusIsHalfTheHorizontalDiagonal",
         (): boolean => nclose(measured.radius, RADIUS),
       ],
-      ["andTheOldReadWasThirtyMetresOff", (): boolean => nclose(measured.base.x, 30)],
+      [
+        "andTheOldReadWasThirtyMetresOff",
+        (): boolean => nclose(measured.base.x, 30),
+      ],
     ]),
     {
       baseAtTheMiddleOfTheMass: true,
@@ -299,23 +157,51 @@ export function test_film_camera_node_subject_width(): void {
   );
 
   // 3. a yawed element is boxed where it stands.
-  const yawed: IFilmCameraClearanceBox = worldBox(model, transform(100, 0, 5, yaw(90)));
+  const yawed: IFilmCameraClearanceBox = worldBox(
+    model,
+    transform(100, 0, 5, yaw(90)),
+  );
   TestValidator.equals(
     "a quarter-turned set piece fills the footprint its yaw gives it",
-    { keys: Object.keys(yawed).sort(), minKeys: Object.keys(yawed.min).sort(), maxKeys: Object.keys(yawed.max).sort(), min: vclose(yawed.min, { x: 100 - DEPTH / 2, y: 0, z: 5 - WIDTH }, 1e-6), max: vclose(yawed.max, { x: 100 + DEPTH / 2, y: HEIGHT, z: 5 }, 1e-6) },
-    { keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      keys: Object.keys(yawed).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      minKeys: Object.keys(yawed.min).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      maxKeys: Object.keys(yawed.max).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      min: vclose(yawed.min, { x: 100 - DEPTH / 2, y: 0, z: 5 - WIDTH }, 1e-6),
+      max: vclose(yawed.max, { x: 100 + DEPTH / 2, y: HEIGHT, z: 5 }, 1e-6),
+    },
+    {
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
 
   // 4. the width decides the distance, and the aim moves to the mass.
   const measuredMove: IAutoMovieClip = solve(measured);
-  const poleMove: IAutoMovieClip = solve({ base: { x: 0, y: 0, z: 0 }, height: HEIGHT });
+  const poleMove: IAutoMovieClip = solve({
+    base: { x: 0, y: 0, z: 0 },
+    height: HEIGHT,
+  });
   const AIM_FRACTION_FULL: number = 0.5;
   const measuredAim: IAutoMovieVector3 = {
     x: WIDTH / 2,
     y: HEIGHT * AIM_FRACTION_FULL,
     z: 0,
   };
-  const poleAim: IAutoMovieVector3 = { x: 0, y: HEIGHT * AIM_FRACTION_FULL, z: 0 };
+  const poleAim: IAutoMovieVector3 = {
+    x: 0,
+    y: HEIGHT * AIM_FRACTION_FULL,
+    z: 0,
+  };
   const verticalFit: number = (HEIGHT * 1.15) / 2 / HALF_Y;
   const horizontalFit: number = (RADIUS * 2 * 1.15) / 2 / HALF_X;
   TestValidator.equals(
@@ -333,7 +219,8 @@ export function test_film_camera_node_subject_width(): void {
       ],
       [
         "poleStandsAtTheVerticalFit",
-        (): boolean => nclose(solvedDistance(poleMove, poleAim), verticalFit, 1e-6),
+        (): boolean =>
+          nclose(solvedDistance(poleMove, poleAim), verticalFit, 1e-6),
       ],
     ]),
     {
@@ -349,10 +236,19 @@ export function test_film_camera_node_subject_width(): void {
   TestValidator.equals(
     "the measured camera holds both ends and the height-only camera loses the far one",
     namedFacts([
-      ["measuredHoldsTheNearEnd", (): boolean => framesPoint(measuredMove, nearEnd)],
-      ["measuredHoldsTheFarEnd", (): boolean => framesPoint(measuredMove, farEnd)],
+      [
+        "measuredHoldsTheNearEnd",
+        (): boolean => framesPoint(measuredMove, nearEnd),
+      ],
+      [
+        "measuredHoldsTheFarEnd",
+        (): boolean => framesPoint(measuredMove, farEnd),
+      ],
       ["poleHoldsTheNearEnd", (): boolean => framesPoint(poleMove, nearEnd)],
-      ["poleLosesTheFarEnd", (): boolean => framesPoint(poleMove, farEnd) === false],
+      [
+        "poleLosesTheFarEnd",
+        (): boolean => framesPoint(poleMove, farEnd) === false,
+      ],
     ]),
     {
       measuredHoldsTheNearEnd: true,
@@ -367,7 +263,11 @@ export function test_film_camera_node_subject_width(): void {
   TestValidator.equals(
     "the facade reads at every contract sample under the camera solved for it",
     namedFacts([
-      ["readEverySample", (): boolean => graded.readable.every((count: number): boolean => count === 1)],
+      [
+        "readEverySample",
+        (): boolean =>
+          graded.readable.every((count: number): boolean => count === 1),
+      ],
       ["sampledThrice", (): boolean => graded.readable.length === 3],
       ["notRefused", (): boolean => graded.refused === false],
     ]),
@@ -376,22 +276,36 @@ export function test_film_camera_node_subject_width(): void {
 
   // 7. the grade follows the geometry rather than growing around the origin.
   const remote: IAutoMovieModel = facade("remote-facade-model", 100);
-  const remoteMeasured: ReturnType<typeof framedBoxOf> = framedBoxOf(worldBox(remote, origin));
+  const remoteMeasured: ReturnType<typeof framedBoxOf> = framedBoxOf(
+    worldBox(remote, origin),
+  );
   const remotePole: IFilmFacadeGrade = grade(
     remote,
     origin,
     solve({ base: { x: 0, y: 0, z: 0 }, height: HEIGHT }),
   );
-  const remoteSolved: IFilmFacadeGrade = grade(remote, origin, solve(remoteMeasured));
+  const remoteSolved: IFilmFacadeGrade = grade(
+    remote,
+    origin,
+    solve(remoteMeasured),
+  );
   TestValidator.equals(
     "a facade built away from its origin is refused where it is not, and reads where it is",
     namedFacts([
-      ["drawnAwayFromTheOrigin", (): boolean => nclose(remoteMeasured.base.x, 100)],
-      ["poleReadsAtNoSample", (): boolean => remotePole.readable.every((c: number): boolean => c === 0)],
+      [
+        "drawnAwayFromTheOrigin",
+        (): boolean => nclose(remoteMeasured.base.x, 100),
+      ],
+      [
+        "poleReadsAtNoSample",
+        (): boolean =>
+          remotePole.readable.every((c: number): boolean => c === 0),
+      ],
       ["poleIsRefused", (): boolean => remotePole.refused],
       [
         "measuredReadsEverySample",
-        (): boolean => remoteSolved.readable.every((c: number): boolean => c === 1),
+        (): boolean =>
+          remoteSolved.readable.every((c: number): boolean => c === 1),
       ],
       ["measuredIsNotRefused", (): boolean => remoteSolved.refused === false],
     ]),
@@ -405,15 +319,52 @@ export function test_film_camera_node_subject_width(): void {
   );
 
   // 8. an ingested mesh is measured on the same terms as a generated primitive.
-  const meshExtent: ReturnType<typeof computeModelRestExtent> = computeModelRestExtent(meshFacade("mesh-facade-model", WIDTH / 2));
+  const meshExtent: ReturnType<typeof computeModelRestExtent> =
+    computeModelRestExtent(meshFacade("mesh-facade-model", WIDTH / 2));
   TestValidator.equals(
     "a mesh wall draws the same box its primitive twin does",
-    { present: meshExtent !== null, keys: meshExtent === null ? [] : Object.keys(meshExtent).sort(), minKeys: meshExtent === null ? [] : Object.keys(meshExtent.min).sort(), maxKeys: meshExtent === null ? [] : Object.keys(meshExtent.max).sort(), min: meshExtent !== null && vclose(meshExtent.min, { x: 0, y: 0, z: -DEPTH / 2 }), max: meshExtent !== null && vclose(meshExtent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }) },
-    { present: true, keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      present: meshExtent !== null,
+      keys:
+        meshExtent === null
+          ? []
+          : Object.keys(meshExtent).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      minKeys:
+        meshExtent === null
+          ? []
+          : Object.keys(meshExtent.min).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      maxKeys:
+        meshExtent === null
+          ? []
+          : Object.keys(meshExtent.max).sort((a: string, b: string): number =>
+              a < b ? -1 : a > b ? 1 : 0,
+            ),
+      min:
+        meshExtent !== null &&
+        vclose(meshExtent.min, { x: 0, y: 0, z: -DEPTH / 2 }),
+      max:
+        meshExtent !== null &&
+        vclose(meshExtent.max, { x: WIDTH, y: HEIGHT, z: DEPTH / 2 }),
+    },
+    {
+      present: true,
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
 
   // 9. the shot builder itself resolves the subject that way.
-  const performed: ReturnType<typeof performFilmFacade> = performFilmFacade(model, FOV_Y);
+  const performed: ReturnType<typeof performFilmFacade> = performFilmFacade(
+    model,
+    FOV_Y,
+  );
   TestValidator.equals(
     "performShot frames a set piece from the box it draws",
     namedFacts([
@@ -433,17 +384,59 @@ export function test_film_camera_node_subject_width(): void {
   );
 
   // 10. boundaries: nothing to measure, and nothing vertical to measure.
-  const standIn: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(null, null);
+  const standIn: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
+    null,
+    null,
+  );
   TestValidator.equals(
     "a node with nothing to measure keeps the degenerate stand-in segment",
-    { keys: Object.keys(standIn).sort(), minKeys: Object.keys(standIn.min).sort(), maxKeys: Object.keys(standIn.max).sort(), min: vclose(standIn.min, { x: 0, y: 0, z: 0 }), max: vclose(standIn.max, { x: 0, y: 1.7, z: 0 }) },
-    { keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      keys: Object.keys(standIn).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      minKeys: Object.keys(standIn.min).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      maxKeys: Object.keys(standIn.max).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      min: vclose(standIn.min, { x: 0, y: 0, z: 0 }),
+      max: vclose(standIn.max, { x: 0, y: 1.7, z: 0 }),
+    },
+    {
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
-  const rigOnly: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(null, 1.9);
+  const rigOnly: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
+    null,
+    1.9,
+  );
   TestValidator.equals(
     "a rig span stands in for a height without inventing a width",
-    { keys: Object.keys(rigOnly).sort(), minKeys: Object.keys(rigOnly.min).sort(), maxKeys: Object.keys(rigOnly.max).sort(), min: vclose(rigOnly.min, { x: 0, y: 0, z: 0 }), max: vclose(rigOnly.max, { x: 0, y: 1.9, z: 0 }) },
-    { keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      keys: Object.keys(rigOnly).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      minKeys: Object.keys(rigOnly.min).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      maxKeys: Object.keys(rigOnly.max).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      min: vclose(rigOnly.min, { x: 0, y: 0, z: 0 }),
+      max: vclose(rigOnly.max, { x: 0, y: 1.9, z: 0 }),
+    },
+    {
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
   const thin: ReturnType<typeof nodeSubjectExtent> = nodeSubjectExtent(
     {
@@ -454,7 +447,25 @@ export function test_film_camera_node_subject_width(): void {
   );
   TestValidator.equals(
     "a slab too thin to measure vertically keeps the width it draws",
-    { keys: Object.keys(thin).sort(), minKeys: Object.keys(thin.min).sort(), maxKeys: Object.keys(thin.max).sort(), min: vclose(thin.min, { x: 0, y: 4, z: -WIDTH / 2 }), max: vclose(thin.max, { x: WIDTH, y: 5.7, z: WIDTH / 2 }) },
-    { keys: ["max", "min"], minKeys: ["x", "y", "z"], maxKeys: ["x", "y", "z"], min: true, max: true },
+    {
+      keys: Object.keys(thin).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      minKeys: Object.keys(thin.min).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      maxKeys: Object.keys(thin.max).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      min: vclose(thin.min, { x: 0, y: 4, z: -WIDTH / 2 }),
+      max: vclose(thin.max, { x: WIDTH, y: 5.7, z: WIDTH / 2 }),
+    },
+    {
+      keys: ["max", "min"],
+      minKeys: ["x", "y", "z"],
+      maxKeys: ["x", "y", "z"],
+      min: true,
+      max: true,
+    },
   );
 }
