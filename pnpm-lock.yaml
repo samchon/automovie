@@ -447,6 +447,9 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      typia:
+        specifier: catalog:samchon
+        version: 15.1.0(ttsc@0.32.1)
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
