@@ -1,42 +1,23 @@
-import { materializeCompiledEffects } from "@automovie/engine";
-import type {
-  IAutoMovieShotContract,
-  IAutoMovieShotEffectCue,
-  IAutoMovieWorldDesign,
-} from "@automovie/interface";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { IAutoMovieCompiledEffect, IAutoMovieWorldEffectZone, IAutoMovieShotContract, IAutoMovieShotEffectCue, IAutoMovieWorldDesign } from "@automovie/interface";
+import { materializeCompiledEffects } from "../../../../packages/engine/src/effectRuntime/materializeCompiledEffects";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  filmEffectRecipe,
-  filmEffectWorld,
-  filmEffectZone,
-  nodeCanonicalDigest,
-} from "./filmEffectRuntimeFixtures";
-
+import { filmEffectRecipe, filmEffectWorld, filmEffectZone, nodeCanonicalDigest } from "./filmEffectRuntimeFixtures";
 /**
- * Effect cues become streams whose seed and digest depend only on identity.
- *
- * A shot contract and a production and film pair derive seeds under different
- * protocols, so the same cue under two owners is two streams. Expected seeds
- * and digests are recomputed through `node:crypto` from the documented seed
- * protocols, which also pins that the engine's pure digest leaves every
- * previously persisted stream identity unchanged.
+ * Effect streams preserve their owner protocol, ordered cue identity and independent input data.
  *
  * Scenarios:
+ * 1. Materialize sorted cues, skip unresolved zones/recipes and preserve optional events.
+ * 2. Check shot/film domain-separated seeds, canonical digests and requested clocks.
+ * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
  *
- * 1. Under a shot contract, cues are ordered by code unit, cues on a missing
- *    zone or on a zone whose recipe is missing are dropped, an authored event
- *    is carried and an absent one is omitted, the step is the supplied
- *    `fixedStepSeconds`, and the seed and digest are the shot stream protocol
- *    through `node:crypto`.
- * 2. The emitted bounds, recipe and intensity are copies of the authored data.
- * 3. Under a production and film owner the seed follows the film seed
- *    protocol and the stream carries the supplied step.
- * 4. The same cue under the shot owner and the film owner receives different
- *    seeds.
+ * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledEffects and observes ordered records, event fields, seeds, digests and source isolation, catching owner mixing, omitted cue fields or shallow-copy mutation leaks.
+ * @evidence contracts/testing.md#independent-expectations The documented protocol tags and authored ids/seeds define the SHA-256 seed record; Node crypto independently checks hashing. nodeCanonicalDigest shares the product canonicalizer, so it independently checks the digest primitive rather than every canonical ordering rule.
+ * @evidence contracts/testing.md#distinguishing-cases Covers shot and film owners, altered owner identity, unresolved zone/recipe, optional event and mutable nested output fields; full film cue/clock admission belongs to effect_materialization.
+ * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns these in-memory stream cases and calls source directly; Node crypto is a portable reference within this process, without browser/GPU or cross-machine execution proof.
  */
-export const test_film_effect_compiled_streams = (): void => {
-  const contract = { id: "shot-1" } as IAutoMovieShotContract;
+export function test_film_effect_compiled_streams(): void {
+  const contract: IAutoMovieShotContract = { id: "shot-1" } as IAutoMovieShotContract;
   const world: IAutoMovieWorldDesign = {
     ...filmEffectWorld(),
     effectZones: [
@@ -71,15 +52,16 @@ export const test_film_effect_compiled_streams = (): void => {
     },
   ];
 
-  const shot = materializeCompiledEffects({
+  const shot: IAutoMovieCompiledEffect[] = materializeCompiledEffects({
     world,
     contract,
     fixedStepSeconds: 1 / 30,
     cues,
   });
-  TestValidator.equals(
+  TestValidator.predicate(
     "shot streams are ordered, filtered, and carry their event",
-    shot.map((stream) => ({
+    filmEffectValuesClose(
+      shot.map((stream: IAutoMovieCompiledEffect): { id: string; zone: string; kind: "fog" | "smoke" | "dust"; event: string | null | undefined; window: number[]; step: number; } => ({
       id: stream.id,
       zone: stream.zone,
       kind: stream.kind,
@@ -87,7 +69,7 @@ export const test_film_effect_compiled_streams = (): void => {
       window: [stream.start, stream.end],
       step: stream.fixedStepSeconds,
     })),
-    [
+      [
       {
         id: "a",
         zone: "yard",
@@ -105,13 +87,14 @@ export const test_film_effect_compiled_streams = (): void => {
         step: 1 / 30,
       },
     ],
+    ),
   );
-  const zoneSeed = (id: string) =>
-    world.effectZones.find((zone) => zone.id === id)!.seed;
+  const zoneSeed: (id: string) => number = (id: string): number =>
+    world.effectZones.find((zone: IAutoMovieWorldEffectZone): boolean => zone.id === id)!.seed;
   TestValidator.equals(
     "shot seeds and digests follow the shot stream protocol",
-    shot.map((stream) => [stream.seed, stream.digest]),
-    shot.map((stream) => [
+    shot.map((stream: IAutoMovieCompiledEffect): (string | number)[] => [stream.seed, stream.digest]),
+    shot.map((stream: IAutoMovieCompiledEffect): (string | number)[] => [
       Number.parseInt(
         nodeCanonicalDigest({
           protocol: "automovie.effect-stream.v1",
@@ -128,27 +111,30 @@ export const test_film_effect_compiled_streams = (): void => {
   shot[0]!.bounds.min.x = 99;
   shot[0]!.recipe.seed = 99;
   shot[0]!.intensity.from = 99;
-  TestValidator.equals(
+  TestValidator.predicate(
     "emitted data does not alias the authored world or cue",
-    [
+    filmEffectValuesClose(
+      [
       world.effectZones[0]!.bounds.min.x,
       world.effectRecipes[0]!.seed,
       cues[1]!.intensity.from,
     ],
-    [-1, 7, 1],
+      [-1, 7, 1],
+    ),
   );
 
-  const owner = { production: "p", film: "f" };
-  const film = materializeCompiledEffects({
+  const owner: { production: string; film: string; } = { production: "p", film: "f" };
+  const film: IAutoMovieCompiledEffect = materializeCompiledEffects({
     world,
     seedOwner: owner,
     fixedStepSeconds: 0.125,
     cues: [cues[1]!],
   })[0]!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "film streams follow the film seed protocol and the supplied step",
-    [film.seed, film.fixedStepSeconds, film.digest],
-    [
+    filmEffectValuesClose(
+      [film.seed, film.fixedStepSeconds, film.digest],
+      [
       Number.parseInt(
         nodeCanonicalDigest({
           protocol: "automovie.film-effect-seed.v1",
@@ -162,10 +148,11 @@ export const test_film_effect_compiled_streams = (): void => {
       0.125,
       nodeCanonicalDigest({ ...film, digest: undefined }),
     ],
+    ),
   );
   TestValidator.equals(
     "owners separate seeds",
     film.seed === shot[0]!.seed,
     false,
   );
-};
+}

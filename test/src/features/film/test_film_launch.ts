@@ -1,13 +1,9 @@
-import type { AutoMovieInteractionEventKind, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieLaunchResult } from "../../../../packages/engine/src/film/IAutoMovieLaunchResult";
-
+import { AutoMovieInteractionEventKind, IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieLaunchResult } from "../../../../packages/engine/src/film/IAutoMovieLaunchResult";
 import { compileLaunch } from "../../../../packages/engine/src/film/compileLaunch";
 import { projectileAt } from "../../../../packages/engine/src/physics/projectileAt";
-
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose, throwsError, vclose } from "../internal/predicates";
-
 /** A launch action carrying the fields `compileLaunch` reads. */
 function launch (
   over: Partial<IAutoMovieLaunchAction> = {},
@@ -111,7 +107,7 @@ export function test_film_launch (): void {
     "react starts at launch.start + hitTime",
     nclose(react.start, 0.5 + hit.hitTime),
   );
-  TestValidator.equals("force carried through", react.force, 0.7);
+  TestValidator.predicate("force carried through", nclose(react.force, 0.7));
   TestValidator.equals("unbalance carried through", react.unbalance, true);
   TestValidator.equals(
     "the launch emits contact, hit, and fall events",

@@ -1,19 +1,16 @@
-import { type IAutoMovieStagedSet, performShot } from "@automovie/engine";
+import { IAutoMovieSkeleton } from "@automovie/interface";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { type IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  validSynthesizer,
-} from "./filmFixtures";
+import { makePerformanceWrite, makeScriptWrite, validSynthesizer } from "./filmFixtures";
 import { createSkeleton } from "./fixtures";
 import { hasViolation, namedFacts } from "./predicates";
-
-/** Run the existing camera and malformed actor boundary assertions against the same staged set. */
+/** Run the existing non-frame camera actor, object actor and null list-entry cases against the supplied staged set. test_film_perform_shot_bad_refs owns these portable real performShot refusals and their exact actor paths; namedFacts stops within a group at the first false guard, and this helper creates no host or dynamically registered test. */
 export function assertFilmNonFrameActorShapes(
   staged: IAutoMovieStagedSet.ISuccess,
 ): void {
-  const cameraGesture = performShot({
+  const cameraGesture: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -29,21 +26,21 @@ export function assertFilmNonFrameActorShapes(
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "non-frame camera actor rejected",
     namedFacts([
-      ["refused", () => cameraGesture.success === false],
+      ["refused", (): boolean => cameraGesture.success === false],
       [
         "violated",
-        () => hasViolation(cameraGesture, "type", "$input.draft[0].actor"),
+        (): boolean => hasViolation(cameraGesture, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const objectActor = performShot({
+  const objectActor: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -60,21 +57,21 @@ export function assertFilmNonFrameActorShapes(
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "object actor rejected",
     namedFacts([
-      ["refused", () => objectActor.success === false],
+      ["refused", (): boolean => objectActor.success === false],
       [
         "violated",
-        () => hasViolation(objectActor, "type", "$input.draft[0].actor"),
+        (): boolean => hasViolation(objectActor, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
   );
 
-  const nonStringActorEntry = performShot({
+  const nonStringActorEntry: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -90,15 +87,15 @@ export function assertFilmNonFrameActorShapes(
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "non-string actor entry rejected",
     namedFacts([
-      ["refused", () => nonStringActorEntry.success === false],
+      ["refused", (): boolean => nonStringActorEntry.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           hasViolation(nonStringActorEntry, "type", "$input.draft[0].actor[0]"),
       ],
     ]),

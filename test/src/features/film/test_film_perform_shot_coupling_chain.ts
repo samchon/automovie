@@ -1,41 +1,19 @@
-import {
-  HUMANOID_JOINT_AXES,
-  IAutoMovieActionSynthesizer,
-  Quaternion,
-  Vector3,
-  performShot,
-  resolveAttachment,
-  sampleClip,
-  sampleMotion,
-  stageScene,
-} from "@automovie/engine";
-import {
-  IAutoMovieActionCall,
-  IAutoMovieClip,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieStage,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { IAutoMovieScript, IAutoMovieStageCamera, IAutoMovieSkeleton, IAutoMovieSceneNode, IAutoMovieConstraintViolation, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieMotion, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieStage, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES } from "../../../../packages/engine/src/kinematics/constants/HUMANOID_JOINT_AXES";
+import { IAutoMovieActionSynthesizer } from "../../../../packages/engine/src/perform/IAutoMovieActionSynthesizer";
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { resolveAttachment } from "../../../../packages/engine/src/kinematics/resolveAttachment";
+import { sampleClip } from "../../../../packages/engine/src/resolve/sampleClip";
+import { sampleMotion } from "../../../../packages/engine/src/motion/sampleMotion";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
-import {
-  IDENTITY_TRANSFORM,
-  createSkeleton,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
+import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
+import { IDENTITY_TRANSFORM, createSkeleton, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { vclose } from "../internal/predicates";
-
 /** The dragon strides +x by 2 m over the 2 s shot (root translation only). */
 const dragonWalk: IAutoMovieMotion = makeMotion(
   [
@@ -60,14 +38,14 @@ const dragonWalk: IAutoMovieMotion = makeMotion(
 );
 
 /** The dragon animates its stride; launch/attach fatten objects, not rigs. */
-const synth: IAutoMovieActionSynthesizer = (action, actor) =>
+const synth: IAutoMovieActionSynthesizer = (action: IAutoMovieActionCall, actor: string): IAutoMovieMotion | null =>
   action.verb === "launch" || action.verb === "attachTo"
     ? null
     : actor === "dragon"
       ? dragonWalk
       : validSynthesizer(action, actor);
 
-const scriptOf = () =>
+const scriptOf: () => IAutoMovieScript = (): IAutoMovieScript =>
   makeScriptWrite({
     cast: [
       { node: "dragon", character: "the wyrm", modelRef: "stickman" },
@@ -85,7 +63,7 @@ const scriptOf = () =>
     ],
   });
 
-const cameraOf = (): IAutoMovieStage["cameras"] => [
+const cameraOf: () => IAutoMovieStageCamera[] = (): IAutoMovieStage["cameras"] => [
   {
     node: "cam",
     position: { x: 4, y: 2, z: 4 },
@@ -102,7 +80,7 @@ const cameraOf = (): IAutoMovieStage["cameras"] => [
  * override: the horse rides the dragon's hips, the rider rides the horse's
  * spine, and the sword is grabbed per beat: three couplings deep.
  */
-const stagingOf = () =>
+const stagingOf: () => IAutoMovieStage = (): IAutoMovieStage =>
   makeStagingWrite({
     scene: { id: "scene-caravan", name: "the caravan" },
     actors: [
@@ -124,17 +102,17 @@ const stagingOf = () =>
     cameras: cameraOf(),
   });
 
-const posAt = (
+const posAt: (clip: IAutoMovieClip, node: string, t: number) => IAutoMovieVector3 = (
   clip: IAutoMovieClip,
   node: string,
   t: number,
 ): IAutoMovieVector3 => {
-  const v = sampleClip(clip, t).get(`node:${node}:translation`)!.value;
+  const v: number[] = sampleClip(clip, t).get(`node:${node}:translation`)!.value;
   return { x: v[0]!, y: v[1]!, z: v[2]! };
 };
 
 /** Compose `local` onto a parent world frame: compileAttach's composition. */
-const composed = (
+const composed: (parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }, local: IAutoMovieTransform) => { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = (
   parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
   local: IAutoMovieTransform,
 ): { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => ({
@@ -146,38 +124,24 @@ const composed = (
 });
 
 /**
- * Chained object couplings compose through every link (#1140). Before the fix
- * each coupling was baked from its parent's STAGED transform + pose motion
- * alone: a prop attached to a mounted knight silently stayed at the knight's
- * staged spot while the knight rode away, and a coupling cycle baked two frozen
- * couplings with no violation.
+ * Coupling paths compose through mounted ancestors and refuse cycles.
  *
  * Scenarios:
+ * 1. Bake a three-deep sword/rider/horse/dragon chain and its two-metre displacement, distinct from staged decoys.
+ * 2. Refuse persistent/per-beat cycles and a rigless intermediate parent.
+ * 3. Read a late parent's staged placement before its coupling and baked path afterward.
  *
- * 1. A three-deep chain (sword ← rider ← horse ← walking dragon) bakes every link
- *    onto its parent's RIDDEN path: the sword's baked follow equals the
- *    hand-composed FK chain exactly, at the shot start and end.
- * 2. The whole chain carries the dragon's stride: the sword's net displacement is
- *    exactly the dragon's +2 m root travel (every other link is static).
- * 3. The pre-fix output is dead: the sword never sits at the composition onto the
- *    rider's staged decoy placement.
- * 4. A mount cycle (A rides B, B rides A) fails the shot with a violation naming
- *    the cycle: never a silent frozen bake.
- * 5. A mutual per-beat `attachTo` (A grabs B while B grabs A) fails the same way:
- *    the gate covers both coupling sources.
- * 6. A chained coupling whose intermediate parent has no rig still reports the
- *    existing mount-rig violation: the chain does not mask it.
- * 7. A parent whose own coupling starts mid-shot is read the way playback draws
- *    it: before its follow clip starts, the sword rides the rider's staged
- *    placement, not the clamped first key of the later coupling; after it, the
- *    sword rides the rider's baked path.
+ * @evidence contracts/testing.md#behavioral-verification Runs performShot and samples follow clips, checking every coupling id, composed endpoints, root displacement, cycle/mount faults and late-start authority; detects a bake attached to stale staged parents.
+ * @evidence contracts/testing.md#independent-expectations The two-metre root travel and distinct staged decoys independently distinguish a moving composed path. Endpoint reference composition reuses resolveAttachment/Quaternion, so it checks graph composition rather than independently proving FK/rotation primitives.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps three-depth composition, stale-placement exclusion, mount cycle, mutual attach cycle, rigless parent and before/after late-start samples; disjoint handoffs and id-independent beat-end choice remain in attach.
+ * @evidence contracts/testing.md#execution-ownership This synchronous discoverable unit owns portable compilation/sampling cases and starts no rig renderer, browser or native host; sampled double-precision points prove no displayed coupling appearance.
  */
-export const test_film_perform_shot_coupling_chain = (): void => {
-  const staged = stageScene(scriptOf(), stagingOf());
+export function test_film_perform_shot_coupling_chain(): void {
+  const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const skeleton = createSkeleton();
-  const ok = performShot({
+  const skeleton: IAutoMovieSkeleton = createSkeleton();
+  const ok: IAutoMoviePerformedShot = performShot({
     script: scriptOf(),
     staged,
     performance: makePerformanceWrite({
@@ -203,13 +167,13 @@ export const test_film_perform_shot_coupling_chain = (): void => {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node) => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
   });
   TestValidator.equals("the chained shot performs", ok.success, true);
   if (ok.success !== true) return;
   TestValidator.equals(
     "every coupling bakes a follow clip",
-    ok.shot.objectMotions.map((c) => c.id).sort((a, b) => a.localeCompare(b)),
+    ok.shot.objectMotions.map((c: IAutoMovieClip): string => c.id).sort((a: string, b: string): number => a.localeCompare(b)),
     ["attach:horse", "attach:rider", "attach:sword"],
   );
 
@@ -220,12 +184,12 @@ export const test_film_perform_shot_coupling_chain = (): void => {
     root: null,
     joints: [],
   };
-  const dragonStaged = staged.scene.nodes.find(
-    (n) => n.id === "dragon",
+  const dragonStaged: IAutoMovieTransform = staged.scene.nodes.find(
+    (n: IAutoMovieSceneNode): boolean => n.id === "dragon",
   )!.transform;
-  const swordClip = ok.shot.objectMotions.find((c) => c.id === "attach:sword")!;
-  const expectedSwordAt = (t: number): IAutoMovieVector3 => {
-    const horse = composed(
+  const swordClip: IAutoMovieClip = ok.shot.objectMotions.find((c: IAutoMovieClip): boolean => c.id === "attach:sword")!;
+  const expectedSwordAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
+    const horse: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = composed(
       dragonStaged,
       resolveAttachment(
         sampleMotion(ok.motions["dragon"]!, t).pose,
@@ -234,7 +198,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
         HUMANOID_JOINT_AXES,
       ),
     );
-    const rider = composed(
+    const rider: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; } = composed(
       horse,
       resolveAttachment(
         rest,
@@ -276,7 +240,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
   );
 
   // 3. the pre-fix composition (rider's staged decoy placement) is dead.
-  const staleSword = composed(
+  const staleSword: IAutoMovieVector3 = composed(
     { translation: { x: 5, y: 5, z: 5 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
     resolveAttachment(
       rest,
@@ -291,7 +255,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
   );
 
   // 4. a mount cycle violates instead of baking frozen couplings.
-  const cyclic = stageScene(
+  const cyclic: IAutoMovieStagedSet = stageScene(
     scriptOf(),
     makeStagingWrite({
       scene: { id: "scene-cycle", name: "the ouroboros" },
@@ -315,7 +279,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
     }),
   );
   if (cyclic.success !== true) throw new Error("cyclic staging must succeed");
-  const cycleShot = performShot({
+  const cycleShot: IAutoMoviePerformedShot = performShot({
     script: scriptOf(),
     staged: cyclic,
     performance: makePerformanceWrite({
@@ -333,7 +297,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node) => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
   });
   TestValidator.equals(
     "a mount cycle fails the shot",
@@ -343,11 +307,11 @@ export const test_film_perform_shot_coupling_chain = (): void => {
   if (cycleShot.success === false)
     TestValidator.predicate(
       "the violation names the cycle",
-      cycleShot.violations.some((v) => v.expected.includes("cycle")),
+      cycleShot.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("cycle")),
     );
 
   // 5. a mutual per-beat attachTo violates the same way.
-  const mutual = (draft: IAutoMovieActionCall[]) =>
+  const mutual: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot = (draft: IAutoMovieActionCall[]): IAutoMoviePerformedShot =>
     performShot({
       script: scriptOf(),
       staged,
@@ -358,9 +322,9 @@ export const test_film_perform_shot_coupling_chain = (): void => {
         duration: 2,
       }),
       synthesize: synth,
-      skeleton: (node) => (node === "sword" ? null : skeleton),
+      skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
     });
-  const grip = mutual([
+  const grip: IAutoMoviePerformedShot = mutual([
     {
       verb: "attachTo",
       actor: "horse",
@@ -382,11 +346,11 @@ export const test_film_perform_shot_coupling_chain = (): void => {
   if (grip.success === false)
     TestValidator.predicate(
       "the mutual grip violation names the cycle",
-      grip.violations.some((v) => v.expected.includes("cycle")),
+      grip.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("cycle")),
     );
 
   // 6. a rig-less intermediate parent still reports the mount-rig violation.
-  const riglessLink = performShot({
+  const riglessLink: IAutoMoviePerformedShot = performShot({
     script: scriptOf(),
     staged,
     performance: makePerformanceWrite({
@@ -404,7 +368,7 @@ export const test_film_perform_shot_coupling_chain = (): void => {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node) =>
+    skeleton: (node: string): IAutoMovieSkeleton | null =>
       node === "sword" || node === "dragon" ? null : skeleton,
   });
   TestValidator.equals(
@@ -415,11 +379,11 @@ export const test_film_perform_shot_coupling_chain = (): void => {
   if (riglessLink.success === false)
     TestValidator.predicate(
       "the chain does not mask the mount-rig violation",
-      riglessLink.violations.some((v) => v.path === "$staged.mounts"),
+      riglessLink.violations.some((v: IAutoMovieConstraintViolation): boolean => v.path === "$staged.mounts"),
     );
 
   // 7. a parent coupled only from t = 1 stands staged before it.
-  const late = performShot({
+  const late: IAutoMoviePerformedShot = performShot({
     script: scriptOf(),
     staged,
     performance: makePerformanceWrite({
@@ -453,17 +417,17 @@ export const test_film_perform_shot_coupling_chain = (): void => {
       duration: 2,
     }),
     synthesize: synth,
-    skeleton: (node) => (node === "sword" ? null : skeleton),
+    skeleton: (node: string): IAutoMovieSkeleton | null => (node === "sword" ? null : skeleton),
   });
   TestValidator.equals("the late coupling performs", late.success, true);
   if (late.success !== true) return;
   const riderStaged: IAutoMovieTransform = staged.scene.nodes.find(
-    (n) => n.id === "rider",
+    (n: IAutoMovieSceneNode): boolean => n.id === "rider",
   )!.transform;
   const lateSword: IAutoMovieClip = late.shot.objectMotions.find(
-    (c) => c.id === "attach:sword",
+    (c: IAutoMovieClip): boolean => c.id === "attach:sword",
   )!;
-  const handAt = (parent: {
+  const handAt: (parent: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion; }) => IAutoMovieVector3 = (parent: {
     translation: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
   }): IAutoMovieVector3 =>
@@ -481,9 +445,9 @@ export const test_film_perform_shot_coupling_chain = (): void => {
     vclose(posAt(lateSword, "sword", 0.5), handAt(riderStaged), 1e-9),
   );
   const riderClip: IAutoMovieClip = late.shot.objectMotions.find(
-    (c) => c.id === "attach:rider",
+    (c: IAutoMovieClip): boolean => c.id === "attach:rider",
   )!;
-  const riderAt = (t: number): IAutoMovieTransform => {
+  const riderAt: (t: number) => IAutoMovieTransform = (t: number): IAutoMovieTransform => {
     const p: number[] = sampleClip(riderClip, t).get("node:rider:translation")!
       .value;
     const q: number[] = sampleClip(riderClip, t).get("node:rider:rotation")!
@@ -498,4 +462,4 @@ export const test_film_perform_shot_coupling_chain = (): void => {
     "after the rider's coupling starts the sword rides its baked path",
     vclose(posAt(lateSword, "sword", 1.5), handAt(riderAt(1.5)), 1e-9),
   );
-};
+}

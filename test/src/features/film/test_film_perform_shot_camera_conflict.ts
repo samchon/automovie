@@ -1,32 +1,28 @@
-import { performShot, stageScene } from "@automovie/engine";
+import { IAutoMoviePerformedShot } from "../../../../packages/engine/src/film/IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "../../../../packages/engine/src/film/IAutoMovieStagedSet";
+import { IAutoMovieStage, IAutoMovieSkeleton, IAutoMovieConstraintViolation } from "@automovie/interface";
+import { performShot } from "../../../../packages/engine/src/film/performShot";
+import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  makePerformanceWrite,
-  makeScriptWrite,
-  makeStagingWrite,
-  validSynthesizer,
-} from "../internal/filmFixtures";
+import { makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
-
 /**
- * Pins the one-live-camera rule: `frame` must name a staged camera, and a
- * second camera fighting over the take is a contradiction, not a cut (cuts live
- * in the ASSEMBLE stage, between shots).
+ * A performed take elects one staged camera with a scalar frame actor.
  *
  * Scenarios:
+ * 1. Refuse an actor node used as a frame camera.
+ * 2. Refuse a second distinct camera and name its id.
+ * 3. Refuse a frame action carrying a camera list.
  *
- * 1. A `frame` action performed by `knightA` (an actor, not a camera) → `type` on
- *    `$input.draft[0].actor`.
- * 2. Two `frame` actions on different cameras (`cam-main`, then `cam-b`) → `type`
- *    on the second's actor, naming the camera already live.
- * 3. A `frame` action with an actor list: `type` on its `actor`, because a frame
- *    move has exactly one live camera.
+ * @evidence contracts/testing.md#behavioral-verification Runs performShot over staged cameras and checks located frame-actor faults and the rival camera value, catching ambiguous election or noncamera motion reaching the shot camera.
+ * @evidence contracts/testing.md#independent-expectations The stage names cam-main and cam-b as cameras and knightA only as an actor; the one-live-camera/scalar-frame contract independently rejects the three authored violations at their action indices.
+ * @evidence contracts/testing.md#distinguishing-cases Owns noncamera, competing camera and actor-list refusal; accepted single-camera and first-camera fallback cases are in the other camera tests, while coverage angles are separate from live election.
+ * @evidence contracts/testing.md#execution-ownership This synchronous discoverable unit owns portable camera election inputs and directly calls source over existing factories; it does not create a browser camera or GPU renderer.
  */
-export const test_film_perform_shot_camera_conflict = (): void => {
-  const base = makeStagingWrite();
-  const staged = stageScene(
+export function test_film_perform_shot_camera_conflict(): void {
+  const base: IAutoMovieStage = makeStagingWrite();
+  const staged: IAutoMovieStagedSet = stageScene(
     makeScriptWrite(),
     makeStagingWrite({
       cameras: [
@@ -45,7 +41,7 @@ export const test_film_perform_shot_camera_conflict = (): void => {
   );
   if (staged.success !== true) throw new Error("staging must succeed");
 
-  const frame = (actor: string, start: number) =>
+  const frame: (actor: string, start: number) => { readonly verb: "frame"; readonly actor: string; readonly start: number; readonly duration: "auto"; readonly framing: "medium"; readonly move: "static"; readonly on: { readonly kind: "node"; readonly node: "knightA"; }; } = (actor: string, start: number): { readonly verb: "frame"; readonly actor: string; readonly start: number; readonly duration: "auto"; readonly framing: "medium"; readonly move: "static"; readonly on: { readonly kind: "node"; readonly node: "knightA"; }; } =>
     ({
       verb: "frame",
       actor,
@@ -56,7 +52,7 @@ export const test_film_perform_shot_camera_conflict = (): void => {
       on: { kind: "node", node: "knightA" },
     }) as const;
 
-  const performed = performShot({
+  const performed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -64,16 +60,16 @@ export const test_film_perform_shot_camera_conflict = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals("fails", performed.success, false);
   TestValidator.equals(
     "non-camera frame actor rejected",
     namedFacts([
-      ["refused", () => performed.success === false],
+      ["refused", (): boolean => performed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[0].actor"),
       ],
@@ -83,18 +79,18 @@ export const test_film_perform_shot_camera_conflict = (): void => {
   TestValidator.equals(
     "second live camera rejected",
     namedFacts([
-      ["performedSuccess", () => performed.success === false],
+      ["performedSuccess", (): boolean => performed.success === false],
       [
         "hasViolationPerformedType",
-        () =>
+        (): boolean =>
           performed.success === false &&
           hasViolation(performed, "type", "$input.draft[2].actor"),
       ],
       [
         "performedViolationsV",
-        () =>
+        (): boolean =>
           performed.success === false &&
-          performed.violations.some((v) => v.value === "cam-b"),
+          performed.violations.some((v: IAutoMovieConstraintViolation): boolean => v.value === "cam-b"),
       ],
     ]),
     {
@@ -104,7 +100,7 @@ export const test_film_perform_shot_camera_conflict = (): void => {
     },
   );
 
-  const listed = performShot({
+  const listed: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({
@@ -117,19 +113,19 @@ export const test_film_perform_shot_camera_conflict = (): void => {
       revise: { review: "unchanged.", final: null },
     }),
     synthesize: validSynthesizer,
-    skeleton: () => createSkeleton(),
+    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
   });
   TestValidator.equals(
     "frame actor list rejected",
     namedFacts([
-      ["refused", () => listed.success === false],
+      ["refused", (): boolean => listed.success === false],
       [
         "violated",
-        () =>
+        (): boolean =>
           listed.success === false &&
           hasViolation(listed, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },
   );
-};
+}

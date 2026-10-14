@@ -1,15 +1,12 @@
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import type { IAutoMovieClip, IAutoMoviePropArticulation } from "@automovie/interface";
-import type { IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
-import type { IAutoMovieResolveViolation } from "../../../../packages/engine/src/resolve/IAutoMovieResolveViolation";
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { IAutoMovieClip, IAutoMoviePropArticulation } from "@automovie/interface";
+import { IAutoMovieResolveOutput } from "../../../../packages/engine/src/resolve/IAutoMovieResolveOutput";
+import { IAutoMovieResolveViolation } from "../../../../packages/engine/src/resolve/IAutoMovieResolveViolation";
 import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { resolveFrame } from "../../../../packages/engine/src/resolve/resolveFrame";
-
 import { TestValidator } from "@nestia/e2e";
-
 import { namedFacts, nclose } from "../internal/predicates";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-
 /** Quat values for a rotation of `deg` about +Y. */
 function yQuat (deg: number): number[] {
   const half: number = (deg * Math.PI) / 360;

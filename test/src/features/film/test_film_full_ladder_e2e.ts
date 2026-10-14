@@ -12,11 +12,9 @@ import { performShot } from "../../../../packages/engine/src/film/performShot";
 import { playbackFrameSamples } from "../../../../packages/engine/src/film/playbackFrameSamples";
 import { stageScene } from "../../../../packages/engine/src/film/stageScene";
 import { TestValidator } from "@nestia/e2e";
-
 import { forgeEntry, makeBlockingWrite, makePerformanceWrite, makeScriptWrite, makeStagingWrite, validSynthesizer } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
-
 /**
  * A source-authored take flows through forging, staging, blocking, performance,
  * cutting and playback without losing its cast, camera or timing.

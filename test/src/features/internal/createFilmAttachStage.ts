@@ -1,7 +1,7 @@
+import { IAutoMovieStage } from "@automovie/interface";
 import { makeStagingWrite } from "./filmFixtures";
-
-/** Preserve the attach scenario's existing staging input and authored values. */
-export const createFilmAttachStage = () =>
+/** Create the existing knight/sword/shield placements and main-camera input through makeStagingWrite, keeping positions, facing, lens and depth precision values unchanged. The attachment case passes this data to the real stageScene gate. */
+export const createFilmAttachStage: () => IAutoMovieStage = (): IAutoMovieStage =>
   makeStagingWrite({
     actors: [
       { node: "knight", position: { x: 0, y: 0, z: 0 }, facingDeg: 0 },

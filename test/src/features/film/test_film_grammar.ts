@@ -1,11 +1,10 @@
-import type { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
-import type { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
-import type { IAutoMovieReviewNote } from "@automovie/interface";
+import { IAutoMovieGrammarShotObservation } from "../../../../packages/engine/src/film/IAutoMovieGrammarShotObservation";
+import { IAutoMovieGrammarDiagnostic } from "../../../../packages/engine/src/film/IAutoMovieGrammarDiagnostic";
+import { IAutoMovieReviewNote } from "@automovie/interface";
 import { grammarDiagnosticsToReviewNotes } from "../../../../packages/engine/src/film/grammarDiagnosticsToReviewNotes";
 import { TestValidator } from "@nestia/e2e";
 import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
 import { namedFacts } from "../internal/predicates";
-
 /**
  * Camera geometry and authored style intent jointly determine film findings.
  *

@@ -1,14 +1,11 @@
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
-import type { IAutoMovieConstraintViolation, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { IAutoMovieConstraintViolation, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
 import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { placementChildNode } from "../../../../packages/engine/src/resolve/placementChildNode";
 import { sceneToNodes } from "../../../../packages/engine/src/resolve/sceneToNodes";
-
 import { TestValidator } from "@nestia/e2e";
-
 import { hasViolation, namedFacts } from "../internal/predicates";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-
 /** The door spec with `mutate` applied to its articulation node list. */
 function withNodes (
   mutate: (nodes: IAutoMovieNode[]) => IAutoMovieNode[],

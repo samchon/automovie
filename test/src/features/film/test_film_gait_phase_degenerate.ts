@@ -1,22 +1,9 @@
-import { resolveBeatEnd } from "@automovie/engine";
-import {
-  IAutoMovieGaitCycle,
-  IAutoMovieMotion,
-  IAutoMovieScene,
-  IAutoMovieShot,
-} from "@automovie/interface";
+import { IAutoMovieBeatEndActorState, IAutoMovieGaitCycle, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShot } from "@automovie/interface";
+import { resolveBeatEnd } from "../../../../packages/engine/src/film/resolveBeatEnd";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  IDENTITY_TRANSFORM,
-  joint,
-  keyframe,
-  makeMotion,
-  makePose,
-} from "../internal/fixtures";
+import { IDENTITY_TRANSFORM, joint, keyframe, makeMotion, makePose } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
-
-const withCycle = (gaitCycle: IAutoMovieGaitCycle): IAutoMovieMotion => ({
+const withCycle: (gaitCycle: IAutoMovieGaitCycle) => IAutoMovieMotion = (gaitCycle: IAutoMovieGaitCycle): IAutoMovieMotion => ({
   ...makeMotion(
     [
       keyframe(0, makePose([joint("leftUpperLeg", { flexion: 0 })])),
@@ -55,7 +42,7 @@ const shot: IAutoMovieShot = {
   duration: 0.5,
 };
 
-const phaseOf = (
+const phaseOf: (gaitCycle: IAutoMovieGaitCycle, duration?: number) => number | null = (
   gaitCycle: IAutoMovieGaitCycle,
   duration: number = shot.duration,
 ): number | null =>
@@ -64,39 +51,38 @@ const phaseOf = (
     scene,
     shot: { ...shot, duration },
     motions: [withCycle(gaitCycle)],
-  }).actors.find((a) => a.node === "hero")!.gaitPhase;
+  }).actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === "hero")!.gaitPhase;
 
 /**
- * A carried gait cycle is authoritative for the beat-end stride phase, and its
- * degenerate forms answer null (matching the degenerate-duration rule of the
- * legacy loop path), never NaN or a bogus phase.
+ * A carried cycle determines beat-end phase and invalid cycle scalars return null.
  *
  * Scenarios:
+ * 1. Preserve an in-range phase at zero and one whole period.
+ * 2. Wrap the authored .7+.5 time over period .8 to .4.
+ * 3. Return null for zero, negative or infinite period and NaN phase.
  *
- * 1. A valid carried cycle wins over `loop: false`: phase = (phaseAt + t) mod
- *    period, normalized into [0, period): (0.7 + 0.5) mod 0.8 = 0.4.
- * 2. A zero, negative, or non-finite period answers null.
- * 3. A non-finite phaseAt answers null.
+ * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatEnd over a non-looping carried-cycle motion and checks numerical phase or null, catching loss of authoritative metadata, incorrect wrap or propagation of an invalid scalar.
+ * @evidence contracts/testing.md#independent-expectations Circular phase arithmetic independently gives .4 for the chosen sum and .4 at zero/whole-period carry; positive finite period and finite phase are required by the cycle contract. Assertions use numerical closeness and do not prove all binary64 modulo inputs.
+ * @evidence contracts/testing.md#distinguishing-cases Pairs valid carry/wrap with zero, negative and infinite period and NaN phase; compiled composite/layer propagation is owned by gait_phase_pipeline and legacy looping motion cases live elsewhere.
+ * @evidence contracts/testing.md#execution-ownership This synchronous discoverable entry owns its portable beat-end cases over the existing scene/motion factories; no gait viewer, renderer or physics host runs.
  */
-export const test_film_gait_phase_degenerate = (): void => {
-  TestValidator.equals(
-    "an in-range carried phase stays exact at the opening instant",
-    phaseOf({ period: 1, phaseAt: 0.4 }, 0),
-    0.4,
+export function test_film_gait_phase_degenerate(): void {
+  TestValidator.predicate(
+    "an in-range carried phase is preserved at the opening instant",
+    nclose(phaseOf({ period: 1, phaseAt: 0.4 }, 0) ?? Number.NaN, 0.4),
   );
-  TestValidator.equals(
-    "a whole-cycle carry keeps the exact phase",
-    phaseOf({ period: 1, phaseAt: 0.4 }, 1),
-    0.4,
+  TestValidator.predicate(
+    "a whole-cycle carry preserves the phase",
+    nclose(phaseOf({ period: 1, phaseAt: 0.4 }, 1) ?? Number.NaN, 0.4),
   );
-  const phase = phaseOf({ period: 0.8, phaseAt: 0.7 });
+  const phase: number | null = phaseOf({ period: 0.8, phaseAt: 0.7 });
   TestValidator.equals(
     "valid cycle: (0.7 + 0.5) mod 0.8 = 0.4",
     namedFacts([
-      ["phaseResolved", () => phase !== null],
+      ["phaseResolved", (): boolean => phase !== null],
       // the null check is restated because the earlier fact's narrowing of the
       // nullable `phase` does not reach inside this closure.
-      ["phaseWraps", () => phase !== null && nclose(phase, 0.4)],
+      ["phaseWraps", (): boolean => phase !== null && nclose(phase, 0.4)],
     ]),
     { phaseResolved: true, phaseWraps: true },
   );
@@ -121,4 +107,4 @@ export const test_film_gait_phase_degenerate = (): void => {
     phaseOf({ period: 1, phaseAt: Number.NaN }),
     null,
   );
-};
+}

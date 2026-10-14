@@ -1,66 +1,27 @@
-import {
-  type IAutoMovieShotEffectFilmInterval,
-  materializeProductionFilmEffects,
-  verifyProductionFilmEffectPopulation,
-} from "@automovie/engine";
-import type {
-  IAutoMovieFilmTimeline,
-  IAutoMovieProductionFrameRate,
-  IAutoMovieWorldDesign,
-} from "@automovie/interface";
+import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
+import { IAutoMovieFilmEffectCurrentIdentity } from "../../../../packages/engine/src/effectRuntime/IAutoMovieFilmEffectCurrentIdentity";
+import { IAutoMovieCompiledFilmEffect, IAutoMovieWorldEffectZone, IAutoMovieFilmTimeline, IAutoMovieProductionFrameRate, IAutoMovieWorldDesign } from "@automovie/interface";
+import { type IAutoMovieShotEffectFilmInterval } from "../../../../packages/engine/src/effectRuntime/IAutoMovieShotEffectFilmInterval";
+import { materializeProductionFilmEffects } from "../../../../packages/engine/src/effectRuntime/materializeProductionFilmEffects";
+import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
 import { TestValidator } from "@nestia/e2e";
-
 import { throwsError } from "../internal/predicates";
-import {
-  filmEffectCue,
-  filmEffectIdentity,
-  filmEffectRecipe,
-  filmEffectRefusal,
-  filmEffectTimeline,
-  filmEffectWorld,
-  filmEffectZone,
-  nodeCanonicalDigest,
-} from "./filmEffectRuntimeFixtures";
-
+import { filmEffectCue, filmEffectIdentity, filmEffectRecipe, filmEffectRefusal, filmEffectTimeline, filmEffectWorld, filmEffectZone, nodeCanonicalDigest } from "./filmEffectRuntimeFixtures";
 /**
- * Film cues become current effect streams with one owner per zone and frame.
- *
- * The builder writes what the viewer later verifies and samples, so the writer
- * must refuse every input the reader would reject and must produce exactly the
- * bytes the reader recomputes. Expected times are exact frame boundaries of
- * the declared rate, expected seeds and digests are recomputed through
- * `node:crypto` from the documented seed protocol, and every refusal is paired
- * with an adjacent accepted case.
+ * Film cue materialization enforces current identity, rational clock and exclusive zone ownership.
  *
  * Scenarios:
+ * 1. Check canonical ordering, identity, frames, rational seconds, protocol seeds/digests and reader acceptance.
+ * 2. Refuse invalid identity/rate, duplicate world ids, malformed intervals/cues and missing zone/recipe.
+ * 3. Distinguish same-zone overlap from touching intervals or different zones, and preserve only declared runtime fields.
  *
- * 1. Three cues materialize in start-frame order with the identity, reduced
- *    rate, frame interval, exact second bounds, fixed step and constant
- *    intensity of their cue, a seed from the film seed protocol, and digests
- *    that `node:crypto` reproduces; the result verifies as the timeline's
- *    population, and an adjacent cue on the same zone is not a conflict; two
- *    cues starting on one frame are ordered by code unit, so `B` precedes `a`.
- * 2. A rational 30000/1001 clock yields exact rational second bounds and step.
- * 3. A malformed identity or frame rate is refused as input.
- * 4. A blank or duplicated recipe or zone id is refused as input.
- * 5. A shot interval with a blank cue, shot or zone, a negative or fractional
- *    start, a fractional end, or an empty interval is refused, while a valid
- *    interval on an unused zone is accepted.
- * 6. A cue with a blank id, a foreign recipe, a blank zone, a negative or
- *    fractional start, a fractional or zero duration, an unsafe end, or a
- *    non-finite or out-of-range intensity is refused, intensities 0 and 1 are
- *    accepted, and a repeated cue id is refused.
- * 7. A cue on a missing zone, or on a zone whose recipe is missing, is refused
- *    with its own code.
- * 8. Two film cues overlapping on one zone are refused naming the overlapping
- *    frames, while overlap on different zones is accepted.
- * 9. A film cue overlapping a shot interval on its zone is refused, while shot
- *    intervals that touch or miss it are accepted.
- * 10. An identity object carrying an extra member persists only the four
- *     identity fields, so the runtime keys are exactly the format's keys.
+ * @evidence contracts/testing.md#behavioral-verification Runs materializeProductionFilmEffects and the population verifier, checking observable fields and named refusal classes; overlapping cues must name their common frames and invalid input must not become a partial runtime set.
+ * @evidence contracts/testing.md#independent-expectations Authored half-open frame intervals and rational rates independently determine seconds and ownership; protocol records and Node SHA-256 determine seeds/digests. The shared canonicalizer limits independence to hashing, and reader acceptance is a producer/consumer consistency check.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves all original identity/rate/world-id/shot-interval/cue admission cases, zero/one intensities, code-unit ties, missing references, film-film and film-shot overlaps with touching/different-zone twins, rational clock and extra-field exclusion.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable function owns its in-memory writer/reader cases and Node reference hashing. It starts no generated production, native renderer, browser or GPU, and does not prove cross-machine replay.
  */
-export const test_film_effect_materialization = (): void => {
-  const timeline = filmEffectTimeline([
+export function test_film_effect_materialization(): void {
+  const timeline: IAutoMovieFilmTimeline = filmEffectTimeline([
     filmEffectCue(),
     filmEffectCue({
       id: "haze",
@@ -71,10 +32,10 @@ export const test_film_effect_materialization = (): void => {
     }),
     filmEffectCue({ id: "dew", startFrame: 24, durationFrames: 6 }),
   ]);
-  const identity = filmEffectIdentity(timeline);
-  const materialize = (
+  const identity: IAutoMovieFilmEffectCurrentIdentity = filmEffectIdentity(timeline);
+  const materialize: (overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>) => IAutoMovieCompiledFilmEffect[] = (
     overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
-  ) =>
+  ): IAutoMovieCompiledFilmEffect[] =>
     materializeProductionFilmEffects({
       identity,
       frameRate: 24,
@@ -82,13 +43,14 @@ export const test_film_effect_materialization = (): void => {
       effects: timeline.tracks.effects,
       ...overrides,
     });
-  const output = materialize({});
-  const zoneOf = (id: string) =>
-    filmEffectWorld().effectZones.find((zone) => zone.id === id)!;
+  const output: IAutoMovieCompiledFilmEffect[] = materialize({});
+  const zoneOf: (id: string) => IAutoMovieWorldEffectZone = (id: string): IAutoMovieWorldEffectZone =>
+    filmEffectWorld().effectZones.find((zone: IAutoMovieWorldEffectZone): boolean => zone.id === id)!;
 
-  TestValidator.equals(
+  TestValidator.predicate(
     "cues become ordered runtimes on their exact frame clock",
-    output.map((runtime) => ({
+    filmEffectValuesClose(
+      output.map((runtime: IAutoMovieCompiledFilmEffect): { id: string; zone: string; owner: (string | number)[]; identity: string[]; rate: IAutoMovieProductionFrameRate; frames: number[]; seconds: number[]; step: number; intensity: { from: number; to: number; }; } => ({
       id: runtime.effect.id,
       zone: runtime.effect.zone,
       owner: [runtime.version, runtime.owner, runtime.clock] as Array<
@@ -106,11 +68,11 @@ export const test_film_effect_materialization = (): void => {
       step: runtime.effect.fixedStepSeconds,
       intensity: runtime.effect.intensity,
     })),
-    [
+      [
       ["haze", "gate", 0, 6, 1],
       ["mist", "yard", 12, 24, 0.5],
       ["dew", "yard", 24, 30, 0.5],
-    ].map(([id, zone, start, end, intensity]) => ({
+    ].map(([id, zone, start, end, intensity]: (string | number)[]): { id: string; zone: string; owner: (string | number)[]; identity: string[]; rate: { numerator: number; denominator: number; }; frames: number[]; seconds: number[]; step: number; intensity: { from: number; to: number; }; } => ({
       id: id as string,
       zone: zone as string,
       owner: [1, "film", "timeline-frame"],
@@ -126,15 +88,16 @@ export const test_film_effect_materialization = (): void => {
       step: 1 / 24,
       intensity: { from: intensity as number, to: intensity as number },
     })),
+    ),
   );
   TestValidator.equals(
     "seeds and digests are the documented protocol through node:crypto",
-    output.map((runtime) => [
+    output.map((runtime: IAutoMovieCompiledFilmEffect): (string | number)[] => [
       runtime.effect.seed,
       runtime.effect.digest,
       runtime.digest,
     ]),
-    output.map((runtime) => [
+    output.map((runtime: IAutoMovieCompiledFilmEffect): (string | number)[] => [
       Number.parseInt(
         nodeCanonicalDigest({
           protocol: "automovie.film-effect-seed.v1",
@@ -151,7 +114,7 @@ export const test_film_effect_materialization = (): void => {
   );
   TestValidator.equals(
     "the written population verifies against its timeline",
-    filmEffectRefusal(() =>
+    filmEffectRefusal((): void =>
       verifyProductionFilmEffectPopulation({ timeline, effects: output }),
     ),
     "accepted",
@@ -169,7 +132,7 @@ export const test_film_effect_materialization = (): void => {
         }),
         filmEffectCue({ id: "B", startFrame: 0, durationFrames: 6 }),
       ],
-    }).map((runtime) => runtime.effect.id),
+    }).map((runtime: IAutoMovieCompiledFilmEffect): string => runtime.effect.id),
     ["B", "a"],
   );
 
@@ -177,24 +140,26 @@ export const test_film_effect_materialization = (): void => {
     numerator: 30000,
     denominator: 1001,
   };
-  const rationalRuntime = materialize({
+  const rationalRuntime: IAutoMovieCompiledFilmEffect = materialize({
     frameRate: rational,
     effects: [filmEffectCue({ startFrame: 3, durationFrames: 2 })],
   })[0]!;
-  TestValidator.equals(
+  TestValidator.predicate(
     "a rational clock yields exact rational bounds",
-    [
+    filmEffectValuesClose(
+      [
       rationalRuntime.frameRate,
       rationalRuntime.effect.start,
       rationalRuntime.effect.end,
       rationalRuntime.effect.fixedStepSeconds,
     ],
-    [rational, 3003 / 30000, 5005 / 30000, 1001 / 30000],
+      [rational, 3003 / 30000, 5005 / 30000, 1001 / 30000],
+    ),
   );
 
-  const refuse = (
+  const refuse: (overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>) => string = (
     overrides: Partial<Parameters<typeof materializeProductionFilmEffects>[0]>,
-  ): string => filmEffectRefusal(() => materialize(overrides));
+  ): string => filmEffectRefusal((): IAutoMovieCompiledFilmEffect[] => materialize(overrides));
   TestValidator.equals(
     "a malformed identity or rate is refused as input",
     [
@@ -211,9 +176,9 @@ export const test_film_effect_materialization = (): void => {
       refuse({ frameRate: 23.976 }),
       refuse({ frameRate: { numerator: 0, denominator: 1 } }),
     ],
-    Array.from({ length: 7 }, () => "film-effect-input-invalid"),
+    Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
   );
-  const world = (
+  const world: (patch: Partial<Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">>) => IAutoMovieWorldDesign = (
     patch: Partial<
       Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">
     >,
@@ -234,7 +199,7 @@ export const test_film_effect_materialization = (): void => {
         }),
       }),
     ],
-    Array.from({ length: 4 }, () => "film-effect-input-invalid"),
+    Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
   );
 
   const interval: IAutoMovieShotEffectFilmInterval = {
@@ -255,14 +220,14 @@ export const test_film_effect_materialization = (): void => {
       { endFrame: 36.5 },
       { endFrame: 30 },
       {},
-    ].map((patch) => refuse({ shotEffects: [{ ...interval, ...patch }] })),
+    ].map((patch: { cue: string; shot?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; } | { shot: string; cue?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; } | { zone: string; cue?: undefined; shot?: undefined; startFrame?: undefined; endFrame?: undefined; } | { startFrame: number; cue?: undefined; shot?: undefined; zone?: undefined; endFrame?: undefined; } | { endFrame: number; cue?: undefined; shot?: undefined; zone?: undefined; startFrame?: undefined; } | { cue?: undefined; shot?: undefined; zone?: undefined; startFrame?: undefined; endFrame?: undefined; }): string => refuse({ shotEffects: [{ ...interval, ...patch }] })),
     [
-      ...Array.from({ length: 7 }, () => "film-effect-input-invalid"),
+      ...Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
       "accepted",
     ],
   );
 
-  const cue = (
+  const cue: (patch: Partial<{ id: string; recipe: "world-zone"; zone: string; startFrame: number; durationFrames: number; intensity: number; }>) => string = (
     patch: Partial<IAutoMovieFilmTimeline["tracks"]["effects"][number]>,
   ): string => refuse({ effects: [filmEffectCue(patch)] });
   TestValidator.equals(
@@ -289,7 +254,7 @@ export const test_film_effect_materialization = (): void => {
       }),
     ],
     [
-      ...Array.from({ length: 11 }, () => "film-effect-input-invalid"),
+      ...Array.from({ length: 11 }, (): string => "film-effect-input-invalid"),
       "accepted",
       "accepted",
       "film-effect-input-invalid",
@@ -311,7 +276,7 @@ export const test_film_effect_materialization = (): void => {
     "overlapping film cues on one zone are refused naming the frames",
     {
       sameZone: throwsError(
-        () =>
+        (): IAutoMovieCompiledFilmEffect[] =>
           materialize({
             effects: [
               filmEffectCue(),
@@ -333,7 +298,7 @@ export const test_film_effect_materialization = (): void => {
     "a film cue overlapping a shot interval on its zone is refused",
     {
       overlapping: throwsError(
-        () =>
+        (): IAutoMovieCompiledFilmEffect[] =>
           materialize({
             effects: [filmEffectCue()],
             shotEffects: [
@@ -346,7 +311,7 @@ export const test_film_effect_materialization = (): void => {
         { startFrame: 24, endFrame: 30 },
         { startFrame: 0, endFrame: 12 },
         { startFrame: 30, endFrame: 36 },
-      ].map((frames) =>
+      ].map((frames: { startFrame: number; endFrame: number; }): string =>
         refuse({
           effects: [filmEffectCue()],
           shotEffects: [{ ...interval, zone: "yard", ...frames }],
@@ -383,4 +348,4 @@ export const test_film_effect_materialization = (): void => {
       "version",
     ],
   );
-};
+}

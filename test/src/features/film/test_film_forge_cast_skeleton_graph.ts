@@ -1,12 +1,11 @@
-import { forgeCast } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
+import { IAutoMovieForgedCast } from "../../../../packages/engine/src/film/IAutoMovieForgedCast";
+import { IAutoMovieConstraintViolation, AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
+import { forgeCast } from "../../../../packages/engine/src/film/forgeCast";
 import { TestValidator } from "@nestia/e2e";
-
 import { forgeEntry, makeScriptWrite } from "../internal/filmFixtures";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
-
-const b = (
+const b: (bone: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null) => IAutoMovieBone = (
   bone: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
 ): IAutoMovieBone => ({
@@ -17,27 +16,20 @@ const b = (
 });
 
 /**
- * Pins the skeleton-graph gates: a rig must be one connected tree (unique bone
- * names, resolvable parents, exactly one root, and every bone reachable from
- * it). The detached-cycle case is the reason reachability exists at all: it
- * satisfies every local check and is still unposable.
+ * Forged rigs must form one connected skeleton tree with terminating validation.
  *
  * Scenarios:
+ * 1. Duplicate names, an unresolved parent and two roots report their local faults.
+ * 2. A detached two-bone cycle beside one rooted chain reports both unreachable bones.
+ * 3. A repeated child under one root terminates and reports only its duplicate name.
  *
- * 1. A skeleton declaring `hips` twice, `spine` parented to the undeclared `neck`,
- *    and two roots (`hips`, `chest`) → `type` violations on the duplicate bone,
- *    the unresolvable parent, and the root count (and reachability is skipped:
- *    meaningless without a single root).
- * 2. A single-rooted skeleton (`hips` → `spine`) plus a two-bone cycle (`leftHand`
- *    ⇄ `leftLowerArm`) floating off the tree → every local check passes, but
- *    both cycle bones raise unreachable violations.
- * 3. A single-rooted skeleton declaring `spine` twice under `hips` → only the
- *    duplicate field is reported through model validation. The reachability
- *    walk still terminates (the visited guard absorbs the doubled child edge
- *    instead of re-queueing forever), with no spurious unreachable findings.
+ * @evidence contracts/testing.md#behavioral-verification Calls forgeCast with three authored skeleton graphs and checks duplicate, missing-parent, root-count and reachability findings; the duplicate-child case detects spurious unreachable errors or nonterminating traversal.
+ * @evidence contracts/testing.md#independent-expectations Unique bone names, one null parent and connectivity define a rooted tree. The detached cycle has no path from hips, while two declarations of spine share an otherwise reachable child; those explicit edges determine expected findings without running FK as an oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Distinguishes local multi-root faults, a locally resolvable detached cycle and a duplicate edge on a connected graph. Ordinary rig acceptance and transform/constraint scalar admission are covered elsewhere.
+ * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns three portable forge/model graph cases and guarded named facts; no renderer or native rig is built and success here proves no posed appearance.
  */
-export const test_film_forge_cast_skeleton_graph = (): void => {
-  const broken = forgeCast(makeScriptWrite(), {
+export function test_film_forge_cast_skeleton_graph(): void {
+  const broken: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {
     entries: [
       forgeEntry("knightB", {
         skeleton: {
@@ -65,14 +57,14 @@ export const test_film_forge_cast_skeleton_graph = (): void => {
     TestValidator.predicate(
       "root count rejected",
       broken.violations.some(
-        (v) =>
+        (v: IAutoMovieConstraintViolation): boolean =>
           v.path.endsWith(".skeleton.bones") &&
           String(v.expected).includes("exactly one root"),
       ),
     );
   }
 
-  const cyclic = forgeCast(makeScriptWrite(), {
+  const cyclic: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {
     entries: [
       forgeEntry("knightB", {
         skeleton: {
@@ -91,16 +83,16 @@ export const test_film_forge_cast_skeleton_graph = (): void => {
   TestValidator.equals(
     "both detached-cycle bones unreachable",
     namedFacts([
-      ["cyclicSuccess", () => cyclic.success === false],
+      ["cyclicSuccess", (): boolean => cyclic.success === false],
       [
         "hasViolationCyclicType",
-        () =>
+        (): boolean =>
           cyclic.success === false &&
           hasViolation(cyclic, "type", ".skeleton.bones[2]"),
       ],
       [
         "hasViolationCyclicType2",
-        () =>
+        (): boolean =>
           cyclic.success === false &&
           hasViolation(cyclic, "type", ".skeleton.bones[3]"),
       ],
@@ -112,7 +104,7 @@ export const test_film_forge_cast_skeleton_graph = (): void => {
     },
   );
 
-  const doubled = forgeCast(makeScriptWrite(), {
+  const doubled: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {
     entries: [
       forgeEntry("knightB", {
         skeleton: {
@@ -126,18 +118,18 @@ export const test_film_forge_cast_skeleton_graph = (): void => {
   TestValidator.equals(
     "only the duplicate field is reported (walk terminates, nothing unreachable)",
     namedFacts([
-      ["doubledSuccess", () => doubled.success === false],
+      ["doubledSuccess", (): boolean => doubled.success === false],
       [
         "hasViolationDoubledType",
-        () =>
+        (): boolean =>
           doubled.success === false &&
           hasViolation(doubled, "type", ".skeleton.bones[2].bone"),
       ],
       [
         "doubledViolationsV",
-        () =>
+        (): boolean =>
           doubled.success === false &&
-          doubled.violations.every((v) =>
+          doubled.violations.every((v: IAutoMovieConstraintViolation): boolean =>
             v.path.endsWith(".skeleton.bones[2].bone"),
           ),
       ],
@@ -148,4 +140,4 @@ export const test_film_forge_cast_skeleton_graph = (): void => {
       doubledViolationsV: true,
     },
   );
-};
+}

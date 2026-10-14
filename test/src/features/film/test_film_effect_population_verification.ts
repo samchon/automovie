@@ -1,52 +1,32 @@
-import { verifyProductionFilmEffectPopulation } from "@automovie/engine";
-import type {
-  IAutoMovieCompiledFilmEffect,
-  IAutoMovieFilmTimeline,
-} from "@automovie/interface";
+import { verifyProductionFilmEffectPopulation } from "../../../../packages/engine/src/effectRuntime/verifyProductionFilmEffectPopulation";
+import { IAutoMovieCompiledFilmEffect, IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import {
-  filmEffectRefusal,
-  filmEffectTimeline,
-  materializedFilmEffects,
-  resealFilmEffect,
-} from "./filmEffectRuntimeFixtures";
-
+import { filmEffectRefusal, filmEffectTimeline, materializedFilmEffects, resealFilmEffect } from "./filmEffectRuntimeFixtures";
 /**
- * A persisted film-effect population is current only as the whole cue set.
- *
- * The viewer and the render planner run this check before sampling any frame,
- * so it must refuse an absent, extra, reordered, or retargeted runtime even
- * when every entry is individually well formed. Each mutated runtime below is
- * resealed with fresh digests, so the refusal comes from the population rule
- * that owns the field rather than from the digest check.
+ * The persisted effect population must match the complete current cue set.
  *
  * Scenarios:
+ * 1. Accept current, unchanged resealed and empty-track populations and ignore source provenance alone.
+ * 2. Refuse missing, extra, empty or reordered entries.
+ * 3. Refuse digest-valid field retargeting, malformed runtime version and inconsistent timeline clock.
  *
- * 1. The builder's population verifies for its timeline, an empty track with an
- *    empty population verifies, a reseal with no change still verifies, and a
- *    timeline differing only in its source digest still verifies.
- * 2. A truncated, extended, or empty population and a reordered one are
- *    refused as invalid runtime populations.
- * 3. A digest-valid runtime differing in film, compile, edit, frame rate, cue
- *    id, zone, start frame, end frame, or intensity is refused, and so is the
- *    unchanged population against a timeline with another compile input or
- *    another edit.
- * 4. A malformed runtime is refused by shape validation, and a timeline whose
- *    display rate contradicts its rational rate is refused as invalid input.
+ * @evidence contracts/testing.md#behavioral-verification Calls verifyProductionFilmEffectPopulation through its named refusal boundary and checks accepted versus invalid-input/runtime classes, catching an individually valid but incomplete, reordered or retargeted population.
+ * @evidence contracts/testing.md#independent-expectations The authored cue set requires one entry per cue in start-frame/id order with matching identity, rate, interval and intensity. Resealing recomputes digests so mutations reach field comparisons; it is not an independent digest correctness oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps current/empty/resealed/provenance-only neighbours and every original cardinality/order/identity/clock/id/zone/frame/intensity mutation. Production identity, absent from a timeline, is owned by sampler identity checks.
+ * @evidence contracts/testing.md#execution-ownership The discoverable portable synchronous entry owns all mutation cases, using existing data factories and real verifier source without installation, a render host or a browser.
  */
-export const test_film_effect_population_verification = (): void => {
-  const timeline = filmEffectTimeline();
-  const effects = materializedFilmEffects(timeline);
-  const [haze, mist] = effects as [
+export function test_film_effect_population_verification(): void {
+  const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();
+  const effects: IAutoMovieCompiledFilmEffect[] = materializedFilmEffects(timeline);
+  const [haze, mist]: [IAutoMovieCompiledFilmEffect, IAutoMovieCompiledFilmEffect] = effects as [
     IAutoMovieCompiledFilmEffect,
     IAutoMovieCompiledFilmEffect,
   ];
-  const verify = (
+  const verify: (candidate: readonly IAutoMovieCompiledFilmEffect[], current?: IAutoMovieFilmTimeline) => string = (
     candidate: readonly IAutoMovieCompiledFilmEffect[],
     current: IAutoMovieFilmTimeline = timeline,
   ): string =>
-    filmEffectRefusal(() =>
+    filmEffectRefusal((): void =>
       verifyProductionFilmEffectPopulation({
         timeline: current,
         effects: candidate,
@@ -58,7 +38,7 @@ export const test_film_effect_population_verification = (): void => {
     [
       verify(effects),
       verify([], filmEffectTimeline([])),
-      verify([haze, resealFilmEffect(mist, () => {})]),
+      verify([haze, resealFilmEffect(mist, (): void => {})]),
       verify(effects, {
         ...timeline,
         sourceDigest: `sha256:${"9".repeat(64)}`,
@@ -83,43 +63,43 @@ export const test_film_effect_population_verification = (): void => {
   );
 
   const retargeted: Array<(draft: IAutoMovieCompiledFilmEffect) => void> = [
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.film = "other-film";
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.compileFingerprint = `sha256:${"e".repeat(64)}`;
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.editFingerprint = `sha256:${"f".repeat(64)}`;
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.frameRate = { numerator: 25, denominator: 1 };
       draft.effect.start = 12 / 25;
       draft.effect.end = 24 / 25;
       draft.effect.fixedStepSeconds = 1 / 25;
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.id = "fog";
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.zone = "gate";
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.startFrame = 13;
       draft.effect.start = 13 / 24;
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.endFrame = 25;
       draft.effect.end = 25 / 24;
     },
-    (draft) => {
+    (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.intensity = { from: 0.75, to: 0.75 };
     },
   ];
   TestValidator.equals(
     "a digest-valid runtime that differs from its cue or identity is refused",
     [
-      ...retargeted.map((mutate) =>
+      ...retargeted.map((mutate: (draft: IAutoMovieCompiledFilmEffect) => void): string =>
         verify([haze, resealFilmEffect(mist, mutate)]),
       ),
       verify(effects, {
@@ -128,14 +108,14 @@ export const test_film_effect_population_verification = (): void => {
       }),
       verify(effects, { ...timeline, totalFrames: 49 }),
     ],
-    [...retargeted, "compile", "edit"].map(() => "film-effect-runtime-invalid"),
+    [...retargeted, "compile", "edit"].map((): string => "film-effect-runtime-invalid"),
   );
   TestValidator.equals(
     "shape and clock refusals keep their own classes",
     [
       verify([
         haze,
-        resealFilmEffect(mist, (draft) => {
+        resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
           (draft as { version: number }).version = 2;
         }),
       ]),
@@ -146,4 +126,4 @@ export const test_film_effect_population_verification = (): void => {
     ],
     ["film-effect-runtime-invalid", "film-effect-input-invalid"],
   );
-};
+}

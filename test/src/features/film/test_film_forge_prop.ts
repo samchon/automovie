@@ -1,9 +1,8 @@
-import type { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
+import { IAutoMovieForgedProp } from "../../../../packages/engine/src/film/IAutoMovieForgedProp";
 import { forgeProp } from "../../../../packages/engine/src/film/forgeProp";
 import { IAutoMoviePropSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
-
 /**
  * ForgeProp accepts a prop authored entirely as data (crude primitive parts
  * carrying a physical body, a stack-top affordance, and a self-declared hinge
