@@ -1,6 +1,7 @@
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
+
 /**
  * Draw stereo peak bars on a bounded opaque RGBA viewport.
  *
@@ -12,7 +13,11 @@ import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterI
  * @evidence contracts/performance.md#reuse-equivalent-work One peak and radius serve each column, while the shared admission owner prevents divergent dimension/shape policies; changed PCM or dimensions are redrawn without a retained result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh raster buffer, temporaries are scalar and allocation failure propagates; no audio, encoder, GPU or host resource is retained.
  */
-export const productionSoundWaveform: (pcm: Float32Array<ArrayBufferLike>, width?: number, height?: number) => IAutoMovieProductionSoundRaster = (
+export const productionSoundWaveform: (
+  pcm: Float32Array<ArrayBufferLike>,
+  width?: number,
+  height?: number,
+) => IAutoMovieProductionSoundRaster = (
   pcm: Float32Array,
   width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.width,
   height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.waveform.height,
@@ -23,7 +28,10 @@ export const productionSoundWaveform: (pcm: Float32Array<ArrayBufferLike>, width
   const middle: number = Math.floor(height / 2);
   for (let x: number = 0; x < width; ++x) {
     const from: number = Math.floor((frames * x) / width);
-    const to: number = Math.max(from + 1, Math.floor((frames * (x + 1)) / width));
+    const to: number = Math.max(
+      from + 1,
+      Math.floor((frames * (x + 1)) / width),
+    );
     let amplitude: number = 0;
     for (let sample: number = from; sample < Math.min(to, frames); ++sample)
       amplitude = Math.max(
@@ -32,14 +40,24 @@ export const productionSoundWaveform: (pcm: Float32Array<ArrayBufferLike>, width
         Math.abs(pcm[sample * 2 + 1]!),
       );
     const radius: number = Math.round(amplitude * Math.max(0, height / 2 - 2));
-    for (let y: number = Math.max(0, middle - radius); y <= Math.min(height - 1, middle + radius); ++y)
+    for (
+      let y: number = Math.max(0, middle - radius);
+      y <= Math.min(height - 1, middle + radius);
+      ++y
+    )
       setPixel(rgba, width, x, y, 75, 222, 190);
   }
   return { width, height, rgba };
 };
 
 /** Allocate a fresh opaque dark RGBA canvas; allocation failure propagates before any raster is published. */
-const rasterBackground: (width: number, height: number) => Uint8Array<ArrayBufferLike> = (width: number, height: number): Uint8Array => {
+const rasterBackground: (
+  width: number,
+  height: number,
+) => Uint8Array<ArrayBufferLike> = (
+  width: number,
+  height: number,
+): Uint8Array => {
   const rgba: Uint8Array<ArrayBuffer> = new Uint8Array(width * height * 4);
   for (let index: number = 0; index < rgba.length; index += 4) {
     rgba[index] = 8;
@@ -51,7 +69,15 @@ const rasterBackground: (width: number, height: number) => Uint8Array<ArrayBuffe
 };
 
 /** Write one admitted in-viewport row-major pixel with the drawer's bounded byte palette; this private writer performs no independent coordinate admission. */
-const setPixel: (rgba: Uint8Array<ArrayBufferLike>, width: number, x: number, y: number, red: number, green: number, blue: number) => void = (
+const setPixel: (
+  rgba: Uint8Array<ArrayBufferLike>,
+  width: number,
+  x: number,
+  y: number,
+  red: number,
+  green: number,
+  blue: number,
+) => void = (
   rgba: Uint8Array,
   width: number,
   x: number,

@@ -1,15 +1,21 @@
-import { IAutoMovieProductionDialogueLine, IAutoMovieProductionViseme } from "@automovie/interface";
+import {
+  IAutoMovieProductionDialogueLine,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
+
 import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 import { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 import { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";
-const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> = new Set<IAutoMovieProductionViseme["viseme"]>([
-  "aa",
-  "ih",
-  "ou",
-  "ee",
-  "oh",
-  "rest",
-]);
+
+const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
+  new Set<IAutoMovieProductionViseme["viseme"]>([
+    "aa",
+    "ih",
+    "ou",
+    "ee",
+    "oh",
+    "rest",
+  ]);
 
 /**
  * Join supplied receipt visemes to one explicit actor binding on emission time.
@@ -23,7 +29,11 @@ const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> = new Set
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the outcome and fresh ranges; input receipts and binding records are read but not retained, and no audio, scene node or host task is acquired.
  * @author Samchon
  */
-export const joinAutoMovieDialogueVisemes: (props: { line: IAutoMovieProductionDialogueLine; bindings: readonly IAutoMovieDialogueSpeakerBinding[]; visemes: readonly IAutoMovieProductionViseme[]; }) => IAutoMovieDialogueVisemeCompilation = (props: {
+export const joinAutoMovieDialogueVisemes: (props: {
+  line: IAutoMovieProductionDialogueLine;
+  bindings: readonly IAutoMovieDialogueSpeakerBinding[];
+  visemes: readonly IAutoMovieProductionViseme[];
+}) => IAutoMovieDialogueVisemeCompilation = (props: {
   /** Dialogue line whose film range is authoritative. */
   line: IAutoMovieProductionDialogueLine;
   /** Explicit speaker-to-actor bindings in authored order. */
@@ -37,7 +47,8 @@ export const joinAutoMovieDialogueVisemes: (props: { line: IAutoMovieProductionD
       timeline: null,
     };
   const bindings: IAutoMovieDialogueSpeakerBinding[] = props.bindings.filter(
-    (binding: IAutoMovieDialogueSpeakerBinding): boolean => binding.speaker === props.line.speaker,
+    (binding: IAutoMovieDialogueSpeakerBinding): boolean =>
+      binding.speaker === props.line.speaker,
   );
   if (bindings.length === 0)
     return {

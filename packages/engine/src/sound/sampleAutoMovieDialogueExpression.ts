@@ -1,7 +1,9 @@
 import { IAutoMovieExpression } from "@automovie/interface";
+
 import { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
-import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
+import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
+
 /**
  * Sample one joined emission-clock mouth range beside the unchanged authored expression.
  *
@@ -14,7 +16,11 @@ import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
  * @author Samchon
  */
-export const sampleAutoMovieDialogueExpression: (props: { timeline: IAutoMovieDialogueVisemeTimeline; frame: number; authored: IAutoMovieExpression | null; }) => IAutoMovieDialogueExpressionLayers = (props: {
+export const sampleAutoMovieDialogueExpression: (props: {
+  timeline: IAutoMovieDialogueVisemeTimeline;
+  frame: number;
+  authored: IAutoMovieExpression | null;
+}) => IAutoMovieDialogueExpressionLayers = (props: {
   /** Compiled actor mouth timeline. */
   timeline: IAutoMovieDialogueVisemeTimeline;
   /** Film-global frame to sample. */
@@ -24,9 +30,11 @@ export const sampleAutoMovieDialogueExpression: (props: { timeline: IAutoMovieDi
 }): IAutoMovieDialogueExpressionLayers => {
   if (!Number.isSafeInteger(props.frame) || props.frame < 0)
     throw new Error("dialogue expression frame must be a non-negative integer");
-  const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined = props.timeline.ranges.find(
-    (range: IAutoMovieDialogueMouthRange): boolean => props.frame >= range.startFrame && props.frame < range.endFrame,
-  )?.viseme;
+  const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined =
+    props.timeline.ranges.find(
+      (range: IAutoMovieDialogueMouthRange): boolean =>
+        props.frame >= range.startFrame && props.frame < range.endFrame,
+    )?.viseme;
   return {
     authored: props.authored,
     mouth:

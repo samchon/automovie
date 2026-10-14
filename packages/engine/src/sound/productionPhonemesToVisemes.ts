@@ -1,4 +1,8 @@
-import { IAutoMovieProductionPhonemeChunk, IAutoMovieProductionViseme } from "@automovie/interface";
+import {
+  IAutoMovieProductionPhonemeChunk,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
+
 /**
  * Map supplied phoneme chunk sample timing to film-frame vowel/rest intervals.
  *
@@ -11,7 +15,12 @@ import { IAutoMovieProductionPhonemeChunk, IAutoMovieProductionViseme } from "@a
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh scalar/text viseme rows; chunk objects and source audio are not retained, and no tokenizer model, network or decoder resource is acquired.
  * @author Samchon
  */
-export const productionPhonemesToVisemes: (props: { chunks: readonly IAutoMovieProductionPhonemeChunk[]; sourceSamples: number; startFrame: number; endFrame: number; }) => IAutoMovieProductionViseme[] = (props: {
+export const productionPhonemesToVisemes: (props: {
+  chunks: readonly IAutoMovieProductionPhonemeChunk[];
+  sourceSamples: number;
+  startFrame: number;
+  endFrame: number;
+}) => IAutoMovieProductionViseme[] = (props: {
   chunks: readonly IAutoMovieProductionPhonemeChunk[];
   sourceSamples: number;
   startFrame: number;
@@ -22,9 +31,9 @@ export const productionPhonemesToVisemes: (props: { chunks: readonly IAutoMovieP
   const output: IAutoMovieProductionViseme[] = [];
   let cursor: number = props.startFrame;
   for (const chunk of props.chunks) {
-    const tokens: string[] = Array.from(chunk.phonemes.normalize("NFKC")).filter(
-      (token: string): boolean => /\s/u.test(token) === false,
-    );
+    const tokens: string[] = Array.from(
+      chunk.phonemes.normalize("NFKC"),
+    ).filter((token: string): boolean => /\s/u.test(token) === false);
     if (tokens.length === 0) continue;
     const chunkStart: number = Math.max(
       cursor,
@@ -37,7 +46,10 @@ export const productionPhonemesToVisemes: (props: { chunks: readonly IAutoMovieP
         1,
         Math.ceil((duration * chunk.endSample) / props.sourceSamples),
       );
-    const frames: number = Math.max(1, Math.min(props.endFrame, chunkEnd) - chunkStart);
+    const frames: number = Math.max(
+      1,
+      Math.min(props.endFrame, chunkEnd) - chunkStart,
+    );
     if (chunkStart >= props.endFrame) {
       const previous: IAutoMovieProductionViseme | undefined = output.at(-1);
       if (previous !== undefined) previous.phoneme += tokens.join("");
@@ -70,12 +82,18 @@ export const productionPhonemesToVisemes: (props: { chunks: readonly IAutoMovieP
 };
 
 /** Case-fold one normalized code point using en-US and match the fixed vowel groups in declared order; unknown symbols return rest and case expansions can contain a matching vowel. */
-const phonemeViseme: (phoneme: string) => "rest" | "aa" | "ih" | "ou" | "ee" | "oh" = (
+const phonemeViseme: (
+  phoneme: string,
+) => "rest" | "aa" | "ih" | "ou" | "ee" | "oh" = (
   phoneme: string,
 ): IAutoMovieProductionViseme["viseme"] => {
   const token: string = phoneme.toLocaleLowerCase("en-US");
-  const matches: (characters: string) => boolean = (characters: string): boolean =>
-    Array.from(token).some((character: string): boolean => characters.includes(character));
+  const matches: (characters: string) => boolean = (
+    characters: string,
+  ): boolean =>
+    Array.from(token).some((character: string): boolean =>
+      characters.includes(character),
+    );
   if (matches("aɑɒæʌə")) return "aa";
   if (matches("iɪɨ")) return "ih";
   if (matches("uʊw")) return "ou";

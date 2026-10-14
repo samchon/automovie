@@ -1,4 +1,3 @@
-
 /**
  * An explicit speaker-to-actor identity pair supplied to the viseme join.
  *

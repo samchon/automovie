@@ -1,4 +1,8 @@
-import { AutoMovieExpressionPreset, IAutoMovieExpression } from "@automovie/interface";
+import {
+  AutoMovieExpressionPreset,
+  IAutoMovieExpression,
+} from "@automovie/interface";
+
 /**
  * Separate authored emotion from a sampled emission-clock mouth target.
  *

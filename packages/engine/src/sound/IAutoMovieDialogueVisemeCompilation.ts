@@ -1,5 +1,7 @@
 import { IAutoMovieProductionLipSyncJoin } from "@automovie/interface";
+
 import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
+
 /**
  * Join outcome paired with a seekable mouth timeline only on success.
  *

@@ -1,10 +1,20 @@
-import { IAutoMovieProductionSoundAnalysis, IAutoMovieProductionSoundPlan, IAutoMovieProductionSoundCue, IAutoMovieProductionDialogueLine, IAutoMovieProductionAcousticResponse, IAutoMovieProductionSoundEvent, IAutoMovieProductionFrameRate } from "@automovie/interface";
+import {
+  IAutoMovieProductionAcousticResponse,
+  IAutoMovieProductionDialogueLine,
+  IAutoMovieProductionFrameRate,
+  IAutoMovieProductionSoundAnalysis,
+  IAutoMovieProductionSoundCue,
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
+
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
 import { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { productionSoundEventTone } from "./productionSoundEventTone";
+
 /**
  * Mix semantic events, authored cue trims and supplied dialogue into a fresh stereo master.
  *
@@ -17,7 +27,11 @@ import { productionSoundEventTone } from "./productionSoundEventTone";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh master/analysis; dry, responded, fitted and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.
  * @author Samchon
  */
-export const renderProductionSound: (props: { plan: IAutoMovieProductionSoundPlan; dialogue?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined; assets?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined; }) => IAutoMovieRenderedProductionSound = (props: {
+export const renderProductionSound: (props: {
+  plan: IAutoMovieProductionSoundPlan;
+  dialogue?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined;
+  assets?: ReadonlyMap<string, Float32Array<ArrayBufferLike>> | undefined;
+}) => IAutoMovieRenderedProductionSound = (props: {
   /** Sound plan being rendered. */
   plan: IAutoMovieProductionSoundPlan;
   /** Synthesized mono dialogue keyed by line id. */
@@ -47,44 +61,73 @@ export const renderProductionSound: (props: { plan: IAutoMovieProductionSoundPla
   // Every cue is placed on the sample clock before any sample is mixed, so a
   // cue that contradicts its own source is refused before the work it would
   // have wasted, and each placement is computed once for the mix that follows.
-  const ranges: ICueSampleRanges[] = props.plan.cues.map((cue: IAutoMovieProductionSoundCue): ICueSampleRanges => cueSampleRanges(props.plan, cue));
-  for (const asset of new Set(props.plan.cues.map((cue: IAutoMovieProductionSoundCue): string => cue.asset))) {
-    const source: Float32Array<ArrayBufferLike> | undefined = props.assets?.get(asset);
+  const ranges: ICueSampleRanges[] = props.plan.cues.map(
+    (cue: IAutoMovieProductionSoundCue): ICueSampleRanges =>
+      cueSampleRanges(props.plan, cue),
+  );
+  for (const asset of new Set(
+    props.plan.cues.map(
+      (cue: IAutoMovieProductionSoundCue): string => cue.asset,
+    ),
+  )) {
+    const source: Float32Array<ArrayBufferLike> | undefined =
+      props.assets?.get(asset);
     if (source !== undefined)
       assertFiniteProductionPcm(source, `audio asset "${asset}"`);
   }
-  for (const line of new Set(props.plan.dialogue.map((line: IAutoMovieProductionDialogueLine): string => line.id))) {
-    const source: Float32Array<ArrayBufferLike> | undefined = props.dialogue?.get(line);
+  for (const line of new Set(
+    props.plan.dialogue.map(
+      (line: IAutoMovieProductionDialogueLine): string => line.id,
+    ),
+  )) {
+    const source: Float32Array<ArrayBufferLike> | undefined =
+      props.dialogue?.get(line);
     if (source !== undefined)
       assertFiniteProductionPcm(source, `dialogue line "${line}"`);
   }
-  const sampleFrames: number = frameToSample(props.plan, props.plan.totalFrames);
+  const sampleFrames: number = frameToSample(
+    props.plan,
+    props.plan.totalFrames,
+  );
   const pcm: Float32Array<ArrayBuffer> = new Float32Array(sampleFrames * 2);
   for (const event of props.plan.events) {
-    const room: IAutoMovieProductionAcousticResponse | undefined = event.acousticResponse;
+    const room: IAutoMovieProductionAcousticResponse | undefined =
+      event.acousticResponse;
     if (room === undefined) mixEvent(pcm, props.plan, event);
     else {
       const dry: Float32Array<ArrayBuffer> = new Float32Array(pcm.length);
       mixEvent(dry, props.plan, event);
-      const responded: Float32Array<ArrayBufferLike> = applyAutoMovieInteriorAcousticResponse({
-        samples: dry,
-        channels: props.plan.channels,
-        sampleRate: props.plan.sampleRate,
-        response: room,
-      });
+      const responded: Float32Array<ArrayBufferLike> =
+        applyAutoMovieInteriorAcousticResponse({
+          samples: dry,
+          channels: props.plan.channels,
+          sampleRate: props.plan.sampleRate,
+          response: room,
+        });
       for (let index: number = 0; index < pcm.length; ++index)
         pcm[index] += responded[index]!;
     }
   }
-  props.plan.cues.forEach((cue: IAutoMovieProductionSoundCue, index: number): void =>
-    mixCue(pcm, props.plan, cue, ranges[index]!, props.assets?.get(cue.asset)),
+  props.plan.cues.forEach(
+    (cue: IAutoMovieProductionSoundCue, index: number): void =>
+      mixCue(
+        pcm,
+        props.plan,
+        cue,
+        ranges[index]!,
+        props.assets?.get(cue.asset),
+      ),
   );
   for (const line of props.plan.dialogue) {
-    const source: Float32Array<ArrayBufferLike> | undefined = props.dialogue?.get(line.id);
+    const source: Float32Array<ArrayBufferLike> | undefined =
+      props.dialogue?.get(line.id);
     if (source === undefined) continue;
     const start: number = frameToSample(props.plan, line.startFrame);
     const end: number = frameToSample(props.plan, line.endFrame);
-    const fitted: Float32Array<ArrayBufferLike> = resampleMono(source, Math.max(0, end - start));
+    const fitted: Float32Array<ArrayBufferLike> = resampleMono(
+      source,
+      Math.max(0, end - start),
+    );
     for (
       let index: number = 0;
       index < fitted.length && start + index < sampleFrames;
@@ -108,10 +151,10 @@ export const renderProductionSound: (props: { plan: IAutoMovieProductionSoundPla
 };
 
 /** Refuse an adopted PCM generation before interpolation or numeric evidence. */
-const assertFiniteProductionPcm: (samples: Float32Array<ArrayBufferLike>, source: string) => void = (
-  samples: Float32Array,
+const assertFiniteProductionPcm: (
+  samples: Float32Array<ArrayBufferLike>,
   source: string,
-): void => {
+) => void = (samples: Float32Array, source: string): void => {
   if (samples.length === 0)
     throw new Error(`Production sound ${source} supplied empty PCM.`);
   for (let index: number = 0; index < samples.length; ++index)
@@ -122,7 +165,11 @@ const assertFiniteProductionPcm: (samples: Float32Array<ArrayBufferLike>, source
 };
 
 /** Mix the selected fixed event tone from emission or declared arrival, skipping segment-trimmed events; per-event pan/filter/density gains feed the same Float32 accumulation order. */
-const mixEvent: (pcm: Float32Array<ArrayBufferLike>, plan: IAutoMovieProductionSoundPlan, event: IAutoMovieProductionSoundEvent) => void = (
+const mixEvent: (
+  pcm: Float32Array<ArrayBufferLike>,
+  plan: IAutoMovieProductionSoundPlan,
+  event: IAutoMovieProductionSoundEvent,
+) => void = (
   pcm: Float32Array,
   plan: IAutoMovieProductionSoundPlan,
   event: IAutoMovieProductionSoundPlan["events"][number],
@@ -134,10 +181,27 @@ const mixEvent: (pcm: Float32Array<ArrayBufferLike>, plan: IAutoMovieProductionS
     reveal: 1.1,
     transition: 0.55,
   };
-  const propagation: { profile: string; arrivalFrame: number; arrivalTimeSeconds: number; distanceGain: number; highFrequencyGain: number | null; boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment"; } | undefined = event.propagation;
+  const propagation:
+    | {
+        profile: string;
+        arrivalFrame: number;
+        arrivalTimeSeconds: number;
+        distanceGain: number;
+        highFrequencyGain: number | null;
+        boundary:
+          | "inside-segment"
+          | "carried-across-cut"
+          | "trimmed-at-segment";
+      }
+    | undefined = event.propagation;
   if (propagation?.boundary === "trimmed-at-segment") return;
-  const start: number = frameToSample(plan, propagation?.arrivalFrame ?? event.frame);
-  const length: number = Math.round(durationSeconds[event.kind] * plan.sampleRate);
+  const start: number = frameToSample(
+    plan,
+    propagation?.arrivalFrame ?? event.frame,
+  );
+  const length: number = Math.round(
+    durationSeconds[event.kind] * plan.sampleRate,
+  );
   const left: number = Math.sqrt((1 - event.pan) * 0.5);
   const right: number = Math.sqrt((1 + event.pan) * 0.5);
   const spectralGain: number = propagation?.highFrequencyGain ?? 1;
@@ -151,7 +215,12 @@ const mixEvent: (pcm: Float32Array<ArrayBufferLike>, plan: IAutoMovieProductionS
     const normalized: number = index / Math.max(1, length - 1);
     const envelope: number = Math.exp(-5 * normalized);
     const noise: number = seededNoise(event.seed, index);
-    const base: number = productionSoundEventTone(event.kind, t, normalized, noise);
+    const base: number = productionSoundEventTone(
+      event.kind,
+      t,
+      normalized,
+      noise,
+    );
     const impulse: number = index === 0 ? 1 : 0;
     const dry: number = base * envelope * 0.28 + impulse * 0.5;
     filtered += spectralGain * (dry - filtered);
@@ -167,7 +236,13 @@ const mixEvent: (pcm: Float32Array<ArrayBufferLike>, plan: IAutoMovieProductionS
 };
 
 /** Read the admitted source trim at unit sample rate with authored fades, or use the bus stand-in when the asset is absent; no rate reconciliation extends the trim. */
-const mixCue: (pcm: Float32Array<ArrayBufferLike>, plan: IAutoMovieProductionSoundPlan, cue: IAutoMovieProductionSoundCue, range: ICueSampleRanges, source: Float32Array<ArrayBufferLike> | undefined) => void = (
+const mixCue: (
+  pcm: Float32Array<ArrayBufferLike>,
+  plan: IAutoMovieProductionSoundPlan,
+  cue: IAutoMovieProductionSoundCue,
+  range: ICueSampleRanges,
+  source: Float32Array<ArrayBufferLike> | undefined,
+) => void = (
   pcm: Float32Array,
   plan: IAutoMovieProductionSoundPlan,
   cue: IAutoMovieProductionSoundPlan["cues"][number],
@@ -240,7 +315,10 @@ interface ICueSampleRanges {
  * because the plan is a public input and a cue that reads outside its source or
  * its film has no sample to mix.
  */
-const cueSampleRanges: (plan: IAutoMovieProductionSoundPlan, cue: IAutoMovieProductionSoundCue) => ICueSampleRanges = (
+const cueSampleRanges: (
+  plan: IAutoMovieProductionSoundPlan,
+  cue: IAutoMovieProductionSoundCue,
+) => ICueSampleRanges = (
   plan: IAutoMovieProductionSoundPlan,
   cue: IAutoMovieProductionSoundPlan["cues"][number],
 ): ICueSampleRanges => {
@@ -259,8 +337,11 @@ const cueSampleRanges: (plan: IAutoMovieProductionSoundPlan, cue: IAutoMovieProd
     throw new Error(
       `Production sound cue "${cue.id}" must play a positive whole-frame span inside its ${cue.sourceDurationFrames}-frame source and the ${plan.totalFrames}-frame film, but reads ${cue.durationFrames} frames from source frame ${cue.sourceOffsetFrame} at film frame ${cue.startFrame}.`,
     );
-  const frameRate: IAutoMovieProductionFrameRate = resolveProductionFrameRate(plan);
-  const interval: (startFrame: number) => { start: number; end: number; } = (startFrame: number): { start: number; end: number } =>
+  const frameRate: IAutoMovieProductionFrameRate =
+    resolveProductionFrameRate(plan);
+  const interval: (startFrame: number) => { start: number; end: number } = (
+    startFrame: number,
+  ): { start: number; end: number } =>
     productionFrameIntervalToGridTicks({
       startFrame,
       endFrame: startFrame + cue.durationFrames,
@@ -275,7 +356,10 @@ const cueSampleRanges: (plan: IAutoMovieProductionSoundPlan, cue: IAutoMovieProd
 };
 
 /** Analyze the exact limited stereo master: sample peak, longest near-silent run, gated loudness and mixed-master peaks within one frame of event expectations; the latter cannot isolate event energy. */
-const analyzeProductionSound: (plan: IAutoMovieProductionSoundPlan, pcm: Float32Array<ArrayBufferLike>) => IAutoMovieProductionSoundAnalysis = (
+const analyzeProductionSound: (
+  plan: IAutoMovieProductionSoundPlan,
+  pcm: Float32Array<ArrayBufferLike>,
+) => IAutoMovieProductionSoundAnalysis = (
   plan: IAutoMovieProductionSoundPlan,
   pcm: Float32Array,
 ): IAutoMovieProductionSoundAnalysis => {
@@ -302,50 +386,62 @@ const analyzeProductionSound: (plan: IAutoMovieProductionSoundPlan, pcm: Float32
     // The preceding deterministic limiter scales the whole master below one.
     clippingSamples: 0,
     longestSilenceSeconds: longestSilence / plan.sampleRate,
-    eventAlignment: plan.events.map((event: IAutoMovieProductionSoundEvent): { id: string; expectedSeconds: number; peakSeconds: number; errorFrames: number; passed: boolean; } => {
-      const expectedFrame: number =
-        event.propagation?.boundary === "trimmed-at-segment"
-          ? event.frame
-          : (event.propagation?.arrivalFrame ?? event.frame);
-      const expected: number = frameToSample(plan, expectedFrame);
-      const radius: number = Math.max(1, frameToSample(plan, 1));
-      let peakSample: number = expected;
-      let peakValue: number = -1;
-      for (
-        let sample: number = Math.max(0, expected - radius);
-        sample <= Math.min(sampleFrames - 1, expected + radius);
-        ++sample
-      ) {
-        const value: number = Math.max(
-          Math.abs(pcm[sample * 2]!),
-          Math.abs(pcm[sample * 2 + 1]!),
-        );
-        if (value > peakValue) {
-          peakValue = value;
-          peakSample = sample;
+    eventAlignment: plan.events.map(
+      (
+        event: IAutoMovieProductionSoundEvent,
+      ): {
+        id: string;
+        expectedSeconds: number;
+        peakSeconds: number;
+        errorFrames: number;
+        passed: boolean;
+      } => {
+        const expectedFrame: number =
+          event.propagation?.boundary === "trimmed-at-segment"
+            ? event.frame
+            : (event.propagation?.arrivalFrame ?? event.frame);
+        const expected: number = frameToSample(plan, expectedFrame);
+        const radius: number = Math.max(1, frameToSample(plan, 1));
+        let peakSample: number = expected;
+        let peakValue: number = -1;
+        for (
+          let sample: number = Math.max(0, expected - radius);
+          sample <= Math.min(sampleFrames - 1, expected + radius);
+          ++sample
+        ) {
+          const value: number = Math.max(
+            Math.abs(pcm[sample * 2]!),
+            Math.abs(pcm[sample * 2 + 1]!),
+          );
+          if (value > peakValue) {
+            peakValue = value;
+            peakSample = sample;
+          }
         }
-      }
-      const frameRate: IAutoMovieProductionFrameRate = resolveProductionFrameRate(plan);
-      const errorFrames: number =
-        (Math.abs(peakSample - expected) * frameRate.numerator) /
-        (plan.sampleRate * frameRate.denominator);
-      return {
-        id: event.id,
-        expectedSeconds: expected / plan.sampleRate,
-        peakSeconds: peakSample / plan.sampleRate,
-        errorFrames,
-        passed: peakValue > 1e-5 && errorFrames <= 1,
-      };
-    }),
+        const frameRate: IAutoMovieProductionFrameRate =
+          resolveProductionFrameRate(plan);
+        const errorFrames: number =
+          (Math.abs(peakSample - expected) * frameRate.numerator) /
+          (plan.sampleRate * frameRate.denominator);
+        return {
+          id: event.id,
+          expectedSeconds: expected / plan.sampleRate,
+          peakSeconds: peakSample / plan.sampleRate,
+          errorFrames,
+          passed: peakValue > 1e-5 && errorFrames <= 1,
+        };
+      },
+    ),
   };
 };
 
 /** Apply the fixed 48kHz two-stage weighting coefficients, average 400ms blocks at 100ms hops and gate at -70 and relative -10 levels; silent/gated-out input returns null, without external conformance certification. */
-const integratedLoudness: (pcm: Float32Array<ArrayBufferLike>, sampleRate: number) => number | null = (
-  pcm: Float32Array,
+const integratedLoudness: (
+  pcm: Float32Array<ArrayBufferLike>,
   sampleRate: number,
-): number | null => {
-  if (pcm.every((sample: number): sample is number => sample === 0)) return null;
+) => number | null = (pcm: Float32Array, sampleRate: number): number | null => {
+  if (pcm.every((sample: number): sample is number => sample === 0))
+    return null;
   const weighted: Float64Array<ArrayBuffer> = new Float64Array(pcm.length);
   for (let channel: number = 0; channel < 2; ++channel) {
     const first: Float64Array<ArrayBufferLike> = biquadChannel(
@@ -368,7 +464,11 @@ const integratedLoudness: (pcm: Float32Array<ArrayBufferLike>, sampleRate: numbe
   const blockFrames: number = Math.min(frames, Math.round(sampleRate * 0.4));
   const hopFrames: number = Math.max(1, Math.round(sampleRate * 0.1));
   const energies: number[] = [];
-  for (let start: number = 0; start + blockFrames <= frames; start += hopFrames) {
+  for (
+    let start: number = 0;
+    start + blockFrames <= frames;
+    start += hopFrames
+  ) {
     let energy: number = 0;
     for (let frame: number = start; frame < start + blockFrames; ++frame) {
       const left: number = weighted[frame * 2]!;
@@ -384,19 +484,28 @@ const integratedLoudness: (pcm: Float32Array<ArrayBufferLike>, sampleRate: numbe
   if (aboveAbsolute.length === 0) return null;
   const relativeGate: number =
     loudnessOfEnergy(
-      aboveAbsolute.reduce((sum: number, energy: number): number => sum + energy, 0) /
-        aboveAbsolute.length,
+      aboveAbsolute.reduce(
+        (sum: number, energy: number): number => sum + energy,
+        0,
+      ) / aboveAbsolute.length,
     ) - 10;
   const gated: number[] = aboveAbsolute.filter(
     (energy: number): boolean => loudnessOfEnergy(energy) >= relativeGate,
   );
   return loudnessOfEnergy(
-    gated.reduce((sum: number, energy: number): number => sum + energy, 0) / gated.length,
+    gated.reduce((sum: number, energy: number): number => sum + energy, 0) /
+      gated.length,
   );
 };
 
 /** Filter one channel with the supplied second-order numerator/denominator in its original recurrence order, returning a fresh Float64 mono generation and local two-sample histories. */
-const biquadChannel: (interleaved: ArrayLike<number>, channel: number, numerator: readonly [number, number, number], denominator: readonly [number, number, number], channels?: number) => Float64Array<ArrayBufferLike> = (
+const biquadChannel: (
+  interleaved: ArrayLike<number>,
+  channel: number,
+  numerator: readonly [number, number, number],
+  denominator: readonly [number, number, number],
+  channels?: number,
+) => Float64Array<ArrayBufferLike> = (
   interleaved: ArrayLike<number>,
   channel: number,
   numerator: readonly [number, number, number],
@@ -427,11 +536,18 @@ const biquadChannel: (interleaved: ArrayLike<number>, channel: number, numerator
 };
 
 /** Map nonpositive mean-square energy to negative infinity, otherwise use the fixed -0.691 + 10log10(energy) loudness law consumed by the gate. */
-const loudnessOfEnergy: (energy: number) => number = (energy: number): number =>
-  energy <= 0 ? -Infinity : -0.691 + 10 * Math.log10(energy);
+const loudnessOfEnergy: (energy: number) => number = (
+  energy: number,
+): number => (energy <= 0 ? -Infinity : -0.691 + 10 * Math.log10(energy));
 
 /** Fit adopted mono samples by endpoint-aligned linear interpolation and Float32 rounding; singleton sources fill the output, and a one-sample output selects the first source sample. */
-const resampleMono: (source: Float32Array<ArrayBufferLike>, length: number) => Float32Array<ArrayBufferLike> = (source: Float32Array, length: number): Float32Array => {
+const resampleMono: (
+  source: Float32Array<ArrayBufferLike>,
+  length: number,
+) => Float32Array<ArrayBufferLike> = (
+  source: Float32Array,
+  length: number,
+): Float32Array => {
   const output: Float32Array<ArrayBuffer> = new Float32Array(length);
   if (source.length === 0) return output;
   if (source.length === 1) {
@@ -452,10 +568,10 @@ const resampleMono: (source: Float32Array<ArrayBufferLike>, length: number) => F
 };
 
 /** Delegate a frame boundary to the shared rational film-clock nearest-tick rule at the plan's sample rate, including its numeric admission failures. */
-const frameToSample: (plan: IAutoMovieProductionSoundPlan, frame: number) => number = (
+const frameToSample: (
   plan: IAutoMovieProductionSoundPlan,
   frame: number,
-): number =>
+) => number = (plan: IAutoMovieProductionSoundPlan, frame: number): number =>
   productionFrameBoundaryToGridTick({
     frame,
     frameRate: resolveProductionFrameRate(plan),
@@ -464,11 +580,17 @@ const frameToSample: (plan: IAutoMovieProductionSoundPlan, frame: number) => num
   });
 
 /** Return the lesser of unity and the two edge-distance ratios for the fixed positive edge length; the last included sample need not reach exact zero. */
-const edgeEnvelope: (index: number, length: number, edge: number) => number = (index: number, length: number, edge: number): number =>
-  Math.min(1, index / edge, (length - index) / edge);
+const edgeEnvelope: (index: number, length: number, edge: number) => number = (
+  index: number,
+  length: number,
+  edge: number,
+): number => Math.min(1, index / edge, (length - index) / edge);
 
 /** Derive one stateless signed noise sample by fixed 32bit multiply/xorshift operations over seed and sample index; this seed stream is not content identity. */
-const seededNoise: (seed: number, index: number) => number = (seed: number, index: number): number => {
+const seededNoise: (seed: number, index: number) => number = (
+  seed: number,
+  index: number,
+): number => {
   let value: number = (seed ^ Math.imul(index + 1, 0x9e3779b1)) >>> 0;
   value ^= value << 13;
   value ^= value >>> 17;

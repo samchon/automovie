@@ -1,4 +1,5 @@
 import { IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+
 /** Fixed internal diffuse-response tier: 20 ms taps, at most 32 and 2 s. */
 const TAP_INTERVAL_SECONDS: number = 0.02;
 
@@ -20,7 +21,12 @@ const MAX_TAIL_SECONDS: number = 2;
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh PCM result, input is read without mutation, and local tap state retains no decoder, adopted bytes, process or audio device.
  * @author Samchon
  */
-export const applyAutoMovieInteriorAcousticResponse: (props: { samples: Float32Array<ArrayBufferLike>; channels: number; sampleRate: number; response: IAutoMovieProductionAcousticResponse; }) => Float32Array<ArrayBufferLike> = (props: {
+export const applyAutoMovieInteriorAcousticResponse: (props: {
+  samples: Float32Array<ArrayBufferLike>;
+  channels: number;
+  sampleRate: number;
+  response: IAutoMovieProductionAcousticResponse;
+}) => Float32Array<ArrayBufferLike> = (props: {
   /** Input interleaved PCM. */
   samples: Float32Array;
   /** Positive channel count. */
@@ -52,7 +58,10 @@ export const applyAutoMovieInteriorAcousticResponse: (props: { samples: Float32A
       throw new Error(
         "different-room response needs a transmission gain in [0, 1]",
       );
-    return Float32Array.from(props.samples, (sample: number): number => sample * gain);
+    return Float32Array.from(
+      props.samples,
+      (sample: number): number => sample * gain,
+    );
   }
 
   const reverberation: number | null = props.response.reverberationTimeSeconds;

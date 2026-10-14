@@ -1,4 +1,5 @@
 import { IAutoMovieProductionViseme } from "@automovie/interface";
+
 /**
  * One half-open mouth interval on the film-global emission clock.
  *

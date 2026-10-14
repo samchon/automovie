@@ -1,4 +1,3 @@
-
 /**
  * Row-major opaque RGBA bytes produced by the waveform or spectrogram drawer.
  *

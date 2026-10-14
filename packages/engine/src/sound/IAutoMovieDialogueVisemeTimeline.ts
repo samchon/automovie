@@ -1,4 +1,5 @@
 import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
+
 /**
  * One actor's joined line intervals, including explicit rest gaps.
  *

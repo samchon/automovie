@@ -1,10 +1,17 @@
-import { IAutoMovieAcousticResponseProfile, IAutoMovieAnalysisRun, IAutoMovieProductionAcousticResponse, IAutoMovieAnalysisMetric } from "@automovie/interface";
+import {
+  IAutoMovieAcousticResponseProfile,
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
+  IAutoMovieProductionAcousticResponse,
+} from "@automovie/interface";
+
+import { IAutoMovieAcousticReceiver } from "../analysis/IAutoMovieAcousticReceiver";
 import { IAutoMovieAcousticRequest } from "../analysis/IAutoMovieAcousticRequest";
+import { IAutoMovieAcousticSource } from "../analysis/IAutoMovieAcousticSource";
 import { analyzeAutoMovieAcoustics } from "../analysis/analyzeAutoMovieAcoustics";
 import { Vector3 } from "../math/Vector3";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
-import { IAutoMovieAcousticSource } from "../analysis/IAutoMovieAcousticSource";
-import { IAutoMovieAcousticReceiver } from "../analysis/IAutoMovieAcousticReceiver";
+
 /**
  * Derive a closed room-path receipt from explicit space bindings and an acoustic profile.
  *
@@ -17,7 +24,13 @@ import { IAutoMovieAcousticReceiver } from "../analysis/IAutoMovieAcousticReceiv
  * @evidence contracts/performance.md#bound-retention-and-release-resources The analysis and metric objects are call-local; the returned receipt retains only scalar/profile/revision facts or a refusal reason, without room geometry, adopted audio or solver tasks.
  * @author Samchon
  */
-export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: string | null; listenerSpace: string | null; inputRevision: string; request: IAutoMovieAcousticRequest | null; profile: IAutoMovieAcousticResponseProfile; }) => IAutoMovieProductionAcousticResponse = (props: {
+export const deriveAutoMovieInteriorAcousticResponse: (props: {
+  sourceSpace: string | null;
+  listenerSpace: string | null;
+  inputRevision: string;
+  request: IAutoMovieAcousticRequest | null;
+  profile: IAutoMovieAcousticResponseProfile;
+}) => IAutoMovieProductionAcousticResponse = (props: {
   /** Source space, or `null` outdoors. */
   sourceSpace: string | null;
   /** Listener space, or `null` outdoors. */
@@ -52,7 +65,10 @@ export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: str
       reason:
         "source and listener room binding is incomplete; one endpoint is indoors and the other is unresolved",
     };
-  const path: Exclude<IAutoMovieProductionAcousticResponse["path"], "outdoor" | null> =
+  const path: Exclude<
+    IAutoMovieProductionAcousticResponse["path"],
+    "outdoor" | null
+  > =
     props.sourceSpace === props.listenerSpace ? "same-room" : "different-room";
   if (props.profile.kind === "adopted-response")
     return {
@@ -78,7 +94,9 @@ export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: str
       "acoustic request revision does not match the event input revision",
     );
 
-  const analysis: IAutoMovieAnalysisRun = analyzeAutoMovieAcoustics({ request: props.request });
+  const analysis: IAutoMovieAnalysisRun = analyzeAutoMovieAcoustics({
+    request: props.request,
+  });
   // The bounded acoustic analyzer always seals a solved run; unsupported
   // individual facts are metric gaps inside that solved outcome.
   const metrics: IAutoMovieAnalysisMetric[] = (
@@ -88,7 +106,10 @@ export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: str
     >
   ).metrics;
   if (path === "same-room") {
-    const reverberation: number | null = metricValue(metrics, "room.reverberationTime");
+    const reverberation: number | null = metricValue(
+      metrics,
+      "room.reverberationTime",
+    );
     const roomConstant: number | null = metricValue(metrics, "room.constant");
     if (reverberation === null || roomConstant === null)
       return {
@@ -113,7 +134,8 @@ export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: str
     const distance: number = Vector3.length(
       Vector3.subtract(receiver.position, source.position),
     );
-    const direct: number = source.directivity / (4 * Math.PI * distance * distance);
+    const direct: number =
+      source.directivity / (4 * Math.PI * distance * distance);
     const diffuse: number = 4 / roomConstant;
     return {
       status: "available",
@@ -148,19 +170,31 @@ export const deriveAutoMovieInteriorAcousticResponse: (props: { sourceSpace: str
 };
 
 /** Read one fixed analyzer metric key and return null for a sealed metric gap; the analyzer's complete fixed-key population is required. */
-const metricValue: (metrics: IAutoMovieAnalysisMetric[], key: string) => number | null = (
+const metricValue: (
+  metrics: IAutoMovieAnalysisMetric[],
+  key: string,
+) => number | null = (
   metrics: Extract<
     IAutoMovieAnalysisRun["outcome"],
     { status: "solved" }
   >["metrics"],
   key: string,
-): number | null => metrics.find((metric: IAutoMovieAnalysisMetric): boolean => metric.key === key)!.value ?? null;
+): number | null =>
+  metrics.find(
+    (metric: IAutoMovieAnalysisMetric): boolean => metric.key === key,
+  )!.value ?? null;
 
 /** Read the corresponding fixed-key gap reason only after the response branch established that metric is unavailable. */
-const metricGap: (metrics: IAutoMovieAnalysisMetric[], key: string) => string = (
+const metricGap: (
+  metrics: IAutoMovieAnalysisMetric[],
+  key: string,
+) => string = (
   metrics: Extract<
     IAutoMovieAnalysisRun["outcome"],
     { status: "solved" }
   >["metrics"],
   key: string,
-): string => metrics.find((candidate: IAutoMovieAnalysisMetric): boolean => candidate.key === key)!.gap!.reason;
+): string =>
+  metrics.find(
+    (candidate: IAutoMovieAnalysisMetric): boolean => candidate.key === key,
+  )!.gap!.reason;

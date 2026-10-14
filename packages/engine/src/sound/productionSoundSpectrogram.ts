@@ -1,6 +1,7 @@
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "./AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { IAutoMovieProductionSoundRaster } from "./IAutoMovieProductionSoundRaster";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
+
 /**
  * Draw a fixed 256-sample Hann-window log-magnitude stereo spectrum.
  *
@@ -12,10 +13,15 @@ import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterI
  * @evidence contracts/performance.md#reuse-equivalent-work One computed log level is shared by rows with the same bin and centre, under the fixed PCM generation premise; the map resets for each column and disappears after the call, so changed PCM cannot reuse an earlier request.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh RGBA buffer; per-column maps retain at most127 numeric entries, and allocation/error exit retains no audio, GPU, encoder or host task.
  */
-export const productionSoundSpectrogram: (pcm: Float32Array<ArrayBufferLike>, width?: number, height?: number) => IAutoMovieProductionSoundRaster = (
+export const productionSoundSpectrogram: (
+  pcm: Float32Array<ArrayBufferLike>,
+  width?: number,
+  height?: number,
+) => IAutoMovieProductionSoundRaster = (
   pcm: Float32Array,
   width: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram.width,
-  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram.height,
+  height: number = AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS.spectrogram
+    .height,
 ): IAutoMovieProductionSoundRaster => {
   assertProductionSoundRasterInput(pcm, width, height, "spectrogram");
   const rgba: Uint8Array<ArrayBuffer> = new Uint8Array(width * height * 4);
@@ -34,12 +40,18 @@ export const productionSoundSpectrogram: (pcm: Float32Array<ArrayBufferLike>, wi
           const sample: number = center + offset - windowSize / 2;
           if (sample < 0 || sample >= frames) continue;
           const mono: number = (pcm[sample * 2]! + pcm[sample * 2 + 1]!) * 0.5;
-          const window: number = 0.5 - 0.5 * Math.cos((2 * Math.PI * offset) / 255);
+          const window: number =
+            0.5 - 0.5 * Math.cos((2 * Math.PI * offset) / 255);
           const phase: number = (2 * Math.PI * bin * offset) / windowSize;
           real += mono * window * Math.cos(phase);
           imaginary -= mono * window * Math.sin(phase);
         }
-        level = clamp((20 * Math.log10(Math.hypot(real, imaginary) / 128 + 1e-7) + 100) / 100, 0, 1);
+        level = clamp(
+          (20 * Math.log10(Math.hypot(real, imaginary) / 128 + 1e-7) + 100) /
+            100,
+          0,
+          1,
+        );
         levels.set(bin, level);
       }
       const red: number = Math.round(255 * level * level);
@@ -52,7 +64,15 @@ export const productionSoundSpectrogram: (pcm: Float32Array<ArrayBufferLike>, wi
 };
 
 /** Write one row-major opaque RGBA pixel at the loop's admitted coordinates using the bounded level palette. */
-const setPixel: (rgba: Uint8Array<ArrayBufferLike>, width: number, x: number, y: number, red: number, green: number, blue: number) => void = (
+const setPixel: (
+  rgba: Uint8Array<ArrayBufferLike>,
+  width: number,
+  x: number,
+  y: number,
+  red: number,
+  green: number,
+  blue: number,
+) => void = (
   rgba: Uint8Array,
   width: number,
   x: number,
@@ -69,5 +89,8 @@ const setPixel: (rgba: Uint8Array<ArrayBufferLike>, width: number, x: number, y:
 };
 
 /** Bound the fixed-window logarithmic display level to [0,1]; this maps display contrast without changing the supplied PCM. */
-const clamp: (value: number, minimum: number, maximum: number) => number = (value: number, minimum: number, maximum: number): number =>
-  Math.min(maximum, Math.max(minimum, value));
+const clamp: (value: number, minimum: number, maximum: number) => number = (
+  value: number,
+  minimum: number,
+  maximum: number,
+): number => Math.min(maximum, Math.max(minimum, value));

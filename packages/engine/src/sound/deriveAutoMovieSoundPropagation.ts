@@ -1,4 +1,8 @@
-import { IAutoMovieProductionSoundEvent, IAutoMovieSoundPropagationProfile } from "@automovie/interface";
+import {
+  IAutoMovieProductionSoundEvent,
+  IAutoMovieSoundPropagationProfile,
+} from "@automovie/interface";
+
 /**
  * Derive distance gain, one film-clock arrival and the selected segment/spectral outcome.
  *
@@ -11,7 +15,21 @@ import { IAutoMovieProductionSoundEvent, IAutoMovieSoundPropagationProfile } fro
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result transfers to the caller by value; the profile/request is not retained and no acoustic device, host handle or scheduled arrival task is acquired.
  * @author Samchon
  */
-export const deriveAutoMovieSoundPropagation: (props: { distanceMeters: number; emissionFrame: number; segmentEndFrame: number; fps: number; totalFrames: number; profile: IAutoMovieSoundPropagationProfile; }) => { profile: string; arrivalFrame: number; arrivalTimeSeconds: number; distanceGain: number; highFrequencyGain: number | null; boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment"; } = (props: {
+export const deriveAutoMovieSoundPropagation: (props: {
+  distanceMeters: number;
+  emissionFrame: number;
+  segmentEndFrame: number;
+  fps: number;
+  totalFrames: number;
+  profile: IAutoMovieSoundPropagationProfile;
+}) => {
+  profile: string;
+  arrivalFrame: number;
+  arrivalTimeSeconds: number;
+  distanceGain: number;
+  highFrequencyGain: number | null;
+  boundary: "inside-segment" | "carried-across-cut" | "trimmed-at-segment";
+} = (props: {
   /** Effective source/listener distance in metres. */
   distanceMeters: number;
   /** Exact story emission frame. */
@@ -74,7 +92,9 @@ export const deriveAutoMovieSoundPropagation: (props: { distanceMeters: number; 
       `sound propagation arrival frame ${arrivalFrame} lies outside the ${props.totalFrames}-frame film`,
     );
   const crossed: boolean = arrivalFrame >= props.segmentEndFrame;
-  const boundary: NonNullable<IAutoMovieProductionSoundEvent["propagation"]>["boundary"] = crossed
+  const boundary: NonNullable<
+    IAutoMovieProductionSoundEvent["propagation"]
+  >["boundary"] = crossed
     ? props.profile.segmentBoundary === "carry-across-cut"
       ? "carried-across-cut"
       : "trimmed-at-segment"
@@ -110,19 +130,29 @@ export const deriveAutoMovieSoundPropagation: (props: { distanceMeters: number; 
 };
 
 /** Refuse a non-finite or nonpositive speed/frame-rate scalar before delay arithmetic; the caller supplies its diagnostic label. */
-const assertFinitePositive: (value: number, label: string) => void = (value: number, label: string): void => {
+const assertFinitePositive: (value: number, label: string) => void = (
+  value: number,
+  label: string,
+): void => {
   if (!Number.isFinite(value) || value <= 0)
     throw new Error(`${label} must be finite and positive`);
 };
 
 /** Refuse a non-finite or negative distance/absorption/coefficient scalar while preserving admitted zero. */
-const assertFiniteNonnegative: (value: number, label: string) => void = (value: number, label: string): void => {
+const assertFiniteNonnegative: (value: number, label: string) => void = (
+  value: number,
+  label: string,
+): void => {
   if (!Number.isFinite(value) || value < 0)
     throw new Error(`${label} must be finite and non-negative`);
 };
 
 /** Require a safe whole frame value at or above the caller's bound, without rounding fractional or unsafe input. */
-const assertInteger: (value: number, label: string, minimum: number) => void = (value: number, label: string, minimum: number): void => {
+const assertInteger: (value: number, label: string, minimum: number) => void = (
+  value: number,
+  label: string,
+  minimum: number,
+): void => {
   if (!Number.isSafeInteger(value) || value < minimum)
     throw new Error(`${label} must be an integer at least ${minimum}`);
 };
