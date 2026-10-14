@@ -1,4 +1,3 @@
-
 /**
  * Bounded room-path result consumed by the production mix.
  *

@@ -1,4 +1,3 @@
-
 /**
  * Production-selected source of room-response data.
  *

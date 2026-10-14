@@ -1,4 +1,3 @@
-
 /**
  * Final encoded audio identity retained by the sibling sound evidence record.
  *
