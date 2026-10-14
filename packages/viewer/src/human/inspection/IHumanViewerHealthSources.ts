@@ -9,7 +9,7 @@ import type { IHumanViewerWarming } from "./IHumanViewerWarming.js";
 import type { createHumanViewerCapture } from "./createHumanViewerCapture.js";
 import type { createHumanViewerHeapGauge } from "./createHumanViewerHeapGauge.js";
 import type { createHumanViewerQueue } from "./createHumanViewerQueue.js";
-import type { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import type { createHumanViewerSource } from "./createHumanViewerSource.js";
 import type { readHumanViewerCompilationStatus } from "./readHumanViewerCompilationStatus.js";
 
 /**
@@ -137,7 +137,7 @@ export interface IHumanViewerHealthSources {
   /** The GPU queue. */
   queue: ReturnType<typeof createHumanViewerQueue>;
 
-  /** Requests allowed to wait behind the running one. */
+  /** Waiting-request capacity of each ui, cli and bulk lane separately; excludes the running request. */
   queueLimit: number;
 
   /**

@@ -13,7 +13,7 @@
  */
 export interface IHumanViewerRecord {
   /**
-   * Public-port owner: the launcher PID, or server.mts when started directly.
+   * Public-port owner: the launcher PID, or server.ts when started directly.
    */
   pid: number;
 

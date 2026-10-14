@@ -2,7 +2,7 @@
  * The import graph and compiler inputs the human compile reports, all paths relative to the human package. Every file named here is watched, so an edit to a type-only dependency or a config still invalidates the build.
  *
  * @evidence contracts/common.md#principled-implementation Mirrors compiler-reported import edges, globals, configs and optional resolution candidates/inputs used to compose the watched compile population.
- * @evidence contracts/common.md#clear-and-simple-design Keeps compiler dependency facts in one transport record so compile-human.mts owns one complete watch-list normalization.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps compiler dependency facts in one transport record so compile-human.ts owns one complete watch-list normalization.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Type-only dependencies and configs are included when reported; absent optional adapter fields cannot establish complete future resolver behavior.
  * @evidence contracts/common.md#meaningful-documentation Names paths relative to the Human package and distinguishes probes from actual input reads; graph reporting is not numerical or visual admission.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This graph record performs no traversal; its consumer flattens edges/probes and deduplicates watch paths in input-sized work.

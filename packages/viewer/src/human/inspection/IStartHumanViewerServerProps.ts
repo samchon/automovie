@@ -5,7 +5,7 @@ import type { HumanViewerMiddleware } from "./HumanViewerMiddleware.js";
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue.js";
 import type { IHumanViewerInstance } from "./IHumanViewerInstance.js";
 import type { ISubscribeHumanViewerSourcesProps } from "./ISubscribeHumanViewerSourcesProps.js";
-import type { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import type { createHumanViewerSource } from "./createHumanViewerSource.js";
 
 /**
  * Ownership and readiness bindings for one attached server lifetime.

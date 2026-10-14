@@ -3,6 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "plugins": [
       {
         "transform": "@ttsc/lint",

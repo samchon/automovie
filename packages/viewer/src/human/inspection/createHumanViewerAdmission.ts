@@ -8,7 +8,7 @@ import type { IHumanViewerKeyedAdmission } from "./IHumanViewerKeyedAdmission.js
 /**
  * Keep the page's admission verdict for each document. The server does not load the human runtime, so a document's schema is judged by its owner in a viewer frame through the host page's bridge; until a verdict exists for the document's current cache key (document, basis and builder source together) the document is pending and stays out of the drawable catalogue, listed among the rejected inputs with that state.
  *
- * A request goes to the page once per key. Only an owner's answer is a verdict. A bridge with no loaded frame, or a request that could not run (the page navigating, its context replaced), stores no verdict: the document waits, pending with that reason, and is asked again only when `retry` is called, which the host does on its trigger events (a frame announcing its admission, a generation becoming ready, an explicit settle request). Nothing re-asks on its own, so a bridge that never arrives leaves named pending entries and no loop. A page that failed for good refuses with its cause, so no client waits on it. One verdict and at most one waiting reason are kept per document id, so the records grow only with the documents.
+ * Reads share the currently tracked request for the same document id and key. Changing its key starts another request; returning to an earlier key can request it again while the earlier task remains outstanding. Only an owner's answer is a verdict. A bridge with no loaded frame, or a request that could not run (the page navigating, its context replaced), stores no verdict: the document waits, pending with that reason, and is asked again only when `retry` is called, which the host does on its trigger events (a frame announcing its admission, a generation becoming ready, an explicit settle request). Nothing re-asks on its own, so a bridge that never arrives leaves named pending entries and no loop. A page that failed for good refuses with its cause, so no client waits on it. One verdict and at most one waiting reason are kept per document id; outstanding tasks remain separately retained until settlement.
  *
  * Admission identity is the document id and current numerical key. This owner does not acquire production workspace leases.
  *
@@ -61,7 +61,7 @@ export function createHumanViewerAdmission(
       if (page.state === "failed")
         return {
           state: "refused",
-          reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.mts ensure`,
+          reason: `cannot be admitted: the viewer page failed (${page.reason}); restart the viewer with human-shot.ts ensure`,
         };
       const held: IHumanViewerKeyedAdmission | undefined = waiting.get(entry.id);
       if (held !== undefined && held.key === entry.key) return held.admission;

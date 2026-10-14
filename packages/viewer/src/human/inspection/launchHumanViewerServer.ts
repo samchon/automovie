@@ -24,7 +24,7 @@ export function launchHumanViewerServer(context: IHumanShotContext): ChildProces
   const log: fs.WriteStream = fs.createWriteStream(context.logFile, { flags: "a" });
   let owned: ChildProcess | undefined;
   try {
-    owned = spawn(process.execPath, [path.join(context.directory, "human-viewer-launcher.mts")], {
+    owned = spawn(process.execPath, [path.join(context.directory, "human-viewer-launcher.ts")], {
       cwd: path.join(context.root, "packages/playground"),
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"],
@@ -38,7 +38,7 @@ export function launchHumanViewerServer(context: IHumanShotContext): ChildProces
     child.once("error", (error: Error): void => { console.error(error); });
     ProcessOwnership.own(child);
     log.write(
-      `\n=== ${new Date().toISOString()} human-shot ${context.command} starts server.mts on port ${context.port} (client pid ${process.pid}, server pid ${child.pid})\n`,
+      `\n=== ${new Date().toISOString()} human-shot ${context.command} starts server.ts on port ${context.port} (client pid ${process.pid}, server pid ${child.pid})\n`,
     );
     const forward: (bytes: Buffer) => void = (bytes: Buffer): void => {
       process.stderr.write(bytes);

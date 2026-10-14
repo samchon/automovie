@@ -34,7 +34,7 @@ export async function runHumanViewerCompile(
   await new Promise<undefined>((resolve: (value: undefined) => void, reject: (error: unknown) => void): void => {
     const child: ChildProcess = spawn(
       process.execPath,
-      [path.join(props.directory, "compile-human.mts"), props.human, output],
+      [path.join(props.directory, "compile-human.ts"), props.human, output],
       { windowsHide: true, stdio: "ignore" },
     );
     child.once("error", reject);

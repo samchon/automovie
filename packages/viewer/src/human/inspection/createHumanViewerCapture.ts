@@ -9,7 +9,7 @@ import type { IHumanViewerPhases } from "./IHumanViewerPhases.js";
 import type { IHumanViewerCatalogueEntry } from "./IHumanViewerCatalogueEntry.js";
 import { describeHumanViewerCapture } from "./describeHumanViewerCapture.js";
 import { judgeViewerRenderer } from "./judgeViewerRenderer.js";
-import { readHumanViewerCapture } from "./readHumanViewerCapture.mjs";
+import { readHumanViewerCapture } from "./readHumanViewerCapture.js";
 
 /**
  * Own capture telemetry under the page's reported ready generation. Empty readiness or a renderer string refused by judgeViewerRenderer prevents capture; drawing and final trimming must preserve that generation. Renderer-string classification is not independent hardware/display observation, and a fallback gl.RENDERER string can lack unmasked device detail. Keep one last render, the latest build per domain and document, and the edit waiting for its first current frame; document records follow the last captured catalogue and stale frames do not consume that edit timing.

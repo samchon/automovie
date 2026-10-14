@@ -14,6 +14,6 @@ import type { ICreateHumanViewerRevisionsProps } from "./ICreateHumanViewerRevis
  * @author Samchon
  */
 export interface ICreateHumanViewerRevisionsWorkerProps extends ICreateHumanViewerRevisionsProps {
-  /** Absolute path of `revisions-worker.mts`. */
+  /** Absolute path of `revisions-worker.ts`. */
   worker: string;
 }

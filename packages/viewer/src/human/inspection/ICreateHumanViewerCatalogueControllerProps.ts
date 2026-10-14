@@ -1,6 +1,6 @@
 import type { ICreateHumanViewerAdmissionProps } from "./ICreateHumanViewerAdmissionProps.js";
 import type { IHumanViewerCatalogue } from "./IHumanViewerCatalogue.js";
-import type { createHumanViewerSource } from "./createHumanViewerSource.mjs";
+import type { createHumanViewerSource } from "./createHumanViewerSource.js";
 
 /**
  * Host bindings for catalogue publication and document-owned admission.

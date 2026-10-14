@@ -1,7 +1,7 @@
 /**
  * What the compile process writes: the transformed files and graph, or the error.
  *
- * @evidence contracts/common.md#principled-implementation Carries compile-human.mts JSON success files/watch/normalized inputs or its captured compiler error for runHumanViewerCompile.
+ * @evidence contracts/common.md#principled-implementation Carries compile-human.ts JSON success files/watch/normalized inputs or its captured compiler error for runHumanViewerCompile.
  * @evidence contracts/common.md#clear-and-simple-design Optional success fields and error let the native child publish one result file even after a compiler refusal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Exit zero can accompany an error payload; the parent rejects missing files rather than treating successful output publication as a successful compile.
  * @evidence contracts/common.md#meaningful-documentation Documents absolute forward-slash file/watch paths and platform-aware comparison inputs; optional fields are not a discriminated runtime schema.
@@ -16,7 +16,7 @@ export interface IHumanViewerCompileOutput {
   files?: Record<string, string>;
 
   /**
-   * Every file the compile depends on, as absolute paths to watch, on success.
+   * Reported absolute watch paths on success; without compiler graph metadata, these need not cover every dependency.
    */
   watch?: string[];
 

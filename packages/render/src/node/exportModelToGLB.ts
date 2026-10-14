@@ -14,7 +14,7 @@ import type {
   Primitive,
   Scene,
 } from "@gltf-transform/core" with { "resolution-mode": "import" };
-import { loadModelGltfCore } from "./loadModelGltfCore.mjs";
+import { loadModelGltfCore } from "./loadModelGltfCore";
 
 /**
  * Serialize an `IAutoMovieModel` into binary glTF 2.0 (`.glb`) bytes with all geometry in one embedded buffer.

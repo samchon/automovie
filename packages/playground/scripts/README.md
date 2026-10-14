@@ -6,7 +6,7 @@ All commands run from `packages/playground` or through `pnpm --filter @automovie
 
 ## Type-check boundary
 
-[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts` and `scripts/*.cts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
+[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
 
 ## Models (`.glb`)
 
@@ -91,4 +91,4 @@ pnpm render:sequence -- --fps 12 --out .shots/_render-see/film-sequence.mp4
 pnpm observe:person -- record.json base=http://127.0.0.1:4173 load=person.json set=face/shape/noseWidth:0.3 click=undo click=glb
 ```
 
-The header of `scripts/observe-connected-person.cts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.
+The header of `scripts/observe-connected-person.ts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.

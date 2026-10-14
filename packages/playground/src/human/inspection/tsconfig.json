@@ -18,7 +18,6 @@
     "rewriteRelativeImportExtensions": true
   },
   "include": [
-    "*.ts",
-    "*.mts"
+    "*.ts"
   ]
 }

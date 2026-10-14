@@ -23,7 +23,7 @@ export const websiteViteConfig: UserConfig = defineConfig({
   preview: { host: "127.0.0.1", port: 4174, strictPort: true },
   resolve: {
     dedupe: ["three"],
-    extensions: [".mts", ".ts", ".tsx", ".mjs", ".js", ".jsx", ".json"],
+    extensions: [".ts", ".tsx", ".mjs", ".js", ".jsx", ".json"],
     alias: {
       "production-temple-scene": resolve(
         __dirname,

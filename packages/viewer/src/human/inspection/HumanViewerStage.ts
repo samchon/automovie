@@ -10,7 +10,7 @@ import type { createConnectedFaceViewport } from "@automovie/viewer/human/face/c
  * body viewport for a body or a whole person.
  *
  * @evidence contracts/common.md#principled-implementation ReturnType follows the actual connected face viewport and the body viewport specialized for body/person documents, keeping inspection operations aligned with those product constructors.
- * @evidence contracts/common.md#clear-and-simple-design One stage union lets page.mts, framing and PNG capture use their shared viewport operations without a second hand-written method inventory.
+ * @evidence contracts/common.md#clear-and-simple-design One stage union lets page.ts, framing and PNG capture use their shared viewport operations without a second hand-written method inventory.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No probe renderer or alternate geometry path is substituted; the concrete product viewport remains responsible for numerical output, display and teardown.
  * @evidence contracts/common.md#meaningful-documentation Names face, body and person display variants and their constructor ownership; selecting this type proves no completed GPU frame or physiological admission.
  * @evidenceExclude contracts/performance.md#efficient-algorithms ReturnType and the union produce no allocation or draw; connected viewport constructors and render operations own their runtime costs.

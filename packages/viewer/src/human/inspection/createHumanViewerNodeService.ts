@@ -38,7 +38,7 @@ export function createHumanViewerNodeService(props: ICreateHumanViewerNodeServic
   const failures: Map<string, (error: Error) => void> = new Map();
   const retiring: Map<string, { worker: ChildProcess | undefined; completion: Promise<void> }> = new Map();
   const closedWorkers: WeakSet<ChildProcess> = new WeakSet();
-  const entry: string = path.join(props.directory, "numerical-worker.mts");
+  const entry: string = path.join(props.directory, "numerical-worker.ts");
   const require: ReturnType<typeof createRequire> = createRequire(entry);
   const close: (id: string) => Promise<void> = (id: string): Promise<void> => {
     const existing: { worker: ChildProcess | undefined; completion: Promise<void> } | undefined = retiring.get(id);

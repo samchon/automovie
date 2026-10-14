@@ -27,7 +27,7 @@ export interface HumanViewerHandle {
    * address unchanged until settlement. A cleanup failure can reject after a
    * new frame committed, so rejection alone does not imply selection rollback.
    *
-   * @evidence contracts/common.md#principled-implementation page.mts chains show operations, obtains current catalogue authority and commits the completed resident/address only after drawing; its catch restores the prior display when no new selection committed.
+   * @evidence contracts/common.md#principled-implementation page.ts chains show operations, obtains current catalogue authority and commits the completed resident/address only after drawing; its catch restores the prior display when no new selection committed.
    * @evidence contracts/common.md#clear-and-simple-design Delegates preparation, numerical building, framing and drawing to their owners while the page queue orders display effects.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The request keeps its supplied address until camera-readback publication rather than pretending it was snapshotted at admission; post-commit cleanup refusal does not invent rollback.
    * @evidence contracts/common.md#meaningful-documentation States input borrowing, frame completion, operation serialization and the difference between preparation failure and cleanup failure after commit.
@@ -125,7 +125,7 @@ export interface HumanViewerHandle {
    * Borrowed last committed display selection; keep it unchanged. Refuses
    * before display, and observes camera readback rather than only the request.
    *
-   * @evidence contracts/common.md#principled-implementation Returns page.mts current, assigned from readHumanViewerCameraAddress only after a completed frame; absent current throws.
+   * @evidence contracts/common.md#principled-implementation Returns page.ts current, assigned from readHumanViewerCameraAddress only after a completed frame; absent current throws.
    * @evidence contracts/common.md#clear-and-simple-design Uses the same committed address that bookmarks and generation restoration retain.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The getter does not substitute an outstanding request or pretend to defensively clone the shared current object.
    * @evidence contracts/common.md#meaningful-documentation States borrowed ownership, caller immutability, pre-display refusal and actual camera-readback publication.
