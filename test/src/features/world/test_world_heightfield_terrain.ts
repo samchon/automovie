@@ -7,6 +7,7 @@ import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
 import { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 /** A square footprint of a stated half-extent, centred on the origin. */
 const square: (half: number) => { x: number; z: number; }[] = (half: number): IAutoMovieWorldSurface["polygon"] => [
   { x: -half, z: -half },
@@ -44,11 +45,9 @@ const hillHeight: (point: { x: number; z: number; }) => number = (point: { x: nu
  *
  * `constant` states one number and `plane` states one tilt, so between them
  * they can describe a floor and a ramp and nothing else. A hill, a terraced
- * square, a bank falling to a river: every one of those is a surface whose
- * height is not an affine function of its position, and until a rule could
- * express one, no production could stage anything on real ground. A lattice of
- * stored samples interpolated between is the ordinary answer and the smallest
- * one that works, so that is the rule.
+ * square, a bank falling to a river: each requires a height rule beyond one
+ * affine function. Stored lattice samples allow different local slopes while
+ * keeping their bilinear interpolation reproducible.
  *
  * What makes it usable is that it stays exact where it was authored and bounded
  * where it was not: a lattice point reads its own number back, the space
@@ -191,10 +190,10 @@ export function test_world_heightfield_terrain(): void {
   // would only say that a pure function is pure. The field dips in `x` while it
   // climbs in `z`, so a lattice stored transposed, reversed, or from another
   // corner really is a different array here.
-  TestValidator.equals(
+  TestValidator.predicate(
     "the sampler leaves nine stored heights, row-major from the origin",
-    field.height.kind === "heightfield" ? field.height.samples : null,
-    [-3, -2, -3, -1, 0, -1, 1, 2, 1],
+    test12ValuesClose(field.height.kind === "heightfield" ? field.height.samples : null,
+    [-3, -2, -3, -1, 0, -1, 1, 2, 1]),
   );
 
   const flat: IAutoMovieWorldSurface = worldTerrain({
@@ -215,8 +214,8 @@ export function test_world_heightfield_terrain(): void {
   TestValidator.equals(
     "the two rules that existed answer exactly what they answered before",
     namedFacts([
-      ["flatHere", (): boolean => worldSurfaceHeight(flat, { x: 3, z: -3 }) === 2.5],
-      ["flatThere", (): boolean => worldSurfaceHeight(flat, { x: -1, z: 4 }) === 2.5],
+      ["flatHere", (): boolean => nclose(worldSurfaceHeight(flat, { x: 3, z: -3 }), 2.5, 0)],
+      ["flatThere", (): boolean => nclose(worldSurfaceHeight(flat, { x: -1, z: 4 }), 2.5, 0)],
       [
         "rampBase",
         (): boolean => nclose(worldSurfaceHeight(ramp, { x: 0, z: 0 }), 1, 1e-12),
@@ -268,7 +267,7 @@ export function test_world_heightfield_terrain(): void {
       ],
       [
         "height",
-        (): boolean => worldGroundHeight([step, terrace], { x: 0, z: 0 }) === 1.5,
+        (): boolean => nclose(worldGroundHeight([step, terrace], { x: 0, z: 0 })!, 1.5, 0),
       ],
       // The edge of a floor is still floor. A unit sized to its own ground puts
       // its outermost rank exactly here, and a strict reading would drop it off
@@ -374,8 +373,8 @@ export function test_world_heightfield_terrain(): void {
   TestValidator.equals(
     "a field whose samples do not fill its lattice reads zero rather than NaN",
     namedFacts([
-      ["stored", (): boolean => worldSurfaceHeight(malformed, { x: 0, z: 0 }) === 3],
-      ["missing", (): boolean => worldSurfaceHeight(malformed, { x: 1, z: 1 }) === 0],
+      ["stored", (): boolean => nclose(worldSurfaceHeight(malformed, { x: 0, z: 0 }), 3, 0)],
+      ["missing", (): boolean => nclose(worldSurfaceHeight(malformed, { x: 1, z: 1 }), 0, 0)],
       [
         "blended",
         (): boolean =>

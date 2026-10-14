@@ -4,11 +4,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 
-const RANKS = 4;
-const FILES = 25;
-const COUNT = RANKS * FILES;
+const RANKS: number = 4;
+const FILES: number = 25;
+const COUNT: number = RANKS * FILES;
 
-const line = (props: {
+const line: (props: { seed: number; dressing?: { lateral: number; depth: number } }) => IAutoMovieFormationDesign = (props: {
   seed: number;
   dressing?: { lateral: number; depth: number };
 }): IAutoMovieFormationDesign => ({
@@ -29,21 +29,21 @@ const line = (props: {
   heroOverrides: [],
 });
 
-const positions = (
+const positions: (formation: IAutoMovieFormationDesign) => { x: number; z: number }[] = (
   formation: IAutoMovieFormationDesign,
 ): { x: number; z: number }[] =>
-  Array.from({ length: COUNT }, (_unused, slot) => {
-    const placed = formationSlot(formation, slot).position;
+  Array.from({ length: COUNT }, (_unused: unknown, slot: number): { x: number; z: number } => {
+    const placed: import("@automovie/interface").IAutoMovieVector3 = formationSlot(formation, slot).position;
     return { x: placed.x, z: placed.z };
   });
 
-const same = (
+const same: (left: { x: number; z: number }[], right: { x: number; z: number }[]) => boolean = (
   left: { x: number; z: number }[],
   right: { x: number; z: number }[],
 ): boolean =>
   left.length === right.length &&
   left.every(
-    (point, index) =>
+    (point: { x: number; z: number }, index: number): boolean =>
       nclose(point.x, right[index]!.x, 1e-12) &&
       nclose(point.z, right[index]!.z, 1e-12),
   );
@@ -72,14 +72,19 @@ const same = (
  *    axis without asking for deviation changes nothing.
  * 3. A non-zero tolerance moves members off the lattice, and every deviation stays
  *    inside the declared bound on both axes.
- * 4. The same seed reproduces the same layout exactly; a different seed produces a
+ * 4. The same seed reproduces the same layout within 1e-12 metres; a different seed produces a
  *    different one. Reproducibility is the property, not merely variation.
  * 5. A tolerance on one axis alone leaves the other axis exact, so the two bounds
  *    are independent rather than one shared jitter.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Regenerates actual formation slots and observes undressed/zero-dressed lattice identity, bounded nonzero displacement, seed reproducibility/variation and independent dressing axes; always-zero jitter, exceeded tolerance or cross-axis leakage fails.
+ * @evidence contracts/testing.md#independent-expectations Four ranks of 25 and authored 0.7/1.2-meter spacing independently determine the line lattice, while 0.25/0.4-meter bounds define permitted deviations. Same-seed comparisons are consistency checks, and the fixed seeds' every-member displacement is stronger than merely observing one changed slot without predicting hash outputs.
+ * @evidence contracts/testing.md#distinguishing-cases Covers omitted dressing, zero bounds, both nonzero bounds, repeated and changed seeds and lateral-only dressing over all 100 slots; other layouts, terrain and malformed design admission have separate units.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_world_formation_dressing entry owns direct CPU slot regeneration and local numeric facts, with no renderer, browser, Human asset or dynamic scenario registration.
  */
-export const test_world_formation_dressing = (): void => {
-  const exact = positions(line({ seed: 7 }));
-  const lattice = Array.from({ length: COUNT }, (_unused, slot) => ({
+export function test_world_formation_dressing(): void {
+  const exact: ReturnType<typeof positions> = positions(line({ seed: 7 }));
+  const lattice: ReturnType<typeof positions> = Array.from({ length: COUNT }, (_unused: unknown, slot: number): { x: number; z: number } => ({
     x: ((slot % FILES) - (FILES - 1) / 2) * 0.7,
     z: Math.floor(slot / FILES) * 1.2,
   }));
@@ -95,34 +100,34 @@ export const test_world_formation_dressing = (): void => {
     ),
   );
 
-  const dressed = positions(
+  const dressed: ReturnType<typeof positions> = positions(
     line({ seed: 7, dressing: { lateral: 0.25, depth: 0.4 } }),
   );
   TestValidator.equals(
     "a declared tolerance moves members off the lattice and stays inside it",
     namedFacts([
-      ["leavesTheLattice", () => same(dressed, exact) === false],
+      ["leavesTheLattice", (): boolean => same(dressed, exact) === false],
       [
         "everyMemberMoved",
-        () =>
+        (): boolean =>
           dressed.every(
-            (point, index) =>
+            (point: { x: number; z: number }, index: number): boolean =>
               nclose(point.x, exact[index]!.x, 1e-12) === false ||
               nclose(point.z, exact[index]!.z, 1e-12) === false,
           ),
       ],
       [
         "withinLateralBound",
-        () =>
+        (): boolean =>
           dressed.every(
-            (point, index) => Math.abs(point.x - exact[index]!.x) <= 0.25,
+            (point: { x: number; z: number }, index: number): boolean => Math.abs(point.x - exact[index]!.x) <= 0.25,
           ),
       ],
       [
         "withinDepthBound",
-        () =>
+        (): boolean =>
           dressed.every(
-            (point, index) => Math.abs(point.z - exact[index]!.z) <= 0.4,
+            (point: { x: number; z: number }, index: number): boolean => Math.abs(point.z - exact[index]!.z) <= 0.4,
           ),
       ],
     ]),
@@ -139,7 +144,7 @@ export const test_world_formation_dressing = (): void => {
     namedFacts([
       [
         "sameSeedReproduces",
-        () =>
+        (): boolean =>
           same(
             positions(
               line({ seed: 7, dressing: { lateral: 0.25, depth: 0.4 } }),
@@ -149,7 +154,7 @@ export const test_world_formation_dressing = (): void => {
       ],
       [
         "otherSeedDiffers",
-        () =>
+        (): boolean =>
           same(
             positions(
               line({ seed: 8, dressing: { lateral: 0.25, depth: 0.4 } }),
@@ -161,7 +166,7 @@ export const test_world_formation_dressing = (): void => {
     { sameSeedReproduces: true, otherSeedDiffers: true },
   );
 
-  const lateralOnly = positions(
+  const lateralOnly: ReturnType<typeof positions> = positions(
     line({ seed: 7, dressing: { lateral: 0.25, depth: 0 } }),
   );
   TestValidator.equals(
@@ -169,19 +174,19 @@ export const test_world_formation_dressing = (): void => {
     namedFacts([
       [
         "depthStaysExact",
-        () =>
-          lateralOnly.every((point, index) =>
+        (): boolean =>
+          lateralOnly.every((point: { x: number; z: number }, index: number): boolean =>
             nclose(point.z, exact[index]!.z, 1e-12),
           ),
       ],
       [
         "lateralStillMoves",
-        () =>
+        (): boolean =>
           lateralOnly.some(
-            (point, index) => nclose(point.x, exact[index]!.x, 1e-12) === false,
+            (point: { x: number; z: number }, index: number): boolean => nclose(point.x, exact[index]!.x, 1e-12) === false,
           ),
       ],
     ]),
     { depthStaysExact: true, lateralStillMoves: true },
   );
-};
+}

@@ -79,9 +79,9 @@ const reform: (layout: IAutoMovieFormationDesign["layout"]) => IAutoMovieFormati
  *
  * Scenarios:
  *
- * 1. Before the cue starts, every member stands exactly where the design put it: a
+ * 1. Before the cue starts, the selected member stands where the design put it: a
  *    declared re-form does not reach backwards.
- * 2. Halfway through, each member stands at the midpoint of its two places, and
+ * 2. Halfway through, the selected member stands at the midpoint of its two places, and
  *    the two places are different for the members checked, so a reader that
  *    returned either end lands somewhere the midpoint is not.
  * 3. At the end, every member stands exactly where the target arrangement puts it,

@@ -8,7 +8,7 @@ import { worldSurfaceHeight } from "../../../../packages/engine/src/worldSurface
 import { worldTerrain } from "../../../../packages/engine/src/worldTerrain";
 import { IAutoMovieInstanceSetDesign, IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 import { IAutoMovieWorldBlock } from "../../../../packages/engine/src/IAutoMovieWorldBlock";
 const instanceBase: () => Omit<IAutoMovieInstanceSetDesign, "layout"> = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
   id: "trees",
@@ -147,14 +147,14 @@ export function test_world_kit(): void {
         (): boolean => building.recipe.parameters.shape === "box",
       ],
       ["buildingNodeModel", (): boolean => building.node.model.endsWith(":house")],
-      ["buildingBoundsMin", (): boolean => building.bounds.min.y === 0],
+      ["buildingBoundsMin", (): boolean => nclose(building.bounds.min.y, 0, 0)],
       [
         "worldSurfaceHeightGroundX",
-        (): boolean => worldSurfaceHeight(ground, { x: 0, z: 0 }) === 0,
+        (): boolean => nclose(worldSurfaceHeight(ground, { x: 0, z: 0 }), 0, 0),
       ],
       [
         "worldSurfaceHeightRampX",
-        (): boolean => worldSurfaceHeight(ramp, { x: -4, z: 4 }) === 2,
+        (): boolean => nclose(worldSurfaceHeight(ramp, { x: -4, z: 4 }), 2, 0),
       ],
       ["gridLayoutKind", (): boolean => grid.layout.kind === "grid"],
       ["scatterLayoutKind", (): boolean => scatter.layout.kind === "scatter"],
@@ -326,10 +326,22 @@ export function test_world_kit(): void {
         ],
       }),
   ];
+  const refusalMessages: readonly string[] = [
+    "must contain non-whitespace text",
+    'size.x must be positive',
+    'base must be finite',
+    'color must be #RRGGBB',
+    'requires finite distinct endpoints',
+    'overlap',
+    'floats or lacks a supporting surface',
+    'floats or lacks a supporting surface',
+    'is blocked by',
+    'is unreachable from walkable terrain',
+  ];
   rejected.forEach((callback: () => void, index: number): void =>
     TestValidator.predicate(
       `invalid world placement ${index} throws`,
-      throwsError(callback),
+      throwsError(callback, refusalMessages[index]!),
     ),
   );
 };

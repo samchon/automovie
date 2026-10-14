@@ -10,9 +10,14 @@ import { spectatorFixture } from "../internal/websiteSpectatorFixture";
  * 1. Touch translation, height and slow controls use 8/2 m/s; release/cancel stops them.
  * 2. Only the active primary drag turns the camera; a drag does not request capture.
  * 3. Wheel changes the lens and pointer capture loss clears its matching hold.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Dispatches touch, drag, wheel and mouse events through mounted controls, observing directional displacement, slow pace, matching-pointer ownership, capture-request counts, look callbacks and stopped holds; secondary-pointer steering, touch locking or sticky movement fails.
+ * @evidence contracts/testing.md#independent-expectations Authored pad vectors use the public 8/2-meter-per-second speeds over 0.1 seconds, log(2) wheel input predicts a doubled lens, and callback counts discriminate ignored versus admitted events; the simultaneous-look case checks only displacement sign, not its full trajectory.
+ * @evidence contracts/testing.md#distinguishing-cases Covers cardinal pads, simultaneous slow/forward holds, cancel/capture loss, secondary buttons, unmatched and stationary drags, touch clicks, mouse drags, wheel zoom and lock loss; key admission and capture promises have separate spectator units.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_website_spectator_pointer entry owns these cases, but spectatorFixture replaces foreign pointer-capture/lock methods and document lock state. This unresolved fixture violation prevents compliant native-input verification; callback and synthetic-event observations do not prove native capture or rendered motion.
  */
-export const test_website_spectator_pointer = (): void => {
-  const f = spectatorFixture();
+export function test_website_spectator_pointer(): void {
+  const f: ReturnType<typeof spectatorFixture> = spectatorFixture();
   for (const [name, xyz] of [
     ["forward", [0, 0, -0.8]],
     ["back", [0, 0, 0.8]],
@@ -84,7 +89,7 @@ export const test_website_spectator_pointer = (): void => {
   f.pointer(f.canvas, "pointerup", 1, 40, 0, "mouse");
   f.canvas.click();
   TestValidator.equals("mouse drag avoids capture", f.calls.request, 0);
-  const wheel = new f.dom.window.WheelEvent("wheel", {
+  const wheel: WheelEvent = new f.dom.window.WheelEvent("wheel", {
     deltaY: Math.log(2) * 1000,
     cancelable: true,
   });
@@ -95,12 +100,12 @@ export const test_website_spectator_pointer = (): void => {
   );
   f.lock(true);
   f.pointer(f.canvas, "pointerdown", 8);
-  const mouse = new f.dom.window.MouseEvent("mousemove");
+  const mouse: MouseEvent = new f.dom.window.MouseEvent("mousemove");
   Object.defineProperties(mouse, {
     movementX: { value: 20 },
     movementY: { value: -10 },
   });
-  const before = f.calls.changed;
+  const before: number = f.calls.changed;
   f.dom.window.dispatchEvent(mouse);
   TestValidator.equals("captured mouse looks", f.calls.changed, before + 1);
   f.lock(false);
@@ -115,4 +120,4 @@ export const test_website_spectator_pointer = (): void => {
     1,
   );
   f.close();
-};
+}

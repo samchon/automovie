@@ -8,14 +8,19 @@ import { tourFixture } from "../internal/websiteTourFixture";
  * Scenarios:
  * 1. Buttons apply their stable ids and highlight their current authored view.
  * 2. Search narrows by case-insensitive name and reports an empty result.
- * 3. A mobile panel opens on request and disposal removes all callbacks.
+ * 3. A mobile panel opens on request; disposal removes view nodes and retires reset authority.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Mounts the navigator and dispatches selection/search/reset/toggle events, observing stable ids, highlighted copy, filtered visibility, result counts and inert reset after disposal; synthesized ids, stale selection or retained reset authority fails.
+ * @evidence contracts/testing.md#independent-expectations Two authored view records define room/exterior ids and labels; a mixed-case padded query independently targets the reading room, an absent word targets none, and callback counts expose reset behavior without inspecting implementation listeners.
+ * @evidence contracts/testing.md#distinguishing-cases Covers collapsed-to-open panel, room highlight, case-insensitive trimmed search, no matches, cleared search, exterior reset and disposed reset with removed view nodes; malformed host controls and capture/motion have separate units.
+ * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_navigation entry owns resident JSDOM event cases and its supplied selection callback, with no foreign method replacement or browser/GPU; the disposed reset observation does not independently certify removal of every native listener.
  */
-export const test_website_tour_navigation = (): void => {
-  const f = tourFixture(),
+export function test_website_tour_navigation(): void {
+  const f: ReturnType<typeof tourFixture> = tourFixture(),
     calls: string[] = [];
-  const ui = mountTourUi(f.document, f.data, {
+  const ui: ReturnType<typeof mountTourUi> = mountTourUi(f.document, f.data, {
     collapsed: true,
-    select: (id) => calls.push(id),
+    select: (id: string): void => { calls.push(id); },
   });
   TestValidator.predicate(
     "mobile canvas stays open",
@@ -38,7 +43,7 @@ export const test_website_tour_navigation = (): void => {
     ],
     [["room"], "Inside / Reading room", "true"],
   );
-  const search = f.element<HTMLInputElement>("#view-search");
+  const search: HTMLInputElement = f.element<HTMLInputElement>("#view-search");
   search.value = "  READING ";
   search.dispatchEvent(new f.dom.window.Event("input"));
   TestValidator.predicate(
@@ -61,7 +66,7 @@ export const test_website_tour_navigation = (): void => {
   );
   f.element<HTMLButtonElement>("#reset").click();
   TestValidator.equals("reset restores exterior", calls, ["room", "outside"]);
-  const count = calls.length;
+  const count: number = calls.length;
   ui.dispose();
   f.element<HTMLButtonElement>("#reset").click();
   TestValidator.equals("callbacks disposed", calls.length, count);
@@ -71,4 +76,4 @@ export const test_website_tour_navigation = (): void => {
     0,
   );
   f.dom.window.close();
-};
+}

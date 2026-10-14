@@ -17,8 +17,13 @@ import {
  * 3. Invalid argv never reaches discovery; valid discovery admits no module and
  *    returns an execution filter for exactly the frozen selected basenames.
  * 4. Empty discovery and discovery failure cannot produce an execution filter.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls argv parsing, basename selection and discovery-filter preparation, observing accumulated terms, exact selected names, refusal before discovery and preserved discovery failure identity; silently widening a narrow request, admitting a discovery callback for execution or admitting later names fails.
+ * @evidence contracts/testing.md#independent-expectations Literal argument groups and three authored basenames define expected accumulation and substring intersections; callback facts independently record discovery admission, and an explicit Error fixes failure identity without filesystem or parser-derived expected lists.
+ * @evidence contracts/testing.md#distinguishing-cases Covers default/repeated/equals groups, blank/valueless/unknown/positional refusals, include/exclude matches and empty intersections, fixed execution membership, empty discovery and discovery failure; real DynamicExecutor filesystem import behavior is not exercised.
+ * @evidence contracts/testing.md#execution-ownership The async test_workspace_scenario_selection entry owns every awaited preparation call and supplied discovery callback over resident names, with no module import, filesystem traversal, executor process or foreign-method replacement.
  */
-export const test_workspace_scenario_selection = async (): Promise<void> => {
+export async function test_workspace_scenario_selection(): Promise<void> {
   TestValidator.equals("default request", parseScenarioSelection([]), {
     include: [],
     exclude: [],
@@ -63,10 +68,10 @@ export const test_workspace_scenario_selection = async (): Promise<void> => {
     ["--include=alpha", "beta"],
     ["--include", "alpha", "-x"],
   ]) {
-    let discovered = false;
-    let rejected = false;
+    let discovered: boolean = false;
+    let rejected: boolean = false;
     try {
-      await prepareScenarioFilter(argv, async () => {
+      await prepareScenarioFilter(argv, async (): Promise<void> => {
         discovered = true;
       });
     } catch {
@@ -78,7 +83,7 @@ export const test_workspace_scenario_selection = async (): Promise<void> => {
     );
   }
 
-  const names = ["test_alpha.ts", "test_alpha_slow.ts", "test_beta.ts"];
+  const names: string[] = ["test_alpha.ts", "test_alpha_slow.ts", "test_beta.ts"];
   TestValidator.equals(
     "default retains all",
     [...selectScenarioNames(parseScenarioSelection([]), names)],
@@ -106,7 +111,7 @@ export const test_workspace_scenario_selection = async (): Promise<void> => {
     ["--exclude", "slow", "unknown"],
     ["--include=alpha", "--exclude=alpha"],
   ]) {
-    let rejected = false;
+    let rejected: boolean = false;
     try {
       selectScenarioNames(parseScenarioSelection(argv), names);
     } catch {
@@ -118,37 +123,37 @@ export const test_workspace_scenario_selection = async (): Promise<void> => {
     );
   }
   const admitted: boolean[] = [];
-  const filter = await prepareScenarioFilter(
+  const filter: Awaited<ReturnType<typeof prepareScenarioFilter>> = await prepareScenarioFilter(
     ["--include=alpha", "--exclude=slow"],
-    async (probe) => {
+    async (probe: (name: string) => boolean): Promise<void> => {
       for (const name of names) admitted.push(probe(name));
     },
   );
   TestValidator.equals(
     "discovery admits no module",
     admitted,
-    names.map(() => false),
+    names.map((): boolean => false),
   );
   TestValidator.equals(
     "frozen execution set",
     [...names, "test_new_alpha.ts"].filter(filter),
     [names[0]],
   );
-  let emptyRejected = false;
+  let emptyRejected: boolean = false;
   try {
-    await prepareScenarioFilter([], async () => undefined);
+    await prepareScenarioFilter([], async (): Promise<undefined> => undefined);
   } catch {
     emptyRejected = true;
   }
   TestValidator.predicate("empty discovery refuses execution", emptyRejected);
-  const failure = new Error("synthetic discovery failure");
+  const failure: Error = new Error("synthetic discovery failure");
   let caught: unknown;
   try {
-    await prepareScenarioFilter([], async () => {
+    await prepareScenarioFilter([], async (): Promise<never> => {
       throw failure;
     });
   } catch (error) {
     caught = error;
   }
   TestValidator.predicate("discovery failure is preserved", caught === failure);
-};
+}
