@@ -10,7 +10,7 @@
  * @author Samchon
  */
 export interface IAutoMovieCaptionGraphemeSegmentationIdentity {
-  /** Non-blank algorithm identity supported by the selected validator. */
+  /** Non-blank algorithm identity; render compares it with the supplied runtime identity. */
   algorithm: string;
 
   /** Exact algorithm or segmentation-data revision. */

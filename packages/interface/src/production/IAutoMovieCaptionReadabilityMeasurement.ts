@@ -19,7 +19,7 @@ export interface IAutoMovieCaptionReadabilityMeasurement {
   /** Complete identity of the runtime that produced these measurements. */
   segmentation: IAutoMovieCaptionGraphemeSegmentationIdentity;
 
-  /** Displayed grapheme-cluster count after markup removal. */
+  /** Grapheme-cluster count across canonical plain-text lines; markup is not stripped. */
   graphemes: number;
 
   /** Authored line count. */
