@@ -27,7 +27,10 @@ export function createHumanLocalMeshFrame(
   source: IAutoMovieMesh,
   identity: string,
 ): IHumanLocalMeshFrame {
-  if (source.positions.length % 3 !== 0 || !source.positions.every(Number.isFinite))
+  if (
+    source.positions.length % 3 !== 0 ||
+    !source.positions.every(Number.isFinite)
+  )
     throw new Error("A local mesh frame needs finite complete XYZ triples.");
   const shifts: number[] = [0, 0, 0];
   for (let axis: number = 0; axis < 3; axis++) {
@@ -41,7 +44,10 @@ export function createHumanLocalMeshFrame(
     const candidate: number = minimum / 2 + maximum / 2;
     let exact: boolean = true;
     for (let at: number = axis; at < source.positions.length; at += 3)
-      if ((source.positions[at] - candidate) + candidate !== source.positions[at]) {
+      if (
+        source.positions[at] - candidate + candidate !==
+        source.positions[at]
+      ) {
         exact = false;
         break;
       }
@@ -49,11 +55,16 @@ export function createHumanLocalMeshFrame(
   }
   const mesh: IAutoMovieMesh = {
     ...source,
-    positions: source.positions.map((value: number, at: number): number => value - shifts[at % 3]),
+    positions: source.positions.map(
+      (value: number, at: number): number => value - shifts[at % 3],
+    ),
   };
-  const indices: number[] = source.indices ?? Array.from(
-    { length: source.positions.length / 3 }, (_value: unknown, at: number): number => at,
-  );
+  const indices: number[] =
+    source.indices ??
+    Array.from(
+      { length: source.positions.length / 3 },
+      (_value: unknown, at: number): number => at,
+    );
   const redundant: Set<number> = new Set(weldedDegenerateTriangles(source));
   for (let at: number = 0; at < indices.length; at += 3)
     if (!redundant.has(at / 3))
@@ -63,7 +74,11 @@ export function createHumanLocalMeshFrame(
         at / 3,
         "local-frame translation",
       );
-  const origin: IHumanLocalMeshFrame["origin"] = { x: shifts[0], y: shifts[1], z: shifts[2] };
+  const origin: IHumanLocalMeshFrame["origin"] = {
+    x: shifts[0],
+    y: shifts[1],
+    z: shifts[2],
+  };
   let originalSource: string | undefined;
   let publicationLocal: string | undefined;
   try {
@@ -80,13 +95,16 @@ export function createHumanLocalMeshFrame(
     publicationLocal = error instanceof Error ? error.message : String(error);
   }
   if (originalSource !== undefined || publicationLocal !== undefined)
-    throw new Error((originalSource ?? publicationLocal)! +
-      " local-frame-guards:" + JSON.stringify({
-        originalSource: originalSource ?? null,
-        publicationLocal: publicationLocal ?? null,
-        originalRedundantTriangles: [...redundant],
-        publicationLocalRedundantTriangles: weldedDegenerateTriangles(mesh),
-        origin,
-      }));
+    throw new Error(
+      (originalSource ?? publicationLocal)! +
+        " local-frame-guards:" +
+        JSON.stringify({
+          originalSource: originalSource ?? null,
+          publicationLocal: publicationLocal ?? null,
+          originalRedundantTriangles: [...redundant],
+          publicationLocalRedundantTriangles: weldedDegenerateTriangles(mesh),
+          origin,
+        }),
+    );
   return { source, origin, mesh };
 }

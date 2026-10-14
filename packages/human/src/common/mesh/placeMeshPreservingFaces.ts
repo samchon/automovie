@@ -35,7 +35,10 @@ export function placeMeshPreservingFaces(
   const placed: IAutoMovieMesh = transformAutoMovieMesh(mesh, transform);
   const sourceIndices: number[] =
     mesh.indices ??
-    Array.from({ length: mesh.positions.length / 3 }, (_value: unknown, i: number): number => i);
+    Array.from(
+      { length: mesh.positions.length / 3 },
+      (_value: unknown, i: number): number => i,
+    );
   const local: number[] = [];
   for (let face: number = 0; face < sourceIndices.length; face += 3) {
     const a: number = sourceIndices[face];

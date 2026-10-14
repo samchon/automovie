@@ -1,4 +1,7 @@
-import type { IAutoMovieMeshPhysicalSource, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMeshPhysicalSource,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Actual source and converted values of one refused Float32 triangle.

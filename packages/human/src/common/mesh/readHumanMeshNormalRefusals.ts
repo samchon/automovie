@@ -28,7 +28,8 @@ export function readHumanMeshNormalRefusals(
     const length: number = Math.hypot(...direction);
     if (Math.abs(length - 1) <= 2 ** -23) continue;
     const vertex: number = at / 3;
-    const alias: number | null | undefined = mesh.physicalVertices?.vertices[vertex];
+    const alias: number | null | undefined =
+      mesh.physicalVertices?.vertices[vertex];
     failures.push({
       vertex,
       original: mesh.normals!.slice(at, at + 3),
@@ -45,18 +46,28 @@ export function readHumanMeshNormalRefusals(
     });
   }
   const byVertex: Map<number, IHumanMeshNormalRefusal> = new Map(
-    failures.map((failure: IHumanMeshNormalRefusal): [number, IHumanMeshNormalRefusal] => [failure.vertex, failure]),
+    failures.map(
+      (failure: IHumanMeshNormalRefusal): [number, IHumanMeshNormalRefusal] => [
+        failure.vertex,
+        failure,
+      ],
+    ),
   );
   for (let at: number = 0; at < indices.length; at += 3) {
-    const area: ReturnType<typeof triangleAreaVector> = triangleAreaVector(mesh.positions, indices, at);
+    const area: ReturnType<typeof triangleAreaVector> = triangleAreaVector(
+      mesh.positions,
+      indices,
+      at,
+    );
     for (const vertex of new Set(Array.from(indices.slice(at, at + 3)))) {
       const failure: IHumanMeshNormalRefusal | undefined = byVertex.get(vertex);
       if (failure === undefined) continue;
       failure.faces.push(at / 3);
       failure.faceAreas.push([area.x, area.y, area.z]);
       failure.facePositions.push(
-        Array.from(indices.slice(at, at + 3)).flatMap((corner: number): number[] =>
-          mesh.positions.slice(3 * corner, 3 * corner + 3),
+        Array.from(indices.slice(at, at + 3)).flatMap(
+          (corner: number): number[] =>
+            mesh.positions.slice(3 * corner, 3 * corner + 3),
         ),
       );
       failure.areaSum[0] += area.x;

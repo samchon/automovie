@@ -1,6 +1,5 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The oriented area vector of one triangle of an indexed vertex array, which is
@@ -27,10 +26,14 @@ export function triangleAreaVector(
   indices: ArrayLike<number>,
   face: number,
 ): IAutoMovieVector3 {
-  const point: (id: number) => IAutoMovieVector3 = (id: number): IAutoMovieVector3 =>
+  const point: (id: number) => IAutoMovieVector3 = (
+    id: number,
+  ): IAutoMovieVector3 =>
     Vector3.create(values[3 * id], values[3 * id + 1], values[3 * id + 2]);
-  const [a, b, c]: IAutoMovieVector3[] = [indices[face], indices[face + 1], indices[face + 2]].map(
-    point,
-  );
+  const [a, b, c]: IAutoMovieVector3[] = [
+    indices[face],
+    indices[face + 1],
+    indices[face + 2],
+  ].map(point);
   return Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a));
 }

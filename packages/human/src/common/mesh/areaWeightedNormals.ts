@@ -16,10 +16,10 @@ import { HumanMeshNormalDomainError } from "./HumanMeshNormalDomainError";
  * @evidence contracts/performance.md#reuse-equivalent-work One accumulated field serves shared vertices, with no identity cache assuming positions/indices stayed unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The normal array transfers to its caller and face/vector temporaries expire on return/throw, without retained handles or tasks.
  */
-export const areaWeightedNormals: (positions: number[], indices: number[]) => number[] = (
+export const areaWeightedNormals: (
   positions: number[],
   indices: number[],
-): number[] => {
+) => number[] = (positions: number[], indices: number[]): number[] => {
   const normals: number[] = new Array<number>(positions.length).fill(0);
   for (let i: number = 0; i < indices.length; i += 3) {
     const a: number = indices[i] * 3;

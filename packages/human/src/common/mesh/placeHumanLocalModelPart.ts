@@ -26,12 +26,26 @@ export function placeHumanLocalModelPart(
   let mesh: IAutoMovieMesh = part.geometry.mesh;
   const transform: IAutoMovieModelPart["transform"] = part.transform;
   if (transform !== null) {
-    const translationOnly: boolean = transform.rotation.x === 0 && transform.rotation.y === 0 &&
-      transform.rotation.z === 0 && transform.rotation.w === 1 &&
-      transform.scale.x === 1 && transform.scale.y === 1 && transform.scale.z === 1;
+    const translationOnly: boolean =
+      transform.rotation.x === 0 &&
+      transform.rotation.y === 0 &&
+      transform.rotation.z === 0 &&
+      transform.rotation.w === 1 &&
+      transform.scale.x === 1 &&
+      transform.scale.y === 1 &&
+      transform.scale.z === 1;
     if (translationOnly) {
-      const shift: number[] = [transform.translation.x, transform.translation.y, transform.translation.z];
-      mesh = { ...mesh, positions: mesh.positions.map((value: number, at: number): number => value + shift[at % 3]) };
+      const shift: number[] = [
+        transform.translation.x,
+        transform.translation.y,
+        transform.translation.z,
+      ];
+      mesh = {
+        ...mesh,
+        positions: mesh.positions.map(
+          (value: number, at: number): number => value + shift[at % 3],
+        ),
+      };
     } else mesh = placeMeshPreservingFaces(mesh, transform);
   }
   const placed: IAutoMovieModelPart = {
