@@ -5,7 +5,7 @@ import { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
 /**
  * The script: the plan every later stage works from, naming who appears and the ordered beats each shot realizes.
  *
- * The stages join on its ids. `forgeCast` and `stageScene` refuse a repeated cast node, and `blockBeat` and `performShot` refuse a repeated beat id, because each looks a beat up by id. `performShot` gives the shot it builds for a beat the id `shot:<beat>`. The production store refuses a stored script with a blank logline or theme, no beats, a blank or repeated beat id or cast node, beat ids that collide when case is ignored, or a tree `validateScriptTree` rejects.
+ * Stages join on cast-node and beat ids, refusing repeated keys before lookup. performShot defaults shot identity to shot:<beat>, while an explicit shotId overrides it. The historical production script store refuses blank headers, no beats, invalid/repeated cast or beat ids, case-colliding beat ids and invalid optional trees; these structural checks do not grade the screenplay's prose or automatically build one shot per beat.
  *
  * @evidence contracts/common.md#principled-implementation Beats and cast members are id-keyed lists the stage gates index once and refuse duplicates in, so a lookup by beat or node names one record; the optional tree is checked against the flat beats by `validateScriptTree`, which requires each beat to be claimed by exactly one beat node.
  * @evidence contracts/common.md#clear-and-simple-design The flat beats are what the pipeline runs on and the tree is optional authoring structure over them, so a script without a tree is complete and the tree adds no field the stages need.

@@ -10,12 +10,12 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * `performShot` requires the `actor` to be exactly one staged camera and allows
  * one live camera per shot. Its moves may not share a start or overlap; an
  * `"auto"` duration runs until the next move starts, or to the shot end. The
- * `on` target and any `focus` must resolve to a point (node, point, or group).
+ * `on` target and any `focus` must resolve to a point (node, live bone, point, or group), with formation groups allowed for lens targets.
  * `compileCameraMove` owns the path each `move` takes.
  *
- * @evidence contracts/common.md#principled-implementation `performShot` sorts the live camera's frame actions by start, refuses equal starts and explicit spans that run past the next start, and hands each span to `compileCameraMove`, which solves the camera path from the framing, the move and the resolved subject.
+ * @evidence contracts/common.md#principled-implementation performShot sorts frame starts and checks overlap, then compileCameraMove fits supplied subject height/radius by the pinhole vertical/horizontal bounds along staged bearing. Orbit/push/truck use eight eased segments, follow samples at 4 Hz and whip turns within 0.2 seconds; linear keys approximate these paths, and opening rest/proxy extents are not a measured visible-pixel enclosure.
  * @evidence contracts/common.md#clear-and-simple-design Framing, move and subject are closed choices the solver understands; the two lens intents are optional fields copied into `shot.cameraIntent` instead of a separate lens record the solve would also have to ignore.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `focus` and `focalLength` never alter the solved camera, and the scene camera's `fovY` stays the geometric truth, so a diffusion hint cannot change what the deterministic render frames.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and focus is resolved as a metadata point at the compiler's opening read rather than animated lens tracking.
  * @evidence contracts/common.md#meaningful-documentation States the camera-as-actor model, every refusal about actor, live camera, overlap and target kind, what `"auto"` means here, and the owner of each move's path; members give the closed values, units, bounds and that the lens fields only reach `shot.cameraIntent`.
  * @author Samchon
  */

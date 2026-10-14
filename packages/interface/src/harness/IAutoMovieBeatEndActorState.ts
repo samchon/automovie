@@ -14,10 +14,7 @@ import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
  * cleared so a later beat starting from this state does not apply the same
  * displacement twice.
  *
- * Beyond the pose, the state carries what a resumable simulation needs so the
- * next beat continues instead of resetting: the gait phase, the root velocity,
- * the planted feet, and the persistent mount. Each is `null` when it does not
- * apply, so a static prop and a mid-stride walker share one shape.
+ * The state also carries gait phase, estimated root velocity, stance targets and persistent mount. These are resumption inputs, not proof of physically continuous motion: the reference synthesizer resumes horizontal speed magnitude, retaining authored speed at or below 1e-6 m/s, and the sampled ground-IK solve can retain contact residual. Each absent fact is `null`, allowing static props and walkers to share the shape.
  *
  * @evidence contracts/common.md#principled-implementation `resolveBeatSnapshot` samples the motions the shot actually plays, folds the pose root through the staged transform with `foldRoot` or takes a baked object clip's transform, rotates `+z` by the result for `facing`, and derives phase, velocity and plants with `gaitPhaseOf`, `rootVelocityOf` and `plantsAtEnd`.
  * @evidence contracts/common.md#clear-and-simple-design One record per scene node holds the placement, the articulation and the four resumable facts, with `null` for an inapplicable fact rather than separate record shapes for props, walkers and riders.
@@ -30,9 +27,7 @@ export interface IAutoMovieBeatEndActorState {
   node: string;
 
   /**
-   * World-space root transform at the instant. When a baked object clip
-   * translates the node (an `attachTo` child, a mounted rider, a launched
-   * projectile), that clip's transform replaces the folded staged placement.
+   * World-space root transform at the instant. Active baked translation and rotation channels together replace the folded staged placement; scale then comes from the active scale channel or unit scale. Translation alone does not establish this override. A null pose root can leave the staged transform borrowed.
    */
   transform: IAutoMovieTransform;
 
@@ -56,31 +51,17 @@ export interface IAutoMovieBeatEndActorState {
   localTime: number;
 
   /**
-   * Seconds into the gait cycle, in `[0, period)`, or `null` for an actor
-   * without motion or a clip that neither loops nor carries a `gaitCycle`. A
-   * carried `gaitCycle` is authoritative, which is how the arranged,
-   * non-looping performance clip still reports its stride phase; otherwise it
-   * is `localTime` wrapped by the looping clip's duration. The next beat
-   * resumes the gait mid-stride at this phase instead of restarting the cycle
-   * at every cut.
+   * Seconds into the gait cycle, in `[0, period)`, or `null` without motion or a cycle. A carried `gaitCycle` is authoritative, including on arranged non-looping clips, but an invalid period or nonfinite phase yields null; without it, a positive-duration looping clip wraps `localTime` by duration. The reference synthesizer uses this phase to resume a gait rather than restarting its cycle.
    */
   gaitPhase: number | null;
 
   /**
-   * World-space root velocity in m/s, a backward difference over the trailing
-   * 1/24 s window clamped at the clip start, or `null` for an actor without
-   * motion that no baked object clip drives. A looping clip's window never
-   * crosses its seam, and a non-looping clip sampled after its end answers
-   * zero because its pose is held. A node driven by a baked object clip
-   * reports that clip's trailing velocity, even while it holds its own pose.
+   * World-space root velocity in m/s, a backward difference over the trailing 1/24 s window clamped at clip start, or `null` without motion or baked authority. A looping pose clip's window never crosses its seam and measures the unlooped closing stretch exactly at the seam; a non-looping clip sampled after its end yields zero. A baked node uses shot-local channel authority at the two endpoints, which may span a handoff; it yields zero at the opening or when the earlier endpoint has no translation. These are finite-difference estimates, not instantaneous derivatives or conserved momentum.
    */
   rootVelocity: IAutoMovieVector3 | null;
 
   /**
-   * At most one stance plant per foot whose inclusive run contains
-   * `localTime`, the latest-starting one when runs overlap, or `null` when
-   * none is held or no plant data was supplied. Ordered by each foot's first
-   * held plant in the ground-IK pass output.
+   * At most one stance plant per foot whose inclusive run contains `localTime`, the latest-starting one when runs overlap with a later entry winning equal-start ties, or `null` without held plants. Ordered by each foot's first held plant in the pass output. Selection uses `localTime`, although the performer emits shot-local intervals: its normal zero start offset aligns the clocks, while a supplied nonzero offset shifts selection. Selected plant objects are borrowed.
    */
   footPlants: IAutoMovieBeatEndFootPlant[] | null;
 

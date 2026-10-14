@@ -1,7 +1,5 @@
 /**
- * One spoken line inside a beat: who says what, optionally pinned to the beat's
- * local clock. Dialogue text is authoring data; audio belongs to the diffusion
- * side.
+ * One screenplay line inside a beat: speaker, verbatim text and an optional beat-local anchor. This harness record does not drive audio; production dialogue, sound and lip-sync records own those capabilities.
  *
  * `renderScreenplay` is its reader in this repository: it prints the speaker
  * in capitals and, when anchored, `[t=<anchor>s]` before the text. Viseme

@@ -1,10 +1,7 @@
 import { IAutoMovieDialogueLine } from "./IAutoMovieDialogueLine";
 
 /**
- * The beat payload, the script tree's authored leaf level: stage direction,
- * dialogue, and the shot caption. A beat node joins the script's flat
- * {@link IAutoMovieBeat} list one to one through {@link beat}; the compiled
- * shot (`shot.id = "shot:" + beat`) is the computed leaf below it.
+ * The script tree's authored beat leaf holds direction, dialogue and caption and joins the flat beat list one to one by beat id. performShot defaults compiled identity to shot: plus that beat, while an explicit caller shotId may differ.
  *
  * `validateScriptTree` refuses a `beat` that names no script beat or one
  * another beat node already claims, a dialogue anchor that is negative or not

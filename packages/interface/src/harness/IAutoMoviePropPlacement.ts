@@ -13,9 +13,9 @@ import { IAutoMoviePropRelation } from "./IAutoMoviePropRelation";
  * placement claims nothing and is still measured as an occupant others must
  * clear and as a host others may rest on.
  *
- * @evidence contracts/common.md#principled-implementation Claims are ids resolved against indexed registries and volumes carried through the set piece's transform, so each judgment compares the claim with geometry the building and the staged scene already own.
+ * @evidence contracts/common.md#principled-implementation Claims resolve against per-call registries and world AABBs from the staged piece. Only forged, uniquely declared and uniquely staged props with a sound optional footprint enter geometry; upstream staging and building admission remain premises. These rest-placement proxy checks do not measure an articulated or imported mesh at every animation instant.
  * @evidence contracts/common.md#clear-and-simple-design Relations, the occupied volume and keep-out volumes are the three kinds of claim a prop makes; volumes are model-local so the staging transform is applied once, by the engine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts References resolve regardless of declaration order instead of by last write, and a prop with no placement is exempted from claims only, never from being measured by others.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry order does not decide admitted identity. A placementless sound prop remains a clearance obstacle and affordance host, but pairwise occupancy overlap is checked only when both props declare placement; any prop-affordance relation between that pair exempts that overlap. Geometry uses the unique occupied environment or one environment shared by all building citations; no unique environment means no containment or passage measurement.
  * @evidence contracts/common.md#meaningful-documentation States the validator, the cite-not-copy rule, order independence, the staging requirement, and what an absent placement means; members give the relation limits, the footprint default and when to declare one, and the clearance purpose.
  * @author Samchon
  */
@@ -35,10 +35,7 @@ export interface IAutoMoviePropPlacement {
    * Model-local occupancy box, or `null` to derive it from the prop's own
    * model parts.
    *
-   * The occupancy is what other props must not intrude on and what the
-   * occupied space must contain. Deriving it is the exact bound of the parts.
-   * Declare one to state a use volume the geometry does not show, such as the
-   * room a chair's seat sweeps back into, or to trim a decorative overhang.
+   * Occupancy drives declared containment, pairwise overlap and other props' clearance checks, subject to those checks' exemptions. The default is the world bound of authored mesh or tessellated primitive vertices under rest part/stage transforms, not the imported appearance or an animation sweep; a vertexless model collapses to a zero box at the staged origin. Declare a use volume when the proxy does not express it, such as a chair's backward sweep, or to trim a decorative overhang.
    */
   footprint: IAutoMoviePropBox | null;
 

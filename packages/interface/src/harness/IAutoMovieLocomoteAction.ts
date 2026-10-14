@@ -21,9 +21,9 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * placement, or where a previous beat left that node, not from its motion in
  * this shot.
  *
- * @evidence contracts/common.md#principled-implementation `locomoteMotion` rounds the distance to whole gait cycles at the requested speed and bakes the velocity that arrives exactly, with the destination dropped into the actor's model frame so a turned actor walks to the world point.
+ * @evidence contracts/common.md#principled-implementation Reference synthesis converts the destination to the staged actor frame and sizes whole gait cycles from distance/speed; trips below half a nominal stride compress one cycle, then velocity times the baked duration supplies the requested travel displacement. Existing gait root bob/sway is added to that travel, and numeric action duration time-scales the result; this is neither measured foot contact nor guaranteed obstacle-free travel.
  * @evidence contracts/common.md#clear-and-simple-design A gait name, a destination and one facing switch are the whole travel; cadence, cycle count and root travel come from the actor's gait data, so no speed or path field is exposed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A vertical-only destination is refused instead of being treated as already reached, an unknown gait is refused when the vocabulary is known, and a relative target is not turned into a guessed point.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Full XYZ distance below 1e-6 metres steps in place; otherwise XZ distance below 1e-6 is refused as vertical-only. Unknown gaits are refused when vocabulary is supplied, relative goals are not guessed, and absent actor contexts can still yield null synthesis. Finite derived travel/cycle arithmetic is required by the baker, with no terrain or collision path solve in this verb.
  * @evidence contracts/common.md#meaningful-documentation States the gait vocabulary with the shipped names, both refusals, how travel and duration are realized, the step-in-place cases, and where a node destination is read; members give the gait match, destination kinds and the facing default.
  * @author Samchon
  */

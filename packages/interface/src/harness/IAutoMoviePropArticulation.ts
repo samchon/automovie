@@ -9,22 +9,13 @@ import { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
  * range of motion. A prop with no moving parts sets the whole articulation to
  * `null`.
  *
- * `forgeProp` refuses an articulation with no joint, a blank or repeated joint
- * id, a parent that does not resolve within the joints or forms a cycle, a
- * joint `mesh` that is not one of the prop's own parts or is claimed by two
- * joints, a binding aimed at another profile, a `boneMap` value naming an
- * undeclared joint, and any semantic key the profile uses that `boneMap` does
- * not map. `sceneToNodes` lowers the joints under the prop's placement as
- * `<placement>/<joint>`. A shot turns them with authored object clips, and
- * `gateAuthoredObjectMotions` resolves those clips through `resolveFrame` with
- * the profile bound at the same prefix, refusing a channel driven past its
- * declared limit. The viewer turns only the channels a clip carries: a
- * profile driver, such as a handle mirroring its hinge, is honoured in that
- * gate but does not move on screen.
+ * `forgeProp` refuses no joints, blank/repeated joint ids, unresolved or cyclic joint parents, missing or multiply claimed model parts, a binding aimed at another profile, undeclared mapped joint ids and unmapped profile semantic keys. Typed node/profile records and their usable numeric values remain a premise: these reference checks do not independently validate every joint TRS or profile rule. `sceneToNodes` lowers joints as `<placement>/<joint>`.
  *
- * @evidence contracts/common.md#principled-implementation Joints are ordinary scene-graph nodes and the profile is the same limit-and-driver data a character binds, so `resolveFrame`'s constrain and drive stages evaluate a prop exactly as they evaluate a rig; the remaining gap is that the viewer draws clip channels only, not driver output.
+ * `gateAuthoredObjectMotions` resolves authored clips through the bound profile at opening, keys, one-sided boundaries and analytical direct quaternion-component extrema. Only driven-channel violations are reported; nonlinear combinations of profile drivers have no additional stationary-point search, so admission is not an exhaustive continuous bound proof. For display, a host must call `buildPropArticulation`, expose its joint lookup to object-motion playback and restore joint rests between samples. That builder currently has no production host call site. It reparents addressable generated parts while preserving their world placement; imported appearances expose no addressable authored part. Viewer playback writes clip channels and does not project profile-driver output.
+ *
+ * @evidence contracts/common.md#principled-implementation Ordinary graph nodes and the shared profile let `resolveFrame` apply the same driver/constraint machinery as general rigs. The clip gate's critical clock covers direct interpolation under its stated limits; the separate viewer builder requires host wiring, compatible native attach transforms and explicit channel playback, and does not evaluate those drivers.
  * @evidence contracts/common.md#clear-and-simple-design Three fields split structure, capability and application: the joint nodes, the profile, and the binding that maps the profile's semantic keys onto those nodes, so one profile can serve every prop with the same mechanism.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every unmapped key is refused at forge time rather than left for `bindProfile` to throw on, and a clip past a limit is refused rather than silently clamped in the gate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing semantic mappings are refused at forge time. Observed driven-channel limit violations become refusals instead of treating the resolver's clamped result as authored success; undriven rest channels and unsearched nonlinear extrema are outside that refusal guarantee. An empty joint frame is not evidence that a visible part or a production host actually moves.
  * @evidence contracts/common.md#meaningful-documentation States the purpose, the `null` convention, every forge refusal, the lowered id form, how clips and limits act on the joints, and that drivers are gated but not drawn; members give the parent rule, the part reference that makes a joint visible, and the mapping requirement.
  * @author Samchon
  */
@@ -32,12 +23,7 @@ export interface IAutoMoviePropArticulation {
   /**
    * The prop's joint nodes, the subtree the profile binds onto.
    *
-   * A `parent` must name another joint in this list, or be `null` to sit
-   * directly under the prop's placement. A joint's {@link IAutoMovieNode.mesh}
-   * names the part of `IAutoMoviePropSpec.model` that rides it, and that
-   * reference is what makes a joint visible: a hinge with no part named turns
-   * an empty frame while the leaf stands still. A joint that only positions
-   * other joints leaves it `null`.
+   * A `parent` must name another joint in this list or be `null` under the prop placement. A joint's {@link IAutoMovieNode.mesh} names the part of `IAutoMoviePropSpec.model` that rides it when a host builds the articulation and the rendered model exposes that part id. A hinge without a part turns an empty frame; a joint that only positions descendants leaves it `null`. An imported appearance may not expose the proxy part named by this record, in which case the viewer builder refuses the unresolved part rather than moving unrelated geometry.
    */
   nodes: IAutoMovieNode[];
 

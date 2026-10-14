@@ -7,9 +7,9 @@ import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
  *
  * `forgeProp` gates one spec and returns every violation at once: `node` is non-blank and equals `model.id`, because the staged scene joins on it; the model is skeleton-less, because a rigged performer goes through `forgeCast`; `origin` is `"generated"` unless {@link modelRef} is stated; `validateModel` passes; and an articulation binds its profile onto declared nodes without a dangling reference or cycle. `validatePropPlacements` forges every prop of a shot, requires exactly one staged set piece drawing the prop's model, and then judges its placement.
  *
- * @evidence contracts/common.md#principled-implementation The model id doubles as the staging join key, so `forgeProp` requires `model.id === node` and `validatePropPlacements` requires one set piece with that node drawing that model; every geometric judgment reads the model's parts, so an imported appearance changes the pixels and never the measured proxy.
+ * @evidence contracts/common.md#principled-implementation `forgeProp` requires `model.id === node` and placement validation requires one set piece joining that node and model. Geometry uses authored footprint/clearance boxes when declared, otherwise proxy model-part vertices, together with model affordances and building records. Importing appearance does not replace these semantic measurements with external asset geometry.
  * @evidence contracts/common.md#clear-and-simple-design Four concerns, each in its own member: the model with body and contact points, the articulation, the optional placement, and the optional external-appearance reference; the gates live in `forgeProp` and `validatePropPlacements`, not in this record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A rigged model is refused instead of being treated as a prop, an imported appearance must carry a sealed closure the engine can check, and nothing about a mesh is inferred from its bytes; registry resolution and on-disk digests are left to the production layer, which holds the registry and the files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A model carrying a skeleton is refused; an imported appearance needs a structurally coherent rigid closure, whose digest strings are checked without reading bytes. Registry resolution and byte provenance belong to production. The forge gate assumes typed nested records and checks articulation references, not every joint transform, profile numeric value or rendered host capability; success returns the caller's mutable spec rather than a deep immutable seal.
  * @evidence contracts/common.md#meaningful-documentation States what carries the prop's meaning, every `forgeProp` rule with its reason, the staging requirement, and what omitting `placement` or `modelRef` means.
  * @author Samchon
  */
@@ -26,14 +26,14 @@ export interface IAutoMoviePropSpec {
   articulation: IAutoMoviePropArticulation | null;
 
   /**
-   * Building relations, footprint and clearances checked against the staged piece. Omitted, the prop claims no relation, is cited by none, and takes part in no containment, overlap or passage judgment of its own.
+   * Building relations, footprint and clearances checked against the staged piece. Omitted, the prop makes no relation, containment, pairwise-overlap or passage claim of its own, but other props may still cite its affordances and must clear its staged occupancy. Forging and the unique staged-model join remain required.
    */
   placement?: IAutoMoviePropPlacement;
 
   /**
    * Registered external appearance drawing this prop, or absent or `null` for a prop drawn from its own generated parts.
    *
-   * The reference buys the appearance only. {@link model}'s parts remain the proxy every geometric judgment reads (occupancy, bearing, clearance, containment and passage intrusion), and its body, affordances, the {@link articulation} and the {@link placement} remain this spec's own, because an imported mesh carries no mass, seat face, hinge or keep-out volume.
+   * The reference buys appearance only. Authored proxy parts, explicit footprint/clearance boxes and affordances remain the inputs to occupancy, bearing, clearance, containment and passage measurements. Body, articulation and placement remain this spec's own data; this path does not infer mass, a seat face, a hinge or a keep-out volume from imported bytes.
    *
    * The value names a model recipe id or runtime model id the production registry owns, as a built environment's `modelReferences` entries do. It means "forge me as an imported appearance", unlike a cast member's `modelRef`, which skips forging because an imported rig carries the bones a performer is driven through.
    *
