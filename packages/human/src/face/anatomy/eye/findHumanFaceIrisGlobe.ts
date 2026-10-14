@@ -22,7 +22,7 @@ import type { IHumanFaceIrisGlobeTriangle } from "./structures/IHumanFaceIrisGlo
  * @evidence contracts/common.md#clear-and-simple-design Source eye ownership is resolved from attachment incidence instead of asset names or painted pixels.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts External texture objects and absent UVs are skipped; embedded string decoding/admission remains the PNG preparation owner's responsibility.
  * @evidence contracts/common.md#meaningful-documentation The prose states first-match selection, neutral metre geometry, source immutability and null absence.
- * @evidence contracts/performance.md#efficient-algorithms Surface attachments and region triangles are scanned until the first match, including per-region material lookup.
+ * @evidence contracts/performance.md#efficient-algorithms Each visited surface scans attachments and their weight rows; each visited region searches M materials and scans T triangle corners. The first match also scans its indices for unique bound positions, retaining O(T+V) copied geometry for that region.
  * @evidence contracts/performance.md#reuse-equivalent-work A bound-vertex set serves all region triangle tests and a unique resident list supplies neutral globe fitting.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned geometry arrays own their samples and retain the texture string; temporary membership sets expire without handles or caches.
  */

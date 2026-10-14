@@ -70,8 +70,8 @@ import type { IHumanFaceIrisPreparedTexture } from "./structures/IHumanFaceIrisP
  * @evidence contracts/common.md#clear-and-simple-design Preparation owns decoding/disc rasterization lazily; the returned rule replaces textures only in the builder-owned material array.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A neutral-geometry pigment cache does not preserve absolute iris diameter under nonrigid identity morphs; excluded generated owners still retain pigment admission.
  * @evidence contracts/common.md#meaningful-documentation The prose states metric neutral geometry, pixel/radian charts, omission behavior, material mutation and owner-selection invalidation.
- * @evidence contracts/performance.md#efficient-algorithms Preparation includes selected globe/texture/disc scans; a cache miss copies texture RGBA, paints selected texels and encodes complete PNG buffers.
- * @evidence contracts/performance.md#reuse-equivalent-work Preparation is rebuilt when selected owner population changes; only the last exact owner/pigment key reuses completed PNG bytes.
+ * @evidence contracts/performance.md#efficient-algorithms Compilation scans source regions once per articulated eye. Every call admits both eight-band palettes and selects owners; a cache miss copies and encodes each selected material's entire image and paints its prepared texels. Publication searches the destination material array once per resulting texture, including on cache hits.
+ * @evidence contracts/performance.md#reuse-equivalent-work Ordered selected owner IDs invalidate preparation; JSON serialization of those IDs and both pigment records keys the single last PNG result. Neutral copied globe geometry and source texture strings stay fixed for this compiled rule; identity morphs do not invalidate that neutral correspondence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The rule retains neutral globe readings, one selected preparation and one last texture map until builder release; no independent texture-size bound or external handle is acquired.
  */
 export function createHumanFaceIrisPigment(
