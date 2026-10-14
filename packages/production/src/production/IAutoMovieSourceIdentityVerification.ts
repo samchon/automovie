@@ -15,18 +15,18 @@ import type { IAutoMovieSourceIdentity } from "./IAutoMovieSourceIdentity";
 export type IAutoMovieSourceIdentityVerification = {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * Current-protocol normalized bytes matched the supplied semantic digest.
      */
     status: "current";
 
     /**
-     * Newly derived current identity, including its caller-owned canonical or normalized byte buffer.
+     * Newly derived current identity with its caller-owned mutable normalized byte buffer.
      */
     current: IAutoMovieSourceIdentity;
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * Predecessor normalization matched the supplied digest and current identity is available.
      */
     status: "migrated";
 
@@ -36,19 +36,19 @@ export type IAutoMovieSourceIdentityVerification = {
     legacyDigest: string;
 
     /**
-     * Newly derived current identity, including its caller-owned canonical or normalized byte buffer.
+     * Newly derived current identity; source bytes must remain stable across current and predecessor passes.
      */
     current: IAutoMovieSourceIdentity;
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * The supplied semantic digest did not match its recognized normalization protocol.
      */
     status: "stale";
 } | {
 
     /**
-     * Verification outcome discriminant controlling which identity payload is available.
+     * Missing source bytes, unknown protocol or a describable current normalization failure prevented verification.
      */
     status: "unverifiable";
 

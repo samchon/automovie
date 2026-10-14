@@ -8,7 +8,7 @@ import { digestAutoMovieBytes } from "./digestAutoMovieBytes";
  *
  * @evidence contracts/common.md#principled-implementation Exact source bytes and their strict BOM/EOL projection are hashed separately under the current source protocol.
  * @evidence contracts/common.md#clear-and-simple-design One record keeps raw and semantic identity together so callers cannot substitute permitted equivalence for exact-byte identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The path labels strict decoding errors; it does not alter bytes or salt their digest, and input mutation during the synchronous call is a caller premise.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The path labels strict decoding errors without altering bytes or salting their digest. The caller supplies a host-supported byte view whose contents remain stable across decoding and raw hashing; this function does not copy or seal that input.
  * @evidence contracts/common.md#meaningful-documentation Documents rawDigest versus semanticDigest, normalized byte ownership and protocol meaning.
  * @evidence contracts/performance.md#efficient-algorithms Strict normalization and two SHA-256 passes cost O(B) time with normalized bytes and decoded text proportional to B.
  * @evidence contracts/performance.md#reuse-equivalent-work The normalized buffer is reused for semantic hashing; raw and normalized digests intentionally describe distinct byte domains.

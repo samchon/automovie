@@ -11,8 +11,8 @@ import { legacyNormalizeAutoMovieSource } from "./legacyNormalizeAutoMovieSource
  *
  * @evidence contracts/common.md#principled-implementation Recoverable bytes are normalized under v2 before digest comparison; a declared v1 identity is rederived with its exact lossy predecessor before migration.
  * @evidence contracts/common.md#clear-and-simple-design A closed status union distinguishes current, migrated, stale and unverifiable instead of treating absence as staleness.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown protocols and absent bytes are refused; strict v2 decoding precedes legacy verification, so malformed legacy bytes cannot acquire a current identity.
- * @evidence contracts/common.md#meaningful-documentation States when current bytes accompany a result and why a digest alone cannot be migrated.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent bytes are refused before decoding, but an unknown protocol is classified only after current normalization succeeds. Strict v2 decoding precedes legacy verification, so malformed legacy bytes cannot acquire a current identity; caller-owned bytes must remain stable across both passes, with no copy or seal enforcing that premise.
+ * @evidence contracts/common.md#meaningful-documentation States status payloads, original-byte ownership and verification order. Only current normalization is caught and converted with String(error); that conversion can fail, and predecessor normalization/hash failures propagate rather than returning a status.
  * @evidence contracts/performance.md#efficient-algorithms Current verification costs O(B); legacy verification adds one predecessor normalization/hash pass and proportional temporary bytes.
  * @evidence contracts/performance.md#reuse-equivalent-work The already derived current record is returned for current or migrated outcomes; no cross-request digest cache replaces the supplied bytes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned current records transfer their normalized buffer; stale/unverifiable paths retain no bytes after completion.
