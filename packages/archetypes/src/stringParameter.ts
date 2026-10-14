@@ -11,7 +11,7 @@ import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
  *
  * @evidence contracts/common.md#principled-implementation The cast relies on the gate having compared this key's `typeof` with the schema's `string` kind before `build` runs, as it does for primitive-prop's `shape` before that builder picks a primitive.
  * @evidence contracts/common.md#clear-and-simple-design A separate string reader keeps each cast's target type explicit at the call site, where a generic reader's type parameter would be an equally unchecked assertion that callers could aim at any type.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No string is normalized, trimmed or defaulted here; the comment states the raw pass-through for a map that skipped the gate, so no caller treats the result as validated.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No string is normalized, trimmed or defaulted here; raw pass-through adds no admission check. Primitive-prop relies on the preceding gate rather than treating the cast itself as validation.
  * @evidence contracts/common.md#meaningful-documentation The comment states that the read is unchecked, that a missing key yields `undefined`, and that only the accepted build map is a valid input.
  * @evidence contracts/performance.md#efficient-algorithms A single property read with no allocation, called once per primitive-prop build to read `shape`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each primitive-prop build reads its own recipe's `shape` once, so no equivalent read repeats within a build that sharing could remove.

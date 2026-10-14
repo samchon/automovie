@@ -7,10 +7,9 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * the map answers one definition per id and nobody can tell which of two
  * builders a recipe reached.
  *
- * The iterable is consumed once, in order, and the first empty or
- * whitespace-only id, or the first repeated id, throws an `Error` naming the
- * correction, so a catalogue with several faults reports them one at a time.
- * An id with surrounding whitespace is stored exactly as written.
+ * The iterable is consumed once, in order, and the first empty or whitespace-only id, or the first repeated id, throws an `Error` naming the correction, so a catalogue with several faults reports them one at a time. An id with surrounding whitespace is stored exactly as written.
+ *
+ * Definitions are retained by reference, without cloning, freezing or validating their functions and schemas; keep them unchanged while consumers use the registry.
  *
  * @param archetypes Definitions to register, consumed once in iteration order.
  * @returns A new map from each definition's own id to that definition.
@@ -18,10 +17,10 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * @evidence contracts/common.md#principled-implementation One pass inserts each definition under its own `id` after testing `trim()` for blankness and `Map.has` for a repeat, so the returned keys are exactly the definitions' ids and never a normalized variant.
  * @evidence contracts/common.md#clear-and-simple-design The function only validates and inserts; which definitions to register stays with the caller, such as the production package registering `AUTOMOVIE_PRIMITIVE_ARCHETYPES` as its default.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No id is special-cased: both refusals apply to every definition, and throwing at the first fault is the documented fail-fast contract with no retry or recovery path.
- * @evidence contracts/common.md#meaningful-documentation The comment states why registration owns the refusals, the consumption order, which ids fail, that the first fault throws, and that whitespace around an id is preserved.
- * @evidence contracts/performance.md#efficient-algorithms Time is linear in the number of definitions, one `trim()` copy of the id and one hashed `has` and `set` each, and space is one map entry per definition; a single pass is required because every id must be checked.
+ * @evidence contracts/common.md#meaningful-documentation States fail-fast order, blank and repeated ids, preserved whitespace, borrowed definitions and the schema/function stability that registration does not enforce.
+ * @evidence contracts/performance.md#efficient-algorithms One pass performs trim plus native Map.has/set for each of N definitions. Total id length L bounds trimming work and temporary string length; retained space is N map entries, plus iterator-owned work and storage. Full traversal is required to detect a final duplicate or blank id, and custom iterable execution costs remain additional.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call registers the catalogue it is given into a fresh map; sharing one registry across hosts is the caller's decision, as the production default constant does.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The map is acquired here and transferred to the caller at return, holding only references to the given definitions, bounded by the catalogue size; a thrown refusal drops the partial map, so nothing outlives a failure.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The new map transfers to the caller with one borrowed definition per registered id and no fixed catalogue cap. A refusal leaves no retained partial map; for-of closes a generator on abrupt exit, while any iterable-owned external cleanup remains that iterable's responsibility.
  * @author Samchon
  */
 export const createAutoMovieArchetypeRegistry: (archetypes: Iterable<IAutoMovieModelArchetype>) => AutoMovieModelArchetypeRegistry = (

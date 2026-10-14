@@ -6,16 +6,15 @@ import { IAutoMovieModelArchetype } from "./IAutoMovieModelArchetype";
  * and reports the recipe when nothing answers, while a host decides what it
  * registered.
  *
- * Keys are exact, case-sensitive ids. Any `Map` satisfies this type, so the
- * blank-id and duplicate refusals, and the rule that each key is its
- * definition's own `id`, hold only for a registry built by
- * `createAutoMovieArchetypeRegistry`.
+ * Keys are exact, case-sensitive ids. A Map with arbitrary string keys and archetype values satisfies this type, so blank-id and duplicate refusals and key-equals-definition-id hold only at registration through `createAutoMovieArchetypeRegistry`.
  *
- * @evidence contracts/common.md#principled-implementation The registry is the standard `ReadonlyMap` keyed by exact id, so lookup is the built-in hashed `get` and the read-only view keeps the design gate, the radius table and the materializer from mutating a host's catalogue.
+ * Definitions are borrowed mutable objects; keep their ids, schema and functions unchanged while the registry is used. ReadonlyMap hides map writes from typed consumers without freezing the underlying map or its definitions.
+ *
+ * @evidence contracts/common.md#principled-implementation ReadonlyMap exposes exact-id lookup and iteration without typed map writes. The factory supplies a native Map with borrowed definitions; neither this alias nor the factory enforces deep immutability or purity.
  * @evidence contracts/common.md#clear-and-simple-design An alias rather than a class keeps the seam to one lookup type every consumer already understands, and the integrity rules live in the single factory instead of a wrapper type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias admits any map, and the comment states that the blank-id, duplicate and key-equals-id guarantees therefore come from the factory instead of claiming the type enforces them.
- * @evidence contracts/common.md#meaningful-documentation The prose names the consumers' lookup role, the exact-key rule, and which guarantees hold only for a factory-built registry.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The alias declares no runtime code; the hashed map it names is built by `createAutoMovieArchetypeRegistry` or the host.
+ * @evidence contracts/common.md#meaningful-documentation Gives exact keys, factory-time integrity checks, borrowed mutable definitions and the stable-definition obligation required after registration.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms The alias executes no lookup or construction; the factory supplies a native Map, while a host-supplied ReadonlyMap implementation owns its lookup costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type only names the lookup; the production default registry is created once at module load and shared by reference, a decision owned by that constant.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Whoever builds the map owns it and its references to definitions; the type owns no state of its own.
  * @author Samchon

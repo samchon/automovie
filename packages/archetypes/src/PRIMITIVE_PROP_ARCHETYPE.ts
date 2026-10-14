@@ -67,7 +67,7 @@ export const PRIMITIVE_PROP_ARCHETYPE: IAutoMovieModelArchetype = {
 };
 
 /**
- * Measure the accepted primitive's enclosing radius in metres without building a part. Ungated missing/nonfinite dimensions read as zero through numberOf, so their answer is a placeholder; very large finite malformed dimensions may still overflow a radius sum. Three dimension reads and fixed arithmetic allocate only one call-local reader closure.
+ * Measure the accepted primitive's enclosing radius in metres without building a part. The formulas enclose each shape in exact arithmetic; binary64 sums and hypot are not rounded outward. Ungated missing/nonfinite dimensions read as zero through numberOf, so their answer is a placeholder; very large finite malformed dimensions may still overflow a radius sum. At most three dimension reads and fixed arithmetic allocate only one call-local reader closure.
  */
 const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (parameters: AutoMovieArchetypeParameters): number => {
   const shape: AutoMovieArchetypeParameters[string] = parameters.shape;

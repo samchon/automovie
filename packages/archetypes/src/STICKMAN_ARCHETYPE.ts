@@ -10,16 +10,9 @@ import { numberParameter } from "./numberParameter";
 /**
  * The catalogue's articulated figure: one height-driven primitive rig.
  *
- * Every proportion is derived from `height`, so one number moves the whole
- * runtime and the compiled result stays reproducible. It is one catalogue's
- * idea of an upright figure, registered like any other archetype rather than
- * known to the builder.
- * Dimensions are conventional metre proportions for this schematic catalogue,
- * not measured Human anatomy. The design gate admits the three dimensions
- * before build. Projection radius encloses every part around the model root
- * under bone rotations, using rest-chain lengths, local offsets and primitive
- * enclosing spheres from this same builder. Build emits thirteen bones and thirteen primitive parts in
- * fixed order, allocating fresh geometry while retaining no recipe state.
+ * Height sets bone offsets and most dimensions; independent headRadius and limbRadius parameters set thickness and lower bounds on torso and arm lengths. The same three dimensions reproduce the same geometry. This upright figure is registered like any other catalogue entry.
+ *
+ * Dimensions are conventional metre proportions for this schematic catalogue, not measured Human anatomy. The design gate admits the three dimensions before build. Projection radius encloses every part around the model root under bone rotations, using rest-chain lengths, local offsets and primitive enclosing spheres from this same builder. Build emits thirteen bones and thirteen primitive parts in fixed order, allocating fresh geometry while retaining no recipe state.
  *
  * @author Samchon
  */
@@ -56,14 +49,9 @@ export const STICKMAN_ARCHETYPE: IAutoMovieModelArchetype = {
 };
 
 /**
- * Enclose generated parts around their population slot's model root, for any
- * unit bone rotations. The triangle inequality bounds each bone by the sum of
- * its ancestral rest-offset lengths, then adds the part-local offset and its
- * primitive enclosing radius. Geometry comes from the same build owner, so
- * independent head/limb changes cannot drift from measurement. Missing or
- * nonfinite ungated parameters read as zero; out-of-range arithmetic is only a
- * placeholder. Two thirteen-row scans and one fixed-size build allocate fresh
- * temporary records with no cache or persistent geometry.
+ * Apply the triangle inequality to ancestral rest-offset lengths, part-local offsets and primitive radii to enclose generated parts around the model root for any unit bone rotations in exact arithmetic. Binary64 sums and hypot are not rounded outward. Geometry comes from the same build owner, so independent head/limb changes enter the measurement.
+ *
+ * Missing or nonfinite ungated parameters read as zero; out-of-range arithmetic is only a placeholder. Two thirteen-row scans and one fixed-size build allocate fresh temporary records with no cache or persistent geometry.
  */
 const projectionRadius: (parameters: AutoMovieArchetypeParameters) => number = (parameters: AutoMovieArchetypeParameters): number => {
   const geometry: IAutoMovieArchetypeGeometry = build({

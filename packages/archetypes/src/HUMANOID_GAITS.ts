@@ -14,9 +14,7 @@ import { IAutoMovieGait } from "@automovie/interface";
  * the ground longer (high `duty`); `march` throws the knees high; `sprint` is
  * all reach and little contact (low `duty`).
  *
- * Left/right limbs are a half-cycle out of phase, and each arm leads the
- * opposite leg for contralateral counter-swing. These rows drive hips, knees
- * and upper arms; performShot's later stance stage owns ground-contact IK.
+ * Left/right limb pairs are a half-cycle out of phase, and each upper arm shares the opposite upper leg's phase for contralateral counter-swing. These rows drive hips, knees and upper arms; performShot's later stance stage owns ground-contact IK.
  *
  * `locomote` carries the authored gait as `fullBody`. Layer safety is decided
  * from the root/bones/expression the synthesized clips actually carry after

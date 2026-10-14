@@ -4,19 +4,9 @@ import { STICKMAN_ARCHETYPE } from "./STICKMAN_ARCHETYPE";
 /**
  * The primitive archetypes this package ships, in registration order.
  *
- * A host registers a catalogue; it does not inherit one. This is the catalogue
- * automovie ships with, and a production is free to register more, fewer, or
- * entirely different definitions alongside it.
+ * A host can register this list, compose it with other definitions, or supply a different catalogue. The production package creates its default registry from these two entries once at module load.
  *
- * A list rather than a registry, deliberately. Every consumer composes its own
- * lookup through `createAutoMovieArchetypeRegistry`, because each of those
- * places is the seam where a host substitutes, extends, or drops definitions:
- * the server's registration point and the two scripts a scaffolded production
- * owns. A pre-registered lookup beside this list would be a second spelling of
- * the same catalogue that none of them can use without giving that seam up.
- * The two-reference array is allocated once at module load and retained for
- * the module lifetime. Readonly prevents typed array edits; the definitions
- * themselves remain shared mutable records, so consumers must not modify them.
+ * The module retains this two-reference array for its lifetime. Readonly prevents typed array edits; the definitions themselves remain shared mutable records, so consumers must not modify them. Registry ownership and duplicate-id admission belong to createAutoMovieArchetypeRegistry and its caller.
  *
  * @author Samchon
  */

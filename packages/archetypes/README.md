@@ -2,7 +2,7 @@
 
 The catalogue of primitive model archetypes and gait tables that a production may register. Each archetype is a parameter schema with bounds and a deterministic geometry builder; each gait table is data the engine's gait machinery binds onto a skeleton.
 
-It is the one package where pre-made definitions live, and only because no product package depends on it: `interface`, `engine`, and `viewer` never import it, and `production` registers it as a default a host replaces.
+Shipped figure and prop definitions belong here. `interface`, `engine`, and `viewer` stay independent of this catalogue; `production` registers it as the default and accepts a host's replacement registry.
 
 ## Use
 
@@ -13,10 +13,13 @@ npm install @automovie/archetypes
 ```ts
 import {
   AUTOMOVIE_PRIMITIVE_ARCHETYPES,
+  type AutoMovieModelArchetypeRegistry,
   createAutoMovieArchetypeRegistry,
 } from "@automovie/archetypes";
 
-const registry = createAutoMovieArchetypeRegistry(AUTOMOVIE_PRIMITIVE_ARCHETYPES);
+const registry: AutoMovieModelArchetypeRegistry = createAutoMovieArchetypeRegistry(
+  AUTOMOVIE_PRIMITIVE_ARCHETYPES,
+);
 ```
 
 ## What may enter

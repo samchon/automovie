@@ -12,8 +12,8 @@ import { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Replacing the parts with a collision proxy for an external model is the materializer's documented contract, and this type carries no flag or branch for that path.
  * @evidence contracts/common.md#meaningful-documentation The prose gives the no-copy ownership rule that forces fresh objects and what the materializer keeps for an external model; the members give the null-skeleton condition and the part ordering.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This type only shapes a builder's result; the allocation of its bones and parts is costed on `build`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Geometry is stored without copying into exactly one compiled model, so it is never shared between recipes and no equivalent work is repeated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The compiled model owns the skeleton and parts from the moment the materializer stores them, they are held as long as that model, and the builder keeps no reference, so the retained population is one skeleton and one part list per generated recipe.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work This return type coordinates no work. Builders must transfer fresh mutable geometry because materializeGeneratedModel adopts the records without cloning; the type itself does not prevent a custom builder from violating that ownership rule.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Shipped builders retain no returned records. Generated models adopt one optional skeleton and part list per recipe; imported composition retains the skeleton and substitutes a proxy list, releasing the unused generated parts when their temporary model becomes unreachable. Model ownership determines the remaining lifetime.
  * @author Samchon
  */
 export interface IAutoMovieArchetypeGeometry {

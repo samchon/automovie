@@ -15,7 +15,7 @@ import { AutoMovieArchetypeParameters } from "./AutoMovieArchetypeParameters";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The cast repeats no validation the gate owns and hides no bad input behind a default; the comment states that a map which skipped the gate passes its raw value through, `undefined` included.
  * @evidence contracts/common.md#meaningful-documentation The comment states that the read is unchecked, what a missing key yields, and the only map it may be used on.
  * @evidence contracts/performance.md#efficient-algorithms One property read with no allocation, called once per dimension a builder reads, at most three times in one stickman or primitive-prop build.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single property read costs less than any cache lookup that could share it, and each builder call reads a distinct recipe's map.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each shipped build reads its required dimension keys once; the reader coordinates no requests and retains no value cache over the caller's mutable map.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reader returns a primitive and keeps no reference to the map or key.
  * @author Samchon
  */

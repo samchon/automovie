@@ -7,7 +7,7 @@ import { IAutoMovieModelRecipe } from "@automovie/interface";
  * gate has not judged, which is why `numberOf` exists beside the casting
  * readers.
  *
- * @evidence contracts/common.md#principled-implementation The alias is the read-only view of `IAutoMovieModelRecipe.parameters` itself, so the gate and the materializer pass a recipe's own record without copying while archetype members cannot mutate it, and the value union cannot drift from the recipe's.
+ * @evidence contracts/common.md#principled-implementation Derives the scalar union from IAutoMovieModelRecipe.parameters and exposes a Readonly view of the same record, so gate and materializer need no copy. Typed archetype members cannot assign its properties, but the recipe owner can still mutate the underlying record and must keep it stable during use.
  * @evidence contracts/common.md#clear-and-simple-design One alias names the map that `plan`, `projectionRadius` and the build input all take, and it derives from the recipe type instead of spelling the scalar union a second time.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds only `Readonly` to the recipe's map and narrows no key or value for any archetype.
  * @evidence contracts/common.md#meaningful-documentation The prose states that the type says nothing about acceptance and which members receive an accepted map versus an unjudged one.

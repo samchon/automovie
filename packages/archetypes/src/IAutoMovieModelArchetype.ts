@@ -12,14 +12,12 @@ import { IAutoMovieArchetypeParameterPlan } from "./IAutoMovieArchetypeParameter
  * so which figures, props, or shells a production can build is a decision that
  * belongs to the catalogue it registers, not to the builder.
  *
- * Every member is data or a pure function of that data: the same parameters
- * must always plan the same keys, measure the same radius, and build the same
- * geometry, on every host and in every process.
+ * Keep the definition and its schema unchanged while a registry uses it. The registry borrows these mutable objects without freezing or cloning them. Every function must be pure: the same parameters and compiler-owned ids must always plan the same keys, measure the same radius, and build the same geometry, on every host and in every process.
  *
- * @evidence contracts/common.md#principled-implementation An archetype is a strategy object, static schema data plus three pure functions, which lets the gate, the radius table and the materializer stay ignorant of every catalogue member while remaining deterministic across hosts.
- * @evidence contracts/common.md#clear-and-simple-design Each member serves one consumer: `capabilities`, `bones`, `parameters` and `plan` the design gate, `bones` also the asset inventory, `projectionRadius` the radius table, and `build` the materializer; there is no lifecycle or option beyond those.
+ * @evidence contracts/common.md#principled-implementation A strategy object joins schema data with planning, measurement and building functions, so the gate and materializer need no catalogue-id branches. Stable definitions and pure functions are host obligations; this interface does not enforce them at runtime.
+ * @evidence contracts/common.md#clear-and-simple-design `capabilities`, `bones`, `parameters` and `plan` serve the design gate, `bones` also serves the asset inventory, `projectionRadius` serves the radius table, and `build` serves the materializer; catalogue behavior stays behind those seams.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The interface names no catalogue member, and an empty `bones` list is the documented contract for a skeletonless builder rather than a check against a particular id.
- * @evidence contracts/common.md#meaningful-documentation The prose gives the registry seam and the determinism obligation; the members give the id matching rule, what an empty bone list refuses and binds, and each function's caller, input trust and failure behavior.
+ * @evidence contracts/common.md#meaningful-documentation The prose gives registry borrowing, stable-definition and determinism obligations; members give exact ids, skeletonless behavior and each function's caller, input trust and failure behavior.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface declares no runtime code; the algorithmic cost of its function members is answered on `plan`, `projectionRadius` and `build`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A definition is shared by reference through a registry and coordinates no work itself; whether a consumer reuses a member's result is that consumer's decision.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Shipped definitions are module constants and a host's registry holds them by reference; the interface acquires no state, handle or task of its own.
@@ -58,8 +56,8 @@ export interface IAutoMovieModelArchetype {
    * @evidence contracts/common.md#clear-and-simple-design The function returns facts and leaves the wording of missing and unsupported keys to the gate, so an archetype implements only the discrimination it alone knows.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusing through the returned list instead of throwing keeps one malformed recipe from hiding the gate's other diagnostics, and the contract special-cases no recipe or archetype id.
    * @evidence contracts/common.md#meaningful-documentation The comment says when the gate calls the plan, what state the map may be in, and that a problem becomes a refusal rather than a throw.
-   * @evidence contracts/performance.md#efficient-algorithms The gate calls a plan once per model recipe per validation, and the shipped plans do one `typeof` read and a table lookup, then copy key lists no longer than the archetype's schema, so time and space are linear in that schema size.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call judges a distinct recipe's map, and the gate runs once per build, so there is no repeated equivalent plan to cache.
+   * @evidence contracts/performance.md#efficient-algorithms The gate calls plan once per recipe per validation. Primitive-prop guards and looks up shape, then copies at most three dimension keys; stickman returns its fixed three required keys without reading parameters. Both shipped plans have constant bounded time and result size; a custom plan owns its additional workload.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each validation reads the current parameter map and registered strategy; shipped plans coordinate no cross-request work or retained result cache, so mutable recipes cannot reuse an earlier acceptance answer here.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A plan returns fresh short lists the gate discards after one recipe, and the shipped plans hold no state between calls.
    */
   plan: (
@@ -69,21 +67,16 @@ export interface IAutoMovieModelArchetype {
   /**
    * Conservative model-root projection radius in metres for accepted parameters.
    *
-   * The production builder tabulates it per recipe, after the design gate
-   * accepted the graph, for population members whose framing boxes and render
-   * bounds need a radius before any geometry exists. The production package
-   * also exports that table to scripts that may run without the gate, so the
-   * shipped readers substitute zero for missing or nonfinite dimensions.
-   * A malformed map's result is a placeholder, not a bound, and large finite
-   * out-of-range dimensions can overflow arithmetic. Generated geometry must
-   * stay within this model-root sphere under its supported bone rotations.
+   * The production builder tabulates it per recipe, after the design gate accepted the graph, for population members whose framing boxes and render bounds use a radius instead of inspecting materialized geometry. The production package also exports that table to scripts that may run without the gate, so the shipped readers substitute zero for missing or nonfinite dimensions. A malformed map's result is a placeholder, not a bound, and large finite out-of-range dimensions can overflow arithmetic. Generated geometry must stay within this model-root sphere under its supported bone rotations.
    *
-   * @evidence contracts/common.md#principled-implementation Primitive-prop uses its selected shape's enclosing-radius formula; stickman measures the same generated parts using ancestral rest-offset lengths plus part offsets and enclosing radii, bounding all unit bone rotations around the model root. Ungated finite extremes can still overflow later arithmetic.
+   * Shipped formulas enclose the supported shapes in exact arithmetic; binary64 evaluation is not rounded outward and does not certify an exact geometric inequality at the last bit.
+   *
+   * @evidence contracts/common.md#principled-implementation Primitive-prop uses enclosing-radius formulas; stickman sums ancestral rest lengths, part offsets and primitive radii to enclose any unit bone rotations in exact arithmetic. Binary64 rounding is not directed outward, and ungated finite extremes can overflow later arithmetic.
    * @evidence contracts/common.md#clear-and-simple-design Measurement lives on the archetype that knows its own proportions, so the radius table and the engine population kernels never restate a catalogue member's shape math.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Ungated zero substitution remains a placeholder and never admits a recipe; accepted geometry uses the actual build owner's primitive dimensions instead of a height-only radius that ignores independent head and limb parameters.
-   * @evidence contracts/common.md#meaningful-documentation States metre units, model-root centre and supported bone-rotation enclosure, population-table consumers and the limits of ungated placeholder arithmetic.
-   * @evidence contracts/performance.md#efficient-algorithms Primitive-prop evaluates fixed arithmetic over at most three dimensions; stickman creates its fixed thirteen-bone/part geometry and performs two linear scans over those records, computed once per recipe in the population radius table without a persistent cache.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The production radius table already computes every recipe's radius once and hands that table to every consumer, so the function itself has nothing further to share.
+   * @evidence contracts/common.md#meaningful-documentation States metre units, model-root centre, supported bone-rotation enclosure, population consumers, binary64 rounding limits and ungated placeholder arithmetic.
+   * @evidence contracts/performance.md#efficient-algorithms Primitive-prop evaluates fixed arithmetic over at most three dimensions; stickman builds thirteen bones and parts, then scans each list once. The population table invokes this only for registered recipes without an adopted external measurement; custom archetypes own their measurement cost.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The production radius table shares one computed number per selected generated recipe within a build attempt. Shipped measurement functions retain no cross-attempt cache over mutable parameter maps.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a number and keeps no reference to the parameter map, so it owns no retained state.
    */
   projectionRadius: (parameters: AutoMovieArchetypeParameters) => number;
@@ -99,7 +92,7 @@ export interface IAutoMovieModelArchetype {
    * @evidence contracts/common.md#clear-and-simple-design The builder takes one input record and returns only geometry; validation stays in the gate and model assembly in the materializer.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The unchecked casts rest on the builder materializing only after every design diagnostic clears, and the comment states that a map which skipped the gate yields unchecked geometry instead of claiming a guarantee.
    * @evidence contracts/common.md#meaningful-documentation The comment states the caller, the precondition that the gate accepted the map, and the consequence of breaking that precondition.
-   * @evidence contracts/performance.md#efficient-algorithms Cost is one allocation per part and bone, linear in the archetype's fixed part count, one primitive for primitive-prop and thirteen parts on thirteen bones for stickman, paid once per generated recipe.
+   * @evidence contracts/performance.md#efficient-algorithms Shipped construction allocates one primitive part for primitive-prop or thirteen parts and thirteen bones for stickman, including nested shapes and transforms. The materializer builds each recipe once per attempt; stickman radius measurement also builds temporary geometry, and custom builders own their output-dependent costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The materializer must give each compiled model its own unshared geometry, so the result of one build cannot be reused for another recipe even when the parameters match.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned skeleton and parts transfer to the compiled model at return, the builder retains nothing, and the population grows by one geometry per generated recipe in the build.
    */
