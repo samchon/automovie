@@ -2,22 +2,28 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMovieInstancePrototypeDesign } from "./IAutoMovieInstancePrototypeDesign";
 import { IAutoMovieInstanceSetLayout } from "./IAutoMovieInstanceSetLayout";
 import { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
+import { IAutoMovieModelLodRecipe } from "./IAutoMovieModelLodRecipe";
 
 /**
  * A compact non-formation crowd, vegetation, prop, or debris set.
  *
  * @evidence contracts/common.md#principled-implementation Count, layout, anchor, heading and seed regenerate stable slots; positive weighted prototypes and bounded variation determine each member without serializing a full scene node per slot.
- * @evidence contracts/common.md#clear-and-simple-design Keeps general instance placement separate from formation capabilities, hero promotion and motion channels; optional prototypes extend the default recipe with explicit weighted choices.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Recipe references, count limits, seed and layout capacity are authoring premises, not checks performed by this type or the compact compiler. Building populations receive the narrower validateBuiltPopulation check; world compilation regenerates slots and rejects missing routes and nonfinite sampled positions but does not replace the retired whole-design gate.
- * @evidence contracts/common.md#meaningful-documentation Defines the count limit, seed range, layout and recipe roles, world-meter anchor and degree heading; route placement uses its route snapshot rather than the anchor's XZ position.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps general instance placement separate from formation capabilities, hero promotion and motion channels; optional prototypes extend the default model group with explicit weighted choices, each with its own optional distance tiers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Model group references, LOD tier order, count limits, seed and layout capacity are authoring premises, not checks performed by this type or the compact compiler. Building populations receive the narrower validateBuiltPopulation check; world compilation regenerates slots and rejects missing routes and nonfinite sampled positions but does not replace the retired whole-design gate.
+ * @evidence contracts/common.md#meaningful-documentation Defines the count limit, seed range, layout, model group and LOD tier roles, world-meter anchor and degree heading; route placement uses its route snapshot rather than the anchor's XZ position.
  * @author Samchon
  */
 export interface IAutoMovieInstanceSetDesign {
   /** Stable id unique within the world. */
   id: string;
 
-  /** Existing base recipe; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
+  /** Existing base model group id; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
   modelRecipe: string;
+
+  /**
+   * Ordered distance tiers for the base group, ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; omitted or empty draws `modelRecipe` as one unbounded `near` tier.
+   */
+  lod?: IAutoMovieModelLodRecipe[];
 
   /** Optional weighted prototype table; `modelRecipe` remains the default. */
   prototypes?: IAutoMovieInstancePrototypeDesign[];
