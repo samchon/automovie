@@ -365,8 +365,17 @@ events.addEventListener(
 );
 addEventListener(
   "pagehide",
-  (): void => {
+  (event: PageTransitionEvent): void => {
+    if (event.persisted || closed) return;
     closed = true;
+    void fetch("/display", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "release", session }),
+      keepalive: true,
+    }).catch((failure: unknown): void => {
+      console.error("AUTOMOVIE_DISPLAY_RELEASE_ERROR", failure);
+    });
     const resume: (() => void) | undefined = release;
     const previous: HTMLIFrameElement | undefined = active;
     const next: HTMLIFrameElement | undefined = candidate;
