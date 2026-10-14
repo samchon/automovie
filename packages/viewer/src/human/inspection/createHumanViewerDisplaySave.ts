@@ -10,7 +10,7 @@ import { readHumanViewerCameraAddress } from "./readHumanViewerCameraAddress.js"
 /**
  * Adapt actual inspection completion and visible reference layers to the shared bitmap saver. The unchanged host owns commitment. Observed camera and loaded source remain distinct from requests; hidden candidates never commit.
  *
- * @evidence contracts/common.md#principled-implementation Saving first finishes the original stage, verifies its GPU context and observes actual camera/source facts; reference painting uses the existing composition owner.
+ * @evidence contracts/common.md#principled-implementation The display owner finishes the original stage before requesting a snapshot; saving checks its GPU context and observes actual camera/source facts without drawing again. Reference painting uses the existing composition owner.
  * @evidence contracts/common.md#clear-and-simple-design The adapter supplies observation and paint callbacks to the shared bitmap publication owner rather than duplicating encoding or upload scheduling.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Lost or erroneous GPU output is refused, requested address remains separate from observed camera and no hidden-stage commit is invented here.
  * @evidence contracts/common.md#meaningful-documentation The comment assigns publication commitment to the host and distinguishes loaded source and observed display from requests.
@@ -41,7 +41,6 @@ export function createHumanViewerDisplaySave(props: {
       if (gl.isContextLost())
         throw new Error("The displayed GPU frame is unavailable for saving.");
       const stage: HumanViewerStage = props.stage();
-      stage.finish();
       if (gl.isContextLost() || gl.getError() !== gl.NO_ERROR)
         throw new Error("The displayed GPU frame is unavailable for saving.");
       return {
