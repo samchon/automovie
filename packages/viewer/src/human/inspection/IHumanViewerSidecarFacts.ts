@@ -9,7 +9,7 @@ import type { IHumanViewerPersonSidecar } from "./IHumanViewerPersonSidecar.js";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Identities are scanned from the supplied file rather than inferred from file names; failure remains available instead of being hidden.
  * @evidence contracts/common.md#meaningful-documentation Members explain the stamp, SHA-256 bytes, kind-specific nullable identities and nullable failure cause.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The metadata shape implements no inflation or structural scan; createHumanViewerSidecarFacts owns those costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Equal provider stamps reuse facts; a changed stamp starts a new read and rejects superseded publication. The current mtime/size provider cannot distinguish rewrites preserving both stamp values.
+ * @evidence contracts/performance.md#reuse-equivalent-work Equal provider stamps reuse facts; changed stamps start a new read and publication refuses a stamp differing from the current tracked stamp. Repeated stamps do not distinguish request generations, and the mtime/size provider misses rewrites preserving both values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The facts owner retains one metadata entry per encountered filename without an eviction bound; this record retains no compressed or inflated buffers.
  *
  * @author Samchon

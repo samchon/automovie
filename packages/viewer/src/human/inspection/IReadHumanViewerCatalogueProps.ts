@@ -36,7 +36,7 @@ export interface IReadHumanViewerCatalogueProps {
   bodyExamples: HumanViewerBodyExamples;
 
   /**
-   * Exact document to read and admit; omission retains the complete catalogue.
+   * Document whose owner admission is selected; omission retains the complete catalogue. Its owning JSON file is still parsed in full, and array projection can inspect other members before selecting the matching entry or stopping on a refusal.
    */
   selectedDoc?: string;
 
@@ -70,7 +70,7 @@ export interface IReadHumanViewerCatalogueProps {
   faceMemo?: IHumanViewerFaceDocumentsMemo;
 
   /**
-   * Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once.
+   * Identity and digest of a basis file; the server supplies a memoized reader so equal provider stamps reuse its prior byte facts.
    *
    * @evidence contracts/common.md#principled-implementation The basis reader returns both opening identity and compressed-byte digest from the selected published basis file.
    * @evidence contracts/common.md#clear-and-simple-design Borrowing the source owner's reader prevents catalogue composition from owning a second large-file cache.
@@ -95,7 +95,7 @@ export interface IReadHumanViewerCatalogueProps {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Pending facts are not guessed from the sidecar filename or fabricated as an admitted basis.
    * @evidence contracts/common.md#meaningful-documentation The member documents digest/identity delivery and null during the outstanding read.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The optional metadata callback chooses no inflation or streaming strategy.
-   * @evidence contracts/performance.md#reuse-equivalent-work Sidecar results are keyed by filename and provider stamp; edits start new reads and superseded completions are discarded.
+   * @evidence contracts/performance.md#reuse-equivalent-work Sidecar results are keyed by filename and provider stamp; changed stamps start new reads and publication refuses a differing current stamp. Same-stamp rewrites or A-to-B-to-A recurrence are not distinguished by request generation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Catalogue composition borrows sidecar facts without owning compressed buffers or in-flight read tasks.
    */
   sidecar?: (name: string) => IHumanViewerSidecarFacts | null;
