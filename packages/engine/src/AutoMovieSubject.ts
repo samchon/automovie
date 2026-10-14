@@ -62,13 +62,13 @@ export abstract class AutoMovieSubject<TDesign> {
    * What this subject puts into a shot.
    *
    * The context carries the builder-owned facts a source cannot infer, so a
-   * subject reads its model recipes, runtime models, world, and formation or
+   * subject reads its model groups, world, and formation or
    * instance-set runtimes from there rather than restating them. The returned
    * arrays are read by `mergeAutoMovieSubjectContributions`, which copies their
    * elements into new arrays rather than keeping the subject's arrays.
    *
    * @evidence contracts/common.md#principled-implementation Returns only the contribution fields this subject owns, a partial record the shot merges, so a shot program is assembled by concatenation in subject order rather than by any subject knowing the whole shot.
-   * @evidence contracts/common.md#clear-and-simple-design One context parameter carries every builder-owned runtime fact, so a subject reads recipes, runtime models and formation runtimes from one place instead of taking each as its own argument.
+   * @evidence contracts/common.md#clear-and-simple-design One context parameter carries every builder-owned runtime fact, so a subject reads model groups, world and formation runtimes from one place instead of taking each as its own argument.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Abstract here, so the base adds no fix-up to a subject's output; collisions between subjects pass through the merge to the builder's own uniqueness checks.
    * @evidence contracts/common.md#meaningful-documentation States which builder-owned facts the context supplies and that the merge copies the returned elements into new arrays rather than keeping the subject's arrays.
    * @evidenceExclude contracts/performance.md#efficient-algorithms Abstract with no body; how a subject builds its contribution, and at what cost, is answered on each override such as `AutoMovieSubjectGroup.render`.

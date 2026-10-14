@@ -23,16 +23,18 @@ A figure, an animal, a tree, a wall, a hill, a river, a field, the map: each is 
 A class owns four things, and the reason it is a class rather than a factory returning a record is that these four belong together:
 
 ```ts
+import { createAutoMovieStickman } from "@automovie/archetypes";
 import {
   AutoMovieSubject,
   type IAutoMovieSubjectContribution,
+  srgbHexToLinearColor,
 } from "@automovie/engine";
 import type {
-  IAutoMovieModelRecipe,
+  IAutoMovieModel,
   IAutoMovieShotBuildContext,
 } from "@automovie/interface";
 
-export class Figure extends AutoMovieSubject<IAutoMovieModelRecipe> {
+export class Figure extends AutoMovieSubject<IAutoMovieModel> {
   public readonly id = "figure";
 
   /** A fact other subjects measure themselves against. */
@@ -43,23 +45,30 @@ export class Figure extends AutoMovieSubject<IAutoMovieModelRecipe> {
     return this.height * 0.9;
   }
 
-  public design(): IAutoMovieModelRecipe {
-    return {
+  public design(): IAutoMovieModel {
+    return createAutoMovieStickman({
       id: this.id,
-      role: "performer",
-      archetype: "stickman",
-      parameters: { height: this.height, headRadius: 0.16, limbRadius: 0.06 },
-      palette: { body: "#d7b56d" },
-      lod: [{ tier: "hero", maxDistance: null, recipe: this.id }],
-      capabilities: ["signal"],
-      attachments: [],
-    };
+      height: this.height,
+      headRadius: 0.16,
+      limbRadius: 0.06,
+      material: {
+        id: "body",
+        name: null,
+        baseColor: srgbHexToLinearColor("#d7b56d"),
+        metallic: 0,
+        roughness: 0.7,
+        emissive: null,
+        opacity: 1,
+        baseColorTexture: null,
+      },
+    });
   }
 
   public render(
     context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
     return {
+      models: [this.design()],
       actors: [
         {
           node: this.id,
@@ -73,7 +82,7 @@ export class Figure extends AutoMovieSubject<IAutoMovieModelRecipe> {
 }
 ```
 
-`design()` returns the subject's typed design value for its consumers to validate and use. Equal declared inputs produce equal values; calling the method does not require publishing or reopening a design file.
+`design()` returns the subject's typed design value for its consumers to validate and use; a figure's design is the `IAutoMovieModel` group a typed producer such as `createAutoMovieStickman` returns. Equal declared inputs produce equal values; calling the method does not require publishing or reopening a design file.
 
 ## A group of subjects is a subject
 

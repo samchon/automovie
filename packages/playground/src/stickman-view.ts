@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieGuidePass,
-  AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotion,
   IAutoMovieVector3,
@@ -23,67 +22,37 @@ import {
 } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { CAT_CLIPS } from "./CAT_CLIPS";
-import { DEFAULT_CAT } from "./DEFAULT_CAT";
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
-import { QUADRUPED_JOINT_AXES } from "./QUADRUPED_JOINT_AXES";
-import { QUADRUPED_REST_FRAME } from "./QUADRUPED_REST_FRAME";
 import { STICKMAN_CLIPS } from "./STICKMAN_CLIPS";
-import { buildCat } from "./buildCat";
 import { buildStickman } from "./buildStickman";
 import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
   location.search,
 );
-const isCat: boolean = params.get("char") === "cat";
 // `?rom=1` freezes the figure at rest and draws each joint's flexion gamut.
 const showRom: boolean = params.get("rom") === "1";
 
-// ── build the chosen character + its clips ──────────────────────────────────
-// The cat is a quadruped (legs point down at rest) so it uses the default
-// clinical axes; the human T-pose rig opts into HUMANOID_JOINT_AXES.
-const { model, skeleton }: ReturnType<typeof buildCat> = isCat
-  ? buildCat(DEFAULT_CAT)
-  : buildStickman(DEFAULT_STICKMAN);
+// ── build the stick figure + its clips ──────────────────────────────────────
+// The human T-pose rig opts into HUMANOID_JOINT_AXES.
+const { model, skeleton }: ReturnType<typeof buildStickman> =
+  buildStickman(DEFAULT_STICKMAN);
 const object: ReturnType<typeof buildModel> = buildModel(model);
-const clips: Record<string, IAutoMovieMotion> = isCat
-  ? CAT_CLIPS(skeleton.id)
-  : STICKMAN_CLIPS(skeleton.id);
-const jointAxes: typeof HUMANOID_JOINT_AXES | typeof QUADRUPED_JOINT_AXES =
-  isCat ? QUADRUPED_JOINT_AXES : HUMANOID_JOINT_AXES;
-const defaultClip: "idle" | "jumpingJack" = isCat ? "idle" : "jumpingJack";
+const clips: Record<string, IAutoMovieMotion> = STICKMAN_CLIPS(skeleton.id);
 
 const clipName: string =
   params.get("clip") !== null && Object.hasOwn(clips, params.get("clip")!)
     ? params.get("clip")!
-    : defaultClip;
-const restFrames: typeof HUMANOID_REST_FRAME | typeof QUADRUPED_REST_FRAME =
-  isCat ? QUADRUPED_REST_FRAME : HUMANOID_REST_FRAME;
-// `?clamp=1` enforces ROM; the cat's tail gets spring follow-through so it
-// trails and overshoots the body instead of snapping (turn off with ?spring=0).
-const catTailSpring:
-  | { joints: AutoMovieHumanoidBone[]; stiffness: number; damping: number }
-  | undefined =
-  isCat && params.get("spring") !== "0"
-    ? {
-        joints: [
-          "leftLittleProximal",
-          "leftLittleIntermediate",
-          "leftLittleDistal",
-        ] as AutoMovieHumanoidBone[],
-        stiffness: 90,
-        damping: 9,
-      }
-    : undefined;
+    : "jumpingJack";
+// `?clamp=1` enforces ROM.
 const player: AutoMoviePlayer = new AutoMoviePlayer(
   object,
   skeleton,
   clips[clipName]!,
-  jointAxes,
+  HUMANOID_JOINT_AXES,
   params.get("clamp") === "1",
-  catTailSpring,
-  restFrames,
+  undefined,
+  HUMANOID_REST_FRAME,
 );
 
 // `?t=<seconds>` freezes one sampled frame (deterministic capture); otherwise
@@ -122,13 +91,12 @@ const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
   100,
 );
 const az: number = (Number(params.get("az") ?? 0) * Math.PI) / 180;
-const target: 0.26 | 0.92 = isCat ? 0.26 : 0.92;
-const dist: 3.8 | 1.7 = isCat ? 1.7 : 3.8;
-const ctr: 0 | 0.12 = isCat ? 0.12 : 0; // cat trunk centre is forward of the hips
-const camY: number = target + (isCat ? 0.22 : 0.1);
+const target: number = 0.92;
+const dist: number = 3.8;
+const camY: number = target + 0.1;
 
 // `?follow=1` makes the camera ride along with the character's root as a
-// traveling clip (stroll/sprint/prowl/bound) carries it across the floor,
+// traveling clip (stroll/sprint) carries it across the floor,
 // holding the same orbit offset but re-centred on the moving body, so the
 // figure stays framed while the ground scrolls past (a tracking shot). The
 // root translation the engine bakes via travelMotion lands on `object.object`,
@@ -137,15 +105,11 @@ const followMode: boolean = params.get("follow") === "1";
 const followCamera: () => void = (): void => {
   const px: number = object.object.position.x;
   const pz: number = object.object.position.z;
-  camera.position.set(
-    px + dist * Math.sin(az),
-    camY,
-    pz + ctr + dist * Math.cos(az),
-  );
-  camera.lookAt(px, target, pz + ctr);
+  camera.position.set(px + dist * Math.sin(az), camY, pz + dist * Math.cos(az));
+  camera.lookAt(px, target, pz);
 };
-camera.position.set(dist * Math.sin(az), camY, ctr + dist * Math.cos(az));
-camera.lookAt(0, target, ctr);
+camera.position.set(dist * Math.sin(az), camY, dist * Math.cos(az));
+camera.lookAt(0, target, 0);
 if (followMode) followCamera();
 
 // ── ROM overlay: a flexion-gamut fan at every constrained joint ─────────────
@@ -173,7 +137,7 @@ const buildRomFans: () => void = (): void => {
       child.rest.translation.y,
       child.rest.translation.z,
     );
-    const a: IAutoMovieVector3 = jointAxes?.[b.bone]?.flexion ?? {
+    const a: IAutoMovieVector3 = HUMANOID_JOINT_AXES[b.bone]?.flexion ?? {
       x: 1,
       y: 0,
       z: 0,

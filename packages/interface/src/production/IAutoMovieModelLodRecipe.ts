@@ -1,12 +1,12 @@
 /**
- * One distance-specific recipe reference emitted as authoring/runtime metadata.
+ * One distance-specific model group a population draws at one tier.
  *
- * Engine population compilation retains references and recipe digests without materializing models. The viewer selects population tiers from distance and projected contribution with hysteresis; ordinary scene nodes retain their selected model.
+ * A formation, an instance set or an instance prototype declares its ordered tiers; engine population compilation binds each tier to the referenced group's digest without materializing models. The viewer selects population tiers from distance and projected contribution with hysteresis; ordinary scene nodes retain their selected model.
  *
- * @evidence contracts/common.md#principled-implementation Ordered thresholds map a tier to an intended recipe. Increasing positive limits, terminal null and existing references are caller premises after production design-gate retirement; the Engine representation compiler preserves tiers and hashes an explicit marker for unresolved recipes.
- * @evidence contracts/common.md#clear-and-simple-design This record owns one threshold-to-recipe edge while the model recipe owns tier order and the viewer owns hysteretic runtime selection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Self-reference is valid, while a missing recipe marker is not proof that its model exists. Declaring LOD metadata does not promise geometry construction or automatic tier switching for ordinary scene nodes.
- * @evidence contracts/common.md#meaningful-documentation Defines supported tiers, meter limits, terminal null, recipe identity and the current anonymous-formation consumer scope.
+ * @evidence contracts/common.md#principled-implementation Ordered thresholds map a tier to a model group id. Increasing positive limits, terminal null and existing references are caller premises; the Engine representation compiler preserves tiers and hashes an explicit marker for an unresolved group.
+ * @evidence contracts/common.md#clear-and-simple-design This record owns one threshold-to-group edge while the declaring population owns tier order and the viewer owns hysteretic runtime selection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Self-reference is valid, while a missing-group marker is not proof that its model exists. Declaring LOD metadata does not promise geometry construction or automatic tier switching for ordinary scene nodes.
+ * @evidence contracts/common.md#meaningful-documentation Defines supported tiers, meter limits, terminal null, model group identity and the population consumer scope.
  * @author Samchon
  */
 export interface IAutoMovieModelLodRecipe {
@@ -18,6 +18,6 @@ export interface IAutoMovieModelLodRecipe {
    */
   maxDistance: number | null;
 
-  /** Existing recipe id used at this tier; self-reference is allowed. */
+  /** Id of the model group drawn at this tier; naming the population's own base group is allowed. */
   recipe: string;
 }

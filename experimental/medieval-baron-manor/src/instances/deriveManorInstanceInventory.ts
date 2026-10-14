@@ -1,7 +1,7 @@
 // Derive the same shared prototype inventory consumed by the GPU page.
 // The public browser-safe engine kernel owns placement summaries, 1,024-slot
-// chunks, current LOD metadata and canonical runtime digests. No model recipes
-// are declared by this mesh inventory: the kernel records their absent-recipe
+// chunks, current LOD metadata and canonical runtime digests. No model groups
+// are passed to the kernel for tier digests: it records their absent-group
 // identity honestly while the actual prototypes remain in the supplied map.
 import { productionRuntimeModelId } from "@automovie/engine";
 import type { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSetDesign } from "@automovie/interface";

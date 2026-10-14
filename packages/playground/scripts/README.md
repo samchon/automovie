@@ -14,11 +14,9 @@ Each character is exported straight from its `build*` AST through
 `@automovie/render/node`'s `exportModelToGLB`:
 
 ```bash
-pnpm build:models      # stickman, cat, horse, knight (all of the below)
+pnpm build:models      # stickman, knight (all of the below)
 # or individually:
 pnpm build:stickman    # → .shots/human/stickman.glb
-pnpm build:cat         # → .shots/cat/cat.glb
-pnpm build:horse       # → .shots/knight/horse.glb
 pnpm build:knight      # → .shots/knight/knight.glb
 ```
 
