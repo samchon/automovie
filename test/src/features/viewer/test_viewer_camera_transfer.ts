@@ -1,13 +1,22 @@
 import assert from "node:assert/strict";
-import { createViewerCameraState } from "@automovie/viewer";
+import { createViewerCameraState } from "../../../../packages/viewer/src/createViewerCameraState";
+import type { IViewerCameraStateSnapshot } from "../../../../packages/viewer/src/IViewerCameraStateSnapshot";
+import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
+
+import { nclose } from "../internal/predicates";
 
 /**
  * Native camera transfer retains film/view-offset lenses and transformations.
  * Invalid or unsupported state must fail before mutating the resident camera.
  * These are CPU-only native camera cases, with no renderer or Human fixture.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Captures and restores actual detached native perspective/orthographic cameras, checking lens, view, TRS, layers and projection fields against independently authored/native reference values. Invalid state must throw while leaving the resident state intact; unsupported parent/manual/custom-projection cameras refuse.
+ * @evidence contracts/testing.md#independent-expectations Authored scalar/vector/lens/view values supply the oracle, with Three's own quaternion and projection APIs as the independent native reference. Every initial capture is checked against that reference before a round trip; exact finite scalar comparisons detect transfer drift without claiming a second projection derivation or GPU correctness.
+ * @evidence contracts/testing.md#distinguishing-cases Covers both supported classes, enabled/disabled/absent crop state, malformed type/vector/lens/view/projection fields, overflowed transforms, manual matrix owners, parenting and custom projection. Each refused restore is followed by an unchanged-state assertion; renderer pixel transfer belongs to host tests.
+ * @evidence contracts/testing.md#execution-ownership The discoverable async named unit performs synchronous portable operations on Three metadata objects and the production adapter. It installs no browser, renderer or GPU and registers all cases locally.
  */
-export const test_viewer_camera_transfer = async (): Promise<void> => {
+export async function test_viewer_camera_transfer(): Promise<void> {
   for (const camera of [new THREE.PerspectiveCamera(42, 1.6, 0.1, 120),
     new THREE.OrthographicCamera(-3, 3, 2, -2, 0, 120)]) {
     if (camera instanceof THREE.PerspectiveCamera) {
@@ -19,12 +28,40 @@ export const test_viewer_camera_transfer = async (): Promise<void> => {
     camera.setViewOffset(1600, 1000, 150, 70, 900, 700);
     if (camera instanceof THREE.PerspectiveCamera) camera.aspect = 1.4;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
-    const owner = createViewerCameraState(camera);
-    const state = owner.capture();
+    const expected: IViewerCameraStateSnapshot = {
+      type: camera.type,
+      position: [1, 2, 3],
+      quaternion: camera.quaternion.toArray(),
+      scale: [1.2, 1.1, 0.9],
+      up: [0, 1, 0],
+      layers: 1 << 3,
+      projection: camera.projectionMatrix.toArray(),
+      view: { enabled: true, fullWidth: 1600, fullHeight: 1000, offsetX: 150, offsetY: 70, width: 900, height: 700 },
+      lens: camera instanceof THREE.PerspectiveCamera
+        ? { kind: "perspective", fov: 42, aspect: 1.4, near: 0.1, far: 120, zoom: 1.4, filmGauge: 50, filmOffset: 3, focus: 15 }
+        : { kind: "orthographic", left: -3, right: 3, top: 2, bottom: -2, near: 0, far: 120, zoom: 1.4 },
+    };
+    const owner: ReturnType<typeof createViewerCameraState> = createViewerCameraState(camera);
+    const assertState: (reference: IViewerCameraStateSnapshot) => void = (reference: IViewerCameraStateSnapshot): void => {
+      const actual: IViewerCameraStateSnapshot = owner.capture();
+      TestValidator.equals("native class is preserved", actual.type, reference.type);
+      TestValidator.equals("native layer mask is preserved", actual.layers, reference.layers);
+      TestValidator.equals("native integer crop fields are preserved", actual.view, reference.view);
+      for (const field of ["position", "quaternion", "scale", "up", "projection"] as const)
+        TestValidator.predicate("native " + field + " values are preserved", actual[field].length === reference[field].length && actual[field].every((value: number, index: number): boolean => nclose(value, reference[field][index]!, 0)));
+      TestValidator.equals("native lens class is preserved", actual.lens.kind, reference.lens.kind);
+      for (const [field, value] of Object.entries(reference.lens))
+        if (typeof value === "number") {
+          const observed: unknown = Reflect.get(actual.lens, field);
+          TestValidator.predicate("native lens " + field + " is preserved", typeof observed === "number" && nclose(observed, value, 0));
+        }
+    };
+    assertState(expected);
+    const state: IViewerCameraStateSnapshot = owner.capture();
     camera.clearViewOffset(); camera.position.set(8, 9, 10); camera.zoom = 0.7;
     camera.updateProjectionMatrix();
     owner.restore(state);
-    assert.deepEqual(owner.capture(), state);
+    assertState(expected);
     for (const invalid of [null, { ...state, type: "unknown" },
       { ...state, quaternion: [0, 0, 0, 0] }, { ...state, projection: new Array(16).fill(0) },
       { ...state, position: [NaN, 0, 0] }, { ...state, scale: [1, 0, 1] },
@@ -37,27 +74,31 @@ export const test_viewer_camera_transfer = async (): Promise<void> => {
       { ...state, lens: null }, { ...state, lens: { ...state.lens, kind: "unknown" } },
       { ...state, lens: { ...state.lens, near: NaN } },
       { ...state, lens: { ...state.lens, zoom: -1 } },
-      { ...state, projection: state.projection.map((value, index) => index === 0 ? value + 1 : value) }]) {
-      assert.throws(() => owner.restore(invalid));
-      assert.deepEqual(owner.capture(), state);
+      { ...state, projection: state.projection.map((value: number, index: number): number => index === 0 ? value + 1 : value) }]) {
+      assert.throws((): void => owner.restore(invalid));
+      assertState(expected);
     }
     camera.clearViewOffset();
     camera.updateProjectionMatrix();
-    const disabled = owner.capture();
+    const disabledExpected: IViewerCameraStateSnapshot = { ...expected, projection: camera.projectionMatrix.toArray(), view: { ...expected.view!, enabled: false } };
+    assertState(disabledExpected);
+    const disabled: IViewerCameraStateSnapshot = owner.capture();
     owner.restore(disabled);
-    assert.deepEqual(owner.capture(), disabled);
+    assertState(disabledExpected);
     camera.view = null; camera.updateProjectionMatrix();
-    const whole = owner.capture(); owner.restore(whole);
-    assert.deepEqual(owner.capture(), whole);
+    const wholeExpected: IViewerCameraStateSnapshot = { ...expected, projection: camera.projectionMatrix.toArray(), view: null };
+    assertState(wholeExpected);
+    const whole: IViewerCameraStateSnapshot = owner.capture(); owner.restore(whole);
+    assertState(wholeExpected);
     camera.matrixAutoUpdate = false;
-    assert.throws(() => owner.capture()); assert.throws(() => owner.restore(state));
+    assert.throws((): IViewerCameraStateSnapshot => owner.capture()); assert.throws((): void => owner.restore(state));
     camera.matrixAutoUpdate = true; camera.matrixWorldAutoUpdate = false;
-    assert.throws(() => owner.capture());
+    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
     camera.matrixWorldAutoUpdate = true;
     new THREE.Group().add(camera);
-    assert.throws(() => owner.capture()); camera.removeFromParent();
+    assert.throws((): IViewerCameraStateSnapshot => owner.capture()); camera.removeFromParent();
     camera.projectionMatrix.elements[0] += 1;
-    assert.throws(() => owner.capture());
+    assert.throws((): IViewerCameraStateSnapshot => owner.capture());
   }
-  assert.throws(() => createViewerCameraState(new THREE.Camera()).capture());
-};
+  assert.throws((): IViewerCameraStateSnapshot => createViewerCameraState(new THREE.Camera()).capture());
+}

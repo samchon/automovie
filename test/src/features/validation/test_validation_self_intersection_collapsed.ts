@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 import { makeMotion } from "../internal/fixtures";
 import { validationHasWarning } from "../internal/predicates";
 
-const restAt = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -50,7 +50,7 @@ const pose: IAutoMoviePose = {
   joints: [],
 };
 
-const key = (time: number): IAutoMovieKeyframe => ({
+const key: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
   time,
   pose,
   expression: null,
@@ -70,9 +70,14 @@ const key = (time: number): IAutoMovieKeyframe => ({
  * `false`: the overlap slipped through and the frame validated as clean. This
  * test pins that the detection now fires (as a D015 plausibility warning; the
  * span guard is what makes the distance finite so the overlap is seen at all).
+ *
+ * @evidence contracts/testing.md#behavioral-verification Samples the actual self-intersection validator with distinct endpoint bones whose world positions coincide. The coincident capsule and a second centreline through the origin must produce an addressed advisory distance warning instead of silently passing a nonfinite distance comparison.
+ * @evidence contracts/testing.md#independent-expectations Authored rest offsets place the collapsed segment at the origin and the other segment across [-1,1] on X, so their separation is zero and less than radii 0.3+0.15. This geometric oracle concerns supplied proxies, not a Human skin mesh or anatomical measurement.
+ * @evidence contracts/testing.md#distinguishing-cases This existing regression isolates coincident world endpoints while keeping distinct declared bone identities. The ordinary suite owns malformed annotations, rates, separated proxies and intent suppression; the crossing unit owns two noncollapsed interior spans.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit invokes sampling/FK and geometric warning production through an existing authored motion fixture. It starts no simulation world, viewer or Human inspection host and registers no extra cases.
  */
-export const test_validation_self_intersection_collapsed = (): void => {
-  const result = validateSelfIntersection({
+export function test_validation_self_intersection_collapsed(): void {
+  const result: ReturnType<typeof validateSelfIntersection> = validateSelfIntersection({
     motion: makeMotion([key(0), key(1)], 1),
     skeleton,
     pairs: [
@@ -93,4 +98,4 @@ export const test_validation_self_intersection_collapsed = (): void => {
       "$input.pairs[0].samples[0].distance",
     ),
   );
-};
+}
