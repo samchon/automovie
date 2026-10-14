@@ -1,7 +1,7 @@
 import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationDesign,
-  IAutoMovieModelRecipe,
+  IAutoMovieModel,
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
@@ -14,10 +14,10 @@ import { materializeCompiledFormation } from "./materializeCompiledFormation";
  * Records are keyed by formation id and inserted in code-unit order of that id,
  * so the inventory and every artifact that serializes it are the same whatever
  * order the designs were read in. Each formation is compiled against the same
- * recipes, radii and terrain, which is what makes a unit compiled here the unit
+ * model groups, radii and terrain, which is what makes a unit compiled here the unit
  * a shot compiled from the same inputs would hold.
  *
- * @evidence contracts/common.md#principled-implementation Sort formation ids in code-unit order and compile every design against the same recipe, radius and terrain inputs, producing an own-property dictionary independent of author declaration order.
+ * @evidence contracts/common.md#principled-implementation Sort formation ids in code-unit order and compile every design against the same model group, radius and terrain inputs, producing an own-property dictionary independent of author declaration order.
  * @evidence contracts/common.md#clear-and-simple-design Inventory ordering belongs here while the per-formation compiler owns geometry, terrain, summaries and digests.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Object.fromEntries admits arbitrary ids as own properties without prototype mutation; no formation id changes compiler policy.
  * @evidence contracts/common.md#meaningful-documentation Docs identify deterministic keyed inventory, caller-supplied measurements and world terrain; each result is a compact formation record.
@@ -30,11 +30,11 @@ export const materializeCompiledFormationInventory: (props: {
     string,
     IAutoMovieFormationDesign
   >;
-  /** Model recipes keyed by id; empty when none are declared. */ recipes?: ReadonlyMap<
+  /** Model groups keyed by the id the formation and its tiers name; empty when none are supplied. */ models?: ReadonlyMap<
     string,
-    IAutoMovieModelRecipe
+    IAutoMovieModel
   >;
-  /** Supplied root-centered radius estimate in metres keyed by recipe id. */ projectionRadii?: ReadonlyMap<
+  /** Supplied root-centered radius estimate in metres keyed by model group id. */ projectionRadii?: ReadonlyMap<
     string,
     number
   >;
@@ -42,9 +42,9 @@ export const materializeCompiledFormationInventory: (props: {
 }) => Readonly<Record<string, IAutoMovieCompiledFormation>> = (props: {
   /** Formation designs keyed by id. */
   formations: ReadonlyMap<string, IAutoMovieFormationDesign>;
-  /** Model recipes keyed by id; empty when none are declared. */
-  recipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
-  /** Supplied root-centered radius estimate in metres keyed by recipe id. */
+  /** Model groups keyed by the id the formation and its tiers name; empty when none are supplied. */
+  models?: ReadonlyMap<string, IAutoMovieModel>;
+  /** Supplied root-centered radius estimate in metres keyed by model group id. */
   projectionRadii?: ReadonlyMap<string, number>;
   /** World terrain in declared order; empty when the world has none. */
   surfaces?: readonly IAutoMovieWorldSurface[];
@@ -65,7 +65,7 @@ export const materializeCompiledFormationInventory: (props: {
           id,
           materializeCompiledFormation({
             formation,
-            recipes: props.recipes,
+            models: props.models,
             projectionRadii: props.projectionRadii,
             surfaces: props.surfaces,
           }),

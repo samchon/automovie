@@ -43,7 +43,7 @@ const mat: (
 });
 
 /**
- * Dress a fresh conventional stick figure with rigid helmet/plume, shield and optional three-part lance, using authored metre offsets and a fixed palette. The existing mounted/archery pages attach and animate it; this producer performs no saddle placement, collision, clinical admission or visual verification itself.
+ * Dress a fresh conventional stick figure with rigid helmet/plume, shield and optional three-part lance, using authored metre offsets and a fixed palette. The `build:knight` script exports it; this producer performs no saddle placement, collision, clinical admission or visual verification itself.
  *
  * The returned model and top-level skeleton share one knight-identified skeleton wrapper and borrow the fresh stick figure's bone array. Armour consists of overlapping primitives rather than continuous shared-boundary surfaces.
  *

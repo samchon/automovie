@@ -10,12 +10,14 @@ import {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieInstanceChunk,
   IAutoMovieInstanceSetDesign,
-  IAutoMovieModelRecipe,
+  IAutoMovieModel,
+  IAutoMovieModelLodRecipe,
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
+import { createModel } from "../internal/createModel";
 import {
   namedFacts,
   nclose,
@@ -55,27 +57,21 @@ const lane: IAutoMovieWorldRoute = {
   allowedFormationWidth: 3,
 };
 
-/** A tree declaring a hero tier and a near tier of itself. */
-const recipes: Map<string, IAutoMovieModelRecipe> = new Map<
-  string,
-  IAutoMovieModelRecipe
->([
-  [
-    "tree",
-    {
-      id: "tree",
-      role: "set",
-      archetype: "primitive",
-      parameters: { height: 4 },
-      palette: { leaf: "#2f6f2f" },
-      lod: [
-        { tier: "hero", maxDistance: 5, recipe: "tree-hero" },
-        { tier: "near", maxDistance: 20, recipe: "tree" },
-      ],
-      capabilities: [],
-      attachments: [],
-    },
-  ],
+/** The base tree's declared tiers: a hero tier and a near tier of itself. */
+const TREE_TIERS: IAutoMovieModelLodRecipe[] = [
+  { tier: "hero", maxDistance: 5, recipe: "tree-hero" },
+  { tier: "near", maxDistance: 20, recipe: "tree" },
+];
+
+/** The shrub prototype's declared tiers: a near tier of itself and a far tier. */
+const SHRUB_TIERS: IAutoMovieModelLodRecipe[] = [
+  { tier: "near", maxDistance: 10, recipe: "shrub" },
+  { tier: "far", maxDistance: null, recipe: "shrub-far" },
+];
+
+/** The supplied tree model group, hashed into every tier that names it. */
+const models: Map<string, IAutoMovieModel> = new Map<string, IAutoMovieModel>([
+  ["tree", { ...createModel(null), id: "tree" }],
 ]);
 
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
@@ -92,32 +88,33 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
  *
  * 1. One member past a chunk makes two chunks with exact bounds and centroids.
  * 2. Without a prototype table the record names none and takes its radius and
- *    tiers from the base recipe, keeping a declared hero tier that a formation
- *    would drop, because an instance set has no heroes.
+ *    the tiers the set declares for its base group, keeping a declared hero tier
+ *    that a formation would drop, because an instance set has no heroes.
  * 3. A table of tall 2 and short 1 compiles with the default first at weight one;
- *    a prototype whose recipe is undeclared draws through one near tier of it,
- *    each prototype takes its own radius, and the set's radius is the largest.
+ *    the default keeps the set's tiers, a prototype declaring no tiers draws
+ *    through one near tier of its group, a prototype declaring tiers keeps its
+ *    own, a supplied group's tier carries its Node digest, each prototype takes
+ *    its own radius, and the set's radius is the largest.
  * 4. A route layout snapshots its route as a copy, a local layout records none,
  *    and the laws are copied rather than shared with the design.
  * 5. An unavailable route and a route of no length refuse compilation.
  * 6. The digest is the Node digest of every other field, repeatable, and
- *    different for another seed; omitted recipes and radii compile one near tier
- *    of the base recipe at half a metre.
+ *    different for another seed; omitted tiers, model groups and radii compile
+ *    one near tier of the base group at half a metre.
  * 7. Five points are visited once in ascending order, yielding three chunks
  *    with independent centroids and a whole bounds/centroid summary.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledInstanceSet and the actual shared chunk/global summary seam; asserts compact laws, geometry, prototype/radius policy, refusal and canonical digest, while a callback visit log rejects duplicated slot regeneration.
  * @evidence contracts/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Literal prototype order/weights and measured/fallback radii anchor policy. Node SHA independently checks hashing, while canonical text is shared and neither fallback enclosure nor every canonicalization decision is independently certified.
- * @evidence contracts/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
+ * @evidence contracts/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, declared versus undeclared prototype tiers, a supplied versus an absent group digest, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime owns synchronous local records/maps and a callback visit log supplied through the real summary seam, without foreign-method replacement. Node crypto hashes shared canonical bytes independently; no graphics, publication, clock or production consumer is launched. Copy guards concern these selected route/layout/variation records, not every compiled prototype subtree.
  */
 export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.
   const compiled: IAutoMovieCompiledInstanceSet =
     materializeCompiledInstanceSet({
-      instanceSet: row(),
+      instanceSet: row({ lod: TREE_TIERS }),
       world: { routes: [] },
-      recipes,
       projectionRadii: new Map([["tree", 1.5]]),
     });
   const [first, last]: IAutoMovieInstanceChunk[] = compiled.chunks;
@@ -169,7 +166,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
 
   // 2. No table.
   TestValidator.equals(
-    "a set without a table keeps the base recipe's tiers and radius",
+    "a set without a table keeps its declared base tiers and radius",
     namedFacts([
       [
         "noTable",
@@ -193,13 +190,14 @@ export function test_engine_compiled_instance_set_runtime(): void {
   // 3. Table.
   const tabled: IAutoMovieCompiledInstanceSet = materializeCompiledInstanceSet({
     instanceSet: row({
+      lod: TREE_TIERS,
       prototypes: [
         { id: "tall", modelRecipe: "tall-tree", weight: 2 },
-        { id: "short", modelRecipe: "shrub", weight: 1 },
+        { id: "short", modelRecipe: "shrub", weight: 1, lod: SHRUB_TIERS },
       ],
     }),
     world: { routes: [] },
-    recipes,
+    models,
     projectionRadii: new Map([
       ["tree", 1.5],
       ["tall-tree", 3],
@@ -243,6 +241,22 @@ export function test_engine_compiled_instance_set_runtime(): void {
           tall!.lod[0]!.recipe === "tall-tree",
       ],
       [
+        "declaredTiersKept",
+        (): boolean =>
+          short!.lod
+            .map(
+              (item: IAutoMovieCompiledFormationLod): string =>
+                `${item.tier}:${item.recipe}`,
+            )
+            .join(",") === "near:shrub,far:shrub-far",
+      ],
+      [
+        "groupDigest",
+        (): boolean =>
+          base!.lod[1]!.recipeDigest === nodeDigest(models.get("tree")) &&
+          short!.lod[0]!.recipeDigest !== base!.lod[1]!.recipeDigest,
+      ],
+      [
         "ownRadii",
         (): boolean =>
           nclose(base!.projectionRadius, 1.5, 0) &&
@@ -263,6 +277,8 @@ export function test_engine_compiled_instance_set_runtime(): void {
       weights: true,
       recipes: true,
       undeclaredDrawsNear: true,
+      declaredTiersKept: true,
+      groupDigest: true,
       ownRadii: true,
       largest: true,
       baseTiers: true,
@@ -378,9 +394,8 @@ export function test_engine_compiled_instance_set_runtime(): void {
         "repeatable",
         (): boolean =>
           materializeCompiledInstanceSet({
-            instanceSet: row(),
+            instanceSet: row({ lod: TREE_TIERS }),
             world: { routes: [] },
-            recipes,
             projectionRadii: new Map([["tree", 1.5]]),
           }).digest === digest,
       ],
@@ -388,9 +403,8 @@ export function test_engine_compiled_instance_set_runtime(): void {
         "seed",
         (): boolean =>
           materializeCompiledInstanceSet({
-            instanceSet: row({ seed: 4 }),
+            instanceSet: row({ seed: 4, lod: TREE_TIERS }),
             world: { routes: [] },
-            recipes,
             projectionRadii: new Map([["tree", 1.5]]),
           }).digest !== digest,
       ],

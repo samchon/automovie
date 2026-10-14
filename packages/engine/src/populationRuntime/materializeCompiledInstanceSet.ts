@@ -5,7 +5,8 @@ import type {
   IAutoMovieInstanceSetDesign,
   IAutoMovieInstanceSetLayout,
   IAutoMovieInstanceVariation,
-  IAutoMovieModelRecipe,
+  IAutoMovieModel,
+  IAutoMovieModelLodRecipe,
   IAutoMovieVector3,
   IAutoMovieWorldDesign,
   IAutoMovieWorldRoute,
@@ -25,9 +26,9 @@ import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
  * The record keeps the placement and variation laws, the route snapshot a
  * route layout follows, one bounds and centroid per chunk of
  * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
- * measured or fallback radius of the base recipe and every declared prototype, and
+ * measured or fallback radius of the base model group and every declared prototype, and
  * a digest of every other field. A declared prototype table is compiled with
- * the base recipe's default first, which is the choice list every member is
+ * the base group's default first, which is the choice list every member is
  * regenerated against afterwards.
  *
  * Bounds are measured by regenerating each slot through {@link instanceSlot},
@@ -51,11 +52,11 @@ export const materializeCompiledInstanceSet: (props: {
     IAutoMovieWorldDesign,
     "routes"
   >;
-  /** Model recipes keyed by id; empty when none are declared. */ recipes?: ReadonlyMap<
+  /** Model groups keyed by the id the set, its prototypes and their tiers name, hashed into each tier's digest; empty when none are supplied. */ models?: ReadonlyMap<
     string,
-    IAutoMovieModelRecipe
+    IAutoMovieModel
   >;
-  /** Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows its prototype's base recipe radius and then half a metre. */ projectionRadii?: ReadonlyMap<
+  /** Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows its prototype's base group radius and then half a metre. */ projectionRadii?: ReadonlyMap<
     string,
     number
   >;
@@ -64,17 +65,17 @@ export const materializeCompiledInstanceSet: (props: {
   instanceSet: IAutoMovieInstanceSetDesign;
   /** World routes a route layout resolves its route from. */
   world: Pick<IAutoMovieWorldDesign, "routes">;
-  /** Model recipes keyed by id; empty when none are declared. */
-  recipes?: ReadonlyMap<string, IAutoMovieModelRecipe>;
+  /** Model groups keyed by the id the set, its prototypes and their tiers name, hashed into each tier's digest; empty when none are supplied. */
+  models?: ReadonlyMap<string, IAutoMovieModel>;
   /**
-   * Supplied root-centered radius estimate in metres keyed by recipe id; an id without one borrows its prototype's base recipe radius and then half a metre.
+   * Supplied root-centered radius estimate in metres keyed by model group id; an id without one borrows its prototype's base group radius and then half a metre.
    */
   projectionRadii?: ReadonlyMap<string, number>;
 }): IAutoMovieCompiledInstanceSet => {
   const instanceSet: IAutoMovieInstanceSetDesign = props.instanceSet;
   const layout: IAutoMovieInstanceSetLayout = instanceSet.layout;
-  const recipes: ReadonlyMap<string, IAutoMovieModelRecipe> =
-    props.recipes ?? new Map<string, IAutoMovieModelRecipe>();
+  const models: ReadonlyMap<string, IAutoMovieModel> =
+    props.models ?? new Map<string, IAutoMovieModel>();
   const projectionRadii: ReadonlyMap<string, number> =
     props.projectionRadii ?? new Map<string, number>();
   const route: IAutoMovieWorldRoute | null =
@@ -118,6 +119,7 @@ export const materializeCompiledInstanceSet: (props: {
     id: string;
     modelRecipe: string;
     weight: number;
+    lod?: IAutoMovieModelLodRecipe[] | undefined;
   }) => {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
@@ -128,6 +130,7 @@ export const materializeCompiledInstanceSet: (props: {
     id: string;
     modelRecipe: string;
     weight: number;
+    lod?: IAutoMovieModelLodRecipe[] | undefined;
   }): {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
@@ -140,12 +143,14 @@ export const materializeCompiledInstanceSet: (props: {
       projectionRadius: number;
     } = compiledPopulationRepresentation({
       modelRecipe: prototype.modelRecipe,
-      tiers: recipes.get(prototype.modelRecipe)?.lod ?? [],
-      recipes,
+      tiers: prototype.lod ?? [],
+      models,
       projectionRadii,
     });
     return {
-      ...prototype,
+      id: prototype.id,
+      modelRecipe: prototype.modelRecipe,
+      weight: prototype.weight,
       lod: representation.lod,
       projectionRadius: representation.projectionRadius,
     };
@@ -160,6 +165,7 @@ export const materializeCompiledInstanceSet: (props: {
     id: "default",
     modelRecipe: instanceSet.modelRecipe,
     weight: 1,
+    lod: instanceSet.lod,
   });
   const prototypes:
     | {

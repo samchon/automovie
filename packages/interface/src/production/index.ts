@@ -107,7 +107,6 @@ export * from "./IAutoMovieInstanceSetLayout";
 export * from "./IAutoMovieInstanceVariation";
 export * from "./IAutoMovieMeasurementProxyReference";
 export * from "./IAutoMovieModelLodRecipe";
-export * from "./IAutoMovieModelRecipe";
 export * from "./IAutoMovieMotionAdoptionConsumer";
 export * from "./IAutoMovieMotionResourceConsumer";
 export * from "./IAutoMovieNamedState";
