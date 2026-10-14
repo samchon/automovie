@@ -1,6 +1,9 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import {
   type IAutoMovieModelObject,
+  type IAutoMovieRenderModeHandle,
+  applyAutoMovieSemanticMask,
+  applyRenderMode,
   buildModel,
   dualQuaternionSkinningVertex,
 } from "@automovie/viewer";
@@ -19,10 +22,11 @@ import { throwsError } from "../internal/predicates";
  * 3. A dual-quaternion part and a linear part sharing one material definition receive different material variants.
  * 4. The registered compile hook rewrites the physical vertex shader: the blend follows `skinbase_vertex`, normals and positions read it, and Three's linear chunks are gone.
  * 5. The depth vertex shader, which has no skinning normal chunk, is still rewritten; a shader without skinning chunks throws.
+ * 6. Every guide pass that swaps materials (depth, normal, outline fill and shell, mask, semantic mask) patches the dual-quaternion tube's replacement and not the linear tube's, and restoring returns the original material.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds models through buildModel, invokes the material's own onBeforeCompile on Three's shader sources and reads keys and source text; catches a patch on the wrong variant, missing shadow materials, a linear chunk left in place, a blend placed after its readers and a silent pass-through of an unsupported shader.
+ * @evidence contracts/testing.md#behavioral-verification Builds models through buildModel, invokes the material's own onBeforeCompile on Three's shader sources and reads keys and source text; catches a patch on the wrong variant, missing shadow materials, a guide pass drawing the skin linearly, a linear chunk left in place, a blend placed after its readers and a silent pass-through of an unsupported shader.
  * @evidence contracts/testing.md#independent-expectations Expectations follow the interface contract (only "dual-quaternion" changes the blend, omission means linear) and Three's chunk order for skinning, not the patch's own output; the GLSL is not compiled here, so its arithmetic is verified on a hardware renderer instead.
- * @evidence contracts/testing.md#distinguishing-cases Dual-quaternion, linear and omitted methods; a shared definition split by method; physical and depth shaders; and an unsupported shader. Mesh admission and skinning arithmetic belong to the validation and kinematics tests.
+ * @evidence contracts/testing.md#distinguishing-cases Dual-quaternion, linear and omitted methods; a shared definition split by method; physical and depth shaders; an unsupported shader; and each material-swapping guide pass over a dual-quaternion and a linear tube side by side. Mesh admission and skinning arithmetic belong to the validation and kinematics tests.
  * @evidence contracts/testing.md#execution-ownership A portable unit over CPU-side Three objects and shader strings with a synthetic internal fixture; it starts no browser, GPU or process.
  */
 export function test_viewer_dual_quaternion_skinning(): void {
@@ -135,5 +139,81 @@ export function test_viewer_dual_quaternion_skinning(): void {
       (): string => dualQuaternionSkinningVertex("void main() {}"),
       "Dual quaternion skinning needs",
     ),
+  );
+
+  // 6. guide passes patch the replacement of a dual-quaternion skin only
+  const scene: THREE.Scene = new THREE.Scene();
+  const dualBuilt: IAutoMovieModelObject = buildModel(
+    createSkinnedTubeModel("dual-quaternion"),
+  );
+  const linearBuilt: IAutoMovieModelObject = buildModel(
+    createSkinnedTubeModel("linear"),
+  );
+  scene.add(dualBuilt.object, linearBuilt.object);
+  const dualTube: THREE.Mesh = meshOf(dualBuilt, "tube");
+  const linearTube: THREE.Mesh = meshOf(linearBuilt, "tube");
+  const originals: [THREE.Material, THREE.Material] = [
+    dualTube.material as THREE.Material,
+    linearTube.material as THREE.Material,
+  ];
+  const patched: () => [boolean, boolean] = (): [boolean, boolean] => [
+    keyOf(dualTube.material as THREE.Material).includes(KEY),
+    keyOf(linearTube.material as THREE.Material).includes(KEY),
+  ];
+  for (const mode of ["depth", "normal", "mask"] as const) {
+    const handle: IAutoMovieRenderModeHandle = applyRenderMode(scene, mode);
+    TestValidator.equals(`the ${mode} pass patches only the dual skin`, patched(), [
+      true,
+      false,
+    ]);
+    handle.restore();
+  }
+  const outline: IAutoMovieRenderModeHandle = applyRenderMode(scene, "outline");
+  const shells: THREE.Mesh[] = [dualBuilt, linearBuilt].map(
+    (built: IAutoMovieModelObject): THREE.Mesh =>
+      built.object.children.find(
+        (child: THREE.Object3D): boolean =>
+          child !== meshOf(built, "tube") && (child as THREE.Mesh).isMesh === true,
+      ) as THREE.Mesh,
+  );
+  TestValidator.equals(
+    "the outline fill and shell patch only the dual skin",
+    [
+      ...patched(),
+      keyOf(shells[0]!.material as THREE.Material).includes(KEY),
+      keyOf(shells[1]!.material as THREE.Material).includes(KEY),
+    ],
+    [true, false, true, false],
+  );
+  outline.restore();
+  const semantic: ReturnType<typeof applyAutoMovieSemanticMask> =
+    applyAutoMovieSemanticMask({
+      scene,
+      design: {
+        id: "empty",
+        name: null,
+        nodes: [],
+        cameras: [],
+        lights: [],
+      },
+      mask: {
+        version: 2,
+        protocol: "automovie.semantic-mask.v2",
+        background: "#000000",
+        entries: [],
+        unaddressed: [],
+        digest: "",
+      },
+    });
+  TestValidator.equals(
+    "the semantic mask patches only the dual skin",
+    patched(),
+    [true, false],
+  );
+  semantic.restore();
+  TestValidator.equals(
+    "every pass restores the original materials",
+    [dualTube.material, linearTube.material],
+    originals,
   );
 }

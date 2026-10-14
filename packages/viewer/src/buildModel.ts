@@ -31,7 +31,8 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  *
  * A skin whose `method` is `"dual-quaternion"` takes a material variant with
  * the dual quaternion vertex patch, and its mesh casts shadows through its own
- * patched depth and distance materials, so the shadow deforms like the surface.
+ * patched depth and distance materials, so the shadow deforms like the surface;
+ * the mesh is flagged so guide passes patch the materials they swap in.
  *
  * A mesh's morph targets reach `morphTargetDictionary` by name, so
  * {@link applyExpression} drives them, and its driven targets are recorded on
@@ -183,12 +184,23 @@ export const buildModel: (
         parts.set(part.id, mesh);
         // Three's Mesh constructor ran updateMorphTargets(), so the dictionary
         // already names each target; applyPose writes the driven ones.
-        const driven: IAutoMovieMeshMorphTarget[] =
+        // Names and drivers only: Object3D.clone copies userData through JSON,
+        // and the delta buffers already live in the geometry.
+        const driven: Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[] =
           part.geometry.type === "mesh"
-            ? (part.geometry.mesh.targets ?? []).filter(
-                (target: IAutoMovieMeshMorphTarget): boolean =>
-                  target.driver !== undefined && target.driver !== null,
-              )
+            ? (part.geometry.mesh.targets ?? [])
+                .filter(
+                  (target: IAutoMovieMeshMorphTarget): boolean =>
+                    target.driver !== undefined && target.driver !== null,
+                )
+                .map(
+                  (
+                    target: IAutoMovieMeshMorphTarget,
+                  ): Pick<IAutoMovieMeshMorphTarget, "name" | "driver"> => ({
+                    name: target.name,
+                    driver: target.driver,
+                  }),
+                )
             : [];
         if (driven.length !== 0)
           mesh.userData.automovieMorphTargetDrivers = driven;
@@ -228,6 +240,8 @@ export const buildModel: (
             applyDualQuaternionSkinning(distance);
             mesh.customDepthMaterial = depth;
             mesh.customDistanceMaterial = distance;
+            // guide passes that swap the material read this to patch theirs
+            mesh.userData.automovieDualQuaternionSkinning = true;
           }
         } else if (part.attachedBone !== null) {
           // An unknown attachedBone must throw like the skin path above (#1106):

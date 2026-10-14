@@ -18,7 +18,7 @@ import { evaluateDrivenCurve } from "../resolve/evaluateDrivenCurve";
  * Targets without a driver are left out, so their weights stay with
  * expressions.
  *
- * @param targets The mesh's morph targets.
+ * @param targets The mesh's morph targets, or just their names and drivers.
  * @param pose The pose being applied.
  * @returns Weight by target name, for driven targets only.
  *
@@ -32,10 +32,10 @@ import { evaluateDrivenCurve } from "../resolve/evaluateDrivenCurve";
  * @author Samchon
  */
 export const resolveMorphTargetWeights: (
-  targets: readonly IAutoMovieMeshMorphTarget[],
+  targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],
   pose: IAutoMoviePose,
 ) => Map<string, number> = (
-  targets: readonly IAutoMovieMeshMorphTarget[],
+  targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],
   pose: IAutoMoviePose,
 ): Map<string, number> => {
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(

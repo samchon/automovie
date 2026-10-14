@@ -80,8 +80,10 @@ export const applyPose: (
   }
   // Pose-driven morph targets follow the same pose, written beside the bones.
   target.object.traverse((object: THREE.Object3D): void => {
-    const drivers: readonly IAutoMovieMeshMorphTarget[] | null =
-      morphTargetDriversOf(object);
+    const drivers: readonly Pick<
+      IAutoMovieMeshMorphTarget,
+      "name" | "driver"
+    >[] | null = morphTargetDriversOf(object);
     const mesh: THREE.Mesh = object as THREE.Mesh;
     if (
       drivers === null ||
