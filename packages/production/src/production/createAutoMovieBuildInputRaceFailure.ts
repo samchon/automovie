@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
   IAutoMovieDiagnostic,
 } from "@automovie/interface";
@@ -16,20 +15,28 @@ import { AUTOMOVIE_PRODUCTION_BUILD_VERSION } from "./productionBuildProtocol";
  * formatter. If that observation is itself refused after a root or namespace
  * replacement, both the original race and the observation error remain in an
  * AggregateError. No stale revision is invented to complete the result shape.
+ *
+ * @evidence contracts/common.md#principled-implementation One compile-input-changed finding is appended to the attempt diagnostics, deterministically sorted, and paired with a fresh fenced revision; failed revision observation throws an AggregateError preserving both original causes by identity.
+ * @evidence contracts/common.md#clear-and-simple-design Timed/library confirmation and publication share one race-result formatter; project authority remains responsible for revision observation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No materialized success or stale revision is invented and the original race is not discarded when the secondary read fails.
+ * @evidence contracts/common.md#meaningful-documentation States diagnostic mutation/order, fresh revision ownership, refused output and both-cause preservation.
+ * @evidence contracts/performance.md#efficient-algorithms For D existing diagnostics, append is amortized constant and sorting costs O(D log D) comparisons whose string cost follows diagnostic text; one revision observation and small refusal allocation follow.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A race is an independent failed attempt and its current revision must be freshly observed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned refusal shares the supplied diagnostic list and transfers it to the caller; AggregateError retains both causes when thrown. This formatter opens no handle or task.
  */
-export const createAutoMovieBuildInputRaceFailure = (props: {
+export function createAutoMovieBuildInputRaceFailure(props: {
   /** Shared diagnostic result of this compilation attempt. */
   diagnostics: IAutoMovieDiagnostic[];
 
   /** Input identity the refused attempt actually compiled. */
-  inputFingerprint: AutoMovieContentDigest;
+  inputFingerprint: string;
 
   /** The original guarded-commit failure, preserved by identity. */
   failure: AutoMovieProductionInputRaceError;
 
   /** Fenced observation of the project's current revision. */
   currentRevision: () => number;
-}): IAutoMovieBuildProjectOutput => {
+}): IAutoMovieBuildProjectOutput {
   props.diagnostics.push({
     code: "compile-input-changed",
     category: "error",
@@ -58,4 +65,4 @@ export const createAutoMovieBuildInputRaceFailure = (props: {
     diagnostics: props.diagnostics,
     materialized: [],
   };
-};
+}

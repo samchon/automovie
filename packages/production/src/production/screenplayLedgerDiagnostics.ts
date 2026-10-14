@@ -15,13 +15,16 @@ import type {
  * shift, so an inserted scene takes the alpha form `SCN-A11`, which orders
  * between its neighbours without renumbering either of them.
  */
-const NUMERIC_SCENE_ID = /^SCN-[0-9]+$/u;
-const INSERTED_SCENE_ID = /^SCN-[A-Z]+[0-9]+$/u;
+const NUMERIC_SCENE_ID: RegExp = /^SCN-[0-9]+$/u;
+const INSERTED_SCENE_ID: RegExp = /^SCN-[A-Z]+[0-9]+$/u;
 
-const canonicalSceneId = (id: string): boolean =>
-  NUMERIC_SCENE_ID.test(id) || INSERTED_SCENE_ID.test(id);
+function canonicalSceneId(id: string): boolean {
+  return NUMERIC_SCENE_ID.test(id) || INSERTED_SCENE_ID.test(id);
+}
 
-const blank = (value: string): boolean => value.trim().length === 0;
+function blank(value: string): boolean {
+  return value.trim().length === 0;
+}
 
 /**
  * The ledger's own consistency, judged without reading a single document.
@@ -36,8 +39,16 @@ const blank = (value: string): boolean => value.trim().length === 0;
  * conditions the way an uncovered scene is; a ledger that contradicts itself is
  * wrong at the moment it is written, and the earliest compile is the cheapest
  * place to hear it.
+ *
+ * @evidence contracts/common.md#principled-implementation Stable-id sets join treatment coverage, scenes, catalogs, continuity proof owners and downstream citations, while lock history requires retained scene ids or tombstones and alpha-form insertions after lock. Coverage is by beat identity, not verbatim sentence equality.
+ * @evidence contracts/common.md#clear-and-simple-design This owner validates the admitted index without reading prose; Markdown structure owns carrier parsing, domain proof owners own realized evidence and project reads own exact-shape admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Text equality cannot certify causal coverage, lock age cannot authorize renumbering and a citation to an absent scene/claim remains an error rather than presumed evidence.
+ * @evidence contracts/common.md#meaningful-documentation States index-only scope, structural-admission premise, all-scope findings, stable coverage and permanent lock identity rules.
+ * @evidence contracts/performance.md#efficient-algorithms Set/map indexing visits treatment beats, scenes, coverage entries, lock ids, catalogs, claims and citations once per declared population, plus string inspection and diagnostic text cost; retained indexes scale with distinct ids and no document or geometry scan occurs.
+ * @evidence contracts/performance.md#reuse-equivalent-work The call shares beat, scene, location and claim indexes across its joins; no answer is cached across mutable index or contract populations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Index sets/maps are local and diagnostic records transfer to the build attempt; population and diagnostic text grow with admitted input without a fixed cap, and no handle or asynchronous task is acquired.
  */
-export const screenplayLedgerDiagnostics = (props: {
+export function screenplayLedgerDiagnostics(props: {
   acceptance: ReadonlyMap<string, IAutoMovieAcceptanceScenario>;
   contracts: ReadonlyMap<string, IAutoMovieShotContract>;
   screenplay: IAutoMovieScreenplayIndex | null;
@@ -51,15 +62,11 @@ export const screenplayLedgerDiagnostics = (props: {
    * measured productions spent authoring turns exactly there.
    */
   designRecordPath: (target: IAutoMovieDesignTarget) => string;
-}): IAutoMovieDiagnostic[] => {
-  const screenplay = props.screenplay;
+}): IAutoMovieDiagnostic[] {
+  const screenplay: IAutoMovieScreenplayIndex | null = props.screenplay;
   if (screenplay === null) return [];
   const diagnostics: IAutoMovieDiagnostic[] = [];
-  const refuse = (
-    code: AutoMovieDiagnosticCode,
-    message: string,
-    owner: IAutoMovieDesignTarget | null = null,
-  ): void => {
+  function refuse(code: AutoMovieDiagnosticCode, message: string, owner: IAutoMovieDesignTarget | null = null): void {
     diagnostics.push({
       code,
       category: "error",
@@ -68,18 +75,16 @@ export const screenplayLedgerDiagnostics = (props: {
       path: owner === null ? null : props.designRecordPath(owner),
       message,
     });
-  };
+  }
 
   // --- Treatment -----------------------------------------------------------
-  const beatsByText = new Map<string, string>();
-  const beatsById = new Map<string, string>();
-  const beatIds = new Set<string>();
+  const beatIds: Set<string> = new Set<string>();
   if (screenplay.treatment.sequences.length === 0)
     refuse(
       "screenplay-treatment-empty",
       "The treatment indexes no sequences. An empty machine index cannot certify the human story, so nothing downstream can be traced to a dramatic promise. Index at least one sequence and compile again.",
     );
-  screenplay.treatment.sequences.forEach((sequence, sequenceIndex) => {
+  screenplay.treatment.sequences.forEach((sequence: IAutoMovieScreenplayIndex["treatment"]["sequences"][number], sequenceIndex: number): void => {
     if (blank(sequence.id) || blank(sequence.title))
       refuse(
         "screenplay-sequence-unnamed",
@@ -88,13 +93,13 @@ export const screenplayLedgerDiagnostics = (props: {
     if (sequence.beats.length === 0)
       refuse(
         "screenplay-sequence-beatless",
-        `Treatment sequence "${sequence.id}" has no beats. A title alone promises no causal work for a scene to cover. Index at least one exact prose beat and compile again.`,
+        `Treatment sequence "${sequence.id}" has no beats. A title alone promises no causal work for a scene to cover. Index at least one stable beat with its prose brief and compile again.`,
       );
-    sequence.beats.forEach((beat, beatIndex) => {
+    sequence.beats.forEach((beat: IAutoMovieScreenplayIndex["treatment"]["sequences"][number]["beats"][number], beatIndex: number): void => {
       if (blank(beat.id) || blank(beat.text)) {
         refuse(
           "screenplay-beat-unnamed",
-          `Treatment beat at sequence ${sequenceIndex}, index ${beatIndex} has a blank id or exact prose. A scene cannot cover an unnamed promise. Fill both fields and compile again.`,
+          `Treatment beat at sequence ${sequenceIndex}, index ${beatIndex} has a blank id or prose brief. A scene cannot cover an unnamed promise. Fill both fields and compile again.`,
         );
         return;
       }
@@ -103,33 +108,25 @@ export const screenplayLedgerDiagnostics = (props: {
           "screenplay-beat-id-repeated",
           `Treatment beat id "${beat.id}" is declared more than once. Downstream coverage would be ambiguous. Keep one stable beat id and compile again.`,
         );
-      const twin = beatsByText.get(beat.text);
-      if (twin !== undefined)
-        refuse(
-          "screenplay-beat-prose-repeated",
-          `Treatment beats "${twin}" and "${beat.id}" carry identical exact prose. Verbatim scene coverage could not distinguish them. Make each causal promise exact and distinct, then compile again.`,
-        );
       beatIds.add(beat.id);
-      beatsByText.set(beat.text, beat.id);
-      beatsById.set(beat.id, beat.text);
     });
   });
 
   // --- Scenes --------------------------------------------------------------
-  const locations = new Set(
-    screenplay.catalog.locations.map((entry) => entry.id),
+  const locations: Set<string> = new Set(
+    screenplay.catalog.locations.map((entry: IAutoMovieScreenplayCatalogEntry): string => entry.id),
   );
-  const scenes = new Map<
+  const scenes: Map<string, IAutoMovieScreenplayIndex["screenplay"]["scenes"][number]> = new Map<
     string,
     (typeof screenplay.screenplay.scenes)[number]
   >();
-  const coveredBeats = new Set<string>();
+  const coveredBeats: Set<string> = new Set<string>();
   if (screenplay.screenplay.scenes.length === 0)
     refuse(
       "screenplay-scenes-empty",
       "The screenplay indexes no scenes. An empty ledger cannot certify authored prose or downstream realization. Index at least one scene and compile again.",
     );
-  screenplay.screenplay.scenes.forEach((scene, sceneIndex) => {
+  screenplay.screenplay.scenes.forEach((scene: IAutoMovieScreenplayIndex["screenplay"]["scenes"][number], sceneIndex: number): void => {
     if (scenes.has(scene.id)) {
       refuse(
         "screenplay-scene-id-repeated",
@@ -171,9 +168,9 @@ export const screenplayLedgerDiagnostics = (props: {
         "screenplay-scene-story-time-absent",
         `Active scene "${scene.id}" has no story-time identity. Use an exact relation or the explicit "unknown" state; an empty value cannot join authoritative prose, then compile again.`,
       );
-    const participantKeys = new Set<string>();
+    const participantKeys: Set<string> = new Set<string>();
     for (const participant of scene.participants) {
-      const key = `${participant.id}\u0000${participant.mode}`;
+      const key: string = `${participant.id}\u0000${participant.mode}`;
       if (blank(participant.id))
         refuse(
           "screenplay-scene-participant-invalid",
@@ -186,7 +183,7 @@ export const screenplayLedgerDiagnostics = (props: {
         );
       participantKeys.add(key);
     }
-    scene.covers.forEach((coverage, coverIndex) => {
+    scene.covers.forEach((coverage: IAutoMovieScreenplayIndex["screenplay"]["scenes"][number]["covers"][number], coverIndex: number): void => {
       if (blank(coverage.reason))
         refuse(
           "screenplay-cover-unreasoned",
@@ -195,38 +192,32 @@ export const screenplayLedgerDiagnostics = (props: {
       if (blank(coverage.id))
         refuse(
           "screenplay-cover-unpromised",
-          `Scene "${scene.id}" cover at index ${coverIndex} has no treatment beat identity. Name the exact beat id alongside its verbatim prose, then compile again.`,
+          `Scene "${scene.id}" cover at index ${coverIndex} has no treatment beat identity. Name the stable beat id, then compile again.`,
         );
-      if (beatsByText.has(coverage.beat) === false)
+      if (beatIds.has(coverage.id) === false)
         refuse(
           "screenplay-cover-unpromised",
-          `Scene "${scene.id}" covers prose the treatment index does not promise verbatim: "${coverage.beat}". Coverage that paraphrases proves nothing was carried forward. Copy the exact beat text or index the promise, then compile again.`,
+          `Scene "${scene.id}" names treatment beat "${coverage.id}" that the index does not declare. Correct the stable beat identity or index its owner, then compile again.`,
         );
-      else coveredBeats.add(coverage.beat);
-      const indexedBeat = beatsById.get(coverage.id);
-      if (indexedBeat === undefined || indexedBeat !== coverage.beat)
-        refuse(
-          "screenplay-cover-unpromised",
-          `Scene "${scene.id}" covers beat id "${coverage.id}" with prose that does not belong to that exact treatment beat. Stable identity and verbatim prose must name the same promise. Correct both fields from the treatment owner, then compile again.`,
-        );
+      else coveredBeats.add(coverage.id);
     });
   });
-  for (const [text, id] of beatsByText)
-    if (coveredBeats.has(text) === false)
+  for (const id of beatIds)
+    if (coveredBeats.has(id) === false)
       refuse(
         "screenplay-beat-uncovered",
-        `Treatment beat "${id}" is covered by no active scene. A promised causal step that no scene owns is a story the screenplay does not tell. Cover it verbatim or drop the promise, then compile again.`,
+        `Treatment beat "${id}" is covered by no active scene. A promised causal step that no scene owns is a story the screenplay does not tell. Cover its stable identity or drop the promise, then compile again.`,
       );
 
   // --- Lock ----------------------------------------------------------------
-  const lock = screenplay.screenplay.lock;
+  const lock: IAutoMovieScreenplayIndex["screenplay"]["lock"] = screenplay.screenplay.lock;
   if (lock !== null) {
     if (blank(lock.reason))
       refuse(
         "screenplay-lock-unreasoned",
         "The screenplay lock states no reason. Stable numbering has no auditable activation decision. Record why downstream work now requires it and compile again.",
       );
-    const ledger = new Set<string>();
+    const ledger: Set<string> = new Set<string>();
     for (const id of lock.sceneIds) {
       if (ledger.has(id))
         refuse(
@@ -259,7 +250,7 @@ export const screenplayLedgerDiagnostics = (props: {
     ["faction", screenplay.catalog.factions],
     ["location", screenplay.catalog.locations],
   ];
-  const claims = new Set<string>();
+  const claims: Set<string> = new Set<string>();
   for (const claim of screenplay.continuity) {
     if (blank(claim.id) || blank(claim.text) || claim.evidence.length === 0) {
       refuse(
@@ -290,7 +281,7 @@ export const screenplayLedgerDiagnostics = (props: {
         );
   }
   for (const [kind, entries] of catalogSections) {
-    const ids = new Set<string>();
+    const ids: Set<string> = new Set<string>();
     for (const entry of entries) {
       if (blank(entry.id) || blank(entry.name)) {
         refuse(
@@ -334,11 +325,8 @@ export const screenplayLedgerDiagnostics = (props: {
   // join dangling outside the screenplay: the citation looks like traceability
   // and resolves to nothing. Records without evidence are silent here, since
   // the coverage check owns whether evidence is required at all.
-  const cite = (
-    owner: IAutoMovieDesignTarget & { id: string },
-    evidence: IAutoMovieShotContract["evidence"],
-  ): void => {
-    const label = `${owner.kind === "shot" ? "Shot contract" : "Acceptance scenario"} "${owner.id}"`;
+  function cite(owner: IAutoMovieDesignTarget & { id: string }, evidence: IAutoMovieShotContract["evidence"]): void {
+    const label: string = `${owner.kind === "shot" ? "Shot contract" : "Acceptance scenario"} "${owner.id}"`;
     for (const entry of evidence ?? []) {
       if (scenes.has(entry.scene) === false)
         refuse(
@@ -357,10 +345,10 @@ export const screenplayLedgerDiagnostics = (props: {
           owner,
         );
     }
-  };
+  }
   for (const [id, contract] of props.contracts)
     cite({ kind: "shot", id }, contract.evidence);
   for (const [id, scenario] of props.acceptance)
     cite({ kind: "acceptance", id }, scenario.evidence);
   return diagnostics;
-};
+}

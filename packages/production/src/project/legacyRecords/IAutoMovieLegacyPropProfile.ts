@@ -1,8 +1,8 @@
 /**
- * Legacy project record boundary. The stored format preserves its existing
- * identities and units; runtime consumers use the same declared fields.
+ * Legacy project record boundary preserving historical identities and units.
  */
-import type { IAutoMovieChannelLimit, IAutoMovieProfileControl } from "@automovie/interface";
+import type { IAutoMovieChannelLimit } from "@automovie/interface";
+import type { IAutoMovieLegacyPropControl } from "./IAutoMovieLegacyPropControl";
 import type { IAutoMovieLegacyPropDriver } from "./IAutoMovieLegacyPropDriver";
 
 /**
@@ -11,6 +11,16 @@ import type { IAutoMovieLegacyPropDriver } from "./IAutoMovieLegacyPropDriver";
  * (`IAutoMovieProfile.gaits` is for bodies); the humanoid gait path rides the
  * `perform` tool's actor contexts instead.
  *
+ * Controls remain stored metadata; conversion omits them because no runtime
+ * ever applied their default values or bound their channels.
+ *
+ * @evidence contracts/common.md#principled-implementation The v1 profile keeps named driver ranges and historical controls in its persisted shape; conversion lowers active drivers and limits into the engine contract and omits unread controls.
+ * @evidence contracts/common.md#clear-and-simple-design Legacy storage owns compatibility data while the active profile owns supported runtime semantics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Conversion preserves the historical absence of control execution instead of inventing defaults or channel bindings.
+ * @evidence contracts/common.md#meaningful-documentation States stored control behavior, tuple-free driver representation and joint-limit ownership.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares stored fields; conversion owns driver traversal and range lowering.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A stored profile starts no computation or result-sharing policy.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The enclosing legacy record owns the metadata lists; this declaration acquires no resources.
  * @author Samchon
  */
 export interface IAutoMovieLegacyPropProfile {
@@ -25,9 +35,9 @@ export interface IAutoMovieLegacyPropProfile {
   name: string;
 
   /**
-   * The named controls this profile exposes.
+   * Historical named-control metadata, omitted from the active engine profile.
    */
-  controls: IAutoMovieProfileControl[];
+  controls: IAutoMovieLegacyPropControl[];
 
   /**
    * Drivers coupling the prop's joints, tuple-free.
@@ -35,7 +45,7 @@ export interface IAutoMovieLegacyPropProfile {
   drivers: IAutoMovieLegacyPropDriver[];
 
   /**
-   * Value constraints over the prop's joints (the hinge's 0..110°).
+   * Value constraints over prop joint channels, with angular values in degrees.
    */
   limits: IAutoMovieChannelLimit[];
 }

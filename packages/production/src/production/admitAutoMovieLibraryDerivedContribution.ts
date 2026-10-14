@@ -10,7 +10,7 @@ import {
 } from "./duplicateAwareJson";
 
 /** The byte order mark a WHATWG UTF-8 decoder removes from projected text. */
-const UTF8_BOM = Uint8Array.of(0xef, 0xbb, 0xbf);
+const UTF8_BOM: Uint8Array = Uint8Array.of(0xef, 0xbb, 0xbf);
 
 /**
  * Admit the complete precomputed contribution one library owner selected.
@@ -33,9 +33,16 @@ const UTF8_BOM = Uint8Array.of(0xef, 0xbb, 0xbf);
  * same contribution schema and branch validation a `build` result receives,
  * so a derived owner earns no weaker admission than an executed one.
  *
+ * @evidence contracts/common.md#principled-implementation Requires an own selected UTF-8 artifact and exclusive derived registration, reconstructs decoded bytes with the two allowed initial-BOM possibilities to match its admitted digest, then applies the duplicate-aware structured JSON owner. The collector still owns contribution schema and carrier validation.
+ * @evidence contracts/common.md#clear-and-simple-design Owns derived selection and text-to-JSON admission while residentArtifact confines exact byte recovery; the collector applies the same downstream contribution contract used for authored build results.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No path or export bypasses current digest matching. The BOM reconstruction restores a decoder-removed prefix only when its digest matches; JSON ingress can still refuse that BOM, and an artifact cannot also register build().
+ * @evidence contracts/common.md#meaningful-documentation States the selection and digest premises, initial-BOM reconstruction, typed JSON refusal attribution and untyped return requiring later schema validation; arbitrary non-JSON text remains valid in the general artifact ledger but cannot complete this derived owner.
+ * @evidence contracts/performance.md#efficient-algorithms For B text bytes, recovery encodes and hashes O(B) bytes, allocating a prefixed copy only if the unprefixed digest differs, then pays structured JSON admission costs. Parsed output size and parser depth limits belong to that ingress owner.
+ * @evidence contracts/performance.md#reuse-equivalent-work Uses the build context's already-admitted artifact record; digest equality proves reconstructed bytes match it, without rereading the filesystem. No cross-call cache assumes mutable resident text or digest equivalence.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Reconstructed buffers and parsing intermediates are local until return; success transfers the data tree and refusal transfers one diagnostic. No file handle or task is acquired, and the caller retains the original context artifact.
  * @author Samchon
  */
-export const admitAutoMovieLibraryDerivedContribution = (props: {
+export function admitAutoMovieLibraryDerivedContribution(props: {
   /** Project-relative library source path whose export made the selection. */
   source: string;
   /** Named export that registered the derived owner. */
@@ -58,9 +65,9 @@ export const admitAutoMovieLibraryDerivedContribution = (props: {
       success: false;
       /** Blocking source-phase diagnostic naming the refused input. */
       diagnostic: IAutoMovieDiagnostic;
-    } => {
-  const target = `library-source:${props.source}:${props.exportName}`;
-  const selected = props.build ? null : residentArtifact(props);
+    } {
+  const target: string = `library-source:${props.source}:${props.exportName}`;
+  const selected: { path: string; bytes: Uint8Array } | null = props.build ? null : residentArtifact(props);
   if (selected === null)
     return {
       success: false,
@@ -84,7 +91,7 @@ export const admitAutoMovieLibraryDerivedContribution = (props: {
   } catch (error) {
     // The shared ingress throws nothing but its own typed refusal, so the
     // diagnostic restates that refusal under the owner that selected it.
-    const refusal = error as AutoMovieStructuredJsonError;
+    const refusal: AutoMovieStructuredJsonError = error as AutoMovieStructuredJsonError;
     return {
       success: false,
       diagnostic: {
@@ -97,7 +104,7 @@ export const admitAutoMovieLibraryDerivedContribution = (props: {
       },
     };
   }
-};
+}
 
 /**
  * Recover the exact resident bytes of one selected UTF-8 artifact.
@@ -106,20 +113,20 @@ export const admitAutoMovieLibraryDerivedContribution = (props: {
  * UTF-8 text, or its text reproduces the verified digest neither as decoded nor
  * with the one byte order mark decoding removes.
  */
-const residentArtifact = (props: {
+function residentArtifact(props: {
   derivedArtifact: string | null;
   derivedArtifacts: Readonly<Record<string, IAutoMovieDerivedArtifactSource>>;
-}): { path: string; bytes: Uint8Array } | null => {
-  const path = props.derivedArtifact;
+}): { path: string; bytes: Uint8Array } | null {
+  const path: string | null = props.derivedArtifact;
   if (path === null || Object.hasOwn(props.derivedArtifacts, path) === false)
     return null;
-  const artifact = props.derivedArtifacts[path];
+  const artifact: IAutoMovieDerivedArtifactSource = props.derivedArtifacts[path];
   if (artifact.encoding !== "utf8") return null;
-  const text = Buffer.from(artifact.content, "utf8");
+  const text: Buffer = Buffer.from(artifact.content, "utf8");
   if (digestAutoMovieBytes(text) === artifact.digest)
     return { path, bytes: text };
-  const marked = Buffer.concat([UTF8_BOM, text]);
+  const marked: Buffer = Buffer.concat([UTF8_BOM, text]);
   return digestAutoMovieBytes(marked) === artifact.digest
     ? { path, bytes: marked }
     : null;
-};
+}

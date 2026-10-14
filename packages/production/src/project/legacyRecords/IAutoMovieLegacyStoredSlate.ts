@@ -1,29 +1,19 @@
-/**
- * Legacy project record boundary. The stored format preserves its existing
- * identities and units; runtime consumers use the same declared fields.
- */
 import type { IAutoMovieBeatEndState, IAutoMovieReviewNote, IAutoMovieScene, IAutoMovieScript, IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
 
 /**
- * Records the v1 legacy project store reads and writes.
+ * Committed resident-store slices with an optional assembled film.
  *
- * These were part of a protocol payload module that no longer exists. Only the
- * legacy import path reads them, so they live beside it rather than in a
- * package-wide surface nothing else consumes.
- */
-
-/**
- * The committed slices a READ tool needs: everything but the assembled film.
+ * The historical read boundary omitted film; the writable form requires the
+ * slot. AutoMovieProject reads these slices and the legacy importer inventories
+ * them. The retired read/commit protocol is not an active consumer.
  *
- * `film` is declared here as optional rather than omitted, because every
- * producer of a slate emits the writable form and the documented loop is
- * commit-then-read: `commitScene`'s echoed slate goes straight back into
- * `getScene`. Tool inputs are validated with `validateEquals` (#1340), so a
- * property the parameter does not declare is refused, and leaving `film`
- * undeclared would have broken that round trip at the boundary. Declaring it
- * optional accepts both forms and states the truth: a read of the script, the
- * scene, a shot, the notes, or a beat end does not consult the film.
- *
+ * @evidence contracts/common.md#principled-implementation The resident store assembles committed script, scenes, shots, beat ends and notes; optional film preserves the historical read/writable distinction without certifying slice consistency.
+ * @evidence contracts/common.md#clear-and-simple-design LegacyWritableSlate makes film required for AutoMovieProject writableSlate and saveSlate; individual store methods own disk observation and admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing script remains null and empty collections remain empty; this type promises no surviving protocol read tool.
+ * @evidence contracts/common.md#meaningful-documentation States slice identities, pre-commit empty/null states and optional film compatibility.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Read-state fields aggregate no slices; the resident store owns per-file observation and validation costs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A slate shape promises no retained gate answer and readers establish currentness independently.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The slate value retains slice arrays and nullable script while file readers own disk-handle cleanup.
  * @author Samchon
  */
 export interface IAutoMovieLegacyStoredSlate {
@@ -59,9 +49,8 @@ export interface IAutoMovieLegacyStoredSlate {
   notes: IAutoMovieReviewNote[];
 
   /**
-   * Assembled film, or null before CUT has committed. Carried so a slate
-   * returned by any tool can be passed straight back to a read tool; the reads
-   * themselves never consult it.
+   * Optional assembled film; the writable form requires this slot and uses
+   * null before assembly.
    */
   film?: IAutoMovieSequence | null;
 }

@@ -1,5 +1,4 @@
 import type {
-  AutoMovieContentDigest,
   IAutoMovieBuildProjectOutput,
 } from "@automovie/interface";
 
@@ -13,6 +12,13 @@ import type {
  * project module outside the fingerprinted content has no field that would see
  * its edit, so its presence alone keeps the answer from being reused.
  *
+ * @evidence contracts/common.md#principled-implementation Reuse depends on the gate's actual document text digests, executed module closure, and revision dependency beside its output; an undeclared executed module prevents a fingerprint from proving equivalence.
+ * @evidence contracts/common.md#clear-and-simple-design Evaluation records facts about one execution, while the source snapshot records fresh observable inputs and the retained-status owner decides whether they prove the same answer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The gate output is preserved, repeated document reads remain ordered, and undeclared modules are exposed instead of being assumed covered by source identity.
+ * @evidence contracts/common.md#meaningful-documentation Gives document read order, null digests, undeclared-module invalidation, and why only revision-dependent answers compare the revision itself.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This result shape executes no work; the source evaluator owns module listing and document hashing.
+ * @evidence contracts/performance.md#reuse-equivalent-work The retained-status owner may reuse a successful evaluation only against fresh matching inputs and unchanged read documents, with no undeclared executed modules; this carrier supplies those proof facts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One evaluation holds output, document digests and module names under its caller; the document and module populations bound its size, and no loaded module or raw document text is retained by this record.
  * @author Samchon
  */
 export interface IAutoMovieProductionSourceEvaluation {
@@ -28,7 +34,7 @@ export interface IAutoMovieProductionSourceEvaluation {
     path: string;
 
     /** Digest of the text the gate read, or `null` when it was absent. */
-    digest: AutoMovieContentDigest | null;
+    digest: string | null;
   }>;
 
   /**

@@ -1,17 +1,24 @@
 import { AUTO_MOVIE_LIGHT_TYPES, asArray, isAutoMovieLightType, isRecord, pushViolation, toValidation, validateNonEmptyId, validateObjectArtifact, validateRange, validateSceneEnvironment, validateSpace, validateUniqueIds } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation, IAutoMovieScene, IAutoMovieSpace, IAutoMovieValidation } from "@automovie/interface";
 import type { IAutoMovieLegacyGeometryModel } from "../../project/legacyRecords";
-import { appendValidation, validateColorArtifact, validateTransformArtifact } from "../primitives";
-import { validateSpaceShape } from "../space";
+import { appendValidation } from "../appendValidation";
+import { validateColorArtifact } from "../validateColorArtifact";
+import { validateTransformArtifact } from "../validateTransformArtifact";
+import { validateSpaceShape } from "../validateSpaceShape";
 import { remapSpaceViolations } from "./remapSpaceViolations";
 
 /**
  * Validate a portable scene and its model registry before publication. Node, camera and light shape errors are collected together with spatial, fog and environment refusals. Environment shadow checks retain the original light row indices; authored inputs are read without mutation.
+ *
+ * @evidence contracts/common.md#principled-implementation Raw object and array admission establishes each nested shape before dereference; registry maps resolve model references, the engine owns color, transform, space and environment semantics, and camera/shadow near-far intervals prevent inverted clipping volumes.
+ * @evidence contracts/common.md#clear-and-simple-design Scene admission coordinates its fields and foreign model registry; shared engine gates own numerical semantics and path adapters place their findings under the owning scene field.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No scene value is normalized or inferred from another field. Area-shadow refusal follows the renderer's supported source contract, and original light indices survive malformed rows.
+ * @evidence contracts/common.md#meaningful-documentation States collective refusal, model-registry scope, original-index shadow diagnostics and unmodified authored input.
+ * @evidence contracts/performance.md#efficient-algorithms Registry, node, camera and light scans are linear in their row counts with a reusable model-id set. Space validation additionally checks footprint edge pairs and hole relations, quadratic in each surface's total ring vertices, plus linear heightfield samples; findings and temporary indices scale with those inputs.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work One model-id index serves every node in this scene call; fresh mutable scene input is validated independently rather than cached across publications.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes and helper collectors are call-local; returned findings retain original offending values under caller ownership without acquiring handles or tasks.
  */
-export const validateSceneArtifact = (
-  scene: IAutoMovieScene,
-  models: IAutoMovieLegacyGeometryModel[],
-): IAutoMovieValidation => {
+export function validateSceneArtifact(scene: IAutoMovieScene, models: IAutoMovieLegacyGeometryModel[]): IAutoMovieValidation {
   const violations: IAutoMovieConstraintViolation[] = [];
   if (!validateObjectArtifact(scene, "$input", "scene", violations))
     return toValidation(violations);
@@ -20,20 +27,20 @@ export const validateSceneArtifact = (
   validateUniqueIds(scene.cameras, "$input.cameras", "camera id", violations);
   validateUniqueIds(scene.lights, "$input.lights", "light id", violations);
   validateUniqueIds(models, "$models", "model id", violations);
-  asArray(models).forEach((model, i) => {
-    const path = `$models[${i}]`;
+  asArray(models).forEach((model: unknown, i: number): void => {
+    const path: string = `$models[${i}]`;
     if (!validateObjectArtifact(model, path, "model", violations)) return;
     validateNonEmptyId(model.id, `${path}.id`, "model id", violations);
   });
 
-  const modelIds = new Set(
+  const modelIds: ReadonlySet<string> = new Set(
     asArray(models)
       .filter(isRecord)
-      .map((model) => model.id)
-      .filter((id): id is string => typeof id === "string"),
+      .map((model: Record<string, unknown>): unknown => model.id)
+      .filter((id: unknown): id is string => typeof id === "string"),
   );
-  asArray(scene.nodes).forEach((node, i) => {
-    const path = `$input.nodes[${i}]`;
+  asArray(scene.nodes).forEach((node: unknown, i: number): void => {
+    const path: string = `$input.nodes[${i}]`;
     if (!validateObjectArtifact(node, path, "scene node", violations)) return;
     validateNonEmptyId(node.id, `${path}.id`, "scene node id", violations);
     validateNonEmptyId(
@@ -58,8 +65,8 @@ export const validateSceneArtifact = (
     );
   });
 
-  asArray(scene.cameras).forEach((camera, i) => {
-    const path = `$input.cameras[${i}]`;
+  asArray(scene.cameras).forEach((camera: unknown, i: number): void => {
+    const path: string = `$input.cameras[${i}]`;
     if (!validateObjectArtifact(camera, path, "camera", violations)) return;
     validateNonEmptyId(camera.id, `${path}.id`, "camera id", violations);
     validateTransformArtifact(
@@ -87,8 +94,8 @@ export const validateSceneArtifact = (
       violations,
       false,
     );
-    const near = typeof camera.near === "number" ? camera.near : NaN;
-    const far = typeof camera.far === "number" ? camera.far : NaN;
+    const near: number = typeof camera.near === "number" ? camera.near : NaN;
+    const far: number = typeof camera.far === "number" ? camera.far : NaN;
     if (!Number.isFinite(far) || far <= near)
       pushViolation(
         violations,
@@ -99,8 +106,8 @@ export const validateSceneArtifact = (
       );
   });
 
-  asArray(scene.lights).forEach((light, i) => {
-    const path = `$input.lights[${i}]`;
+  asArray(scene.lights).forEach((light: unknown, i: number): void => {
+    const path: string = `$input.lights[${i}]`;
     if (!validateObjectArtifact(light, path, "light", violations)) return;
     validateNonEmptyId(light.id, `${path}.id`, "light id", violations);
     validateTransformArtifact(
@@ -118,8 +125,8 @@ export const validateSceneArtifact = (
       "light intensity",
       violations,
     );
-    const lightType = light.type;
-    const validLightType = isAutoMovieLightType(lightType);
+    const lightType: unknown = light.type;
+    const validLightType: boolean = isAutoMovieLightType(lightType);
     if (!validLightType)
       pushViolation(
         violations,
@@ -182,7 +189,7 @@ export const validateSceneArtifact = (
       );
       return;
     }
-    const shadow = light.shadow;
+    const shadow: unknown = light.shadow;
     if (light.castShadow === true && shadow === undefined)
       pushViolation(
         violations,
@@ -204,7 +211,7 @@ export const validateSceneArtifact = (
         !validateObjectArtifact(shadow, `${path}.shadow`, "shadow", violations)
       )
         return;
-      const mapSize = typeof shadow.mapSize === "number" ? shadow.mapSize : NaN;
+      const mapSize: number = typeof shadow.mapSize === "number" ? shadow.mapSize : NaN;
       if (!Number.isSafeInteger(mapSize) || mapSize <= 0)
         pushViolation(
           violations,
@@ -231,8 +238,8 @@ export const validateSceneArtifact = (
         violations,
         false,
       );
-      const near = typeof shadow.near === "number" ? shadow.near : NaN;
-      const far = typeof shadow.far === "number" ? shadow.far : NaN;
+      const near: number = typeof shadow.near === "number" ? shadow.near : NaN;
+      const far: number = typeof shadow.far === "number" ? shadow.far : NaN;
       if (!Number.isFinite(far) || far <= near)
         pushViolation(
           violations,
@@ -248,7 +255,7 @@ export const validateSceneArtifact = (
   // plane, so only a declared space is checked, and it needs NO model: a
   // surface is semantics plus, in the viewer, generated geometry, never a
   // registry entry, so the model-resolution gate above deliberately ignores it.
-  const space = scene.space ?? null;
+  const space: IAutoMovieScene["space"] = scene.space ?? null;
   if (space !== null && validateSpaceShape(space, "$input.space", violations))
     appendValidation(
       violations,
@@ -264,7 +271,7 @@ export const validateSceneArtifact = (
   // value the shader will happily paint as a uniformly dead frame, and an
   // out-of-range color leaves the horizon a color no light in the scene can
   // produce. Density is unbounded above on purpose; a wall of cloud is a look.
-  const fog = scene.fog ?? null;
+  const fog: IAutoMovieScene["fog"] = scene.fog ?? null;
   if (
     fog !== null &&
     validateObjectArtifact(fog, "$input.fog", "fog", violations)
@@ -280,17 +287,19 @@ export const validateSceneArtifact = (
     validateColorArtifact(fog.color, "$input.fog.color", violations);
   }
 
-  const environment = scene.environment ?? null;
+  const environment: IAutoMovieScene["environment"] = scene.environment ?? null;
   if (environment !== null) {
-    const validated = validateSceneEnvironment({
+    const validated: IAutoMovieValidation = validateSceneEnvironment({
       environment,
       // Shape errors are already collected above; retain original row indices
       // when the independent shadow-profile check locates another light.
       lights: asArray(scene.lights) as IAutoMovieScene["lights"],
     });
-    if (validated.success === false)
-      violations.push(
-        ...validated.violations.map((item) => ({
+    const findings: readonly IAutoMovieConstraintViolation[] = validated.success
+      ? validated.warnings ?? []
+      : validated.violations;
+    violations.push(
+        ...findings.map((item: IAutoMovieConstraintViolation): IAutoMovieConstraintViolation => ({
           ...item,
           path: item.path.startsWith("$input.lights[") ? item.path :
             item.path.replace("$input", "$input.environment"),
@@ -299,4 +308,4 @@ export const validateSceneArtifact = (
   }
 
   return toValidation(violations);
-};
+}

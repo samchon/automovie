@@ -1,5 +1,4 @@
-import { evaluateAutoMovieStorySync } from "@automovie/engine";
-import type {
+﻿import type {
   IAutoMovieAcceptanceScenario,
   IAutoMovieCompiledContractRealization,
   IAutoMovieDiagnostic,
@@ -7,64 +6,39 @@ import type {
   IAutoMovieStorySyncOutcome,
 } from "@automovie/interface";
 
-/**
- * The cross-shot half of one acceptance criterion, when it has one.
- */
-export const storySyncCriterionOf = (
-  scenario: IAutoMovieAcceptanceScenario,
-): Extract<
-  IAutoMovieAcceptanceScenario["criterion"],
-  { kind: "story-sync" }
-> | null =>
-  scenario.criterion.kind === "story-sync" ? scenario.criterion : null;
+import { autoMovieStorySyncOutcome } from "./autoMovieStorySyncOutcome";
+import { storySyncCriterionOf } from "./storySyncCriterionOf";
 
 /**
- * Measure one simultaneity claim against the shots' current realizations.
+ * Report failed simultaneity claims after the attempt's shots are realized.
  *
- * Every consumer routes through here, so the verdict a compile refuses on and
- * the outcome an author cites in an evidence citation are the same measurement
- * over the same realized event times, never two readings that can disagree.
- */
-export const autoMovieStorySyncOutcome = (props: {
-  criterion: Extract<
-    IAutoMovieAcceptanceScenario["criterion"],
-    { kind: "story-sync" }
-  >;
-  contracts: ReadonlyMap<string, IAutoMovieShotContract>;
-  realization: (shot: string) => IAutoMovieCompiledContractRealization | null;
-}): IAutoMovieStorySyncOutcome =>
-  evaluateAutoMovieStorySync({
-    events: props.criterion.events,
-    toleranceSeconds: props.criterion.toleranceSeconds,
-    pin: (shot) => props.contracts.get(shot)?.storyTime ?? null,
-    realized: (shot, event) =>
-      props
-        .realization(shot)
-        ?.events.find((candidate) => candidate.id === event)?.time ?? null,
-  });
-
-/**
- * Refuse a production whose cross-shot simultaneity claims are not realized.
+ * compileAutoMovieProductionShots calls this before film assembly. Required
+ * failures are errors and optional failures are warnings; edit order does not
+ * alter the claimed story moment. Design-window feasibility is a separate gate.
  *
- * Design validation already refused claims no realization could satisfy; this
- * is the other half, where the realizations exist and the claim is checked
- * against them rather than against their permitted range. Only required
- * scenarios block: an optional one still surfaces, as a warning, because a
- * missed simultaneity is a fact about the film either way.
+ * @evidence contracts/common.md#principled-implementation Measures every story-sync acceptance criterion against the compiled attempt and reports failed or unresolved outcomes; required scenarios block the build while optional ones remain visible warnings.
+ * @evidence contracts/common.md#clear-and-simple-design Owns acceptance-to-diagnostic policy, delegating family selection and engine measurement through their adapters. Other acceptance kinds are not measured here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored requirement flags, event addresses and tolerances without special scenario IDs; unresolved measurements remain failures rather than disappearing.
+ * @evidence contracts/common.md#meaningful-documentation Names the compile caller, error/warning policy and distinction between feasible design windows and actual realized times. Input iteration order determines diagnostic order; this function does not sort.
+ * @evidence contracts/performance.md#efficient-algorithms Visits A scenarios once, with each story-sync criterion's engine and event-search costs delegated to autoMovieStorySyncOutcome. Diagnostics occupy O(F) space for F failures, with only the current outcome's points temporary.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares the attempt's existing contract and realization maps across criteria. No outcome cache assumes distinct criteria or later attempts address equivalent observations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires no handle or task; outcomes become unreachable after their summaries are copied, and the caller owns the returned diagnostic array.
  */
-export const storySyncDiagnostics = (props: {
+export function storySyncDiagnostics(props: {
   acceptance: ReadonlyMap<string, IAutoMovieAcceptanceScenario>;
   contracts: ReadonlyMap<string, IAutoMovieShotContract>;
   realizations: ReadonlyMap<string, IAutoMovieCompiledContractRealization>;
-}): IAutoMovieDiagnostic[] => {
+}): IAutoMovieDiagnostic[] {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   for (const [id, scenario] of props.acceptance) {
-    const criterion = storySyncCriterionOf(scenario);
+    const criterion: Extract<IAutoMovieAcceptanceScenario["criterion"], { kind: "story-sync" }> | null =
+      storySyncCriterionOf(scenario);
     if (criterion === null) continue;
-    const outcome = autoMovieStorySyncOutcome({
+    const outcome: IAutoMovieStorySyncOutcome = autoMovieStorySyncOutcome({
       criterion,
       contracts: props.contracts,
-      realization: (shot) => props.realizations.get(shot) ?? null,
+      realization: (shot: string): IAutoMovieCompiledContractRealization | null =>
+        props.realizations.get(shot) ?? null,
     });
     if (outcome.passed) continue;
     diagnostics.push({
@@ -76,7 +50,5 @@ export const storySyncDiagnostics = (props: {
       message: `Acceptance "${id}" claims these events share one story moment, and the compiled realizations say otherwise: ${outcome.summary} Move the realized event times in the owning shot sources, repin a shot's storyTime, or state the tolerance the film actually keeps.`,
     });
   }
-  // The design graph reads its acceptance records in canonical filename order,
-  // so this list is already deterministic without a second sort.
   return diagnostics;
-};
+}

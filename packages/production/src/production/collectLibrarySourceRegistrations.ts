@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieDiagnostic,
   IAutoMovieLibraryBuildContext,
   IAutoMovieLibraryContribution,
@@ -7,9 +7,9 @@ import typia from "typia";
 
 import { admitAutoMovieLibraryDerivedContribution } from "./admitAutoMovieLibraryDerivedContribution";
 import { compareCodeUnits } from "./contentIdentity";
-import { autoMovieLibraryContributionDiagnostics } from "./libraryContributionContract";
-import type { ICompiledLibraryOwnerRegistration } from "./productionSourceBuild";
-import type { resolveAutoMovieSourceOwnerBinding } from "./sourceOwnerBinding";
+import { autoMovieLibraryContributionDiagnostics } from "./autoMovieLibraryContributionDiagnostics";
+import type { ICompiledLibraryOwnerRegistration } from "./ICompiledLibraryOwnerRegistration";
+import type { resolveAutoMovieSourceOwnerBinding } from "./resolveAutoMovieSourceOwnerBinding";
 
 /**
  * Collect the owner registrations one evaluated library module carries.
@@ -29,9 +29,16 @@ import type { resolveAutoMovieSourceOwnerBinding } from "./sourceOwnerBinding";
  * derived artifact, because the correction belongs to that artifact's generator
  * rather than to anything the source returned.
  *
+ * @evidence contracts/common.md#principled-implementation Discovers sorted own module-export keys, checks each design address and exact owner admission before building, then applies the contribution schema and branch carrier rules to executed and derived values alike. Contexts normalize once to a definite list.
+ * @evidence contracts/common.md#clear-and-simple-design Separates loader capability, graph context/admission callbacks, derived JSON ingress and branch policy. The productionSources context is the existing compatibility path that bypasses standalone branch-carrier checks while still requiring the schema.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No named export receives a special result; synchronous executed contributions and digest-admitted derived contributions meet the same shape gate. The productionSources exception is explicit compatibility policy, and ordinary Node execution provides no sandbox or proof of deterministic effects.
+ * @evidence contracts/common.md#meaningful-documentation States discovery, admission, executed/derived error attribution and normalization. A thrown loader, context, admission, build or validation operation discards all collected registrations but retains findings and appends an execution error; authored effects are not rolled back.
+ * @evidence contracts/performance.md#efficient-algorithms Sorts K export names in O(K log K), then visits candidates once with callback, clone, build, derived-ingress and schema costs driven by each contribution. Registration storage is proportional to admitted payloads; discovery retains O(K) descriptors for the call.
+ * @evidence contracts/performance.md#reuse-equivalent-work Loads the module once per collection, normalizes contexts once per admitted contribution and reads already-created graph contexts through the callback. Mutable module effects and inputs are not cached or shared across calls.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous collector owns local descriptors and arrays until transfer or failure; a catch transfers diagnostics and releases registration references. It acquires no handle, but the supplied loader and authored builders own any external effects or resident state they create.
  * @author Samchon
  */
-export const collectLibrarySourceRegistrations = (props: {
+export function collectLibrarySourceRegistrations(props: {
   /** Project-relative source path selected by an enforced graph binding. */
   path: string;
   /** Evaluate the selected module and return its named exports. */
@@ -46,17 +53,29 @@ export const collectLibrarySourceRegistrations = (props: {
 }): {
   registrations: ICompiledLibraryOwnerRegistration[];
   diagnostics: IAutoMovieDiagnostic[];
-} => {
-  const target = `library-source:${props.path}`;
+} {
+  const target: string = `library-source:${props.path}`;
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const registrations: ICompiledLibraryOwnerRegistration[] = [];
-  let current = "the module";
+  let current: string = "the module";
   try {
-    const exports = props.load();
-    const discovered = Object.keys(exports)
+    const exports: Readonly<Record<string, unknown>> = props.load();
+    const discovered: Array<{
+      name: string;
+      design: string;
+      derived: boolean;
+      artifact: string | null;
+      build: ((context: IAutoMovieLibraryBuildContext) => unknown) | undefined;
+    }> = Object.keys(exports)
       .sort(compareCodeUnits)
-      .flatMap((name) => {
-        const value = exports[name];
+      .flatMap((name: string): Array<{
+        name: string;
+        design: string;
+        derived: boolean;
+        artifact: string | null;
+        build: ((context: IAutoMovieLibraryBuildContext) => unknown) | undefined;
+      }> => {
+        const value: unknown = exports[name];
         if (
           value === null ||
           typeof value !== "object" ||
@@ -64,7 +83,7 @@ export const collectLibrarySourceRegistrations = (props: {
           typeof value.design !== "string"
         )
           return [];
-        const build =
+        const build: ((context: IAutoMovieLibraryBuildContext) => unknown) | undefined =
           "build" in value && typeof value.build === "function"
             ? (value.build as (
                 context: IAutoMovieLibraryBuildContext,
@@ -87,7 +106,7 @@ export const collectLibrarySourceRegistrations = (props: {
       });
     for (const entry of discovered) {
       current = `export "${entry.name}"`;
-      const context = props.context(entry.design);
+      const context: IAutoMovieLibraryBuildContext | null = props.context(entry.design);
       if (context === null) {
         diagnostics.push({
           code: "source-registration-mismatch",
@@ -99,7 +118,7 @@ export const collectLibrarySourceRegistrations = (props: {
         });
         continue;
       }
-      const admission = props.admit(entry.name, entry.design);
+      const admission: ReturnType<typeof resolveAutoMovieSourceOwnerBinding> = props.admit(entry.name, entry.design);
       if (admission.success === false) {
         diagnostics.push({
           code: "source-owner-mismatch",
@@ -116,7 +135,7 @@ export const collectLibrarySourceRegistrations = (props: {
       // schema and branch refusals send the author; null for an executed owner.
       let artifact: string | null = null;
       if (entry.derived) {
-        const admitted = admitAutoMovieLibraryDerivedContribution({
+        const admitted: ReturnType<typeof admitAutoMovieLibraryDerivedContribution> = admitAutoMovieLibraryDerivedContribution({
           source: props.path,
           exportName: entry.name,
           derivedArtifact: entry.artifact,
@@ -149,11 +168,11 @@ export const collectLibrarySourceRegistrations = (props: {
           continue;
         }
       }
-      const generatorCorrection =
+      const generatorCorrection: string | null =
         artifact === null
           ? null
           : `Correct the generator of derived artifact "${artifact}" selected by export "${entry.name}" in ${props.path}, run the explicit generation command, and compile again.`;
-      const validation =
+      const validation: typia.IValidation<IAutoMovieLibraryContribution> =
         typia.validateEquals<IAutoMovieLibraryContribution>(value);
       if (validation.success === false) {
         for (const error of validation.errors)
@@ -167,11 +186,11 @@ export const collectLibrarySourceRegistrations = (props: {
           });
         continue;
       }
-      const contribution = {
+      const contribution: ICompiledLibraryOwnerRegistration["contribution"] = {
         ...validation.data,
         contexts: validation.data.contexts ?? [],
       };
-      const contributionDiagnostics =
+      const contributionDiagnostics: string[] =
         context.branch === "productionSources"
           ? []
           : autoMovieLibraryContributionDiagnostics(
@@ -203,7 +222,7 @@ export const collectLibrarySourceRegistrations = (props: {
       });
     }
   } catch (error) {
-    const message =
+    const message: string =
       typeof error === "object" && error !== null && "message" in error
         ? String((error as { message: unknown }).message)
         : String(error);
@@ -223,4 +242,4 @@ export const collectLibrarySourceRegistrations = (props: {
     };
   }
   return { registrations, diagnostics };
-};
+}

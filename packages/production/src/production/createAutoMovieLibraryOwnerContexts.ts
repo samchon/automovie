@@ -16,8 +16,16 @@ import type { IAutoMovieLibrarySourceExecutionPlan } from "./libraryAuthoringSna
  * Owner paths and anchors have already been validated by the evidence graph.
  * Duplicate-address admission remains the graph's responsibility; this stage
  * preserves the selected population's order and performs no source execution.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact path/anchor owner addresses bind source registration to graph-admitted design units and settings deliveries; contexts share the already verified derived closure from the same attempt.
+ * @evidence contracts/common.md#clear-and-simple-design compileAutoMovieLibrary constructs these two indexes once before linking source registrations; context lookup and source-branch binding remain separate outputs of one owner population.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts This stage relies on evidence-graph duplicate-address and path/anchor admission, not insertion order as an alternative validator; it executes no author module or stale derivation repair.
+ * @evidence contracts/common.md#meaningful-documentation States admitted-input premise, design-before-settings ordering, exact addresses and shared verified artifacts.
+ * @evidence contracts/performance.md#efficient-algorithms For U design units and E execution entries, construction visits O(U+E) entries plus address-text cost and retains two maps of distinct addresses; verified artifact data is referenced rather than copied into each context.
+ * @evidence contracts/performance.md#reuse-equivalent-work All owner contexts reuse the same admitted derived-artifact object for this evaluation attempt; no cross-attempt cache or unproved artifact equivalence is introduced.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Maps and small context objects transfer to the compile attempt and are bounded by admitted addresses; shared artifact references last with that attempt and no handle or task is acquired.
  */
-export const createAutoMovieLibraryOwnerContexts = (props: {
+export function createAutoMovieLibraryOwnerContexts(props: {
   /** Namespace included in every source owner's evaluation context. */
   production: string;
 
@@ -32,12 +40,12 @@ export const createAutoMovieLibraryOwnerContexts = (props: {
 }): {
   contexts: ReadonlyMap<string, IAutoMovieLibraryBuildContext>;
   sourceBranches: ReadonlyMap<string, string>;
-} => {
-  const contexts = new Map<string, IAutoMovieLibraryBuildContext>();
-  const sourceBranches = new Map<string, string>();
+} {
+  const contexts: Map<string, IAutoMovieLibraryBuildContext> = new Map<string, IAutoMovieLibraryBuildContext>();
+  const sourceBranches: Map<string, string> = new Map<string, string>();
   for (const owner of props.owners)
     for (const unit of owner.units) {
-      const address = `${owner.path}#${unit.anchor}`;
+      const address: string = `${owner.path}#${unit.anchor}`;
       contexts.set(address, {
         production: props.production,
         branch: owner.branch,
@@ -49,7 +57,7 @@ export const createAutoMovieLibraryOwnerContexts = (props: {
     }
   for (const entry of props.execution.entries)
     if (entry.branch === "productionSources") {
-      const separator = entry.owner.lastIndexOf("#");
+      const separator: number = entry.owner.lastIndexOf("#");
       contexts.set(entry.owner, {
         production: props.production,
         branch: entry.branch,
@@ -60,4 +68,4 @@ export const createAutoMovieLibraryOwnerContexts = (props: {
       sourceBranches.set(entry.owner, entry.branch);
     }
   return { contexts, sourceBranches };
-};
+}

@@ -16,8 +16,16 @@ import type { IAutoMovieLibrarySourceExecutionPlan } from "./libraryAuthoringSna
  *
  * This projection sorts copies of design owners and units, leaves the acquired
  * graph and registration map intact, and creates no artifacts or project state.
+ *
+ * @evidence contracts/common.md#principled-implementation Exact settings-owner and bound design-unit addresses are joined against actual recorded registrations; payload refusals remain registered so their owning diagnostics explain failure rather than another missing-owner complaint.
+ * @evidence contracts/common.md#clear-and-simple-design Library compilation runs this completeness projection after registration admission, while source execution and contribution validation retain their own authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unbound decisions owe no executable export, settings deliveries owe their explicit zero-payload registration, and a recorded failed payload is not silently treated as an absent owner.
+ * @evidence contracts/common.md#meaningful-documentation States exact address completeness, bound/unbound populations, zero-payload settings, payload refusal attribution and source-warning versus later-error policy.
+ * @evidence contracts/performance.md#efficient-algorithms For E execution entries, O owners and U total units, one settings scan and sorted owner/unit copies cost O(E+O log O+sum u log u) comparisons plus address text and O(O+U) temporary/result storage. Sorting gives deterministic diagnostic order without mutating graph populations.
+ * @evidence contracts/performance.md#reuse-equivalent-work All joins use the attempt's already acquired execution/owner populations and one registration map; no result is retained across edited graph bindings or module evaluation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Sorted copies and address strings are local, diagnostics transfer to compilation and grow with missing admitted owners; no file handle or independent task is acquired.
  */
-export const inspectAutoMovieLibraryMissingRegistrations = (props: {
+export function inspectAutoMovieLibraryMissingRegistrations(props: {
   /** Exact design owner population acquired for this attempt. */
   owners: IAutoMovieProductionEvidence["designOwners"];
 
@@ -29,7 +37,7 @@ export const inspectAutoMovieLibraryMissingRegistrations = (props: {
 
   /** Whether this gate requires every selected decision to be realized. */
   requireReviewed: boolean;
-}): IAutoMovieDiagnostic[] => {
+}): IAutoMovieDiagnostic[] {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   for (const entry of props.execution.entries)
     if (
@@ -44,15 +52,15 @@ export const inspectAutoMovieLibraryMissingRegistrations = (props: {
         path: entry.sourcePath,
         message: `Production source "${entry.sourcePath}#${entry.exportName}" did not register its exact settings owner "${entry.owner}" as a zero-payload library delivery. Export one synchronous IAutoMovieLibrarySourceOwner for that address.`,
       });
-  for (const owner of [...props.owners].sort((left, right) =>
+  for (const owner of [...props.owners].sort((left: IAutoMovieProductionEvidence["designOwners"][number], right: IAutoMovieProductionEvidence["designOwners"][number]): number =>
     compareCodeUnits(left.path, right.path),
   )) {
-    const binding = owner.sourceBinding;
+    const binding: typeof owner.sourceBinding = owner.sourceBinding;
     if (binding === null || binding.paths.length === 0) continue;
-    for (const unit of [...owner.units].sort((left, right) =>
+    for (const unit of [...owner.units].sort((left: typeof owner.units[number], right: typeof owner.units[number]): number =>
       compareCodeUnits(left.anchor, right.anchor),
     )) {
-      const address = `${owner.path}#${unit.anchor}`;
+      const address: string = `${owner.path}#${unit.anchor}`;
       if (props.registeredBy.has(address)) continue;
       diagnostics.push({
         code: "source-export-missing",
@@ -65,4 +73,4 @@ export const inspectAutoMovieLibraryMissingRegistrations = (props: {
     }
   }
   return diagnostics;
-};
+}

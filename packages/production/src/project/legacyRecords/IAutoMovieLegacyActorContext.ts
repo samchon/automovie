@@ -1,7 +1,3 @@
-/**
- * Legacy project record boundary. The stored format preserves its existing
- * identities and units; runtime consumers use the same declared fields.
- */
 import type { IAutoMovieRestFrame } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieLegacyGait } from "./IAutoMovieLegacyGait";
@@ -12,7 +8,16 @@ import type { IAutoMovieLegacyGait } from "./IAutoMovieLegacyGait";
  * This is the JSON-safe subset of the engine's actor context. Gait cubic-bezier
  * tuple fields are intentionally omitted; use named easing curves for
  * Gait limbs as the v1 record carried them.
+ * The current resident store preserves this historical metadata; the retired
+ * perform protocol does not execute it.
  *
+ * @evidence contracts/common.md#principled-implementation Persisted actor data separates optional per-beat openings from beat-invariant rig, gait and rest data; this historical shape does not itself synthesize or validate a performance.
+ * @evidence contracts/common.md#clear-and-simple-design LegacyActorSpec removes the three opening fields for actor-file storage; AutoMovieProject and the legacy importer retain this boundary without exposing the retired perform protocol.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Stored actor fields are preserved without claiming an active performance-tool consumer or inferring missing rigs.
+ * @evidence contracts/common.md#meaningful-documentation States historical units, optional opening-state meaning and rig/rest-frame interpretation.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Actor facts execute no rig resolution, gait sampling or motion synthesis; those costs belong to active runtime owners.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A stored actor context supplies values rather than a shared performance answer or freshness proof.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The actor value owns rig, rest pose and gait references; this schema opens no stream or handle.
  * @author Samchon
  */
 export interface IAutoMovieLegacyActorContext {

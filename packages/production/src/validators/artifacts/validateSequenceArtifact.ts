@@ -6,11 +6,16 @@ import { entryDuration } from "./entryDuration";
 
 /**
  * Validate a cut list and the supplied shot registry in seconds. Structural errors accumulate before adjacent transition spans are compared, so a missing or malformed entry cannot silently authorize a three-layer overlap.
+ *
+ * @evidence contracts/common.md#principled-implementation Registry ids resolve through a map, trims define played durations, and an incoming-span accumulator limits adjacent transitions to the intervening played shot. The first entry cannot have an incoming transition and the list must be non-empty.
+ * @evidence contracts/common.md#clear-and-simple-design Sequence admission owns ordered adjacency and registry resolution; private entry projection and the separate trim and transition gates own their individual fields.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing shots remain refusals, malformed entries reset their span instead of inventing coverage, and no duration is clipped to pass overlap checks.
+ * @evidence contracts/common.md#meaningful-documentation States seconds, registry input and collective refusal behavior, including the three-layer overlap the accumulator excludes.
+ * @evidence contracts/performance.md#efficient-algorithms For S registry shots and E entries the uniqueness scans, map build and ordered validation take O(S+E) time and O(S+E) index and finding space. Adjacent durations are projected in constant time and no entry rescans the registry.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The shot index is built once and reused for every entry in this validation; fresh calls judge their own supplied registry and keep no cached verdict.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The shot index and entry view are call-local; only the returned validation and original offending values transfer to the caller. No handle or task is acquired.
  */
-export const validateSequenceArtifact = (
-  sequence: IAutoMovieSequence,
-  shots: IAutoMovieShot[],
-): IAutoMovieValidation => {
+export function validateSequenceArtifact(sequence: IAutoMovieSequence, shots: IAutoMovieShot[]): IAutoMovieValidation {
   const violations: IAutoMovieConstraintViolation[] = [];
   if (!validateObjectArtifact(sequence, "$input", "sequence", violations))
     return toValidation(violations);
@@ -25,8 +30,8 @@ export const validateSequenceArtifact = (
     false,
   );
   validateUniqueIds(shots, "$shots", "shot id", violations);
-  asArray(shots).forEach((shot, i) => {
-    const path = `$shots[${i}]`;
+  asArray(shots).forEach((shot: unknown, i: number): void => {
+    const path: string = `$shots[${i}]`;
     if (!validateObjectArtifact(shot, path, "shot", violations)) return;
     validateNonEmptyId(shot.id, `${path}.id`, "shot id", violations);
     // cutSequence's played-span gate (#1008): a non-positive registry shot
@@ -45,11 +50,11 @@ export const validateSequenceArtifact = (
         shot.duration,
       );
   });
-  const shotsById = new Map(
+  const shotsById: ReadonlyMap<string, IAutoMovieShot> = new Map(
     asArray(shots)
       .filter(isRecord)
-      .filter((shot) => typeof shot.id === "string")
-      .map((shot) => [shot.id as string, shot as unknown as IAutoMovieShot]),
+      .filter((shot: Record<string, unknown>): boolean => typeof shot.id === "string")
+      .map((shot: Record<string, unknown>): [string, IAutoMovieShot] => [shot.id as string, shot as unknown as IAutoMovieShot]),
   );
 
   // cutSequence's minimum-entries gate: an empty cut-list is not a film, and
@@ -72,20 +77,20 @@ export const validateSequenceArtifact = (
       "a film must contain at least one shot",
       sequence.shots,
     );
-  const entries = asArray(sequence.shots);
+  const entries: unknown[] = asArray(sequence.shots);
   // cutSequence's adjacent-transition accumulator (#988): a valid incoming
   // transition on the previous entry narrows how much of its played span the
   // NEXT transition may consume, or three entries overlap at one instant.
-  let previousIncoming = 0;
-  entries.forEach((entry, i) => {
-    const path = `$input.shots[${i}]`;
-    let incoming = 0;
+  let previousIncoming: number = 0;
+  entries.forEach((entry: unknown, i: number): void => {
+    const path: string = `$input.shots[${i}]`;
+    let incoming: number = 0;
     if (!validateObjectArtifact(entry, path, "sequence entry", violations)) {
       previousIncoming = incoming;
       return;
     }
     validateNonEmptyId(entry.shot, `${path}.shot`, "sequence shot", violations);
-    const shot =
+    const shot: IAutoMovieShot | undefined =
       typeof entry.shot === "string" ? shotsById.get(entry.shot) : undefined;
     if (shot === undefined)
       pushViolation(
@@ -128,13 +133,13 @@ export const validateSequenceArtifact = (
           entry.transition,
         );
       validateTransition(entry.transition, `${path}.transition`, violations);
-      const current = entryDuration(entry, shot);
-      const previousEntry = entries[i - 1];
-      const previous =
+      const current: number | null = entryDuration(entry, shot);
+      const previousEntry: unknown = entries[i - 1];
+      const previous: number | null =
         !isRecord(previousEntry) || typeof previousEntry.shot !== "string"
           ? null
           : entryDuration(previousEntry, shotsById.get(previousEntry.shot));
-      const transitionDuration =
+      const transitionDuration: number =
         isRecord(entry.transition) &&
         typeof entry.transition.duration === "number"
           ? entry.transition.duration
@@ -167,4 +172,4 @@ export const validateSequenceArtifact = (
   });
 
   return toValidation(violations);
-};
+}

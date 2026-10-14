@@ -1,13 +1,16 @@
-/**
- * Legacy project record boundary. The stored format preserves its existing
- * identities and units; runtime consumers use the same declared fields.
- */
 
 
 /**
  * What a resident project holds, which slate slices exist as files and which
  * binary assets the manifest tracks (#614: the project folder is the memory).
  *
+ * @evidence contracts/common.md#principled-implementation AutoMovieProject.summary derives slice presence, keys, asset registration and stale render names from the admitted resident store; this type describes that observation rather than committed content.
+ * @evidence contracts/common.md#clear-and-simple-design One summary is the legacy importer inventory input, keeping disk observation with the resident-store owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Presence and stale names are observations, not proof that rendered outputs are valid; no files are deleted by the summary.
+ * @evidence contracts/common.md#meaningful-documentation States absolute root, slice populations, registration order and stale-render ownership semantics.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A summary shape scans no directories; the resident summary operation owns slice discovery and stale-render matching.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Summary metadata promises no watch-based freshness or retained successful gate answer.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The inventory caller owns returned key lists/counts and no filesystem descriptor remains in this type.
  * @author Samchon
  */
 export interface IAutoMovieLegacyProjectSummary {
