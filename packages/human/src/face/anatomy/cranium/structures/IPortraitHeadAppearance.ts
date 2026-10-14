@@ -36,9 +36,9 @@ export interface IPortraitHeadAppearance {
    * @evidence contracts/common.md#clear-and-simple-design The sampler owns its colour field while preparePortraitHead owns reference correspondence and finite three-component result admission.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference appearance does not replace physical rest geometry or certify tissue; invalid RGB refuses instead of clipping or painting expected geometry results.
    * @evidence contracts/common.md#meaningful-documentation The member states head-millimetre reference input, exact RGB component population and linear [0,1] output domain.
-   * @evidence contracts/performance.md#efficient-algorithms The current named-site colour owner evaluates its compiled field population per reference point; preparation samples every refined reference vertex once.
-   * @evidence contracts/performance.md#reuse-equivalent-work The admitted reference colour field serves all corresponding points, and changing reference host/site controls requires recompilation rather than a posed-point cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The appearance owner retains its sampler for the formation lifetime; returned RGB triples are copied into caller-owned surface colours and no task or live resource is acquired.
+   * @evidence contracts/performance.md#efficient-algorithms Preparation invokes the sampler once per refined reference vertex and checks three channels; the caller determines the colour field's evaluation cost.
+   * @evidence contracts/performance.md#reuse-equivalent-work One sampler serves the corresponding reference points of an assembly; the caller owns any compiled field and must invalidate it when its reference inputs change.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The appearance record retains the sampler for its lifetime and preparation copies returned RGB triples; the callback signature bounds neither captured state nor caller-owned resources.
    */
   sample: (reference: readonly number[]) => number[];
 }

@@ -20,13 +20,13 @@ export interface IPortraitHeadPerformance {
    * The copied existing cage supplies each resident vertex ordinal. The
    * original cage retains its performed coordinates and identities.
    *
-   * @evidence contracts/common.md#principled-implementation The current jaw-continuation owner restores only its actual constrained source residents and preserves compatible residual displacement from other components.
+   * @evidence contracts/common.md#principled-implementation Preparation supplies a copied resident point and its cage ordinal so the caller can restore its own reference frame without changing the performed cage.
    * @evidence contracts/common.md#clear-and-simple-design Restoration operates on a copied construction cage; posing newly appended vertices remains the separate pose callback's responsibility.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The producer receives an input copy, and preparation refuses non-finite returned XYZ rather than mutating original performed vertices or fabricating a replacement reference host.
    * @evidence contracts/common.md#meaningful-documentation The member states reference-construction purpose, resident ordinal ownership, copied input and original performed-identity preservation.
-   * @evidence contracts/performance.md#efficient-algorithms The current jaw callback uses one resident-map lookup and constant three-coordinate kinematics per vertex; preparation scans the actual cage population once for this restoration phase.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller's continuation closure shares one admitted observed/current jaw field and resident map; another input geometry or pose requires its corresponding closure.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The formation owner retains the callback and its captured jaw/resident source for the build lifetime; each returned three-coordinate point is consumed without acquiring a live resource.
+   * @evidence contracts/performance.md#efficient-algorithms Preparation invokes this callback once per existing cage vertex and copies three coordinates; callback cost is supplied by the caller and is not bounded by this signature.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same callback serves all resident vertices of this assembly; the caller owns any reusable reference data and its invalidation when source geometry or performance changes.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The formation retains this callback for its own lifetime; captured data and resources remain the caller's responsibility and this signature imposes no retention bound.
    */
   reference: (point: number[], vertex: number) => number[];
 
@@ -34,13 +34,13 @@ export interface IPortraitHeadPerformance {
    * Pose one new reference vertex in millimetres; do not mutate the input.
    * Preparation calls this only for the appended continuation population.
    *
-   * @evidence contracts/common.md#principled-implementation The current continuation callback applies its admitted observed-relative jaw field to the same newly reference-formed cranial/cervical point while retaining its fixed posterior/lower-neck boundary.
+   * @evidence contracts/common.md#principled-implementation Preparation supplies a copied newly constructed reference point so the caller can perform continuation tissue in the same frame as the existing cage.
    * @evidence contracts/common.md#clear-and-simple-design The callback transforms one point; preparation owns selecting only appended vertices and common refinement/normals remain downstream.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing component vertices are not posed a second time; finite XYZ admission preserves named refusal instead of replacing an invalid continuation point.
    * @evidence contracts/common.md#meaningful-documentation The member specifies new-vertex population, head millimetres and read-only input ownership.
-   * @evidence contracts/performance.md#efficient-algorithms The actual jaw callback performs constant-size polar/trigonometric and rational-field work per appended point, with total cost linear in the continuation population.
-   * @evidence contracts/performance.md#reuse-equivalent-work All appended points share the same immutable jaw-field closure rather than refitting reference anchors for each point.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the continuation closure lifetime; point arrays are returned to preparation and the callback starts no task, cache population or handle.
+   * @evidence contracts/performance.md#efficient-algorithms Preparation invokes this callback once per appended continuation vertex and copies three coordinates; the caller determines the transformation's per-point cost.
+   * @evidence contracts/performance.md#reuse-equivalent-work All appended points use the same callback; reusable transformation data and equivalence across builds belong to the caller rather than this function type.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The formation retains this callback for its lifetime and preparation copies each returned point; arbitrary captured state has no bound enforced by this signature.
    */
   pose: (point: number[]) => number[];
 }
