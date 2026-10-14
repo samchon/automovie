@@ -22,7 +22,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 export function portraitDirectionalContactFrame(
   direction: IAutoMovieVector3,
   clearance: number,
-): { forward: IAutoMovieVector3; across: IAutoMovieVector3; up: IAutoMovieVector3 } {
+): {
+  forward: IAutoMovieVector3;
+  across: IAutoMovieVector3;
+  up: IAutoMovieVector3;
+} {
   if (
     ![direction.x, direction.y, direction.z, clearance].every(
       Number.isFinite,
@@ -38,7 +42,9 @@ export function portraitDirectionalContactFrame(
     Math.abs(forward.y) < 0.9
       ? Vector3.create(0, 1, 0)
       : Vector3.create(1, 0, 0);
-  const across: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(guide, forward));
+  const across: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.cross(guide, forward),
+  );
   const up: IAutoMovieVector3 = Vector3.cross(forward, across);
   return { forward, across, up };
 }

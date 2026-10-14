@@ -23,7 +23,10 @@ export function advancePoint(
   forward: IAutoMovieVector3,
   distance: number,
 ): IAutoMovieVector3 {
-  const result: IAutoMovieVector3 = Vector3.add(point, Vector3.scale(forward, distance));
+  const result: IAutoMovieVector3 = Vector3.add(
+    point,
+    Vector3.scale(forward, distance),
+  );
   if (![result.x, result.y, result.z].every(Number.isFinite))
     throw new Error(
       "Directional contact exceeds its finite coordinate domain.",

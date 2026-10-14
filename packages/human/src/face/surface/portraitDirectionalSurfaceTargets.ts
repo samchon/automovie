@@ -31,18 +31,24 @@ export function portraitDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance: number = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up }: ReturnType<typeof portraitDirectionalContactFrame> = portraitDirectionalContactFrame(
-    direction,
-    clearance,
-  );
-  const measured: { triangle: number; minimum: number }[] = measureAutoMovieMeshClearance(
-    projectMeshOntoFrame(front, across, up, forward),
-    projectMeshOntoFrame(back, across, up, forward),
-    "z",
-  );
+  const {
+    forward,
+    across,
+    up,
+  }: ReturnType<typeof portraitDirectionalContactFrame> =
+    portraitDirectionalContactFrame(direction, clearance);
+  const measured: { triangle: number; minimum: number }[] =
+    measureAutoMovieMeshClearance(
+      projectMeshOntoFrame(front, across, up, forward),
+      projectMeshOntoFrame(back, across, up, forward),
+      "z",
+    );
   const indices: number[] =
     front.indices ??
-    Array.from({ length: front.positions.length / 3 }, (_: unknown, i: number): number => i);
+    Array.from(
+      { length: front.positions.length / 3 },
+      (_: unknown, i: number): number => i,
+    );
   const travels: Map<number, number> = new Map<number, number>();
   for (const { triangle, minimum } of measured) {
     const distance: number = clearance - minimum;
@@ -50,16 +56,21 @@ export function portraitDirectionalSurfaceTargets(
     for (const vertex of indices.slice(triangle * 3, triangle * 3 + 3))
       travels.set(vertex, Math.max(travels.get(vertex) ?? 0, distance));
   }
-  return [...travels].map(([vertex, distance]: [number, number]): { vertex: number; target: IAutoMovieVector3 } => ({
-    vertex,
-    target: advancePoint(
-      Vector3.create(
-        front.positions[vertex * 3],
-        front.positions[vertex * 3 + 1],
-        front.positions[vertex * 3 + 2],
+  return [...travels].map(
+    ([vertex, distance]: [number, number]): {
+      vertex: number;
+      target: IAutoMovieVector3;
+    } => ({
+      vertex,
+      target: advancePoint(
+        Vector3.create(
+          front.positions[vertex * 3],
+          front.positions[vertex * 3 + 1],
+          front.positions[vertex * 3 + 2],
+        ),
+        forward,
+        distance,
       ),
-      forward,
-      distance,
-    ),
-  }));
+    }),
+  );
 }

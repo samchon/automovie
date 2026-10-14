@@ -32,20 +32,27 @@ export function createPortraitDirectionalContact(
   direction: IAutoMovieVector3,
   clearance: number = 0,
 ): (point: IAutoMovieVector3) => IAutoMovieVector3 {
-  const { forward, across, up }: ReturnType<typeof portraitDirectionalContactFrame> = portraitDirectionalContactFrame(
-    direction,
-    clearance,
-  );
-  const sample: ReturnType<typeof createAutoMovieMeshDepthSampler> = createAutoMovieMeshDepthSampler(
-    projectMeshOntoFrame(mesh, across, up, forward),
-    "z",
-  );
+  const {
+    forward,
+    across,
+    up,
+  }: ReturnType<typeof portraitDirectionalContactFrame> =
+    portraitDirectionalContactFrame(direction, clearance);
+  const sample: ReturnType<typeof createAutoMovieMeshDepthSampler> =
+    createAutoMovieMeshDepthSampler(
+      projectMeshOntoFrame(mesh, across, up, forward),
+      "z",
+    );
   return (point: IAutoMovieVector3): IAutoMovieVector3 => {
     if (![point.x, point.y, point.z].every(Number.isFinite))
       throw new Error("Directional contact point must be finite.");
-    const hit: { minimum: number; maximum: number } | null = sample(Vector3.dot(point, across), Vector3.dot(point, up));
+    const hit: { minimum: number; maximum: number } | null = sample(
+      Vector3.dot(point, across),
+      Vector3.dot(point, up),
+    );
     if (hit === null) return point;
-    const distance: number = hit.maximum + clearance - Vector3.dot(point, forward);
+    const distance: number =
+      hit.maximum + clearance - Vector3.dot(point, forward);
     if (distance <= 0) return point;
     return advancePoint(point, forward, distance);
   };

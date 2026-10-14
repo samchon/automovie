@@ -30,27 +30,37 @@ export function portraitMinimumDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance: number = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up }: ReturnType<typeof portraitDirectionalContactFrame> = portraitDirectionalContactFrame(
-    direction,
-    clearance,
-  );
+  const {
+    forward,
+    across,
+    up,
+  }: ReturnType<typeof portraitDirectionalContactFrame> =
+    portraitDirectionalContactFrame(direction, clearance);
   return minimizeAutoMovieMeshClearance(
     projectMeshOntoFrame(front, across, up, forward),
     projectMeshOntoFrame(back, across, up, forward),
     "z",
     clearance,
-  ).map(({ vertex, distance }: { vertex: number; distance: number }): { vertex: number; target: IAutoMovieVector3 } => ({
-    vertex,
-    target: advancePoint(
-      Vector3.create(
-        ...(front.positions.slice(3 * vertex, 3 * vertex + 3) as [
-          number,
-          number,
-          number,
-        ]),
-      ),
-      forward,
+  ).map(
+    ({
+      vertex,
       distance,
-    ),
-  }));
+    }: {
+      vertex: number;
+      distance: number;
+    }): { vertex: number; target: IAutoMovieVector3 } => ({
+      vertex,
+      target: advancePoint(
+        Vector3.create(
+          ...(front.positions.slice(3 * vertex, 3 * vertex + 3) as [
+            number,
+            number,
+            number,
+          ]),
+        ),
+        forward,
+        distance,
+      ),
+    }),
+  );
 }

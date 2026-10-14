@@ -31,15 +31,24 @@ export function createPortraitDirectionalIntersection(
   mesh: IAutoMovieMesh,
   direction: IAutoMovieVector3,
 ): (point: IAutoMovieVector3) => IAutoMovieVector3 | null {
-  const { forward, across, up }: ReturnType<typeof portraitDirectionalContactFrame> = portraitDirectionalContactFrame(direction, 0);
-  const sample: ReturnType<typeof createAutoMovieMeshDepthSampler> = createAutoMovieMeshDepthSampler(
-    projectMeshOntoFrame(mesh, across, up, forward),
-    "z",
-  );
+  const {
+    forward,
+    across,
+    up,
+  }: ReturnType<typeof portraitDirectionalContactFrame> =
+    portraitDirectionalContactFrame(direction, 0);
+  const sample: ReturnType<typeof createAutoMovieMeshDepthSampler> =
+    createAutoMovieMeshDepthSampler(
+      projectMeshOntoFrame(mesh, across, up, forward),
+      "z",
+    );
   return (point: IAutoMovieVector3): IAutoMovieVector3 | null => {
     if (![point.x, point.y, point.z].every(Number.isFinite))
       throw new Error("Directional intersection point must be finite.");
-    const hit: { minimum: number; maximum: number } | null = sample(Vector3.dot(point, across), Vector3.dot(point, up));
+    const hit: { minimum: number; maximum: number } | null = sample(
+      Vector3.dot(point, across),
+      Vector3.dot(point, up),
+    );
     return hit === null
       ? null
       : advancePoint(point, forward, hit.maximum - Vector3.dot(point, forward));
