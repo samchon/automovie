@@ -1,4 +1,5 @@
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
+
 import { flatBasin } from "./flatBasin";
 
 /**
@@ -9,7 +10,9 @@ import { flatBasin } from "./flatBasin";
  * Lists and nested override values stay borrowed as before. Construction starts
  * no validation, simulation, native artifact or rendering host.
  */
-export function createFluidBindingPondDomain(overrides: Partial<IAutoMovieFluidDomain> = {}): IAutoMovieFluidDomain {
+export function createFluidBindingPondDomain(
+  overrides: Partial<IAutoMovieFluidDomain> = {},
+): IAutoMovieFluidDomain {
   return flatBasin({
     columns: 4,
     rows: 4,

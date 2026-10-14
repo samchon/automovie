@@ -1,7 +1,9 @@
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
 
 /** Build the original two-cell metre-domain fixture with dyadic scalar clock/gravity/depth inputs and shallow overrides. Nested override objects remain borrowed; defaults create fresh arrays and records. Dyadic inputs support selected hand equations but do not prove arbitrary solver arithmetic or cross-platform execution. */
-export const fluidDomain: (overrides?: Partial<IAutoMovieFluidDomain>) => IAutoMovieFluidDomain = (
+export const fluidDomain: (
+  overrides?: Partial<IAutoMovieFluidDomain>,
+) => IAutoMovieFluidDomain = (
   overrides: Partial<IAutoMovieFluidDomain> = {},
 ): IAutoMovieFluidDomain => ({
   version: 1,

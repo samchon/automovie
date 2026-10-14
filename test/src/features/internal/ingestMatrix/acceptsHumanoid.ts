@@ -11,8 +11,11 @@ export const acceptsHumanoid: (fixture: {
   document: ExternalModelMatrixObject;
   payload: Buffer;
 }): boolean => {
-  inspect(fixture.document, "gltf-humanoid-v1", (uri: string): Uint8Array | null =>
-    uri === "human.bin" ? fixture.payload : null,
+  inspect(
+    fixture.document,
+    "gltf-humanoid-v1",
+    (uri: string): Uint8Array | null =>
+      uri === "human.bin" ? fixture.payload : null,
   );
   return true;
 };

@@ -8,7 +8,11 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidence contracts/testing.md#distinguishing-cases The same original constructor supplies hips and spine rest offsets, which consumers mutate for the existing malformed/rest-relative twins.
  * @evidence contracts/testing.md#execution-ownership Returns fresh caller-owned vectors/transform and acquires no file, host, browser, GPU or foreign-method replacement.
  */
-export function importedNodeMotionTestTransform(x: number, y: number, z: number): IAutoMovieTransform {
+export function importedNodeMotionTestTransform(
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform {
   return {
     translation: { x, y, z },
     rotation: { x: 0, y: 0, z: 0, w: 1 },

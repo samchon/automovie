@@ -1,4 +1,8 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
+
 import { basinEnvironment } from "./basinEnvironment";
 
 /** Preserve the original semantic-only basin fixture by removing its cells;
@@ -9,6 +13,11 @@ export function createVolumeLessFluidBasinEnvironment(): IAutoMovieBuiltEnvironm
   const environment: IAutoMovieBuiltEnvironment = basinEnvironment();
   return {
     ...environment,
-    spaces: environment.spaces.map((space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({ ...space, cells: [] })),
+    spaces: environment.spaces.map(
+      (space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({
+        ...space,
+        cells: [],
+      }),
+    ),
   };
 }

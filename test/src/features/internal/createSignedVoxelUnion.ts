@@ -1,10 +1,14 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /** Emit the existing cells' exposed outward unit-square faces in their original order; split coordinates exercise exact positional welding, with owned buffers and no appearance attributes. */
-export const createSignedVoxelUnion: (cells: number[][]) => IAutoMovieMesh = (cells: number[][]): IAutoMovieMesh => {
+export const createSignedVoxelUnion: (cells: number[][]) => IAutoMovieMesh = (
+  cells: number[][],
+): IAutoMovieMesh => {
   const positions: number[] = [],
     indices: number[] = [];
-  const occupied: Set<string> = new Set(cells.map((cell: number[]): string => cell.join(",")));
+  const occupied: Set<string> = new Set(
+    cells.map((cell: number[]): string => cell.join(",")),
+  );
   for (const cell of cells)
     for (let axis: number = 0; axis < 3; axis++)
       for (const side of [-1, 1]) {

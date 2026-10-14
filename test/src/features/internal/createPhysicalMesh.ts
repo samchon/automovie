@@ -21,8 +21,11 @@ export function createPhysicalMesh(
       ? {}
       : {
           physicalVertices: {
-            sources: ids.map((id: number): { domain: string; id: number; }  => ({ domain, id })),
-            vertices: ids.map((_id: number, index: number): number  => index),
+            sources: ids.map((id: number): { domain: string; id: number } => ({
+              domain,
+              id,
+            })),
+            vertices: ids.map((_id: number, index: number): number => index),
           },
         }),
   };

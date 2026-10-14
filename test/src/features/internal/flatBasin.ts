@@ -1,8 +1,14 @@
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
+
 import { fluidDomain } from "./fluidDomain";
 
 /** Build the original flat-bed uniform-depth basin with half-metre cells and a 1/64-second clock. Cell-sized buffers are fresh and final shallow overrides can replace any field by reference; dimensions are not admitted here and invalid populations may throw during allocation. */
-export const flatBasin: (props: { columns: number; rows: number; depth: number; overrides?: Partial<IAutoMovieFluidDomain> }) => IAutoMovieFluidDomain = (props: {
+export const flatBasin: (props: {
+  columns: number;
+  rows: number;
+  depth: number;
+  overrides?: Partial<IAutoMovieFluidDomain>;
+}) => IAutoMovieFluidDomain = (props: {
   columns: number;
   rows: number;
   depth: number;

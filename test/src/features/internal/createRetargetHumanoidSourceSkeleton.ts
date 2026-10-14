@@ -1,4 +1,9 @@
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 
 /** Build the unchanged stickman-source fixture using its original seventeen bone offsets in metres, identity rest rotations and null overrides. The conventional test geometry is not measured anatomy; moving it here preserves the existing caller while keeping its test below the source-file size limit. */
 export function createRetargetHumanoidSourceSkeleton(): IAutoMovieSkeleton {
@@ -27,14 +32,22 @@ export function createRetargetHumanoidSourceSkeleton(): IAutoMovieSkeleton {
 }
 
 /** Allocate one original identity rest transform at the supplied metre offset. */
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
 });
 
 /** Retain the original sparse bone identity, parent and owned rest transform with no authored constraint. */
-const bone: (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, rest: IAutoMovieTransform) => IAutoMovieBone = (
+const bone: (
+  name: AutoMovieHumanoidBone,
+  parent: AutoMovieHumanoidBone | null,
+  rest: IAutoMovieTransform,
+) => IAutoMovieBone = (
   name: AutoMovieHumanoidBone,
   parent: AutoMovieHumanoidBone | null,
   rest: IAutoMovieTransform,

@@ -1,4 +1,7 @@
-import type { IAutoMovieScene, IAutoMovieSemanticMask } from "@automovie/interface";
+import type {
+  IAutoMovieScene,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
 import type { IAutoMovieFormationCycle } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -35,11 +38,26 @@ export function createSemanticMaskViewerTestGraph(
   scene.background = new THREE.Color(0x123456);
   scene.fog = new THREE.FogExp2(0x223344, 0.02);
   scene.environment = new THREE.Texture();
-  const meshes: Map<string, THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>> = new Map<string, THREE.Mesh>();
+  const meshes: Map<
+    string,
+    THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    >
+  > = new Map<string, THREE.Mesh>();
   const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);
   for (const node of design.nodes) {
     const group: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-    const mesh: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+    const mesh: THREE.Mesh<
+      THREE.BoxGeometry,
+      THREE.MeshStandardMaterial,
+      THREE.Object3DEventMap
+    > = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
     // A crowd carries its baked cycle on the mesh; the override must inherit it.
     mesh.userData.automovieFormationCycle = cycle();
     group.add(mesh);
@@ -48,10 +66,11 @@ export function createSemanticMaskViewerTestGraph(
   }
   const groundGroup: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
   groundGroup.name = "__automovie_space";
-  const groundPatch: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-  );
+  const groundPatch: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
   groundGroup.add(groundPatch);
   scene.add(groundGroup);
   meshes.set("__automovie_space", groundPatch);
@@ -61,30 +80,38 @@ export function createSemanticMaskViewerTestGraph(
   const textured: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   textured.map = new THREE.Texture();
   // Slot 99 is outside the compiled set, so a supplied slot with no entry of its own must take the set colour instead of an unowned identity.
-  const batch: THREE.InstancedMesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.InstancedMesh(geometry, textured, 4);
+  const batch: THREE.InstancedMesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(geometry, textured, 4);
   batch.userData.automovieSlots = [0, 1, 2, 99];
   const seed: THREE.Color = new THREE.Color(0.25, 0.5, 0.75);
   for (let index: number = 0; index < 4; ++index) batch.setColorAt(index, seed);
   // An instanced batch with slots but no palette of its own requires the override to create the attribute and take it away again on restore.
-  const bare: THREE.InstancedMesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
+  const bare: THREE.InstancedMesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial(), 1);
   bare.userData.automovieSlots = [1];
   // Three more shapes share one instance-set group: a batch declaring no slots, a batch declaring an empty slot list, and an ordinary mesh that is not instanced at all.
-  const unslotted: THREE.InstancedMesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
-  const emptySlots: THREE.InstancedMesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.InstancedMesh(
-    geometry,
-    new THREE.MeshStandardMaterial(),
-    1,
-  );
+  const unslotted: THREE.InstancedMesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial(), 1);
+  const emptySlots: THREE.InstancedMesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial(), 1);
   emptySlots.userData.automovieSlots = [];
-  const plain: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial[], THREE.Object3DEventMap> = new THREE.Mesh(geometry, [
+  const plain: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial[],
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, [
     new THREE.MeshStandardMaterial(),
     new THREE.MeshStandardMaterial(),
   ]);
@@ -96,7 +123,14 @@ export function createSemanticMaskViewerTestGraph(
   scene.add(setGroup);
 
   // Geometry with no index and geometry with neither index nor positions must both be counted without inventing a triangle.
-  const loose: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(
+  const loose: THREE.Mesh<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(
     new THREE.BufferGeometry().setAttribute(
       "position",
       new THREE.BufferAttribute(new Float32Array(9), 3),
@@ -112,18 +146,50 @@ export function createSemanticMaskViewerTestGraph(
   );
 
   // One mesh no entry claims, and one hidden mesh nothing draws.
-  const orphan: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+  const orphan: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
   scene.add(orphan);
-  const hidden: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial, THREE.Object3DEventMap> = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+  const hidden: THREE.Mesh<
+    THREE.BoxGeometry,
+    THREE.MeshStandardMaterial,
+    THREE.Object3DEventMap
+  > = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
   hidden.visible = false;
   scene.add(hidden);
 
   // Non-mesh renderables retain their beauty material unless the structural pass hides them; the already-hidden one must remain hidden after restore.
-  const grid: THREE.LineSegments<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = new THREE.LineSegments(new THREE.BufferGeometry());
-  const darkLine: THREE.LineSegments<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = new THREE.LineSegments(new THREE.BufferGeometry());
+  const grid: THREE.LineSegments<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = new THREE.LineSegments(new THREE.BufferGeometry());
+  const darkLine: THREE.LineSegments<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = new THREE.LineSegments(new THREE.BufferGeometry());
   darkLine.visible = false;
   const sprite: THREE.Sprite<THREE.Object3DEventMap> = new THREE.Sprite();
-  const points: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = new THREE.Points(new THREE.BufferGeometry());
+  const points: THREE.Points<
+    THREE.BufferGeometry<
+      THREE.NormalBufferAttributes,
+      THREE.BufferGeometryEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[],
+    THREE.Object3DEventMap
+  > = new THREE.Points(new THREE.BufferGeometry());
   scene.add(grid);
   scene.add(darkLine);
   scene.add(sprite);
@@ -136,9 +202,29 @@ export function createSemanticMaskViewerTestGraph(
   dark.visible = false;
   scene.add(dark);
 
-  const beauty: Map<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[]> = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
+  const beauty: Map<
+    THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    >,
+    | THREE.Material<THREE.MaterialEventMap>
+    | THREE.Material<THREE.MaterialEventMap>[]
+  > = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const mesh: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap> = object as THREE.Mesh;
+    const mesh: THREE.Mesh<
+      THREE.BufferGeometry<
+        THREE.NormalBufferAttributes,
+        THREE.BufferGeometryEventMap
+      >,
+      | THREE.Material<THREE.MaterialEventMap>
+      | THREE.Material<THREE.MaterialEventMap>[],
+      THREE.Object3DEventMap
+    > = object as THREE.Mesh;
     if (mesh.isMesh === true) beauty.set(mesh, mesh.material);
   });
   void mask;

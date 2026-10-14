@@ -7,10 +7,10 @@ import { createModel } from "./fixtures";
  */
 export function forgeEntry(
   node: string,
-  model: Partial<IAutoMovieForgeEntry["model"]> = {}
+  model: Partial<IAutoMovieForgeEntry["model"]> = {},
 ): IAutoMovieForgeEntry {
-  return ({
-  node,
-  model: { ...createModel(), id: node, ...model },
-});
+  return {
+    node,
+    model: { ...createModel(), id: node, ...model },
+  };
 }

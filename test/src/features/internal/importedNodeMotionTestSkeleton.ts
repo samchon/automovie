@@ -14,8 +14,18 @@ export function importedNodeMotionTestSkeleton(): IAutoMovieSkeleton {
   return {
     id: "source-rig",
     bones: [
-      { bone: "hips", parent: null, rest: transform(0, 1, 0), constraint: null },
-      { bone: "spine", parent: "hips", rest: transform(0, 0.5, 0), constraint: null },
+      {
+        bone: "hips",
+        parent: null,
+        rest: transform(0, 1, 0),
+        constraint: null,
+      },
+      {
+        bone: "spine",
+        parent: "hips",
+        rest: transform(0, 0.5, 0),
+        constraint: null,
+      },
     ],
   };
 }

@@ -1,4 +1,3 @@
-
 /**
  * Independently verify every spacing-relevant pair by an x-sorted sweep.
  * A pair whose x-gap is at least the nonnegative minimum cannot violate its
@@ -19,8 +18,13 @@ export const hasPlantingSpacingOracle: (
   minimum: number,
 ): boolean => {
   if (minimum === 0) return true;
-  const ordered: { translation: { x: number; z: number } }[] = [...placements].sort((left: { translation: { x: number; z: number } }, right: { translation: { x: number; z: number } }): number =>
-    left.translation.x - right.translation.x,
+  const ordered: { translation: { x: number; z: number } }[] = [
+    ...placements,
+  ].sort(
+    (
+      left: { translation: { x: number; z: number } },
+      right: { translation: { x: number; z: number } },
+    ): number => left.translation.x - right.translation.x,
   );
   for (let a: number = 0; a < ordered.length; ++a)
     for (let b: number = a + 1; b < ordered.length; ++b) {

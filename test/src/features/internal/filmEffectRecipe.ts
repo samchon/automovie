@@ -1,4 +1,5 @@
 import { IAutoMovieEffectRecipe } from "@automovie/interface";
+
 /** Return the existing bounded fog recipe with its original numeric defaults and optional id. Each call creates fresh nested recipe records; this data factory neither admits a cue nor starts an effect consumer. */
 export const filmEffectRecipe: (id?: string) => IAutoMovieEffectRecipe = (
   id: string = "fog-recipe",

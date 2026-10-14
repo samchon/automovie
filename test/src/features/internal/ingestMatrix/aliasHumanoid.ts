@@ -1,12 +1,15 @@
 import type { ExternalModelMatrixObject } from "./ExternalModelMatrixObject";
 import { humanoidDocument } from "./humanoidDocument";
-import { set } from "./set";
 import { humanoidPayload } from "./humanoidPayload";
+import { set } from "./set";
 
 /**
  * Declare recognized, unnamed and duplicate-convention joints without replacing first slot ownership.
  */
-export const aliasHumanoid: () => { document: ExternalModelMatrixObject; payload: Buffer } = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
+export const aliasHumanoid: () => {
+  document: ExternalModelMatrixObject;
+  payload: Buffer;
+} = (): { document: ExternalModelMatrixObject; payload: Buffer } => {
   const document: ExternalModelMatrixObject = humanoidDocument();
   document.nodes = [
     { mesh: 0, skin: 0 },

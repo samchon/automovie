@@ -1,4 +1,9 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieHalfSpacePlane } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieHalfSpacePlane,
+} from "@automovie/interface";
+
 import { basinEnvironment } from "./basinEnvironment";
 
 /** Original shared Y/Z halfspaces of both convex basin halves. */
@@ -18,20 +23,28 @@ export function createNotchedFluidBasinEnvironment(): IAutoMovieBuiltEnvironment
   const environment: IAutoMovieBuiltEnvironment = basinEnvironment();
   return {
     ...environment,
-    spaces: environment.spaces.map((space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({
-      ...space,
-      cells: [
-        { id: "west-half", planes: [
-          { normal: { x: -1, y: 0, z: 0 }, offset: 2 },
-          { normal: { x: 1, y: 0, z: 0 }, offset: -0.5 },
-          ...SIDES,
-        ] },
-        { id: "east-half", planes: [
-          { normal: { x: -1, y: 0, z: 0 }, offset: -0.5 },
-          { normal: { x: 1, y: 0, z: 0 }, offset: 2 },
-          ...SIDES,
-        ] },
-      ],
-    })),
+    spaces: environment.spaces.map(
+      (space: IAutoMovieBuiltSpace): IAutoMovieBuiltSpace => ({
+        ...space,
+        cells: [
+          {
+            id: "west-half",
+            planes: [
+              { normal: { x: -1, y: 0, z: 0 }, offset: 2 },
+              { normal: { x: 1, y: 0, z: 0 }, offset: -0.5 },
+              ...SIDES,
+            ],
+          },
+          {
+            id: "east-half",
+            planes: [
+              { normal: { x: -1, y: 0, z: 0 }, offset: -0.5 },
+              { normal: { x: 1, y: 0, z: 0 }, offset: 2 },
+              ...SIDES,
+            ],
+          },
+        ],
+      }),
+    ),
   };
 }

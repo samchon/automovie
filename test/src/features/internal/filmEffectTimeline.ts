@@ -1,7 +1,18 @@
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
+
 import { filmEffectCue } from "./filmEffectCue";
+
 /** Return the existing 48-frame, 24-fps film timeline with the same segment, provenance and track defaults. The default mist/haze cues are fresh and deliberately out of canonical order; a supplied effects array is retained by reference. */
-export const filmEffectTimeline: (effects?: { id: string; recipe: "world-zone"; zone: string; startFrame: number; durationFrames: number; intensity: number; }[]) => IAutoMovieFilmTimeline = (
+export const filmEffectTimeline: (
+  effects?: {
+    id: string;
+    recipe: "world-zone";
+    zone: string;
+    startFrame: number;
+    durationFrames: number;
+    intensity: number;
+  }[],
+) => IAutoMovieFilmTimeline = (
   effects: IAutoMovieFilmTimeline["tracks"]["effects"] = [
     filmEffectCue(),
     filmEffectCue({

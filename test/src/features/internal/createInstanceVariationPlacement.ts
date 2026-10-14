@@ -13,7 +13,9 @@ const COUNT: number = 2_000;
  *
  * Each invocation allocates a mutable placement for its portable caller, retains no result, starts no host and installs no replacement method.
  */
-export const createInstanceVariationPlacement: (overrides?: Partial<IAutoMovieInstanceSetPlacement>) => IAutoMovieInstanceSetPlacement = (
+export const createInstanceVariationPlacement: (
+  overrides?: Partial<IAutoMovieInstanceSetPlacement>,
+) => IAutoMovieInstanceSetPlacement = (
   overrides: Partial<IAutoMovieInstanceSetPlacement> = {},
 ): IAutoMovieInstanceSetPlacement => ({
   id: "crowd",
@@ -31,4 +33,3 @@ export const createInstanceVariationPlacement: (overrides?: Partial<IAutoMovieIn
   },
   ...overrides,
 });
-

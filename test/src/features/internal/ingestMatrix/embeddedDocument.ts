@@ -4,7 +4,11 @@ import { baseDocument } from "./baseDocument";
 /**
  * Declare an embedded GLB buffer with an independent requested byte length.
  */
-export const embeddedDocument: (byteLength?: number) => ExternalModelMatrixObject = (byteLength: number = 12): ExternalModelMatrixObject => {
+export const embeddedDocument: (
+  byteLength?: number,
+) => ExternalModelMatrixObject = (
+  byteLength: number = 12,
+): ExternalModelMatrixObject => {
   const document: ExternalModelMatrixObject = baseDocument();
   document.buffers = [{ byteLength }];
   document.bufferViews = [{ buffer: 0, byteLength: 4 }];
