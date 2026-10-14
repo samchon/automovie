@@ -6,8 +6,8 @@ import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 import { createConnectedBodyBrowserCompanion } from "@automovie/viewer/human/body/createConnectedBodyBrowserCompanion";
 import { createHumanResidentWorker } from "@automovie/viewer/human/common/createHumanResidentWorker";
 
-import { createHumanResidentPort } from "../common/createHumanResidentPort";
-import { createHumanWorker } from "../common/createHumanWorker";
+import { createHumanResidentPort } from "@automovie/viewer/human/common/createHumanResidentPort";
+import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import type { IConnectedBodyHeadSeat } from "./IConnectedBodyHeadSeat";
 import type { IConnectedBodyHeadSeatProps } from "./IConnectedBodyHeadSeatProps";
 

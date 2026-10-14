@@ -20,10 +20,10 @@ import { createConnectedBodyInitialDocument } from "./human/body/createConnected
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
 import { createConnectedBodySimpleSolvers } from "./human/body/createConnectedBodySimpleSolvers";
 import { mountConnectedBodyPanel } from "./human/body/mountConnectedBodyPanel";
-import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
+import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
 import { setConnectedBodyPreparing } from "./human/body/setConnectedBodyPreparing";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
-import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
+import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 async function main(): Promise<void> {

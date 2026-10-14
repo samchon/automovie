@@ -1,12 +1,12 @@
-import type { IConnectedPersonBodySolveMessage } from "./IConnectedPersonBodySolveMessage";
-import type { IConnectedPersonFaceReadMessage } from "./IConnectedPersonFaceReadMessage";
-import type { IConnectedPersonFaceSolveMessage } from "./IConnectedPersonFaceSolveMessage";
-import type { IConnectedPersonHeadReadMessage } from "./IConnectedPersonHeadReadMessage";
-import type { IConnectedPersonHeadSolveMessage } from "./IConnectedPersonHeadSolveMessage";
-import type { IConnectedPersonReadMessage } from "./IConnectedPersonReadMessage";
-import type { IConnectedPersonSimpleExpandMessage } from "./IConnectedPersonSimpleExpandMessage";
-import type { IConnectedPersonSimpleProjectMessage } from "./IConnectedPersonSimpleProjectMessage";
-import type { IConnectedPersonSolveMessage } from "./IConnectedPersonSolveMessage";
+import type { IConnectedPersonBodySolveMessage } from "@automovie/human/human/runtime/IConnectedPersonBodySolveMessage";
+import type { IConnectedPersonFaceReadMessage } from "@automovie/human/human/runtime/IConnectedPersonFaceReadMessage";
+import type { IConnectedPersonFaceSolveMessage } from "@automovie/human/human/runtime/IConnectedPersonFaceSolveMessage";
+import type { IConnectedPersonHeadReadMessage } from "@automovie/human/human/runtime/IConnectedPersonHeadReadMessage";
+import type { IConnectedPersonHeadSolveMessage } from "@automovie/human/human/runtime/IConnectedPersonHeadSolveMessage";
+import type { IConnectedPersonReadMessage } from "@automovie/human/human/runtime/IConnectedPersonReadMessage";
+import type { IConnectedPersonSimpleExpandMessage } from "@automovie/human/human/runtime/IConnectedPersonSimpleExpandMessage";
+import type { IConnectedPersonSimpleProjectMessage } from "@automovie/human/human/runtime/IConnectedPersonSimpleProjectMessage";
+import type { IConnectedPersonSolveMessage } from "@automovie/human/human/runtime/IConnectedPersonSolveMessage";
 
 /**
  * One request the person editor posts to its measurement worker, discriminated by `kind`. The nine alternatives retain each operation's own context and units, including paired body shape inverses, complete-person rest measurements, head/face solves and simple projection/expansion. The runtime returns a request-correlated refusal for an unsupported kind at its transport boundary.

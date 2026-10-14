@@ -5,7 +5,7 @@ import type {
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import type { IConnectedBodyReach } from "../common/IConnectedBodyReach";
+import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
 import type { IConnectedBodyMeasurement } from "./IConnectedBodyMeasurement";
 
 /**

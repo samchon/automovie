@@ -9,7 +9,7 @@ import { createHumanPersonGenerationBuilder } from "@automovie/human/human/build
 import { joinHumanPersonGeneration } from "@automovie/human/human/build/joinHumanPersonGeneration";
 import { describeConnectedPersonFaceProgress } from "@automovie/human/human/runtime/describeConnectedPersonFaceProgress";
 
-import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
+import type { IConnectedPersonEvaluator } from "@automovie/human/human/runtime/IConnectedPersonEvaluator";
 
 /**
  * Join a person's head and body views, compile the generation and create its one-skin evaluator once both views have arrived. An optional face observer reads this evaluator's final model rather than compiling a second whole-person evaluator for face measurements. Supplied view promises already own their loading; this function neither starts nor cancels them.

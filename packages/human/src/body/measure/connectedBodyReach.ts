@@ -4,7 +4,7 @@ import type {
 } from "@automovie/human";
 import { humanBodyChannelReach } from "@automovie/human/body/measure/humanBodyChannelReach";
 
-import type { IConnectedBodyReach } from "./IConnectedBodyReach";
+import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
 
 /**
  * Read which body channels a person generation's body view can evaluate.

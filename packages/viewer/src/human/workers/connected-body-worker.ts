@@ -15,13 +15,13 @@ import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHuma
  * The whole-person reader consumes this same loaded body and its companion
  * head rather than fetching another body during worker preparation.
  */
-import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
-import type { IConnectedBodyWorkerMessage } from "./human/body/IConnectedBodyWorkerMessage";
-import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
-import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
-import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
-import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
+import type { IConnectedBodyProgress } from "@automovie/viewer/human/body/IConnectedBodyProgress";
+import type { IConnectedBodyWorkerMessage } from "@automovie/viewer/human/body/IConnectedBodyWorkerMessage";
+import { connectedBodyTransfers } from "@automovie/viewer/human/body/connectedBodyTransfers";
+import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "@automovie/viewer/human/body/readConnectedHeadView";
+import { createHumanResidentHandler } from "@automovie/viewer/human/common/createHumanResidentHandler";
+import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
 
 const scope: DedicatedWorkerGlobalScope =
   self as unknown as DedicatedWorkerGlobalScope;

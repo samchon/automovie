@@ -20,13 +20,13 @@ import { measureHumanPersonHead } from "@automovie/human/human/measure/measureHu
 import { solveHumanPersonHead } from "@automovie/human/human/measure/solveHumanPersonHead";
 import { solveHumanPersonMeasuredChannel } from "@automovie/human/human/measure/solveHumanPersonMeasuredChannel";
 
-import type { IBodySimpleReply } from "../body/IBodySimpleReply";
-import type { IConnectedPersonEvaluator } from "./IConnectedPersonEvaluator";
-import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
-import type { IConnectedPersonMeasureMessage } from "./IConnectedPersonMeasureMessage";
-import type { IConnectedPersonMeasureRuntimeProps } from "./IConnectedPersonMeasureRuntimeProps";
-import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
-import { prepareConnectedPersonEvaluator } from "./prepareConnectedPersonEvaluator";
+import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
+import type { IConnectedPersonEvaluator } from "@automovie/human/human/runtime/IConnectedPersonEvaluator";
+import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
+import type { IConnectedPersonMeasureMessage } from "@automovie/human/human/runtime/IConnectedPersonMeasureMessage";
+import type { IConnectedPersonMeasureRuntimeProps } from "@automovie/human/human/runtime/IConnectedPersonMeasureRuntimeProps";
+import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
+import { prepareConnectedPersonEvaluator } from "@automovie/human/human/runtime/prepareConnectedPersonEvaluator";
 
 /**
  * Answer the person editor's measurement requests against the head and body views the resident person worker already read. It answers nine kinds:

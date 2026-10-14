@@ -13,8 +13,8 @@ import type { BodyPosePreset } from "../body/BodyPosePreset";
 import type { IConnectedBodyMeasurement } from "../body/IConnectedBodyMeasurement";
 import type { IConnectedFaceExpressionPreset } from "../face/IConnectedFaceExpressionPreset";
 import type { IConnectedPersonFaceSolution } from "./IConnectedPersonFaceSolution";
-import type { IConnectedPersonHeadSolution } from "./IConnectedPersonHeadSolution";
-import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
+import type { IConnectedPersonHeadSolution } from "@automovie/human/human/runtime/IConnectedPersonHeadSolution";
+import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 import type { IConnectedPersonModel } from "./IConnectedPersonModel";
 import type { IConnectedPersonViewport } from "./IConnectedPersonViewport";
 

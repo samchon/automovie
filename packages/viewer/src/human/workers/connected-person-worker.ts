@@ -14,17 +14,17 @@ import { createConnectedPersonRuntime } from "@automovie/human/human/runtime/cre
 import type { HumanResidentReply } from "@automovie/viewer/human/common/HumanResidentReply";
 import type { IHumanResidentRequest } from "@automovie/viewer/human/common/IHumanResidentRequest";
 
-import type { IBodySimpleReply } from "./human/body/IBodySimpleReply";
-import type { IConnectedBodyProgress } from "./human/body/IConnectedBodyProgress";
-import { connectedBodyTransfers } from "./human/body/connectedBodyTransfers";
-import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
-import { readConnectedHeadView } from "./human/body/readConnectedHeadView";
-import { createHumanResidentHandler } from "./human/common/createHumanResidentHandler";
-import type { IConnectedPersonMeasureMessage } from "./human/person/IConnectedPersonMeasureMessage";
-import type { IConnectedPersonSourceUrls } from "./human/person/IConnectedPersonSourceUrls";
-import type { IConnectedPersonWorkerMessage } from "./human/person/IConnectedPersonWorkerMessage";
-import { createConnectedPersonMeasureRuntime } from "./human/person/createConnectedPersonMeasureRuntime";
-import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
+import type { IBodySimpleReply } from "@automovie/human/body/runtime/IBodySimpleReply";
+import type { IConnectedBodyProgress } from "@automovie/viewer/human/body/IConnectedBodyProgress";
+import { connectedBodyTransfers } from "@automovie/viewer/human/body/connectedBodyTransfers";
+import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
+import { readConnectedHeadView } from "@automovie/viewer/human/body/readConnectedHeadView";
+import { createHumanResidentHandler } from "@automovie/viewer/human/common/createHumanResidentHandler";
+import type { IConnectedPersonMeasureMessage } from "@automovie/human/human/runtime/IConnectedPersonMeasureMessage";
+import type { IConnectedPersonSourceUrls } from "@automovie/viewer/human/person/IConnectedPersonSourceUrls";
+import type { IConnectedPersonWorkerMessage } from "@automovie/viewer/human/person/IConnectedPersonWorkerMessage";
+import { createConnectedPersonMeasureRuntime } from "@automovie/human/human/runtime/createConnectedPersonMeasureRuntime";
+import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
 
 const scope: DedicatedWorkerGlobalScope =
   self as unknown as DedicatedWorkerGlobalScope;

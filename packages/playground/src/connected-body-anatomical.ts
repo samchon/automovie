@@ -4,10 +4,10 @@ import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
 import { createConnectedBodyPageViewport } from "./human/body/createConnectedBodyPageViewport";
 import { mountBodyAnatomicalRequestPanel } from "./human/body/mountBodyAnatomicalRequestPanel";
-import { readConnectedBodyView } from "./human/body/readConnectedBodyView";
-import { createHumanWorker } from "./human/common/createHumanWorker";
+import { readConnectedBodyView } from "@automovie/viewer/human/body/readConnectedBodyView";
+import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import { downloadConnectedFile } from "./human/common/downloadConnectedFile";
-import { readConnectedPersonSourceUrls } from "./human/person/readConnectedPersonSourceUrls";
+import { readConnectedPersonSourceUrls } from "@automovie/viewer/human/person/readConnectedPersonSourceUrls";
 import { registerPlaygroundEditor } from "./viewer/registerPlaygroundEditor";
 
 /** Browser IO for the anatomy inspector; body/worker/viewport owners perform admission and rendering. */

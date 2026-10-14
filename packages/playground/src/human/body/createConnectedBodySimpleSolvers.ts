@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
 
-import { createHumanWorker } from "../common/createHumanWorker";
+import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import { CONNECTED_BODY_WHOLE_SOURCE } from "./CONNECTED_BODY_WHOLE_SOURCE";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
 import type { IBodySimpleWorkerTransport } from "./IBodySimpleWorkerTransport";

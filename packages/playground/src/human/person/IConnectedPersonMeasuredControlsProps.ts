@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanPersonDocument } from "@automovie/human";
 
-import type { IConnectedPersonMeasuredSolution } from "./IConnectedPersonMeasuredSolution";
+import type { IConnectedPersonMeasuredSolution } from "@automovie/human/human/runtime/IConnectedPersonMeasuredSolution";
 
 /**
  * What the person measurement controls render into and call: the container, the current person, the panel's intent tickets, the off-thread reader and solver, and the panel's transaction, status and refusal owners. The reader measures complete-person final rest skin and section assembly blocks construction-draft reads. A solve changes one body channel within paired support and returns its final Float32 reading plus requested-target source-sample membership; the current panel transaction separately admits that candidate.

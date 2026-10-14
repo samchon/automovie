@@ -2,7 +2,7 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 import type { IAutoMovieHumanBodyAnatomicalAssembly } from "@automovie/human/body/anatomy/assembly/IAutoMovieHumanBodyAnatomicalAssembly";
 import { createConnectedBodyBrowserViewport } from "@automovie/viewer/human/body/createConnectedBodyBrowserViewport";
 
-import { createHumanWorker } from "../common/createHumanWorker";
+import { createHumanWorker } from "@automovie/viewer/human/common/createHumanWorker";
 import { createConnectedBodyPort } from "./createConnectedBodyPort";
 
 /**

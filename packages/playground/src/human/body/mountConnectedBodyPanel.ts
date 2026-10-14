@@ -15,8 +15,8 @@ import type {
 } from "@automovie/interface";
 import { createAutoMovieResourceRetirement } from "@automovie/viewer";
 
-import type { IConnectedBodyReach } from "../common/IConnectedBodyReach";
-import { connectedBodyReach } from "../common/connectedBodyReach";
+import type { IConnectedBodyReach } from "@automovie/human/body/measure/IConnectedBodyReach";
+import { connectedBodyReach } from "@automovie/human/body/measure/connectedBodyReach";
 import type { IBodySimpleBody } from "./IBodySimpleBody";
 import type { IBodySimpleControlsHandle } from "./IBodySimpleControlsHandle";
 import type { IConnectedBodyHumeralSlot } from "./IConnectedBodyHumeralSlot";
