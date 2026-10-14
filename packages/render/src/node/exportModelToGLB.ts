@@ -13,60 +13,35 @@ import type {
   Node,
   Primitive,
   Scene,
-} from "@gltf-transform/core";
+} from "@gltf-transform/core" with { "resolution-mode": "import" };
+import { loadModelGltfCore } from "./loadModelGltfCore.mjs";
 
 /**
- * Serialize an `IAutoMovieModel` into the bytes of a binary glTF 2.0 (`.glb`)
- * file with all geometry in one embedded buffer.
+ * Serialize an `IAutoMovieModel` into binary glTF 2.0 (`.glb`) bytes with all geometry in one embedded buffer.
  *
- * Each skeleton bone becomes a node under its parent, or under the scene for a
- * root bone, carrying its rest translation and rotation with unit scale. Each
- * part becomes a mesh node with its own transform, parented to its
- * `attachedBone` node so the file articulates by rotating bone nodes, or to the
- * scene when it has no bone. A primitive part is tessellated by the engine's
- * `tessellate`, so a capsule exports as its cylinder approximation; a mesh part
- * exports its positions, its normals, its vertex colors as `COLOR_0`, and its
- * indices. Materials map onto glTF metallic-roughness with the same alpha mode,
- * cutoff and sidedness the viewer applies, and with `opacity` folded into the
- * base color alpha because the viewer renders `opacity` and ignores
- * `baseColor.a`.
+ * Each skeleton bone becomes a node under its parent, or under the scene for a root, carrying rest translation and rotation with unit scale. Each part becomes a mesh node with its own transform under its `attachedBone`, or under the scene when unattached. Engine tessellation exports a capsule as its bounding-cylinder approximation; authored meshes export positions, normals, vertex colors as `COLOR_0`, and indices.
  *
- * The export keeps fewer facts than the live viewer renders. A skinned part
- * exports as a static mesh at its rest shape, with no joints, weights or glTF
- * skin. Texture bindings, mesh UVs, and the transmission, index of refraction,
- * thickness, clear-coat, subsurface and overlay fields are not written. A mesh
- * without authored normals exports smooth area-weighted vertex normals when
- * indexed, as the viewer computes them, and no `NORMAL` when non-indexed,
- * where glTF's flat shading equals the viewer's.
+ * Materials use glTF metallic-roughness, authored alpha mode or an opacity-derived default, mask cutoff 0.5 by default, and authored sidedness. Exported base alpha is `(baseColor.a ?? 1) * opacity`; the live viewer currently uses opacity alone, so authored base alpha can produce a different appearance.
  *
- * Throws when a bone names a missing parent or a part names a missing material
- * or bone. Other model validity, such as a cyclic skeleton, is the engine
- * validator's responsibility and is not rechecked.
+ * Skinned parts export as static rest meshes without joints, weights or glTF skin. Texture bindings, mesh UVs, transmission, index of refraction, thickness, clear-coat, subsurface and overlay fields are omitted. Indexed meshes without authored normals get area-weighted smooth normals; unindexed meshes omit `NORMAL` and leave shading to the reader.
  *
- * @evidence contracts/common.md#principled-implementation The mapping follows the glTF 2.0 node hierarchy and metallic-roughness material, so any conforming reader reproduces the rig and surfaces; where the viewer deviates from a naive mapping, opacity versus base alpha, unit bone-rest scale and computed normals, the export copies the viewer's rule so external viewers show what automovie shows; the remaining limitation is the unwritten skin, textures, UVs and extension material fields listed above.
- * @evidence contracts/common.md#clear-and-simple-design One function walks materials, bones and parts in that order because parts reference both, with three private helpers for the two transform conventions and the normal computation; the glTF serializer is loaded at the call because a module-scope import would load it for every importer of the Node entry.
+ * Call with an engine-validated model whose numeric attributes are representable by the exported Float32/Uint32 arrays. Missing parent, material and attached-bone references throw; this function does not repeat graph or numeric validation, and the serializer can also reject its document.
+ *
+ * @evidence contracts/common.md#principled-implementation glTF nodes carry the represented rest hierarchy and transforms, while accessors and metallic-roughness materials carry the emitted static surface facts. Engine tessellation and indexed normal accumulation supply geometry; Float32/Uint32 conversion assumes validated representable inputs. The documented alpha difference and omitted skin, texture and extension fields prevent claiming complete live-viewer equivalence.
+ * @evidence contracts/common.md#clear-and-simple-design Materials, bones and parts are visited in dependency order, with helpers for material conversion, geometry, part transforms, indexed normals and bone-rest transforms. The Node entry exposes this exporter, and its callers receive bytes without file writing; the serializer is loaded only when export is requested.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The deferred import is a load-time boundary, not a patch of the serializer, and no model, part or material id is special-cased; every rule applies to the field it reads.
- * @evidence contracts/common.md#meaningful-documentation The doc states the node hierarchy and transform conventions, how each geometry kind and attribute is written, the material mapping including alpha and sidedness, every fidelity reduction against the viewer, and the reference refusals with what is left to the validator.
- * @evidence contracts/performance.md#efficient-algorithms For B bones, P parts and V vertices, materials and bones are indexed in maps so every reference resolves in constant time, each attribute array is converted to a typed array once, and normals are computed in one pass over the indices and one over the vertices, so time and memory are linear in the model size.
+ * @evidence contracts/common.md#meaningful-documentation The doc names the validated-model premise, emitted hierarchy and attributes, material defaults and alpha difference, omitted capabilities, Float32/Uint32 conversion, reference refusals and serializer failure boundary. Callers get static GLB bytes rather than a validated visual delivery or animation.
+ * @evidence contracts/performance.md#efficient-algorithms Local work visits M materials, B bones, P parts and their V attribute elements plus I triangle indices, using maps for expected constant-time reference lookup and linear indexed normal accumulation. Typed arrays, document objects and the serialized binary coexist during writing; the SDK's graph bookkeeping and serialization add their own work and allocations, so neither a total linear bound nor a fixed peak multiplier is asserted. Input and output size have no independent quota here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes one caller-owned model into fresh bytes; the module loader's cache already shares the deferred `@gltf-transform/core` module across calls, and no export result is cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The glTF document, its typed arrays and the lookup maps are held only until the bytes are written and are then unreachable; the returned array is the caller's, and no file handle or task is opened.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The pending module import or binary write can retain the invocation, document, maps and typed arrays until settlement; this function adds no timeout or cancellation. After settlement it keeps no result cache or persistent document handle, while the module loader retains the loaded serializer and the caller owns the returned bytes. No output file is opened.
  * @author Samchon
  */
-export const exportModelToGLB = async (
+export const exportModelToGLB: (model: IAutoMovieModel) => Promise<Uint8Array> = async (
   model: IAutoMovieModel,
 ): Promise<Uint8Array> => {
-  // Loaded here rather than at module scope because this is the workspace's
-  // only runtime edge to `@gltf-transform/core`: a module-scope import would
-  // load a glTF serializer for every importer of the Node entry, including one
-  // that never calls this. Under the pinned Node 22.15 that load fails, because
-  // the package's `require` condition serves `dist/index.cjs`, which requires
-  // the ESM-only `property-graph`, and the ESM-to-CJS translator returns
-  // undefined for it. Node 24.18 loads it. Deferring the load means a path that
-  // never exports never pays for or trips over it; the callers that do export
-  // run where the load succeeds.
-  const gltf: typeof import("@gltf-transform/core") = await import(
-    "@gltf-transform/core"
-  );
+  // The deferred ES module loader fixes the SDK namespace/type graph across
+  // CommonJS and NodeNext consumers without eager SDK initialization.
+  const gltf: typeof import("@gltf-transform/core", { with: { "resolution-mode": "import" } }) = await loadModelGltfCore();
   const doc: Document = new gltf.Document();
   const buffer: GLTFBuffer = doc.createBuffer();
   const scene: Scene = doc.createScene(model.name ?? model.id);
@@ -124,12 +99,9 @@ export const exportModelToGLB = async (
 };
 
 /**
- * One glTF metallic-roughness material with the viewer's alpha rule: the
- * authored `alphaMode`, or `blend` below full opacity and `opaque` otherwise,
- * a cutoff of 0.5 by default under `mask`, and back faces only when
- * `doubleSided` is true.
+ * Convert one material with authored alpha mode or an opacity-derived default, default mask cutoff 0.5, and authored sidedness. Base alpha multiplies authored alpha by opacity, which differs from the live viewer's opacity-only rule.
  */
-const toMaterial = (doc: Document, m: IAutoMovieMaterial): Material => {
+const toMaterial: (doc: Document, m: IAutoMovieMaterial) => Material = (doc: Document, m: IAutoMovieMaterial): Material => {
   const alphaMode: "opaque" | "mask" | "blend" =
     m.alphaMode ?? (m.opacity < 1 ? "blend" : "opaque");
   const material: Material = doc
@@ -153,7 +125,7 @@ const toMaterial = (doc: Document, m: IAutoMovieMaterial): Material => {
 };
 
 /** One primitive holding a part's tessellated or authored geometry. */
-const toPrimitive = (
+const toPrimitive: (doc: Document, buffer: GLTFBuffer, part: IAutoMovieModelPart) => Primitive = (
   doc: Document,
   buffer: GLTFBuffer,
   part: IAutoMovieModelPart,
@@ -216,7 +188,7 @@ const toPrimitive = (
 };
 
 /** Apply a part's translation, rotation and scale to its node; `null` is identity. */
-const setTRS = (node: Node, t: IAutoMovieTransform | null): Node => {
+const setTRS: (node: Node, t: IAutoMovieTransform | null) => Node = (node: Node, t: IAutoMovieTransform | null): Node => {
   if (t === null) return node;
   return node
     .setTranslation([t.translation.x, t.translation.y, t.translation.z])
@@ -225,13 +197,9 @@ const setTRS = (node: Node, t: IAutoMovieTransform | null): Node => {
 };
 
 /**
- * Area-weighted smooth vertex normals over an indexed triangle list, the
- * computation three's `computeVertexNormals` performs for the live viewer:
- * each triangle's unnormalized cross product, whose length is twice its area,
- * accumulates onto its three vertices, and each sum is then normalized. A
- * vertex with no area keeps the zero normal rather than NaN.
+ * Accumulate each indexed triangle's unnormalized cross product onto its three vertices, then normalize each sum to obtain area-weighted smooth normals. Vertices with no area keep zero normals; validated indices and representable numeric inputs are assumed.
  */
-const computeSmoothNormals = (
+const computeSmoothNormals: (positions: number[], indices: number[]) => number[] = (
   positions: number[],
   indices: number[],
 ): number[] => {
@@ -270,13 +238,9 @@ const computeSmoothNormals = (
 };
 
 /**
- * Apply a bone's rest translation and rotation with unit scale. The engine's
- * forward kinematics and the live viewer both ignore bone-rest scale, so
- * exporting it would let external viewers compound a scale into every
- * descendant that no automovie renderer shows. Part nodes keep their scale
- * through `setTRS`.
+ * Apply bone-rest translation and rotation with unit scale, matching engine forward kinematics and the live viewer. Part nodes retain their own scale through `setTRS`.
  */
-const setBoneRest = (node: Node, bone: IAutoMovieBone): Node =>
+const setBoneRest: (node: Node, bone: IAutoMovieBone) => Node = (node: Node, bone: IAutoMovieBone): Node =>
   node
     .setTranslation([
       bone.rest.translation.x,
