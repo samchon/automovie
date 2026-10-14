@@ -36,9 +36,9 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  *
  * @evidence contracts/common.md#principled-implementation Registered anterior native courses place equal-arc stations and live globe-to-root frames transport fixed-lattice shafts.
  * @evidence contracts/common.md#clear-and-simple-design Root identity, generated physical seam ids and source region replacement remain separate from pigmentation finishing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uniform station and centre-heavy length policies are conventions; absent registration, degenerate frames or unsupported native courses refuse without claiming measured follicles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uniform station and centre-heavy length policies are conventions. Missing required periocular/articulation registration, degenerate frames or unsupported registered native courses refuse; legacy rows without material charts retain their polygonal course without claiming measured follicles.
  * @evidence contracts/common.md#meaningful-documentation Shaft millimetres convert once to current head metres, both ends are open and zero population returns a null-mesh row.
- * @evidence contracts/performance.md#efficient-algorithms Course preparation follows source knots; each requested shaft locates a segment and emits fixed 117 shading vertices plus normals.
+ * @evidence contracts/performance.md#efficient-algorithms Shared rest/articulation preparation retains its source-sized cost. Course preparation follows source knots; each requested shaft scans row segments and any selected course spans before emitting fixed 117 shading vertices, and the final physical-normal pass is linear in emitted shaft geometry.
  * @evidence contracts/performance.md#reuse-equivalent-work Each row shares its material chart/course and source eye motion; seam normals use one physical topology rather than independent duplicated-vertex sums.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned row meshes and centreline arrays own output while basis/current buffers and optics remain borrowed for this evaluation.
  */

@@ -19,7 +19,7 @@ import type { IHumanFaceLashRow } from "./structures/IHumanFaceLashRow";
  * @evidence contracts/common.md#meaningful-documentation Zero rows allocate no finish; output has solid-shaft material without source-card texture or coverage cutoff.
  * @evidence contracts/performance.md#efficient-algorithms Compilation searches the small registered row palette; each evaluation searches resident finishes and clones emitted shaft buffers.
  * @evidence contracts/performance.md#reuse-equivalent-work Neutral source pigment is compiled once per material and reused across compatible document evaluations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains derived pigment arrays; returned materials/meshes are owned and the Float32 gate mutates only the generated row's mesh metadata.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains derived pigment arrays; returned materials/meshes are owned. Float32 admission leaves the generated row mesh unchanged and its temporary typed buffers expire because this caller uses only the admission result.
  */
 export function createHumanFaceLashFinish(basis: IAutoMovieHumanFaceBasis): (document: IAutoMovieHumanFaceBasisDocument, rows: readonly IHumanFaceLashRow[], materials: readonly IAutoMovieMaterial[]) => Pick<IAutoMovieModel, "parts" | "materials"> {
   const colors: Map<string, number[]> = new Map<string, number[]>();

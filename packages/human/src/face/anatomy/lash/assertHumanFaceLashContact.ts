@@ -16,7 +16,7 @@ import type { IHumanFaceLashSegment } from "./structures/IHumanFaceLashSegment";
  * @evidence contracts/common.md#clear-and-simple-design This owner checks tip emergence and inter-shaft structure while the clearance reader separately judges optics and skin.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Conservative capsule overlap can reject surfaces that do not actually intersect; same-shaft pairs rely on the arc curvature guard and source cards provide no biological collider.
  * @evidence contracts/common.md#meaningful-documentation Head-metre geometry is never quantized to cells; stable original segment order controls the first refusal.
- * @evidence contracts/performance.md#efficient-algorithms Ring extraction is linear in shafts; finite hierarchy traversal reduces pairs but worst-case dense candidates remain quadratic.
+ * @evidence contracts/performance.md#efficient-algorithms Ring extraction is linear in shafts. For N fixed-band segments the hierarchy reduces typical candidates, but each segment can collect and sort N entries, giving O(N squared log N) worst-case traversal/sorting work plus quadratic narrow-phase comparisons.
  * @evidence contracts/performance.md#reuse-equivalent-work One capsule hierarchy serves all segments and the engine's shared bounded-segment distance supplies narrow-phase arithmetic.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Capsules, hierarchy and candidates are call-local and scale with emitted shafts; no collider or history survives successful admission.
  */
