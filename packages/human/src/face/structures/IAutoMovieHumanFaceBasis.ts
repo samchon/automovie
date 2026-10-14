@@ -79,15 +79,17 @@ export interface IAutoMovieHumanFaceBasis {
    * than from a description of it: `min(1, weight * product of clamped
    * inputs)`.
    *
-   * A product of clamped inputs is bilinear, so a corrective solved at full
+   * A product of two clamped inputs is bilinear, so a corrective solved at full
    * weight on both drivers lands at a quarter of itself when both are at half,
    * on a pose that may cross by more than a quarter as much. The rig answers
    * that the way every blendshape rig does, with an in-between: a driver may
    * name the weight it peaks at and the weights on either side where it fades
    * out, and its factor is then a tent that rises to one there and falls back
-   * to zero, by default at full, where the full-weight corrective has taken
-   * over. MetaHuman's `ConditionalTable` is the same device, a piecewise-linear
-   * ramp per input ahead of the product.
+   * to zero when its upper bound exceeds the peak, by default at full, where
+   * the full-weight corrective has taken over. MetaHuman's `ConditionalTable`
+   * is the same device, a piecewise-linear
+   * ramp per input ahead of the product. An upper bound equal to the peak
+   * instead retains full activation above that peak in the current evaluator.
    *
    * Omission is a basis with no correctives, which is exactly what a purely
    * linear prior is. Nothing here infers a corrective; the endpoint it applies
