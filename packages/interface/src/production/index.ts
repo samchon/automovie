@@ -46,7 +46,6 @@ export * from "./IAutoMovieProductionRenditionDeliveryDeterministicLane";
 export * from "./IAutoMovieProductionRenditionDeliveryOccurrence";
 export * from "./IAutoMovieProductionRenditionDeliveryRepaintedLane";
 export * from "./IAutoMovieProductionRenditionDeliveryShot";
-export * from "./IAutoMovieProductionShotProgram";
 export * from "./IAutoMovieProductionVideoProbe";
 export * from "./IAutoMovieProductionWebVttCue";
 export * from "./IAutoMovieRepaintObservationMember";
