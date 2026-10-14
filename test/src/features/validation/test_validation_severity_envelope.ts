@@ -1,5 +1,8 @@
 import { ViolationCollector, toValidation, violation } from "@automovie/engine";
-import type { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, validationHasWarningCount } from "../internal/predicates";
@@ -61,9 +64,21 @@ export function test_validation_severity_envelope(): void {
     violation("range", "$input.e", "x", 1).severity,
     "error",
   );
-  const warned: IAutoMovieConstraintViolation = violation("physics", "$input.f", "x", 1, 3, "warning");
+  const warned: IAutoMovieConstraintViolation = violation(
+    "physics",
+    "$input.f",
+    "x",
+    1,
+    3,
+    "warning",
+  );
   TestValidator.equals("builder stamps warning", warned.severity, "warning");
-  TestValidator.predicate("builder preserves overshoot", warned.overshoot !== null && warned.overshoot !== undefined && nclose(warned.overshoot, 3, 0));
+  TestValidator.predicate(
+    "builder preserves overshoot",
+    warned.overshoot !== null &&
+      warned.overshoot !== undefined &&
+      nclose(warned.overshoot, 3, 0),
+  );
 
   TestValidator.equals("empty list succeeds", toValidation([]).success, true);
 }

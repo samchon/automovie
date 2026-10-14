@@ -1,8 +1,12 @@
-import type { IAutoMovieConstraintViolation, IAutoMovieProfile, IAutoMovieValidation } from "@automovie/interface";
-import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
-import { validateProfileCapabilities } from "../../../../packages/engine/src/validation/validateProfileCapabilities";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieProfile,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { validateModel } from "../../../../packages/engine/src/validation/validateModel";
+import { validateProfileCapabilities } from "../../../../packages/engine/src/validation/validateProfileCapabilities";
 import { createModel } from "../internal/createModel";
 import { namedFacts } from "../internal/namedFacts";
 
@@ -26,18 +30,24 @@ const profile: () => IAutoMovieProfile = (): IAutoMovieProfile => ({
   ],
 });
 
-const violations: (value: IAutoMovieValidation) => IAutoMovieConstraintViolation[] = (
+const violations: (
+  value: IAutoMovieValidation,
+) => IAutoMovieConstraintViolation[] = (
   value: IAutoMovieValidation,
 ): NonNullable<
   Extract<IAutoMovieValidation, { success: false }>["violations"]
 > => (value.success ? [] : value.violations);
 
-const failsAt: (profiles: readonly IAutoMovieProfile[], fragment: string) => boolean = (
+const failsAt: (
+  profiles: readonly IAutoMovieProfile[],
+  fragment: string,
+) => boolean = (
   profiles: readonly IAutoMovieProfile[],
   fragment: string,
 ): boolean =>
-  violations(validateProfileCapabilities({ profiles })).some((violation: IAutoMovieConstraintViolation) : boolean =>
-    violation.path.includes(fragment),
+  violations(validateProfileCapabilities({ profiles })).some(
+    (violation: IAutoMovieConstraintViolation): boolean =>
+      violation.path.includes(fragment),
   );
 
 /**
@@ -62,11 +72,12 @@ export function test_validation_profile_capabilities(): void {
     namedFacts([
       [
         "validateProfileCapabilitiesProfilesValid",
-        () : boolean => validateProfileCapabilities({ profiles: [valid] }).success,
+        (): boolean =>
+          validateProfileCapabilities({ profiles: [valid] }).success,
       ],
       [
         "validateModelModelCreateModel",
-        () : boolean =>
+        (): boolean =>
           validateModel({ model: { ...createModel(), profiles: [valid] } })
             .success,
       ],
@@ -82,11 +93,11 @@ export function test_validation_profile_capabilities(): void {
     namedFacts([
       [
         "failsAtProfileId",
-        () : boolean => failsAt([{ ...profile(), id: "", name: "" }], ".id"),
+        (): boolean => failsAt([{ ...profile(), id: "", name: "" }], ".id"),
       ],
       [
         "failsAtProfileProfile",
-        () : boolean => failsAt([profile(), profile()], "profiles[1].id"),
+        (): boolean => failsAt([profile(), profile()], "profiles[1].id"),
       ],
     ]),
     { failsAtProfileId: true, failsAtProfileProfile: true },
@@ -111,7 +122,7 @@ export function test_validation_profile_capabilities(): void {
     namedFacts([
       [
         "failsAtProfileTraits",
-        () : boolean =>
+        (): boolean =>
           failsAt(
             [
               {
@@ -124,7 +135,7 @@ export function test_validation_profile_capabilities(): void {
       ],
       [
         "failsAtProfileTraits2",
-        () : boolean =>
+        (): boolean =>
           failsAt(
             [
               {
@@ -146,9 +157,10 @@ export function test_validation_profile_capabilities(): void {
       "impactBody.restitution",
       "impactBody.hardness",
       "impactBody.penetrability",
-    ].every((fragment: string, index: number) : boolean => {
+    ].every((fragment: string, index: number): boolean => {
       const invalid: IAutoMovieProfile = structuredClone(profile());
-      const trait: NonNullable<IAutoMovieProfile["traits"]>[number] = invalid.traits![1]!;
+      const trait: NonNullable<IAutoMovieProfile["traits"]>[number] =
+        invalid.traits![1]!;
       if (trait.kind !== "destructible") return false;
       if (index === 0) trait.durability = 0;
       else if (index === 1) trait.impactBody.mass = 0;
@@ -163,7 +175,8 @@ export function test_validation_profile_capabilities(): void {
     ["impactBody.hardness", "impactBody.penetrability"].every(
       (fragment: string, index: number): boolean => {
         const invalid: IAutoMovieProfile = structuredClone(profile());
-        const trait: NonNullable<IAutoMovieProfile["traits"]>[number] = invalid.traits![1]!;
+        const trait: NonNullable<IAutoMovieProfile["traits"]>[number] =
+          invalid.traits![1]!;
         if (trait.kind !== "destructible") return false;
         if (index === 0) trait.impactBody.hardness = 1.5;
         else trait.impactBody.penetrability = 1.5;

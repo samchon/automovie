@@ -10,7 +10,10 @@ import {
   vclose,
 } from "../internal/predicates";
 
-const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
+const v: (x: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y: 0, z });
 const square: IAutoMovieVector3[] = [v(0, 0), v(2, 0), v(2, 2), v(0, 2)];
 
 /**
@@ -34,11 +37,12 @@ const square: IAutoMovieVector3[] = [v(0, 0), v(2, 0), v(2, 2), v(0, 2)];
  * @evidence contracts/testing.md#execution-ownership This named portable unit invokes geometric classification directly with authored vectors and observes its report/events. It starts no physics runtime, viewer or Human fixture, and all predicate callbacks execute within the local assertion helper.
  */
 export function test_validation_support_topple(): void {
-  const stable: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    node: "crate",
-    centerOfMass: v(1, 1),
-    support: square,
-  });
+  const stable: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      node: "crate",
+      centerOfMass: v(1, 1),
+      support: square,
+    });
   TestValidator.predicate(
     "centered COM is stable",
     validationHasWarningCount("centered support", stable.validation, 0),
@@ -46,11 +50,12 @@ export function test_validation_support_topple(): void {
   TestValidator.equals("stable emits no event", stable.events.length, 0);
   TestValidator.equals("stable suggests no topple", stable.toppling, null);
 
-  const topple: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    node: "crate",
-    centerOfMass: v(3, 1),
-    support: square,
-  });
+  const topple: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      node: "crate",
+      centerOfMass: v(3, 1),
+      support: square,
+    });
   TestValidator.predicate(
     "one topple warning surfaced",
     validationHasWarningCount("support overhang", topple.validation, 1),
@@ -72,19 +77,27 @@ export function test_validation_support_topple(): void {
         "ncloseToppleToppling",
         (): boolean => nclose(topple.toppling!.tipEdgeStart.x, 2),
       ],
-      ["ncloseToppleToppling2", (): boolean => nclose(topple.toppling!.tipEdgeEnd.x, 2)],
+      [
+        "ncloseToppleToppling2",
+        (): boolean => nclose(topple.toppling!.tipEdgeEnd.x, 2),
+      ],
     ]),
     { ncloseToppleToppling: true, ncloseToppleToppling2: true },
   );
 
-  const intended: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    centerOfMass: v(3, 1),
-    support: square,
-    physicsIntent: "levitates",
-  });
+  const intended: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      centerOfMass: v(3, 1),
+      support: square,
+      physicsIntent: "levitates",
+    });
   TestValidator.predicate(
     "intent suppresses the warning",
-    validationHasWarningCount("intended support overhang", intended.validation, 0),
+    validationHasWarningCount(
+      "intended support overhang",
+      intended.validation,
+      0,
+    ),
   );
   TestValidator.equals(
     "intent still surfaces the event",
@@ -98,14 +111,16 @@ export function test_validation_support_topple(): void {
     null,
   );
 
-  const onEdge: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    centerOfMass: v(2, 1),
-    support: square,
-  });
+  const onEdge: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      centerOfMass: v(2, 1),
+      support: square,
+    });
   TestValidator.predicate(
     "COM on the hull edge is stable",
     validationHasWarningCount("support hull edge", onEdge.validation, 0) &&
-      onEdge.events.length === 0 && onEdge.toppling === null,
+      onEdge.events.length === 0 &&
+      onEdge.toppling === null,
   );
 
   TestValidator.predicate(

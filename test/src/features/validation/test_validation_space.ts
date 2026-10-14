@@ -1,10 +1,10 @@
 import { validateSpace } from "@automovie/engine";
-import { IAutoMovieValidation, IAutoMovieSurface } from "@automovie/interface";
+import { IAutoMovieSurface, IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceHeights";
 import { hasViolation, namedFacts } from "../internal/predicates";
 import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
-import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceHeights";
-
 
 /**
  * Pins malformed space admission before ground queries consume its data.
@@ -60,7 +60,8 @@ import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceH
  * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through test_validation_space; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
  */
 export function test_validation_space(): void {
-  const { v, valid, withSurface }: ReturnType<typeof validationSpaceFixtures> = validationSpaceFixtures();
+  const { v, valid, withSurface }: ReturnType<typeof validationSpaceFixtures> =
+    validationSpaceFixtures();
 
   TestValidator.equals(
     "valid space passes",
@@ -350,7 +351,8 @@ export function test_validation_space(): void {
       ["refused", (): boolean => junkRamp.success === false],
       [
         "violated",
-        (): boolean => junkRamp.success === false && junkRamp.violations.length === 1,
+        (): boolean =>
+          junkRamp.success === false && junkRamp.violations.length === 1,
       ],
     ]),
     { refused: true, violated: true },
@@ -368,7 +370,8 @@ export function test_validation_space(): void {
       ["junkRampZSuccess", (): boolean => junkRampZ.success === false],
       [
         "junkRampZViolations",
-        (): boolean => junkRampZ.success === false && junkRampZ.violations.length === 1,
+        (): boolean =>
+          junkRampZ.success === false && junkRampZ.violations.length === 1,
       ],
     ]),
     {

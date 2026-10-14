@@ -4,7 +4,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { validationHasWarningCount } from "../internal/predicates";
 
-const v: (x: number, z: number) => IAutoMovieVector3 = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
+const v: (x: number, z: number) => IAutoMovieVector3 = (
+  x: number,
+  z: number,
+): IAutoMovieVector3 => ({ x, y: 0, z });
 
 /**
  * Convex-hull support classification is independent of contact-point order. The old polygon interpretation could misclassify a centred COM when the same corners arrived in a crossed order.
@@ -26,23 +29,33 @@ export function test_validation_support_hull_fix(): void {
 
   TestValidator.predicate(
     "ordered support: centered COM is stable",
-    validationHasWarningCount("ordered centered support",
-    detectSupportToppling({ centerOfMass: v(1, 1), support: ordered })
-      .validation, 0),
+    validationHasWarningCount(
+      "ordered centered support",
+      detectSupportToppling({ centerOfMass: v(1, 1), support: ordered })
+        .validation,
+      0,
+    ),
   );
   TestValidator.equals(
     "mis-ordered support: same classification (stable)",
     detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }).toppling,
     null,
   );
-  TestValidator.predicate("crossed centered support has no advice",
-    validationHasWarningCount("crossed centered support",
-      detectSupportToppling({ centerOfMass: v(1, 1), support: crossed }).validation, 0));
+  TestValidator.predicate(
+    "crossed centered support has no advice",
+    validationHasWarningCount(
+      "crossed centered support",
+      detectSupportToppling({ centerOfMass: v(1, 1), support: crossed })
+        .validation,
+      0,
+    ),
+  );
 
-  const overhang: ReturnType<typeof detectSupportToppling> = detectSupportToppling({
-    centerOfMass: v(5, 1),
-    support: crossed,
-  });
+  const overhang: ReturnType<typeof detectSupportToppling> =
+    detectSupportToppling({
+      centerOfMass: v(5, 1),
+      support: crossed,
+    });
   TestValidator.predicate(
     "mis-ordered support still detects the overhang",
     validationHasWarningCount(

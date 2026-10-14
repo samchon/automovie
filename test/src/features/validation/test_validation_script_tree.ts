@@ -18,19 +18,50 @@ import { createScriptTreeFixture } from "../internal/createScriptTreeFixture";
  * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns these portable fixtures and assertions and calls engine source directly; no process, renderer or dynamically registered case is required.
  */
 export function test_validation_script_tree(): void {
-  const full: ReturnType<typeof validateScriptTree> = validateScriptTree(createScriptTreeFixture());
+  const full: ReturnType<typeof validateScriptTree> = validateScriptTree(
+    createScriptTreeFixture(),
+  );
   TestValidator.equals("full five-kind tree validates", full.success, true);
   const root: IAutoMovieScriptNode = createScriptTreeFixture().tree[0]!;
-  const minimal: Parameters<typeof validateScriptTree>[0] = { ...createScriptTreeFixture(), tree: [root], beats: [] };
-  TestValidator.equals("intent-only tree validates", validateScriptTree(minimal).success, true);
+  const minimal: Parameters<typeof validateScriptTree>[0] = {
+    ...createScriptTreeFixture(),
+    tree: [root],
+    beats: [],
+  };
+  TestValidator.equals(
+    "intent-only tree validates",
+    validateScriptTree(minimal).success,
+    true,
+  );
   const deep: IAutoMovieScriptNode[] = [root];
   for (let index: number = 1; index < 10000; index++)
-    deep.push(index % 2 === 1 ? {
-      id: `deep-${index}`, kind: "group", parent: index === 1 ? "root" : `deep-${index-1}`,
-      temporal: null, interactsWith: [], payload: { rationale: "Nested editorial group" },
-    } : {
-      id: `deep-${index}`, kind: "scene", parent: `deep-${index-1}`,
-      temporal: null, interactsWith: [], payload: { interiorExterior: "EXT", location: "location", timeOfDay: "day", description: null },
-    });
-  TestValidator.equals("deep legal tree validates", validateScriptTree({ ...minimal, tree: deep }).success, true);
+    deep.push(
+      index % 2 === 1
+        ? {
+            id: `deep-${index}`,
+            kind: "group",
+            parent: index === 1 ? "root" : `deep-${index - 1}`,
+            temporal: null,
+            interactsWith: [],
+            payload: { rationale: "Nested editorial group" },
+          }
+        : {
+            id: `deep-${index}`,
+            kind: "scene",
+            parent: `deep-${index - 1}`,
+            temporal: null,
+            interactsWith: [],
+            payload: {
+              interiorExterior: "EXT",
+              location: "location",
+              timeOfDay: "day",
+              description: null,
+            },
+          },
+    );
+  TestValidator.equals(
+    "deep legal tree validates",
+    validateScriptTree({ ...minimal, tree: deep }).success,
+    true,
+  );
 }

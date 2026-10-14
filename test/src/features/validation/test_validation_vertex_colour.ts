@@ -25,7 +25,9 @@ import {
 export function test_validation_vertex_colour(): void {
   const mesh: IAutoMovieMesh = vertexColourMesh();
   const { colors: _colors, ...bare }: IAutoMovieMesh = mesh;
-  const check: (colors: number[]) => ReturnType<typeof validateModel> = (colors: number[]): ReturnType<typeof validateModel> =>
+  const check: (colors: number[]) => ReturnType<typeof validateModel> = (
+    colors: number[],
+  ): ReturnType<typeof validateModel> =>
     validateModel({ model: vertexColourModel([{ ...mesh, colors }]) });
   TestValidator.equals(
     "omitted colours",

@@ -1,14 +1,15 @@
 import {
   IAutoMovieTextureImageFacts,
+  validateModel,
   validateTextureAssets,
   validateTextureScale,
-  validateModel,
 } from "@automovie/engine";
-import { IAutoMovieValidation,
+import {
   IAutoMovieAssetProvenance,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,12 +19,16 @@ import { hasViolation } from "../internal/predicates";
 const PRODUCTION: string = "atrium";
 const VEINS: string = "public/textures/veins.png";
 
-const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (asset: string): IAutoMovieTextureImageFacts | undefined =>
+const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (
+  asset: string,
+): IAutoMovieTextureImageFacts | undefined =>
   asset === VEINS
     ? { mediaType: "image/png", width: 2048, height: 2048 }
     : undefined;
 
-const record: (path: string) => IAutoMovieAssetProvenance = (path: string): IAutoMovieAssetProvenance => ({
+const record: (path: string) => IAutoMovieAssetProvenance = (
+  path: string,
+): IAutoMovieAssetProvenance => ({
   path,
   digest: `sha256:${"0".repeat(64)}`,
   original: {
@@ -41,7 +46,9 @@ const record: (path: string) => IAutoMovieAssetProvenance = (path: string): IAut
   ],
 });
 
-const skin: (coordinateSource: "normalized" | "source-uv") => IAutoMovieMaterial = (
+const skin: (
+  coordinateSource: "normalized" | "source-uv",
+) => IAutoMovieMaterial = (
   coordinateSource: "normalized" | "source-uv",
 ): IAutoMovieMaterial => ({
   ...createModel().materials[0]!,
@@ -78,7 +85,9 @@ const part: IAutoMovieModelPart = {
   transform: null,
 };
 
-const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (material: IAutoMovieMaterial): IAutoMovieModel => ({
+const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
+  material: IAutoMovieMaterial,
+): IAutoMovieModel => ({
   ...createModel(),
   id: "arm",
   parts: [part],
@@ -100,7 +109,11 @@ const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (material: IAut
  * @evidence contracts/testing.md#execution-ownership The discoverable exported unit calls portable engine seams with existing fixtures and a local facts callback, acquiring no file, process, browser or GPU resource.
  */
 export function test_validation_material_overlay_textures(): void {
-  const closure: (assets: IAutoMovieAssetProvenance[]) => IAutoMovieValidation = (assets: IAutoMovieAssetProvenance[]): IAutoMovieValidation =>
+  const closure: (
+    assets: IAutoMovieAssetProvenance[],
+  ) => IAutoMovieValidation = (
+    assets: IAutoMovieAssetProvenance[],
+  ): IAutoMovieValidation =>
     validateTextureAssets({
       production: PRODUCTION,
       models: [model(skin("source-uv"))],
@@ -143,7 +156,9 @@ export function test_validation_material_overlay_textures(): void {
     true,
   );
 
-  const structural: (overlays: unknown) => IAutoMovieValidation = (overlays: unknown): IAutoMovieValidation => {
+  const structural: (overlays: unknown) => IAutoMovieValidation = (
+    overlays: unknown,
+  ): IAutoMovieValidation => {
     const base: IAutoMovieModel = createModel();
     return validateModel({
       model: {
@@ -152,7 +167,11 @@ export function test_validation_material_overlay_textures(): void {
       },
     });
   };
-  const validOverlay: { baseColorTexture: string; blend: string; strength: number; } = {
+  const validOverlay: {
+    baseColorTexture: string;
+    blend: string;
+    strength: number;
+  } = {
     baseColorTexture: VEINS,
     blend: "multiply",
     strength: 1,
@@ -172,7 +191,8 @@ export function test_validation_material_overlay_textures(): void {
   );
   TestValidator.equals(
     "a finite nonnegative overlay color factor remains admitted",
-    structural([{ ...validOverlay, colorFactor: { r: 0, g: 1, b: 2 } }]).success,
+    structural([{ ...validOverlay, colorFactor: { r: 0, g: 1, b: 2 } }])
+      .success,
     true,
   );
 }

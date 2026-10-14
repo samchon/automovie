@@ -1,7 +1,7 @@
 import { validateSelfIntersection } from "@automovie/engine";
 import {
-  IAutoMovieKeyframe,
   IAutoMovieConstraintViolation,
+  IAutoMovieKeyframe,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -12,11 +12,15 @@ import { makeMotion } from "../internal/fixtures";
 import {
   namedFacts,
   nclose,
-  validationHasWarning,
   validationHasNoWarnings,
+  validationHasWarning,
 } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -58,13 +62,18 @@ const crossSkeleton: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => ({
   ],
 });
 
-const pose: (target: IAutoMovieSkeleton) => IAutoMoviePose = (target: IAutoMovieSkeleton): IAutoMoviePose => ({
+const pose: (target: IAutoMovieSkeleton) => IAutoMoviePose = (
+  target: IAutoMovieSkeleton,
+): IAutoMoviePose => ({
   skeleton: target.id,
   root: restAt(0, 0, 0),
   joints: [],
 });
 
-const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (target: IAutoMovieSkeleton, time: number): IAutoMovieKeyframe => ({
+const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (
+  target: IAutoMovieSkeleton,
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose: pose(target),
   expression: null,
@@ -86,19 +95,23 @@ const key: (target: IAutoMovieSkeleton, time: number) => IAutoMovieKeyframe = (t
  */
 export function test_validation_self_intersection_crossing(): void {
   const skeleton: IAutoMovieSkeleton = crossSkeleton();
-  const motion: ReturnType<typeof makeMotion> = makeMotion([key(skeleton, 0), key(skeleton, 1)], 1);
+  const motion: ReturnType<typeof makeMotion> = makeMotion(
+    [key(skeleton, 0), key(skeleton, 1)],
+    1,
+  );
 
-  const crossing: ReturnType<typeof validateSelfIntersection> = validateSelfIntersection({
-    motion,
-    skeleton,
-    pairs: [
-      {
-        first: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.1 },
-        second: { from: "rightUpperArm", to: "rightLowerArm", radius: 0.1 },
-      },
-    ],
-    sampleRate: 1,
-  });
+  const crossing: ReturnType<typeof validateSelfIntersection> =
+    validateSelfIntersection({
+      motion,
+      skeleton,
+      pairs: [
+        {
+          first: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.1 },
+          second: { from: "rightUpperArm", to: "rightLowerArm", radius: 0.1 },
+        },
+      ],
+      sampleRate: 1,
+    });
   TestValidator.predicate(
     "interior X-crossing warns but succeeds",
     validationHasWarning(
@@ -110,8 +123,9 @@ export function test_validation_self_intersection_crossing(): void {
   );
   const fired: IAutoMovieConstraintViolation | undefined | null =
     crossing.success === true
-      ? (crossing.warnings ?? []).find((entry: IAutoMovieConstraintViolation): boolean =>
-          entry.path.includes("samples[0]"),
+      ? (crossing.warnings ?? []).find(
+          (entry: IAutoMovieConstraintViolation): boolean =>
+            entry.path.includes("samples[0]"),
         )
       : null;
   TestValidator.equals(
@@ -120,7 +134,8 @@ export function test_validation_self_intersection_crossing(): void {
       ["firedKindPhysics", (): boolean => fired?.kind === "physics"],
       [
         "ncloseFiredOvershoot",
-        (): boolean => fired?.kind === "physics" && nclose(fired.overshoot ?? -1, 0.2),
+        (): boolean =>
+          fired?.kind === "physics" && nclose(fired.overshoot ?? -1, 0.2),
       ],
     ]),
     { firedKindPhysics: true, ncloseFiredOvershoot: true },
@@ -159,17 +174,19 @@ export function test_validation_self_intersection_crossing(): void {
   };
   TestValidator.predicate(
     "off-span capsules pass",
-    validationHasNoWarnings("off-span capsules",
-    validateSelfIntersection({
-      motion: makeMotion([key(clearSkeleton, 0), key(clearSkeleton, 1)], 1),
-      skeleton: clearSkeleton,
-      pairs: [
-        {
-          first: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.1 },
-          second: { from: "rightUpperArm", to: "rightLowerArm", radius: 0.1 },
-        },
-      ],
-      sampleRate: 1,
-    })),
+    validationHasNoWarnings(
+      "off-span capsules",
+      validateSelfIntersection({
+        motion: makeMotion([key(clearSkeleton, 0), key(clearSkeleton, 1)], 1),
+        skeleton: clearSkeleton,
+        pairs: [
+          {
+            first: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.1 },
+            second: { from: "rightUpperArm", to: "rightLowerArm", radius: 0.1 },
+          },
+        ],
+        sampleRate: 1,
+      }),
+    ),
   );
 }

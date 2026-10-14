@@ -16,7 +16,9 @@ import {
 } from "../internal/predicates";
 
 /** A structured base-colour binding with only the fields a case cares about. */
-const texture: (extra?: Partial<IAutoMovieTextureReference>) => IAutoMovieTextureReference = (
+const texture: (
+  extra?: Partial<IAutoMovieTextureReference>,
+) => IAutoMovieTextureReference = (
   extra: Partial<IAutoMovieTextureReference> = {},
 ): IAutoMovieTextureReference => ({
   asset: "public/textures/oak.png",
@@ -26,7 +28,10 @@ const texture: (extra?: Partial<IAutoMovieTextureReference>) => IAutoMovieTextur
 });
 
 /** Turns of the image per coordinate unit, same on both axes unless split. */
-const uv: (x: number, y?: number) => NonNullable<IAutoMovieTextureReference["transform"]> = (
+const uv: (
+  x: number,
+  y?: number,
+) => NonNullable<IAutoMovieTextureReference["transform"]> = (
   x: number,
   y: number = x,
 ): NonNullable<IAutoMovieTextureReference["transform"]> => ({
@@ -35,7 +40,11 @@ const uv: (x: number, y?: number) => NonNullable<IAutoMovieTextureReference["tra
   rotationDeg: 0,
 });
 
-const material: (id: string, base: IAutoMovieMaterial["baseColorTexture"], extra?: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
+const material: (
+  id: string,
+  base: IAutoMovieMaterial["baseColorTexture"],
+  extra?: Partial<IAutoMovieMaterial>,
+) => IAutoMovieMaterial = (
   id: string,
   base: IAutoMovieMaterial["baseColorTexture"],
   extra: Partial<IAutoMovieMaterial> = {},
@@ -47,7 +56,11 @@ const material: (id: string, base: IAutoMovieMaterial["baseColorTexture"], extra
   }) as IAutoMovieMaterial;
 
 /** One mesh part whose UV rectangle spans exactly `spanU` by `spanV`. */
-const meshPart: (id: string, materialId: string | null, uvs: number[] | null) => IAutoMovieModelPart = (
+const meshPart: (
+  id: string,
+  materialId: string | null,
+  uvs: number[] | null,
+) => IAutoMovieModelPart = (
   id: string,
   materialId: string | null,
   uvs: number[] | null,
@@ -63,18 +76,15 @@ const meshPart: (id: string, materialId: string | null, uvs: number[] | null) =>
   transform: null,
 });
 
-const rect: (spanU: number, spanV: number) => number[] = (spanU: number, spanV: number): number[] => [
-  0,
-  0,
-  spanU,
-  0,
-  spanU,
-  spanV,
-  0,
-  spanV,
-];
+const rect: (spanU: number, spanV: number) => number[] = (
+  spanU: number,
+  spanV: number,
+): number[] => [0, 0, spanU, 0, spanU, spanV, 0, spanV];
 
-const model: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IAutoMovieModel = (
+const model: (
+  parts: IAutoMovieModelPart[],
+  materials: IAutoMovieMaterial[],
+) => IAutoMovieModel = (
   parts: IAutoMovieModelPart[],
   materials: IAutoMovieMaterial[],
 ): IAutoMovieModel =>
@@ -87,7 +97,13 @@ const model: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => 
     materials,
   }) as IAutoMovieModel;
 
-const run: (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]) => IAutoMovieValidation = (parts: IAutoMovieModelPart[], materials: IAutoMovieMaterial[]): IAutoMovieValidation =>
+const run: (
+  parts: IAutoMovieModelPart[],
+  materials: IAutoMovieMaterial[],
+) => IAutoMovieValidation = (
+  parts: IAutoMovieModelPart[],
+  materials: IAutoMovieMaterial[],
+): IAutoMovieValidation =>
   validateTextureScale({ models: [model(parts, materials)] });
 
 /**
@@ -138,7 +154,8 @@ export function test_validation_texture_scale(): void {
 
   TestValidator.predicate(
     "a set spanning exactly one is the boundary and passes",
-    validationHasWarningCount("normalized exact span",
+    validationHasWarningCount(
+      "normalized exact span",
       run(
         [meshPart("panel", "oak", rect(1, 1))],
         [material("oak", texture({ coordinateSource: "normalized" }))],
@@ -148,7 +165,8 @@ export function test_validation_texture_scale(): void {
   );
   TestValidator.predicate(
     "a normalized set occupying part of its range is left alone",
-    validationHasWarningCount("normalized partial span",
+    validationHasWarningCount(
+      "normalized partial span",
       run(
         [meshPart("island", "oak", rect(0.5, 0.25))],
         [material("oak", texture({ coordinateSource: "normalized" }))],
@@ -292,7 +310,11 @@ export function test_validation_texture_scale(): void {
   //----
   // Bindings without a measurable claim produce no scale advice.
   //----
-  const post: (base: IAutoMovieMaterial["baseColorTexture"]) => IAutoMovieValidation = (base: IAutoMovieMaterial["baseColorTexture"]): IAutoMovieValidation =>
+  const post: (
+    base: IAutoMovieMaterial["baseColorTexture"],
+  ) => IAutoMovieValidation = (
+    base: IAutoMovieMaterial["baseColorTexture"],
+  ): IAutoMovieValidation =>
     run([meshPart("post", "oak", rect(0.1, 0.1))], [material("oak", base)]);
   const silent: readonly string[] = [
     "a legacy bare-id binding claims no coordinate unit",
@@ -331,10 +353,12 @@ export function test_validation_texture_scale(): void {
       ),
       post(texture({ coordinateSource: "surface-metres", transform: uv(0) })),
       post(null),
-    ].map((validation: IAutoMovieValidation, index: number): [string, boolean] => [
-      silent[index]!,
-      validationHasWarningCount(silent[index]!, validation, 0),
-    ]),
+    ].map(
+      (validation: IAutoMovieValidation, index: number): [string, boolean] => [
+        silent[index]!,
+        validationHasWarningCount(silent[index]!, validation, 0),
+      ],
+    ),
     silent.map((title: string): [string, boolean] => [title, true]),
   );
 
@@ -375,10 +399,12 @@ export function test_validation_texture_scale(): void {
       run([meshPart("unbound", null, rect(9, 9))], [bound]),
       run([meshPart("missing", "walnut", rect(9, 9))], [bound]),
       validateTextureScale({ models: [] }),
-    ].map((validation: IAutoMovieValidation, index: number): [string, boolean] => [
-      unmeasurable[index]!,
-      validationHasWarningCount(unmeasurable[index]!, validation, 0),
-    ]),
+    ].map(
+      (validation: IAutoMovieValidation, index: number): [string, boolean] => [
+        unmeasurable[index]!,
+        validationHasWarningCount(unmeasurable[index]!, validation, 0),
+      ],
+    ),
     unmeasurable.map((title: string): [string, boolean] => [title, true]),
   );
 }

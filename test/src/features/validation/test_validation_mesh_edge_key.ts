@@ -39,7 +39,10 @@ export function test_validation_mesh_edge_key(): void {
     }
   TestValidator.equals("all ordered pairs are distinct", keys.size, 7 * 7);
   const limit: number = Math.floor(Math.sqrt(Number.MAX_SAFE_INTEGER));
-  const lastNumeric: number | string = createMeshEdgeKey(limit)(limit - 2, limit - 1);
+  const lastNumeric: number | string = createMeshEdgeKey(limit)(
+    limit - 2,
+    limit - 1,
+  );
   TestValidator.equals(
     "numeric boundary remains exact",
     lastNumeric,
@@ -52,19 +55,23 @@ export function test_validation_mesh_edge_key(): void {
   const low: number = population - 5;
   const firstHigh: number = population - 4;
   const secondHigh: number = firstHigh + 1;
-  const exactFirst: bigint = BigInt(low) * BigInt(population) + BigInt(firstHigh);
-  const exactSecond: bigint = BigInt(low) * BigInt(population) + BigInt(secondHigh);
+  const exactFirst: bigint =
+    BigInt(low) * BigInt(population) + BigInt(firstHigh);
+  const exactSecond: bigint =
+    BigInt(low) * BigInt(population) + BigInt(secondHigh);
   TestValidator.predicate(
     "the counterexample really loses one integer in double precision",
     exactFirst !== exactSecond && Number(exactFirst) === Number(exactSecond),
   );
-  const exactKeys: ReturnType<typeof createMeshEdgeKey> = createMeshEdgeKey(population);
+  const exactKeys: ReturnType<typeof createMeshEdgeKey> =
+    createMeshEdgeKey(population);
   TestValidator.predicate(
     "the consumed key keeps the counterexample distinct",
     exactKeys(low, firstHigh) !== exactKeys(low, secondHigh),
   );
   const large: number = limit + 1;
-  const fallback: ReturnType<typeof createMeshEdgeKey> = createMeshEdgeKey(large);
+  const fallback: ReturnType<typeof createMeshEdgeKey> =
+    createMeshEdgeKey(large);
   TestValidator.equals(
     "adjacent large pairs retain their identities",
     [fallback(large - 3, large - 2), fallback(large - 3, large - 1)],
@@ -85,7 +92,8 @@ export function test_validation_mesh_edge_key(): void {
     0,
   );
   const maximum: number = Number.MAX_SAFE_INTEGER;
-  const maximumKey: ReturnType<typeof createMeshEdgeKey> = createMeshEdgeKey(maximum);
+  const maximumKey: ReturnType<typeof createMeshEdgeKey> =
+    createMeshEdgeKey(maximum);
   TestValidator.equals(
     "the adjacent valid maximum count retains exact directed endpoints",
     [maximumKey(0, maximum - 1), maximumKey(maximum - 1, 0)],

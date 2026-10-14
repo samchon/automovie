@@ -1,5 +1,7 @@
 import { validateShotArtifact } from "@automovie/engine";
-import { IAutoMovieCamera, IAutoMovieConstraintViolation,
+import {
+  IAutoMovieCamera,
+  IAutoMovieConstraintViolation,
   IAutoMovieScene,
   IAutoMovieShot,
   IAutoMovieValidation,
@@ -9,7 +11,15 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts } from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";
 
-const transform: () => { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } = (): { translation: { x: number; y: number; z: number; }; rotation: { x: number; y: number; z: number; w: number; }; scale: { x: number; y: number; z: number; }; } => ({
+const transform: () => {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} = (): {
+  translation: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number; w: number };
+  scale: { x: number; y: number; z: number };
+} => ({
   translation: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -38,7 +48,9 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
   }) as unknown as IAutoMovieScene;
 
 /** Supplies the existing partial shot; each case requires its own located fault and permits unrelated missing-field findings. */
-const shot: (overrides?: Record<string, unknown>) => IAutoMovieShot = (overrides: Record<string, unknown> = {}): IAutoMovieShot =>
+const shot: (overrides?: Record<string, unknown>) => IAutoMovieShot = (
+  overrides: Record<string, unknown> = {},
+): IAutoMovieShot =>
   ({
     id: "opening",
     scene: "sc",
@@ -49,7 +61,9 @@ const shot: (overrides?: Record<string, unknown>) => IAutoMovieShot = (overrides
   }) as unknown as IAutoMovieShot;
 
 /** An event the validator accepts, so a case reports only what it broke. */
-const event: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
+const event: (overrides?: Record<string, unknown>) => unknown = (
+  overrides: Record<string, unknown> = {},
+): unknown => ({
   id: "contact-1",
   kind: "contact",
   source: "collisionSolver",
@@ -64,7 +78,9 @@ const event: (overrides?: Record<string, unknown>) => unknown = (overrides: Reco
 });
 
 /** A camera intent span the validator accepts. */
-const intent: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
+const intent: (overrides?: Record<string, unknown>) => unknown = (
+  overrides: Record<string, unknown> = {},
+): unknown => ({
   start: 0,
   framing: "medium",
   move: "static",
@@ -78,7 +94,9 @@ const intent: (overrides?: Record<string, unknown>) => unknown = (overrides: Rec
  *
  * Coverage plays another angle, so its camera is never the shot's own `cam`.
  */
-const take: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
+const take: (overrides?: Record<string, unknown>) => unknown = (
+  overrides: Record<string, unknown> = {},
+): unknown => ({
   camera: "wide",
   cameraMotion: null,
   cameraIntent: [],
@@ -90,7 +108,9 @@ const take: (overrides?: Record<string, unknown>) => unknown = (overrides: Recor
  *
  * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses a property that light actually carries.
  */
-const lightClip: (overrides?: Record<string, unknown>) => unknown = (overrides: Record<string, unknown> = {}): unknown => ({
+const lightClip: (overrides?: Record<string, unknown>) => unknown = (
+  overrides: Record<string, unknown> = {},
+): unknown => ({
   id: "key-fade",
   name: null,
   duration: 2,
@@ -110,10 +130,14 @@ const lightClip: (overrides?: Record<string, unknown>) => unknown = (overrides: 
   ],
 });
 
-const pathsOf: (validation: IAutoMovieValidation) => string[] = (validation: IAutoMovieValidation): string[] =>
+const pathsOf: (validation: IAutoMovieValidation) => string[] = (
+  validation: IAutoMovieValidation,
+): string[] =>
   validation.success === true
     ? []
-    : validation.violations.map((violation: IAutoMovieConstraintViolation): string => violation.path);
+    : validation.violations.map(
+        (violation: IAutoMovieConstraintViolation): string => violation.path,
+      );
 
 interface IShotCase {
   title: string;
@@ -155,25 +179,104 @@ export function test_validation_shot_artifact_paths(): void {
   );
   TestValidator.predicate(
     "dense event, intent and coverage metadata remain valid",
-    validateShotArtifact(shot({ cameraMotion: null, objectMotions: [], lightMotions: [], events: [event()], cameraIntent: [intent()], coverage: [take()] }), scene(), null).success,
+    validateShotArtifact(
+      shot({
+        cameraMotion: null,
+        objectMotions: [],
+        lightMotions: [],
+        events: [event()],
+        cameraIntent: [intent()],
+        coverage: [take()],
+      }),
+      scene(),
+      null,
+    ).success,
   );
   const stagedScene: IAutoMovieScene = scene();
   const clearanceScene: IAutoMovieScene = {
     ...stagedScene,
-    cameras: stagedScene.cameras.map((camera: IAutoMovieCamera): IAutoMovieCamera => camera.id === "cam" ? { ...camera, clearance: { body: { center: { x: 0, y: 0, z: 0 }, radius: 0.1 }, parentRig: null } } : camera),
+    cameras: stagedScene.cameras.map(
+      (camera: IAutoMovieCamera): IAutoMovieCamera =>
+        camera.id === "cam"
+          ? {
+              ...camera,
+              clearance: {
+                body: { center: { x: 0, y: 0, z: 0 }, radius: 0.1 },
+                parentRig: null,
+              },
+            }
+          : camera,
+    ),
   };
   TestValidator.predicate(
     "dense endpoint-inclusive clearance metadata remain valid",
-    validateShotArtifact(shot({ cameraMotion: null, objectMotions: [], lightMotions: [], cameraClearance: [{ camera: "cam", sampleRate: 1, sampleTimes: [0, 1, 2], intervals: 2, status: "clear", findings: [] }] }), clearanceScene, null).success,
+    validateShotArtifact(
+      shot({
+        cameraMotion: null,
+        objectMotions: [],
+        lightMotions: [],
+        cameraClearance: [
+          {
+            camera: "cam",
+            sampleRate: 1,
+            sampleTimes: [0, 1, 2],
+            intervals: 2,
+            status: "clear",
+            findings: [],
+          },
+        ],
+      }),
+      clearanceScene,
+      null,
+    ).success,
   );
   const cases: IShotCase[] = [
-    { title: "a missing event slot", shot: shot({ events: new Array<unknown>(1) }), path: "$input.events[0]" },
-    { title: "a missing camera-intent slot", shot: shot({ cameraIntent: new Array<unknown>(1) }), path: "$input.cameraIntent[0]" },
-    { title: "a missing coverage slot", shot: shot({ coverage: new Array<unknown>(1) }), path: "$input.coverage[0]" },
-    { title: "a missing clearance-report slot", shot: shot({ cameraClearance: new Array<unknown>(1) }), path: "$input.cameraClearance[0]" },
-    { title: "a missing carried clearance sample", shot: shot({ cameraClearance: [{ camera: "cam", sampleRate: 1, sampleTimes: withoutArraySlot([0, 1, 2], 1), intervals: 2, status: "clear", findings: [] }] }), path: "$input.cameraClearance[0].sampleTimes[1]" },
-    { title: "a missing performance slot", shot: shot({ performances: new Array<unknown>(1) }), path: "$input.performances[0]" },
-    { title: "a missing object-motion slot", shot: shot({ objectMotions: new Array<unknown>(1) }), path: "$input.objectMotions[0]" },
+    {
+      title: "a missing event slot",
+      shot: shot({ events: new Array<unknown>(1) }),
+      path: "$input.events[0]",
+    },
+    {
+      title: "a missing camera-intent slot",
+      shot: shot({ cameraIntent: new Array<unknown>(1) }),
+      path: "$input.cameraIntent[0]",
+    },
+    {
+      title: "a missing coverage slot",
+      shot: shot({ coverage: new Array<unknown>(1) }),
+      path: "$input.coverage[0]",
+    },
+    {
+      title: "a missing clearance-report slot",
+      shot: shot({ cameraClearance: new Array<unknown>(1) }),
+      path: "$input.cameraClearance[0]",
+    },
+    {
+      title: "a missing carried clearance sample",
+      shot: shot({
+        cameraClearance: [
+          {
+            camera: "cam",
+            sampleRate: 1,
+            sampleTimes: withoutArraySlot([0, 1, 2], 1),
+            intervals: 2,
+            status: "clear",
+            findings: [],
+          },
+        ],
+      }),
+      path: "$input.cameraClearance[0].sampleTimes[1]",
+    },
+    {
+      title: "a missing performance slot",
+      shot: shot({ performances: new Array<unknown>(1) }),
+      path: "$input.performances[0]",
+    },
+    {
+      title: "a missing object-motion slot",
+      shot: shot({ objectMotions: new Array<unknown>(1) }),
+      path: "$input.objectMotions[0]",
+    },
     {
       title: "a blank shot id",
       shot: shot({ id: "  " }),
@@ -446,7 +549,9 @@ export function test_validation_shot_artifact_paths(): void {
           ] as const,
       ),
     ),
-    Object.fromEntries(cases.map((entry: IShotCase): [string, true] => [entry.title, true])),
+    Object.fromEntries(
+      cases.map((entry: IShotCase): [string, true] => [entry.title, true]),
+    ),
   );
   TestValidator.predicate(
     "a shot that is not an object is refused before any field is read",

@@ -1,7 +1,11 @@
 import { validateMeshTopology } from "@automovie/engine";
 import { weldMeshVertices } from "@automovie/engine/math/weldMeshVertices";
-import type { IAutoMovieMesh, IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMesh,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
 import { throwsError } from "../internal/predicates";
 
 /**
@@ -42,34 +46,45 @@ export function test_validation_mesh_topology_welding(): void {
     positions: [...mesh.positions, 0.4e-9, 0, 0, 1, 0.4e-9, 0, 0, 1, 0.4e-9],
     indices: [0, 1, 2, 3, 4, 5],
   };
-  const overlap: ReturnType<typeof validateMeshTopology> = validateMeshTopology({ mesh: duplicated });
+  const overlap: ReturnType<typeof validateMeshTopology> = validateMeshTopology(
+    { mesh: duplicated },
+  );
   if (overlap.success) throw new Error("Expected duplicate directed edges.");
   TestValidator.equals("three welded edges", overlap.violations.length, 3);
   TestValidator.equals(
     "each direction appears twice",
-    overlap.violations.map((item: IAutoMovieConstraintViolation): unknown => item.value),
+    overlap.violations.map(
+      (item: IAutoMovieConstraintViolation): unknown => item.value,
+    ),
     [2, 2, 2],
   );
-  for (let offset: number = 9; offset < duplicated.positions.length; offset += 3)
+  for (
+    let offset: number = 9;
+    offset < duplicated.positions.length;
+    offset += 3
+  )
     duplicated.positions[offset + 2] += 2e-9;
   TestValidator.equals(
     "positions are reevaluated",
     validateMeshTopology({ mesh: duplicated }),
     { success: true },
   );
-  const boundary: ReturnType<typeof validateMeshTopology> = validateMeshTopology({
-    mesh: {
-      ...mesh,
-      positions: [2, 0, 0, -1, 0, 0, 0, 3, 0],
-      indices: [0, 1, 2],
-    },
-    path: "$face",
-    expectClosed: true,
-  });
+  const boundary: ReturnType<typeof validateMeshTopology> =
+    validateMeshTopology({
+      mesh: {
+        ...mesh,
+        positions: [2, 0, 0, -1, 0, 0, 0, 3, 0],
+        indices: [0, 1, 2],
+      },
+      path: "$face",
+      expectClosed: true,
+    });
   if (boundary.success) throw new Error("Expected three boundary edges.");
   TestValidator.equals(
     "ordered lexical coordinate identities",
-    boundary.violations.map((item: IAutoMovieConstraintViolation): unknown => item.value),
+    boundary.violations.map(
+      (item: IAutoMovieConstraintViolation): unknown => item.value,
+    ),
     [
       "-1000000000,0,0|2000000000,0,0",
       "-1000000000,0,0|0,3000000000,0",
@@ -78,14 +93,39 @@ export function test_validation_mesh_topology_welding(): void {
   );
   TestValidator.predicate(
     "diagnostic paths retained",
-    boundary.violations.every((item: IAutoMovieConstraintViolation): boolean => item.path === "$face.indices"),
+    boundary.violations.every(
+      (item: IAutoMovieConstraintViolation): boolean =>
+        item.path === "$face.indices",
+    ),
   );
-  TestValidator.equals("large coordinate identity preserves small-axis welding", weldMeshVertices([
-    1e308, 0, 0, 1e308, 0.4e-9, 0, 1.1e308, 0, 0,
-    -1e308, 0, 0, -1.1e308, 0, 0,
-  ]).vertices, [0, 0, 1, 2, 3]);
-  TestValidator.equals("signed zero shares one cell", weldMeshVertices([0, -0, 0, -0, 0, -0]).vertices, [0, 0]);
-  TestValidator.equals("empty input remains empty", weldMeshVertices([]), { labels: [], vertices: [] });
-  for (const invalid of [[0, 0], new Array<number>(3), [Number.NaN, 0, 0], [Number.POSITIVE_INFINITY, 0, 0]])
-    TestValidator.predicate("malformed XYZ never becomes origin", throwsError((): ReturnType<typeof weldMeshVertices> => weldMeshVertices(invalid), "complete finite XYZ tuples"));
+  TestValidator.equals(
+    "large coordinate identity preserves small-axis welding",
+    weldMeshVertices([
+      1e308, 0, 0, 1e308, 0.4e-9, 0, 1.1e308, 0, 0, -1e308, 0, 0, -1.1e308, 0,
+      0,
+    ]).vertices,
+    [0, 0, 1, 2, 3],
+  );
+  TestValidator.equals(
+    "signed zero shares one cell",
+    weldMeshVertices([0, -0, 0, -0, 0, -0]).vertices,
+    [0, 0],
+  );
+  TestValidator.equals("empty input remains empty", weldMeshVertices([]), {
+    labels: [],
+    vertices: [],
+  });
+  for (const invalid of [
+    [0, 0],
+    new Array<number>(3),
+    [Number.NaN, 0, 0],
+    [Number.POSITIVE_INFINITY, 0, 0],
+  ])
+    TestValidator.predicate(
+      "malformed XYZ never becomes origin",
+      throwsError(
+        (): ReturnType<typeof weldMeshVertices> => weldMeshVertices(invalid),
+        "complete finite XYZ tuples",
+      ),
+    );
 }

@@ -40,10 +40,15 @@ const FACTS: Record<string, IAutoMovieTextureImageFacts> = {
   },
 };
 
-const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (asset: string): IAutoMovieTextureImageFacts | undefined =>
-  FACTS[asset];
+const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = (
+  asset: string,
+): IAutoMovieTextureImageFacts | undefined => FACTS[asset];
 
-const use: (kind: "material-texture" | "scene-environment" | "audio-cue", id: string, production?: string) => IAutoMovieAssetUse = (
+const use: (
+  kind: "material-texture" | "scene-environment" | "audio-cue",
+  id: string,
+  production?: string,
+) => IAutoMovieAssetUse = (
   kind: "material-texture" | "scene-environment" | "audio-cue",
   id: string,
   production: string = PRODUCTION,
@@ -53,7 +58,10 @@ const use: (kind: "material-texture" | "scene-environment" | "audio-cue", id: st
   reason: "built environment finish",
 });
 
-const record: (path: string, uses: IAutoMovieAssetUse[]) => IAutoMovieAssetProvenance = (
+const record: (
+  path: string,
+  uses: IAutoMovieAssetUse[],
+) => IAutoMovieAssetProvenance = (
   path: string,
   uses: IAutoMovieAssetUse[],
 ): IAutoMovieAssetProvenance => ({
@@ -68,12 +76,17 @@ const record: (path: string, uses: IAutoMovieAssetUse[]) => IAutoMovieAssetProve
   uses,
 });
 
-const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (patch: Partial<IAutoMovieMaterial>): IAutoMovieMaterial => ({
+const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
+  patch: Partial<IAutoMovieMaterial>,
+): IAutoMovieMaterial => ({
   ...createModel().materials[0]!,
   ...patch,
 });
 
-const model: (id: string, materials: IAutoMovieMaterial[]) => IAutoMovieModel = (
+const model: (
+  id: string,
+  materials: IAutoMovieMaterial[],
+) => IAutoMovieModel = (
   id: string,
   materials: IAutoMovieMaterial[],
 ): IAutoMovieModel => ({ ...createModel(), id, materials });
@@ -110,7 +123,11 @@ const CLEAN_ASSETS: IAutoMovieAssetProvenance[] = [
   record("public/textures/studio.hdr", [use("scene-environment", "opening")]),
 ];
 
-const closure: (props: ITextureAssetClosureOverrides) => ReturnType<typeof validateTextureAssets> = (props: ITextureAssetClosureOverrides): ReturnType<typeof validateTextureAssets> =>
+const closure: (
+  props: ITextureAssetClosureOverrides,
+) => ReturnType<typeof validateTextureAssets> = (
+  props: ITextureAssetClosureOverrides,
+): ReturnType<typeof validateTextureAssets> =>
   validateTextureAssets({
     production: PRODUCTION,
     models: props.models ?? [TILED_FLOOR],
@@ -417,7 +434,11 @@ export function test_validation_texture_assets(): void {
   );
 
   // The supplied PNG media role gives the environment sRGB intent; this unit does not inspect image bit depth or decode bytes.
-  const litByLdr: (patch: Partial<IAutoMovieMaterial>) => ReturnType<typeof closure> = (patch: Partial<IAutoMovieMaterial>): ReturnType<typeof closure> =>
+  const litByLdr: (
+    patch: Partial<IAutoMovieMaterial>,
+  ) => ReturnType<typeof closure> = (
+    patch: Partial<IAutoMovieMaterial>,
+  ): ReturnType<typeof closure> =>
     closure({
       models: [model("floor", [material(patch)])],
       scenes: [

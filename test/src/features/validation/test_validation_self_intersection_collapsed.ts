@@ -10,7 +10,11 @@ import { TestValidator } from "@nestia/e2e";
 import { makeMotion } from "../internal/fixtures";
 import { validationHasWarning } from "../internal/predicates";
 
-const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (x: number, y: number, z: number): IAutoMovieTransform => ({
+const restAt: (x: number, y: number, z: number) => IAutoMovieTransform = (
+  x: number,
+  y: number,
+  z: number,
+): IAutoMovieTransform => ({
   translation: { x, y, z },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
   scale: { x: 1, y: 1, z: 1 },
@@ -45,7 +49,9 @@ const pose: IAutoMoviePose = {
   joints: [],
 };
 
-const key: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyframe => ({
+const key: (time: number) => IAutoMovieKeyframe = (
+  time: number,
+): IAutoMovieKeyframe => ({
   time,
   pose,
   expression: null,
@@ -67,17 +73,18 @@ const key: (time: number) => IAutoMovieKeyframe = (time: number): IAutoMovieKeyf
  * @evidence contracts/testing.md#execution-ownership The named portable unit invokes sampling/FK and geometric warning production through an existing authored motion fixture. It starts no simulation world, viewer or Human inspection host and registers no extra cases.
  */
 export function test_validation_self_intersection_collapsed(): void {
-  const result: ReturnType<typeof validateSelfIntersection> = validateSelfIntersection({
-    motion: makeMotion([key(0), key(1)], 1),
-    skeleton,
-    pairs: [
-      {
-        first: { from: "hips", to: "spine", radius: 0.3 },
-        second: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.15 },
-      },
-    ],
-    sampleRate: 1,
-  });
+  const result: ReturnType<typeof validateSelfIntersection> =
+    validateSelfIntersection({
+      motion: makeMotion([key(0), key(1)], 1),
+      skeleton,
+      pairs: [
+        {
+          first: { from: "hips", to: "spine", radius: 0.3 },
+          second: { from: "leftUpperArm", to: "leftLowerArm", radius: 0.15 },
+        },
+      ],
+      sampleRate: 1,
+    });
 
   TestValidator.predicate(
     "collapsed-centerline overlap no longer slips through as NaN",

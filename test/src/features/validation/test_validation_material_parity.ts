@@ -29,8 +29,9 @@ import { namedFacts } from "../internal/predicates";
 export function test_validation_material_parity(): void {
   TestValidator.equals(
     "the supported set is exactly what the material type can restate",
-    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort((left: string, right: string): number =>
-      left < right ? -1 : left > right ? 1 : 0,
+    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(
+      (left: string, right: string): number =>
+        left < right ? -1 : left > right ? 1 : 0,
     ),
     [
       "KHR_materials_clearcoat",
@@ -86,13 +87,23 @@ export function test_validation_material_parity(): void {
   TestValidator.equals(
     "the material/texture question is decided by the identity's own segments",
     namedFacts([
-      ["material", (): boolean => isAutoMovieMaterialExtension("KHR_materials_sheen")],
+      [
+        "material",
+        (): boolean => isAutoMovieMaterialExtension("KHR_materials_sheen"),
+      ],
       [
         "singularMaterial",
-        (): boolean => isAutoMovieMaterialExtension("ADOBE_material_thin_glass"),
+        (): boolean =>
+          isAutoMovieMaterialExtension("ADOBE_material_thin_glass"),
       ],
-      ["texture", (): boolean => isAutoMovieMaterialExtension("KHR_texture_transform")],
-      ["textures", (): boolean => isAutoMovieMaterialExtension("EXT_textures_webp")],
+      [
+        "texture",
+        (): boolean => isAutoMovieMaterialExtension("KHR_texture_transform"),
+      ],
+      [
+        "textures",
+        (): boolean => isAutoMovieMaterialExtension("EXT_textures_webp"),
+      ],
       [
         "caseFolded",
         (): boolean => isAutoMovieMaterialExtension("VENDOR_Materials_future"),
@@ -104,11 +115,13 @@ export function test_validation_material_parity(): void {
       ],
       [
         "notLighting",
-        (): boolean => isAutoMovieMaterialExtension("KHR_lights_punctual") === false,
+        (): boolean =>
+          isAutoMovieMaterialExtension("KHR_lights_punctual") === false,
       ],
       [
         "notSubstring",
-        (): boolean => isAutoMovieMaterialExtension("KHR_immaterialism") === false,
+        (): boolean =>
+          isAutoMovieMaterialExtension("KHR_immaterialism") === false,
       ],
     ]),
     {

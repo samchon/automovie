@@ -1,10 +1,23 @@
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMesh,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
 import { tessellateToMesh } from "../../../../packages/engine/src/geometry/tessellateToMesh";
 import { validateMeshTopology } from "../../../../packages/engine/src/validation/validateMeshTopology";
+import {
+  hasViolation,
+  namedFacts,
+  violationCount,
+} from "../internal/predicates";
 import { withoutArraySlot } from "../internal/withoutArraySlot";
-import { IAutoMovieMesh, IAutoMovieValidation, IAutoMovieConstraintViolation } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-import { hasViolation, namedFacts, violationCount } from "../internal/predicates";
-const mesh: (positions: number[], indices: number[] | null) => IAutoMovieMesh = (
+
+const mesh: (
+  positions: number[],
+  indices: number[] | null,
+) => IAutoMovieMesh = (
   positions: number[],
   indices: number[] | null,
 ): IAutoMovieMesh => ({
@@ -34,8 +47,13 @@ const P: number[] = [
   1, // v4 (out of plane, for a third fin)
 ];
 
-const topo: (m: IAutoMovieMesh, expectClosed?: boolean) => IAutoMovieValidation = (m: IAutoMovieMesh, expectClosed: boolean = false): IAutoMovieValidation =>
-  validateMeshTopology({ mesh: m, expectClosed });
+const topo: (
+  m: IAutoMovieMesh,
+  expectClosed?: boolean,
+) => IAutoMovieValidation = (
+  m: IAutoMovieMesh,
+  expectClosed: boolean = false,
+): IAutoMovieValidation => validateMeshTopology({ mesh: m, expectClosed });
 
 /**
  * The Tier-5 mesh-topology validator (#1183): the `"topology"` violation kind
@@ -85,7 +103,8 @@ export function test_validation_mesh_topology(): void {
     namedFacts([
       [
         "refused",
-        (): boolean => hasViolation(topo(openPair, true), "topology", "$input.indices"),
+        (): boolean =>
+          hasViolation(topo(openPair, true), "topology", "$input.indices"),
       ],
       ["violated", (): boolean => topo(openPair, true).success === false],
     ]),
@@ -109,7 +128,10 @@ export function test_validation_mesh_topology(): void {
         "finResultViolationsV",
         (): boolean =>
           finResult.success === false &&
-          finResult.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("2-manifold")),
+          finResult.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.expected.includes("2-manifold"),
+          ),
       ],
     ]),
     {
@@ -130,7 +152,10 @@ export function test_validation_mesh_topology(): void {
         "violated",
         (): boolean =>
           flippedResult.success === false &&
-          flippedResult.violations.some((v: IAutoMovieConstraintViolation): boolean => v.expected.includes("flipped")),
+          flippedResult.violations.some(
+            (v: IAutoMovieConstraintViolation): boolean =>
+              v.expected.includes("flipped"),
+          ),
       ],
     ]),
     { refused: true, violated: true },
@@ -194,12 +219,24 @@ export function test_validation_mesh_topology(): void {
   for (const value of [Number.NaN, Number.POSITIVE_INFINITY]) {
     const positions: number[] = P.slice(0, 9);
     positions[4] = value;
-    TestValidator.equals("nonfinite coordinates leave structural reporting to model admission", topo(mesh(positions, [0, 1, 2])), { success: true });
+    TestValidator.equals(
+      "nonfinite coordinates leave structural reporting to model admission",
+      topo(mesh(positions, [0, 1, 2])),
+      { success: true },
+    );
   }
   const missingPosition: number[] = withoutArraySlot(P.slice(0, 9), 4);
   const missingIndex: number[] = withoutArraySlot([0, 1, 2], 1);
-  TestValidator.equals("missing position slots cannot escape through welding", topo(mesh(missingPosition, [0, 1, 2])), { success: true });
-  TestValidator.equals("missing indices cannot invent topology edges", topo(mesh(P.slice(0, 9), missingIndex)), { success: true });
+  TestValidator.equals(
+    "missing position slots cannot escape through welding",
+    topo(mesh(missingPosition, [0, 1, 2])),
+    { success: true },
+  );
+  TestValidator.equals(
+    "missing indices cannot invent topology edges",
+    topo(mesh(P.slice(0, 9), missingIndex)),
+    { success: true },
+  );
 
   // 7. a closed manifold passes expectClosed (the watertight non-firing twin).
   // Tetrahedron on v0(0,0,0) v1(1,0,0) v2(0,1,0) v3(0,0,1); the four faces are
