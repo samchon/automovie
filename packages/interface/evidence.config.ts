@@ -9,7 +9,6 @@ export default {
       type: "typescript",
       files: [
         "src/**/*.ts",
-        "!src/**/index.ts",
       ],
       symbol: ["type", "function"],
       reference: {

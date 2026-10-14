@@ -9,15 +9,10 @@ export default {
       type: "typescript",
       files: [
         "src/**/*.ts",
-        "src/**/*.mts",
-        "scripts/**/*.ts",
-        "scripts/**/*.mts",
-        "scripts/**/*.cts",
-        "!src/**/index.ts",
         // A global augmentation the TypeScript adapter cannot address.
         "!src/viewer/page.ts",
         // A default-export Vite configuration the TypeScript adapter cannot address.
-        "!src/human/inspection/vite.config.mts",
+        "!src/human/inspection/vite.config.ts",
       ],
       symbol: ["type", "function"],
       reference: {
