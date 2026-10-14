@@ -29,7 +29,7 @@ type Section<K extends string> = { attachment: number } & Record<
  * @evidence contracts/common.md#meaningful-documentation The prose gives millimetre sections, dimensionless progress, 2..32 witness bounds and fresh query results.
  * @evidence contracts/performance.md#efficient-algorithms Construction scans W witnesses and K roles; each query scans at most 32 brackets and interpolates K fields plus its validator cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Owned witness and role copies serve repeated queries with the same admitted profile; a supplied optional validator checks each current section, while omission performs no query-time revalidation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains bounded witnesses and supplied role/validator references until release; fresh section objects escape without handles or tasks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains 2..32 cloned witnesses, copied role names and the optional validator until caller release. Role count is caller-controlled without its own bound; every query creates a fresh section and acquires no handles or tasks.
  */
 export function createPortraitLidSectionSampler<K extends string>(
   input: readonly { at: number; section: Section<K> }[],

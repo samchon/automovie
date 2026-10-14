@@ -29,7 +29,7 @@ import { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection"
  * @evidence contracts/common.md#clear-and-simple-design Common interpolation owns scalar witnesses; this owner adds closure-dependent folding and its simple transverse polygon admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Further opening can extrapolate, so each result is validated; section simplicity cannot substitute for whole-head collision clearance.
  * @evidence contracts/common.md#meaningful-documentation The prose gives closure formula, millimetres, matched witnesses/fixed attachment and extrapolation refusals.
- * @evidence contracts/performance.md#efficient-algorithms Two bounded witness compilations and fixed-role transverse simplicity checks dominate; each query includes both samplers and validation.
+ * @evidence contracts/performance.md#efficient-algorithms Without closed sections, one 2..32-witness sampler handles six roles. Closed sections compile two samplers; nonzero closure queries sample both and check the fixed ten-point transverse polygon, while zero closure returns the observed sampler directly.
  * @evidence contracts/performance.md#reuse-equivalent-work Observed/closed owned samplers are reused and the closure fraction is captured once; exact zero closure reuses the observed sampler.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller-held closure retains copied profiles until release; per-query sections/polygons expire without external resources.
  */
