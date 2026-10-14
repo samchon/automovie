@@ -9,7 +9,7 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
  *
  * @evidence contracts/common.md#principled-implementation A passed observation records target, subject revision, compile, ordered viewpoint plan, camera pose, capture runtime and artifact identity; the engine coverage fold compares supplied context and validates record shape without reopening image bytes or proving capture occurred.
  * @evidence contracts/common.md#clear-and-simple-design The receipt carries provenance for one inspection-owned viewpoint without claiming screenplay time or delivery eligibility, which belong to film-frame evidence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime remains ineligible. Artifact digest syntax is checked by the fold, while agreement with actual artifact bytes remains a caller premise.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime remains ineligible. The fold requires a nonblank artifact digest without validating its syntax or agreement with actual bytes, which remain caller premises.
  * @evidence contracts/common.md#meaningful-documentation Defines production and artifact-qualified target, current revision/compile/plan/runtime identities, exact camera and image digest, terminal verdict and delivery exclusion.
  * @author Samchon
  */

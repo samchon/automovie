@@ -3,7 +3,7 @@ import { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeC
 import { IAutoMovieProductionViseme } from "./IAutoMovieProductionViseme";
 
 /**
- * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; this repository currently validates and consumes the schema but contains no synthesis writer for it.
+ * Host-supplied content-addressed receipt for one locally synthesized Kokoro line; the schema retains generation claims without a repository synthesis writer or receipt-byte validator.
  *
  * @evidence contracts/common.md#principled-implementation The receipt describes line, immutable Kokoro revision, inference/cache identity, native PCM digest and sample clock, runtime assets and derived mouth timing; the enclosing sound-evidence DTO retains supplied receipts without comparing their population or verifying bytes.
  * @evidence contracts/common.md#clear-and-simple-design Groups generator provenance, exact source generation and timing beside optional actor join, separating synthesized-byte identity from later mix and encoded audio identity.
