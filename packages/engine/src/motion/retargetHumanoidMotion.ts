@@ -104,8 +104,16 @@ export const retargetHumanoidMotion: (
     props.target,
     props.targetJointAxes ?? HUMANOID_JOINT_AXES,
   );
-  validateAxes("sourceJointAxes", sourceJointAxes, collector);
-  validateAxes("targetJointAxes", targetJointAxes, collector);
+  validateAxes(
+    "sourceJointAxes",
+    props.sourceJointAxes ?? HUMANOID_JOINT_AXES,
+    collector,
+  );
+  validateAxes(
+    "targetJointAxes",
+    props.targetJointAxes ?? HUMANOID_JOINT_AXES,
+    collector,
+  );
   validateRestFrames(
     "sourceRestFrames",
     props.sourceRestFrames ?? HUMANOID_REST_FRAME,
@@ -272,6 +280,9 @@ const validateSkeleton: (
         bone.bone,
       );
     byBone.set(bone.bone, i);
+    if (bone.axes !== undefined)
+      for (const issue of validateJointAxesBasis(bone.axes, `${bonePath}.axes`))
+        collector.push("range", issue.path, issue.expected, issue.value);
     validateTransformScalars({
       transform: bone.rest,
       path: `${bonePath}.rest`,
