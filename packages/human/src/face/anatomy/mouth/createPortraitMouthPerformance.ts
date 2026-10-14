@@ -9,10 +9,10 @@ import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformanc
  * @evidence contracts/common.md#principled-implementation Paired observed margins invert observed jaw pose, alter requested aperture and transport thickness-preserving rim displacement.
  * @evidence contracts/common.md#clear-and-simple-design Upper/lower seams share paired population and current jaw/smile/pucker fields.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 1e-8 residual seam tolerance and bounded styling are numerical conventions; fields are kinematic and do not simulate muscles or contact.
- * @evidence contracts/common.md#meaningful-documentation Portrait millimetres and degrees retain observed/current distinctions, with exact cloned output for unchanged settings.
+ * @evidence contracts/common.md#meaningful-documentation Portrait millimetres and degrees retain observed/current distinctions; unchanged settings copy the original margins exactly unless a requested closed mouth must resolve an admitted residual seam.
  * @evidence contracts/performance.md#efficient-algorithms Preparation scans paired margins; each displaced band point linearly finds its rim segment and performs fixed transforms.
  * @evidence contracts/performance.md#reuse-equivalent-work Cloned source/posed curves and resolved settings serve both returned margins and move samples.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The closure owns original/source/posed curves until component completion; output margin vectors are owned and inputs unchanged.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The move closure retains copied source/posed curves and motion settings until the returned performer is dropped; returned margin vectors are independent and no sample history accumulates.
  */
 export function createPortraitMouthPerformance(
   upper: readonly IAutoMovieVector3[],
@@ -59,9 +59,17 @@ export function createPortraitMouthPerformance(
       "Oral performance needs finite, ordered, paired margins sharing both corners.",
     );
   const settings: IPortraitMouthPerformance = structuredClone(performance);
-  const jaw: { hinge: IAutoMovieVector3; current: number; observed: number; } | undefined = settings.jaw;
-  const smile: { right: number; left: number; } = settings.smile ?? { right: 0, left: 0 };
-  const pucker: { current: number; observed: number; } = settings.pucker ?? { current: 0, observed: 0 };
+  const jaw:
+    | { hinge: IAutoMovieVector3; current: number; observed: number }
+    | undefined = settings.jaw;
+  const smile: { right: number; left: number } = settings.smile ?? {
+    right: 0,
+    left: 0,
+  };
+  const pucker: { current: number; observed: number } = settings.pucker ?? {
+    current: 0,
+    observed: 0,
+  };
   if (
     ![smile.right, smile.left, pucker.current, pucker.observed].every(
       Number.isFinite,
@@ -82,11 +90,16 @@ export function createPortraitMouthPerformance(
     posePortraitJawPoint(upper[0], jaw.hinge, jaw.current, 0);
     posePortraitJawPoint(upper[0], jaw.hinge, jaw.observed, 0);
   }
-  const original: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = {
+  const original: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[] } = {
     upper: structuredClone([...upper]),
     lower: structuredClone([...lower]),
   };
-  const rotate: (point: IAutoMovieVector3, side: "upper" | "lower", t: number, angle: number) => IAutoMovieVector3 = (
+  const rotate: (
+    point: IAutoMovieVector3,
+    side: "upper" | "lower",
+    t: number,
+    angle: number,
+  ) => IAutoMovieVector3 = (
     point: IAutoMovieVector3,
     side: "upper" | "lower",
     t: number,
@@ -95,10 +108,11 @@ export function createPortraitMouthPerformance(
     jaw === undefined || side === "upper"
       ? { ...point }
       : posePortraitJawPoint(point, jaw.hinge, angle, 4 * t * (1 - t));
-  const source: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = {
+  const source: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[] } = {
     upper: structuredClone(original.upper),
-    lower: original.lower.map((point: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
-      rotate(point, "lower", i / (lower.length - 1), -(jaw?.observed ?? 0)),
+    lower: original.lower.map(
+      (point: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        rotate(point, "lower", i / (lower.length - 1), -(jaw?.observed ?? 0)),
     ),
   };
   if (
@@ -119,7 +133,7 @@ export function createPortraitMouthPerformance(
   // contact. Resolve that admitted residual onto one identical shared seam.
   if (performance.observedLipPart === 0)
     source.upper.forEach((point: IAutoMovieVector3, i: number): void => {
-      const seam: { x: number; y: number; z: number; } = {
+      const seam: { x: number; y: number; z: number } = {
         x: (point.x + source.lower[i].x) / 2,
         y: (point.y + source.lower[i].y) / 2,
         z: (point.z + source.lower[i].z) / 2,
@@ -127,14 +141,14 @@ export function createPortraitMouthPerformance(
       source.upper[i] = { ...seam };
       source.lower[i] = { ...seam };
     });
-  const posed: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = {
+  const posed: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[] } = {
     upper: structuredClone(source.upper),
     lower: structuredClone(source.lower),
   };
   if (performance.lipPart !== performance.observedLipPart)
     for (let i: number = 1; i < upper.length - 1; i++) {
       const t: number = i / (upper.length - 1);
-      const seam: { x: number; y: number; z: number; } = {
+      const seam: { x: number; y: number; z: number } = {
         x: (source.upper[i].x + source.lower[i].x) / 2,
         y: (source.upper[i].y + source.lower[i].y) / 2,
         z: (source.upper[i].z + source.lower[i].z) / 2,
@@ -162,9 +176,15 @@ export function createPortraitMouthPerformance(
       }
     }
   const centerX: number = (upper[0].x + upper[upper.length - 1].x) / 2;
-  const decorate: (point: IAutoMovieVector3, t: number) => { x: number; y: number; z: number; } = (point: IAutoMovieVector3, t: number): { x: number; y: number; z: number; } => {
+  const decorate: (
+    point: IAutoMovieVector3,
+    t: number,
+  ) => { x: number; y: number; z: number } = (
+    point: IAutoMovieVector3,
+    t: number,
+  ): { x: number; y: number; z: number } => {
     const lateral: number = 2 * t - 1;
-    const result: { x: number; y: number; z: number; } = {
+    const result: { x: number; y: number; z: number } = {
       x:
         centerX +
         ((point.x - centerX) * (1 - 0.06 * pucker.current)) /
@@ -194,18 +214,22 @@ export function createPortraitMouthPerformance(
     smile.right === 0 &&
     smile.left === 0 &&
     pucker.current === pucker.observed;
-  const output: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[]; } = {
+  const output: { upper: IAutoMovieVector3[]; lower: IAutoMovieVector3[] } = {
     upper: [] as IAutoMovieVector3[],
     lower: [] as IAutoMovieVector3[],
   };
   for (const side of ["upper", "lower"] as const)
     output[side] = unchanged
       ? structuredClone(original[side])
-      : posed[side].map((point: IAutoMovieVector3, i: number): { x: number; y: number; z: number; } =>
-          decorate(
-            rotate(point, side, i / (upper.length - 1), jaw?.current ?? 0),
-            i / (upper.length - 1),
-          ),
+      : posed[side].map(
+          (
+            point: IAutoMovieVector3,
+            i: number,
+          ): { x: number; y: number; z: number } =>
+            decorate(
+              rotate(point, side, i / (upper.length - 1), jaw?.current ?? 0),
+              i / (upper.length - 1),
+            ),
         );
   if (
     [output.upper, output.lower].some((curve: IAutoMovieVector3[]): boolean =>
@@ -219,7 +243,13 @@ export function createPortraitMouthPerformance(
     throw new Error(
       "Requested oral separation exceeds a finite, ordered aperture.",
     );
-  const displacement: (point: IAutoMovieVector3, side: "upper" | "lower") => { x: number; y: number; z: number; } = (point: IAutoMovieVector3, side: "upper" | "lower"): { x: number; y: number; z: number; } => {
+  const displacement: (
+    point: IAutoMovieVector3,
+    side: "upper" | "lower",
+  ) => { x: number; y: number; z: number } = (
+    point: IAutoMovieVector3,
+    side: "upper" | "lower",
+  ): { x: number; y: number; z: number } => {
     if (![point.x, point.y, point.z].every(Number.isFinite))
       throw new Error("A lip performance sample must be a finite point.");
     if (unchanged) return { ...point };
@@ -232,9 +262,15 @@ export function createPortraitMouthPerformance(
       1,
       curve.findIndex((sample: IAutoMovieVector3): boolean => sample.x >= x),
     );
-    const t: number = (x - curve[next - 1].x) / (curve[next].x - curve[next - 1].x);
+    const t: number =
+      (x - curve[next - 1].x) / (curve[next].x - curve[next - 1].x);
     const along: number = (next - 1 + t) / (curve.length - 1);
-    const result: IAutoMovieVector3 = rotate(point, side, along, -(jaw?.observed ?? 0));
+    const result: IAutoMovieVector3 = rotate(
+      point,
+      side,
+      along,
+      -(jaw?.observed ?? 0),
+    );
     for (const axis of ["x", "y", "z"] as const)
       result[axis] +=
         (posed[side][next - 1][axis] - curve[next - 1][axis]) * (1 - t) +

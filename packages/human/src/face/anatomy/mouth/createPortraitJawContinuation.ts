@@ -1,5 +1,9 @@
-import type { IPortraitComponentPlan as ImportedIPortraitComponentPlan, IPortraitSkinConstraint as ImportedIPortraitSkinConstraint } from "@automovie/human";
+import type {
+  IPortraitComponentPlan as ImportedIPortraitComponentPlan,
+  IPortraitSkinConstraint as ImportedIPortraitSkinConstraint,
+} from "@automovie/human";
 import type { IAutoMovieVector3 as ImportedIAutoMovieVector3 } from "@automovie/interface";
+
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
@@ -21,7 +25,7 @@ import { posePortraitJawPoint } from "./posePortraitJawPoint";
  * @evidence contracts/common.md#meaningful-documentation Head millimetres and degree differences govern the shared transverse hinge, with posterior/cervical anchors fixed.
  * @evidence contracts/performance.md#efficient-algorithms Preparation scans facial constraints and lower attachments; each subsequent point uses fixed rational/vector work.
  * @evidence contracts/performance.md#reuse-equivalent-work Cloned reference samples and computed sector limits serve both inverse-reference and forward-pose closures.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The continuation owns cloned host/bindings and reference map until its assembly completes; no posed-history cache persists.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned reference/pose closures retain the reference map, copied hinge and scalar sector data until the continuation is dropped; no sampled pose history is retained.
  */
 export function createPortraitJawContinuation(
   inputHost: IPortraitComponentHost,
@@ -30,28 +34,61 @@ export function createPortraitJawContinuation(
   inputExpression: IAutoMovieHumanFaceExpression,
   inputNeck: IPortraitNeckShape,
 ): IPortraitHeadPerformance | undefined {
-  const observation: { blink: { right: number; left: number; }; browRaise: { right: number; left: number; }; smile: { right: number; left: number; }; jawOpen: number; lipPart: number; pucker: number; tongueRaise: number; tongueAdvance: number; gazePitch: { right: number; left: number; }; gazeYaw: { right: number; left: number; }; } = resolveHumanFaceExpression(inputObservation);
-  const expression: { blink: { right: number; left: number; }; browRaise: { right: number; left: number; }; smile: { right: number; left: number; }; jawOpen: number; lipPart: number; pucker: number; tongueRaise: number; tongueAdvance: number; gazePitch: { right: number; left: number; }; gazeYaw: { right: number; left: number; }; } = resolveHumanFaceExpression(inputExpression);
+  const observation: {
+    blink: { right: number; left: number };
+    browRaise: { right: number; left: number };
+    smile: { right: number; left: number };
+    jawOpen: number;
+    lipPart: number;
+    pucker: number;
+    tongueRaise: number;
+    tongueAdvance: number;
+    gazePitch: { right: number; left: number };
+    gazeYaw: { right: number; left: number };
+  } = resolveHumanFaceExpression(inputObservation);
+  const expression: {
+    blink: { right: number; left: number };
+    browRaise: { right: number; left: number };
+    smile: { right: number; left: number };
+    jawOpen: number;
+    lipPart: number;
+    pucker: number;
+    tongueRaise: number;
+    tongueAdvance: number;
+    gazePitch: { right: number; left: number };
+    gazeYaw: { right: number; left: number };
+  } = resolveHumanFaceExpression(inputExpression);
   const angle: number = expression.jawOpen - observation.jawOpen;
   if (angle === 0) return undefined;
   const host: IPortraitComponentHost = structuredClone(inputHost),
     bindings: IAutoMovieHumanFaceBindings = structuredClone(inputBindings);
-  const plan: ImportedIPortraitComponentPlan = createPortraitFacePerformanceComponent(bindings, observation, {
-    ...expression,
-    browRaise: observation.browRaise,
-  }).fit(host);
+  const plan: ImportedIPortraitComponentPlan =
+    createPortraitFacePerformanceComponent(bindings, observation, {
+      ...expression,
+      browRaise: observation.browRaise,
+    }).fit(host);
   const reference: Map<number, number[]> = new Map(
-    plan.constraints.map(({ vertex }: ImportedIPortraitSkinConstraint): [number, number[]] => [vertex, host.positions[vertex]]),
+    plan.constraints.map(
+      ({ vertex }: ImportedIPortraitSkinConstraint): [number, number[]] => [
+        vertex,
+        host.positions[vertex],
+      ],
+    ),
   );
   const middle: (curve: number[]) => number = (curve: number[]): number =>
     host.positions[curve[Math.floor(curve.length / 2)]][1];
   const upper: number = middle(bindings.mouth.upper),
     lower: number = middle(bindings.mouth.lower);
   const lowerFace: number[][] = [...reference.values()].filter(
-    (point: number[]): boolean => portraitJawSkinWeight(point[1], upper, lower) === 1,
+    (point: number[]): boolean =>
+      portraitJawSkinWeight(point[1], upper, lower) === 1,
   );
-  const chin: number = Math.min(...lowerFace.map((point: number[]): number => point[1]));
-  const anterior: number = Math.min(...lowerFace.map((point: number[]): number => point[2]));
+  const chin: number = Math.min(
+    ...lowerFace.map((point: number[]): number => point[1]),
+  );
+  const anterior: number = Math.min(
+    ...lowerFace.map((point: number[]): number => point[2]),
+  );
   const hinge: ImportedIAutoMovieVector3 = bindings.jawHinge!,
     anchorY: number = inputNeck.lower.y;
   if (
@@ -111,7 +148,12 @@ export function createPortraitJawContinuation(
           weight *= Math.max(0, Math.min(1, fraction));
         }
       }
-      const point: ImportedIAutoMovieVector3 = posePortraitJawPoint({ x, y, z }, hinge, angle, weight);
+      const point: ImportedIAutoMovieVector3 = posePortraitJawPoint(
+        { x, y, z },
+        hinge,
+        angle,
+        weight,
+      );
       return [point.x, point.y, point.z];
     },
   };
