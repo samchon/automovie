@@ -128,8 +128,25 @@ const networkOf = (
       (y: number, k: number, all: number[]): boolean =>
         k === 0 || y - all[k - 1]! > 12,
     );
+  // at the crotch the section is the two thighs side by side at the gluteal furrow, touching at the midline
+  const thighRadius: number = frame.thighGirth / (2 * Math.PI);
+  const thighCentre: number = Math.max(0.95 * thighRadius, 0.85 * Math.abs(frame.hip.x));
+  const thighDepthCentre: number =
+    (profile.front(L.gluteal) + profile.back(L.gluteal)) / 2;
   const sections: Array<{ centre: IAutoMovieVector3; section: IAutoMovieSweepSection }> =
-    levels.map((y: number) => {
+    levels.map((y: number, k: number) => {
+      if (k === 0)
+        return {
+          centre: AutoMovieHumanVector.of(0, y, thighDepthCentre),
+          section: {
+            type: "superellipse",
+            right: metres(thighRadius),
+            up: metres(thighCentre + thighRadius),
+            left: metres(1.1 * thighRadius),
+            down: metres(thighCentre + thighRadius),
+            exponents: [2.8, 2.8, 2.8, 2.8],
+          },
+        };
       const widest: number = profile.widest(y);
       const half: number =
         y >= shoulderLine - 1
@@ -220,13 +237,14 @@ const networkOf = (
   const thighTube = (side: AutoMovieHumanSide): IAutoMovieSweep => {
     const shape: IAutoMovieHumanRingShape = thighs[side];
     const sign: number = side === "left" ? 1 : -1;
+    // each tube starts just under its half of the crotch section, at the thigh's own centre and girth
     const start: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      sign * Math.abs(frame.hip.x),
-      L.crotch - 40,
-      frame.hip.z,
+      sign * thighCentre,
+      L.crotch - 15,
+      thighDepthCentre,
     );
     lengths[`thigh.${side}`] = AutoMovieHumanVector.distance(start, shape.frame.origin);
-    const r0: number = frame.thighGirth / (2 * Math.PI);
+    const r0: number = thighRadius;
     return {
       spine: {
         points: [toMetres(start), toMetres(shape.frame.origin)],
@@ -370,7 +388,8 @@ const networkOf = (
         tangent: "across",
       },
       to: { edges: hipStart("leftHip"), tangent: "forward" },
-      rows: fixed(3),
+      rows: fixed(2),
+      tension: 0.6,
     },
     {
       type: "bridge",
@@ -385,7 +404,8 @@ const networkOf = (
         tangent: "across",
       },
       to: { edges: hipStart("rightHip"), tangent: "forward" },
-      rows: fixed(3),
+      rows: fixed(2),
+      tension: 0.6,
     },
   );
 
