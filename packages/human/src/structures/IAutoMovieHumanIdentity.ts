@@ -1,6 +1,7 @@
 import { tags } from "typia";
 
 import { AutoMovieHumanIrisColor } from "./AutoMovieHumanIrisColor";
+import { IAutoMovieHumanSubcutaneousFat } from "./IAutoMovieHumanSubcutaneousFat";
 
 /**
  * Who a person is, as detailed parameters: named anthropometric and craniofacial measurements, joint mobility, body composition and pigmentation.
@@ -489,6 +490,9 @@ export namespace IAutoMovieHumanIdentity {
      * Appendicular lean mass index: lean mass of the arms and legs over stature squared, kilograms per square metre. NHANES means are 6.81 for women and 8.87 for men at age 20 (Kelly et al. 2009).
      */
     appendicularLeanMassIndex: number & tags.Minimum<2> & tags.Maximum<16>;
+
+    /** Subcutaneous fat thickness over each region, the fat that decides how sharply muscle shows. */
+    subcutaneousFat: IAutoMovieHumanSubcutaneousFat;
   }
 
   /**
