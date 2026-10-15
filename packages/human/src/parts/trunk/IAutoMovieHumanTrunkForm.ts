@@ -37,8 +37,11 @@ export namespace IAutoMovieHumanTrunkForm {
    * @author Samchon
    */
   export interface IPlacement {
-    /** Distance of the back's midline behind the vertebral column, as a share of the level's depth. */
+    /** Distance of the back's midline behind the vertebral column, as a share of the level's depth, at 15% body fat. */
     behind: number;
+
+    /** Change of `behind` per percentage point of body fat above 15%: the subcutaneous fat over the buttocks and the breasts carries the section's depth behind or ahead of the skeleton. */
+    fat: number;
 
     /** Share of the depth from the back to the front where the section is widest. */
     widest: number;
