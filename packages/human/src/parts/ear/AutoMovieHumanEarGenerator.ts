@@ -156,7 +156,7 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
     }
     for (let i: number = 1; i < loops.length; ++i)
       builder.bridge(loops[i - 1]!, loops[i]!);
-    builder.cap(loops[loops.length - 1]!, lateral, 0);
+    builder.cap(loops[loops.length - 1]!, lateral, -0.08 * ear.earProtrusion);
 
     for (const crease of shape.creases) {
       const loop: AutoMovieHumanCageBuilder.IStation = loops[crease.loop]!;
