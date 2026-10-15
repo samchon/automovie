@@ -13,7 +13,7 @@ import { tintAutoMovieHumanSkin } from "./tintAutoMovieHumanSkin";
  * - Colour: per-vertex albedo from the melanin, eumelanin share and haemoglobin fractions with the regional variation of {@link tintAutoMovieHumanSkin}, over a white base colour.
  * - Specular: a dielectric of refractive index 1.4, so normal-incidence reflectance is 0.028, with a white specular colour, as d'Eon and Luebke recommend for skin (2007, GPU Gems 3, chapter 14). Roughness 0.59 is the viewer's perceptual roughness whose square is the Beckmann slope 0.35 Donner and Jensen use for all skin (2006, Eurographics Symposium on Rendering); oiliness then scales the specular intensity from half at dry to full at oily skin, their way of controlling oil without changing roughness. Grade: conventional.
  * - Translucency: the viewer's subsurface approximation with the per-channel radii of d'Eon and Luebke's six-Gaussian skin profile, its weighted standard deviations 1.18, 0.26 and 0.16 mm for red, green and blue (derived from the published variances and weights).
- * - Micro-relief: the pore and furrow normal map of {@link paintAutoMovieHumanSkinRelief}, tiled at its physical size as the detail normal over the published UV layout. The layout spends one texel density on every part, about {@link ATLAS_SPAN} metres of skin per atlas width, so one repeat count holds the tile's physical size everywhere to within a chart's stretch.
+ * - Micro-relief: the pore and furrow normal map of {@link paintAutoMovieHumanSkinRelief}, its furrows as deep as the appearance's wrinkles, tiled at its physical size as the detail normal over the published UV layout. The layout spends one texel density on every part, about {@link ATLAS_SPAN} metres of skin per atlas width, so one repeat count holds the tile's physical size everywhere to within a chart's stretch.
  *
  * The material id stays `skin`, the id the skin parts cite; the relief image's id names its content.
  *
@@ -29,7 +29,7 @@ export function dressAutoMovieHumanSkin(props: {
   skeleton: IAutoMovieHumanSkeleton;
   skin: IAutoMovieHumanAppearance.ISkin;
 }): { parts: IAutoMovieModelPart[]; material: IAutoMovieMaterial; images: IAutoMovieImage[] } {
-  const relief: IAutoMovieImage = paintAutoMovieHumanSkinRelief({ furrows: 0.5 });
+  const relief: IAutoMovieImage = paintAutoMovieHumanSkinRelief({ furrows: props.skin.wrinkles });
   const repeats: number = ATLAS_SPAN / paintAutoMovieHumanSkinRelief.TILE;
   return {
     parts: tintAutoMovieHumanSkin({
@@ -66,7 +66,7 @@ export function dressAutoMovieHumanSkin(props: {
           magFilter: "linear",
         },
       },
-      detailNormalScale: 1,
+      detailNormalScale: 0.6,
     },
     images: [relief],
   };

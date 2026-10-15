@@ -651,6 +651,7 @@ const renderPanels = (): void => {
         hidden: ["version"],
         colors: ["underwear.color"],
         choices: {
+          "hair.style": HUMAN_VIEWER_CHOICES.hairStyle,
           "hair.color": HUMAN_VIEWER_CHOICES.hairColor,
           "hair.curl": HUMAN_VIEWER_CHOICES.curl,
           "hair.hairline": HUMAN_VIEWER_CHOICES.hairline,

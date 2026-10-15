@@ -38,8 +38,8 @@ export function growAutoMovieHumanBrows(props: {
       k * (u <= peak ? 11 + 5 * Math.sin((Math.PI / 2) * (u / peak)) : 16 - 6 * ((u - peak) / (1 - peak)) ** 2);
     const tall = (u: number): number => k * (11 - 3 * u - 5 * u ** 4);
     const x = (u: number): number => E.x + s * k * (-13 + 46 * u);
-    const rows: number = 9;
-    const cols: number = 40;
+    const rows: number = 11;
+    const cols: number = 46;
     for (let i: number = 0; i < rows; ++i)
       for (let j: number = 0; j < cols; ++j) {
         const u: number = (j + hash(side, i, j, 0)) / cols;
@@ -71,7 +71,7 @@ export function growAutoMovieHumanBrows(props: {
           points: [root, mid, tip] as Array<[number, number, number]>,
           sides: [across, across, across] as Array<[number, number, number]>,
           normals: [n, n, n] as Array<[number, number, number]>,
-          widths: [0.9 * k, 0.8 * k, 0.6 * k],
+          widths: [1.4 * k, 1.2 * k, 0.9 * k],
           column: paintAutoMovieHumanHairStrands.COLUMNS.single,
           v: [0, 1],
         });

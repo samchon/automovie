@@ -22,7 +22,7 @@ import { paintAutoMovieHumanHairStrands } from "./paintAutoMovieHumanHairStrands
  *
  * The three are grown on the head's surface read back from the emitted skin ({@link AutoMovieHumanHeadSurface}), so they follow the head the skin generator built in either assembly, and ride the `head` bone rigidly; like every attachment, a part's mesh lives in its bone's frame, the model frame at rest translated to the bone's joint centre, in metres. Part ids are `hair`, `brows` and `lashes`; a shaved scalp or lashes of zero length emit no part.
  *
- * Each takes its own colour choice through one material: the strand atlas's grey times the colour, alpha-tested at one half so the cards need no sorting against the rest of the scene while their own order, scalp outward, holds within the mesh, both faces drawn, and an anisotropic specular lobe streaked along the strands, texture `+v` from root to tip, which is what makes cards read as hair (Scheuermann 2004, after Kajiya and Kay's strand model). Hair is a dielectric with a cuticle near index 1.55 (conventional); its roughness 0.4 keeps the highlight broad enough for the cards' coarse normals.
+ * Each takes its own colour choice through one material: the strand atlas's grey times the colour, alpha-tested at one half so the cards need no sorting against the rest of the scene while their own order, scalp outward, holds within the mesh, both faces drawn, and an anisotropic specular lobe streaked along the strands, texture `+v` from root to tip, which is what makes cards read as hair (Scheuermann 2004, after Kajiya and Kay's strand model). Hair is a dielectric with a cuticle near index 1.55 (conventional); its roughness 0.45 keeps the highlight broad enough for the cards' coarse normals.
  *
  * @param props.measurements Resolved measurements
  * @param props.skeleton The skeleton at rest
@@ -85,7 +85,7 @@ function materialOf(color: AutoMovieHumanHairColor, atlas: string): IAutoMovieMa
     name: `${color} hair`,
     baseColor: { ...c, a: null, hex: null },
     metallic: 0,
-    roughness: 0.4,
+    roughness: 0.45,
     emissive: null,
     opacity: 1,
     baseColorTexture: {
@@ -99,7 +99,7 @@ function materialOf(color: AutoMovieHumanHairColor, atlas: string): IAutoMovieMa
     alphaCutoff: 0.5,
     doubleSided: true,
     ior: 1.55,
-    specularIntensity: 0.8,
-    anisotropy: { strength: 0.8, rotationDeg: 90, texture: null },
+    specularIntensity: 0.6,
+    anisotropy: { strength: 0.6, rotationDeg: 90, texture: null },
   };
 }

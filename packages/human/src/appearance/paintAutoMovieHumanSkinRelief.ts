@@ -6,7 +6,7 @@ import { IAutoMovieImage } from "@automovie/interface";
  *
  * Relief comes from Worley's cellular basis (1996, SIGGRAPH '96, pp. 291-294): space is cut into cells, each holding feature points from a hash of its integer address, so the texture needs no table and is the same in every run and on every platform. Two fields of it make the height:
  *
- * - Pores: a pit of Gaussian profile at every feature point of a fine field, about one pore per 0.8 mm square cell, with radius jittered per pore.
+ * - Pores: a pit of Gaussian profile at every feature point of a fine field, about one pore per 0.62 mm square cell, with radius jittered per pore.
  * - Furrows: the edges of a coarser field, where the distances to the nearest and the second nearest feature point are equal, which cut the skin into the irregular polygonal plateaus of the surface's primary lines; their depth grows with `furrows`.
  *
  * No measured pore density, pore diameter or furrow depth was read, so sizes and depths are conventional values chosen to read as skin at face scale. Cell addresses wrap at the tile's edge, so the tile repeats without a seam. The normal is the height's gradient in texel units, X along +u and Y along +v, encoded from `[-1, 1]` to `[0, 255]`, which is the tangent frame the viewer derives from the texture coordinates.
@@ -18,12 +18,14 @@ export function paintAutoMovieHumanSkinRelief(props: {
   furrows: number;
 }): IAutoMovieImage {
   const N: number = SIZE;
+  // quantized to hundredths, so the id names the content exactly
+  const furrows: number = Math.round(props.furrows * 100) / 100;
   const height: Float64Array = new Float64Array(N * N);
   for (let y: number = 0; y < N; ++y)
     for (let x: number = 0; x < N; ++x) {
       const pore: number = poreDepth(x, y);
       const furrow: number = furrowDepth(x, y);
-      height[y * N + x] = -pore - (0.35 + 0.65 * props.furrows) * furrow;
+      height[y * N + x] = -pore - (0.25 + 0.5 * furrows) * furrow;
     }
   const pixels: Uint8Array = new Uint8Array(N * N * 3);
   for (let y: number = 0; y < N; ++y)
@@ -41,7 +43,7 @@ export function paintAutoMovieHumanSkinRelief(props: {
       pixels[at + 2] = Math.round(127.5 * (1 / length + 1));
     }
   return {
-    id: `human.skin.relief.${Math.round(props.furrows * 100)}`,
+    id: `human.skin.relief.${Math.round(furrows * 100)}`,
     mimeType: "image/png",
     data: encodeAutoMoviePng({ width: N, height: N, channels: 3, pixels }),
   };
@@ -58,14 +60,14 @@ export namespace paintAutoMovieHumanSkinRelief {
 /** Edge of the tile, texels. */
 const SIZE: number = 256;
 
-/** Pore cells per tile edge: 0.8 mm cells, about 156 pores per square centimetre; conventional. */
-const PORE_CELLS: number = 25;
+/** Pore cells per tile edge: 0.62 mm cells, about 260 pores per square centimetre; conventional. */
+const PORE_CELLS: number = 32;
 
-/** Furrow cells per tile edge: 1.8 mm plateaus; conventional. */
-const FURROW_CELLS: number = 11;
+/** Furrow cells per tile edge: 1 mm plateaus, the scale of the skin's primary lines; conventional. */
+const FURROW_CELLS: number = 20;
 
 /** Slope gain from height units per texel to the normal's tilt. */
-const RELIEF: number = 2.2;
+const RELIEF: number = 1.0;
 
 /** Depth of a pore pit at a texel, height units. */
 function poreDepth(x: number, y: number): number {
