@@ -47,6 +47,9 @@ export function paintAutoMovieHumanSkinRelief(props: {
   };
 }
 /** The tile scale {@link paintAutoMovieHumanSkinRelief} paints at, which the skin material repeats it by. */
+/**
+ * Types and constants of {@link paintAutoMovieHumanSkinRelief}.
+ */
 export namespace paintAutoMovieHumanSkinRelief {
   /** Skin length one tile spans, metres; the material repeats the tile at this scale. */
   export const TILE: number = 0.02;
