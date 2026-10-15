@@ -64,6 +64,12 @@ Vertebral levels of surface landmarks, all measured against imaging:
 
 PI = PT + SS is a geometric identity: pelvic incidence is a fixed shape parameter of the pelvis per identity, and tilt is posture.
 
+### Sex and stature differences at whole-body scale (#2793 review)
+
+The review found female and male, short and tall adults reading as near copies. The lengths already came from sex-specific ANSUR II regressions with their allometry (sitting height 0.544 of stature at 0.88 of the median against 0.512 at 1.12; biacromial 0.233 against 0.217; women's biacromial 0.224 against men's 0.236 at the medians). Three things hid or removed the rest: head size scaled with the square root of stature (now the ANSUR elasticities, about 0.1 to 0.4, `../sources/ansur-ii.md`), hand breadth scaled with hand length (now its own regression on stature and mass), and the stick drew no pelvis beyond the hip joints, so the women's relatively wider bony pelvis (bicristal 0.168 against 0.157 of stature) never showed; the stick now draws each iliac wing from the hip joint to the crest. Sex differences in the skeleton remain a few percent of stature, as the data say; viewer captures framed to fill the window also hide absolute size, so the review sheets put people on one millimetre scale.
+
+Finding (not fixed): the T-pose fingertip span is about 1.08 of stature (1768 mm for the 1632 mm woman) against ANSUR II's measured span of 1.02 (1660 mm), because the rest frame abducts the arm about the glenohumeral centre with the acromion fixed, while a real abduction moves the acromion toward the radiale (de Leva's 75 mm). Posing the scapular share is the shoulder bone's job; the rest span is a consequence of `HUMANOID_REST_FRAME`.
+
 ### Sagittal curvature as built (#2793 review)
 
 The first stick render stood the spine as a straight vertical line. Now the identity carries a posture group (pelvic tilt, sacral slope, thoracic kyphosis T2-T12, sagittal vertical axis, craniovertebral angle), filled by age and sex:

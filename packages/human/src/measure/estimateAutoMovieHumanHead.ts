@@ -107,6 +107,20 @@ const ADULT_HEAD: Record<
 };
 
 /**
+ * Elasticity of each head dimension with stature among adults of one sex, the slope of our ordinary least squares fit on stature times mean stature over the mean dimension, from the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; 1,986 women and 4,082 men), women and men averaged: head length 0.356 and 0.333, head breadth 0.139 and 0.069, menton-sellion length (face height) 0.407 and 0.421, bizygomatic breadth (face width) 0.199 and 0.159. Head height (vertex to menton) is not in ANSUR II; it takes the tragion-to-top-of-head elasticity (0.287 and 0.239) for the 0.6 of head height above tragion and the face's for the rest, 0.32. Head size correlates only weakly with stature (R2 0.01 to 0.14). Holding the adult elasticities for a child that is tall or short for its age is an inference. Grade: population-fitted, head height derived.
+ */
+const STATURE_ELASTICITY: Record<
+  "headLength" | "headBreadth" | "headHeight" | "faceHeight" | "faceWidth",
+  number
+> = {
+  headLength: 0.345,
+  headBreadth: 0.104,
+  headHeight: 0.32,
+  faceHeight: 0.414,
+  faceWidth: 0.179,
+};
+
+/**
  * Active maximum mouth opening and laterotrusion, millimetres, the mixed-model growth curves of 169 healthy Dutch children aged 6 to 18 (Verkouteren et al. 2022, Eur J Oral Sci 130(3):e12869) at 6 and 18 years. Grade: population-fitted.
  */
 const VERKOUTEREN_2022: Record<"mouthOpening" | "mandibularLaterotrusion", ISexCurve> = {
@@ -125,7 +139,7 @@ const VERKOUTEREN_2022: Record<"mouthOpening" | "mandibularLaterotrusion", ISexC
  *
  * Head size grows on its own curve, not with the body: head height is the median stature for age over the 1977 survey's stature-to-head-height ratio (4 at birth, 5.3 at 2, 8.0 at 18), so a child's large head comes from growth data rather than from shrinking an adult. Vault and face dimensions are the population's adult means times the 3D Facial Norms growth fractions for the age, which keeps the child's face small under a nearly grown vault (face height 73% and vault length 88% of adult at 3 to 4 years). Below 3.5 years, where no face norms were read, the vault follows the WHO head circumference and the face follows head height.
  *
- * Every head dimension then scales with the square root of the person's stature over the median stature for age. Head size correlates weakly with stature within an age, and the square root, a conventional choice, keeps a very tall or very short person inside the admitted 3.5 to 10 heads per stature. Head circumference follows the vault through the population's circumference-to-ellipse ratio, so it always lies within the bounds admission checks. Cuteness is not read yet: it shapes the face features, whose generators define it.
+ * Every head dimension then scales with the person's stature over the median stature for age raised to its own allometric exponent ({@link STATURE_ELASTICITY}), so a tall adult's head is relatively smaller and a short adult's relatively larger, as ANSUR II measures: a 12% taller woman has a head 4% longer and 1% broader, not 12%. Head circumference follows the vault through the population's circumference-to-ellipse ratio, so it always lies within the bounds admission checks. Cuteness is not read yet: it shapes the face features, whose generators define it.
  *
  * Mouth opening and laterotrusion follow the 6-to-18-year growth curves, hold the 18-year value in adults (no adult norm was read) and scale with face height below 6.
  *
@@ -141,7 +155,10 @@ export function estimateAutoMovieHumanHead(
     at: number,
   ): number => interpolateAutoMovieHumanGrowthCurve(curve[sex], at);
   const adult: IAdultHead = ADULT_HEAD[context.population][sex];
-  const size: number = Math.sqrt(context.peakStature / context.medianStature);
+  const relative: number = context.peakStature / context.medianStature;
+  const size: (dimension: keyof typeof STATURE_ELASTICITY) => number = (
+    dimension: keyof typeof STATURE_ELASTICITY,
+  ): number => relative ** STATURE_ELASTICITY[dimension];
   const firstNorm: number = NORM_AGES[0]!;
 
   // head height at the median stature for age, the head's own growth curve
@@ -168,11 +185,12 @@ export function estimateAutoMovieHumanHead(
   };
 
   const headLength: number =
-    adult.headLength * fraction("headLength", age) * vaultCarry * size;
+    adult.headLength * fraction("headLength", age) * vaultCarry * size("headLength");
   const headBreadth: number =
-    adult.headBreadth * fraction("headBreadth", age) * vaultCarry * size;
-  const faceScale: number = faceCarry(age) * size;
-  const faceHeight: number = adult.faceHeight * fraction("faceHeight", age) * faceScale;
+    adult.headBreadth * fraction("headBreadth", age) * vaultCarry * size("headBreadth");
+  const faceScale: number = faceCarry(age) * size("faceWidth");
+  const faceHeight: number =
+    adult.faceHeight * fraction("faceHeight", age) * faceCarry(age) * size("faceHeight");
   const faceWidth: number = adult.faceWidth * fraction("faceWidth", age) * faceScale;
 
   // jaw mobility, scaled by face height below the youngest measured age
@@ -187,7 +205,7 @@ export function estimateAutoMovieHumanHead(
     headCircumference:
       adult.circumferencePerEllipse *
       ellipsePerimeter(headLength / 2, headBreadth / 2),
-    headHeight: medianHeadHeight(age) * size,
+    headHeight: medianHeadHeight(age) * size("headHeight"),
     faceHeight,
     faceWidth,
     mandibularWidth:
