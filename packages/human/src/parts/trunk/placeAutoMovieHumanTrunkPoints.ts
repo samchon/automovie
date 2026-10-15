@@ -5,6 +5,8 @@ import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing"
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
+import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
+import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { IAutoMovieHumanTrunkPoints } from "./IAutoMovieHumanTrunkPoints";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
@@ -41,9 +43,16 @@ export function placeAutoMovieHumanTrunkPoints(
     arm: { left: shape("upperArm", "left"), right: shape("upperArm", "right") },
     thigh: { left: shape("thigh", "left"), right: shape("thigh", "right") },
   };
-  const neck: IAutoMovieVector3[] = layouts.neck.positions;
+  // the collar: the ring's own section a little down the neck's axis, where the shoulder grid opens
+  const neck: IAutoMovieVector3[] = layouts.neck.positions.map(
+    (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      V.offset(p, [
+        layouts.neck.frame.normal,
+        -AUTOMOVIE_HUMAN_TRUNK_FORM.collar * measurements.identity.body.stature,
+      ]),
+  );
   const loops: IAutoMovieVector3[][] = Array.from(
-    { length: 13 },
+    { length: AUTOMOVIE_HUMAN_TRUNK_LOOPS },
     (): IAutoMovieVector3[] => new Array<IAutoMovieVector3>(24),
   );
   const ridge: IAutoMovieVector3[] = new Array<IAutoMovieVector3>(9);
@@ -87,7 +96,7 @@ export function placeAutoMovieHumanTrunkPoints(
     placeAutoMovieHumanTrunkGluteal(frame, profile, half);
     half.forEach((row: IAutoMovieVector3[], i: number): void =>
       row.forEach((q: IAutoMovieVector3, j: number): void => {
-        if (i === 11 && j === 6) return;
+        if (i === AUTOMOVIE_HUMAN_TRUNK_LOOPS - 2 && j === 6) return;
         const index: number = sign > 0 ? j : (24 - j) % 24;
         if (j === 0 || j === 12) {
           const other: IAutoMovieVector3 | undefined = loops[i]![index];
@@ -107,10 +116,10 @@ export function placeAutoMovieHumanTrunkPoints(
       perineum[1] === undefined
         ? middle
         : V.of(0, (perineum[1].y + middle.y) / 2, (perineum[1].z + middle.z) / 2);
-    arms[side] = [...shoulder.rings.map(order), shoulder.cut];
-    legs[side] = [...hip.rings.map(order), hip.cut];
+    arms[side] = beside([...shoulder.rings.map(order), shoulder.cut], layouts.arm[side]);
+    legs[side] = beside([...hip.rings.map(order), hip.cut], layouts.thigh[side]);
   }
-  // the neck ring's slots are exact on both sides
+  // the collar's slots are exact on both sides
   for (const [j, k] of [
     [0, 0],
     [1, 1],
@@ -123,8 +132,39 @@ export function placeAutoMovieHumanTrunkPoints(
     [22, 10],
     [23, 11],
   ] as const)
-    loops[12]![j] = neck[k]!;
+    loops[AUTOMOVIE_HUMAN_TRUNK_LOOPS - 1]![j] = neck[k]!;
   ridge[6] = neck[3]!;
   ridge[2] = neck[9]!;
-  return { loops, ridge, perineum, arms, legs, layouts };
+  return { loops, ridge, perineum, neck: layouts.neck.positions, arms, legs, layouts };
 }
+
+/**
+ * Replace the stub ring next to a junction ring by the ring's own shape, moved back along the site's axis to that ring's centre, so the tube meets the junction as a straight run of the shared section and the limb's girth curve starts from it without a bulge or a pinch.
+ *
+ * @param rings Stub rings from the opening outward, the last the junction ring
+ * @param shape The site's shared ring shape
+ * @returns The rings with the one before the last on the shape
+ */
+const beside = (
+  rings: IAutoMovieVector3[][],
+  shape: IAutoMovieHumanTrunkPoints.ILayouts["neck"],
+): IAutoMovieVector3[][] => {
+  const k: number = rings.length - 2;
+  const n: number = rings[k]!.length;
+  const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.x, 0) / n,
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.y, 0) / n,
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.z, 0) / n,
+  );
+  const back: number = AutoMovieHumanVector.dot(
+    AutoMovieHumanVector.offset(shape.frame.origin, [centre, -1]),
+    shape.frame.normal,
+  );
+  return rings.map((ring: IAutoMovieVector3[], r: number): IAutoMovieVector3[] =>
+    r === k
+      ? shape.positions.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
+          AutoMovieHumanVector.offset(p, [shape.frame.normal, -back]),
+        )
+      : ring,
+  );
+};

@@ -6,12 +6,12 @@ import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShap
 /**
  * Every point of the trunk's control cage by its anatomical slot, before connectivity.
  *
- * The torso is thirteen loops of twenty-four columns. Column `j` counts counterclockwise about +Y from the anterior midline (0) through the person's left side (6, the midaxillary line) to the posterior midline (12) and back up the right side; loop `i` counts upward from the thigh roots (0) to the top edge along the clavicles and the upper trapezius (12). The arm opens through columns 5 to 7 of loops 10 to 12 on each side, so the slot at loop 11, column 6 (and 18) is empty. Above the top loop a ridge row runs along the trapezius crest from each side of the neck to the acromion; below the thigh roots a perineal row of three crosses between the thighs.
+ * The torso is `AUTOMOVIE_HUMAN_TRUNK_LOOPS` loops of twenty-four columns. Column `j` counts counterclockwise about +Y from the anterior midline (0) through the person's left side (6, the midaxillary line) to the posterior midline (12) and back up the right side; loop `i` counts upward from the thigh roots (0) to the top edge along the clavicles and the upper trapezius (the last). The arm opens through columns 5 to 7 of the last three loops on each side, so the slot of the second-last loop at column 6 (and 18) is empty. Above the top loop a ridge row runs along the trapezius crest from each side of the neck to the acromion; below the thigh roots a perineal row of three crosses between the thighs.
  *
  * @author Samchon
  */
 export interface IAutoMovieHumanTrunkPoints {
-  /** `loops[i][j]`, thirteen loops of twenty-four columns. */
+  /** `loops[i][j]`, `AUTOMOVIE_HUMAN_TRUNK_LOOPS` loops of twenty-four columns. */
   loops: IAutoMovieVector3[][];
 
   /**
@@ -21,6 +21,11 @@ export interface IAutoMovieHumanTrunkPoints {
 
   /** Perineal row between the thighs, right to left, `c` = -1, 0, 1. */
   perineum: IAutoMovieVector3[];
+
+  /**
+   * The neck base ring on its shared shape, in layout order. The shoulder grid's opening below it is a collar of the same section a little lower along the neck's axis.
+   */
+  neck: IAutoMovieVector3[];
 
   /** Rings of each arm stub out to the cut, in the upper arm ring's layout order, the last ring the cut itself. */
   arms: Record<AutoMovieHumanSide, IAutoMovieVector3[][]>;

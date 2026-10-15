@@ -3,6 +3,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
+import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
 /**
@@ -11,7 +12,7 @@ import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 const EIGHT_SPAN_LIMIT: number = (4 + 2 * Math.cos(Math.PI / 4)) / 6;
 
 /**
- * Arm stub rings outward from the shoulder as fractions of acromion-radiale length beyond the acromion, with each ring's radii over the mid upper arm radius toward the front, below, behind and above. The first ring caps the humeral head under the deltoid, which rises above the acromion in the abducted arm; the second is the deltoid belly, the third where the deltoid narrows to its insertion. Muscularity enlarges the deltoid's front, back and top. Conventional, judged on renders against Richer's plates of the shoulder (1890, "Anatomie artistique").
+ * Arm stub rings outward from the shoulder as fractions of acromion-radiale length beyond the acromion, with each ring's radii over the mid upper arm radius toward the front, below, behind and above. The first ring caps the humeral head under the deltoid, which rises above the acromion in the abducted arm; the second is the deltoid belly, the third where the deltoid narrows to its insertion. The deltoid's front, back and top scale with its measured bulk, half the difference of bideltoid and biacromial breadth. Conventional, judged on renders against Richer's plates of the shoulder (1890, "Anatomie artistique").
  */
 const ARM_RINGS: Array<{
   out: number;
@@ -24,11 +25,16 @@ const ARM_RINGS: Array<{
 ];
 
 /**
+ * Soft tissue lateral to the acromion over biacromial breadth in the mean adult: half of bideltoid less biacromial breadth is 42.5 mm on a 365.3 mm biacromial breadth in ANSUR II women and 47.4 mm on 415.7 mm in men (Gordon et al. 2014, NATICK/TR-15/007), 0.116 and 0.114. The stub's ring radii are set for this ratio and scale with the person's own. Grade: measured.
+ */
+const DELTOID_PER_BIACROMIAL: number = 0.115;
+
+/**
  * Place the shoulder of one side: the arm opening on the torso, the top edge along the clavicle and the upper trapezius, the trapezius crest, and the arm stub out to mid upper arm.
  *
  * The opening's eight slots, in the arm ring's layout order, are the deltopectoral groove (front), the anterior axillary fold's root on the chest wall, the armpit's apex, the posterior fold's root, the back of the shoulder over the scapula, the back and top of the acromion and the front of the acromioclavicular joint. The axillary folds' roots are the two extraordinary vertices of the opening, where the pectoral and the latissimus diverge from the chest wall into the arm. The top edge runs along the clavicle, convex forward in its medial part and concave in its lateral third (Gray 1918), and behind it along the upper border of the trapezius from cervicale to the acromion; the crest between them rises from the side of the neck and dips to the acromion, raised by the trapezius' bulk.
  *
- * The stub's rings are perpendicular to the arm, their radii from the measured mid upper arm girth, the deltoid fuller with muscularity; the last ring is the `upperArm` cut on the site's shared ring shape.
+ * The stub's rings are perpendicular to the arm, their radii from the measured mid upper arm girth, the deltoid sized from the bideltoid breadth; the last ring is the `upperArm` cut on the site's shared ring shape.
  *
  * @param frame The side's trunk frame, left frame
  * @param profile The side's continuous body
@@ -54,19 +60,21 @@ export function placeAutoMovieHumanTrunkShoulder(
   const ax: number = frame.levels.axilla;
   const axillaHalf: number = profile.half(ax);
   const left = (p: IAutoMovieVector3): IAutoMovieVector3 => V.of(sign * p.x, p.y, p.z);
+  // the axilla, mid shoulder and top loops
+  const [AX, MID, TOP]: number[] = [3, 2, 1].map((k: number): number => AUTOMOVIE_HUMAN_TRUNK_LOOPS - k);
 
   // the opening
   // slots between the chest wall under the arm (0) and the acromion (1)
   const reach: number = Math.max(A.x - axillaHalf, 0.03 * S);
   const across = (t: number): number => A.x - (1 - t) * reach;
-  loops[12]![6] = V.of(across(0.88), A.y + 0.004 * S, A.z - 0.004 * S);
-  loops[12]![5] = V.of(across(0.7), A.y - 0.003 * S, A.z + 0.022 * S);
-  loops[12]![7] = V.of(across(0.66), A.y - 0.004 * S, A.z - 0.028 * S);
-  loops[11]![5] = V.of(across(0.5), G.y - 0.01 * S, lerp(profile.front(G.y), A.z, 0.25));
-  loops[11]![7] = V.of(across(0.46), G.y - 0.014 * S, lerp(profile.back(G.y), A.z, 0.2));
-  loops[10]![5] = V.of(across(0.06), lerp(ax, G.y, 0.25), lerp(profile.widest(ax), profile.front(ax), 0.5));
-  loops[10]![6] = V.of(across(0.3), lerp(ax, G.y, 0.5), profile.widest(ax) - 0.004 * S);
-  loops[10]![7] = V.of(across(0.06), lerp(ax, G.y, 0.1), lerp(profile.widest(ax), profile.back(ax), 0.55));
+  loops[TOP]![6] = V.of(across(0.88), A.y + 0.004 * S, A.z - 0.004 * S);
+  loops[TOP]![5] = V.of(across(0.7), A.y - 0.003 * S, A.z + 0.022 * S);
+  loops[TOP]![7] = V.of(across(0.66), A.y - 0.004 * S, A.z - 0.028 * S);
+  loops[MID]![5] = V.of(across(0.5), G.y - 0.01 * S, lerp(profile.front(G.y), A.z, 0.25));
+  loops[MID]![7] = V.of(across(0.46), G.y - 0.014 * S, lerp(profile.back(G.y), A.z, 0.2));
+  loops[AX]![5] = V.of(across(0.06), lerp(ax, G.y, 0.25), lerp(profile.widest(ax), profile.front(ax), 0.5));
+  loops[AX]![6] = V.of(across(0.3), lerp(ax, G.y, 0.5), profile.widest(ax) - 0.004 * S);
+  loops[AX]![7] = V.of(across(0.06), lerp(ax, G.y, 0.1), lerp(profile.widest(ax), profile.back(ax), 0.55));
 
   // the clavicle, its medial part convex forward
   const cl: IAutoMovieVector3 = frame.clavicale;
@@ -76,7 +84,7 @@ export function placeAutoMovieHumanTrunkShoulder(
     [4, 0.62],
   ] as const) {
     const bulge: number = Math.sin(Math.PI * t) * 0.008 * S * (t < 0.5 ? 1 : 0.3);
-    loops[12]![j] = V.of(
+    loops[TOP]![j] = V.of(
       lerp(cl.x, A.x, t),
       lerp(cl.y, A.y, t) + skin + 0.003 * S,
       lerp(cl.z, A.z, t) + bulge + skin + 0.006 * S,
@@ -88,7 +96,7 @@ export function placeAutoMovieHumanTrunkShoulder(
     [9, 0.4],
     [8, 0.72],
   ] as const)
-    loops[12]![j] = V.of(
+    loops[TOP]![j] = V.of(
       lerp(0.03 * S, A.x - 0.03 * S, t),
       lerp(c7.y - 0.012 * S, A.y - 0.008 * S, Math.pow(t, 1.3)),
       lerp(c7.z - 0.004 * S, A.z - 0.04 * S, Math.pow(t, 0.8)) -
@@ -97,12 +105,12 @@ export function placeAutoMovieHumanTrunkShoulder(
   // the neck base ring's slots of this side
   const ring = (k: number): IAutoMovieVector3 =>
     left(neck[sign > 0 ? k : (12 - k) % 12]!);
-  loops[12]![0] = ring(0);
-  loops[12]![1] = ring(1);
-  loops[12]![2] = ring(2);
-  loops[12]![10] = ring(4);
-  loops[12]![11] = ring(5);
-  loops[12]![12] = ring(6);
+  loops[TOP]![0] = ring(0);
+  loops[TOP]![1] = ring(1);
+  loops[TOP]![2] = ring(2);
+  loops[TOP]![10] = ring(4);
+  loops[TOP]![11] = ring(5);
+  loops[TOP]![12] = ring(6);
 
   // the trapezius crest from the side of the neck to the acromion
   const side: IAutoMovieVector3 = ring(3);
@@ -119,7 +127,11 @@ export function placeAutoMovieHumanTrunkShoulder(
 
   // the arm stub, layout order of the left arm: front, then down, back and up
   const radius: number = frame.armGirth / (2 * Math.PI);
-  const deltoid: number = 1 + 0.18 * frame.muscle;
+  // the deltoid's measured bulk over its value for the mean shoulder, the stub's rings scale with it
+  const deltoid: number = Math.min(
+    1.6,
+    Math.max(0.7, frame.deltoid / (DELTOID_PER_BIACROMIAL * (2 * frame.acromion.x))),
+  );
   const top: number = A.y + 0.01 * S * deltoid - G.y;
   const rings: IAutoMovieVector3[][] = ARM_RINGS.map(({ out, rise, radii }) => {
     const x: number = A.x + out * frame.upperArmLength;
