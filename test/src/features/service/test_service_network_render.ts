@@ -65,15 +65,16 @@ const extents: (
  * 2. The swept tube stands on its own centre line: a straight run along `-x` at
  *    2.5 m carries a section in the `y`/`z` plane of its own radius, and its
  *    extremes are the hand-computed ones.
- * 3. A turning run rings every one of its route points, so the vertex count is the
- *    section's own size times the points it was swept through.
+ * 3. A turning run rings every one of its route points, so the vertex count is
+ *    each ring's points plus its repeated seam point, times the route points,
+ *    plus one cap of the section's points at each end.
  * 4. The section's resolution is the caller's, and a section too coarse to close
  *    is refused rather than drawn.
  * 5. A graph defect and a wet-zone defect each refuse the drawing, quoting the
  *    path the violation stands at.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls actual service lowering, checks generated model/set records, tube extents and route-ring vertex counts, then verifies invalid section resolution and graph/wet-zone refusals at their owning paths.
- * @evidence contracts/testing.md#independent-expectations The authored cold run spans x=3.5..8 at y=2.5/z=1 with radius0.025; route points times eight or three section sides fix component counts independently of returned meshes.
+ * @evidence contracts/testing.md#independent-expectations The authored cold run spans x=3.5..8 at y=2.5/z=1 with radius0.025; route points times nine or four ring points (the sides plus the seam repeat), plus two caps of eight or three, fix component counts independently of returned meshes.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts straight/turning routes, default/coarse section resolution, invalid two-side/fractional requests and graph versus wet-zone failures while checking world-baked identity placement; endpoint ids are sampled, not an exhaustive declaration-order assertion.
  * @evidence contracts/testing.md#execution-ownership Owns synchronous in-memory bathhouse/network and emitted geometry records through the portable runner; no browser, GPU, screenshot or output file is created, and these numerical mesh checks do not establish visual appearance or live product integration.
  */
@@ -137,7 +138,7 @@ export function test_service_network_render(): void {
   TestValidator.equals(
     "the swept tube stands on the centre line the graph was checked against",
     namedFacts([
-      ["vertices", (): boolean => coldRun.positions.length === 2 * 8 * 3],
+      ["vertices", (): boolean => coldRun.positions.length === (2 * (8 + 1) + 2 * 8) * 3],
       ["indexed", (): boolean => coldRun.indices !== null],
       [
         "xSpan",
@@ -174,8 +175,8 @@ export function test_service_network_render(): void {
   TestValidator.equals(
     "the section rings every route point, at the resolution the caller asked for",
     namedFacts([
-      ["turning", (): boolean => coldBranch.positions.length === 3 * 8 * 3],
-      ["coarse", (): boolean => coarseRun.positions.length === 2 * 3 * 3],
+      ["turning", (): boolean => coldBranch.positions.length === (3 * (8 + 1) + 2 * 8) * 3],
+      ["coarse", (): boolean => coarseRun.positions.length === (2 * (3 + 1) + 2 * 3) * 3],
       [
         "tooCoarse",
         (): boolean =>

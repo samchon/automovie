@@ -2,13 +2,13 @@ import {
   type IAutoMovieProfilePoint,
   buildAutoMoviePolyhedron,
   extrudeAutoMovieRegion,
-  loftAutoMovieSections,
   revolveAutoMovieProfile,
 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
+import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 
 /** How hard one triangle's atlas stretches, and by how much it changes area. */
 interface IStretch {
@@ -183,7 +183,7 @@ const ring: (radius: number) => IAutoMovieProfilePoint[] = (
  *    high and near-unit anisotropy respectively.
  * 6. The stated alternatives retain unit anisotropy within 1e-6. A faceted spire through
  *    `buildAutoMoviePolyhedron` and a flat cap through `extrudeAutoMovieRegion`
- *    are rigid, while `loftAutoMovieSections` measures the same pair and a
+ *    are rigid, while `meshAutoMovieSweep` measures the same pair and a
  *    tapered loft shears with it, so it is not an escape from this.
  *
  * @evidence contracts/testing.md#behavioral-verification Builds the existing drum, four leaning cones, cone/frustum, faceted spire, region cap and tapered loft; independently measures per-triangle affine singular values and area ratios. Assertions distinguish slope-dependent shear, retained area, pole removal, angular variation and metric faceted alternatives while retaining the loft's high anisotropy.
@@ -337,7 +337,7 @@ export function test_geometry_revolve_atlas_shear(): void {
     ],
     depth: 0.1,
   });
-  const taper: IAutoMovieMesh = loftAutoMovieSections({
+  const taper: IAutoMovieMesh = sweepPolygonLoft({
     path: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 2 },

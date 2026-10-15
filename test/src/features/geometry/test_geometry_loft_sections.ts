@@ -1,9 +1,6 @@
 import {
-  IAutoMovieLoftSection,
   type IAutoMovieMeshTopology,
   inspectAutoMovieMeshTopology,
-  loftAutoMovieSections,
-  sweepAutoMovieProfile,
   validateMeshTopology,
   validateModel,
 } from "@automovie/engine";
@@ -18,6 +15,7 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { makeProp } from "../internal/makeProp";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
+import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 import { throwsError } from "../internal/throwsError";
 
 /** One prop model carrying nothing but this mesh, as a model would hold it. */
@@ -53,13 +51,17 @@ const box: (half: number) => Array<{ x: number; y: number }> = (
   { x: -half, y: half },
 ];
 
-const constant: (
+/** One authored section of a loft: where it sits and its polygon rings. */
+interface ISection {
+  at: number;
+  outer: Array<{ x: number; y: number }>;
+  holes?: Array<Array<{ x: number; y: number }>>;
+}
+
+const constant: (outer: ReturnType<typeof box>, holes?: Array<ReturnType<typeof box>>) => ISection[] = (
   outer: ReturnType<typeof box>,
   holes?: Array<ReturnType<typeof box>>,
-) => IAutoMovieLoftSection[] = (
-  outer: ReturnType<typeof box>,
-  holes?: Array<ReturnType<typeof box>>,
-): IAutoMovieLoftSection[] => [
+): ISection[] => [
   { at: 0, outer, holes },
   { at: 1, outer, holes },
 ];
@@ -116,15 +118,15 @@ const frustum: (near: number, far: number, height: number) => number = (
 ): number => (height / 3) * (near + far + Math.sqrt(near * far));
 
 /**
- * Lofting free-form sections along a path: the variable section, the taper, and
- * the concave or hollow sweep the convex sweep cannot carry.
+ * Lofting polygon sections along a path with `meshAutoMovieSweep`: the variable
+ * section, the taper, and the concave or hollow section.
  *
  * Straight prism and frustum expectations are closed-form. A 2 m square tapering to a 1 m square over 3 m
  * is a pyramid frustum of 7 m³; a square waisted to half width and back over 2
  * m is two frusta totaling 14/3 m³; an L section carried unchanged is a prism of its
- * own area. Bent-path volumes are compared with `sweepAutoMovieProfile`
- * instead; both share a frame rule, so this establishes compatibility rather
- * than an independent expected volume for a bend.
+ * own area. On a bent path the ring at each point is checked against the
+ * rotation-minimizing frame of a planar curve, whose first axis stays normal to
+ * the curve's plane, placed perpendicular to the path's tangent there.
  *
  * Scenarios:
  *
@@ -133,32 +135,34 @@ const frustum: (near: number, far: number, height: number) => number = (
  *    sweep the convex path refuses outright.
  * 2. A taper between two sections matches a pyramid frustum within 1e-12, and a
  *    section waisted at a declared midpoint is two of them.
- * 3. A station between two declared sections carries the blend: the midpoint of a
- *    1 m and a 2 m half-width is a 1.5 m half-width corner in the buffer, and
- *    the volume is the two frusta that implies.
- * 4. Regression against the sweep: a loft whose two sections are the same convex
- *    profile traces the sweep's solid on a straight path, a right-angle bend,
- *    and a path that turns in all three axes.
+ * 3. A ring between two declared sections carries their monotone interpolation,
+ *    which between two stations is the linear blend: the midpoint of a 1 m and
+ *    a 2 m half-width is a 1.5 m half-width corner in the buffer, and the
+ *    volume is the two frusta that implies.
+ * 4. One repeated convex section closes on a straight path, a right-angle bend
+ *    and a path that turns in all three axes; the straight one is a prism of
+ *    the section's area, and at the bend's corner the ring lies across the
+ *    bisecting tangent with its first axis still normal to the bend's plane.
  * 5. Determinism: the same authored loft rebuilds with identical finite numeric
  *    components, structure, array order and ordered object keys.
  * 6. Negative twins: every guard refuses one property away from a loft that
- *    builds, covering the path, the station fractions, the ring counts, the
- *    point counts, the winding, and the ring shapes.
+ *    builds, covering the path, the stations, the hole counts, the point
+ *    counts, the winding, and the ring shapes.
  *
  * @evidence contracts/testing.md#behavioral-verification Executes loft construction with concave, holed, tapered and intermediate sections, asserting analytic volume, closed/nondegenerate finite topology, model admission, expected corners and deterministic rebuild. Existing invalid paths/stations/rings must refuse rather than produce a partial loft; caller input mutation is not observed here.
- * @evidence contracts/testing.md#independent-expectations Polygon area times path length and h/3*(A+B+sqrt(A*B)) determine prism/frustum volumes; linear section interpolation gives the midpoint corner. The waisted pair totals 14/3. Sweep parity shares the engine's frame rule and is a compatibility check, not an independent oracle for bent volume; topology/model observers do not prove pixels or arbitrary surface embedding.
- * @evidence contracts/testing.md#distinguishing-cases Preserves concave and hollow constant sections, taper and waist, undeclared blended station, straight/right-angle/3D sweep parity, exact rebuild and each existing malformed path, station, cardinality, winding or shape twin. Caller input ownership is not observed; metric atlas distortion is owned by loft-atlas-density.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry reaches portable loft/sweep source, topology/model validators and existing fixture adapters directly. It requires no consumer installation, native build, process, browser or GPU and registers no additional cases; model admission is CPU schema/topology evidence only.
+ * @evidence contracts/testing.md#independent-expectations Polygon area times path length and h/3*(A+B+sqrt(A*B)) determine prism/frustum volumes; the monotone interpolant through two knots is linear, which gives the midpoint corner. The waisted pair totals 14/3. A planar curve's rotation-minimizing frame keeps its first axis normal to the plane and a symmetric corner's tangent bisects it, which fixes the corner ring's points; topology/model observers do not prove pixels or arbitrary surface embedding.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves concave and hollow constant sections, taper and waist, undeclared blended station, straight, right-angle and three-axis paths, exact rebuild and each malformed path, station, cardinality, winding or shape twin. Caller input ownership is not observed; metric atlas distortion is owned by loft-atlas-density.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry reaches portable sweep source, topology/model validators and existing fixture adapters directly. It requires no consumer installation, native build, process, browser or GPU and registers no additional cases; model admission is CPU schema/topology evidence only.
  */
 export function test_geometry_loft_sections(): void {
-  const carried: IAutoMovieMesh = loftAutoMovieSections({
+  const carried: IAutoMovieMesh = sweepPolygonLoft({
     path: straight(2),
     sections: [
       { at: 0, outer: ell },
       { at: 1, outer: ell },
     ],
   });
-  const hollow: IAutoMovieMesh = loftAutoMovieSections({
+  const hollow: IAutoMovieMesh = sweepPolygonLoft({
     path: straight(4),
     sections: constant(box(1), [box(0.5)]),
   });
@@ -184,14 +188,14 @@ export function test_geometry_loft_sections(): void {
     },
   );
 
-  const taper: IAutoMovieMesh = loftAutoMovieSections({
+  const taper: IAutoMovieMesh = sweepPolygonLoft({
     path: straight(3),
     sections: [
       { at: 0, outer: box(1) },
       { at: 1, outer: box(0.5) },
     ],
   });
-  const waisted: IAutoMovieMesh = loftAutoMovieSections({
+  const waisted: IAutoMovieMesh = sweepPolygonLoft({
     path: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 1 },
@@ -225,7 +229,7 @@ export function test_geometry_loft_sections(): void {
     },
   );
 
-  const blended: IAutoMovieMesh = loftAutoMovieSections({
+  const blended: IAutoMovieMesh = sweepPolygonLoft({
     path: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 1 },
@@ -284,46 +288,54 @@ export function test_geometry_loft_sections(): void {
       { x: 2, y: 3, z: 4 },
     ],
   ];
+  const solids: IAutoMovieMesh[] = paths.map(
+    (path: IAutoMovieVector3[]): IAutoMovieMesh => sweepPolygonLoft({ path, sections: constant(profile) }),
+  );
   TestValidator.equals(
-    "a loft of one repeated convex section traces the solid the sweep traces",
-    paths.map((path: IAutoMovieVector3[]): Record<string, boolean> => {
-      const lofted: IAutoMovieMesh = loftAutoMovieSections({
-        path,
-        sections: constant(profile),
-      });
-      const topology: IAutoMovieMeshTopology =
-        inspectAutoMovieMeshTopology(lofted);
+    "one repeated convex section closes along straight, bent and turning paths",
+    solids.map((lofted: IAutoMovieMesh): Record<string, boolean> => {
+      const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(lofted);
       return namedFacts([
-        [
-          "volume",
-          (): boolean =>
-            nclose(
-              topology.volume,
-              inspectAutoMovieMeshTopology(
-                sweepAutoMovieProfile({ profile, path }),
-              ).volume,
-              1e-12,
-            ),
-        ],
         ["closed", (): boolean => topology.watertight],
-        [
-          "topology",
-          (): boolean =>
-            validateMeshTopology({ mesh: lofted, expectClosed: true }).success,
-        ],
+        ["topology", (): boolean => validateMeshTopology({ mesh: lofted, expectClosed: true }).success],
       ]);
     }),
-    paths.map((): { volume: boolean; closed: boolean; topology: boolean } => ({
-      volume: true,
-      closed: true,
-      topology: true,
-    })),
+    paths.map((): { closed: boolean; topology: boolean } => ({ closed: true, topology: true })),
+  );
+  // the bend lies in the XY plane: its frame's first axis stays -Z, the second is the bisecting tangent crossed with it
+  const root: number = Math.SQRT1_2;
+  const second: IAutoMovieVector3 = { x: -root, y: root, z: 0 };
+  const near = (mesh: IAutoMovieMesh, p: IAutoMovieVector3): boolean => {
+    for (let at: number = 0; at < mesh.positions.length; at += 3)
+      if (
+        nclose(mesh.positions[at]!, p.x, 1e-9) &&
+        nclose(mesh.positions[at + 1]!, p.y, 1e-9) &&
+        nclose(mesh.positions[at + 2]!, p.z, 1e-9)
+      )
+        return true;
+    return false;
+  };
+  TestValidator.equals(
+    "a straight constant loft is a prism, and the bend's corner ring lies across its bisector",
+    namedFacts([
+      ["prism", (): boolean => nclose(inspectAutoMovieMeshTopology(solids[0]!).volume, 0.2 * 0.2 * 2, 1e-12)],
+      ...profile.map((corner: { x: number; y: number }, k: number): [string, () => boolean] => [
+        `corner${k}`,
+        (): boolean =>
+          near(solids[1]!, {
+            x: 2 + corner.y * second.x,
+            y: corner.y * second.y,
+            z: -corner.x,
+          }),
+      ]),
+    ]),
+    { prism: true, corner0: true, corner1: true, corner2: true, corner3: true },
   );
 
   TestValidator.predicate(
     "the same authored loft rebuilds with exact numeric values and structure",
     equalGeometryTestValues(
-      loftAutoMovieSections({
+      sweepPolygonLoft({
         path: straight(4),
         sections: constant(box(1), [box(0.5)]),
       }),
@@ -331,11 +343,9 @@ export function test_geometry_loft_sections(): void {
     ),
   );
 
-  const twin: (
+  const twin: (outer: Array<{ x: number; y: number }>) => ISection[] = (
     outer: Array<{ x: number; y: number }>,
-  ) => IAutoMovieLoftSection[] = (
-    outer: Array<{ x: number; y: number }>,
-  ): IAutoMovieLoftSection[] => [
+  ): ISection[] => [
     { at: 0, outer: ell },
     { at: 1, outer },
   ];
@@ -343,30 +353,30 @@ export function test_geometry_loft_sections(): void {
     [
       "short path",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: [{ x: 0, y: 0, z: 0 }],
           sections: twin(ell),
         }),
-      "loft path needs at least two points",
+      "sweep spine needs at least two points",
     ],
     [
       "non-finite path",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: [
             { x: 0, y: 0, z: 0 },
             { x: 0, y: Number.NaN, z: 1 },
           ],
           sections: twin(ell),
         }),
-      "loft path[1] must be finite",
+      "sweep spine point 1 is not finite",
     ],
     [
-      // Distinct neighbours are not enough: a path that doubles back leaves the
-      // centred tangent at the fold with no direction at all.
+      // Distinct neighbours are not enough: a path that doubles back has no
+      // direction at the fold.
       "path folding back on itself",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: [
             { x: 0, y: 0, z: 0 },
             { x: 1, y: 0, z: 0 },
@@ -374,45 +384,45 @@ export function test_geometry_loft_sections(): void {
           ],
           sections: twin(ell),
         }),
-      "loft path around point 1 is degenerate",
+      "sweep spine doubles back at point 1",
     ],
     [
       "repeated path point",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: [
             { x: 0, y: 0, z: 0 },
             { x: 0, y: 0, z: 0 },
           ],
           sections: twin(ell),
         }),
-      "loft path[1] repeats the point beside it",
+      "sweep spine points 0 and 1 coincide",
     ],
     [
-      "one section",
+      "no section",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
-          sections: [{ at: 0, outer: ell }],
+          sections: [],
         }),
-      "loft needs at least two sections",
+      "sweep needs at least one station",
     ],
     [
       "non-finite station",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: [
             { at: Number.NaN, outer: ell },
             { at: 1, outer: ell },
           ],
         }),
-      "loft section[0] at must be finite",
+      "sweep station 0 must lie on the spine",
     ],
     [
       "station not increasing",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: [
             { at: 0, outer: ell },
@@ -420,24 +430,24 @@ export function test_geometry_loft_sections(): void {
             { at: 1, outer: ell },
           ],
         }),
-      "loft section[1] at must be greater than section[0] at",
+      "sweep station 1 does not follow station 0",
     ],
     [
-      "stations not spanning",
+      "station beyond the spine",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: [
             { at: 0, outer: ell },
-            { at: 0.5, outer: ell },
+            { at: 1.5, outer: ell },
           ],
         }),
-      "loft sections must run from at 0 to at 1",
+      "sweep station 1 must lie on the spine",
     ],
     [
       "ring count",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: [
             { at: 0, outer: ell },
@@ -455,12 +465,12 @@ export function test_geometry_loft_sections(): void {
             },
           ],
         }),
-      "loft section[1] must declare the same 1 rings as section[0]",
+      "sweep station 1 must declare the same 0 holes as station 0",
     ],
     [
       "point count",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: twin([
             { x: 0, y: 0 },
@@ -468,21 +478,21 @@ export function test_geometry_loft_sections(): void {
             { x: 1, y: 1 },
           ]),
         }),
-      "loft section[1] ring[0] must carry the same 6 points as section[0]",
+      "sweep station 1 loop 0 must be a polygon of 6 corners like station 0",
     ],
     [
       "winding",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: twin([...ell].reverse()),
         }),
-      "loft section[1] ring[0] must wind the same way as section[0]",
+      "sweep mesh ring 1 loop 0 winds the other way from ring 0",
     ],
     [
       "section ring shape",
       (): IAutoMovieMesh =>
-        loftAutoMovieSections({
+        sweepPolygonLoft({
           path: straight(1),
           sections: twin([
             { x: 0, y: 0 },
@@ -493,7 +503,7 @@ export function test_geometry_loft_sections(): void {
             { x: 0, y: 2 },
           ]),
         }),
-      "loft section[1] outer ring[4] doubles back along its own edge",
+      "sweep mesh ring 1 outer ring[4] doubles back along its own edge",
     ],
   ];
   for (const [name, callback, message] of invalids)

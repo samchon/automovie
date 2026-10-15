@@ -5,8 +5,8 @@ import {
   extrudeAutoMovieProfile,
   inspectAutoMovieMeshTopology,
   mergeAutoMovieMeshParts,
+  meshAutoMovieSweep,
   revolveAutoMovieProfile,
-  sweepAutoMovieProfile,
   transformAutoMovieMesh,
   validateMeshTopology,
   validateModel,
@@ -115,18 +115,33 @@ export function test_geometry_procedural_closure(): void {
     ],
     [
       "sweep",
-      sweepAutoMovieProfile({
-        profile: square.map(
-          (point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
-            x: point.x * 0.2,
-            y: point.y * 0.2,
-          }),
-        ),
-        path: [
-          { x: 0, y: 0, z: 0 },
-          { x: 2, y: 0, z: 0 },
-          { x: 2, y: 2, z: 0 },
-        ],
+      meshAutoMovieSweep({
+        sweep: {
+          spine: {
+            points: [
+              { x: 0, y: 0, z: 0 },
+              { x: 2, y: 0, z: 0 },
+              { x: 2, y: 2, z: 0 },
+            ],
+            normal: { x: 0, y: 0, z: 1 },
+          },
+          stations: [
+            {
+              at: 0,
+              section: {
+                type: "polygon",
+                points: square.map(
+                  (point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
+                    x: point.x * 0.2,
+                    y: point.y * 0.2,
+                  }),
+                ),
+              },
+            },
+          ],
+          correspondence: "parameter",
+        },
+        shading: "smooth",
       }),
     ],
     [
