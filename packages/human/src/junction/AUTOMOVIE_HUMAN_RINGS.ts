@@ -51,45 +51,42 @@ const AUTOMOVIE_HUMAN_UPPER_ARM_RING: IAutoMovieHumanRingDefinition<"upperArm"> 
  *
  * The same count as mid upper arm, so the arm is a regular tube whose elbow gains loops along its length rather than around it, and no pole lands on the broad forearm. The flattened wrist section keeps a vertex on each of its palmar, dorsal, radial and ulnar sides. The hand expands these spans into the palm and digits inside its own cage. The cut passes through the radial styloid, where the wrist circumference is measured.
  */
-const AUTOMOVIE_HUMAN_WRIST_RING: IAutoMovieHumanRingDefinition<"wrist"> =
-  {
-    site: "wrist",
-    proximal: "arm",
-    distal: "hand",
-    bilateral: true,
-    count: 8,
-    start: "anterior",
-  };
+const AUTOMOVIE_HUMAN_WRIST_RING: IAutoMovieHumanRingDefinition<"wrist"> = {
+  site: "wrist",
+  proximal: "arm",
+  distal: "hand",
+  bilateral: true,
+  count: 8,
+  start: "anterior",
+};
 
 /**
  * Trunk to leg at mid thigh, 12 vertices from the anterior surface.
  *
  * The thigh is the largest limb section, nearly twice the upper arm's girth, and holds more masses: rectus femoris in front, vastus lateralis and medialis to either side, the adductors medially and the hamstrings behind. Eight spans would make each span about twice as long as the arm's; twelve keep span length close to the arm's and give the vasti and adductors their own vertices. The cut lies midway between the hip and knee joint centres, below the gluteal fold, so the fold and the upper thigh stay in the trunk.
  */
-const AUTOMOVIE_HUMAN_THIGH_RING: IAutoMovieHumanRingDefinition<"thigh"> =
-  {
-    site: "thigh",
-    proximal: "trunk",
-    distal: "leg",
-    bilateral: true,
-    count: 12,
-    start: "anterior",
-  };
+const AUTOMOVIE_HUMAN_THIGH_RING: IAutoMovieHumanRingDefinition<"thigh"> = {
+  site: "thigh",
+  proximal: "trunk",
+  distal: "leg",
+  bilateral: true,
+  count: 12,
+  start: "anterior",
+};
 
 /**
  * Leg to foot at the ankle, 8 vertices from the anterior surface.
  *
  * Above the malleoli the section narrows to its minimum and holds four features, one per quadrant: the tibialis anterior tendon in front, the Achilles tendon behind, and the two malleolar ridges to the sides. Eight spans give each a vertex. The leg part reduces its twelve thigh spans to these eight inside its own cage, where its generator places the poles.
  */
-const AUTOMOVIE_HUMAN_ANKLE_RING: IAutoMovieHumanRingDefinition<"ankle"> =
-  {
-    site: "ankle",
-    proximal: "leg",
-    distal: "foot",
-    bilateral: true,
-    count: 8,
-    start: "anterior",
-  };
+const AUTOMOVIE_HUMAN_ANKLE_RING: IAutoMovieHumanRingDefinition<"ankle"> = {
+  site: "ankle",
+  proximal: "leg",
+  distal: "foot",
+  bilateral: true,
+  count: 8,
+  start: "anterior",
+};
 
 /**
  * Head to ear around the attachment of the auricle, 8 vertices from its superior point.
