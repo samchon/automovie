@@ -1,3 +1,4 @@
+import { interpolateAutoMovieMonotone } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
@@ -5,6 +6,7 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
+import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { capAutoMovieHumanHead } from "./capAutoMovieHumanHead";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
 import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
@@ -12,7 +14,7 @@ import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
 /**
  * Lay the head's quads over its sweep: the same connectivity for every person, placed by the person's anatomy.
  *
- * The layout is a lattice of 60 columns round the head in three blocks. Thirty-six columns cover the face between {@link FACE_HALF} degrees either side of the midline, three times as dense as the 24 over the sides and the back, because the face carries the features; the midline is a column line, so the head is mirror-symmetric through vertices, and the back-left line through each ear's centre spaces the side columns. Six vault rows from the crown to the hairline run round every column. Below the hairline the face takes 21 rows spaced by anatomy (four over the forehead, five through the eyes, four over the nose, five through the mouth, three over the chin to the jawline) and the sides a third as many, two of them each ear's height; in the column beside each edge of the face, three-to-one units take three face rows onto one side row, and the side rows next to them continue every third face row so those units stay square. Five openings cut the lattice, each a rectangle of whole cells: an eye opening of ten columns by five rows on each side, the mouth's of twelve by five, and each ear's of two by two side cells, whose eight corners are the ear ring.
+ * The layout is a lattice of 60 columns round the head in three blocks. Thirty-six columns cover the face between the form's half-angle either side of the midline, on average three times as dense as the 24 over the sides and the back, because the face carries the features; they are spaced smoothly through the edges of the eye and mouth openings, which the form sets on the canthi and the commissures ({@link IAutoMovieHumanHeadForm.ILayout}), so the openings hold the features whatever the face's proportions; the midline is a column line, so the head is mirror-symmetric through vertices, and the back-left line through each ear's centre spaces the side columns. Six vault rows from the crown to the hairline run round every column. Below the hairline the face takes 21 rows spaced by anatomy (four over the forehead, five through the eyes, four over the nose, five through the mouth, three over the chin to the jawline) and the sides a third as many, two of them each ear's height; in the column beside each edge of the face, three-to-one units take three face rows onto one side row, and the side rows next to them continue every third face row so those units stay square. Five openings cut the lattice, each a rectangle of whole cells: an eye opening of ten columns by five rows on each side, the mouth's of twelve by five, and each ear's of two by two side cells, whose eight corners are the ear ring.
  *
  * Inside each eye and the mouth, concentric loops of the opening's own count run from the opening's rim to the feature's inner edge ({@link loopAutoMovieHumanEyelids}, {@link loopAutoMovieHumanLips}). These loops are the fold lines of orbicularis oculi and oris: an expression that narrows the eye or purses, stretches or opens the mouth moves each loop as a whole along its own course, so the creases it makes fall on loop lines and the corners (the canthi and the commissures, short edges where a loop's upper and lower runs meet) stay where they are. The mouth opening's rim, from beside the alae round the commissures to the labiomental fold, follows the nasolabial and labiomental folds, and the face's rows over the brow and the forehead are the lines frontalis creases. Over the crown a 14 by 16 grid closes the lattice's top row ({@link capAutoMovieHumanHead}). Between the jawline and the neck-top ring, under the chin and the occiput, two bands of three-to-one reductions take the 60 columns to the ring's twelve, the face's 36 to 12 and then all 36 to 12, and one row reaches the ring, pinned to its shared shape.
  *
@@ -23,10 +25,12 @@ export function layoutAutoMovieHumanHead(props: {
   domain: AutoMovieHumanHeadDomain;
   network: AutoMovieHumanHeadNetwork;
   head: IAutoMovieHumanIdentity.IHead;
+  form: IAutoMovieHumanHeadForm;
   neck: IAutoMovieHumanRingShape;
   ears: Record<"left" | "right", IAutoMovieHumanRingShape>;
 }): void {
   const { domain, network, head } = props;
+  const layout: IAutoMovieHumanHeadForm.ILayout = props.form.layout;
   const frame = domain.frame;
   const profile = domain.profile;
   const fh: number = head.faceHeight;
@@ -34,27 +38,28 @@ export function layoutAutoMovieHumanHead(props: {
 
   // ---- columns: v of each column line, back-left 0..11, front 12..47, back-right 48..59
   const earLeft = located(domain, props.ears.left.positions);
-  const edge: number = 0.5 - FACE_HALF / 360;
+  const edge: number = 0.5 - layout.faceHalf / 360;
   const vEar: number = Math.min(earLeft.v, edge - 2 / 36);
   const lines: number[] = [];
   for (let k: number = 0; k < 12; ++k)
     lines.push(k <= EAR_LINE ? (vEar * k) / EAR_LINE : vEar + ((edge - vEar) * (k - EAR_LINE)) / (12 - EAR_LINE));
-  for (let k: number = 0; k < FRONT; ++k) lines.push(edge + ((1 - 2 * edge) * k) / FRONT);
+  const turn: (k: number) => number = faceColumns(domain, head, layout, 0.5 - edge);
+  for (let k: number = 0; k < FRONT; ++k) lines.push(0.5 + Math.sign(k - FRONT / 2) * turn(Math.abs(k - FRONT / 2)));
   for (let k: number = 0; k < 12; ++k) lines.push(1 - lines[12 - k]!);
   const C: number = lines.length;
 
   // ---- rows: the vault's shared by every column, the face's spaced by anatomy, the sides' a third as many
   const pfl: number = features.palpebralFissureLength;
-  const hairline: number = domain.front(frame.nasion.y + TRICHION * fh);
+  const hairline: number = domain.front(frame.nasion.y + layout.trichion * fh);
   const vaultRows: number[] = Array.from(
     { length: ROWS.vault + 1 },
     (_: unknown, k: number): number => (hairline * k) / ROWS.vault,
   );
   const anchors: Array<[number, number]> = [
-    [frame.eye.y + 0.55 * pfl, ROWS.forehead],
-    [frame.eye.y - 0.6 * pfl, ROWS.eyes],
-    [profile.subnasale.y - 0.02 * fh, ROWS.nose],
-    [frame.stomion.y - 0.15 * fh, ROWS.mouth],
+    [frame.eye.y + layout.eyeOpening.above * pfl, ROWS.forehead],
+    [frame.eye.y - layout.eyeOpening.below * pfl, ROWS.eyes],
+    [profile.subnasale.y - layout.mouthOpening.top * fh, ROWS.nose],
+    [frame.stomion.y - layout.mouthOpening.bottom * fh, ROWS.mouth],
   ];
   const faceRows: number[] = [hairline];
   let previous: number = hairline;
@@ -157,11 +162,13 @@ export function layoutAutoMovieHumanHead(props: {
   for (let s: number = 0; s < S; ++s) {
     reduce(
       network,
+      layout.reduction,
       [at(face, 3 * s, 0), at(face, 3 * s + 1, 0), at(face, 3 * s + 2, 0), at(face, 3 * s + 3, 0)],
       [at(side, s, SIDE - 1), at(side, s + 1, SIDE - 1)],
     );
     reduce(
       network,
+      layout.reduction,
       [at(face, 3 * s, FRONT), at(face, 3 * s + 1, FRONT), at(face, 3 * s + 2, FRONT), at(face, 3 * s + 3, FRONT)],
       [at(side, s, 1), at(side, s + 1, 1)],
     );
@@ -182,8 +189,8 @@ export function layoutAutoMovieHumanHead(props: {
     for (let i: number = i1; i > i0 + half; --i) out.push(g(i, j0));
     return out;
   };
-  loopAutoMovieHumanEyelids({ domain, network, features, rims: { left: rim(openings[0]!), right: rim(openings[1]!) } });
-  loopAutoMovieHumanLips({ domain, network, head, rim: rim(openings[2]!) });
+  loopAutoMovieHumanEyelids({ domain, network, features, form: props.form.eyelids, rims: { left: rim(openings[0]!), right: rim(openings[1]!) } });
+  loopAutoMovieHumanLips({ domain, network, head, form: props.form.lips, rim: rim(openings[2]!) });
   for (const [name, o] of [
     ["left", openings[3]!],
     ["right", openings[4]!],
@@ -214,7 +221,7 @@ export function layoutAutoMovieHumanHead(props: {
   let b: number = 0;
   for (let j: number = 0; j < C; ) {
     if (isFront(j)) {
-      reduce(network, [top[j]!, top[j + 1]!, top[j + 2]!, top[(j + 3) % C]!], [band[b]!, band[(b + 1) % band.length]!]);
+      reduce(network, layout.reduction, [top[j]!, top[j + 1]!, top[j + 2]!, top[(j + 3) % C]!], [band[b]!, band[(b + 1) % band.length]!]);
       j += 3;
     } else {
       network.quad([top[j]!, top[(j + 1) % C]!, band[(b + 1) % band.length]!, band[b]!], "reduction");
@@ -228,6 +235,7 @@ export function layoutAutoMovieHumanHead(props: {
   for (let k: number = 0; k < ringLines.length; ++k)
     reduce(
       network,
+      layout.reduction,
       [band[3 * k]!, band[3 * k + 1]!, band[3 * k + 2]!, band[(3 * k + 3) % band.length]!],
       [collarPoints[k]!, collarPoints[(k + 1) % collarPoints.length]!],
     );
@@ -291,9 +299,10 @@ const pinRing = (
   );
 };
 
-/** One three-to-one unit: four quads round two valence-3 vertices between three spans on one side and one on the other, each interior vertex {@link UNIT} of the way from its span point to the opposite side. */
+/** One three-to-one unit: four quads round two valence-3 vertices between three spans on one side and one on the other, each interior vertex `unit` of the way from its span point to the opposite side. */
 const reduce = (
   network: AutoMovieHumanHeadNetwork,
+  unit: number,
   a: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint],
   b: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint],
 ): void => {
@@ -301,8 +310,8 @@ const reduce = (
   const unwrap = (v: number): number => v + Math.round(ref - v);
   const inner = (k: 1 | 2): AutoMovieHumanHeadNetwork.IPoint => {
     const t: number = k / 3;
-    const u: number = a[k].domain.u * (1 - UNIT) + (b[0].domain.u * (1 - t) + b[1].domain.u * t) * UNIT;
-    const v: number = unwrap(a[k].domain.v) * (1 - UNIT) + (unwrap(b[0].domain.v) * (1 - t) + unwrap(b[1].domain.v) * t) * UNIT;
+    const u: number = a[k].domain.u * (1 - unit) + (b[0].domain.u * (1 - t) + b[1].domain.u * t) * unit;
+    const v: number = unwrap(a[k].domain.v) * (1 - unit) + (unwrap(b[0].domain.v) * (1 - t) + unwrap(b[1].domain.v) * t) * unit;
     return network.on(u, v);
   };
   const p: AutoMovieHumanHeadNetwork.IPoint = inner(1);
@@ -313,13 +322,54 @@ const reduce = (
   network.quad([b[0], p, q, b[1]], "reduction");
 };
 
-/** Half the face's angle about the spine, degrees, inside which its dense columns lie. Conventional: past the zygomatic arches. */
-const FACE_HALF: number = 60;
+/**
+ * The face's column lines either side of the midline: the turn from the midline, in turns of `v`, of the line `k` columns out, spaced smoothly through the edges of the openings. Each edge is set where the face's surface reaches its feature's offset at the feature's own level: the eye opening's medial edge inside endocanthion and its lateral edge beyond exocanthion at the eyes' centre, the mouth opening's edges beyond cheilion at stomion. Edges that would cross keep at least half a uniform column between them.
+ */
+const faceColumns = (
+  domain: AutoMovieHumanHeadDomain,
+  head: IAutoMovieHumanIdentity.IHead,
+  layout: IAutoMovieHumanHeadForm.ILayout,
+  half: number,
+): ((k: number) => number) => {
+  const f: IAutoMovieHumanIdentity.IFeatures = head.features;
+  const frame = domain.frame;
+  // the turn at which the face's surface on row `u` lies `x` from the midline, by bisection
+  const turnAt = (u: number, x: number): number => {
+    let lo: number = 0;
+    let hi: number = half;
+    for (let i: number = 0; i < 40; ++i) {
+      const m: number = (lo + hi) / 2;
+      if (Math.abs(domain.point(u, 0.5 + m).x) < x) lo = m;
+      else hi = m;
+    }
+    return (lo + hi) / 2;
+  };
+  const eyeU: number = domain.front(frame.eye.y);
+  const mouthU: number = domain.front(frame.stomion.y);
+  const endocanthion: number = f.intercanthalWidth / 2;
+  const knots: number[] = [0, EYE.medial, MOUTH, EYE.lateral, FRONT / 2];
+  const wanted: number[] = [
+    0,
+    turnAt(eyeU, endocanthion - layout.eyeOpening.medial * f.palpebralFissureLength),
+    turnAt(mouthU, (f.mouthWidth / 2) * (1 + layout.mouthOpening.lateral)),
+    turnAt(eyeU, endocanthion + (1 + layout.eyeOpening.lateral) * f.palpebralFissureLength),
+    half,
+  ];
+  const step: number = half / (FRONT / 2);
+  const values: number[] = [0];
+  for (let i: number = 1; i < knots.length; ++i)
+    values.push(
+      i === knots.length - 1
+        ? half
+        : Math.min(
+            Math.max(wanted[i]!, values[i - 1]! + 0.5 * step * (knots[i]! - knots[i - 1]!)),
+            half - 0.5 * step * (FRONT / 2 - knots[i]!),
+          ),
+    );
+  return interpolateAutoMovieMonotone({ knots, values });
+};
 
-/** Share of the way from a reduction's dense side to its sparse one at which its two inner vertices lie: nearer the dense side keeps its four quads closer in size. Chosen on renders. */
-const UNIT: number = 0.3;
-
-/** Columns over the face, between {@link FACE_HALF} degrees either side of the midline. */
+/** Columns over the face, between the form's half-angle either side of the midline. */
 const FRONT: number = 36;
 
 /** Columns round the sides and the back, between the face's edges. */
@@ -337,6 +387,4 @@ const EYE = { medial: 3, lateral: 13 } as const;
 /** The mouth's opening, columns from the midline to either side. */
 const MOUTH: number = 6;
 
-/** Trichion above nasion over face height: trichion-nasion 72.2 mm in Kenyan men and 67.5 in women (Virdi et al. 2019), about 0.57 of face height. Grade: derived. */
-const TRICHION: number = 0.57;
 

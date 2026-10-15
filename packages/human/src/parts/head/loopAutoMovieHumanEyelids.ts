@@ -4,6 +4,7 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
+import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 
 /**
  * Fill each eye's opening with the concentric loops of the lids, the fold lines of orbicularis oculi, from the opening's rim to the palpebral fissure.
@@ -14,23 +15,24 @@ import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
  * 2. The anterior lid margin, resting on the eyeball: on the sphere about the eye's centre of rotation through the corneal apex, out by the lid margin's thickness, along the fissure's measured length and height.
  * 3. The posterior lid margin, where the lid touches the globe and the fissure opens onto the eyeball.
  *
- * The fissure runs from endocanthion, half the intercanthal width from the midline, to exocanthion one fissure length further out, rising by {@link CANTHAL_TILT} from the inner to the outer corner. The upper margin opens above the line of the canthi by {@link UPPER} of the fissure height and the lower below it by the rest, each arc fullest a little off the middle as the tarsal plates are (Gray 1918, "The Tarsi").
+ * The fissure runs from endocanthion, half the intercanthal width from the midline, to exocanthion one fissure length further out, rising by the form's canthal tilt from the inner to the outer corner. The upper margin opens above the line of the canthi by the form's share of the fissure height and the lower below it by the rest, each arc fullest a little off the middle as the tarsal plates are (Gray 1918, "The Tarsi").
  *
- * @param props The domain, the network, the feature measurements and each opening's rim: fifteen points over the top from the middle of its side of lower `v` to the middle of the other side, then fifteen back under the bottom
+ * @param props The domain, the network, the feature measurements, the loops' placement ({@link IAutoMovieHumanHeadForm.IEyelids}) and each opening's rim: fifteen points over the top from the middle of its side of lower `v` to the middle of the other side, then fifteen back under the bottom
  */
 export function loopAutoMovieHumanEyelids(props: {
   domain: AutoMovieHumanHeadDomain;
   network: AutoMovieHumanHeadNetwork;
   features: IAutoMovieHumanIdentity.IFeatures;
+  form: IAutoMovieHumanHeadForm.IEyelids;
   rims: Record<"left" | "right", AutoMovieHumanHeadNetwork.IPoint[]>;
 }): void {
-  const { domain, network, features } = props;
+  const { domain, network, features, form } = props;
   const frame = domain.frame;
   const length: number = features.palpebralFissureLength;
   const height: number = features.palpebralFissureHeight;
   const inner: number = features.intercanthalWidth / 2;
   const eyeRadius: number = AutoMovieHumanVector.distance(frame.eye, frame.cornea) + GLOBE_ALLOWANCE;
-  const rise: number = length * Math.tan(CANTHAL_TILT);
+  const rise: number = length * Math.tan((form.canthalTilt * Math.PI) / 180);
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
     const rim: AutoMovieHumanHeadNetwork.IPoint[] = props.rims[side];
@@ -46,14 +48,14 @@ export function loopAutoMovieHumanEyelids(props: {
       return lateralFirst ? 1 - fromFirst : fromFirst;
     };
     // a point of the fissure's outline, opened by `open` of the lid's arc and set `out` beyond the globe
-    const lid = (s: number, upper: boolean, open: number, widen: number, out: number, gap: number = CANTHUS): IAutoMovieVector3 => {
+    const lid = (s: number, upper: boolean, open: number, widen: number, out: number, gap: number = form.canthus): IAutoMovieVector3 => {
       const arc = (skew: number, power: number): number =>
         Math.pow(Math.sin(Math.PI * Math.pow(s, skew)), power);
       const x: number = inner - widen + (length + 2 * widen) * s;
       const y: number =
         level +
         rise * s +
-        (upper ? UPPER * height * arc(0.9, 0.8) * open + gap : -(1 - UPPER) * height * arc(1.1, 0.9) * open - gap);
+        (upper ? form.upper * height * arc(0.9, 0.8) * open + gap : -(1 - form.upper) * height * arc(1.1, 0.9) * open - gap);
       const r: number = eyeRadius + out;
       const dx: number = x - frame.eye.x;
       const dy: number = y - eye.y;
@@ -72,44 +74,20 @@ export function loopAutoMovieHumanEyelids(props: {
       });
     // the sulcus lies on the face: found over the domain from a point well in front of the globe
     const sulcus: AutoMovieHumanHeadNetwork.IPoint[] = loop((s: number, upper: boolean) => {
-      const p: IAutoMovieVector3 = lid(s, upper, upper ? SULCUS.upper : SULCUS.lower, SULCUS.widen, 0, SULCUS.gap);
+      const p: IAutoMovieVector3 = lid(s, upper, upper ? form.sulcus.upper : form.sulcus.lower, form.sulcus.widen, 0, form.sulcus.gap);
       return AutoMovieHumanVector.of(p.x, p.y, frame.cornea.z + 10);
     }, null);
     const anterior: AutoMovieHumanHeadNetwork.IPoint[] = loop(
-      (s: number, upper: boolean) => lid(s, upper, 1, 0, MARGIN_THICKNESS),
+      (s: number, upper: boolean) => lid(s, upper, 1, 0, form.marginThickness),
       "lid.anterior",
     );
     const posterior: AutoMovieHumanHeadNetwork.IPoint[] = loop(
-      (s: number, upper: boolean) => lid(s, upper, POSTERIOR_OPEN, -0.3, CONTACT),
+      (s: number, upper: boolean) => lid(s, upper, form.posteriorOpen, -0.3, form.contact),
       "lid.posterior",
     );
-    network.bands([rim, network.between(rim, sulcus, ORBIT), sulcus, anterior, posterior], `eye.${side}`);
+    network.bands([rim, network.between(rim, sulcus, form.orbit), sulcus, anterior, posterior], `eye.${side}`);
   }
 }
-
-/** Share of the way from the opening's rim to the lid sulcus at which the orbital loop runs. */
-const ORBIT: number = 0.5;
-
-/** Rise of exocanthion over endocanthion, radians: about 3 degrees, between the 0.8 to 2.4 of Caucasian and the 4.9 to 6.0 of Chinese young adults (Gao et al. 2025, periocular 3D photographs). Conventional pending a measured tilt in the identity. */
-const CANTHAL_TILT: number = (3 * Math.PI) / 180;
-
-/** Share of the fissure height above the line of the canthi at the pupil: the upper lid rests 1 to 2 mm over the iris and the lower at its lower edge. Conventional. */
-const UPPER: number = 0.45;
-
-/** Half the gap between the upper and lower margins at the canthi, so each canthus is a short edge, millimetres. Conventional. */
-const CANTHUS: number = 0.3;
-
-/** Thickness of the lid margin from its posterior edge on the globe to its anterior edge, millimetres: about 2 mm. Conventional pending a measured value. */
-const MARGIN_THICKNESS: number = 2;
-
-/** Gap left between the posterior margin and the globe, millimetres, so the eyeball never shows through the lid. Conventional. */
-const CONTACT: number = 0.3;
-
-/** How far the posterior margin closes over the anterior's opening, so the margin's thickness faces the fissure. */
-const POSTERIOR_OPEN: number = 0.94;
-
-/** The lid sulcus as multiples of the margin's opening, its widening beyond the canthi and its half-opening there, millimetres, so the loops round each canthus stay open rather than meeting in a crease. Conventional. */
-const SULCUS = { upper: 1.9, lower: 2.0, widen: 4, gap: 2.5 } as const;
 
 /** Allowance over the apex distance for the globe's sclera beside the cornea, millimetres: the scleral sphere of about 12 mm sits a millimetre in front of the centre of rotation. Derived from the eye module's globe. */
 const GLOBE_ALLOWANCE: number = 0.6;
