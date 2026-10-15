@@ -1,25 +1,24 @@
+import { Assembly } from "../Assembly";
+import { identity } from "../identity";
+import { sharedWalls } from "../sharedWalls";
+import { portals } from "../portals";
+import { stairHole } from "../stairHole";
+import { rooms } from "../rooms";
+import { type Rect } from "../Rect";
+import { datum } from "../datum";
+import {
+  doorway,
+} from "../doorway";
+import { doorCuts } from "../doorCuts";
+import { cutWall } from "../cutWall";
+import { wallFrame } from "../wallFrame";
+import { localCut } from "../localCut";
+import { type Frame } from "../Frame";
+import { slabTop } from "./slabTop";
+import type { FaceFinishes } from "../../materials/FaceFinishes";
+
 /** Structural walls have one owner per storey. Room linings fill the remaining
  * 6 mm on each side; openings are subtracted before any finish is attached. */
-import { Assembly, identity } from "../assembly";
-import {
-  type Rect,
-  datum,
-  portals,
-  rooms,
-  sharedWalls,
-  stairHole,
-} from "../plan";
-import {
-  type Frame,
-  cutWall,
-  doorCuts,
-  doorway,
-  localCut,
-  wallFrame,
-} from "../walls";
-import { slabTop } from "./floors";
-import type { FaceFinishes } from "../../materials/surface-parts";
-
 export function partitions(a: Assembly, level: 0 | 1): void {
   for (const wall of sharedWalls().filter((w) => w.level === level)) {
     const frame = wallFrame(wall);

@@ -5,13 +5,24 @@ import {
   transformAutoMovieMesh,
 } from "@automovie/engine";
 
-import { Assembly, rectangle, v, yaw } from "../assembly";
-import { circle, heightRegion, putMesh } from "../metric-solid";
-import { datum, entryApproach, type Rect } from "../plan";
-import { subtract } from "../storeys/floors";
+import { Assembly } from "../Assembly";
+import { rectangle } from "../rectangle";
+import { yaw } from "../yaw";
+import { v } from "../v";
+import { heightRegion } from "../heightRegion";
+import { putMesh } from "../putMesh";
+import { circle } from "../circle";
+import { entryApproach } from "../entryApproach";
+import { type Rect } from "../Rect";
+import { datum } from "../datum";
+import { subtract } from "../storeys/subtract";
 
 
 const soilBottom = -0.852;
+/**
+ * Build the site: soil grade around the house, paving and access bands, trees and the drainage
+ * catch pit.
+ */
 export function garden(a: Assembly): void {
   const r = "citizen-site";
   const cuts: Rect[] = [

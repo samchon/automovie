@@ -1,19 +1,29 @@
 /**
- * src/geometry/roof-solids.ts and roof-planes.ts: roof slabs, boarding ceilings,
+ * roofSlabFaces, ceilingBoardFaces, roofStepClosures, gablePlanes and leanToPlanes: roof slabs, boarding ceilings,
  * step closures, and gable or mono-pitch planes. Fixtures: convex quadrilateral
  * slabs with sloped tops (no underside region or a half region), triangular
  * slabs (half gables), thin slabs, step closures between touching pieces
  * (present, equal height or same-direction edges), boarding ceilings, gable
  * ridge position and support height, mono-pitch planes, vertical thickness,
  * and determinism. Slabs are closed after T-junction resolution. A step closure
- * is one face rather than a closed solid, matching the mesh-ledger closure fixture.
+ * is one face rather than a closed solid, matching the accountMeshes closure fixture.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rectanglePolygon, type RoofPatch } from "../../geometry/planar-domain";
-import { gablePlanes, leanToPlanes, roofVerticalThickness, type RoofRules } from "../../geometry/roof-planes";
-import { ceilingBoardFaces, roofSlabFaces, roofStepClosures } from "../../geometry/roof-solids";
-import { accountFaces, assertClosed, faceArea, near, planArea } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { type RoofPatch } from "../../geometry/RoofPatch";
+import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
+import { leanToPlanes } from "../../geometry/leanToPlanes";
+import { gablePlanes } from "../../geometry/gablePlanes";
+import { type RoofRules } from "../../geometry/RoofRules";
+import { roofSlabFaces } from "../../geometry/roofSlabFaces";
+import { roofStepClosures } from "../../geometry/roofStepClosures";
+import { ceilingBoardFaces } from "../../geometry/ceilingBoardFaces";
+import { assertClosed } from "./assertClosed";
+import { planArea } from "./planArea";
+import { faceArea } from "./faceArea";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const patch = (overrides: Partial<RoofPatch> = {}): RoofPatch => ({
   id: "p", owner: "roof-test", surface: "surface.roof-test.upper", tier: "wing",

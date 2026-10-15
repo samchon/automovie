@@ -27,19 +27,19 @@ export const websiteViteConfig: UserConfig = defineConfig({
     alias: {
       "production-temple-scene": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/scene.ts",
+        "../experimental/ancient-civic-temple/src/viewer/uploadTemple.ts",
       ),
       "production-temple-daylight": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/daylight.ts",
+        "../experimental/ancient-civic-temple/src/viewer/createTempleDaylight.ts",
       ),
       "production-future-scene": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/scene.ts",
+        "../experimental/future-citizen-house/src/viewer/uploadHouse.ts",
       ),
       "production-future-daylight": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/illumination.ts",
+        "../experimental/future-citizen-house/src/viewer/daylight.ts",
       ),
     },
   },

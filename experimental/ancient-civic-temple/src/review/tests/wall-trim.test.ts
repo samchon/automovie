@@ -1,5 +1,5 @@
 /**
- * src/geometry/wall-trim.ts: parapet coping and exterior plinth.
+ * copingCells, copingFaces, plinthCells and plinthFaces: parapet coping and exterior plinth.
  * Fixtures: one straight full-width parapet (coping projection, free-end lip,
  * plinth band and two corner cells), sloped ground (plinth top follows ground)
  * and slope transitions (cell splitting), junctions of different-height
@@ -9,10 +9,15 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { copingCells, copingFaces, plinthCells, plinthFaces, type WallTrimInput } from "../../geometry/wall-trim";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import type { WallSpec } from "../../geometry/wall-solids";
-import { accountFaces, assertClosed } from "./fixtures";
+import { type WallTrimInput } from "../../geometry/WallTrimInput";
+import { plinthFaces } from "../../geometry/plinthFaces";
+import { plinthCells } from "../../geometry/plinthCells";
+import { copingFaces } from "../../geometry/copingFaces";
+import { copingCells } from "../../geometry/copingCells";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import type { WallSpec } from "../../geometry/WallSpec";
+import { assertClosed } from "./assertClosed";
+import { accountFaces } from "./accountFaces";
 
 const parapet = (overrides: Partial<WallSpec> = {}): WallSpec => ({
   id: "wall.front", owner: "front", axis: "x", bottom: -0.42,

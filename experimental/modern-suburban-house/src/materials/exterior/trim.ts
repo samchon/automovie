@@ -1,6 +1,7 @@
-/** Semi-gloss exterior trim, fascia, soffit, porch columns and jambs. */
-import { type HouseFinish, houseMaterial } from "../finish";
+import { type HouseFinish } from "../HouseFinish";
+import { houseMaterial } from "../houseMaterial";
 
+/** Semi-gloss exterior trim, fascia, soffit, porch columns and jambs. */
 export const trim = {
   material: houseMaterial("trim-white", "#F6F4EE", 0.35),
   faces: [

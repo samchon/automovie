@@ -1,6 +1,7 @@
-/** Factory-painted warm-white lap siding on the exterior envelope faces. */
-import { type HouseFinish, houseMaterial } from "../finish";
+import { type HouseFinish } from "../HouseFinish";
+import { houseMaterial } from "../houseMaterial";
 
+/** Factory-painted warm-white lap siding on the exterior envelope faces. */
 export const siding = {
   material: houseMaterial("siding-warm-white", "#EDE8DC", 0.55),
   faces: [

@@ -2,7 +2,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { Windows } from "../models/windows";
+import { Windows } from "../models/Windows";
 
 const openings = [
   ["living-front-window", "double-hung", 2.8, 1.6, 3],

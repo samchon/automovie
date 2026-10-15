@@ -1,4 +1,4 @@
-import { Assembly } from "../house/assembly";
+import { Assembly } from "../house/Assembly";
 import { front } from "../house/envelope/front";
 import { left } from "../house/envelope/left";
 import { rear } from "../house/envelope/rear";

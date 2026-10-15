@@ -42,14 +42,15 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { MaterialReview } from "../materials/review";
-import { Frame } from "../models/frame";
-import { buildHouseEnvironment } from "../spaces/environment";
-import { buildHouse } from "../spaces/house";
+import { MaterialReview } from "../materials/MaterialReview";
+import { Frame } from "../models/Frame";
+import { buildHouseEnvironment } from "../spaces/buildHouseEnvironment";
+import { buildHouse } from "../spaces/buildHouse";
 import { buildBuildingInputs } from "./buildBuildingInputs.js";
-import { buildCalibrationScene } from "./calibration.js";
+import { buildCalibrationScene } from "./buildCalibrationScene.js";
 import { buildHouseScene } from "./buildHouseScene.js";
-import type { IViewerModelInputs } from "./modelScene.js";
+import type { IViewerModelInputs } from "./IViewerModelInputs";
+import type { IHouse } from "../spaces/IHouse";
 
 const require: NodeJS.Require = createRequire(import.meta.url);
 
@@ -244,7 +245,7 @@ const handle: (request: IncomingMessage, response: ServerResponse, startDigest: 
           "application/json",
           JSON.stringify({ error: `invalid inspection pose: ${pose}` }),
         );
-      const house: import("../spaces/house").IHouse = buildHouse(),
+      const house: IHouse = buildHouse(),
         environment: import("@automovie/interface").IAutoMovieBuiltEnvironment & { pendingMapGround: { parts: string[]; zones: string[]; }; } = buildHouseEnvironment(house);
       const input: IViewerModelInputs = buildBuildingInputs(environment, house, pose),
         bounds: IViewerModelInputs = buildBuildingInputs(

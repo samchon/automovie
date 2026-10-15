@@ -2,8 +2,8 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { buildingSpaceFinish } from "../materials/space-bindings";
-import { PALETTE } from "../spaces/palette";
+import { buildingSpaceFinish } from "../materials/buildingSpaceFinish";
+import { PALETTE } from "../spaces/PALETTE";
 
 void test("weather faces bind siding, shingle, brick, paving and fence", () => {
   assert.equal(

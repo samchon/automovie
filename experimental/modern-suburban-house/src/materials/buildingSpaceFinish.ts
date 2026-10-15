@@ -1,0 +1,73 @@
+/**
+ * Bind the space owners' emitted role and blocking colour to their reviewed
+ * material finish. The pair is a surface address, not a material colour: the
+ * finish's own sRGB swatch and optical response remain with its design owner.
+ * Composite roof, wall and stair solids are partitioned by the viewer before
+ * lookup so weather, interior, soffit and riser faces can differ.
+ */
+import { PALETTE } from "../spaces/PALETTE";
+import type { HousePartRole } from "../types/HousePartRole";
+import { brick } from "./exterior/brick";
+import { fence } from "./exterior/fence";
+import { frames } from "./exterior/frames";
+import { paving } from "./exterior/paving";
+import { porchFloor } from "./exterior/porchFloor";
+import { shingle } from "./exterior/shingle";
+import { siding } from "./exterior/siding";
+import { trim } from "./exterior/trim";
+import type { HouseFinish } from "./HouseFinish";
+import { interiorCeilings } from "./interior/interiorCeilings";
+import {
+  oakFloor,
+} from "./interior/oakFloor";
+import { garageConcrete } from "./interior/garageConcrete";
+import { laundryFloor } from "./interior/laundryFloor";
+import { carpet } from "./interior/carpet";
+import { blackMetal } from "./interior/blackMetal";
+import { stairTread } from "./interior/stairTread";
+import { handrail } from "./interior/handrail";
+import { floorTile } from "./interior/floorTile";
+import { interiorTrim } from "./interior/interiorTrim";
+import { interiorWalls } from "./interior/interiorWalls";
+
+type Binding = readonly [HousePartRole, number, HouseFinish];
+const bindings: readonly Binding[] = [
+  ["wall", PALETTE.siding, siding],
+  ["wall", PALETTE.brick, brick],
+  ["wall", PALETTE.interiorWall, interiorWalls],
+  ["partition", PALETTE.interiorWall, interiorWalls],
+  ["roof", PALETTE.roof, shingle],
+  ["chimney", PALETTE.brick, brick],
+  ["chimney", PALETTE.railing, frames],
+  ["porch", PALETTE.trim, trim],
+  ["porch", PALETTE.porchFloor, porchFloor],
+  ["paving", PALETTE.paving, paving],
+  ["paving", PALETTE.concrete, paving],
+  ["fence", PALETTE.fenceWood, fence],
+  ["floor", PALETTE.concrete, garageConcrete],
+  ["floor", PALETTE.woodFloor, oakFloor],
+  ["floor", PALETTE.tile, floorTile],
+  ["floor", PALETTE.utility, laundryFloor],
+  ["floor", PALETTE.carpet, carpet],
+  ["floor", PALETTE.interiorWall, interiorWalls],
+  ["ceiling", PALETTE.ceiling, interiorCeilings],
+  ["stair", PALETTE.stairWood, stairTread],
+  ["guard", PALETTE.stairWood, handrail],
+  ["guard", PALETTE.railing, blackMetal],
+  ["guard", PALETTE.trim, interiorTrim],
+];
+
+/** Refuse any unreviewed or ambiguous space finish instead of guessing. */
+export const buildingSpaceFinish = (
+  role: HousePartRole,
+  color: number,
+): HouseFinish => {
+  const matches = bindings.filter(
+    ([boundRole, boundColor]) => boundRole === role && boundColor === color,
+  );
+  if (matches.length !== 1)
+    throw new Error(
+      `expected one space finish for ${role}/${color.toString(16)}, found ${matches.length}`,
+    );
+  return matches[0]![2];
+};

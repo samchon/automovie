@@ -5,14 +5,18 @@ const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
 import test from "node:test";
 import assert from "node:assert/strict";
-import { verifyStairLanding, verifyCurtainStrip, verifyHouseSpaceDesign } from "./space-design";
-import { verifyRoofInternalFaces } from "./roof-overlap";
-import { block, slab } from "../spaces/solids";
-import { seamRect } from "../spaces/site/paving";
-import { buildHouse } from "../spaces/house";
-import { buildHouseEnvironment } from "../spaces/environment";
-import { deriveHouseObservations } from "../spaces/observations";
-import { buildCommon } from "../spaces/rooms/common";
+import { verifyHouseSpaceDesign } from "./verifyHouseSpaceDesign";
+import { verifyCurtainStrip } from "./verifyCurtainStrip";
+import { verifyStairLanding } from "./verifyStairLanding";
+import { verifyRoofInternalFaces } from "./verifyRoofInternalFaces";
+import { slab } from "../spaces/slab";
+import { block } from "../spaces/block";
+import { seamRect } from "../spaces/site/seamRect";
+import { buildHouse } from "../spaces/buildHouse";
+import { buildHouseEnvironment } from "../spaces/buildHouseEnvironment";
+import { deriveHouseObservations } from "../spaces/deriveHouseObservations";
+import { buildCommon } from "../spaces/rooms/buildCommon";
+import type { Box } from "./Box";
 
 void test("family table leaves the authored curtain-side passage", () => {
   const reservations = buildCommon().space?.reservations;
@@ -56,7 +60,7 @@ void test("stair approach, landing, and upper arrival follow one station", () =>
 
 void test("curtain strip follows window span, floor, head, and inward depth", () => {
   const window = { from: 0.4, to: 1.4, top: 2.3 };
-    const strip: import("./space-design").Box = { x: [0.3, 1.5], y: [0.1, 2.42], z: [-0.37, -0.25] };
+    const strip: Box = { x: [0.3, 1.5], y: [0.1, 2.42], z: [-0.37, -0.25] };
   assert.doesNotThrow(() => verifyCurtainStrip("sample", strip, window, 0.1, "x", -0.25, -1));
   assert.throws(() => verifyCurtainStrip("sample", { ...strip, y: ([0.1, 2.6] as [number, number]) }, window, 0.1, "x", -0.25, -1), /sample: curtain/);
   assert.throws(() => verifyCurtainStrip("sample", { ...strip, x: ([0.2, 1.5] as [number, number]) }, window, 0.1, "x", -0.25, -1), /sample: curtain/);

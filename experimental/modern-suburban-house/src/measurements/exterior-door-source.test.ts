@@ -3,9 +3,9 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
-import { ExteriorDoor } from "../models/exterior-door";
-import { GarageDoor } from "../models/garage-door";
-import { Gate } from "../models/gate";
+import { ExteriorDoor } from "../models/ExteriorDoor";
+import { GarageDoor } from "../models/GarageDoor";
+import { Gate } from "../models/Gate";
 const GATE_GROUND=-.45;
 
 type Bounds = readonly [readonly [number,number],readonly [number,number],readonly [number,number]];

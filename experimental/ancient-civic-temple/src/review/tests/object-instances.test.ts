@@ -3,12 +3,12 @@ import { validateMeshTopology } from "@automovie/engine";
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { addTempleObjectInstances } from "../../instances/objects";
-import { templeModelFinish } from "../../materials/bindings";
-import { TempleFixtures } from "../../models/fixtures";
-import { TemplePortable } from "../../models/portable";
-import { TempleWares } from "../../models/wares";
-import { createTempleEnvironment } from "../../spaces/environment";
+import { addTempleObjectInstances } from "../../instances/addTempleObjectInstances";
+import { templeModelFinish } from "../../materials/templeModelFinish";
+import { TempleFixtures } from "../../models/TempleFixtures";
+import { TemplePortable } from "../../models/TemplePortable";
+import { TempleWares } from "../../models/TempleWares";
+import { createTempleEnvironment } from "../../spaces/createTempleEnvironment";
 
 const prior = createTempleEnvironment().environment;
 const scene = addTempleObjectInstances(prior);

@@ -1,0 +1,18 @@
+import { Assembly } from "../Assembly";
+import { datum } from "../datum";
+import { lights } from "./lights";
+import { cabinet } from "./cabinet";
+import { Item } from "./Item";
+import { lining } from "./lining";
+/**
+ * Line and furnish the upper storage room: linen cabinet with stacks on its shelves and a light.
+ */
+export function storageUpper(a: Assembly): void {
+  const r = "upper-storage"; lining(a, r);
+  cabinet(new Item(a, "upper-linen-cabinet", r, -4.9, datum.floors[1], 0.48, Math.PI / 2), 1.1, 2.6, 0.5, true);
+  // Each stack rests on shelf i+1 of the 2.6m cabinet: seven 0.02m shelves
+  // divide its inner height, as in cabinet().
+  const shelves = Math.ceil(2.6 / 0.38);
+  for (let i = 0; i < 5; i++) a.box("upper-linen-stack-" + i, r, "linen", -4.88, datum.floors[1] + 0.02 + 2.58 * (i + 1) / shelves + 0.08, 0.48, 0.38, 0.16, 0.6);
+  lights(a, r, [[-4.1, 0.48]]);
+}

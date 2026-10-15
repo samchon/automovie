@@ -11,11 +11,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {createRequire} from "node:module";
-import {buildingModelFinish} from "../materials/model-bindings";
+import {buildingModelFinish} from "../materials/buildingModelFinish";
 import {SanitaryFittings} from "../models/furnishings/SanitaryFittings";
+import type { IHouse } from "../spaces/IHouse";
+import type { IRoomReservation } from "../spaces/rooms/IRoomReservation";
+import type { IRoomSpace } from "../spaces/rooms/IRoomSpace";
 const require: NodeJS.Require=createRequire(import.meta.url);
-const {buildHouse}: typeof import("../spaces/house")=require("../spaces/house.ts") as typeof import("../spaces/house");
-const {ArchitecturalFitout}: typeof import("../instances/ArchitecturalFitout")=require("../instances/ArchitecturalFitout.ts") as typeof import("../instances/ArchitecturalFitout");
+const { buildHouse }: typeof import("../spaces/buildHouse") =
+  require("../spaces/buildHouse.ts") as typeof import("../spaces/buildHouse");
+const { ArchitecturalFitout }: typeof import("../instances/ArchitecturalFitout") =
+  require("../instances/ArchitecturalFitout.ts") as typeof import("../instances/ArchitecturalFitout");
 
 void test("all sanitary prototype faces resolve to one authored finish",(): void =>{
   const f: SanitaryFittings=new SanitaryFittings();
@@ -24,13 +29,13 @@ void test("all sanitary prototype faces resolve to one authored finish",(): void
 });
 
 void test("three toilets, mirrors and towel bars plus the rail fit their world reservations",(): void =>{
-  const house: import("../spaces/house").IHouse=buildHouse(),built: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; }=new ArchitecturalFitout().build(house);
+  const house: IHouse=buildHouse(),built: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; }=new ArchitecturalFitout().build(house);
   const prototypes: Map<string, import("@automovie/interface").IAutoMovieModel>=new Map(built.prototypes.map((p: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }): [string, import("@automovie/interface").IAutoMovieModel] =>[p.model.id,p.model]));
-  const reservations: Map<string, import("../spaces/rooms/reservations").IRoomReservation>=new Map(house.spaces.flatMap((s: import("../spaces/rooms/shared").IRoomSpace): readonly import("../spaces/rooms/reservations").IRoomReservation[] =>s.reservations??[]).map((z: import("../spaces/rooms/reservations").IRoomReservation): [string, import("../spaces/rooms/reservations").IRoomReservation] =>[z.id,z]));
+  const reservations: Map<string, IRoomReservation>=new Map(house.spaces.flatMap((s: IRoomSpace): readonly IRoomReservation[] =>s.reservations??[]).map((z: IRoomReservation): [string, IRoomReservation] =>[z.id,z]));
   const selected: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]=built.instances.filter((i: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }): boolean =>/-(toilet|mirror|towel)$|curtain-rail$/.test(i.id));
   assert.equal(selected.length,10);
   for(const instance of selected){
-    const model: import("@automovie/interface").IAutoMovieModel=prototypes.get(instance.modelId)!,zone: import("../spaces/rooms/reservations").IRoomReservation=reservations.get(instance.id)!;
+    const model: import("@automovie/interface").IAutoMovieModel=prototypes.get(instance.modelId)!,zone: IRoomReservation=reservations.get(instance.id)!;
     assert.ok(model&&zone);
     const q: import("@automovie/interface").IAutoMovieQuaternion=instance.transform.rotation!,t: import("@automovie/interface").IAutoMovieVector3=instance.transform.translation!;
     const yaw: number=2*Math.atan2(q.y,q.w),sin: number=Math.sin(yaw),cos: number=Math.cos(yaw);

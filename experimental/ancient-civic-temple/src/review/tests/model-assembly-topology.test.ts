@@ -3,11 +3,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { validateMeshTopology } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { TempleCladding } from "../../models/cladding";
-import { TempleColumns } from "../../models/columns";
-import { TempleEntablature } from "../../models/entablature";
-import { TempleOpenings } from "../../models/openings";
-import { TempleLandscape } from "../../models/landscape";
+import { TempleCladding } from "../../models/TempleCladding";
+import { TempleColumns } from "../../models/TempleColumns";
+import { TempleEntablature } from "../../models/TempleEntablature";
+import { TempleOpenings } from "../../models/TempleOpenings";
+import { TempleLandscape } from "../../models/TempleLandscape";
 
 const validParts=(model:IAutoMovieModel):void=>{
   for(const part of model.parts){

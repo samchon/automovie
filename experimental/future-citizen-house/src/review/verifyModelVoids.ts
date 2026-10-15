@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { materialFinish } from "../materials/001-binding-and-scale";
+import { materialFinish } from "../materials/materialFinish";
 import { type ModelPrototype, ModelRepresentation } from "../common/model-geometry/representation";
 
 /**

@@ -11,21 +11,26 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import test from "node:test";
 
-import { Frame } from "../models/frame";
-import { Bathrooms } from "../models/furnishings/bathrooms";
-import { Windows } from "../models/windows";
+import { Frame } from "../models/Frame";
+import { Bathrooms } from "../models/furnishings/Bathrooms";
+import { Windows } from "../models/Windows";
+import type { Face } from "../geometry/Face";
+import type { IHouse } from "../spaces/IHouse";
+import type { FittingBuilt } from "../models/furnishings/FittingBuilt";
+import type { IViewerScene } from "../viewer/IViewerScene";
+import type { IViewerSceneItem } from "../viewer/IViewerSceneItem";
 
 const require: NodeJS.Require = createRequire(import.meta.url);
-const { buildHouse }: typeof import("../spaces/house") =
-  require("../spaces/house.ts") as typeof import("../spaces/house");
-const { buildHouseEnvironment }: typeof import("../spaces/environment") =
-  require("../spaces/environment.ts") as typeof import("../spaces/environment");
-const { OpeningWindowFills }: typeof import("../instances/opening-fills") =
-  require("../instances/opening-fills.ts") as typeof import("../instances/opening-fills");
-const { ExteriorDoorFills }: typeof import("../instances/exterior-door-fills") =
-  require("../instances/exterior-door-fills.ts") as typeof import("../instances/exterior-door-fills");
-const { InteriorDoorFills }: typeof import("../instances/interior-door-fills") =
-  require("../instances/interior-door-fills.ts") as typeof import("../instances/interior-door-fills");
+const { buildHouse }: typeof import("../spaces/buildHouse") =
+  require("../spaces/buildHouse.ts") as typeof import("../spaces/buildHouse");
+const { buildHouseEnvironment }: typeof import("../spaces/buildHouseEnvironment") =
+  require("../spaces/buildHouseEnvironment.ts") as typeof import("../spaces/buildHouseEnvironment");
+const { OpeningWindowFills }: typeof import("../instances/OpeningWindowFills") =
+  require("../instances/OpeningWindowFills.ts") as typeof import("../instances/OpeningWindowFills");
+const { ExteriorDoorFills }: typeof import("../instances/ExteriorDoorFills") =
+  require("../instances/ExteriorDoorFills.ts") as typeof import("../instances/ExteriorDoorFills");
+const { InteriorDoorFills }: typeof import("../instances/InteriorDoorFills") =
+  require("../instances/InteriorDoorFills.ts") as typeof import("../instances/InteriorDoorFills");
 const { ArchitecturalFitout }: typeof import("../instances/ArchitecturalFitout") =
   require("../instances/ArchitecturalFitout.ts") as typeof import("../instances/ArchitecturalFitout");
 void test("the window owner supplies its actual double-hung, awning and fixed extremes", () : void => {
@@ -41,7 +46,7 @@ void test("the window owner supplies its actual double-hung, awning and fixed ex
 });
 void test("opening window placement stays fixed when the allowed pose changes", () : void => {
   const env: import("@automovie/interface").IAutoMovieBuiltEnvironment & { pendingMapGround: { parts: string[]; zones: string[]; }; } = buildHouseEnvironment(buildHouse()),
-    owner: import("../instances/opening-fills").OpeningWindowFills = new OpeningWindowFills(),
+    owner: import("../instances/OpeningWindowFills").OpeningWindowFills = new OpeningWindowFills(),
     a: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "frame" | "sash" | "mullion" | "muntin" | "glass" | "obscured-glass" | "exterior-trim" | "interior-sill" | "interior-casing">>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = owner.build(env),
     b: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "frame" | "sash" | "mullion" | "muntin" | "glass" | "obscured-glass" | "exterior-trim" | "interior-sill" | "interior-casing">>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = owner.build(env, true);
   assert.deepEqual(a.instances, b.instances);
@@ -56,10 +61,10 @@ void test("opening window placement stays fixed when the allowed pose changes", 
 });
 void test("all four exterior and eleven interior doors retain their placement at the allowed extremes", () : void => {
   const env: import("@automovie/interface").IAutoMovieBuiltEnvironment & { pendingMapGround: { parts: string[]; zones: string[]; }; } = buildHouseEnvironment(buildHouse()),
-    external: import("../instances/exterior-door-fills").ExteriorDoorFills = new ExteriorDoorFills(),
-    interior: import("../instances/interior-door-fills").InteriorDoorFills = new InteriorDoorFills();
-  const a: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, import("../geometry/exterior-door-geometry").Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = external.build(env),
-    b: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, import("../geometry/exterior-door-geometry").Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = external.build(env, true),
+    external: import("../instances/ExteriorDoorFills").ExteriorDoorFills = new ExteriorDoorFills(),
+    interior: import("../instances/InteriorDoorFills").InteriorDoorFills = new InteriorDoorFills();
+  const a: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = external.build(env),
+    b: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = external.build(env, true),
     c: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "jamb-a" | "jamb-b" | "jamb-core" | "casing-a" | "casing-b" | "leaf" | "leaf-panel" | "handle" | "hinge">>; hingePivot: readonly [number, number, number]; angle: number; clearWidth: number; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = interior.build(env, "closed"),
     d: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "jamb-a" | "jamb-b" | "jamb-core" | "casing-a" | "casing-b" | "leaf" | "leaf-panel" | "handle" | "hinge">>; hingePivot: readonly [number, number, number]; angle: number; clearWidth: number; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = interior.build(env, "maximum");
   assert.deepEqual(a.instances, b.instances);
@@ -74,7 +79,7 @@ void test("all four exterior and eleven interior doors retain their placement at
       assert.notDeepEqual(p.model, after[i]!.model, p.model.id);
 });
 void test("fixed closets and the shower use their already declared travel ranges", () : void => {
-  const house: import("../spaces/house").IHouse = buildHouse(),
+  const house: IHouse = buildHouse(),
     owner: import("../instances/ArchitecturalFitout").ArchitecturalFitout = new ArchitecturalFitout(),
     a: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = owner.build(house),
     b: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = owner.build(house, true);
@@ -88,7 +93,7 @@ void test("fixed closets and the shower use their already declared travel ranges
   );
 });
 void test("each sliding closet extreme leaves an open half instead of exchanging two closed leaves", () : void => {
-  const house: import("../spaces/house").IHouse = buildHouse(),
+  const house: IHouse = buildHouse(),
     owner: import("../instances/ArchitecturalFitout").ArchitecturalFitout = new ArchitecturalFitout();
   const states: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; }[] = [
     owner.build(house),
@@ -139,9 +144,9 @@ void test("each sliding closet extreme leaves an open half instead of exchanging
 });
 void test("a moving shower compares closed and maximum with one camera and face palette", () : void => {
   const owner: Bathrooms = new Bathrooms(),
-    closed: import("../models/furnishings/geometry").FittingBuilt = owner.showerBooth(),
-    maximum: import("../models/furnishings/geometry").FittingBuilt = owner.showerBooth(1);
-  const input: (built: import("../models/furnishings/geometry").FittingBuilt) => { prototypes: import("../models/furnishings/geometry").FittingBuilt[]; instances: never[]; finishes: { [k: string]: { color: number; roughness: number; metalness: number; }; }; } = (built: typeof closed) : { prototypes: import("../models/furnishings/geometry").FittingBuilt[]; instances: never[]; finishes: { [k: string]: { color: number; roughness: number; metalness: number; }; }; } => ({
+    closed: FittingBuilt = owner.showerBooth(),
+    maximum: FittingBuilt = owner.showerBooth(1);
+  const input: (built: FittingBuilt) => { prototypes: FittingBuilt[]; instances: never[]; finishes: { [k: string]: { color: number; roughness: number; metalness: number; }; }; } = (built: typeof closed) : { prototypes: FittingBuilt[]; instances: never[]; finishes: { [k: string]: { color: number; roughness: number; metalness: number; }; }; } => ({
     prototypes: [built],
     instances: [],
     finishes: Object.fromEntries(
@@ -152,7 +157,7 @@ void test("a moving shower compares closed and maximum with one camera and face 
     ),
   });
   const f: Frame = new Frame(),
-    a: import("../viewer/IViewerScene").IViewerScene = f.build(
+    a: IViewerScene = f.build(
       input(closed),
       closed.model.id,
       "diagonal",
@@ -160,7 +165,7 @@ void test("a moving shower compares closed and maximum with one camera and face 
       "b",
       input(maximum),
     ),
-    b: import("../viewer/IViewerScene").IViewerScene = f.build(
+    b: IViewerScene = f.build(
       input(maximum),
       maximum.model.id,
       "diagonal",
@@ -171,7 +176,7 @@ void test("a moving shower compares closed and maximum with one camera and face 
   assert.deepEqual(a.camera, b.camera);
   assert.deepEqual(a.modelReview?.faces, b.modelReview?.faces);
   assert.notDeepEqual(
-    a.items.filter((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => p.role === "model").map((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : number[] => p.positions),
-    b.items.filter((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => p.role === "model").map((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : number[] => p.positions),
+    a.items.filter((p: IViewerSceneItem) : boolean => p.role === "model").map((p: IViewerSceneItem) : number[] => p.positions),
+    b.items.filter((p: IViewerSceneItem) : boolean => p.role === "model").map((p: IViewerSceneItem) : number[] => p.positions),
   );
 });

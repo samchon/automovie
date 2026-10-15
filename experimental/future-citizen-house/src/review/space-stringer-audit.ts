@@ -3,8 +3,8 @@
 // authored stair opening rather than its uninformative full AABB.
 import assert from "node:assert/strict";
 import { builtEnvironmentElementBounds, Quaternion } from "@automovie/engine";
-import { buildHouse } from "../house/build";
-import { stairHole } from "../house/plan";
+import { buildHouse } from "../house/buildHouse";
+import { stairHole } from "../house/stairHole";
 type Bounds = NonNullable<ReturnType<typeof builtEnvironmentElementBounds>>;
 type Element = typeof environment.elements[number];
 
@@ -104,7 +104,7 @@ const insideObstacle = (point: { x: number; y: number; z: number }, element: Ele
   if (!inside(point, box)) return false;
   if (!element || element.model === null) return true;
   const model = models.get(element.model);
-  if (!model) throw Error(`${element.id}: missing model`);
+  if (!model) throw new Error(`${element.id}: missing model`);
   const rotation = element.transform.rotation;
   const offset = Quaternion.rotateVector(
     { x: -rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w },

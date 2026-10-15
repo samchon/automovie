@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { ObjectMesh } from "../../geometry/object-mesh";
+import { ObjectMesh } from "../../geometry/ObjectMesh";
 
 const signedVolume = (model: IAutoMovieModel): number => {
   let volume = 0;

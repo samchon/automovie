@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ObjectMesh } from "../../geometry/object-mesh";
+import { ObjectMesh } from "../../geometry/ObjectMesh";
 
 const close = (actual: number, expected: number): void =>
   assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} != ${expected}`);

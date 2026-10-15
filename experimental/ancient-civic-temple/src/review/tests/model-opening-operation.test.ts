@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { TempleOpenings } from "../../models/openings";
-import { templeDoorPassages } from "../../spaces/openings";
+import { TempleOpenings } from "../../models/TempleOpenings";
+import { templeDoorPassages } from "../../spaces/templeDoorPassages";
 
 const source = new TempleOpenings();
 

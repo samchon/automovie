@@ -1,9 +1,9 @@
 /** Verifies exterior membership, independently stated site limits and flat house support. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { addTempleSiteInstances } from "../../instances/site";
-import { createTempleEnvironment } from "../../spaces/environment";
-import { templeModelFinish } from "../../materials/bindings";
+import { addTempleSiteInstances } from "../../instances/addTempleSiteInstances";
+import { createTempleEnvironment } from "../../spaces/createTempleEnvironment";
+import { templeModelFinish } from "../../materials/templeModelFinish";
 
 const prior = createTempleEnvironment().environment;
 

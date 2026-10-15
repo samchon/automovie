@@ -1,71 +1,24 @@
-import { extrudeAutoMovieProfile } from "@automovie/engine";
 
-import { Assembly, rectangle, v } from "../assembly";
-import { type Rect, datum, roomById, stairHole } from "../plan";
-import { subtract } from "../storeys/floors";
-import { type Frame, bar, cutWall, localCut, localU, position } from "../walls";
-import { centresOf, curtainwall, louvre, spandrel } from "./curtainwall";
+import { Assembly } from "../Assembly";
+import { rectangle } from "../rectangle";
+import { v } from "../v";
+import { stairHole } from "../stairHole";
+import { type Rect } from "../Rect";
+import { datum } from "../datum";
+import { subtract } from "../storeys/subtract";
+import { bar } from "../bar";
+import { cutWall } from "../cutWall";
+import { localCut } from "../localCut";
+import { localU } from "../localU";
+import { position } from "../position";
+import { type Frame } from "../Frame";
+import { curtainwall } from "./curtainwall";
+import { louvre } from "./louvre";
+import { spandrel } from "./spandrel";
+import { centresOf } from "./centresOf";
+import { Glazing } from "./Glazing";
+import { standardWindowHeight } from "./standardWindowHeight";
 
-export type Glazing = {
-  id: string;
-  room: string;
-  a: number;
-  b: number;
-  sill: number;
-  head: number;
-  privacy?: "lower" | "all";
-  breaks?: number[];
-};
-/** Clear cell limits remain the source of each opening's measured edge. */
-export const roomEdge = (
-  id: string,
-  axis: "x" | "z",
-  end: "min" | "max",
-  cell = 0,
-): number =>
-  roomById(id).cells[cell][(axis === "x" ? 0 : 2) + (end === "max" ? 1 : 0)];
-export const glazingInset = 0.04;
-export const standardWindowHeight = (level: 0 | 1) => ({
-  sill: datum.floors[level] + 0.12,
-  head: datum.ceilings[level] - 0.1,
-});
-/** Exterior frame centres and depths derive from the outer and clear edges. */
-export function exteriorFrame(
-  face: "front" | "rear" | "left" | "right",
-): Frame {
-  const along = face === "front" || face === "rear" ? "x" : "z";
-  const normal: 1 | -1 = face === "rear" || face === "left" ? 1 : -1;
-  const edge =
-    face === "front"
-      ? datum.minZ
-      : face === "rear"
-        ? datum.maxZ
-        : face === "left"
-          ? datum.maxX
-          : datum.minX;
-  const clear =
-    face === "front"
-      ? -datum.innerZ
-      : face === "rear"
-        ? datum.innerZ
-        : face === "left"
-          ? datum.innerX
-          : -datum.innerX;
-  const plane = (edge + clear) / 2;
-  const span = along === "x" ? datum.innerX : datum.innerZ;
-  return {
-    id: face + "-face",
-    along,
-    normal,
-    plane,
-    a: -span,
-    b: span,
-    floor: datum.floors[0],
-    top: datum.ceilings[1],
-    depth: Math.abs(edge - clear),
-    spaces: ["house"],
-  };
-}
 /** Each facade calls this measured panel kernel with its complete elevation.
  * Glass, opaque joints, jambs, gaskets, shades and returns share those cuts. */
 export function facade(
@@ -236,50 +189,4 @@ function glazing(a: Assembly, f: Frame, w: Glazing): void {
       ),
     },
   });
-}
-/** A diagonal closes the corner without two facade owners occupying the same solid. */
-export function corners(
-  a: Assembly,
-  name: string,
-  face: "front" | "rear" | "left" | "right",
-): void {
-  const signs =
-    face === "front" || face === "rear"
-      ? [-1, 1].map((x) => [x, face === "front" ? -1 : 1])
-      : [-1, 1].map((z) => [face === "left" ? 1 : -1, z]);
-  for (const [sx, sz] of signs) {
-    const ix = sx * datum.innerX,
-      iz = sz * datum.innerZ;
-    const ox = sx < 0 ? datum.minX : datum.maxX,
-      oz = sz < 0 ? datum.minZ : datum.maxZ;
-    const inner = { x: ix, y: iz },
-      outer = { x: ox, y: oz };
-    const edge =
-      face === "front" || face === "rear" ? { x: ix, y: oz } : { x: ox, y: iz };
-    const profile = [inner, edge, outer];
-    const height = datum.ceilings[1] - datum.floors[0];
-    const mesh = extrudeAutoMovieProfile({ profile, depth: height });
-    const element = a.place(
-      name + "-corner-" + sx + "-" + sz,
-      "corner",
-      "house",
-      a.model(name + "-corner-mesh-" + sx + "-" + sz, "stone", {
-        type: "mesh",
-        mesh,
-      }),
-      v(0, (datum.floors[0] + datum.ceilings[1]) / 2, 0),
-      v(1, 1, 1),
-      { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
-    );
-    const boundary = a.environment.boundaries.find(
-      (b) => b.id === name + "-face",
-    )!;
-    boundary.elements.push(element);
-    if (boundary.face) {
-      const low = face === "front" || face === "rear" ? datum.minX : datum.minZ;
-      const high =
-        face === "front" || face === "rear" ? datum.maxX : datum.maxZ;
-      boundary.face.outline = rectangle(low, high, -height / 2, height / 2);
-    }
-  }
 }

@@ -5,10 +5,10 @@ const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildFront } from "./envelope/front";
-import { buildRear } from "./envelope/rear";
-import { buildLeft } from "./envelope/left";
-import { buildRight } from "./envelope/right";
+import { buildFront } from "./envelope/buildFront";
+import { buildRear } from "./envelope/buildRear";
+import { buildLeft } from "./envelope/buildLeft";
+import { buildRight } from "./envelope/buildRight";
 
 const EPS = 1e-6;
 const TOP = 0.6;
