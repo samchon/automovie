@@ -34,8 +34,8 @@ export const run: (sk: string) => IAutoMovieMotion = (
   const arms: (s: number) => IAutoMovieJointPose[] = (
     s: number,
   ): IAutoMovieJointPose[] => [
-    j("leftUpperArm", { abduction: 48, flexion: 48 * s }),
-    j("leftLowerArm", { flexion: -88 }),
+    j("leftUpperArm", { abduction: 48, flexion: -48 * s }),
+    j("leftLowerArm", { flexion: 88 }),
     j("rightUpperArm", { abduction: 48, flexion: 48 * s }),
     j("rightLowerArm", { flexion: 88 }),
   ];
