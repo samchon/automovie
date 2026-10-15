@@ -7,7 +7,7 @@ import { abductAutoMovieHumanArms } from "./abductAutoMovieHumanArms";
 /**
  * Measure a generated skeleton the way its identity was measured.
  *
- * The rest skeleton stands in the T-pose. Span, fingertip to fingertip with the arms outstretched, is measured there; then the arms are lowered back to the anthropometric posture by the inverse of the conversion that raised them, and the landmarks are measured by `measureAutoMovieHumanLandmarks`. For a skeleton generated from an identity, every returned length but span equals the identity's own to floating-point precision; a difference means generation lost a measurement. Span is the T-pose's own, a free 90-degree abduction, which reaches further than the identity's span measured with the arms pressed back against a wall (see `abductAutoMovieHumanArms`).
+ * The rest skeleton stands in the T-pose. Span, fingertip to fingertip with the arms outstretched, is measured there; then the arms are lowered back to the anthropometric posture by the inverse of the conversion that raised them, and the landmarks are measured by `measureAutoMovieHumanLandmarks`. For a skeleton generated from an identity, every returned length but span equals the identity's own to floating-point precision; a difference means generation lost a measurement. Span is the T-pose's own, which reaches further than the identity's surveyed span (see `abductAutoMovieHumanArms`).
  *
  * @param skeleton Generated skeleton in the T-pose rest
  * @returns The skeletal measurements its landmarks give

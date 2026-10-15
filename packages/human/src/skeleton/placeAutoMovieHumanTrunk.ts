@@ -26,7 +26,7 @@ const TRUNK_LEVEL: Record<
 /**
  * Place the pelvis, spine and neck.
  *
- * The root `hips` sits midway between the two hip joint centres. The spine joints stand above it at the trunk levels, on the vertebral column as it curves in the side view through the identity's posture ({@link curveAutoMovieHumanSpine}): the lumbar lordosis, the thoracic kyphosis and the pelvic tilt, with the neck at the measured sagittal vertical axis over the sacrum, so an old person's deeper kyphosis and backward-tilted pelvis stand the neck forward of the hips. The neck starts on the column at cervicale height; its end, the head joint, is placed with the head. Cervicale and the jugular notch sit on the back and front of the neck, a neck-circumference radius behind and in front of the column; the ischial seat lies at stature minus sitting height. The acromion, and the shoulder under it, stands in the coronal plane of the jugular notch at its own height, a neck radius in front of the column, so the shoulders lie over the hips in a young adult and round forward with an old person's upper thoracic curve; the placement is conventional, a check on renders. The arm itself is placed by `placeAutoMovieHumanArm`.
+ * The root `hips` sits midway between the two hip joint centres. The spine joints stand above it at the trunk levels, on the vertebral column as it curves in the side view through the identity's posture ({@link curveAutoMovieHumanSpine}): the lumbar lordosis, the thoracic kyphosis and the pelvic tilt, with the neck at the measured sagittal vertical axis over the sacrum, so an old person's deeper kyphosis and backward-tilted pelvis stand the neck forward of the hips. The neck starts on the column at cervicale height; its end, the head joint, is placed with the head. Cervicale and the jugular notch sit on the back and front of the neck, a neck-circumference radius behind and in front of the column; the ischial seat lies at stature minus sitting height. The shoulders hang from the jugular notch through the clavicles, so they round forward with an old person's upper thoracic curve; the arm itself is placed by `placeAutoMovieHumanArm`.
  *
  * The spine, neck and pelvis use the engine's default axes: flexion bends forward about X, abduction bends to the right about Z, twist turns to the left about Y.
  *
@@ -86,7 +86,6 @@ export function placeAutoMovieHumanTrunk(
   });
   return {
     suprasternale,
-    shoulderDepth: column.at(body.acromialHeight) + neckRadius,
     column,
     joints: bones.map(
       (
@@ -133,9 +132,6 @@ export namespace placeAutoMovieHumanTrunk {
   export interface IOutput {
     /** The jugular notch, where the clavicles start. */
     suprasternale: IAutoMovieVector3;
-
-    /** Front-back position of the shoulders, a neck radius in front of the column at acromial height, millimetres. */
-    shoulderDepth: number;
 
     /** The curved vertebral column. */
     column: curveAutoMovieHumanSpine.IOutput;

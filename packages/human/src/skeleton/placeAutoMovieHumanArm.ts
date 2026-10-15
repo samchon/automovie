@@ -27,6 +27,11 @@ const SHOULDER_MEDIAL_PER_BIACROMIAL: number = 0.018;
 const CLAVICALE_PER_BIACROMIAL: number = 0.06;
 
 /**
+ * Retraction of the clavicle at rest, arms hanging, degrees: the angle between the clavicle and the trunk's frontal plane seen from above, 19.2 (SD 2) in relaxed standing on bone-pin tracking of twelve healthy adults (Ludewig et al. 2009, J Bone Joint Surg Am 91(2):378-389, Table I). The acromion and the hanging arm therefore stand behind the sternoclavicular joint by the clavicle's lateral run times its tangent. Grade: measured.
+ */
+const CLAVICLE_RETRACTION: number = 19.2;
+
+/**
  * The engine's arm axes for the canonical T-pose, which its `HUMANOID_REST_FRAME` calibrates per side: flexion about +Y, abduction about +Z, twist about +X, the same vectors on both arms because the rest frame mirrors the sign. Human keeps them for the shoulder girdle and arm so arm motion authored for any humanoid means the same on the person.
  */
 const ARM_AXES: IAutoMovieHumanSkeleton.IAxes = {
@@ -47,7 +52,7 @@ const HAND_AXES: IAutoMovieHumanSkeleton.IAxes = {
 /**
  * Place one arm, in the anthropometric posture with the arm hanging.
  *
- * The acromion sits at acromial height, half the biacromial breadth from the midline. The shoulder joint centre, the humeral head's, lies a little medial of the acromion's lateral edge ({@link SHOULDER_MEDIAL_PER_BIACROMIAL}) and de Leva's offset below it, and the arm hangs straight below that centre: radiale the acromion-radiale length from the acromion, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
+ * The acromion sits at acromial height, half the biacromial breadth from the midline. The shoulder joint centre, the humeral head's, lies a little medial of the acromion's lateral edge ({@link SHOULDER_MEDIAL_PER_BIACROMIAL}) and de Leva's offset below it, and the arm hangs straight below that centre: radiale the acromion-radiale length from the acromion, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, out to the acromion and back by its resting retraction ({@link CLAVICLE_RETRACTION}), and the arm hangs in the coronal plane at the acromion's depth; the clavicle bone ends at the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
  *
  * The forearm hangs straight on the arm, so the canonical T-pose rest has it straight and horizontal with the palm down, as every humanoid's does, and a pose retargeted from another humanoid lands the same. The identity's carrying angle, measured with the forearm supinated, lives in the forearm's declared axes instead ({@link tiltAutoMovieHumanForearmAxes}): supinating the forearm into the anatomical position, palm forward, opens the angle, and pronating it back closes it, as the oblique pronation-supination axis of the radius does.
  *
@@ -56,19 +61,23 @@ const HAND_AXES: IAutoMovieHumanSkeleton.IAxes = {
  * @param body The body measurements
  * @param side Which arm
  * @param suprasternale The jugular notch
- * @param depth Front-back position of the shoulder and the hanging arm, millimetres
  * @returns Joints from the clavicle to the fingertips, the shoulder centre, and the arm's landmarks
  */
 export function placeAutoMovieHumanArm(
   body: IAutoMovieHumanIdentity.IBody,
   side: "left" | "right",
   suprasternale: IAutoMovieVector3,
-  depth: number,
 ): placeAutoMovieHumanArm.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const s: number = side === "left" ? 1 : -1;
   const arm: IAutoMovieHumanIdentity.IArm =
     side === "left" ? body.leftArm : body.rightArm;
+  // the clavicle runs back from the sternoclavicular joint at its resting retraction
+  const depth: number =
+    suprasternale.z -
+    (0.5 - CLAVICALE_PER_BIACROMIAL) *
+      body.biacromialBreadth *
+      Math.tan((CLAVICLE_RETRACTION * Math.PI) / 180);
   const acromion: IAutoMovieVector3 = V.of(
     (s * body.biacromialBreadth) / 2,
     body.acromialHeight,

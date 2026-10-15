@@ -75,7 +75,7 @@ export namespace IAutoMovieHumanIdentity {
     bideltoidBreadth: number & tags.Minimum<90> & tags.Maximum<900>;
 
     /**
-     * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it: standing with the back and both arms pressed flat against a wall, palms forward (Hotzman et al. 2011, NATICK/TR-11/017, 6.4.75). The pressed-back girdle makes it shorter than shoulder breadth plus both hanging arms, and shorter than the T-pose rest reaches, which the skeleton does not fit to it.
+     * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it: standing with the back and both arms pressed flat against a wall, palms forward (Hotzman et al. 2011, NATICK/TR-11/017, 6.4.75). It is shorter than shoulder breadth plus both hanging arms, and shorter than the skeleton's T-pose reaches; the skeleton does not fit it (see `abductAutoMovieHumanArms`).
      */
     span: number & tags.Minimum<300> & tags.Maximum<2800>;
 
