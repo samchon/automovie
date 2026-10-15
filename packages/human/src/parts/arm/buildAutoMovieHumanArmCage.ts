@@ -84,6 +84,7 @@ export function buildAutoMovieHumanArmCage(
   const shape = (
     sections: sectionAutoMovieHumanArm.ISection[],
   ): IAutoMovieVector3[][] => {
+  const centres: IAutoMovieVector3[] = [];
   const targets: IAutoMovieVector3[][] = sections.map(
     (section: sectionAutoMovieHumanArm.ISection, i: number): IAutoMovieVector3[] => {
       const layout: IAutoMovieHumanRingLayout | null =
@@ -101,6 +102,7 @@ export function buildAutoMovieHumanArmCage(
               axis,
               section.level * (section.level < 0 ? above : below),
             ]);
+      centres.push(centre);
       const front: IAutoMovieVector3 = V.normalize(
         V.offset(V.of(0, 0, 1), [axis, -axis.z]),
       );
@@ -127,13 +129,7 @@ export function buildAutoMovieHumanArmCage(
       });
     },
   );
-  const vertices: IAutoMovieVector3[][] = fit(targets, [
-    { origin: upper.frame.origin, directions: targets[0]!.map((p) => direction(p, upper.frame.origin)) },
-    {
-      origin: wrist.frame.origin,
-      directions: targets[targets.length - 1]!.map((p) => direction(p, wrist.frame.origin)),
-    },
-  ]);
+  const vertices: IAutoMovieVector3[][] = fit(targets, centres);
   return vertices;
   };
 
@@ -285,41 +281,35 @@ const forearmMaximum = (
   return best;
 };
 
-/** Unit direction from a ring's origin to one of its points. */
-const direction = (
-  point: IAutoMovieVector3,
-  origin: IAutoMovieVector3,
-): IAutoMovieVector3 =>
-  AutoMovieHumanVector.normalize(AutoMovieHumanVector.offset(point, [origin, -1]));
-
-/** An open ring whose vertices slide only along their directions. */
-interface IOpening {
-  origin: IAutoMovieVector3;
-  directions: IAutoMovieVector3[];
-}
-
 /**
  * Move the cage until its Catmull-Clark limit surface passes through the targets.
  *
- * Inside the grid a regular vertex's limit is the tensor product of the cubic B-spline weights 1/6, 4/6, 1/6 over its 3 by 3 neighbourhood; on an open ring it is the ring's own cubic B-spline, because the boundary edges are sharp. Each round adds the remaining error to every vertex, a stable fixed-point iteration since every eigenvalue of the stencil lies between 1/9 and 1; ring vertices take only the part of their error along their direction.
+ * Inside the grid a regular vertex's limit is the tensor product of the cubic B-spline weights 1/6, 4/6, 1/6 over its 3 by 3 neighbourhood; on an open ring it is the ring's own cubic B-spline, because the boundary edges are sharp. Each round moves every vertex along its own ray from its loop's centre by the part of the remaining error along that ray, a stable fixed-point iteration since every eigenvalue of the stencil lies between 1/9 and 1. Vertices never leave their loop's plane and ray: the loops are unevenly spaced around the elbow, and fitting along the limb would push neighbouring loops past each other and fold the surface; on the open rings the ray is also the junction contract's.
  */
 const fit = (
   targets: IAutoMovieVector3[][],
-  openings: [IOpening, IOpening],
+  centres: IAutoMovieVector3[],
 ): IAutoMovieVector3[][] => {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const rows: number = targets.length;
-  let cage: IAutoMovieVector3[][] = targets.map((row: IAutoMovieVector3[]) => [...row]);
+  const rays: IAutoMovieVector3[][] = targets.map(
+    (row: IAutoMovieVector3[], i: number): IAutoMovieVector3[] =>
+      row.map(
+        (p: IAutoMovieVector3): IAutoMovieVector3 =>
+          V.normalize(V.offset(p, [centres[i]!, -1])),
+      ),
+  );
+  let cage: IAutoMovieVector3[][] = targets.map(
+    (row: IAutoMovieVector3[]): IAutoMovieVector3[] => [...row],
+  );
   const at = (i: number, j: number): IAutoMovieVector3 =>
     cage[i]![(j + COUNT) % COUNT]!;
   const W: [number, number, number] = [1 / 6, 4 / 6, 1 / 6];
   for (let round: number = 0; round < FIT_ROUNDS; ++round)
     cage = cage.map((row: IAutoMovieVector3[], i: number): IAutoMovieVector3[] =>
       row.map((point: IAutoMovieVector3, j: number): IAutoMovieVector3 => {
-        const opening: IOpening | null =
-          i === 0 ? openings[0] : i === rows - 1 ? openings[1] : null;
         let limit: IAutoMovieVector3 = V.of(0, 0, 0);
-        if (opening !== null)
+        if (i === 0 || i === rows - 1)
           for (let b: number = -1; b <= 1; ++b)
             limit = V.offset(limit, [at(i, j + b), W[b + 1]!]);
         else
@@ -327,9 +317,8 @@ const fit = (
             for (let b: number = -1; b <= 1; ++b)
               limit = V.offset(limit, [at(i + a, j + b), W[a + 1]! * W[b + 1]!]);
         const error: IAutoMovieVector3 = V.offset(targets[i]![j]!, [limit, -1]);
-        if (opening === null) return V.offset(point, [error, 1]);
-        const d: IAutoMovieVector3 = opening.directions[j]!;
-        return V.offset(point, [d, V.dot(error, d)]);
+        const ray: IAutoMovieVector3 = rays[i]![j]!;
+        return V.offset(point, [ray, V.dot(error, ray)]);
       }),
     );
   return cage;
