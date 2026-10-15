@@ -1,6 +1,10 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
+import { fieldAutoMovieHumanDeltoid } from "../fieldAutoMovieHumanDeltoid";
+import { fieldAutoMovieHumanLimbRelief } from "../fieldAutoMovieHumanLimbRelief";
 import { loftAutoMovieHumanLimb } from "../loftAutoMovieHumanLimb";
+import { networkAutoMovieHumanLimb } from "../networkAutoMovieHumanLimb";
+import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { planAutoMovieHumanArm } from "./planAutoMovieHumanArm";
 
 /**
@@ -28,5 +32,24 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
     props: IAutoMovieHumanPartGenerator.IProps<"arm">,
   ): IAutoMovieHumanCage {
     return loftAutoMovieHumanLimb(planAutoMovieHumanArm(props));
+  }
+
+  /**
+   * The arm's relief: its superficial forms (`fieldAutoMovieHumanLimbRelief` over `AUTOMOVIE_HUMAN_ARM_RELIEF`) and the lower end of the deltoid, the field the trunk's shoulder branch shares (`fieldAutoMovieHumanDeltoid`).
+   *
+   * @param props Measurements, skeleton and the side of the arm
+   * @returns Displacement, millimetres, outward positive, at a point of the arm's skin
+   */
+  public relief(
+    props: IAutoMovieHumanPartGenerator.IProps<"arm">,
+  ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">) => number {
+    const plan: IAutoMovieHumanLimbPlan = planAutoMovieHumanArm(props);
+    const limb: (u: number, v: number) => number = fieldAutoMovieHumanLimbRelief(
+      plan,
+      networkAutoMovieHumanLimb(plan).value,
+    );
+    const deltoid = fieldAutoMovieHumanDeltoid(props);
+    return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number =>
+      limb(point.coordinate.u, point.coordinate.v) + deltoid(point.position);
   }
 }

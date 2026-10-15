@@ -60,6 +60,7 @@ export * from "./junction/meshAutoMovieHumanCage";
 export * from "./junction/shapeAutoMovieHumanRing";
 
 export * from "./parts/IAutoMovieHumanPartGenerator";
+export * from "./parts/fieldAutoMovieHumanDeltoid";
 
 export * from "./rig/validateAutoMovieHumanExpression";
 export * from "./rig/validateAutoMovieHumanPose";

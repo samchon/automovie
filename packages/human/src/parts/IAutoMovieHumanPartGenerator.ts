@@ -3,12 +3,14 @@ import {
   IAutoMovieImage,
   IAutoMovieMaterial,
   IAutoMovieMesh,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieHumanPart } from "../junction/AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "../junction/AutoMovieHumanSide";
 import { AutoMovieHumanTissue } from "../junction/AutoMovieHumanTissue";
 import { IAutoMovieHumanCage } from "../junction/IAutoMovieHumanCage";
+import { IAutoMovieHumanSurfaceCoordinate } from "../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 
@@ -45,6 +47,18 @@ export interface IAutoMovieHumanPartGenerator<Part extends AutoMovieHumanPart> {
   attachments?(
     props: IAutoMovieHumanPartGenerator.IProps<Part>,
   ): IAutoMovieHumanPartGenerator.IAttachment[];
+
+  /**
+   * The part's relief: the forms finer than its cage carries, such as muscle bellies and the furrows between them, as a displacement of the subdivided skin along its normal.
+   *
+   * The skin is subdivided from the joined cage and each vertex is moved by the relief of the part whose chart it lies on, read at its chart address and its rest position, so the relief follows the part's own coordinates at every refinement and pose. A relief that crosses a junction, such as the deltoid over the mid-upper-arm ring, is one field both parts evaluate at the same rest position, which keeps it continuous. Omitted, the part has none.
+   *
+   * @param props The same props as `generate`
+   * @returns Displacement, millimetres, outward positive, at a point of the part's skin
+   */
+  relief?(
+    props: IAutoMovieHumanPartGenerator.IProps<Part>,
+  ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<Part>) => number;
 }
 export namespace IAutoMovieHumanPartGenerator {
   /**
@@ -80,6 +94,20 @@ export namespace IAutoMovieHumanPartGenerator {
       /** Images the material's texture bindings cite. */
       images: IAutoMovieImage[];
     };
+  }
+
+  /**
+   * A point of a part's skin where its relief is read.
+   *
+   * @template Part The skin part the point lies on
+   * @author Samchon
+   */
+  export interface IReliefPoint<Part extends AutoMovieHumanPart> {
+    /** The point's address on the part's chart, the bilinear blend of its cage face's corner addresses. */
+    coordinate: IAutoMovieHumanSurfaceCoordinate.IOn<Part>;
+
+    /** The point's rest limit position before any relief, model frame, millimetres. */
+    position: IAutoMovieVector3;
   }
 
   /**
