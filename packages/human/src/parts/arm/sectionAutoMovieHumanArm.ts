@@ -3,7 +3,7 @@ import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentit
 import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTissue";
 
 /**
- * Levels of the arm's edge loops in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Next to each junction ring a loop repeats the ring's shape a tenth of the way in (`-0.9` and `0.93`), so the joined surface keeps the ring's measured girth there instead of bulging toward the part's own sections. Loops gather at the elbow, 15 percent above, at and 8 percent below the joint, so the cage has edges to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
+ * Levels of the arm's loft stations in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Next to each junction ring a loop repeats the ring's shape a tenth of the way in (`-0.9` and `0.93`), so the joined surface keeps the ring's measured girth there instead of bulging toward the part's own sections. Loops gather at the elbow, 15 percent above, at and 8 percent below the joint, so the cage has rows to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
  */
 const LEVELS: number[] = [
   -1, -0.9, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 0.93, 1,
@@ -38,11 +38,6 @@ const FAT_AROUND: { upper: number[]; fore: number[] } = {
   upper: [0.5, 0.65, 0.9, 1, 1, 0.9, 0.7, 0.55],
   fore: [1, 1, 0.95, 0.8, 0.75, 0.8, 0.9, 1],
 };
-
-/**
- * How much of the deep relief fat fills: a layer of this thickness, millimetres, levels half of it. Fat lies thicker in the furrows between muscles than over their bellies, so a fatter arm is rounder at the same girth. Grade: conventional.
- */
-const FAT_LEVELLING: number = 10;
 
 /** Share of the local fat layer that lies over a bony prominence; fat thins over the epicondyles and gathers between them. Grade: conventional. */
 const EPICONDYLE_FAT: number = 0.5;
@@ -116,204 +111,6 @@ const BONES: Array<
   [0.83, 3, "ceiling", 0.465],
 ];
 
-/**
- * Superficial forms of the arm, each a ridge or furrow along the limb at one direction of the section.
- *
- * `angle` is degrees from the anterior (flexor) surface toward the medial side, in the forearm's frame in supination, which the section twists into the rest pose. `amplitude` is relative to the section's mean deep radius; muscles and furrows scale with muscularity, bones do not. `from`, `peak` and `to` are arm levels as in `LEVELS`. Courses follow Gray (1918) and Bridgman (1920, "Constructive Anatomy"): the brachioradialis wedge rises a third of the way up the arm and peaks above the medial flexor-pronator mass, which starts at the medial epicondyle and peaks lower, so the outer and inner contours never peak at one level; the deltoid insertion and the cubital fossa are hollows between bellies; the lower forearm is tendinous. Amplitudes are conventional, judged in the viewer.
- */
-const FORMS: IForm[] = [
-  {
-    name: "biceps",
-    kind: "muscle",
-    angle: 10,
-    width: 38,
-    amplitude: 0.1,
-    from: -1.4,
-    peak: -0.5,
-    to: 0.25,
-  },
-  {
-    name: "brachialis lateral",
-    kind: "muscle",
-    angle: -60,
-    width: 25,
-    amplitude: 0.05,
-    from: -0.75,
-    peak: -0.2,
-    to: 0.15,
-  },
-  {
-    name: "brachialis medial",
-    kind: "muscle",
-    angle: 62,
-    width: 25,
-    amplitude: 0.04,
-    from: -0.7,
-    peak: -0.2,
-    to: 0.1,
-  },
-  {
-    name: "triceps long head",
-    kind: "muscle",
-    angle: 150,
-    width: 35,
-    amplitude: 0.08,
-    from: -1.5,
-    peak: -0.9,
-    to: -0.35,
-  },
-  {
-    name: "triceps lateral head",
-    kind: "muscle",
-    angle: -140,
-    width: 32,
-    amplitude: 0.07,
-    from: -1.5,
-    peak: -1,
-    to: -0.45,
-  },
-  {
-    name: "triceps tendon plane",
-    kind: "muscle",
-    angle: 180,
-    width: 30,
-    amplitude: -0.07,
-    from: -0.6,
-    peak: -0.25,
-    to: -0.02,
-  },
-  {
-    name: "deltoid insertion",
-    kind: "muscle",
-    angle: -90,
-    width: 25,
-    amplitude: -0.035,
-    from: -1.3,
-    peak: -1,
-    to: -0.7,
-  },
-  {
-    name: "medial bicipital groove",
-    kind: "muscle",
-    angle: 95,
-    width: 20,
-    amplitude: -0.04,
-    from: -1.3,
-    peak: -0.6,
-    to: -0.15,
-  },
-  {
-    name: "cubital fossa",
-    kind: "muscle",
-    angle: 0,
-    width: 30,
-    amplitude: -0.02,
-    from: -0.35,
-    peak: 0.02,
-    to: 0.3,
-  },
-  {
-    name: "brachioradialis",
-    kind: "muscle",
-    angle: -70,
-    width: 32,
-    amplitude: 0.14,
-    from: -0.9,
-    peak: 0,
-    to: 0.6,
-  },
-  {
-    name: "flexor-pronator mass",
-    kind: "muscle",
-    angle: 50,
-    width: 38,
-    amplitude: 0.11,
-    from: -0.25,
-    peak: 0.3,
-    to: 0.8,
-  },
-  {
-    name: "extensor mass",
-    kind: "muscle",
-    angle: -125,
-    width: 32,
-    amplitude: 0.07,
-    from: 0,
-    peak: 0.25,
-    to: 0.8,
-  },
-  {
-    name: "anconeus",
-    kind: "muscle",
-    angle: -158,
-    width: 20,
-    amplitude: 0.03,
-    from: 0,
-    peak: 0.08,
-    to: 0.2,
-  },
-  {
-    name: "ulnar furrow",
-    kind: "muscle",
-    angle: 150,
-    width: 18,
-    amplitude: -0.05,
-    from: 0.05,
-    peak: 0.4,
-    to: 1,
-  },
-  {
-    name: "abductor pollicis longus",
-    kind: "muscle",
-    angle: -105,
-    width: 25,
-    amplitude: 0.04,
-    from: 0.55,
-    peak: 0.74,
-    to: 0.92,
-  },
-  {
-    name: "medial epicondyle",
-    kind: "bone",
-    angle: 90,
-    width: 18,
-    amplitude: 0.08,
-    from: -0.3,
-    peak: -0.08,
-    to: 0.08,
-  },
-  {
-    name: "lateral epicondyle",
-    kind: "bone",
-    angle: -90,
-    width: 18,
-    amplitude: 0.05,
-    from: -0.3,
-    peak: -0.08,
-    to: 0.08,
-  },
-  {
-    name: "olecranon",
-    kind: "bone",
-    angle: 180,
-    width: 22,
-    amplitude: 0.05,
-    from: -0.1,
-    peak: 0,
-    to: 0.12,
-  },
-  {
-    name: "ulnar head",
-    kind: "bone",
-    angle: 135,
-    width: 22,
-    amplitude: 0.05,
-    from: 0.82,
-    peak: 1,
-    to: 1.2,
-  },
-];
-
 /** Forearm twist at the wrist, degrees: the rest pose holds the forearm at neutral rotation, palm toward the thigh, a quarter turn from supination. */
 const NEUTRAL_TWIST: number = 90;
 
@@ -321,16 +118,15 @@ const NEUTRAL_TWIST: number = 90;
 const COUNT: number = 8;
 
 /**
- * Shape the arm's cross-sections, one per edge loop, from its measurements.
+ * Shape the arm's block-out cross-sections, one per station of the loft, from its measurements; the superficial relief lies over them (`AUTOMOVIE_HUMAN_ARM_RELIEF`).
  *
- * Each section is built in four steps:
+ * Each section is built in three steps:
  *
- * 1. A deep shape of bone and muscle: a superellipse of the level's proportions with every superficial form added at its direction and level, muscles scaled by muscularity.
- * 2. Fat levels part of that relief toward the section's mean, more as the layer thickens.
- * 3. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
- * 4. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the shared wrist section (`AUTOMOVIE_HUMAN_WRIST_SECTION`) fixes the wrist's breadth.
+ * 1. A deep shape of bone and muscle: a superellipse of the level's proportions.
+ * 2. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
+ * 3. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the shared wrist section (`AUTOMOVIE_HUMAN_WRIST_SECTION`) fixes the wrist's breadth.
  *
- * Girth is the length of the smooth closed curve through the section's points, the periodic cubic B-spline that interpolates them, which is what the subdivided cage reproduces at that level.
+ * Girth is the length of the smooth closed curve through the section's points, the periodic cubic B-spline that interpolates them, which the section's curve in the loft is. The loft holds each station's row to the level's girth again once the relief is on, so these girths only fix the section's proportions and the bones' share of it.
  *
  * @param arm The arm's measurements
  * @param tissue The arm's fat, muscularity and bony breadths
@@ -361,13 +157,7 @@ export function sectionAutoMovieHumanArm(
   return LEVELS.map((level: number): sectionAutoMovieHumanArm.ISection => {
     const thickness: number[] = fat(level);
     const girth: number = profile(level);
-    const shape: number[] = deepShape(level, tissue.muscularity);
-    const levelling: number =
-      mean(thickness) / (mean(thickness) + FAT_LEVELLING);
-    const average: number = mean(shape);
-    const soft: number[] = shape.map(
-      (s: number): number => (1 - levelling) * s + levelling * average,
-    );
+    const shape: number[] = deepShape(level);
     const pinned: Map<number, number> = new Map();
     const floor: Map<number, number> = new Map();
     const ceiling: Map<number, number> = new Map();
@@ -385,10 +175,21 @@ export function sectionAutoMovieHumanArm(
       pinned.set(2, half);
       pinned.set(6, half);
     }
+    const fitted: { radii: number[]; scale: number } = fitGirth(
+      shape,
+      thickness,
+      girth,
+      pinned,
+      floor,
+      ceiling,
+    );
     return {
       level,
       twist: level <= 0 ? 0 : NEUTRAL_TWIST * level * level * (3 - 2 * level),
-      radii: fitGirth(soft, thickness, girth, pinned, floor, ceiling),
+      radii: fitted.radii,
+      girth,
+      fat: mean(thickness),
+      deep: fitted.scale * mean(shape),
     };
   });
 }
@@ -410,23 +211,20 @@ export namespace sectionAutoMovieHumanArm {
      * Distance of the surface from the bone axis, millimetres, toward anterior, anteromedial, medial, posteromedial, posterior, posterolateral, lateral and anterolateral in the section's twisted frame.
      */
     radii: number[];
+
+    /** Girth of the section and of the loft's row at its level, millimetres. */
+    girth: number;
+
+    /** Mean subcutaneous fat thickness around the section, millimetres. */
+    fat: number;
+
+    /** Mean radius of the deep shape of bone and muscle under the fat, millimetres. */
+    deep: number;
   }
 }
 
-/** One superficial form. */
-interface IForm {
-  name: string;
-  kind: "muscle" | "bone";
-  angle: number;
-  width: number;
-  amplitude: number;
-  from: number;
-  peak: number;
-  to: number;
-}
-
-/** Deep relative radii of one level: superellipse proportions plus every form, mean near 1. */
-const deepShape = (level: number, muscularity: number): number[] => {
+/** Deep relative radii of one level: the superellipse of its proportions, mean near 1. */
+const deepShape = (level: number): number[] => {
   const aspect: number = interpolate(
     PROPORTION.map((p: [number, number, number]): [number, number] => [
       p[0],
@@ -445,21 +243,11 @@ const deepShape = (level: number, muscularity: number): number[] => {
   const depth: number = 1 / breadth;
   return Array.from({ length: COUNT }, (_: unknown, k: number): number => {
     const angle: number = (2 * Math.PI * k) / COUNT;
-    const base: number = Math.pow(
+    return Math.pow(
       Math.pow(Math.abs(Math.cos(angle)) / depth, exponent) +
         Math.pow(Math.abs(Math.sin(angle)) / breadth, exponent),
       -1 / exponent,
     );
-    let relief: number = 0;
-    for (const form of FORMS) {
-      const along: number = bump(level, form.from, form.peak, form.to);
-      if (along === 0) continue;
-      const delta: number = wrap((angle * 180) / Math.PI - form.angle);
-      const around: number = Math.exp(-0.5 * (delta / form.width) ** 2);
-      const scale: number = form.kind === "muscle" ? muscularity : 1;
-      relief += form.amplitude * scale * along * around;
-    }
-    return base + relief;
   });
 };
 
@@ -492,7 +280,7 @@ const fatAround = (
 };
 
 /**
- * Scale the deep shape so the section through its radii plus the fat has the target girth, holding pinned radii and pinning any radius that crosses its floor or ceiling there.
+ * Scale the deep shape so the section through its radii plus the fat has the target girth, holding pinned radii and pinning any radius that crosses its floor or ceiling there; returns the radii and the deep shape's scale.
  */
 const fitGirth = (
   shape: number[],
@@ -501,7 +289,7 @@ const fitGirth = (
   pinned: Map<number, number>,
   floor: Map<number, number>,
   ceiling: Map<number, number>,
-): number[] => {
+): { radii: number[]; scale: number } => {
   const fixed: Map<number, number> = new Map(pinned);
   for (let round: number = 0; round <= COUNT; ++round) {
     const radii: (scale: number) => number[] = (scale: number): number[] =>
@@ -515,7 +303,8 @@ const fitGirth = (
       if (perimeter(radii(middle)) < girth) low = middle;
       else high = middle;
     }
-    const result: number[] = radii((low + high) / 2);
+    const scale: number = (low + high) / 2;
+    const result: number[] = radii(scale);
     let raised: boolean = false;
     for (const [k, value] of floor)
       if (!fixed.has(k) && result[k]! < value) {
@@ -527,7 +316,7 @@ const fitGirth = (
         fixed.set(k, value);
         raised = true;
       }
-    if (!raised) return result;
+    if (!raised) return { radii: result, scale };
   }
   throw new Error("arm section cannot meet its girth within its bones");
 };
@@ -594,12 +383,6 @@ const bump = (x: number, from: number, peak: number, to: number): number => {
   const t: number =
     x < peak ? (x - from) / (peak - from) : (to - x) / (to - peak);
   return 0.5 - 0.5 * Math.cos(Math.PI * t);
-};
-
-/** Signed angle difference in degrees, in (-180, 180]. */
-const wrap = (degrees: number): number => {
-  const r: number = ((degrees % 360) + 360) % 360;
-  return r > 180 ? r - 360 : r;
 };
 
 /** Piecewise linear interpolation over ascending knots, held beyond the ends. */
