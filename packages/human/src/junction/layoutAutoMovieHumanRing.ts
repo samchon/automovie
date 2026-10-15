@@ -13,7 +13,7 @@ import { IAutoMovieHumanRingDefinition } from "./IAutoMovieHumanRingDefinition";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
 
 /**
- * Resolve the ring one part opens at one junction site from the person's skeleton.
+ * Resolve the frame and vertex directions of the ring one part opens at one junction site from the person's skeleton. A part opens the ring itself from `shapeAutoMovieHumanRing`, which adds the vertex positions both parts share.
  *
  * Each site's cut is fixed by the skeleton alone, so both parts of the site compute the same frame without seeing each other:
  *

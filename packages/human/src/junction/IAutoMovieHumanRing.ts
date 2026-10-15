@@ -7,7 +7,7 @@ import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 /**
  * One opening of a cage: a closed loop of boundary vertices where the part meets a neighbour.
  *
- * Both parts at a junction site build their ring from one shared definition, `AUTOMOVIE_HUMAN_RINGS` resolved against the skeleton by `layoutAutoMovieHumanRing`: the site's frame, the vertex count, the orientation and the start mark below, and the direction of every vertex from the origin. That shared definition is what lets the junction join them without either part adapting to the other, and what keeps a part swappable for another with the same ring. When two rings at a site differ in count, the junction owns the transition patch.
+ * Both parts at a junction site build their ring from one shared definition, `AUTOMOVIE_HUMAN_RINGS` resolved against the person by `shapeAutoMovieHumanRing`: the site's frame, the vertex count, the orientation and the start mark below, and the position of every vertex. Both parts put their ring vertices exactly on those positions, so the junction welds coincident points. That shared definition is what lets the junction join them without either part adapting to the other, and what keeps a part swappable for another with the same ring. When two rings at a site differ in count, the junction owns the transition patch.
  *
  * Orientation: the vertices run counterclockwise about `frame.normal` by the right-hand rule. The normal points out of the part, so the two rings of one site run in opposite senses about a common axis, and the junction reverses one of them to pair vertices. The rule is the same on both sides of the body, so a generator that builds the right side by mirroring the left reverses each face's corners and each ring after its start vertex.
  *
