@@ -75,22 +75,32 @@ export function shapeAutoMovieHumanEar(
     along(j, 0.05 + 0.04 * helix[j]!, 0.05 + 0.1 * helix[j]! + form.relief.tragus * window(j, 8, 1.5)),
   );
   const lip: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.1 + 0.1 * helix[j]!, 0.04 * helix[j]!),
+    along(j, 0.1 + 0.12 * helix[j]!, 0.04 * helix[j]!),
   );
   const scapha: IPoint[] = range(24).map((j: number): IPoint =>
     along(
       j,
-      0.13 + 0.09 * helix[j]!,
-      -(0.04 + 0.2 * helix[j]! * (1 - 0.45 * window(j, 0, 5))),
+      0.12 + 0.08 * helix[j]!,
+      // the scapha never sinks below half the margin's height, so the root of the helix keeps its thickness
+      -Math.min(
+        0.04 + 0.2 * helix[j]! * (1 - 0.45 * window(j, 0, 5)),
+        (0.5 * outline[j]!.h) / P,
+      ),
     ),
   );
 
-  // the concha rim, the crus of the helix lifting it where it enters
+  // the concha rim, the crus of the helix lifting it where it enters; each station's rim lies on its own ray from the scapha floor to the concha centre, so the loops inside the helix never cross
   const rim: IPoint[] = stations(form.rim.map(place)).map(
-    (r: IPoint, j: number): IPoint => ({
-      ...r,
-      h: r.h + form.relief.crus * P * window(j, 5.5, 1.6),
-    }),
+    (r: IPoint, j: number): IPoint => {
+      const s: IPoint = scapha[j]!;
+      const dx: number = centre.x - s.x;
+      const dy: number = centre.y - s.y;
+      const q: number = Math.min(
+        RAY.most,
+        Math.max(RAY.least, ((r.x - s.x) * dx + (r.y - s.y) * dy) / (dx * dx + dy * dy)),
+      );
+      return lerp(s, centre, q, r.h + form.relief.crus * P * window(j, 5.5, 1.6));
+    },
   );
 
   // the plate between the scapha and the concha rim
@@ -128,20 +138,43 @@ export function shapeAutoMovieHumanEar(
   );
 
   // the back of the auricle from the attachment to the back of the helix, low in front where the tragus and lobule meet the cheek
+  // each station rises from where its own ray from the attachment's centre meets the attachment, so neighbouring stations never cross on the way out
   const ring: IPoint[] = attachment;
-  const back = (j: number, t: number, lift: number): IPoint => {
-    const k: number = Math.floor(j / 3);
-    const a: IPoint = ring[k]!;
-    const r: IPoint = lerp(a, ring[(k + 1) % 8]!, (j % 3) / 3, 0);
+  const middle: IPoint = {
+    x: ring.reduce((a: number, p: IPoint): number => a + p.x, 0) / ring.length,
+    y: ring.reduce((a: number, p: IPoint): number => a + p.y, 0) / ring.length,
+    h: 0,
+  };
+  const foot = (o: IPoint): IPoint => {
+    const dx: number = o.x - middle.x;
+    const dy: number = o.y - middle.y;
+    for (let k: number = 0; k < ring.length; ++k) {
+      const a: IPoint = ring[k]!;
+      const b: IPoint = ring[(k + 1) % ring.length]!;
+      const ex: number = b.x - a.x;
+      const ey: number = b.y - a.y;
+      const den: number = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-12) continue;
+      const t: number = ((a.x - middle.x) * ey - (a.y - middle.y) * ex) / den;
+      const s: number = ((a.x - middle.x) * dy - (a.y - middle.y) * dx) / den;
+      if (t > 0 && s >= 0 && s <= 1) return lerp(a, b, s, 0);
+    }
+    return { ...middle };
+  };
+  const back = (j: number, t: number, lift: number, from?: IPoint): IPoint => {
     const o: IPoint = rimBack[j]!;
+    const r: IPoint = from ?? foot(o);
     const low: number = 0.7 * Math.max(window(j, 4.5, 3), window(j, 11, 2.5));
     // the cranial surface stays a cartilage's thickness under the lateral one
     const under: number =
       Math.min(scapha[j]!.h, ...plate.map((l: IPoint[]): number => l[j]!.h)) -
       form.thickness * P;
-    return lerp(r, o, t, Math.min(under, o.h * lift * (1 - low)));
+    return lerp(r, o, t, Math.max(0, Math.min(under, o.h * lift * (1 - low))));
   };
-  const neck: IPoint[] = range(8).map((k: number): IPoint => back(3 * k, 0.2, 0.22 * form.lift));
+  // the first loop leaves each attachment vertex toward its own station
+  const neck: IPoint[] = range(8).map((k: number): IPoint =>
+    back(3 * k, 0.2, 0.22 * form.lift, ring[k]!),
+  );
 
   const loops: IPoint[][] = [
     range(24).map((j: number): IPoint => back(j, 0.6, form.lift)),
@@ -175,12 +208,27 @@ export function shapeAutoMovieHumanEar(
           sharpness: 0.6,
         }),
       ),
+      // the crest of the antihelix behind the concha and of its superior crus
+      ...range(9).map(
+        (i: number): shapeAutoMovieHumanEar.ICrease => ({
+          loop: loops.indexOf(plate[2]!),
+          station: 13 + i,
+          sharpness: 0.6,
+        }),
+      ),
+      ...range(5).map(
+        (i: number): shapeAutoMovieHumanEar.ICrease => ({
+          loop: loops.indexOf(plate[0]!),
+          station: (21 + i) % 24,
+          sharpness: 0.5,
+        }),
+      ),
       // the lip of the helix over the scapha
       ...range(13).map(
         (i: number): shapeAutoMovieHumanEar.ICrease => ({
           loop: loops.indexOf(lip),
           station: (15 + i) % 24,
-          sharpness: 0.3,
+          sharpness: 0.8,
         }),
       ),
     ],
@@ -247,7 +295,7 @@ export namespace shapeAutoMovieHumanEar {
     /** Height of the cranial surface midway out, over the helix back's. */
     lift: number;
 
-    /** Depth of the concha floor, over protrusion. */
+    /** Height of the concha floor off the attachment plane, over protrusion: about 10.6 mm under the antihelix, the maximum depth of the conchal bowl in 35 pairs of cadaver ears aged 39 to 99 (10.5 in women, 10.7 in men; Brockhoff et al. 2014, J Oral Maxillofac Surg 72(11):2248-2255). The floor sinks further toward the meatus. Grade: measured depth, derived height. */
     floor: number;
 
     /** The notches either side of the tragus. */
@@ -346,10 +394,10 @@ const ATTACHMENT: number = 0.12;
 const CONCHA: { x: number; y: number } = { x: 0.35, y: -0.02 };
 
 /** How far the anterior and intertragic notches cut into the margin either side of the tragus, over breadth, and how far they sink, over protrusion. */
-const NOTCH: { depth: number; drop: number } = { depth: 0, drop: 0.15 };
+const NOTCH: { depth: number; drop: number } = { depth: 0, drop: 0.25 };
 
 /** Depth of the concha floor below the attachment plane, over protrusion; the floor sinks toward the meatus. */
-const FLOOR: number = -0.01;
+const FLOOR: number = 0.25;
 
 /**
  * The free margin at the even stations: across in breadths from otobasion superius, along in lengths from tragion, off the head in protrusions before the calibration `LIMIT` takes the tragal-level protrusion to the measured one.
@@ -365,20 +413,20 @@ const OUTLINE: IOutlineKey[] = [
   { x: 0.576, y: -0.456, h: 1.054, helix: 0.45 },
   { x: 1.019, y: -0.197, h: 1.267, helix: 0.8 }, // tail of the helix
   { x: 1.133, y: 0.092, h: 1.382, helix: 1 }, // posterior point
-  { x: 0.914, y: 0.257, h: 1.526, helix: 1 },
-  { x: 0.619, y: 0.393, h: 1.219, helix: 1 },
+  { x: 0.97, y: 0.28, h: 1.526, helix: 1 },
+  { x: 0.7, y: 0.415, h: 1.219, helix: 1 },
 ];
 
 /** The concha rim at the even stations, in the units of `OUTLINE`: the inferior crus, the crus of the helix, the meatus under the tragus, the intertragic notch, the antitragus and the antihelix. */
 const RIM: IPoint[] = [
   { x: 0.34, y: 0.21, h: 1.029 }, // under the inferior crus
-  { x: 0.118, y: 0.18, h: 0.066 },
+  { x: 0.118, y: 0.18, h: 0.4 }, // the inferior crus diving under the helix
   { x: -0.027, y: 0.12, h: 0.366 },
   { x: 0.046, y: 0.027, h: 0.343 }, // crus of the helix
   { x: 0.27, y: -0.07, h: 0.069 }, // under the tragus, over the meatus
   { x: 0.198, y: -0.16, h: 0.343 }, // intertragic notch
-  { x: 0.365, y: -0.14, h: 0.194 }, // antitragus
-  { x: 0.571, y: -0.14, h: 1.15 },
+  { x: 0.365, y: -0.14, h: 0.5 }, // floor of the cavum's lower wall
+  { x: 0.571, y: -0.14, h: 1.15 }, // antitragus
   { x: 0.597, y: -0.069, h: 1.058 },
   { x: 0.597, y: 0.036, h: 1.13 }, // antihelix
   { x: 0.541, y: 0.15, h: 1.187 },
@@ -394,7 +442,7 @@ const THICKNESS: number = 0.1;
  *
  * Across, the fitted drawing was then stretched about the posterior point until the ear's whole breadth, preaurale to postaurale, is 0.55 of its length, the auricular index of 57.9 in men and 58.7 in women among 200 Turkish adults (Bahşi et al. 2023, J Craniofac Surg 34(8):e799-e803): the survey's breadth is taken from otobasion superius, behind the front of the helix, so the reference's narrower 0.48 is not the measured proportion. Grade: population-fitted form, measured proportion.
  *
- * Block-out: the gross form was then fitted to the same reference body on our own skeleton with the shared calibration harness (sections parallel to the attachment 4 to 16 mm out and eight silhouettes, MakeHuman's CC0 macro blend at the adult male), with every fold switched off and the identity's length, breadth and protrusion held on the limit surface. A Nelder-Mead search over the fullness of the helix top, the posterior bulge, the lobule, the protrusion of top, back and lobule, the plate's height, the thickness, the cranial surface's lift and the attachment's place, each bounded to an anatomical range, lowered the adult male's mean radial error from 11.9 to 8.8 mm (silhouette IoU 0.45 to 0.51) and the adult female's from 9.7 to 6.8 mm (0.54 to 0.62). The rest of the gap is measured size: the reference ear stands 13 mm off the attachment plane at the tragal level and is 30 mm across, against the survey's 19.5 mm (Cho et al. 2025) and an auricular index of 0.58 (Bahşi et al. 2023), which the identity keeps. Refinement then switched the folds back on and fitted only their heights, each bounded between half and 1.6 times Gray's drawing, with the block-out held: the adult male's mean radial error is 8.9 mm with the folds, against 8.8 without them, the price of the antihelix, crura, fossa, crus of the helix, cymba, meatus, tragus and lobule the reference's coarse ear lacks.
+ * Block-out: the gross form was then fitted to the same reference body on our own skeleton with the shared calibration harness (sections parallel to the attachment 4 to 16 mm out and eight silhouettes, MakeHuman's CC0 macro blend at the adult male), with every fold switched off and the identity's length, breadth and protrusion held on the limit surface. A Nelder-Mead search over the fullness of the helix top, the posterior bulge, the lobule, the protrusion of top, back and lobule, the plate's height, the thickness, the cranial surface's lift and the attachment's place, each bounded to an anatomical range, lowered the adult male's mean radial error from 11.9 to 8.8 mm (silhouette IoU 0.45 to 0.51) and the adult female's from 9.7 to 6.8 mm (0.54 to 0.62). The rest of the gap is measured size: the reference ear stands 13 mm off the attachment plane at the tragal level and is 30 mm across, against the survey's 19.5 mm (Cho et al. 2025) and an auricular index of 0.58 (Bahşi et al. 2023), which the identity keeps. Refinement then switched the folds back on and fitted only their heights, each bounded between half and 1.6 times Gray's drawing, with the block-out held: the adult male's mean radial error is 8.9 mm with the folds, against 8.8 without them, the price of the antihelix, crura, fossa, crus of the helix, cymba, meatus, tragus and lobule the reference's coarse ear lacks. Closing the cymba and cavum into cups at the measured conchal depth, the crisp Y of the antihelix and the rolled lip of the helix then cost a little more: 9.5 mm for the adult male and 7.3 for the adult female, against MakeHuman's shallow, open concha.
  */
 const FORM: shapeAutoMovieHumanEar.IForm = {
   limit: LIMIT,
@@ -407,19 +455,22 @@ const FORM: shapeAutoMovieHumanEar.IForm = {
   floor: FLOOR,
   notch: NOTCH,
   relief: {
-    antihelix: 0.187,
-    superiorCrus: 0.295,
-    fossa: 0.1,
+    antihelix: 0.28,
+    superiorCrus: 0.35,
+    fossa: 0.2,
     lobule: 0.09,
     notch: 0.05,
     crus: 0.282,
     cymba: 0.303,
     meatus: 0.27,
-    tragus: 0.093,
+    tragus: 0.2,
     wall: 2.6,
   },
 };
 
+
+/** Bounds of the concha rim's place on each station's ray from the scapha floor (0) to the concha centre (1), so the plate and the bowl each keep a share of the ray. Conventional. */
+const RAY: { least: number; most: number } = { least: 0.2, most: 0.75 };
 
 /** Where the plate loops lie between the scapha floor (0) and the concha rim (1). */
 const PLATE: number[] = [0.28, 0.55, 0.8];

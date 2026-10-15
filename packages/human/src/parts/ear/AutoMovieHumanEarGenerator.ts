@@ -143,43 +143,40 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
         ),
     );
 
-    // each neck span faces three spans of the first loop
+    // each neck span faces three spans of the first loop as two quads; the right ear fans from the other end of the span, so the two ears are mirror images in topology as well as shape
     const first: AutoMovieHumanCageBuilder.IStation = loops[0]!;
+    const quad = (
+      corners: Array<[AutoMovieHumanCageBuilder.IStation, number]>,
+    ): void =>
+      builder.face(
+        corners.map(
+          ([s, i]: [AutoMovieHumanCageBuilder.IStation, number]): number =>
+            s.vertices[i]!,
+        ) as [number, number, number, number],
+        corners.map(
+          ([s, i]: [AutoMovieHumanCageBuilder.IStation, number]) =>
+            s.coordinates[i]!,
+        ) as [
+          AutoMovieHumanCageBuilder.IChart,
+          AutoMovieHumanCageBuilder.IChart,
+          AutoMovieHumanCageBuilder.IChart,
+          AutoMovieHumanCageBuilder.IChart,
+        ],
+      );
     for (let k: number = 0; k < 8; ++k) {
       const n = (i: number): number => (k + i) % 8;
       const f = (i: number): number => (3 * k + i) % 24;
-      builder.face(
-        [
-          neck.vertices[n(0)]!,
-          first.vertices[f(2)]!,
-          first.vertices[f(1)]!,
-          first.vertices[f(0)]!,
-        ],
-        [
-          neck.coordinates[n(0)]!,
-          first.coordinates[f(2)]!,
-          first.coordinates[f(1)]!,
-          first.coordinates[f(0)]!,
-        ],
-      );
-      builder.face(
-        [
-          neck.vertices[n(0)]!,
-          neck.vertices[n(1)]!,
-          first.vertices[f(3)]!,
-          first.vertices[f(2)]!,
-        ],
-        [
-          neck.coordinates[n(0)]!,
-          neck.coordinates[n(1)]!,
-          first.coordinates[f(3)]!,
-          first.coordinates[f(2)]!,
-        ],
-      );
+      if (forward) {
+        quad([[neck, n(0)], [first, f(2)], [first, f(1)], [first, f(0)]]);
+        quad([[neck, n(0)], [neck, n(1)], [first, f(3)], [first, f(2)]]);
+      } else {
+        quad([[neck, n(0)], [neck, n(1)], [first, f(1)], [first, f(0)]]);
+        quad([[neck, n(1)], [first, f(3)], [first, f(2)], [first, f(1)]]);
+      }
     }
     for (let i: number = 1; i < loops.length; ++i)
       builder.bridge(loops[i - 1]!, loops[i]!);
-    builder.cap(loops[loops.length - 1]!, lateral, -0.08 * ear.earProtrusion);
+    builder.cap(loops[loops.length - 1]!, lateral, 0);
 
     for (const crease of shape.creases) {
       const loop: AutoMovieHumanCageBuilder.IStation = loops[crease.loop]!;
