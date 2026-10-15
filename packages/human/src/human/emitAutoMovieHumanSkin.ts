@@ -21,46 +21,82 @@ import {
 } from "./emitAutoMovieHumanSkinParts";
 
 /**
- * Join every part's cage into the person's one closed cage.
+ * Join every part's cage into the person's one cage.
  *
- * Joins run outward from the trunk, so the proximal cage of each join is everything joined so far: the neck at its base, the head on the neck, the ears on the head, then per side the arm, the hand, the leg and the foot. The junction welds each site's two rings; when every site is joined no ring is left open.
+ * Joins run outward from the trunk, so the proximal cage of each join is everything joined so far: the neck at its base, the head on the neck, the ears on the head, then per side the arm, the hand, the leg and the foot. The junction welds each site's two rings. A site the junction refuses, because its two parts did not put their rings on the shared boundary, stays open: the distal cage is added beside the rest without welding, so the gap shows in the viewer exactly where the parts disagree, and the refusal is returned with the cage. Nothing is moved to close it.
  *
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
  * @param generators The generator of each part
  * @param junction The junction that joins two rings
- * @returns The joined cage
- * @throws {Error} When a part opens a ring the joins leave open
+ * @returns The joined cage, closed when no site was refused, and each refusal's message
  */
 export const joinAutoMovieHumanCages = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   generators: IAutoMovieHumanPartGenerators,
   junction: IAutoMovieHumanJunction = new AutoMovieHumanJunction(),
-): IAutoMovieHumanCage => {
+): { cage: IAutoMovieHumanCage; refused: string[] } => {
   const cages = generateAutoMovieHumanCages(measurements, skeleton, generators);
   const cage = (
     part: AutoMovieHumanPart,
     side: AutoMovieHumanSide | null,
   ): IAutoMovieHumanCage =>
     cages.find((c) => c.part === part && c.side === side)!.cage;
+  const refused: string[] = [];
   let joined: IAutoMovieHumanCage = cage("trunk", null);
-  for (const [site, side, part] of JOINS)
-    joined = junction.join({
-      site,
-      side,
-      proximal: joined,
-      distal: cage(part, side),
-    });
-  if (joined.rings.length !== 0)
-    throw new Error(
-      `joined skin leaves rings open: ${joined.rings.map((r) => `${r.side ?? ""} ${r.site}`.trim()).join(", ")}`,
-    );
-  return joined;
+  for (const [site, side, part] of JOINS) {
+    const distal: IAutoMovieHumanCage = cage(part, side);
+    try {
+      joined = junction.join({ site, side, proximal: joined, distal });
+    } catch (cause) {
+      refused.push(cause instanceof Error ? cause.message : String(cause));
+      joined = beside(joined, distal);
+    }
+  }
+  return { cage: joined, refused };
+};
+
+/** Two cages as one without any shared vertex. */
+const beside = (
+  a: IAutoMovieHumanCage,
+  b: IAutoMovieHumanCage,
+): IAutoMovieHumanCage => {
+  const n: number = a.vertices.length;
+  return {
+    vertices: [...a.vertices, ...b.vertices],
+    faces: [
+      ...a.faces,
+      ...b.faces.map(
+        (f: IAutoMovieHumanCage.IFace): IAutoMovieHumanCage.IFace => ({
+          vertices: f.vertices.map(
+            (v: number): number => v + n,
+          ) as IAutoMovieHumanCage.IFace["vertices"],
+          coordinates: f.coordinates,
+        }),
+      ),
+    ],
+    creases: [
+      ...a.creases,
+      ...b.creases.map(
+        (c: IAutoMovieHumanCage.ICrease): IAutoMovieHumanCage.ICrease => ({
+          edge: [c.edge[0] + n, c.edge[1] + n],
+          sharpness: c.sharpness,
+        }),
+      ),
+    ],
+    rings: [
+      ...a.rings,
+      ...b.rings.map((r) => ({
+        ...r,
+        vertices: r.vertices.map((v: number): number => v + n),
+      })),
+    ],
+  };
 };
 
 /**
- * Emit the person's skin as one skinned mesh: the joined cage subdivided once by the engine, with limit positions and normals, UVs from the published layout and placeholder skin weights.
+ * Emit the person's skin as one skinned mesh: the joined cage, open at any refused site, subdivided once by the engine, with limit positions and normals, UVs from the published layout and placeholder skin weights.
  *
  * The weights bind each vertex to the bones of the part it lies on, by inverse fourth power of its distance to each bone's segment, the four nearest kept and normalized. They only let the joined skin follow a pose until the rig stage derives real weights.
  *
@@ -76,7 +112,7 @@ export const emitAutoMovieHumanSkin = (
   levels: number,
   generators: IAutoMovieHumanPartGenerators,
 ): IAutoMovieModelPart => {
-  const cage: IAutoMovieHumanCage = joinAutoMovieHumanCages(
+  const { cage }: { cage: IAutoMovieHumanCage } = joinAutoMovieHumanCages(
     measurements,
     skeleton,
     generators,
