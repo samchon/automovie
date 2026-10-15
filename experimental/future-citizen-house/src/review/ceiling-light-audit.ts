@@ -1,7 +1,7 @@
 // Census gate for the household's ceiling fixtures. Each point must retain a
 // trim body and an emissive diffuser, so a counted but dark fixture fails.
 import assert from "node:assert/strict";
-import { buildHouse } from "../house/build";
+import { buildHouse } from "../house/buildHouse";
 
 const house = buildHouse();
 const trims = house.elements.filter((element) => /-light-trim-\d+$/.test(element.id));

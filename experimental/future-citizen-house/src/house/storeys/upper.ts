@@ -1,7 +1,11 @@
 /** Upper storey retains the one stair hole through its structural slab. */
-import type { Assembly } from "../assembly";
-import { datum } from "../plan";
-import { bearing, ceiling, floorFinish, horizontal, slabTop } from "./floors";
+import type { Assembly } from "../Assembly";
+import { datum } from "../datum";
+import { slabTop } from "./slabTop";
+import { ceiling } from "./ceiling";
+import { floorFinish } from "./floorFinish";
+import { horizontal } from "./horizontal";
+import { bearing } from "./bearing";
 import { partitions } from "./partitions";
 
 export function upper(a: Assembly): void {

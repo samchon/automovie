@@ -1,12 +1,12 @@
-import { Assembly } from "../assembly";
+import { Assembly } from "../Assembly";
 import {
-  corners,
-  exteriorFrame,
   facade,
-  glazingInset,
-  roomEdge,
-  standardWindowHeight,
 } from "./facade";
+import { corners } from "./corners";
+import { exteriorFrame } from "./exteriorFrame";
+import { standardWindowHeight } from "./standardWindowHeight";
+import { glazingInset } from "./glazingInset";
+import { roomEdge } from "./roomEdge";
 
 export function rear(a: Assembly): void {
   facade(a, exteriorFrame("rear"), [

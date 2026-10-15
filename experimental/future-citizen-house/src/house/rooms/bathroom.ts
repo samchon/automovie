@@ -1,6 +1,11 @@
-import { Assembly } from "../assembly";
-import { datum } from "../plan";
-import { Item, lining, basin, toilet, cabinet, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { datum } from "../datum";
+import { toilet } from "./toilet";
+import { basin } from "./basin";
+import { lights } from "./lights";
+import { cabinet } from "./cabinet";
+import { Item } from "./Item";
+import { lining } from "./lining";
 export function bathroom(a: Assembly): void {
   const r = "upper-bathroom"; lining(a, r);
   basin(new Item(a, "bath-vanity", r, -4.99, datum.floors[1], 2.16, Math.PI / 2), 1.0);

@@ -1,5 +1,6 @@
-import { Assembly } from "../assembly";
-import { lining, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { lights } from "./lights";
+import { lining } from "./lining";
 export function corridor(a: Assembly): void {
   lining(a, "upper-corridor");
   // The additional points bisect the existing gaps; append them so the first

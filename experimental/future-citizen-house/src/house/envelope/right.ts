@@ -1,14 +1,16 @@
-import { Assembly } from "../assembly";
-import { pipeSector, putMesh, tubeMesh } from "../metric-solid";
-import { datum } from "../plan";
+import { Assembly } from "../Assembly";
+import { pipeSector } from "../pipeSector";
+import { tubeMesh } from "../tubeMesh";
+import { putMesh } from "../putMesh";
+import { datum } from "../datum";
 import {
-  corners,
-  exteriorFrame,
   facade,
-  roomEdge,
-  standardWindowHeight,
 } from "./facade";
-import { gutterX } from "./roof";
+import { corners } from "./corners";
+import { exteriorFrame } from "./exteriorFrame";
+import { standardWindowHeight } from "./standardWindowHeight";
+import { roomEdge } from "./roomEdge";
+import { gutterX } from "./gutterX";
 
 export function right(a: Assembly): void {
   const backEdge = roomEdge("common-room", "z", "max");

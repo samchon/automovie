@@ -1,5 +1,9 @@
-import { Assembly } from "../assembly";
-import { Item, lining, cabinet, plant, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { lights } from "./lights";
+import { plant } from "./plant";
+import { cabinet } from "./cabinet";
+import { Item } from "./Item";
+import { lining } from "./lining";
 export function entry(a: Assembly): void {
   const r = "entry"; lining(a, r);
   cabinet(new Item(a, "entry-shoe-bench", r, -2.46, 0, -1.10, Math.PI / 2), 1.15, 0.44, 0.48);

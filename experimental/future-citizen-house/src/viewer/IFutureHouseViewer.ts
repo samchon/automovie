@@ -1,4 +1,4 @@
-import type { createViewerPayload } from "./payload";
+import type { createViewerPayload } from "./createViewerPayload";
 
 /** Existing source-backed browser observation controls, without a new authoring surface. */
 export interface IFutureHouseViewer {

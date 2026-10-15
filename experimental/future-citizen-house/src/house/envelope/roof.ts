@@ -4,57 +4,48 @@
 import { Quaternion, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import { partitionSurfaceRegions } from "../../materials/surface-regions";
-import { Assembly, rectangle, v } from "../assembly";
-import { fitCellTexture } from "../canopy-finish";
+import { partitionSurfaceRegions } from "../../materials/partitionSurfaceRegions";
+import { Assembly } from "../Assembly";
+import { rectangle } from "../rectangle";
+import { v } from "../v";
+import { fitCellTexture } from "../fitCellTexture";
 import {
-  type Height,
-  type Point,
-  circle,
   heightRegion,
-  putMesh,
-} from "../metric-solid";
-import { datum, exteriorWallZone, stairHole } from "../plan";
-import { type Flat, type Solid, drainage } from "./roof-drainage";
+} from "../heightRegion";
+import { putMesh } from "../putMesh";
+import { circle } from "../circle";
+import { type Height } from "../Height";
+import { type Point } from "../Point";
+import { exteriorWallZone } from "../exteriorWallZone";
+import { stairHole } from "../stairHole";
+import { datum } from "../datum";
+import { drainage } from "./drainage";
+import { type Flat } from "./Flat";
+import { type Solid } from "./Solid";
+import { canopy } from "./canopy";
+import { canopySoffitHeight } from "./canopySoffitHeight";
+import { canopyTopHeight } from "./canopyTopHeight";
+import { roofDeckHeight } from "./roofDeckHeight";
+import { gutterX } from "./gutterX";
 
-const canopyMinX = datum.minX - 0.3,
-  canopyMaxX = datum.maxX + 0.3;
-const canopyMinZ = datum.minZ - 0.7,
-  canopyMaxZ = datum.maxZ + 0.3;
-export const canopy = {
-  minX: canopyMinX,
-  maxX: canopyMaxX,
-  minZ: canopyMinZ,
-  maxZ: canopyMaxZ,
-  girders: [-5.4, 0, 5.4],
-  supports: [-4.8, 0, 4.8],
-  nx: Math.ceil((canopyMaxX - canopyMinX) / 1.2),
-  nz: Math.ceil((canopyMaxZ - canopyMinZ) / 1.9),
-};
-export const B = (z: number) => datum.roof + 0.3 + 0.01 * (canopy.maxZ - z);
-export const J = (z: number) => B(z) + 0.12;
-export const T = (z: number) => J(z) + 0.03;
-export const P = (z: number) => B(z) + 0.161;
-export const R = (x: number) => datum.roof + 0.03 + 0.01 * (x - datum.minX);
-export const G = (z: number) => datum.roof - 0.11 + 0.005 * Math.abs(z);
-export const gutterX = datum.minX - 0.18;
-
+const J = (z: number) => canopySoffitHeight(z) + 0.12;
+const G = (z: number) => datum.roof - 0.11 + 0.005 * Math.abs(z);
 export function roof(a: Assembly): void {
   const solid: Solid = (
     id,
     plan,
     low,
     high,
-    material = "canopy-metal",
-    holes = [],
+    material,
+    holes,
     blind,
   ) =>
     putMesh(
       a,
       id,
       "house",
-      material,
-      heightRegion(plan, low, high, holes, blind),
+      material ?? "canopy-metal",
+      heightRegion(plan, low, high, holes ?? [], blind),
       "roof-member",
     );
   const flat: Flat = (id, x0, x1, z0, z1, y0, y1) =>
@@ -135,7 +126,7 @@ export function roof(a: Assembly): void {
     "roof-weather",
     rectangle(datum.minX, datum.maxX, datum.minZ, datum.maxZ),
     () => datum.roof,
-    (x) => R(x),
+    (x) => roofDeckHeight(x),
     "stone",
   );
   for (const side of [-1, 1]) {
@@ -143,8 +134,8 @@ export function roof(a: Assembly): void {
     solid(
       "roof-fascia-z-" + side,
       rectangle(datum.minX, datum.maxX, z - 0.001, z + 0.001),
-      (x) => R(x) - 0.08,
-      (x) => R(x) + 0.04,
+      (x) => roofDeckHeight(x) - 0.08,
+      (x) => roofDeckHeight(x) + 0.04,
     );
     solid(
       "roof-drip-z-" + side,
@@ -154,8 +145,8 @@ export function roof(a: Assembly): void {
         side < 0 ? z - 0.1 : z,
         side < 0 ? z : z + 0.1,
       ),
-      (x) => R(x) - 0.002,
-      (x) => R(x),
+      (x) => roofDeckHeight(x) - 0.002,
+      (x) => roofDeckHeight(x),
     );
   }
   flat(
@@ -164,8 +155,8 @@ export function roof(a: Assembly): void {
     datum.maxX + 0.002,
     datum.minZ - 0.001,
     datum.maxZ + 0.001,
-    R(datum.maxX) - 0.08,
-    R(datum.maxX) + 0.04,
+    roofDeckHeight(datum.maxX) - 0.08,
+    roofDeckHeight(datum.maxX) + 0.04,
   );
   flat(
     "roof-drip-left",
@@ -173,8 +164,8 @@ export function roof(a: Assembly): void {
     datum.maxX + 0.1,
     datum.minZ,
     datum.maxZ,
-    R(datum.maxX) - 0.002,
-    R(datum.maxX),
+    roofDeckHeight(datum.maxX) - 0.002,
+    roofDeckHeight(datum.maxX),
   );
   flat(
     "roof-drip-right",
@@ -182,8 +173,8 @@ export function roof(a: Assembly): void {
     datum.minX,
     datum.minZ,
     datum.maxZ,
-    R(datum.minX) - 0.002,
-    R(datum.minX),
+    roofDeckHeight(datum.minX) - 0.002,
+    roofDeckHeight(datum.minX),
   );
   const px = (canopy.maxX - canopy.minX) / canopy.nx,
     pz = (canopy.maxZ - canopy.minZ) / canopy.nz;
@@ -305,7 +296,7 @@ export function roof(a: Assembly): void {
           "pv-cassette",
           "house",
           "canopy-cassette",
-          v(x, B(z), z),
+          v(x, canopySoffitHeight(z), z),
         ),
       );
       for (const side of [-1, 1])
@@ -321,7 +312,7 @@ export function roof(a: Assembly): void {
       solid(
         "canopy-girder-" + zg,
         rectangle(canopy.minX, canopy.maxX, zg - 0.04, zg + 0.04),
-        (_, z) => B(z),
+        (_, z) => canopySoffitHeight(z),
         (_, z) => J(z),
       ),
     );
@@ -331,16 +322,16 @@ export function roof(a: Assembly): void {
         solid(
           id + "-pedestal",
           rectangle(x - 0.12, x + 0.12, zg - 0.12, zg + 0.12),
-          (x) => R(x),
-          () => R(x) + 0.03,
+          (x) => roofDeckHeight(x),
+          () => roofDeckHeight(x) + 0.03,
           "stone",
         ),
       );
       solid(
         id + "-flashing",
         rectangle(x - 0.15, x + 0.15, zg - 0.15, zg + 0.15),
-        (x) => R(x),
-        (x) => R(x) + 0.002,
+        (x) => roofDeckHeight(x),
+        (x) => roofDeckHeight(x) + 0.002,
         "canopy-metal",
         [rectangle(x - 0.12, x + 0.12, zg - 0.12, zg + 0.12)],
       );
@@ -350,8 +341,8 @@ export function roof(a: Assembly): void {
         x + 0.08,
         zg - 0.08,
         zg + 0.08,
-        R(x) + 0.03,
-        R(x) + 0.042,
+        roofDeckHeight(x) + 0.03,
+        roofDeckHeight(x) + 0.042,
       );
       structure.push(
         flat(
@@ -360,16 +351,16 @@ export function roof(a: Assembly): void {
           x + 0.04,
           zg - 0.04,
           zg + 0.04,
-          R(x) + 0.042,
-          B(zg) - 0.014,
+          roofDeckHeight(x) + 0.042,
+          canopySoffitHeight(zg) - 0.014,
         ),
       );
       structure.push(
         solid(
           id + "-cap",
           rectangle(x - 0.06, x + 0.06, zg - 0.06, zg + 0.06),
-          () => B(zg) - 0.014,
-          (_, z) => B(z),
+          () => canopySoffitHeight(zg) - 0.014,
+          (_, z) => canopySoffitHeight(z),
         ),
       );
       // The 6mm exposed threaded end stands above the plate. Ending exactly
@@ -382,7 +373,7 @@ export function roof(a: Assembly): void {
             "house",
             "steel",
             v(x + sx * 0.06, datum.roof - 0.02, zg + sz * 0.06),
-            v(x + sx * 0.06, R(x) + 0.048, zg + sz * 0.06),
+            v(x + sx * 0.06, roofDeckHeight(x) + 0.048, zg + sz * 0.06),
             0.003,
           );
     }
@@ -409,7 +400,7 @@ export function roof(a: Assembly): void {
         solid(
           "canopy-rail-" + i + "-" + k / 2,
           rectangle(x - 0.04, x + 0.04, z0, z1),
-          (_, z) => B(z),
+          (_, z) => canopySoffitHeight(z),
           (_, z) => J(z),
           "canopy-metal",
           holes,
@@ -424,7 +415,7 @@ export function roof(a: Assembly): void {
           solid(
             "canopy-endplate-" + i + "-" + zg + "-" + side,
             rectangle(x - 0.04, x + 0.04, start, start + 0.006),
-            (_, z) => B(z),
+            (_, z) => canopySoffitHeight(z),
             (_, z) => J(z),
           ),
         );
@@ -443,7 +434,7 @@ export function roof(a: Assembly): void {
     spaces: ["house"],
     elements: [slab, weather],
     face: {
-      origin: v(0, R(0), 0),
+      origin: v(0, roofDeckHeight(0), 0),
       rotation,
       outline: rectangle(
         datum.minX * Math.hypot(1, 0.01),
@@ -455,8 +446,8 @@ export function roof(a: Assembly): void {
     },
   });
   for (const [id, height, angle, elements] of [
-    ["canopy-top", P(-0.2), -90 + tiltDeg, cassetteIds],
-    ["canopy-soffit", B(-0.2), 90 + tiltDeg, structure],
+    ["canopy-top", canopyTopHeight(-0.2), -90 + tiltDeg, cassetteIds],
+    ["canopy-soffit", canopySoffitHeight(-0.2), 90 + tiltDeg, structure],
   ] as const)
     a.environment.boundaries.push({
       id,

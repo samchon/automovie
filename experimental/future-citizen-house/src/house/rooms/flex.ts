@@ -1,5 +1,11 @@
-import { Assembly } from "../assembly";
-import { Item, lining, desk, chair, cabinet, bed, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { desk } from "./desk";
+import { lights } from "./lights";
+import { bed } from "./bed";
+import { cabinet } from "./cabinet";
+import { chair } from "./chair";
+import { Item } from "./Item";
+import { lining } from "./lining";
 export function flex(a: Assembly): void {
   const r = "flex-workroom"; lining(a, r);
   desk(new Item(a, "flex-desk", r, 4.14, 0, -5.35), 1.4);

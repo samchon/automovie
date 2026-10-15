@@ -1,9 +1,15 @@
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 
-import { Assembly, v } from "./assembly";
-import { B, canopy, P, R } from "./envelope/roof";
-import { datum, rooms, type Rect } from "./plan";
-import { foundationBottom } from "./storeys/ground";
+import { Assembly } from "./Assembly";
+import { v } from "./v";
+import { roofDeckHeight } from "./envelope/roofDeckHeight";
+import { canopyTopHeight } from "./envelope/canopyTopHeight";
+import { canopySoffitHeight } from "./envelope/canopySoffitHeight";
+import { canopy } from "./envelope/canopy";
+import { rooms } from "./rooms";
+import { type Rect } from "./Rect";
+import { datum } from "./datum";
+import { foundationBottom } from "./storeys/foundationBottom";
 
 const cell = (id: string, r: Rect, y0: number, y1: number) => ({
   id,
@@ -21,25 +27,25 @@ export function topology(a: Assembly): void {
   // the native exposed-soffit normal. These two cells describe the building
   // body and canopy depth; they add no room, storey or access connector.
   const outline: Rect = [datum.minX, datum.maxX, datum.minZ, datum.maxZ];
-  const body = cell("house-body", outline, foundationBottom, R(0));
+  const body = cell("house-body", outline, foundationBottom, roofDeckHeight(0));
   const scale = Math.hypot(1, 0.01);
   body.planes[2] = {
     normal: v(-0.01 / scale, 1 / scale, 0),
-    offset: R(0) / scale,
+    offset: roofDeckHeight(0) / scale,
   };
   const cover = cell(
     "house-canopy",
     [canopy.minX, canopy.maxX, canopy.minZ, canopy.maxZ],
-    B(0),
-    P(0),
+    canopySoffitHeight(0),
+    canopyTopHeight(0),
   );
   cover.planes[2] = {
     normal: v(0, 1 / scale, 0.01 / scale),
-    offset: P(0) / scale,
+    offset: canopyTopHeight(0) / scale,
   };
   cover.planes[3] = {
     normal: v(0, -1 / scale, -0.01 / scale),
-    offset: -B(0) / scale,
+    offset: -canopySoffitHeight(0) / scale,
   };
   const spaces: IAutoMovieBuiltSpace[] = [
     {

@@ -1,14 +1,16 @@
-import { Assembly } from "../assembly";
-import { portals, stairHole } from "../plan";
-import { doorCuts, doorway } from "../walls";
+import { Assembly } from "../Assembly";
+import { portals } from "../portals";
+import { stairHole } from "../stairHole";
+import { doorway } from "../doorway";
+import { doorCuts } from "../doorCuts";
 import {
-  corners,
-  exteriorFrame,
   facade,
-  glazingInset,
-  roomEdge,
-  standardWindowHeight,
 } from "./facade";
+import { corners } from "./corners";
+import { exteriorFrame } from "./exteriorFrame";
+import { standardWindowHeight } from "./standardWindowHeight";
+import { glazingInset } from "./glazingInset";
+import { roomEdge } from "./roomEdge";
 
 export function front(a: Assembly): void {
   const f = exteriorFrame("front");

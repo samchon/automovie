@@ -1,11 +1,11 @@
-import { Assembly } from "../assembly";
+import { Assembly } from "../Assembly";
 import {
-  corners,
-  exteriorFrame,
   facade,
-  roomEdge,
-  standardWindowHeight,
 } from "./facade";
+import { corners } from "./corners";
+import { exteriorFrame } from "./exteriorFrame";
+import { standardWindowHeight } from "./standardWindowHeight";
+import { roomEdge } from "./roomEdge";
 
 export function left(a: Assembly): void {
   const sideStart = roomEdge("flex-workroom", "z", "min") + 0.36;
