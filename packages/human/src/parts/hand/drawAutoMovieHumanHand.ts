@@ -1,7 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -18,7 +18,7 @@ import { shapeAutoMovieHumanPalm } from "./shapeAutoMovieHumanPalm";
 /**
  * Draw one hand's cage and solve it, in the hand's own frame.
  *
- * The drawing (`shapeAutoMovieHumanPalm`, `shapeAutoMovieHumanDigit`) gives every cage vertex a point of the skin it must reach, from the skeleton's joints and the measured breadths, lengths and webs; `calibrateAutoMovieHumanHand` then solves the cage so its Catmull-Clark limit surface follows those points and measures the identity's hand length and breadth. The wrist ring is the measured wrist ellipse, its vertex `k` of the drawing on the layout direction a `k`-th eighth turn from the palm.
+ * The drawing (`shapeAutoMovieHumanPalm`, `shapeAutoMovieHumanDigit`) gives every cage vertex a point of the skin it must reach, from the skeleton's joints and the measured breadths, lengths and webs; `calibrateAutoMovieHumanHand` then solves the cage so its Catmull-Clark limit surface follows those points and measures the identity's hand length and breadth. The wrist ring's points are the shared `shapeAutoMovieHumanRing`'s, which the arm opens too, and the fit holds them, so the junction welds the two rings exactly.
  *
  * @param props Measurements, skeleton and side
  * @returns The hand, its ring, the skin points and the solved control points, with vertices no quad uses dropped
@@ -29,13 +29,13 @@ export function drawAutoMovieHumanHand(props: {
   side: AutoMovieHumanSide;
 }): drawAutoMovieHumanHand.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
   const arm: IAutoMovieHumanIdentity.IArm =
     props.side === "left"
       ? props.measurements.identity.body.leftArm
       : props.measurements.identity.body.rightArm;
-  const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+  const layout: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
     skeleton: props.skeleton,
+    measurements: props.measurements,
     site: "wrist",
     side: props.side,
     part: "hand",
@@ -44,18 +44,14 @@ export function drawAutoMovieHumanHand(props: {
   const toLocal = (d: IAutoMovieVector3): IAutoMovieVector3 =>
     V.of(V.dot(d, hand.distal), V.dot(d, hand.palmar), V.dot(d, hand.radial));
 
-  // the wrist ring: the measured ellipse, vertex k of the drawing on the layout direction a k-th eighth turn from the palm
-  const aw: number = (F.wrist.breadth * arm.wristCircumference) / 2;
-  const cw: number = aw * F.wrist.depth;
+  // the wrist ring: the shared ring shape's points, vertex k of the drawing on the layout direction a k-th eighth turn from the palm
   const order: number[] = new Array<number>(layout.count);
   const wrist: IAutoMovieVector3[] = new Array<IAutoMovieVector3>(layout.count);
   layout.directions.forEach((direction: IAutoMovieVector3, j: number): void => {
     const d: IAutoMovieVector3 = toLocal(direction);
-    const angle: number = Math.atan2(-d.z, d.y);
-    const k: number = (Math.round(angle / (Math.PI / 4)) + 8) % 8;
-    const radius: number = (aw * cw) / Math.hypot(aw * d.y, cw * d.z);
+    const k: number = (Math.round(Math.atan2(-d.z, d.y) / (Math.PI / 4)) + 8) % 8;
     order[j] = k;
-    wrist[k] = V.of(d.x * radius, d.y * radius, d.z * radius);
+    wrist[k] = toLocal(V.offset(layout.positions[j]!, [hand.origin, -1]));
   });
 
   const sketch: AutoMovieHumanHandSketch = new AutoMovieHumanHandSketch();
@@ -128,8 +124,8 @@ export namespace drawAutoMovieHumanHand {
     /** Its arm's measurements. */
     arm: IAutoMovieHumanIdentity.IArm;
 
-    /** Its ring layout at the wrist. */
-    layout: IAutoMovieHumanRingLayout;
+    /** Its ring at the wrist, as the shared ring shape gives it. */
+    layout: IAutoMovieHumanRingShape;
 
     /** The wrist ring's vertices in layout order. */
     ring: number[];
@@ -203,6 +199,7 @@ const thumbForm = (
   const thumb: readAutoMovieHumanHand.IHand["thumb"] = hand.thumb;
   const metacarpal: number = AutoMovieHumanVector.distance(thumb.points[0]!, thumb.points[1]!);
   const L: number = thumb.length;
+  const T: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.thumb = AUTOMOVIE_HUMAN_HAND_SHAPE.thumb;
   const w: number = F.thumb.ip * arm.handBreadth;
   const d: number = F.depth.thumb * w;
   const section = (
@@ -220,8 +217,8 @@ const thumbForm = (
   ulnar: thumb.web,
   sections: [
     // the knuckle inside the thenar's distal slope; its web side runs out along the web's edge
-    section(metacarpal, w * 1.3, d * 0.55, d * 0.85, 0.76, [0, 0.12 * L, 0.2 * L, 0.12 * L, 0, 0, 0, 0]),
-    section(metacarpal + 0.28 * L, w * 1.06, d * 0.48, d * 0.56, 0.74),
+    section(metacarpal, w * T.knuckle, d * T.knuckleDorsal, d * T.knucklePalmar, 0.76, [0, 0.12 * L, 0.2 * L, 0.12 * L, 0, 0, 0, 0]),
+    section(metacarpal + 0.28 * L, w * T.phalanx, d * 0.48, d * 0.56, 0.74),
     section(metacarpal + 0.5 * L, w, d * 0.5, d * 0.5, 0.74),
     section(metacarpal + 0.7 * L, w * 0.98, d * 0.4, d * 0.58, 0.74),
     section(metacarpal + 0.9 * L, w * 0.8, d * 0.34, d * 0.46, 0.74),

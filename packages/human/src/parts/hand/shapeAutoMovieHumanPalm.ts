@@ -47,7 +47,7 @@ export function shapeAutoMovieHumanPalm(
   const heads: number = hand.metacarpaleII.x;
   const aw: number = (F.wrist.breadth * props.wristCircumference) / 2;
   const cw: number = aw * F.wrist.depth;
-  const thickness: number = F.palm.thickness * b;
+  const thickness: number = P.thickness * b;
   const level = (x: number): number => Math.min(1, Math.max(0, x / heads));
   const radialEdge = (x: number): number =>
     aw + (hand.metacarpaleII.z - aw) * (1 - Math.pow(1 - level(x), P.widen));
@@ -120,7 +120,7 @@ export function shapeAutoMovieHumanPalm(
   rows[0]![0] = V.of(base + 0.02 * L, 1.2 * palmarDepth(base), cmc.z - 0.15 * tw);
   rows[0]![12] = V.of(base, -0.6 * dorsalHeight(base), cmc.z + 0.15 * tw);
   // mid-metacarpal: the thenar's summit over the thumb metacarpal toward the palm, and the first dorsal interosseous between the two metacarpals
-  rows[1]![0] = V.offset(along(0.55), [thumb.pad, 0.7 * tw], [thumb.web, 0.2 * tw]);
+  rows[1]![0] = V.offset(along(0.55), [thumb.pad, AUTOMOVIE_HUMAN_HAND_SHAPE.thumb.thenar * tw], [thumb.web, 0.2 * tw]);
   rows[1]![12] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![11]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
   // the web: its crotch, and its palmar and dorsal sides halfway to the index's base
   rows[2]![13] = crotch;
