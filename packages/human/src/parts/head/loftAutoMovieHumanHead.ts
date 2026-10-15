@@ -46,7 +46,10 @@ export function loftAutoMovieHumanHead(
     network: built.network,
     tier: TIER,
   });
-  return emit(sampled, built.frame, measurements.identity.head.headHeight, built.rings);
+  return {
+    ...emit(sampled, built.frame, measurements.identity.head.headHeight, built.rings),
+    construction: IAutoMovieHumanCage.inModel(built.network),
+  };
 }
 
 interface INetwork {

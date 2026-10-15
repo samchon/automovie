@@ -1,4 +1,4 @@
-import { IAutoMovieSurfaceCage, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import { IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
@@ -67,7 +67,7 @@ export function loftAutoMovieHumanHand(props: {
       };
     },
   );
-  return { hand, arm, ring, positions, faces, wrist: sampled.rings.wrist! };
+  return { hand, arm, ring, positions, faces, wrist: sampled.rings.wrist!, network: laid.network };
 }
 /** Output and face types of {@link loftAutoMovieHumanHand}. */
 export namespace loftAutoMovieHumanHand {
@@ -94,6 +94,9 @@ export namespace loftAutoMovieHumanHand {
 
     /** The wrist ring's vertices in the shared shape's order. */
     wrist: number[];
+
+    /** The network the cage was sampled from, in the hand frame, metres. */
+    network: IAutoMovieSurfaceNetwork;
   }
 
   /**

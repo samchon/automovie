@@ -39,7 +39,10 @@ export function loftAutoMovieHumanTrunk(
     network: network.value,
     tier: AutoMovieHumanTrunkSweep.TIER,
   });
-  return emitAutoMovieHumanTrunk(network, sampled);
+  return {
+    ...emitAutoMovieHumanTrunk(network, sampled),
+    construction: IAutoMovieHumanCage.inModel(network.value),
+  };
 }
 
 /** The fork curve under the crotch: its two inner points lie `drop` trunk rows below the crotch and `inset` of the crotch depth in from the front and the back, so the thighs part in a cleft about as deep as the MakeHuman references' just below the crotch. */

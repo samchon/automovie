@@ -80,6 +80,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
       }),
       creases: [],
       rings: [{ site: "ankle", side, vertices: ring, start: layout.start, frame: layout.frame }],
+      construction: foot.construction,
     };
   }
 
@@ -153,6 +154,9 @@ interface IFoot {
   addresses: networkAutoMovieHumanFoot.IAddress[];
   axes: networkAutoMovieHumanFoot.IAxis[];
   toModel: (p: IAutoMovieVector3) => IAutoMovieVector3;
+
+  /** The network the foot was sampled from and where it lands on the person, for inspection. */
+  construction: IAutoMovieHumanCage.IConstruction;
   layout: IAutoMovieHumanRingShape;
 }
 
@@ -211,5 +215,13 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
     },
   });
   const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: laid.network, tier: TIER });
-  return { side, plan, sampled, addresses: laid.addresses, axes: laid.axes, toModel, layout };
+  // toModel of a millimetre point, applied to one metre along each axis of the network's frame
+  const construction: IAutoMovieHumanCage.IConstruction = {
+    network: laid.network,
+    origin: base,
+    x: V.of(1000 * sign, 0, 0),
+    y: V.of(0, 1000, 0),
+    z: V.of(0, 0, 1000),
+  };
+  return { side, plan, sampled, addresses: laid.addresses, axes: laid.axes, toModel, layout, construction };
 };

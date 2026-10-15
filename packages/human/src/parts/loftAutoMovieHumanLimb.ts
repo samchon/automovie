@@ -61,5 +61,11 @@ export function loftAutoMovieHumanLimb(
       frame: r.shape.frame,
     }),
   );
-  return { vertices, faces, creases: [], rings };
+  return {
+    vertices,
+    faces,
+    creases: [],
+    rings,
+    construction: IAutoMovieHumanCage.inModel(network.value),
+  };
 }

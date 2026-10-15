@@ -53,6 +53,13 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
       }),
       creases: [],
       rings: [{ site: "wrist", side: props.side, vertices: lofted.wrist, start: lofted.ring.start, frame: lofted.ring.frame }],
+      construction: {
+        network: lofted.network,
+        origin: hand.origin,
+        x: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [hand.distal, 1000]),
+        y: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [hand.palmar, 1000]),
+        z: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [hand.radial, 1000]),
+      },
     };
   }
 
