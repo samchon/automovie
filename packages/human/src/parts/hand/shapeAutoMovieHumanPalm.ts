@@ -7,6 +7,41 @@ import { AutoMovieHumanHandSketch } from "./AutoMovieHumanHandSketch";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
 
 /**
+ * Thickness of a superellipse of a given half breadth and exponent whose perimeter is a given length, by bisection on the perimeter of 256 chords.
+ *
+ * @param half Half breadth, millimetres
+ * @param exponent Superellipse exponent, 2 for an ellipse
+ * @param perimeter Perimeter to enclose, millimetres
+ * @returns Full thickness, millimetres
+ */
+const enclose = (half: number, exponent: number, perimeter: number): number => {
+  const length = (depth: number): number => {
+    let sum: number = 0;
+    let px: number = half;
+    let py: number = 0;
+    for (let i: number = 1; i <= 256; ++i) {
+      const t: number = (2 * Math.PI * i) / 256;
+      const c: number = Math.cos(t);
+      const s: number = Math.sin(t);
+      const x: number = half * Math.sign(c) * Math.pow(Math.abs(c), 2 / exponent);
+      const y: number = depth * Math.sign(s) * Math.pow(Math.abs(s), 2 / exponent);
+      sum += Math.hypot(x - px, y - py);
+      px = x;
+      py = y;
+    }
+    return sum;
+  };
+  let lo: number = 0;
+  let hi: number = 2 * half;
+  for (let k: number = 0; k < 50; ++k) {
+    const mid: number = (lo + hi) / 2;
+    if (length(mid) < perimeter) lo = mid;
+    else hi = mid;
+  }
+  return lo + hi;
+};
+
+/**
  * Draw the palm and the back of the hand from the wrist ring to the finger sockets, with the thumb's socket in its radial side.
  *
  * Five loops run across the hand. The wrist ring has 8 vertices. Three loops of 14 follow at the carpometacarpal line, mid-metacarpal and the metacarpal heads, each with one dorsal vertex over every metacarpal, where the extensor tendons run, one palmar vertex on every finger's line, a vertex on each border and a palmar and dorsal one beside each. The knuckle loop has 26: the four finger sockets' dorsal and palmar thirds and the two borders. Each finger socket is closed by its flank vertices at the webs, and two quads span each web between them, meeting at the crotch.
@@ -47,7 +82,8 @@ export function shapeAutoMovieHumanPalm(
   const heads: number = hand.metacarpaleII.x;
   const aw: number = (F.wrist.breadth * props.wristCircumference) / 2;
   const cw: number = aw * F.wrist.depth;
-  const thickness: number = P.thickness * b;
+  // thickness at the heads: the section's own superellipse, of the hand breadth and the heads' exponent, enclosing the measured hand circumference
+  const thickness: number = enclose(b / 2, 2 + P.arch, F.circumference * b);
   const level = (x: number): number => Math.min(1, Math.max(0, x / heads));
   const radialEdge = (x: number): number =>
     aw + (hand.metacarpaleII.z - aw) * (1 - Math.pow(1 - level(x), P.widen));
