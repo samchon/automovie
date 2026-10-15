@@ -33,11 +33,14 @@ const FIT_LIMIT: number = 1e-6;
  *
  * Each patch becomes a grid of its tier's rows and columns, sampled evenly in
  * its own coordinates. A sweep patch evaluates its sweep, its radius averaged
- * over each vertex's cell by a three-by-three tent reaching half the grid
- * spacing along `u` and `v`, as `IAutoMovieSweepRig.sample` states, so detail
- * finer than the tier's grid fades instead of aliasing into ripples. A point
- * shared by patches of different spacing takes the spacing of the first patch
- * that samples it. A Coons patch takes its four sides' points and fills the
+ * over each vertex's cell, which reaches half the spacing to the neighbouring
+ * sample on each side along `u` and `v`, as `IAutoMovieSweepRig.sample`
+ * states, so detail finer than the tier's grid fades instead of aliasing into
+ * ripples. A point sampled by several patches or sides takes, on each side,
+ * the finest spacing any of them gives there, and a side none of them reaches
+ * mirrors the other, so a point's position does not depend on patch order and
+ * a mirrored layout samples to a mirrored cage; a node on a sweep that no grid
+ * samples is the section point itself. A Coons patch takes its four sides' points and fills the
  * interior as `rigAutoMovieSurfaceCoons` states; a bridge
  * fills its rows with cubic Hermite curves between its two loops, as
  * `rigAutoMovieSurfaceBridge` states. A network curve is compiled by
@@ -152,8 +155,6 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     return r;
   };
-  const sweepWriter = (name: string, u: number, v: number, du: number, dv: number): ((out: Float64Array, at: number) => void) =>
-    sweepRig(name).sample(u, v, du, dv);
   const count = (counts: IAutoMovieSurfaceNetwork.ICounts, what: string): number => {
     const n: number = counts[tier];
     if (!Number.isSafeInteger(n) || n < 1) throw new Error(`${what} needs a positive integer count at tier ${tier}`);
@@ -184,7 +185,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
         ? { key: `n|${name}`, write: riding(n.position, boneOf(bindings.nodes?.[name])), probe: null }
         : {
             key: sweepKey(n.sweep, n.u, n.v),
-            write: sweepWriter(n.sweep, n.u, n.v, 0, 0),
+            write: sweepRig(n.sweep).sample(n.u, n.v, [0, 0, 0, 0]),
             probe: { rig: sweepRig(n.sweep), slot: sweepRig(n.sweep).probe(n.u, n.v) },
           };
     nodes.set(name, found);
@@ -218,6 +219,48 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     return i;
   };
+  // sweep points: their cell narrows as each sampling reports its spacing, and their writers are made once all have
+  const pending: Map<string, IPending> = new Map();
+  const admit = (sample: IAutoMovieSurfaceSample): number => {
+    const point: IAutoMovieSurfaceSample["point"] = sample.point;
+    if (point === null) return vertex(sample.key, sample.writer);
+    let entry: IPending | undefined = pending.get(sample.key);
+    if (entry === undefined) {
+      const at: number = 3 * reserve(sample.key);
+      const created: IPending = {
+        sweep: point.sweep,
+        u: point.u,
+        v: point.v,
+        cell: [Infinity, Infinity, Infinity, Infinity],
+        write: (): void => undefined,
+      };
+      writers.push((targets: Float64Array): void => created.write(targets, at));
+      pending.set(sample.key, (entry = created));
+    }
+    for (let k: number = 0; k < 4; ++k) entry.cell[k] = Math.min(entry.cell[k]!, point.cell[k]!);
+    return index.get(sample.key)!;
+  };
+  // a side no sampling reported mirrors the other, and an axis no sampling spans has no extent
+  const finalize = (): void => {
+    for (const entry of pending.values()) {
+      const cell: [number, number, number, number] = [0, 0, 0, 0];
+      for (const axis of [0, 2]) {
+        const below: number = entry.cell[axis]!;
+        const above: number = entry.cell[axis + 1]!;
+        cell[axis] = Number.isFinite(below) ? below : Number.isFinite(above) ? above : 0;
+        cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
+      }
+      entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
+    }
+  };
+  // the spacing a sampling step gives a point's cell below and above along one axis
+  const reach = (step: number, first: boolean, last: boolean): [number, number] => {
+    const size: number = Math.abs(step);
+    if (step === 0) return [Infinity, Infinity];
+    const back: number = first ? Infinity : size;
+    const ahead: number = last ? Infinity : size;
+    return step > 0 ? [back, ahead] : [ahead, back];
+  };
   const existing = (key: string, what: string): number => {
     const i: number | undefined = index.get(key);
     if (i === undefined) throw new Error(`${what} names a point no patch made`);
@@ -225,7 +268,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   };
   // a bridge may run along a network curve no patch samples, but a sweep point it names must be one a patch made
   const joined = (point: IAutoMovieSurfaceSample, what: string): number =>
-    point.key.startsWith("s|") ? existing(point.key, what) : vertex(point.key, point.writer);
+    point.key.startsWith("s|") ? existing(point.key, what) : admit(point);
   const sample = (edge: IAutoMovieSurfaceNetwork.IEdge, what: string): IAutoMovieSurfaceSample[] => {
     if (edge.type === "sweep") {
       const n: number = count(edge.segments, what);
@@ -233,9 +276,12 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       return Array.from({ length: n + 1 }, (_: unknown, i: number): IAutoMovieSurfaceSample => {
         const u: number = i === n ? edge.to.u : edge.from.u + ((edge.to.u - edge.from.u) * i) / n;
         const v: number = i === n ? edge.to.v : edge.from.v + ((edge.to.v - edge.from.v) * i) / n;
+        const [ub, ua] = reach((edge.to.u - edge.from.u) / n, i === 0, i === n);
+        const [vb, va] = reach((edge.to.v - edge.from.v) / n, i === 0, i === n);
         return {
           key: sweepKey(edge.sweep, u, v),
-          writer: () => sweepWriter(edge.sweep, u, v, Math.abs(edge.to.u - edge.from.u) / n, Math.abs(edge.to.v - edge.from.v) / n),
+          writer: () => rig.sample(u, v, [0, 0, 0, 0]),
+          point: { sweep: edge.sweep, u, v, cell: [ub, ua, vb, va] },
           sweep: { rig, u, v },
           curve: null,
         };
@@ -250,9 +296,11 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     return Array.from({ length: n + 1 }, (_: unknown, i: number): IAutoMovieSurfaceSample => {
       const t: number = reverse ? (n - i) / n : i / n;
       const end: string | null = t === 0 ? curve.from : t === 1 ? curve.to : null;
+      const at: IAutoMovieSurfaceNetwork.INode | null = end === null ? null : network.nodes![end]!;
       return {
         key: end !== null ? node(end).key : `c|${edge.curve}|${round(t)}`,
-        writer: () => (end !== null ? node(end).write : (out: Float64Array, at: number): void => rig.point(t, out, at)),
+        writer: () => (end !== null ? node(end).write : (out: Float64Array, offset: number): void => rig.point(t, out, offset)),
+        point: at !== null && at.type === "sweep" ? { sweep: at.sweep, u: at.u, v: at.v, cell: [Infinity, Infinity, Infinity, Infinity] } : null,
         sweep: null,
         curve: { rig, t },
       };
@@ -329,7 +377,15 @@ export const rigAutoMovieSurfaceNetwork: (props: {
         const u: number = j === rows ? u1 : u0 + ((u1 - u0) * j) / rows;
         return Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
           const v: number = i === columns ? v1 : v0 + ((v1 - v0) * i) / columns;
-          return vertex(sweepKey(patch.sweep, u, v), () => sweepWriter(patch.sweep, u, v, (u1 - u0) / rows, (v1 - v0) / columns));
+          const [ub, ua] = reach((u1 - u0) / rows, j === 0, j === rows);
+          const [vb, va] = reach((v1 - v0) / columns, i === 0, i === columns);
+          return admit({
+            key: sweepKey(patch.sweep, u, v),
+            writer: () => sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
+            point: { sweep: patch.sweep, u, v, cell: [ub, ua, vb, va] },
+            sweep: null,
+            curve: null,
+          });
         });
       });
       emit(p, grid, columns, rows, false);
@@ -354,7 +410,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       const grid: number[][] = Array.from({ length: rows + 1 }, (_: unknown, j: number): number[] =>
         Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
           const e: IAutoMovieSurfaceSample | null = edgeAt(i, j);
-          return e === null ? -1 : vertex(e.key, e.writer);
+          return e === null ? -1 : admit(e);
         }),
       );
       for (let j: number = 1; j < rows; ++j)
@@ -426,6 +482,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     rings[ring.name] = members;
   }
+  finalize();
   for (const rig of sweeps.values()) rig.seal();
 
   const fit: boolean = props.fit ?? true;
@@ -492,3 +549,12 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     },
   };
 };
+
+/** A sweep point awaiting its writer: the sweep, domain point, the finest spacing reported on each side, and the writer once made. */
+interface IPending {
+  sweep: string;
+  u: number;
+  v: number;
+  cell: [number, number, number, number];
+  write: (out: Float64Array, at: number) => void;
+}

@@ -51,15 +51,14 @@ export interface IAutoMovieSweepRig {
   /**
    * Register a surface point and make its writer.
    *
-   * With a spacing, the point's radius is averaged over its cell by a three-by-three tent of weights `1/4, 1/2, 1/4` reaching half the spacing along `u` (clamped to the spine) and `v`, an average of radii rather than positions so a round section keeps its size; with zero spacing the point is the section point itself, as `IAutoMovieSweepSurface.point` places it. Shapes are read now; the writer scales and places them in the current frame.
+   * The point's radius is averaged over its cell, which reaches half the spacing to the neighbouring sample on each side along `u` (clamped to the spine) and `v`, by the trapezoid rule on the cell's two halves: weights `b / (2 (b + a))`, `1/2` and `a / (2 (b + a))` at the lower end, the point and the upper end for halves `b` below and `a` above, which is `1/4, 1/2, 1/4` on an even grid. It averages radii rather than positions, so a round section keeps its size. A cell of zero extent is the section point itself, as `IAutoMovieSweepSurface.point` places it. Shapes are read now; the writer scales and places them in the current frame.
    *
    * @param u Along the spine
    * @param v Around it
-   * @param du Cell spacing along the spine, or 0
-   * @param dv Cell spacing around it, or 0
+   * @param cell Spacing to the neighbouring sample below and above along `u`, then below and above along `v`
    * @returns The writer, three numbers in metres at an offset
    */
-  sample(u: number, v: number, du: number, dv: number): (out: Float64Array, at: number) => void;
+  sample(u: number, v: number, cell: readonly [number, number, number, number]): (out: Float64Array, at: number) => void;
 
   /** Size the arrays and fill them at rest. */
   seal(): void;
