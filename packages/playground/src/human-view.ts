@@ -284,9 +284,9 @@ const texture = async (accepted: IAccepted): Promise<void> => {
 };
 
 // ── construction net ────────────────────────────────────────────────────────
-/** How the person is drawn: the surface alone, the construction net over the opaque surface, or the net over a ghosted body. The net is the rest construction, so it matches the surface in the rest pose. */
-type DisplayMode = "surface" | "overlay" | "net";
-const DISPLAY_MODES: readonly DisplayMode[] = ["surface", "overlay", "net"];
+/** How the person is drawn: the surface alone, the construction net over the opaque surface, the net over a ghosted body, or construction alone. The net is the rest construction, so it matches the surface in the rest pose. */
+type DisplayMode = "surface" | "overlay" | "net" | "construction";
+const DISPLAY_MODES: readonly DisplayMode[] = ["surface", "overlay", "net", "construction"];
 let displayMode: DisplayMode = "surface";
 /** The shown person's construction nets, read on first use. */
 let nets: IAutoMovieHumanConstructionNet[] | null = null;
@@ -298,6 +298,10 @@ const GHOST: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
   opacity: 0.18,
   depthWrite: false,
   side: THREE.DoubleSide,
+});
+/** An invisible material keeps the surface's framing bounds available in construction-only views. */
+const CONSTRUCTION_ONLY: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+  visible: false,
 });
 /** Whether the skin shows its fine relief, the pores and furrows of its detail normal map; form is judged without it. */
 let relief: boolean = true;
@@ -334,9 +338,11 @@ const applyDisplayMode = (): void => {
     if (mesh.isMesh !== true) return;
     mesh.userData.surfaceMaterial ??= mesh.material;
     mesh.material =
-      displayMode === "net"
-        ? GHOST
-        : (mesh.userData.surfaceMaterial as THREE.Material);
+      displayMode === "construction"
+        ? CONSTRUCTION_ONLY
+        : displayMode === "net"
+          ? GHOST
+          : (mesh.userData.surfaceMaterial as THREE.Material);
   });
   if (displayMode === "surface") return;
   nets ??= current.human.inspect();
@@ -642,6 +648,10 @@ const capture = async (props: {
         canvas: { width: canvas.width, height: canvas.height },
         documentsHash: await hashHumanViewerSession(current.session),
         documents: current.session,
+        assembly,
+        hand,
+        showStick,
+        showBones,
         hiddenParts: [...hidden].sort((a: string, b: string): number =>
           a.localeCompare(b),
         ),
