@@ -6,31 +6,36 @@ import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
 
 /**
- * Distance from the vertebral column back to the skin as a share of the local depth. Started from transverse sections in Gray (1918, "Anatomy of the Human Body"), about 0.37 of the abdominal depth over the lumbar spine and 0.3 of the chest depth over the thorax, then fitted by least squares to the section centres of twelve MakeHuman CC0 bodies (base mesh hm08 with its caucasian and universal macro targets: women and men young at average, minimum and maximum weight and maximum muscle, old, and child), sliced at ten stations between the crotch and the seventh cervical vertebra. Grade: fitted to a CC0 reference.
+ * Distance from the vertebral column back to the skin as a share of the local depth. Started from transverse sections in Gray (1918, "Anatomy of the Human Body"), about 0.37 of the abdominal depth over the lumbar spine and 0.3 of the chest depth over the thorax, then fitted by least squares, with the squareness, the widest point and the relief, to the section centres and normalized outlines of twelve MakeHuman CC0 bodies (base mesh hm08 with its caucasian and universal macro targets: women and men young at average, minimum and maximum weight and maximum muscle, old, and child), sliced at ten stations between the crotch and the seventh cervical vertebra. Grade: fitted to a CC0 reference.
  */
 const BEHIND_COLUMN: Record<"lumbar" | "waist" | "thorax" | "axilla", number> = {
-  lumbar: 0.46,
-  waist: 0.38,
-  thorax: 0.31,
-  axilla: 0.235,
+  lumbar: 0.5,
+  waist: 0.381,
+  thorax: 0.297,
+  axilla: 0.253,
 };
 
 /**
  * Squareness exponents of the half-sections, front and back, at the buttock, the waist, the costal arch and the chest point; 2 is an ellipse. Fitted by least squares to the breadth- and depth-normalized section outlines of the twelve MakeHuman CC0 bodies described at `BEHIND_COLUMN`, with the front of the buttock and waist at the fit's lower bound of 1.7: the reference's lower abdomen is rounder than a superellipse can follow. Grade: fitted to a CC0 reference.
  */
 const SQUARENESS: Record<"front" | "back", Record<"buttock" | "waist" | "costal" | "chest", number>> = {
-  front: { buttock: 1.7, waist: 1.7, costal: 2.45, chest: 2.29 },
-  back: { buttock: 2.74, waist: 2.21, costal: 2.93, chest: 2.69 },
+  front: { buttock: 1.7, waist: 1.7, costal: 2.35, chest: 2.31 },
+  back: { buttock: 2.45, waist: 2.08, costal: 2.74, chest: 2.86 },
 };
 
 /**
  * Front-back position of the widest point of the section as a share of the way from the back to the front: below the iliac crest, at the waist and over the chest, fitted with `SQUARENESS` to the same references. Grade: fitted to a CC0 reference.
  */
 const WIDEST: Record<"pelvis" | "waist" | "chest", number> = {
-  pelvis: 0.65,
-  waist: 0.48,
-  chest: 0.44,
+  pelvis: 0.666,
+  waist: 0.489,
+  chest: 0.445,
 };
+
+/**
+ * Share of the buttock depth that the two gluteus maximus masses project behind the profile's back. The profile's back at the buttock stands this far forward of the measured buttock depth and the masses bring the surface back to it, so the buttock rounds over and under its maximum instead of following one section. Conventional, judged on renders against Richer's plates of the back (1890, "Anatomie artistique") and the MakeHuman CC0 bodies; the girth fit scales the depth around it.
+ */
+const GLUTEAL_MASS: number = 0.14;
 
 /**
  * The trunk's continuous body of one side: at every height, the half breadth, the front and back of the midline, the depth of the widest point and the squareness of the front and back halves, through which the cage loops are sampled.
@@ -69,6 +74,7 @@ export function profileAutoMovieHumanTrunk(
     lerp(spineFront, waistFront, 0.35),
   );
   const buttockBack: number = buttockFront - buttockDepth;
+  const gluteal: number = GLUTEAL_MASS * buttockDepth;
   const front: (y: number) => number = curveAutoMovieHumanTrunk([
     [L.crotch, buttockFront - 0.016 * S],
     [L.buttock, buttockFront],
@@ -82,9 +88,9 @@ export function profileAutoMovieHumanTrunk(
     [frame.suprasternale.y, frame.suprasternale.z],
   ]);
   const rear: (y: number) => number = curveAutoMovieHumanTrunk([
-    [L.gluteal, buttockBack + 0.02 * S],
-    [L.buttock, buttockBack],
-    [lerp(L.buttock, frame.iliocristale.y, 0.55), lerp(buttockBack, back(frame.iliocristale.y), 0.45)],
+    [L.gluteal, buttockBack + 0.03 * S],
+    [L.buttock, buttockBack + gluteal],
+    [lerp(L.buttock, frame.iliocristale.y, 0.5), lerp(buttockBack + gluteal, back(frame.iliocristale.y), 0.22)],
     [frame.iliocristale.y, back(frame.iliocristale.y)],
     [L.waist, waistBack],
     [L.tenthRib, back(L.tenthRib)],
@@ -124,6 +130,7 @@ export function profileAutoMovieHumanTrunk(
     return lerp(rear(y), front(y), share);
   };
   return {
+    gluteal,
     half,
     front,
     back: rear,
@@ -155,6 +162,9 @@ export namespace profileAutoMovieHumanTrunk {
    * @author Samchon
    */
   export interface IProfile {
+    /** Projection the gluteus maximus masses add behind the section the profile gives, millimetres. */
+    gluteal: number;
+
     /** Half breadth at a height. */
     half: (y: number) => number;
 

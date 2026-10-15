@@ -10,7 +10,7 @@ import { measureAutoMovieHumanTrunkSurface } from "./measureAutoMovieHumanTrunkS
 import { placeAutoMovieHumanTrunkPoints } from "./placeAutoMovieHumanTrunkPoints";
 
 /** Rounds of the fit; each removes most of the remaining relative error of every measurement. */
-const ROUNDS: number = 5;
+const ROUNDS: number = 7;
 
 /**
  * Bounds of the squareness factors: a waist the fit cannot reach by shape takes the rest in breadth; the hips, whose breadth and depth are both measured, may square further, as the buttocks flatten the back of the section into two lobes.
