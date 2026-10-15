@@ -1,14 +1,15 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieHumanDirection } from "./AutoMovieHumanDirection";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 
 /**
  * One opening of a cage: a closed loop of boundary vertices where the part meets a neighbour.
  *
- * Both parts at a junction site build their ring from one shared definition: the site's frame from the skeleton, the vertex count of the site, the orientation and the start mark below. That shared definition is what lets the junction join them without either part adapting to the other, and what keeps a part swappable for another with the same ring. When two rings at a site differ in count, the junction owns the transition patch.
+ * Both parts at a junction site build their ring from one shared definition, `AUTOMOVIE_HUMAN_RINGS` resolved against the skeleton by `layoutAutoMovieHumanRing`: the site's frame, the vertex count, the orientation and the start mark below, and the direction of every vertex from the origin. That shared definition is what lets the junction join them without either part adapting to the other, and what keeps a part swappable for another with the same ring. When two rings at a site differ in count, the junction owns the transition patch.
  *
- * Orientation: the vertices run counterclockwise about `frame.normal` by the right-hand rule. The normal points out of the part, so the two rings of one site run in opposite senses about a common axis, and the junction reverses one of them to pair vertices.
+ * Orientation: the vertices run counterclockwise about `frame.normal` by the right-hand rule. The normal points out of the part, so the two rings of one site run in opposite senses about a common axis, and the junction reverses one of them to pair vertices. The rule is the same on both sides of the body, so a generator that builds the right side by mirroring the left reverses each face's corners and each ring after its start vertex.
  *
  * @author Samchon
  */
@@ -27,7 +28,7 @@ export interface IAutoMovieHumanRing {
   /**
    * Anatomical direction of the first vertex from the ring's centre, the start mark that aligns the two rings of a site.
    */
-  start: "anterior" | "posterior" | "medial" | "lateral" | "superior" | "inferior";
+  start: AutoMovieHumanDirection;
 
   /** The ring's frame, taken from the skeleton. */
   frame: IAutoMovieHumanRing.IFrame;
@@ -39,7 +40,7 @@ export namespace IAutoMovieHumanRing {
    * @author Samchon
    */
   export interface IFrame {
-    /** Centre of the cut, on the bone axis that crosses it. */
+    /** Centre of the cut: on the bone axis that crosses it, or at tragion for the ear. */
     origin: IAutoMovieVector3;
 
     /** Unit normal of the cut plane, pointing out of the part through the opening. */

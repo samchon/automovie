@@ -21,7 +21,7 @@ export interface IAutoMovieHumanSurfaceCoordinate {
   u: number;
 
   /**
-   * Position around the part's axis as a fraction of a turn, 0 at the part's anterior mark and increasing counterclockwise about the axis pointing distally.
+   * Position around the part's axis as a fraction of a turn, 0 at the part's anterior mark and increasing counterclockwise about the axis pointing distally, from 0 to 1. The corners of one face lie within half a turn of each other without wrapping, so a face that reaches the wrap meridian from below writes 1 there and one that leaves it upward writes 0.
    */
   v: number;
 }
