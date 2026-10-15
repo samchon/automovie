@@ -3,8 +3,8 @@
  * references precede parts, rigs, body/profile/affordance metadata and materials.
  * Cohesive leaf owners check their typed inputs and append to this one local
  * collector. Caller models are read-only; validation reports faults rather than
- * repairing geometry or binding external resources. Human face construction,
- * authoring builders and static export all consume this same public entry.
+ * repairing geometry or binding external resources. Model generators,
+ * authoring builders and static exporters all consume this same public entry.
  * Moving a leaf must preserve predicate arithmetic, paths and ordering because
  * downstream correction rounds present these diagnostics to the author.
  */
