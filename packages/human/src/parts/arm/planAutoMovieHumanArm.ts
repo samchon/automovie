@@ -22,11 +22,44 @@ import { sectionAutoMovieHumanArm } from "./sectionAutoMovieHumanArm";
  */
 const COLUMNS: number[] = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 
-/** Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm and the forearm's bellies, so rows lie about a span apart. Grade: conventional. */
-const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1];
+/**
+ * Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm and of the forearm from its maximum to its tendinous half, so no row spans more than half the width over which a girth change falls off along the limb: MakeHuman's CC0 girth measure targets fall to half their peak within 110 mm about mid upper arm and 60 mm about the wrist, at its base mesh's 1666 mm stature (the axial full widths at half maximum of `measure-upperarm-circ` and `measure-wrist-circ`). Grade: derived.
+ */
+const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1];
 
 /** Arm levels between which the fat over a form turns from the upper arm's to the forearm's, about the elbow. Grade: conventional. */
 const ELBOW_FAT: [number, number] = [-0.15, 0.1];
+
+/**
+ * How far each section's centre lies off the bone axis in the rest pose, as fractions of its mean radius, toward the floor (`down`, the anatomically medial side of the abducted arm, under the humerus) and toward the front (`front`), at arm levels; between the rings, which keep their shared shapes, the offsets are interpolated linearly and they vanish at the ring levels. The flesh of the abducted upper arm and forearm lies below the bones, the biceps and triceps and the forearm's flexor mass hanging under the humerus, radius and ulna, and the forearm's mass lies behind the bones' line in the mid-prone rest pose.
+ *
+ * The values are our fit of the section centroids of the four lean 20-year-old gate identities against the reference bodies nearest them, each posed to the T-pose by its own skin weights, sectioned in our station planes by the comparison tooling: the mean offset of the reference's centroid from ours at nine levels between the rings, four fifths of it applied. The fit is against synthetic references; the MakeHuman CC0 reference of the calibration harness puts the mid-upper-arm centroid within 1 mm of the axis, so the down offsets are the larger of two synthetic readings. Grade: population-fitted to a synthetic reference.
+ */
+const SHIFT: Array<[level: number, down: number, front: number]> = [
+  [-1, 0, 0],
+  [-0.73, 0.136, 0],
+  [-0.46, 0.128, 0.024],
+  [-0.19, 0.088, 0.01],
+  [0.05, 0.088, -0.035],
+  [0.21, 0.072, -0.067],
+  [0.37, 0.08, -0.088],
+  [0.53, 0.072, -0.119],
+  [0.68, 0.05, -0.106],
+  [0.84, 0.029, -0.074],
+  [1, 0, 0],
+];
+
+/** The section-centre offsets at an arm level, interpolated in `SHIFT`. */
+const shift = (level: number): { down: number; front: number } => ({
+  down: interpolate(
+    SHIFT.map((s: [number, number, number]): [number, number] => [s[0], s[1]]),
+    level,
+  ),
+  front: interpolate(
+    SHIFT.map((s: [number, number, number]): [number, number] => [s[0], s[2]]),
+    level,
+  ),
+});
 
 /**
  * Lay one arm out for lofting, from mid upper arm to the wrist.
@@ -129,7 +162,12 @@ export function planAutoMovieHumanArm(props: {
       const twist: number = (mirror * section.twist * Math.PI) / 180;
       return {
         ...common,
-        centre: V.offset(elbow, [axis, level * (level < 0 ? above : below)]),
+        centre: V.offset(
+          elbow,
+          [axis, level * (level < 0 ? above : below)],
+          [V.normalize(V.offset(V.of(0, -1, 0), [axis, axis.y])), shift(level).down * section.girth / (2 * Math.PI)],
+          [front, shift(level).front * section.girth / (2 * Math.PI)],
+        ),
         axis,
         anterior: V.offset(
           V.of(0, 0, 0),

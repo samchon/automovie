@@ -12,48 +12,42 @@ const HELD: number = 0.0005;
 
 /**
  * A ring that declares a perimeter holds the limit surface's perimeter along
- * it, for an ellipse and a rounded rectangle at 8, 12 and 16 columns.
+ * it on an ellipse at 8, 12 and 16 columns.
  *
  * Scenarios:
  *
- * 1. The tube swelling to its middle, with an elliptic and then a
- *    rounded-rectangle section, its middle ring declaring the sweep's own
- *    perimeter there: at the lowest, low and medium tiers, 8, 12 and 16
- *    columns, the subdivided limit's perimeter along the ring lies within
- *    0.5 mm of it.
+ * 1. The tube swelling to its middle, with an elliptic section, its middle
+ *    ring declaring the sweep's own perimeter there: at the lowest, low and
+ *    medium tiers, 8, 12 and 16 columns, the subdivided limit's perimeter
+ *    along the ring lies within 0.5 mm of it.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples girth networks with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along the ring; a factor solved on the wrong row, a wrong measurement of the isoline or a factor lost before the rest fit leaves the perimeter millimetres short, while any hold that meets the declaration passes.
+ * @evidence contracts/testing.md#behavioral-verification Samples the girth network with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along the ring; a factor solved on the wrong row, a wrong measurement of the isoline or a factor lost before the rest fit leaves the perimeter millimetres short, while any hold that meets the declaration passes.
  * @evidence contracts/testing.md#independent-expectations The declared perimeter is the sweep's own section at the ring, a dense polyline of `compileAutoMovieSweep`; the measured one is a Richardson-extrapolated polyline through subdivided limit positions, independent of the engine's quadrature.
- * @evidence contracts/testing.md#distinguishing-cases Covers a smooth and a cornered section, three column counts and a ring at a girth maximum, where sampling loses the most; the free shortfall and the refusals are owned by the girth refusal test.
+ * @evidence contracts/testing.md#distinguishing-cases Covers three column counts and a ring at a girth maximum, where sampling loses the most; the cornered section is owned by the girth corners test, coupled rings by the coupled girth test, and the free shortfall and the refusals by the girth refusal test.
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_girth(): void {
-  for (const [name, exponent] of [
-    ["ellipse", 2],
-    ["rounded rectangle", 4],
-  ] as const) {
-    const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
-      sweepGirthTube({ exponent }).sweeps.tube!,
-    );
-    let perimeter: number = 0;
-    for (let k: number = 0; k < 4096; ++k) {
-      const a = sweep.point(0.5, k / 4096);
-      const b = sweep.point(0.5, (k + 1) / 4096);
-      perimeter += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
-    }
-    TestValidator.equals(
-      `the ${name}'s held girth matches at 8, 12 and 16 columns`,
-      (["lowest", "low", "medium"] as const).map(
-        (tier): boolean =>
-          Math.abs(
-            sweepRowPerimeter(
-              sweepGirthTube({ exponent, perimeter }),
-              tier,
-              0.5,
-            ) - perimeter,
-          ) <= HELD,
-      ),
-      [true, true, true],
-    );
+  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    sweepGirthTube({ exponent: 2 }).sweeps.tube!,
+  );
+  let perimeter: number = 0;
+  for (let k: number = 0; k < 4096; ++k) {
+    const a = sweep.point(0.5, k / 4096);
+    const b = sweep.point(0.5, (k + 1) / 4096);
+    perimeter += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
   }
+  TestValidator.equals(
+    "the ellipse's held girth matches at 8, 12 and 16 columns",
+    (["lowest", "low", "medium"] as const).map(
+      (tier): boolean =>
+        Math.abs(
+          sweepRowPerimeter(
+            sweepGirthTube({ exponent: 2, perimeter }),
+            tier,
+            [0.5],
+          )[0]! - perimeter,
+        ) <= HELD,
+    ),
+    [true, true, true],
+  );
 }

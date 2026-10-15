@@ -21,6 +21,9 @@ const LEAN_REFERENCE: number = 7.84;
 const FASCIA: number = 3;
 const BLUR_PER_FAT: number = 1.5;
 
+/** Share of the tabulated depths the skin shows: held at zero, as the limbs' relief is, until the deltoid's forms are grounded in cited anatomy and the shoulder branch reads the field. Grade: conventional. */
+const SHOWN: number = 0;
+
 /**
  * The deltoid's forms, each a band along the humerus between two shares of the acromion-to-insertion distance (`from`, `to`; beyond 1 it runs past the insertion), its crest at an angle round the humerus from the anterior side toward the lateral one at either end (degrees), with a deep half-width across (millimetres) and a depth at the average adult's fat (millimetres, outward positive) at neutral lean mass.
  *
@@ -140,7 +143,7 @@ export function fieldAutoMovieHumanDeltoid(props: {
       const y: number = (Math.abs(delta) * Math.PI * rho) / 180;
       // the area across is kept: seen through the reference fat the crest is the tabulated depth
       sum +=
-        ((f.depth * muscle) / box(0, f.half, tabulated)) *
+        ((SHOWN * f.depth * muscle) / box(0, f.half, tabulated)) *
         box(y, f.half, border) *
         along;
     }

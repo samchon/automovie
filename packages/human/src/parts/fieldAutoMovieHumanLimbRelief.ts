@@ -21,6 +21,11 @@ const BLUR_PER_FAT: number = 1.5;
 /** Smallest deep half-width of a belly as a share of its tabulated spread, for a form so narrow that the reference fat alone would account for its width. Grade: conventional. */
 const LEAST_DEEP_SHARE: number = 0.4;
 
+/**
+ * Share of the tabulated heights the skin shows. The relief tables' heights were fitted as bands of the cage, whose sampling averaged them over a cell, so at render resolution they stand far higher than they did and read as lumps; the share is held at zero, the limbs showing their block-out, until the tables are rebuilt from cited muscle anatomy with heights for the surface itself. Grade: conventional.
+ */
+const SHOWN: number = 0;
+
 /** Rows along the limb of the arc-length table and of the row means. Grade: numerical. */
 const ROWS: number = 240;
 
@@ -206,7 +211,9 @@ export function fieldAutoMovieHumanLimbRelief(
       const t: number = Math.min(1, Math.max(0, (rho - (1 - edge)) / (2 * edge)));
       const shape: number = rho <= 1 - edge ? 1 : Math.cos((Math.PI / 2) * t) ** 2;
       // across, the belly's area is its crest times its width less its rims, the table's Gaussian √(2π) s h
-      sum += ((f.crest * Math.sqrt(2 * Math.PI) * f.spread) / (2 * a)) * shape;
+      sum +=
+        ((SHOWN * f.crest * Math.sqrt(2 * Math.PI) * f.spread) / (2 * a)) *
+        shape;
     }
     return w * sum;
   };

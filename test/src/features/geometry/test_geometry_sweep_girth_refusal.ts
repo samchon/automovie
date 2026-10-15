@@ -43,7 +43,7 @@ export function test_geometry_sweep_girth_refusal(): void {
   TestValidator.predicate(
     "a free girth falls short",
     perimeter -
-      sweepRowPerimeter(sweepGirthTube({ exponent: 2 }), "medium", 0.5) >
+      sweepRowPerimeter(sweepGirthTube({ exponent: 2 }), "medium", [0.5])[0]! >
       0.002,
   );
 

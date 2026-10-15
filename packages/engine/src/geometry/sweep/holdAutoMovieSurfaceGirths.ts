@@ -3,7 +3,7 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
 /** Most rest fits the girth solve runs. */
-const MAX_ITERATIONS: number = 8;
+const MAX_ITERATIONS: number = 24;
 
 /** Largest perimeter error the solve accepts, relative to the perimeter. */
 const TOLERANCE: number = 1e-9;
@@ -31,13 +31,17 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * the bounded spline of `interpolateAutoMovieSpline` through 1 at the sweep's
  * other rings at one `u`, which meet neighbouring parts and stay, and through
  * a value at each girth ring, holding its end values beyond the outermost
- * knots; `IAutoMovieSweepRig.girth` folds it into the scale. Each girth
- * value is updated by the ratio of the declared perimeter to the measured one
- * after a rest fit, a fixed-point iteration that is exact in one step where
- * the fit interpolates the row and no neighbouring sample reads another
- * factor, and converges within a few where cell averages or a least-squares
- * fit couple the row to its neighbours. It stops when every perimeter is
- * within 1e-9 of its declaration and refuses after eight fits.
+ * knots; `IAutoMovieSweepRig.girth` folds it into the scale. The girth
+ * values solve the system "every measured perimeter equals its declaration"
+ * jointly by Broyden's method (Broyden 1965, Mathematics of Computation
+ * 19(92):577-593), one rest fit per step: the Jacobian starts diagonal, each
+ * perimeter in proportion to its own factor, which is exact where the fit
+ * interpolates the row and no neighbouring sample reads another factor, and
+ * each step's rank-one update learns how neighbouring rings couple through
+ * the spline, cell averages or a least-squares fit, so rings close together
+ * converge together where updating each alone would oscillate or crawl; a
+ * step that would make a factor non-positive is halved. It stops when every
+ * perimeter is within 1e-9 of its declaration and refuses after 24 fits.
  *
  * @param props.network The network, only read.
  * @param props.rings Each ring's vertices in loop order, from the sampler.
@@ -48,11 +52,11 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * @param props.positions Receives the rest control positions, `3 * vertices` numbers.
  * @throws Error when a girth ring's perimeter is not positive and finite, it also has positions, it does not run once round one sweep at one `u`, a vertex on or beside it is not a regular interior vertex, two rings of one sweep share a `u`, or the solve does not converge.
  *
- * @evidence contracts/common.md#principled-implementation The limit along a regular isoline is the tensor-product B-spline's isoline, measured by Gauss-Legendre quadrature; the correction is a smooth radial scale along the spine, solved by fixed-point iteration on the ratio of perimeters, exact where the row's limit depends only on its own targets.
+ * @evidence contracts/common.md#principled-implementation The limit along a regular isoline is the tensor-product B-spline's isoline, measured by Gauss-Legendre quadrature; the correction is a smooth radial scale along the spine whose knot values solve the coupled perimeter equations by Broyden's quasi-Newton method from the exact uncoupled Jacobian.
  * @evidence contracts/common.md#clear-and-simple-design Validation, the regular-row check, the measurement and the iteration are one pass each; the factor lives in the sweep rig's scale, so samples, probes and poses read it without change.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A ring through an extraordinary vertex, where the isoline is not the B-spline, is refused instead of measured approximately; a solve that does not converge is refused.
  * @evidence contracts/common.md#meaningful-documentation States the ring's requirements, the measurement, the factor's knots and ends, the iteration, its exactness and its tolerance.
- * @evidence contracts/performance.md#efficient-algorithms O(F) to index the faces, then at most eight rest fits plus O(R) quadrature for R ring vertices each; no work without girth rings.
+ * @evidence contracts/performance.md#efficient-algorithms O(F) to index the faces, then at most 24 rest fits plus O(R) quadrature for R ring vertices and O(G^3) for G girth rings each; no work without girth rings.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runs once per rig compile; the factor it leaves is what every pose reuses.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; its O(F) adjacency is released on return.
  */
@@ -251,6 +255,12 @@ export const holdAutoMovieSurfaceGirths: (props: {
     return length;
   };
 
+  // Broyden's method on the residuals F(g) = measured - declared over the girth values g
+  const n: number = girths.length;
+  const jacobian: Float64Array = new Float64Array(n * n);
+  const residual: Float64Array = new Float64Array(n);
+  const previous: Float64Array = new Float64Array(n);
+  const step: Float64Array = new Float64Array(n);
   for (let iteration: number = 0; iteration < MAX_ITERATIONS; ++iteration) {
     for (const sweep of sweeps) {
       const knots: Array<[number, number]> = [
@@ -271,14 +281,81 @@ export const holdAutoMovieSurfaceGirths: (props: {
     }
     props.rest(props.positions);
     let worst: number = 0;
-    for (const g of girths) {
+    girths.forEach((g: IGirth, i: number): void => {
       const measured: number = measure(g);
       worst = Math.max(worst, Math.abs(measured - g.perimeter) / g.perimeter);
-      g.value *= g.perimeter / measured;
-    }
+      previous[i] = residual[i]!;
+      residual[i] = measured - g.perimeter;
+    });
     if (worst <= TOLERANCE) return;
+    if (iteration === 0)
+      girths.forEach((g: IGirth, i: number): void => {
+        jacobian[i * n + i] = (residual[i]! + g.perimeter) / g.value;
+      });
+    else {
+      // the rank-one update that makes the Jacobian map the last step onto the last change of the residuals
+      let length: number = 0;
+      for (let j: number = 0; j < n; ++j) length += step[j]! * step[j]!;
+      for (let i: number = 0; i < n; ++i) {
+        let miss: number = residual[i]! - previous[i]!;
+        for (let j: number = 0; j < n; ++j)
+          miss -= jacobian[i * n + j]! * step[j]!;
+        for (let j: number = 0; j < n; ++j)
+          jacobian[i * n + j]! += (miss * step[j]!) / length;
+      }
+    }
+    solve(jacobian, residual, step, n);
+    let scale: number = 1;
+    while (
+      girths.some(
+        (g: IGirth, i: number): boolean => !(g.value - scale * step[i]! > 0),
+      )
+    )
+      scale /= 2;
+    girths.forEach((g: IGirth, i: number): void => {
+      step[i] = -scale * step[i]!;
+      g.value += step[i]!;
+    });
   }
   throw new Error(
     `girth rings ${girths.map((g: IGirth): string => g.name).join(", ")} did not converge`,
   );
+};
+
+/** Solve the dense system `a x = b` of order `n` by Gaussian elimination with partial pivoting, into `x`; `a` and `b` are left intact. */
+const solve = (
+  a: Float64Array,
+  b: Float64Array,
+  x: Float64Array,
+  n: number,
+): void => {
+  const m: Float64Array = a.slice();
+  const r: Float64Array = b.slice();
+  for (let c: number = 0; c < n; ++c) {
+    let pivot: number = c;
+    for (let i: number = c + 1; i < n; ++i)
+      if (Math.abs(m[i * n + c]!) > Math.abs(m[pivot * n + c]!)) pivot = i;
+    if (!(Math.abs(m[pivot * n + c]!) > 0))
+      throw new Error("girth rings are not independent");
+    if (pivot !== c) {
+      for (let j: number = 0; j < n; ++j) {
+        const t: number = m[c * n + j]!;
+        m[c * n + j] = m[pivot * n + j]!;
+        m[pivot * n + j] = t;
+      }
+      const t: number = r[c]!;
+      r[c] = r[pivot]!;
+      r[pivot] = t;
+    }
+    for (let i: number = c + 1; i < n; ++i) {
+      const f: number = m[i * n + c]! / m[c * n + c]!;
+      for (let j: number = c; j < n; ++j) m[i * n + j]! -= f * m[c * n + j]!;
+      r[i]! -= f * r[c]!;
+    }
+  }
+  for (let i: number = n - 1; i >= 0; --i) {
+    let s: number = r[i]!;
+    for (let j: number = i + 1; j < n; ++j) s -= m[i * n + j]! * x[j]!;
+    x[i] = s / m[i * n + i]!;
+  }
 };

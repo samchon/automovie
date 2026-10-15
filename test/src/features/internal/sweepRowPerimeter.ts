@@ -19,52 +19,60 @@ import {
  *
  * @param network The network; its first patch must be a sweep patch spanning a whole turn.
  * @param tier The tier to sample.
- * @param t The row's patch coordinate along the spine, a row at the tier.
- * @returns The perimeter, metres.
+ * @param rows The rows' patch coordinates along the spine, each a row at the tier.
+ * @returns Each row's perimeter, metres.
  */
 export function sweepRowPerimeter(
   network: IAutoMovieSurfaceNetwork,
   tier: AutoMovieSurfaceTier,
-  t: number,
-): number {
+  rows: readonly number[],
+): number[] {
   const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network,
     tier,
   });
-  const at = (levels: number): number => {
+  const at = (levels: number): number[] => {
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels,
     });
-    const row: Array<[number, number]> = [];
-    const seen: Set<number> = new Set();
-    locateAutoMovieSurfaceVertices({
-      network,
-      cage,
-      parameters: surface.parameters,
-    }).forEach((l: IAutoMovieSurfaceLocation, v: number): void => {
-      const s: number = l.coordinate.s % 1;
-      if (
-        l.coordinate.patch !== 0 ||
-        Math.abs(l.coordinate.t - t) > 1e-12 ||
-        seen.has(s)
-      )
-        return;
-      seen.add(s);
-      row.push([s, v]);
-    });
-    row.sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
-    const p: number[] = surface.limitPositions;
-    let length: number = 0;
-    row.forEach(([, a]: [number, number], k: number): void => {
-      const b: number = row[(k + 1) % row.length]![1];
-      length += Math.hypot(
-        p[3 * b]! - p[3 * a]!,
-        p[3 * b + 1]! - p[3 * a + 1]!,
-        p[3 * b + 2]! - p[3 * a + 2]!,
+    const locations: IAutoMovieSurfaceLocation[] =
+      locateAutoMovieSurfaceVertices({
+        network,
+        cage,
+        parameters: surface.parameters,
+      });
+    return rows.map((t: number): number => {
+      const row: Array<[number, number]> = [];
+      const seen: Set<number> = new Set();
+      locations.forEach((l: IAutoMovieSurfaceLocation, v: number): void => {
+        const s: number = l.coordinate.s % 1;
+        if (
+          l.coordinate.patch !== 0 ||
+          Math.abs(l.coordinate.t - t) > 1e-12 ||
+          seen.has(s)
+        )
+          return;
+        seen.add(s);
+        row.push([s, v]);
+      });
+      row.sort(
+        (a: [number, number], b: [number, number]): number => a[0] - b[0],
       );
+      const p: number[] = surface.limitPositions;
+      let length: number = 0;
+      row.forEach(([, a]: [number, number], k: number): void => {
+        const b: number = row[(k + 1) % row.length]![1];
+        length += Math.hypot(
+          p[3 * b]! - p[3 * a]!,
+          p[3 * b + 1]! - p[3 * a + 1]!,
+          p[3 * b + 2]! - p[3 * a + 2]!,
+        );
+      });
+      return length;
     });
-    return length;
   };
-  return (4 * at(3) - at(2)) / 3;
+  const fine: number[] = at(3);
+  const coarse: number[] = at(2);
+  return fine.map((l: number, k: number): number => (4 * l - coarse[k]!) / 3);
 }

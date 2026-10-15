@@ -13,16 +13,17 @@ description: Defines modeling rules and the visual debugging procedure. Use befo
 - Keep one unit and one frame inside a declaration, and convert only where they meet, in one named step.
 - Build a boundary between parts from one definition both sides share, so it opens no gap, overlap, or normal jump under any admitted configuration.
 - Build coarse to fine: block out the whole form first, then treat each finer detail as the block-out of a smaller region, zooming in one scale at a time and fitting each scale before the next.
-- Give widths, spacings, and falloffs on a surface in physical units through the surface's local metric, never in normalized chart parameters, so a feature keeps its size when the surface or its layout changes.
-- Compute and measure from the same geometry, regenerate a derivative when its basis changes, and repair an unsound representation at its foundation instead of accumulating corrections.
+- Size surface features in physical units through the surface's metric, not in chart parameters, so they keep their size when the surface or its layout changes.
+- Change a subdivision net's vertex count only through transitions whose extraordinary vertices have valence 3 or 5 and sit where curvature is low, because a valence-6 vertex or a cluster of poles dents the limit surface.
+- Compute and measure on the geometry that is displayed, such as a subdivision limit surface rather than its cage, regenerate a derivative when its basis changes, and repair an unsound representation at its foundation instead of accumulating corrections.
 
 ## Visual Debugging
 
 A broken viewer comes first: do no work that needs visual judgment until a displayed model and working controls confirm recovery, and protect other owners' processes meanwhile.
 
 - Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view. Readiness or numerical success proves no appearance.
-- Inspect from every direction, back quarters and high and low obliques included, and aim a free camera at each defect, because front and side alone hide oblique sections and junctions. Enlarge the affected parts and inspect assembled neighbors and use distance, at rest, intermediate states, supported extremes, return, and shape-motion combinations.
-- When a surface is generated from curves, such as lofted sections, a curve network or a subdivision cage, never judge it without that net: every set of views, whole sweeps and each defect's close-up alike, shows the same cameras as surface, net overlaid on the surface, and net alone. A field laid over the surface, such as displacement relief, shows the curves that define it in the net. The surface shows the symptom; the net shows the curve or section that causes it.
-- Judge form under raking light with fine material detail, such as normal maps, turned off; judge materials and lighting in beauty; use structural passes only for the quantities they document.
+- Inspect from every direction, back quarters and high and low obliques included, and aim a free camera at each defect, because front and side alone hide oblique sections and junctions. Frame each close-up on the affected region from a camera outside the model, and inspect assembled neighbors and use distance, at rest, intermediate states, supported extremes, return, and shape-motion combinations.
+- When a surface is generated from curves, such as lofted sections, a curve network or a subdivision cage, never judge it without that net: every set of views, whole sweeps and each defect's close-up alike, shows the same cameras as surface, net overlaid on the surface, and net alone. A field over the surface, such as displacement relief, puts its defining curves in the net too. The surface shows the symptom; the net shows the curve or section that causes it.
+- Judge form under raking light with fine material detail such as normal maps off, and materials and lighting in beauty; use structural passes only for the quantities they document.
 - Compare the render with the engine result to separate calculation from display faults, and compare before and after under matching conditions.
 - After every correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.

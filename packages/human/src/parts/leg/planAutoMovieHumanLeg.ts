@@ -10,9 +10,9 @@ import { reliefAutoMovieHumanLeg } from "./reliefAutoMovieHumanLeg";
 import { shapeAutoMovieHumanLegSection } from "./shapeAutoMovieHumanLegSection";
 
 /**
- * Rows of faces from each station to the next: two across the long gaps of the lower thigh and the calf's taper, one elsewhere, so rows lie about a span of the twelve around apart and gather at the knee. Grade: conventional.
+ * Rows of faces from each station to the next: two across the long gaps of the lower thigh, the calf's taper and the calcaneal tendon, one elsewhere, so rows gather at the knee and no row spans more than half the width over which a girth change falls off along the limb: MakeHuman's CC0 girth measure targets fall to half their peak within 165 mm about the thigh, 105 mm about the knee, 115 mm about the calf and 85 mm about the ankle, at its base mesh's 1666 mm stature (the axial full widths at half maximum of its `measure-*-circ` targets). Grade: derived.
  */
-const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1];
+const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1];
 
 /**
  * Lay one leg out for lofting, from mid thigh to the ankle.

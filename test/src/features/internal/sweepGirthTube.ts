@@ -26,15 +26,20 @@ const COLUMNS: IAutoMovieSurfaceNetwork.ICounts = {
  * girth ring runs round it. The section is an ellipse, or with `exponent` a
  * superellipse, 4 for a rounded rectangle whose sides flatten and whose
  * corners turn tightly, the shape that loses the most perimeter between
- * columns. The ends are open rings that stay as sampled.
+ * columns. The ends are open rings that stay as sampled. With `beside`, two
+ * more girth rings run an eighth of the tube below and above the middle, a
+ * row apart at the low and medium tiers, so their factors couple as a
+ * trunk's waist, underbust and chest do.
  *
  * @param shape.exponent The superellipse exponent of every section, 2 for an ellipse.
  * @param shape.perimeter The middle ring's declared perimeter, metres; omitted, the ring is only reported.
+ * @param shape.beside The declared perimeters of the rings at `u` 0.375 and 0.625, metres; omitted, there are none.
  * @returns The network, metres.
  */
 export function sweepGirthTube(shape: {
   exponent: number;
   perimeter?: number;
+  beside?: [number, number];
 }): IAutoMovieSurfaceNetwork {
   const section = (
     right: number,
@@ -96,6 +101,12 @@ export function sweepGirthTube(shape: {
           : {}),
       },
       ring("end", 1),
+      ...(shape.beside !== undefined
+        ? [
+            { ...ring("below", 0.375), perimeter: shape.beside[0] },
+            { ...ring("above", 0.625), perimeter: shape.beside[1] },
+          ]
+        : []),
     ],
   };
 }
