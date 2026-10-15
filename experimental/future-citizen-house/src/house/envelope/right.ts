@@ -12,6 +12,7 @@ import { standardWindowHeight } from "./standardWindowHeight";
 import { roomEdge } from "./roomEdge";
 import { gutterX } from "./gutterX";
 
+/** Build the right facade with its glazing runs. */
 export function right(a: Assembly): void {
   const backEdge = roomEdge("common-room", "z", "max");
   facade(a, exteriorFrame("right"), [

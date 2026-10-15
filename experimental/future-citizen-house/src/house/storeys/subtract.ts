@@ -1,6 +1,9 @@
 import type { Rect } from "../Rect";
 
 
+/**
+ * Parts of `rect` outside `cut`, as up to four rectangles; `rect` itself when they do not overlap.
+ */
 export function subtract(rect: Rect, cut: Rect): Rect[] {
   const x0 = Math.max(rect[0], cut[0]), x1 = Math.min(rect[1], cut[1]);
   const z0 = Math.max(rect[2], cut[2]), z1 = Math.min(rect[3], cut[3]);

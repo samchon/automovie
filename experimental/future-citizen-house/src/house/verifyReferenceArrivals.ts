@@ -1,11 +1,11 @@
-/** Reference interiors use a real room arrival, with no second coordinate map.
- * The old max-bounds camera is a negative witness inside the closed Murphy
- * cabinet. Missing rooms and unplaceable thresholds must stay unavailable. */
 import assert from "node:assert/strict";
 import { builtEnvironmentPlacementBounds, builtSpaceContainsPoint } from "@automovie/engine";
 import { buildHouse } from "./buildHouse";
 import { observations } from "./observations";
 
+/** Reference interiors use a real room arrival, with no second coordinate map.
+ * The old max-bounds camera is a negative witness inside the closed Murphy
+ * cabinet. Missing rooms and unplaceable thresholds must stay unavailable. */
 export function verifyReferenceArrivals(): void {
   const environment = buildHouse();
   const stations = observations(environment);

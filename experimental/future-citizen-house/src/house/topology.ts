@@ -22,6 +22,10 @@ const cell = (id: string, r: Rect, y0: number, y1: number) => ({
     { normal: v(0, 0, -1), offset: -r[2] },
   ],
 });
+/**
+ * Publish the logical tree: site, house, storeys and rooms as convex cells, plus the building body
+ * and canopy cells used to orient exposed faces.
+ */
 export function topology(a: Assembly): void {
   // A bounding box would call the open roof/canopy gap "inside" and reverse
   // the native exposed-soffit normal. These two cells describe the building

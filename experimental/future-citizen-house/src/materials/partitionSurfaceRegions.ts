@@ -1,11 +1,11 @@
-/** Partition planar triangle surfaces by a local XYZ box and normal direction.
- * Convex half-space clipping emits the selected material patch and disjoint
- * remainders. It changes no occupied solid, position basis, source normal, or
- * interpolated UV. Inputs are rigid, unskinned flat-shaded architecture. */
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { SurfaceRegion } from "./SurfaceRegion";
 type Vertex = { p: number[]; n: number[]; uv: number[] | null };
 
+/** Partition planar triangle surfaces by a local XYZ box and normal direction.
+ * Convex half-space clipping emits the selected material patch and disjoint
+ * remainders. It changes no occupied solid, position basis, source normal, or
+ * interpolated UV. Inputs are rigid, unskinned flat-shaded architecture. */
 export function partitionSurfaceRegions(mesh: IAutoMovieMesh, finish: string, regions: readonly SurfaceRegion[]): { finish: string; mesh: IAutoMovieMesh }[] {
   if (!mesh.normals || mesh.normals.length !== mesh.positions.length || mesh.skin || mesh.colors)
     throw new Error("Surface regions require rigid flat normals without skin or vertex colors");

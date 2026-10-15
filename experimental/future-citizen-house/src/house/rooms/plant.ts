@@ -1,5 +1,6 @@
 import { Item } from "./Item";
 
+/** Furnish a potted plant scaled by `size`. */
 export function plant(t: Item, size = 0.5): void {
   t.round("pot", "metal", 0, size * 0.22, 0, size * 0.45, size * 0.44, size * 0.45);
   t.box("stem", "oak", 0, size * 0.65, 0, 0.022, size, 0.022);

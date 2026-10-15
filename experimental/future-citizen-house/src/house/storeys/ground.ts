@@ -1,4 +1,3 @@
-/** Ground storey owns its structure, finished floor and first-storey ceiling. */
 import type { Assembly } from "../Assembly";
 import { portals } from "../portals";
 import { exteriorWallZone } from "../exteriorWallZone";
@@ -11,6 +10,7 @@ import { finishDepth } from "./finishDepth";
 import { subtract } from "./subtract";
 import { partitions } from "./partitions";
 import { foundationBottom } from "./foundationBottom";
+/** Ground storey owns its structure, finished floor and first-storey ceiling. */
 export function ground(a: Assembly): void {
   horizontal(a, "ground-foundation", "ground-storey", foundationBottom, slabTop(0), "stone", false);
   // The floor finish exists only in room cells. Under the exterior walls the

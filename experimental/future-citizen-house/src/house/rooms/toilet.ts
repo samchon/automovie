@@ -1,5 +1,6 @@
 import { Item } from "./Item";
 
+/** Furnish a toilet: pedestal, bowl, seat, cistern and flush plate. */
 export function toilet(t: Item): void {
   t.round("pedestal", "white", 0, 0.20, 0, 0.31, 0.40, 0.47);
   t.round("bowl", "white", 0, 0.39, 0.07, 0.41, 0.20, 0.59);

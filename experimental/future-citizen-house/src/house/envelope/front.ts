@@ -12,6 +12,7 @@ import { standardWindowHeight } from "./standardWindowHeight";
 import { glazingInset } from "./glazingInset";
 import { roomEdge } from "./roomEdge";
 
+/** Build the front facade with its glazing runs and entry opening. */
 export function front(a: Assembly): void {
   const f = exteriorFrame("front");
   facade(

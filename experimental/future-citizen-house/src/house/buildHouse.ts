@@ -20,6 +20,10 @@ import { serviceUpper } from "./rooms/serviceUpper";
 import { auditCanopy } from "./auditCanopy";
 import { auditMaterialTextureScale } from "../materials/auditMaterialTextureScale";
 import { type MaterialTextureScaleAudit } from "../materials/MaterialTextureScaleAudit";
+/**
+ * Build the complete house and site for `state`, then audit it. Throws on any topology, canopy or
+ * texture-scale violation; `report` and `materialReport` receive the canopy and material audits.
+ */
 export function buildHouse(state: State = initialState, report?: (audit: ReturnType<typeof auditCanopy>) => void, materialReport?: (audit: MaterialTextureScaleAudit) => void) {
   const a = new Assembly(state);
   structure(a); envelope(a); garden(a);

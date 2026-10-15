@@ -4,6 +4,10 @@ import { lights } from "./lights";
 import { cabinet } from "./cabinet";
 import { Item } from "./Item";
 import { lining } from "./lining";
+/**
+ * Line and furnish the upper service room: stacked laundry machines, mechanical cabinet, utility
+ * shelf and lights.
+ */
 export function serviceUpper(a: Assembly): void {
   const r = "upper-service"; lining(a, r);
   const laundry = new Item(a, "upper-laundry", r, -4.78, datum.floors[1], -4.54, Math.PI / 2);

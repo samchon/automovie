@@ -1,4 +1,7 @@
 
+/**
+ * Untextured sanitary, joinery and mirror finishes as `[colour, roughness, metallic, clearcoat]`.
+ */
 export const wetAndJoinerySolid = {
   "sanitary-ceramic": ["#e7e6df", .19, 0, .12],
   "joinery-green": ["#626b59", .44, 0, 0],

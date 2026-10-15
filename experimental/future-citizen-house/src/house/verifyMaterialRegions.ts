@@ -1,6 +1,3 @@
-/** The independent area oracle for a unit cube is six square metres. A half
- * front face paints 0.5 and leaves 5.5; outside and opposed regions paint zero.
- * Clipping preserves geometric support and every remaining material surface. */
 import assert from "node:assert/strict";
 import { tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
@@ -17,6 +14,10 @@ function area(mesh: IAutoMovieMesh): number {
   }
   return value;
 }
+
+/** The independent area oracle for a unit cube is six square metres. A half
+ * front face paints 0.5 and leaves 5.5; outside and opposed regions paint zero.
+ * Clipping preserves geometric support and every remaining material surface. */
 export function verifyMaterialRegions(): void {
   const box = tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 });
   const region: SurfaceRegion = { finish: "paint", normal: "z+", min: [0, -.5, -.5], max: [.5, .5, .5] };

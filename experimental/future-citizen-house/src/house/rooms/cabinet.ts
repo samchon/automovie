@@ -1,5 +1,9 @@
 import { Item } from "./Item";
 
+/**
+ * Furnish a cabinet of `width`, `height` and `depth` with shelves every 0.38 m at most; a closed
+ * cabinet gets two doors with handles.
+ */
 export function cabinet(t: Item, width: number, height: number, depth: number, open = false, material = "oak"): void {
   t.box("back", material, 0, height / 2, -depth / 2 + 0.012, width, height, 0.024);
   for (const x of [-1, 1]) t.box("side-" + x, material, x * (width / 2 - 0.01), height / 2, 0, 0.02, height, depth);

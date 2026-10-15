@@ -5,6 +5,12 @@ const cell=(id:string,x0:number,x1:number,z0:number,z1:number,y0=0,y1=3)=>({id,p
   {normal:{x:1,y:0,z:0},offset:x1},{normal:{x:-1,y:0,z:0},offset:-x0},
   {normal:{x:0,y:1,z:0},offset:y1},{normal:{x:0,y:-1,z:0},offset:-y0},
   {normal:{x:0,y:0,z:1},offset:z1},{normal:{x:0,y:0,z:-1},offset:-z0}]});
+/**
+ * Corner eyes sit 0.25 m inside each corner of a room's cell outline at the requested height.
+ * Cases: a square room, an L-shaped room that gets one eye per outline corner and none outside its
+ * cells, an eye above the cells, an empty room, a cell too small to hold an eye, and a
+ * non-orthogonal cell that must throw.
+ */
 export function verifyBoundaryCornerEyes():void {
   const space:IAutoMovieBuiltSpace={id:"fixture",kind:"room",parent:null,cells:[cell("a",0,3,0,3)]};
   assert.deepEqual(boundaryCornerEyes(space,1.6),[{x:.25,y:1.6,z:.25},{x:.25,y:1.6,z:2.75},{x:2.75,y:1.6,z:.25},{x:2.75,y:1.6,z:2.75}]);

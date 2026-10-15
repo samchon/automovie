@@ -1,6 +1,3 @@
-/** Wall frames are local XY, +Z outward. The public engine cuts the actual
- * solid before opening/profile/connector records are published. Linings consume
- * the same cuts, so a room finish cannot seal a door behind its frame. */
 import { Assembly } from "./Assembly";
 import { rectangle } from "./rectangle";
 import { yaw } from "./yaw";
@@ -14,6 +11,9 @@ import { position } from "./position";
 import { localU } from "./localU";
 import { bar } from "./bar";
 import { rotation } from "./rotation";
+/** Frame one portal in its host wall: oak jambs, head and a threshold flush with the finished
+ * floor, plus a hinged leaf unless the portal is an open passage. The leaf opens into the
+ * portal's `to` room. */
 export function doorway(a: Assembly, f: Frame, p: Portal): void {
   const jambs = [-1, 1].map((side) => bar(a, f, p.id + "-jamb-" + side, p.to, "oak", p.center + side * (p.width / 2 + 0.03), f.floor + p.height / 2, 0.06, p.height, f.depth));
   jambs.push(bar(a, f, p.id + "-head", p.to, "oak", p.center, f.floor + p.height + 0.03, p.width + 0.12, 0.06, f.depth));

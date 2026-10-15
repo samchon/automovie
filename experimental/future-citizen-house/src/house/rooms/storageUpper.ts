@@ -4,6 +4,9 @@ import { lights } from "./lights";
 import { cabinet } from "./cabinet";
 import { Item } from "./Item";
 import { lining } from "./lining";
+/**
+ * Line and furnish the upper storage room: linen cabinet with stacks on its shelves and a light.
+ */
 export function storageUpper(a: Assembly): void {
   const r = "upper-storage"; lining(a, r);
   cabinet(new Item(a, "upper-linen-cabinet", r, -4.9, datum.floors[1], 0.48, Math.PI / 2), 1.1, 2.6, 0.5, true);

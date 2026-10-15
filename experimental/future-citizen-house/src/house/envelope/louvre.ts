@@ -1,5 +1,3 @@
-/** Fixed 40% louvres in front of a lower privacy band: one support per
- * member centre, blades between end plates, two arms per support. */
 
 import { Assembly } from "../Assembly";
 import { heightRegion } from "../heightRegion";
@@ -15,6 +13,8 @@ import type { Glazing } from "./Glazing";
 /** The louvred openings of the design table; the rear bedroom window is left
  * out because the relocated rear tree crowns stand in its blade and pull-out space. */
 const LOUVRED = new Set(["front-flex-glazing", "front-bedroom-glazing", "left-flex-glazing", "left-bedroom-glazing", "left-child-two-glazing"]);
+/** Fixed 40% louvres in front of a lower privacy band: one support per
+ * member centre, blades between end plates, two arms per support. */
 export function louvre(a: Assembly, f: Frame, w: Glazing): void {
   if (!LOUVRED.has(w.id)) return;
   const S = w.sill, F = Math.min(w.head, S + 1.25), L = F - S - 0.08;

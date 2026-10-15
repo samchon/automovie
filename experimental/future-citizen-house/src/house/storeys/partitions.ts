@@ -1,5 +1,3 @@
-/** Structural walls have one owner per storey. Room linings fill the remaining
- * 6 mm on each side; openings are subtracted before any finish is attached. */
 import { Assembly } from "../Assembly";
 import { identity } from "../identity";
 import { sharedWalls } from "../sharedWalls";
@@ -19,6 +17,8 @@ import { type Frame } from "../Frame";
 import { slabTop } from "./slabTop";
 import type { FaceFinishes } from "../../materials/FaceFinishes";
 
+/** Structural walls have one owner per storey. Room linings fill the remaining
+ * 6 mm on each side; openings are subtracted before any finish is attached. */
 export function partitions(a: Assembly, level: 0 | 1): void {
   for (const wall of sharedWalls().filter((w) => w.level === level)) {
     const frame = wallFrame(wall);

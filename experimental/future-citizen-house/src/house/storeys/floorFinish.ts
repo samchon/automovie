@@ -5,6 +5,10 @@ import { rooms } from "../rooms";
 import { v } from "../v";
 import { finishDepth } from "./finishDepth";
 
+/**
+ * Lay the floor finish of every room on a storey: tile squares in wet rooms and staggered boards
+ * elsewhere, clipped at the room cells.
+ */
 export function floorFinish(a: Assembly, level: 0 | 1): void {
   for (const room of rooms.filter((r) => r.level === level)) {
     const tile = ["powder-utility", "upper-bathroom", "upper-service"].includes(

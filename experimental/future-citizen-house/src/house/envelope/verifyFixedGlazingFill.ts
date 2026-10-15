@@ -1,12 +1,3 @@
-/** Fixed glazing follows spaces/003#glazing-interface in placed geometry.
- * Member centres are read from the placed webs, never from a second bay formula.
- * Scenarios: both facade axes and normals; clear, frosted and split panes; the
- * privacy-height boundary. Checked: the jambs 0.02 outside the effective span,
- * bays of at most 1.25, the four-part section, head and sill parts butting the
- * same part of each vertical member, glass seated 0.006 with 0.004 clearance to
- * the web, continuous optical bands, gaskets on both glass faces and setting
- * blocks bridging the sill web and the glass. Negative twins break each rule.
- * This checks geometry, not watertightness or optical quality. */
 import assert from "node:assert/strict";
 import { builtEnvironmentElementBounds } from "@automovie/engine";
 import { Assembly } from "../Assembly";
@@ -90,6 +81,15 @@ function assertGlazingSection(a: Assembly, f: Frame, w: Glazing): void {
   assert.equal(seen.size, panes.length, "all panes belong to a real bay");
 }
 
+/** Fixed glazing follows spaces/003#glazing-interface in placed geometry.
+ * Member centres are read from the placed webs, never from a second bay formula.
+ * Scenarios: both facade axes and normals; clear, frosted and split panes; the
+ * privacy-height boundary. Checked: the jambs 0.02 outside the effective span,
+ * bays of at most 1.25, the four-part section, head and sill parts butting the
+ * same part of each vertical member, glass seated 0.006 with 0.004 clearance to
+ * the web, continuous optical bands, gaskets on both glass faces and setting
+ * blocks bridging the sill web and the glass. Negative twins break each rule.
+ * This checks geometry, not watertightness or optical quality. */
 export function verifyFixedGlazingFill(): number {
   let checked = 0;
   const cases: Pick<Glazing, "privacy" | "head">[] = [

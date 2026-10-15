@@ -1,10 +1,10 @@
+import type { IAutoMovieMesh } from "@automovie/interface";
+import { FaceFinishes } from "./FaceFinishes";
+
 /** Preserve a closed source solid while giving each of its axis-facing
  * surfaces one explicit finish. Parts are material partitions, not overlapping
  * new solids. Exact source vertices, normals, winding, and UVs survive; each
  * part compacts its own vertex references so scale audits see only that face. */
-import type { IAutoMovieMesh } from "@automovie/interface";
-import { FaceFinishes } from "./FaceFinishes";
-
 export function partitionSurfaceMesh(mesh: IAutoMovieMesh, defaultFinish: string, faces: FaceFinishes): { finish: string; mesh: IAutoMovieMesh }[] {
   if (!mesh.normals || mesh.normals.length !== mesh.positions.length)
     throw new Error("Surface partition requires complete normals");

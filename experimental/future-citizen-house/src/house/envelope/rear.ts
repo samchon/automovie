@@ -8,6 +8,7 @@ import { standardWindowHeight } from "./standardWindowHeight";
 import { glazingInset } from "./glazingInset";
 import { roomEdge } from "./roomEdge";
 
+/** Build the rear facade with its glazing runs and garden door. */
 export function rear(a: Assembly): void {
   facade(a, exteriorFrame("rear"), [
     {

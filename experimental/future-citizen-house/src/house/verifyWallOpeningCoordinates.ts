@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 import { localCut } from "./localCut";
 import { type Frame } from "./Frame";
 
-
+/** Pure regression cases for the production's world-to-wall opening adapter.
+ * They exercise the same exported adapter as facades and room linings, then
+ * ask the public engine to accept bounded cuts and refuse cuts outside them.
+ * Expected offsets come from the two measured wall ends, in metres. No test
+ * changes engine tolerances or the production's dimensions. */
 export function verifyWallOpeningCoordinates(): number {
   let checked = 0;
   for (const along of ["x", "z"] as const) {

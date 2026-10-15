@@ -1,6 +1,3 @@
-/** Roof drainage: one gutter, overflow, outlet and removable grate.
- * The roof supplies its measured x offset and fall function; this owner
- * builds their solids against the same plan datum. */
 import { Assembly } from "../Assembly";
 import { rectangle } from "../rectangle";
 import { v } from "../v";
@@ -13,6 +10,9 @@ import { datum } from "../datum";
 import { Solid } from "./Solid";
 import { Flat } from "./Flat";
 
+/** Roof drainage: one gutter, overflow, outlet and removable grate.
+ * The roof supplies its measured x offset and fall function; this owner
+ * builds their solids against the same plan datum. */
 export function drainage(
   a: Assembly,
   solid: Solid,

@@ -1,6 +1,3 @@
-/** Mutable build-local collection, never a persisted scene store. The complete
- * surface owners call these metric primitive operations; this module chooses no
- * room, facade, camera or furniture layout. Meshes come from public engine APIs. */
 import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieMaterial, IAutoMovieVector3, IAutoMovieQuaternion, AutoMoviePrimitiveShape } from "@automovie/interface";
 import { srgbHexToLinearColor, tessellateToMesh } from "@automovie/engine";
 import { architecturalOpticalMaterial } from "../materials/architecturalOpticalMaterial";
@@ -23,13 +20,28 @@ import { v } from "./v";
 import { identity } from "./identity";
 const palette: Record<string, string> = { stone: "#c9c3b5", paving: "#bfc1bd", plaster: "#e5e0d6", felt: "#a09a8d", tile: "#6f746f", oak: "#a78965", bark: "#665c47", walnut: "#765238", metal: "#293332", steel: "#b4bcb8", gasket: "#252b29", seal: "#252b29", linen: "#c8c3b6", green: "#69755b", grass: "#69755b", blue: "#657682", leaf: "#527644", soil: "#3c4132", pv: "#b9cedb", "canopy-metal": "#626e70", cassette: "#454d4a", glass: "#d2e2dc", frosted: "#b7ccc0", shade: "#aab3a0", glow: "#fff0cc", white: "#eeeae0", "sanitary-seat": "#e7e6df" };
 const roughness: Record<string, number> = { stone: 0.82, paving: 0.86, plaster: 0.90, felt: 0.96, tile: 0.65, oak: 0.55, bark: 0.92, walnut: 0.48, metal: 0.38, steel: 0.24, gasket: 0.94, seal: 0.94, linen: 0.92, green: 0.76, grass: 0.98, blue: 0.94, leaf: 0.92, soil: 0.98, pv: 0.19, "canopy-metal": 0.36, cassette: 0.82, glass: 0.09, frosted: 0.70, shade: 0.88, glow: 0.76, white: 0.76, "sanitary-seat": 0.30 };
+/** Mutable build-local collection, never a persisted scene store. The complete
+ * surface owners call these metric primitive operations; this module chooses no
+ * room, facade, camera or furniture layout. Meshes come from public engine APIs. */
 export class Assembly {
+  /**
+   * Every registered wall frame with the openings cut through it, in build order; audits and room
+   * linings read the same cuts.
+   */
   readonly wallRecords: { frame: import("./Frame").Frame; cuts: import("@automovie/engine").IAutoMovieWallOpening[] }[] = [];
-  // One unit includes the house and its site; its logical root has no parent.
+  /**
+   * The built environment under construction. One unit includes the house and its site; its logical
+   * root has no parent.
+   */
   readonly environment: IAutoMovieBuiltEnvironment = { version: 1, id: "citizen-house-2080", units: "meter", buildings: [{ id: "citizen-house", element: "house-root", space: "citizen-site" }], models: [], modelReferences: [], elements: [], populations: [], spaces: [], boundaries: [], openings: [], connectors: [], surfaces: [], walkable: [] };
-  constructor(readonly state: State) {
+  constructor(/** Occupancy state the house is built for; glazing materials and the flex room read it. */ readonly state: State) {
     this.environment.elements.push({ id: "house-root", kind: "building", parent: null, model: null, space: "house", transform: { translation: v(0, 0, 0), rotation: identity, scale: v(1, 1, 1) } });
   }
+  /**
+   * Resolve a finish or palette name to its native material: house finishes first, then
+   * state-dependent optical materials, the sanitary seat, and finally the retained palette. Throws
+   * for an unknown name.
+   */
   material(id: string): IAutoMovieMaterial {
     if (isHouseFinish(id)) return houseFinish(id);
     const optical = architecturalOpticalMaterial(id, this.state.privacy);
@@ -42,6 +54,10 @@ export class Assembly {
       emissive: id === "glow" ? srgbHexToLinearColor("#ffcf82") : null,
       transmission: 0, ior: 1.5, thickness: 0, clearcoat: 0 });
   }
+  /**
+   * Register a model under `id` once and return the id. A finish with a metric texture tile
+   * receives metre-scaled UVs, and `regions` split a mesh into separately finished parts.
+   */
   model(id: string, material: string, geometry: { type: "primitive"; shape: AutoMoviePrimitiveShape } | { type: "mesh"; mesh: IAutoMovieMesh }, regions?: readonly SurfaceRegion[]): string {
     const finish = /^(box|sphere|cylinder)-/.test(id) ? material : houseFinishRole(id, material) ?? material;
     const tile = houseTextureTile(finish);
@@ -77,9 +93,17 @@ export class Assembly {
     }
     return id;
   }
+  /**
+   * Shared unit model of a box, sphere or cylinder in one material, registered once per shape and
+   * material.
+   */
   primitive(material: string, shape: "box" | "sphere" | "cylinder" = "box"): string {
     return this.model(shape + "-" + material, material, { type: "primitive", shape: shape === "box" ? { type: "box", width: 1, height: 1, depth: 1 } : shape === "sphere" ? { type: "sphere", radius: 0.5 } : { type: "cylinder", radius: 0.5, height: 1 } });
   }
+  /**
+   * Add an element under the house root with the given world transform and return its id. A
+   * textured primitive model is swapped for a metric-UV prototype sized to `scale`.
+   */
   place(id: string, kind: string, space: string, model: string, position: IAutoMovieVector3, scale = v(1, 1, 1), rotation = identity): string {
     const record = this.environment.models.find((entry) => entry.id === model);
     if (record?.parts[0]?.geometry.type === "primitive" && record.materials[0]) {
@@ -91,6 +115,10 @@ export class Assembly {
     this.environment.elements.push({ id, kind, space, parent: "house-root", model, transform: { translation: position, rotation, scale } });
     return id;
   }
+  /**
+   * Add a solid box centred at `x, y, z` with size `w, h, d`. `faces` gives individual box faces
+   * their own finishes.
+   */
   box(id: string, space: string, material: string, x: number, y: number, z: number, w: number, h: number, d: number, rotation = identity, faces?: FaceFinishes): string {
     const finish = houseFinishRole(id, material) ?? material;
     const scale = v(w, h, d);
@@ -108,12 +136,17 @@ export class Assembly {
     }
     return this.place(id, "solid", space, model, v(x, y, z), scale, rotation);
   }
+  /** Add a rounded solid centred at `x, y, z` with diameters `w, h, d`. */
   ellipsoid(id: string, space: string, material: string, x: number, y: number, z: number, w: number, h: number, d: number): string {
     const finish = houseFinishRole(id, material) ?? material;
     const scale = v(w, h, d);
     const model = houseTextureTile(finish) ? this.metricPrimitive(finish, "sphere", scale, id) : this.primitive(finish, "sphere");
     return this.place(id, "rounded-solid", space, model, v(x, y, z), scale);
   }
+  /**
+   * Add a cylindrical rod of `radius` between world points `a` and `b`. Throws for a zero-length
+   * rod.
+   */
   rod(id: string, space: string, material: string, a: IAutoMovieVector3, b: IAutoMovieVector3, radius: number): string {
     const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z, length = Math.hypot(dx, dy, dz);
     if (length < 1e-7) throw new Error(id + ": zero length rod");
@@ -125,6 +158,10 @@ export class Assembly {
     const model = houseTextureTile(finish) ? this.metricPrimitive(finish, "cylinder", scale, id) : this.primitive(finish, "cylinder");
     return this.place(id, "rod", space, model, v((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2), scale, rotation);
   }
+  /**
+   * Add one population of box instances with the given transforms in one material; textured
+   * finishes get one metric prototype per instance size.
+   */
   repeat(id: string, space: string, material: string, transforms: { id: string; translation: IAutoMovieVector3; scale: IAutoMovieVector3; rotation: IAutoMovieQuaternion }[]): void {
     if (!transforms.length) return;
     const finish = houseFinishRole(id, material) ?? material;

@@ -6,6 +6,9 @@ import { lights } from "./lights";
 import { cabinet } from "./cabinet";
 import { Item } from "./Item";
 import { lining } from "./lining";
+/**
+ * Line and furnish the upper bathroom: vanity, toilet, walk-in shower, towel shelves and lights.
+ */
 export function bathroom(a: Assembly): void {
   const r = "upper-bathroom"; lining(a, r);
   basin(new Item(a, "bath-vanity", r, -4.99, datum.floors[1], 2.16, Math.PI / 2), 1.0);

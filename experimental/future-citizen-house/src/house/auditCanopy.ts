@@ -1,6 +1,3 @@
-/** Reads placed native geometry, including part boxes for the open cassettes.
- * Empty expanded-opening intersections prove separation; an overlap is a
- * conservative alarm, not a fabricated triangle collision verdict. */
 import {
   builtEnvironmentElementBounds,
   builtEnvironmentElementPartBounds,
@@ -15,6 +12,9 @@ import { canopyTopHeight } from "./envelope/canopyTopHeight";
 import { canopySoffitHeight } from "./envelope/canopySoffitHeight";
 import { uSign } from "./uSign";
 
+/** Reads placed native geometry, including part boxes for the open cassettes.
+ * Empty expanded-opening intersections prove separation; an overlap is a
+ * conservative alarm, not a fabricated triangle collision verdict. */
 export function auditCanopy(a: Assembly) {
   const e = a.environment;
   const selected = e.elements.filter((p) =>

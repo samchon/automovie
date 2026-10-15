@@ -7,6 +7,7 @@ import { cabinet } from "./cabinet";
 import { chair } from "./chair";
 import { Item } from "./Item";
 import { lining } from "./lining";
+/** Line and furnish the first child bedroom: bed, desk, chair, wardrobe, bookshelf and lights. */
 export function childOne(a: Assembly): void {
   const r = "child-bedroom-1"; lining(a, r);
   bed(new Item(a, "child-one-bed", r, 2.49, datum.floors[1], -4.07), 1.0, "green");

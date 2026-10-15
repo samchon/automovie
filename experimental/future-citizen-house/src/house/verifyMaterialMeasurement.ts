@@ -12,6 +12,10 @@ function model(binding: IAutoMovieTextureReference | string | null, geometry = m
     parts: [{ id: "plane", name: "plane", material: "test", attachedBone: null, transform: null, geometry: { type: "mesh", mesh: geometry } }]
   };
 }
+
+/** Hand-authored UV spans pin measurement coverage without inspecting source
+ * text. A normalized 2-turn face is the negative twin of a 1-turn face; metre
+ * tiles preserve native warnings and clamped axes retain their separate role. */
 export function verifyMaterialMeasurement(): void {
   for (const key of ["metallic", "opacity", "transmission", "clearcoat", "ior", "thickness"] as const)
     for (const value of [-1, NaN, Infinity]) assert.throws(() => materialFinish("invalid", "#808080", .5, { [key]: value }));

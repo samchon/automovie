@@ -8,6 +8,11 @@ import { houseFinish } from "../materials/houseFinish";
 import { houseFinishRole } from "../materials/houseFinishRole";
 import { materialFinish } from "../materials/materialFinish";
 
+/**
+ * Each of the six build states resolves glass, frosted glass, PV and canopy metal to their
+ * documented optical values and refuses unknown names; the sanitary seat is untextured and retained
+ * materials pass through unchanged but refuse invalid roughness or an empty id.
+ */
 export function verifyMaterialOwners():void {
   assert.equal(new Set(materialStates.map(s=>s.privacy+"/"+s.flex)).size,6);
   for(const state of materialStates){

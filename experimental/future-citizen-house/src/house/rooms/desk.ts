@@ -1,5 +1,6 @@
 import { Item } from "./Item";
 import { table } from "./table";
+/** Furnish a desk of `width` with a screen and keyboard. */
 export function desk(t: Item, width = 1.2): void {
   table(t, width, 0.6);
   t.box("screen", "metal", 0, 1.01, -0.13, 0.5, 0.3, 0.025);

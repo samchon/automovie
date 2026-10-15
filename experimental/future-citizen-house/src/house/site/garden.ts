@@ -19,6 +19,10 @@ import { subtract } from "../storeys/subtract";
 
 
 const soilBottom = -0.852;
+/**
+ * Build the site: soil grade around the house, paving and access bands, trees and the drainage
+ * catch pit.
+ */
 export function garden(a: Assembly): void {
   const r = "citizen-site";
   const cuts: Rect[] = [

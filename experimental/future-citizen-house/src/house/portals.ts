@@ -1,5 +1,6 @@
 import { Portal } from "./Portal";
 
+/** Every doorway and passage of the plan. */
 export const portals: readonly Portal[] = [
   {
     id: "front-entry",

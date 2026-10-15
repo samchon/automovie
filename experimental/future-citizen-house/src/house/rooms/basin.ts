@@ -1,6 +1,7 @@
 import { cabinet } from "./cabinet";
 import { Item } from "./Item";
 
+/** Furnish a vanity basin of `width`: base cabinet, rim, bowl, tap and mirror. */
 export function basin(t: Item, width = 0.65): void {
   cabinet(t, width, 0.8, 0.48);
   t.box("rim", "white", 0, 0.825, 0, width + 0.02, 0.05, 0.50);

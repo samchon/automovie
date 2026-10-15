@@ -1,6 +1,10 @@
 import type { IAutoMovieColor, IAutoMovieMaterial } from "@automovie/interface";
 
 
+/**
+ * Base colour of the material a population instance's `palette-material-index` trait selects, or
+ * undefined without the trait. Throws for an out-of-range index or a colour channel outside (0, 1].
+ */
 export function instancePaletteReference(
   materials: readonly IAutoMovieMaterial[],
   traits: Readonly<Record<string, number>>,

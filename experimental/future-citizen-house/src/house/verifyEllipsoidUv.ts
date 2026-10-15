@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { tessellateToMesh } from "@automovie/engine";
 import { ellipsoidMetricMesh } from "../materials/ellipsoidMetricMesh";
 
+/**
+ * The metric ellipsoid keeps the source sphere's vertices, normals and triangle count, adds seam
+ * copies whose U equals the measured equator length, is deterministic for one scale, and refuses
+ * missing normals, vertex colours, a zero scale or a non-sphere mesh.
+ */
 export function verifyEllipsoidUv(): void {
   const sphere=tessellateToMesh({type:"sphere",radius:.5});
   const scale={x:2,y:1,z:3};

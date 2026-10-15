@@ -9,6 +9,11 @@ import { woodGrainAxis } from "../materials/woodGrainAxis";
 import { partitionSurfaceMesh } from "../materials/partitionSurfaceMesh";
 import { mesh } from "./mesh";
 
+/**
+ * Face partitioning keeps every triangle, gives end grain exactly the two selected box faces, and
+ * refuses missing normals or vertex colours; metric UVs stay finite, grain axes follow each
+ * member's role and longest dimension, and end-grain finishes stay untextured.
+ */
 export function verifyMaterialSurfacePartition(): void {
   const box = tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 });
   const split = partitionSurfaceMesh(box, "oak-floor", { "z-": "wood-end/oak-floor", "z+": "wood-end/oak-floor" });

@@ -7,6 +7,12 @@ import {
 import { supplementalObservationEye } from "./supplementalObservationEye";
 import { clearObservationEye } from "./clearObservationEye";
 
+/**
+ * A blocked eye moves to a clear position inside the room's own cell, at the same height, with a
+ * clear view of its target. Cases: an eye inside a fixture box, an eye already clear, a target at
+ * or next to the eye, a room filled by an obstruction, and a door leaf that blocks the view but not
+ * the eye.
+ */
 export function verifySupplementalObservationEye(): void {
   const v = (x: number, y: number, z: number) => ({ x, y, z });
   const space: IAutoMovieBuiltSpace = {

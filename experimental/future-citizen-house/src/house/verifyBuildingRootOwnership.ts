@@ -1,12 +1,12 @@
-/** The single house unit owns its site, building, storeys and rooms through
- * the logical tree's actual root. This pure case protects that binding without
- * building any facade or relaxing the native ownership validator. */
 import assert from "node:assert/strict";
 import { validateBuiltEnvironment } from "@automovie/engine";
 import { Assembly } from "./Assembly";
 import { initialState } from "./initialState";
 import { topology } from "./topology";
 
+/** The single house unit owns its site, building, storeys and rooms through
+ * the logical tree's actual root. This pure case protects that binding without
+ * building any facade or relaxing the native ownership validator. */
 export function verifyBuildingRootOwnership(): void {
   const assembly = new Assembly(initialState);
   topology(assembly);

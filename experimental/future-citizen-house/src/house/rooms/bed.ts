@@ -1,5 +1,9 @@
 import { Item } from "./Item";
 
+/**
+ * Furnish a bed of mattress `width` with a `blanket`-coloured duvet; beds wider than 1.3 m get two
+ * pillows.
+ */
 export function bed(t: Item, width: number, blanket: string): void {
   t.box("base", "oak", 0, 0.18, 0, width + 0.08, 0.20, 2.12);
   // The 0.08m clearance under the base stands on four legs at its corners.

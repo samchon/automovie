@@ -1,6 +1,3 @@
-/** Pure geometric counterexamples: real through/blind holes, outward winding,
- * affine slopes, invalid depths, and the two halves of an inspection cover.
- * The production lint typechecks these exports; it does not execute tests. */
 import assert from "node:assert/strict";
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import { rectangle } from "./rectangle";
@@ -9,6 +6,9 @@ import { pipeSector } from "./pipeSector";
 import { tubeMesh } from "./tubeMesh";
 import { circle } from "./circle";
 
+/** Pure geometric counterexamples: real through/blind holes, outward winding,
+ * affine slopes, invalid depths, and the two halves of an inspection cover.
+ * The production lint typechecks these exports; it does not execute tests. */
 export function verifyMetricSolids(): void {
   const area = (radius: number, count: number) => count / 2 * radius ** 2 * Math.sin(2 * Math.PI / count);
   const outer = rectangle(-1, 1, -1, 1), holes = [circle(0, 0, 0.2)];

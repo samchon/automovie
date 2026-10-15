@@ -6,6 +6,11 @@ import { stairHole } from "../stairHole";
 import { subtract } from "./subtract";
 
 const outline: Rect = [datum.minX, datum.maxX, datum.minZ, datum.maxZ];
+/**
+ * Add a horizontal slab over `plan` between heights `y0` and `y1`, optionally with the stair hole
+ * cut out. Cutting the hole is rect subtraction on the source input, not a viewer clipping
+ * approximation.
+ */
 export function horizontal(
   a: Assembly,
   id: string,

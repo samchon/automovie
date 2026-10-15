@@ -7,6 +7,7 @@ import { exteriorFrame } from "./exteriorFrame";
 import { standardWindowHeight } from "./standardWindowHeight";
 import { roomEdge } from "./roomEdge";
 
+/** Build the left facade with its glazing runs. */
 export function left(a: Assembly): void {
   const sideStart = roomEdge("flex-workroom", "z", "min") + 0.36;
   const sideEnd = roomEdge("flex-workroom", "z", "min") + 3.46;

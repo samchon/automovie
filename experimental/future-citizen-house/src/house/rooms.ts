@@ -1,6 +1,7 @@
 import { datum } from "./datum";
 import { Room } from "./Room";
 
+/** Every room of both storeys with its clear cells and lining finish. */
 export const rooms: readonly Room[] = [
   {
     id: "entry",

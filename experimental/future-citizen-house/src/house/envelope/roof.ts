@@ -1,6 +1,3 @@
-/** Whole roof owner of the v-073 canopy, waterproof fall and drainage.
- * World XZ projections stay exact. Touching members remain separate solids;
- * measured loops replace the old repeated, full-bottom cassette boxes. */
 import { Quaternion, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
@@ -30,6 +27,9 @@ import { gutterX } from "./gutterX";
 
 const J = (z: number) => canopySoffitHeight(z) + 0.12;
 const G = (z: number) => datum.roof - 0.11 + 0.005 * Math.abs(z);
+/** Whole roof owner of the v-073 canopy, waterproof fall and drainage.
+ * World XZ projections stay exact. Touching members remain separate solids;
+ * measured loops replace the old repeated, full-bottom cassette boxes. */
 export function roof(a: Assembly): void {
   const solid: Solid = (
     id,
