@@ -1,7 +1,10 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
+import { createCaptureSinkPlugin } from "./scripts/createCaptureSinkPlugin";
+
 export default defineConfig({
+  plugins: [createCaptureSinkPlugin({ repository: resolve(__dirname, "../..") })],
   server: {
     host: "127.0.0.1",
     port: 5173,
