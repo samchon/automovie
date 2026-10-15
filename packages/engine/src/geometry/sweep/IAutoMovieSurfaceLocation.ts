@@ -19,6 +19,9 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * @evidence contracts/common.md#clear-and-simple-design The coordinate, the patch's name and an optional domain point, the least a field over the surface needs to address a vertex.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The domain point is the chart's, never snapped to a cage vertex or projected onto the sweep.
  * @evidence contracts/common.md#meaningful-documentation States how the domain point follows from the coordinate, how near the sweep it lies, and the seam rule.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A location record; the linear chart-composition pass is owned by `locateAutoMovieSurfaceVertices`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A location record; callers reuse the producer's result across poses.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A location record with no resource lifetime; its producer returns caller-owned records.
  */
 export interface IAutoMovieSurfaceLocation {
   /** The vertex's patch and patch coordinates. */
