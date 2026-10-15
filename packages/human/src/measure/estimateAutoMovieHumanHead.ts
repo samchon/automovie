@@ -4,6 +4,7 @@ import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { IAutoMovieHumanGrowthCurve } from "./IAutoMovieHumanGrowthCurve";
 import { estimateAutoMovieHumanEar } from "./estimateAutoMovieHumanEar";
+import { estimateAutoMovieHumanFeatures } from "./estimateAutoMovieHumanFeatures";
 import { estimateAutoMovieHumanMedianStature } from "./estimateAutoMovieHumanMedianStature";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
 
@@ -219,6 +220,7 @@ export function estimateAutoMovieHumanHead(
     mouthOpening: read(VERKOUTEREN_2022.mouthOpening, jawAge) * jawScale,
     mandibularLaterotrusion:
       read(VERKOUTEREN_2022.mandibularLaterotrusion, jawAge) * jawScale,
+    features: estimateAutoMovieHumanFeatures(context, faceScale),
     leftEar: ear,
     rightEar: { ...ear },
   };
