@@ -1,5 +1,8 @@
+import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { AutoMovieHumanPart } from "../junction/AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "../junction/AutoMovieHumanSide";
+import { AutoMovieHumanTissue } from "../junction/AutoMovieHumanTissue";
 import { IAutoMovieHumanCage } from "../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
@@ -22,9 +25,42 @@ export interface IAutoMovieHumanPartGenerator<Part extends AutoMovieHumanPart> {
    * @param props Measurements, skeleton and, for a bilateral part, the side
    * @returns Cage in the skeleton's model frame and millimetres, with one ring per junction site of the part, in the site order the part documents
    */
-  generate(props: IAutoMovieHumanPartGenerator.IProps<Part>): IAutoMovieHumanCage;
+  generate(
+    props: IAutoMovieHumanPartGenerator.IProps<Part>,
+  ): IAutoMovieHumanCage;
+
+  /**
+   * Generate the separate meshes the part carries that are not skin, such as nail plates and later eyeballs, teeth, tongue, hair cards and garments.
+   *
+   * Each is a closed cage without rings, subdivided alone and emitted as its own model part that rides one bone, so it follows the pose rigidly. Omitted, the part carries none.
+   *
+   * @param props The same props as `generate`
+   * @returns The attachments, in an order the part documents
+   */
+  attachments?(
+    props: IAutoMovieHumanPartGenerator.IProps<Part>,
+  ): IAutoMovieHumanPartGenerator.IAttachment[];
 }
 export namespace IAutoMovieHumanPartGenerator {
+  /**
+   * One separate mesh a part carries.
+   *
+   * @author Samchon
+   */
+  export interface IAttachment {
+    /** Name unique within the part instance, such as `nail.index`; the model part id is `<part>[.<side>].<name>`. */
+    name: string;
+
+    /** The bone it rides. */
+    bone: AutoMovieHumanoidBone;
+
+    /** What it is made of, which decides its material. */
+    tissue: AutoMovieHumanTissue;
+
+    /** Closed control cage without rings, model frame and millimetres at rest; corner addresses lie on the part's chart. */
+    cage: IAutoMovieHumanCage;
+  }
+
   /**
    * What one generation reads. The inputs are not mutated.
    *
