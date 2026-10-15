@@ -16,6 +16,7 @@ import { IAutoMovieHumanRing } from "./IAutoMovieHumanRing";
  * @param props.side Side of a bilateral site, null for the neck sites
  * @param props.proximal The proximal part's cage, opening the ring
  * @param props.distal The distal part's cage, opening the ring
+ * @param props.only Count only that part's neighbouring loop, standing the other's on the ring itself, to tell each part's share of a difference; omitted, both
  * @returns Girth, millimetres
  * @throws {Error} When a cage opens no ring at the site, or the rings differ in count
  */
@@ -24,6 +25,7 @@ export const measureAutoMovieHumanJunctionGirth = (props: {
   side: AutoMovieHumanSide | null;
   proximal: IAutoMovieHumanCage;
   distal: IAutoMovieHumanCage;
+  only?: "proximal" | "distal";
 }): number => {
   const ring = (
     cage: IAutoMovieHumanCage,
@@ -74,9 +76,19 @@ export const measureAutoMovieHumanJunctionGirth = (props: {
       const d: number = distal.vertices[(n - k) % n]!;
       return AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
-        [across(props.proximal, proximal.vertices, p), 1 / 6],
+        [
+          props.only === "distal"
+            ? props.proximal.vertices[p]!.position
+            : across(props.proximal, proximal.vertices, p),
+          1 / 6,
+        ],
         [props.proximal.vertices[p]!.position, 4 / 6],
-        [across(props.distal, distal.vertices, d), 1 / 6],
+        [
+          props.only === "proximal"
+            ? props.proximal.vertices[p]!.position
+            : across(props.distal, distal.vertices, d),
+          1 / 6,
+        ],
       );
     },
   );

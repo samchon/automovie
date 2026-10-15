@@ -52,7 +52,13 @@ const MIDLINE: ReadonlySet<AutoMovieHumanPart> = new Set([
 ]);
 
 /** Every problem of one person's skin, empty when it closes with every girth in tolerance. */
-const inspect = (measurements: IAutoMovieHumanMeasurements): string[] => {
+/** With `--girths`, every ring's joined limit girth and its shape's girth are printed for every person, the measured sites asserted as always. */
+const REPORT: boolean = process.argv.includes("--girths");
+
+const inspect = (
+  measurements: IAutoMovieHumanMeasurements,
+  who: string,
+): string[] => {
   const problems: string[] = [];
   const skeleton: IAutoMovieHumanSkeleton =
     generateAutoMovieHumanSkeleton(measurements);
@@ -81,8 +87,8 @@ const inspect = (measurements: IAutoMovieHumanMeasurements): string[] => {
   } catch (cause) {
     problems.push(cause instanceof Error ? cause.message : String(cause));
   }
-  for (const definition of Object.values(AUTOMOVIE_HUMAN_RINGS).filter((d) =>
-    MEASURED.has(d.site),
+  for (const definition of Object.values(AUTOMOVIE_HUMAN_RINGS).filter(
+    (d) => REPORT || MEASURED.has(d.site),
   ))
     for (const side of definition.bilateral
       ? (["left", "right"] as const)
@@ -108,7 +114,25 @@ const inspect = (measurements: IAutoMovieHumanMeasurements): string[] => {
         proximal: cage(definition.proximal),
         distal: cage(definition.distal),
       });
-      if (Math.abs(girth - target) > GIRTH_TOLERANCE)
+      const share = (only: "proximal" | "distal"): string =>
+        (
+          measureAutoMovieHumanJunctionGirth({
+            site: definition.site,
+            side,
+            proximal: cage(definition.proximal),
+            distal: cage(definition.distal),
+            only,
+          }) - target
+        ).toFixed(1);
+      if (REPORT)
+        process.stdout.write(
+          `${who}	${side === null ? "" : `${side} `}${definition.site}	joined ${girth.toFixed(1)} mm	shape ${target.toFixed(1)} mm	difference ${(girth - target).toFixed(1)} mm (${((100 * (girth - target)) / target).toFixed(1)}%)	${definition.proximal} alone ${share("proximal")}	${definition.distal} alone ${share("distal")}
+`,
+        );
+      if (
+        MEASURED.has(definition.site) &&
+        Math.abs(girth - target) > GIRTH_TOLERANCE
+      )
         problems.push(
           `${side === null ? "" : `${side} `}${definition.site} limit girth ${girth.toFixed(1)} mm, its shape sets ${target.toFixed(1)}`,
         );
@@ -133,6 +157,7 @@ const main = (): void => {
       resolveAutoMovieHumanMeasurements(
         converter.toIdentity({ ...traits, stature: median * scale }),
       ),
+      `${sex} ${age} y, stature x${scale}`,
     );
     if (problems.length !== 0)
       failures.push(
