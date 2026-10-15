@@ -10,7 +10,15 @@ import {
 /**
  * A deliberately different hand, a square paddle, that the Human page swaps in to show that a part opening the same ring joins without any other part changing.
  *
- * It opens the wrist ring on the shared boundary of `shapeAutoMovieHumanRing`, then runs a square section, wider and longer than the placeholder mitten, to a flat cap. The arm, the junction and every other part are untouched by the swap.
+ * It opens the wrist ring on the shared boundary of `shapeAutoMovieHumanRing`, then runs three flat stations, with no digits, along the hand's distal axis to the hand length and closes the last with a domed cap. Each station's vertices lie on a rectangle about the axis, thin across the palmar mark and broad across the hand, so with the wrist ring's eight directions the section is a flattened octagon rather than a square with corners. The arm, the junction and every other part are untouched by the swap.
+ *
+ * @evidence contracts/common.md#principled-implementation The ring is opened with `place` on the site's shared boundary so the junction welds it point for point, and every later station reuses the ring's build-order directions, which run evenly counterclockwise about the distal axis from the palmar mark, so direction `k` lies at angle `2πk/n` and the rectangle's polar radius `min(a/|cos|, b/|sin|)` puts its vertex on the rectangle; the 1e-9 floor only keeps the term for an axis-parallel direction finite. Bridging needs equal counts and the cap a multiple of four of at least eight, which the wrist ring's eight vertices satisfy.
+ * @evidence contracts/common.md#clear-and-simple-design One class implementing the part generator interface for the hand only, built entirely from the human package's cage builder and ring shape, so the demonstration adds no hook to the package and the page swaps it in through the `parts` option.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The station fractions of hand length and breadth are fixed demonstration choices, not measured anatomy, and no side, person or test is special-cased; both sides use the same ring directions.
+ * @evidence contracts/common.md#meaningful-documentation The documentation states why the class exists, how it joins the shared wrist ring, the true shape of its section, and that no other part changes.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed eight-vertex ring, four stations and one cap make about thirty quads per hand, independent of the person's measurements.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one side's cage from that side's measurements and skeleton; the person that holds the generator decides when to generate.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The instance holds only its constant `part`; every cage it returns belongs to the caller.
  *
  * @author Samchon
  */
@@ -22,7 +30,15 @@ export class HumanViewerPaddleHandGenerator implements IAutoMovieHumanPartGenera
    * Generate the paddle's cage.
    *
    * @param props Measurements, skeleton and side
-   * @returns Cage opening the shared wrist ring
+   * @returns Cage in the skeleton's model frame and millimetres, opening the shared wrist ring
+   *
+   * @evidence contracts/common.md#principled-implementation Places the wrist ring on the shared boundary, then rectangle-bounded stations at 0.25, 0.6 and 1 of the hand length along the reversed ring normal, which points distally for the hand, and closes the last with the builder's cap; the wrist ring's eight evenly spaced directions meet the bridge and cap preconditions.
+   * @evidence contracts/common.md#clear-and-simple-design The station table and the rectangle radius are local to the one method that uses them; every topology step is the cage builder's.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The side only selects which arm's measurements to read; no other input is special-cased.
+   * @evidence contracts/common.md#meaningful-documentation The documentation states the inputs, and the frame, units and junction ring of the returned cage.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work: eight directions over four stations, three bridges and one two-by-two cap grid.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One cage per call for one side; nothing is shared across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The builder is local and dropped on return; the returned cage belongs to the caller.
    */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"hand">,
