@@ -404,11 +404,50 @@ export namespace IAutoMovieHumanIdentity {
      */
     mandibularLaterotrusion: number & tags.Minimum<0> & tags.Maximum<25>;
 
+    /** The eyes', nose's and mouth's measurements, which their modules shape the face surface from. */
+    features: IFeatures;
+
     /** The left auricle. */
     leftEar: IEar;
 
     /** The right auricle. */
     rightEar: IEar;
+  }
+
+  /**
+   * The eyes, nose and mouth, measured between the Farkas landmarks of the 3D Facial Norms on the living face at rest, eyes open and lips closed.
+   *
+   * Nose width and vermilion height vary most between populations while mouth width varies little (Farkas et al. 2005, J Craniofac Surg 16(4):615-646), which is why they are parameters of their own rather than fractions of the face.
+   *
+   * @author Samchon
+   */
+  export interface IFeatures {
+    /** Intercanthal width: endocanthion to endocanthion, the inner corners of the eyes, millimetres. */
+    intercanthalWidth: number & tags.Minimum<10> & tags.Maximum<60>;
+
+    /** Palpebral fissure length: endocanthion to exocanthion of one eye, millimetres; the same for both eyes. */
+    palpebralFissureLength: number & tags.Minimum<10> & tags.Maximum<50>;
+
+    /** Palpebral fissure height: upper to lower lid margin at the pupil, eye open at rest, millimetres. */
+    palpebralFissureHeight: number & tags.Minimum<3> & tags.Maximum<20>;
+
+    /** Nose width: alare to alare, the most lateral points of the alae, millimetres. */
+    noseWidth: number & tags.Minimum<10> & tags.Maximum<70>;
+
+    /** Nose height: nasion to subnasale, millimetres. */
+    noseHeight: number & tags.Minimum<15> & tags.Maximum<90>;
+
+    /** Nasal tip protrusion: subnasale to pronasale, millimetres. */
+    noseProtrusion: number & tags.Minimum<4> & tags.Maximum<45>;
+
+    /** Mouth width: cheilion to cheilion, the corners of the closed mouth, millimetres. */
+    mouthWidth: number & tags.Minimum<15> & tags.Maximum<90>;
+
+    /** Upper vermilion height: labiale superius to stomion, millimetres. */
+    upperVermilionHeight: number & tags.Minimum<1> & tags.Maximum<25>;
+
+    /** Lower vermilion height: stomion to labiale inferius, millimetres. */
+    lowerVermilionHeight: number & tags.Minimum<1> & tags.Maximum<25>;
   }
 
   /**
