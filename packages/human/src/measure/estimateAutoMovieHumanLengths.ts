@@ -328,6 +328,14 @@ function lastValue(curve: IAutoMovieHumanGrowthCurve): number {
   return curve.values[curve.values.length - 1]!;
 }
 
+/**
+ * Span from the person's own segments with the arms outstretched. Abducting the arm 90 degrees brings the acromion markedly closer to the radiale: de Leva measured acromion-radiale abducted at 235.9 mm in women and 244.8 mm in men, against 322.7 and 330.5 mm adducted from his own shoulder and elbow offsets (33.7 and 13.9, 34.5 and 14.3 mm) and upper-arm lengths (275.1 and 281.7 mm), so an outstretched upper arm reaches 0.731 and 0.741 of its hanging acromion-radiale beyond the acromion (de Leva 1996, J Biomech 29(9):1223-1230, Tables 1, 2 and 4). Span is then biacromial breadth plus, on each side, that reach, the forearm and the hand. Over the ANSUR II working databases this predicts measured span within 1.4 percent (SD of the ratio) and overestimates the mean by 0.3 percent in women and 1.1 percent in men, so the result is scaled by the measured-over-predicted means (0.997 and 0.9888; our computation on the public records, Gordon et al. 2014, NATICK/TR-15/007). Children take the same relation; no child span was read. Grade: measured, then derived.
+ */
+const SPAN: Record<"reach" | "calibration", Record<AutoMovieHumanSex, number>> = {
+  reach: { female: 0.731, male: 0.7407 },
+  calibration: { female: 0.997, male: 0.9888 },
+};
+
 /** Ages over which the child ratios hand over to the adult fits, years. */
 const ADULT_FROM: [number, number] = [17.75, 20];
 
@@ -456,31 +464,41 @@ export function estimateAutoMovieHumanLengths(
       fitAt(ANSUR_II.bicristal, referenceStature, HIP_REFERENCE_AGE),
     (): number => fit(ANSUR_II.hipBreadth),
   );
+  const biacromialBreadth: number =
+    blend(
+      (): number => ratio(SNYDER_1977.biacromial) * stature,
+      (): number => fit(ANSUR_II.biacromial),
+    ) - narrowing;
+  const upperArmLength: number =
+    limbScale *
+    blend(
+      (): number => ratio(SNYDER_1977.upperArm) * stature,
+      (): number => fit(ANSUR_II.upperArm),
+    );
+  const forearmLength: number =
+    limbScale *
+    blend(
+      (): number => ratio(SNYDER_1977.forearm) * stature,
+      (): number => fit(ANSUR_II.forearm),
+    );
   return {
     sittingHeight: slimSittingHeight,
     cervicaleHeight,
     suprasternaleHeight,
     acromialHeight,
-    biacromialBreadth:
-      blend(
-        (): number => ratio(SNYDER_1977.biacromial) * stature,
-        (): number => fit(ANSUR_II.biacromial),
-      ) - narrowing,
+    biacromialBreadth,
+    span:
+      SPAN.calibration[sex] *
+      (biacromialBreadth +
+        2 *
+          (SPAN.reach[sex] * upperArmLength +
+            forearmLength +
+            limbScale * handLength)),
     bicristalBreadth: bicristalBreadth - narrowing,
     hipBreadth: hipBreadth - narrowing,
     arm: {
-      upperArmLength:
-        limbScale *
-        blend(
-          (): number => ratio(SNYDER_1977.upperArm) * stature,
-          (): number => fit(ANSUR_II.upperArm),
-        ),
-      forearmLength:
-        limbScale *
-        blend(
-          (): number => ratio(SNYDER_1977.forearm) * stature,
-          (): number => fit(ANSUR_II.forearm),
-        ),
+      upperArmLength,
+      forearmLength,
       handLength: limbScale * handLength,
       handBreadth: blend(
         (): number => handLength * ratio(SNYDER_1977_HAND.breadthToHand),
@@ -532,6 +550,9 @@ export namespace estimateAutoMovieHumanLengths {
 
     /** Biacromial breadth. */
     biacromialBreadth: number;
+
+    /** Span, fingertip to fingertip with the arms outstretched. */
+    span: number;
 
     /** Bicristal breadth. */
     bicristalBreadth: number;

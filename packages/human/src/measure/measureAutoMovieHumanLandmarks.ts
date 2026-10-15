@@ -9,11 +9,11 @@ import { IAutoMovieHumanSkeletalMeasurements } from "./IAutoMovieHumanSkeletalMe
  * The landmarks must be in the anthropometric posture: standing erect, arms hanging with the palms toward the thighs, head in the Frankfort plane, so a generated skeleton is first returned from its T-pose rest to that posture. Each measurement follows its survey definition: heights are the landmark's height above the standing surface, segment lengths are straight distances between their two landmarks (acromion to radiale, radiale to stylion, stylion to dactylion and to the middle finger's base crease, the thumb's base crease to its tip), leg lengths are differences of landmark heights (trochanterion, tibiale, lateral malleolus) as ANSUR II derives them, breadths are straight distances between the paired landmarks, head length runs glabella to opisthocranion along the sagittal axis, and foot length heel to toe tip along it. Acromial height is taken on the right side, as ANSUR II measures it. Sitting height is the vertex above the ischial seat level.
  *
  * @param landmarks Landmarks in the anthropometric posture, millimetres
- * @returns The skeletal measurements those landmarks give
+ * @returns The skeletal measurements those landmarks give, all but span, which needs the arms outstretched
  */
 export function measureAutoMovieHumanLandmarks(
   landmarks: IAutoMovieHumanLandmarks,
-): IAutoMovieHumanSkeletalMeasurements {
+): IAutoMovieHumanSkeletalMeasurements.IHanging {
   const at: (landmark: IAutoMovieHumanLandmarks.ILandmark) => IAutoMovieVector3 = (
     landmark: IAutoMovieHumanLandmarks.ILandmark,
   ): IAutoMovieVector3 => landmark.position;

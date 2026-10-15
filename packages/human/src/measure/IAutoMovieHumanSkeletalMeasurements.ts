@@ -13,6 +13,7 @@ export interface IAutoMovieHumanSkeletalMeasurements {
     IAutoMovieHumanIdentity.IBody,
     | "stature"
     | "sittingHeight"
+    | "span"
     | "cervicaleHeight"
     | "suprasternaleHeight"
     | "acromialHeight"
@@ -45,6 +46,11 @@ export interface IAutoMovieHumanSkeletalMeasurements {
   >;
 }
 export namespace IAutoMovieHumanSkeletalMeasurements {
+  /** The measurements taken in the anthropometric posture, arms hanging: every one but span, which needs the arms outstretched. */
+  export type IHanging = Omit<IAutoMovieHumanSkeletalMeasurements, "body"> & {
+    body: Omit<IAutoMovieHumanSkeletalMeasurements["body"], "span">;
+  };
+
   /** Lengths of one arm. */
   export type IArm = Pick<
     IAutoMovieHumanIdentity.IArm,

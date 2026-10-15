@@ -69,6 +69,11 @@ export namespace IAutoMovieHumanIdentity {
     biacromialBreadth: number & tags.Minimum<80> & tags.Maximum<600>;
 
     /**
+     * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it. It sets how far the T-pose arms reach: an abducted arm reaches less far from the trunk than it hangs, because the acromion comes closer to the radiale, so span is shorter than shoulder breadth plus both hanging arms.
+     */
+    span: number & tags.Minimum<300> & tags.Maximum<2800>;
+
+    /**
      * Bicristal breadth: between the highest points of the two iliac crests with tissue firmly compressed, the bony pelvis, millimetres.
      */
     bicristalBreadth: number & tags.Minimum<50> & tags.Maximum<500>;

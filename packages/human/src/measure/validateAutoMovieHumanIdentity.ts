@@ -34,6 +34,7 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * - sitting height and head height against stature, within bounds wider than every measured age and population;
  * - the acromion and the jugular notch below the seventh cervical spinous process, and all three below the vertex;
  * - each greater trochanter above the seat and below the acromion;
+ * - span shorter than shoulder breadth plus both hanging arms and longer than without the upper arms;
  * - a hand and a foot longer than broad, a palm shorter than the hand and a thumb shorter than the middle finger, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
  * - soft-tissue hip breadth wider than the bony iliac crests it covers;
  * - the chest, waist and buttock breadths and depths each under half their circumference, and the circumference within the rectangle they bound; the underbust no larger than the chest;
@@ -150,6 +151,21 @@ export function validateAutoMovieHumanIdentity(
     body.underbustCircumference,
     `at most the chest circumference (${millimetres(body.chestCircumference)})`,
     "the chest circumference passes over the breasts, which only add girth to the rib cage below them",
+  );
+
+  // span between the outstretched reach the upper arms allow and the hanging length of both arms
+  const hanging: (arm: IAutoMovieHumanIdentity.IArm) => number = (
+    arm: IAutoMovieHumanIdentity.IArm,
+  ): number => arm.upperArmLength + arm.forearmLength + arm.handLength;
+  const longest: number =
+    body.biacromialBreadth + hanging(body.leftArm) + hanging(body.rightArm);
+  const shortest: number = longest - body.leftArm.upperArmLength - body.rightArm.upperArmLength;
+  check(
+    body.span > shortest && body.span < longest,
+    "$input.body.span",
+    body.span,
+    `between biacromial breadth plus both forearms and hands (${millimetres(shortest)}) and biacromial breadth plus both whole arms (${millimetres(longest)})`,
+    "outstretched, an arm reaches less far from the acromion than it hangs, because the acromion comes closer to the radiale, but the upper arm cannot vanish into the shoulder",
   );
 
   // limbs
