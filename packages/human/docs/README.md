@@ -20,6 +20,6 @@ This folder is the research workspace of the Human rebuild (campaign #2788, rese
 | `aesthetics/` | Proportion canons, contour rhythm and other form rules, attractiveness findings |
 | `techniques/` | Modeling, junction, UV, skinning, garment, hair, material and determinism techniques |
 | `decisions/` | The campaign's fixed decisions and the reasons for each |
-| `references/` | MakeHuman, MetaHuman and game character creator survey, for comparison only |
+| `references/` | MakeHuman and game character creator survey, for comparison only |
 | `failures/` | Approaches tried and abandoned, with the render or fact that ended them |
 | `core/` | What `interface`, `engine` and `viewer` lack for Human, each gap with its proposed core change |

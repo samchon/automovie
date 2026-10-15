@@ -2,7 +2,7 @@
 
 ## Decision
 
-Nobody working on Human reads MakeHuman or MPFB code. Their CC0 data may be compared offline and is never shipped or loaded. MetaHuman serves as rendered visual comparison only.
+Nobody working on Human reads MakeHuman or MPFB code. Their CC0 data may be compared offline and is never shipped or loaded.
 
 ## Reasons
 
