@@ -14,7 +14,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "ttsx --no-plugins -P tsconfig.scripts.json scripts/guard.ts && rimraf lib && ttsc && ttsc -p tsconfig.browser.json",
+    "build": "ttsx --no-plugins -P tsconfig.scripts.json scripts/guard.ts && ttsc --noEmit && rimraf lib && ttsc && ttsc -p tsconfig.browser.json",
     "prepack": "pnpm run build"
   },
   "keywords": [],
