@@ -1,0 +1,335 @@
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
+import { IAutoMovieSweep } from "./IAutoMovieSweep";
+import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
+import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
+import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
+import { frameAutoMovieSweepSpine } from "./frameAutoMovieSweepSpine";
+import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
+
+/** Directions each section is sampled in; the radius between two is linear in angle. */
+const DIRECTIONS: number = 512;
+
+/** Cached rows of guided radii before the cache is cleared. */
+const CACHE_LIMIT: number = 8192;
+
+/** Parameter step of the central differences for normals and derivatives. */
+const STEP: number = 1e-4;
+
+/**
+ * Compile a sweep into an evaluable surface.
+ *
+ * Each station's section is sampled at 512 directions by
+ * `sampleAutoMovieSweepSection`. For each direction the radii of the stations
+ * form a profile along `u`, interpolated by `interpolateAutoMovieMonotone`, so
+ * between two stations the radius stays between theirs, and before the first
+ * or after the last station it holds that station's radius.
+ *
+ * Guides make the radius field a Gordon surface (Gordon 1969, "Spline-blended
+ * surface interpolation through curve networks", J. Math. Mech. 18(10)): the
+ * Boolean sum `P + G - T` of the profile interpolant `P` (the stations, along
+ * `u`), the guide interpolant `G` (the guides, round the turn) and their
+ * tensor interpolant `T` (the profile interpolant read at the guide
+ * directions, round the turn). Both directions use the monotone scheme, round
+ * the turn its periodic form over the guide directions. At a guide's
+ * direction `G - T` is the guide's radius less the profile's, so the surface
+ * passes exactly through every guide at every `u`. Where a guide disagrees
+ * with a station at the station's `u`, the network is incompatible and the
+ * guide wins, so the station's section is moved by the guides' disagreement
+ * interpolated round the turn; a single guide moves the whole section by its
+ * one difference. Rows are cached by `u`.
+ *
+ * A scale profile, where the sweep gives one, then multiplies each row.
+ *
+ * Features last: at a query point the nearest point of each feature polyline
+ * is found in the surface's own metric, `u` scaled by the spine's length and
+ * angle by the guided radius at the query, and the radius moves by the
+ * feature's residual there, the declared radius less the guided radius at the
+ * curve or the declared offset, times `(1 - (d / width)^2)^3` within `width`. The surface therefore
+ * passes exactly through each feature curve where no other feature's band
+ * overlaps it.
+ *
+ * The section plane at `u` is the spine's rotation-minimizing frame turned by
+ * the stations' rotations: each station's rotation relative to the frame at
+ * its `at` is interpolated by normalized linear quaternion interpolation
+ * between stations, as sweep-based human deformation interpolates key-ellipse
+ * orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
+ * beyond the end stations.
+ *
+ * @param sweep The sweep, only read and retained by the returned surface.
+ * @returns The compiled surface.
+ * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when guides drive a radius to zero.
+ *
+ * @evidence contracts/common.md#principled-implementation Per-direction monotone interpolation of key-section radii keeps every radius within its neighbouring stations; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints applied as a compactly supported C2 bump of the residual in the surface's own metric; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
+ * @evidence contracts/common.md#clear-and-simple-design One compile owns the three layers in their fixed order; section evaluation and spine transport are delegated to their own modules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
+ * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
+ * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features.
+ * @evidence contracts/performance.md#reuse-equivalent-work Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
+ */
+export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepSurface = (
+  sweep: IAutoMovieSweep,
+): IAutoMovieSweepSurface => {
+  const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine(sweep.spine);
+  const stations: IAutoMovieSweep.IStation[] = sweep.stations;
+  if (stations.length === 0) throw new Error("sweep needs at least one station");
+  stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
+    if (!Number.isFinite(s.at) || s.at < 0 || s.at > 1)
+      throw new Error(`sweep station ${k} must lie on the spine, at from 0 to 1`);
+    if (k > 0 && !(s.at > stations[k - 1]!.at))
+      throw new Error(`sweep station ${k} does not follow station ${k - 1}`);
+  });
+  const radii: number[][] = stations.map((s: IAutoMovieSweep.IStation): number[] =>
+    sampleAutoMovieSweepSection({ section: s.section, count: DIRECTIONS }),
+  );
+  const knots: number[] = stations.map((s: IAutoMovieSweep.IStation): number => s.at);
+  const profiles: Array<(u: number) => number> = Array.from(
+    { length: DIRECTIONS },
+    (_: unknown, d: number): ((u: number) => number) =>
+      interpolateAutoMovieMonotone({
+        knots,
+        values: radii.map((r: number[]): number => r[d]!),
+      }),
+  );
+  const guides: ICompiledGuide[] = (sweep.guides ?? [])
+    .map(compileGuide)
+    .sort((a: ICompiledGuide, b: ICompiledGuide): number => a.angle - b.angle);
+  guides.forEach((g: ICompiledGuide, k: number): void => {
+    if (k > 0 && g.angle === guides[k - 1]!.angle) throw new Error("sweep guides must have distinct directions");
+  });
+  const scale: ((u: number) => number) | null =
+    sweep.scale === undefined ? null : compileProfile(sweep.scale, "sweep scale");
+  const features: IAutoMovieSweep.IFeature[] = sweep.features ?? [];
+  features.forEach(checkFeature);
+
+  const cache: Map<number, Float64Array> = new Map();
+  const row = (input: number): Float64Array => {
+    const u: number = Math.min(1, Math.max(0, input));
+    const cached: Float64Array | undefined = cache.get(u);
+    if (cached !== undefined) return cached;
+    const base: Float64Array = new Float64Array(DIRECTIONS);
+    for (let d: number = 0; d < DIRECTIONS; ++d) base[d] = profiles[d]!(u);
+    const out: Float64Array = guides.length === 0 ? base : guide(base, guides, u);
+    if (scale !== null) {
+      const k: number = scale(u);
+      for (let d: number = 0; d < DIRECTIONS; ++d) out[d] = out[d]! * k;
+    }
+    if (cache.size >= CACHE_LIMIT) cache.clear();
+    cache.set(u, out);
+    return out;
+  };
+  const guided = (u: number, angle: number): number => {
+    const r: Float64Array = row(u);
+    const x: number = ((((angle / (2 * Math.PI)) % 1) + 1) % 1) * DIRECTIONS;
+    const d: number = Math.floor(x) % DIRECTIONS;
+    const t: number = x - Math.floor(x);
+    return r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
+  };
+  const radius = (u: number, v: number): number => {
+    const angle: number = 2 * Math.PI * v;
+    const own: number = guided(u, angle);
+    let r: number = own;
+    for (const feature of features)
+      r += displace(feature, u, angle, own, path.length, guided);
+    return r;
+  };
+
+  // each station's turn relative to the transported frame at its station
+  const offsets: Array<IAutoMovieQuaternion | null> = stations.map(
+    (s: IAutoMovieSweep.IStation): IAutoMovieQuaternion | null => {
+      if (s.rotation === undefined) return null;
+      const q: IAutoMovieQuaternion = s.rotation;
+      if (![q.x, q.y, q.z, q.w].every(Number.isFinite) || Math.hypot(q.x, q.y, q.z, q.w) === 0)
+        throw new Error("sweep station rotation must be a finite non-zero quaternion");
+      const f: IAutoMovieSweepFrame = path.frame(s.at);
+      return Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.inverse(quaternionFromAutoMovieBasis(f.x, f.y, f.normal)),
+          Quaternion.normalize(q),
+        ),
+      );
+    },
+  );
+  const turned: boolean = offsets.some((q: IAutoMovieQuaternion | null): boolean => q !== null);
+  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const offset = (u: number): IAutoMovieQuaternion => {
+    const at = (k: number): IAutoMovieQuaternion => offsets[k] ?? identity;
+    if (u <= knots[0]!) return at(0);
+    const last: number = knots.length - 1;
+    if (u >= knots[last]!) return at(last);
+    let k: number = 0;
+    while (knots[k + 1]! < u) ++k;
+    const t: number = (u - knots[k]!) / (knots[k + 1]! - knots[k]!);
+    const a: IAutoMovieQuaternion = at(k);
+    let b: IAutoMovieQuaternion = at(k + 1);
+    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0)
+      b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
+    return Quaternion.normalize({
+      x: a.x + (b.x - a.x) * t,
+      y: a.y + (b.y - a.y) * t,
+      z: a.z + (b.z - a.z) * t,
+      w: a.w + (b.w - a.w) * t,
+    });
+  };
+  const frame = (input: number): IAutoMovieSweepFrame => {
+    const u: number = Math.min(1, Math.max(0, input));
+    const f: IAutoMovieSweepFrame = path.frame(u);
+    if (!turned) return f;
+    const q: IAutoMovieQuaternion = Quaternion.multiply(
+      quaternionFromAutoMovieBasis(f.x, f.y, f.normal),
+      offset(u),
+    );
+    return {
+      origin: f.origin,
+      x: Quaternion.rotateVector(q, Vector3.create(1, 0, 0)),
+      y: Quaternion.rotateVector(q, Vector3.create(0, 1, 0)),
+      normal: Quaternion.rotateVector(q, Vector3.create(0, 0, 1)),
+    };
+  };
+  const point = (u: number, v: number): IAutoMovieVector3 => {
+    const f: IAutoMovieSweepFrame = frame(u);
+    const angle: number = 2 * Math.PI * v;
+    const r: number = radius(u, v);
+    return Vector3.add(
+      f.origin,
+      Vector3.add(Vector3.scale(f.x, r * Math.cos(angle)), Vector3.scale(f.y, r * Math.sin(angle))),
+    );
+  };
+  const along = (u: number, v: number): IAutoMovieVector3 => {
+    const a: number = Math.max(0, u - STEP);
+    const b: number = Math.min(1, u + STEP);
+    return Vector3.scale(Vector3.subtract(point(b, v), point(a, v)), 1 / (b - a));
+  };
+  const normal = (u: number, v: number): IAutoMovieVector3 => {
+    const around: IAutoMovieVector3 = Vector3.subtract(point(u, v + STEP), point(u, v - STEP));
+    return Vector3.normalize(Vector3.cross(around, along(u, v)));
+  };
+  return { sweep, path, radius, frame, point, normal, along };
+};
+
+/** A guide with its profile compiled. */
+interface ICompiledGuide {
+  /** Direction in radians within one turn from 0. */
+  angle: number;
+  /** Radius along the direction by `u`. */
+  radius: (u: number) => number;
+}
+
+const compileGuide = (g: IAutoMovieSweep.IGuide, index: number): ICompiledGuide => {
+  if (!Number.isFinite(g.angle)) throw new Error(`sweep guide ${index} angle is not finite`);
+  return {
+    angle: ((g.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
+    radius: compileProfile(g.radii, `sweep guide ${index}`),
+  };
+};
+
+/** A profile along the spine from knots spanning it, positive values, by the monotone scheme. */
+const compileProfile = (e: IAutoMovieSweep.IKnot[], what: string): ((u: number) => number) => {
+  if (e.length < 2 || e[0]!.at !== 0 || e[e.length - 1]!.at !== 1)
+    throw new Error(`${what} must span the spine from at 0 to at 1`);
+  e.forEach((k: IAutoMovieSweep.IKnot): void => {
+    if (!Number.isFinite(k.value) || k.value <= 0) throw new Error(`${what} values must be positive and finite`);
+  });
+  return interpolateAutoMovieMonotone({
+    knots: e.map((k: IAutoMovieSweep.IKnot): number => k.at),
+    values: e.map((k: IAutoMovieSweep.IKnot): number => k.value),
+  });
+};
+
+/**
+ * Correct a row of section radii by the guides, the Gordon surface's guide term less its tensor term.
+ *
+ * The row is the profile interpolant at `u`. At each guide's direction the guide interpolant gives
+ * the guide's radius and the tensor interpolant gives the row's own radius there, so the correction
+ * is their difference at the guide directions, interpolated round the turn by the periodic monotone
+ * scheme over the guide directions.
+ */
+const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64Array => {
+  const n: number = base.length;
+  const at = (angle: number): number => {
+    const x: number = (angle / (2 * Math.PI)) * n;
+    const d: number = Math.floor(x) % n;
+    const t: number = x - Math.floor(x);
+    return base[d]! * (1 - t) + base[(d + 1) % n]! * t;
+  };
+  const correction: (angle: number) => number = interpolateAutoMovieMonotone({
+    knots: guides.map((g: ICompiledGuide): number => g.angle),
+    values: guides.map((g: ICompiledGuide): number => g.radius(u) - at(g.angle)),
+    period: 2 * Math.PI,
+  });
+  const out: Float64Array = new Float64Array(n);
+  for (let d: number = 0; d < n; ++d) {
+    out[d] = base[d]! + correction((2 * Math.PI * d) / n);
+    if (!(out[d]! > 0)) throw new Error(`sweep guides make the section's radius vanish at u = ${u}`);
+  }
+  return out;
+};
+
+const checkFeature = (f: IAutoMovieSweep.IFeature, index: number): void => {
+  if (!(f.width > 0) || !Number.isFinite(f.width))
+    throw new Error(`sweep feature ${index} width must be positive and finite`);
+  if (f.points.length < 2) throw new Error(`sweep feature ${index} needs at least two points`);
+  const relative: boolean = f.points[0]!.offset !== undefined;
+  f.points.forEach((p: IAutoMovieSweep.IFeaturePoint): void => {
+    if (!Number.isFinite(p.at) || p.at < 0 || p.at > 1 || !Number.isFinite(p.angle))
+      throw new Error(`sweep feature ${index} point lies off the surface's domain`);
+    if ((p.offset !== undefined) !== relative || (p.radius !== undefined) === relative)
+      throw new Error(`sweep feature ${index} must give every point either a radius or an offset`);
+    if (relative ? !Number.isFinite(p.offset!) : !Number.isFinite(p.radius!) || p.radius! <= 0)
+      throw new Error(`sweep feature ${index} radius must be positive and offsets finite`);
+  });
+};
+
+/** Radius change one feature makes at a query point. */
+const displace = (
+  feature: IAutoMovieSweep.IFeature,
+  u: number,
+  angle: number,
+  local: number,
+  length: number,
+  guided: (u: number, angle: number) => number,
+): number => {
+  let best: number = Infinity;
+  let at: number = 0;
+  let direction: number = 0;
+  let target: number = 0;
+  // unwrap the polyline so consecutive points take the shorter way round
+  let previous: number = feature.points[0]!.angle;
+  const unwrapped: number[] = feature.points.map((p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
+    if (k === 0) return previous;
+    let step: number = p.angle - previous;
+    step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
+    previous += step;
+    return previous;
+  });
+  for (let k: number = 0; k + 1 < feature.points.length; ++k) {
+    const a: IAutoMovieSweep.IFeaturePoint = feature.points[k]!;
+    const b: IAutoMovieSweep.IFeaturePoint = feature.points[k + 1]!;
+    // segment and query in metres: u by spine length, angle by the local radius
+    let qa: number = angle - unwrapped[k]!;
+    qa -= 2 * Math.PI * Math.round(qa / (2 * Math.PI));
+    const sx: number = (b.at - a.at) * length;
+    const sy: number = (unwrapped[k + 1]! - unwrapped[k]!) * local;
+    const qx: number = (u - a.at) * length;
+    const qy: number = qa * local;
+    const span: number = sx * sx + sy * sy;
+    const t: number = span > 0 ? Math.min(1, Math.max(0, (qx * sx + qy * sy) / span)) : 0;
+    const d: number = Math.hypot(qx - t * sx, qy - t * sy);
+    if (d < best) {
+      best = d;
+      at = a.at + t * (b.at - a.at);
+      direction = unwrapped[k]! + t * (unwrapped[k + 1]! - unwrapped[k]!);
+      target =
+        a.offset !== undefined ? a.offset + t * (b.offset! - a.offset) : a.radius! + t * (b.radius! - a.radius!);
+    }
+  }
+  if (best >= feature.width) return 0;
+  const x: number = best / feature.width;
+  const residual: number = feature.points[0]!.offset !== undefined ? target : target - guided(at, direction);
+  return residual * (1 - x * x) ** 3;
+};
